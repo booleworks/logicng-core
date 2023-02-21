@@ -60,6 +60,8 @@ module logicng {
     exports org.logicng.solvers.datastructures;
     exports org.logicng.solvers.functions;
     exports org.logicng.solvers.sat;
+    exports org.logicng.solvers.maxsat.algorithms;
+    exports org.logicng.solvers.maxsat.encodings;
 
     exports org.logicng.transformations;
     exports org.logicng.transformations.cnf;
