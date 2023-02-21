@@ -43,19 +43,14 @@ import java.util.List;
 
 /**
  * A formula transformation which performs unit propagation.
- * @version 2.3.0
+ * @version 3.0.0
  * @since 1.2
  */
 public final class UnitPropagation implements FormulaTransformation {
 
     private static final UnitPropagation INSTANCE = new UnitPropagation();
 
-    /**
-     * @deprecated In the next version, the standard constructor will be replaced by a private constructor.
-     * In order to instantiate an object of this class, use the {@link #get()} method.
-     */
-    @Deprecated
-    public UnitPropagation() {
+    private UnitPropagation() {
         // Intentionally left empty
     }
 

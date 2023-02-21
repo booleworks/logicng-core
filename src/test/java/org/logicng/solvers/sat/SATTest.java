@@ -341,56 +341,6 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
-    public void testWithRelaxation() throws ParserException {
-        final PropositionalParser parser = new PropositionalParser(this.f);
-        final Formula one = parser.parse("a & b & (c | ~d)");
-        final Formula two = parser.parse("~a | ~c");
-
-        for (final SATSolver s : this.solvers) {
-            s.add(one);
-            s.addWithRelaxation(this.f.variable("d"), two);
-            assertSolverSat(s);
-            try {
-                assertThat(s.enumerateAllModels().size()).isEqualTo(2);
-            } catch (final Exception e) {
-                assertThat(e instanceof UnsupportedOperationException).isTrue();
-            }
-            s.reset();
-
-            s.add(one);
-            s.addWithRelaxation(this.f.variable("d"), new StandardProposition(two));
-            assertSolverSat(s);
-            try {
-                assertThat(s.enumerateAllModels().size()).isEqualTo(2);
-            } catch (final Exception e) {
-                assertThat(e instanceof UnsupportedOperationException).isTrue();
-            }
-            s.reset();
-
-            s.add(one);
-            s.addWithRelaxation(this.f.variable("d"), two);
-            assertSolverSat(s);
-            try {
-                assertThat(s.enumerateAllModels().size()).isEqualTo(2);
-            } catch (final Exception e) {
-                assertThat(e instanceof UnsupportedOperationException).isTrue();
-            }
-            s.reset();
-
-            s.add(one);
-            s.addWithRelaxation(this.f.variable("d"), Arrays.asList(two, this.f.verum()));
-            assertSolverSat(s);
-            try {
-                assertThat(s.enumerateAllModels().size()).isEqualTo(2);
-            } catch (final Exception e) {
-                assertThat(e instanceof UnsupportedOperationException).isTrue();
-            }
-            s.reset();
-        }
-    }
-
-    @Test
     public void testRelaxationFormulas() throws ParserException {
         for (final SATSolver s : this.solvers) {
             s.add(this.f.parse("a & (b | c)"));
@@ -819,56 +769,6 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
         minicard.loadState(stateCard);
         assertThat(minisat.knownVariables()).isEqualTo(expected);
         assertThat(minicard.knownVariables()).isEqualTo(expected);
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    public void testAddWithoutUnknown() throws ParserException {
-        final PropositionalParser parser = new PropositionalParser(this.f);
-        final Formula phi = parser.parse("x1 & (~x2 | x3) & (x4 | ~x5)");
-        final SortedSet<Variable> phiVars = new TreeSet<>(Arrays.asList(
-                this.f.variable("x1"),
-                this.f.variable("x2"),
-                this.f.variable("x3"),
-                this.f.variable("x4"),
-                this.f.variable("x5")));
-        final Formula add1 = parser.parse("x1 | x6 | x7");
-        final Formula add2 = parser.parse("~x1 | ~x6 | x8");
-        final Formula add3 = parser.parse("x2 & ~x3 | x7");
-        final Formula add4 = parser.parse("x8 | x9");
-        final SATSolver minisat = MiniSat.miniSat(this.f);
-        final SATSolver minicard = MiniSat.miniCard(this.f);
-        final SATSolver[] solvers = new SATSolver[]{minisat, minicard};
-        for (final SATSolver solver : solvers) {
-            solver.add(phi);
-            solver.addWithoutUnknown(add1);
-            assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
-            assertThat(solver.model().formula(this.f).variables()).isEqualTo(phiVars);
-            solver.addWithoutUnknown(add2);
-            assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
-            assertThat(solver.model().formula(this.f).variables()).isEqualTo(phiVars);
-            if (solver instanceof MiniSat) {
-                final SolverState state = solver.saveState();
-                solver.addWithoutUnknown(add3);
-                assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
-                solver.loadState(state);
-                solver.add(add1);
-                assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
-                assertThat(solver.model().formula(this.f).variables().containsAll(Arrays.asList(this.f.variable("x6"), this.f.variable("x7")))).isTrue();
-                solver.loadState(state);
-                solver.sat();
-                assertThat(solver.model().formula(this.f).variables()).isEqualTo(phiVars);
-            } else {
-                solver.add(add1);
-                assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
-                assertThat(solver.model().formula(this.f).variables().containsAll(Arrays.asList(this.f.variable("x6"), this.f.variable("x7")))).isTrue();
-                solver.add(this.f.variable("x7"));
-                assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
-                assertThat(solver.model().formula(this.f).variables().containsAll(Arrays.asList(this.f.variable("x6"), this.f.variable("x7")))).isTrue();
-                solver.addWithoutUnknown(add4);
-                assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
-            }
-        }
     }
 
     @Test

@@ -2,6 +2,22 @@
 
 LogicNG uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0]
+
+### Changed
+
+- Switch to Java 11
+- Switch to ANTLR 4.11
+
+### Removed
+
+- Removed deprecated dot file graph writers (replaced with generic graph writers in version 2.4.0)
+- Removed deprecated public constructors of functions/transformations/predicates - use static `get()` function instead 
+- Removed deprecated method `addWithoutUnknown` from SAT Solver
+- Removed deprecated method `addWithRelaxation` from SAT Solver
+- Removed deprecated factory methods without formula factory from `MaxSATSolver`
+- Removed deprecated constructors from `AdvancesSimplifier`
+
 ## [2.4.1] - 2022-12-01
 
 ### Changed

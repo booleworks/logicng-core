@@ -53,7 +53,7 @@ import java.util.SortedSet;
 
 /**
  * A generic interface for LogicNG's SAT solvers.
- * @version 2.3.0
+ * @version 3.0.0
  * @since 1.0
  */
 public abstract class SATSolver {
@@ -83,16 +83,6 @@ public abstract class SATSolver {
      * @param proposition the proposition of this formula
      */
     public abstract void add(final Formula formula, Proposition proposition);
-
-    /**
-     * Adds a formula to the solver, but sets all variables to false which are not known to the solver.
-     * @param formula the formula
-     * @deprecated Due to simplifications of formulas in LogicNG the solver might not know all original variables of the formulas added. If such a variable
-     * is contained in the given formula, this method sets the variable to false. For a caller this behavior is misleading and can yield to erroneous results.
-     * Instead of using this method, a caller should track the unknown/forbidden variables by itself and add each variable negated to the solver.
-     */
-    @Deprecated
-    public abstract void addWithoutUnknown(final Formula formula);
 
     /**
      * Adds a given set of propositions to the solver.
@@ -140,20 +130,6 @@ public abstract class SATSolver {
      */
     public void addWithRelaxation(final Variable relaxationVar, final Formula formula) {
         this.add(this.f.or(relaxationVar, formula));
-    }
-
-    /**
-     * Adds a proposition to the solver by using the given relaxation variable,
-     * i.e. by adding the disjunction of the relaxation variable and the formula of the proposition.
-     * Only the formula is added to the solver, the proposition is thrown away.
-     * @param relaxationVar the relaxation variable
-     * @param proposition   the proposition
-     * @deprecated since this method only adds the formula of the proposition but not the proposition
-     * itself, this method has a confusing behaviour and will be removed in upcoming releases.
-     */
-    @Deprecated
-    public void addWithRelaxation(final Variable relaxationVar, final Proposition proposition) {
-        this.addWithRelaxation(relaxationVar, proposition.formula());
     }
 
     /**

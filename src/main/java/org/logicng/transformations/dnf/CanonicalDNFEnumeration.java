@@ -34,19 +34,14 @@ import org.logicng.transformations.CanonicalEnumeration;
 
 /**
  * Canonical DNF generation via enumeration of models by a SAT solver.
- * @version 2.3.0
+ * @version 3.0.0
  * @since 1.0
  */
 public final class CanonicalDNFEnumeration extends CanonicalEnumeration implements FormulaTransformation {
 
     private final static CanonicalDNFEnumeration INSTANCE = new CanonicalDNFEnumeration();
 
-    /**
-     * @deprecated In the next version, the standard constructor will be replaced by a private constructor.
-     * In order to instantiate an object of this class, use the {@link #get()} method.
-     */
-    @Deprecated
-    public CanonicalDNFEnumeration() {
+    private CanonicalDNFEnumeration() {
         // Intentionally left empty
     }
 

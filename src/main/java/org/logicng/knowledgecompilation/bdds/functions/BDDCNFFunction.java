@@ -33,19 +33,14 @@ import org.logicng.knowledgecompilation.bdds.BDD;
 
 /**
  * Creates a CNF from a BDD.
- * @version 2.3.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public final class BDDCNFFunction extends BDDNormalFormFunction implements BDDFunction<Formula> {
 
     private final static BDDCNFFunction INSTANCE = new BDDCNFFunction();
 
-    /**
-     * @deprecated In the next version, the standard constructor will be replaced by a private constructor.
-     * In order to instantiate an object of this class, use the {@link #get()} method.
-     */
-    @Deprecated
-    public BDDCNFFunction() {
+    private BDDCNFFunction() {
         // intentionally left empty
     }
 

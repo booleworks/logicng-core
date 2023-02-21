@@ -37,7 +37,6 @@ module logicng {
     exports org.logicng.knowledgecompilation.bdds;
     exports org.logicng.knowledgecompilation.bdds.datastructures;
     exports org.logicng.knowledgecompilation.bdds.functions;
-    exports org.logicng.knowledgecompilation.bdds.io;
     exports org.logicng.knowledgecompilation.bdds.jbuddy;
     exports org.logicng.knowledgecompilation.bdds.orderings;
     exports org.logicng.knowledgecompilation.dnnf;

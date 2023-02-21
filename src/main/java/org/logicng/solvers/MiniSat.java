@@ -67,7 +67,7 @@ import java.util.TreeSet;
 
 /**
  * Wrapper for the MiniSAT-style SAT solvers.
- * @version 2.4.0
+ * @version 3.0.0
  * @since 1.0
  */
 public class MiniSat extends SATSolver {
@@ -253,20 +253,6 @@ public class MiniSat extends SATSolver {
         } else {
             throw new IllegalStateException("Unknown Solver CNF method: " + this.config.getCnfMethod());
         }
-    }
-
-    @Override
-    public void addWithoutUnknown(final Formula formula) {
-        final int nVars = this.solver.nVars();
-        final Assignment restriction = new Assignment(true);
-        final Map<String, Integer> map = this.solver.name2idx();
-        for (final Variable var : formula.variables()) {
-            final Integer index = map.get(var.name());
-            if (index == null || index >= nVars) {
-                restriction.addLiteral(var.negate());
-            }
-        }
-        this.add(formula.restrict(restriction));
     }
 
     @Override

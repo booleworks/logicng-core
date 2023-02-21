@@ -34,7 +34,7 @@ import org.logicng.handlers.OptimizationHandler;
 
 /**
  * The configuration object for the {@link AdvancedSimplifier}.
- * @version 2.3.0
+ * @version 3.0.0
  * @since 2.3.0
  */
 
@@ -86,7 +86,7 @@ public class AdvancedSimplifierConfig extends Configuration {
         boolean restrictBackbone = true;
         boolean factorOut = true;
         boolean simplifyNegations = true;
-        private RatingFunction<?> ratingFunction = new DefaultRatingFunction();
+        private RatingFunction<?> ratingFunction = DefaultRatingFunction.get();
         private OptimizationHandler handler = null;
 
         private Builder() {

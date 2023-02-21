@@ -151,14 +151,4 @@ public class ConnectedComponentsComputerTest {
         assertThat(split.get(2)).hasSize(3);
         assertThat(split.get(3)).hasSize(3);
     }
-
-    @Test
-    public void testFormulaSplitIllegal() {
-        final FormulaFactory f = new FormulaFactory();
-        @SuppressWarnings("deprecation")
-        final Graph<Variable> graph = ConstraintGraphGenerator.generateFromCnf(f.variable("B"));
-        final Set<Set<Node<Variable>>> ccs = Collections.singleton(Collections.singleton(graph.node(f.variable("B"))));
-        assertThatThrownBy(() -> ConnectedComponentsComputation.splitFormulasByComponent(Collections.singletonList(f.variable("A")), ccs))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
 }

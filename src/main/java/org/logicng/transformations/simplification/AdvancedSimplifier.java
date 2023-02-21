@@ -72,38 +72,12 @@ import java.util.stream.Collectors;
  * </ul>
  * The first and the last two steps can be configured using the {@link AdvancedSimplifierConfig}. Also, the handler and the rating
  * function can be configured. If no rating function is specified, the {@link DefaultRatingFunction} is chosen.
- * @version 2.3.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public final class AdvancedSimplifier implements FormulaTransformation {
 
     private final AdvancedSimplifierConfig initConfig;
-
-    /**
-     * Constructs a new simplifier with the given rating functions.
-     * @param ratingFunction the rating function
-     * @deprecated this constructor is no longer acceptable, use the constructor with an {@link AdvancedSimplifierConfig} or with no parameters (for the
-     * default advanced simplifier configuration) instead.
-     */
-    @Deprecated
-    public AdvancedSimplifier(final RatingFunction<?> ratingFunction) {
-        this(ratingFunction, null);
-    }
-
-    /**
-     * Constructs a new simplifier with the given handler and rating functions.
-     * <p>
-     * The simplifier can be called with an {@link OptimizationHandler}. The given handler instance will be used for every subsequent
-     * {@link org.logicng.solvers.functions.OptimizationFunction} call and the handler's SAT handler is used for every subsequent SAT call.
-     * @param ratingFunction the rating function
-     * @param handler        the handler, can be {@code null}
-     * @deprecated this constructor is no longer acceptable, use the constructor with an {@link AdvancedSimplifierConfig} or with no parameters (for the
-     * default advanced simplifier configuration) instead.
-     */
-    @Deprecated
-    public AdvancedSimplifier(final RatingFunction<?> ratingFunction, final OptimizationHandler handler) {
-        this.initConfig = AdvancedSimplifierConfig.builder().ratingFunction(ratingFunction).handler(handler).build();
-    }
 
     /**
      * Constructs a new simplifier with the advanced simplifier configuration from the formula factory.

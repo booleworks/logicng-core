@@ -37,7 +37,7 @@ import java.util.Collection;
 /**
  * A graph generator which generates a constraint graph for a
  * given list of formulas.
- * @version 2.4.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public final class ConstraintGraphGenerator {
@@ -51,28 +51,13 @@ public final class ConstraintGraphGenerator {
 
     /**
      * Constructs the constraint graph.
-     * @param formula the formula in extended CNF
+     * @param formulas the formulas
      * @return the constraint graph for the given formula
-     * @deprecated the constraint graph generation is not CNF specific. Use general method {@link #generateFromFormulas(Collection)} instead.
      */
-    @Deprecated
-    public static Graph<Variable> generateFromCnf(final Formula formula) {
+    public static Graph<Variable> generateFromFormulas(final Formula... formulas) {
         final Graph<Variable> constraintGraph = new Graph<>();
-        addToGraph(formula, constraintGraph);
-        return constraintGraph;
-    }
-
-    /**
-     * Constructs the constraint graph.
-     * @param formulas the formulas in extended CNF as set of CNFs
-     * @return the constraint graph for the given formula
-     * @deprecated the constraint graph generation is not CNF specific. Use general method {@link #generateFromFormulas(Collection)} instead.
-     */
-    @Deprecated
-    public static Graph<Variable> generateFromCnf(final Collection<Formula> formulas) {
-        final Graph<Variable> constraintGraph = new Graph<>();
-        for (final Formula clause : formulas) {
-            addToGraph(clause, constraintGraph);
+        for (final Formula formula : formulas) {
+            addClause(formula, constraintGraph);
         }
         return constraintGraph;
     }
@@ -88,26 +73,6 @@ public final class ConstraintGraphGenerator {
             addClause(formula, constraintGraph);
         }
         return constraintGraph;
-    }
-
-    private static void addToGraph(final Formula formula, final Graph<Variable> constraintGraph) {
-        switch (formula.type()) {
-            case FALSE:
-            case TRUE:
-                break;
-            case LITERAL:
-            case OR:
-            case PBC:
-                addClause(formula, constraintGraph);
-                break;
-            case AND:
-                for (final Formula clause : formula) {
-                    addClause(clause, constraintGraph);
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Can only generate a constraint graph from a CNF");
-        }
     }
 
     private static void addClause(final Formula clause, final Graph<Variable> graph) {
