@@ -31,10 +31,10 @@ package org.logicng.collections;
 import java.util.Arrays;
 
 /**
- * A simple vector for integer elements implementation (inspired by MiniSat and CleaneLing).
+ * A simple vector for integer elements implementation (inspired by MiniSat).
  * <p>
  * In theory one could use the {@link LNGVector} also for integers.  But Java's auto-boxing comes with such a large
- * performance penalty that for the mission critical data structures of the SAT solvers we use this specialized
+ * performance penalty that for the mission-critical data structures of the SAT solvers we use this specialized
  * implementation.
  * @version 1.0
  * @since 1.0
@@ -86,6 +86,11 @@ public final class LNGIntVector {
     public LNGIntVector(final int... elems) {
         this.elements = Arrays.copyOf(elems, elems.length);
         this.size = elems.length;
+    }
+
+    LNGIntVector(int[] elements, int size) {
+        this.elements = elements;
+        this.size = size;
     }
 
     /**
