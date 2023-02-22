@@ -1072,5 +1072,9 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
         }
         return true;
     }
+
+    public GlucoseConfig getGlucoseConfig() {
+        return this.glucoseConfig;
+    }
 }
 
