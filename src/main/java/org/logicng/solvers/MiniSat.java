@@ -75,7 +75,7 @@ public class MiniSat extends SATSolver {
     public enum SolverStyle {MINISAT, GLUCOSE, MINICARD}
 
     protected final MiniSatConfig config;
-    protected final MiniSatStyleSolver solver;
+    protected MiniSatStyleSolver solver;
     protected final CCEncoder ccEncoder;
     protected final SolverStyle style;
     protected final LNGIntVector validStates;
@@ -139,6 +139,20 @@ public class MiniSat extends SATSolver {
      */
     public static MiniSat miniSat(final FormulaFactory f, final MiniSatConfig config) {
         return new MiniSat(f, SolverStyle.MINISAT, config, null);
+    }
+
+    /**
+     * Returns a new MiniSat solver with a given underlying solver core.
+     * This method is primarily used for serialization purposes and should not be required in any
+     * other application use case.
+     * @param f the formula factory
+     * @param solver the underlying solver core
+     * @return the solver
+     */
+    static MiniSat miniSat(final FormulaFactory f, final MiniSat2Solver solver) {
+        MiniSat miniSat = new MiniSat(f, SolverStyle.MINISAT, solver.getConfig(), null);
+        miniSat.solver = solver;
+        return miniSat;
     }
 
     /**

@@ -85,7 +85,7 @@ public abstract class MiniSatStyleSolver {
     public static final int LIT_UNDEF = -1;
 
     // external solver configuration
-    protected final MiniSatConfig config;
+    protected MiniSatConfig config;
 
     // internal solver state
     protected boolean ok;
@@ -1121,5 +1121,9 @@ public abstract class MiniSatStyleSolver {
      */
     public void resetSelectionOrder() {
         this.selectionOrder.clear();
+    }
+
+    public MiniSatConfig getConfig() {
+        return config;
     }
 }
