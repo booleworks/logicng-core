@@ -101,8 +101,6 @@ public abstract class MiniSatStyleSolver {
     protected LNGIntVector conflict;
     protected LNGIntVector assumptions;
     protected LNGBooleanVector seen;
-    protected LNGIntVector analyzeStack;
-    protected LNGIntVector analyzeToClear;
     protected int analyzeBtLevel;
     protected double claInc;
     protected int simpDBAssigns;
@@ -244,8 +242,6 @@ public abstract class MiniSatStyleSolver {
         this.conflict = new LNGIntVector();
         this.assumptions = new LNGIntVector();
         this.seen = new LNGBooleanVector();
-        this.analyzeStack = new LNGIntVector();
-        this.analyzeToClear = new LNGIntVector();
         this.analyzeBtLevel = 0;
         this.claInc = 1;
         this.simpDBAssigns = -1;
@@ -633,9 +629,10 @@ public abstract class MiniSatStyleSolver {
      * Returns {@code true} if a given literal is redundant in the current conflict analysis, {@code false} otherwise.
      * @param p              the literal
      * @param abstractLevels an abstraction of levels
+     * @param analyzeToClear helper vector
      * @return {@code true} if a given literal is redundant in the current conflict analysis
      */
-    protected abstract boolean litRedundant(int p, int abstractLevels);
+    protected abstract boolean litRedundant(int p, int abstractLevels, LNGIntVector analyzeToClear);
 
     /**
      * Analysis the final conflict if there were assumptions.
@@ -743,8 +740,6 @@ public abstract class MiniSatStyleSolver {
         sb.append("conflict      ").append(this.conflict).append(System.lineSeparator());
         sb.append("assumptions   ").append(this.assumptions).append(System.lineSeparator());
         sb.append("#seen         ").append(this.seen.size()).append(System.lineSeparator());
-        sb.append("#stack        ").append(this.analyzeStack.size()).append(System.lineSeparator());
-        sb.append("#toclear      ").append(this.analyzeToClear.size()).append(System.lineSeparator());
 
         sb.append("claInc        ").append(this.claInc).append(System.lineSeparator());
         sb.append("simpDBAssigns ").append(this.simpDBAssigns).append(System.lineSeparator());
@@ -1124,6 +1119,6 @@ public abstract class MiniSatStyleSolver {
     }
 
     public MiniSatConfig getConfig() {
-        return config;
+        return this.config;
     }
 }
