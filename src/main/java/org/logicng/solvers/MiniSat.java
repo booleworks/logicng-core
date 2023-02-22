@@ -196,6 +196,20 @@ public class MiniSat extends SATSolver {
     }
 
     /**
+     * Returns a new MiniCard solver with a given underlying solver core.
+     * This method is primarily used for serialization purposes and should not be required in any
+     * other application use case.
+     * @param f the formula factory
+     * @param solver the underlying solver core
+     * @return the solver
+     */
+    static MiniSat miniCard(final FormulaFactory f, final MiniSat2Solver solver) {
+        MiniSat miniSat = new MiniSat(f, SolverStyle.MINICARD, solver.getConfig(), null);
+        miniSat.solver = solver;
+        return miniSat;
+    }
+
+    /**
      * Returns a new solver depending on the given solver style with the configuration from the formula factory.
      * @param f     the formula factory
      * @param style the solver style, must not be {@code null}
