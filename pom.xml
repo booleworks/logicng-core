@@ -379,5 +379,23 @@
       </properties>
     </profile>
   </profiles>
+
+    <repositories>
+    <repository>
+      <id>boolerules-registry</id>
+      <url>https://gitlab.booleworks.org/api/v4/projects/61/packages/maven</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>boolerules-registry</id>
+      <url>https://gitlab.booleworks.org/api/v4/projects/61/packages/maven</url>
+    </snapshotRepository>
+    <repository>
+      <id>boolerules-registry</id>
+      <url>https://gitlab.booleworks.org/api/v4/projects/61/packages/maven</url>
+    </repository>
+  </distributionManagement>
 </project>
 
