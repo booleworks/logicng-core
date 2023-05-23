@@ -203,6 +203,8 @@ public final class BDDFactory {
             }
             case PBC:
                 return buildRec(formula.nnf(), kernel, construction, handler);
+            case PREDICATE:
+                throw new IllegalArgumentException("Cannot generate a BDD from a formula with predicates in it");
             default:
                 throw new IllegalArgumentException("Unsupported operator for BDD generation: " + formula.type());
         }

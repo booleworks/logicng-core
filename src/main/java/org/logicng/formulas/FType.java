@@ -35,14 +35,15 @@ package org.logicng.formulas;
  */
 public enum FType {
     PBC((byte) 0x00),
-    EQUIV((byte) 0x01),
-    IMPL((byte) 0x02),
-    OR((byte) 0x03),
-    AND((byte) 0x04),
-    NOT((byte) 0x05),
-    LITERAL((byte) 0x06),
-    TRUE((byte) 0x07),
-    FALSE((byte) 0x08);
+    EQUIV((byte) 0x10),
+    IMPL((byte) 0x11),
+    OR((byte) 0x20),
+    AND((byte) 0x21),
+    NOT((byte) 0x30),
+    LITERAL((byte) 0x40),
+    PREDICATE((byte) 0x41),
+    TRUE((byte) 0x50),
+    FALSE((byte) 0x51);
 
     private final byte precedence;
 

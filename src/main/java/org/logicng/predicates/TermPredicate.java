@@ -46,6 +46,7 @@ public final class TermPredicate implements FormulaPredicate {
             case TRUE:
             case FALSE:
             case LITERAL:
+            case PREDICATE:
                 return true;
             case IMPL:
             case EQUIV:

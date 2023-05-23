@@ -74,6 +74,7 @@ public final class DistributiveSimplifier implements FormulaTransformation {
             case TRUE:
             case LITERAL:
             case PBC:
+            case PREDICATE:
                 result = formula;
                 break;
             case EQUIV:

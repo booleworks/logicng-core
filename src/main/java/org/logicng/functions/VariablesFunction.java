@@ -50,6 +50,7 @@ public class VariablesFunction implements FormulaFunction<SortedSet<Variable>> {
         switch (formula.type()) {
             case FALSE:
             case TRUE:
+            case PREDICATE:
                 result = new TreeSet<>();
                 break;
             case LITERAL:

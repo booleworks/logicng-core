@@ -73,6 +73,7 @@ public final class AIGTransformation implements FormulaTransformation {
             case FALSE:
             case TRUE:
             case LITERAL:
+            case PREDICATE:
                 return formula;
             case NOT:
                 return transformNot((Not) formula);

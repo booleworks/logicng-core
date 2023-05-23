@@ -43,6 +43,7 @@ public class NumberOfAtomsFunction implements FormulaFunction<Long> {
             case FALSE:
             case TRUE:
             case LITERAL:
+            case PREDICATE:
             case PBC:
                 result = 1L;
                 break;

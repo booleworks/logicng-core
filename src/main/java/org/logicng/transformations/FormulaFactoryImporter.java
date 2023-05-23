@@ -74,6 +74,9 @@ public final class FormulaFactoryImporter implements FormulaTransformation {
             case LITERAL:
                 final Literal literal = (Literal) formula;
                 return this.newFormulaFactory.literal(literal.name(), literal.phase());
+            case PREDICATE:
+                //TODO how to handle predicates when importing???
+                return null;
             case NOT:
                 final Not not = (Not) formula;
                 return this.newFormulaFactory.not(apply(not.operand(), cache));

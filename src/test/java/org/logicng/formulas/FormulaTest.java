@@ -107,7 +107,7 @@ public class FormulaTest {
     public void testFType() {
         assertThat(FType.valueOf("AND")).isEqualTo(FType.AND);
         assertThat(Arrays.asList(FType.values()).contains(FType.valueOf("PBC"))).isTrue();
-        assertThat(FType.values().length).isEqualTo(9);
+        assertThat(FType.values().length).isEqualTo(10);
     }
 
     @Test

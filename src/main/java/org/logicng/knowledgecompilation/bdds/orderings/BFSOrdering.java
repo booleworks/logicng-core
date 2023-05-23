@@ -90,6 +90,8 @@ public final class BFSOrdering implements VariableOrderingProvider {
                         variables.add(literal.variable());
                     }
                     break;
+                case PREDICATE:
+                    throw new IllegalArgumentException("Cannot generate a variable ordering for a formula with predicates in it");
             }
         }
         return variables;

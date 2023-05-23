@@ -49,6 +49,7 @@ public class LiteralsFunction implements FormulaFunction<SortedSet<Literal>> {
         switch (formula.type()) {
             case FALSE:
             case TRUE:
+            case PREDICATE:
                 result = new TreeSet<>();
                 break;
             case LITERAL:

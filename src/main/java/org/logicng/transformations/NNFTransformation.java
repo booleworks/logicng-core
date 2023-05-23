@@ -59,6 +59,7 @@ public class NNFTransformation implements FormulaTransformation {
             case TRUE:
             case FALSE:
             case LITERAL:
+            case PREDICATE:
                 nnf = polarity ? formula : formula.negate();
                 break;
             case NOT:

@@ -66,6 +66,9 @@ public class NumberOfNodesFunction implements FormulaFunction<Long> {
                 final PBConstraint pbc = (PBConstraint) formula;
                 result = 1L + pbc.operands().length;
                 break;
+            case PREDICATE:
+                result = formula.numberOfNodes();
+                break;
             default:
                 throw new IllegalStateException("Unknown formula type " + formula.type());
         }

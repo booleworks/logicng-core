@@ -103,6 +103,7 @@ public final class NegationSimplifier implements FormulaTransformation {
             case EQUIV:
             case IMPL:
             case PBC:
+            case PREDICATE:
                 throw new IllegalStateException("Unexpected LogicNG formula type: " + formula.type());
             default:
                 throw new IllegalArgumentException("Unknown LogicNG formula type: " + formula.type());

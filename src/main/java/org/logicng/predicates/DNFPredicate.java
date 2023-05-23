@@ -70,6 +70,7 @@ public final class DNFPredicate implements FormulaPredicate {
             case FALSE:
             case TRUE:
             case LITERAL:
+            case PREDICATE:
                 return true;
             case NOT:
             case IMPL:

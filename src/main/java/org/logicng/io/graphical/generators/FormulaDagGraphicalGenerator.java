@@ -89,6 +89,7 @@ public class FormulaDagGraphicalGenerator extends GraphicalGenerator<Formula> {
         switch (formula.type()) {
             case FALSE:
             case TRUE:
+            case PREDICATE:
                 final Pair<GraphicalNode, Boolean> constPair = addNode(formula, formula.toString(), true, graphicalRepresentation, nodes);
                 return constPair.first();
             case LITERAL:

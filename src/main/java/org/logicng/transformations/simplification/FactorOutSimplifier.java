@@ -99,6 +99,7 @@ public final class FactorOutSimplifier implements FormulaTransformation {
             case IMPL:
             case EQUIV:
             case PBC:
+            case PREDICATE:
                 return formula;
             default:
                 throw new IllegalStateException("Unknown formula type: " + formula.type());

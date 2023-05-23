@@ -80,6 +80,8 @@ public final class DFSOrdering implements VariableOrderingProvider {
                     variables.add(lit.variable());
                 }
                 break;
+            case PREDICATE:
+                throw new IllegalArgumentException("Cannot generate a variable ordering for a formula with predicates in it");
         }
     }
 }

@@ -79,6 +79,7 @@ public class FormulaAstGraphicalGenerator extends GraphicalGenerator<Formula> {
             case FALSE:
             case TRUE:
             case LITERAL:
+            case PREDICATE:
                 return walkAtomicFormula(formula, graphicalRepresentation);
             case PBC:
                 return walkPBConstraint((PBConstraint) formula, graphicalRepresentation);

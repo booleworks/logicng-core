@@ -72,6 +72,8 @@ public abstract class FormulaStringRepresentation {
             case LITERAL:
                 final Literal lit = (Literal) formula;
                 return lit.phase() ? lit.name() : this.negation() + lit.name();
+            case PREDICATE:
+                return formula.toString();
             case NOT:
                 final Not not = (Not) formula;
                 return this.negation() + this.bracket(not.operand());

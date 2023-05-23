@@ -69,6 +69,7 @@ public final class NNFPredicate implements FormulaPredicate {
             case FALSE:
             case TRUE:
             case LITERAL:
+            case PREDICATE:
                 result = true;
                 break;
             case AND:

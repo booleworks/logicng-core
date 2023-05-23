@@ -86,6 +86,7 @@ public final class LiteralSubstitution implements FormulaTransformation {
         switch (formula.type()) {
             case TRUE:
             case FALSE:
+            case PREDICATE:
                 return formula;
             case LITERAL:
                 final Literal literal = (Literal) formula;

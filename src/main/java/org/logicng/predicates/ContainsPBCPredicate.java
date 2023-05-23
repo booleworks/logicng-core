@@ -63,6 +63,7 @@ public final class ContainsPBCPredicate implements FormulaPredicate {
             case FALSE:
             case TRUE:
             case LITERAL:
+            case PREDICATE:
                 return false;
             case AND:
             case OR:

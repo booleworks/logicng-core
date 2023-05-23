@@ -76,6 +76,7 @@ public final class AIGPredicate implements FormulaPredicate {
             case EQUIV:
             case OR:
             case PBC:
+            case PREDICATE:
                 result = false;
                 break;
             case NOT:

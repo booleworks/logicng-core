@@ -75,6 +75,7 @@ public final class PureExpansionTransformation implements FormulaTransformation 
             case FALSE:
             case TRUE:
             case LITERAL:
+            case PREDICATE:
                 return formula;
             case NOT:
                 final Not not = (Not) formula;

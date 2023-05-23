@@ -75,6 +75,7 @@ public final class HypergraphGenerator {
                 case IMPL:
                 case NOT:
                 case AND:
+                case PREDICATE:
                     throw new IllegalStateException("Unexpected element in clause: " + clause);
                 case LITERAL:
                 case OR:
@@ -102,6 +103,7 @@ public final class HypergraphGenerator {
             case EQUIV:
             case IMPL:
             case NOT:
+            case PREDICATE:
                 throw new IllegalStateException("Unexpected element in CNF: " + cnf);
             case LITERAL:
             case OR:

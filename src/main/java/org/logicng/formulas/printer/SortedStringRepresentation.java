@@ -118,6 +118,8 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
             case LITERAL:
                 final Literal lit = (Literal) formula;
                 return lit.phase() ? lit.name() : negation() + lit.name();
+            case PREDICATE:
+                return formula.toString();
             case NOT:
                 final Not not = (Not) formula;
                 return negation() + bracket(not.operand());

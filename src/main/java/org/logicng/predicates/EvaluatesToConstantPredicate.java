@@ -130,6 +130,8 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
                 return handleAnd((And) formula, topLevel);
             case PBC:
                 return handlePBC((PBConstraint) formula);
+            case PREDICATE:
+                throw new UnsupportedOperationException("Cannot evaluate a formula with predicates with a boolean assignment");
             default:
                 throw new IllegalArgumentException("Unknown formula type " + formula.type());
         }

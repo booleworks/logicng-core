@@ -52,7 +52,7 @@ import java.util.stream.Stream;
  */
 public class Literal extends Formula implements Comparable<Literal> {
 
-    private static final Iterator<Formula> ITERATOR = new Iterator<Formula>() {
+    private static final Iterator<Formula> ITERATOR = new Iterator<>() {
         @Override
         public boolean hasNext() {
             return false;
@@ -87,11 +87,6 @@ public class Literal extends Formula implements Comparable<Literal> {
         this.name = name;
         this.phase = phase;
         this.var = phase ? (Variable) this : (Variable) this.negate();
-    }
-
-    @Override
-    public FormulaFactory factory() {
-        return this.f;
     }
 
     @Override
