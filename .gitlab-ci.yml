@@ -17,7 +17,7 @@ unit-test-job:   # This job runs in the test stage.
     - mvn verify -B
 
 deploy-job:      # This job runs in the deploy stage.
-  stage: deploy
+  stage: install
   script:
     - mvn deploy
 
