@@ -19,5 +19,5 @@ unit-test-job:   # This job runs in the test stage.
 deploy-job:      # This job runs in the deploy stage.
   stage: install
   script:
-    - mvn deploy
+    - mvn deploy -DskipTests
 
