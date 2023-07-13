@@ -77,7 +77,7 @@
     <version.mockito>5.1.1</version.mockito>
 
     <!-- Plugin Versions -->
-    <version.antlr-plugin>4.11.1</version.antlr-plugin>
+    <version.antlr-plugin>4.13.0</version.antlr-plugin>
     <version.jacoco>0.8.8</version.jacoco>
     <version.coveralls>4.3.0</version.coveralls>
     <version.surefire>3.0.0-M9</version.surefire>
