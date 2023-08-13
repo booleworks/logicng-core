@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
@@ -46,11 +22,10 @@ import java.util.stream.Stream;
  * - as a shortcut - {@code f.variable("a")}.  A new negative literal can be constructed
  * with {@code f.literal("a", false)} or if preferred with {@code f.not(f.variable("a"))}
  * or {@code f.variable("a").negate()}.
- * <p>
- * @version 2.2.0
+ * @version 3.0.0
  * @since 1.0
  */
-public class Literal extends Formula implements Comparable<Literal> {
+public class Literal extends LngCachedFormula implements Comparable<Literal> {
 
     private static final Iterator<Formula> ITERATOR = new Iterator<>() {
         @Override
@@ -86,7 +61,7 @@ public class Literal extends Formula implements Comparable<Literal> {
         super(FType.LITERAL, f);
         this.name = name;
         this.phase = phase;
-        this.var = phase ? (Variable) this : (Variable) this.negate();
+        this.var = phase ? (Variable) this : (Variable) negate();
     }
 
     @Override
@@ -126,7 +101,7 @@ public class Literal extends Formula implements Comparable<Literal> {
 
     @Override
     public Formula substitute(final Substitution substitution) {
-        final Formula subst = substitution.getSubstitution(this.variable());
+        final Formula subst = substitution.getSubstitution(variable());
         return subst == null ? this : (this.phase ? subst : subst.negate());
     }
 
@@ -177,7 +152,7 @@ public class Literal extends Formula implements Comparable<Literal> {
         if (other == this) {
             return true;
         }
-        if (other instanceof Formula && this.f == ((Formula) other).f) {
+        if (other instanceof Formula && this.f == ((Formula) other).factory()) {
             return false; // the same formula factory would have produced a == object
         }
         if (other instanceof Literal) {
