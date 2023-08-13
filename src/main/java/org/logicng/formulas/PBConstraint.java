@@ -471,10 +471,16 @@ public interface PBConstraint extends Formula {
      * @return the encoding
      */
     default List<Formula> getEncoding() {
-        List<Formula> encoding = factory().pbEncodingCache.get(this);
-        if (encoding == null) {
+        List<Formula> encoding;
+        if (factory() instanceof CachingFormulaFactory) {
+            final CachingFormulaFactory cff = (CachingFormulaFactory) factory();
+            encoding = cff.pbEncodingCache.get(this);
+            if (encoding == null) {
+                encoding = cff.pbEncoder().encode(this);
+                cff.pbEncodingCache.put(this, encoding);
+            }
+        } else {
             encoding = factory().pbEncoder().encode(this);
-            factory().pbEncodingCache.put(this, encoding);
         }
         return Collections.unmodifiableList(encoding);
     }

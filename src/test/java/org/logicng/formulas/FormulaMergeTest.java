@@ -37,8 +37,8 @@ public class FormulaMergeTest {
 
     @Test
     public void testPanic() {
-        final FormulaFactory f1 = new FormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.PANIC).build());
-        final FormulaFactory f2 = new FormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        final FormulaFactory f1 = new CachingFormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.PANIC).build());
+        final FormulaFactory f2 = new CachingFormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
 
         final Variable a1 = f1.variable("A");
         final Variable b1 = f1.variable("B");
@@ -70,8 +70,8 @@ public class FormulaMergeTest {
 
     @Test
     public void testMerge() {
-        final FormulaFactory f1 = new FormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final FormulaFactory f2 = new FormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.PANIC).build());
+        final FormulaFactory f1 = new CachingFormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        final FormulaFactory f2 = new CachingFormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.PANIC).build());
 
         final Variable a1 = f1.variable("A");
         final Variable b1 = f1.variable("B");

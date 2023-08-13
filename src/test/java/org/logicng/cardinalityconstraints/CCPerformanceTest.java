@@ -35,6 +35,7 @@ import org.logicng.LogicNGTest;
 import org.logicng.LongRunningTag;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.CType;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.CardinalityConstraint;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
@@ -61,7 +62,7 @@ public class CCPerformanceTest implements LogicNGTest {
     @LongRunningTag
     public void testAMKPerformance() {
         for (final CCConfig config : this.configs) {
-            final FormulaFactory f = new FormulaFactory();
+            final FormulaFactory f = new CachingFormulaFactory();
             f.putConfiguration(config);
             buildAMK(10_000, f, false);
             assertThat(f.newCCVariable().name()).endsWith("_0");
@@ -70,7 +71,7 @@ public class CCPerformanceTest implements LogicNGTest {
 
     @Test
     public void testAMKPerformanceMiniCard() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         buildAMK(10_000, f, true);
         assertThat(f.newCCVariable().name()).endsWith("_0");
     }

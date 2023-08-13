@@ -10,7 +10,7 @@ public class LngCachedTrue extends LngCachedConstant implements CTrue {
      * Constructor.
      * @param factory the factory which created this instance
      */
-    LngCachedTrue(final FormulaFactory factory) {
+    LngCachedTrue(final CachingFormulaFactory factory) {
         super(FType.TRUE, factory);
     }
 

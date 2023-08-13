@@ -36,6 +36,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.LongRunningTag;
 import org.logicng.backbones.Backbone;
 import org.logicng.datastructures.Tristate;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
@@ -107,7 +108,7 @@ public class CnfMethodComparisonTest {
     }
 
     private Backbone computeBackbone(final String fileName, final CNFConfig cnfConfig, final MiniSatConfig.CNFMethod cnfMethod) throws IOException, ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         f.putConfiguration(cnfConfig);
         final Formula formula = FormulaReader.readPseudoBooleanFormula(fileName, f);
         final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(cnfMethod).build());
@@ -128,7 +129,7 @@ public class CnfMethodComparisonTest {
     private Map<Variable, Backbone> computeBackbonePerVariable(final String fileName, final CNFConfig cnfConfig, final MiniSatConfig.CNFMethod cnfMethod)
             throws IOException, ParserException {
         final long start = System.currentTimeMillis();
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         f.putConfiguration(cnfConfig);
         final Formula formula = FormulaReader.readPseudoBooleanFormula(fileName, f);
         final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(cnfMethod).build());

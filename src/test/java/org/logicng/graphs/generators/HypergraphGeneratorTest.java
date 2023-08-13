@@ -31,6 +31,7 @@ package org.logicng.graphs.generators;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.graphs.datastructures.Hypergraph;
@@ -51,7 +52,7 @@ public class HypergraphGeneratorTest {
 
     @Test
     public void testCNF() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final PropositionalParser p = new PropositionalParser(f);
         assertThat(HypergraphGenerator.fromCNF(p.parse("$false")).nodes()).isEmpty();
         assertThat(HypergraphGenerator.fromCNF(p.parse("$false")).edges()).isEmpty();
@@ -91,7 +92,7 @@ public class HypergraphGeneratorTest {
 
     @Test
     public void testCNFFromList() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final PropositionalParser p = new PropositionalParser(f);
         assertThat(HypergraphGenerator.fromCNF(Collections.singletonList(p.parse("$false"))).nodes()).isEmpty();
         assertThat(HypergraphGenerator.fromCNF(Collections.singletonList(p.parse("$false"))).edges()).isEmpty();
@@ -163,7 +164,7 @@ public class HypergraphGeneratorTest {
 
     @Test
     public void testNonCNF() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final PropositionalParser p = new PropositionalParser(f);
         try {
             HypergraphGenerator.fromCNF(p.parse("A => B"));

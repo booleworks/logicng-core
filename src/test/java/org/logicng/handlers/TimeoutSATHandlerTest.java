@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.logicng.datastructures.Tristate;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.solvers.MiniSat;
@@ -31,7 +32,7 @@ class TimeoutSATHandlerTest {
 
     @BeforeEach
     public void init() {
-        this.f = new FormulaFactory();
+        this.f = new CachingFormulaFactory();
         this.pg = new PigeonHoleGenerator(this.f);
         this.solvers = new SATSolver[8];
         this.solvers[0] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(true).build());

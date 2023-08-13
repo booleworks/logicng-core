@@ -31,6 +31,7 @@ package org.logicng.knowledgecompilation.bdds.datastructures;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 
 /**
@@ -42,7 +43,7 @@ public class BDDNodeTest {
 
     @Test
     public void testSimpleMethods() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final BDDNode verumNode = BDDConstant.getVerumNode(f);
         final BDDNode falsumNode = BDDConstant.getFalsumNode(f);
         final BDDNode innerNode = new BDDInnerNode(f.variable("A"), verumNode, falsumNode);
@@ -62,7 +63,7 @@ public class BDDNodeTest {
 
     @Test
     public void testNodes() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final BDDNode verumNode = BDDConstant.getVerumNode(f);
         final BDDNode falsumNode = BDDConstant.getFalsumNode(f);
         final BDDNode innerNode = new BDDInnerNode(f.variable("A"), verumNode, falsumNode);
@@ -73,7 +74,7 @@ public class BDDNodeTest {
 
     @Test
     public void testHashCode() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final BDDNode verumNode = BDDConstant.getVerumNode(f);
         final BDDNode falsumNode = BDDConstant.getFalsumNode(f);
         final BDDNode innerNode1 = new BDDInnerNode(f.variable("A"), verumNode, falsumNode);
@@ -85,7 +86,7 @@ public class BDDNodeTest {
 
     @Test
     public void testEquals() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final BDDNode verumNode = BDDConstant.getVerumNode(f);
         final BDDNode falsumNode = BDDConstant.getFalsumNode(f);
         final BDDNode innerNode1 = new BDDInnerNode(f.variable("A"), verumNode, falsumNode);

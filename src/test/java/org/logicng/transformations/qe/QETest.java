@@ -31,6 +31,7 @@ package org.logicng.transformations.qe;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
@@ -45,7 +46,7 @@ import java.util.Arrays;
  */
 public class QETest {
 
-    private final FormulaFactory f = new FormulaFactory();
+    private final FormulaFactory f = new CachingFormulaFactory();
     private final PropositionalParser p = new PropositionalParser(this.f);
     private final ExistentialQuantifierElimination ex1 = new ExistentialQuantifierElimination();
     private final ExistentialQuantifierElimination ex2 = new ExistentialQuantifierElimination(this.f.variable("x"));

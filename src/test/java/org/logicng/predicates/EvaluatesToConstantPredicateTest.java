@@ -36,6 +36,7 @@ import org.logicng.RandomTag;
 import org.logicng.TestWithExampleFormulas;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.CType;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
@@ -624,7 +625,7 @@ public class EvaluatesToConstantPredicateTest extends TestWithExampleFormulas {
 
     @Test
     public void testCornerCases() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final FormulaCornerCases cornerCases = new FormulaCornerCases(f);
         for (final Formula formula : cornerCases.cornerCases()) {
             final Assignment assignment = new Assignment();
@@ -646,7 +647,7 @@ public class EvaluatesToConstantPredicateTest extends TestWithExampleFormulas {
     @RandomTag
     public void testRandom() {
         for (int i = 0; i < 1000; i++) {
-            final FormulaFactory f = new FormulaFactory();
+            final FormulaFactory f = new CachingFormulaFactory();
             final Assignment assignment = new Assignment();
             assignment.addLiteral(f.literal("v0", false));
             assignment.addLiteral(f.literal("v1", false));

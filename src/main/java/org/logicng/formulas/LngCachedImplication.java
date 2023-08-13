@@ -12,7 +12,7 @@ public class LngCachedImplication extends LngCachedBinaryOperator implements Imp
      * @param right the right-hand side operand
      * @param f     the factory which created this instance
      */
-    LngCachedImplication(final Formula left, final Formula right, final FormulaFactory f) {
+    LngCachedImplication(final Formula left, final Formula right, final CachingFormulaFactory f) {
         super(FType.IMPL, left, right, f);
     }
 

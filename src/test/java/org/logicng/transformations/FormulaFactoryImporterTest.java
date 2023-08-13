@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.FormulaFactoryConfig;
@@ -47,14 +48,14 @@ import org.logicng.transformations.cnf.TseitinTransformation;
  */
 public class FormulaFactoryImporterTest extends TestWithExampleFormulas {
 
-    private FormulaFactory myF;
-    private FormulaFactory myG;
+    private CachingFormulaFactory myF;
+    private CachingFormulaFactory myG;
     private FormulaFactoryImporter importer;
 
     @BeforeEach
     public void initialize() {
-        this.myF = this.f;
-        this.myG = new FormulaFactory(FormulaFactoryConfig.builder().name("Factory G").build());
+        this.myF = (CachingFormulaFactory) this.f;
+        this.myG = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("Factory G").build());
         this.importer = new FormulaFactoryImporter(this.myG);
     }
 
@@ -220,13 +221,13 @@ public class FormulaFactoryImporterTest extends TestWithExampleFormulas {
 
     @Test
     public void testAdjustCounters() throws ParserException {
-        final FormulaFactory f = new FormulaFactory(FormulaFactoryConfig.builder().name("Factory").build());
+        final FormulaFactory f = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("Factory").build());
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Formula cc = p.parse("A + B + C + D + E <= 2").cnf();
         final Formula pbc = p.parse("2*A + -2*B + 3*C + D + 2*E <= 3").cnf();
         final Formula cnf = p.parse("A & B & C | C & D & ~A").transform(new TseitinTransformation(0));
 
-        final FormulaFactory g = new FormulaFactory();
+        final CachingFormulaFactory g = new CachingFormulaFactory();
         g.newCNFVariable();
         g.newCNFVariable();
         g.newCCVariable();

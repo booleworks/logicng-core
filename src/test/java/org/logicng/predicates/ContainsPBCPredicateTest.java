@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.logicng.RandomTag;
 import org.logicng.TestWithExampleFormulas;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
@@ -87,7 +88,7 @@ public class ContainsPBCPredicateTest extends TestWithExampleFormulas {
     @RandomTag
     public void randomWithoutPBCs() {
         for (int i = 0; i < 500; i++) {
-            final FormulaFactory f = new FormulaFactory();
+            final FormulaFactory f = new CachingFormulaFactory();
             final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(10).weightPbc(0).seed(i * 42).build());
             final Formula formula = randomizer.formula(5);
             assertThat(formula.holds(this.predicate)).isFalse();

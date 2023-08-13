@@ -41,6 +41,7 @@ import org.logicng.TestWithExampleFormulas;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.CType;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
@@ -93,7 +94,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     private final String[] testStrings;
 
     public SATTest() {
-        this.f = new FormulaFactory();
+        this.f = new CachingFormulaFactory();
         this.pg = new PigeonHoleGenerator(this.f);
         this.parser = new PropositionalParser(this.f);
         this.solvers = new SATSolver[8];

@@ -35,6 +35,7 @@ import static org.logicng.datastructures.Tristate.TRUE;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.collections.LNGIntVector;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.solvers.MiniSat;
@@ -51,7 +52,7 @@ public class MiniSatTest {
 
     @Test
     public void testMkWithoutConfiguration() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final MiniSatConfig miniSatConfig = MiniSatConfig.builder().build();
         f.putConfiguration(miniSatConfig);
 
@@ -73,7 +74,7 @@ public class MiniSatTest {
 
     @Test
     public void testMkWithConfiguration() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final MiniSatConfig miniSatConfig = MiniSatConfig.builder().build();
         final GlucoseConfig glucoseConfig = GlucoseConfig.builder().build();
 
@@ -128,7 +129,7 @@ public class MiniSatTest {
 
     @Test
     public void testAssumptionChecking() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("A & B"));
         assertThat(solver.sat()).isEqualTo(TRUE);

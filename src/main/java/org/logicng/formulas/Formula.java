@@ -397,70 +397,54 @@ public interface Formula extends Iterable<Formula> {
      * @param key the cache key
      * @return the cache value or {@code null} if the key is not found
      */
-    default Formula transformationCacheEntry(final CacheEntry key) {
-        return factory().transformationCacheEntry(this, key);
-    }
+    Formula transformationCacheEntry(final CacheEntry key);
 
     /**
      * Sets an entry in the transformation cache of this formula
      * @param key   the cache key
      * @param value the cache value
      */
-    default void setTransformationCacheEntry(final CacheEntry key, final Formula value) {
-        factory().setTransformationCacheEntry(this, key, value);
-    }
+    void setTransformationCacheEntry(final CacheEntry key, final Formula value);
 
     /**
      * Returns an entry of the predicate cache of this formula.
      * @param key the cache key
      * @return the cache value (which is {@code UNDEF} if nothing is present)
      */
-    default Tristate predicateCacheEntry(final CacheEntry key) {
-        return factory().predicateCacheEntry(this, key);
-    }
+    Tristate predicateCacheEntry(final CacheEntry key);
 
     /**
      * Sets an entry in the predicate cache of this formula
      * @param key   the cache key
      * @param value the cache value
      */
-    default void setPredicateCacheEntry(final CacheEntry key, final boolean value) {
-        factory().setPredicateCacheEntry(this, key, value);
-    }
+    void setPredicateCacheEntry(final CacheEntry key, final boolean value);
 
     /**
      * Sets an entry in the predicate cache of this formula
      * @param key   the cache key
      * @param value the cache value
      */
-    default void setPredicateCacheEntry(final CacheEntry key, final Tristate value) {
-        factory().setPredicateCacheEntry(this, key, value);
-    }
+    void setPredicateCacheEntry(final CacheEntry key, final Tristate value);
 
     /**
      * Returns an entry of the function cache of this formula.
      * @param key the cache key
      * @return the cache value or {@code null} if the key is not found
      */
-    default Object functionCacheEntry(final CacheEntry key) {
-        return factory().functionCacheEntry(this, key);
-    }
+    Object functionCacheEntry(final CacheEntry key);
 
     /**
      * Sets an entry in the function cache of this formula
      * @param key   the cache key
      * @param value the cache value
      */
-    default void setFunctionCacheEntry(final CacheEntry key, final Object value) {
-        factory().setFunctionCacheEntry(this, key, value);
-    }
+    void setFunctionCacheEntry(final CacheEntry key, final Object value);
 
     /**
      * Clears the transformation and function cache of the formula.
      */
-    default void clearCaches() {
-        factory().clearCaches(this);
-    }
+    void clearCaches();
 
     /**
      * Returns a stream of this formula's operands.

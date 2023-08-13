@@ -14,7 +14,7 @@ public class LngCachedNot extends LngCachedFormula implements Not {
      * @param operand the operand of the negation
      * @param f       the factory which created this instance
      */
-    LngCachedNot(final Formula operand, final FormulaFactory f) {
+    LngCachedNot(final Formula operand, final CachingFormulaFactory f) {
         super(FType.NOT, f);
         this.operand = operand;
         this.hashCode = 0;

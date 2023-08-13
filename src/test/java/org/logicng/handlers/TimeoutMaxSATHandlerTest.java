@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.logicng.datastructures.Assignment;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
@@ -36,7 +37,7 @@ class TimeoutMaxSATHandlerTest {
 
     @BeforeEach
     public void init() {
-        this.f = new FormulaFactory();
+        this.f = new CachingFormulaFactory();
         this.solvers = Arrays.asList(
                 MaxSATSolver.incWBO(this.f),
                 MaxSATSolver.wbo(this.f),

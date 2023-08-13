@@ -10,15 +10,12 @@ import static org.logicng.formulas.FType.LITERAL;
 import static org.logicng.formulas.FType.NOT;
 import static org.logicng.formulas.FType.OR;
 import static org.logicng.formulas.FType.TRUE;
-import static org.logicng.formulas.cache.PredicateCacheEntry.IS_CNF;
-import static org.logicng.formulas.cache.TransformationCacheEntry.FACTORIZED_CNF;
 
 import org.logicng.cardinalityconstraints.CCConfig;
 import org.logicng.configurations.Configuration;
 import org.logicng.configurations.ConfigurationType;
-import org.logicng.datastructures.Tristate;
 import org.logicng.explanations.mus.MUSConfig;
-import org.logicng.formulas.cache.CacheEntry;
+import org.logicng.formulas.FormulaFactoryConfig.FormulaMergeStrategy;
 import org.logicng.formulas.printer.FormulaStringRepresentation;
 import org.logicng.functions.SubNodeFunction;
 import org.logicng.io.parsers.ParserException;
@@ -33,20 +30,15 @@ import org.logicng.transformations.cnf.CNFConfig;
 import org.logicng.transformations.cnf.CNFEncoder;
 import org.logicng.transformations.simplification.AdvancedSimplifierConfig;
 import org.logicng.util.FormulaRandomizerConfig;
-import org.logicng.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -60,65 +52,38 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 1.0
  */
-public class FormulaFactory {
+public abstract class FormulaFactory {
 
     public static final String CC_PREFIX = "@RESERVED_CC_";
     public static final String PB_PREFIX = "@RESERVED_PB_";
     public static final String CNF_PREFIX = "@RESERVED_CNF_";
 
-    private final String name;
+    protected final String name;
+    protected final FormulaStringRepresentation stringRepresentation;
+    protected final FormulaMergeStrategy formulaMergeStrategy;
+    protected final boolean simplifyComplementaryOperands;
+    protected final Map<ConfigurationType, Configuration> configurations;
+    protected final String ccPrefix;
+    protected final String pbPrefix;
+    protected final String cnfPrefix;
+    protected final SubNodeFunction subformulaFunction;
+    protected final PBEncoder pbEncoder;
+    protected final CNFEncoder cnfEncoder;
+    protected final PseudoBooleanParser parser;
+    protected CFalse cFalse;
+    protected CTrue cTrue;
+    protected boolean cnfCheck;
+    protected FormulaFactoryImporter importer;
+    protected int ccCounter;
+    protected int pbCounter;
+    protected int cnfCounter;
 
-    private final CFalse cFalse;
-    private final CTrue cTrue;
-    private final FormulaStringRepresentation stringRepresentation;
-    private final FormulaFactoryConfig.FormulaMergeStrategy formulaMergeStrategy;
-    private final boolean simplifyComplementaryOperands;
-    private final Map<ConfigurationType, Configuration> configurations;
-    private final String ccPrefix;
-    private final String pbPrefix;
-    private final String cnfPrefix;
-    private final SubNodeFunction subformulaFunction;
-    private final PBEncoder pbEncoder;
-    private final CNFEncoder cnfEncoder;
-    private final PseudoBooleanParser parser;
-    Map<String, Variable> posLiterals;
-    Map<String, Literal> negLiterals;
-    Set<Variable> generatedVariables;
-    Map<Formula, Not> nots;
-    Map<Pair<Formula, Formula>, Implication> implications;
-    Map<LinkedHashSet<? extends Formula>, Equivalence> equivalences;
-    Map<LinkedHashSet<? extends Formula>, And> ands2;
-    Map<LinkedHashSet<? extends Formula>, And> ands3;
-    Map<LinkedHashSet<? extends Formula>, And> ands4;
-    Map<LinkedHashSet<? extends Formula>, And> andsN;
-    Map<LinkedHashSet<? extends Formula>, Or> ors2;
-    Map<LinkedHashSet<? extends Formula>, Or> ors3;
-    Map<LinkedHashSet<? extends Formula>, Or> ors4;
-    Map<LinkedHashSet<? extends Formula>, Or> orsN;
-    Map<PBOperands, PBConstraint> pbConstraints;
-    Map<CCOperands, CardinalityConstraint> cardinalityConstraints;
-    int ccCounter;
-    int pbCounter;
-    int cnfCounter;
-    Map<Formula, Map<CacheEntry, Formula>> transformationCache;
-    Map<Formula, Map<CacheEntry, Tristate>> predicateCache;
-    Map<Formula, Map<CacheEntry, Object>> functionCache;
-    Map<PBConstraint, List<Formula>> pbEncodingCache;
-    private boolean cnfCheck;
-    private FormulaFactoryImporter importer;
-
-    /**
-     * Constructor for a new formula factory.
-     * @param config the configuration for this formula factory
-     */
-    public FormulaFactory(final FormulaFactoryConfig config) {
-        name = config.name;
-        stringRepresentation = config.stringRepresentation.get();
-        formulaMergeStrategy = config.formulaMergeStrategy;
-        simplifyComplementaryOperands = config.simplifyComplementaryOperands;
-        configurations = initDefaultConfigs();
-        cFalse = new LngCachedFalse(this);
-        cTrue = new LngCachedTrue(this);
+    protected FormulaFactory(final FormulaFactoryConfig config) {
+        this.name = config.name;
+        this.stringRepresentation = config.stringRepresentation.get();
+        this.formulaMergeStrategy = config.formulaMergeStrategy;
+        this.simplifyComplementaryOperands = config.simplifyComplementaryOperands;
+        this.configurations = initDefaultConfigs();
         clear();
         cnfEncoder = new CNFEncoder(this);
         subformulaFunction = SubNodeFunction.get();
@@ -133,13 +98,6 @@ public class FormulaFactory {
         }
         pbEncoder = new PBEncoder(this);
         parser = new PseudoBooleanParser(this);
-    }
-
-    /**
-     * Constructor for a new formula factory with the default configuration.
-     */
-    public FormulaFactory() {
-        this(FormulaFactoryConfig.builder().build());
     }
 
     /**
@@ -160,65 +118,12 @@ public class FormulaFactory {
     }
 
     /**
-     * Returns {@code true} if a given list of formulas contains the negation of a given formula,
-     * {@code false} otherwise.  Always returns {@code false} if the formula factory is configured
-     * to allow contradictions and tautologies.
-     * @param formulas the list of formulas
-     * @param formula  the formula
-     * @return {@code true} if a given list of formulas contains a given formula, {@code false} otherwise
-     */
-    private boolean containsComplement(final LinkedHashSet<Formula> formulas, final Formula formula) {
-        if (!simplifyComplementaryOperands) {
-            return false;
-        }
-        final Formula negatedFormula = negateOrNull(formula);
-        return negatedFormula != null && formulas.contains(negatedFormula);
-    }
-
-    /**
-     * Returns the negated formula if the negation exists in the cache, otherwise {@code null} is returned.
-     * @param formula the formula
-     * @return the negated formula if the negation exists in the cache, otherwise {@code null}
-     */
-    private Formula negateOrNull(final Formula formula) {
-        if (formula.type() == FALSE || formula.type() == TRUE || formula.type() == NOT) {
-            return formula.negate();
-        } else if (formula.type() == LITERAL) {
-            final Literal lit = (Literal) formula;
-            final String name = lit.name();
-            return lit.phase() ? negLiterals.get(name) : posLiterals.get(name);
-        } else {
-            return nots.get(formula);
-        }
-    }
-
-    /**
      * Removes all formulas from the factory cache.
      */
     public void clear() {
-        posLiterals = new HashMap<>();
-        negLiterals = new HashMap<>();
-        generatedVariables = new HashSet<>();
-        nots = new HashMap<>();
-        implications = new HashMap<>();
-        equivalences = new HashMap<>();
-        ands2 = new HashMap<>();
-        ands3 = new HashMap<>();
-        ands4 = new HashMap<>();
-        andsN = new HashMap<>();
-        ors2 = new HashMap<>();
-        ors3 = new HashMap<>();
-        ors4 = new HashMap<>();
-        orsN = new HashMap<>();
-        pbConstraints = new HashMap<>();
-        cardinalityConstraints = new HashMap<>();
         ccCounter = 0;
         pbCounter = 0;
         cnfCounter = 0;
-        transformationCache = new HashMap<>();
-        predicateCache = new HashMap<>();
-        functionCache = new HashMap<>();
-        pbEncodingCache = new HashMap<>();
     }
 
     /**
@@ -279,6 +184,31 @@ public class FormulaFactory {
     }
 
     /**
+     * Returns the constant "True" or "False" depending on the given value.
+     * @param value the given value
+     * @return the constant
+     */
+    public Constant constant(final boolean value) {
+        return value ? cTrue : cFalse;
+    }
+
+    /**
+     * Returns a (singleton) object for the constant "True".
+     * @return an object for the constant "True"
+     */
+    public CTrue verum() {
+        return cTrue;
+    }
+
+    /**
+     * Returns a (singleton) object for the constant "False".
+     * @return an object for the constant "False"
+     */
+    public CFalse falsum() {
+        return cFalse;
+    }
+
+    /**
      * Creates a new binary operator with a given type and two operands.
      * @param type  the type of the formula
      * @param left  the left-hand side operand
@@ -318,14 +248,10 @@ public class FormulaFactory {
         if (left.equals(right)) {
             return verum();
         }
-        final Pair<Formula, Formula> key = new Pair<>(left, right);
-        Implication implication = implications.get(key);
-        if (implication == null) {
-            implication = new LngCachedImplication(left, right, this);
-            implications.put(key, implication);
-        }
-        return implication;
+        return internalImplication(left, right);
     }
+
+    protected abstract Formula internalImplication(final Formula left, final Formula right);
 
     /**
      * Creates a new equivalence.
@@ -351,25 +277,10 @@ public class FormulaFactory {
         if (left.equals(right)) {
             return verum();
         }
-        if (left.equals(negateOrNull(right))) {
-            return falsum();
-        }
-        final LinkedHashSet<Formula> key = new LinkedHashSet<>(Arrays.asList(left, right));
-        Equivalence equivalence = equivalences.get(key);
-        if (equivalence == null) {
-            equivalence = new LngCachedEquivalence(left, right, this);
-            equivalences.put(key, equivalence);
-        }
-        return equivalence;
+        return internalEquivalence(left, right);
     }
 
-    /**
-     * Returns a (singleton) object for the constant "True".
-     * @return an object for the constant "True"
-     */
-    public CTrue verum() {
-        return cTrue;
-    }
+    protected abstract Formula internalEquivalence(final Formula left, final Formula right);
 
     /**
      * Creates the negation of a given formula.
@@ -384,30 +295,10 @@ public class FormulaFactory {
         if (operand.type() == LITERAL || operand.type() == FALSE || operand.type() == TRUE || operand.type() == NOT) {
             return operand.negate();
         }
-        Not not = nots.get(operand);
-        if (not == null) {
-            not = new LngCachedNot(operand, this);
-            nots.put(operand, not);
-        }
-        return not;
+        return internalNot(operand);
     }
 
-    /**
-     * Returns a (singleton) object for the constant "False".
-     * @return an object for the constant "False"
-     */
-    public CFalse falsum() {
-        return cFalse;
-    }
-
-    /**
-     * Returns the constant "True" or "False" depending on the given value.
-     * @param value the given value
-     * @return the constant
-     */
-    public Constant constant(final boolean value) {
-        return value ? cTrue : cFalse;
-    }
+    protected abstract Formula internalNot(final Formula operand);
 
     /**
      * Creates a new n-ary operator with a given type and a list of operands.
@@ -446,7 +337,7 @@ public class FormulaFactory {
     public Formula and(final Formula... operands) {
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>(operands.length);
         Collections.addAll(ops, operands);
-        return constructAnd(ops);
+        return internalAnd(ops);
     }
 
     /**
@@ -458,169 +349,10 @@ public class FormulaFactory {
      */
     public Formula and(final Collection<? extends Formula> operands) {
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>(operands);
-        return constructAnd(ops);
+        return internalAnd(ops);
     }
 
-    /**
-     * Checks if the given formula was created by this formula factory. If this is the case,
-     * the formula is returned. Otherwise, depending on the {@link #formulaMergeStrategy}
-     * the formula is either imported or an exception is thrown.
-     * @param formula the formula to check
-     * @return the (possibly imported) formula
-     * @throws UnsupportedOperationException if the formula was created by another factory
-     *                                       and the formula merge strategy is
-     *                                       {@link FormulaFactoryConfig.FormulaMergeStrategy#PANIC}.
-     */
-    private Formula importOrPanic(final Formula formula) {
-        if (formula.factory() == this) {
-            return formula;
-        }
-        switch (formulaMergeStrategy) {
-            case IMPORT:
-                return importFormula(formula);
-            case PANIC:
-                throw new UnsupportedOperationException("Found an operand with a different formula factory.");
-            default:
-                throw new IllegalStateException("Unknown formula merge strategy: " + formulaMergeStrategy);
-        }
-    }
-
-    /**
-     * Checks if the given formulas were created by this formula factory. If this is the case,
-     * the same list is returned. Otherwise, depending on the {@link #formulaMergeStrategy}
-     * the formulas are either imported or an exception is thrown.
-     * @param formulas the formulas to check
-     * @return the (possibly imported) formulas
-     * @throws UnsupportedOperationException if one of the formulas was created by another factory
-     *                                       and the formula merge strategy is
-     *                                       {@link FormulaFactoryConfig.FormulaMergeStrategy#PANIC}.
-     */
-    private LinkedHashSet<? extends Formula> importOrPanicLHS(final LinkedHashSet<? extends Formula> formulas) {
-        boolean foundAnotherFormulaFactory = false;
-        for (final Formula formula : formulas) {
-            if (formula.factory() != this) {
-                foundAnotherFormulaFactory = true;
-                break;
-            }
-        }
-        if (!foundAnotherFormulaFactory) {
-            return formulas;
-        }
-        switch (formulaMergeStrategy) {
-            case IMPORT:
-                final LinkedHashSet<Formula> result = new LinkedHashSet<>();
-                for (final Formula formula : formulas) {
-                    result.add(formula.factory() != this ? importFormula(formula) : formula);
-                }
-                return result;
-            case PANIC:
-                throw new UnsupportedOperationException("Found an operand with a different formula factory.");
-            default:
-                throw new IllegalStateException("Unknown formula merge strategy: " + formulaMergeStrategy);
-        }
-    }
-
-    /**
-     * Checks if the given literals were created by this formula factory. If this is the case,
-     * the same array is returned. Otherwise, depending on the {@link #formulaMergeStrategy}
-     * the formulas are either imported or an exception is thrown.
-     * @param literals the literals to check
-     * @return the (possibly imported) literals
-     * @throws UnsupportedOperationException if one of the literals was created by another factory
-     *                                       and the formula merge strategy is
-     *                                       {@link FormulaFactoryConfig.FormulaMergeStrategy#PANIC}.
-     */
-    private List<? extends Literal> importOrPanic(final Collection<? extends Literal> literals) {
-        boolean foundAnotherFormulaFactory = false;
-        for (final Literal lit : literals) {
-            if (lit.factory() != this) {
-                foundAnotherFormulaFactory = true;
-                break;
-            }
-        }
-        if (!foundAnotherFormulaFactory) {
-            return new ArrayList<>(literals);
-        }
-        switch (formulaMergeStrategy) {
-            case IMPORT:
-                final List<Literal> result = new ArrayList<>(literals.size());
-                for (final Literal lit : literals) {
-                    result.add(lit.factory() != this ? literal(lit.name(), lit.phase()) : lit);
-                }
-                return result;
-            case PANIC:
-                throw new UnsupportedOperationException("Found an operand with a different formula factory.");
-            default:
-                throw new IllegalStateException("Unknown formula merge strategy: " + formulaMergeStrategy);
-        }
-    }
-
-    /**
-     * Creates a new conjunction.
-     * @param operandsIn the formulas
-     * @return a new conjunction
-     */
-    private Formula constructAnd(final LinkedHashSet<? extends Formula> operandsIn) {
-        final LinkedHashSet<? extends Formula> operands = importOrPanicLHS(operandsIn);
-        And tempAnd = null;
-        Map<LinkedHashSet<? extends Formula>, And> opAndMap = andsN;
-        if (operands.size() > 1) {
-            switch (operands.size()) {
-                case 2:
-                    opAndMap = ands2;
-                    break;
-                case 3:
-                    opAndMap = ands3;
-                    break;
-                case 4:
-                    opAndMap = ands4;
-                    break;
-                default:
-                    break;
-            }
-            tempAnd = opAndMap.get(operands);
-        }
-        if (tempAnd != null) {
-            return tempAnd;
-        }
-        final LinkedHashSet<? extends Formula> condensedOperands = operands.size() < 2
-                ? operands
-                : condenseOperandsAnd(operands);
-        if (condensedOperands == null) {
-            return falsum();
-        }
-        if (condensedOperands.isEmpty()) {
-            return verum();
-        }
-        if (condensedOperands.size() == 1) {
-            return condensedOperands.iterator().next();
-        }
-        final And and;
-        Map<LinkedHashSet<? extends Formula>, And> condAndMap = andsN;
-        switch (condensedOperands.size()) {
-            case 2:
-                condAndMap = ands2;
-                break;
-            case 3:
-                condAndMap = ands3;
-                break;
-            case 4:
-                condAndMap = ands4;
-                break;
-            default:
-                break;
-        }
-        and = condAndMap.get(condensedOperands);
-        if (and == null) {
-            tempAnd = new LngCachedAnd(condensedOperands, this);
-            setCnfCaches(tempAnd, cnfCheck);
-            opAndMap.put(operands, tempAnd);
-            condAndMap.put(condensedOperands, tempAnd);
-            return tempAnd;
-        }
-        opAndMap.put(operands, and);
-        return and;
-    }
+    protected abstract Formula internalAnd(LinkedHashSet<? extends Formula> operands);
 
     /**
      * Creates a new CNF from an array of clauses.
@@ -634,7 +366,7 @@ public class FormulaFactory {
     public Formula cnf(final Formula... clauses) {
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>(clauses.length);
         Collections.addAll(ops, clauses);
-        return constructCNF(ops);
+        return internalCnf(ops);
     }
 
     /**
@@ -648,45 +380,10 @@ public class FormulaFactory {
      */
     public Formula cnf(final Collection<? extends Formula> clauses) {
         final LinkedHashSet<? extends Formula> ops = new LinkedHashSet<>(clauses);
-        return constructCNF(ops);
+        return internalCnf(ops);
     }
 
-    /**
-     * Creates a new CNF.
-     * @param clausesIn the clauses
-     * @return a new CNF
-     */
-    private Formula constructCNF(final LinkedHashSet<? extends Formula> clausesIn) {
-        final LinkedHashSet<? extends Formula> clauses = importOrPanicLHS(clausesIn);
-        if (clauses.isEmpty()) {
-            return verum();
-        }
-        if (clauses.size() == 1) {
-            return clauses.iterator().next();
-        }
-        Map<LinkedHashSet<? extends Formula>, And> opAndMap = andsN;
-        switch (clauses.size()) {
-            case 2:
-                opAndMap = ands2;
-                break;
-            case 3:
-                opAndMap = ands3;
-                break;
-            case 4:
-                opAndMap = ands4;
-                break;
-            default:
-                break;
-        }
-        And tempAnd = opAndMap.get(clauses);
-        if (tempAnd != null) {
-            return tempAnd;
-        }
-        tempAnd = new LngCachedAnd(clauses, this);
-        setCnfCaches(tempAnd, true);
-        opAndMap.put(clauses, tempAnd);
-        return tempAnd;
-    }
+    protected abstract Formula internalCnf(final LinkedHashSet<? extends Formula> clauses);
 
     /**
      * Creates a new disjunction from an array of formulas.
@@ -696,7 +393,7 @@ public class FormulaFactory {
     public Formula or(final Formula... operands) {
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>(operands.length);
         Collections.addAll(ops, operands);
-        return constructOr(ops);
+        return internalOr(ops);
     }
 
     /**
@@ -708,75 +405,10 @@ public class FormulaFactory {
      */
     public Formula or(final Collection<? extends Formula> operands) {
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>(operands);
-        return constructOr(ops);
+        return internalOr(ops);
     }
 
-    /**
-     * Creates a new disjunction.
-     * @param operandsIn the formulas
-     * @return a new disjunction
-     */
-    private Formula constructOr(final LinkedHashSet<? extends Formula> operandsIn) {
-        final LinkedHashSet<? extends Formula> operands = importOrPanicLHS(operandsIn);
-        Or tempOr = null;
-        Map<LinkedHashSet<? extends Formula>, Or> opOrMap = orsN;
-        if (operands.size() > 1) {
-            switch (operands.size()) {
-                case 2:
-                    opOrMap = ors2;
-                    break;
-                case 3:
-                    opOrMap = ors3;
-                    break;
-                case 4:
-                    opOrMap = ors4;
-                    break;
-                default:
-                    break;
-            }
-            tempOr = opOrMap.get(operands);
-        }
-        if (tempOr != null) {
-            return tempOr;
-        }
-        final LinkedHashSet<? extends Formula> condensedOperands = operands.size() < 2
-                ? operands
-                : condenseOperandsOr(operands);
-        if (condensedOperands == null) {
-            return verum();
-        }
-        if (condensedOperands.isEmpty()) {
-            return falsum();
-        }
-        if (condensedOperands.size() == 1) {
-            return condensedOperands.iterator().next();
-        }
-        final Or or;
-        Map<LinkedHashSet<? extends Formula>, Or> condOrMap = orsN;
-        switch (condensedOperands.size()) {
-            case 2:
-                condOrMap = ors2;
-                break;
-            case 3:
-                condOrMap = ors3;
-                break;
-            case 4:
-                condOrMap = ors4;
-                break;
-            default:
-                break;
-        }
-        or = condOrMap.get(condensedOperands);
-        if (or == null) {
-            tempOr = new LngCachedOr(condensedOperands, this);
-            setCnfCaches(tempOr, cnfCheck);
-            opOrMap.put(operands, tempOr);
-            condOrMap.put(condensedOperands, tempOr);
-            return tempOr;
-        }
-        opOrMap.put(operands, or);
-        return or;
-    }
+    protected abstract Formula internalOr(final LinkedHashSet<? extends Formula> operandsIn);
 
     /**
      * Creates a new clause from an array of literals.
@@ -789,7 +421,7 @@ public class FormulaFactory {
     public Formula clause(final Literal... literals) {
         final LinkedHashSet<Literal> ops = new LinkedHashSet<>(literals.length);
         Collections.addAll(ops, literals);
-        return constructClause(ops);
+        return internalClause(ops);
     }
 
     /**
@@ -802,54 +434,17 @@ public class FormulaFactory {
      */
     public Formula clause(final Collection<? extends Literal> literals) {
         final LinkedHashSet<Literal> ops = new LinkedHashSet<>(literals);
-        return constructClause(ops);
+        return internalClause(ops);
     }
+
+    protected abstract Formula internalClause(final LinkedHashSet<Literal> literalsIn);
 
     /**
-     * Creates a new clause.
-     * @param literalsIn the literals
-     * @return a new clause
+     * Creates a new literal instance with a given name and positive phase.
+     * @param name the variable name
+     * @return a new literal with the given name and positive phase
      */
-    private Formula constructClause(final LinkedHashSet<Literal> literalsIn) {
-        final LinkedHashSet<? extends Formula> literals = importOrPanicLHS(literalsIn);
-        if (literals.isEmpty()) {
-            return falsum();
-        }
-        if (literals.size() == 1) {
-            return literals.iterator().next();
-        }
-        Map<LinkedHashSet<? extends Formula>, Or> opOrMap = orsN;
-        switch (literals.size()) {
-            case 2:
-                opOrMap = ors2;
-                break;
-            case 3:
-                opOrMap = ors3;
-                break;
-            case 4:
-                opOrMap = ors4;
-                break;
-            default:
-                break;
-        }
-        Or tempOr = opOrMap.get(literals);
-        if (tempOr != null) {
-            return tempOr;
-        }
-        tempOr = new LngCachedOr(literals, this);
-        setCnfCaches(tempOr, true);
-        opOrMap.put(literals, tempOr);
-        return tempOr;
-    }
-
-    private void setCnfCaches(final Formula formula, final boolean isCNF) {
-        if (isCNF) {
-            setPredicateCacheEntry(formula, IS_CNF, true);
-            setTransformationCacheEntry(formula, FACTORIZED_CNF, formula);
-        } else {
-            setPredicateCacheEntry(formula, IS_CNF, false);
-        }
-    }
+    public abstract Variable variable(final String name);
 
     /**
      * Creates a new literal instance with a given name and phase.
@@ -863,28 +458,11 @@ public class FormulaFactory {
         if (phase) {
             return variable(name);
         } else {
-            Literal lit = negLiterals.get(name);
-            if (lit == null) {
-                lit = new LngCachedLiteral(name, false, this);
-                negLiterals.put(name, lit);
-            }
-            return lit;
+            return internalNegativeLiteral(name);
         }
     }
 
-    /**
-     * Creates a new literal instance with a given name and positive phase.
-     * @param name the variable name
-     * @return a new literal with the given name and positive phase
-     */
-    public Variable variable(final String name) {
-        Variable var = posLiterals.get(name);
-        if (var == null) {
-            var = new LngCachedVariable(name, this);
-            posLiterals.put(name, var);
-        }
-        return var;
-    }
+    protected abstract Literal internalNegativeLiteral(final String name);
 
     /**
      * Creates a list of literals with the given names and positive phase.
@@ -946,14 +524,10 @@ public class FormulaFactory {
         if (isCC(comparator, rhs, literals, coefficients)) {
             return constructCCUnsafe(comparator, rhs, literals);
         }
-        final PBOperands operands = new PBOperands(literals, coefficients, comparator, rhs);
-        PBConstraint constraint = pbConstraints.get(operands);
-        if (constraint == null) {
-            constraint = new LngCachedPBConstraint(literals, coefficients, comparator, rhs, this);
-            pbConstraints.put(operands, constraint);
-        }
-        return constraint;
+        return internalPbc(literals, coefficients, comparator, rhs);
     }
+
+    protected abstract Formula internalPbc(final List<? extends Literal> literals, final List<Integer> coefficients, final CType comparator, int rhs);
 
     /**
      * Creates a new cardinality constraint.
@@ -1031,14 +605,10 @@ public class FormulaFactory {
         if (literals.isEmpty()) {
             return constant(evaluateTrivialPBConstraint(comparator, rhs));
         }
-        final CCOperands operands = new CCOperands(literals, comparator, rhs);
-        CardinalityConstraint constraint = cardinalityConstraints.get(operands);
-        if (constraint == null) {
-            constraint = new LngCachedCardinalityConstraint(importOrPanic(literals), comparator, rhs, this);
-            cardinalityConstraints.put(operands, constraint);
-        }
-        return constraint;
+        return internalCc(literals, comparator, rhs);
     }
+
+    protected abstract Formula internalCc(List<? extends Literal> literals, CType comparator, int rhs);
 
     /**
      * Tests if the given pseudo-Boolean parameters (comparator, right-hand side, literals and coefficients) represent a cardinality constraint.
@@ -1098,11 +668,7 @@ public class FormulaFactory {
      * Remark: currently only the counter is increased - there is no check if the literal is already present.
      * @return the new cardinality constraint auxiliary literal
      */
-    public Variable newCCVariable() {
-        final Variable var = variable(ccPrefix + ccCounter++);
-        generatedVariables.add(var);
-        return var;
-    }
+    public abstract Variable newCCVariable();
 
     /**
      * Returns a new pseudo Boolean auxiliary literal.
@@ -1110,11 +676,7 @@ public class FormulaFactory {
      * Remark: currently only the counter is increased - there is no check if the literal is already present.
      * @return the new pseudo Boolean auxiliary literal
      */
-    public Variable newPBVariable() {
-        final Variable var = variable(pbPrefix + pbCounter++);
-        generatedVariables.add(var);
-        return var;
-    }
+    public abstract Variable newPBVariable();
 
     /**
      * Returns a new CNF auxiliary literal.
@@ -1122,18 +684,14 @@ public class FormulaFactory {
      * Remark: currently only the counter is increased - there is no check if the literal is already present.
      * @return the new CNF auxiliary literal
      */
-    public Variable newCNFVariable() {
-        final Variable var = variable(cnfPrefix + cnfCounter++);
-        generatedVariables.add(var);
-        return var;
-    }
+    public abstract Variable newCNFVariable();
 
     /**
      * Returns a condensed array of operands for a given n-ary disjunction.
      * @param operands the formulas
      * @return a condensed array of operands
      */
-    private LinkedHashSet<Formula> condenseOperandsOr(final Collection<? extends Formula> operands) {
+    protected LinkedHashSet<Formula> condenseOperandsOr(final Collection<? extends Formula> operands) {
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>();
         cnfCheck = true;
         for (final Formula form : operands) {
@@ -1165,7 +723,7 @@ public class FormulaFactory {
      * @param operands the formulas
      * @return a condensed array of operands
      */
-    private LinkedHashSet<Formula> condenseOperandsAnd(final Collection<? extends Formula> operands) {
+    protected LinkedHashSet<Formula> condenseOperandsAnd(final Collection<? extends Formula> operands) {
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>();
         cnfCheck = true;
         for (final Formula form : operands) {
@@ -1197,9 +755,7 @@ public class FormulaFactory {
      * @param var the variable to check
      * @return {@code true} if the given variable was generated
      */
-    public boolean isGeneratedVariable(final Variable var) {
-        return generatedVariables.contains(var);
-    }
+    public abstract boolean isGeneratedVariable(final Variable var);
 
     /**
      * Returns the number of internal nodes of a given formula.
@@ -1259,6 +815,29 @@ public class FormulaFactory {
     }
 
     /**
+     * Returns {@code true} if a given list of formulas contains the negation of a given formula,
+     * {@code false} otherwise.  Always returns {@code false} if the formula factory is configured
+     * to allow contradictions and tautologies.
+     * @param formulas the list of formulas
+     * @param formula  the formula
+     * @return {@code true} if a given list of formulas contains a given formula, {@code false} otherwise
+     */
+    private boolean containsComplement(final LinkedHashSet<Formula> formulas, final Formula formula) {
+        if (!simplifyComplementaryOperands) {
+            return false;
+        }
+        final Formula negatedFormula = negateOrNull(formula);
+        return negatedFormula != null && formulas.contains(negatedFormula);
+    }
+
+    /**
+     * Returns the negated formula if the negation exists in the cache, otherwise {@code null} is returned.
+     * @param formula the formula
+     * @return the negated formula if the negation exists in the cache, otherwise {@code null}
+     */
+    protected abstract Formula negateOrNull(final Formula formula);
+
+    /**
      * Imports a formula from another formula factory into this factory and returns it.  If the current factory of the
      * formula is already this formula factory, the same instance will be returned.
      * @param formula the formula to import
@@ -1300,92 +879,96 @@ public class FormulaFactory {
     }
 
     /**
-     * Returns an entry of the transformation cache for the given formula.
-     * @param formula the formula
-     * @param key     the cache key
-     * @return the cache value or {@code null} if the key is not found
+     * Checks if the given formula was created by this formula factory. If this is the case,
+     * the formula is returned. Otherwise, depending on the {@link #formulaMergeStrategy}
+     * the formula is either imported or an exception is thrown.
+     * @param formula the formula to check
+     * @return the (possibly imported) formula
+     * @throws UnsupportedOperationException if the formula was created by another factory
+     *                                       and the formula merge strategy is
+     *                                       {@link FormulaMergeStrategy#PANIC}.
      */
-    protected Formula transformationCacheEntry(final Formula formula, final CacheEntry key) {
-        final Map<CacheEntry, Formula> cache = transformationCache.get(formula);
-        return cache == null ? null : cache.get(key);
-    }
-
-    /**
-     * Sets an entry in the transformation cache for the given formula.
-     * @param formula the formula
-     * @param key     the cache key
-     * @param value   the cache value
-     */
-    protected void setTransformationCacheEntry(final Formula formula, final CacheEntry key, final Formula value) {
-        transformationCache.computeIfAbsent(formula, k -> new HashMap<>()).put(key, value);
-    }
-
-    /**
-     * Returns an entry of the predicate cache for the given formula.
-     * @param formula the formula
-     * @param key     the cache key
-     * @return the cache value (which is {@code UNDEF} if nothing is present)
-     */
-    protected Tristate predicateCacheEntry(final Formula formula, final CacheEntry key) {
-        final Map<CacheEntry, Tristate> cache = predicateCache.get(formula);
-        if (cache == null) {
-            return Tristate.UNDEF;
-        } else {
-            final Tristate tristate = cache.get(key);
-            return tristate == null ? Tristate.UNDEF : tristate;
+    private Formula importOrPanic(final Formula formula) {
+        if (formula.factory() == this) {
+            return formula;
+        }
+        switch (formulaMergeStrategy) {
+            case IMPORT:
+                return importFormula(formula);
+            case PANIC:
+                throw new UnsupportedOperationException("Found an operand with a different formula factory.");
+            default:
+                throw new IllegalStateException("Unknown formula merge strategy: " + formulaMergeStrategy);
         }
     }
 
     /**
-     * Sets an entry in the predicate cache for the given formula.
-     * @param formula the formula
-     * @param key     the cache key
-     * @param value   the cache value
+     * Checks if the given formulas were created by this formula factory. If this is the case,
+     * the same list is returned. Otherwise, depending on the {@link #formulaMergeStrategy}
+     * the formulas are either imported or an exception is thrown.
+     * @param formulas the formulas to check
+     * @return the (possibly imported) formulas
+     * @throws UnsupportedOperationException if one of the formulas was created by another factory
+     *                                       and the formula merge strategy is
+     *                                       {@link FormulaMergeStrategy#PANIC}.
      */
-    protected void setPredicateCacheEntry(final Formula formula, final CacheEntry key, final boolean value) {
-        setPredicateCacheEntry(formula, key, Tristate.fromBool(value));
+    protected LinkedHashSet<? extends Formula> importOrPanicLHS(final LinkedHashSet<? extends Formula> formulas) {
+        boolean foundAnotherFormulaFactory = false;
+        for (final Formula formula : formulas) {
+            if (formula.factory() != this) {
+                foundAnotherFormulaFactory = true;
+                break;
+            }
+        }
+        if (!foundAnotherFormulaFactory) {
+            return formulas;
+        }
+        switch (formulaMergeStrategy) {
+            case IMPORT:
+                final LinkedHashSet<Formula> result = new LinkedHashSet<>();
+                for (final Formula formula : formulas) {
+                    result.add(formula.factory() != this ? importFormula(formula) : formula);
+                }
+                return result;
+            case PANIC:
+                throw new UnsupportedOperationException("Found an operand with a different formula factory.");
+            default:
+                throw new IllegalStateException("Unknown formula merge strategy: " + formulaMergeStrategy);
+        }
     }
 
     /**
-     * Sets an entry in the predicate cache for the given formula.
-     * @param formula the formula
-     * @param key     the cache key
-     * @param value   the cache value
+     * Checks if the given literals were created by this formula factory. If this is the case,
+     * the same array is returned. Otherwise, depending on the {@link #formulaMergeStrategy}
+     * the formulas are either imported or an exception is thrown.
+     * @param literals the literals to check
+     * @return the (possibly imported) literals
+     * @throws UnsupportedOperationException if one of the literals was created by another factory
+     *                                       and the formula merge strategy is
+     *                                       {@link FormulaMergeStrategy#PANIC}.
      */
-    protected void setPredicateCacheEntry(final Formula formula, final CacheEntry key, final Tristate value) {
-        predicateCache.computeIfAbsent(formula, k -> new HashMap<>()).put(key, value);
-    }
-
-    /**
-     * Returns an entry of the function cache for the given formula.
-     * @param formula the formula
-     * @param key     the cache key
-     * @return the cache value or {@code null} if the key is not found
-     */
-    protected Object functionCacheEntry(final Formula formula, final CacheEntry key) {
-        final Map<CacheEntry, Object> cache = functionCache.get(formula);
-        return cache == null ? null : cache.get(key);
-    }
-
-    /**
-     * Sets an entry in the function cache for the given formula.
-     * @param formula the formula
-     * @param key     the cache key
-     * @param value   the cache value
-     */
-    protected void setFunctionCacheEntry(final Formula formula, final CacheEntry key, final Object value) {
-        functionCache.computeIfAbsent(formula, k -> new HashMap<>()).put(key, value);
-    }
-
-    /**
-     * Clears the transformation, function, and PB encoding cache for the given formula.
-     * @param formula the formula
-     */
-    protected void clearCaches(final Formula formula) {
-        transformationCache.remove(formula);
-        functionCache.remove(formula);
-        if (formula instanceof PBConstraint) {
-            pbEncodingCache.remove(formula);
+    protected List<? extends Literal> importOrPanic(final Collection<? extends Literal> literals) {
+        boolean foundAnotherFormulaFactory = false;
+        for (final Literal lit : literals) {
+            if (lit.factory() != this) {
+                foundAnotherFormulaFactory = true;
+                break;
+            }
+        }
+        if (!foundAnotherFormulaFactory) {
+            return new ArrayList<>(literals);
+        }
+        switch (formulaMergeStrategy) {
+            case IMPORT:
+                final List<Literal> result = new ArrayList<>(literals.size());
+                for (final Literal lit : literals) {
+                    result.add(lit.factory() != this ? literal(lit.name(), lit.phase()) : lit);
+                }
+                return result;
+            case PANIC:
+                throw new UnsupportedOperationException("Found an operand with a different formula factory.");
+            default:
+                throw new IllegalStateException("Unknown formula merge strategy: " + formulaMergeStrategy);
         }
     }
 
@@ -1416,381 +999,4 @@ public class FormulaFactory {
         return stringRepresentation;
     }
 
-    /**
-     * Returns the statistics for this formula factory.
-     * @return the statistics for this formula factory
-     */
-    public FormulaFactoryStatistics statistics() {
-        final FormulaFactoryStatistics statistics = new FormulaFactoryStatistics();
-        statistics.name = name;
-        statistics.positiveLiterals = posLiterals.size();
-        statistics.negativeLiterals = negLiterals.size();
-        statistics.negations = nots.size();
-        statistics.implications = implications.size();
-        statistics.equivalences = equivalences.size();
-        statistics.conjunctions2 = ands2.size();
-        statistics.conjunctions3 = ands3.size();
-        statistics.conjunctions4 = ands4.size();
-        statistics.conjunctionsN = andsN.size();
-        statistics.disjunctions2 = ors2.size();
-        statistics.disjunctions3 = ors3.size();
-        statistics.disjunctions4 = ors4.size();
-        statistics.disjunctionsN = orsN.size();
-        statistics.pbcs = pbConstraints.size();
-        statistics.ccs = cardinalityConstraints.size();
-        statistics.ccCounter = ccCounter;
-        statistics.pbCounter = pbCounter;
-        statistics.cnfCounter = cnfCounter;
-        return statistics;
-    }
-
-    /**
-     * Helper class for the operands of a pseudo-Boolean constraint.
-     */
-    private static final class PBOperands {
-        private final List<? extends Literal> literals;
-        private final List<Integer> coefficients;
-        private final CType comparator;
-        private final int rhs;
-
-        /**
-         * Constructs a new instance.
-         * @param literals     the literals of the constraint
-         * @param coefficients the coefficients of the constraint
-         * @param comparator   the comparator of the constraint
-         * @param rhs          the right-hand side of the constraint
-         */
-        public PBOperands(final List<? extends Literal> literals, final List<Integer> coefficients, final CType comparator, final int rhs) {
-            this.literals = literals;
-            this.coefficients = coefficients;
-            this.comparator = comparator;
-            this.rhs = rhs;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(rhs, comparator, coefficients, literals);
-        }
-
-        @Override
-        public boolean equals(final Object other) {
-            if (this == other) {
-                return true;
-            }
-            if (other instanceof PBOperands) {
-                final PBOperands o = (PBOperands) other;
-                return rhs == o.rhs && comparator == o.comparator
-                        && coefficients.equals(o.coefficients)
-                        && literals.equals(o.literals);
-            }
-            return false;
-        }
-    }
-
-    /**
-     * Helper class for the operands of a cardinality constraint.
-     */
-    private static final class CCOperands {
-        private final List<? extends Literal> literals;
-        private final CType comparator;
-        private final int rhs;
-
-        /**
-         * Constructs a new instance.
-         * @param literals   the literals of the constraint
-         * @param comparator the comparator of the constraint
-         * @param rhs        the right-hand side of the constraint
-         */
-        public CCOperands(final List<? extends Literal> literals, final CType comparator, final int rhs) {
-            this.literals = literals;
-            this.comparator = comparator;
-            this.rhs = rhs;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(rhs, comparator, literals);
-        }
-
-        @Override
-        public boolean equals(final Object other) {
-            if (this == other) {
-                return true;
-            }
-            if (other instanceof CCOperands) {
-                final CCOperands o = (CCOperands) other;
-                return rhs == o.rhs && comparator == o.comparator && literals.equals(o.literals);
-            }
-            return false;
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "Name:              " + name + System.lineSeparator() +
-                "Positive Literals: " + posLiterals.size() + System.lineSeparator() +
-                "Negative Literals: " + negLiterals.size() + System.lineSeparator() +
-                "Negations:         " + nots.size() + System.lineSeparator() +
-                "Implications:      " + implications.size() + System.lineSeparator() +
-                "Equivalences:      " + equivalences.size() + System.lineSeparator() +
-                "Conjunctions (2):  " + ands2.size() + System.lineSeparator() +
-                "Conjunctions (3):  " + ands3.size() + System.lineSeparator() +
-                "Conjunctions (4):  " + ands4.size() + System.lineSeparator() +
-                "Conjunctions (>4): " + andsN.size() + System.lineSeparator() +
-                "Disjunctions (2):  " + ors2.size() + System.lineSeparator() +
-                "Disjunctions (3):  " + ors3.size() + System.lineSeparator() +
-                "Disjunctions (4):  " + ors4.size() + System.lineSeparator() +
-                "Disjunctions (>4): " + orsN.size() + System.lineSeparator() +
-                "Pseudo Booleans:   " + pbConstraints.size() + System.lineSeparator() +
-                "CCs:               " + cardinalityConstraints.size() + System.lineSeparator();
-    }
-
-    /**
-     * A class for statistics of the formula factory.
-     */
-    public static final class FormulaFactoryStatistics {
-        private String name;
-        private int positiveLiterals;
-        private int negativeLiterals;
-        private int negations;
-        private int implications;
-        private int equivalences;
-        private int conjunctions2;
-        private int conjunctions3;
-        private int conjunctions4;
-        private int conjunctionsN;
-        private int disjunctions2;
-        private int disjunctions3;
-        private int disjunctions4;
-        private int disjunctionsN;
-        private int pbcs;
-        private int ccs;
-        private int ccCounter;
-        private int pbCounter;
-        private int cnfCounter;
-
-        /**
-         * Returns the name of the formula factory.
-         * @return the name of the formula factory
-         */
-        public String name() {
-            return name;
-        }
-
-        /**
-         * Returns the number of positive literals in the factory.
-         * @return the number of positive literals in the factory
-         */
-        public int positiveLiterals() {
-            return positiveLiterals;
-        }
-
-        /**
-         * Returns the number of negative literals in the factory.
-         * @return the number of negative literals in the factory
-         */
-        public int negativeLiterals() {
-            return negativeLiterals;
-        }
-
-        /**
-         * Returns the number of negations in the factory.
-         * @return the number of negations in the factory
-         */
-        public int negations() {
-            return negations;
-        }
-
-        /**
-         * Returns the number of implications in the factory.
-         * @return the number of implications in the factory
-         */
-        public int implications() {
-            return implications;
-        }
-
-        /**
-         * Returns the number of equivalences in the factory.
-         * @return the number of equivalences in the factory
-         */
-        public int equivalences() {
-            return equivalences;
-        }
-
-        /**
-         * Returns the number of conjunctions of size 2 in the factory.
-         * @return the number of conjunctions of size 2 in the factory
-         */
-        public int conjunctions2() {
-            return conjunctions2;
-        }
-
-        /**
-         * Returns the number of conjunctions of size 3 in the factory.
-         * @return the number of conjunctions of size 3 in the factory
-         */
-        public int conjunctions3() {
-            return conjunctions3;
-        }
-
-        /**
-         * Returns the number of conjunctions of size 4 in the factory.
-         * @return the number of conjunctions of size 4 in the factory
-         */
-        public int conjunctions4() {
-            return conjunctions4;
-        }
-
-        /**
-         * Returns the number of conjunctions of a size &gt;4 in the factory.
-         * @return the number of conjunctions of a size &gt;4 in the factory
-         */
-        public int conjunctionsN() {
-            return conjunctionsN;
-        }
-
-        /**
-         * Returns the number of disjunctions of size 2 in the factory.
-         * @return the number of disjunctions of size 2 in the factory
-         */
-        public int disjunctions2() {
-            return disjunctions2;
-        }
-
-        /**
-         * Returns the number of disjunctions of size 3 in the factory.
-         * @return the number of disjunctions of size 3 in the factory
-         */
-        public int disjunctions3() {
-            return disjunctions3;
-        }
-
-        /**
-         * Returns the number of disjunctions of size 4 in the factory.
-         * @return the number of disjunctions of size 4 in the factory
-         */
-        public int disjunctions4() {
-            return disjunctions4;
-        }
-
-        /**
-         * Returns the number of disjunctions of a size &gt;4 in the factory.
-         * @return the number of disjunctions of a size &gt;4 in the factory
-         */
-        public int disjunctionsN() {
-            return disjunctionsN;
-        }
-
-        /**
-         * Returns the number of pseudo-Boolean constraints in the factory.
-         * @return the number of pseudo-Boolean constraints in the factory
-         */
-        public int pbcs() {
-            return pbcs;
-        }
-
-        /**
-         * Returns the number of cardinality constraints in the factory.
-         * @return the number of cardinality constraints in the factory
-         */
-        public int ccs() {
-            return ccs;
-        }
-
-        /**
-         * Returns the number of generated cardinality constraint auxiliary variables.
-         * @return the number of generated cardinality constraint auxiliary variables
-         */
-        public int ccCounter() {
-            return ccCounter;
-        }
-
-        /**
-         * Returns the number of generated pseudo-Boolean auxiliary variables.
-         * @return the number of generated pseudo-Boolean auxiliary variables
-         */
-        public int pbCounter() {
-            return pbCounter;
-        }
-
-        /**
-         * Returns the number of generated CNF auxiliary variables.
-         * @return the number of generated CNF auxiliary variables
-         */
-        public int cnfCounter() {
-            return cnfCounter;
-        }
-
-        /**
-         * Returns the number of all formulas in the factory.
-         * @return the number of all formulas in the factory
-         */
-        public int formulas() {
-            return positiveLiterals + negativeLiterals + negations + implications + equivalences
-                    + conjunctions2 + conjunctions3 + conjunctions4 + conjunctionsN + disjunctions2
-                    + disjunctions3 + disjunctions4 + disjunctionsN + pbcs + ccs;
-        }
-
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof FormulaFactoryStatistics)) {
-                return false;
-            }
-            final FormulaFactoryStatistics that = (FormulaFactoryStatistics) o;
-            return Objects.equals(name, that.name) &&
-                    positiveLiterals == that.positiveLiterals &&
-                    negativeLiterals == that.negativeLiterals &&
-                    negations == that.negations &&
-                    implications == that.implications &&
-                    equivalences == that.equivalences &&
-                    conjunctions2 == that.conjunctions2 &&
-                    conjunctions3 == that.conjunctions3 &&
-                    conjunctions4 == that.conjunctions4 &&
-                    conjunctionsN == that.conjunctionsN &&
-                    disjunctions2 == that.disjunctions2 &&
-                    disjunctions3 == that.disjunctions3 &&
-                    disjunctions4 == that.disjunctions4 &&
-                    disjunctionsN == that.disjunctionsN &&
-                    pbcs == that.pbcs &&
-                    ccs == that.ccs &&
-                    ccCounter == that.ccCounter &&
-                    pbCounter == that.pbCounter &&
-                    cnfCounter == that.cnfCounter;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name, positiveLiterals, negativeLiterals, negations, implications, equivalences, conjunctions2,
-                    conjunctions3, conjunctions4, conjunctionsN, disjunctions2, disjunctions3, disjunctions4, disjunctionsN,
-                    pbcs, ccs, ccCounter, pbCounter, cnfCounter);
-        }
-
-        @Override
-        public String toString() {
-            return "FormulaFactoryStatistics{" +
-                    "name='" + name + '\'' +
-                    ", positiveLiterals=" + positiveLiterals +
-                    ", negativeLiterals=" + negativeLiterals +
-                    ", negations=" + negations +
-                    ", implications=" + implications +
-                    ", equivalences=" + equivalences +
-                    ", conjunctions2=" + conjunctions2 +
-                    ", conjunctions3=" + conjunctions3 +
-                    ", conjunctions4=" + conjunctions4 +
-                    ", conjunctionsN=" + conjunctionsN +
-                    ", disjunctions2=" + disjunctions2 +
-                    ", disjunctions3=" + disjunctions3 +
-                    ", disjunctions4=" + disjunctions4 +
-                    ", disjunctionsN=" + disjunctionsN +
-                    ", pbcs=" + pbcs +
-                    ", ccs=" + ccs +
-                    ", ccCounter=" + ccCounter +
-                    ", pbCounter=" + pbCounter +
-                    ", cnfCounter=" + cnfCounter +
-                    '}';
-        }
-    }
 }

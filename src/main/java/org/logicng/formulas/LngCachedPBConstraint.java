@@ -26,7 +26,7 @@ public class LngCachedPBConstraint extends LngCachedFormula implements PBConstra
      * @throws IllegalArgumentException if the number of literals and coefficients do not correspond
      */
     LngCachedPBConstraint(final Collection<? extends Literal> literals, final Collection<Integer> coefficients, final CType comparator, final int rhs,
-                          final FormulaFactory f) {
+                          final CachingFormulaFactory f) {
         super(FType.PBC, f);
         if (literals.size() != coefficients.size()) {
             throw new IllegalArgumentException("Cannot generate a pseudo-Boolean constraint with literals.length != coefficients.length");

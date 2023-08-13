@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.LogicNGTest;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
@@ -50,7 +51,7 @@ public class IncDecTest implements LogicNGTest {
     private final PigeonHoleGenerator pg;
 
     public IncDecTest() {
-        this.f = new FormulaFactory();
+        this.f = new CachingFormulaFactory();
         this.pg = new PigeonHoleGenerator(this.f);
         this.solvers = new MiniSat[2];
         this.solvers[0] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(true).build());

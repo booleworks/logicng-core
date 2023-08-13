@@ -11,7 +11,7 @@ public class LngCachedVariable extends LngCachedLiteral implements Variable {
      * @param name the literal name
      * @param f    the factory which created this literal
      */
-    protected LngCachedVariable(final String name, final FormulaFactory f) {
+    protected LngCachedVariable(final String name, final CachingFormulaFactory f) {
         super(name, true, f);
     }
 }

@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
 import org.logicng.formulas.CType;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
@@ -181,7 +182,7 @@ public class PseudoBooleanParserTest extends TestWithExampleFormulas {
 
     @Test
     public void testNumberLiterals() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final PseudoBooleanParser parser = new PseudoBooleanParser(f);
         assertThat(parser.parse("12 & A")).isEqualTo(f.and(f.variable("12"), f.variable("A")));
         assertThat(parser.parse("~12 & A")).isEqualTo(f.and(f.literal("12", false), f.variable("A")));

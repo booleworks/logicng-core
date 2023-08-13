@@ -19,7 +19,7 @@ public class LngCachedLiteral extends LngCachedFormula implements Literal {
      * @param phase the phase of the literal (also found as sign or polarity in the literature)
      * @param f     the factory which created this literal
      */
-    LngCachedLiteral(final String name, final boolean phase, final FormulaFactory f) {
+    LngCachedLiteral(final String name, final boolean phase, final CachingFormulaFactory f) {
         super(FType.LITERAL, f);
         this.name = name;
         this.phase = phase;

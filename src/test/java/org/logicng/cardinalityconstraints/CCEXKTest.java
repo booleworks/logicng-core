@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.logicng.LogicNGTest;
 import org.logicng.datastructures.EncodingResult;
 import org.logicng.formulas.CType;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.solvers.MiniSat;
@@ -56,7 +57,7 @@ public class CCEXKTest implements LogicNGTest {
 
     @Test
     public void testEXK() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         int counter = 0;
         for (final CCConfig config : this.configs) {
             f.putConfiguration(config);
@@ -94,7 +95,7 @@ public class CCEXKTest implements LogicNGTest {
 
     @Test
     public void testCCEXKTotalizer() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final CCEXKTotalizer totalizer = new CCEXKTotalizer();
         totalizer.build(EncodingResult.resultForFormula(f), new Variable[]{f.variable("A"), f.variable("B"), f.variable("C")}, 2);
         assertThat(totalizer.incrementalData()).isNull();

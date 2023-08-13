@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.logicng.LongRunningTag;
 import org.logicng.RandomTag;
 import org.logicng.TestWithExampleFormulas;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.handlers.BoundedOptimizationHandler;
@@ -76,7 +77,7 @@ public class AdvancedSimplifierTest extends TestWithExampleFormulas {
     @RandomTag
     public void testRandomized() {
         for (int i = 0; i < 100; i++) {
-            final FormulaFactory f = new FormulaFactory();
+            final FormulaFactory f = new CachingFormulaFactory();
             final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(8).weightPbc(2).seed(i * 42).build());
             final Formula formula = randomizer.formula(5);
             computeAndVerify(formula);
@@ -126,7 +127,7 @@ public class AdvancedSimplifierTest extends TestWithExampleFormulas {
     @LongRunningTag
     @Test
     public void testCancellationPoints() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final Formula formula = f.parse("~v16 & ~v22 & ~v12 & (~v4 | ~v14) & (~v4 | ~v15) & (v3 | v4) & (v3 | ~v14) & (v3 | ~v15) " +
                 "& (~v20 | ~v8) & (v9 | ~v20) & (~v21 | ~v8) & (v9 | ~v21) & (~v21 | ~v10) & (~v21 | ~v11) & v19");
         for (int numOptimizationStarts = 1; numOptimizationStarts < 30; numOptimizationStarts++) {
@@ -139,7 +140,7 @@ public class AdvancedSimplifierTest extends TestWithExampleFormulas {
 
     @Test
     public void testAdvancedSimplifierConfig() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final List<AdvancedSimplifierConfig> configs = Arrays.asList(
                 AdvancedSimplifierConfig.builder().build(),
                 AdvancedSimplifierConfig.builder().restrictBackbone(false).factorOut(false).simplifyNegations(false).build(),

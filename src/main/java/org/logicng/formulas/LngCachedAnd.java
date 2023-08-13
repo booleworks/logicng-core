@@ -13,7 +13,7 @@ public class LngCachedAnd extends LngCachedNAryOperator implements And {
      * @param operands the stream of operands
      * @param f        the factory which created this instance
      */
-    LngCachedAnd(final LinkedHashSet<? extends Formula> operands, final FormulaFactory f) {
+    LngCachedAnd(final LinkedHashSet<? extends Formula> operands, final CachingFormulaFactory f) {
         super(FType.AND, operands, f);
     }
 

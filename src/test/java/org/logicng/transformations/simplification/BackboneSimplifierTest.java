@@ -31,6 +31,7 @@ package org.logicng.transformations.simplification;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
@@ -46,7 +47,7 @@ public class BackboneSimplifierTest {
 
     @Test
     public void testTrivialBackbones() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final PropositionalParser p = new PropositionalParser(f);
         assertThat(p.parse("$true").transform(this.backboneSimplifier)).isEqualTo(p.parse("$true"));
         assertThat(p.parse("$false").transform(this.backboneSimplifier)).isEqualTo(p.parse("$false"));
@@ -58,7 +59,7 @@ public class BackboneSimplifierTest {
 
     @Test
     public void testRealBackbones() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final PropositionalParser p = new PropositionalParser(f);
         assertThat(p.parse("A & B & (B | C)").transform(this.backboneSimplifier)).isEqualTo(p.parse("A & B"));
         assertThat(p.parse("A & B & (~B | C)").transform(this.backboneSimplifier)).isEqualTo(p.parse("A & B & C"));

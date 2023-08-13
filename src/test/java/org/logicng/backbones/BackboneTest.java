@@ -35,6 +35,7 @@ import static org.logicng.datastructures.Tristate.UNDEF;
 
 import org.assertj.core.data.MapEntry;
 import org.junit.jupiter.api.Test;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
@@ -51,7 +52,7 @@ import java.util.TreeSet;
  * @since 1.5.0
  */
 public class BackboneTest {
-    private final FormulaFactory f = new FormulaFactory();
+    private final FormulaFactory f = new CachingFormulaFactory();
     private final PropositionalParser p = new PropositionalParser(this.f);
     private final Variable a1 = this.f.variable("a1");
     private final Variable a2 = this.f.variable("a2");

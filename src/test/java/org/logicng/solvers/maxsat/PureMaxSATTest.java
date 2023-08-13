@@ -39,6 +39,7 @@ import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
 import org.logicng.datastructures.Assignment;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
@@ -68,7 +69,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
             "s15850-bug-onevec-gate-0.dimacs.seq.filtered.cnf"
     };
     private final PrintStream logStream;
-    private final FormulaFactory f = new FormulaFactory();
+    private final FormulaFactory f = new CachingFormulaFactory();
 
     public PureMaxSATTest() throws FileNotFoundException {
         this.logStream = new PrintStream("src/test/resources/maxsat/log.txt");
