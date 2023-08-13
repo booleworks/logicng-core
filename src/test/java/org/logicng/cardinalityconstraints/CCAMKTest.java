@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.logicng.LogicNGTest;
 import org.logicng.LongRunningTag;
 import org.logicng.formulas.CType;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.CardinalityConstraint;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
@@ -59,7 +60,7 @@ public class CCAMKTest implements LogicNGTest {
 
     @Test
     public void testAMK() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         int counter = 0;
         for (final CCConfig config : this.configs) {
             f.putConfiguration(config);
@@ -81,7 +82,7 @@ public class CCAMKTest implements LogicNGTest {
 
     @Test
     public void testAMKMiniCard() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         testCC(10, 0, 1, f, true);
         testCC(10, 1, 11, f, true);
         testCC(10, 2, 56, f, true);
@@ -100,7 +101,7 @@ public class CCAMKTest implements LogicNGTest {
     @Test
     @LongRunningTag
     public void testLargeAMK() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         int counter = 0;
         for (final CCConfig config : this.configs) {
             f.putConfiguration(config);
@@ -111,7 +112,7 @@ public class CCAMKTest implements LogicNGTest {
 
     @Test
     public void testLargeAMKMiniCard() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         testCC(150, 2, 1 + 150 + 11175, f, true);
         assertThat(f.newCCVariable().name()).endsWith("_0");
     }
@@ -131,7 +132,7 @@ public class CCAMKTest implements LogicNGTest {
 
     @Test
     public void testIllegalCC1() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final CCEncoder encoder = new CCEncoder(f);
         final int numLits = 100;
         final Variable[] problemLits = new Variable[numLits];
@@ -143,7 +144,7 @@ public class CCAMKTest implements LogicNGTest {
 
     @Test
     public void testToString() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         assertThat(this.configs[0].amkEncoder.toString()).isEqualTo("TOTALIZER");
         assertThat(this.configs[1].amkEncoder.toString()).isEqualTo("MODULAR_TOTALIZER");
         assertThat(this.configs[2].amkEncoder.toString()).isEqualTo("CARDINALITY_NETWORK");

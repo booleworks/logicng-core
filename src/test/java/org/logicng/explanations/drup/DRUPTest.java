@@ -38,6 +38,7 @@ import org.logicng.LogicNGTest;
 import org.logicng.LongRunningTag;
 import org.logicng.datastructures.Tristate;
 import org.logicng.explanations.UNSATCore;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
@@ -64,7 +65,7 @@ import java.util.List;
  */
 public class DRUPTest implements LogicNGTest {
 
-    private final FormulaFactory f = new FormulaFactory();
+    private final FormulaFactory f = new CachingFormulaFactory();
 
     private final SATSolver[] solvers;
 
@@ -242,7 +243,7 @@ public class DRUPTest implements LogicNGTest {
 
     @Test
     public void testCoreAndAssumptions() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final SATSolver[] solvers = new SATSolver[]{
                 MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build()),
                 MiniSat.glucose(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build(), GlucoseConfig.builder().build())
@@ -272,7 +273,7 @@ public class DRUPTest implements LogicNGTest {
 
     @Test
     public void testCoreAndAssumptions2() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final SATSolver[] solvers = new SATSolver[]{
                 MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build()),
                 MiniSat.glucose(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build(), GlucoseConfig.builder().build())
@@ -294,7 +295,7 @@ public class DRUPTest implements LogicNGTest {
     @Test
     public void testCoreAndAssumptions3() throws ParserException {
         // Unit test for DRUP issue which led to java.lang.ArrayIndexOutOfBoundsException: -1
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final SATSolver[] solvers = new SATSolver[]{
                 MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build()),
                 MiniSat.glucose(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build(), GlucoseConfig.builder().build())
@@ -345,7 +346,7 @@ public class DRUPTest implements LogicNGTest {
 
     @Test
     public void testWithCcPropositions() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
         final ExtendedProposition<StringBackpack> p1 = new ExtendedProposition<>(new StringBackpack("CC"), f.parse("A + B + C <= 1"));
         final StandardProposition p2 = new StandardProposition(f.parse("A"));
@@ -361,7 +362,7 @@ public class DRUPTest implements LogicNGTest {
 
     @Test
     public void testWithSpecialUnitCaseMiniSat() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).build());
         final StandardProposition p1 = new StandardProposition(f.parse("a => b"));
         final StandardProposition p2 = new StandardProposition(f.parse("a => c | d"));
@@ -383,7 +384,7 @@ public class DRUPTest implements LogicNGTest {
 
     @Test
     public void testWithSpecialUnitCaseGlucose() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final SATSolver solver = MiniSat.glucose(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).build(), GlucoseConfig.builder().build());
         final StandardProposition p1 = new StandardProposition(f.parse("a => b"));
         final StandardProposition p2 = new StandardProposition(f.parse("a => c | d"));

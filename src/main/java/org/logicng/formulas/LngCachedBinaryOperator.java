@@ -17,7 +17,7 @@ public abstract class LngCachedBinaryOperator extends LngCachedFormula implement
      * @param right the right-hand side operand
      * @param f     the factory which created this instance
      */
-    LngCachedBinaryOperator(final FType type, final Formula left, final Formula right, final FormulaFactory f) {
+    LngCachedBinaryOperator(final FType type, final Formula left, final Formula right, final CachingFormulaFactory f) {
         super(type, f);
         this.left = left;
         this.right = right;

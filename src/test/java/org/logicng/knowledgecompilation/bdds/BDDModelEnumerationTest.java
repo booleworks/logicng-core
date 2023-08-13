@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.CType;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
@@ -71,7 +72,7 @@ public class BDDModelEnumerationTest {
                 BigInteger.valueOf(352)
         };
 
-        this.f = new FormulaFactory();
+        this.f = new CachingFormulaFactory();
         final NQueensGenerator generator = new NQueensGenerator(this.f);
         this.formulas = new ArrayList<>(problems.length);
         this.variables = new ArrayList<>(problems.length);
@@ -107,7 +108,7 @@ public class BDDModelEnumerationTest {
 
     @Test
     public void testExo() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final Formula constraint = f.exo(generateVariables(100, f)).cnf();
         final BDDKernel kernel = new BDDKernel(f, constraint.variables().size(), 100000, 1000000);
         final BDD bdd = BDDFactory.build(constraint, kernel);
@@ -117,7 +118,7 @@ public class BDDModelEnumerationTest {
 
     @Test
     public void testExk() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final Formula constraint = f.cc(CType.EQ, 8, generateVariables(15, f)).cnf();
         final BDDKernel kernel = new BDDKernel(f, constraint.variables().size(), 100000, 1000000);
         final BDD bdd = BDDFactory.build(constraint, kernel);
@@ -127,7 +128,7 @@ public class BDDModelEnumerationTest {
 
     @Test
     public void testAmo() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final Formula constraint = f.amo(generateVariables(100, f)).cnf();
         final BDDKernel kernel = new BDDKernel(f, constraint.variables().size(), 100000, 1000000);
         final BDD bdd = BDDFactory.build(constraint, kernel);

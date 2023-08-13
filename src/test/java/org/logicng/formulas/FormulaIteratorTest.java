@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  */
 public class FormulaIteratorTest {
 
-    private final FormulaFactory f = new FormulaFactory();
+    private final FormulaFactory f = new CachingFormulaFactory();
     private final PropositionalParser p = new PropositionalParser(this.f);
 
     @Test

@@ -37,6 +37,7 @@ import static org.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity.SOME;
 import org.junit.jupiter.api.Test;
 import org.logicng.LongRunningTag;
 import org.logicng.TestWithExampleFormulas;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.handlers.TimeoutMaxSATHandler;
@@ -78,7 +79,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
             11, 11, 13, 17, 17, 23
     };
     private final PrintStream logStream;
-    private final FormulaFactory f = new FormulaFactory();
+    private final FormulaFactory f = new CachingFormulaFactory();
 
     public PartialWeightedMaxSATTest() throws FileNotFoundException {
         this.logStream = new PrintStream("src/test/resources/partialweightedmaxsat/log.txt");

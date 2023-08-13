@@ -34,6 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.logicng.RandomTag;
 import org.logicng.datastructures.Assignment;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
@@ -73,7 +74,7 @@ public class BDDOperationsTest {
 
     @BeforeEach
     public void init() throws ParserException {
-        this.f = new FormulaFactory();
+        this.f = new CachingFormulaFactory();
         this.parser = new PropositionalParser(this.f);
         this.kernel = new BDDKernel(this.f, 3, 1000, 1000);
         this.bddVerum = BDDFactory.build(this.f.verum(), this.kernel);
@@ -112,7 +113,7 @@ public class BDDOperationsTest {
     @RandomTag
     @Test
     public void testToFormulaRandom() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         for (int i = 0; i < 100; i++) {
             final Formula formula = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(i).build()).formula(6);
             final BDD bdd = BDDFactory.build(formula);

@@ -4,12 +4,15 @@
 
 package org.logicng.formulas;
 
+import org.logicng.datastructures.Tristate;
+import org.logicng.formulas.cache.CacheEntry;
+
 public abstract class LngCachedFormula implements Formula {
 
-    protected final FormulaFactory f;
+    protected final CachingFormulaFactory f;
     protected FType type;
 
-    protected LngCachedFormula(final FType type, final FormulaFactory f) {
+    protected LngCachedFormula(final FType type, final CachingFormulaFactory f) {
         this.f = f;
         this.type = type;
     }
@@ -20,8 +23,48 @@ public abstract class LngCachedFormula implements Formula {
     }
 
     @Override
-    public FormulaFactory factory() {
+    public CachingFormulaFactory factory() {
         return f;
+    }
+
+    @Override
+    public Formula transformationCacheEntry(final CacheEntry key) {
+        return f.transformationCacheEntry(this, key);
+    }
+
+    @Override
+    public void setTransformationCacheEntry(final CacheEntry key, final Formula value) {
+        f.setTransformationCacheEntry(this, key, value);
+    }
+
+    @Override
+    public Tristate predicateCacheEntry(final CacheEntry key) {
+        return f.predicateCacheEntry(this, key);
+    }
+
+    @Override
+    public void setPredicateCacheEntry(final CacheEntry key, final boolean value) {
+        f.setPredicateCacheEntry(this, key, value);
+    }
+
+    @Override
+    public void setPredicateCacheEntry(final CacheEntry key, final Tristate value) {
+        f.setPredicateCacheEntry(this, key, value);
+    }
+
+    @Override
+    public Object functionCacheEntry(final CacheEntry key) {
+        return f.functionCacheEntry(this, key);
+    }
+
+    @Override
+    public void setFunctionCacheEntry(final CacheEntry key, final Object value) {
+        f.setFunctionCacheEntry(this, key, value);
+    }
+
+    @Override
+    public void clearCaches() {
+        f.clearCaches(this);
     }
 
     @Override

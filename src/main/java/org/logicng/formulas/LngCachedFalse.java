@@ -10,7 +10,7 @@ public class LngCachedFalse extends LngCachedFormula implements CFalse {
      * Constructor.
      * @param factory the factory which created this instance
      */
-    LngCachedFalse(final FormulaFactory factory) {
+    LngCachedFalse(final CachingFormulaFactory factory) {
         super(FType.FALSE, factory);
     }
 

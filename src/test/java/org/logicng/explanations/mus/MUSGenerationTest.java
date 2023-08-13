@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 import org.logicng.datastructures.Tristate;
 import org.logicng.explanations.UNSATCore;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
@@ -60,7 +61,7 @@ import java.util.stream.Collectors;
  */
 public class MUSGenerationTest {
 
-    private final FormulaFactory f = new FormulaFactory();
+    private final FormulaFactory f = new CachingFormulaFactory();
     private final PigeonHoleGenerator pg = new PigeonHoleGenerator(this.f);
 
     private final List<StandardProposition> pg3;

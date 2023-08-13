@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.np;
 
@@ -49,7 +25,7 @@ import java.util.Set;
  * algorithm is really only meant for small set cover problems
  * with perhaps some tens or hundreds of set and hundreds of
  * variables.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public final class SetCover {
@@ -66,16 +42,16 @@ public final class SetCover {
      * i.e. a minimum number of sets s.t. each element is covered at
      * least once by a set in the cover.
      * @param sets the sets to cover
+     * @param f    the formula factory
      * @param <T>  the type of the elements of the sets.  This type must implement
      *             a meaningful equals/hashCode method since it is internally
      *             used in HashSets
      * @return a minimum cover of the elements in the given sets
      */
-    public static <T> List<Set<T>> compute(final Collection<Set<T>> sets) {
+    public static <T> List<Set<T>> compute(final Collection<Set<T>> sets, final FormulaFactory f) {
         if (sets.isEmpty()) {
             return Collections.emptyList();
         }
-        final FormulaFactory f = new FormulaFactory();
         final Map<Variable, Set<T>> setMap = new HashMap<>();
         final Map<T, Set<Variable>> elementOccurrences = new HashMap<>();
         for (final Set<T> set : sets) {

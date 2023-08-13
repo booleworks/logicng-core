@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.logicng.RandomTag;
 import org.logicng.TestWithExampleFormulas;
 import org.logicng.formulas.BinaryOperator;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
@@ -138,7 +139,7 @@ public class PureExpansionTransformationTest extends TestWithExampleFormulas {
 
     @Test
     public void testCornerCases() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final FormulaCornerCases cornerCases = new FormulaCornerCases(f);
         for (final Formula formula : cornerCases.cornerCases()) {
             if (formula.type() == FType.PBC) {
@@ -157,7 +158,7 @@ public class PureExpansionTransformationTest extends TestWithExampleFormulas {
     @RandomTag
     public void testRandom() {
         for (int i = 0; i < 200; i++) {
-            final FormulaFactory f = new FormulaFactory();
+            final FormulaFactory f = new CachingFormulaFactory();
             final FormulaRandomizerConfig config = FormulaRandomizerConfig.builder()
                     .numVars(12).weightAmo(5).weightExo(5).seed(i * 42).build();
             final FormulaRandomizer randomizer = new FormulaRandomizer(f, config);

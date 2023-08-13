@@ -18,7 +18,7 @@ public abstract class LngCachedNAryOperator extends LngCachedFormula implements 
      * @param operands the list of operands
      * @param f        the factory which created this instance
      */
-    LngCachedNAryOperator(final FType type, final Collection<? extends Formula> operands, final FormulaFactory f) {
+    LngCachedNAryOperator(final FType type, final Collection<? extends Formula> operands, final CachingFormulaFactory f) {
         super(type, f);
         this.operands = List.copyOf(operands);
         this.hashCode = 0;

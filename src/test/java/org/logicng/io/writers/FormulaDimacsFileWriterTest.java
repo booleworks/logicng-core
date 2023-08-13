@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
@@ -53,7 +54,7 @@ import java.io.IOException;
  */
 public class FormulaDimacsFileWriterTest extends TestWithExampleFormulas {
 
-    private final FormulaFactory f = new FormulaFactory();
+    private final FormulaFactory f = new CachingFormulaFactory();
     private final CNFEncoder encoder = new CNFEncoder(this.f, CNFConfig.builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build());
     private final PropositionalParser p = new PropositionalParser(this.f);
     private final PseudoBooleanParser pp = new PseudoBooleanParser(this.f);

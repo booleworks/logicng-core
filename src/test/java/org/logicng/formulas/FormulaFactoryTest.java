@@ -54,7 +54,7 @@ public class FormulaFactoryTest {
     @Test
     public void testPutConfigurationWithInvalidArgument() {
         assertThatThrownBy(() -> {
-            final FormulaFactory f = new FormulaFactory();
+            final FormulaFactory f = new CachingFormulaFactory();
             f.putConfiguration(FormulaFactoryConfig.builder().build());
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Configurations for the formula factory itself can only be passed in the constructor.");
@@ -62,14 +62,14 @@ public class FormulaFactoryTest {
 
     @Test
     public void testConstant() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         assertThat(f.constant(true)).isEqualTo(f.verum());
         assertThat(f.constant(false)).isEqualTo(f.falsum());
     }
 
     @Test
     public void testToString() {
-        final FormulaFactory f = new FormulaFactory(FormulaFactoryConfig.builder().name("MyFormulaFactory").build());
+        final FormulaFactory f = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("MyFormulaFactory").build());
         f.variable("a");
         f.literal("b", false);
         f.and(f.variable("a"), f.literal("b", false));
@@ -95,13 +95,13 @@ public class FormulaFactoryTest {
 
     @Test
     public void testDefaultName() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         assertThat(f.name()).isEqualTo("");
     }
 
     @Test
     public void testConfigurations() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final Configuration configMaxSat = MaxSATConfig.builder().build();
         final Configuration configMiniSat = MiniSatConfig.builder().build();
         final Configuration configGlucose = GlucoseConfig.builder().build();
@@ -115,7 +115,7 @@ public class FormulaFactoryTest {
 
     @Test
     public void testGeneratedVariables() {
-        FormulaFactory f = new FormulaFactory();
+        FormulaFactory f = new CachingFormulaFactory();
         Variable ccVar = f.newCCVariable();
         Variable cnfVar = f.newCNFVariable();
         Variable pbVar = f.newPBVariable();
@@ -128,7 +128,7 @@ public class FormulaFactoryTest {
         assertThat(pbVar.name()).isEqualTo("@RESERVED_PB_0");
         assertThat(cnfVar.name()).isEqualTo("@RESERVED_CNF_0");
 
-        f = new FormulaFactory(FormulaFactoryConfig.builder().name("f").build());
+        f = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("f").build());
         ccVar = f.newCCVariable();
         cnfVar = f.newCNFVariable();
         pbVar = f.newPBVariable();
@@ -144,7 +144,7 @@ public class FormulaFactoryTest {
 
     @Test
     public void testCNF() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final Variable a = f.variable("A");
         final Variable b = f.variable("B");
         final Variable c = f.variable("C");
@@ -171,8 +171,8 @@ public class FormulaFactoryTest {
 
     @Test
     public void testImportFormula() throws ParserException {
-        final FormulaFactory f = new FormulaFactory(FormulaFactoryConfig.builder().name("Factory F").build());
-        final FormulaFactory g = new FormulaFactory(FormulaFactoryConfig.builder().name("Factory G").build());
+        final CachingFormulaFactory f = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("Factory F").build());
+        final CachingFormulaFactory g = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("Factory G").build());
         final PropositionalParser pf = new PropositionalParser(f);
         final String formula = "x1 & x2 & ~x3 => (x4 | (x5 <=> ~x1))";
         final Formula ff = pf.parse(formula);
@@ -193,10 +193,10 @@ public class FormulaFactoryTest {
 
     @Test
     public void testStatistics() {
-        final FormulaFactory f = new FormulaFactory(FormulaFactoryConfig.builder().name("Factory F").build());
-        final FormulaFactory g = new FormulaFactory(FormulaFactoryConfig.builder().name("Factory F").build());
-        final FormulaFactory.FormulaFactoryStatistics statisticsF1 = f.statistics();
-        final FormulaFactory.FormulaFactoryStatistics statisticsG = g.statistics();
+        final CachingFormulaFactory f = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("Factory F").build());
+        final CachingFormulaFactory g = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("Factory F").build());
+        final CachingFormulaFactory.Statistics statisticsF1 = f.statistics();
+        final CachingFormulaFactory.Statistics statisticsG = g.statistics();
 
         assertThat(statisticsF1.name()).isEqualTo("Factory F");
         assertThat(statisticsF1.positiveLiterals()).isEqualTo(0);
@@ -272,7 +272,7 @@ public class FormulaFactoryTest {
         assertThat(f.ors4).containsValue(or4);
         assertThat(f.orsN).containsValue(or5);
 
-        final FormulaFactory.FormulaFactoryStatistics statisticsF2 = f.statistics();
+        final CachingFormulaFactory.Statistics statisticsF2 = f.statistics();
 
         assertThat(statisticsF2.name()).isEqualTo("Factory F");
         assertThat(statisticsF2.positiveLiterals()).isEqualTo(5);

@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.logicng.LongRunningTag;
 import org.logicng.cardinalityconstraints.CCConfig;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
@@ -69,7 +70,7 @@ import java.util.Set;
  */
 public class DnnfCompilerTest {
 
-    private final FormulaFactory f = new FormulaFactory();
+    private final FormulaFactory f = new CachingFormulaFactory();
     private final FormulaParser parser = new PseudoBooleanParser(this.f);
 
     @Test
@@ -95,7 +96,7 @@ public class DnnfCompilerTest {
 
     @Test
     public void testLargeFormulas() throws IOException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         List<Formula> dimacs = DimacsReader.readCNF("src/test/resources/dnnf/both_bdd_dnnf_1.cnf", f);
         testFormula(f.cnf(dimacs), true);
         dimacs = DimacsReader.readCNF("src/test/resources/dnnf/both_bdd_dnnf_2.cnf", f);
@@ -124,7 +125,7 @@ public class DnnfCompilerTest {
     @Test
     @LongRunningTag
     public void testLargeFormula() throws IOException, ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());
         final Formula parsed = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/formula1.txt", f);
         final DnnfFactory dnnfFactory = new DnnfFactory();

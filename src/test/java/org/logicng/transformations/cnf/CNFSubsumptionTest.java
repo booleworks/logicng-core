@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.LongRunningTag;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
@@ -49,7 +50,7 @@ import java.io.IOException;
  */
 public class CNFSubsumptionTest {
 
-    private final FormulaFactory f = new FormulaFactory();
+    private final FormulaFactory f = new CachingFormulaFactory();
     private final PropositionalParser p = new PropositionalParser(this.f);
     private final CNFSubsumption s = CNFSubsumption.get();
 
@@ -86,7 +87,7 @@ public class CNFSubsumptionTest {
     @Test
     @LongRunningTag
     public void testEvenLargerFormula() throws IOException, ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
         final Formula cnf = formula.transform(new CNFFactorization());
         final Formula subsumed = cnf.transform(CNFSubsumption.get());

@@ -16,7 +16,7 @@ public class LngCachedOr extends LngCachedNAryOperator implements Or {
      * @param operands the list of operands
      * @param f        the factory which created this instance
      */
-    LngCachedOr(final LinkedHashSet<? extends Formula> operands, final FormulaFactory f) {
+    LngCachedOr(final LinkedHashSet<? extends Formula> operands, final CachingFormulaFactory f) {
         super(FType.OR, operands, f);
     }
 

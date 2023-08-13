@@ -108,7 +108,8 @@ public class OrTest extends TestWithExampleFormulas {
 
     @Test
     public void testToString() {
-        final FormulaFactory f = new FormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        final FormulaFactory f =
+                new CachingFormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         assertThat(this.OR1.toString()).isEqualTo("x | y");
         assertThat(this.OR2.toString()).isEqualTo("~x | ~y");
         assertThat(this.OR3.toString()).isEqualTo("a & b | ~a & ~b");
@@ -129,8 +130,8 @@ public class OrTest extends TestWithExampleFormulas {
 
     @Test
     public void testEqualsDifferentFormulaFactory() {
-        final FormulaFactory f = new FormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final FormulaFactory g = new FormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        final FormulaFactory f = new CachingFormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        final FormulaFactory g = new CachingFormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         assertThat(g.or(g.variable("x"), g.variable("y"))).isEqualTo(this.OR1);
         assertThat(g.or(this.AND1, this.AND2)).isEqualTo(this.OR3);
         assertThat(g.or(g.and(g.literal("y", false), g.variable("x")), f.and(g.variable("b"), g.variable("a")))).isEqualTo(f.or(f.and(f.variable("a"), f.variable("b")), f.and(f.variable("x"), f.literal("y", false))));

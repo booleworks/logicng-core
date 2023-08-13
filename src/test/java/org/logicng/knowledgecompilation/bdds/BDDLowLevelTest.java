@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
@@ -50,7 +51,7 @@ public class BDDLowLevelTest {
 
     @BeforeEach
     public void init() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final PropositionalParser parser = new PropositionalParser(f);
         final BDDKernel kernel = new BDDKernel(f, 3, 1000, 1000);
         BDDFactory.build(f.verum(), kernel);
@@ -118,6 +119,6 @@ public class BDDLowLevelTest {
 
     @Test
     public void testSetNegativeVarNum() {
-        assertThatThrownBy(() -> new BDDKernel(new FormulaFactory(), -4, 100, 100)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new BDDKernel(new CachingFormulaFactory(), -4, 100, 100)).isInstanceOf(IllegalArgumentException.class);
     }
 }

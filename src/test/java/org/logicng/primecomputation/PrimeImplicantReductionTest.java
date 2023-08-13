@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.logicng.RandomTag;
 import org.logicng.TestWithExampleFormulas;
 import org.logicng.datastructures.Tristate;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
@@ -113,7 +114,7 @@ public class PrimeImplicantReductionTest extends TestWithExampleFormulas {
 
     @Test
     public void testCornerCases() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final FormulaCornerCases cornerCases = new FormulaCornerCases(f);
         cornerCases.cornerCases().forEach(this::testFormula);
     }
@@ -122,7 +123,7 @@ public class PrimeImplicantReductionTest extends TestWithExampleFormulas {
     @RandomTag
     public void testRandom() {
         for (int i = 0; i < 500; i++) {
-            final FormulaFactory f = new FormulaFactory();
+            final FormulaFactory f = new CachingFormulaFactory();
             final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(20).weightPbc(2).seed(i * 42).build());
             final Formula formula = randomizer.formula(4);
             testFormula(formula);

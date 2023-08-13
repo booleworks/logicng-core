@@ -40,6 +40,7 @@ import static org.logicng.io.graphical.GraphicalColor.RED;
 import static org.logicng.io.graphical.GraphicalColor.WHITE;
 
 import org.junit.jupiter.api.Test;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.io.graphical.GraphicalDotWriter;
@@ -67,7 +68,7 @@ public class BddGraphicalGeneratorTest {
 
     @Test
     public void testFormulas() throws IOException, ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final PropositionalParser p = new PropositionalParser(f);
         final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
@@ -85,7 +86,7 @@ public class BddGraphicalGeneratorTest {
 
     @Test
     public void testFixedStyle() throws ParserException, IOException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final PropositionalParser p = new PropositionalParser(f);
         final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
@@ -105,7 +106,7 @@ public class BddGraphicalGeneratorTest {
 
     @Test
     public void testDynamic() throws ParserException, IOException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final PropositionalParser p = new PropositionalParser(f);
         final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);

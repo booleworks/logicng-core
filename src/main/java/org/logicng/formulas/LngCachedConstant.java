@@ -11,7 +11,7 @@ public abstract class LngCachedConstant extends LngCachedFormula implements Cons
      * @param type the constant type
      * @param f    the factory which created this instance
      */
-    LngCachedConstant(final FType type, final FormulaFactory f) {
+    LngCachedConstant(final FType type, final CachingFormulaFactory f) {
         super(type, f);
     }
 

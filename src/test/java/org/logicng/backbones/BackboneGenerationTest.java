@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.datastructures.Tristate;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
@@ -73,7 +74,7 @@ public class BackboneGenerationTest {
 
     @Test
     public void testBackboneGeneration() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
 
         final Variable x = f.variable("x");
         final Variable y = f.variable("y");
@@ -105,7 +106,7 @@ public class BackboneGenerationTest {
 
     @Test
     public void testSimpleBackbones() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final MiniSat solver = MiniSat.miniSat(f);
 
         final Literal x = f.literal("x", true);
@@ -185,7 +186,7 @@ public class BackboneGenerationTest {
 
     @Test
     public void testSmallFormulas() throws IOException, ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", f);
         final MiniSat solver = MiniSat.miniSat(f);
         solver.add(formula);
@@ -195,7 +196,7 @@ public class BackboneGenerationTest {
 
     @Test
     public void testLargeFormula() throws IOException, ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
         final MiniSat solver = MiniSat.miniSat(f);
         solver.add(formula);
@@ -231,7 +232,7 @@ public class BackboneGenerationTest {
 
     @Test
     public void testBackboneType() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final MiniSat solver = MiniSat.miniSat(f);
 
         final Literal x = f.literal("x", true);
@@ -303,7 +304,7 @@ public class BackboneGenerationTest {
         configs.add(MiniSatConfig.builder().bbCheckForRotatableLiterals(false).build());
         configs.add(MiniSatConfig.builder().bbInitialUBCheckForRotatableLiterals(false).build());
 
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
         MiniSat solver = MiniSat.miniSat(f);
         solver.add(formula);
@@ -318,7 +319,7 @@ public class BackboneGenerationTest {
 
     @Test
     public void testCancellationPoints() throws IOException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final List<Formula> formulas = DimacsReader.readCNF("src/test/resources/sat/term1_gr_rcs_w4.shuffled.cnf", f);
         for (int numStarts = 0; numStarts < 10; numStarts++) {
             final SATHandler handler = new BoundedSatHandler(numStarts);

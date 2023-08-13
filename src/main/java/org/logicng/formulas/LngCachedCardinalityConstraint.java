@@ -17,7 +17,7 @@ public class LngCachedCardinalityConstraint extends LngCachedPBConstraint implem
      * @param f          the formula factory
      * @throws IllegalArgumentException if the number of literals and coefficients do not correspond
      */
-    LngCachedCardinalityConstraint(final List<? extends Literal> literals, final CType comparator, final int rhs, final FormulaFactory f) {
+    LngCachedCardinalityConstraint(final List<? extends Literal> literals, final CType comparator, final int rhs, final CachingFormulaFactory f) {
         super(literals, Collections.nCopies(literals.size(), 1), comparator, rhs, f);
     }
 }

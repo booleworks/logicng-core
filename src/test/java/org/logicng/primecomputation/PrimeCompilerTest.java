@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.fail;
 import org.junit.jupiter.api.Test;
 import org.logicng.RandomTag;
 import org.logicng.TestWithExampleFormulas;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
@@ -95,7 +96,7 @@ public class PrimeCompilerTest extends TestWithExampleFormulas {
 
     @Test
     public void testCornerCases() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final FormulaCornerCases cornerCases = new FormulaCornerCases(f);
         cornerCases.cornerCases().forEach(this::computeAndVerify);
     }
@@ -104,7 +105,7 @@ public class PrimeCompilerTest extends TestWithExampleFormulas {
     @RandomTag
     public void testRandomized() {
         for (int i = 0; i < 200; i++) {
-            final FormulaFactory f = new FormulaFactory();
+            final FormulaFactory f = new CachingFormulaFactory();
             final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(10).weightPbc(2).seed(i * 42).build());
             final Formula formula = randomizer.formula(4);
             computeAndVerify(formula);

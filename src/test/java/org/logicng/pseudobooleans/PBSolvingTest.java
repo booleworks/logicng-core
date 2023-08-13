@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.logicng.LogicNGTest;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.CType;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.PBConstraint;
 import org.logicng.formulas.Variable;
@@ -58,7 +59,7 @@ public class PBSolvingTest implements LogicNGTest {
     private final PBEncoder[] encoders;
 
     public PBSolvingTest() {
-        this.f = new FormulaFactory();
+        this.f = new CachingFormulaFactory();
         this.literals100 = new Variable[100];
         this.literals10 = new Variable[10];
         for (int i = 0; i < 100; i++) {

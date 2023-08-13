@@ -32,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
@@ -48,7 +49,7 @@ import java.io.IOException;
  */
 public class DNFSubsumptionTest {
 
-    private final FormulaFactory f = new FormulaFactory();
+    private final FormulaFactory f = new CachingFormulaFactory();
     private final PropositionalParser p = new PropositionalParser(this.f);
     private final DNFSubsumption s = DNFSubsumption.get();
 
@@ -84,7 +85,7 @@ public class DNFSubsumptionTest {
 
     @Test
     public void testEvenLargerFormulas() throws IOException, ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", f);
         int count = 10; // test only first 10 formulas
         for (final Formula op : formula) {

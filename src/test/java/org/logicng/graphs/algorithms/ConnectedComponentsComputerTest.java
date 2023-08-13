@@ -29,10 +29,10 @@
 package org.logicng.graphs.algorithms;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.cardinalityconstraints.CCConfig;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.PBConstraint;
@@ -47,7 +47,6 @@ import org.logicng.transformations.cnf.CNFFactorization;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -129,7 +128,7 @@ public class ConnectedComponentsComputerTest {
 
     @Test
     public void testFormulaSplit() throws IOException, ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());
         final Formula parsed = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/formula1.txt", f);
         final List<Formula> formulas = new ArrayList<>();

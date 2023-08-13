@@ -27,8 +27,10 @@ import java.util.TreeSet;
  */
 public class PBConstraintTest extends TestWithExampleFormulas {
 
-    private static final FormulaFactory f = new FormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-    private static final FormulaFactory f2 = new FormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+    private static final FormulaFactory f =
+            new CachingFormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+    private static final FormulaFactory f2 =
+            new CachingFormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
 
     private final PBConstraint pb1;
     private final PBConstraint pb2;

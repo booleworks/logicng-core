@@ -31,6 +31,7 @@ package org.logicng.propositions;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
@@ -47,7 +48,7 @@ public class StandardPropositionTest {
     private final StandardProposition prop2;
 
     public StandardPropositionTest() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = new CachingFormulaFactory();
         this.p = new PropositionalParser(f);
         this.prop1 = new StandardProposition(this.p.parse("a & b"));
         this.prop2 = new StandardProposition("prop2", this.p.parse("a & b & ~c"));

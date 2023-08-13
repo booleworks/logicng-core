@@ -12,7 +12,7 @@ public class LngCachedEquivalence extends LngCachedBinaryOperator implements Equ
      * @param right the right-hand side operand
      * @param f     the factory which created this instance
      */
-    LngCachedEquivalence(final Formula left, final Formula right, final FormulaFactory f) {
+    LngCachedEquivalence(final Formula left, final Formula right, final CachingFormulaFactory f) {
         super(FType.EQUIV, left, right, f);
     }
 

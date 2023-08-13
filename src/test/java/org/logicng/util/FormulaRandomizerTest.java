@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.logicng.formulas.And;
 import org.logicng.formulas.CType;
+import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.CardinalityConstraint;
 import org.logicng.formulas.Equivalence;
 import org.logicng.formulas.FType;
@@ -61,7 +62,7 @@ import java.util.TreeSet;
  */
 public class FormulaRandomizerTest {
 
-    private final FormulaFactory f = new FormulaFactory();
+    private final FormulaFactory f = new CachingFormulaFactory();
     private final FormulaRandomizerConfig config = FormulaRandomizerConfig.builder().seed(42).build();
 
     @Test
