@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
@@ -53,47 +29,30 @@ import java.util.SortedSet;
 import java.util.stream.Stream;
 
 /**
- * Super class for formulas.
- * @version 2.4.0
+ * Interface for formulas.
+ * @version 3.0.0
  * @since 1.0
  */
-public abstract class Formula implements Iterable<Formula> {
-
-    protected final FType type;
-    protected final FormulaFactory f;
-
-    /**
-     * Constructs a new formula.
-     * @param type the type of the formula
-     * @param f    the factory which created this formula
-     */
-    protected Formula(final FType type, final FormulaFactory f) {
-        this.type = type;
-        this.f = f;
-    }
+public interface Formula extends Iterable<Formula> {
 
     /**
      * Returns the type of this formula.
      * @return the type of this formula
      */
-    public FType type() {
-        return this.type;
-    }
+    FType type();
 
     /**
      * Returns the factory of this formula.
      * @return the factory of this formula
      */
-    public FormulaFactory factory() {
-        return this.f;
-    }
+    FormulaFactory factory();
 
     /**
      * Returns the number of atomic formulas of this formula.  An atomic formula is a predicate (constants and literals)
      * or a pseudo-Boolean constraint.
      * @return the number of atomic formulas of this formula.
      */
-    public long numberOfAtoms() {
+    default long numberOfAtoms() {
         return NumberOfAtomsFunction.get().apply(this, true);
     }
 
@@ -101,7 +60,7 @@ public abstract class Formula implements Iterable<Formula> {
      * Returns the number of nodes of this formula.
      * @return the number of nodes of this formula.
      */
-    public long numberOfNodes() {
+    default long numberOfNodes() {
         return NumberOfNodesFunction.get().apply(this, true);
     }
 
@@ -115,28 +74,28 @@ public abstract class Formula implements Iterable<Formula> {
      * Returns the number of internal nodes of this formula.
      * @return the number of internal nodes of this formula.
      */
-    public long numberOfInternalNodes() {
-        return this.f.numberOfNodes(this);
+    default long numberOfInternalNodes() {
+        return factory().numberOfNodes(this);
     }
 
     /**
      * Returns whether this formula is a constant formula ("True" or "False").
      * @return {@code true} if this formula is a constant formula, {@code false} otherwise
      */
-    public abstract boolean isConstantFormula();
+    boolean isConstantFormula();
 
     /**
      * Returns whether this formula is an atomic formula (constant, literal, pseudo Boolean constraint), or not.
      * @return {@code true} if this formula is an atomic formula, {@code false} otherwise
      */
-    public abstract boolean isAtomicFormula();
+    boolean isAtomicFormula();
 
     /**
      * Returns all variables occurring in this formula.  Returns an unmodifiable set, so do not try to change the variable
      * set manually.
      * @return all variables occurring in this formula
      */
-    public SortedSet<Variable> variables() {
+    default SortedSet<Variable> variables() {
         return VariablesFunction.get().apply(this, true);
     }
 
@@ -145,7 +104,7 @@ public abstract class Formula implements Iterable<Formula> {
      * set manually.
      * @return all literals occurring in this formula
      */
-    public SortedSet<Literal> literals() {
+    default SortedSet<Literal> literals() {
         return LiteralsFunction.get().apply(this, true);
     }
 
@@ -154,8 +113,8 @@ public abstract class Formula implements Iterable<Formula> {
      * @param variable the variable to search for
      * @return {@code true} if a given variable is found in this formula
      */
-    public boolean containsVariable(final String variable) {
-        return this.containsVariable(this.f.variable(variable));
+    default boolean containsVariable(final String variable) {
+        return containsVariable(factory().variable(variable));
     }
 
     /**
@@ -163,7 +122,7 @@ public abstract class Formula implements Iterable<Formula> {
      * @param variable the variable to search for
      * @return {@code true} if a given variable is found in this formula
      */
-    public abstract boolean containsVariable(final Variable variable);
+    boolean containsVariable(final Variable variable);
 
     /**
      * Evaluates this formula with a given assignment.  A literal not covered by the assignment evaluates
@@ -171,14 +130,14 @@ public abstract class Formula implements Iterable<Formula> {
      * @param assignment the given assignment
      * @return the result of the evaluation, {@code true} or {@code false}
      */
-    public abstract boolean evaluate(final Assignment assignment);
+    boolean evaluate(final Assignment assignment);
 
     /**
      * Restricts this formula with a given assignment.
      * @param assignment the given assignment
      * @return a new restricted formula
      */
-    public abstract Formula restrict(final Assignment assignment);
+    Formula restrict(final Assignment assignment);
 
     /**
      * Returns {@code true} if this formula contains a given node, {@code false} otherwise.
@@ -187,15 +146,15 @@ public abstract class Formula implements Iterable<Formula> {
      * @param formula the node
      * @return {@code true} if this formula contains a given node
      */
-    public abstract boolean containsNode(final Formula formula);
+    boolean containsNode(final Formula formula);
 
     /**
      * Returns {@code true} if this formula is in NNF, otherwise {@code false}
      * @return {@code true} if this formula is in NNF, otherwise {@code false}
      * @see NNFPredicate the NNF predicate
      */
-    public boolean isNNF() {
-        return this.holds(NNFPredicate.get());
+    default boolean isNNF() {
+        return holds(NNFPredicate.get());
     }
 
     /**
@@ -203,8 +162,8 @@ public abstract class Formula implements Iterable<Formula> {
      * @return {@code true} if this formula is in DNF, otherwise {@code false}
      * @see DNFPredicate the DNF predicate
      */
-    public boolean isDNF() {
-        return this.holds(DNFPredicate.get());
+    default boolean isDNF() {
+        return holds(DNFPredicate.get());
     }
 
     /**
@@ -212,8 +171,8 @@ public abstract class Formula implements Iterable<Formula> {
      * @return {@code true} if this formula is in CNF, otherwise {@code false}
      * @see CNFPredicate the CNF predicate
      */
-    public boolean isCNF() {
-        return this.holds(CNFPredicate.get());
+    default boolean isCNF() {
+        return holds(CNFPredicate.get());
     }
 
     /**
@@ -222,10 +181,10 @@ public abstract class Formula implements Iterable<Formula> {
      * @param formula  the formula
      * @return a new substituted formula
      */
-    public Formula substitute(final Variable variable, final Formula formula) {
+    default Formula substitute(final Variable variable, final Formula formula) {
         final Substitution subst = new Substitution();
         subst.addMapping(variable, formula);
-        return this.substitute(subst);
+        return substitute(subst);
     }
 
     /**
@@ -245,7 +204,7 @@ public abstract class Formula implements Iterable<Formula> {
      * Returns a copy of this formula which is in NNF.
      * @return a copy of this formula which is in NNF
      */
-    public Formula nnf() {
+    default Formula nnf() {
         return transform(NNFTransformation.get(), true);
     }
 
@@ -266,8 +225,8 @@ public abstract class Formula implements Iterable<Formula> {
      * the according formula functions.
      * @return a copy of this formula which is in CNF
      */
-    public Formula cnf() {
-        return this.f.cnfEncoder().encode(this);
+    default Formula cnf() {
+        return factory().cnfEncoder().encode(this);
     }
 
     /**
@@ -278,8 +237,8 @@ public abstract class Formula implements Iterable<Formula> {
      * use a {@link org.logicng.solvers.SATSolver} on your own.
      * @return {@code true} when this formula is satisfiable, {@code false} otherwise
      */
-    public boolean isSatisfiable() {
-        return this.holds(new SATPredicate(this.f));
+    default boolean isSatisfiable() {
+        return holds(new SATPredicate(factory()));
     }
 
     /**
@@ -290,8 +249,8 @@ public abstract class Formula implements Iterable<Formula> {
      * use a {@link org.logicng.solvers.SATSolver} on your own.
      * @return {@code true} when this formula is a tautology, {@code false} otherwise
      */
-    public boolean isTautology() {
-        return this.holds(new TautologyPredicate(this.f));
+    default boolean isTautology() {
+        return holds(new TautologyPredicate(factory()));
     }
 
     /**
@@ -302,8 +261,8 @@ public abstract class Formula implements Iterable<Formula> {
      * use a {@link org.logicng.solvers.SATSolver} on your own.
      * @return {@code true} when this formula is a contradiction, {@code false} otherwise
      */
-    public boolean isContradiction() {
-        return this.holds(new ContradictionPredicate(this.f));
+    default boolean isContradiction() {
+        return holds(new ContradictionPredicate(factory()));
     }
 
     /**
@@ -314,8 +273,8 @@ public abstract class Formula implements Iterable<Formula> {
      * @param other the formula which should be checked if it is implied by this formula
      * @return {@code true} when this formula implies the given other formula, {@code false} otherwise
      */
-    public boolean implies(final Formula other) {
-        return this.f.implication(this, other).holds(new TautologyPredicate(this.f));
+    default boolean implies(final Formula other) {
+        return factory().implication(this, other).holds(new TautologyPredicate(factory()));
     }
 
     /**
@@ -326,8 +285,8 @@ public abstract class Formula implements Iterable<Formula> {
      * @param other the formula which should be checked if it implies this formula
      * @return {@code true} when this formula is implied by the given other formula, {@code false} otherwise
      */
-    public boolean isImpliedBy(final Formula other) {
-        return this.f.implication(other, this).holds(new TautologyPredicate(this.f));
+    default boolean isImpliedBy(final Formula other) {
+        return factory().implication(other, this).holds(new TautologyPredicate(factory()));
     }
 
     /**
@@ -338,8 +297,8 @@ public abstract class Formula implements Iterable<Formula> {
      * @param other the formula which should be checked if it is equivalent with this formula
      * @return {@code true} when this formula is equivalent to the given other formula, {@code false} otherwise
      */
-    public boolean isEquivalentTo(final Formula other) {
-        return this.f.equivalence(this, other).holds(new TautologyPredicate(this.f));
+    default boolean isEquivalentTo(final Formula other) {
+        return factory().equivalence(this, other).holds(new TautologyPredicate(factory()));
     }
 
     /**
@@ -350,15 +309,15 @@ public abstract class Formula implements Iterable<Formula> {
      * @param variableOrdering the variable ordering
      * @return the BDD for this formula with the given ordering
      */
-    public BDD bdd(final VariableOrdering variableOrdering) {
-        final Formula formula = this.nnf();
+    default BDD bdd(final VariableOrdering variableOrdering) {
+        final Formula formula = nnf();
         final int varNum = formula.variables().size();
         final BDDKernel kernel;
         if (variableOrdering == null) {
-            kernel = new BDDKernel(this.f, varNum, varNum * 30, varNum * 20);
+            kernel = new BDDKernel(factory(), varNum, varNum * 30, varNum * 20);
         } else {
             final VariableOrderingProvider provider = variableOrdering.provider();
-            kernel = new BDDKernel(this.f, provider.getOrder(formula), varNum * 30, varNum * 20);
+            kernel = new BDDKernel(factory(), provider.getOrder(formula), varNum * 30, varNum * 20);
         }
         return BDDFactory.build(formula, kernel, null);
     }
@@ -369,7 +328,7 @@ public abstract class Formula implements Iterable<Formula> {
      * formula should be constructed on the BDD, an own instance of * {@link BDDFactory} should be created and used.
      * @return the BDD for this formula
      */
-    public BDD bdd() {
+    default BDD bdd() {
         return bdd(null);
     }
 
@@ -378,7 +337,7 @@ public abstract class Formula implements Iterable<Formula> {
      * @param transformation the formula transformator
      * @return the transformed formula
      */
-    public Formula transform(final FormulaTransformation transformation) {
+    default Formula transform(final FormulaTransformation transformation) {
         return transformation.apply(this, true);
     }
 
@@ -388,7 +347,7 @@ public abstract class Formula implements Iterable<Formula> {
      * @param cache          indicates whether the result (and associated predicates) should be cached in this formula's cache.
      * @return the transformed formula
      */
-    public Formula transform(final FormulaTransformation transformation, final boolean cache) {
+    default Formula transform(final FormulaTransformation transformation, final boolean cache) {
         return transformation.apply(this, cache);
     }
 
@@ -398,7 +357,7 @@ public abstract class Formula implements Iterable<Formula> {
      * @param predicate the predicate
      * @return {@code true} if the predicate holds, {@code false} otherwise
      */
-    public boolean holds(final FormulaPredicate predicate) {
+    default boolean holds(final FormulaPredicate predicate) {
         return predicate.test(this, true);
     }
 
@@ -408,7 +367,7 @@ public abstract class Formula implements Iterable<Formula> {
      * @param cache     indicates whether the result should be cached in this formula's cache
      * @return {@code true} if the predicate holds, {@code false} otherwise
      */
-    public boolean holds(final FormulaPredicate predicate, final boolean cache) {
+    default boolean holds(final FormulaPredicate predicate, final boolean cache) {
         return predicate.test(this, cache);
     }
 
@@ -419,7 +378,7 @@ public abstract class Formula implements Iterable<Formula> {
      * @param <T>      the result type of the function
      * @return the result of the function application
      */
-    public <T> T apply(final FormulaFunction<T> function, final boolean cache) {
+    default <T> T apply(final FormulaFunction<T> function, final boolean cache) {
         return function.apply(this, cache);
     }
 
@@ -429,7 +388,7 @@ public abstract class Formula implements Iterable<Formula> {
      * @param <T>      the result type of the function
      * @return the result of the function application
      */
-    public <T> T apply(final FormulaFunction<T> function) {
+    default <T> T apply(final FormulaFunction<T> function) {
         return function.apply(this, true);
     }
 
@@ -438,8 +397,8 @@ public abstract class Formula implements Iterable<Formula> {
      * @param key the cache key
      * @return the cache value or {@code null} if the key is not found
      */
-    public Formula transformationCacheEntry(final CacheEntry key) {
-        return this.f.transformationCacheEntry(this, key);
+    default Formula transformationCacheEntry(final CacheEntry key) {
+        return factory().transformationCacheEntry(this, key);
     }
 
     /**
@@ -447,8 +406,8 @@ public abstract class Formula implements Iterable<Formula> {
      * @param key   the cache key
      * @param value the cache value
      */
-    public void setTransformationCacheEntry(final CacheEntry key, final Formula value) {
-        this.f.setTransformationCacheEntry(this, key, value);
+    default void setTransformationCacheEntry(final CacheEntry key, final Formula value) {
+        factory().setTransformationCacheEntry(this, key, value);
     }
 
     /**
@@ -456,8 +415,8 @@ public abstract class Formula implements Iterable<Formula> {
      * @param key the cache key
      * @return the cache value (which is {@code UNDEF} if nothing is present)
      */
-    public Tristate predicateCacheEntry(final CacheEntry key) {
-        return this.f.predicateCacheEntry(this, key);
+    default Tristate predicateCacheEntry(final CacheEntry key) {
+        return factory().predicateCacheEntry(this, key);
     }
 
     /**
@@ -465,8 +424,8 @@ public abstract class Formula implements Iterable<Formula> {
      * @param key   the cache key
      * @param value the cache value
      */
-    public void setPredicateCacheEntry(final CacheEntry key, final boolean value) {
-        this.f.setPredicateCacheEntry(this, key, value);
+    default void setPredicateCacheEntry(final CacheEntry key, final boolean value) {
+        factory().setPredicateCacheEntry(this, key, value);
     }
 
     /**
@@ -474,8 +433,8 @@ public abstract class Formula implements Iterable<Formula> {
      * @param key   the cache key
      * @param value the cache value
      */
-    public void setPredicateCacheEntry(final CacheEntry key, final Tristate value) {
-        this.f.setPredicateCacheEntry(this, key, value);
+    default void setPredicateCacheEntry(final CacheEntry key, final Tristate value) {
+        factory().setPredicateCacheEntry(this, key, value);
     }
 
     /**
@@ -483,8 +442,8 @@ public abstract class Formula implements Iterable<Formula> {
      * @param key the cache key
      * @return the cache value or {@code null} if the key is not found
      */
-    public Object functionCacheEntry(final CacheEntry key) {
-        return this.f.functionCacheEntry(this, key);
+    default Object functionCacheEntry(final CacheEntry key) {
+        return factory().functionCacheEntry(this, key);
     }
 
     /**
@@ -492,15 +451,15 @@ public abstract class Formula implements Iterable<Formula> {
      * @param key   the cache key
      * @param value the cache value
      */
-    public void setFunctionCacheEntry(final CacheEntry key, final Object value) {
-        this.f.setFunctionCacheEntry(this, key, value);
+    default void setFunctionCacheEntry(final CacheEntry key, final Object value) {
+        factory().setFunctionCacheEntry(this, key, value);
     }
 
     /**
      * Clears the transformation and function cache of the formula.
      */
-    public void clearCaches() {
-        this.f.clearCaches(this);
+    default void clearCaches() {
+        factory().clearCaches(this);
     }
 
     /**
@@ -511,10 +470,8 @@ public abstract class Formula implements Iterable<Formula> {
      * is necessary.  So if performance matters - avoid using streams.
      * @return the stream
      */
-    public abstract Stream<Formula> stream();
+    Stream<Formula> stream();
 
     @Override
-    public String toString() {
-        return this.f.string(this);
-    }
+    String toString();
 }
