@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.functions;
 
 import static org.logicng.formulas.cache.FunctionCacheEntry.NUMBER_OF_NODES;
@@ -11,7 +15,7 @@ import org.logicng.formulas.PBConstraint;
 
 /**
  * A function that computes the number of nodes of a given formula.
- * @version 2.2.0
+ * @version 3.0.0
  * @since 2.2.0
  */
 public class NumberOfNodesFunction implements FormulaFunction<Long> {
@@ -64,7 +68,7 @@ public class NumberOfNodesFunction implements FormulaFunction<Long> {
                 break;
             case PBC:
                 final PBConstraint pbc = (PBConstraint) formula;
-                result = 1L + pbc.operands().length;
+                result = 1L + pbc.operands().size();
                 break;
             case PREDICATE:
                 result = formula.numberOfNodes();

@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.solvers;
 
@@ -58,7 +34,6 @@ import org.logicng.solvers.sat.MiniSatConfig;
 import org.logicng.solvers.sat.MiniSatStyleSolver;
 import org.logicng.transformations.cnf.PlaistedGreenbaumTransformationSolver;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -252,12 +227,12 @@ public class MiniSat extends SATSolver {
             if (constraint.isCC()) {
                 if (this.style == SolverStyle.MINICARD) {
                     if (constraint.comparator() == CType.LE) {
-                        ((MiniCard) this.solver).addAtMost(generateClauseVector(Arrays.asList(constraint.operands())), constraint.rhs());
+                        ((MiniCard) this.solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
                     } else if (constraint.comparator() == CType.LT && constraint.rhs() > 3) {
-                        ((MiniCard) this.solver).addAtMost(generateClauseVector(Arrays.asList(constraint.operands())), constraint.rhs() - 1);
+                        ((MiniCard) this.solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs() - 1);
                     } else if (constraint.comparator() == CType.EQ && constraint.rhs() == 1) {
-                        ((MiniCard) this.solver).addAtMost(generateClauseVector(Arrays.asList(constraint.operands())), constraint.rhs());
-                        this.solver.addClause(generateClauseVector(Arrays.asList(constraint.operands())), proposition);
+                        ((MiniCard) this.solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
+                        this.solver.addClause(generateClauseVector(constraint.operands()), proposition);
                     } else {
                         addFormulaAsCNF(constraint, proposition);
                     }

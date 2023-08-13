@@ -5,10 +5,6 @@
 package org.logicng.formulas;
 
 import org.logicng.datastructures.Assignment;
-import org.logicng.datastructures.Tristate;
-import org.logicng.formulas.cache.PredicateCacheEntry;
-
-import java.util.LinkedHashSet;
 
 /**
  * Boolean disjunction.
@@ -21,20 +17,11 @@ import java.util.LinkedHashSet;
  * @version 3.0.0
  * @since 1.0
  */
-public final class Or extends NAryOperator {
-
-    /**
-     * Constructor.
-     * @param operands the list of operands
-     * @param f        the factory which created this instance
-     */
-    Or(final LinkedHashSet<? extends Formula> operands, final FormulaFactory f) {
-        super(FType.OR, operands, f);
-    }
+public interface Or extends NAryOperator {
 
     @Override
-    public boolean evaluate(final Assignment assignment) {
-        for (final Formula op : operands) {
+    default boolean evaluate(final Assignment assignment) {
+        for (final Formula op : operands()) {
             if (op.evaluate(assignment)) {
                 return true;
             }
@@ -42,30 +29,5 @@ public final class Or extends NAryOperator {
         return false;
     }
 
-    /**
-     * Returns {@code true} if this formula is a CNF clause, {@code false} otherwise.
-     * @return {@code true} if this formula is a CNF clause
-     */
-    public boolean isCNFClause() {
-        return f.predicateCacheEntry(this, PredicateCacheEntry.IS_CNF) == Tristate.TRUE;
-    }
-
-    @Override
-    public int hashCode() {
-        return hashCode(17);
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        if (other == this) {
-            return true;
-        }
-        if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false; // the same formula factory would have produced a == object
-        }
-        if (other instanceof Or) { // this is not really efficient... but should not be done anyway!
-            return compareOperands(((Or) other).operands);
-        }
-        return false;
-    }
+    boolean isCNFClause();
 }

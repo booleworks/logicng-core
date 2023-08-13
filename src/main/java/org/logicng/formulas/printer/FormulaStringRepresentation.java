@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas.printer;
 
@@ -37,9 +13,11 @@ import org.logicng.formulas.NAryOperator;
 import org.logicng.formulas.Not;
 import org.logicng.formulas.PBConstraint;
 
+import java.util.List;
+
 /**
  * Super class for a formula string representation.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.0
  */
 public abstract class FormulaStringRepresentation {
@@ -149,23 +127,23 @@ public abstract class FormulaStringRepresentation {
      * @param coefficients the coefficients of the constraint
      * @return the string representation
      */
-    protected String pbLhs(final Literal[] operands, final int[] coefficients) {
-        assert operands.length == coefficients.length;
+    protected String pbLhs(final List<Literal> operands, final List<Integer> coefficients) {
+        assert operands.size() == coefficients.size();
         final StringBuilder sb = new StringBuilder();
         final String mul = this.pbMul();
         final String add = this.pbAdd();
-        for (int i = 0; i < operands.length - 1; i++) {
-            if (coefficients[i] != 1) {
-                sb.append(coefficients[i]).append(mul).append(operands[i]).append(add);
+        for (int i = 0; i < operands.size() - 1; i++) {
+            if (coefficients.get(i) != 1) {
+                sb.append(coefficients.get(i)).append(mul).append(operands.get(i)).append(add);
             } else {
-                sb.append(operands[i]).append(add);
+                sb.append(operands.get(i)).append(add);
             }
         }
-        if (operands.length > 0) {
-            if (coefficients[operands.length - 1] != 1) {
-                sb.append(coefficients[operands.length - 1]).append(mul).append(operands[operands.length - 1]);
+        if (!operands.isEmpty()) {
+            if (coefficients.get(operands.size() - 1) != 1) {
+                sb.append(coefficients.get(operands.size() - 1)).append(mul).append(operands.get(operands.size() - 1));
             } else {
-                sb.append(operands[operands.length - 1]);
+                sb.append(operands.get(operands.size() - 1));
             }
         }
         return sb.toString();
