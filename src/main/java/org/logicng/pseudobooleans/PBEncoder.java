@@ -30,9 +30,6 @@ public class PBEncoder {
     protected final PBConfig config;
     protected final CCEncoder ccEncoder;
 
-    protected PBSWC swc;
-    protected PBAdderNetworks adderNetworks;
-
     /**
      * Constructs a new pseudo-Boolean encoder with given configurations.
      * @param f        the formula factory
@@ -154,17 +151,11 @@ public class PBEncoder {
         switch (this.config().pbEncoder) {
             case SWC:
             case BEST:
-                if (this.swc == null) {
-                    this.swc = new PBSWC(this.f);
-                }
-                return this.swc.encode(simplifiedLits, simplifiedCoeffs, rhs, result);
+                return new PBSWC(this.f).encode(simplifiedLits, simplifiedCoeffs, rhs, result);
             case BINARY_MERGE:
                 return new PBBinaryMerge(this.f, this.config()).encode(simplifiedLits, simplifiedCoeffs, rhs, result);
             case ADDER_NETWORKS:
-                if (this.adderNetworks == null) {
-                    this.adderNetworks = new PBAdderNetworks(this.f);
-                }
-                return this.adderNetworks.encode(simplifiedLits, simplifiedCoeffs, rhs, result);
+                return new PBAdderNetworks(this.f).encode(simplifiedLits, simplifiedCoeffs, rhs, result);
             default:
                 throw new IllegalStateException("Unknown pseudo-Boolean encoder: " + this.config().pbEncoder);
         }

@@ -15,6 +15,8 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.FormulaFactoryConfig;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
+import org.logicng.io.parsers.ParserException;
+import org.logicng.io.parsers.PseudoBooleanParser;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -155,17 +157,17 @@ public class NonCachingFormulaFactory extends FormulaFactory {
 
     @Override
     public Variable newCCVariable() {
-        return variable(ccPrefix + ccCounter++);
+        return variable(ccPrefix + ccCounter.getAndIncrement());
     }
 
     @Override
     public Variable newPBVariable() {
-        return variable(pbPrefix + pbCounter++);
+        return variable(pbPrefix + pbCounter.getAndIncrement());
     }
 
     @Override
     public Variable newCNFVariable() {
-        return variable(cnfPrefix + cnfCounter++);
+        return variable(cnfPrefix + cnfCounter.getAndIncrement());
     }
 
     @Override
@@ -186,9 +188,11 @@ public class NonCachingFormulaFactory extends FormulaFactory {
         }
     }
 
-    /**
-     * Removes all formulas from the factory cache.
-     */
+    @Override
+    public Formula parse(final String string) throws ParserException {
+        return new PseudoBooleanParser(this).parse(string);
+    }
+
     @Override
     public void clear() {
         super.clear();
