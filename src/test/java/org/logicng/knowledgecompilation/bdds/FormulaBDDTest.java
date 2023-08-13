@@ -32,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.datastructures.Assignment;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
@@ -49,7 +48,7 @@ public class FormulaBDDTest {
 
     @Test
     public void testSimpleCases() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         BDD bdd = f.verum().bdd();
         assertThat(bdd.isTautology()).isTrue();
         bdd = f.falsum().bdd();
@@ -60,7 +59,7 @@ public class FormulaBDDTest {
 
     @Test
     public void testBDDGeneration() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (W + A + F < 1)))");
         final BDD bddNoOrder = formula.bdd();
@@ -91,7 +90,7 @@ public class FormulaBDDTest {
 
     @Test
     public void testNonNnfs() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         assertThat(f.parse("A + 2*B - C = 1").bdd()).isNotNull();
         assertThat(f.parse("(A & B & C | D & E & F) & (A - 2*B -D <= 0) | (C + 3*D - F > 0)").bdd()).isNotNull();
     }

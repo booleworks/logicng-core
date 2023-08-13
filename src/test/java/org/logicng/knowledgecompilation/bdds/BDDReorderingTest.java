@@ -34,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 import org.logicng.LongRunningTag;
 import org.logicng.TestWithExampleFormulas;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
@@ -166,7 +165,7 @@ public class BDDReorderingTest extends TestWithExampleFormulas {
     private void testRandomReordering(final int minVars, final int maxVars, final boolean verbose) {
         for (int vars = minVars; vars <= maxVars; vars++) {
             for (int depth = 4; depth <= 6; depth++) {
-                final FormulaFactory f = new CachingFormulaFactory();
+                final FormulaFactory f = FormulaFactory.caching();
                 final Formula formula = randomFormula(vars, depth, f);
                 if (verbose) {
                     System.out.printf("vars = %2d, depth = %2d, nodes = %5d%n", vars, depth, formula.numberOfNodes());
@@ -233,7 +232,7 @@ public class BDDReorderingTest extends TestWithExampleFormulas {
     private void testReorderOnBuild(final int minVars, final int maxVars, final boolean verbose) {
         for (int vars = minVars; vars <= maxVars; vars++) {
             for (int depth = 4; depth <= 6; depth++) {
-                final FormulaFactory f = new CachingFormulaFactory();
+                final FormulaFactory f = FormulaFactory.caching();
                 final Formula formula = randomFormula(vars, depth, f);
                 if (verbose) {
                     System.out.println(String.format("vars = %2d, depth = %2d, nodes = %5d", vars, depth, formula.numberOfNodes()));

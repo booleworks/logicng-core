@@ -33,10 +33,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.FormulaFactoryConfig;
+import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PseudoBooleanParser;
 import org.logicng.transformations.cnf.TseitinTransformation;
@@ -221,7 +221,7 @@ public class FormulaFactoryImporterTest extends TestWithExampleFormulas {
 
     @Test
     public void testAdjustCounters() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("Factory").build());
+        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().name("Factory").build());
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Formula cc = p.parse("A + B + C + D + E <= 2").cnf();
         final Formula pbc = p.parse("2*A + -2*B + 3*C + D + 2*E <= 3").cnf();

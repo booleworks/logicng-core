@@ -35,7 +35,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.LongRunningTag;
 import org.logicng.backbones.Backbone;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
@@ -67,7 +66,7 @@ import java.util.TreeSet;
  */
 public class BackboneFunctionTest {
 
-    private static final FormulaFactory f = new CachingFormulaFactory();
+    private static final FormulaFactory f = FormulaFactory.caching();
 
     public static Collection<Object[]> solvers() {
         final MiniSatConfig configNoPG1 = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(false).build();
@@ -373,7 +372,7 @@ public class BackboneFunctionTest {
 
     @Test
     public void testMiniCardSpecialCase() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final SATSolver miniCard = MiniSat.miniCard(f);
         miniCard.add(f.parse("v1 + v2 + v3 + v4 + v5 + v6 = 1"));
         miniCard.add(f.parse("v1234 + v50 + v60 = 1"));

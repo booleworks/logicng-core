@@ -32,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.datastructures.Assignment;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
@@ -54,7 +53,7 @@ public class SimpleBDDTest {
 
     @Test
     public void testTrue() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final BDD bdd = BDDFactory.build(f.verum());
         assertThat(bdd.isTautology()).isTrue();
         assertThat(bdd.isContradiction()).isFalse();
@@ -69,7 +68,7 @@ public class SimpleBDDTest {
 
     @Test
     public void testFalse() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final BDDKernel kernel = new BDDKernel(f, 0, 100, 100);
         final BDD bdd = BDDFactory.build(f.falsum(), kernel, null);
         assertThat(bdd.isTautology()).isFalse();
@@ -86,7 +85,7 @@ public class SimpleBDDTest {
 
     @Test
     public void testPositiveLiteral() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final BDD bdd = BDDFactory.build(f.literal("A", true));
         assertThat(bdd.isTautology()).isFalse();
         assertThat(bdd.isContradiction()).isFalse();
@@ -101,7 +100,7 @@ public class SimpleBDDTest {
 
     @Test
     public void testNegativeLiteral() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final BDD bdd = BDDFactory.build(f.literal("A", false));
         assertThat(bdd.isTautology()).isFalse();
         assertThat(bdd.isContradiction()).isFalse();
@@ -116,7 +115,7 @@ public class SimpleBDDTest {
 
     @Test
     public void testImplication() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser parser = new PropositionalParser(f);
         final BDD bdd = BDDFactory.build(parser.parse("A => ~B"));
         assertThat(bdd.isTautology()).isFalse();
@@ -136,7 +135,7 @@ public class SimpleBDDTest {
 
     @Test
     public void testEquivalence() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser parser = new PropositionalParser(f);
         final BDD bdd = BDDFactory.build(parser.parse("A <=> ~B"));
         assertThat(bdd.isTautology()).isFalse();
@@ -155,7 +154,7 @@ public class SimpleBDDTest {
 
     @Test
     public void testOr() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser parser = new PropositionalParser(f);
         final BDD bdd = BDDFactory.build(parser.parse("A | B | ~C"));
         assertThat(bdd.isTautology()).isFalse();
@@ -179,7 +178,7 @@ public class SimpleBDDTest {
 
     @Test
     public void testAnd() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser parser = new PropositionalParser(f);
         final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
@@ -199,7 +198,7 @@ public class SimpleBDDTest {
 
     @Test
     public void testFormula() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser parser = new PropositionalParser(f);
         final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
@@ -216,7 +215,7 @@ public class SimpleBDDTest {
 
     @Test
     public void testCC() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser parser = new PseudoBooleanParser(f);
         final BDDKernel kernel = new BDDKernel(f, 3, 1000, 1000);
         final BDD bdd = BDDFactory.build(parser.parse("A + B + C = 1"), kernel, null);

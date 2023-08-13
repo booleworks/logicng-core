@@ -35,7 +35,6 @@ import org.logicng.LogicNGTest;
 import org.logicng.LongRunningTag;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.CType;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.CardinalityConstraint;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
@@ -51,7 +50,7 @@ import org.logicng.solvers.sat.MiniSatConfig;
  */
 public class CCIncrementalSolverTest implements LogicNGTest {
 
-    private final FormulaFactory f = new CachingFormulaFactory();
+    private final FormulaFactory f = FormulaFactory.caching();
     private final SATSolver[] solvers;
     private final CCConfig[] configs;
 

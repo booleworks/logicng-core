@@ -33,7 +33,6 @@ import static org.logicng.datastructures.Tristate.FALSE;
 import static org.logicng.datastructures.Tristate.TRUE;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.io.parsers.ParserException;
@@ -56,7 +55,7 @@ public class AssumeTest {
     private final PropositionalParser parser;
 
     public AssumeTest() {
-        this.f = new CachingFormulaFactory();
+        this.f = FormulaFactory.caching();
         this.parser = new PropositionalParser(this.f);
         this.solvers = new SATSolver[6];
         this.solvers[0] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(true).build());

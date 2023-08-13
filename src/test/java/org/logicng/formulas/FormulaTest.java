@@ -66,7 +66,7 @@ public class FormulaTest {
 
     @Test
     public void testStringContains() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = f.not(f.and(f.variable("a"), f.variable("b")));
         assertThat(formula.containsVariable("a")).isTrue();
         assertThat(formula.containsVariable("b")).isTrue();
@@ -76,7 +76,7 @@ public class FormulaTest {
 
     @Test
     public void testTransformationCache() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = f.not(f.and(f.variable("a"), f.variable("b")));
         formula.setTransformationCacheEntry(FACTORIZED_CNF, f.or(f.literal("a", false), f.literal("b", false)));
         assertThat(formula.transformationCacheEntry(FACTORIZED_CNF)).isEqualTo(f.or(f.literal("a", false), f.literal("b", false)));
@@ -84,7 +84,7 @@ public class FormulaTest {
 
     @Test
     public void testPredicateCache() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = f.not(f.and(f.variable("a"), f.variable("b")));
         formula.setPredicateCacheEntry(IS_CNF, false);
         formula.setPredicateCacheEntry(IS_DNF, Tristate.UNDEF);
@@ -94,7 +94,7 @@ public class FormulaTest {
 
     @Test
     public void testFunctionCache() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = f.not(f.and(f.variable("a"), f.variable("b")));
         formula.setFunctionCacheEntry(MyOwnCacheKey.MYKEY1, "key1");
         formula.setFunctionCacheEntry(MyOwnCacheKey.MYKEY2, "key2");
@@ -120,7 +120,7 @@ public class FormulaTest {
 
     @Test
     public void testIsSatisfiable() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula f1 = f.parse("(a | b) & (c | ~d)");
         final Formula f2 = f.parse("~a & ~b & (a | b)");
         assertThat(f.falsum().isSatisfiable()).isFalse();
@@ -131,7 +131,7 @@ public class FormulaTest {
 
     @Test
     public void testIsTautology() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula f1 = f.parse("(a | b) & (c | ~d)");
         final Formula f2 = f.parse("(a & b) | (~a & b) | (a & ~b) | (~a & ~b)");
         assertThat(f.falsum().isTautology()).isFalse();
@@ -142,7 +142,7 @@ public class FormulaTest {
 
     @Test
     public void testIsContradiction() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula f1 = f.parse("(a | b) & (c | ~d)");
         final Formula f2 = f.parse("~a & ~b & (a | b)");
         assertThat(f.falsum().isContradiction()).isTrue();
@@ -153,7 +153,7 @@ public class FormulaTest {
 
     @Test
     public void testImplies() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula f1 = f.parse("(a | b) & (c | ~d)");
         final Formula f2 = f.parse("(a | b) & (c | ~d) & (e | ~f)");
         final Formula f3 = f.parse("(a | b) & (c | d)");
@@ -166,7 +166,7 @@ public class FormulaTest {
 
     @Test
     public void testIsImpliedBy() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula f1 = f.parse("(a | b) & (c | ~d)");
         final Formula f2 = f.parse("(a | b) & (c | ~d) & (e | ~f)");
         final Formula f3 = f.parse("(a | b) & (c | d)");
@@ -179,7 +179,7 @@ public class FormulaTest {
 
     @Test
     public void testIsEquivalentTo() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula f1 = f.parse("(a | b) & (c | ~d)");
         final Formula f2 = f.parse("(a | b) & (c | ~d) & (e | ~f)");
         final Formula f3 = f.parse("(a & c) | (a & ~d) | (b & c) | (b & ~d)");

@@ -5,7 +5,6 @@ import static org.logicng.solvers.maxsat.MaxSATReader.readCnfToSolver;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.LongRunningTag;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.solvers.MaxSATSolver;
 import org.logicng.solvers.maxsat.algorithms.MaxSATConfig;
@@ -28,7 +27,7 @@ public class MaxSatLongRunningTest {
     @LongRunningTag
     @Test
     public void testWeightedMaxSat() throws IOException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final File folder = new File("src/test/resources/longrunning/wms");
         final Map<String, Integer> result = readResult(new File("src/test/resources/longrunning/wms/result.txt"));
         final MaxSATSolver[] solvers = new MaxSATSolver[3];

@@ -43,7 +43,6 @@ import static org.logicng.io.graphical.GraphicalEdgeStyle.noStyle;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
@@ -70,7 +69,7 @@ public class FormulaDagGraphicalGeneratorTest {
 
     @BeforeEach
     public void init() {
-        this.f = new CachingFormulaFactory();
+        this.f = FormulaFactory.caching();
         this.p = new PseudoBooleanParser(this.f);
     }
 

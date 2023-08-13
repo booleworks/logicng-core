@@ -33,7 +33,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.graphs.generators.HypergraphGenerator;
@@ -64,7 +63,7 @@ public class HypergraphEdgeTest {
 
     @Test
     public void testCenterOfGravity() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(Collections.singletonList(p.parse("A | B | ~C | D")));
         final HypergraphEdge<Variable> edge = hypergraph.edges().iterator().next();
@@ -83,7 +82,7 @@ public class HypergraphEdgeTest {
 
     @Test
     public void testIllegalCenterOfGravity() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(Collections.singletonList(p.parse("A | B | ~C | D")));
         final HypergraphEdge<Variable> edge = hypergraph.edges().iterator().next();

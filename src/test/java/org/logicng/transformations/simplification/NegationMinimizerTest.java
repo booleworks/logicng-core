@@ -33,7 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.logicng.RandomTag;
 import org.logicng.TestWithExampleFormulas;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
@@ -93,7 +92,7 @@ public class NegationMinimizerTest extends TestWithExampleFormulas {
 
     @Test
     public void testCornerCases() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final FormulaCornerCases cornerCases = new FormulaCornerCases(f);
         cornerCases.cornerCases().forEach(NegationMinimizerTest::computeAndVerify);
     }
@@ -102,7 +101,7 @@ public class NegationMinimizerTest extends TestWithExampleFormulas {
     @RandomTag
     public void testRandomized() {
         for (int i = 0; i < 1000; i++) {
-            final FormulaFactory f = new CachingFormulaFactory();
+            final FormulaFactory f = FormulaFactory.caching();
             final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(5).weightPbc(2).seed(i * 42).build());
             computeAndVerify(randomizer.formula(6));
         }

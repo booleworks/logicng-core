@@ -12,7 +12,6 @@ import org.logicng.datastructures.Tristate;
 import org.logicng.util.Pair;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -470,20 +469,7 @@ public interface PBConstraint extends Formula {
      * Encodes this constraint as CNF and stores the result, if the encoding does not already exist.
      * @return the encoding
      */
-    default List<Formula> getEncoding() {
-        List<Formula> encoding;
-        if (factory() instanceof CachingFormulaFactory) {
-            final CachingFormulaFactory cff = (CachingFormulaFactory) factory();
-            encoding = cff.pbEncodingCache.get(this);
-            if (encoding == null) {
-                encoding = cff.pbEncoder().encode(this);
-                cff.pbEncodingCache.put(this, encoding);
-            }
-        } else {
-            encoding = factory().pbEncoder().encode(this);
-        }
-        return Collections.unmodifiableList(encoding);
-    }
+    List<Formula> getEncoding();
 
     @Override
     default Iterator<Formula> iterator() {

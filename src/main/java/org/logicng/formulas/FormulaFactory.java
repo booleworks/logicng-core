@@ -16,6 +16,7 @@ import org.logicng.configurations.Configuration;
 import org.logicng.configurations.ConfigurationType;
 import org.logicng.explanations.mus.MUSConfig;
 import org.logicng.formulas.FormulaFactoryConfig.FormulaMergeStrategy;
+import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import org.logicng.formulas.printer.FormulaStringRepresentation;
 import org.logicng.functions.SubNodeFunction;
 import org.logicng.io.parsers.ParserException;
@@ -77,6 +78,14 @@ public abstract class FormulaFactory {
     protected int ccCounter;
     protected int pbCounter;
     protected int cnfCounter;
+
+    public static FormulaFactory caching(final FormulaFactoryConfig config) {
+        return new CachingFormulaFactory(config);
+    }
+
+    public static FormulaFactory caching() {
+        return new CachingFormulaFactory();
+    }
 
     protected FormulaFactory(final FormulaFactoryConfig config) {
         this.name = config.name;

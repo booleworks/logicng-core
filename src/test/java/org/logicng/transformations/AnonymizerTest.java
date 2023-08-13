@@ -32,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.datastructures.Substitution;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
@@ -50,7 +49,7 @@ public class AnonymizerTest {
 
     @Test
     public void testSimpleFormulasDefault() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Anonymizer anonymizer = new Anonymizer();
         assertThat(p.parse("$true").transform(anonymizer)).isEqualTo(p.parse("$true"));
@@ -65,7 +64,7 @@ public class AnonymizerTest {
 
     @Test
     public void testSimpleFormulasOwnPrefix() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Anonymizer anonymizer = new Anonymizer("var");
         assertThat(p.parse("$true").transform(anonymizer)).isEqualTo(p.parse("$true"));
@@ -81,7 +80,7 @@ public class AnonymizerTest {
 
     @Test
     public void testSimpleFormulasOwnPrefixAndCounter() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Anonymizer anonymizer = new Anonymizer("var", 10);
         assertThat(p.parse("$true").transform(anonymizer)).isEqualTo(p.parse("$true"));
@@ -96,7 +95,7 @@ public class AnonymizerTest {
 
     @Test
     public void testSimpleFormulasOwnPrefixAndCounterWithoutCache() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Anonymizer anonymizer = new Anonymizer("var", 10);
         assertThat(p.parse("$true").transform(anonymizer, false)).isEqualTo(p.parse("$true"));
@@ -111,7 +110,7 @@ public class AnonymizerTest {
 
     @Test
     public void testGetSubstitution() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Anonymizer anonymizer = new Anonymizer("v", 0);
         assertThat(anonymizer.getSubstitution()).isEqualTo(new Substitution());

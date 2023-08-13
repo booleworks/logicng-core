@@ -31,7 +31,6 @@ package org.logicng.knowledgecompilation.bdds;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.handlers.NumberOfNodesBDDHandler;
@@ -52,7 +51,7 @@ public class LargeBDDTest {
 
     @Test
     public void testPigeonHole() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PigeonHoleGenerator generator = new PigeonHoleGenerator(f);
         testPigeonHole(f, generator, 2);
         testPigeonHole(f, generator, 3);
@@ -73,7 +72,7 @@ public class LargeBDDTest {
 
     @Test
     public void testQueens() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);
         testQueens(f, generator, 4, 2);
         testQueens(f, generator, 5, 10);
@@ -96,7 +95,7 @@ public class LargeBDDTest {
 
     @Test
     public void testTimeoutBDDHandlerSmall() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);
         final Formula queens = generator.generate(4);
         final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
@@ -108,7 +107,7 @@ public class LargeBDDTest {
 
     @Test
     public void testTimeoutBDDHandlerLarge() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);
         final Formula queens = generator.generate(10);
         final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
@@ -120,7 +119,7 @@ public class LargeBDDTest {
 
     @Test
     public void testNumberOfNodesHandlerSmall() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);
         final Formula queens = generator.generate(4);
         final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
@@ -132,7 +131,7 @@ public class LargeBDDTest {
 
     @Test
     public void testNumberOfNodesHandlerLarge() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);
         final Formula queens = generator.generate(10);
         final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
@@ -144,7 +143,7 @@ public class LargeBDDTest {
 
     @Test
     public void testNumberOfNodesHandler() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = f.parse("A <=> ~(B => C & F & G & ~H | A & D & ~E)");
         final BDDKernel kernel = new BDDKernel(f, formula.variables().size(), 10000, 10000);
         final NumberOfNodesBDDHandler handler = new NumberOfNodesBDDHandler(5);

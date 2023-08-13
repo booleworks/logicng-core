@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.RandomTag;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
@@ -23,7 +22,7 @@ public class CanonicalCNFEnumerationTest {
 
     @Test
     public void testSamples() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         assertThat(f.falsum().transform(CanonicalCNFEnumeration.get())).isEqualTo(f.parse("$false"));
         assertThat(f.verum().transform(CanonicalCNFEnumeration.get())).isEqualTo(f.parse("$true"));
         assertThat(f.parse("a").transform(CanonicalCNFEnumeration.get())).isEqualTo(f.parse("a"));
@@ -41,7 +40,7 @@ public class CanonicalCNFEnumerationTest {
 
     @Test
     public void testCornerCases() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final FormulaCornerCases cornerCases = new FormulaCornerCases(f);
         for (final Formula formula : cornerCases.cornerCases()) {
             test(formula);
@@ -51,7 +50,7 @@ public class CanonicalCNFEnumerationTest {
     @Test
     @RandomTag
     public void random() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(5).weightPbc(0.5).seed(42).build());
         for (int i = 0; i < 1000; i++) {
             final Formula formula = randomizer.formula(3);

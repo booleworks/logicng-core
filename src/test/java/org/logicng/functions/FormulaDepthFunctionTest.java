@@ -32,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
@@ -91,7 +90,7 @@ public class FormulaDepthFunctionTest extends TestWithExampleFormulas {
 
     @Test
     public void testCache() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = f.parse("A & B | C");
         assertThat(formula.functionCacheEntry(FunctionCacheEntry.DEPTH)).isNull();
         assertThat(formula.apply(FormulaDepthFunction.get())).isEqualTo(2);

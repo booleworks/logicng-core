@@ -7,7 +7,6 @@ package org.logicng.np;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ import java.util.TreeSet;
 
 public class SetCoverTest {
 
-    private final FormulaFactory f = new CachingFormulaFactory();
+    private final FormulaFactory f = FormulaFactory.caching();
 
     @Test
     public void smallTest() {

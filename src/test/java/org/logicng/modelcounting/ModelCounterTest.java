@@ -36,7 +36,6 @@ import org.junit.jupiter.api.Test;
 import org.logicng.RandomTag;
 import org.logicng.TestWithExampleFormulas;
 import org.logicng.datastructures.Assignment;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
@@ -148,7 +147,7 @@ public class ModelCounterTest extends TestWithExampleFormulas {
 
     @Test
     public void testCornerCases() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final FormulaCornerCases cornerCases = new FormulaCornerCases(f);
         for (final Formula formula : cornerCases.cornerCases()) {
             if (formula.type() == FType.PBC) {
@@ -169,7 +168,7 @@ public class ModelCounterTest extends TestWithExampleFormulas {
     @RandomTag
     public void testRandom() {
         for (int i = 0; i < 500; i++) {
-            final FormulaFactory f = new CachingFormulaFactory();
+            final FormulaFactory f = FormulaFactory.caching();
             f.putConfiguration(CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).build());
             final FormulaRandomizerConfig config = FormulaRandomizerConfig.builder()
                     .numVars(5)
@@ -189,7 +188,7 @@ public class ModelCounterTest extends TestWithExampleFormulas {
     @RandomTag
     public void testRandomWithFormulaList() {
         for (int i = 0; i < 500; i++) {
-            final FormulaFactory f = new CachingFormulaFactory();
+            final FormulaFactory f = FormulaFactory.caching();
             f.putConfiguration(CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).build());
             final FormulaRandomizerConfig config = FormulaRandomizerConfig.builder()
                     .numVars(5)
@@ -209,7 +208,7 @@ public class ModelCounterTest extends TestWithExampleFormulas {
     @RandomTag
     public void testRandomWithFormulaListWithoutPBC() {
         for (int i = 0; i < 500; i++) {
-            final FormulaFactory f = new CachingFormulaFactory();
+            final FormulaFactory f = FormulaFactory.caching();
             f.putConfiguration(CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).build());
             final FormulaRandomizerConfig config = FormulaRandomizerConfig.builder()
                     .numVars(5)

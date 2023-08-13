@@ -129,7 +129,7 @@ public class ImplicationTest extends TestWithExampleFormulas {
 
     @Test
     public void testEqualsDifferentFormulaFactory() {
-        final FormulaFactory g = new CachingFormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        final FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         assertThat(g.implication(g.variable("a"), g.variable("b"))).isEqualTo(this.IMP1);
         assertThat(g.implication(this.AND1, this.OR1)).isEqualTo(this.IMP3);
         assertThat(g.implication(g.variable("b"), g.variable("a"))).isNotEqualTo(this.IMP1);

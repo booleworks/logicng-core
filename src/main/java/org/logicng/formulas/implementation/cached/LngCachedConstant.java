@@ -2,7 +2,10 @@
 // Copyright 2015-2023 Christoph Zengler
 // Copyright 2023-20xx BooleWorks GmbH
 
-package org.logicng.formulas;
+package org.logicng.formulas.implementation.cached;
+
+import org.logicng.formulas.Constant;
+import org.logicng.formulas.FType;
 
 public abstract class LngCachedConstant extends LngCachedFormula implements Constant {
 

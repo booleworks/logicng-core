@@ -2,24 +2,28 @@
 // Copyright 2015-2023 Christoph Zengler
 // Copyright 2023-20xx BooleWorks GmbH
 
-package org.logicng.formulas;
+package org.logicng.formulas.implementation.cached;
 
-public class LngCachedEquivalence extends LngCachedBinaryOperator implements Equivalence {
+import org.logicng.formulas.FType;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.Implication;
+
+public class LngCachedImplication extends LngCachedBinaryOperator implements Implication {
 
     /**
-     * Private constructor (initialize with {@code createNAryOperator()})
+     * Constructor.
      * @param left  the left-hand side operand
      * @param right the right-hand side operand
      * @param f     the factory which created this instance
      */
-    LngCachedEquivalence(final Formula left, final Formula right, final CachingFormulaFactory f) {
-        super(FType.EQUIV, left, right, f);
+    LngCachedImplication(final Formula left, final Formula right, final CachingFormulaFactory f) {
+        super(FType.IMPL, left, right, f);
     }
 
     @Override
     public int hashCode() {
         if (hashCode == 0) {
-            hashCode = 41 * (left.hashCode() + right.hashCode());
+            hashCode = 37 * left.hashCode() + 39 * right.hashCode();
         }
         return hashCode;
     }
@@ -32,10 +36,9 @@ public class LngCachedEquivalence extends LngCachedBinaryOperator implements Equ
         if (other instanceof Formula && f == ((Formula) other).factory()) {
             return false; // the same formula factory would have produced a == object
         }
-        if (other instanceof Equivalence) {
-            final Equivalence otherEq = (Equivalence) other;
-            return left.equals(otherEq.left()) && right.equals(otherEq.right()) ||
-                    left.equals(otherEq.right()) && right.equals(otherEq.left());
+        if (other instanceof Implication) {
+            final Implication otherImp = (Implication) other;
+            return left.equals(otherImp.left()) && right.equals(otherImp.right());
         }
         return false;
     }

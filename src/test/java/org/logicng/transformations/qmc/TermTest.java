@@ -35,7 +35,6 @@ import static org.logicng.datastructures.Tristate.UNDEF;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.datastructures.Tristate;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
@@ -63,7 +62,7 @@ public class TermTest {
         final Tristate[] bits6 = new Tristate[]{TRUE, FALSE, TRUE, UNDEF};
         final Tristate[] bits7 = new Tristate[]{TRUE, FALSE, TRUE};
 
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final List<Formula> formulas1 = Collections.singletonList(f.variable("f1"));
         final List<Formula> formulas2 = Collections.singletonList(f.variable("f2"));
         final List<Formula> formulas3 = Collections.singletonList(f.variable("f3"));
@@ -92,7 +91,7 @@ public class TermTest {
 
     @Test
     public void testToFormula() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Tristate[] bits1 = new Tristate[]{TRUE, TRUE, TRUE, TRUE};
         final Tristate[] bits2 = new Tristate[]{TRUE, FALSE, TRUE, TRUE};
@@ -126,7 +125,7 @@ public class TermTest {
 
     @Test
     public void testToString() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Tristate[] bits1 = new Tristate[]{TRUE, TRUE, TRUE, TRUE};
         final Tristate[] bits2 = new Tristate[]{TRUE, FALSE, TRUE, TRUE};
         final List<Formula> formulas1 = Collections.singletonList(f.variable("f1"));

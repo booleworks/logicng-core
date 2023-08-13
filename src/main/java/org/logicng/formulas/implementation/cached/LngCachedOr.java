@@ -2,9 +2,12 @@
 // Copyright 2015-2023 Christoph Zengler
 // Copyright 2023-20xx BooleWorks GmbH
 
-package org.logicng.formulas;
+package org.logicng.formulas.implementation.cached;
 
 import org.logicng.datastructures.Tristate;
+import org.logicng.formulas.FType;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.Or;
 import org.logicng.formulas.cache.PredicateCacheEntry;
 
 import java.util.LinkedHashSet;

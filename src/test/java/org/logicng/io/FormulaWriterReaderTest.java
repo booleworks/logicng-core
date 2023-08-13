@@ -31,7 +31,6 @@ package org.logicng.io;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.printer.UTF8StringRepresentation;
@@ -61,7 +60,7 @@ public class FormulaWriterReaderTest {
     public void testSimpleFormulaOneLine() throws ParserException, IOException {
         final String fileName = "src/test/resources/writers/temp/simple_formula1.txt";
         final File file = new File(fileName);
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E))");
         FormulaWriter.write(file, p1, false);
         final Formula p2 = FormulaReader.readPropositionalFormula(fileName, f);
@@ -83,7 +82,7 @@ public class FormulaWriterReaderTest {
     public void testSimpleFormulaMultiLine() throws ParserException, IOException {
         final String fileName = "src/test/resources/writers/temp/simple_formula2.txt";
         final File file = new File(fileName);
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E))");
         FormulaWriter.write(fileName, p1, true);
         final Formula p2 = FormulaReader.readPropositionalFormula(fileName, f);
@@ -103,7 +102,7 @@ public class FormulaWriterReaderTest {
     public void testPBFormulaOneLine() throws ParserException, IOException {
         final String fileName = "src/test/resources/writers/temp/simple_formula3.txt";
         final File file = new File(fileName);
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PseudoBooleanParser(f).parse("A & B & ~(C | (D => ~E)) & (2*y + 3*y >= 4) & (x <= 1)");
         FormulaWriter.write(fileName, p1, false);
         final Formula p2 = FormulaReader.readPseudoBooleanFormula(fileName, f);
@@ -125,7 +124,7 @@ public class FormulaWriterReaderTest {
     public void testPBFormulaMultiLine() throws ParserException, IOException {
         final String fileName = "src/test/resources/writers/temp/simple_formula4.txt";
         final File file = new File(fileName);
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PseudoBooleanParser(f).parse("A & B & ~(C | (D => ~E)) & (2*y + 3*y >= 4) & (x <= 1)");
         FormulaWriter.write(fileName, p1, true);
         final Formula p2 = FormulaReader.readPseudoBooleanFormula(fileName, f);
@@ -145,7 +144,7 @@ public class FormulaWriterReaderTest {
     public void testSimpleFormulaOneLineFormatter() throws ParserException, IOException {
         final String fileName = "src/test/resources/writers/temp/simple_formula5.txt";
         final File file = new File(fileName);
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E))");
         FormulaWriter.write(fileName, p1, false, new UTF8StringRepresentation());
         try (final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
@@ -158,7 +157,7 @@ public class FormulaWriterReaderTest {
     public void testSimpleFormulaMultiLineFormatter() throws ParserException, IOException {
         final String fileName = "src/test/resources/writers/temp/simple_formula6.txt";
         final File file = new File(fileName);
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E))");
         FormulaWriter.write(fileName, p1, true, new UTF8StringRepresentation());
         try (final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
