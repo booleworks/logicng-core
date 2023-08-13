@@ -16,9 +16,9 @@ import java.util.stream.Stream;
  * @version 3.0.0
  * @since 1.0
  */
-public abstract class Constant extends LngCachedFormula {
+public interface Constant extends Formula {
 
-    private static final Iterator<Formula> ITERATOR = new Iterator<>() {
+    Iterator<Formula> ITERATOR = new Iterator<>() {
         @Override
         public boolean hasNext() {
             return false;
@@ -35,57 +35,48 @@ public abstract class Constant extends LngCachedFormula {
         }
     };
 
-    /**
-     * Constructor.
-     * @param type the constant type
-     * @param f    the factory which created this instance
-     */
-    Constant(final FType type, final FormulaFactory f) {
-        super(type, f);
-    }
-
     @Override
-    public int numberOfOperands() {
+    default int numberOfOperands() {
         return 0;
     }
 
     @Override
-    public boolean isConstantFormula() {
+    default boolean isConstantFormula() {
         return true;
     }
 
     @Override
-    public boolean isAtomicFormula() {
+    default boolean isAtomicFormula() {
         return true;
     }
 
     @Override
-    public boolean containsVariable(final Variable variable) {
+    default boolean containsVariable(final Variable variable) {
         return false;
     }
 
     @Override
-    public Formula restrict(final Assignment assignment) {
+    default Formula restrict(final Assignment assignment) {
         return this;
     }
 
     @Override
-    public boolean containsNode(final Formula formula) {
+    default boolean containsNode(final Formula formula) {
         return this == formula;
     }
 
     @Override
-    public Formula substitute(final Substitution substitution) {
+    default Formula substitute(final Substitution substitution) {
         return this;
     }
 
     @Override
-    public Iterator<Formula> iterator() {
+    default Iterator<Formula> iterator() {
         return ITERATOR;
     }
 
     @Override
-    public Stream<Formula> stream() {
+    default Stream<Formula> stream() {
         return Stream.empty();
     }
 }

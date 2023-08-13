@@ -12,7 +12,6 @@ import org.logicng.datastructures.Tristate;
 import org.logicng.util.Pair;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -28,9 +27,8 @@ import java.util.stream.Stream;
  * @version 3.0.0
  * @since 1.0
  */
-public class PBConstraint extends LngCachedFormula {
-
-    private static final Iterator<Formula> ITERATOR = new Iterator<>() {
+public interface PBConstraint extends Formula {
+    Iterator<Formula> ITERATOR = new Iterator<>() {
         @Override
         public boolean hasNext() {
             return false;
@@ -46,40 +44,6 @@ public class PBConstraint extends LngCachedFormula {
             throw new UnsupportedOperationException();
         }
     };
-
-    protected final Literal[] literals;
-    protected final int[] coefficients;
-    protected CType comparator;
-    protected int rhs;
-    protected int hashCode;
-    protected int maxWeight;
-
-    /**
-     * Constructs a new pseudo-Boolean constraint.
-     * @param literals     the literals
-     * @param coefficients the coefficients
-     * @param comparator   the comparator
-     * @param rhs          the right-hand side
-     * @param f            the formula factory
-     * @throws IllegalArgumentException if the number of literals and coefficients do not correspond
-     */
-    PBConstraint(final Literal[] literals, final int[] coefficients, final CType comparator, final int rhs, final FormulaFactory f) {
-        super(FType.PBC, f);
-        if (literals.length != coefficients.length) {
-            throw new IllegalArgumentException("Cannot generate a pseudo-Boolean constraint with literals.length != coefficients.length");
-        }
-        this.literals = literals;
-        this.coefficients = coefficients;
-        this.maxWeight = Integer.MIN_VALUE;
-        for (final int c : coefficients) {
-            if (c > this.maxWeight) {
-                this.maxWeight = c;
-            }
-        }
-        this.comparator = comparator;
-        this.rhs = rhs;
-        this.hashCode = 0;
-    }
 
     /**
      * Returns the GCD of two given values.
@@ -136,39 +100,31 @@ public class PBConstraint extends LngCachedFormula {
      * Returns the literals of this constraint.
      * @return the literals of this constraint
      */
-    public Literal[] operands() {
-        return Arrays.copyOf(literals, literals.length);
-    }
+    List<Literal> operands();
 
     /**
      * Returns the coefficients of this constraint.
      * @return the coefficients of this constraint
      */
-    public int[] coefficients() {
-        return Arrays.copyOf(coefficients, coefficients.length);
-    }
+    List<Integer> coefficients();
 
     /**
      * Returns the comparator of this constraint.
      * @return the comparator of this constraint
      */
-    public CType comparator() {
-        return comparator;
-    }
+    CType comparator();
 
     /**
      * Returns the right-hand side of this constraint.
      * @return the right-hand side of this constraint
      */
-    public int rhs() {
-        return rhs;
-    }
+    int rhs();
 
     /**
      * Returns {@code true} if this constraint is a cardinality constraint, {@code false} otherwise.
      * @return {@code true} if this constraint is a cardinality constraint
      */
-    public boolean isCC() {
+    default boolean isCC() {
         return false;
     }
 
@@ -176,15 +132,15 @@ public class PBConstraint extends LngCachedFormula {
      * Returns {@code true} if this constraint is an at-most-one cardinality constraint, {@code false} otherwise.
      * @return {@code true} if this constraint is an at-most-one cardinality constraint
      */
-    public boolean isAmo() {
+    default boolean isAmo() {
         return false;
     }
 
     /**
      * Returns {@code true} if this constraint is an exactly-one cardinality constraint, {@code false} otherwise.
-     * @return {@code true} if this constraint is an excatly-one cardinality constraint
+     * @return {@code true} if this constraint is an exactly-one cardinality constraint
      */
-    public boolean isExo() {
+    default boolean isExo() {
         return false;
     }
 
@@ -192,53 +148,51 @@ public class PBConstraint extends LngCachedFormula {
      * Returns the maximal coefficient of this constraint.
      * @return the maximal coefficient of this constraint
      */
-    public int maxWeight() {
-        return maxWeight;
-    }
+    int maxWeight();
 
     /**
      * Normalizes this constraint s.t. it can be converted to CNF.
      * @return the normalized constraint
      */
-    public Formula normalize() {
-        final LNGVector<Literal> normPs = new LNGVector<>(literals.length);
-        final LNGIntVector normCs = new LNGIntVector(literals.length);
+    default Formula normalize() {
+        final LNGVector<Literal> normPs = new LNGVector<>(operands().size());
+        final LNGIntVector normCs = new LNGIntVector(operands().size());
         int normRhs;
-        switch (comparator) {
+        switch (comparator()) {
             case EQ:
-                for (int i = 0; i < literals.length; i++) {
-                    normPs.push(literals[i]);
-                    normCs.push(coefficients[i]);
+                for (int i = 0; i < operands().size(); i++) {
+                    normPs.push(operands().get(i));
+                    normCs.push(coefficients().get(i));
                 }
-                normRhs = rhs;
+                normRhs = rhs();
                 final Formula f1 = normalize(normPs, normCs, normRhs);
                 normPs.clear();
                 normCs.clear();
-                for (int i = 0; i < literals.length; i++) {
-                    normPs.push(literals[i]);
-                    normCs.push(-coefficients[i]);
+                for (int i = 0; i < operands().size(); i++) {
+                    normPs.push(operands().get(i));
+                    normCs.push(-coefficients().get(i));
                 }
-                normRhs = -rhs;
+                normRhs = -rhs();
                 final Formula f2 = normalize(normPs, normCs, normRhs);
-                return f.and(f1, f2);
+                return factory().and(f1, f2);
             case LT:
             case LE:
-                for (int i = 0; i < literals.length; i++) {
-                    normPs.push(literals[i]);
-                    normCs.push(coefficients[i]);
+                for (int i = 0; i < operands().size(); i++) {
+                    normPs.push(operands().get(i));
+                    normCs.push(coefficients().get(i));
                 }
-                normRhs = comparator == CType.LE ? rhs : rhs - 1;
+                normRhs = comparator() == CType.LE ? rhs() : rhs() - 1;
                 return normalize(normPs, normCs, normRhs);
             case GT:
             case GE:
-                for (int i = 0; i < literals.length; i++) {
-                    normPs.push(literals[i]);
-                    normCs.push(-coefficients[i]);
+                for (int i = 0; i < operands().size(); i++) {
+                    normPs.push(operands().get(i));
+                    normCs.push(-coefficients().get(i));
                 }
-                normRhs = comparator == CType.GE ? -rhs : -rhs - 1;
+                normRhs = comparator() == CType.GE ? -rhs() : -rhs() - 1;
                 return normalize(normPs, normCs, normRhs);
             default:
-                throw new IllegalStateException("Unknown pseudo-Boolean comparator: " + comparator);
+                throw new IllegalStateException("Unknown pseudo-Boolean comparator: " + comparator());
         }
     }
 
@@ -304,10 +258,10 @@ public class PBConstraint extends LngCachedFormula {
         do {
             changed = false;
             if (c < 0) {
-                return f.falsum();
+                return factory().falsum();
             }
             if (sum <= c) {
-                return f.verum();
+                return factory().verum();
             }
             assert cs.size() > 0;
             int div = c;
@@ -332,27 +286,27 @@ public class PBConstraint extends LngCachedFormula {
         for (int i = 0; i < coeffs.length; i++) {
             coeffs[i] = cs.get(i);
         }
-        return f.pbc(CType.LE, c, lits, coeffs);
+        return factory().pbc(CType.LE, c, lits, coeffs);
     }
 
     @Override
-    public int numberOfOperands() {
+    default int numberOfOperands() {
         return 0;
     }
 
     @Override
-    public boolean isConstantFormula() {
+    default boolean isConstantFormula() {
         return false;
     }
 
     @Override
-    public boolean isAtomicFormula() {
+    default boolean isAtomicFormula() {
         return true;
     }
 
     @Override
-    public boolean containsVariable(final Variable variable) {
-        for (final Literal lit : literals) {
+    default boolean containsVariable(final Variable variable) {
+        for (final Literal lit : operands()) {
             if (lit.containsVariable(variable)) {
                 return true;
             }
@@ -361,23 +315,23 @@ public class PBConstraint extends LngCachedFormula {
     }
 
     @Override
-    public boolean evaluate(final Assignment assignment) {
+    default boolean evaluate(final Assignment assignment) {
         final int lhs = evaluateLHS(assignment);
         return evaluateComparator(lhs);
     }
 
     @Override
-    public Formula restrict(final Assignment assignment) {
+    default Formula restrict(final Assignment assignment) {
         final List<Literal> newLits = new ArrayList<>();
         final List<Integer> newCoeffs = new ArrayList<>();
         int lhsFixed = 0;
         int minValue = 0;
         int maxValue = 0;
-        for (int i = 0; i < literals.length; i++) {
-            final Formula restriction = assignment.restrictLit(literals[i]);
+        for (int i = 0; i < operands().size(); i++) {
+            final Formula restriction = assignment.restrictLit(operands().get(i));
             if (restriction.type() == FType.LITERAL) {
-                newLits.add(literals[i]);
-                final int coeff = coefficients[i];
+                newLits.add(operands().get(i));
+                final int coeff = coefficients().get(i);
                 newCoeffs.add(coeff);
                 if (coeff > 0) {
                     maxValue += coeff;
@@ -385,33 +339,33 @@ public class PBConstraint extends LngCachedFormula {
                     minValue += coeff;
                 }
             } else if (restriction.type() == FType.TRUE) {
-                lhsFixed += coefficients[i];
+                lhsFixed += coefficients().get(i);
             }
         }
 
         if (newLits.isEmpty()) {
-            return f.constant(evaluateComparator(lhsFixed));
+            return factory().constant(evaluateComparator(lhsFixed));
         }
 
-        final int newRHS = rhs - lhsFixed;
-        if (comparator != CType.EQ) {
-            final Tristate fixed = evaluateCoeffs(minValue, maxValue, newRHS, comparator);
+        final int newRHS = rhs() - lhsFixed;
+        if (comparator() != CType.EQ) {
+            final Tristate fixed = evaluateCoeffs(minValue, maxValue, newRHS, comparator());
             if (fixed == Tristate.TRUE) {
-                return f.verum();
+                return factory().verum();
             } else if (fixed == Tristate.FALSE) {
-                return f.falsum();
+                return factory().falsum();
             }
         }
-        return f.pbc(comparator, newRHS, newLits, newCoeffs);
+        return factory().pbc(comparator(), newRHS, newLits, newCoeffs);
     }
 
     @Override
-    public boolean containsNode(final Formula formula) {
+    default boolean containsNode(final Formula formula) {
         if (this == formula || equals(formula)) {
             return true;
         }
         if (formula.type() == FType.LITERAL) {
-            for (final Literal lit : literals) {
+            for (final Literal lit : operands()) {
                 if (lit.equals(formula) || lit.variable().equals(formula)) {
                     return true;
                 }
@@ -422,30 +376,30 @@ public class PBConstraint extends LngCachedFormula {
     }
 
     @Override
-    public Formula substitute(final Substitution substitution) {
+    default Formula substitute(final Substitution substitution) {
         final List<Literal> newLits = new ArrayList<>();
         final List<Integer> newCoeffs = new ArrayList<>();
         int lhsFixed = 0;
-        for (int i = 0; i < literals.length; i++) {
-            final Formula subst = substitution.getSubstitution(literals[i].variable());
+        for (int i = 0; i < operands().size(); i++) {
+            final Formula subst = substitution.getSubstitution(operands().get(i).variable());
             if (subst == null) {
-                newLits.add(literals[i]);
-                newCoeffs.add(coefficients[i]);
+                newLits.add(operands().get(i));
+                newCoeffs.add(coefficients().get(i));
             } else {
                 switch (subst.type()) {
                     case TRUE:
-                        if (literals[i].phase()) {
-                            lhsFixed += coefficients[i];
+                        if (operands().get(i).phase()) {
+                            lhsFixed += coefficients().get(i);
                         }
                         break;
                     case FALSE:
-                        if (!literals[i].phase()) {
-                            lhsFixed += coefficients[i];
+                        if (!operands().get(i).phase()) {
+                            lhsFixed += coefficients().get(i);
                         }
                         break;
                     case LITERAL:
-                        newLits.add(literals[i].phase() ? (Literal) subst : ((Literal) subst).negate());
-                        newCoeffs.add(coefficients[i]);
+                        newLits.add(operands().get(i).phase() ? (Literal) subst : ((Literal) subst).negate());
+                        newCoeffs.add(coefficients().get(i));
                         break;
                     default:
                         throw new IllegalArgumentException("Cannot substitute a formula for a literal in a pseudo-Boolean constraint");
@@ -453,23 +407,23 @@ public class PBConstraint extends LngCachedFormula {
             }
         }
         return newLits.isEmpty()
-                ? evaluateComparator(lhsFixed) ? f.verum() : f.falsum()
-                : f.pbc(comparator, rhs - lhsFixed, newLits, newCoeffs);
+                ? evaluateComparator(lhsFixed) ? factory().verum() : factory().falsum()
+                : factory().pbc(comparator(), rhs() - lhsFixed, newLits, newCoeffs);
     }
 
     @Override
-    public Formula negate() {
-        switch (comparator) {
+    default Formula negate() {
+        switch (comparator()) {
             case EQ:
-                return f.or(f.pbc(CType.LT, rhs, literals, coefficients), f.pbc(CType.GT, rhs, literals, coefficients));
+                return factory().or(factory().pbc(CType.LT, rhs(), operands(), coefficients()), factory().pbc(CType.GT, rhs(), operands(), coefficients()));
             case LE:
-                return f.pbc(CType.GT, rhs, literals, coefficients);
+                return factory().pbc(CType.GT, rhs(), operands(), coefficients());
             case LT:
-                return f.pbc(CType.GE, rhs, literals, coefficients);
+                return factory().pbc(CType.GE, rhs(), operands(), coefficients());
             case GE:
-                return f.pbc(CType.LT, rhs, literals, coefficients);
+                return factory().pbc(CType.LT, rhs(), operands(), coefficients());
             case GT:
-                return f.pbc(CType.LE, rhs, literals, coefficients);
+                return factory().pbc(CType.LE, rhs(), operands(), coefficients());
             default:
                 throw new IllegalStateException("Unknown pseudo-Boolean comparator");
         }
@@ -482,9 +436,9 @@ public class PBConstraint extends LngCachedFormula {
      */
     private int evaluateLHS(final Assignment assignment) {
         int lhs = 0;
-        for (int i = 0; i < literals.length; i++) {
-            if (literals[i].evaluate(assignment)) {
-                lhs += coefficients[i];
+        for (int i = 0; i < operands().size(); i++) {
+            if (operands().get(i).evaluate(assignment)) {
+                lhs += coefficients().get(i);
             }
         }
         return lhs;
@@ -496,17 +450,17 @@ public class PBConstraint extends LngCachedFormula {
      * @return {@code true} if the comparator evaluates to true, {@code false} otherwise
      */
     private boolean evaluateComparator(final int lhs) {
-        switch (comparator) {
+        switch (comparator()) {
             case EQ:
-                return lhs == rhs;
+                return lhs == rhs();
             case LE:
-                return lhs <= rhs;
+                return lhs <= rhs();
             case LT:
-                return lhs < rhs;
+                return lhs < rhs();
             case GE:
-                return lhs >= rhs;
+                return lhs >= rhs();
             case GT:
-                return lhs > rhs;
+                return lhs > rhs();
             default:
                 throw new IllegalStateException("Unknown pseudo-Boolean comparator");
         }
@@ -516,52 +470,22 @@ public class PBConstraint extends LngCachedFormula {
      * Encodes this constraint as CNF and stores the result, if the encoding does not already exist.
      * @return the encoding
      */
-    public List<Formula> getEncoding() {
-        List<Formula> encoding = f.pbEncodingCache.get(this);
+    default List<Formula> getEncoding() {
+        List<Formula> encoding = factory().pbEncodingCache.get(this);
         if (encoding == null) {
-            encoding = f.pbEncoder().encode(this);
-            f.pbEncodingCache.put(this, encoding);
+            encoding = factory().pbEncoder().encode(this);
+            factory().pbEncodingCache.put(this, encoding);
         }
         return Collections.unmodifiableList(encoding);
     }
 
     @Override
-    public int hashCode() {
-        if (hashCode == 0) {
-            int temp = comparator.hashCode() + rhs;
-            for (int i = 0; i < literals.length; i++) {
-                temp += 11 * literals[i].hashCode();
-                temp += 13 * coefficients[i];
-            }
-            hashCode = temp;
-        }
-        return hashCode;
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false;
-        }
-        if (other instanceof PBConstraint) {
-            final PBConstraint o = (PBConstraint) other;
-            return rhs == o.rhs && comparator == o.comparator
-                    && Arrays.equals(coefficients, o.coefficients)
-                    && Arrays.equals(literals, o.literals);
-        }
-        return false;
-    }
-
-    @Override
-    public Iterator<Formula> iterator() {
+    default Iterator<Formula> iterator() {
         return ITERATOR;
     }
 
     @Override
-    public Stream<Formula> stream() {
+    default Stream<Formula> stream() {
         return Stream.empty();
     }
 }

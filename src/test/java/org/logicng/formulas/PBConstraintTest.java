@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
@@ -46,7 +22,7 @@ import java.util.TreeSet;
 
 /**
  * Unit Tests for the class {@link PBConstraint}.
- * @version 2.3.0
+ * @version 3.0.0
  * @since 1.0
  */
 public class PBConstraintTest extends TestWithExampleFormulas {
@@ -105,11 +81,11 @@ public class PBConstraintTest extends TestWithExampleFormulas {
         final Literal[] lits1 = new Literal[]{f.variable("a")};
         final Literal[] lits2 = new Literal[]{f2.variable("a"), f.literal("b", false), f.variable("c")};
         final Literal[] litsCC2 = new Literal[]{f.variable("a"), f.variable("b"), f2.variable("c")};
-        final int[] coeffs1 = new int[]{3};
-        final int[] coeffs2 = new int[]{3, -2, 7};
+        final Integer[] coeffs1 = new Integer[]{3};
+        final Integer[] coeffs2 = new Integer[]{3, -2, 7};
 
-        final int[] coeffsCC1 = new int[]{1};
-        final int[] coeffsCC2 = new int[]{1, 1, 1};
+        final Integer[] coeffsCC1 = new Integer[]{1};
+        final Integer[] coeffsCC2 = new Integer[]{1, 1, 1};
 
         assertThat(this.pb1.operands()).containsExactly(lits1);
         assertThat(this.pb1.coefficients()).containsExactly(coeffs1);

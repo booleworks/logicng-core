@@ -16,100 +16,61 @@ import java.util.stream.Stream;
  * @version 3.0.0
  * @since 1.0
  */
-public final class Not extends LngCachedFormula {
-
-    private final Formula operand;
-    private volatile int hashCode;
-
-    /**
-     * Constructor.
-     * @param operand the operand of the negation
-     * @param f       the factory which created this instance
-     */
-    Not(final Formula operand, final FormulaFactory f) {
-        super(FType.NOT, f);
-        this.operand = operand;
-        this.hashCode = 0;
-    }
+public interface Not extends Formula {
 
     /**
      * Returns the operand of this negation.
      * @return the operand of this negation
      */
-    public Formula operand() {
-        return operand;
-    }
+    Formula operand();
 
     @Override
-    public int numberOfOperands() {
+    default int numberOfOperands() {
         return 1;
     }
 
     @Override
-    public boolean isConstantFormula() {
+    default boolean isConstantFormula() {
         return false;
     }
 
     @Override
-    public boolean isAtomicFormula() {
+    default boolean isAtomicFormula() {
         return false;
     }
 
     @Override
-    public boolean containsVariable(final Variable variable) {
-        return operand.containsVariable(variable);
+    default boolean containsVariable(final Variable variable) {
+        return operand().containsVariable(variable);
     }
 
     @Override
-    public boolean evaluate(final Assignment assignment) {
-        return !operand.evaluate(assignment);
+    default boolean evaluate(final Assignment assignment) {
+        return !operand().evaluate(assignment);
     }
 
     @Override
-    public Formula restrict(final Assignment assignment) {
-        return f.not(operand.restrict(assignment));
+    default Formula restrict(final Assignment assignment) {
+        return factory().not(operand().restrict(assignment));
     }
 
     @Override
-    public boolean containsNode(final Formula formula) {
-        return this == formula || equals(formula) || operand.containsNode(formula);
+    default boolean containsNode(final Formula formula) {
+        return this == formula || equals(formula) || operand().containsNode(formula);
     }
 
     @Override
-    public Formula substitute(final Substitution substitution) {
-        return f.not(operand.substitute(substitution));
+    default Formula substitute(final Substitution substitution) {
+        return factory().not(operand().substitute(substitution));
     }
 
     @Override
-    public Formula negate() {
-        return operand;
+    default Formula negate() {
+        return operand();
     }
 
     @Override
-    public int hashCode() {
-        if (hashCode == 0) {
-            hashCode = 29 * operand.hashCode();
-        }
-        return hashCode;
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        if (other == this) {
-            return true;
-        }
-        if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false; // the same formula factory would have produced a == object
-        }
-        if (other instanceof Not) {
-            final Not otherNot = (Not) other;
-            return operand.equals(otherNot.operand);
-        }
-        return false;
-    }
-
-    @Override
-    public Iterator<Formula> iterator() {
+    default Iterator<Formula> iterator() {
         return new Iterator<>() {
             private boolean iterated;
 
@@ -122,7 +83,7 @@ public final class Not extends LngCachedFormula {
             public Formula next() {
                 if (!iterated) {
                     iterated = true;
-                    return Not.this.operand;
+                    return Not.this.operand();
                 }
                 throw new NoSuchElementException();
             }
@@ -135,7 +96,7 @@ public final class Not extends LngCachedFormula {
     }
 
     @Override
-    public Stream<Formula> stream() {
-        return Stream.of(operand);
+    default Stream<Formula> stream() {
+        return Stream.of(operand());
     }
 }

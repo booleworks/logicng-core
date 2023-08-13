@@ -11,33 +11,15 @@ import org.logicng.datastructures.Assignment;
  * @version 3.0.0
  * @since 1.0
  */
-public final class CTrue extends Constant {
-
-    /**
-     * Constructor.
-     * @param factory the factory which created this instance
-     */
-    CTrue(final FormulaFactory factory) {
-        super(FType.TRUE, factory);
-    }
+public interface CTrue extends Constant {
 
     @Override
-    public boolean evaluate(final Assignment assignment) {
+    default boolean evaluate(final Assignment assignment) {
         return true;
     }
 
     @Override
-    public Constant negate() {
+    default Constant negate() {
         return factory().falsum();
-    }
-
-    @Override
-    public int hashCode() {
-        return 42;
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        return other instanceof CTrue;
     }
 }

@@ -11,33 +11,15 @@ import org.logicng.datastructures.Assignment;
  * @version 3.0.0
  * @since 1.0
  */
-public final class CFalse extends Constant {
-
-    /**
-     * Constructor.
-     * @param factory the factory which created this instance
-     */
-    CFalse(final FormulaFactory factory) {
-        super(FType.FALSE, factory);
-    }
+public interface CFalse extends Constant {
 
     @Override
-    public boolean evaluate(final Assignment assignment) {
+    default boolean evaluate(final Assignment assignment) {
         return false;
     }
 
     @Override
-    public Constant negate() {
+    default Constant negate() {
         return factory().verum();
-    }
-
-    @Override
-    public int hashCode() {
-        return -42;
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        return other instanceof CFalse;
     }
 }

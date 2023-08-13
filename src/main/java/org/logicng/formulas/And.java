@@ -6,8 +6,6 @@ package org.logicng.formulas;
 
 import org.logicng.datastructures.Assignment;
 
-import java.util.LinkedHashSet;
-
 /**
  * Boolean conjunction.
  * <p>
@@ -19,43 +17,15 @@ import java.util.LinkedHashSet;
  * @version 3.0.0
  * @since 1.0
  */
-public final class And extends NAryOperator {
-
-    /**
-     * Constructor.
-     * @param operands the stream of operands
-     * @param f        the factory which created this instance
-     */
-    And(final LinkedHashSet<? extends Formula> operands, final FormulaFactory f) {
-        super(FType.AND, operands, f);
-    }
+public interface And extends NAryOperator {
 
     @Override
-    public boolean evaluate(final Assignment assignment) {
-        for (final Formula op : operands) {
+    default boolean evaluate(final Assignment assignment) {
+        for (final Formula op : operands()) {
             if (!op.evaluate(assignment)) {
                 return false;
             }
         }
         return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return hashCode(31);
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        if (other == this) {
-            return true;
-        }
-        if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false; // the same formula factory would have produced a == object
-        }
-        if (other instanceof And) { // this is not really efficient... but should not be done anyway!
-            return compareOperands(((And) other).operands);
-        }
-        return false;
     }
 }

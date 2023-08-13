@@ -15,79 +15,57 @@ import java.util.stream.Stream;
  * @version 3.0.0
  * @since 1.0
  */
-public abstract class BinaryOperator extends LngCachedFormula {
-
-    protected final Formula left;
-    protected final Formula right;
-    protected volatile int hashCode;
-
-    /**
-     * Constructor.
-     * @param type  the type of the formula
-     * @param left  the left-hand side operand
-     * @param right the right-hand side operand
-     * @param f     the factory which created this instance
-     */
-    BinaryOperator(final FType type, final Formula left, final Formula right, final FormulaFactory f) {
-        super(type, f);
-        this.left = left;
-        this.right = right;
-        this.hashCode = 0;
-    }
+public interface BinaryOperator extends Formula {
 
     /**
      * Returns the left-hand side operator.
      * @return the left-hand side operator
      */
-    public Formula left() {
-        return left;
-    }
+    Formula left();
 
     /**
      * Returns the right-hand side operator.
      * @return the right-hand side operator
      */
-    public Formula right() {
-        return right;
-    }
+    Formula right();
 
     @Override
-    public int numberOfOperands() {
+    default int numberOfOperands() {
         return 2;
     }
 
     @Override
-    public boolean isConstantFormula() {
+    default boolean isConstantFormula() {
         return false;
     }
 
     @Override
-    public boolean isAtomicFormula() {
+    default boolean isAtomicFormula() {
         return false;
     }
 
     @Override
-    public boolean containsVariable(final Variable variable) {
-        return left.containsVariable(variable) || right.containsVariable(variable);
+    default boolean containsVariable(final Variable variable) {
+        return left().containsVariable(variable) || right().containsVariable(variable);
     }
 
     @Override
-    public boolean containsNode(final Formula formula) {
-        return this == formula || equals(formula) || left.containsNode(formula) || right.containsNode(formula);
+    default boolean containsNode(final Formula formula) {
+        return this == formula || equals(formula) || left().containsNode(formula) || right().containsNode(formula);
     }
 
     @Override
-    public Formula substitute(final Substitution substitution) {
-        return f.binaryOperator(type(), left.substitute(substitution), right.substitute(substitution));
+    default Formula substitute(final Substitution substitution) {
+        return factory().binaryOperator(type(), left().substitute(substitution), right().substitute(substitution));
     }
 
     @Override
-    public Formula negate() {
-        return f.not(this);
+    default Formula negate() {
+        return factory().not(this);
     }
 
     @Override
-    public Iterator<Formula> iterator() {
+    default Iterator<Formula> iterator() {
         return new Iterator<>() {
             private int count;
 
@@ -100,10 +78,10 @@ public abstract class BinaryOperator extends LngCachedFormula {
             public Formula next() {
                 if (count == 0) {
                     count++;
-                    return BinaryOperator.this.left;
+                    return BinaryOperator.this.left();
                 } else if (count == 1) {
                     count++;
-                    return BinaryOperator.this.right;
+                    return BinaryOperator.this.right();
                 }
                 throw new NoSuchElementException();
             }
@@ -116,7 +94,7 @@ public abstract class BinaryOperator extends LngCachedFormula {
     }
 
     @Override
-    public Stream<Formula> stream() {
-        return Stream.of(left, right);
+    default Stream<Formula> stream() {
+        return Stream.of(left(), right());
     }
 }
