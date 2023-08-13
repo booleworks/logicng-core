@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.datastructures.Assignment;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.solvers.MiniSat;
@@ -22,7 +21,7 @@ public class ModelEnumerationFunctionTest {
     private final FormulaFactory f;
 
     public ModelEnumerationFunctionTest() {
-        this.f = new CachingFormulaFactory();
+        this.f = FormulaFactory.caching();
     }
 
     @Test

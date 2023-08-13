@@ -35,7 +35,6 @@ import org.logicng.RandomTag;
 import org.logicng.TestWithExampleFormulas;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Tristate;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
@@ -62,7 +61,7 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithExampleFo
 
     @Test
     public void testCornerCases() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final FormulaCornerCases cornerCases = new FormulaCornerCases(f);
         for (final Formula formula : cornerCases.cornerCases()) {
             final SATSolver solverFactorization = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).build());
@@ -77,7 +76,7 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithExampleFo
     @RandomTag
     public void random() {
         for (int i = 0; i < 1000; i++) {
-            final FormulaFactory f = new CachingFormulaFactory();
+            final FormulaFactory f = FormulaFactory.caching();
             final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
             final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(10).weightPbc(1).seed(i * 42).build());
 

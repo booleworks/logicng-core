@@ -31,7 +31,6 @@ package org.logicng.explanations;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
@@ -55,7 +54,7 @@ public class UNSATCoreTest {
     public UNSATCoreTest() throws ParserException {
         this.props1 = new ArrayList<>();
         this.props2 = new ArrayList<>();
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser parser = new PropositionalParser(f);
         this.props1.add(new StandardProposition(parser.parse("a | b")));
         this.props1.add(new StandardProposition(parser.parse("~a | b")));

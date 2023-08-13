@@ -2,7 +2,11 @@
 // Copyright 2015-2023 Christoph Zengler
 // Copyright 2023-20xx BooleWorks GmbH
 
-package org.logicng.formulas;
+package org.logicng.formulas.implementation.cached;
+
+import org.logicng.formulas.CType;
+import org.logicng.formulas.CardinalityConstraint;
+import org.logicng.formulas.Literal;
 
 import java.util.Collections;
 import java.util.List;

@@ -34,7 +34,6 @@ import org.logicng.LogicNGTest;
 import org.logicng.cardinalityconstraints.CCConfig;
 import org.logicng.configurations.ConfigurationType;
 import org.logicng.formulas.CType;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
@@ -55,7 +54,7 @@ import java.util.List;
  */
 public class PBEncoderTest implements LogicNGTest {
 
-    private final FormulaFactory f = new CachingFormulaFactory();
+    private final FormulaFactory f = FormulaFactory.caching();
     private final PBEncoder[] encoders;
 
     public PBEncoderTest() {

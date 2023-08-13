@@ -32,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
@@ -58,7 +57,7 @@ public class BDDConstructionTests {
 
     @BeforeEach
     public void init() throws ParserException {
-        this.f = new CachingFormulaFactory();
+        this.f = FormulaFactory.caching();
         this.variables = this.f.variables("a", "b", "c", "d", "e", "f", "g");
         this.kernel = new BDDKernel(this.f, this.variables, 1000, 10000);
         this.initFormula = this.f.parse("(a & b) => (c | d & ~e)");

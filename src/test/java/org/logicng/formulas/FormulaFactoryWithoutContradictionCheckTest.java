@@ -48,7 +48,7 @@ import java.util.List;
 public class FormulaFactoryWithoutContradictionCheckTest {
 
     private final FormulaFactoryConfig config = FormulaFactoryConfig.builder().simplifyComplementaryOperands(false).build();
-    private final FormulaFactory f = new CachingFormulaFactory(this.config);
+    private final FormulaFactory f = FormulaFactory.caching(this.config);
     private final Variable a = this.f.variable("A");
     private final Literal notA = this.f.literal("A", false);
     private final Formula tautology = this.f.or(this.a, this.f.literal("A", false));

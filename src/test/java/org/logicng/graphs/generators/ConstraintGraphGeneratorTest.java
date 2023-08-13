@@ -32,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.cardinalityconstraints.CCConfig;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.PBConstraint;
@@ -60,7 +59,7 @@ public class ConstraintGraphGeneratorTest {
 
     @Test
     public void testSimple() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         assertThat(ConstraintGraphGenerator.generateFromFormulas(List.of(f.falsum())).nodes()).isEmpty();
         assertThat(ConstraintGraphGenerator.generateFromFormulas(f.verum()).nodes()).isEmpty();
@@ -72,7 +71,7 @@ public class ConstraintGraphGeneratorTest {
 
     @Test
     public void testOr() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Graph<Variable> expected = new Graph<>();
         final Node<Variable> a = expected.node(f.variable("a"));
@@ -86,7 +85,7 @@ public class ConstraintGraphGeneratorTest {
 
     @Test
     public void testCC() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Graph<Variable> expected = new Graph<>();
         final Node<Variable> a = expected.node(f.variable("a"));
@@ -100,7 +99,7 @@ public class ConstraintGraphGeneratorTest {
 
     @Test
     public void testCnf() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Graph<Variable> expected = new Graph<>();
         final Node<Variable> a = expected.node(f.variable("a"));
@@ -124,7 +123,7 @@ public class ConstraintGraphGeneratorTest {
 
     @Test
     public void testRealExample() throws IOException, ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());
         final Formula parsed = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/formula1.txt", f);
         final List<Formula> formulas = new ArrayList<>();

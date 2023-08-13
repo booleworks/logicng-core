@@ -2,7 +2,7 @@
 // Copyright 2015-2023 Christoph Zengler
 // Copyright 2023-20xx BooleWorks GmbH
 
-package org.logicng.formulas;
+package org.logicng.formulas.implementation.cached;
 
 import static org.logicng.formulas.FType.FALSE;
 import static org.logicng.formulas.FType.LITERAL;
@@ -12,7 +12,31 @@ import static org.logicng.formulas.cache.PredicateCacheEntry.IS_CNF;
 import static org.logicng.formulas.cache.TransformationCacheEntry.FACTORIZED_CNF;
 
 import org.logicng.datastructures.Tristate;
+import org.logicng.formulas.And;
+import org.logicng.formulas.CType;
+import org.logicng.formulas.CardinalityConstraint;
+import org.logicng.formulas.Equivalence;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.FormulaFactoryConfig;
+import org.logicng.formulas.Implication;
+import org.logicng.formulas.Literal;
+import org.logicng.formulas.Not;
+import org.logicng.formulas.Or;
+import org.logicng.formulas.PBConstraint;
+import org.logicng.formulas.Variable;
 import org.logicng.formulas.cache.CacheEntry;
+import org.logicng.formulas.implementation.cached.LngCachedAnd;
+import org.logicng.formulas.implementation.cached.LngCachedCardinalityConstraint;
+import org.logicng.formulas.implementation.cached.LngCachedEquivalence;
+import org.logicng.formulas.implementation.cached.LngCachedFalse;
+import org.logicng.formulas.implementation.cached.LngCachedImplication;
+import org.logicng.formulas.implementation.cached.LngCachedLiteral;
+import org.logicng.formulas.implementation.cached.LngCachedNot;
+import org.logicng.formulas.implementation.cached.LngCachedOr;
+import org.logicng.formulas.implementation.cached.LngCachedPBConstraint;
+import org.logicng.formulas.implementation.cached.LngCachedTrue;
+import org.logicng.formulas.implementation.cached.LngCachedVariable;
 import org.logicng.util.Pair;
 
 import java.util.HashMap;

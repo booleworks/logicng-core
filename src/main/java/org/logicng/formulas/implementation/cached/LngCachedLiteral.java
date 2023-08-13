@@ -2,7 +2,12 @@
 // Copyright 2015-2023 Christoph Zengler
 // Copyright 2023-20xx BooleWorks GmbH
 
-package org.logicng.formulas;
+package org.logicng.formulas.implementation.cached;
+
+import org.logicng.formulas.FType;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.Literal;
+import org.logicng.formulas.Variable;
 
 public class LngCachedLiteral extends LngCachedFormula implements Literal {
 

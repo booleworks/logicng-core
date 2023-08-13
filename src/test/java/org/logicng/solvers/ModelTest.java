@@ -35,7 +35,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Tristate;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
@@ -60,7 +59,7 @@ import java.util.TreeSet;
  */
 public class ModelTest {
 
-    private static final FormulaFactory f = new CachingFormulaFactory();
+    private static final FormulaFactory f = FormulaFactory.caching();
 
     public static Collection<Object[]> solvers() {
         final MiniSatConfig configNoPGAux = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).auxiliaryVariablesInModels(true).build();

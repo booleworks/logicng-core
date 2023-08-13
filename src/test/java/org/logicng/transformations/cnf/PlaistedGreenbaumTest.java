@@ -33,7 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
 import org.logicng.datastructures.Assignment;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
@@ -149,7 +148,7 @@ public class PlaistedGreenbaumTest extends TestWithExampleFormulas {
 
     @Test
     public void testCC() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         assertThat(p.parse("a <=> (1 * b <= 1)").transform(this.pg)).isEqualTo(p.parse("a"));
         assertThat(p.parse("~(1 * b <= 1)").transform(this.pg)).isEqualTo(p.parse("$false"));
@@ -159,7 +158,7 @@ public class PlaistedGreenbaumTest extends TestWithExampleFormulas {
 
     @Test
     public void testFormulas() throws ParserException {
-        final FormulaFactory fac = new CachingFormulaFactory();
+        final FormulaFactory fac = FormulaFactory.caching();
         final PlaistedGreenbaumTransformation pgNNF = new PlaistedGreenbaumTransformation(0);
         final PropositionalParser p = new PropositionalParser(fac);
         final Formula f1 = p.parse("(a | b) => c");

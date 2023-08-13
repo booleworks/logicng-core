@@ -43,7 +43,6 @@ import static org.logicng.cardinalityconstraints.CCConfig.BIMANDER_GROUP_SIZE.SQ
 
 import org.junit.jupiter.api.Test;
 import org.logicng.LogicNGTest;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.CardinalityConstraint;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
@@ -80,14 +79,14 @@ public class CCEXOTest implements LogicNGTest {
 
     @Test
     public void testEXO0() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula cc = f.exo();
         assertThat(cc).isEqualTo(f.falsum());
     }
 
     @Test
     public void testEXO1() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final CardinalityConstraint cc = (CardinalityConstraint) f.exo(f.variable("v0"));
         for (final CCConfig config : this.configs) {
             assertThat(new CCEncoder(f, config).encode(cc)).containsExactly(f.variable("v0"));
@@ -97,7 +96,7 @@ public class CCEXOTest implements LogicNGTest {
 
     @Test
     public void testEXOK() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         int counter = 0;
         for (final CCConfig config : this.configs) {
             if (config != null) {
@@ -114,7 +113,7 @@ public class CCEXOTest implements LogicNGTest {
 
     @Test
     public void testEncodingSetting() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(CCConfig.builder().amoEncoding(PURE).build());
         final CardinalityConstraint exo = (CardinalityConstraint) f.exo(IntStream.range(0, 100).mapToObj(i -> f.variable("v" + i)).collect(Collectors.toList()));
         assertThat(exo.cnf().variables()).hasSize(100);

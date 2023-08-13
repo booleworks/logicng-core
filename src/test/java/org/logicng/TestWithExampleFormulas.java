@@ -29,7 +29,6 @@
 package org.logicng;
 
 import org.logicng.formulas.CType;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Constant;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
@@ -37,8 +36,8 @@ import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
 public abstract class TestWithExampleFormulas {
-    protected final FormulaFactory f = new CachingFormulaFactory();
-    protected final FormulaFactory g = new CachingFormulaFactory();
+    protected final FormulaFactory f = FormulaFactory.caching();
+    protected final FormulaFactory g = FormulaFactory.caching();
 
     // Constants
     protected final Constant TRUE = this.f.verum();

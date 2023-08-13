@@ -71,4 +71,5 @@ module logicng {
     exports org.logicng.transformations.simplification;
 
     exports org.logicng.util;
+    exports org.logicng.formulas.implementation.cached;
 }

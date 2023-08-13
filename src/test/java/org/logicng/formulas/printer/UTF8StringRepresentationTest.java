@@ -32,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.FormulaFactoryConfig;
 import org.logicng.formulas.Variable;
@@ -87,7 +86,7 @@ public class UTF8StringRepresentationTest extends TestWithExampleFormulas {
 
     @Test
     public void testViaFormulaFactoryConfig() {
-        final FormulaFactory f = new CachingFormulaFactory(FormulaFactoryConfig.builder().stringRepresentation(() -> this.sr).build());
+        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().stringRepresentation(() -> this.sr).build());
         assertThat(f.importFormula(this.EQ4).toString()).isEqualTo("a ⇒ b ⇔ ¬a ⇒ ¬b");
     }
 }

@@ -32,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.handlers.FactorizationHandler;
@@ -118,7 +117,7 @@ public class CNFTest extends TestWithExampleFormulas {
 
     @Test
     public void testCC() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         assertThat(p.parse("a <=> (1 * b <= 1)").cnf()).isEqualTo(p.parse("a"));
         assertThat(p.parse("~(1 * b <= 1)").cnf()).isEqualTo(p.parse("$false"));

@@ -2,7 +2,11 @@
 // Copyright 2015-2023 Christoph Zengler
 // Copyright 2023-20xx BooleWorks GmbH
 
-package org.logicng.formulas;
+package org.logicng.formulas.implementation.cached;
+
+import org.logicng.formulas.BinaryOperator;
+import org.logicng.formulas.FType;
+import org.logicng.formulas.Formula;
 
 public abstract class LngCachedBinaryOperator extends LngCachedFormula implements BinaryOperator {
 

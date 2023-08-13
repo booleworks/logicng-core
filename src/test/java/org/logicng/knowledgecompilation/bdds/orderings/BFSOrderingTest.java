@@ -31,7 +31,6 @@ package org.logicng.knowledgecompilation.bdds.orderings;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
@@ -48,7 +47,7 @@ public class BFSOrderingTest {
 
     @Test
     public void testSimpleCases() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         assertThat(this.ordering.getOrder(p.parse("$true"))).isEmpty();
         assertThat(this.ordering.getOrder(p.parse("$false"))).isEmpty();
@@ -63,7 +62,7 @@ public class BFSOrderingTest {
 
     @Test
     public void testComplexFormula() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (W + A + F < 1)))");
 

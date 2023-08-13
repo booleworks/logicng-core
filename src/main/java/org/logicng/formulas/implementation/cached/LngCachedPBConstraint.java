@@ -2,9 +2,16 @@
 // Copyright 2015-2023 Christoph Zengler
 // Copyright 2023-20xx BooleWorks GmbH
 
-package org.logicng.formulas;
+package org.logicng.formulas.implementation.cached;
+
+import org.logicng.formulas.CType;
+import org.logicng.formulas.FType;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.Literal;
+import org.logicng.formulas.PBConstraint;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class LngCachedPBConstraint extends LngCachedFormula implements PBConstraint {
@@ -67,6 +74,17 @@ public class LngCachedPBConstraint extends LngCachedFormula implements PBConstra
     @Override
     public int maxWeight() {
         return maxWeight;
+    }
+
+    @Override
+    public List<Formula> getEncoding() {
+        List<Formula> encoding;
+        encoding = f.pbEncodingCache.get(this);
+        if (encoding == null) {
+            encoding = f.pbEncoder().encode(this);
+            f.pbEncodingCache.put(this, encoding);
+        }
+        return Collections.unmodifiableList(encoding);
     }
 
     @Override

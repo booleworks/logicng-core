@@ -33,7 +33,6 @@ import static org.logicng.testutils.TestUtil.equivalentModels;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
@@ -84,7 +83,7 @@ public class BDDDNFTest extends TestWithExampleFormulas {
 
     @Test
     public void testNAryOperators() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         assertThat(this.AND1.transform(this.bdddnf)).isEqualTo(this.AND1);
         assertThat(this.OR1.transform(this.bdddnf)).isEqualTo(this.OR1);
@@ -101,7 +100,7 @@ public class BDDDNFTest extends TestWithExampleFormulas {
 
     @Test
     public void testNAryOperatorsWithExternalFactory() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final BDDDNFTransformation transformation = new BDDDNFTransformation(f, 7);
         assertThat(this.AND1.transform(this.bdddnf)).isEqualTo(this.AND1);
@@ -119,7 +118,7 @@ public class BDDDNFTest extends TestWithExampleFormulas {
 
     @Test
     public void testNAryOperatorsWithExternalFactory2() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final BDDDNFTransformation transformation = new BDDDNFTransformation(new BDDKernel(f, 7, 50, 50));
         assertThat(this.AND1.transform(this.bdddnf)).isEqualTo(this.AND1);

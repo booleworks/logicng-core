@@ -127,8 +127,8 @@ public class EquivalenceTest extends TestWithExampleFormulas {
 
     @Test
     public void testEqualsDifferentFormulaFactory() {
-        final FormulaFactory f = new CachingFormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final FormulaFactory g = new CachingFormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        final FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         assertThat(g.equivalence(g.variable("a"), g.variable("b"))).isEqualTo(this.EQ1);
         assertThat(g.equivalence(this.B, this.A)).isEqualTo(this.EQ1);
         assertThat(g.equivalence(this.AND1, this.OR1)).isEqualTo(this.EQ3);

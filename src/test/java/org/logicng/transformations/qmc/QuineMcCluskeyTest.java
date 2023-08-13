@@ -38,7 +38,6 @@ import static org.logicng.transformations.qmc.QuineMcCluskeyAlgorithm.generateIn
 import org.junit.jupiter.api.Test;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Tristate;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
@@ -69,7 +68,7 @@ public class QuineMcCluskeyTest {
 
     @Test
     public void testSimple1() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula formula = p.parse("(~a & ~b & ~c) | (~a & ~b & c) | (~a & b & ~c) | (a & ~b & c) | (a & b & ~c) | (a & b & c)");
         final Formula dnf = QuineMcCluskeyAlgorithm.compute(formula);
@@ -79,7 +78,7 @@ public class QuineMcCluskeyTest {
 
     @Test
     public void testSimple2() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula formula = p.parse("(~a & ~b & ~c) | (~a & b & ~c) | (a & ~b & c) | (a & b & c)");
         final Formula dnf = QuineMcCluskeyAlgorithm.compute(formula);
@@ -94,7 +93,7 @@ public class QuineMcCluskeyTest {
      */
     @Test
     public void testSimple3() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula formula = p.parse("~5 & ~4 & 3 & 2 & 1 | ~3 & ~7 & ~2 & 1 | ~6 & 1 & ~3 & 2 | ~9 & 6 & 8 & ~1 | 3 & 4 & 2 & 1 | ~2 & 7 & 1 | ~10 & ~8 & ~1");
         final Formula dnf = QuineMcCluskeyAlgorithm.compute(formula);
@@ -105,7 +104,7 @@ public class QuineMcCluskeyTest {
 
     @Test
     public void testLarge1() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula formula = p.parse("A => B & ~((D | E | I | J) & ~K) & L");
         final Formula dnf = QuineMcCluskeyAlgorithm.compute(formula);
@@ -115,7 +114,7 @@ public class QuineMcCluskeyTest {
 
     @Test
     public void testLarge2() throws ParserException, IOException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(formula);
@@ -142,7 +141,7 @@ public class QuineMcCluskeyTest {
 
     @Test
     public void testLarge3() throws ParserException, IOException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(formula);
@@ -173,7 +172,7 @@ public class QuineMcCluskeyTest {
 
     @Test
     public void testConvertToTerm() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final List<Literal> minterm1 = Arrays.asList(f.literal("A", true), f.literal("B", true), f.literal("C", true));
         final List<Literal> minterm2 = Arrays.asList(f.literal("A", true), f.literal("B", false), f.literal("C", true));
@@ -194,7 +193,7 @@ public class QuineMcCluskeyTest {
 
     @Test
     public void testGenerateInitialTermClasses() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Term minterm1 = getTerm("A B C", f);
         final Term minterm2 = getTerm("A ~B C", f);
         final Term minterm3 = getTerm("~A ~B ~C", f);
@@ -230,7 +229,7 @@ public class QuineMcCluskeyTest {
      */
     @Test
     public void testUniteTermsInClasses() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Term minterm1 = getTerm("A B C", f);
         final Term minterm2 = getTerm("A ~B C", f);
         final Term minterm3 = getTerm("~A ~B ~C", f);
@@ -284,7 +283,7 @@ public class QuineMcCluskeyTest {
      */
     @Test
     public void testComputePrimeImplicantsSimple() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Term minterm1 = getTerm("A B C", f);
         final Term minterm2 = getTerm("A ~B C", f);
         final Term minterm3 = getTerm("~A ~B ~C", f);
@@ -307,7 +306,7 @@ public class QuineMcCluskeyTest {
      */
     @Test
     public void testComputePrimeImplicantsWiki() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Term m0 = getTerm("~x0 ~x1 ~x2 ~x3", f);
 
         final Term m1 = getTerm("~x0 ~x1 ~x2 x3", f);
@@ -339,7 +338,7 @@ public class QuineMcCluskeyTest {
 
     @Test
     public void testSatBasedSelection() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Term m0 = getTerm("~a ~b ~c", f);
         final Term m1 = getTerm("~a ~b c", f);
         final Term m2 = getTerm("~a b ~c", f);
@@ -354,7 +353,7 @@ public class QuineMcCluskeyTest {
 
     @Test
     public void testSmallFormulas() throws IOException, ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/formulas/small_formulas.txt"));
         while (reader.ready()) {
@@ -379,7 +378,7 @@ public class QuineMcCluskeyTest {
 
     @Test
     public void testTrivialCases() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula verumDNF = QuineMcCluskeyAlgorithm.compute(f.verum());
         final Formula falsumDNF = QuineMcCluskeyAlgorithm.compute(f.falsum());
         final Formula aDNF = QuineMcCluskeyAlgorithm.compute(f.variable("a"));

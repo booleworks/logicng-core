@@ -33,7 +33,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.datastructures.Assignment;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
@@ -58,7 +57,7 @@ public class CNFEncoderTest {
 
     @Test
     public void testFactorization() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula phi1 = p.parse(p1);
         assertThat(phi1.numberOfAtoms()).isEqualTo(10);
@@ -73,7 +72,7 @@ public class CNFEncoderTest {
 
     @Test
     public void testTseitin() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula phi1 = p.parse(p1);
         final Formula phi2 = p.parse(p2);
@@ -87,7 +86,7 @@ public class CNFEncoderTest {
 
     @Test
     public void testPG() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula phi1 = p.parse(p1);
         final Formula phi2 = p.parse(p2);
@@ -101,7 +100,7 @@ public class CNFEncoderTest {
 
     @Test
     public void testAdvanced() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula phi1 = p.parse(p1);
         final Formula phi2 = p.parse(p2);
@@ -115,7 +114,7 @@ public class CNFEncoderTest {
 
     @Test
     public void testAdvancedWithPGFallback() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula phi1 = p.parse(p1);
         final Formula phi2 = p.parse(p2);
@@ -129,7 +128,7 @@ public class CNFEncoderTest {
 
     @Test
     public void testTseitinEncoder() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula phi1 = p.parse(p1);
         final CNFEncoder encoder1 = new CNFEncoder(f, CNFConfig.builder().algorithm(CNFConfig.Algorithm.TSEITIN).build());
@@ -140,7 +139,7 @@ public class CNFEncoderTest {
 
     @Test
     public void testPGEncoder() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula phi1 = p.parse(p1);
         final CNFEncoder encoder1 = new CNFEncoder(f, CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).build());
@@ -151,7 +150,7 @@ public class CNFEncoderTest {
 
     @Test
     public void testBDDEncoder() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula phi1 = p.parse(p1);
         final Formula phi2 = p.parse(p2);
@@ -170,7 +169,7 @@ public class CNFEncoderTest {
 
     @Test
     public void testAdvancedEncoder() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula phi1 = p.parse(p1);
         final Formula phi2 = p.parse(p2);
@@ -192,7 +191,7 @@ public class CNFEncoderTest {
                 "createdClauseBoundary=1000%n" +
                 "atomBoundary=12%n" +
                 "}%n");
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final CNFConfig config = CNFConfig.builder().algorithm(CNFConfig.Algorithm.TSEITIN).fallbackAlgorithmForAdvancedEncoding(CNFConfig.Algorithm.PLAISTED_GREENBAUM).build();
         final CNFEncoder encoder = new CNFEncoder(f, config);
         assertThat(config.toString()).isEqualTo(expected);
@@ -202,7 +201,7 @@ public class CNFEncoderTest {
 
     @Test
     public void testBugIssueNo4() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser parser = new PropositionalParser(f);
         final Formula f1 = parser.parse("(x10 & x9 & x3 & x12 | x10 & x9 & x8 | x9 & x8 & x12) & ~x5 & ~x7 & x1 | (x10 & x9 & x3 & x12 | x10 & x9 & x8 | x9 & x8 & x12) & ~(x11 & x3) & ~(x11 & x8) & ~x5 & ~x7 & x0");
         final Formula f2 = parser.parse("x1 & x3 & x4");

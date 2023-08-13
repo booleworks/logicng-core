@@ -5,7 +5,7 @@
 package org.logicng.datastructures;
 
 import org.logicng.formulas.Literal;
-import org.logicng.formulas.LngCachedVariable;
+import org.logicng.formulas.implementation.cached.LngCachedVariable;
 
 /**
  * An auxiliary variable for encoding results.

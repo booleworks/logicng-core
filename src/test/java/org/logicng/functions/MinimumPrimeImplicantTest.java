@@ -32,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.cardinalityconstraints.CCConfig;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
@@ -51,7 +50,7 @@ import java.util.TreeSet;
  */
 public class MinimumPrimeImplicantTest {
 
-    final FormulaFactory f = new CachingFormulaFactory();
+    final FormulaFactory f = FormulaFactory.caching();
 
     public MinimumPrimeImplicantTest() {
         this.f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());

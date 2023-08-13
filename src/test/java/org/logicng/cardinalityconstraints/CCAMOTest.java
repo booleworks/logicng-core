@@ -43,7 +43,6 @@ import static org.logicng.cardinalityconstraints.CCConfig.BIMANDER_GROUP_SIZE.SQ
 
 import org.junit.jupiter.api.Test;
 import org.logicng.LogicNGTest;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.CardinalityConstraint;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
@@ -80,14 +79,14 @@ public class CCAMOTest implements LogicNGTest {
 
     @Test
     public void testAMO0() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula cc = f.amo();
         assertThat(cc).isEqualTo(f.verum());
     }
 
     @Test
     public void testAMO1() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final CardinalityConstraint cc = (CardinalityConstraint) f.amo(f.variable("v0"));
         for (final CCConfig config : this.configs) {
             assertThat(new CCEncoder(f, config).encode(cc)).isEmpty();
@@ -97,7 +96,7 @@ public class CCAMOTest implements LogicNGTest {
 
     @Test
     public void testAMOK() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         int counter = 0;
         for (final CCConfig config : this.configs) {
             if (config != null) {
@@ -114,7 +113,7 @@ public class CCAMOTest implements LogicNGTest {
 
     @Test
     public void testAMOKMiniCard() {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         testAMO(2, f, true);
         testAMO(10, f, true);
         testAMO(100, f, true);

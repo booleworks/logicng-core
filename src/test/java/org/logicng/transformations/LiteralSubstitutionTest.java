@@ -32,7 +32,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.io.parsers.ParserException;
@@ -47,7 +46,7 @@ import java.util.Map;
  */
 public class LiteralSubstitutionTest {
 
-    private final FormulaFactory f = new CachingFormulaFactory();
+    private final FormulaFactory f = FormulaFactory.caching();
     private LiteralSubstitution s1;
 
     @BeforeEach

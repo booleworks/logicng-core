@@ -35,7 +35,6 @@ import static org.logicng.transformations.qmc.TermTable.isSubsetOf;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.logicng.formulas.CachingFormulaFactory;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
 
@@ -54,7 +53,7 @@ public class TermTableTest {
 
     @BeforeEach
     public void init() throws ParserException {
-        final FormulaFactory f = new CachingFormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Term m0 = getTerm("~x0 ~x1 ~x2 ~x3", f);
         final Term m1 = getTerm("~x0 ~x1 ~x2 x3", f);
         final Term m4 = getTerm("~x0 x1 ~x2 ~x3", f);
