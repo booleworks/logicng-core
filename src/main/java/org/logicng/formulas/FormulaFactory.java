@@ -17,6 +17,7 @@ import org.logicng.configurations.ConfigurationType;
 import org.logicng.explanations.mus.MUSConfig;
 import org.logicng.formulas.FormulaFactoryConfig.FormulaMergeStrategy;
 import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
+import org.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
 import org.logicng.formulas.printer.FormulaStringRepresentation;
 import org.logicng.functions.SubNodeFunction;
 import org.logicng.io.parsers.ParserException;
@@ -85,6 +86,14 @@ public abstract class FormulaFactory {
 
     public static FormulaFactory caching() {
         return new CachingFormulaFactory();
+    }
+
+    public static FormulaFactory nonCaching(final FormulaFactoryConfig config) {
+        return new NonCachingFormulaFactory(config);
+    }
+
+    public static FormulaFactory nonCaching() {
+        return new NonCachingFormulaFactory();
     }
 
     protected FormulaFactory(final FormulaFactoryConfig config) {

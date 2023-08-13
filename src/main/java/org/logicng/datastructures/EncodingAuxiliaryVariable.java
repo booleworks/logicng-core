@@ -5,7 +5,7 @@
 package org.logicng.datastructures;
 
 import org.logicng.formulas.Literal;
-import org.logicng.formulas.implementation.cached.LngCachedVariable;
+import org.logicng.formulas.implementation.noncaching.LngNativeVariable;
 
 /**
  * An auxiliary variable for encoding results.
@@ -15,8 +15,7 @@ import org.logicng.formulas.implementation.cached.LngCachedVariable;
  * @version 3.0.0
  * @since 1.1
  */
-//TODO CZE: implement non caching Variable
-final class EncodingAuxiliaryVariable extends LngCachedVariable {
+final class EncodingAuxiliaryVariable extends LngNativeVariable {
 
     final boolean negated;
 
