@@ -13,7 +13,6 @@ public class LngNativeLiteral extends LngNativeFormula implements Literal {
 
     private final String name;
     private final boolean phase;
-    private final Variable var;
 
     /**
      * Constructor.  A literal always has a name and a phase.  A positive literal can also
@@ -26,7 +25,6 @@ public class LngNativeLiteral extends LngNativeFormula implements Literal {
         super(FType.LITERAL, f);
         this.name = name;
         this.phase = phase;
-        this.var = phase ? (Variable) this : (Variable) negate();
     }
 
     @Override
@@ -41,7 +39,7 @@ public class LngNativeLiteral extends LngNativeFormula implements Literal {
 
     @Override
     public Variable variable() {
-        return var;
+        return f.variable(this.name);
     }
 
     @Override

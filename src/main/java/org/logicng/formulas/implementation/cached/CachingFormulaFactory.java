@@ -26,17 +26,8 @@ import org.logicng.formulas.Or;
 import org.logicng.formulas.PBConstraint;
 import org.logicng.formulas.Variable;
 import org.logicng.formulas.cache.CacheEntry;
-import org.logicng.formulas.implementation.cached.LngCachedAnd;
-import org.logicng.formulas.implementation.cached.LngCachedCardinalityConstraint;
-import org.logicng.formulas.implementation.cached.LngCachedEquivalence;
-import org.logicng.formulas.implementation.cached.LngCachedFalse;
-import org.logicng.formulas.implementation.cached.LngCachedImplication;
-import org.logicng.formulas.implementation.cached.LngCachedLiteral;
-import org.logicng.formulas.implementation.cached.LngCachedNot;
-import org.logicng.formulas.implementation.cached.LngCachedOr;
-import org.logicng.formulas.implementation.cached.LngCachedPBConstraint;
-import org.logicng.formulas.implementation.cached.LngCachedTrue;
-import org.logicng.formulas.implementation.cached.LngCachedVariable;
+import org.logicng.io.parsers.ParserException;
+import org.logicng.io.parsers.PseudoBooleanParser;
 import org.logicng.util.Pair;
 
 import java.util.HashMap;
@@ -49,6 +40,7 @@ import java.util.Set;
 
 public class CachingFormulaFactory extends FormulaFactory {
 
+    private final PseudoBooleanParser parser;
     Map<String, Variable> posLiterals;
     Map<String, Literal> negLiterals;
     Set<Variable> generatedVariables;
@@ -85,6 +77,7 @@ public class CachingFormulaFactory extends FormulaFactory {
         super(config);
         this.cFalse = new LngCachedFalse(this);
         this.cTrue = new LngCachedTrue(this);
+        parser = new PseudoBooleanParser(this);
         clear();
     }
 
@@ -364,21 +357,21 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     @Override
     public Variable newCCVariable() {
-        final Variable var = variable(ccPrefix + ccCounter++);
+        final Variable var = variable(ccPrefix + ccCounter.getAndIncrement());
         generatedVariables.add(var);
         return var;
     }
 
     @Override
     public Variable newPBVariable() {
-        final Variable var = variable(pbPrefix + pbCounter++);
+        final Variable var = variable(pbPrefix + pbCounter.getAndIncrement());
         generatedVariables.add(var);
         return var;
     }
 
     @Override
     public Variable newCNFVariable() {
-        final Variable var = variable(cnfPrefix + cnfCounter++);
+        final Variable var = variable(cnfPrefix + cnfCounter.getAndIncrement());
         generatedVariables.add(var);
         return var;
     }
@@ -528,6 +521,11 @@ public class CachingFormulaFactory extends FormulaFactory {
         pbEncodingCache = new HashMap<>();
     }
 
+    @Override
+    public Formula parse(final String string) throws ParserException {
+        return parser.parse(string);
+    }
+
     /**
      * Returns the statistics for this formula factory.
      * @return the statistics for this formula factory
@@ -550,9 +548,9 @@ public class CachingFormulaFactory extends FormulaFactory {
         statistics.disjunctionsN = orsN.size();
         statistics.pbcs = pbConstraints.size();
         statistics.ccs = cardinalityConstraints.size();
-        statistics.ccCounter = ccCounter;
-        statistics.pbCounter = pbCounter;
-        statistics.cnfCounter = cnfCounter;
+        statistics.ccCounter = ccCounter.get();
+        statistics.pbCounter = pbCounter.get();
+        statistics.cnfCounter = cnfCounter.get();
         return statistics;
     }
 

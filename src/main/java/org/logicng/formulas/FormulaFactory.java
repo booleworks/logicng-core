@@ -21,7 +21,6 @@ import org.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
 import org.logicng.formulas.printer.FormulaStringRepresentation;
 import org.logicng.functions.SubNodeFunction;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PseudoBooleanParser;
 import org.logicng.pseudobooleans.PBConfig;
 import org.logicng.pseudobooleans.PBEncoder;
 import org.logicng.solvers.maxsat.algorithms.MaxSATConfig;
@@ -37,10 +36,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -71,14 +71,13 @@ public abstract class FormulaFactory {
     protected final SubNodeFunction subformulaFunction;
     protected final PBEncoder pbEncoder;
     protected final CNFEncoder cnfEncoder;
-    protected final PseudoBooleanParser parser;
     protected CFalse cFalse;
     protected CTrue cTrue;
     protected boolean cnfCheck;
     protected FormulaFactoryImporter importer;
-    protected int ccCounter;
-    protected int pbCounter;
-    protected int cnfCounter;
+    protected AtomicInteger ccCounter;
+    protected AtomicInteger pbCounter;
+    protected AtomicInteger cnfCounter;
 
     public static FormulaFactory caching(final FormulaFactoryConfig config) {
         return new CachingFormulaFactory(config);
@@ -115,14 +114,13 @@ public abstract class FormulaFactory {
             cnfPrefix = CNF_PREFIX;
         }
         pbEncoder = new PBEncoder(this);
-        parser = new PseudoBooleanParser(this);
     }
 
     /**
      * Init all configurations with the default configurations.
      */
     private static Map<ConfigurationType, Configuration> initDefaultConfigs() {
-        final Map<ConfigurationType, Configuration> configMap = new EnumMap<>(ConfigurationType.class);
+        final Map<ConfigurationType, Configuration> configMap = new ConcurrentHashMap<>();
         configMap.put(ConfigurationType.CNF, CNFConfig.builder().build());
         configMap.put(ConfigurationType.CC_ENCODER, CCConfig.builder().build());
         configMap.put(ConfigurationType.PB_ENCODER, PBConfig.builder().build());
@@ -139,9 +137,9 @@ public abstract class FormulaFactory {
      * Removes all formulas from the factory cache.
      */
     public void clear() {
-        ccCounter = 0;
-        pbCounter = 0;
-        cnfCounter = 0;
+        ccCounter = new AtomicInteger(0);
+        pbCounter = new AtomicInteger(0);
+        cnfCounter = new AtomicInteger(0);
     }
 
     /**
@@ -790,9 +788,7 @@ public abstract class FormulaFactory {
      * @return the formula
      * @throws ParserException if the parser throws an exception
      */
-    public Formula parse(final String string) throws ParserException {
-        return parser.parse(string);
-    }
+    public abstract Formula parse(final String string) throws ParserException;
 
     /**
      * Adds a given formula to a list of operands.  If the formula is the neutral element for the respective n-ary
@@ -875,22 +871,22 @@ public abstract class FormulaFactory {
             if (variable.name().startsWith(CC_PREFIX)) {
                 final String[] tokens = variable.name().split("_");
                 final int counter = Integer.parseInt(tokens[tokens.length - 1]);
-                if (ccCounter < counter) {
-                    ccCounter = counter + 1;
+                if (ccCounter.get() < counter) {
+                    ccCounter.set(counter + 1);
                 }
             }
             if (variable.name().startsWith(CNF_PREFIX)) {
                 final String[] tokens = variable.name().split("_");
                 final int counter = Integer.parseInt(tokens[tokens.length - 1]);
-                if (cnfCounter < counter) {
-                    cnfCounter = counter + 1;
+                if (cnfCounter.get() < counter) {
+                    cnfCounter.set(counter + 1);
                 }
             }
             if (variable.name().startsWith(PB_PREFIX)) {
                 final String[] tokens = variable.name().split("_");
                 final int counter = Integer.parseInt(tokens[tokens.length - 1]);
-                if (pbCounter < counter) {
-                    pbCounter = counter + 1;
+                if (pbCounter.get() < counter) {
+                    pbCounter.set(counter + 1);
                 }
             }
         }
