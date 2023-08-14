@@ -33,10 +33,7 @@ public class LngNativeImplication extends LngNativeBinaryOperator implements Imp
         if (other == this) {
             return true;
         }
-        if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false; // the same formula factory would have produced a == object
-        }
-        if (other instanceof Implication) {
+        if (other instanceof Implication && hashCode() == other.hashCode()) {
             final Implication otherImp = (Implication) other;
             return left.equals(otherImp.left()) && right.equals(otherImp.right());
         }

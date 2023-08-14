@@ -42,10 +42,7 @@ public class LngNativeNot extends LngNativeFormula implements Not {
         if (other == this) {
             return true;
         }
-        if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false; // the same formula factory would have produced a == object
-        }
-        if (other instanceof Not) {
+        if (other instanceof Not && hashCode() == other.hashCode()) {
             final Not otherNot = (Not) other;
             return operand.equals(otherNot.operand());
         }

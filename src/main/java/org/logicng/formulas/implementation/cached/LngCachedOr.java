@@ -43,9 +43,9 @@ public class LngCachedOr extends LngCachedNAryOperator implements Or {
             return true;
         }
         if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false; // the same formula factory would have produced a == object
+            return false; // the same caching formula factory would have produced a == object
         }
-        if (other instanceof Or) { // this is not really efficient... but should not be done anyway!
+        if (other instanceof Or && hashCode() == other.hashCode()) {
             return compareOperands(((Or) other).operands());
         }
         return false;

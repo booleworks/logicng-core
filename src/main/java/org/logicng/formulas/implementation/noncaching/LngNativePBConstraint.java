@@ -19,6 +19,7 @@ public class LngNativePBConstraint extends LngNativeFormula implements PBConstra
     protected final List<Integer> coefficients;
     protected CType comparator;
     protected int rhs;
+    protected volatile int hashCode;
     protected int maxWeight;
 
     /**
@@ -46,6 +47,7 @@ public class LngNativePBConstraint extends LngNativeFormula implements PBConstra
         }
         this.comparator = comparator;
         this.rhs = rhs;
+        this.hashCode = 0;
     }
 
     @Override
@@ -80,10 +82,8 @@ public class LngNativePBConstraint extends LngNativeFormula implements PBConstra
 
     @Override
     public int hashCode() {
-        int hashCode = comparator.hashCode() + rhs;
-        for (int i = 0; i < literals.size(); i++) {
-            hashCode += 11 * literals.get(i).hashCode();
-            hashCode += 13 * coefficients.get(i);
+        if (hashCode == 0) {
+            hashCode = computeHash();
         }
         return hashCode;
     }
@@ -93,10 +93,7 @@ public class LngNativePBConstraint extends LngNativeFormula implements PBConstra
         if (this == other) {
             return true;
         }
-        if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false;
-        }
-        if (other instanceof PBConstraint) {
+        if (other instanceof PBConstraint && hashCode() == other.hashCode()) {
             final PBConstraint o = (PBConstraint) other;
             return rhs == o.rhs() && comparator == o.comparator()
                     && coefficients.equals(o.coefficients())

@@ -5,7 +5,6 @@
 package org.logicng.formulas.implementation.noncaching;
 
 import org.logicng.formulas.FType;
-import org.logicng.formulas.Formula;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
@@ -13,6 +12,7 @@ public class LngNativeLiteral extends LngNativeFormula implements Literal {
 
     private final String name;
     private final boolean phase;
+    private volatile int hashCode;
 
     /**
      * Constructor.  A literal always has a name and a phase.  A positive literal can also
@@ -49,7 +49,10 @@ public class LngNativeLiteral extends LngNativeFormula implements Literal {
 
     @Override
     public int hashCode() {
-        return name.hashCode() ^ (phase ? 1 : 0);
+        if (hashCode == 0) {
+            hashCode = name.hashCode() ^ (phase ? 1 : 0);
+        }
+        return hashCode;
     }
 
     @Override
@@ -57,10 +60,7 @@ public class LngNativeLiteral extends LngNativeFormula implements Literal {
         if (other == this) {
             return true;
         }
-        if (other instanceof Formula && factory() == ((Formula) other).factory()) {
-            return false; // the same formula factory would have produced a == object
-        }
-        if (other instanceof Literal) {
+        if (other instanceof Literal && hashCode() == other.hashCode()) {
             final Literal otherLit = (Literal) other;
             return phase() == otherLit.phase() && name().equals(otherLit.name());
         }

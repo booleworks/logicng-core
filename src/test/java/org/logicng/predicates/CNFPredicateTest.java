@@ -29,7 +29,6 @@
 package org.logicng.predicates;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.logicng.formulas.cache.PredicateCacheEntry.IS_CNF;
 
 import org.junit.jupiter.api.Test;
@@ -64,9 +63,9 @@ public class CNFPredicateTest extends TestWithExampleFormulas {
     }
 
     @Test
-    public void testIllegalAnd() {
+    public void testAndClearedCache() {
         this.AND1.setPredicateCacheEntry(IS_CNF, null);
-        assertThatThrownBy(() -> this.AND1.holds(this.cnfPredicate)).isInstanceOf(IllegalStateException.class);
+        assertThat(this.AND1.holds(this.cnfPredicate)).isTrue();
     }
 
     @Test

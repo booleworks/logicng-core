@@ -40,10 +40,7 @@ public class LngNativeOr extends LngNativeNAryOperator implements Or {
         if (other == this) {
             return true;
         }
-        if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false; // the same formula factory would have produced a == object
-        }
-        if (other instanceof Or) { // this is not really efficient... but should not be done anyway!
+        if (other instanceof Or && hashCode() == other.hashCode()) {
             return compareOperands(((Or) other).operands());
         }
         return false;
