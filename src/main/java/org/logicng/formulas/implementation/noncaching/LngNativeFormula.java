@@ -40,7 +40,7 @@ public abstract class LngNativeFormula implements Formula {
 
     @Override
     public Tristate predicateCacheEntry(final CacheEntry key) {
-        return null;
+        return Tristate.UNDEF;
     }
 
     @Override
