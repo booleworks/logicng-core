@@ -78,6 +78,7 @@ public abstract class FormulaFactory {
     protected AtomicInteger ccCounter;
     protected AtomicInteger pbCounter;
     protected AtomicInteger cnfCounter;
+    protected boolean readOnly;
 
     public static FormulaFactory caching(final FormulaFactoryConfig config) {
         return new CachingFormulaFactory(config);
@@ -99,6 +100,9 @@ public abstract class FormulaFactory {
         this.name = config.name;
         this.stringRepresentation = config.stringRepresentation.get();
         this.formulaMergeStrategy = config.formulaMergeStrategy;
+        if (config.formulaMergeStrategy == FormulaMergeStrategy.USE_BUT_NO_IMPORT && this instanceof CachingFormulaFactory) {
+            throw new IllegalArgumentException("The USE_BUT_NO_IMPORT merge strategy can only be used for non-caching formula factories.");
+        }
         this.simplifyComplementaryOperands = config.simplifyComplementaryOperands;
         this.configurations = initDefaultConfigs();
         clear();
@@ -114,6 +118,7 @@ public abstract class FormulaFactory {
             cnfPrefix = CNF_PREFIX;
         }
         pbEncoder = new PBEncoder(this);
+        readOnly = false;
     }
 
     /**
@@ -137,9 +142,35 @@ public abstract class FormulaFactory {
      * Removes all formulas from the factory cache.
      */
     public void clear() {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         ccCounter = new AtomicInteger(0);
         pbCounter = new AtomicInteger(0);
         cnfCounter = new AtomicInteger(0);
+    }
+
+    /**
+     * Sets the formula factory in a read-only mode.  In this mode, no new formulas or variables can be generated.
+     * Trying to do so will throw an {@link IllegalStateException}.  A formula factory read-only mode is thread-save
+     * - even if it is a caching formula factory.
+     */
+    public void readOnlyMode() {
+        readOnly = true;
+    }
+
+    /**
+     * Activates the write mode on this formula factory.  A caching formula factory in write mode is NOT thread-safe.
+     */
+    public void writeMode() {
+        readOnly = false;
+    }
+
+    /**
+     * Returns whether this factory is in read-only mode.
+     */
+    public boolean isReadOnly() {
+        return readOnly;
     }
 
     /**
@@ -169,6 +200,9 @@ public abstract class FormulaFactory {
      * @throws IllegalArgumentException if a configuration of type {@link ConfigurationType#FORMULA_FACTORY} was passed
      */
     public void putConfiguration(final Configuration configuration) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         if (configuration.type() == ConfigurationType.FORMULA_FACTORY) {
             throw new IllegalArgumentException("Configurations for the formula factory itself can only be passed in the constructor.");
         }
@@ -233,6 +267,9 @@ public abstract class FormulaFactory {
      * @throws IllegalArgumentException if a wrong formula type is passed
      */
     public Formula binaryOperator(final FType type, final Formula left, final Formula right) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         switch (type) {
             case IMPL:
                 return implication(left, right);
@@ -250,6 +287,9 @@ public abstract class FormulaFactory {
      * @return a new implication
      */
     public Formula implication(final Formula leftIn, final Formula rightIn) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final Formula left = importOrPanic(leftIn);
         final Formula right = importOrPanic(rightIn);
         if (left.type() == FALSE || right.type() == TRUE) {
@@ -276,6 +316,9 @@ public abstract class FormulaFactory {
      * @return a new equivalence
      */
     public Formula equivalence(final Formula leftIn, final Formula rightIn) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final Formula left = importOrPanic(leftIn);
         final Formula right = importOrPanic(rightIn);
         if (left.type() == TRUE) {
@@ -307,6 +350,9 @@ public abstract class FormulaFactory {
      * @return the negated formula
      */
     public Formula not(final Formula formula) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final Formula operand = importOrPanic(formula);
         if (operand.type() == LITERAL || operand.type() == FALSE || operand.type() == TRUE || operand.type() == NOT) {
             return operand.negate();
@@ -324,6 +370,9 @@ public abstract class FormulaFactory {
      * @throws IllegalArgumentException if a wrong formula type is passed
      */
     public Formula naryOperator(final FType type, final Collection<? extends Formula> operands) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         return naryOperator(type, operands.toArray(new Formula[0]));
     }
 
@@ -335,6 +384,9 @@ public abstract class FormulaFactory {
      * @throws IllegalArgumentException if a wrong formula type is passed
      */
     public Formula naryOperator(final FType type, final Formula... operands) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         switch (type) {
             case OR:
                 return or(operands);
@@ -351,6 +403,9 @@ public abstract class FormulaFactory {
      * @return a new conjunction
      */
     public Formula and(final Formula... operands) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>(operands.length);
         Collections.addAll(ops, operands);
         return internalAnd(ops);
@@ -364,6 +419,9 @@ public abstract class FormulaFactory {
      * @return a new conjunction
      */
     public Formula and(final Collection<? extends Formula> operands) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>(operands);
         return internalAnd(ops);
     }
@@ -380,6 +438,9 @@ public abstract class FormulaFactory {
      * @return a new CNF
      */
     public Formula cnf(final Formula... clauses) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>(clauses.length);
         Collections.addAll(ops, clauses);
         return internalCnf(ops);
@@ -395,6 +456,9 @@ public abstract class FormulaFactory {
      * @return a new CNF
      */
     public Formula cnf(final Collection<? extends Formula> clauses) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final LinkedHashSet<? extends Formula> ops = new LinkedHashSet<>(clauses);
         return internalCnf(ops);
     }
@@ -407,6 +471,9 @@ public abstract class FormulaFactory {
      * @return a new disjunction
      */
     public Formula or(final Formula... operands) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>(operands.length);
         Collections.addAll(ops, operands);
         return internalOr(ops);
@@ -420,6 +487,9 @@ public abstract class FormulaFactory {
      * @return a new disjunction
      */
     public Formula or(final Collection<? extends Formula> operands) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>(operands);
         return internalOr(ops);
     }
@@ -435,6 +505,9 @@ public abstract class FormulaFactory {
      * @return a new clause
      */
     public Formula clause(final Literal... literals) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final LinkedHashSet<Literal> ops = new LinkedHashSet<>(literals.length);
         Collections.addAll(ops, literals);
         return internalClause(ops);
@@ -449,6 +522,9 @@ public abstract class FormulaFactory {
      * @return a new clause
      */
     public Formula clause(final Collection<? extends Literal> literals) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final LinkedHashSet<Literal> ops = new LinkedHashSet<>(literals);
         return internalClause(ops);
     }
@@ -471,6 +547,9 @@ public abstract class FormulaFactory {
      * @return a new literal with the given name and phase
      */
     public Literal literal(final String name, final boolean phase) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         if (phase) {
             return variable(name);
         } else {
@@ -486,6 +565,9 @@ public abstract class FormulaFactory {
      * @return a new list of literals with the given names and positive phase
      */
     public List<Variable> variables(final Collection<String> names) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final List<Variable> variables = new ArrayList<>();
         for (final String name : names) {
             variables.add(variable(name));
@@ -499,6 +581,9 @@ public abstract class FormulaFactory {
      * @return a new list of literals with the given names and positive phase
      */
     public List<Variable> variables(final String... names) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final List<Variable> variables = new ArrayList<>();
         for (final String name : names) {
             variables.add(variable(name));
@@ -516,6 +601,9 @@ public abstract class FormulaFactory {
      * @throws IllegalArgumentException if the number of literals and coefficients do not correspond
      */
     public Formula pbc(final CType comparator, final int rhs, final List<? extends Literal> literals, final List<Integer> coefficients) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         return constructPBC(comparator, rhs, literals, coefficients);
     }
 
@@ -529,6 +617,9 @@ public abstract class FormulaFactory {
      * @throws IllegalArgumentException if the number of literals and coefficients do not correspond
      */
     public Formula pbc(final CType comparator, final int rhs, final Literal[] literals, final int[] coefficients) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         return constructPBC(comparator, rhs, Arrays.asList(literals), Arrays.stream(coefficients).boxed().collect(Collectors.toList()));
     }
 
@@ -610,6 +701,9 @@ public abstract class FormulaFactory {
     }
 
     private Formula constructCC(final CType comparator, final int rhs, final Collection<Variable> literals) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         if (!isCC(comparator, rhs, literals, null)) {
             throw new IllegalArgumentException("Given values do not represent a cardinality constraint.");
         }
@@ -617,6 +711,9 @@ public abstract class FormulaFactory {
     }
 
     private Formula constructCCUnsafe(final CType comparator, final int rhs, final Collection<? extends Literal> literalsIn) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final List<? extends Literal> literals = importOrPanic(literalsIn);
         if (literals.isEmpty()) {
             return constant(evaluateTrivialPBConstraint(comparator, rhs));
@@ -858,6 +955,9 @@ public abstract class FormulaFactory {
      * @return the imported formula on this factory
      */
     public Formula importFormula(final Formula formula) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         if (importer == null) {
             importer = new FormulaFactoryImporter(this);
         }
@@ -909,6 +1009,8 @@ public abstract class FormulaFactory {
         switch (formulaMergeStrategy) {
             case IMPORT:
                 return importFormula(formula);
+            case USE_BUT_NO_IMPORT:
+                return formula;
             case PANIC:
                 throw new UnsupportedOperationException("Found an operand with a different formula factory.");
             default:
@@ -927,6 +1029,9 @@ public abstract class FormulaFactory {
      *                                       {@link FormulaMergeStrategy#PANIC}.
      */
     protected LinkedHashSet<? extends Formula> importOrPanicLHS(final LinkedHashSet<? extends Formula> formulas) {
+        if (formulaMergeStrategy == FormulaMergeStrategy.USE_BUT_NO_IMPORT) {
+            return formulas;
+        }
         boolean foundAnotherFormulaFactory = false;
         for (final Formula formula : formulas) {
             if (formula.factory() != this) {
@@ -949,6 +1054,7 @@ public abstract class FormulaFactory {
             default:
                 throw new IllegalStateException("Unknown formula merge strategy: " + formulaMergeStrategy);
         }
+
     }
 
     /**
@@ -962,6 +1068,9 @@ public abstract class FormulaFactory {
      *                                       {@link FormulaMergeStrategy#PANIC}.
      */
     protected List<? extends Literal> importOrPanic(final Collection<? extends Literal> literals) {
+        if (formulaMergeStrategy == FormulaMergeStrategy.USE_BUT_NO_IMPORT) {
+            return new ArrayList<>(literals);
+        }
         boolean foundAnotherFormulaFactory = false;
         for (final Literal lit : literals) {
             if (lit.factory() != this) {
@@ -1013,4 +1122,7 @@ public abstract class FormulaFactory {
         return stringRepresentation;
     }
 
+    protected void throwReadOnlyException() {
+        throw new IllegalArgumentException("Tried to alter a formula factory in read-only mode.");
+    }
 }

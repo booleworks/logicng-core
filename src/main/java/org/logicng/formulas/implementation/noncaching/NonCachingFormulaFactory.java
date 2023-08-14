@@ -127,6 +127,9 @@ public class NonCachingFormulaFactory extends FormulaFactory {
 
     @Override
     public Variable variable(final String name) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         Variable var = posLiterals.get(name);
         if (var == null) {
             var = new LngNativeVariable(name, this);
@@ -157,16 +160,25 @@ public class NonCachingFormulaFactory extends FormulaFactory {
 
     @Override
     public Variable newCCVariable() {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         return variable(ccPrefix + ccCounter.getAndIncrement());
     }
 
     @Override
     public Variable newPBVariable() {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         return variable(pbPrefix + pbCounter.getAndIncrement());
     }
 
     @Override
     public Variable newCNFVariable() {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         return variable(cnfPrefix + cnfCounter.getAndIncrement());
     }
 
@@ -190,6 +202,9 @@ public class NonCachingFormulaFactory extends FormulaFactory {
 
     @Override
     public Formula parse(final String string) throws ParserException {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         return new PseudoBooleanParser(this).parse(string);
     }
 
