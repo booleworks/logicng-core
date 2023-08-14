@@ -20,7 +20,7 @@ public class LngCachedPBConstraint extends LngCachedFormula implements PBConstra
     protected final List<Integer> coefficients;
     protected CType comparator;
     protected int rhs;
-    protected int hashCode;
+    protected volatile int hashCode;
     protected int maxWeight;
 
     /**
@@ -90,12 +90,7 @@ public class LngCachedPBConstraint extends LngCachedFormula implements PBConstra
     @Override
     public int hashCode() {
         if (hashCode == 0) {
-            int temp = comparator.hashCode() + rhs;
-            for (int i = 0; i < literals.size(); i++) {
-                temp += 11 * literals.get(i).hashCode();
-                temp += 13 * coefficients.get(i);
-            }
-            hashCode = temp;
+            hashCode = computeHash();
         }
         return hashCode;
     }
@@ -106,9 +101,9 @@ public class LngCachedPBConstraint extends LngCachedFormula implements PBConstra
             return true;
         }
         if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false;
+            return false; // the same caching formula factory would have produced a == object
         }
-        if (other instanceof PBConstraint) {
+        if (other instanceof PBConstraint && hashCode() == other.hashCode()) {
             final PBConstraint o = (PBConstraint) other;
             return rhs == o.rhs() && comparator == o.comparator()
                     && coefficients.equals(o.coefficients())

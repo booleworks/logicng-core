@@ -17,5 +17,4 @@ public abstract class LngCachedConstant extends LngCachedFormula implements Cons
     LngCachedConstant(final FType type, final CachingFormulaFactory f) {
         super(type, f);
     }
-
 }

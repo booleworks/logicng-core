@@ -17,5 +17,4 @@ public abstract class LngNativeConstant extends LngNativeFormula implements Cons
     LngNativeConstant(final FType type, final NonCachingFormulaFactory f) {
         super(type, f);
     }
-
 }

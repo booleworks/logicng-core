@@ -57,8 +57,7 @@ public class LngCachedLiteral extends LngCachedFormula implements Literal {
 
     @Override
     public int hashCode() {
-        final int result = hashCode;
-        if (result == 0) {
+        if (hashCode == 0) {
             hashCode = name.hashCode() ^ (phase ? 1 : 0);
         }
         return hashCode;
@@ -70,9 +69,9 @@ public class LngCachedLiteral extends LngCachedFormula implements Literal {
             return true;
         }
         if (other instanceof Formula && factory() == ((Formula) other).factory()) {
-            return false; // the same formula factory would have produced a == object
+            return false; // the same cached formula factory would have produced a == object
         }
-        if (other instanceof Literal) {
+        if (other instanceof Literal && hashCode() == other.hashCode()) {
             final Literal otherLit = (Literal) other;
             return phase() == otherLit.phase() && name().equals(otherLit.name());
         }

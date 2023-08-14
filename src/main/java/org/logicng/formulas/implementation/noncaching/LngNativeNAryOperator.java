@@ -40,12 +40,7 @@ public abstract class LngNativeNAryOperator extends LngNativeFormula implements 
      */
     protected int hashCode(final int shift) {
         if (hashCode == 0) {
-            int temp = 1;
-            for (final Formula formula : operands) {
-                temp += formula.hashCode();
-            }
-            temp *= shift;
-            hashCode = temp;
+            hashCode = computeHash(shift);
         }
         return hashCode;
     }

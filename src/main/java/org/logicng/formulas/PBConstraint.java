@@ -465,6 +465,15 @@ public interface PBConstraint extends Formula {
         }
     }
 
+    default int computeHash() {
+        int hashCode = comparator().hashCode() + rhs();
+        for (int i = 0; i < operands().size(); i++) {
+            hashCode += 11 * operands().get(i).hashCode();
+            hashCode += 13 * coefficients().get(i);
+        }
+        return hashCode;
+    }
+
     /**
      * Encodes this constraint as CNF and stores the result, if the encoding does not already exist.
      * @return the encoding

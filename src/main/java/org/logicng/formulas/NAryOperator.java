@@ -8,6 +8,7 @@ import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Substitution;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -20,6 +21,8 @@ import java.util.stream.Stream;
  * @since 1.0
  */
 public interface NAryOperator extends Formula {
+
+    int BOUNDARY_SET_CREATION_EQUALS = 20;
 
     List<Formula> operands();
 
@@ -101,16 +104,25 @@ public interface NAryOperator extends Formula {
         if (operands().size() != other.size()) {
             return false;
         }
-        for (final Formula op1 : operands()) {
-            boolean found = false;
-            for (final Formula op2 : other) {
-                if (op1.equals(op2)) {
-                    found = true;
-                    break;
+        if (operands().size() > BOUNDARY_SET_CREATION_EQUALS) {
+            final HashSet<Formula> otherSet = new HashSet<>(other);
+            for (final Formula op : operands()) {
+                if (!otherSet.contains(op)) {
+                    return false;
                 }
             }
-            if (!found) {
-                return false;
+        } else {
+            for (final Formula op1 : operands()) {
+                boolean found = false;
+                for (final Formula op2 : other) {
+                    if (op1.equals(op2)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    return false;
+                }
             }
         }
         return true;
@@ -144,5 +156,14 @@ public interface NAryOperator extends Formula {
     @Override
     default Stream<Formula> stream() {
         return operands().stream();
+    }
+
+    default int computeHash(final int shift) {
+        int hashcode = 1;
+        for (final Formula formula : operands()) {
+            hashcode += formula.hashCode();
+        }
+        hashcode *= shift;
+        return hashcode;
     }
 }

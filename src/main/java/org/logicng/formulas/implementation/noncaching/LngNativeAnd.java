@@ -31,10 +31,7 @@ public class LngNativeAnd extends LngNativeNAryOperator implements And {
         if (other == this) {
             return true;
         }
-        if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false; // the same formula factory would have produced a == object
-        }
-        if (other instanceof And) { // this is not really efficient... but should not be done anyway!
+        if (other instanceof And && hashCode() == other.hashCode()) {
             return compareOperands(((And) other).operands());
         }
         return false;
