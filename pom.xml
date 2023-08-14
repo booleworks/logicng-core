@@ -42,16 +42,11 @@
 
   <developers>
     <developer>
-      <name>Christoph Zengler</name>
-      <email>christoph.zengler@booleworks.com</email>
-    </developer>
-    <developer>
-      <name>Steffen Hildebrandt</name>
-      <email>steffen.hildebrandt@booleworks.com</email>
-    </developer>
-    <developer>
-      <name>Rouven Walter</name>
-      <email>rouven.walter@booleworks.com</email>
+      <id>BooleWorks</id>
+      <name>BooleWorks Team</name>
+      <organization>BooleWorks GmbH</organization>
+      <organizationUrl>https://www.booleworks.com</organizationUrl>
+      <email>info@booleworks.com</email>
     </developer>
   </developers>
 
@@ -72,7 +67,7 @@
 
     <!-- Dependency Versions -->
     <version.antlr>4.13.0</version.antlr>
-    <version.junit>5.9.2</version.junit>
+    <version.junit>5.10.0</version.junit>
     <version.assertj>3.24.2</version.assertj>
     <version.mockito>5.1.1</version.mockito>
 
@@ -380,4 +375,3 @@
     </profile>
   </profiles>
 </project>
-
