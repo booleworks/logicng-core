@@ -315,6 +315,9 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     @Override
     public Variable variable(final String name) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         Variable var = posLiterals.get(name);
         if (var == null) {
             var = new LngCachedVariable(name, this);
@@ -357,6 +360,9 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     @Override
     public Variable newCCVariable() {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final Variable var = variable(ccPrefix + ccCounter.getAndIncrement());
         generatedVariables.add(var);
         return var;
@@ -364,6 +370,9 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     @Override
     public Variable newPBVariable() {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final Variable var = variable(pbPrefix + pbCounter.getAndIncrement());
         generatedVariables.add(var);
         return var;
@@ -371,6 +380,9 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     @Override
     public Variable newCNFVariable() {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         final Variable var = variable(cnfPrefix + cnfCounter.getAndIncrement());
         generatedVariables.add(var);
         return var;
@@ -473,6 +485,9 @@ public class CachingFormulaFactory extends FormulaFactory {
      * @param formula the formula
      */
     public void clearCaches(final Formula formula) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         transformationCache.remove(formula);
         functionCache.remove(formula);
         if (formula instanceof PBConstraint) {
@@ -523,6 +538,9 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     @Override
     public Formula parse(final String string) throws ParserException {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
         return parser.parse(string);
     }
 
