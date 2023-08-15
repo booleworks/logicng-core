@@ -57,9 +57,9 @@ public class CachingFormulaFactory extends FormulaFactory {
     Map<LinkedHashSet<? extends Formula>, Or> orsN;
     Map<PBOperands, PBConstraint> pbConstraints;
     Map<CCOperands, CardinalityConstraint> cardinalityConstraints;
-    Map<Formula, Map<CacheEntry, Formula>> transformationCache;
-    Map<Formula, Map<CacheEntry, Tristate>> predicateCache;
-    Map<Formula, Map<CacheEntry, Object>> functionCache;
+    Map<CacheEntry, Map<Formula, Formula>> transformationCache;
+    Map<CacheEntry, Map<Formula, Tristate>> predicateCache;
+    Map<CacheEntry, Map<Formula, Object>> functionCache;
     Map<PBConstraint, List<Formula>> pbEncodingCache;
 
     /**
@@ -419,7 +419,7 @@ public class CachingFormulaFactory extends FormulaFactory {
      * @param value   the cache value
      */
     protected void setPredicateCacheEntry(final Formula formula, final CacheEntry key, final Tristate value) {
-        predicateCache.computeIfAbsent(formula, k -> new HashMap<>()).put(key, value);
+        predicateCache.computeIfAbsent(key, k -> new HashMap<>()).put(formula, value);
     }
 
     /**
@@ -429,8 +429,8 @@ public class CachingFormulaFactory extends FormulaFactory {
      * @return the cache value or {@code null} if the key is not found
      */
     protected Object functionCacheEntry(final Formula formula, final CacheEntry key) {
-        final Map<CacheEntry, Object> cache = functionCache.get(formula);
-        return cache == null ? null : cache.get(key);
+        final Map<Formula, Object> cache = functionCache.get(key);
+        return cache == null ? null : cache.get(formula);
     }
 
     /**
@@ -440,7 +440,7 @@ public class CachingFormulaFactory extends FormulaFactory {
      * @param value   the cache value
      */
     protected void setFunctionCacheEntry(final Formula formula, final CacheEntry key, final Object value) {
-        functionCache.computeIfAbsent(formula, k -> new HashMap<>()).put(key, value);
+        functionCache.computeIfAbsent(key, k -> new HashMap<>()).put(formula, value);
     }
 
     /**
@@ -450,8 +450,8 @@ public class CachingFormulaFactory extends FormulaFactory {
      * @return the cache value or {@code null} if the key is not found
      */
     protected Formula transformationCacheEntry(final Formula formula, final CacheEntry key) {
-        final Map<CacheEntry, Formula> cache = transformationCache.get(formula);
-        return cache == null ? null : cache.get(key);
+        final Map<Formula, Formula> cache = transformationCache.get(key);
+        return cache == null ? null : cache.get(formula);
     }
 
     /**
@@ -461,7 +461,7 @@ public class CachingFormulaFactory extends FormulaFactory {
      * @param value   the cache value
      */
     protected void setTransformationCacheEntry(final Formula formula, final CacheEntry key, final Formula value) {
-        transformationCache.computeIfAbsent(formula, k -> new HashMap<>()).put(key, value);
+        transformationCache.computeIfAbsent(key, k -> new HashMap<>()).put(formula, value);
     }
 
     /**
@@ -471,11 +471,11 @@ public class CachingFormulaFactory extends FormulaFactory {
      * @return the cache value (which is {@code UNDEF} if nothing is present)
      */
     protected Tristate predicateCacheEntry(final Formula formula, final CacheEntry key) {
-        final Map<CacheEntry, Tristate> cache = predicateCache.get(formula);
+        final Map<Formula, Tristate> cache = predicateCache.get(key);
         if (cache == null) {
             return Tristate.UNDEF;
         } else {
-            final Tristate tristate = cache.get(key);
+            final Tristate tristate = cache.get(formula);
             return tristate == null ? Tristate.UNDEF : tristate;
         }
     }
@@ -488,8 +488,8 @@ public class CachingFormulaFactory extends FormulaFactory {
         if (readOnly) {
             throwReadOnlyException();
         }
-        transformationCache.remove(formula);
-        functionCache.remove(formula);
+        transformationCache.values().forEach(cache -> cache.remove(formula));
+        functionCache.values().forEach(cache -> cache.remove(formula));
         if (formula instanceof PBConstraint) {
             pbEncodingCache.remove(formula);
         }
