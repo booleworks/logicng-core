@@ -20,6 +20,6 @@ public interface Implication extends BinaryOperator {
 
     @Override
     default Formula restrict(final Assignment assignment, final FormulaFactory f) {
-        return f.implication(left().restrict(assignment), right().restrict(assignment));
+        return f.implication(left().restrict(assignment, f), right().restrict(assignment, f));
     }
 }

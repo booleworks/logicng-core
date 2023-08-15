@@ -94,12 +94,14 @@ public final class ModelCounter {
     }
 
     private static List<Formula> encodeAsCnf(final Collection<Formula> formulas, final FormulaFactory f) {
-        final PureExpansionTransformation expander = PureExpansionTransformation.get();
+        final PureExpansionTransformation expander = new PureExpansionTransformation(f);
         final List<Formula> expandedFormulas = formulas.stream().map(formula -> formula.transform(expander)).collect(Collectors.toList());
-        final CNFEncoder cnfEncoder = new CNFEncoder(f, CNFConfig.builder()
+
+        final CNFConfig cnfConfig = CNFConfig.builder()
                 .algorithm(CNFConfig.Algorithm.ADVANCED)
-                .fallbackAlgorithmForAdvancedEncoding(CNFConfig.Algorithm.TSEITIN).build());
-        return expandedFormulas.stream().map(cnfEncoder::encode).collect(Collectors.toList());
+                .fallbackAlgorithmForAdvancedEncoding(CNFConfig.Algorithm.TSEITIN).build();
+
+        return expandedFormulas.stream().map(it -> CNFEncoder.encode(it, f, cnfConfig)).collect(Collectors.toList());
     }
 
     private static SimplificationResult simplify(final Collection<Formula> formulas) {

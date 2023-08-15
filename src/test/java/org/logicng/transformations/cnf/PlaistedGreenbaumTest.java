@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.cnf;
 
@@ -36,6 +12,7 @@ import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
+import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.io.parsers.PseudoBooleanParser;
@@ -45,14 +22,9 @@ import org.logicng.solvers.SATSolver;
 import java.util.List;
 import java.util.SortedSet;
 
-/**
- * Unit Tests for {@link PlaistedGreenbaumTransformation}.
- * @version 2.3.0
- * @since 1.0
- */
 public class PlaistedGreenbaumTest extends TestWithExampleFormulas {
 
-    private final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(0);
+    private final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(f, 0);
 
     @Test
     public void testConstants() {
@@ -148,7 +120,6 @@ public class PlaistedGreenbaumTest extends TestWithExampleFormulas {
 
     @Test
     public void testCC() throws ParserException {
-        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         assertThat(p.parse("a <=> (1 * b <= 1)").transform(this.pg)).isEqualTo(p.parse("a"));
         assertThat(p.parse("~(1 * b <= 1)").transform(this.pg)).isEqualTo(p.parse("$false"));
@@ -158,8 +129,8 @@ public class PlaistedGreenbaumTest extends TestWithExampleFormulas {
 
     @Test
     public void testFormulas() throws ParserException {
-        final FormulaFactory fac = FormulaFactory.caching();
-        final PlaistedGreenbaumTransformation pgNNF = new PlaistedGreenbaumTransformation(0);
+        final CachingFormulaFactory fac = FormulaFactory.caching();
+        final PlaistedGreenbaumTransformation pgNNF = new PlaistedGreenbaumTransformation(fac, 0);
         final PropositionalParser p = new PropositionalParser(fac);
         final Formula f1 = p.parse("(a | b) => c");
         final Formula f2 = p.parse("~x & ~y");
@@ -173,22 +144,22 @@ public class PlaistedGreenbaumTest extends TestWithExampleFormulas {
                 "(~@RESERVED_CNF_2 | @RESERVED_CNF_0) & (~@RESERVED_CNF_0 | @RESERVED_CNF_1 | c) & " +
                 "(~@RESERVED_CNF_1 | ~a) & (~@RESERVED_CNF_1 | ~b) & (~@RESERVED_CNF_4 | ~x) & " +
                 "(~@RESERVED_CNF_4 | ~y)"));
-        assertThat(f1.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f1, f1.transform(this.pg), f1.variables())).isTrue();
-        assertThat(f2.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f2, f2.transform(this.pg), f2.variables())).isTrue();
-        assertThat(f3.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f3, f3.transform(this.pg), f3.variables())).isTrue();
-        assertThat(f4.transform(this.pg, false).isCNF()).isTrue();
-        assertThat(equivalentModels(f4, f4.transform(this.pg, false), f4.variables())).isTrue();
-        assertThat(f4.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f4, f4.transform(this.pg), f4.variables())).isTrue();
+        assertThat(f1.transform(pgNNF).isCNF()).isTrue();
+        assertThat(equivalentModels(f1, f1.transform(pgNNF), f1.variables())).isTrue();
+        assertThat(f2.transform(pgNNF).isCNF()).isTrue();
+        assertThat(equivalentModels(f2, f2.transform(pgNNF), f2.variables())).isTrue();
+        assertThat(f3.transform(pgNNF).isCNF()).isTrue();
+        assertThat(equivalentModels(f3, f3.transform(pgNNF), f3.variables())).isTrue();
+        assertThat(f4.transform(pgNNF).isCNF()).isTrue();
+        assertThat(equivalentModels(f4, f4.transform(pgNNF), f4.variables())).isTrue();
+        assertThat(f4.transform(pgNNF).isCNF()).isTrue();
+        assertThat(equivalentModels(f4, f4.transform(pgNNF), f4.variables())).isTrue();
     }
 
     @Test
     public void testFactorization() throws ParserException {
         final PropositionalParser p = new PropositionalParser(this.f);
-        final PlaistedGreenbaumTransformation pgf = new PlaistedGreenbaumTransformation();
+        final PlaistedGreenbaumTransformation pgf = new PlaistedGreenbaumTransformation(f);
         final Formula f1 = p.parse("(a | b) => c");
         final Formula f2 = p.parse("~x & ~y");
         final Formula f3 = p.parse("d & ((a | b) => c)");
@@ -205,7 +176,7 @@ public class PlaistedGreenbaumTest extends TestWithExampleFormulas {
 
     @Test
     public void testToString() {
-        final PlaistedGreenbaumTransformation pGTransformation = new PlaistedGreenbaumTransformation(5);
+        final PlaistedGreenbaumTransformation pGTransformation = new PlaistedGreenbaumTransformation(f, 5);
         assertThat(pGTransformation.toString()).isEqualTo("PlaistedGreenbaumTransformation{boundary=5}");
     }
 

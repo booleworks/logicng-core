@@ -63,9 +63,9 @@ public abstract class BDDNormalFormFunction {
             for (int i = 0; i < path.length; i++) {
                 final Variable var = kernel.getVariableForIndex(i);
                 if (path[i] == 0) {
-                    literals.add(cnf ? var : var.negate());
+                    literals.add(cnf ? var : var.negate(f));
                 } else if (path[i] == 1) {
-                    literals.add(cnf ? var.negate() : var);
+                    literals.add(cnf ? var.negate(f) : var);
                 }
             }
             final Formula term = cnf ? f.or(literals) : f.and(literals);

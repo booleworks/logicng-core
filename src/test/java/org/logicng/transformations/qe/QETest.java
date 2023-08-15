@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.qe;
 
@@ -38,21 +14,16 @@ import org.logicng.io.parsers.PropositionalParser;
 
 import java.util.Arrays;
 
-/**
- * Unit tests for {@link UniversalQuantifierElimination} and {@link ExistentialQuantifierElimination}.
- * @version 2.0.0
- * @since 1.0
- */
 public class QETest {
 
     private final FormulaFactory f = FormulaFactory.caching();
     private final PropositionalParser p = new PropositionalParser(this.f);
-    private final ExistentialQuantifierElimination ex1 = new ExistentialQuantifierElimination();
-    private final ExistentialQuantifierElimination ex2 = new ExistentialQuantifierElimination(this.f.variable("x"));
-    private final ExistentialQuantifierElimination ex3 = new ExistentialQuantifierElimination(Arrays.asList(this.f.variable("x"), this.f.variable("y")));
-    private final UniversalQuantifierElimination uni1 = new UniversalQuantifierElimination();
-    private final UniversalQuantifierElimination uni2 = new UniversalQuantifierElimination(this.f.variable("x"));
-    private final UniversalQuantifierElimination uni3 = new UniversalQuantifierElimination(Arrays.asList(this.f.variable("x"), this.f.variable("y")));
+    private final ExistentialQuantifierElimination ex1 = new ExistentialQuantifierElimination(f);
+    private final ExistentialQuantifierElimination ex2 = new ExistentialQuantifierElimination(f, this.f.variable("x"));
+    private final ExistentialQuantifierElimination ex3 = new ExistentialQuantifierElimination(f, Arrays.asList(this.f.variable("x"), this.f.variable("y")));
+    private final UniversalQuantifierElimination uni1 = new UniversalQuantifierElimination(f);
+    private final UniversalQuantifierElimination uni2 = new UniversalQuantifierElimination(f, this.f.variable("x"));
+    private final UniversalQuantifierElimination uni3 = new UniversalQuantifierElimination(f, Arrays.asList(this.f.variable("x"), this.f.variable("y")));
 
     @Test
     public void testConstants() {

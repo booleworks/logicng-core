@@ -73,13 +73,14 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<Sort
     public SortedSet<Literal> apply(final Formula formula, final boolean cache) {
         final Formula nnf = formula.nnf();
         final Map<Variable, Literal> newVar2oldLit = new HashMap<>();
-        final LiteralSubstitution substitution = new LiteralSubstitution();
+        final Map<Literal, Literal> substitution = new HashMap<>();
         for (final Literal literal : nnf.literals()) {
             final Variable newVar = formula.factory().variable(literal.name() + (literal.phase() ? POS : NEG));
             newVar2oldLit.put(newVar, literal);
-            substitution.addSubstitution(literal, newVar);
+            substitution.put(literal, newVar);
         }
-        final Formula substituted = nnf.transform(substitution);
+        final LiteralSubstitution substTransformation = new LiteralSubstitution(formula.factory(), substitution);
+        final Formula substituted = nnf.transform(substTransformation);
         final SATSolver solver = MiniSat.miniSat(formula.factory(), MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
         solver.add(substituted);
         for (final Literal literal : newVar2oldLit.values()) {

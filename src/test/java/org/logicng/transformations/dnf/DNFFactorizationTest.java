@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.dnf;
 
@@ -37,14 +13,9 @@ import org.logicng.handlers.FactorizationHandler;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
 
-/**
- * Unit Tests for DNF conversion.
- * @version 2.3.0
- * @since 1.0
- */
 public class DNFFactorizationTest extends TestWithExampleFormulas {
 
-    private final DNFFactorization dnfFactorization = new DNFFactorization();
+    private final DNFFactorization dnfFactorization = new DNFFactorization(f);
 
     @Test
     public void testConstants() {
@@ -111,8 +82,8 @@ public class DNFFactorizationTest extends TestWithExampleFormulas {
         final PropositionalParser p = new PropositionalParser(this.f);
         final Formula formula = p.parse("x0 & x1 & x3 | ~x1 & ~x2 | x2 & ~x3");
         final Formula cdnf = p.parse("x0 & x1 & x2 & x3 | x0 & x1 & x2 & ~x3 | x0 & ~x1 & x2 & ~x3 | ~x0 & ~x1 & x2 & ~x3 | ~x0 & ~x1 & ~x2 & ~x3 | x0 & ~x1 & ~x2 & ~x3 | x0 & ~x1 & ~x2 & x3 | x0 & x1 & ~x2 & x3 | ~x0 & x1 & x2 & ~x3 | ~x0 & ~x1 & ~x2 & x3");
-        assertThat(formula.transform(CanonicalDNFEnumeration.get())).isEqualTo(cdnf);
-        assertThat(this.f.and(this.A, this.NA).transform(CanonicalDNFEnumeration.get())).isEqualTo(this.f.falsum());
+        assertThat(formula.transform(new CanonicalDNFEnumeration(f))).isEqualTo(cdnf);
+        assertThat(this.f.and(this.A, this.NA).transform(new CanonicalDNFEnumeration(f))).isEqualTo(this.f.falsum());
     }
 
     @Test
@@ -150,20 +121,14 @@ public class DNFFactorizationTest extends TestWithExampleFormulas {
                 return !this.aborted;
             }
         };
-        final DNFFactorization factorization = new DNFFactorization(handler);
-        Formula dnf = factorization.apply(formula, false);
+        final DNFFactorization factorization = new DNFFactorization(f, handler, false);
+        Formula dnf = factorization.apply(formula);
         assertThat(handler.aborted()).isTrue();
         assertThat(dnf).isNull();
 
         formula = p.parse("~(a | b)");
-        dnf = factorization.apply(formula, false);
+        dnf = factorization.apply(formula);
         assertThat(handler.aborted()).isFalse();
         assertThat(dnf).isNotNull();
-    }
-
-    @Test
-    public void testToString() {
-        assertThat(this.dnfFactorization.toString()).isEqualTo("DNFFactorization");
-        assertThat(CanonicalDNFEnumeration.get().toString()).isEqualTo("CanonicalDNFEnumeration");
     }
 }

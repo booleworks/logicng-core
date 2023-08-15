@@ -24,6 +24,7 @@ import org.logicng.predicates.satisfiability.ContradictionPredicate;
 import org.logicng.predicates.satisfiability.SATPredicate;
 import org.logicng.predicates.satisfiability.TautologyPredicate;
 import org.logicng.transformations.NNFTransformation;
+import org.logicng.transformations.cnf.CNFEncoder;
 
 import java.util.SortedSet;
 import java.util.stream.Stream;
@@ -245,7 +246,16 @@ public interface Formula extends Iterable<Formula> {
      * @return a copy of this formula which is in NNF
      */
     default Formula nnf() {
-        return transform(NNFTransformation.get(), true);
+        return transform(new NNFTransformation(factory()));
+    }
+
+    /**
+     * Returns a copy of this formula which is in NNF.
+     * @param f the formula factory to generate new formulas
+     * @return a copy of this formula which is in NNF
+     */
+    default Formula nnf(final FormulaFactory f) {
+        return transform(new NNFTransformation(f));
     }
 
     /**
@@ -266,7 +276,7 @@ public interface Formula extends Iterable<Formula> {
      * @return a copy of this formula which is in CNF
      */
     default Formula cnf() {
-        return factory().cnfEncoder().encode(this);
+        return CNFEncoder.encode(this, factory(), null);
     }
 
     /**
@@ -373,22 +383,12 @@ public interface Formula extends Iterable<Formula> {
     }
 
     /**
-     * Transforms this formula with a given formula transformator and caches the result.
-     * @param transformation the formula transformator
+     * Transforms this formula with a given formula transformation.
+     * @param transformation the formula transformation
      * @return the transformed formula
      */
     default Formula transform(final FormulaTransformation transformation) {
-        return transformation.apply(this, true);
-    }
-
-    /**
-     * Transforms this formula with a given formula transformator.
-     * @param transformation the formula transformator
-     * @param cache          indicates whether the result (and associated predicates) should be cached in this formula's cache.
-     * @return the transformed formula
-     */
-    default Formula transform(final FormulaTransformation transformation, final boolean cache) {
-        return transformation.apply(this, cache);
+        return transformation.apply(this);
     }
 
     /**

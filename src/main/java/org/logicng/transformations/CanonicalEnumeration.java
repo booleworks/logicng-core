@@ -46,7 +46,15 @@ import java.util.SortedSet;
  * @version 2.3.0
  * @since 2.3.0
  */
-public abstract class CanonicalEnumeration {
+public abstract class CanonicalEnumeration extends StatelessFormulaTransformation {
+
+    /**
+     * Constructor.
+     * @param f the formula factory to generate new formulas
+     **/
+    public CanonicalEnumeration(final FormulaFactory f) {
+        super(f);
+    }
 
     /**
      * Constructs the canonical CNF/DNF of the given formula by enumerating the falsifying/satisfying assignments.
@@ -54,10 +62,9 @@ public abstract class CanonicalEnumeration {
      * @param cnf     {@code true} if the canonical CNF should be computed, {@code false} if the canonical DNF should be computed
      * @return the canonical normal form (CNF or DNF) of the formula
      */
-    protected static Formula compute(final Formula formula, final boolean cnf) {
-        final FormulaFactory f = formula.factory();
+    protected Formula compute(final Formula formula, final boolean cnf) {
         final SATSolver solver = MiniSat.miniSat(f);
-        solver.add(cnf ? formula.negate() : formula);
+        solver.add(cnf ? formula.negate(f) : formula);
         final List<Assignment> enumeration = solver.execute(ModelEnumerationFunction.builder().build());
         if (enumeration.isEmpty()) {
             return f.constant(cnf);

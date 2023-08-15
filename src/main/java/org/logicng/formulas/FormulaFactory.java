@@ -28,7 +28,6 @@ import org.logicng.solvers.sat.GlucoseConfig;
 import org.logicng.solvers.sat.MiniSatConfig;
 import org.logicng.transformations.FormulaFactoryImporter;
 import org.logicng.transformations.cnf.CNFConfig;
-import org.logicng.transformations.cnf.CNFEncoder;
 import org.logicng.transformations.simplification.AdvancedSimplifierConfig;
 import org.logicng.util.FormulaRandomizerConfig;
 
@@ -70,7 +69,6 @@ public abstract class FormulaFactory {
     protected final String cnfPrefix;
     protected final SubNodeFunction subformulaFunction;
     protected final PBEncoder pbEncoder;
-    protected final CNFEncoder cnfEncoder;
     protected CFalse cFalse;
     protected CTrue cTrue;
     protected boolean cnfCheck;
@@ -80,19 +78,19 @@ public abstract class FormulaFactory {
     protected AtomicInteger cnfCounter;
     protected boolean readOnly;
 
-    public static FormulaFactory caching(final FormulaFactoryConfig config) {
+    public static CachingFormulaFactory caching(final FormulaFactoryConfig config) {
         return new CachingFormulaFactory(config);
     }
 
-    public static FormulaFactory caching() {
+    public static CachingFormulaFactory caching() {
         return new CachingFormulaFactory();
     }
 
-    public static FormulaFactory nonCaching(final FormulaFactoryConfig config) {
+    public static NonCachingFormulaFactory nonCaching(final FormulaFactoryConfig config) {
         return new NonCachingFormulaFactory(config);
     }
 
-    public static FormulaFactory nonCaching() {
+    public static NonCachingFormulaFactory nonCaching() {
         return new NonCachingFormulaFactory();
     }
 
@@ -106,7 +104,6 @@ public abstract class FormulaFactory {
         this.simplifyComplementaryOperands = config.simplifyComplementaryOperands;
         this.configurations = initDefaultConfigs();
         clear();
-        cnfEncoder = new CNFEncoder(this);
         subformulaFunction = SubNodeFunction.get();
         if (!name.isEmpty()) {
             ccPrefix = CC_PREFIX + name + "_";
@@ -223,14 +220,6 @@ public abstract class FormulaFactory {
      */
     public PBEncoder pbEncoder() {
         return pbEncoder;
-    }
-
-    /**
-     * Returns the default CNF encoder of this formula factory.
-     * @return the default CNF encoder of this formula factory
-     */
-    public CNFEncoder cnfEncoder() {
-        return cnfEncoder;
     }
 
     /**

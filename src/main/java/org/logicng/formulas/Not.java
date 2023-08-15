@@ -51,7 +51,7 @@ public interface Not extends Formula {
 
     @Override
     default Formula restrict(final Assignment assignment, final FormulaFactory f) {
-        return f.not(operand().restrict(assignment));
+        return f.not(operand().restrict(assignment, f));
     }
 
     @Override
@@ -61,7 +61,7 @@ public interface Not extends Formula {
 
     @Override
     default Formula substitute(final Substitution substitution, final FormulaFactory f) {
-        return f.not(operand().substitute(substitution));
+        return f.not(operand().substitute(substitution, f));
     }
 
     @Override
