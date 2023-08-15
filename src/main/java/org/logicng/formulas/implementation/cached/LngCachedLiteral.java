@@ -6,6 +6,7 @@ package org.logicng.formulas.implementation.cached;
 
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
@@ -47,7 +48,7 @@ public class LngCachedLiteral extends LngCachedFormula implements Literal {
     }
 
     @Override
-    public Literal negate() {
+    public Literal negate(final FormulaFactory f) {
         if (negated != null) {
             return negated;
         }

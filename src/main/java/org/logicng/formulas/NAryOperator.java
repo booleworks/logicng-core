@@ -52,12 +52,12 @@ public interface NAryOperator extends Formula {
     }
 
     @Override
-    default Formula restrict(final Assignment assignment) {
+    default Formula restrict(final Assignment assignment, final FormulaFactory f) {
         final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
         for (final Formula op : operands()) {
             nops.add(op.restrict(assignment));
         }
-        return factory().naryOperator(type(), nops);
+        return f.naryOperator(type(), nops);
     }
 
     @Override
@@ -87,17 +87,17 @@ public interface NAryOperator extends Formula {
     }
 
     @Override
-    default Formula substitute(final Substitution substitution) {
+    default Formula substitute(final Substitution substitution, final FormulaFactory f) {
         final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
         for (final Formula op : operands()) {
             nops.add(op.substitute(substitution));
         }
-        return factory().naryOperator(type(), nops);
+        return f.naryOperator(type(), nops);
     }
 
     @Override
-    default Formula negate() {
-        return factory().not(this);
+    default Formula negate(final FormulaFactory f) {
+        return f.not(this);
     }
 
     default boolean compareOperands(final List<Formula> other) {

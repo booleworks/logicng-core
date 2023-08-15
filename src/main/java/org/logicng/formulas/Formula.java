@@ -137,7 +137,17 @@ public interface Formula extends Iterable<Formula> {
      * @param assignment the given assignment
      * @return a new restricted formula
      */
-    Formula restrict(final Assignment assignment);
+    default Formula restrict(final Assignment assignment) {
+        return restrict(assignment, factory());
+    }
+
+    /**
+     * Restricts this formula with a given assignment and a formula factory that generates new formulas.
+     * @param assignment the given assignment
+     * @param f          the formula factory to generate new formulas
+     * @return a new restricted formula
+     */
+    Formula restrict(final Assignment assignment, final FormulaFactory f);
 
     /**
      * Returns {@code true} if this formula contains a given node, {@code false} otherwise.
@@ -182,9 +192,20 @@ public interface Formula extends Iterable<Formula> {
      * @return a new substituted formula
      */
     default Formula substitute(final Variable variable, final Formula formula) {
+        return substitute(variable, formula, factory());
+    }
+
+    /**
+     * Performs a simultaneous substitution on this formula given a single mapping from variable to formula.
+     * @param variable the variable
+     * @param formula  the formula
+     * @param f        the formula factory to generate new formulas
+     * @return a new substituted formula
+     */
+    default Formula substitute(final Variable variable, final Formula formula, final FormulaFactory f) {
         final Substitution subst = new Substitution();
         subst.addMapping(variable, formula);
-        return substitute(subst);
+        return substitute(subst, f);
     }
 
     /**
@@ -192,13 +213,32 @@ public interface Formula extends Iterable<Formula> {
      * @param substitution the substitution
      * @return a new substituted formula
      */
-    public abstract Formula substitute(final Substitution substitution);
+    default Formula substitute(final Substitution substitution) {
+        return substitute(substitution, factory());
+    }
+
+    /**
+     * Performs a given substitution on this formula.
+     * @param substitution the substitution
+     * @param f            the formula factory to generate new formulas
+     * @return a new substituted formula
+     */
+    Formula substitute(final Substitution substitution, final FormulaFactory f);
 
     /**
      * Returns a negated copy of this formula.
      * @return a negated copy of this formula
      */
-    public abstract Formula negate();
+    default Formula negate() {
+        return negate(factory());
+    }
+
+    /**
+     * Returns a negated copy of this formula.
+     * @param f the formula factory to generate new formulas
+     * @return a negated copy of this formula
+     */
+    Formula negate(final FormulaFactory f);
 
     /**
      * Returns a copy of this formula which is in NNF.

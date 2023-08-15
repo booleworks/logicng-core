@@ -120,12 +120,12 @@ public class AssignmentTest extends TestWithExampleFormulas {
     @Test
     public void testRestrictLit() {
         final Assignment ass = new Assignment(Arrays.asList(this.A, this.NX));
-        assertThat(ass.restrictLit(this.A)).isEqualTo(this.TRUE);
-        assertThat(ass.restrictLit(this.NX)).isEqualTo(this.TRUE);
-        assertThat(ass.restrictLit(this.NA)).isEqualTo(this.FALSE);
-        assertThat(ass.restrictLit(this.X)).isEqualTo(this.FALSE);
-        assertThat(ass.restrictLit(this.B)).isEqualTo(this.B);
-        assertThat(ass.restrictLit(this.NB)).isEqualTo(this.NB);
+        assertThat(ass.restrictLit(this.A, f)).isEqualTo(this.TRUE);
+        assertThat(ass.restrictLit(this.NX, f)).isEqualTo(this.TRUE);
+        assertThat(ass.restrictLit(this.NA, f)).isEqualTo(this.FALSE);
+        assertThat(ass.restrictLit(this.X, f)).isEqualTo(this.FALSE);
+        assertThat(ass.restrictLit(this.B, f)).isEqualTo(this.B);
+        assertThat(ass.restrictLit(this.NB, f)).isEqualTo(this.NB);
     }
 
     @Test
@@ -153,9 +153,9 @@ public class AssignmentTest extends TestWithExampleFormulas {
         assertThat(ass.negativeVariables()).containsExactlyInAnyOrder(this.X, this.B);
         assertThat(ass.evaluateLit(this.Y)).isTrue();
         assertThat(ass.evaluateLit(this.B)).isFalse();
-        assertThat(ass.restrictLit(this.NB)).isEqualTo(this.TRUE);
-        assertThat(ass.restrictLit(this.X)).isEqualTo(this.FALSE);
-        assertThat(ass.restrictLit(this.C)).isEqualTo(this.C);
+        assertThat(ass.restrictLit(this.NB, f)).isEqualTo(this.TRUE);
+        assertThat(ass.restrictLit(this.X, f)).isEqualTo(this.FALSE);
+        assertThat(ass.restrictLit(this.C, f)).isEqualTo(this.C);
         assertThat(ass.formula(this.f)).isEqualTo(this.f.and(this.A, this.NX, this.NB, this.Y));
         ass = new Assignment(Arrays.asList(this.A, this.NX), true);
         assertThat(ass.fastEvaluable()).isTrue();

@@ -5,6 +5,7 @@
 package org.logicng.formulas.implementation.noncaching;
 
 import org.logicng.formulas.FType;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
@@ -43,7 +44,7 @@ public class LngNativeLiteral extends LngNativeFormula implements Literal {
     }
 
     @Override
-    public Literal negate() {
+    public Literal negate(final FormulaFactory f) {
         return f.literal(name, !phase);
     }
 

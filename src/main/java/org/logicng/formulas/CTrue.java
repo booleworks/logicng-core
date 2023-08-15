@@ -19,7 +19,7 @@ public interface CTrue extends Constant {
     }
 
     @Override
-    default Constant negate() {
-        return factory().falsum();
+    default Constant negate(final FormulaFactory f) {
+        return f.falsum();
     }
 }

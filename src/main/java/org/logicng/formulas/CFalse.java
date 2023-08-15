@@ -19,7 +19,7 @@ public interface CFalse extends Constant {
     }
 
     @Override
-    default Constant negate() {
-        return factory().verum();
+    default Constant negate(final FormulaFactory f) {
+        return f.verum();
     }
 }
