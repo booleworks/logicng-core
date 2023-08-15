@@ -55,13 +55,13 @@ public interface BinaryOperator extends Formula {
     }
 
     @Override
-    default Formula substitute(final Substitution substitution) {
-        return factory().binaryOperator(type(), left().substitute(substitution), right().substitute(substitution));
+    default Formula substitute(final Substitution substitution, final FormulaFactory f) {
+        return f.binaryOperator(type(), left().substitute(substitution), right().substitute(substitution));
     }
 
     @Override
-    default Formula negate() {
-        return factory().not(this);
+    default Formula negate(final FormulaFactory f) {
+        return f.not(this);
     }
 
     @Override

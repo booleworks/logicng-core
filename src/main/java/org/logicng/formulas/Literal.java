@@ -70,8 +70,8 @@ public interface Literal extends Formula, Comparable<Literal> {
     }
 
     @Override
-    default Formula restrict(final Assignment assignment) {
-        return assignment.restrictLit(this);
+    default Formula restrict(final Assignment assignment, final FormulaFactory f) {
+        return assignment.restrictLit(this, f);
     }
 
     @Override
@@ -80,9 +80,9 @@ public interface Literal extends Formula, Comparable<Literal> {
     }
 
     @Override
-    default Formula substitute(final Substitution substitution) {
+    default Formula substitute(final Substitution substitution, final FormulaFactory f) {
         final Formula subst = substitution.getSubstitution(variable());
-        return subst == null ? this : (phase() ? subst : subst.negate());
+        return subst == null ? this : (phase() ? subst : subst.negate(f));
     }
 
     /**
@@ -104,7 +104,12 @@ public interface Literal extends Formula, Comparable<Literal> {
     Variable variable();
 
     @Override
-    Literal negate();
+    default Literal negate() {
+        return negate(factory());
+    }
+
+    @Override
+    Literal negate(final FormulaFactory f);
 
     @Override
     default int compareTo(final Literal lit) {

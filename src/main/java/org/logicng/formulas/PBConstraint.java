@@ -235,7 +235,7 @@ public interface PBConstraint extends Formula {
                 csps.push(new Pair<>(all.getValue().second() - all.getValue().first(), all.getKey()));
             } else {
                 c -= all.getValue().second();
-                csps.push(new Pair<>(all.getValue().first() - all.getValue().second(), all.getKey().negate()));
+                csps.push(new Pair<>(all.getValue().first() - all.getValue().second(), all.getKey().negate(factory())));
             }
         }
         int sum = 0;
@@ -320,14 +320,14 @@ public interface PBConstraint extends Formula {
     }
 
     @Override
-    default Formula restrict(final Assignment assignment) {
+    default Formula restrict(final Assignment assignment, final FormulaFactory f) {
         final List<Literal> newLits = new ArrayList<>();
         final List<Integer> newCoeffs = new ArrayList<>();
         int lhsFixed = 0;
         int minValue = 0;
         int maxValue = 0;
         for (int i = 0; i < operands().size(); i++) {
-            final Formula restriction = assignment.restrictLit(operands().get(i));
+            final Formula restriction = assignment.restrictLit(operands().get(i), f);
             if (restriction.type() == FType.LITERAL) {
                 newLits.add(operands().get(i));
                 final int coeff = coefficients().get(i);
@@ -375,7 +375,7 @@ public interface PBConstraint extends Formula {
     }
 
     @Override
-    default Formula substitute(final Substitution substitution) {
+    default Formula substitute(final Substitution substitution, final FormulaFactory f) {
         final List<Literal> newLits = new ArrayList<>();
         final List<Integer> newCoeffs = new ArrayList<>();
         int lhsFixed = 0;
@@ -397,7 +397,7 @@ public interface PBConstraint extends Formula {
                         }
                         break;
                     case LITERAL:
-                        newLits.add(operands().get(i).phase() ? (Literal) subst : ((Literal) subst).negate());
+                        newLits.add(operands().get(i).phase() ? (Literal) subst : ((Literal) subst).negate(f));
                         newCoeffs.add(coefficients().get(i));
                         break;
                     default:
@@ -411,18 +411,18 @@ public interface PBConstraint extends Formula {
     }
 
     @Override
-    default Formula negate() {
+    default Formula negate(final FormulaFactory f) {
         switch (comparator()) {
             case EQ:
-                return factory().or(factory().pbc(CType.LT, rhs(), operands(), coefficients()), factory().pbc(CType.GT, rhs(), operands(), coefficients()));
+                return f.or(f.pbc(CType.LT, rhs(), operands(), coefficients()), f.pbc(CType.GT, rhs(), operands(), coefficients()));
             case LE:
-                return factory().pbc(CType.GT, rhs(), operands(), coefficients());
+                return f.pbc(CType.GT, rhs(), operands(), coefficients());
             case LT:
-                return factory().pbc(CType.GE, rhs(), operands(), coefficients());
+                return f.pbc(CType.GE, rhs(), operands(), coefficients());
             case GE:
-                return factory().pbc(CType.LT, rhs(), operands(), coefficients());
+                return f.pbc(CType.LT, rhs(), operands(), coefficients());
             case GT:
-                return factory().pbc(CType.LE, rhs(), operands(), coefficients());
+                return f.pbc(CType.LE, rhs(), operands(), coefficients());
             default:
                 throw new IllegalStateException("Unknown pseudo-Boolean comparator");
         }

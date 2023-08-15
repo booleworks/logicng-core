@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.datastructures;
 
@@ -48,7 +24,7 @@ import java.util.TreeSet;
  * Note: the internal data structure is a plain list - no checking of the model is performed e.g. if
  * contradictory literals are added. Since assignments are used e.g. in the model enumeration of the SAT solvers these
  * checks would be too costly.
- * @version 2.3.1
+ * @version 3.0.0
  * @since 1.0
  */
 public final class Assignment {
@@ -225,10 +201,10 @@ public final class Assignment {
     /**
      * Restricts a given literal to a constant.  Returns the literal itself, if the literal's variable is not known.
      * @param lit the literal
+     * @param f   the formula factory to create the restricted formula
      * @return the restriction of the literal or the literal itself, if the literal's variable is not known
      */
-    public Formula restrictLit(final Literal lit) {
-        final FormulaFactory f = lit.factory();
+    public Formula restrictLit(final Literal lit, final FormulaFactory f) {
         final Variable var = lit.variable();
         if (this.pos.contains(var)) {
             return f.constant(lit.phase());
