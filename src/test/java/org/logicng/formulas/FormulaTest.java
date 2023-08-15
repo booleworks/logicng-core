@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
@@ -41,11 +17,6 @@ import org.logicng.transformations.cnf.BDDCNFTransformation;
 
 import java.util.Arrays;
 
-/**
- * Test some common formula functionality.
- * @version 2.0.0
- * @since 1.0
- */
 public class FormulaTest {
 
     private enum MyOwnCacheKey implements CacheEntry {
@@ -188,6 +159,6 @@ public class FormulaTest {
         assertThat(f1.isEquivalentTo(f3)).isTrue();
         assertThat(f3.isEquivalentTo(f1)).isTrue();
         assertThat(f2.isEquivalentTo(f3)).isFalse();
-        assertThat(f2.isEquivalentTo(f2.transform(new BDDCNFTransformation()))).isTrue();
+        assertThat(f2.isEquivalentTo(f2.transform(new BDDCNFTransformation(f)))).isTrue();
     }
 }

@@ -45,17 +45,6 @@ import java.util.TreeSet;
  */
 public class DnnfFactory {
 
-    protected final BackboneSimplifier backboneSimplifier;
-    protected final CNFSubsumption subsumption;
-
-    /**
-     * Constructs a new DNNF factory instance.
-     */
-    public DnnfFactory() {
-        this.backboneSimplifier = BackboneSimplifier.get();
-        this.subsumption = CNFSubsumption.get();
-    }
-
     /**
      * Compiles the given formula to a DNNF instance.
      * @param formula the formula
@@ -72,6 +61,8 @@ public class DnnfFactory {
     }
 
     protected Formula simplifyFormula(final Formula formula) {
-        return formula.transform(this.backboneSimplifier).transform(this.subsumption);
+        return formula
+                .transform(new BackboneSimplifier(formula.factory()))
+                .transform(new CNFSubsumption(formula.factory()));
     }
 }

@@ -17,6 +17,8 @@ module logicng {
     exports org.logicng.explanations.smus;
 
     exports org.logicng.formulas;
+    exports org.logicng.formulas.implementation.cached;
+    exports org.logicng.formulas.implementation.noncaching;
     exports org.logicng.formulas.cache;
     exports org.logicng.formulas.printer;
 
@@ -71,5 +73,4 @@ module logicng {
     exports org.logicng.transformations.simplification;
 
     exports org.logicng.util;
-    exports org.logicng.formulas.implementation.cached;
 }

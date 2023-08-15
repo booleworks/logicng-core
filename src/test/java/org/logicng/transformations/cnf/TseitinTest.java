@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.cnf;
 
@@ -34,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
@@ -45,14 +20,9 @@ import org.logicng.solvers.SATSolver;
 import java.util.List;
 import java.util.SortedSet;
 
-/**
- * Unit Tests for {@link TseitinTransformation}.
- * @version 2.3.0
- * @since 1.0
- */
 public class TseitinTest extends TestWithExampleFormulas {
 
-    private final TseitinTransformation ts = new TseitinTransformation(0);
+    private final TseitinTransformation ts = new TseitinTransformation(f, 0);
 
     @Test
     public void testConstants() {
@@ -128,7 +98,7 @@ public class TseitinTest extends TestWithExampleFormulas {
     @Test
     public void testFactorization() throws ParserException {
         final PropositionalParser p = new PropositionalParser(this.f);
-        final TseitinTransformation pgf = new TseitinTransformation();
+        final TseitinTransformation pgf = new TseitinTransformation(f);
         final Formula f1 = p.parse("(a | b) => c");
         final Formula f2 = p.parse("~x & ~y");
         final Formula f3 = p.parse("d & ((a | b) => c)");
@@ -145,7 +115,6 @@ public class TseitinTest extends TestWithExampleFormulas {
 
     @Test
     public void testCC() throws ParserException {
-        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         assertThat(p.parse("a <=> (1 * b <= 1)").transform(this.ts)).isEqualTo(p.parse("a"));
         assertThat(p.parse("~(1 * b <= 1)").transform(this.ts)).isEqualTo(p.parse("$false"));
@@ -155,7 +124,7 @@ public class TseitinTest extends TestWithExampleFormulas {
 
     @Test
     public void testToString() {
-        final TseitinTransformation tseitinTransformation = new TseitinTransformation(5);
+        final TseitinTransformation tseitinTransformation = new TseitinTransformation(f, 5);
         assertThat(tseitinTransformation.toString()).isEqualTo("TseitinTransformation{boundary=5}");
     }
 

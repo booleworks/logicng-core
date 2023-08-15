@@ -4,10 +4,16 @@
 
 package org.logicng.transformations.cnf;
 
+import static org.logicng.transformations.cnf.PlaistedGreenbaumTransformation.PGState;
+import static org.logicng.transformations.cnf.TseitinTransformation.TseitinState;
+
 import org.logicng.configurations.ConfigurationType;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.FormulaTransformation;
+import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
+import org.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
 import org.logicng.handlers.ComputationHandler;
 import org.logicng.handlers.FactorizationHandler;
 
@@ -21,99 +27,115 @@ import java.util.List;
  */
 public class CNFEncoder {
 
-    protected final FormulaFactory f;
-    protected final CNFConfig config;
-
-    /**
-     * Constructs a new CNF encoder with a given configuration.
-     * @param f      the formula factory
-     * @param config the configuration
-     */
-    public CNFEncoder(final FormulaFactory f, final CNFConfig config) {
-        this.f = f;
-        this.config = config;
-    }
-
-    /**
-     * Constructs a new CNF encoder which uses the configuration of the formula factory.
-     * @param f the formula factory
-     */
-    public CNFEncoder(final FormulaFactory f) {
-        this(f, null);
-    }
-
     /**
      * Encodes a formula to CNF.
      * @param formula formula
      * @return the CNF encoding of the formula
      */
-    public Formula encode(final Formula formula) {
-        switch (this.config().algorithm) {
+    public static Formula encode(final Formula formula) {
+        return encode(formula, formula.factory(), null);
+    }
+
+    /**
+     * Encodes a formula to CNF.
+     * @param formula formula
+     * @param f       the formula factory to generate new formulas
+     * @return the CNF encoding of the formula
+     */
+    public static Formula encode(final Formula formula, final FormulaFactory f) {
+        return encode(formula, f, null);
+    }
+
+    /**
+     * Encodes a formula to CNF.
+     * @param formula    formula
+     * @param initConfig the configuration for the encoder
+     * @return the CNF encoding of the formula
+     */
+    public static Formula encode(final Formula formula, final CNFConfig initConfig) {
+        return encode(formula, formula.factory(), initConfig);
+    }
+
+    /**
+     * Encodes a formula to CNF.
+     * @param formula    formula
+     * @param f          the formula factory to generate new formulas
+     * @param initConfig the configuration for the encoder
+     * @return the CNF encoding of the formula
+     */
+    public static Formula encode(final Formula formula, final FormulaFactory f, final CNFConfig initConfig) {
+        final CNFConfig config = initConfig != null ? initConfig : (CNFConfig) f.configurationFor(ConfigurationType.CNF);
+        switch (config.algorithm) {
             case FACTORIZATION:
-                return formula.transform(new CNFFactorization());
+                return formula.transform(new CNFFactorization(f));
             case TSEITIN:
-                return formula.transform(new TseitinTransformation(this.config().atomBoundary));
+                return formula.transform(getTseitinTransformation(f, config));
             case PLAISTED_GREENBAUM:
-                return formula.transform(new PlaistedGreenbaumTransformation(this.config().atomBoundary));
+                return formula.transform(getPgTransformation(f, config));
             case BDD:
-                return formula.transform(new BDDCNFTransformation());
+                return formula.transform(new BDDCNFTransformation(f));
             case ADVANCED:
-                final var factorizationHandler = new AdvancedFactorizationHandler();
-                factorizationHandler.setBounds(this.config().distributionBoundary, this.config().createdClauseBoundary);
-                final var advancedFactorization = new CNFFactorization(factorizationHandler);
-                return this.advancedEncoding(formula, advancedFactorization);
+                return advancedEncoding(formula, f, config);
             default:
-                throw new IllegalStateException("Unknown CNF encoding algorithm: " + this.config().algorithm);
+                throw new IllegalStateException("Unknown CNF encoding algorithm: " + config.algorithm);
         }
     }
 
     /**
      * Encodes the given formula to CNF by first trying to use Factorization for the single sub-formulas.  When certain
      * user-provided boundaries are met, the method is switched to Tseitin or Plaisted &amp; Greenbaum.
-     * @param formula               the formula
-     * @param advancedFactorization the advanced factorization method
+     * @param formula the formula
+     * @param f       the formula factory to generate new formulas
+     * @param config  the CNF configuration
      * @return the CNF encoding of the formula
      */
-    protected Formula advancedEncoding(final Formula formula, final CNFFactorization advancedFactorization) {
+    protected static Formula advancedEncoding(final Formula formula, final FormulaFactory f, final CNFConfig config) {
+        final var factorizationHandler = new AdvancedFactorizationHandler();
+        factorizationHandler.setBounds(config.distributionBoundary, config.createdClauseBoundary);
+        final var advancedFactorization = new CNFFactorization(f, factorizationHandler, true);
+        final FormulaTransformation fallbackTransformation;
+        switch (config.fallbackAlgorithmForAdvancedEncoding) {
+            case TSEITIN:
+                fallbackTransformation = getTseitinTransformation(f, config);
+                break;
+            case PLAISTED_GREENBAUM:
+                fallbackTransformation = getPgTransformation(f, config);
+                break;
+            default:
+                throw new IllegalStateException("Invalid fallback CNF encoding algorithm: " + config.fallbackAlgorithmForAdvancedEncoding);
+        }
         if (formula.type() == FType.AND) {
             final List<Formula> operands = new ArrayList<>(formula.numberOfOperands());
             for (final Formula op : formula) {
-                operands.add(singleAdvancedEncoding(op, advancedFactorization));
+                operands.add(singleAdvancedEncoding(op, advancedFactorization, fallbackTransformation));
             }
-            return this.f.and(operands);
+            return f.and(operands);
         }
-        return singleAdvancedEncoding(formula, advancedFactorization);
+        return singleAdvancedEncoding(formula, advancedFactorization, fallbackTransformation);
     }
 
-    protected Formula singleAdvancedEncoding(final Formula formula, final CNFFactorization advancedFactorization) {
+    protected static Formula singleAdvancedEncoding(final Formula formula, final CNFFactorization advancedFactorization, final FormulaTransformation fallback) {
         Formula result = formula.transform(advancedFactorization);
         if (result == null) {
-            switch (this.config().fallbackAlgorithmForAdvancedEncoding) {
-                case TSEITIN:
-                    result = formula.transform(new TseitinTransformation(this.config().atomBoundary));
-                    break;
-                case PLAISTED_GREENBAUM:
-                    result = formula.transform(new PlaistedGreenbaumTransformation(this.config().atomBoundary));
-                    break;
-                default:
-                    throw new IllegalStateException("Invalid fallback CNF encoding algorithm: " + this.config().fallbackAlgorithmForAdvancedEncoding);
-            }
+            result = formula.transform(fallback);
         }
         return result;
     }
 
-    /**
-     * Returns the current configuration of this encoder.  If the encoder was constructed with a given configuration, this
-     * configuration will always be used.  Otherwise, the current configuration from the formula factory is used.
-     * @return the current configuration of
-     */
-    public CNFConfig config() {
-        return this.config != null ? this.config : (CNFConfig) this.f.configurationFor(ConfigurationType.CNF);
+    private static FormulaTransformation getTseitinTransformation(final FormulaFactory f, final CNFConfig config) {
+        if (f instanceof CachingFormulaFactory) {
+            return new TseitinTransformation((CachingFormulaFactory) f, config.atomBoundary);
+        } else {
+            return new TseitinTransformation((NonCachingFormulaFactory) f, config.atomBoundary, new TseitinState());
+        }
     }
 
-    @Override
-    public String toString() {
-        return this.config().toString();
+    private static FormulaTransformation getPgTransformation(final FormulaFactory f, final CNFConfig config) {
+        if (f instanceof CachingFormulaFactory) {
+            return new PlaistedGreenbaumTransformation((CachingFormulaFactory) f, config.atomBoundary);
+        } else {
+            return new PlaistedGreenbaumTransformation((NonCachingFormulaFactory) f, config.atomBoundary, new PGState());
+        }
     }
 
     /**

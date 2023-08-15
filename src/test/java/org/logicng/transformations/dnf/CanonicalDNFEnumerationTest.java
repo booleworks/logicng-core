@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.transformations.dnf;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,28 +18,23 @@ import org.logicng.util.FormulaCornerCases;
 import org.logicng.util.FormulaRandomizer;
 import org.logicng.util.FormulaRandomizerConfig;
 
-/**
- * Unit tests for {@link CanonicalDNFEnumeration}.
- * @version 2.3.0
- * @since 2.3.0
- */
 public class CanonicalDNFEnumerationTest {
 
     @Test
     public void testSamples() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        assertThat(f.falsum().transform(CanonicalDNFEnumeration.get())).isEqualTo(f.parse("$false"));
-        assertThat(f.verum().transform(CanonicalDNFEnumeration.get())).isEqualTo(f.parse("$true"));
-        assertThat(f.parse("a").transform(CanonicalDNFEnumeration.get())).isEqualTo(f.parse("a"));
-        assertThat(f.parse("~a").transform(CanonicalDNFEnumeration.get())).isEqualTo(f.parse("~a"));
-        assertThat(f.parse("~a & b").transform(CanonicalDNFEnumeration.get())).isEqualTo(f.parse("~a & b"));
-        assertThat(f.parse("~a | b").transform(CanonicalDNFEnumeration.get())).isEqualTo(f.parse("~a & ~b | ~a & b | a & b"));
-        assertThat(f.parse("a => b").transform(CanonicalDNFEnumeration.get())).isEqualTo(f.parse("~a & ~b | ~a & b | a & b"));
-        assertThat(f.parse("a <=> b").transform(CanonicalDNFEnumeration.get())).isEqualTo(f.parse("a & b | ~a & ~b"));
-        assertThat(f.parse("a + b = 1").transform(CanonicalDNFEnumeration.get())).isEqualTo(f.parse("~a & b | a & ~b"));
-        assertThat(f.parse("a & (b | ~c)").transform(CanonicalDNFEnumeration.get())).isEqualTo(f.parse("a & b & c | a & b & ~c | a & ~b & ~c"));
-        assertThat(f.parse("a & b & (~a | ~b)").transform(CanonicalDNFEnumeration.get())).isEqualTo(f.parse("$false"));
-        assertThat(f.parse("a | b | ~a & ~b").transform(CanonicalDNFEnumeration.get())).isEqualTo(f.parse("~a & b | a & b | a & ~b | ~a & ~b"));
+        assertThat(f.falsum().transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("$false"));
+        assertThat(f.verum().transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("$true"));
+        assertThat(f.parse("a").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("a"));
+        assertThat(f.parse("~a").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("~a"));
+        assertThat(f.parse("~a & b").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("~a & b"));
+        assertThat(f.parse("~a | b").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("~a & ~b | ~a & b | a & b"));
+        assertThat(f.parse("a => b").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("~a & ~b | ~a & b | a & b"));
+        assertThat(f.parse("a <=> b").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("a & b | ~a & ~b"));
+        assertThat(f.parse("a + b = 1").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("~a & b | a & ~b"));
+        assertThat(f.parse("a & (b | ~c)").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("a & b & c | a & b & ~c | a & ~b & ~c"));
+        assertThat(f.parse("a & b & (~a | ~b)").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("$false"));
+        assertThat(f.parse("a | b | ~a & ~b").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("~a & b | a & b | a & ~b | ~a & ~b"));
     }
 
     @Test
@@ -60,7 +59,7 @@ public class CanonicalDNFEnumerationTest {
 
     private void test(final Formula formula) {
         final FormulaFactory f = formula.factory();
-        final Formula dnf = CanonicalDNFEnumeration.get().apply(formula, false);
+        final Formula dnf = new CanonicalDNFEnumeration(f).apply(formula);
         assertThat(dnf.holds(DNFPredicate.get())).isTrue();
         assertThat(f.equivalence(formula, dnf).holds(new TautologyPredicate(f))).isTrue();
         if (formula.holds(new ContradictionPredicate(f))) {
@@ -82,10 +81,5 @@ public class CanonicalDNFEnumerationTest {
             default:
                 throw new IllegalStateException("Unexpected type: " + dnf.type());
         }
-    }
-
-    @Test
-    public void testToString() {
-        assertThat(CanonicalDNFEnumeration.get().toString()).isEqualTo("CanonicalDNFEnumeration");
     }
 }

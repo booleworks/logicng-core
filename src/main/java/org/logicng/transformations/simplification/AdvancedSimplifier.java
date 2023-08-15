@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.simplification;
 
@@ -40,11 +16,10 @@ import org.logicng.datastructures.Assignment;
 import org.logicng.explanations.smus.SmusComputation;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.FormulaTransformation;
 import org.logicng.formulas.Literal;
-import org.logicng.handlers.OptimizationHandler;
 import org.logicng.primecomputation.PrimeCompiler;
 import org.logicng.primecomputation.PrimeResult;
+import org.logicng.transformations.StatelessFormulaTransformation;
 import org.logicng.util.FormulaHelper;
 
 import java.util.ArrayList;
@@ -75,15 +50,15 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class AdvancedSimplifier implements FormulaTransformation {
+public final class AdvancedSimplifier extends StatelessFormulaTransformation {
 
-    private final AdvancedSimplifierConfig initConfig;
+    private final AdvancedSimplifierConfig config;
 
     /**
      * Constructs a new simplifier with the advanced simplifier configuration from the formula factory.
      */
-    public AdvancedSimplifier() {
-        this.initConfig = null;
+    public AdvancedSimplifier(final FormulaFactory f) {
+        this(f, (AdvancedSimplifierConfig) f.configurationFor(ConfigurationType.ADVANCED_SIMPLIFIER));
     }
 
     /**
@@ -91,17 +66,14 @@ public final class AdvancedSimplifier implements FormulaTransformation {
      * @param config The configuration for the advanced simplifier, including a handler, a rating function and flags for which steps should pe performed
      *               during the computation.
      */
-    public AdvancedSimplifier(final AdvancedSimplifierConfig config) {
-        this.initConfig = config;
+    public AdvancedSimplifier(final FormulaFactory f, final AdvancedSimplifierConfig config) {
+        super(f);
+        this.config = config;
     }
 
     @Override
-    public Formula apply(final Formula formula, final boolean cache) {
-        final AdvancedSimplifierConfig config = this.initConfig != null
-                ? this.initConfig
-                : (AdvancedSimplifierConfig) formula.factory().configurationFor(ConfigurationType.ADVANCED_SIMPLIFIER);
+    public Formula apply(final Formula formula) {
         start(config.handler);
-        final FormulaFactory f = formula.factory();
         Formula simplified = formula;
         final SortedSet<Literal> backboneLiterals = new TreeSet<>();
         if (config.restrictBackbone) {
@@ -114,7 +86,7 @@ public final class AdvancedSimplifier implements FormulaTransformation {
                 return f.falsum();
             }
             backboneLiterals.addAll(backbone.getCompleteBackbone());
-            simplified = formula.restrict(new Assignment(backboneLiterals));
+            simplified = formula.restrict(new Assignment(backboneLiterals), f);
         }
         final Formula simplifyMinDnf = computeMinDnf(f, simplified, config);
         if (simplifyMinDnf == null) {
@@ -122,14 +94,14 @@ public final class AdvancedSimplifier implements FormulaTransformation {
         }
         simplified = simplifyWithRating(simplified, simplifyMinDnf, config);
         if (config.factorOut) {
-            final Formula factoredOut = simplified.transform(new FactorOutSimplifier(config.ratingFunction));
+            final Formula factoredOut = simplified.transform(new FactorOutSimplifier(f, config.ratingFunction));
             simplified = simplifyWithRating(simplified, factoredOut, config);
         }
         if (config.restrictBackbone) {
             simplified = f.and(f.and(backboneLiterals), simplified);
         }
         if (config.simplifyNegations) {
-            final Formula negationSimplified = simplified.transform(NegationSimplifier.get());
+            final Formula negationSimplified = simplified.transform(new NegationSimplifier(f));
             simplified = simplifyWithRating(simplified, negationSimplified, config);
         }
         return simplified;

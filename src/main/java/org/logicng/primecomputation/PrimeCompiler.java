@@ -194,18 +194,19 @@ public final class PrimeCompiler {
 
     private SubstitutionResult createSubstitution(final Formula formula) {
         final Map<Variable, Literal> newVar2oldLit = new HashMap<>();
-        final LiteralSubstitution substitution = new LiteralSubstitution();
+        final Map<Literal, Literal> substitution = new HashMap<>();
         final List<Formula> constraintOps = new ArrayList<>();
         for (final Variable variable : formula.variables()) {
             final Variable posVar = formula.factory().variable(variable.name() + POS);
             newVar2oldLit.put(posVar, variable);
-            substitution.addSubstitution(variable, posVar);
+            substitution.put(variable, posVar);
             final Variable negVar = formula.factory().variable(variable.name() + NEG);
             newVar2oldLit.put(negVar, variable.negate());
-            substitution.addSubstitution(variable.negate(), negVar);
+            substitution.put(variable.negate(), negVar);
             constraintOps.add(formula.factory().amo(posVar, negVar));
         }
-        return new SubstitutionResult(newVar2oldLit, substitution, formula.factory().and(constraintOps));
+        final LiteralSubstitution substTransformation = new LiteralSubstitution(formula.factory(), substitution);
+        return new SubstitutionResult(newVar2oldLit, substTransformation, formula.factory().and(constraintOps));
     }
 
     private Assignment transformModel(final Assignment model, final Map<Variable, Literal> mapping) {

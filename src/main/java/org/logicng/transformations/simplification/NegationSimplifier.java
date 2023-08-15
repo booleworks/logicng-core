@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.simplification;
 
@@ -33,9 +9,9 @@ import static org.logicng.formulas.FType.dual;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.FormulaTransformation;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.NAryOperator;
+import org.logicng.transformations.StatelessFormulaTransformation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,25 +25,15 @@ import java.util.List;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class NegationSimplifier implements FormulaTransformation {
+public final class NegationSimplifier extends StatelessFormulaTransformation {
 
-    private static final NegationSimplifier INSTANCE = new NegationSimplifier();
-
-    private NegationSimplifier() {
-        // Intentionally left empty
-    }
-
-    /**
-     * Returns the singleton instance of this function.
-     * @return an instance of this function
-     */
-    public static NegationSimplifier get() {
-        return INSTANCE;
+    public NegationSimplifier(final FormulaFactory f) {
+        super(f);
     }
 
     @Override
-    public Formula apply(final Formula formula, final boolean cache) {
-        final Formula nnf = formula.nnf();
+    public Formula apply(final Formula formula) {
+        final Formula nnf = formula.nnf(f);
         if (nnf.isAtomicFormula()) {
             return getSmallestFormula(true, formula, nnf);
         }
@@ -76,11 +42,10 @@ public final class NegationSimplifier implements FormulaTransformation {
     }
 
     private MinimizationResult minimize(final Formula formula, final boolean topLevel) {
-        final FormulaFactory f = formula.factory();
         switch (formula.type()) {
             case LITERAL:
                 final Literal lit = (Literal) formula;
-                return new MinimizationResult(lit, lit.negate());
+                return new MinimizationResult(lit, lit.negate(f));
             case OR:
             case AND:
                 final NAryOperator nary = (NAryOperator) formula;
@@ -91,8 +56,8 @@ public final class NegationSimplifier implements FormulaTransformation {
                 final List<Formula> positiveOpResults = new ArrayList<>(opResults.size());
                 final List<Formula> negativeOpResults = new ArrayList<>(opResults.size());
                 for (final MinimizationResult result : opResults) {
-                    positiveOpResults.add(result.getPositiveResult());
-                    negativeOpResults.add(result.getNegativeResult());
+                    positiveOpResults.add(result.positiveResult);
+                    negativeOpResults.add(result.negativeResult);
                 }
                 final Formula smallestPositive = findSmallestPositive(formula.type(), positiveOpResults, negativeOpResults, topLevel, f);
                 final Formula smallestNegative = findSmallestNegative(formula.type(), negativeOpResults, smallestPositive, topLevel, f);
@@ -156,14 +121,6 @@ public final class NegationSimplifier implements FormulaTransformation {
         public MinimizationResult(final Formula positiveResult, final Formula negativeResult) {
             this.positiveResult = positiveResult;
             this.negativeResult = negativeResult;
-        }
-
-        public Formula getPositiveResult() {
-            return this.positiveResult;
-        }
-
-        public Formula getNegativeResult() {
-            return this.negativeResult;
         }
     }
 }

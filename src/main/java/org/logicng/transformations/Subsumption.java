@@ -30,6 +30,7 @@ package org.logicng.transformations;
 
 import org.logicng.datastructures.ubtrees.UBTree;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 
 import java.util.ArrayList;
@@ -44,7 +45,15 @@ import java.util.TreeMap;
  * @version 2.0.0
  * @since 1.5.0
  */
-public abstract class Subsumption {
+public abstract class Subsumption extends StatelessFormulaTransformation {
+
+    /**
+     * Constructor.
+     * @param f the formula factory to generate new formulas
+     **/
+    public Subsumption(final FormulaFactory f) {
+        super(f);
+    }
 
     /**
      * Generates a UBTree from the formulas operands (clauses in CNF, minterms in DNF)

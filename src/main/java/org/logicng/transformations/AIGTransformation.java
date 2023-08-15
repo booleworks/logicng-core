@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations;
 
@@ -34,7 +10,6 @@ import org.logicng.formulas.And;
 import org.logicng.formulas.Equivalence;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.FormulaTransformation;
 import org.logicng.formulas.Implication;
 import org.logicng.formulas.Not;
 import org.logicng.formulas.Or;
@@ -47,28 +22,21 @@ import java.util.LinkedHashSet;
  * @version 3.0.0
  * @since 1.0
  */
-public final class AIGTransformation implements FormulaTransformation {
+public final class AIGTransformation extends StatelessFormulaTransformation {
 
-    private FormulaFactory f;
-    private boolean cache;
-    private static final AIGTransformation INSTANCE = new AIGTransformation();
+    private final boolean useCache;
 
-    private AIGTransformation() {
-        // Intentionally left empty
+    public AIGTransformation(final FormulaFactory f) {
+        this(f, true);
     }
 
-    /**
-     * Returns the singleton instance of this function.
-     * @return an instance of this function
-     */
-    public static AIGTransformation get() {
-        return INSTANCE;
+    public AIGTransformation(final FormulaFactory f, final boolean useCache) {
+        super(f);
+        this.useCache = useCache;
     }
 
     @Override
-    public Formula apply(final Formula formula, final boolean cache) {
-        this.f = formula.factory();
-        this.cache = cache;
+    public Formula apply(final Formula formula) {
         switch (formula.type()) {
             case FALSE:
             case TRUE:
@@ -85,7 +53,7 @@ public final class AIGTransformation implements FormulaTransformation {
             case OR:
                 return transformOr((Or) formula);
             case PBC:
-                return apply(formula.cnf(), cache);
+                return apply(formula.cnf());
             default:
                 throw new IllegalArgumentException("Could not process the formula type " + formula.type());
         }
@@ -94,8 +62,8 @@ public final class AIGTransformation implements FormulaTransformation {
     private Formula transformNot(final Not not) {
         Formula aig = not.transformationCacheEntry(AIG);
         if (aig == null) {
-            aig = this.f.not(apply(not.operand(), this.cache));
-            if (this.cache) {
+            aig = f.not(apply(not.operand()));
+            if (useCache) {
                 not.setTransformationCacheEntry(AIG, aig);
                 aig.setPredicateCacheEntry(PredicateCacheEntry.IS_AIG, true);
             }
@@ -106,8 +74,8 @@ public final class AIGTransformation implements FormulaTransformation {
     private Formula transformImplication(final Implication impl) {
         Formula aig = impl.transformationCacheEntry(AIG);
         if (aig == null) {
-            aig = this.f.not(this.f.and(apply(impl.left(), this.cache), this.f.not(apply(impl.right(), this.cache))));
-            if (this.cache) {
+            aig = f.not(f.and(apply(impl.left()), f.not(apply(impl.right()))));
+            if (useCache) {
                 impl.setTransformationCacheEntry(AIG, aig);
                 aig.setPredicateCacheEntry(PredicateCacheEntry.IS_AIG, true);
             }
@@ -118,9 +86,9 @@ public final class AIGTransformation implements FormulaTransformation {
     private Formula transformEquivalence(final Equivalence equiv) {
         Formula aig = equiv.transformationCacheEntry(AIG);
         if (aig == null) {
-            aig = this.f.and(this.f.not(this.f.and(apply(equiv.left(), this.cache), this.f.not(apply(equiv.right(), this.cache)))),
-                    this.f.not(this.f.and(this.f.not(equiv.left()), equiv.right())));
-            if (this.cache) {
+            aig = f.and(f.not(f.and(apply(equiv.left()), f.not(apply(equiv.right())))),
+                    f.not(f.and(f.not(equiv.left()), equiv.right())));
+            if (useCache) {
                 equiv.setTransformationCacheEntry(AIG, aig);
                 aig.setPredicateCacheEntry(PredicateCacheEntry.IS_AIG, true);
             }
@@ -133,10 +101,10 @@ public final class AIGTransformation implements FormulaTransformation {
         if (aig == null) {
             final LinkedHashSet<Formula> nops = new LinkedHashSet<>(and.numberOfOperands());
             for (final Formula op : and) {
-                nops.add(apply(op, this.cache));
+                nops.add(apply(op));
             }
-            aig = this.f.and(nops);
-            if (this.cache) {
+            aig = f.and(nops);
+            if (useCache) {
                 and.setTransformationCacheEntry(AIG, aig);
                 aig.setPredicateCacheEntry(PredicateCacheEntry.IS_AIG, true);
             }
@@ -149,19 +117,14 @@ public final class AIGTransformation implements FormulaTransformation {
         if (aig == null) {
             final LinkedHashSet<Formula> nops = new LinkedHashSet<>(or.numberOfOperands());
             for (final Formula op : or) {
-                nops.add(this.f.not(apply(op, this.cache)));
+                nops.add(f.not(apply(op)));
             }
-            aig = this.f.not(this.f.and(nops));
-            if (this.cache) {
+            aig = f.not(f.and(nops));
+            if (useCache) {
                 or.setTransformationCacheEntry(AIG, aig);
                 aig.setPredicateCacheEntry(PredicateCacheEntry.IS_AIG, true);
             }
         }
         return aig;
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
     }
 }

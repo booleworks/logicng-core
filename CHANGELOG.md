@@ -7,7 +7,7 @@ LogicNG uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Switch to Java 11
-- Switch to ANTLR 4.11
+- Switch to ANTLR 4.13
 - `FormulaFactory` has no constructor anymore. Use `CachedFormulaFactory` or `NativeFormulaFactory` instead
 - `SetCover.compute()` now needs a `FormulaFactory` as additional parameter
 

@@ -55,7 +55,7 @@ public interface NAryOperator extends Formula {
     default Formula restrict(final Assignment assignment, final FormulaFactory f) {
         final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
         for (final Formula op : operands()) {
-            nops.add(op.restrict(assignment));
+            nops.add(op.restrict(assignment, f));
         }
         return f.naryOperator(type(), nops);
     }
@@ -90,7 +90,7 @@ public interface NAryOperator extends Formula {
     default Formula substitute(final Substitution substitution, final FormulaFactory f) {
         final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
         for (final Formula op : operands()) {
-            nops.add(op.substitute(substitution));
+            nops.add(op.substitute(substitution, f));
         }
         return f.naryOperator(type(), nops);
     }

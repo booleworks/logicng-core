@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.io.writers;
 
@@ -46,15 +22,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-/**
- * Unit tests for the {@link FormulaDotFileWriter}.
- * @version 2.0.0
- * @since 1.2
- */
 public class FormulaDimacsFileWriterTest extends TestWithExampleFormulas {
 
     private final FormulaFactory f = FormulaFactory.caching();
-    private final CNFEncoder encoder = new CNFEncoder(this.f, CNFConfig.builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build());
+    private final CNFConfig config = CNFConfig.builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build();
     private final PropositionalParser p = new PropositionalParser(this.f);
     private final PseudoBooleanParser pp = new PseudoBooleanParser(this.f);
 
@@ -77,11 +48,11 @@ public class FormulaDimacsFileWriterTest extends TestWithExampleFormulas {
 
     @Test
     public void testFormulas() throws IOException, ParserException {
-        final Formula f1 = this.encoder.encode(this.p.parse("(a & b) <=> (~c => (x | z))"));
-        final Formula f2 = this.encoder.encode(this.p.parse("a & b | b & ~c"));
-        final Formula f3 = this.encoder.encode(this.p.parse("(a & b) <=> (~c => (a | b))"));
-        final Formula f4 = this.encoder.encode(this.p.parse("~(a & b) | b & ~c"));
-        final Formula f5 = this.encoder.encode(this.pp.parse("a | ~b | (2*a + 3*~b + 4*c <= 4)"));
+        final Formula f1 = CNFEncoder.encode(this.p.parse("(a & b) <=> (~c => (x | z))"), config);
+        final Formula f2 = CNFEncoder.encode(this.p.parse("a & b | b & ~c"), config);
+        final Formula f3 = CNFEncoder.encode(this.p.parse("(a & b) <=> (~c => (a | b))"), config);
+        final Formula f4 = CNFEncoder.encode(this.p.parse("~(a & b) | b & ~c"), config);
+        final Formula f5 = CNFEncoder.encode(this.pp.parse("a | ~b | (2*a + 3*~b + 4*c <= 4)"), config);
         testFiles("f1", f1);
         testFiles("f2", f2);
         testFiles("f3", f3);
@@ -91,9 +62,9 @@ public class FormulaDimacsFileWriterTest extends TestWithExampleFormulas {
 
     @Test
     public void testDuplicateFormulaParts() throws ParserException, IOException {
-        final Formula f6 = this.encoder.encode(this.p.parse("(a & b) | (c & ~(a & b))"));
+        final Formula f6 = CNFEncoder.encode(this.p.parse("(a & b) | (c & ~(a & b))"), config);
         testFiles("f6", f6);
-        final Formula f7 = this.encoder.encode(this.p.parse("(c & d) | (a & b) | ((c & d) <=> (a & b))"));
+        final Formula f7 = CNFEncoder.encode(this.p.parse("(c & d) | (a & b) | ((c & d) <=> (a & b))"), config);
         testFiles("f7", f7);
     }
 

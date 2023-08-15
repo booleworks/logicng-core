@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.transformations;
 
 import static org.logicng.formulas.FType.dual;
@@ -7,7 +11,6 @@ import org.logicng.formulas.Equivalence;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.FormulaTransformation;
 import org.logicng.formulas.Implication;
 import org.logicng.formulas.Not;
 import org.logicng.formulas.PBConstraint;
@@ -18,35 +21,21 @@ import java.util.List;
 
 /**
  * Transformation of a formula in NNF.
- * @version 2.2.0
+ * @version 3.0.0
  * @since 2.2.0
  */
-public class NNFTransformation implements FormulaTransformation {
+public class NNFTransformation extends StatelessFormulaTransformation {
 
-    private static final NNFTransformation INSTANCE = new NNFTransformation();
-
-    /**
-     * Private constructor.
-     */
-    private NNFTransformation() {
-        // Intentionally left empty.
-    }
-
-    /**
-     * Returns the singleton of this transformation.
-     * @return the transformation instance
-     */
-    public static NNFTransformation get() {
-        return INSTANCE;
+    public NNFTransformation(final FormulaFactory f) {
+        super(f);
     }
 
     @Override
-    public Formula apply(final Formula formula, final boolean cache) {
+    public Formula apply(final Formula formula) {
         return applyRec(formula, true);
     }
 
     private Formula applyRec(final Formula formula, final boolean polarity) {
-        final FormulaFactory f = formula.factory();
         Formula nnf;
         if (polarity) {
             nnf = formula.transformationCacheEntry(NNF);
@@ -59,7 +48,7 @@ public class NNFTransformation implements FormulaTransformation {
             case TRUE:
             case FALSE:
             case LITERAL:
-                nnf = polarity ? formula : formula.negate();
+                nnf = polarity ? formula : formula.negate(f);
                 break;
             case NOT:
                 nnf = applyRec(((Not) formula).operand(), !polarity);
@@ -92,7 +81,7 @@ public class NNFTransformation implements FormulaTransformation {
                     final List<Formula> encoding = pbc.getEncoding();
                     nnf = applyRec(encoding.iterator(), FType.AND, true, f);
                 } else {
-                    nnf = applyRec(pbc.negate(), true);
+                    nnf = applyRec(pbc.negate(f), true);
                 }
                 break;
             default:

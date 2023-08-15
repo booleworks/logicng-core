@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.cnf;
 
@@ -44,11 +20,6 @@ import org.logicng.solvers.SATSolver;
 import java.util.List;
 import java.util.SortedSet;
 
-/**
- * Unit tests for the class {@link CNFEncoder}.
- * @version 2.3.0
- * @since 1.1
- */
 public class CNFEncoderTest {
 
     private static final String p1 = "(x1 | x2) & x3 & x4 & ((x1 & x5 & ~(x6 | x7) | x8) | x9)";
@@ -66,8 +37,9 @@ public class CNFEncoderTest {
         assertThat(phi1.cnf()).isEqualTo(p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
         f.putConfiguration(CNFConfig.builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build());
         assertThat(phi1.cnf()).isEqualTo(p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
-        final CNFEncoder encoder = new CNFEncoder(f, CNFConfig.builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build());
-        assertThat(encoder.encode(phi1)).isEqualTo(p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
+        final CNFConfig config = CNFConfig.builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build();
+        assertThat(CNFEncoder.encode(phi1, f, config))
+                .isEqualTo(p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
     }
 
     @Test
@@ -131,10 +103,12 @@ public class CNFEncoderTest {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula phi1 = p.parse(p1);
-        final CNFEncoder encoder1 = new CNFEncoder(f, CNFConfig.builder().algorithm(CNFConfig.Algorithm.TSEITIN).build());
-        assertThat(encoder1.encode(phi1)).isEqualTo(p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
-        final CNFEncoder encoder2 = new CNFEncoder(f, CNFConfig.builder().algorithm(CNFConfig.Algorithm.TSEITIN).atomBoundary(8).build());
-        assertThat(encoder2.encode(phi1)).isEqualTo(p.parse("(@RESERVED_CNF_0 | ~x1) & (@RESERVED_CNF_0 | ~x2) & (~@RESERVED_CNF_0 | x1 | x2) & (~@RESERVED_CNF_1 | x1) & (~@RESERVED_CNF_1 | x5) & (~@RESERVED_CNF_1 | ~x6) & (~@RESERVED_CNF_1 | ~x7) & (@RESERVED_CNF_1 | ~x1 | ~x5 | x6 | x7) & (@RESERVED_CNF_2 | ~@RESERVED_CNF_1) & (@RESERVED_CNF_2 | ~x8) & (@RESERVED_CNF_2 | ~x9) & (~@RESERVED_CNF_2 | @RESERVED_CNF_1 | x8 | x9) & @RESERVED_CNF_0 & x3 & x4 & @RESERVED_CNF_2"));
+        final CNFConfig config1 = CNFConfig.builder().algorithm(CNFConfig.Algorithm.TSEITIN).build();
+        assertThat(CNFEncoder.encode(phi1, f, config1))
+                .isEqualTo(p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
+        final CNFConfig config2 = CNFConfig.builder().algorithm(CNFConfig.Algorithm.TSEITIN).atomBoundary(8).build();
+        assertThat(CNFEncoder.encode(phi1, f, config2)).isEqualTo(p.parse("(@RESERVED_CNF_0 | ~x1) & (@RESERVED_CNF_0 | ~x2) & (~@RESERVED_CNF_0 | x1 | x2) & " +
+                "(~@RESERVED_CNF_1 | x1) & (~@RESERVED_CNF_1 | x5) & (~@RESERVED_CNF_1 | ~x6) & (~@RESERVED_CNF_1 | ~x7) & (@RESERVED_CNF_1 | ~x1 | ~x5 | x6 | x7) & (@RESERVED_CNF_2 | ~@RESERVED_CNF_1) & (@RESERVED_CNF_2 | ~x8) & (@RESERVED_CNF_2 | ~x9) & (~@RESERVED_CNF_2 | @RESERVED_CNF_1 | x8 | x9) & @RESERVED_CNF_0 & x3 & x4 & @RESERVED_CNF_2"));
     }
 
     @Test
@@ -142,10 +116,12 @@ public class CNFEncoderTest {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Formula phi1 = p.parse(p1);
-        final CNFEncoder encoder1 = new CNFEncoder(f, CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).build());
-        assertThat(encoder1.encode(phi1)).isEqualTo(p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
-        final CNFEncoder encoder2 = new CNFEncoder(f, CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).atomBoundary(8).build());
-        assertThat(encoder2.encode(phi1)).isEqualTo(p.parse("@RESERVED_CNF_1 & x3 & x4 & @RESERVED_CNF_2 & (~@RESERVED_CNF_1 | x1 | x2) & (~@RESERVED_CNF_2 | @RESERVED_CNF_3 | x8 | x9) & (~@RESERVED_CNF_3 | x1) & (~@RESERVED_CNF_3 | x5) & (~@RESERVED_CNF_3 | ~x6) & (~@RESERVED_CNF_3 | ~x7)"));
+        final CNFConfig config1 = CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).build();
+        assertThat(CNFEncoder.encode(phi1, f, config1))
+                .isEqualTo(p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
+        final CNFConfig config2 = CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).atomBoundary(8).build();
+        assertThat(CNFEncoder.encode(phi1, f, config2)).isEqualTo(p.parse("@RESERVED_CNF_1 & x3 & x4 & @RESERVED_CNF_2 & (~@RESERVED_CNF_1 | x1 | x2) & " +
+                "(~@RESERVED_CNF_2 | @RESERVED_CNF_3 | x8 | x9) & (~@RESERVED_CNF_3 | x1) & (~@RESERVED_CNF_3 | x5) & (~@RESERVED_CNF_3 | ~x6) & (~@RESERVED_CNF_3 | ~x7)"));
     }
 
     @Test
@@ -155,14 +131,14 @@ public class CNFEncoderTest {
         final Formula phi1 = p.parse(p1);
         final Formula phi2 = p.parse(p2);
         final Formula phi3 = p.parse(p3);
-        final CNFEncoder encoder = new CNFEncoder(f, CNFConfig.builder().algorithm(CNFConfig.Algorithm.BDD).build());
-        final Formula phi1CNF = encoder.encode(phi1);
+        final CNFConfig config = CNFConfig.builder().algorithm(CNFConfig.Algorithm.BDD).build();
+        final Formula phi1CNF = CNFEncoder.encode(phi1, config);
         assertThat(phi1CNF.isCNF()).isTrue();
         assertThat(equivalentModels(phi1, phi1CNF, phi1.variables())).isTrue();
-        final Formula phi2CNF = encoder.encode(phi2);
+        final Formula phi2CNF = CNFEncoder.encode(phi2, config);
         assertThat(phi2CNF.isCNF()).isTrue();
         assertThat(equivalentModels(phi2, phi2CNF, phi2.variables())).isTrue();
-        final Formula phi3CNF = encoder.encode(phi3);
+        final Formula phi3CNF = CNFEncoder.encode(phi3, config);
         assertThat(phi3CNF.isCNF()).isTrue();
         assertThat(equivalentModels(phi3, phi3CNF, phi3.variables())).isTrue();
     }
@@ -174,12 +150,13 @@ public class CNFEncoderTest {
         final Formula phi1 = p.parse(p1);
         final Formula phi2 = p.parse(p2);
         final Formula phi3 = p.parse(p3);
-        final CNFEncoder encoder1 = new CNFEncoder(f, CNFConfig.builder().build());
-        assertThat(encoder1.encode(phi1)).isEqualTo(p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
-        final CNFEncoder encoder2 = new CNFEncoder(f, CNFConfig.builder().createdClauseBoundary(5).atomBoundary(3).build());
-        assertThat(encoder2.encode(phi2)).isEqualTo(p.parse("(y1 | y2) & y3 & y4 & (~@RESERVED_CNF_0 | y1) & (~@RESERVED_CNF_0 | y5) & (~@RESERVED_CNF_0 | ~y6) & (~@RESERVED_CNF_0 | ~y7) & (@RESERVED_CNF_0 | ~y1 | ~y5 | y6 | y7) & (@RESERVED_CNF_0 | y8 | y9)"));
-        final CNFEncoder encoder3 = new CNFEncoder(f, CNFConfig.builder().createdClauseBoundary(-1).distributionBoundary(5).atomBoundary(3).build());
-        assertThat(encoder3.encode(phi3)).isEqualTo(p.parse("(z1 | z2) & z3 & z4 & (~@RESERVED_CNF_2 | z1) & (~@RESERVED_CNF_2 | z5) & (~@RESERVED_CNF_2 | ~z6) & (~@RESERVED_CNF_2 | ~z7) & (@RESERVED_CNF_2 | ~z1 | ~z5 | z6 | z7) & (@RESERVED_CNF_2 | z8 | z9)"));
+        assertThat(CNFEncoder.encode(phi1)).isEqualTo(p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
+        final CNFConfig config1 = CNFConfig.builder().createdClauseBoundary(5).atomBoundary(3).build();
+        assertThat(CNFEncoder.encode(phi2, config1)).isEqualTo(p.parse("(y1 | y2) & y3 & y4 & (~@RESERVED_CNF_0 | y1) & (~@RESERVED_CNF_0 | y5) & " +
+                "(~@RESERVED_CNF_0 | ~y6) & (~@RESERVED_CNF_0 | ~y7) & (@RESERVED_CNF_0 | ~y1 | ~y5 | y6 | y7) & (@RESERVED_CNF_0 | y8 | y9)"));
+        final CNFConfig config2 = CNFConfig.builder().createdClauseBoundary(-1).distributionBoundary(5).atomBoundary(3).build();
+        assertThat(CNFEncoder.encode(phi3, config2)).isEqualTo(p.parse("(z1 | z2) & z3 & z4 & (~@RESERVED_CNF_2 | z1) & (~@RESERVED_CNF_2 | z5) & " +
+                "(~@RESERVED_CNF_2 | ~z6) & (~@RESERVED_CNF_2 | ~z7) & (@RESERVED_CNF_2 | ~z1 | ~z5 | z6 | z7) & (@RESERVED_CNF_2 | z8 | z9)"));
     }
 
     @Test
@@ -191,11 +168,8 @@ public class CNFEncoderTest {
                 "createdClauseBoundary=1000%n" +
                 "atomBoundary=12%n" +
                 "}%n");
-        final FormulaFactory f = FormulaFactory.caching();
         final CNFConfig config = CNFConfig.builder().algorithm(CNFConfig.Algorithm.TSEITIN).fallbackAlgorithmForAdvancedEncoding(CNFConfig.Algorithm.PLAISTED_GREENBAUM).build();
-        final CNFEncoder encoder = new CNFEncoder(f, config);
         assertThat(config.toString()).isEqualTo(expected);
-        assertThat(encoder.toString()).isEqualTo(expected);
         assertThat(CNFConfig.Algorithm.valueOf("TSEITIN")).isEqualTo(CNFConfig.Algorithm.TSEITIN);
     }
 

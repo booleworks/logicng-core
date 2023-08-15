@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations;
 
@@ -41,11 +17,6 @@ import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PseudoBooleanParser;
 import org.logicng.transformations.cnf.TseitinTransformation;
 
-/**
- * Unit tests for {@link FormulaFactoryImporter}.
- * @version 2.0.0
- * @since 1.3.1
- */
 public class FormulaFactoryImporterTest extends TestWithExampleFormulas {
 
     private CachingFormulaFactory myF;
@@ -64,10 +35,10 @@ public class FormulaFactoryImporterTest extends TestWithExampleFormulas {
         final FormulaFactoryImporter sameImporter = new FormulaFactoryImporter(this.myF);
         assertThat(this.NOT1.factory()).isSameAs(this.myF);
         assertThat(this.NOT2.factory()).isSameAs(this.myF);
-        assertThat(sameImporter.apply(this.NOT1, false).factory()).isSameAs(this.myF);
-        assertThat(sameImporter.apply(this.NOT2, false).factory()).isSameAs(this.myF);
-        assertThat(sameImporter.apply(this.NOT1, false)).isEqualTo(this.NOT1);
-        assertThat(sameImporter.apply(this.NOT2, false)).isEqualTo(this.NOT2);
+        assertThat(sameImporter.apply(this.NOT1).factory()).isSameAs(this.myF);
+        assertThat(sameImporter.apply(this.NOT2).factory()).isSameAs(this.myF);
+        assertThat(sameImporter.apply(this.NOT1)).isEqualTo(this.NOT1);
+        assertThat(sameImporter.apply(this.NOT2)).isEqualTo(this.NOT2);
     }
 
     @Test
@@ -221,11 +192,11 @@ public class FormulaFactoryImporterTest extends TestWithExampleFormulas {
 
     @Test
     public void testAdjustCounters() throws ParserException {
-        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().name("Factory").build());
+        final CachingFormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().name("Factory").build());
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Formula cc = p.parse("A + B + C + D + E <= 2").cnf();
         final Formula pbc = p.parse("2*A + -2*B + 3*C + D + 2*E <= 3").cnf();
-        final Formula cnf = p.parse("A & B & C | C & D & ~A").transform(new TseitinTransformation(0));
+        final Formula cnf = p.parse("A & B & C | C & D & ~A").transform(new TseitinTransformation(f, 0));
 
         final CachingFormulaFactory g = new CachingFormulaFactory();
         g.newCNFVariable();
@@ -250,6 +221,6 @@ public class FormulaFactoryImporterTest extends TestWithExampleFormulas {
      * @return the imported formula
      */
     private Formula imp(final Formula formula) {
-        return this.importer.apply(formula, false);
+        return this.importer.apply(formula);
     }
 }

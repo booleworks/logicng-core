@@ -56,7 +56,7 @@ public interface BinaryOperator extends Formula {
 
     @Override
     default Formula substitute(final Substitution substitution, final FormulaFactory f) {
-        return f.binaryOperator(type(), left().substitute(substitution), right().substitute(substitution));
+        return f.binaryOperator(type(), left().substitute(substitution, f), right().substitute(substitution, f));
     }
 
     @Override
