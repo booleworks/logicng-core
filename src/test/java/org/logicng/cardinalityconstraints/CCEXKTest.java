@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.cardinalityconstraints;
 
@@ -39,11 +15,6 @@ import org.logicng.formulas.Variable;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 
-/**
- * Unit tests for the exactly-k encoders.
- * @version 2.0.0
- * @since 1.1
- */
 public class CCEXKTest implements LogicNGTest {
 
     private final CCConfig[] configs;
@@ -95,15 +66,11 @@ public class CCEXKTest implements LogicNGTest {
     @Test
     public void testCCEXKTotalizer() {
         final FormulaFactory f = FormulaFactory.caching();
-        final CCEXKTotalizer totalizer = new CCEXKTotalizer();
+        final CCEXKTotalizer totalizer = CCEXKTotalizer.get();
         totalizer.build(EncodingResult.resultForFormula(f), new Variable[]{f.variable("A"), f.variable("B"), f.variable("C")}, 2);
-        assertThat(totalizer.incrementalData()).isNull();
-        assertThat(totalizer.toString()).isEqualTo("CCEXKTotalizer");
 
-        final CCEXKCardinalityNetwork cNetwork = new CCEXKCardinalityNetwork();
+        final CCEXKCardinalityNetwork cNetwork = CCEXKCardinalityNetwork.get();
         cNetwork.build(EncodingResult.resultForFormula(f), new Variable[]{f.variable("A"), f.variable("B"), f.variable("C")}, 2);
-        assertThat(cNetwork.incrementalData()).isNull();
-        assertThat(cNetwork.toString()).isEqualTo("CCEXKCardinalityNetwork");
     }
 
     @Test

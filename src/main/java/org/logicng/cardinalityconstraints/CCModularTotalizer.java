@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines Lynce
@@ -57,31 +33,13 @@ import org.logicng.formulas.Variable;
 
 /**
  * Modular Totalizer.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.0
  */
 public final class CCModularTotalizer {
 
-    private final Variable varUndef;
-    private final Variable varError;
-
-    private final Variable h0;
-    private LNGVector<Literal> inlits;
-    private LNGVector<Literal> cardinalityUpOutvars;
-    private LNGVector<Literal> cardinalityLwOutvars;
-    private int currentCardinalityRhs;
-    private EncodingResult result;
-    private CCIncrementalData incData;
-
-    /**
-     * Constructs a new modular totalizer.
-     */
-    CCModularTotalizer(final FormulaFactory f) {
-        this.varUndef = f.variable("RESERVED@VAR_UNDEF");
-        this.varError = f.variable("RESERVED@VAR_ERROR");
-        this.h0 = this.varUndef;
-        this.currentCardinalityRhs = -1;
-        this.inlits = new LNGVector<>();
+    private CCModularTotalizer() {
+        // Only static classes
     }
 
     /**
@@ -90,17 +48,18 @@ public final class CCModularTotalizer {
      * @param vars   the variables of the constraint
      * @param rhs    the right-hand side of the constraint
      */
-    void buildAMK(final EncodingResult result, final Variable[] vars, final int rhs) {
-        final int mod = this.initialize(result, rhs, vars.length);
+    static CCIncrementalData buildAMK(final EncodingResult result, final Variable[] vars, final int rhs) {
+        final var state = new State(result.factory());
+        final int mod = initialize(result, rhs, vars.length, state);
         for (final Variable var : vars) {
-            this.inlits.push(var);
+            state.inlits.push(var);
         }
-        this.toCNF(mod, this.cardinalityUpOutvars, this.cardinalityLwOutvars, vars.length);
-        assert this.inlits.size() == 0;
-        this.encodeOutput(rhs, mod);
-        this.currentCardinalityRhs = rhs + 1;
-        this.incData = new CCIncrementalData(result, CCConfig.AMK_ENCODER.MODULAR_TOTALIZER, rhs, this.cardinalityUpOutvars,
-                this.cardinalityLwOutvars, mod);
+        toCNF(result, mod, state.cardinalityUpOutvars, state.cardinalityLwOutvars, vars.length, state);
+        assert state.inlits.size() == 0;
+        encodeOutput(result, rhs, mod, state);
+        state.currentCardinalityRhs = rhs + 1;
+        return new CCIncrementalData(result, CCConfig.AMK_ENCODER.MODULAR_TOTALIZER, rhs, state.cardinalityUpOutvars,
+                state.cardinalityLwOutvars, mod);
     }
 
     /**
@@ -109,75 +68,69 @@ public final class CCModularTotalizer {
      * @param vars   the variables of the constraint
      * @param rhs    the right-hand side of the constraint
      */
-    void buildALK(final EncodingResult result, final Variable[] vars, final int rhs) {
+    static CCIncrementalData buildALK(final EncodingResult result, final Variable[] vars, final int rhs) {
+        final var state = new State(result.factory());
         final int newRHS = vars.length - rhs;
-        final int mod = this.initialize(result, newRHS, vars.length);
+        final int mod = initialize(result, newRHS, vars.length, state);
         for (final Variable var : vars) {
-            this.inlits.push(var.negate());
+            state.inlits.push(var.negate(result.factory()));
         }
-        this.toCNF(mod, this.cardinalityUpOutvars, this.cardinalityLwOutvars, vars.length);
-        assert this.inlits.size() == 0;
-        this.encodeOutput(newRHS, mod);
-        this.currentCardinalityRhs = newRHS + 1;
-        this.incData = new CCIncrementalData(result, CCConfig.ALK_ENCODER.MODULAR_TOTALIZER, rhs, vars.length,
-                this.cardinalityUpOutvars, this.cardinalityLwOutvars, mod);
+        toCNF(result, mod, state.cardinalityUpOutvars, state.cardinalityLwOutvars, vars.length, state);
+        assert state.inlits.size() == 0;
+        encodeOutput(result, newRHS, mod, state);
+        state.currentCardinalityRhs = newRHS + 1;
+        return new CCIncrementalData(result, CCConfig.ALK_ENCODER.MODULAR_TOTALIZER, rhs, vars.length,
+                state.cardinalityUpOutvars, state.cardinalityLwOutvars, mod);
     }
 
-    /**
-     * Returns the incremental data of this encoding.
-     * @return the incremental data of this encoding
-     */
-    CCIncrementalData incrementalData() {
-        return this.incData;
-    }
-
-    private int initialize(final EncodingResult result, final int rhs, final int n) {
+    private static int initialize(final EncodingResult result, final int rhs, final int n, final State state) {
         result.reset();
-        this.result = result;
-        this.cardinalityLwOutvars = new LNGVector<>();
+        state.cardinalityLwOutvars = new LNGVector<>();
         final int mod = (int) Math.ceil(Math.sqrt(rhs + 1.0));
-        this.cardinalityUpOutvars = new LNGVector<>(n / mod);
+        state.cardinalityUpOutvars = new LNGVector<>(n / mod);
         for (int i = 0; i < n / mod; i++) {
-            this.cardinalityUpOutvars.push(this.result.newVariable());
+            state.cardinalityUpOutvars.push(result.newVariable());
         }
-        this.cardinalityLwOutvars = new LNGVector<>(mod - 1);
+        state.cardinalityLwOutvars = new LNGVector<>(mod - 1);
         for (int i = 0; i < mod - 1; i++) {
-            this.cardinalityLwOutvars.push(this.result.newVariable());
+            state.cardinalityLwOutvars.push(result.newVariable());
         }
-        this.inlits = new LNGVector<>(n);
-        this.currentCardinalityRhs = rhs + 1;
-        if (this.cardinalityUpOutvars.size() == 0) {
-            this.cardinalityUpOutvars.push(this.h0);
+        state.inlits = new LNGVector<>(n);
+        state.currentCardinalityRhs = rhs + 1;
+        if (state.cardinalityUpOutvars.size() == 0) {
+            state.cardinalityUpOutvars.push(state.h0);
         }
         return mod;
     }
 
-    private void encodeOutput(final int rhs, final int mod) {
-        assert this.cardinalityUpOutvars.size() != 0 || this.cardinalityLwOutvars.size() != 0;
+    private static void encodeOutput(final EncodingResult result, final int rhs, final int mod, final State state) {
+        assert state.cardinalityUpOutvars.size() != 0 || state.cardinalityLwOutvars.size() != 0;
+        final FormulaFactory f = result.factory();
         final int ulimit = (rhs + 1) / mod;
         final int llimit = (rhs + 1) - ulimit * mod;
-        assert ulimit <= this.cardinalityUpOutvars.size();
-        assert llimit <= this.cardinalityLwOutvars.size();
-        for (int i = ulimit; i < this.cardinalityUpOutvars.size(); i++) {
-            this.result.addClause(this.cardinalityUpOutvars.get(i).negate());
+        assert ulimit <= state.cardinalityUpOutvars.size();
+        assert llimit <= state.cardinalityLwOutvars.size();
+        for (int i = ulimit; i < state.cardinalityUpOutvars.size(); i++) {
+            result.addClause(state.cardinalityUpOutvars.get(i).negate(f));
         }
         if (ulimit != 0 && llimit != 0) {
-            for (int i = llimit - 1; i < this.cardinalityLwOutvars.size(); i++) {
-                this.result.addClause(this.cardinalityUpOutvars.get(ulimit - 1).negate(), this.cardinalityLwOutvars.get(i).negate());
+            for (int i = llimit - 1; i < state.cardinalityLwOutvars.size(); i++) {
+                result.addClause(state.cardinalityUpOutvars.get(ulimit - 1).negate(f), state.cardinalityLwOutvars.get(i).negate(f));
             }
         } else {
             if (ulimit == 0) {
                 assert llimit != 0;
-                for (int i = llimit - 1; i < this.cardinalityLwOutvars.size(); i++) {
-                    this.result.addClause(this.cardinalityLwOutvars.get(i).negate());
+                for (int i = llimit - 1; i < state.cardinalityLwOutvars.size(); i++) {
+                    result.addClause(state.cardinalityLwOutvars.get(i).negate(f));
                 }
             } else {
-                this.result.addClause(this.cardinalityUpOutvars.get(ulimit - 1).negate());
+                result.addClause(state.cardinalityUpOutvars.get(ulimit - 1).negate(f));
             }
         }
     }
 
-    private void toCNF(final int mod, final LNGVector<Literal> ubvars, final LNGVector<Literal> lwvars, final int rhs) {
+    private static void toCNF(final EncodingResult result, final int mod, final LNGVector<Literal> ubvars, final LNGVector<Literal> lwvars, final int rhs,
+                              final State state) {
         final LNGVector<Literal> lupper = new LNGVector<>();
         final LNGVector<Literal> llower = new LNGVector<>();
         final LNGVector<Literal> rupper = new LNGVector<>();
@@ -187,119 +140,121 @@ public final class CCModularTotalizer {
         int left = 1;
         int right = 1;
         if (split == 1) {
-            assert this.inlits.size() > 0;
-            lupper.push(this.h0);
-            llower.push(this.inlits.back());
-            this.inlits.pop();
+            assert state.inlits.size() > 0;
+            lupper.push(state.h0);
+            llower.push(state.inlits.back());
+            state.inlits.pop();
         } else {
             left = split / mod;
             for (int i = 0; i < left; i++) {
-                lupper.push(this.result.newVariable());
+                lupper.push(result.newVariable());
             }
             int limit = mod - 1;
             if (left % mod == 0 && split < mod - 1) {
                 limit = split;
             }
             for (int i = 0; i < limit; i++) {
-                llower.push(this.result.newVariable());
+                llower.push(result.newVariable());
             }
         }
         if (rhs - split == 1) {
-            assert this.inlits.size() > 0;
-            rupper.push(this.h0);
-            rlower.push(this.inlits.back());
-            this.inlits.pop();
+            assert state.inlits.size() > 0;
+            rupper.push(state.h0);
+            rlower.push(state.inlits.back());
+            state.inlits.pop();
         } else {
             right = (rhs - split) / mod;
             for (int i = 0; i < right; i++) {
-                rupper.push(this.result.newVariable());
+                rupper.push(result.newVariable());
             }
             int limit = mod - 1;
             if (right % mod == 0 && rhs - split < mod - 1) {
                 limit = rhs - split;
             }
             for (int i = 0; i < limit; i++) {
-                rlower.push(this.result.newVariable());
+                rlower.push(result.newVariable());
             }
         }
         if (lupper.size() == 0) {
-            lupper.push(this.h0);
+            lupper.push(state.h0);
         }
         if (rupper.size() == 0) {
-            rupper.push(this.h0);
+            rupper.push(state.h0);
         }
-        this.adder(mod, ubvars, lwvars, rupper, rlower, lupper, llower);
+        adder(result, mod, ubvars, lwvars, rupper, rlower, lupper, llower, state);
         int val = left * mod + split - left * mod;
         if (val > 1) {
-            this.toCNF(mod, lupper, llower, val);
+            toCNF(result, mod, lupper, llower, val, state);
         }
         val = right * mod + (rhs - split) - right * mod;
         if (val > 1) {
-            this.toCNF(mod, rupper, rlower, val);
+            toCNF(result, mod, rupper, rlower, val, state);
         }
     }
 
-    private void adder(final int mod, final LNGVector<Literal> upper, final LNGVector<Literal> lower,
-                       final LNGVector<Literal> lupper, final LNGVector<Literal> llower, final LNGVector<Literal> rupper,
-                       final LNGVector<Literal> rlower) {
+    private static void adder(final EncodingResult result, final int mod, final LNGVector<Literal> upper, final LNGVector<Literal> lower,
+                              final LNGVector<Literal> lupper, final LNGVector<Literal> llower, final LNGVector<Literal> rupper,
+                              final LNGVector<Literal> rlower, final State state) {
         assert upper.size() != 0;
         assert lower.size() >= llower.size() && lower.size() >= rlower.size();
-        Variable carry = this.varUndef;
-        if (upper.get(0) != this.h0) // != is ok here - we are within the same formula factory
+        final FormulaFactory f = result.factory();
+        Variable carry = state.varUndef;
+        if (upper.get(0) != state.h0) // != is ok here - we are within the same formula factory
         {
-            carry = this.result.newVariable();
+            carry = result.newVariable();
         }
         for (int i = 0; i <= llower.size(); i++) {
             for (int j = 0; j <= rlower.size(); j++) {
-                if (i + j > this.currentCardinalityRhs + 1 && this.currentCardinalityRhs + 1 < mod) {
+                if (i + j > state.currentCardinalityRhs + 1 && state.currentCardinalityRhs + 1 < mod) {
                     continue;
                 }
                 if (i + j < mod) {
                     if (i == 0 && j != 0) {
-                        if (upper.get(0) != this.h0) {
-                            this.result.addClause(rlower.get(j - 1).negate(), lower.get(i + j - 1), carry);
+                        if (upper.get(0) != state.h0) {
+                            result.addClause(rlower.get(j - 1).negate(f), lower.get(i + j - 1), carry);
                         } else {
-                            this.result.addClause(rlower.get(j - 1).negate(), lower.get(i + j - 1));
+                            result.addClause(rlower.get(j - 1).negate(f), lower.get(i + j - 1));
                         }
                     } else if (j == 0 && i != 0) {
-                        if (upper.get(0) != this.h0) {
-                            this.result.addClause(llower.get(i - 1).negate(), lower.get(i + j - 1), carry);
+                        if (upper.get(0) != state.h0) {
+                            result.addClause(llower.get(i - 1).negate(f), lower.get(i + j - 1), carry);
                         } else {
-                            this.result.addClause(llower.get(i - 1).negate(), lower.get(i + j - 1));
+                            result.addClause(llower.get(i - 1).negate(f), lower.get(i + j - 1));
                         }
                     } else if (i != 0) {
-                        if (upper.get(0) != this.h0) {
-                            this.result.addClause(llower.get(i - 1).negate(), rlower.get(j - 1).negate(), lower.get(i + j - 1), carry);
+                        if (upper.get(0) != state.h0) {
+                            result.addClause(llower.get(i - 1).negate(f), rlower.get(j - 1).negate(f), lower.get(i + j - 1), carry);
                         } else {
                             assert i + j - 1 < lower.size();
-                            this.result.addClause(llower.get(i - 1).negate(), rlower.get(j - 1).negate(), lower.get(i + j - 1));
+                            result.addClause(llower.get(i - 1).negate(f), rlower.get(j - 1).negate(f), lower.get(i + j - 1));
                         }
                     }
                 } else if (i + j > mod) {
                     assert i + j > 0;
-                    this.result.addClause(llower.get(i - 1).negate(), rlower.get(j - 1).negate(), lower.get((i + j) % mod - 1));
+                    result.addClause(llower.get(i - 1).negate(f), rlower.get(j - 1).negate(f), lower.get((i + j) % mod - 1));
                 } else {
                     assert i + j == mod;
-                    assert carry != this.varUndef;
-                    this.result.addClause(llower.get(i - 1).negate(), rlower.get(j - 1).negate(), carry);
+                    assert carry != state.varUndef;
+                    result.addClause(llower.get(i - 1).negate(f), rlower.get(j - 1).negate(f), carry);
                 }
             }
         }
-        if (upper.get(0) != this.h0) {
-            this.finalAdder(mod, upper, lupper, rupper, carry);
+        if (upper.get(0) != state.h0) {
+            finalAdder(result, mod, upper, lupper, rupper, carry, state);
         }
     }
 
-    private void finalAdder(final int mod, final LNGVector<Literal> upper, final LNGVector<Literal> lupper,
-                            final LNGVector<Literal> rupper, final Variable carry) {
+    private static void finalAdder(final EncodingResult result, final int mod, final LNGVector<Literal> upper, final LNGVector<Literal> lupper,
+                                   final LNGVector<Literal> rupper, final Variable carry, final State state) {
+        final FormulaFactory f = result.factory();
         for (int i = 0; i <= lupper.size(); i++) {
             for (int j = 0; j <= rupper.size(); j++) {
-                Literal a = this.varError;
-                Literal b = this.varError;
-                Literal c = this.varError;
-                Literal d = this.varError;
-                int closeMod = this.currentCardinalityRhs / mod;
-                if (this.currentCardinalityRhs % mod != 0) {
+                Literal a = state.varError;
+                Literal b = state.varError;
+                Literal c = state.varError;
+                Literal d = state.varError;
+                int closeMod = state.currentCardinalityRhs / mod;
+                if (state.currentCardinalityRhs % mod != 0) {
                     closeMod++;
                 }
                 if (mod * (i + j) > closeMod * mod) {
@@ -317,39 +272,52 @@ public final class CCModularTotalizer {
                 if (i + j < upper.size()) {
                     d = upper.get(i + j);
                 }
-                if (c != this.varUndef && c != this.varError) {
+                if (c != state.varUndef && c != state.varError) {
                     final LNGVector<Literal> clause = new LNGVector<>();
-                    if (a != this.varUndef && a != this.varError) {
-                        clause.push(a.negate());
+                    if (a != state.varUndef && a != state.varError) {
+                        clause.push(a.negate(f));
                     }
-                    if (b != this.varUndef && b != this.varError) {
-                        clause.push(b.negate());
+                    if (b != state.varUndef && b != state.varError) {
+                        clause.push(b.negate(f));
                     }
                     clause.push(c);
                     if (clause.size() > 1) {
-                        this.result.addClause(clause);
+                        result.addClause(clause);
                     }
                 }
                 final LNGVector<Literal> clause = new LNGVector<>();
-                clause.push(carry.negate());
-                if (a != this.varUndef && a != this.varError) {
-                    clause.push(a.negate());
+                clause.push(carry.negate(f));
+                if (a != state.varUndef && a != state.varError) {
+                    clause.push(a.negate(f));
                 }
-                if (b != this.varUndef && b != this.varError) {
-                    clause.push(b.negate());
+                if (b != state.varUndef && b != state.varError) {
+                    clause.push(b.negate(f));
                 }
-                if (d != this.varError && d != this.varUndef) {
+                if (d != state.varError && d != state.varUndef) {
                     clause.push(d);
                 }
                 if (clause.size() > 1) {
-                    this.result.addClause(clause);
+                    result.addClause(clause);
                 }
             }
         }
     }
 
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
+    private static final class State {
+        private final Variable varUndef;
+        private final Variable varError;
+        private final Variable h0;
+        private LNGVector<Literal> inlits;
+        private LNGVector<Literal> cardinalityUpOutvars;
+        private LNGVector<Literal> cardinalityLwOutvars;
+        private int currentCardinalityRhs;
+
+        private State(final FormulaFactory f) {
+            this.varUndef = f.variable("RESERVED@VAR_UNDEF");
+            this.varError = f.variable("RESERVED@VAR_ERROR");
+            this.h0 = varUndef;
+            this.currentCardinalityRhs = -1;
+            this.inlits = new LNGVector<>();
+        }
     }
 }

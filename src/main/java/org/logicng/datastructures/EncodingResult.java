@@ -181,4 +181,8 @@ public final class EncodingResult {
     public List<Formula> result() {
         return this.result;
     }
+
+    public FormulaFactory factory() {
+        return f;
+    }
 }

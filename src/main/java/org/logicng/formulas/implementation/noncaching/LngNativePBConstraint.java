@@ -7,8 +7,10 @@ package org.logicng.formulas.implementation.noncaching;
 import org.logicng.formulas.CType;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.PBConstraint;
+import org.logicng.pseudobooleans.PBEncoder;
 
 import java.util.Collection;
 import java.util.List;
@@ -76,8 +78,8 @@ public class LngNativePBConstraint extends LngNativeFormula implements PBConstra
     }
 
     @Override
-    public List<Formula> getEncoding() {
-        return f.pbEncoder().encode(this);
+    public List<Formula> getEncoding(final FormulaFactory generatingFactory) {
+        return PBEncoder.encode(this, generatingFactory);
     }
 
     @Override

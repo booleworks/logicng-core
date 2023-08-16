@@ -22,7 +22,6 @@ import org.logicng.formulas.printer.FormulaStringRepresentation;
 import org.logicng.functions.SubNodeFunction;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.pseudobooleans.PBConfig;
-import org.logicng.pseudobooleans.PBEncoder;
 import org.logicng.solvers.maxsat.algorithms.MaxSATConfig;
 import org.logicng.solvers.sat.GlucoseConfig;
 import org.logicng.solvers.sat.MiniSatConfig;
@@ -68,7 +67,6 @@ public abstract class FormulaFactory {
     protected final String pbPrefix;
     protected final String cnfPrefix;
     protected final SubNodeFunction subformulaFunction;
-    protected final PBEncoder pbEncoder;
     protected CFalse cFalse;
     protected CTrue cTrue;
     protected boolean cnfCheck;
@@ -114,7 +112,6 @@ public abstract class FormulaFactory {
             pbPrefix = PB_PREFIX;
             cnfPrefix = CNF_PREFIX;
         }
-        pbEncoder = new PBEncoder(this);
         readOnly = false;
     }
 
@@ -212,14 +209,6 @@ public abstract class FormulaFactory {
      */
     public SubNodeFunction subformulaFunction() {
         return subformulaFunction;
-    }
-
-    /**
-     * Returns the default pseudo-Boolean encoder of this formula factory.
-     * @return the default pseudo-Boolean encoder of this formula factory
-     */
-    public PBEncoder pbEncoder() {
-        return pbEncoder;
     }
 
     /**

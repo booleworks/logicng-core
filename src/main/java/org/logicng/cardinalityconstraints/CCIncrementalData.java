@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * PBLib       -- Copyright (c) 2012-2013  Peter Steinke
@@ -54,6 +30,7 @@ package org.logicng.cardinalityconstraints;
 import org.logicng.collections.LNGVector;
 import org.logicng.datastructures.EncodingResult;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 
 import java.util.List;
@@ -62,7 +39,7 @@ import java.util.List;
  * Incremental data for an at-most-k cardinality constraint.  When an at-most-k cardinality constraint is constructed,
  * it is possible to save incremental data with it.  Then one can modify the constraint after it was created by
  * tightening the original bound.
- * @version 1.1
+ * @version 3.0.0
  * @since 1.1
  */
 public final class CCIncrementalData {
@@ -165,6 +142,7 @@ public final class CCIncrementalData {
     }
 
     private void computeUBConstraint(final EncodingResult result, final int rhs) {
+        final FormulaFactory f = result.factory();
         if (rhs >= this.currentRHS) {
             throw new IllegalArgumentException("New upper bound " + rhs + " + does not tighten the current bound of " + this.currentRHS);
         }
@@ -180,31 +158,31 @@ public final class CCIncrementalData {
                 assert ulimit <= this.vector1.size();
                 assert llimit <= this.vector2.size();
                 for (int i = ulimit; i < this.vector1.size(); i++) {
-                    result.addClause(this.vector1.get(i).negate());
+                    result.addClause(this.vector1.get(i).negate(f));
                 }
                 if (ulimit != 0 && llimit != 0) {
                     for (int i = llimit - 1; i < this.vector2.size(); i++) {
-                        result.addClause(this.vector1.get(ulimit - 1).negate(), this.vector2.get(i).negate());
+                        result.addClause(this.vector1.get(ulimit - 1).negate(f), this.vector2.get(i).negate(f));
                     }
                 } else {
                     if (ulimit == 0) {
                         assert llimit != 0;
                         for (int i = llimit - 1; i < this.vector2.size(); i++) {
-                            result.addClause(this.vector2.get(i).negate());
+                            result.addClause(this.vector2.get(i).negate(f));
                         }
                     } else {
-                        result.addClause(this.vector1.get(ulimit - 1).negate());
+                        result.addClause(this.vector1.get(ulimit - 1).negate(f));
                     }
                 }
                 break;
             case TOTALIZER:
                 for (int i = rhs; i < this.vector1.size(); i++) {
-                    result.addClause(this.vector1.get(i).negate());
+                    result.addClause(this.vector1.get(i).negate(f));
                 }
                 break;
             case CARDINALITY_NETWORK:
                 if (this.vector1.size() > rhs) {
-                    result.addClause(this.vector1.get(rhs).negate());
+                    result.addClause(this.vector1.get(rhs).negate(f));
                 }
                 break;
             default:
@@ -236,6 +214,7 @@ public final class CCIncrementalData {
     }
 
     private void computeLBConstraint(final EncodingResult result, final int rhs) {
+        final FormulaFactory f = result.factory();
         if (rhs <= this.currentRHS) {
             throw new IllegalArgumentException("New lower bound " + rhs + " + does not tighten the current bound of " + this.currentRHS);
         }
@@ -257,27 +236,27 @@ public final class CCIncrementalData {
                 assert ulimit <= this.vector1.size();
                 assert llimit <= this.vector2.size();
                 for (int i = ulimit; i < this.vector1.size(); i++) {
-                    result.addClause(this.vector1.get(i).negate());
+                    result.addClause(this.vector1.get(i).negate(f));
                 }
                 if (ulimit != 0 && llimit != 0) {
                     for (int i = llimit - 1; i < this.vector2.size(); i++) {
-                        result.addClause(this.vector1.get(ulimit - 1).negate(), this.vector2.get(i).negate());
+                        result.addClause(this.vector1.get(ulimit - 1).negate(f), this.vector2.get(i).negate(f));
                     }
                 } else {
                     if (ulimit == 0) {
                         assert llimit != 0;
                         for (int i = llimit - 1; i < this.vector2.size(); i++) {
-                            result.addClause(this.vector2.get(i).negate());
+                            result.addClause(this.vector2.get(i).negate(f));
                         }
                     } else {
-                        result.addClause(this.vector1.get(ulimit - 1).negate());
+                        result.addClause(this.vector1.get(ulimit - 1).negate(f));
                     }
                 }
                 break;
             case CARDINALITY_NETWORK:
                 newRHS = this.nVars - rhs;
                 if (this.vector1.size() > newRHS) {
-                    result.addClause(this.vector1.get(newRHS).negate());
+                    result.addClause(this.vector1.get(newRHS).negate(f));
                 }
                 break;
             default:
