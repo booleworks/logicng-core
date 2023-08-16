@@ -62,7 +62,7 @@ public final class PureExpansionTransformation extends StatelessFormulaTransform
                 if (pbc.isAmo() || pbc.isExo()) {
                     final EncodingResult encodingResult = EncodingResult.resultForFormula(f);
                     final Variable[] vars = literalsAsVariables(pbc.operands());
-                    new CCAMOPure().build(encodingResult, vars);
+                    CCAMOPure.get().build(encodingResult, vars);
                     final List<Formula> encoding = encodingResult.result();
                     if (pbc.isExo()) {
                         encoding.add(f.or(vars));

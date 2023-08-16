@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * PBLib       -- Copyright (c) 2012-2013  Peter Steinke
@@ -58,134 +34,121 @@ import org.logicng.formulas.Variable;
 
 /**
  * Encodes that at most one variable is assigned value true.  Uses the bimander encoding due to Hölldobler and Nguyen.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.1
  */
 public final class CCAMOBimander implements CCAtMostOne {
 
-    private final LNGVector<LNGVector<Literal>> groups;
-    private final LNGVector<Literal> bits;
-    private final int m;
-    private EncodingResult result;
-    private int numberOfBits;
-    private int twoPowNBits;
-    private int k;
+    private static final CCAMOBimander INSTANCE = new CCAMOBimander();
 
-    /**
-     * Constructs the bimander AMO encoder with a given number of groups.
-     */
-    CCAMOBimander(final int m) {
-        this.m = m;
-        this.groups = new LNGVector<>();
-        this.bits = new LNGVector<>();
+    private CCAMOBimander() {
+        // Singleton pattern
+    }
+
+    public static CCAMOBimander get() {
+        return INSTANCE;
     }
 
     @Override
-    public void build(final EncodingResult result, final Variable... vars) {
+    public void build(final EncodingResult result, final CCConfig config, final Variable... vars) {
         result.reset();
-        this.result = result;
-        this.encodeIntern(new LNGVector<>(vars));
+        final int groupSize = computeGroupSize(config, vars.length);
+        encodeIntern(result, groupSize, new LNGVector<>(vars));
     }
 
-    /**
-     * Internal encoding.
-     * @param vars the variables of the constraint
-     */
-    private void encodeIntern(final LNGVector<Literal> vars) {
-        this.initializeGroups(vars);
-        this.initializeBits();
+    private static void encodeIntern(final EncodingResult result, final int groupSize, final LNGVector<Literal> vars) {
+        final LNGVector<LNGVector<Literal>> groups = initializeGroups(result, groupSize, vars);
+        final BimanderBits bits = initializeBits(result, groupSize);
         int grayCode;
         int nextGray;
         int i = 0;
         int index = -1;
-        for (; i < this.k; i++) {
+        for (; i < bits.k; i++) {
             index++;
             grayCode = i ^ (i >> 1);
             i++;
             nextGray = i ^ (i >> 1);
-            for (int j = 0; j < this.numberOfBits; j++) {
+            for (int j = 0; j < bits.numberOfBits; j++) {
                 if ((grayCode & (1 << j)) == (nextGray & (1 << j))) {
-                    handleGrayCode(grayCode, index, j);
+                    handleGrayCode(result, groups, bits, grayCode, index, j);
                 }
             }
         }
-        for (; i < this.twoPowNBits; i++) {
+        for (; i < bits.twoPowNBits; i++) {
             index++;
             grayCode = i ^ (i >> 1);
-            for (int j = 0; j < this.numberOfBits; j++) {
-                handleGrayCode(grayCode, index, j);
+            for (int j = 0; j < bits.numberOfBits; j++) {
+                handleGrayCode(result, groups, bits, grayCode, index, j);
             }
         }
     }
 
-    private void handleGrayCode(final int grayCode, final int index, final int j) {
+    private static void handleGrayCode(final EncodingResult result, final LNGVector<LNGVector<Literal>> groups, final BimanderBits bits,
+                                       final int grayCode, final int index, final int j) {
         if ((grayCode & (1 << j)) != 0) {
-            for (int p = 0; p < this.groups.get(index).size(); ++p) {
-                this.result.addClause(this.groups.get(index).get(p).negate(), this.bits.get(j));
+            for (int p = 0; p < groups.get(index).size(); ++p) {
+                result.addClause(groups.get(index).get(p).negate(result.factory()), bits.bits.get(j));
             }
         } else {
-            for (int p = 0; p < this.groups.get(index).size(); ++p) {
-                this.result.addClause(this.groups.get(index).get(p).negate(), this.bits.get(j).negate());
+            for (int p = 0; p < groups.get(index).size(); ++p) {
+                result.addClause(groups.get(index).get(p).negate(result.factory()), bits.bits.get(j).negate(result.factory()));
             }
         }
     }
 
-    /**
-     * Initializes the groups
-     * @param vars the variables of the constraint
-     */
-    private void initializeGroups(final LNGVector<Literal> vars) {
+    private static LNGVector<LNGVector<Literal>> initializeGroups(final EncodingResult result, final int groupSize, final LNGVector<Literal> vars) {
+        final LNGVector<LNGVector<Literal>> groups = new LNGVector<>();
         final int n = vars.size();
-        this.groups.clear();
-        for (int i = 0; i < this.m; i++) {
-            this.groups.push(new LNGVector<>());
+        for (int i = 0; i < groupSize; i++) {
+            groups.push(new LNGVector<>());
         }
 
-        int g = (int) Math.ceil((double) n / this.m);
+        int g = (int) Math.ceil((double) n / groupSize);
         int ig = 0;
         for (int i = 0; i < vars.size(); ) {
             while (i < g) {
-                this.groups.get(ig).push(vars.get(i));
+                groups.get(ig).push(vars.get(i));
                 i++;
             }
             ig++;
-            g = g + (int) Math.ceil((double) (n - i) / (this.m - ig));
+            g = g + (int) Math.ceil((double) (n - i) / (groupSize - ig));
         }
 
-        for (int i = 0; i < this.groups.size(); i++) {
-            this.encodeNaive(this.groups.get(i));
+        for (int i = 0; i < groups.size(); i++) {
+            CCAtMostOne.encodeNaive(result, groups.get(i));
+        }
+        return groups;
+    }
+
+    private static BimanderBits initializeBits(final EncodingResult result, final int groupSize) {
+        final var bits = new BimanderBits();
+
+        bits.numberOfBits = (int) Math.ceil(Math.log(groupSize) / Math.log(2));
+        bits.twoPowNBits = (int) Math.pow(2, bits.numberOfBits);
+        bits.k = (bits.twoPowNBits - groupSize) * 2;
+        for (int i = 0; i < bits.numberOfBits; ++i) {
+            bits.bits.push(result.newVariable());
+        }
+        return bits;
+    }
+
+    private static int computeGroupSize(final CCConfig config, final int numVars) {
+        switch (config.bimanderGroupSize) {
+            case FIXED:
+                return config.bimanderFixedGroupSize;
+            case HALF:
+                return numVars / 2;
+            case SQRT:
+                return (int) Math.sqrt(numVars);
+            default:
+                throw new IllegalStateException("Unknown bimander group size: " + config.bimanderGroupSize);
         }
     }
 
-    /**
-     * Initializes the bits.
-     */
-    private void initializeBits() {
-        this.bits.clear();
-        this.numberOfBits = (int) Math.ceil(Math.log(this.m) / Math.log(2));
-        this.twoPowNBits = (int) Math.pow(2, this.numberOfBits);
-        this.k = (this.twoPowNBits - this.m) * 2;
-        for (int i = 0; i < this.numberOfBits; ++i) {
-            this.bits.push(this.result.newVariable());
-        }
-    }
-
-    /**
-     * Naive encoding of a cardinality constraint.
-     * @param vars the variables of the constraint
-     */
-    private void encodeNaive(final LNGVector<Literal> vars) {
-        if (vars.size() > 1) {
-            for (int i = 0; i < vars.size(); i++) {
-                for (int j = i + 1; j < vars.size(); j++) {
-                    this.result.addClause(vars.get(i).negate(), vars.get(j).negate());
-                }
-            }
-        }
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
+    private static final class BimanderBits {
+        private final LNGVector<Literal> bits = new LNGVector<>();
+        private int numberOfBits;
+        private int twoPowNBits;
+        private int k;
     }
 }

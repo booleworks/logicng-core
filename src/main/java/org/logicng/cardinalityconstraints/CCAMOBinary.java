@@ -52,6 +52,7 @@
 package org.logicng.cardinalityconstraints;
 
 import org.logicng.datastructures.EncodingResult;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 
 /**
@@ -62,16 +63,20 @@ import org.logicng.formulas.Variable;
  */
 public final class CCAMOBinary implements CCAtMostOne {
 
-    /**
-     * Constructs the binary AMO encoder.
-     */
-    CCAMOBinary() {
-        //intentionally left empty
+    private static final CCAMOBinary INSTANCE = new CCAMOBinary();
+
+    private CCAMOBinary() {
+        // Singleton pattern
+    }
+
+    public static CCAMOBinary get() {
+        return INSTANCE;
     }
 
     @Override
-    public void build(final EncodingResult result, final Variable... vars) {
+    public void build(final EncodingResult result, final CCConfig config, final Variable... vars) {
         result.reset();
+        final FormulaFactory f = result.factory();
         final int numberOfBits = (int) Math.ceil(Math.log(vars.length) / Math.log(2));
         final int twoPowNBits = (int) Math.pow(2, numberOfBits);
         final int k = (twoPowNBits - vars.length) * 2;
@@ -91,9 +96,9 @@ public final class CCAMOBinary implements CCAtMostOne {
             for (int j = 0; j < numberOfBits; ++j) {
                 if ((grayCode & (1 << j)) == (nextGray & (1 << j))) {
                     if ((grayCode & (1 << j)) != 0) {
-                        result.addClause(vars[index].negate(), bits[j]);
+                        result.addClause(vars[index].negate(f), bits[j]);
                     } else {
-                        result.addClause(vars[index].negate(), bits[j].negate());
+                        result.addClause(vars[index].negate(f), bits[j].negate(f));
                     }
                 }
             }
@@ -104,17 +109,12 @@ public final class CCAMOBinary implements CCAtMostOne {
             grayCode = i ^ (i >> 1);
             for (int j = 0; j < numberOfBits; ++j) {
                 if ((grayCode & (1 << j)) != 0) {
-                    result.addClause(vars[index].negate(), bits[j]);
+                    result.addClause(vars[index].negate(f), bits[j]);
                 } else {
-                    result.addClause(vars[index].negate(), bits[j].negate());
+                    result.addClause(vars[index].negate(f), bits[j].negate(f));
                 }
             }
             i++;
         }
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
     }
 }

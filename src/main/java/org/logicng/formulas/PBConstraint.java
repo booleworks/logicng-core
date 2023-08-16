@@ -151,9 +151,10 @@ public interface PBConstraint extends Formula {
 
     /**
      * Normalizes this constraint s.t. it can be converted to CNF.
+     * @param f the formula factory to generate new formulas
      * @return the normalized constraint
      */
-    default Formula normalize() {
+    default Formula normalize(final FormulaFactory f) {
         final LNGVector<Literal> normPs = new LNGVector<>(operands().size());
         final LNGIntVector normCs = new LNGIntVector(operands().size());
         int normRhs;
@@ -164,7 +165,7 @@ public interface PBConstraint extends Formula {
                     normCs.push(coefficients().get(i));
                 }
                 normRhs = rhs();
-                final Formula f1 = normalize(normPs, normCs, normRhs);
+                final Formula f1 = normalize(normPs, normCs, normRhs, f);
                 normPs.clear();
                 normCs.clear();
                 for (int i = 0; i < operands().size(); i++) {
@@ -172,8 +173,8 @@ public interface PBConstraint extends Formula {
                     normCs.push(-coefficients().get(i));
                 }
                 normRhs = -rhs();
-                final Formula f2 = normalize(normPs, normCs, normRhs);
-                return factory().and(f1, f2);
+                final Formula f2 = normalize(normPs, normCs, normRhs, f);
+                return f.and(f1, f2);
             case LT:
             case LE:
                 for (int i = 0; i < operands().size(); i++) {
@@ -181,7 +182,7 @@ public interface PBConstraint extends Formula {
                     normCs.push(coefficients().get(i));
                 }
                 normRhs = comparator() == CType.LE ? rhs() : rhs() - 1;
-                return normalize(normPs, normCs, normRhs);
+                return normalize(normPs, normCs, normRhs, f);
             case GT:
             case GE:
                 for (int i = 0; i < operands().size(); i++) {
@@ -189,7 +190,7 @@ public interface PBConstraint extends Formula {
                     normCs.push(-coefficients().get(i));
                 }
                 normRhs = comparator() == CType.GE ? -rhs() : -rhs() - 1;
-                return normalize(normPs, normCs, normRhs);
+                return normalize(normPs, normCs, normRhs, f);
             default:
                 throw new IllegalStateException("Unknown pseudo-Boolean comparator: " + comparator());
         }
@@ -201,9 +202,10 @@ public interface PBConstraint extends Formula {
      * @param ps  the literals
      * @param cs  the coefficients
      * @param rhs the right-hand side
+     * @param f   the formula factory to generate new formulas
      * @return the normalized constraint
      */
-    private Formula normalize(final LNGVector<Literal> ps, final LNGIntVector cs, final int rhs) {
+    private Formula normalize(final LNGVector<Literal> ps, final LNGIntVector cs, final int rhs, final FormulaFactory f) {
         int c = rhs;
         int newSize = 0;
         for (int i = 0; i < ps.size(); i++) {
@@ -235,7 +237,7 @@ public interface PBConstraint extends Formula {
                 csps.push(new Pair<>(all.getValue().second() - all.getValue().first(), all.getKey()));
             } else {
                 c -= all.getValue().second();
-                csps.push(new Pair<>(all.getValue().first() - all.getValue().second(), all.getKey().negate(factory())));
+                csps.push(new Pair<>(all.getValue().first() - all.getValue().second(), all.getKey().negate(f)));
             }
         }
         int sum = 0;
@@ -257,10 +259,10 @@ public interface PBConstraint extends Formula {
         do {
             changed = false;
             if (c < 0) {
-                return factory().falsum();
+                return f.falsum();
             }
             if (sum <= c) {
-                return factory().verum();
+                return f.verum();
             }
             assert cs.size() > 0;
             int div = c;
@@ -285,7 +287,7 @@ public interface PBConstraint extends Formula {
         for (int i = 0; i < coeffs.length; i++) {
             coeffs[i] = cs.get(i);
         }
-        return factory().pbc(CType.LE, c, lits, coeffs);
+        return f.pbc(CType.LE, c, lits, coeffs);
     }
 
     @Override
@@ -343,19 +345,19 @@ public interface PBConstraint extends Formula {
         }
 
         if (newLits.isEmpty()) {
-            return factory().constant(evaluateComparator(lhsFixed));
+            return f.constant(evaluateComparator(lhsFixed));
         }
 
         final int newRHS = rhs() - lhsFixed;
         if (comparator() != CType.EQ) {
             final Tristate fixed = evaluateCoeffs(minValue, maxValue, newRHS, comparator());
             if (fixed == Tristate.TRUE) {
-                return factory().verum();
+                return f.verum();
             } else if (fixed == Tristate.FALSE) {
-                return factory().falsum();
+                return f.falsum();
             }
         }
-        return factory().pbc(comparator(), newRHS, newLits, newCoeffs);
+        return f.pbc(comparator(), newRHS, newLits, newCoeffs);
     }
 
     @Override
@@ -406,8 +408,8 @@ public interface PBConstraint extends Formula {
             }
         }
         return newLits.isEmpty()
-                ? evaluateComparator(lhsFixed) ? factory().verum() : factory().falsum()
-                : factory().pbc(comparator(), rhs() - lhsFixed, newLits, newCoeffs);
+                ? evaluateComparator(lhsFixed) ? f.verum() : f.falsum()
+                : f.pbc(comparator(), rhs() - lhsFixed, newLits, newCoeffs);
     }
 
     @Override
@@ -476,9 +478,10 @@ public interface PBConstraint extends Formula {
 
     /**
      * Encodes this constraint as CNF and stores the result, if the encoding does not already exist.
+     * @param f the formula factory to generate new formulas
      * @return the encoding
      */
-    List<Formula> getEncoding();
+    List<Formula> getEncoding(final FormulaFactory f);
 
     @Override
     default Iterator<Formula> iterator() {

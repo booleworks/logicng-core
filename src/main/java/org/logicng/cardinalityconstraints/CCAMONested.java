@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * PBLib       -- Copyright (c) 2012-2013  Peter Steinke
@@ -53,43 +29,40 @@ package org.logicng.cardinalityconstraints;
 
 import org.logicng.collections.LNGVector;
 import org.logicng.datastructures.EncodingResult;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
 /**
  * Encodes that at most one variable is assigned value true.  Uses the nested encoding.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.1
  */
 public final class CCAMONested implements CCAtMostOne {
 
-    private final int groupSize;
-    private EncodingResult result;
+    private static final CCAMONested INSTANCE = new CCAMONested();
 
-    /**
-     * Constructs the nested AMO encoder.
-     * @param groupSize the group size
-     */
-    CCAMONested(final int groupSize) {
-        this.groupSize = groupSize;
+    private CCAMONested() {
+        // Singleton pattern
+    }
+
+    public static CCAMONested get() {
+        return INSTANCE;
     }
 
     @Override
-    public void build(final EncodingResult result, final Variable... vars) {
+    public void build(final EncodingResult result, final CCConfig config, final Variable... vars) {
         result.reset();
-        this.result = result;
-        this.encodeIntern(new LNGVector<>(vars));
+        final int groupSize = config.nestingGroupSize;
+        encodeIntern(result, groupSize, new LNGVector<>(vars));
     }
 
-    /**
-     * Internal recursive encoding.
-     * @param vars the variables of the constraint
-     */
-    private void encodeIntern(final LNGVector<Literal> vars) {
-        if (vars.size() <= this.groupSize) {
+    private static void encodeIntern(final EncodingResult result, final int groupSize, final LNGVector<Literal> vars) {
+        final FormulaFactory f = result.factory();
+        if (vars.size() <= groupSize) {
             for (int i = 0; i + 1 < vars.size(); i++) {
                 for (int j = i + 1; j < vars.size(); j++) {
-                    this.result.addClause(vars.get(i).negate(), vars.get(j).negate());
+                    result.addClause(vars.get(i).negate(f), vars.get(j).negate(f));
                 }
             }
         } else {
@@ -102,16 +75,11 @@ public final class CCAMONested implements CCAtMostOne {
             for (; i < vars.size(); i++) {
                 l2.push(vars.get(i));
             }
-            final Variable newVariable = this.result.newVariable();
+            final Variable newVariable = result.newVariable();
             l1.push(newVariable);
-            l2.push(newVariable.negate());
-            this.encodeIntern(l1);
-            this.encodeIntern(l2);
+            l2.push(newVariable.negate(f));
+            encodeIntern(result, groupSize, l1);
+            encodeIntern(result, groupSize, l2);
         }
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
     }
 }

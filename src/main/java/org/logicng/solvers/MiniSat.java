@@ -51,7 +51,6 @@ public class MiniSat extends SATSolver {
 
     protected final MiniSatConfig config;
     protected MiniSatStyleSolver solver;
-    protected final CCEncoder ccEncoder;
     protected final SolverStyle style;
     protected LNGIntVector validStates;
     protected final boolean initialPhase;
@@ -92,7 +91,6 @@ public class MiniSat extends SATSolver {
         this.incremental = miniSatConfig.incremental();
         this.validStates = new LNGIntVector();
         this.nextStateId = 0;
-        this.ccEncoder = new CCEncoder(f);
         this.pgTransformation = new PlaistedGreenbaumTransformationSolver(true, this.underlyingSolver(), this.initialPhase);
         this.fullPgTransformation = new PlaistedGreenbaumTransformationSolver(false, this.underlyingSolver(), this.initialPhase);
     }
@@ -122,7 +120,6 @@ public class MiniSat extends SATSolver {
         this.incremental = underlyingSolver.getConfig().incremental();
         this.validStates = new LNGIntVector();
         this.nextStateId = 0;
-        this.ccEncoder = new CCEncoder(f);
         this.pgTransformation = new PlaistedGreenbaumTransformationSolver(true, underlyingSolver, this.initialPhase);
         this.fullPgTransformation = new PlaistedGreenbaumTransformationSolver(false, underlyingSolver, this.initialPhase);
     }
@@ -238,7 +235,7 @@ public class MiniSat extends SATSolver {
                     }
                 } else {
                     final EncodingResult result = EncodingResult.resultForMiniSat(this.f, this, proposition);
-                    this.ccEncoder.encode((CardinalityConstraint) constraint, result);
+                    CCEncoder.encode((CardinalityConstraint) constraint, result);
                 }
             } else {
                 addFormulaAsCNF(constraint, proposition);
@@ -263,7 +260,7 @@ public class MiniSat extends SATSolver {
     @Override
     public CCIncrementalData addIncrementalCC(final CardinalityConstraint cc) {
         final EncodingResult result = EncodingResult.resultForMiniSat(this.f, this, null);
-        return this.ccEncoder.encodeIncremental(cc, result);
+        return CCEncoder.encodeIncremental(cc, result);
     }
 
     @Override

@@ -50,7 +50,7 @@ public class FactorOutSimplificationTest extends TestWithExampleFormulas {
     @Test
     public void testCornerCases() {
         final FormulaCornerCases cornerCases = new FormulaCornerCases(this.f);
-        cornerCases.cornerCases().forEach(this::computeAndVerify);
+        cornerCases.cornerCases().forEach(it -> computeAndVerify(it, this.f));
     }
 
     @Test
@@ -60,14 +60,14 @@ public class FactorOutSimplificationTest extends TestWithExampleFormulas {
             final FormulaFactory f = FormulaFactory.caching();
             final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(5).weightPbc(2).seed(i * 42).build());
             final Formula formula = randomizer.formula(6);
-            computeAndVerify(formula);
-            computeAndVerify(formula.nnf());
+            computeAndVerify(formula, f);
+            computeAndVerify(formula.nnf(f), f);
         }
     }
 
-    private void computeAndVerify(final Formula formula) {
-        final Formula simplified = formula.transform(this.factorOut);
-        assertThat(formula.factory().equivalence(formula, simplified).holds(new TautologyPredicate(this.f))).isTrue();
+    private void computeAndVerify(final Formula formula, final FormulaFactory f) {
+        final Formula simplified = formula.transform(new FactorOutSimplifier(f));
+        assertThat(formula.factory().equivalence(formula, simplified).holds(new TautologyPredicate(f))).isTrue();
         assertThat(simplified.toString().length()).isLessThanOrEqualTo(formula.toString().length());
     }
 }

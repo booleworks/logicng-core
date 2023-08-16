@@ -79,7 +79,7 @@ public class NNFTransformation extends StatelessFormulaTransformation {
             case PBC:
                 final PBConstraint pbc = (PBConstraint) formula;
                 if (polarity) {
-                    final List<Formula> encoding = pbc.getEncoding();
+                    final List<Formula> encoding = pbc.getEncoding(f);
                     nnf = applyRec(encoding.iterator(), FType.AND, true, f);
                 } else {
                     nnf = applyRec(pbc.negate(f), true);

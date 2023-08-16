@@ -545,11 +545,11 @@ public class PBConstraintTest extends TestWithExampleFormulas {
         final PBConstraint pb3 = (PBConstraint) f.pbc(CType.GT, 0, lits, coeffs);
         final PBConstraint pb4 = (PBConstraint) f.pbc(CType.LE, 1, lits, coeffs);
         final PBConstraint pb5 = (PBConstraint) f.pbc(CType.LT, 2, lits, coeffs);
-        assertThat(pb1.normalize().toString()).isEqualTo("(2*a + 2*b + 3*c <= 4) & (2*~a + 2*~b + 3*~c <= 3)");
-        assertThat(pb2.normalize().toString()).isEqualTo("2*~a + 2*~b + 3*~c <= 4");
-        assertThat(pb3.normalize().toString()).isEqualTo("2*~a + 2*~b + 3*~c <= 4");
-        assertThat(pb4.normalize().toString()).isEqualTo("2*a + 2*b + 3*c <= 3");
-        assertThat(pb5.normalize().toString()).isEqualTo("2*a + 2*b + 3*c <= 3");
+        assertThat(pb1.normalize(f).toString()).isEqualTo("(2*a + 2*b + 3*c <= 4) & (2*~a + 2*~b + 3*~c <= 3)");
+        assertThat(pb2.normalize(f).toString()).isEqualTo("2*~a + 2*~b + 3*~c <= 4");
+        assertThat(pb3.normalize(f).toString()).isEqualTo("2*~a + 2*~b + 3*~c <= 4");
+        assertThat(pb4.normalize(f).toString()).isEqualTo("2*a + 2*b + 3*c <= 3");
+        assertThat(pb5.normalize(f).toString()).isEqualTo("2*a + 2*b + 3*c <= 3");
     }
 
     @Test
@@ -561,11 +561,11 @@ public class PBConstraintTest extends TestWithExampleFormulas {
         final PBConstraint pb3 = (PBConstraint) f.pbc(CType.LE, 7, lits, coeffs);
         final PBConstraint pb4 = (PBConstraint) f.pbc(CType.LE, 10, lits, coeffs);
         final PBConstraint pb5 = (PBConstraint) f.pbc(CType.LE, -3, lits, coeffs);
-        assertThat(pb1.normalize().toString()).isEqualTo("2*a + 2*b + 3*c <= 6");
-        assertThat(pb2.normalize()).isEqualTo(f.verum());
-        assertThat(pb3.normalize()).isEqualTo(f.verum());
-        assertThat(pb4.normalize()).isEqualTo(f.verum());
-        assertThat(pb5.normalize()).isEqualTo(f.falsum());
+        assertThat(pb1.normalize(f).toString()).isEqualTo("2*a + 2*b + 3*c <= 6");
+        assertThat(pb2.normalize(f)).isEqualTo(f.verum());
+        assertThat(pb3.normalize(f)).isEqualTo(f.verum());
+        assertThat(pb4.normalize(f)).isEqualTo(f.verum());
+        assertThat(pb5.normalize(f)).isEqualTo(f.falsum());
     }
 
     @Test
@@ -573,11 +573,11 @@ public class PBConstraintTest extends TestWithExampleFormulas {
         List<? extends Literal> lits = Arrays.asList(f2.variable("a"), f.variable("a"), f.variable("c"), f.variable("d"));
         List<Integer> coeffs = Arrays.asList(2, -2, 4, 4);
         final PBConstraint pb1 = (PBConstraint) f.pbc(CType.LE, 4, lits, coeffs);
-        assertThat(pb1.normalize().toString()).isEqualTo("c + d <= 1");
+        assertThat(pb1.normalize(f).toString()).isEqualTo("c + d <= 1");
         lits = Arrays.asList(f2.variable("a"), f.literal("a", false), f.variable("c"), f.variable("d"));
         coeffs = Arrays.asList(2, 2, 4, 2);
         final PBConstraint pb2 = (PBConstraint) f.pbc(CType.LE, 4, lits, coeffs);
-        assertThat(pb2.normalize().toString()).isEqualTo("2*c + d <= 1");
+        assertThat(pb2.normalize(f).toString()).isEqualTo("2*c + d <= 1");
     }
 
     @Test
