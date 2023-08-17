@@ -137,7 +137,7 @@ public class AdvancedSimplifierTest extends TestWithExampleFormulas {
 
     private void computeAndVerify(final Formula formula) {
         final Formula simplified = formula.transform(new AdvancedSimplifier(formula.factory()));
-        assertThat(formula.factory().equivalence(formula, simplified).holds(new TautologyPredicate(this.f)))
+        assertThat(formula.factory().equivalence(formula, simplified).holds(new TautologyPredicate(formula.factory())))
                 .as("Minimized formula is equivalent to original Formula")
                 .isTrue();
     }

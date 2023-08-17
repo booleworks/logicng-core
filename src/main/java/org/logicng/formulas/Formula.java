@@ -15,7 +15,6 @@ import org.logicng.functions.VariablesFunction;
 import org.logicng.knowledgecompilation.bdds.BDD;
 import org.logicng.knowledgecompilation.bdds.BDDFactory;
 import org.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
-import org.logicng.knowledgecompilation.bdds.orderings.VariableOrdering;
 import org.logicng.knowledgecompilation.bdds.orderings.VariableOrderingProvider;
 import org.logicng.predicates.CNFPredicate;
 import org.logicng.predicates.DNFPredicate;
@@ -273,6 +272,28 @@ public interface Formula extends Iterable<Formula> {
      * <p>
      * Since CNF is the input for the SAT or MaxSAT solvers, it has a special treatment here.  For other conversions, use
      * the according formula functions.
+     * @param f the formula factory to generated new formulas
+     * @return a copy of this formula which is in CNF
+     */
+    default Formula cnf(final FormulaFactory f) {
+        return CNFEncoder.encode(this, f, null);
+    }
+
+    /**
+     * Returns a copy of this formula which is in CNF.  The algorithm which is used for the default CNF transformation
+     * can be configured in the {@link FormulaFactory}.
+     * <p>
+     * Be aware that the default algorithm for the CNF transformation may result in a CNF containing additional auxiliary
+     * variables with prefix {@value FormulaFactory#CNF_PREFIX}.  Also, the result may not be a semantically equivalent CNF
+     * but an equisatisfiable CNF.
+     * <p>
+     * If the introduction of auxiliary variables is unwanted, you can choose one of the algorithms
+     * {@link org.logicng.transformations.cnf.CNFConfig.Algorithm#FACTORIZATION} and
+     * {@link org.logicng.transformations.cnf.CNFConfig.Algorithm#BDD}.  Both algorithms provide CNF conversions without
+     * the introduction of auxiliary variables and the result is a semantically equivalent CNF.
+     * <p>
+     * Since CNF is the input for the SAT or MaxSAT solvers, it has a special treatment here.  For other conversions, use
+     * the according formula functions.
      * @return a copy of this formula which is in CNF
      */
     default Formula cnf() {
@@ -356,17 +377,16 @@ public interface Formula extends Iterable<Formula> {
      * generating the variable order for this formula, and building a new BDD.  If more sophisticated operations should
      * be performed on the BDD or more than one formula should be constructed on the BDD, an own instance of
      * {@link BDDFactory} should be created and used.
-     * @param variableOrdering the variable ordering
+     * @param provider the variable ordering provider
      * @return the BDD for this formula with the given ordering
      */
-    default BDD bdd(final VariableOrdering variableOrdering) {
+    default BDD bdd(final VariableOrderingProvider provider) {
         final Formula formula = nnf();
         final int varNum = formula.variables().size();
         final BDDKernel kernel;
-        if (variableOrdering == null) {
+        if (provider == null) {
             kernel = new BDDKernel(factory(), varNum, varNum * 30, varNum * 20);
         } else {
-            final VariableOrderingProvider provider = variableOrdering.provider();
             kernel = new BDDKernel(factory(), provider.getOrder(formula), varNum * 30, varNum * 20);
         }
         return BDDFactory.build(formula, kernel, null);

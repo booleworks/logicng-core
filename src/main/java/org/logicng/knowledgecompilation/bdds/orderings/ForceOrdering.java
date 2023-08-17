@@ -29,6 +29,7 @@
 package org.logicng.knowledgecompilation.bdds.orderings;
 
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.graphs.datastructures.Hypergraph;
 import org.logicng.graphs.datastructures.HypergraphNode;
@@ -55,14 +56,19 @@ public final class ForceOrdering implements VariableOrderingProvider {
 
     private static final Comparator<? super Map.Entry<HypergraphNode<Variable>, Double>> COMPARATOR = Map.Entry.comparingByValue();
 
+    private final FormulaFactory f;
     private final DFSOrdering dfsOrdering = new DFSOrdering();
+
+    public ForceOrdering(final FormulaFactory f) {
+        this.f = f;
+    }
 
     @Override
     public List<Variable> getOrder(final Formula formula) {
         final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables());
-        final Formula nnf = formula.nnf();
+        final Formula nnf = formula.nnf(f);
         originalVariables.addAll(nnf.variables());
-        final Formula cnf = nnf.cnf();
+        final Formula cnf = nnf.cnf(f);
         final Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(cnf);
         final Map<Variable, HypergraphNode<Variable>> nodes = new HashMap<>();
         for (final HypergraphNode<Variable> node : hypergraph.nodes()) {
@@ -76,8 +82,8 @@ public final class ForceOrdering implements VariableOrderingProvider {
     /**
      * Executes the main FORCE algorithm.
      * @param formula    the CNF formula for the ordering
-     * @param hypergraph the hypergraph for this formula
-     * @param nodes      the variable to hypergraph node mapping
+     * @param hypergraph the hyper-graph for this formula
+     * @param nodes      the variable to hyper-graph node mapping
      * @return the variable ordering according to the FORCE algorithm
      */
     private List<Variable> force(final Formula formula, final Hypergraph<Variable> hypergraph,
@@ -103,12 +109,12 @@ public final class ForceOrdering implements VariableOrderingProvider {
     /**
      * Creates an initial ordering for the variables based on a DFS.
      * @param formula the CNF formula
-     * @param nodes   the variable to hypergraph node mapping
+     * @param nodes   the variable to hyper-graph node mapping
      * @return the initial variable ordering
      */
     private LinkedHashMap<HypergraphNode<Variable>, Integer> createInitialOrdering(final Formula formula, final Map<Variable, HypergraphNode<Variable>> nodes) {
         final LinkedHashMap<HypergraphNode<Variable>, Integer> initialOrdering = new LinkedHashMap<>();
-        final List<Variable> dfsOrder = this.dfsOrdering.getOrder(formula);
+        final List<Variable> dfsOrder = dfsOrdering.getOrder(formula);
         for (int i = 0; i < dfsOrder.size(); i++) {
             initialOrdering.put(nodes.get(dfsOrder.get(i)), i);
         }

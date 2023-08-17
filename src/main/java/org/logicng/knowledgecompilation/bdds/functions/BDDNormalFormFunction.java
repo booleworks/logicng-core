@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.bdds.functions;
 
@@ -40,10 +16,14 @@ import java.util.List;
 
 /**
  * Superclass for the normal form generation from a BDD.
- * @version 2.3.0
+ * @version 3.0.0
  * @since 2.3.0
  */
-public abstract class BDDNormalFormFunction {
+public abstract class BDDNormalFormFunction extends BDDFunction<Formula> {
+
+    protected BDDNormalFormFunction(final FormulaFactory f) {
+        super(f);
+    }
 
     /**
      * Computes a CNF/DNF from the given BDD.
@@ -51,9 +31,8 @@ public abstract class BDDNormalFormFunction {
      * @param cnf {@code true} if a CNF should be computed, {@code false} if a DNF should be computed
      * @return the normal form (CNF or DNF) computed from the BDD
      */
-    protected static Formula compute(final BDD bdd, final boolean cnf) {
+    protected Formula compute(final BDD bdd, final boolean cnf) {
         final BDDKernel kernel = bdd.underlyingKernel();
-        final FormulaFactory f = kernel.factory();
         final List<byte[]> pathsToConstant = cnf
                 ? new BDDOperations(kernel).allUnsat(bdd.index())
                 : new BDDOperations(kernel).allSat(bdd.index());

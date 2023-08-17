@@ -1,35 +1,12 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.bdds;
 
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 import org.logicng.knowledgecompilation.bdds.datastructures.BDDNode;
@@ -57,7 +34,7 @@ import java.util.TreeSet;
 
 /**
  * The internal representation of a BDD.
- * @version 2.4.0
+ * @version 3.0.0
  * @since 1.4.0
  */
 public class BDD {
@@ -86,7 +63,7 @@ public class BDD {
      * @return the index of this BDD
      */
     public int index() {
-        return this.index;
+        return index;
     }
 
     /**
@@ -94,7 +71,7 @@ public class BDD {
      * @return the BDD Kernel
      */
     public BDDKernel underlyingKernel() {
-        return this.kernel;
+        return kernel;
     }
 
     /**
@@ -112,7 +89,16 @@ public class BDD {
      * @return the formula for this BDD
      */
     public Formula toFormula() {
-        return this.operations.toFormula(this.index, true);
+        return operations.toFormula(index, true, kernel.factory());
+    }
+
+    /**
+     * Returns a formula representation of this BDD.  This is done by using the Shannon expansion.
+     * @param f the formula factory to generate new formulas
+     * @return the formula for this BDD
+     */
+    public Formula toFormula(final FormulaFactory f) {
+        return operations.toFormula(index, true, f);
     }
 
     /**
@@ -125,7 +111,21 @@ public class BDD {
      * @return the formula for this BDD
      */
     public Formula toFormula(final boolean followPathsToTrue) {
-        return this.operations.toFormula(this.index, followPathsToTrue);
+        return operations.toFormula(index, followPathsToTrue, kernel.factory());
+    }
+
+    /**
+     * Returns a formula representation of this BDD.  This is done by using the Shannon expansion.
+     * If {@code followPathsToTrue} is activated, the paths leading to the {@code true} terminal are followed to generate the formula.
+     * If {@code followPathsToTrue} is deactivated, the paths leading to the {@code false} terminal are followed to generate the formula and the resulting formula is negated.
+     * Depending on the formula and the number of satisfying assignments, the generated formula can be more compact using the {@code true} paths
+     * or {@code false} paths, respectively.
+     * @param followPathsToTrue the extraction style
+     * @param f                 the formula factory to generate new formulas
+     * @return the formula for this BDD
+     */
+    public Formula toFormula(final boolean followPathsToTrue, final FormulaFactory f) {
+        return operations.toFormula(index, followPathsToTrue, f);
     }
 
     /**
@@ -133,7 +133,7 @@ public class BDD {
      * @return the negation of this BDD
      */
     public BDD negate() {
-        return new BDD(this.kernel.addRef(this.construction.not(this.index), null), this.kernel);
+        return new BDD(kernel.addRef(construction.not(index), null), kernel);
     }
 
     /**
@@ -143,10 +143,10 @@ public class BDD {
      * @throws IllegalArgumentException if the two BDDs don't have the same kernel
      */
     public BDD implies(final BDD other) {
-        if (other.kernel != this.kernel) {
+        if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new BDD(this.kernel.addRef(this.construction.implication(this.index, other.index), null), this.kernel);
+        return new BDD(kernel.addRef(construction.implication(index, other.index), null), kernel);
     }
 
     /**
@@ -156,10 +156,10 @@ public class BDD {
      * @throws IllegalArgumentException if the two BDDs don't have the same kernel
      */
     public BDD impliedBy(final BDD other) {
-        if (other.kernel != this.kernel) {
+        if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new BDD(this.kernel.addRef(this.construction.implication(other.index, this.index), null), this.kernel);
+        return new BDD(kernel.addRef(construction.implication(other.index, index), null), kernel);
     }
 
     /**
@@ -169,10 +169,10 @@ public class BDD {
      * @throws IllegalArgumentException if the two BDDs don't have the same kernel
      */
     public BDD equivalence(final BDD other) {
-        if (other.kernel != this.kernel) {
+        if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new BDD(this.kernel.addRef(this.construction.equivalence(this.index, other.index), null), this.kernel);
+        return new BDD(kernel.addRef(construction.equivalence(index, other.index), null), kernel);
     }
 
     /**
@@ -182,10 +182,10 @@ public class BDD {
      * @throws IllegalArgumentException if the two BDDs don't have the same kernel
      */
     public BDD and(final BDD other) {
-        if (other.kernel != this.kernel) {
+        if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new BDD(this.kernel.addRef(this.construction.and(this.index, other.index), null), this.kernel);
+        return new BDD(kernel.addRef(construction.and(index, other.index), null), kernel);
     }
 
     /**
@@ -195,10 +195,10 @@ public class BDD {
      * @throws IllegalArgumentException if the two BDDs don't have the same kernel
      */
     public BDD or(final BDD other) {
-        if (other.kernel != this.kernel) {
+        if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new BDD(this.kernel.addRef(this.construction.or(this.index, other.index), null), this.kernel);
+        return new BDD(kernel.addRef(construction.or(index, other.index), null), kernel);
     }
 
     /**
@@ -206,7 +206,7 @@ public class BDD {
      * @return {@code true} if this BDD is a tautology, {@code false} otherwise
      */
     public boolean isTautology() {
-        return this.index == BDDKernel.BDD_TRUE;
+        return index == BDDKernel.BDD_TRUE;
     }
 
     /**
@@ -214,7 +214,7 @@ public class BDD {
      * @return {@code true} if this BDD is a contradiction, {@code false} otherwise
      */
     public boolean isContradiction() {
-        return this.index == BDDKernel.BDD_FALSE;
+        return index == BDDKernel.BDD_FALSE;
     }
 
     /**
@@ -222,7 +222,7 @@ public class BDD {
      * @return the model count
      */
     public BigInteger modelCount() {
-        return this.operations.satCount(this.index);
+        return operations.satCount(index);
     }
 
     /**
@@ -230,7 +230,16 @@ public class BDD {
      * @return the list of all models
      */
     public List<Assignment> enumerateAllModels() {
-        return enumerateAllModels((Collection<Variable>) null);
+        return enumerateAllModels(kernel.factory(), (Collection<Variable>) null);
+    }
+
+    /**
+     * Enumerates all models of this BDD.
+     * @param f the formula factory to generate new formulas
+     * @return the list of all models
+     */
+    public List<Assignment> enumerateAllModels(final FormulaFactory f) {
+        return enumerateAllModels(f, (Collection<Variable>) null);
     }
 
     /**
@@ -239,7 +248,17 @@ public class BDD {
      * @return the list of all models
      */
     public List<Assignment> enumerateAllModels(final Variable... variables) {
-        return this.enumerateAllModels(Arrays.asList(variables));
+        return enumerateAllModels(kernel.factory(), Arrays.asList(variables));
+    }
+
+    /**
+     * Enumerates all models of this BDD wrt. a given set of variables.
+     * @param f         the formula factory to generate new formulas
+     * @param variables the variables
+     * @return the list of all models
+     */
+    public List<Assignment> enumerateAllModels(final FormulaFactory f, final Variable... variables) {
+        return enumerateAllModels(f, Arrays.asList(variables));
     }
 
     /**
@@ -248,7 +267,17 @@ public class BDD {
      * @return the list of all models
      */
     public List<Assignment> enumerateAllModels(final Collection<Variable> variables) {
-        return this.apply(new BDDModelEnumerationFunction(variables));
+        return apply(new BDDModelEnumerationFunction(kernel.factory(), variables));
+    }
+
+    /**
+     * Enumerates all models of this BDD wrt. a given set of variables.
+     * @param f         the formula factory to generate new formulas
+     * @param variables the variables
+     * @return the list of all models
+     */
+    public List<Assignment> enumerateAllModels(final FormulaFactory f, final Collection<Variable> variables) {
+        return apply(new BDDModelEnumerationFunction(f, variables));
     }
 
     /**
@@ -256,7 +285,16 @@ public class BDD {
      * @return the CNF for the formula represented by this BDD
      */
     public Formula cnf() {
-        return this.apply(BDDCNFFunction.get());
+        return cnf(kernel.factory());
+    }
+
+    /**
+     * Returns a CNF formula for this BDD.
+     * @param f the formula factory to generate new formulas
+     * @return the CNF for the formula represented by this BDD
+     */
+    public Formula cnf(final FormulaFactory f) {
+        return apply(new BDDCNFFunction(f));
     }
 
     /**
@@ -264,7 +302,7 @@ public class BDD {
      * @return the number of clauses for the CNF formula of the BDD
      */
     public BigInteger numberOfClausesCNF() {
-        return this.operations.pathCountZero(this.index);
+        return operations.pathCountZero(index);
     }
 
     /**
@@ -272,7 +310,16 @@ public class BDD {
      * @return the DNF for the formula represented by this BDD
      */
     public Formula dnf() {
-        return this.apply(BDDDNFFunction.get());
+        return dnf(kernel.factory());
+    }
+
+    /**
+     * Returns a DNF formula for this BDD.
+     * @param f the formula factory to generate new formulas
+     * @return the DNF for the formula represented by this BDD
+     */
+    public Formula dnf(final FormulaFactory f) {
+        return apply(new BDDDNFFunction(f));
     }
 
     /**
@@ -281,8 +328,8 @@ public class BDD {
      * @return the restricted BDD
      */
     public BDD restrict(final Collection<Literal> restriction) {
-        final BDD resBDD = BDDFactory.build(this.kernel.factory().and(restriction), this.kernel, null);
-        return new BDD(this.construction.restrict(this.index, resBDD.index), this.kernel);
+        final BDD resBDD = BDDFactory.build(kernel.factory().and(restriction), kernel, null);
+        return new BDD(construction.restrict(index, resBDD.index), kernel);
     }
 
     /**
@@ -300,8 +347,8 @@ public class BDD {
      * @return the BDD with the eliminated variables
      */
     public BDD exists(final Collection<Variable> variables) {
-        final BDD resBDD = BDDFactory.build(this.kernel.factory().and(variables), this.kernel);
-        return new BDD(this.construction.exists(this.index, resBDD.index), this.kernel);
+        final BDD resBDD = BDDFactory.build(kernel.factory().and(variables), kernel);
+        return new BDD(construction.exists(index, resBDD.index), kernel);
     }
 
     /**
@@ -319,8 +366,8 @@ public class BDD {
      * @return the BDD with the eliminated variables
      */
     public BDD forall(final Collection<Variable> variables) {
-        final BDD resBDD = BDDFactory.build(this.kernel.factory().and(variables), this.kernel);
-        return new BDD(this.construction.forAll(this.index, resBDD.index), this.kernel);
+        final BDD resBDD = BDDFactory.build(kernel.factory().and(variables), kernel);
+        return new BDD(construction.forAll(index, resBDD.index), kernel);
     }
 
     /**
@@ -337,7 +384,16 @@ public class BDD {
      * @return an arbitrary model of this BDD
      */
     public Assignment model() {
-        return createAssignment(this.operations.satOne(this.index));
+        return createAssignment(operations.satOne(index), kernel.factory());
+    }
+
+    /**
+     * Returns an arbitrary model of this BDD or {@code null} if there is none.
+     * @param f the formula factory to generate new formulas
+     * @return an arbitrary model of this BDD
+     */
+    public Assignment model(final FormulaFactory f) {
+        return createAssignment(operations.satOne(index), f);
     }
 
     /**
@@ -348,10 +404,22 @@ public class BDD {
      * @return an arbitrary model of this BDD
      */
     public Assignment model(final boolean defaultValue, final Collection<Variable> variables) {
-        final int varBDD = BDDFactory.build(this.kernel.factory().and(variables), this.kernel, null).index;
+        return model(kernel.factory(), defaultValue, variables);
+    }
+
+    /**
+     * Returns an arbitrary model of this BDD which contains at least the given variables or {@code null} if there is
+     * none.  If a variable is a don't care variable, it will be assigned with the given default value.
+     * @param f            the formula factory to generated new formulas
+     * @param defaultValue the default value for don't care variables
+     * @param variables    the set of variable which has to be contained in the model
+     * @return an arbitrary model of this BDD
+     */
+    public Assignment model(final FormulaFactory f, final boolean defaultValue, final Collection<Variable> variables) {
+        final int varBDD = BDDFactory.build(kernel.factory().and(variables), kernel, null).index;
         final int pol = defaultValue ? BDDKernel.BDD_TRUE : BDDKernel.BDD_FALSE;
-        final int modelBDD = this.operations.satOneSet(this.index, varBDD, pol);
-        return createAssignment(modelBDD);
+        final int modelBDD = operations.satOneSet(index, varBDD, pol);
+        return createAssignment(modelBDD, f);
     }
 
     /**
@@ -362,7 +430,19 @@ public class BDD {
      * @return an arbitrary model of this BDD
      */
     public Assignment model(final boolean defaultValue, final Variable... variables) {
-        return model(defaultValue, Arrays.asList(variables));
+        return model(kernel.factory(), defaultValue, Arrays.asList(variables));
+    }
+
+    /**
+     * Returns an arbitrary model of this BDD which contains at least the given variables or {@code null} if there is
+     * none.  If a variable is a don't care variable, it will be assigned with the given default value.
+     * @param f            the formula factory to generated new formulas
+     * @param defaultValue the default value for don't care variables
+     * @param variables    the set of variable which has to be contained in the model
+     * @return an arbitrary model of this BDD
+     */
+    public Assignment model(final FormulaFactory f, final boolean defaultValue, final Variable... variables) {
+        return model(f, defaultValue, Arrays.asList(variables));
     }
 
     /**
@@ -370,7 +450,16 @@ public class BDD {
      * @return a full model of this BDD
      */
     public Assignment fullModel() {
-        return createAssignment(this.operations.fullSatOne(this.index));
+        return fullModel(kernel.factory());
+    }
+
+    /**
+     * Returns a full model of this BDD or {@code null} if there is none.
+     * @param f the formula factory to generated new formulas
+     * @return a full model of this BDD
+     */
+    public Assignment fullModel(final FormulaFactory f) {
+        return createAssignment(operations.fullSatOne(index), f);
     }
 
     /**
@@ -378,7 +467,7 @@ public class BDD {
      * @return the number of paths leading to the terminal 'one' node
      */
     public BigInteger pathCountOne() {
-        return this.operations.pathCountOne(this.index);
+        return operations.pathCountOne(index);
     }
 
     /**
@@ -386,7 +475,7 @@ public class BDD {
      * @return the number of paths leading to the terminal 'zero' node
      */
     public BigInteger pathCountZero() {
-        return this.operations.pathCountZero(this.index);
+        return operations.pathCountZero(index);
     }
 
     /**
@@ -394,8 +483,8 @@ public class BDD {
      * @return all the variables that this BDD depends on
      */
     public SortedSet<Variable> support() {
-        final int supportBDD = this.operations.support(this.index);
-        final Assignment assignment = createAssignment(supportBDD);
+        final int supportBDD = operations.support(index);
+        final Assignment assignment = createAssignment(supportBDD, kernel.factory()); // only variables, cannot create new literals
         assert assignment == null || assignment.negativeLiterals().isEmpty();
         return assignment == null ? Collections.emptySortedSet() : new TreeSet<>(assignment.positiveVariables());
     }
@@ -405,7 +494,7 @@ public class BDD {
      * @return the number of distinct nodes
      */
     public int nodeCount() {
-        return this.operations.nodeCount(this.index);
+        return operations.nodeCount(index);
     }
 
     /**
@@ -413,10 +502,10 @@ public class BDD {
      * @return how often each variable occurs in the BDD
      */
     public SortedMap<Variable, Integer> variableProfile() {
-        final int[] varProfile = this.operations.varProfile(this.index);
+        final int[] varProfile = operations.varProfile(index);
         final SortedMap<Variable, Integer> profile = new TreeMap<>();
         for (int i = 0; i < varProfile.length; i++) {
-            profile.put(this.kernel.getVariableForIndex(i), varProfile[i]);
+            profile.put(kernel.getVariableForIndex(i), varProfile[i]);
         }
         return profile;
     }
@@ -427,8 +516,8 @@ public class BDD {
      */
     public List<Variable> getVariableOrder() {
         final List<Variable> order = new ArrayList<>();
-        for (final int i : this.kernel.getCurrentVarOrder()) {
-            order.add(this.kernel.getVariableForIndex(i));
+        for (final int i : kernel.getCurrentVarOrder()) {
+            order.add(kernel.getVariableForIndex(i));
         }
         return order;
     }
@@ -441,14 +530,14 @@ public class BDD {
      * @param second the second variable to swap
      */
     public void swapVariables(final Variable first, final Variable second) {
-        final int firstVar = this.kernel.getIndexForVariable(first);
-        final int secondVar = this.kernel.getIndexForVariable(second);
+        final int firstVar = kernel.getIndexForVariable(first);
+        final int secondVar = kernel.getIndexForVariable(second);
         if (firstVar < 0) {
             throw new IllegalArgumentException("Unknown variable: " + first);
         } else if (secondVar < 0) {
             throw new IllegalArgumentException("Unknown variable: " + second);
         }
-        this.kernel.getReordering().swapVariables(firstVar, secondVar);
+        kernel.getReordering().swapVariables(firstVar, secondVar);
     }
 
     /**
@@ -456,7 +545,7 @@ public class BDD {
      * @return the reordering object
      */
     public BDDReordering getReordering() {
-        return this.kernel.getReordering();
+        return kernel.getReordering();
     }
 
     /**
@@ -464,30 +553,31 @@ public class BDD {
      * @return the BDD as LogicNG data structure
      */
     public BDDNode toLngBdd() {
-        return this.apply(LngBDDFunction.get());
+        return apply(new LngBDDFunction(kernel.factory()));
     }
 
     /**
      * Creates an assignment from a BDD.
      * @param modelBDD the BDD
+     * @param f        the formula factory to generate new formulas
      * @return the assignment
      * @throws IllegalStateException if the BDD does not represent a unique model
      */
-    private Assignment createAssignment(final int modelBDD) {
+    private Assignment createAssignment(final int modelBDD, final FormulaFactory f) {
         if (modelBDD == BDDKernel.BDD_FALSE) {
             return null;
         }
         if (modelBDD == BDDKernel.BDD_TRUE) {
             return new Assignment();
         }
-        final List<int[]> nodes = this.operations.allNodes(modelBDD);
+        final List<int[]> nodes = operations.allNodes(modelBDD);
         final Assignment assignment = new Assignment();
         for (final int[] node : nodes) {
-            final Variable variable = this.kernel.getVariableForIndex(node[1]);
+            final Variable variable = kernel.getVariableForIndex(node[1]);
             if (node[2] == BDDKernel.BDD_FALSE) {
                 assignment.addLiteral(variable);
             } else if (node[3] == BDDKernel.BDD_FALSE) {
-                assignment.addLiteral(variable.negate());
+                assignment.addLiteral(variable.negate(f));
             } else {
                 throw new IllegalStateException("Expected that the model BDD has one unique path through the BDD.");
             }
@@ -497,18 +587,18 @@ public class BDD {
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.index, this.kernel);
+        return Objects.hash(index, kernel);
     }
 
     @Override
     public boolean equals(final Object other) {
         return this == other || other instanceof BDD
-                && this.index == ((BDD) other).index
-                && Objects.equals(this.kernel, ((BDD) other).kernel);
+                && index == ((BDD) other).index
+                && Objects.equals(kernel, ((BDD) other).kernel);
     }
 
     @Override
     public String toString() {
-        return "BDD{" + this.index + "}";
+        return "BDD{" + index + "}";
     }
 }

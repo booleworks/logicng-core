@@ -18,7 +18,7 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.PBConstraint;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.knowledgecompilation.bdds.orderings.VariableOrdering;
+import org.logicng.knowledgecompilation.bdds.orderings.ForceOrdering;
 import org.logicng.solvers.MiniSat;
 import org.logicng.testutils.NQueensGenerator;
 import org.logicng.transformations.cnf.CNFConfig;
@@ -194,7 +194,7 @@ public class ModelCounterTest extends TestWithExampleFormulas {
             final Formula formula = f.and(formulas);
             if (!formula.variables().isEmpty()) {
                 // Without PB constraints we can use the BDD model count as reference
-                assertThat(count).isEqualTo(formula.bdd(VariableOrdering.FORCE).modelCount());
+                assertThat(count).isEqualTo(formula.bdd(new ForceOrdering(f)).modelCount());
             }
         }
     }

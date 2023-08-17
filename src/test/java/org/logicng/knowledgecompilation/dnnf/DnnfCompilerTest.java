@@ -41,27 +41,27 @@ import java.util.Set;
 public class DnnfCompilerTest {
 
     private final FormulaFactory f = FormulaFactory.caching();
-    private final FormulaParser parser = new PseudoBooleanParser(this.f);
+    private final FormulaParser parser = new PseudoBooleanParser(f);
 
     @Test
     public void testTrivialFormulas() throws ParserException {
-        testFormula(this.parser.parse("$true"), true);
-        testFormula(this.parser.parse("$false"), true);
-        testFormula(this.parser.parse("a"), true);
-        testFormula(this.parser.parse("~a"), true);
-        testFormula(this.parser.parse("a & b"), true);
-        testFormula(this.parser.parse("a | b"), true);
-        testFormula(this.parser.parse("a => b"), true);
-        testFormula(this.parser.parse("a <=> b"), true);
-        testFormula(this.parser.parse("a | b | c"), true);
-        testFormula(this.parser.parse("a & b & c"), true);
-        testFormula(this.parser.parse("f & ((~b | c) <=> ~a & ~c)"), true);
-        testFormula(this.parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"), true);
-        testFormula(this.parser.parse("a + b + c + d <= 1"), true);
-        testFormula(this.parser.parse("a + b + c + d <= 3"), true);
-        testFormula(this.parser.parse("2*a + 3*b + -2*c + d < 5"), true);
-        testFormula(this.parser.parse("2*a + 3*b + -2*c + d >= 5"), true);
-        testFormula(this.parser.parse("~a & (~a | b | c | d)"), true);
+        testFormula(parser.parse("$true"), true);
+        testFormula(parser.parse("$false"), true);
+        testFormula(parser.parse("a"), true);
+        testFormula(parser.parse("~a"), true);
+        testFormula(parser.parse("a & b"), true);
+        testFormula(parser.parse("a | b"), true);
+        testFormula(parser.parse("a => b"), true);
+        testFormula(parser.parse("a <=> b"), true);
+        testFormula(parser.parse("a | b | c"), true);
+        testFormula(parser.parse("a & b & c"), true);
+        testFormula(parser.parse("f & ((~b | c) <=> ~a & ~c)"), true);
+        testFormula(parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"), true);
+        testFormula(parser.parse("a + b + c + d <= 1"), true);
+        testFormula(parser.parse("a + b + c + d <= 3"), true);
+        testFormula(parser.parse("2*a + 3*b + -2*c + d < 5"), true);
+        testFormula(parser.parse("2*a + 3*b + -2*c + d >= 5"), true);
+        testFormula(parser.parse("~a & (~a | b | c | d)"), true);
     }
 
     @Test
@@ -81,14 +81,14 @@ public class DnnfCompilerTest {
 
     @Test
     public void testDnnfProperties() throws ParserException {
-        final Dnnf dnnf = new DnnfFactory().compile(this.parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"));
+        final Dnnf dnnf = new DnnfFactory().compile(parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"));
         assertThat(dnnf.getOriginalVariables()).extracting(Variable::name).containsExactlyInAnyOrder("a", "b", "c", "d", "e");
     }
 
     @Test
     @LongRunningTag
     public void testAllSmallFormulas() throws IOException, ParserException {
-        final Formula formulas = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", this.f);
+        final Formula formulas = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", f);
         formulas.stream().forEach(f -> testFormula(f, false));
     }
 
@@ -140,7 +140,7 @@ public class DnnfCompilerTest {
         } else if (formula.type() == FType.FALSE) {
             return BigInteger.ZERO;
         }
-        final BDDKernel kernel = new BDDKernel(formula.factory(), new ForceOrdering().getOrder(formula), 100000, 1000000);
+        final BDDKernel kernel = new BDDKernel(formula.factory(), new ForceOrdering(formula.factory()).getOrder(formula), 100000, 1000000);
         final BDD bdd = BDDFactory.build(formula, kernel);
         return bdd.modelCount();
     }

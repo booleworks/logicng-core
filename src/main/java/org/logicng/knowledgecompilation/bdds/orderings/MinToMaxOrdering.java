@@ -28,8 +28,8 @@ public final class MinToMaxOrdering implements VariableOrderingProvider {
 
     @Override
     public List<Variable> getOrder(final Formula formula) {
-        final Map<Variable, Integer> profile = formula.apply(this.profileFunction);
-        final List<Variable> dfs = this.dfsOrdering.getOrder(formula);
+        final Map<Variable, Integer> profile = formula.apply(profileFunction);
+        final List<Variable> dfs = dfsOrdering.getOrder(formula);
 
         final Comparator<Map.Entry<Variable, Integer>> comparator = (o1, o2) -> {
             final int occComp = o1.getValue().compareTo(o2.getValue());
@@ -40,12 +40,7 @@ public final class MinToMaxOrdering implements VariableOrderingProvider {
             final int index2 = dfs.indexOf(o2.getKey());
             return index1 - index2;
         };
-        final Map<Variable, Integer> sortedProfile = sortProfileByOccurrence(profile, comparator);
-        final List<Variable> order = new ArrayList<>(sortedProfile.size());
-        for (final Map.Entry<Variable, Integer> entry : sortedProfile.entrySet()) {
-            order.add(entry.getKey());
-        }
-        return order;
+        return VariableOrderingProvider.sortProfile(profile, comparator);
     }
 
     static Map<Variable, Integer> sortProfileByOccurrence(final Map<Variable, Integer> map, final Comparator<Map.Entry<Variable, Integer>> comparator) {
