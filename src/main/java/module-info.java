@@ -70,7 +70,6 @@ module logicng {
     exports org.logicng.transformations.cnf;
     exports org.logicng.transformations.dnf;
     exports org.logicng.transformations.qe;
-    exports org.logicng.transformations.qmc;
     exports org.logicng.transformations.simplification;
 
     exports org.logicng.util;
