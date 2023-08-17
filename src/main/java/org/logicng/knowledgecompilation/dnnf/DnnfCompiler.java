@@ -229,7 +229,7 @@ public class DnnfCompiler {
 
             final Literal lit = solver.litForIdx(var);
             final Formula positiveBranch = f.and(lit, positiveDnnf);
-            final Formula negativeBranch = f.and(lit.negate(), negativeDnnf);
+            final Formula negativeBranch = f.and(lit.negate(f), negativeDnnf);
             return f.and(implied, f.or(positiveBranch, negativeBranch));
         }
     }
@@ -303,7 +303,7 @@ public class DnnfCompiler {
                 case UNDEF:
                     leafCurrentLiterals.add(lit);
                     leafResultOperands.add(f.and(leafCurrentLiterals));
-                    leafCurrentLiterals.set(index, lit.negate());
+                    leafCurrentLiterals.set(index, lit.negate(f));
                     index++;
             }
         }

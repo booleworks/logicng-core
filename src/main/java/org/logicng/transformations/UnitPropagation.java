@@ -52,7 +52,7 @@ public final class UnitPropagation extends StatelessFormulaTransformation {
     /**
      * An extension of Minisat to propagate units on formulas.
      */
-    private static class MiniSatPropagator extends MiniSat2Solver {
+    private class MiniSatPropagator extends MiniSat2Solver {
 
         /**
          * Constructs a new MiniSatPropagator.
@@ -66,7 +66,7 @@ public final class UnitPropagation extends StatelessFormulaTransformation {
          * @param formula the formula
          */
         public void add(final Formula formula) {
-            final Formula cnf = formula.cnf();
+            final Formula cnf = formula.cnf(f);
             switch (cnf.type()) {
                 case TRUE:
                     break;

@@ -46,6 +46,7 @@ import java.util.Map;
  */
 public final class EvaluatesToConstantPredicate implements FormulaPredicate {
 
+    private final FormulaFactory f;
     private final boolean evaluatesToTrue;
     private final Map<Variable, Boolean> mapping;
 
@@ -54,7 +55,8 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
      * @param evaluatesToTrue {@code false} if the check aims for true, {@code false} if the check aims for false
      * @param mapping         the (partial) assignment
      */
-    public EvaluatesToConstantPredicate(final boolean evaluatesToTrue, final Map<Variable, Boolean> mapping) {
+    public EvaluatesToConstantPredicate(final FormulaFactory f, final boolean evaluatesToTrue, final Map<Variable, Boolean> mapping) {
+        this.f = f;
         this.evaluatesToTrue = evaluatesToTrue;
         this.mapping = mapping;
     }
@@ -110,7 +112,6 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     }
 
     private Formula handleNot(final Not formula, final boolean topLevel) {
-        final FormulaFactory f = formula.factory();
         final Formula opResult = innerTest(formula.operand(), false);
         if (topLevel && !opResult.isConstantFormula()) {
             return f.constant(!evaluatesToTrue);
@@ -119,7 +120,6 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     }
 
     private Formula handleImplication(final Implication formula, final boolean topLevel) {
-        final FormulaFactory f = formula.factory();
         final Formula left = formula.left();
         final Formula right = formula.right();
         final Formula leftResult = innerTest(left, false);
@@ -141,7 +141,6 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     }
 
     private Formula handleEquivalence(final Equivalence formula, final boolean topLevel) {
-        final FormulaFactory f = formula.factory();
         final Formula left = formula.left();
         final Formula right = formula.right();
         final Formula leftResult = innerTest(left, false);
@@ -159,7 +158,6 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     }
 
     private Formula handleOr(final Or formula, final boolean topLevel) {
-        final FormulaFactory f = formula.factory();
         final List<Formula> nops = new ArrayList<>();
         for (final Formula op : formula) {
             final Formula opResult = innerTest(op, !evaluatesToTrue && topLevel);
@@ -177,7 +175,6 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     }
 
     private Formula handleAnd(final And formula, final boolean topLevel) {
-        final FormulaFactory f = formula.factory();
         final List<Formula> nops = new ArrayList<>();
         for (final Formula op : formula) {
             final Formula opResult = innerTest(op, evaluatesToTrue && topLevel);
@@ -195,12 +192,11 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     }
 
     private Formula handlePBC(final PBConstraint formula) {
-        final FormulaFactory f = formula.factory();
         final Assignment assignment = new Assignment();
         for (final Map.Entry<Variable, Boolean> entry : mapping.entrySet()) {
             assignment.addLiteral(f.literal(entry.getKey().name(), entry.getValue()));
         }
-        return formula.restrict(assignment);
+        return formula.restrict(assignment, f);
     }
 
     private static FType getConstantType(final boolean constant) {

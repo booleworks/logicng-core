@@ -75,8 +75,8 @@ public class CachingFormulaFactory extends FormulaFactory {
      */
     public CachingFormulaFactory(final FormulaFactoryConfig config) {
         super(config);
-        this.cFalse = new LngCachedFalse(this);
-        this.cTrue = new LngCachedTrue(this);
+        cFalse = new LngCachedFalse(this);
+        cTrue = new LngCachedTrue(this);
         parser = new PseudoBooleanParser(this);
         clear();
     }
@@ -510,7 +510,7 @@ public class CachingFormulaFactory extends FormulaFactory {
     @Override
     protected Formula negateOrNull(final Formula formula) {
         if (formula.type() == FALSE || formula.type() == TRUE || formula.type() == NOT) {
-            return formula.negate();
+            return formula.negate(this);
         } else if (formula.type() == LITERAL) {
             final Literal lit = (Literal) formula;
             final String name = lit.name();

@@ -52,8 +52,8 @@ public class BDD {
     public BDD(final int index, final BDDKernel kernel) {
         this.index = index;
         this.kernel = kernel;
-        this.construction = new BDDConstruction(kernel);
-        this.operations = new BDDOperations(kernel);
+        construction = new BDDConstruction(kernel);
+        operations = new BDDOperations(kernel);
     }
 
     /**
@@ -89,7 +89,7 @@ public class BDD {
      * @return the formula for this BDD
      */
     public Formula toFormula() {
-        return operations.toFormula(index, true, kernel.factory());
+        return toFormula(kernel.factory());
     }
 
     /**
@@ -111,7 +111,7 @@ public class BDD {
      * @return the formula for this BDD
      */
     public Formula toFormula(final boolean followPathsToTrue) {
-        return operations.toFormula(index, followPathsToTrue, kernel.factory());
+        return toFormula(followPathsToTrue, kernel.factory());
     }
 
     /**
@@ -328,7 +328,7 @@ public class BDD {
      * @return the restricted BDD
      */
     public BDD restrict(final Collection<Literal> restriction) {
-        final BDD resBDD = BDDFactory.build(kernel.factory().and(restriction), kernel, null);
+        final BDD resBDD = BDDFactory.build(restriction, kernel);
         return new BDD(construction.restrict(index, resBDD.index), kernel);
     }
 
@@ -347,7 +347,7 @@ public class BDD {
      * @return the BDD with the eliminated variables
      */
     public BDD exists(final Collection<Variable> variables) {
-        final BDD resBDD = BDDFactory.build(kernel.factory().and(variables), kernel);
+        final BDD resBDD = BDDFactory.build(variables, kernel);
         return new BDD(construction.exists(index, resBDD.index), kernel);
     }
 
@@ -366,7 +366,7 @@ public class BDD {
      * @return the BDD with the eliminated variables
      */
     public BDD forall(final Collection<Variable> variables) {
-        final BDD resBDD = BDDFactory.build(kernel.factory().and(variables), kernel);
+        final BDD resBDD = BDDFactory.build(variables, kernel);
         return new BDD(construction.forAll(index, resBDD.index), kernel);
     }
 
@@ -416,7 +416,7 @@ public class BDD {
      * @return an arbitrary model of this BDD
      */
     public Assignment model(final FormulaFactory f, final boolean defaultValue, final Collection<Variable> variables) {
-        final int varBDD = BDDFactory.build(kernel.factory().and(variables), kernel, null).index;
+        final int varBDD = BDDFactory.build(variables, kernel).index;
         final int pol = defaultValue ? BDDKernel.BDD_TRUE : BDDKernel.BDD_FALSE;
         final int modelBDD = operations.satOneSet(index, varBDD, pol);
         return createAssignment(modelBDD, f);

@@ -24,97 +24,97 @@ public class MinimumPrimeImplicantTest {
     final FormulaFactory f = FormulaFactory.caching();
 
     public MinimumPrimeImplicantTest() {
-        this.f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());
+        f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());
     }
 
     @Test
     public void testSimpleCases() throws ParserException {
-        Formula formula = this.f.parse("a");
-        SortedSet<Literal> pi = formula.apply(MinimumPrimeImplicantFunction.get());
+        Formula formula = f.parse("a");
+        SortedSet<Literal> pi = formula.apply(new MinimumPrimeImplicantFunction(f));
         assertThat(pi).hasSize(1);
         isPrimeImplicant(formula, pi);
 
-        formula = this.f.parse("a | b | c");
-        pi = formula.apply(MinimumPrimeImplicantFunction.get());
+        formula = f.parse("a | b | c");
+        pi = formula.apply(new MinimumPrimeImplicantFunction(f));
         assertThat(pi).hasSize(1);
         isPrimeImplicant(formula, pi);
 
-        formula = this.f.parse("a & b & (~a|~b)");
-        pi = formula.apply(MinimumPrimeImplicantFunction.get());
+        formula = f.parse("a & b & (~a|~b)");
+        pi = formula.apply(new MinimumPrimeImplicantFunction(f));
         assertThat(pi).isNull();
 
-        formula = this.f.parse("a & b & c");
-        pi = formula.apply(MinimumPrimeImplicantFunction.get());
+        formula = f.parse("a & b & c");
+        pi = formula.apply(new MinimumPrimeImplicantFunction(f));
         assertThat(pi).hasSize(3);
         isPrimeImplicant(formula, pi);
 
-        formula = this.f.parse("a | b | ~c => e & d & f");
-        pi = formula.apply(MinimumPrimeImplicantFunction.get());
+        formula = f.parse("a | b | ~c => e & d & f");
+        pi = formula.apply(new MinimumPrimeImplicantFunction(f));
         assertThat(pi).hasSize(3);
         isPrimeImplicant(formula, pi);
 
-        formula = this.f.parse("a | b | ~c <=> e & d & f");
-        pi = formula.apply(MinimumPrimeImplicantFunction.get());
+        formula = f.parse("a | b | ~c <=> e & d & f");
+        pi = formula.apply(new MinimumPrimeImplicantFunction(f));
         assertThat(pi).hasSize(4);
         isPrimeImplicant(formula, pi);
 
-        formula = this.f.parse("(a | b | ~c <=> e & d & f) | (a | b | ~c => e & d & f)");
-        pi = formula.apply(MinimumPrimeImplicantFunction.get());
+        formula = f.parse("(a | b | ~c <=> e & d & f) | (a | b | ~c => e & d & f)");
+        pi = formula.apply(new MinimumPrimeImplicantFunction(f));
         assertThat(pi).hasSize(3);
         isPrimeImplicant(formula, pi);
 
-        formula = this.f.parse("(a | b | ~c <=> e & d & f) | (a | b | ~c => e & d & f) | (a & b)");
-        pi = formula.apply(MinimumPrimeImplicantFunction.get());
+        formula = f.parse("(a | b | ~c <=> e & d & f) | (a | b | ~c => e & d & f) | (a & b)");
+        pi = formula.apply(new MinimumPrimeImplicantFunction(f));
         assertThat(pi).hasSize(2);
         isPrimeImplicant(formula, pi);
 
-        formula = this.f.parse("(a | b | ~c <=> e & d & f) | (a | b | ~c => e & d & f) | (a & b) | (f => g)");
-        pi = formula.apply(MinimumPrimeImplicantFunction.get());
+        formula = f.parse("(a | b | ~c <=> e & d & f) | (a | b | ~c => e & d & f) | (a & b) | (f => g)");
+        pi = formula.apply(new MinimumPrimeImplicantFunction(f));
         assertThat(pi).hasSize(1);
         isPrimeImplicant(formula, pi);
     }
 
     @Test
     public void testSmallExamples() throws ParserException {
-        Formula formula = this.f.parse("(~(v17 | v18) | ~v1494 & (v17 | v18)) & ~v687 => v686");
-        SortedSet<Literal> pi = formula.apply(MinimumPrimeImplicantFunction.get());
+        Formula formula = f.parse("(~(v17 | v18) | ~v1494 & (v17 | v18)) & ~v687 => v686");
+        SortedSet<Literal> pi = formula.apply(new MinimumPrimeImplicantFunction(f));
         assertThat(pi).hasSize(1);
         isPrimeImplicant(formula, pi);
 
-        formula = this.f.parse("(~(v17 | v18) | ~v1494 & (v17 | v18)) & v687 => ~v686");
-        pi = formula.apply(MinimumPrimeImplicantFunction.get());
+        formula = f.parse("(~(v17 | v18) | ~v1494 & (v17 | v18)) & v687 => ~v686");
+        pi = formula.apply(new MinimumPrimeImplicantFunction(f));
         assertThat(pi).hasSize(1);
         isPrimeImplicant(formula, pi);
 
-        formula = this.f.parse("v173 + v174 + v451 + v258 + v317 + v259 + v452 + v453 + v175 + v176 + v177 + v178 + v179 + v180 + v181 + v182 + v183 + v102 + v103 + v104 + v105 = 1");
-        pi = formula.apply(MinimumPrimeImplicantFunction.get());
+        formula = f.parse("v173 + v174 + v451 + v258 + v317 + v259 + v452 + v453 + v175 + v176 + v177 + v178 + v179 + v180 + v181 + v182 + v183 + v102 + v103 + v104 + v105 = 1");
+        pi = formula.apply(new MinimumPrimeImplicantFunction(f));
         assertThat(pi).hasSize(21);
         isPrimeImplicant(formula, pi);
     }
 
     @Test
     public void testMiddleExamples() throws IOException, ParserException {
-        final Formula parsed = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/formula1.txt", this.f);
+        final Formula parsed = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/formula1.txt", f);
         for (final Formula formula : parsed) {
-            isPrimeImplicant(formula, formula.apply(MinimumPrimeImplicantFunction.get()));
+            isPrimeImplicant(formula, formula.apply(new MinimumPrimeImplicantFunction(f)));
         }
     }
 
     @Test
     public void testLargeExamples() throws IOException, ParserException {
-        final Formula parsed = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", this.f);
+        final Formula parsed = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", f);
         for (final Formula formula : parsed) {
-            isPrimeImplicant(formula, formula.apply(MinimumPrimeImplicantFunction.get()));
+            isPrimeImplicant(formula, formula.apply(new MinimumPrimeImplicantFunction(f)));
         }
     }
 
     private void isPrimeImplicant(final Formula formula, final SortedSet<Literal> pi) {
-        assertThat(this.f.implication(this.f.and(pi), formula).holds(new TautologyPredicate(this.f))).isTrue();
+        assertThat(f.implication(f.and(pi), formula).holds(new TautologyPredicate(f))).isTrue();
         for (final Literal literal : pi) {
             final TreeSet<Literal> newSet = new TreeSet<>(pi);
             newSet.remove(literal);
             if (!newSet.isEmpty()) {
-                assertThat(this.f.implication(this.f.and(newSet), formula).holds(new TautologyPredicate(this.f))).isFalse();
+                assertThat(f.implication(f.and(newSet), formula).holds(new TautologyPredicate(f))).isFalse();
             }
         }
     }

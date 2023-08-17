@@ -38,6 +38,7 @@ import static org.logicng.handlers.Handler.start;
 import org.logicng.formulas.And;
 import org.logicng.formulas.BinaryOperator;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Implication;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Not;
@@ -45,6 +46,7 @@ import org.logicng.handlers.BDDHandler;
 import org.logicng.knowledgecompilation.bdds.jbuddy.BDDConstruction;
 import org.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -68,7 +70,21 @@ public final class BDDFactory {
      * @return the top node of the BDD
      */
     public static BDD build(final Formula formula) {
-        return build(formula, null, null);
+        return build(formula.factory(), formula, null, null);
+    }
+
+    /**
+     * Builds a BDD for a given formula.  BDDs support all Boolean formula types but not pseudo-Boolean constraints.
+     * The reason is that before converting a formula to a BDD one must specify the number of variables.  In case of
+     * pseudo-Boolean constraints this number depends on the translation of the constraint.  Therefore, the caller first
+     * has to transform any pseudo-Boolean constraints in their respective CNF representation before converting them
+     * to a BDD.
+     * @param f       the formula factory to generated new formulas
+     * @param formula the formula
+     * @return the top node of the BDD
+     */
+    public static BDD build(final FormulaFactory f, final Formula formula) {
+        return build(f, formula, null, null);
     }
 
     /**
@@ -82,7 +98,22 @@ public final class BDDFactory {
      * @return the top node of the BDD or {@link BDDKernel#BDD_ABORT} if the computation was aborted
      */
     public static BDD build(final Formula formula, final BDDKernel kernel) {
-        return build(formula, kernel, null);
+        return build(formula.factory(), formula, kernel, null);
+    }
+
+    /**
+     * Builds a BDD for a given formula.  BDDs support all Boolean formula types but not pseudo-Boolean constraints.
+     * The reason is that before converting a formula to a BDD one must specify the number of variables.  In case of
+     * pseudo-Boolean constraints this number depends on the translation of the constraint.  Therefore, the caller first
+     * has to transform any pseudo-Boolean constraints in their respective CNF representation before converting them
+     * to a BDD.
+     * @param f       the formula factory to generated new formulas
+     * @param formula the formula
+     * @param kernel  the BBD kernel to use
+     * @return the top node of the BDD or {@link BDDKernel#BDD_ABORT} if the computation was aborted
+     */
+    public static BDD build(final FormulaFactory f, final Formula formula, final BDDKernel kernel) {
+        return build(f, formula, kernel, null);
     }
 
     /**
@@ -100,13 +131,40 @@ public final class BDDFactory {
      * @param handler the BDD handler
      * @return the top node of the BDD or {@link BDDKernel#BDD_ABORT} if the computation was aborted
      */
-    public static BDD build(final Formula formula, final BDDKernel kernel, final BDDHandler handler) {
+    public static BDD build(final FormulaFactory f, final Formula formula, final BDDKernel kernel, final BDDHandler handler) {
         start(handler);
         final int varNum = formula.variables().size();
         final BDDKernel bddKernel = kernel == null
-                ? new BDDKernel(formula.factory(), varNum, varNum * 30, varNum * 20)
+                ? new BDDKernel(f, varNum, varNum * 30, varNum * 20)
                 : kernel;
-        return new BDD(buildRec(formula, bddKernel, new BDDConstruction(bddKernel), handler), bddKernel);
+        return new BDD(buildRec(f, formula, bddKernel, new BDDConstruction(bddKernel), handler), bddKernel);
+    }
+
+    public static BDD build(final Collection<? extends Literal> literals, final BDDKernel kernel) {
+        final var construction = new BDDConstruction(kernel);
+        int bdd;
+        if (literals.isEmpty()) {
+            bdd = BDDKernel.BDD_FALSE;
+        } else if (literals.size() == 1) {
+            final Literal lit = literals.iterator().next();
+            final int idx = kernel.getOrAddVarIndex(lit.variable());
+            bdd = lit.phase() ? construction.ithVar(idx) : construction.nithVar(idx);
+        } else {
+            final Iterator<? extends Literal> it = literals.iterator();
+            Literal lit = it.next();
+            int idx = kernel.getOrAddVarIndex(lit.variable());
+            bdd = lit.phase() ? construction.ithVar(idx) : construction.nithVar(idx);
+            while (it.hasNext()) {
+                lit = it.next();
+                idx = kernel.getOrAddVarIndex(lit.variable());
+                final int operand = lit.phase() ? construction.ithVar(idx) : construction.nithVar(idx);
+                final int previous = bdd;
+                bdd = kernel.addRef(construction.and(bdd, operand), null);
+                kernel.delRef(previous);
+                kernel.delRef(operand);
+            }
+        }
+        return new BDD(bdd, kernel);
     }
 
     /**
@@ -121,7 +179,8 @@ public final class BDDFactory {
      * @param handler      the BDD handler
      * @return the BDD index or {@link BDDKernel#BDD_ABORT} if the computation was aborted
      */
-    private static int buildRec(final Formula formula, final BDDKernel kernel, final BDDConstruction construction, final BDDHandler handler) {
+    private static int buildRec(final FormulaFactory f, final Formula formula, final BDDKernel kernel, final BDDConstruction construction,
+                                final BDDHandler handler) {
         switch (formula.type()) {
             case FALSE:
                 return BDDKernel.BDD_FALSE;
@@ -133,7 +192,7 @@ public final class BDDFactory {
                 return lit.phase() ? construction.ithVar(idx) : construction.nithVar(idx);
             case NOT: {
                 final Not not = (Not) formula;
-                final int operand = buildRec(not.operand(), kernel, construction, handler);
+                final int operand = buildRec(f, not.operand(), kernel, construction, handler);
                 if (operand == BDDKernel.BDD_ABORT) {
                     return BDDKernel.BDD_ABORT;
                 }
@@ -144,11 +203,11 @@ public final class BDDFactory {
             case IMPL:
             case EQUIV:
                 final BinaryOperator binary = (BinaryOperator) formula;
-                final int left = buildRec(binary.left(), kernel, construction, handler);
+                final int left = buildRec(f, binary.left(), kernel, construction, handler);
                 if (left == BDDKernel.BDD_ABORT) {
                     return BDDKernel.BDD_ABORT;
                 }
-                final int right = buildRec(binary.right(), kernel, construction, handler);
+                final int right = buildRec(f, binary.right(), kernel, construction, handler);
                 if (right == BDDKernel.BDD_ABORT) {
                     return BDDKernel.BDD_ABORT;
                 }
@@ -159,12 +218,12 @@ public final class BDDFactory {
             case AND:
             case OR: {
                 final Iterator<Formula> it = formula.iterator();
-                res = buildRec(it.next(), kernel, construction, handler);
+                res = buildRec(f, it.next(), kernel, construction, handler);
                 if (res == BDDKernel.BDD_ABORT) {
                     return BDDKernel.BDD_ABORT;
                 }
                 while (it.hasNext()) {
-                    final int operand = buildRec(it.next(), kernel, construction, handler);
+                    final int operand = buildRec(f, it.next(), kernel, construction, handler);
                     if (operand == BDDKernel.BDD_ABORT) {
                         return BDDKernel.BDD_ABORT;
                     }
@@ -178,7 +237,7 @@ public final class BDDFactory {
                 return res;
             }
             case PBC:
-                return buildRec(formula.nnf(), kernel, construction, handler);
+                return buildRec(f, formula.nnf(f), kernel, construction, handler);
             default:
                 throw new IllegalArgumentException("Unsupported operator for BDD generation: " + formula.type());
         }

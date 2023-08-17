@@ -93,7 +93,7 @@ public final class CCTotalizer {
             result.addClause(tv.outvars.get(i));
         }
         for (int i = rhs; i < tv.outvars.size(); i++) {
-            result.addClause(tv.outvars.get(i).negate());
+            result.addClause(tv.outvars.get(i).negate(result.factory()));
         }
     }
 
@@ -198,8 +198,8 @@ public final class CCTotalizer {
         }
 
         private TotalizerVars(final int length) {
-            this.invars = new LNGVector<>(length);
-            this.outvars = new LNGVector<>(length);
+            invars = new LNGVector<>(length);
+            outvars = new LNGVector<>(length);
         }
 
         private TotalizerVars withNewOutvars(final LNGVector<Variable> newOutvars) {

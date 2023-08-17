@@ -89,30 +89,34 @@ public final class FormulaHelper {
 
     /**
      * Returns the negation of the given literals
+     * @param f                 the formula factory to generated new formulas
      * @param literals          the literals
      * @param collectionFactory the supplier for the collection
      * @param <C>               the type parameters of the collection
      * @return the negated literals
      */
-    public static <C extends Collection<Literal>> C negateLiterals(final Collection<? extends Literal> literals, final Supplier<C> collectionFactory) {
+    public static <C extends Collection<Literal>> C negateLiterals(final FormulaFactory f, final Collection<? extends Literal> literals,
+                                                                   final Supplier<C> collectionFactory) {
         final C result = collectionFactory.get();
         for (final Literal lit : literals) {
-            result.add(lit.negate());
+            result.add(lit.negate(f));
         }
         return result;
     }
 
     /**
      * Returns the negation of the given formulas.
+     * @param f                 the formula factory to generated new formulas
      * @param formulas          the formulas
      * @param collectionFactory the supplier for the collection
      * @param <C>               the type parameters of the collection
      * @return the negated literals
      */
-    public static <C extends Collection<Formula>> C negate(final Collection<? extends Formula> formulas, final Supplier<C> collectionFactory) {
+    public static <C extends Collection<Formula>> C negate(final FormulaFactory f, final Collection<? extends Formula> formulas,
+                                                           final Supplier<C> collectionFactory) {
         final C result = collectionFactory.get();
         for (final Formula formula : formulas) {
-            result.add(formula.negate());
+            result.add(formula.negate(f));
         }
         return result;
     }
