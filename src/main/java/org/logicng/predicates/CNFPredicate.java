@@ -19,25 +19,18 @@ import org.logicng.formulas.Or;
  */
 public final class CNFPredicate implements FormulaPredicate {
 
-    private final static CNFPredicate INSTANCE = new CNFPredicate();
+    private final boolean useCache;
 
-    /**
-     * Private empty constructor.  Singleton class.
-     */
-    private CNFPredicate() {
-        // Intentionally left empty
+    public CNFPredicate() {
+        this(true);
     }
 
-    /**
-     * Returns the singleton of the predicate.
-     * @return the predicate instance
-     */
-    public static CNFPredicate get() {
-        return INSTANCE;
+    public CNFPredicate(final boolean useCache) {
+        this.useCache = useCache;
     }
 
     @Override
-    public boolean test(final Formula formula, final boolean cache) {
+    public boolean test(final Formula formula) {
         final Tristate cached = formula.predicateCacheEntry(IS_CNF);
         if (cached != Tristate.UNDEF) {
             return cached == Tristate.TRUE;
@@ -64,10 +57,5 @@ public final class CNFPredicate implements FormulaPredicate {
     private boolean isClause(final Formula formula) {
         return formula.type() == FType.LITERAL ||
                 formula.type() == FType.OR && ((Or) formula).isCNFClause();
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
     }
 }

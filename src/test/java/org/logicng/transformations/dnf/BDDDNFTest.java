@@ -20,7 +20,7 @@ import org.logicng.predicates.DNFPredicate;
 public class BDDDNFTest extends TestWithExampleFormulas {
 
     private final BDDDNFTransformation bdddnf = new BDDDNFTransformation(f);
-    private final DNFPredicate dnfPredicate = DNFPredicate.get();
+    private final DNFPredicate dnfPredicate = new DNFPredicate();
 
     @Test
     public void testConstants() {

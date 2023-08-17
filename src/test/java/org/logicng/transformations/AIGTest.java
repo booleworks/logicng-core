@@ -18,7 +18,7 @@ public class AIGTest extends TestWithExampleFormulas {
 
     private final AIGTransformation aigCaching = new AIGTransformation(f);
     private final AIGTransformation aigNonCaching = new AIGTransformation(f, false);
-    private final AIGPredicate aigPred = AIGPredicate.get();
+    private final AIGPredicate aigPred = new AIGPredicate();
 
     @Test
     public void testConstants() {

@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.predicates;
 
@@ -37,30 +13,22 @@ import org.logicng.formulas.Not;
 
 /**
  * And-inverter-graph (AIG) predicate.  Returns {@code true} if the given formula is an AIG, {@code false} otherwise.
- * @version 1.0
+ * @version 3.0.0
  * @since 1.0
  */
 public final class AIGPredicate implements FormulaPredicate {
+    private final boolean useCache;
 
-    private final static AIGPredicate INSTANCE = new AIGPredicate();
-
-    /**
-     * Private empty constructor.  Singleton class.
-     */
-    private AIGPredicate() {
-        // Intentionally left empty
+    public AIGPredicate() {
+        this(true);
     }
 
-    /**
-     * Returns the singleton of the predicate.
-     * @return the predicate instance
-     */
-    public static AIGPredicate get() {
-        return INSTANCE;
+    public AIGPredicate(final boolean useCache) {
+        this.useCache = useCache;
     }
 
     @Override
-    public boolean test(final Formula formula, final boolean cache) {
+    public boolean test(final Formula formula) {
         final Tristate cached = formula.predicateCacheEntry(IS_AIG);
         if (cached != Tristate.UNDEF) {
             return cached == Tristate.TRUE;
@@ -79,12 +47,12 @@ public final class AIGPredicate implements FormulaPredicate {
                 result = false;
                 break;
             case NOT:
-                result = test(((Not) formula).operand(), cache);
+                result = test(((Not) formula).operand());
                 break;
             case AND:
                 result = true;
                 for (final Formula op : formula) {
-                    if (!test(op, cache)) {
+                    if (!test(op)) {
                         result = false;
                         break;
                     }
@@ -93,14 +61,9 @@ public final class AIGPredicate implements FormulaPredicate {
             default:
                 throw new IllegalArgumentException("Cannot compute AIG predicate on " + formula.type());
         }
-        if (cache) {
+        if (useCache) {
             formula.setPredicateCacheEntry(IS_AIG, result);
         }
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
     }
 }
