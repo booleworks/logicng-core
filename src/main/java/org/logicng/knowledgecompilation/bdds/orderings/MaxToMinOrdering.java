@@ -4,13 +4,10 @@
 
 package org.logicng.knowledgecompilation.bdds.orderings;
 
-import static org.logicng.knowledgecompilation.bdds.orderings.MinToMaxOrdering.sortProfileByOccurrence;
-
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.Variable;
 import org.logicng.functions.VariableProfileFunction;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +26,8 @@ public final class MaxToMinOrdering implements VariableOrderingProvider {
 
     @Override
     public List<Variable> getOrder(final Formula formula) {
-        final Map<Variable, Integer> profile = formula.apply(this.profileFunction);
-        final List<Variable> dfs = this.dfsOrdering.getOrder(formula);
+        final Map<Variable, Integer> profile = formula.apply(profileFunction);
+        final List<Variable> dfs = dfsOrdering.getOrder(formula);
 
         final Comparator<Map.Entry<Variable, Integer>> comparator = (o1, o2) -> {
             final int occComp = o1.getValue().compareTo(o2.getValue());
@@ -41,11 +38,6 @@ public final class MaxToMinOrdering implements VariableOrderingProvider {
             final int index2 = dfs.indexOf(o2.getKey());
             return index1 - index2;
         };
-        final Map<Variable, Integer> sortedProfile = sortProfileByOccurrence(profile, comparator);
-        final List<Variable> order = new ArrayList<>(sortedProfile.size());
-        for (final Map.Entry<Variable, Integer> entry : sortedProfile.entrySet()) {
-            order.add(entry.getKey());
-        }
-        return order;
+        return VariableOrderingProvider.sortProfile(profile, comparator);
     }
 }

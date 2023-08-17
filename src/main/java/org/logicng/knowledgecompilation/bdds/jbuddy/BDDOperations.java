@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.bdds.jbuddy;
 
@@ -73,23 +49,23 @@ public class BDDOperations {
         if (r < 2) {
             return r;
         }
-        this.k.reordering.disableReorder();
-        this.k.initRef();
+        k.reordering.disableReorder();
+        k.initRef();
         final int res = satOneRec(r);
-        this.k.reordering.enableReorder();
+        k.reordering.enableReorder();
         return res;
     }
 
     protected int satOneRec(final int r) throws BDDKernel.BddReorderRequest {
-        if (this.k.isConst(r)) {
+        if (k.isConst(r)) {
             return r;
         }
-        if (this.k.isZero(this.k.low(r))) {
-            final int res = satOneRec(this.k.high(r));
-            return this.k.pushRef(this.k.makeNode(this.k.level(r), BDDKernel.BDD_FALSE, res));
+        if (k.isZero(k.low(r))) {
+            final int res = satOneRec(k.high(r));
+            return k.pushRef(k.makeNode(k.level(r), BDDKernel.BDD_FALSE, res));
         } else {
-            final int res = satOneRec(this.k.low(r));
-            return this.k.pushRef(this.k.makeNode(this.k.level(r), res, BDDKernel.BDD_FALSE));
+            final int res = satOneRec(k.low(r));
+            return k.pushRef(k.makeNode(k.level(r), res, BDDKernel.BDD_FALSE));
         }
     }
 
@@ -102,45 +78,45 @@ public class BDDOperations {
      * @return an arbitrary model of this BDD
      */
     public int satOneSet(final int r, final int var, final int pol) {
-        if (this.k.isZero(r)) {
+        if (k.isZero(r)) {
             return r;
         }
-        if (!this.k.isConst(pol)) {
+        if (!k.isConst(pol)) {
             throw new IllegalArgumentException("polarity for satOneSet must be a constant");
         }
-        this.k.reordering.disableReorder();
-        this.k.initRef();
+        k.reordering.disableReorder();
+        k.initRef();
         final int res = satOneSetRec(r, var, pol);
-        this.k.reordering.enableReorder();
+        k.reordering.enableReorder();
         return res;
     }
 
     protected int satOneSetRec(final int r, final int var, final int satPolarity) throws BDDKernel.BddReorderRequest {
-        if (this.k.isConst(r) && this.k.isConst(var)) {
+        if (k.isConst(r) && k.isConst(var)) {
             return r;
         }
-        if (this.k.level(r) < this.k.level(var)) {
-            if (this.k.isZero(this.k.low(r))) {
-                final int res = satOneSetRec(this.k.high(r), var, satPolarity);
-                return this.k.pushRef(this.k.makeNode(this.k.level(r), BDDKernel.BDD_FALSE, res));
+        if (k.level(r) < k.level(var)) {
+            if (k.isZero(k.low(r))) {
+                final int res = satOneSetRec(k.high(r), var, satPolarity);
+                return k.pushRef(k.makeNode(k.level(r), BDDKernel.BDD_FALSE, res));
             } else {
-                final int res = satOneSetRec(this.k.low(r), var, satPolarity);
-                return this.k.pushRef(this.k.makeNode(this.k.level(r), res, BDDKernel.BDD_FALSE));
+                final int res = satOneSetRec(k.low(r), var, satPolarity);
+                return k.pushRef(k.makeNode(k.level(r), res, BDDKernel.BDD_FALSE));
             }
-        } else if (this.k.level(var) < this.k.level(r)) {
-            final int res = satOneSetRec(r, this.k.high(var), satPolarity);
+        } else if (k.level(var) < k.level(r)) {
+            final int res = satOneSetRec(r, k.high(var), satPolarity);
             if (satPolarity == BDDKernel.BDD_TRUE) {
-                return this.k.pushRef(this.k.makeNode(this.k.level(var), BDDKernel.BDD_FALSE, res));
+                return k.pushRef(k.makeNode(k.level(var), BDDKernel.BDD_FALSE, res));
             } else {
-                return this.k.pushRef(this.k.makeNode(this.k.level(var), res, BDDKernel.BDD_FALSE));
+                return k.pushRef(k.makeNode(k.level(var), res, BDDKernel.BDD_FALSE));
             }
         } else {
-            if (this.k.isZero(this.k.low(r))) {
-                final int res = satOneSetRec(this.k.high(r), this.k.high(var), satPolarity);
-                return this.k.pushRef(this.k.makeNode(this.k.level(r), BDDKernel.BDD_FALSE, res));
+            if (k.isZero(k.low(r))) {
+                final int res = satOneSetRec(k.high(r), k.high(var), satPolarity);
+                return k.pushRef(k.makeNode(k.level(r), BDDKernel.BDD_FALSE, res));
             } else {
-                final int res = satOneSetRec(this.k.low(r), this.k.high(var), satPolarity);
-                return this.k.pushRef(this.k.makeNode(this.k.level(r), res, BDDKernel.BDD_FALSE));
+                final int res = satOneSetRec(k.low(r), k.high(var), satPolarity);
+                return k.pushRef(k.makeNode(k.level(r), res, BDDKernel.BDD_FALSE));
             }
         }
     }
@@ -154,13 +130,13 @@ public class BDDOperations {
         if (r == 0) {
             return 0;
         }
-        this.k.reordering.disableReorder();
-        this.k.initRef();
+        k.reordering.disableReorder();
+        k.initRef();
         int res = fullSatOneRec(r);
-        for (int v = this.k.level(r) - 1; v >= 0; v--) {
-            res = this.k.pushRef(this.k.makeNode(v, res, 0));
+        for (int v = k.level(r) - 1; v >= 0; v--) {
+            res = k.pushRef(k.makeNode(v, res, 0));
         }
-        this.k.reordering.enableReorder();
+        k.reordering.enableReorder();
         return res;
     }
 
@@ -168,18 +144,18 @@ public class BDDOperations {
         if (r < 2) {
             return r;
         }
-        if (this.k.low(r) != 0) {
-            int res = fullSatOneRec(this.k.low(r));
-            for (int v = this.k.level(this.k.low(r)) - 1; v > this.k.level(r); v--) {
-                res = this.k.pushRef(this.k.makeNode(v, res, 0));
+        if (k.low(r) != 0) {
+            int res = fullSatOneRec(k.low(r));
+            for (int v = k.level(k.low(r)) - 1; v > k.level(r); v--) {
+                res = k.pushRef(k.makeNode(v, res, 0));
             }
-            return this.k.pushRef(this.k.makeNode(this.k.level(r), res, 0));
+            return k.pushRef(k.makeNode(k.level(r), res, 0));
         } else {
-            int res = fullSatOneRec(this.k.high(r));
-            for (int v = this.k.level(this.k.high(r)) - 1; v > this.k.level(r); v--) {
-                res = this.k.pushRef(this.k.makeNode(v, res, 0));
+            int res = fullSatOneRec(k.high(r));
+            for (int v = k.level(k.high(r)) - 1; v > k.level(r); v--) {
+                res = k.pushRef(k.makeNode(v, res, 0));
             }
-            return this.k.pushRef(this.k.makeNode(this.k.level(r), 0, res));
+            return k.pushRef(k.makeNode(k.level(r), 0, res));
         }
     }
 
@@ -189,37 +165,37 @@ public class BDDOperations {
      * @return all models for the BDD
      */
     public List<byte[]> allSat(final int r) {
-        final byte[] allsatProfile = new byte[this.k.varnum];
-        for (int v = this.k.level(r) - 1; v >= 0; --v) {
-            allsatProfile[this.k.level2var[v]] = -1;
+        final byte[] allsatProfile = new byte[k.varnum];
+        for (int v = k.level(r) - 1; v >= 0; --v) {
+            allsatProfile[k.level2var[v]] = -1;
         }
-        this.k.initRef();
+        k.initRef();
         final List<byte[]> allSat = new ArrayList<>();
         allSatRec(r, allSat, allsatProfile);
         return allSat;
     }
 
     protected void allSatRec(final int r, final List<byte[]> models, final byte[] allsatProfile) {
-        if (this.k.isOne(r)) {
+        if (k.isOne(r)) {
             models.add(Arrays.copyOf(allsatProfile, allsatProfile.length));
             return;
         }
-        if (this.k.isZero(r)) {
+        if (k.isZero(r)) {
             return;
         }
-        if (!this.k.isZero(this.k.low(r))) {
-            allsatProfile[this.k.level2var[this.k.level(r)]] = 0;
-            for (int v = this.k.level(this.k.low(r)) - 1; v > this.k.level(r); --v) {
-                allsatProfile[this.k.level2var[v]] = -1;
+        if (!k.isZero(k.low(r))) {
+            allsatProfile[k.level2var[k.level(r)]] = 0;
+            for (int v = k.level(k.low(r)) - 1; v > k.level(r); --v) {
+                allsatProfile[k.level2var[v]] = -1;
             }
-            allSatRec(this.k.low(r), models, allsatProfile);
+            allSatRec(k.low(r), models, allsatProfile);
         }
-        if (!this.k.isZero(this.k.high(r))) {
-            allsatProfile[this.k.level2var[this.k.level(r)]] = 1;
-            for (int v = this.k.level(this.k.high(r)) - 1; v > this.k.level(r); --v) {
-                allsatProfile[this.k.level2var[v]] = -1;
+        if (!k.isZero(k.high(r))) {
+            allsatProfile[k.level2var[k.level(r)]] = 1;
+            for (int v = k.level(k.high(r)) - 1; v > k.level(r); --v) {
+                allsatProfile[k.level2var[v]] = -1;
             }
-            allSatRec(this.k.high(r), models, allsatProfile);
+            allSatRec(k.high(r), models, allsatProfile);
         }
     }
 
@@ -229,7 +205,7 @@ public class BDDOperations {
      * @return the model count for the BDD
      */
     public BigInteger satCount(final int r) {
-        final BigInteger size = BigInteger.valueOf(2).pow(this.k.level(r));
+        final BigInteger size = BigInteger.valueOf(2).pow(k.level(r));
         return satCountRec(r, CACHEID_SATCOU).multiply(size);
     }
 
@@ -237,17 +213,17 @@ public class BDDOperations {
         if (root < 2) {
             return BigInteger.valueOf(root);
         }
-        final BDDCacheEntry entry = this.k.misccache.lookup(root);
+        final BDDCacheEntry entry = k.misccache.lookup(root);
         if (entry.a == root && entry.c == miscid) {
             return entry.bdres;
         }
         BigInteger size = BigInteger.ZERO;
         BigInteger s = BigInteger.ONE;
-        s = s.multiply(BigInteger.valueOf(2).pow(this.k.level(this.k.low(root)) - this.k.level(root) - 1));
-        size = size.add(s.multiply(satCountRec(this.k.low(root), miscid)));
+        s = s.multiply(BigInteger.valueOf(2).pow(k.level(k.low(root)) - k.level(root) - 1));
+        size = size.add(s.multiply(satCountRec(k.low(root), miscid)));
         s = BigInteger.ONE;
-        s = s.multiply(BigInteger.valueOf(2).pow(this.k.level(this.k.high(root)) - this.k.level(root) - 1));
-        size = size.add(s.multiply(satCountRec(this.k.high(root), miscid)));
+        s = s.multiply(BigInteger.valueOf(2).pow(k.level(k.high(root)) - k.level(root) - 1));
+        size = size.add(s.multiply(satCountRec(k.high(root), miscid)));
         entry.a = root;
         entry.c = miscid;
         entry.bdres = size;
@@ -265,17 +241,17 @@ public class BDDOperations {
 
     protected BigInteger pathCountRecOne(final int r, final int miscid) {
         final BigInteger size;
-        if (this.k.isZero(r)) {
+        if (k.isZero(r)) {
             return BigInteger.ZERO;
         }
-        if (this.k.isOne(r)) {
+        if (k.isOne(r)) {
             return BigInteger.ONE;
         }
-        final BDDCacheEntry entry = this.k.misccache.lookup(r);
+        final BDDCacheEntry entry = k.misccache.lookup(r);
         if (entry.a == r && entry.c == miscid) {
             return entry.bdres;
         }
-        size = pathCountRecOne(this.k.low(r), miscid).add(pathCountRecOne(this.k.high(r), miscid));
+        size = pathCountRecOne(k.low(r), miscid).add(pathCountRecOne(k.high(r), miscid));
         entry.a = r;
         entry.c = miscid;
         entry.bdres = size;
@@ -293,17 +269,17 @@ public class BDDOperations {
 
     protected BigInteger pathCountRecZero(final int r, final int miscid) {
         final BigInteger size;
-        if (this.k.isZero(r)) {
+        if (k.isZero(r)) {
             return BigInteger.ONE;
         }
-        if (this.k.isOne(r)) {
+        if (k.isOne(r)) {
             return BigInteger.ZERO;
         }
-        final BDDCacheEntry entry = this.k.misccache.lookup(r);
+        final BDDCacheEntry entry = k.misccache.lookup(r);
         if (entry.a == r && entry.c == miscid) {
             return entry.bdres;
         }
-        size = pathCountRecZero(this.k.low(r), miscid).add(pathCountRecZero(this.k.high(r), miscid));
+        size = pathCountRecZero(k.low(r), miscid).add(pathCountRecZero(k.high(r), miscid));
         entry.a = r;
         entry.c = miscid;
         entry.bdres = size;
@@ -316,37 +292,37 @@ public class BDDOperations {
      * @return all unsatisfiable assignments for the BDD
      */
     public List<byte[]> allUnsat(final int r) {
-        this.allunsatProfile = new byte[this.k.varnum];
-        for (int v = this.k.level(r) - 1; v >= 0; --v) {
-            this.allunsatProfile[this.k.level2var[v]] = -1;
+        allunsatProfile = new byte[k.varnum];
+        for (int v = k.level(r) - 1; v >= 0; --v) {
+            allunsatProfile[k.level2var[v]] = -1;
         }
-        this.k.initRef();
+        k.initRef();
         final List<byte[]> allUnsat = new ArrayList<>();
         allUnsatRec(r, allUnsat);
         return allUnsat;
     }
 
     protected void allUnsatRec(final int r, final List<byte[]> models) {
-        if (this.k.isZero(r)) {
-            models.add(Arrays.copyOf(this.allunsatProfile, this.allunsatProfile.length));
+        if (k.isZero(r)) {
+            models.add(Arrays.copyOf(allunsatProfile, allunsatProfile.length));
             return;
         }
-        if (this.k.isOne(r)) {
+        if (k.isOne(r)) {
             return;
         }
-        if (!this.k.isOne(this.k.low(r))) {
-            this.allunsatProfile[this.k.level2var[this.k.level(r)]] = 0;
-            for (int v = this.k.level(this.k.low(r)) - 1; v > this.k.level(r); --v) {
-                this.allunsatProfile[this.k.level2var[v]] = -1;
+        if (!k.isOne(k.low(r))) {
+            allunsatProfile[k.level2var[k.level(r)]] = 0;
+            for (int v = k.level(k.low(r)) - 1; v > k.level(r); --v) {
+                allunsatProfile[k.level2var[v]] = -1;
             }
-            allUnsatRec(this.k.low(r), models);
+            allUnsatRec(k.low(r), models);
         }
-        if (!this.k.isOne(this.k.high(r))) {
-            this.allunsatProfile[this.k.level2var[this.k.level(r)]] = 1;
-            for (int v = this.k.level(this.k.high(r)) - 1; v > this.k.level(r); --v) {
-                this.allunsatProfile[this.k.level2var[v]] = -1;
+        if (!k.isOne(k.high(r))) {
+            allunsatProfile[k.level2var[k.level(r)]] = 1;
+            for (int v = k.level(k.high(r)) - 1; v > k.level(r); --v) {
+                allunsatProfile[k.level2var[v]] = -1;
             }
-            allUnsatRec(this.k.high(r), models);
+            allUnsatRec(k.high(r), models);
         }
     }
 
@@ -361,29 +337,29 @@ public class BDDOperations {
         if (r < 2) {
             return BDDKernel.BDD_FALSE;
         }
-        if (supportSize < this.k.varnum) {
-            this.supportSet = new int[this.k.varnum];
-            this.supportID = 0;
+        if (supportSize < k.varnum) {
+            supportSet = new int[k.varnum];
+            supportID = 0;
         }
-        if (this.supportID == 0x0FFFFFFF) {
-            this.supportID = 0;
+        if (supportID == 0x0FFFFFFF) {
+            supportID = 0;
         }
-        ++this.supportID;
-        final int supportMin = this.k.level(r);
-        this.supportMax = supportMin;
-        supportRec(r, this.supportSet);
-        this.k.unmark(r);
+        ++supportID;
+        final int supportMin = k.level(r);
+        supportMax = supportMin;
+        supportRec(r, supportSet);
+        k.unmark(r);
 
-        this.k.reordering.disableReorder();
-        for (int n = this.supportMax; n >= supportMin; --n) {
-            if (this.supportSet[n] == this.supportID) {
-                this.k.addRef(res, null);
-                final int tmp = this.k.makeNode(n, 0, res);
-                this.k.delRef(res);
+        k.reordering.disableReorder();
+        for (int n = supportMax; n >= supportMin; --n) {
+            if (supportSet[n] == supportID) {
+                k.addRef(res, null);
+                final int tmp = k.makeNode(n, 0, res);
+                k.delRef(res);
                 res = tmp;
             }
         }
-        this.k.reordering.enableReorder();
+        k.reordering.enableReorder();
         return res;
     }
 
@@ -391,16 +367,16 @@ public class BDDOperations {
         if (r < 2) {
             return;
         }
-        if ((this.k.level(r) & MARKON) != 0 || this.k.low(r) == -1) {
+        if ((k.level(r) & MARKON) != 0 || k.low(r) == -1) {
             return;
         }
-        support[this.k.level(r)] = this.supportID;
-        if (this.k.level(r) > this.supportMax) {
-            this.supportMax = this.k.level(r);
+        support[k.level(r)] = supportID;
+        if (k.level(r) > supportMax) {
+            supportMax = k.level(r);
         }
-        this.k.setLevel(r, this.k.level(r) | MARKON);
-        supportRec(this.k.low(r), support);
-        supportRec(this.k.high(r), support);
+        k.setLevel(r, k.level(r) | MARKON);
+        supportRec(k.low(r), support);
+        supportRec(k.high(r), support);
     }
 
     /**
@@ -409,8 +385,8 @@ public class BDDOperations {
      * @return the number of nodes for the BDD
      */
     public int nodeCount(final int r) {
-        final int count = this.k.markCount(r);
-        this.k.unmark(r);
+        final int count = k.markCount(r);
+        k.unmark(r);
         return count;
     }
 
@@ -420,9 +396,9 @@ public class BDDOperations {
      * @return how often each variable occurs in the BDD
      */
     public int[] varProfile(final int r) {
-        final int[] varprofile = new int[this.k.varnum];
-        this.varProfileRec(r, varprofile);
-        this.k.unmark(r);
+        final int[] varprofile = new int[k.varnum];
+        varProfileRec(r, varprofile);
+        k.unmark(r);
         return varprofile;
     }
 
@@ -430,13 +406,13 @@ public class BDDOperations {
         if (r < 2) {
             return;
         }
-        if ((this.k.level(r) & BDDKernel.MARKON) != 0) {
+        if ((k.level(r) & BDDKernel.MARKON) != 0) {
             return;
         }
-        varprofile[this.k.level2var[this.k.level(r)]]++;
-        this.k.setLevel(r, this.k.level(r) | BDDKernel.MARKON);
-        varProfileRec(this.k.low(r), varprofile);
-        varProfileRec(this.k.high(r), varprofile);
+        varprofile[k.level2var[k.level(r)]]++;
+        k.setLevel(r, k.level(r) | BDDKernel.MARKON);
+        varProfileRec(k.low(r), varprofile);
+        varProfileRec(k.high(r), varprofile);
     }
 
     /**
@@ -450,11 +426,11 @@ public class BDDOperations {
         if (r < 2) {
             return result;
         }
-        this.k.mark(r);
-        for (int n = 0; n < this.k.nodesize; n++) {
-            if ((this.k.level(n) & MARKON) != 0) {
-                this.k.setLevel(n, this.k.level(n) & MARKOFF);
-                result.add(new int[]{n, this.k.level2var[this.k.level(n)], this.k.low(n), this.k.high(n)});
+        k.mark(r);
+        for (int n = 0; n < k.nodesize; n++) {
+            if ((k.level(n) & MARKON) != 0) {
+                k.setLevel(n, k.level(n) & MARKOFF);
+                result.add(new int[]{n, k.level2var[k.level(n)], k.low(n), k.high(n)});
             }
         }
         return result;
@@ -470,33 +446,32 @@ public class BDDOperations {
      * @param followPathsToTrue the extraction style
      * @return the formula
      */
-    public Formula toFormula(final int r, final boolean followPathsToTrue) {
-        this.k.initRef();
-        final Formula formula = toFormulaRec(r, followPathsToTrue);
-        return followPathsToTrue ? formula : formula.negate();
+    public Formula toFormula(final int r, final boolean followPathsToTrue, final FormulaFactory f) {
+        k.initRef();
+        final Formula formula = toFormulaRec(r, followPathsToTrue, f);
+        return followPathsToTrue ? formula : formula.negate(f);
     }
 
-    protected Formula toFormulaRec(final int r, final boolean followPathsToTrue) {
-        final FormulaFactory f = this.k.factory();
-        if (this.k.isOne(r)) {
+    protected Formula toFormulaRec(final int r, final boolean followPathsToTrue, final FormulaFactory f) {
+        if (k.isOne(r)) {
             return f.constant(followPathsToTrue);
         }
-        if (this.k.isZero(r)) {
+        if (k.isZero(r)) {
             return f.constant(!followPathsToTrue);
         }
-        final Variable var = this.k.idx2var.get(this.k.level(r));
-        final int low = this.k.low(r);
+        final Variable var = k.idx2var.get(k.level(r));
+        final int low = k.low(r);
         final Formula lowFormula = isRelevant(low, followPathsToTrue)
-                ? f.and(var.negate(), toFormulaRec(low, followPathsToTrue))
+                ? f.and(var.negate(f), toFormulaRec(low, followPathsToTrue, f))
                 : f.falsum();
-        final int high = this.k.high(r);
+        final int high = k.high(r);
         final Formula rightFormula = isRelevant(high, followPathsToTrue)
-                ? f.and(var, toFormulaRec(high, followPathsToTrue))
+                ? f.and(var, toFormulaRec(high, followPathsToTrue, f))
                 : f.falsum();
         return f.or(lowFormula, rightFormula);
     }
 
     private boolean isRelevant(final int r, final boolean followPathsToTrue) {
-        return followPathsToTrue && !this.k.isZero(r) || !followPathsToTrue && !this.k.isOne(r);
+        return followPathsToTrue && !k.isZero(r) || !followPathsToTrue && !k.isOne(r);
     }
 }

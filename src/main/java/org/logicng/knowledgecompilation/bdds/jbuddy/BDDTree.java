@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.bdds.jbuddy;
 
@@ -78,7 +54,7 @@ public class BDDTree {
      * @return the first variable of this block
      */
     public int getFirst() {
-        return this.first;
+        return first;
     }
 
     /**
@@ -94,7 +70,7 @@ public class BDDTree {
      * @return the last variable of this block
      */
     public int getLast() {
-        return this.last;
+        return last;
     }
 
     /**
@@ -110,7 +86,7 @@ public class BDDTree {
      * @return the sifting position
      */
     public int getPos() {
-        return this.pos;
+        return pos;
     }
 
     /**
@@ -126,7 +102,7 @@ public class BDDTree {
      * @return the sequence of variables
      */
     public int[] getSeq() {
-        return this.seq;
+        return seq;
     }
 
     /**
@@ -142,7 +118,7 @@ public class BDDTree {
      * @return whether this block is fixed or not
      */
     public boolean isFixed() {
-        return this.fixed;
+        return fixed;
     }
 
     /**
@@ -158,7 +134,7 @@ public class BDDTree {
      * @return the id of this block
      */
     public int getId() {
-        return this.id;
+        return id;
     }
 
     /**
@@ -166,7 +142,7 @@ public class BDDTree {
      * @return the next tree
      */
     public BDDTree getNext() {
-        return this.next;
+        return next;
     }
 
     /**
@@ -182,7 +158,7 @@ public class BDDTree {
      * @return the previous tree
      */
     public BDDTree getPrev() {
-        return this.prev;
+        return prev;
     }
 
     /**
@@ -198,7 +174,7 @@ public class BDDTree {
      * @return the tree of the next level
      */
     public BDDTree getNextlevel() {
-        return this.nextlevel;
+        return nextlevel;
     }
 
     /**
@@ -310,16 +286,16 @@ public class BDDTree {
 
     protected void updateSeq(final int[] bddvar2level) {
         int n;
-        int low = this.first;
+        int low = first;
 
-        for (n = this.first; n <= this.last; n++) {
+        for (n = first; n <= last; n++) {
             if (bddvar2level[n] < bddvar2level[low]) {
                 low = n;
             }
         }
 
-        for (n = this.first; n <= this.last; n++) {
-            this.seq[bddvar2level[n] - bddvar2level[low]] = n;
+        for (n = first; n <= last; n++) {
+            seq[bddvar2level[n] - bddvar2level[low]] = n;
         }
     }
 }
