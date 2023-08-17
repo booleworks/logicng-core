@@ -17,9 +17,10 @@ import org.logicng.explanations.smus.SmusComputation;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
+import org.logicng.handlers.OptimizationHandler;
 import org.logicng.primecomputation.PrimeCompiler;
 import org.logicng.primecomputation.PrimeResult;
-import org.logicng.transformations.StatelessFormulaTransformation;
+import org.logicng.transformations.AbortableFormulaTransformation;
 import org.logicng.util.FormulaHelper;
 
 import java.util.ArrayList;
@@ -50,36 +51,58 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class AdvancedSimplifier extends StatelessFormulaTransformation {
+public final class AdvancedSimplifier extends AbortableFormulaTransformation<OptimizationHandler> {
 
     private final AdvancedSimplifierConfig config;
 
     /**
      * Constructs a new simplifier with the advanced simplifier configuration from the formula factory.
+     * @param f the formula factory to generate new formulas
      */
     public AdvancedSimplifier(final FormulaFactory f) {
-        this(f, (AdvancedSimplifierConfig) f.configurationFor(ConfigurationType.ADVANCED_SIMPLIFIER));
+        this(f, (AdvancedSimplifierConfig) f.configurationFor(ConfigurationType.ADVANCED_SIMPLIFIER), null);
+    }
+
+    /**
+     * Constructs a new simplifier with the advanced simplifier configuration from the formula factory.
+     * @param f       the formula factory to generate new formulas
+     * @param handler the optimization handler to abort the simplification
+     */
+    public AdvancedSimplifier(final FormulaFactory f, final OptimizationHandler handler) {
+        this(f, (AdvancedSimplifierConfig) f.configurationFor(ConfigurationType.ADVANCED_SIMPLIFIER), handler);
     }
 
     /**
      * Constructs a new simplifier with the given configuration.
-     * @param config The configuration for the advanced simplifier, including a handler, a rating function and flags for which steps should pe performed
-     *               during the computation.
+     * @param f      the formula factory to generate new formulas
+     * @param config The configuration for the advanced simplifier, including a handler, a rating function and flags
+     *               for which steps should pe performed during the computation.
      */
     public AdvancedSimplifier(final FormulaFactory f, final AdvancedSimplifierConfig config) {
-        super(f);
+        this(f, config, null);
+    }
+
+    /**
+     * Constructs a new simplifier with the given configuration.
+     * @param f       the formula factory to generate new formulas
+     * @param handler the optimization handler to abort the simplification
+     * @param config  The configuration for the advanced simplifier, including a handler, a rating function and flags
+     *                for which steps should pe performed during the computation.
+     */
+    public AdvancedSimplifier(final FormulaFactory f, final AdvancedSimplifierConfig config, final OptimizationHandler handler) {
+        super(f, handler);
         this.config = config;
     }
 
     @Override
     public Formula apply(final Formula formula) {
-        start(config.handler);
+        start(handler);
         Formula simplified = formula;
         final SortedSet<Literal> backboneLiterals = new TreeSet<>();
         if (config.restrictBackbone) {
             final Backbone backbone = BackboneGeneration
-                    .compute(Collections.singletonList(formula), formula.variables(), BackboneType.POSITIVE_AND_NEGATIVE, satHandler(config.handler));
-            if (backbone == null || aborted(config.handler)) {
+                    .compute(Collections.singletonList(formula), formula.variables(), BackboneType.POSITIVE_AND_NEGATIVE, satHandler(handler));
+            if (backbone == null || aborted(handler)) {
                 return null;
             }
             if (!backbone.isSat()) {
@@ -88,7 +111,7 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
             backboneLiterals.addAll(backbone.getCompleteBackbone());
             simplified = formula.restrict(new Assignment(backboneLiterals), f);
         }
-        final Formula simplifyMinDnf = computeMinDnf(f, simplified, config);
+        final Formula simplifyMinDnf = computeMinDnf(f, simplified);
         if (simplifyMinDnf == null) {
             return null;
         }
@@ -107,16 +130,16 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
         return simplified;
     }
 
-    private Formula computeMinDnf(final FormulaFactory f, Formula simplified, final AdvancedSimplifierConfig config) {
+    private Formula computeMinDnf(final FormulaFactory f, Formula simplified) {
         final PrimeResult primeResult =
-                PrimeCompiler.getWithMinimization().compute(simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE, config.handler);
-        if (primeResult == null || aborted(config.handler)) {
+                PrimeCompiler.getWithMinimization().compute(simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE, handler);
+        if (primeResult == null || aborted(handler)) {
             return null;
         }
         final List<SortedSet<Literal>> primeImplicants = primeResult.getPrimeImplicants();
         final List<Formula> minimizedPIs = SmusComputation.computeSmusForFormulas(negateAllLiterals(primeImplicants, f),
-                Collections.singletonList(simplified), f, config.handler);
-        if (minimizedPIs == null || aborted(config.handler)) {
+                Collections.singletonList(simplified), f, handler);
+        if (minimizedPIs == null || aborted(handler)) {
             return null;
         }
         simplified = f.or(negateAllLiteralsInFormulas(minimizedPIs, f).stream().map(f::and).collect(Collectors.toList()));
@@ -140,6 +163,9 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
     }
 
     private Formula simplifyWithRating(final Formula formula, final Formula simplifiedOneStep, final AdvancedSimplifierConfig config) {
+        if (!config.useRatingFunction) {
+            return simplifiedOneStep;
+        }
         final Number ratingSimplified = config.ratingFunction.apply(simplifiedOneStep, true);
         final Number ratingFormula = config.ratingFunction.apply(formula, true);
         return ratingSimplified.intValue() < ratingFormula.intValue() ? simplifiedOneStep : formula;

@@ -143,7 +143,7 @@ public class AdvancedSimplifierTest extends TestWithExampleFormulas {
     }
 
     private void testHandler(final OptimizationHandler handler, final Formula formula, final boolean expAborted) {
-        final AdvancedSimplifier simplifierWithHandler = new AdvancedSimplifier(formula.factory(), AdvancedSimplifierConfig.builder().handler(handler).build());
+        final AdvancedSimplifier simplifierWithHandler = new AdvancedSimplifier(formula.factory(), AdvancedSimplifierConfig.builder().build(), handler);
         final Formula simplified = formula.transform(simplifierWithHandler);
         assertThat(handler.aborted()).isEqualTo(expAborted);
         if (expAborted) {

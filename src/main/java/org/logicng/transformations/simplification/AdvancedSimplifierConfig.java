@@ -6,7 +6,6 @@ package org.logicng.transformations.simplification;
 
 import org.logicng.configurations.Configuration;
 import org.logicng.configurations.ConfigurationType;
-import org.logicng.handlers.OptimizationHandler;
 
 /**
  * The configuration object for the {@link AdvancedSimplifier}.
@@ -19,9 +18,8 @@ public class AdvancedSimplifierConfig extends Configuration {
     boolean restrictBackbone;
     boolean factorOut;
     boolean simplifyNegations;
+    boolean useRatingFunction;
     RatingFunction<?> ratingFunction;
-    //TODO move handler to class???
-    OptimizationHandler handler;
 
     @Override
     public String toString() {
@@ -29,8 +27,8 @@ public class AdvancedSimplifierConfig extends Configuration {
                 "restrictBackbone=" + restrictBackbone +
                 ", factorOut=" + factorOut +
                 ", simplifyNegations=" + simplifyNegations +
+                ", useRatingFunction=" + useRatingFunction +
                 ", ratingFunction=" + ratingFunction +
-                ", handler=" + handler +
                 '}';
     }
 
@@ -43,8 +41,8 @@ public class AdvancedSimplifierConfig extends Configuration {
         this.restrictBackbone = builder.restrictBackbone;
         this.factorOut = builder.factorOut;
         this.simplifyNegations = builder.simplifyNegations;
+        this.useRatingFunction = builder.useRatingFunction;
         this.ratingFunction = builder.ratingFunction;
-        this.handler = builder.handler;
     }
 
     /**
@@ -63,8 +61,8 @@ public class AdvancedSimplifierConfig extends Configuration {
         boolean restrictBackbone = true;
         boolean factorOut = true;
         boolean simplifyNegations = true;
+        boolean useRatingFunction = true;
         private RatingFunction<?> ratingFunction = DefaultRatingFunction.get();
-        private OptimizationHandler handler = null;
 
         private Builder() {
             // Initialize only via factory
@@ -101,6 +99,16 @@ public class AdvancedSimplifierConfig extends Configuration {
         }
 
         /**
+         * Sets the flag for whether the rating function should be considered in the main simplification steps.
+         * @param useRatingFunction flag
+         * @return the current builder
+         */
+        public Builder useRatingFunction(final boolean useRatingFunction) {
+            this.useRatingFunction = useRatingFunction;
+            return this;
+        }
+
+        /**
          * Sets the rating function. The aim of the simplification is to minimize the formula with respect to this rating function,
          * e.g. finding a formula with a minimal number of symbols when represented as string. The default is the {@code DefaultRatingFunction}.
          * @param ratingFunction the desired rating function
@@ -108,16 +116,6 @@ public class AdvancedSimplifierConfig extends Configuration {
          */
         public Builder ratingFunction(final RatingFunction<?> ratingFunction) {
             this.ratingFunction = ratingFunction;
-            return this;
-        }
-
-        /**
-         * Sets the handler to control the computation. The default is 'no handler'.
-         * @param handler the optimization handler
-         * @return the current builder
-         */
-        public Builder handler(final OptimizationHandler handler) {
-            this.handler = handler;
             return this;
         }
 
