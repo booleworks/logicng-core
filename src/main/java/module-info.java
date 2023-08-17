@@ -43,6 +43,7 @@ module logicng {
     exports org.logicng.knowledgecompilation.bdds.orderings;
     exports org.logicng.knowledgecompilation.dnnf;
     exports org.logicng.knowledgecompilation.dnnf.datastructures;
+    exports org.logicng.knowledgecompilation.dnnf.datastructures.dtree;
     exports org.logicng.knowledgecompilation.dnnf.functions;
 
     exports org.logicng.modelcounting;

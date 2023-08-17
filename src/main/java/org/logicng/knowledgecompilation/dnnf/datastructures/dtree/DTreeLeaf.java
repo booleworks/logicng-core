@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.dnnf.datastructures.dtree;
 
@@ -66,26 +42,26 @@ public class DTreeLeaf extends DTree {
     public DTreeLeaf(final int id, final Formula clause) {
         this.id = id;
         this.clause = clause;
-        this.staticClauseIds = new int[]{id};
-        this.clauseSize = clause.variables().size();
-        this.staticSeparator = new int[0];
-        assert this.clauseSize >= 2;
+        staticClauseIds = new int[]{id};
+        clauseSize = clause.variables().size();
+        staticSeparator = new int[0];
+        assert clauseSize >= 2;
     }
 
     @Override
     public void initialize(final DnnfSatSolver solver) {
         this.solver = solver;
-        final SortedSet<Literal> lits = this.clause.literals();
+        final SortedSet<Literal> lits = clause.literals();
         final int size = lits.size();
-        this.staticVarSet = new BitSet();
-        this.staticVariables = new int[size];
-        this.literals = new int[size];
+        staticVarSet = new BitSet();
+        staticVariables = new int[size];
+        literals = new int[size];
         int i = 0;
         for (final Literal literal : lits) {
             final int var = solver.variableIndex(literal);
-            this.staticVarSet.set(var);
-            this.staticVariables[i] = var;
-            this.literals[i] = MiniSatStyleSolver.mkLit(var, !literal.phase());
+            staticVarSet.set(var);
+            staticVariables[i] = var;
+            literals[i] = MiniSatStyleSolver.mkLit(var, !literal.phase());
             i++;
         }
     }
@@ -97,22 +73,22 @@ public class DTreeLeaf extends DTree {
 
     @Override
     public SortedSet<Variable> staticVariableSet() {
-        return this.clause.variables();
+        return clause.variables();
     }
 
     @Override
     public BitSet dynamicSeparator() {
-        return this.separatorBitSet;
+        return separatorBitSet;
     }
 
     @Override
     public int[] staticClauseIds() {
-        return this.staticClauseIds;
+        return staticClauseIds;
     }
 
     protected boolean isSubsumed() {
-        for (final int literal : this.literals) {
-            if (this.solver.valueOf(literal) == Tristate.TRUE) {
+        for (final int literal : literals) {
+            if (solver.valueOf(literal) == Tristate.TRUE) {
                 return true;
             }
         }
@@ -122,7 +98,7 @@ public class DTreeLeaf extends DTree {
     @Override
     public void countUnsubsumedOccurrences(final int[] occurrences) {
         if (!isSubsumed()) {
-            for (final int var : this.staticVariables) {
+            for (final int var : staticVariables) {
                 final int occ = occurrences[var];
                 if (occ != -1) {
                     ++occurrences[var];
@@ -153,12 +129,12 @@ public class DTreeLeaf extends DTree {
      * @return the leaf's clause
      */
     public Formula clause() {
-        return this.clause;
+        return clause;
     }
 
     @Override
     public String toString() {
-        return String.format("DTreeLeaf: %d, %s", this.id, this.clause);
+        return String.format("DTreeLeaf: %d, %s", id, clause);
     }
 
     /**
@@ -166,7 +142,7 @@ public class DTreeLeaf extends DTree {
      * @return literals integers of the clause
      */
     public int[] literals() {
-        return this.literals;
+        return literals;
     }
 
     /**
@@ -174,7 +150,7 @@ public class DTreeLeaf extends DTree {
      * @return the size of the leaf's clause
      */
     public int clauseSize() {
-        return this.clauseSize;
+        return clauseSize;
     }
 
     /**
@@ -182,6 +158,6 @@ public class DTreeLeaf extends DTree {
      * @return the leaf's id
      */
     public int getId() {
-        return this.id;
+        return id;
     }
 }

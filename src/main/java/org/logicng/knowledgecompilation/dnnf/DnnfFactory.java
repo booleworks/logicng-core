@@ -1,34 +1,11 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.dnnf;
 
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.knowledgecompilation.dnnf.datastructures.Dnnf;
 import org.logicng.knowledgecompilation.dnnf.datastructures.dtree.MinFillDTreeGenerator;
@@ -40,7 +17,7 @@ import java.util.TreeSet;
 
 /**
  * A DNNF factory that can be used to compute DNNFs from formulas.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public class DnnfFactory {
@@ -48,21 +25,22 @@ public class DnnfFactory {
     /**
      * Compiles the given formula to a DNNF instance.
      * @param formula the formula
+     * @param f       the formula factory to generated new formulas
      * @return the compiled DNNF
      */
-    public Dnnf compile(final Formula formula) {
+    public Dnnf compile(final Formula formula, final FormulaFactory f) {
         final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables());
-        final Formula cnf = formula.cnf();
+        final Formula cnf = formula.cnf(f);
         originalVariables.addAll(cnf.variables());
-        final Formula simplifedFormula = simplifyFormula(cnf);
-        final DnnfCompiler compiler = new DnnfCompiler(simplifedFormula);
+        final Formula simplifedFormula = simplifyFormula(cnf, f);
+        final DnnfCompiler compiler = new DnnfCompiler(simplifedFormula, f);
         final Formula dnnf = compiler.compile(new MinFillDTreeGenerator());
         return new Dnnf(originalVariables, dnnf);
     }
 
-    protected Formula simplifyFormula(final Formula formula) {
+    protected Formula simplifyFormula(final Formula formula, final FormulaFactory f) {
         return formula
-                .transform(new BackboneSimplifier(formula.factory()))
-                .transform(new CNFSubsumption(formula.factory()));
+                .transform(new BackboneSimplifier(f))
+                .transform(new CNFSubsumption(f));
     }
 }
