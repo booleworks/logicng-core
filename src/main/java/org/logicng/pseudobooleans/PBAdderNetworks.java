@@ -152,7 +152,7 @@ public final class PBAdderNetworks implements PBEncoding {
                         skip = true;
                         break;
                     }
-                    clause.add(xs.get(j).negate());
+                    clause.add(xs.get(j).negate(f));
                 } else {
                     if (xs.get(j) == null) {
                         continue;
@@ -163,59 +163,59 @@ public final class PBAdderNetworks implements PBEncoding {
             if (skip) {
                 continue;
             }
-            clause.add(xs.get(i).negate());
+            clause.add(xs.get(i).negate(f));
             formula.add(f.clause(clause));
         }
     }
 
     private static void faExtra(final FormulaFactory f, final List<Formula> formula, final Literal xc, final Literal xs, final Literal a, final Literal b,
                                 final Literal c) {
-        formula.add(f.clause(xc.negate(), xs.negate(), a));
-        formula.add(f.clause(xc.negate(), xs.negate(), b));
-        formula.add(f.clause(xc.negate(), xs.negate(), c));
-        formula.add(f.clause(xc, xs, a.negate()));
-        formula.add(f.clause(xc, xs, b.negate()));
-        formula.add(f.clause(xc, xs, c.negate()));
+        formula.add(f.clause(xc.negate(f), xs.negate(f), a));
+        formula.add(f.clause(xc.negate(f), xs.negate(f), b));
+        formula.add(f.clause(xc.negate(f), xs.negate(f), c));
+        formula.add(f.clause(xc, xs, a.negate(f)));
+        formula.add(f.clause(xc, xs, b.negate(f)));
+        formula.add(f.clause(xc, xs, c.negate(f)));
     }
 
     private static Literal faCarry(final FormulaFactory f, final List<Formula> formula, final Literal a, final Literal b, final Literal c) {
         final Literal x = f.newPBVariable();
-        formula.add(f.clause(b, c, x.negate()));
-        formula.add(f.clause(a, c, x.negate()));
-        formula.add(f.clause(a, b, x.negate()));
-        formula.add(f.clause(b.negate(), c.negate(), x));
-        formula.add(f.clause(a.negate(), c.negate(), x));
-        formula.add(f.clause(a.negate(), b.negate(), x));
+        formula.add(f.clause(b, c, x.negate(f)));
+        formula.add(f.clause(a, c, x.negate(f)));
+        formula.add(f.clause(a, b, x.negate(f)));
+        formula.add(f.clause(b.negate(f), c.negate(f), x));
+        formula.add(f.clause(a.negate(f), c.negate(f), x));
+        formula.add(f.clause(a.negate(f), b.negate(f), x));
         return x;
     }
 
     private static Literal faSum(final FormulaFactory f, final List<Formula> formula, final Literal a, final Literal b, final Literal c) {
         final Literal x = f.newPBVariable();
-        formula.add(f.clause(a, b, c, x.negate()));
-        formula.add(f.clause(a, b.negate(), c.negate(), x.negate()));
-        formula.add(f.clause(a.negate(), b, c.negate(), x.negate()));
-        formula.add(f.clause(a.negate(), b.negate(), c, x.negate()));
-        formula.add(f.clause(a.negate(), b.negate(), c.negate(), x));
-        formula.add(f.clause(a.negate(), b, c, x));
-        formula.add(f.clause(a, b.negate(), c, x));
-        formula.add(f.clause(a, b, c.negate(), x));
+        formula.add(f.clause(a, b, c, x.negate(f)));
+        formula.add(f.clause(a, b.negate(f), c.negate(f), x.negate(f)));
+        formula.add(f.clause(a.negate(f), b, c.negate(f), x.negate(f)));
+        formula.add(f.clause(a.negate(f), b.negate(f), c, x.negate(f)));
+        formula.add(f.clause(a.negate(f), b.negate(f), c.negate(f), x));
+        formula.add(f.clause(a.negate(f), b, c, x));
+        formula.add(f.clause(a, b.negate(f), c, x));
+        formula.add(f.clause(a, b, c.negate(f), x));
         return x;
     }
 
     private static Literal haCarry(final FormulaFactory f, final List<Formula> formula, final Literal a, final Literal b) {
         final Literal x = f.newPBVariable();
-        formula.add(f.clause(a, x.negate()));
-        formula.add(f.clause(b, x.negate()));
-        formula.add(f.clause(a.negate(), b.negate(), x));
+        formula.add(f.clause(a, x.negate(f)));
+        formula.add(f.clause(b, x.negate(f)));
+        formula.add(f.clause(a.negate(f), b.negate(f), x));
         return x;
     }
 
     private static Literal haSum(final FormulaFactory f, final List<Formula> formula, final Literal a, final Literal b) {
         final Literal x = f.newPBVariable();
-        formula.add(f.clause(a.negate(), b.negate(), x.negate()));
-        formula.add(f.clause(a, b, x.negate()));
-        formula.add(f.clause(a.negate(), b, x));
-        formula.add(f.clause(a, b.negate(), x));
+        formula.add(f.clause(a.negate(f), b.negate(f), x.negate(f)));
+        formula.add(f.clause(a, b, x.negate(f)));
+        formula.add(f.clause(a.negate(f), b, x));
+        formula.add(f.clause(a, b.negate(f), x));
         return x;
     }
 }
