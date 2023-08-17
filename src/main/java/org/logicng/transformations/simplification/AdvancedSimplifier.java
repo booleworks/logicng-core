@@ -132,7 +132,7 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
 
     private Formula computeMinDnf(final FormulaFactory f, Formula simplified) {
         final PrimeResult primeResult =
-                PrimeCompiler.getWithMinimization().compute(simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE, handler);
+                PrimeCompiler.getWithMinimization().compute(f, simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE, handler);
         if (primeResult == null || aborted(handler)) {
             return null;
         }
@@ -149,7 +149,7 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
     private List<Formula> negateAllLiterals(final Collection<SortedSet<Literal>> literalSets, final FormulaFactory f) {
         final List<Formula> result = new ArrayList<>();
         for (final SortedSet<Literal> literals : literalSets) {
-            result.add(f.or(FormulaHelper.negateLiterals(literals, ArrayList::new)));
+            result.add(f.or(FormulaHelper.negateLiterals(f, literals, ArrayList::new)));
         }
         return result;
     }
@@ -157,7 +157,7 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
     private List<Formula> negateAllLiteralsInFormulas(final Collection<Formula> formulas, final FormulaFactory f) {
         final List<Formula> result = new ArrayList<>();
         for (final Formula formula : formulas) {
-            result.add(f.and(FormulaHelper.negateLiterals(formula.literals(), ArrayList::new)));
+            result.add(f.and(FormulaHelper.negateLiterals(f, formula.literals(), ArrayList::new)));
         }
         return result;
     }

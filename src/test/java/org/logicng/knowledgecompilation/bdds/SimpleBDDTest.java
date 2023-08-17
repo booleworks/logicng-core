@@ -41,7 +41,7 @@ public class SimpleBDDTest {
     public void testFalse() {
         final FormulaFactory f = FormulaFactory.caching();
         final BDDKernel kernel = new BDDKernel(f, 0, 100, 100);
-        final BDD bdd = BDDFactory.build(f.falsum(), kernel, null);
+        final BDD bdd = BDDFactory.build(f, f.falsum(), kernel, null);
         assertThat(bdd.isTautology()).isFalse();
         assertThat(bdd.isContradiction()).isTrue();
         assertThat(bdd.cnf()).isEqualTo(f.falsum());
@@ -153,7 +153,7 @@ public class SimpleBDDTest {
         final PropositionalParser parser = new PropositionalParser(f);
         final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
-        final BDD bdd = BDDFactory.build(parser.parse("A & B & ~C"), kernel, null);
+        final BDD bdd = BDDFactory.build(f, parser.parse("A & B & ~C"), kernel, null);
         assertThat(bdd.isTautology()).isFalse();
         assertThat(bdd.isContradiction()).isFalse();
         assertThat(bdd.cnf()).isEqualTo(parser.parse("A & (~A | B) & (~A | ~B | ~C)"));
@@ -173,14 +173,14 @@ public class SimpleBDDTest {
         final PropositionalParser parser = new PropositionalParser(f);
         final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
-        final BDD bdd = BDDFactory.build(parser.parse("(A => ~C) | (B & ~C)"), kernel, null);
+        final BDD bdd = BDDFactory.build(f, parser.parse("(A => ~C) | (B & ~C)"), kernel, null);
         assertThat(bdd.isTautology()).isFalse();
         assertThat(bdd.isContradiction()).isFalse();
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(6));
         assertThat(bdd.underlyingKernel().factory()).isSameAs(f);
         assertThat(bdd.enumerateAllModels()).hasSize(6);
         assertThat(bdd.enumerateAllModels(f.variable("A"))).hasSize(2);
-        assertThat(bdd.hashCode()).isEqualTo(BDDFactory.build(parser.parse("(A => ~C) | (B & ~C)"), kernel, null).hashCode());
+        assertThat(bdd.hashCode()).isEqualTo(BDDFactory.build(f, parser.parse("(A => ~C) | (B & ~C)"), kernel, null).hashCode());
         assertThat(bdd.toString()).isEqualTo("BDD{8}");
     }
 
@@ -189,7 +189,7 @@ public class SimpleBDDTest {
         final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser parser = new PseudoBooleanParser(f);
         final BDDKernel kernel = new BDDKernel(f, 3, 1000, 1000);
-        final BDD bdd = BDDFactory.build(parser.parse("A + B + C = 1"), kernel, null);
+        final BDD bdd = BDDFactory.build(f, parser.parse("A + B + C = 1"), kernel, null);
         assertThat(bdd.isTautology()).isFalse();
         assertThat(bdd.isContradiction()).isFalse();
         assertThat(bdd.cnf()).isEqualTo(parser.parse("(A | B | C) & (A | ~B | ~C) & (~A | B | ~C) & (~A | ~B)"));

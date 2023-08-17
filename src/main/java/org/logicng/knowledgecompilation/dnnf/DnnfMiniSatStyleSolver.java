@@ -88,7 +88,7 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
 
     @Override
     public void add(final Formula formula) {
-        final Formula cnf = formula.cnf();
+        final Formula cnf = formula.cnf(f);
         switch (cnf.type()) {
             case TRUE:
                 break;

@@ -67,7 +67,7 @@ public abstract class BDDNormalFormTransformation extends StatefulFormulaTransfo
      */
     public BDDNormalFormTransformation(final FormulaFactory f, final BDDKernel kernel, final boolean useCache) {
         super(f, kernel);
-        this.up = new UnitPropagation(f);
+        up = new UnitPropagation(f);
         this.useCache = useCache;
     }
 
@@ -88,7 +88,7 @@ public abstract class BDDNormalFormTransformation extends StatefulFormulaTransfo
         if (useCache && cached != null) {
             return cached;
         }
-        final BDD bdd = BDDFactory.build(formula, state, null);
+        final BDD bdd = BDDFactory.build(f, formula, state, null);
         final Formula normalForm = cnf ? bdd.cnf() : bdd.dnf();
         final Formula simplifiedNormalForm;
         if (cnf) {

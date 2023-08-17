@@ -381,15 +381,28 @@ public interface Formula extends Iterable<Formula> {
      * @return the BDD for this formula with the given ordering
      */
     default BDD bdd(final VariableOrderingProvider provider) {
-        final Formula formula = nnf();
+        return bdd(factory(), provider);
+    }
+
+    /**
+     * Generates a BDD from this formula with a given variable ordering.  This is done by generating a new BDD factory,
+     * generating the variable order for this formula, and building a new BDD.  If more sophisticated operations should
+     * be performed on the BDD or more than one formula should be constructed on the BDD, an own instance of
+     * {@link BDDFactory} should be created and used.
+     * @param f        the formula factory to generated new formulas
+     * @param provider the variable ordering provider
+     * @return the BDD for this formula with the given ordering
+     */
+    default BDD bdd(final FormulaFactory f, final VariableOrderingProvider provider) {
+        final Formula formula = nnf(f);
         final int varNum = formula.variables().size();
         final BDDKernel kernel;
         if (provider == null) {
-            kernel = new BDDKernel(factory(), varNum, varNum * 30, varNum * 20);
+            kernel = new BDDKernel(f, varNum, varNum * 30, varNum * 20);
         } else {
-            kernel = new BDDKernel(factory(), provider.getOrder(formula), varNum * 30, varNum * 20);
+            kernel = new BDDKernel(f, provider.getOrder(formula), varNum * 30, varNum * 20);
         }
-        return BDDFactory.build(formula, kernel, null);
+        return BDDFactory.build(f, formula, kernel, null);
     }
 
     /**
@@ -399,7 +412,18 @@ public interface Formula extends Iterable<Formula> {
      * @return the BDD for this formula
      */
     default BDD bdd() {
-        return bdd(null);
+        return bdd(factory(), null);
+    }
+
+    /**
+     * Generates a BDD from this formula with no given variable ordering.  This is done by generating a new BDD factory
+     * and building a new BDD.  If more sophisticated operations should be performed on the BDD or more than one
+     * formula should be constructed on the BDD, an own instance of * {@link BDDFactory} should be created and used.
+     * @param f the formula factory to generated new formulas
+     * @return the BDD for this formula
+     */
+    default BDD bdd(final FormulaFactory f) {
+        return bdd(f, null);
     }
 
     /**

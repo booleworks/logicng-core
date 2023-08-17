@@ -54,7 +54,7 @@ public final class AIGTransformation extends StatelessFormulaTransformation {
             case OR:
                 return transformOr((Or) formula);
             case PBC:
-                return apply(formula.cnf());
+                return apply(formula.cnf(f));
             default:
                 throw new IllegalArgumentException("Could not process the formula type " + formula.type());
         }

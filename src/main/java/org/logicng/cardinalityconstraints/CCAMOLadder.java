@@ -61,7 +61,7 @@ public final class CCAMOLadder implements CCAtMostOne {
                 result.addClause(vars[i].negate(f), seqAuxiliary[i - 1].negate(f));
             } else {
                 result.addClause(vars[i].negate(f), seqAuxiliary[i]);
-                result.addClause(seqAuxiliary[i - 1].negate(), seqAuxiliary[i]);
+                result.addClause(seqAuxiliary[i - 1].negate(f), seqAuxiliary[i]);
                 result.addClause(vars[i].negate(f), seqAuxiliary[i - 1].negate(f));
             }
         }

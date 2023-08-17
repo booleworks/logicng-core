@@ -7,6 +7,7 @@ package org.logicng.functions;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.FormulaFunction;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
@@ -31,37 +32,29 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<Sort
 
     private static final String POS = "_POS";
     private static final String NEG = "_NEG";
-    private static final MinimumPrimeImplicantFunction INSTANCE = new MinimumPrimeImplicantFunction();
+    private final FormulaFactory f;
 
-    private MinimumPrimeImplicantFunction() {
-        // Singleton pattern
-    }
-
-    /**
-     * Returns the singleton instance of this function.
-     * @return an instance of this function
-     */
-    public static MinimumPrimeImplicantFunction get() {
-        return INSTANCE;
+    public MinimumPrimeImplicantFunction(final FormulaFactory f) {
+        this.f = f;
     }
 
     @Override
     public SortedSet<Literal> apply(final Formula formula) {
-        final Formula nnf = formula.nnf();
+        final Formula nnf = formula.nnf(f);
         final Map<Variable, Literal> newVar2oldLit = new HashMap<>();
         final Map<Literal, Literal> substitution = new HashMap<>();
         for (final Literal literal : nnf.literals()) {
-            final Variable newVar = formula.factory().variable(literal.name() + (literal.phase() ? POS : NEG));
+            final Variable newVar = f.variable(literal.name() + (literal.phase() ? POS : NEG));
             newVar2oldLit.put(newVar, literal);
             substitution.put(literal, newVar);
         }
-        final LiteralSubstitution substTransformation = new LiteralSubstitution(formula.factory(), substitution);
+        final LiteralSubstitution substTransformation = new LiteralSubstitution(f, substitution);
         final Formula substituted = nnf.transform(substTransformation);
-        final SATSolver solver = MiniSat.miniSat(formula.factory(), MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
         solver.add(substituted);
         for (final Literal literal : newVar2oldLit.values()) {
-            if (literal.phase() && newVar2oldLit.containsValue(literal.negate())) {
-                solver.add(formula.factory().amo(formula.factory().variable(literal.name() + POS), formula.factory().variable(literal.name() + NEG)));
+            if (literal.phase() && newVar2oldLit.containsValue(literal.negate(f))) {
+                solver.add(f.amo(f.variable(literal.name() + POS), f.variable(literal.name() + NEG)));
             }
         }
 

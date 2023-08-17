@@ -44,8 +44,8 @@ public class NonCachingFormulaFactory extends FormulaFactory {
      */
     public NonCachingFormulaFactory(final FormulaFactoryConfig config) {
         super(config);
-        this.cFalse = new LngNativeFalse(this);
-        this.cTrue = new LngNativeTrue(this);
+        cFalse = new LngNativeFalse(this);
+        cTrue = new LngNativeTrue(this);
         clear();
     }
 
@@ -190,7 +190,7 @@ public class NonCachingFormulaFactory extends FormulaFactory {
     @Override
     protected Formula negateOrNull(final Formula formula) {
         if (formula.type() == FALSE || formula.type() == TRUE || formula.type() == NOT) {
-            return formula.negate();
+            return formula.negate(this);
         } else if (formula.type() == LITERAL) {
             final Literal lit = (Literal) formula;
             final String name = lit.name();

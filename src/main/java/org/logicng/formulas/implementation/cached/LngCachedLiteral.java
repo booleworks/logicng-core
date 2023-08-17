@@ -29,7 +29,7 @@ public class LngCachedLiteral extends LngCachedFormula implements Literal {
         super(FType.LITERAL, f);
         this.name = name;
         this.phase = phase;
-        this.var = phase ? (Variable) this : (Variable) negate();
+        var = phase ? (Variable) this : (Variable) negate(f);
     }
 
     @Override

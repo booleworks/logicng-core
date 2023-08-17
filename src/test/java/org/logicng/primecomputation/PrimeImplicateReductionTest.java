@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.primecomputation;
 
@@ -55,43 +31,38 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-/**
- * Unit Tests for the class {@link NaivePrimeReduction}.
- * @version 2.1.0
- * @since 2.0.0
- */
 public class PrimeImplicateReductionTest extends TestWithExampleFormulas {
 
     @Test
     public void testPrimeImplicateNaive() throws ParserException {
-        final NaivePrimeReduction naive01 = new NaivePrimeReduction(this.f.parse("a&b"));
-        assertThat(naive01.reduceImplicate(new TreeSet<>(Arrays.asList(this.A, this.B))))
-                .containsAnyOf(this.A, this.B).hasSize(1);
+        final NaivePrimeReduction naive01 = new NaivePrimeReduction(f, f.parse("a&b"));
+        assertThat(naive01.reduceImplicate(f, new TreeSet<>(Arrays.asList(A, B))))
+                .containsAnyOf(A, B).hasSize(1);
 
-        final NaivePrimeReduction naive02 = new NaivePrimeReduction(this.f.parse("(a => b) | b | c"));
-        assertThat(naive02.reduceImplicate(new TreeSet<>(Arrays.asList(this.A.negate(), this.B, this.C))))
-                .containsExactly(this.A.negate(), this.B, this.C);
+        final NaivePrimeReduction naive02 = new NaivePrimeReduction(f, f.parse("(a => b) | b | c"));
+        assertThat(naive02.reduceImplicate(f, new TreeSet<>(Arrays.asList(A.negate(), B, C))))
+                .containsExactly(A.negate(), B, C);
 
-        final NaivePrimeReduction naive03 = new NaivePrimeReduction(this.f.parse("(a => b) & b & c"));
-        assertThat(naive03.reduceImplicate(new TreeSet<>(Arrays.asList(this.B, this.C))))
-                .containsAnyOf(this.B, this.C).hasSize(1);
+        final NaivePrimeReduction naive03 = new NaivePrimeReduction(f, f.parse("(a => b) & b & c"));
+        assertThat(naive03.reduceImplicate(f, new TreeSet<>(Arrays.asList(B, C))))
+                .containsAnyOf(B, C).hasSize(1);
     }
 
     @Test
     public void testFormula1() throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/formula1.txt", this.f);
+        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/formula1.txt", f);
         testFormula(formula);
     }
 
     @Test
     public void testSimplifyFormulas() throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/simplify_formulas.txt", this.f);
+        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/simplify_formulas.txt", f);
         testFormula(formula);
     }
 
     @Test
     public void testLargeFormula() throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", this.f);
+        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
         testFormula(formula);
     }
 
@@ -99,7 +70,7 @@ public class PrimeImplicateReductionTest extends TestWithExampleFormulas {
     public void testSmallFormulas() throws IOException, ParserException {
         final List<String> lines = Files.readAllLines(Paths.get("src/test/resources/formulas/small_formulas.txt"));
         for (final String line : lines) {
-            testFormula(this.f.parse(line));
+            testFormula(f.parse(line));
         }
     }
 
@@ -123,7 +94,7 @@ public class PrimeImplicateReductionTest extends TestWithExampleFormulas {
 
     @Test
     public void testCancellationPoints() throws ParserException, IOException {
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", this.f);
+        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
         for (int numStarts = 0; numStarts < 20; numStarts++) {
             final SATHandler handler = new BoundedSatHandler(numStarts);
             testFormula(formula, handler, true);
@@ -142,9 +113,9 @@ public class PrimeImplicateReductionTest extends TestWithExampleFormulas {
         if (!isSAT) {
             return;
         }
-        final SortedSet<Literal> falsifyingAssignment = FormulaHelper.negateLiterals(solver.model().literals(), TreeSet::new);
-        final NaivePrimeReduction naive = new NaivePrimeReduction(formula);
-        final SortedSet<Literal> primeImplicate = naive.reduceImplicate(falsifyingAssignment, handler);
+        final SortedSet<Literal> falsifyingAssignment = FormulaHelper.negateLiterals(f, solver.model().literals(), TreeSet::new);
+        final NaivePrimeReduction naive = new NaivePrimeReduction(f, formula);
+        final SortedSet<Literal> primeImplicate = naive.reduceImplicate(f, falsifyingAssignment, handler);
         if (expAborted) {
             assertThat(handler.aborted()).isTrue();
             assertThat(primeImplicate).isNull();
@@ -158,7 +129,7 @@ public class PrimeImplicateReductionTest extends TestWithExampleFormulas {
         final FormulaFactory f = formula.factory();
         final MiniSat solver = MiniSat.miniSat(f);
         solver.add(formula);
-        final SortedSet<Literal> negatedLiterals = FormulaHelper.negateLiterals(primeImplicate, TreeSet::new);
+        final SortedSet<Literal> negatedLiterals = FormulaHelper.negateLiterals(f, primeImplicate, TreeSet::new);
         assertThat(solver.sat(negatedLiterals)).isEqualTo(Tristate.FALSE);
         for (final Literal lit : negatedLiterals) {
             final SortedSet<Literal> reducedNegatedLiterals = new TreeSet<>(negatedLiterals);

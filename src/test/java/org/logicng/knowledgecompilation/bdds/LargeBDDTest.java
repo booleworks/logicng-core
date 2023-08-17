@@ -71,7 +71,7 @@ public class LargeBDDTest {
         final Formula queens = generator.generate(4);
         final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
         final TimeoutBDDHandler handler = new TimeoutBDDHandler(2000L);
-        final BDD bdd = BDDFactory.build(queens, kernel, handler);
+        final BDD bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(handler.aborted()).isFalse();
         assertThat(bdd.index()).isNotEqualTo(BDDKernel.BDD_ABORT);
     }
@@ -83,7 +83,7 @@ public class LargeBDDTest {
         final Formula queens = generator.generate(10);
         final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
         final TimeoutBDDHandler handler = new TimeoutBDDHandler(1000L);
-        final BDD bdd = BDDFactory.build(queens, kernel, handler);
+        final BDD bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(handler.aborted()).isTrue();
         assertThat(bdd.index()).isEqualTo(BDDKernel.BDD_ABORT);
     }
@@ -95,7 +95,7 @@ public class LargeBDDTest {
         final Formula queens = generator.generate(4);
         final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
         final NumberOfNodesBDDHandler handler = new NumberOfNodesBDDHandler(1000);
-        final BDD bdd = BDDFactory.build(queens, kernel, handler);
+        final BDD bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(handler.aborted()).isFalse();
         assertThat(bdd.index()).isNotEqualTo(BDDKernel.BDD_ABORT);
     }
@@ -107,7 +107,7 @@ public class LargeBDDTest {
         final Formula queens = generator.generate(10);
         final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
         final NumberOfNodesBDDHandler handler = new NumberOfNodesBDDHandler(5);
-        final BDD bdd = BDDFactory.build(queens, kernel, handler);
+        final BDD bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(handler.aborted()).isTrue();
         assertThat(bdd.index()).isEqualTo(BDDKernel.BDD_ABORT);
     }
@@ -118,7 +118,7 @@ public class LargeBDDTest {
         final Formula formula = f.parse("A <=> ~(B => C & F & G & ~H | A & D & ~E)");
         final BDDKernel kernel = new BDDKernel(f, formula.variables().size(), 10000, 10000);
         final NumberOfNodesBDDHandler handler = new NumberOfNodesBDDHandler(5);
-        final BDD bdd = BDDFactory.build(formula, kernel, handler);
+        final BDD bdd = BDDFactory.build(f, formula, kernel, handler);
         assertThat(handler.aborted()).isTrue();
         assertThat(bdd.index()).isEqualTo(BDDKernel.BDD_ABORT);
     }
