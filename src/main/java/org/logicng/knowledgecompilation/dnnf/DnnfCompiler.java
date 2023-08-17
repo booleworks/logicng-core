@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.dnnf;
 
@@ -54,7 +30,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Implementation of a DNNF compiler based on ideas by Adnan Darwiche in
  * "New advances in compiling CNF to decomposable negation normal form."
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public class DnnfCompiler {
@@ -80,19 +56,19 @@ public class DnnfCompiler {
      * Constructs a new DNNF compiler for the given formula.
      * @param formula the formula to compile
      */
-    public DnnfCompiler(final Formula formula) {
-        this.f = formula.factory();
-        this.cnf = formula;
+    public DnnfCompiler(final Formula formula, final FormulaFactory f) {
+        this.f = f;
+        cnf = formula;
         final Pair<Formula, Formula> pair = initializeClauses();
-        this.unitClauses = this.f.and(pair.first());
-        this.nonUnitClauses = this.f.and(pair.second());
-        this.solver = new DnnfMiniSatStyleSolver(this.f, this.cnf.variables().size());
-        this.solver.add(this.cnf);
-        this.numberOfVariables = this.cnf.variables().size();
-        this.cache = new HashMap<>();
-        final int maxClauseSize = computeMaxClauseSize(this.cnf);
-        this.leafResultOperands = new ArrayList<>(maxClauseSize);
-        this.leafCurrentLiterals = new ArrayList<>(maxClauseSize);
+        unitClauses = f.and(pair.first());
+        nonUnitClauses = f.and(pair.second());
+        solver = new DnnfMiniSatStyleSolver(f, cnf.variables().size());
+        solver.add(cnf);
+        numberOfVariables = cnf.variables().size();
+        cache = new HashMap<>();
+        final int maxClauseSize = computeMaxClauseSize(cnf);
+        leafResultOperands = new ArrayList<>(maxClauseSize);
+        leafCurrentLiterals = new ArrayList<>(maxClauseSize);
     }
 
     /**
@@ -111,8 +87,8 @@ public class DnnfCompiler {
      * @return the compiled DNNF
      */
     public Formula compile(final DTreeGenerator generator, final DnnfCompilationHandler handler) {
-        if (!this.cnf.holds(new SATPredicate(this.f))) {
-            return this.f.falsum();
+        if (!cnf.holds(new SATPredicate(f))) {
+            return f.falsum();
         }
         final DTree dTree = generateDTree(generator);
         return compile(dTree, handler);
@@ -138,9 +114,9 @@ public class DnnfCompiler {
     protected Pair<Formula, Formula> initializeClauses() {
         final List<Formula> units = new ArrayList<>();
         final List<Formula> nonUnits = new ArrayList<>();
-        switch (this.cnf.type()) {
+        switch (cnf.type()) {
             case AND:
-                for (final Formula clause : this.cnf) {
+                for (final Formula clause : cnf) {
                     if (clause.isAtomicFormula()) {
                         units.add(clause);
                     } else {
@@ -149,29 +125,29 @@ public class DnnfCompiler {
                 }
                 break;
             case OR:
-                nonUnits.add(this.cnf);
+                nonUnits.add(cnf);
                 break;
             default:
-                units.add(this.cnf);
+                units.add(cnf);
         }
-        return new Pair<>(this.f.and(units), this.f.and(nonUnits));
+        return new Pair<>(f.and(units), f.and(nonUnits));
     }
 
     protected DTree generateDTree(final DTreeGenerator generator) {
-        if (this.nonUnitClauses.isAtomicFormula()) {
+        if (nonUnitClauses.isAtomicFormula()) {
             return null;
         }
-        final DTree tree = generator.generate(this.nonUnitClauses);
-        tree.initialize(this.solver);
+        final DTree tree = generator.generate(nonUnitClauses);
+        tree.initialize(solver);
         return tree;
     }
 
     protected Formula compile(final DTree dTree, final DnnfCompilationHandler handler) {
-        if (this.nonUnitClauses.isAtomicFormula()) {
-            return this.cnf;
+        if (nonUnitClauses.isAtomicFormula()) {
+            return cnf;
         }
-        if (!this.solver.start()) {
-            return this.f.falsum();
+        if (!solver.start()) {
+            return f.falsum();
         }
         initializeCaches(dTree);
         this.handler = handler;
@@ -184,20 +160,20 @@ public class DnnfCompiler {
             result = null;
         }
         this.handler = null;
-        return result == null ? null : this.f.and(this.unitClauses, result);
+        return result == null ? null : f.and(unitClauses, result);
     }
 
     protected void initializeCaches(final DTree dTree) {
         final int depth = dTree.depth() + 1;
         final int sep = dTree.widestSeparator() + 1;
-        final int variables = this.cnf.variables().size();
+        final int variables = cnf.variables().size();
 
-        this.localCacheKeys = new BitSet[depth][sep];
-        this.localOccurrences = new int[depth][sep][variables];
+        localCacheKeys = new BitSet[depth][sep];
+        localOccurrences = new int[depth][sep][variables];
         for (int i = 0; i < depth; i++) {
             for (int j = 0; j < sep; j++) {
-                this.localCacheKeys[i][j] = new BitSet(dTree.size() + variables);
-                Arrays.fill(this.localOccurrences[i][j], -1);
+                localCacheKeys[i][j] = new BitSet(dTree.size() + variables);
+                Arrays.fill(localOccurrences[i][j], -1);
             }
         }
     }
@@ -208,58 +184,58 @@ public class DnnfCompiler {
 
     protected Formula cnf2Ddnnf(final DTree tree, final int currentShannons) throws TimeoutException {
         final BitSet separator = tree.dynamicSeparator();
-        final Formula implied = this.newlyImpliedLiterals(tree.staticVarSet());
+        final Formula implied = newlyImpliedLiterals(tree.staticVarSet());
 
         if (separator.isEmpty()) {
             if (tree instanceof DTreeLeaf) {
-                return this.f.and(implied, leaf2Ddnnf((DTreeLeaf) tree));
+                return f.and(implied, leaf2Ddnnf((DTreeLeaf) tree));
             } else {
                 return conjoin(implied, (DTreeNode) tree, currentShannons);
             }
         } else {
             final int var = chooseShannonVariable(tree, separator, currentShannons);
 
-            if (this.handler != null && !this.handler.shannonExpansion()) {
+            if (handler != null && !handler.shannonExpansion()) {
                 throw new TimeoutException();
             }
 
             /* Positive branch */
-            Formula positiveDnnf = this.f.falsum();
-            if (this.solver.decide(var, true)) {
+            Formula positiveDnnf = f.falsum();
+            if (solver.decide(var, true)) {
                 positiveDnnf = cnf2Ddnnf(tree, currentShannons + 1);
             }
-            this.solver.undoDecide(var);
-            if (positiveDnnf == this.f.falsum()) {
-                if (this.solver.atAssertionLevel() && this.solver.assertCdLiteral()) {
+            solver.undoDecide(var);
+            if (positiveDnnf == f.falsum()) {
+                if (solver.atAssertionLevel() && solver.assertCdLiteral()) {
                     return cnf2Ddnnf(tree);
                 } else {
-                    return this.f.falsum();
+                    return f.falsum();
                 }
             }
 
             /* Negative branch */
-            Formula negativeDnnf = this.f.falsum();
-            if (this.solver.decide(var, false)) {
+            Formula negativeDnnf = f.falsum();
+            if (solver.decide(var, false)) {
                 negativeDnnf = cnf2Ddnnf(tree, currentShannons + 1);
             }
-            this.solver.undoDecide(var);
-            if (negativeDnnf == this.f.falsum()) {
-                if (this.solver.atAssertionLevel() && this.solver.assertCdLiteral()) {
+            solver.undoDecide(var);
+            if (negativeDnnf == f.falsum()) {
+                if (solver.atAssertionLevel() && solver.assertCdLiteral()) {
                     return cnf2Ddnnf(tree);
                 } else {
-                    return this.f.falsum();
+                    return f.falsum();
                 }
             }
 
-            final Literal lit = this.solver.litForIdx(var);
-            final Formula positiveBranch = this.f.and(lit, positiveDnnf);
-            final Formula negativeBranch = this.f.and(lit.negate(), negativeDnnf);
-            return this.f.and(implied, this.f.or(positiveBranch, negativeBranch));
+            final Literal lit = solver.litForIdx(var);
+            final Formula positiveBranch = f.and(lit, positiveDnnf);
+            final Formula negativeBranch = f.and(lit.negate(), negativeDnnf);
+            return f.and(implied, f.or(positiveBranch, negativeBranch));
         }
     }
 
     protected int chooseShannonVariable(final DTree tree, final BitSet separator, final int currentShannons) {
-        final int[] occurrences = this.localOccurrences[tree.depth()][currentShannons];
+        final int[] occurrences = localOccurrences[tree.depth()][currentShannons];
         for (int i = 0; i < occurrences.length; i++) {
             occurrences[i] = separator.get(i) ? 0 : -1;
         }
@@ -280,12 +256,12 @@ public class DnnfCompiler {
     protected Formula conjoin(final Formula implied, final DTreeNode tree, final int currentShannons) throws TimeoutException {
         final Formula left;
         final Formula right;
-        if (implied == this.f.falsum() ||
-                (left = cnfAux(tree.left(), currentShannons)) == this.f.falsum() ||
-                (right = cnfAux(tree.right(), currentShannons)) == this.f.falsum()) {
-            return this.f.falsum();
+        if (implied == f.falsum() ||
+                (left = cnfAux(tree.left(), currentShannons)) == f.falsum() ||
+                (right = cnfAux(tree.right(), currentShannons)) == f.falsum()) {
+            return f.falsum();
         } else {
-            return this.f.and(implied, left, right);
+            return f.and(implied, left, right);
         }
     }
 
@@ -294,12 +270,12 @@ public class DnnfCompiler {
             return leaf2Ddnnf((DTreeLeaf) tree);
         } else {
             final BitSet key = computeCacheKey((DTreeNode) tree, currentShannons);
-            if (this.cache.containsKey(key)) {
-                return this.cache.get(key);
+            if (cache.containsKey(key)) {
+                return cache.get(key);
             } else {
                 final Formula dnnf = cnf2Ddnnf(tree);
-                if (dnnf != this.f.falsum()) {
-                    this.cache.put((BitSet) key.clone(), dnnf);
+                if (dnnf != f.falsum()) {
+                    cache.put((BitSet) key.clone(), dnnf);
                 }
                 return dnnf;
             }
@@ -307,34 +283,34 @@ public class DnnfCompiler {
     }
 
     protected BitSet computeCacheKey(final DTreeNode tree, final int currentShannons) {
-        final BitSet key = this.localCacheKeys[tree.depth()][currentShannons];
+        final BitSet key = localCacheKeys[tree.depth()][currentShannons];
         key.clear();
-        tree.cacheKey(key, this.numberOfVariables);
+        tree.cacheKey(key, numberOfVariables);
         return key;
     }
 
     protected Formula leaf2Ddnnf(final DTreeLeaf leaf) {
         final Iterator<Literal> literals = leaf.clause().literals().iterator();
-        this.leafResultOperands.clear();
-        this.leafCurrentLiterals.clear();
+        leafResultOperands.clear();
+        leafCurrentLiterals.clear();
         Literal lit;
         int index = 0;
         while (literals.hasNext()) {
             lit = literals.next();
-            switch (this.solver.valueOf(MiniSatStyleSolver.mkLit(this.solver.variableIndex(lit), !lit.phase()))) {
+            switch (solver.valueOf(MiniSatStyleSolver.mkLit(solver.variableIndex(lit), !lit.phase()))) {
                 case TRUE:
-                    return this.f.verum();
+                    return f.verum();
                 case UNDEF:
-                    this.leafCurrentLiterals.add(lit);
-                    this.leafResultOperands.add(this.f.and(this.leafCurrentLiterals));
-                    this.leafCurrentLiterals.set(index, lit.negate());
+                    leafCurrentLiterals.add(lit);
+                    leafResultOperands.add(f.and(leafCurrentLiterals));
+                    leafCurrentLiterals.set(index, lit.negate());
                     index++;
             }
         }
-        return this.f.or(this.leafResultOperands);
+        return f.or(leafResultOperands);
     }
 
     protected Formula newlyImpliedLiterals(final BitSet knownVariables) {
-        return this.solver.newlyImplied(knownVariables);
+        return solver.newlyImplied(knownVariables);
     }
 }

@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.dnnf.datastructures.dtree;
 
@@ -77,27 +53,27 @@ public class DTreeNode extends DTree {
     public DTreeNode(final DTree left, final DTree right) {
         this.left = left;
         this.right = right;
-        this.size = left.size() + right.size();
+        size = left.size() + right.size();
 
         final List<DTreeLeaf> ll = left.leafs();
         excludeUnitLeafs(ll);
-        this.leftLeafs = ll.toArray(new DTreeLeaf[0]);
+        leftLeafs = ll.toArray(new DTreeLeaf[0]);
         final List<DTreeLeaf> rl = right.leafs();
         excludeUnitLeafs(rl);
-        this.rightLeafs = rl.toArray(new DTreeLeaf[0]);
-        this.leafs = new DTreeLeaf[this.leftLeafs.length + this.rightLeafs.length];
-        System.arraycopy(this.leftLeafs, 0, this.leafs, 0, this.leftLeafs.length);
-        System.arraycopy(this.rightLeafs, 0, this.leafs, this.leftLeafs.length, this.rightLeafs.length);
+        rightLeafs = rl.toArray(new DTreeLeaf[0]);
+        leafs = new DTreeLeaf[leftLeafs.length + rightLeafs.length];
+        System.arraycopy(leftLeafs, 0, leafs, 0, leftLeafs.length);
+        System.arraycopy(rightLeafs, 0, leafs, leftLeafs.length, rightLeafs.length);
 
-        this.staticVariableSet = new TreeSet<>(left.staticVariableSet());
-        this.staticVariableSet.addAll(right.staticVariableSet());
-        this.staticSeparatorBitSet = new BitSet();
+        staticVariableSet = new TreeSet<>(left.staticVariableSet());
+        staticVariableSet.addAll(right.staticVariableSet());
+        staticSeparatorBitSet = new BitSet();
         final int[] leftClauseIds = left.staticClauseIds();
         final int[] rightClauseIds = right.staticClauseIds();
-        this.staticClauseIds = new int[leftClauseIds.length + rightClauseIds.length];
-        System.arraycopy(leftClauseIds, 0, this.staticClauseIds, 0, leftClauseIds.length);
-        System.arraycopy(rightClauseIds, 0, this.staticClauseIds, leftClauseIds.length, rightClauseIds.length);
-        this.depth = 1 + Math.max(left.depth(), right.depth());
+        staticClauseIds = new int[leftClauseIds.length + rightClauseIds.length];
+        System.arraycopy(leftClauseIds, 0, staticClauseIds, 0, leftClauseIds.length);
+        System.arraycopy(rightClauseIds, 0, staticClauseIds, leftClauseIds.length, rightClauseIds.length);
+        depth = 1 + Math.max(left.depth(), right.depth());
     }
 
     /**
@@ -105,7 +81,7 @@ public class DTreeNode extends DTree {
      * @return the left DTree
      */
     public DTree left() {
-        return this.left;
+        return left;
     }
 
     /**
@@ -113,64 +89,64 @@ public class DTreeNode extends DTree {
      * @return the right DTree
      */
     public DTree right() {
-        return this.right;
+        return right;
     }
 
     @Override
     public void initialize(final DnnfSatSolver solver) {
         this.solver = solver;
-        this.left.initialize(solver);
-        this.right.initialize(solver);
-        this.staticVarSet = this.left.staticVarSet();
-        this.staticVarSet.or(this.right.staticVarSet());
-        this.staticVariables = toArray(this.staticVarSet);
-        this.staticSeparator = sortedIntersect(this.left.staticVarSetArray(), this.right.staticVarSetArray());
-        for (final int i : this.staticSeparator) {
-            this.staticSeparatorBitSet.set(i);
+        left.initialize(solver);
+        right.initialize(solver);
+        staticVarSet = left.staticVarSet();
+        staticVarSet.or(right.staticVarSet());
+        staticVariables = toArray(staticVarSet);
+        staticSeparator = sortedIntersect(left.staticVarSetArray(), right.staticVarSetArray());
+        for (final int i : staticSeparator) {
+            staticSeparatorBitSet.set(i);
         }
-        this.widestSeparator = Math.max(this.staticSeparator.length, Math.max(this.left.widestSeparator(), this.right.widestSeparator()));
-        this.localLeftVarSet = new BitSet(this.staticVariables[this.staticVariables.length - 1]);
-        this.localRightVarSet = new BitSet(this.staticVariables[this.staticVariables.length - 1]);
+        widestSeparator = Math.max(staticSeparator.length, Math.max(left.widestSeparator(), right.widestSeparator()));
+        localLeftVarSet = new BitSet(staticVariables[staticVariables.length - 1]);
+        localRightVarSet = new BitSet(staticVariables[staticVariables.length - 1]);
 
         final LNGIntVector lClauseContents = new LNGIntVector();
-        for (final DTreeLeaf leaf : this.leftLeafs) {
+        for (final DTreeLeaf leaf : leftLeafs) {
             for (final int i : leaf.literals()) {
                 lClauseContents.push(i);
             }
             lClauseContents.push(-leaf.getId() - 1);
         }
-        this.leftClauseContents = lClauseContents.toArray();
+        leftClauseContents = lClauseContents.toArray();
         final LNGIntVector rClauseContents = new LNGIntVector();
-        for (final DTreeLeaf leaf : this.rightLeafs) {
+        for (final DTreeLeaf leaf : rightLeafs) {
             for (final int i : leaf.literals()) {
                 rClauseContents.push(i);
             }
             rClauseContents.push(-leaf.getId() - 1);
         }
-        this.rightClauseContents = rClauseContents.toArray();
-        this.clauseContents = new int[this.leftClauseContents.length + this.rightClauseContents.length];
-        System.arraycopy(this.leftClauseContents, 0, this.clauseContents, 0, this.leftClauseContents.length);
-        System.arraycopy(this.rightClauseContents, 0, this.clauseContents, this.leftClauseContents.length, this.rightClauseContents.length);
+        rightClauseContents = rClauseContents.toArray();
+        clauseContents = new int[leftClauseContents.length + rightClauseContents.length];
+        System.arraycopy(leftClauseContents, 0, clauseContents, 0, leftClauseContents.length);
+        System.arraycopy(rightClauseContents, 0, clauseContents, leftClauseContents.length, rightClauseContents.length);
     }
 
     @Override
     public int size() {
-        return this.size;
+        return size;
     }
 
     @Override
     public SortedSet<Variable> staticVariableSet() {
-        return this.staticVariableSet;
+        return staticVariableSet;
     }
 
     @Override
     public BitSet dynamicSeparator() {
-        this.localLeftVarSet.clear();
-        this.localRightVarSet.clear();
-        varSet(this.leftClauseContents, this.localLeftVarSet);
-        varSet(this.rightClauseContents, this.localRightVarSet);
-        this.localLeftVarSet.and(this.localRightVarSet);
-        return this.localLeftVarSet;
+        localLeftVarSet.clear();
+        localRightVarSet.clear();
+        varSet(leftClauseContents, localLeftVarSet);
+        varSet(rightClauseContents, localRightVarSet);
+        localLeftVarSet.and(localRightVarSet);
+        return localLeftVarSet;
     }
 
     protected void varSet(final int[] clausesContents, final BitSet localVarSet) {
@@ -179,14 +155,14 @@ public class DTreeNode extends DTree {
             int j = i;
             boolean subsumed = false;
             while (clausesContents[j] >= 0) {
-                if (!subsumed && this.solver.valueOf(clausesContents[j]) == Tristate.TRUE) {
+                if (!subsumed && solver.valueOf(clausesContents[j]) == Tristate.TRUE) {
                     subsumed = true;
                 }
                 j++;
             }
             if (!subsumed) {
                 for (int n = i; n < j; n++) {
-                    if (this.solver.valueOf(clausesContents[n]) == Tristate.UNDEF) {
+                    if (solver.valueOf(clausesContents[n]) == Tristate.UNDEF) {
                         localVarSet.set(MiniSatStyleSolver.var(clausesContents[n]));
                     }
                 }
@@ -197,7 +173,7 @@ public class DTreeNode extends DTree {
 
     @Override
     public int[] staticClauseIds() {
-        return this.staticClauseIds;
+        return staticClauseIds;
     }
 
     /**
@@ -207,20 +183,20 @@ public class DTreeNode extends DTree {
      */
     public void cacheKey(final BitSet key, final int numberOfVariables) {
         int i = 0;
-        while (i < this.clauseContents.length) {
+        while (i < clauseContents.length) {
             int j = i;
             boolean subsumed = false;
-            while (this.clauseContents[j] >= 0) {
-                if (!subsumed && this.solver.valueOf(this.clauseContents[j]) == Tristate.TRUE) {
+            while (clauseContents[j] >= 0) {
+                if (!subsumed && solver.valueOf(clauseContents[j]) == Tristate.TRUE) {
                     subsumed = true;
                 }
                 j++;
             }
             if (!subsumed) {
-                key.set(-this.clauseContents[j] + 1 + numberOfVariables);
+                key.set(-clauseContents[j] + 1 + numberOfVariables);
                 for (int n = i; n < j; n++) {
-                    if (this.solver.valueOf(this.clauseContents[n]) == Tristate.UNDEF) {
-                        key.set(MiniSatStyleSolver.var(this.clauseContents[n]));
+                    if (solver.valueOf(clauseContents[n]) == Tristate.UNDEF) {
+                        key.set(MiniSatStyleSolver.var(clauseContents[n]));
                     }
                 }
             }
@@ -230,31 +206,31 @@ public class DTreeNode extends DTree {
 
     @Override
     public void countUnsubsumedOccurrences(final int[] occurrences) {
-        for (final DTreeLeaf leaf : this.leafs) {
+        for (final DTreeLeaf leaf : leafs) {
             leaf.countUnsubsumedOccurrences(occurrences);
         }
     }
 
     @Override
     public int depth() {
-        return this.depth;
+        return depth;
     }
 
     @Override
     public int widestSeparator() {
-        return this.widestSeparator;
+        return widestSeparator;
     }
 
     @Override
     public List<DTreeLeaf> leafs() {
-        final List<DTreeLeaf> result = this.left.leafs();
-        result.addAll(this.right.leafs());
+        final List<DTreeLeaf> result = left.leafs();
+        result.addAll(right.leafs());
         return result;
     }
 
     @Override
     public String toString() {
-        return String.format("DTreeNode: [%s, %s]", this.left, this.right);
+        return String.format("DTreeNode: [%s, %s]", left, right);
     }
 
     protected void excludeUnitLeafs(final List<DTreeLeaf> leafs) {

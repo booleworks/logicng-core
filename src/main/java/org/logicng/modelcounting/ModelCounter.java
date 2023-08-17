@@ -106,7 +106,7 @@ public final class ModelCounter {
         final DnnfFactory factory = new DnnfFactory();
         BigInteger count = BigInteger.ONE;
         for (final List<Formula> component : components) {
-            final Dnnf dnnf = factory.compile(f.and(component));
+            final Dnnf dnnf = factory.compile(f.and(component), f);
             count = count.multiply(dnnf.execute(DnnfModelCountFunction.get()));
         }
         return count;
@@ -123,8 +123,8 @@ public final class ModelCounter {
 
         public SortedSet<Variable> getDontCareVariables(final SortedSet<Variable> variables) {
             final SortedSet<Variable> dontCareVariables = new TreeSet<>(variables);
-            dontCareVariables.removeAll(FormulaHelper.variables(this.simplifiedFormulas));
-            dontCareVariables.removeAll(this.backboneVariables);
+            dontCareVariables.removeAll(FormulaHelper.variables(simplifiedFormulas));
+            dontCareVariables.removeAll(backboneVariables);
             return dontCareVariables;
         }
     }

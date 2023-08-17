@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.dnnf.datastructures.dtree;
 
@@ -81,20 +57,20 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
          */
         public Graph(final Formula cnf) {
             /* build vertices */
-            this.numberOfVertices = cnf.variables().size();
-            this.vertices = new ArrayList<>(this.numberOfVertices);
+            numberOfVertices = cnf.variables().size();
+            vertices = new ArrayList<>(numberOfVertices);
             final Map<Literal, Integer> varToIndex = new HashMap<>();
             int index = 0;
             for (final Variable variable : cnf.variables()) {
-                this.vertices.add(variable);
+                vertices.add(variable);
                 varToIndex.put(variable, index++);
             }
 
             /* build edge list and adjacency matrix */
-            this.adjMatrix = new boolean[this.numberOfVertices][this.numberOfVertices];
-            this.edgeList = new ArrayList<>(this.numberOfVertices);
-            for (int i = 0; i < this.numberOfVertices; i++) {
-                this.edgeList.add(new LNGIntVector());
+            adjMatrix = new boolean[numberOfVertices][numberOfVertices];
+            edgeList = new ArrayList<>(numberOfVertices);
+            for (int i = 0; i < numberOfVertices; i++) {
+                edgeList.add(new LNGIntVector());
             }
 
             for (final Formula clause : cnf) {
@@ -106,10 +82,10 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
                 }
                 for (int i = 0; i < varNums.length; i++) {
                     for (int j = i + 1; j < varNums.length; j++) {
-                        this.edgeList.get(varNums[i]).push(varNums[j]);
-                        this.edgeList.get(varNums[j]).push(varNums[i]);
-                        this.adjMatrix[varNums[i]][varNums[j]] = true;
-                        this.adjMatrix[varNums[j]][varNums[i]] = true;
+                        edgeList.get(varNums[i]).push(varNums[j]);
+                        edgeList.get(varNums[j]).push(varNums[i]);
+                        adjMatrix[varNums[i]][varNums[j]] = true;
+                        adjMatrix[varNums[j]][varNums[i]] = true;
                     }
                 }
             }
@@ -117,16 +93,16 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
 
         protected List<LNGIntVector> getCopyOfEdgeList() {
             final List<LNGIntVector> result = new ArrayList<>();
-            for (final LNGIntVector edge : this.edgeList) {
+            for (final LNGIntVector edge : edgeList) {
                 result.add(new LNGIntVector(edge));
             }
             return result;
         }
 
         protected boolean[][] getCopyOfAdjMatrix() {
-            final boolean[][] result = new boolean[this.numberOfVertices][this.numberOfVertices];
-            for (int i = 0; i < this.numberOfVertices; i++) {
-                result[i] = Arrays.copyOf(this.adjMatrix[i], this.numberOfVertices);
+            final boolean[][] result = new boolean[numberOfVertices][numberOfVertices];
+            for (int i = 0; i < numberOfVertices; i++) {
+                result[i] = Arrays.copyOf(adjMatrix[i], numberOfVertices);
             }
             return result;
         }
@@ -135,14 +111,14 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
             final boolean[][] fillAdjMatrix = getCopyOfAdjMatrix();
             final List<LNGIntVector> fillEdgeList = getCopyOfEdgeList();
 
-            final Variable[] ordering = new Variable[this.numberOfVertices];
-            final boolean[] processed = new boolean[this.numberOfVertices];
+            final Variable[] ordering = new Variable[numberOfVertices];
+            final boolean[] processed = new boolean[numberOfVertices];
             int treewidth = 0;
 
-            for (int iteration = 0; iteration < this.numberOfVertices; iteration++) {
+            for (int iteration = 0; iteration < numberOfVertices; iteration++) {
                 final LNGIntVector possiblyBestVertices = new LNGIntVector();
                 int minEdges = Integer.MAX_VALUE;
-                for (int currentVertex = 0; currentVertex < this.numberOfVertices; currentVertex++) {
+                for (int currentVertex = 0; currentVertex < numberOfVertices; currentVertex++) {
                     if (processed[currentVertex]) {
                         continue;
                     }
@@ -195,7 +171,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
                 }
 
                 int currentNumberOfEdges = 0;
-                for (int k = 0; k < this.numberOfVertices; k++) {
+                for (int k = 0; k < numberOfVertices; k++) {
                     if (fillAdjMatrix[bestVertex][k] && !processed[k]) {
                         currentNumberOfEdges++;
                     }
@@ -205,7 +181,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
                 }
 
                 processed[bestVertex] = true;
-                ordering[iteration] = this.vertices.get(bestVertex);
+                ordering[iteration] = vertices.get(bestVertex);
             }
             return Arrays.asList(ordering);
         }
