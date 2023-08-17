@@ -165,7 +165,7 @@ public interface Formula extends Iterable<Formula> {
      * @see NNFPredicate the NNF predicate
      */
     default boolean isNNF() {
-        return holds(NNFPredicate.get());
+        return holds(new NNFPredicate());
     }
 
     /**
@@ -174,7 +174,7 @@ public interface Formula extends Iterable<Formula> {
      * @see DNFPredicate the DNF predicate
      */
     default boolean isDNF() {
-        return holds(DNFPredicate.get());
+        return holds(new DNFPredicate());
     }
 
     /**
@@ -183,7 +183,7 @@ public interface Formula extends Iterable<Formula> {
      * @see CNFPredicate the CNF predicate
      */
     default boolean isCNF() {
-        return holds(CNFPredicate.get());
+        return holds(new CNFPredicate());
     }
 
     /**
@@ -398,17 +398,7 @@ public interface Formula extends Iterable<Formula> {
      * @return {@code true} if the predicate holds, {@code false} otherwise
      */
     default boolean holds(final FormulaPredicate predicate) {
-        return predicate.test(this, true);
-    }
-
-    /**
-     * Evaluates a given predicate on this formula and returns {@code true} if the predicate holds, {@code false} otherwise.
-     * @param predicate the predicate
-     * @param cache     indicates whether the result should be cached in this formula's cache
-     * @return {@code true} if the predicate holds, {@code false} otherwise
-     */
-    default boolean holds(final FormulaPredicate predicate, final boolean cache) {
-        return predicate.test(this, cache);
+        return predicate.test(this);
     }
 
     /**

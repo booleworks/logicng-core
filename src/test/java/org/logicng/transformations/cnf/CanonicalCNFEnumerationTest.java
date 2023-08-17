@@ -60,7 +60,7 @@ public class CanonicalCNFEnumerationTest {
     private void test(final Formula formula) {
         final FormulaFactory f = formula.factory();
         final Formula cnf = new CanonicalCNFEnumeration(f).apply(formula);
-        assertThat(cnf.holds(CNFPredicate.get())).isTrue();
+        assertThat(cnf.holds(new CNFPredicate())).isTrue();
         assertThat(f.equivalence(formula, cnf).holds(new TautologyPredicate(f))).isTrue();
         if (formula.holds(new TautologyPredicate(f))) {
             assertThat(cnf).isEqualTo(f.verum());
