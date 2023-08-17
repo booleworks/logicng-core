@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.functions;
 
@@ -47,17 +23,13 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-/**
- * Unit tests for {@link LiteralProfileFunction}.
- * @version 2.0.0
- * @since 1.0
- */
 public class LiteralProfileTest {
 
     private final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
     private final FormulaFactory f2 = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
 
-    private final LiteralProfileFunction litProfile = LiteralProfileFunction.get();
+    private final LiteralProfileFunction caching = LiteralProfileFunction.get(true);
+    private final LiteralProfileFunction nonCaching = LiteralProfileFunction.get(false);
 
     private final Formula pb1;
     private final Formula pb2;
@@ -86,10 +58,10 @@ public class LiteralProfileTest {
 
     @Test
     public void testConstants() {
-        assertThat(this.f.verum().apply(this.litProfile, true)).isEqualTo(new HashMap<>());
-        assertThat(this.f.verum().apply(this.litProfile, false)).isEqualTo(new HashMap<>());
-        assertThat(this.f.falsum().apply(this.litProfile, true)).isEqualTo(new HashMap<>());
-        assertThat(this.f.falsum().apply(this.litProfile, false)).isEqualTo(new HashMap<>());
+        assertThat(this.f.verum().apply(this.caching)).isEqualTo(new HashMap<>());
+        assertThat(this.f.verum().apply(this.nonCaching)).isEqualTo(new HashMap<>());
+        assertThat(this.f.falsum().apply(this.caching)).isEqualTo(new HashMap<>());
+        assertThat(this.f.falsum().apply(this.nonCaching)).isEqualTo(new HashMap<>());
     }
 
     @Test
@@ -98,10 +70,10 @@ public class LiteralProfileTest {
         expectedPos.put(this.f2.variable("a"), 1);
         final Map<Literal, Integer> expectedNeg = new HashMap<>();
         expectedNeg.put(this.f2.literal("a", false), 1);
-        assertThat(this.f.literal("a", true).apply(this.litProfile, true)).isEqualTo(expectedPos);
-        assertThat(this.f.literal("a", true).apply(this.litProfile, false)).isEqualTo(expectedPos);
-        assertThat(this.f.literal("a", false).apply(this.litProfile, true)).isEqualTo(expectedNeg);
-        assertThat(this.f.literal("a", false).apply(this.litProfile, false)).isEqualTo(expectedNeg);
+        assertThat(this.f.literal("a", true).apply(this.caching)).isEqualTo(expectedPos);
+        assertThat(this.f.literal("a", true).apply(this.nonCaching)).isEqualTo(expectedPos);
+        assertThat(this.f.literal("a", false).apply(this.caching)).isEqualTo(expectedNeg);
+        assertThat(this.f.literal("a", false).apply(this.nonCaching)).isEqualTo(expectedNeg);
     }
 
     @Test
@@ -117,23 +89,23 @@ public class LiteralProfileTest {
         exp2CC.put(this.f.variable("b"), 1);
         exp2CC.put(this.f.variable("c"), 1);
 
-        assertThat(this.pb1.apply(this.litProfile, true)).isEqualTo(exp1);
-        assertThat(this.pb2.apply(this.litProfile, true)).isEqualTo(exp2);
-        assertThat(this.cc1.apply(this.litProfile, true)).isEqualTo(exp1);
-        assertThat(this.cc2.apply(this.litProfile, true)).isEqualTo(exp2CC);
-        assertThat(this.amo1.apply(this.litProfile, true)).isEqualTo(exp1);
-        assertThat(this.amo2.apply(this.litProfile, true)).isEqualTo(exp2CC);
-        assertThat(this.exo1.apply(this.litProfile, true)).isEqualTo(exp1);
-        assertThat(this.exo2.apply(this.litProfile, true)).isEqualTo(exp2CC);
+        assertThat(this.pb1.apply(this.caching)).isEqualTo(exp1);
+        assertThat(this.pb2.apply(this.caching)).isEqualTo(exp2);
+        assertThat(this.cc1.apply(this.caching)).isEqualTo(exp1);
+        assertThat(this.cc2.apply(this.caching)).isEqualTo(exp2CC);
+        assertThat(this.amo1.apply(this.caching)).isEqualTo(exp1);
+        assertThat(this.amo2.apply(this.caching)).isEqualTo(exp2CC);
+        assertThat(this.exo1.apply(this.caching)).isEqualTo(exp1);
+        assertThat(this.exo2.apply(this.caching)).isEqualTo(exp2CC);
 
-        assertThat(this.pb1.apply(this.litProfile, false)).isEqualTo(exp1);
-        assertThat(this.pb2.apply(this.litProfile, false)).isEqualTo(exp2);
-        assertThat(this.cc1.apply(this.litProfile, false)).isEqualTo(exp1);
-        assertThat(this.cc2.apply(this.litProfile, false)).isEqualTo(exp2CC);
-        assertThat(this.amo1.apply(this.litProfile, false)).isEqualTo(exp1);
-        assertThat(this.amo2.apply(this.litProfile, false)).isEqualTo(exp2CC);
-        assertThat(this.exo1.apply(this.litProfile, false)).isEqualTo(exp1);
-        assertThat(this.exo2.apply(this.litProfile, false)).isEqualTo(exp2CC);
+        assertThat(this.pb1.apply(this.nonCaching)).isEqualTo(exp1);
+        assertThat(this.pb2.apply(this.nonCaching)).isEqualTo(exp2);
+        assertThat(this.cc1.apply(this.nonCaching)).isEqualTo(exp1);
+        assertThat(this.cc2.apply(this.nonCaching)).isEqualTo(exp2CC);
+        assertThat(this.amo1.apply(this.nonCaching)).isEqualTo(exp1);
+        assertThat(this.amo2.apply(this.nonCaching)).isEqualTo(exp2CC);
+        assertThat(this.exo1.apply(this.nonCaching)).isEqualTo(exp1);
+        assertThat(this.exo2.apply(this.nonCaching)).isEqualTo(exp2CC);
     }
 
     @Test
@@ -146,8 +118,8 @@ public class LiteralProfileTest {
         expected.put(this.f2.literal("c", false), 2);
         final PropositionalParser p = new PropositionalParser(this.f);
         final Formula formula = p.parse("~(a & (b | c) & ((~b | ~c) => (~c & a)))");
-        assertThat(formula.apply(this.litProfile, true)).isEqualTo(expected);
-        assertThat(formula.apply(this.litProfile, false)).isEqualTo(expected);
+        assertThat(formula.apply(this.caching)).isEqualTo(expected);
+        assertThat(formula.apply(this.nonCaching)).isEqualTo(expected);
     }
 
     @Test
@@ -161,10 +133,10 @@ public class LiteralProfileTest {
         final PropositionalParser p = new PropositionalParser(this.f);
         final Formula impl = p.parse("(a & (b | c) & (~b | ~c)) => (~c & a)");
         final Formula equiv = p.parse("(a & (b | c) & (~b | ~c)) <=> (~c & a)");
-        assertThat(impl.apply(this.litProfile, true)).isEqualTo(expected);
-        assertThat(impl.apply(this.litProfile, false)).isEqualTo(expected);
-        assertThat(equiv.apply(this.litProfile, true)).isEqualTo(expected);
-        assertThat(equiv.apply(this.litProfile, false)).isEqualTo(expected);
+        assertThat(impl.apply(this.caching)).isEqualTo(expected);
+        assertThat(impl.apply(this.nonCaching)).isEqualTo(expected);
+        assertThat(equiv.apply(this.caching)).isEqualTo(expected);
+        assertThat(equiv.apply(this.nonCaching)).isEqualTo(expected);
     }
 
     @Test
@@ -177,7 +149,7 @@ public class LiteralProfileTest {
         expected.put(this.f2.literal("c", false), 2);
         final PropositionalParser p = new PropositionalParser(this.f);
         final Formula formula = p.parse("a & (b | c) & (~b | ~c) | (~c & a)");
-        assertThat(formula.apply(this.litProfile, true)).isEqualTo(expected);
-        assertThat(formula.apply(this.litProfile, false)).isEqualTo(expected);
+        assertThat(formula.apply(this.caching)).isEqualTo(expected);
+        assertThat(formula.apply(this.nonCaching)).isEqualTo(expected);
     }
 }

@@ -31,7 +31,7 @@ public class DefaultRatingFunction implements RatingFunction<Integer> {
     }
 
     @Override
-    public Integer apply(final Formula formula, final boolean cache) {
+    public Integer apply(final Formula formula) {
         return formatter.toString(formula).length();
     }
 }

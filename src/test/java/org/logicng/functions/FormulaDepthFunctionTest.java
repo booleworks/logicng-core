@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.functions;
 
@@ -38,44 +14,39 @@ import org.logicng.formulas.Variable;
 import org.logicng.formulas.cache.FunctionCacheEntry;
 import org.logicng.io.parsers.ParserException;
 
-/**
- * Unit Tests for the class {@link FormulaDepthFunction}.
- * @version 2.0.0
- * @since 2.0.0
- */
 public class FormulaDepthFunctionTest extends TestWithExampleFormulas {
 
     @Test
     public void testAtoms() {
-        assertThat(this.TRUE.apply(FormulaDepthFunction.get())).isEqualTo(0);
-        assertThat(this.FALSE.apply(FormulaDepthFunction.get())).isEqualTo(0);
-        assertThat(this.A.apply(FormulaDepthFunction.get())).isEqualTo(0);
-        assertThat(this.NA.apply(FormulaDepthFunction.get())).isEqualTo(0);
-        assertThat(this.PBC1.apply(FormulaDepthFunction.get())).isEqualTo(0);
-        assertThat(this.PBC2.apply(FormulaDepthFunction.get())).isEqualTo(0);
-        assertThat(this.PBC3.apply(FormulaDepthFunction.get())).isEqualTo(0);
-        assertThat(this.PBC4.apply(FormulaDepthFunction.get())).isEqualTo(0);
-        assertThat(this.PBC5.apply(FormulaDepthFunction.get())).isEqualTo(0);
+        assertThat(this.TRUE.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
+        assertThat(this.FALSE.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
+        assertThat(this.A.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
+        assertThat(this.NA.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
+        assertThat(this.PBC1.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
+        assertThat(this.PBC2.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
+        assertThat(this.PBC3.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
+        assertThat(this.PBC4.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
+        assertThat(this.PBC5.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
     }
 
     @Test
     public void testDeepFormulas() {
-        assertThat(this.AND1.apply(FormulaDepthFunction.get())).isEqualTo(1);
-        assertThat(this.AND2.apply(FormulaDepthFunction.get())).isEqualTo(1);
-        assertThat(this.AND3.apply(FormulaDepthFunction.get())).isEqualTo(2);
-        assertThat(this.OR1.apply(FormulaDepthFunction.get())).isEqualTo(1);
-        assertThat(this.OR2.apply(FormulaDepthFunction.get())).isEqualTo(1);
-        assertThat(this.OR3.apply(FormulaDepthFunction.get())).isEqualTo(2);
-        assertThat(this.NOT1.apply(FormulaDepthFunction.get())).isEqualTo(2);
-        assertThat(this.NOT2.apply(FormulaDepthFunction.get())).isEqualTo(2);
-        assertThat(this.IMP1.apply(FormulaDepthFunction.get())).isEqualTo(1);
-        assertThat(this.IMP2.apply(FormulaDepthFunction.get())).isEqualTo(1);
-        assertThat(this.IMP3.apply(FormulaDepthFunction.get())).isEqualTo(2);
-        assertThat(this.IMP4.apply(FormulaDepthFunction.get())).isEqualTo(2);
-        assertThat(this.EQ1.apply(FormulaDepthFunction.get())).isEqualTo(1);
-        assertThat(this.EQ2.apply(FormulaDepthFunction.get())).isEqualTo(1);
-        assertThat(this.EQ3.apply(FormulaDepthFunction.get())).isEqualTo(2);
-        assertThat(this.EQ4.apply(FormulaDepthFunction.get())).isEqualTo(2);
+        assertThat(this.AND1.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
+        assertThat(this.AND2.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
+        assertThat(this.AND3.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
+        assertThat(this.OR1.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
+        assertThat(this.OR2.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
+        assertThat(this.OR3.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
+        assertThat(this.NOT1.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
+        assertThat(this.NOT2.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
+        assertThat(this.IMP1.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
+        assertThat(this.IMP2.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
+        assertThat(this.IMP3.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
+        assertThat(this.IMP4.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
+        assertThat(this.EQ1.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
+        assertThat(this.EQ2.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
+        assertThat(this.EQ3.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
+        assertThat(this.EQ4.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
     }
 
     @Test
@@ -85,7 +56,7 @@ public class FormulaDepthFunctionTest extends TestWithExampleFormulas {
             final Variable var = this.f.variable("X" + i);
             formula = i % 2 == 0 ? this.f.or(formula, var) : this.f.and(formula, var);
         }
-        assertThat(formula.apply(FormulaDepthFunction.get())).isEqualTo(10);
+        assertThat(formula.apply(FormulaDepthFunction.get(true))).isEqualTo(10);
     }
 
     @Test
@@ -93,11 +64,11 @@ public class FormulaDepthFunctionTest extends TestWithExampleFormulas {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = f.parse("A & B | C");
         assertThat(formula.functionCacheEntry(FunctionCacheEntry.DEPTH)).isNull();
-        assertThat(formula.apply(FormulaDepthFunction.get())).isEqualTo(2);
+        assertThat(formula.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
         assertThat(formula.functionCacheEntry(FunctionCacheEntry.DEPTH)).isEqualTo(2);
         assertThat(f.variable("A").functionCacheEntry(FunctionCacheEntry.DEPTH)).isEqualTo(0);
 
         formula.setFunctionCacheEntry(FunctionCacheEntry.DEPTH, 3);
-        assertThat(formula.apply(FormulaDepthFunction.get())).isEqualTo(3);
+        assertThat(formula.apply(FormulaDepthFunction.get(true))).isEqualTo(3);
     }
 }

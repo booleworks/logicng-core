@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.util;
 
@@ -54,11 +30,6 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-/**
- * Unit Tests for the class {@link FormulaRandomizer}.
- * @version 2.0.0
- * @since 2.0.0
- */
 public class FormulaRandomizerTest {
 
     private final FormulaFactory f = FormulaFactory.caching();
@@ -203,7 +174,7 @@ public class FormulaRandomizerTest {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.and(depth);
                 assertThat(formula).isInstanceOf(And.class);
-                assertThat(formula.apply(FormulaDepthFunction.get())).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(FormulaDepthFunction.get(true))).isLessThanOrEqualTo(depth);
             }
         }
     }
@@ -218,7 +189,7 @@ public class FormulaRandomizerTest {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.or(depth);
                 assertThat(formula).isInstanceOf(Or.class);
-                assertThat(formula.apply(FormulaDepthFunction.get())).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(FormulaDepthFunction.get(true))).isLessThanOrEqualTo(depth);
             }
         }
     }
@@ -234,7 +205,7 @@ public class FormulaRandomizerTest {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.not(depth);
                 assertThat(formula).isInstanceOf(Not.class);
-                assertThat(formula.apply(FormulaDepthFunction.get())).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(FormulaDepthFunction.get(true))).isLessThanOrEqualTo(depth);
             }
         }
     }
@@ -249,7 +220,7 @@ public class FormulaRandomizerTest {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.impl(depth);
                 assertThat(formula).isInstanceOf(Implication.class);
-                assertThat(formula.apply(FormulaDepthFunction.get())).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(FormulaDepthFunction.get(true))).isLessThanOrEqualTo(depth);
             }
         }
     }
@@ -264,7 +235,7 @@ public class FormulaRandomizerTest {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.equiv(depth);
                 assertThat(formula).isInstanceOf(Equivalence.class);
-                assertThat(formula.apply(FormulaDepthFunction.get())).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(FormulaDepthFunction.get(true))).isLessThanOrEqualTo(depth);
             }
         }
     }
@@ -438,7 +409,7 @@ public class FormulaRandomizerTest {
         for (int i = 0; i < 10000; i++) {
             final Formula formula = random.formula(3);
             countOccurrences(formula, occurrences, 3);
-            assertThat(formula.apply(FormulaDepthFunction.get())).isLessThanOrEqualTo(3);
+            assertThat(formula.apply(FormulaDepthFunction.get(true))).isLessThanOrEqualTo(3);
         }
         final int totalOccurrences = occurrences.get("and") + occurrences.get("or") + occurrences.get("impl") + occurrences.get("equiv");
         // Considering constants does not make sense (they are always removed)
@@ -466,7 +437,7 @@ public class FormulaRandomizerTest {
         for (int i = 0; i < 10000; i++) {
             final Formula formula = random.formula(3);
             countOccurrences(formula, occurrences, 3);
-            assertThat(formula.apply(FormulaDepthFunction.get())).isLessThanOrEqualTo(3);
+            assertThat(formula.apply(FormulaDepthFunction.get(true))).isLessThanOrEqualTo(3);
         }
         assertThat(occurrences.get("negLit")).isStrictlyBetween((int) (.8 * occurrences.get("posLit")), (int) (1.2 * occurrences.get("posLit")));
         assertThat(occurrences.get("pbc")).isStrictlyBetween((int) (.8 * occurrences.get("posLit")), (int) (1.2 * occurrences.get("posLit")));

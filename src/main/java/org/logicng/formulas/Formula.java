@@ -54,7 +54,7 @@ public interface Formula extends Iterable<Formula> {
      * @return the number of atomic formulas of this formula.
      */
     default long numberOfAtoms() {
-        return NumberOfAtomsFunction.get().apply(this, true);
+        return NumberOfAtomsFunction.get(true).apply(this);
     }
 
     /**
@@ -62,7 +62,7 @@ public interface Formula extends Iterable<Formula> {
      * @return the number of nodes of this formula.
      */
     default long numberOfNodes() {
-        return NumberOfNodesFunction.get().apply(this, true);
+        return NumberOfNodesFunction.get(true).apply(this);
     }
 
     /**
@@ -97,7 +97,7 @@ public interface Formula extends Iterable<Formula> {
      * @return all variables occurring in this formula
      */
     default SortedSet<Variable> variables() {
-        return VariablesFunction.get().apply(this, true);
+        return VariablesFunction.get(true).apply(this);
     }
 
     /**
@@ -106,7 +106,7 @@ public interface Formula extends Iterable<Formula> {
      * @return all literals occurring in this formula
      */
     default SortedSet<Literal> literals() {
-        return LiteralsFunction.get().apply(this, true);
+        return LiteralsFunction.get(true).apply(this);
     }
 
     /**
@@ -404,22 +404,11 @@ public interface Formula extends Iterable<Formula> {
     /**
      * Applies a given function on this formula and returns the result.
      * @param function the function
-     * @param cache    indicates whether the result should be cached in this formula's cache
-     * @param <T>      the result type of the function
-     * @return the result of the function application
-     */
-    default <T> T apply(final FormulaFunction<T> function, final boolean cache) {
-        return function.apply(this, cache);
-    }
-
-    /**
-     * Applies a given function on this formula, caches and returns the result.
-     * @param function the function
      * @param <T>      the result type of the function
      * @return the result of the function application
      */
     default <T> T apply(final FormulaFunction<T> function) {
-        return function.apply(this, true);
+        return function.apply(this);
     }
 
     /**

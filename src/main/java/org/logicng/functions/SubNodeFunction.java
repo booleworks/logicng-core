@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.functions;
 
@@ -43,23 +19,22 @@ import java.util.LinkedHashSet;
  */
 public final class SubNodeFunction implements FormulaFunction<LinkedHashSet<Formula>> {
 
-    private static final SubNodeFunction INSTANCE = new SubNodeFunction();
+    private static final SubNodeFunction CACHING_INSTANCE = new SubNodeFunction(true);
+    private static final SubNodeFunction NON_CACHING_INSTANCE = new SubNodeFunction(false);
 
-    private SubNodeFunction() {
-        // Intentionally left empty
+    private final boolean useCache;
+
+    private SubNodeFunction(final boolean useCache) {
+        this.useCache = useCache;
     }
 
-    /**
-     * Returns the singleton instance of this function.
-     * @return an instance of this function
-     */
-    public static SubNodeFunction get() {
-        return INSTANCE;
+    public static SubNodeFunction get(final boolean useCache) {
+        return useCache ? CACHING_INSTANCE : NON_CACHING_INSTANCE;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public LinkedHashSet<Formula> apply(final Formula formula, final boolean cache) {
+    public LinkedHashSet<Formula> apply(final Formula formula) {
         final Object cached = formula.functionCacheEntry(SUBFORMULAS);
         if (cached != null) {
             return (LinkedHashSet<Formula>) cached;
@@ -67,11 +42,11 @@ public final class SubNodeFunction implements FormulaFunction<LinkedHashSet<Form
         final LinkedHashSet<Formula> result = new LinkedHashSet<>();
         for (final Formula op : formula) {
             if (!result.contains(op)) {
-                result.addAll(apply(op, cache));
+                result.addAll(apply(op));
             }
         }
         result.add(formula);
-        if (cache) {
+        if (useCache) {
             formula.setFunctionCacheEntry(SUBFORMULAS, result);
         }
         return result;

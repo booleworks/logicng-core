@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.functions;
 
 import static org.logicng.formulas.cache.FunctionCacheEntry.NUMBER_OF_ATOMS;
@@ -10,30 +14,26 @@ import org.logicng.formulas.Not;
 
 /**
  * A function that computes the number of atoms occurring in a given formula.
- * @version 2.2.0
+ * @version 3.0.0
  * @since 2.2.0
  */
 public class NumberOfAtomsFunction implements FormulaFunction<Long> {
 
-    private final static NumberOfAtomsFunction INSTANCE = new NumberOfAtomsFunction();
+    private static final NumberOfAtomsFunction CACHING_INSTANCE = new NumberOfAtomsFunction(true);
+    private static final NumberOfAtomsFunction NON_CACHING_INSTANCE = new NumberOfAtomsFunction(false);
 
-    /**
-     * Private empty constructor.  Singleton class.
-     */
-    private NumberOfAtomsFunction() {
-        // Intentionally left empty
+    private final boolean useCache;
+
+    private NumberOfAtomsFunction(final boolean useCache) {
+        this.useCache = useCache;
     }
 
-    /**
-     * Returns the singleton of the function.
-     * @return the function instance
-     */
-    public static NumberOfAtomsFunction get() {
-        return INSTANCE;
+    public static NumberOfAtomsFunction get(final boolean useCache) {
+        return useCache ? CACHING_INSTANCE : NON_CACHING_INSTANCE;
     }
 
     @Override
-    public Long apply(final Formula formula, final boolean cache) {
+    public Long apply(final Formula formula) {
         final Object cached = formula.functionCacheEntry(NUMBER_OF_ATOMS);
         if (cached != null) {
             return (Long) cached;
@@ -48,24 +48,24 @@ public class NumberOfAtomsFunction implements FormulaFunction<Long> {
                 result = 1L;
                 break;
             case NOT:
-                result = apply(((Not) formula).operand(), cache);
+                result = apply(((Not) formula).operand());
                 break;
             case IMPL:
             case EQUIV:
                 final BinaryOperator binary = (BinaryOperator) formula;
-                result = apply(binary.left(), cache) + apply(binary.right(), cache);
+                result = apply(binary.left()) + apply(binary.right());
                 break;
             case OR:
             case AND:
                 final NAryOperator nary = (NAryOperator) formula;
                 for (final Formula op : nary) {
-                    result += apply(op, cache);
+                    result += apply(op);
                 }
                 break;
             default:
                 throw new IllegalStateException("Unknown formula type " + formula.type());
         }
-        if (cache) {
+        if (useCache) {
             formula.setFunctionCacheEntry(NUMBER_OF_ATOMS, result);
         }
         return result;

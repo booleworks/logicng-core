@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.functions;
 
 import static org.logicng.formulas.cache.FunctionCacheEntry.VARIABLES;
@@ -18,30 +22,26 @@ import java.util.TreeSet;
 
 /**
  * A function that computes all variables occurring in a given formula.
- * @version 2.2.0
+ * @version 3.0.0
  * @since 2.2.0
  */
 public class VariablesFunction implements FormulaFunction<SortedSet<Variable>> {
 
-    private final static VariablesFunction INSTANCE = new VariablesFunction();
+    private static final VariablesFunction CACHING_INSTANCE = new VariablesFunction(true);
+    private static final VariablesFunction NON_CACHING_INSTANCE = new VariablesFunction(false);
 
-    /**
-     * Private empty constructor. Singleton class.
-     */
-    private VariablesFunction() {
-        // Intentionally left empty
+    private final boolean useCache;
+
+    private VariablesFunction(final boolean useCache) {
+        this.useCache = useCache;
     }
 
-    /**
-     * Returns the singleton of the function.
-     * @return the function instance
-     */
-    public static VariablesFunction get() {
-        return INSTANCE;
+    public static VariablesFunction get(final boolean useCache) {
+        return useCache ? CACHING_INSTANCE : NON_CACHING_INSTANCE;
     }
 
     @Override
-    public SortedSet<Variable> apply(final Formula formula, final boolean cache) {
+    public SortedSet<Variable> apply(final Formula formula) {
         final Object cached = formula.functionCacheEntry(VARIABLES);
         if (cached != null) {
             return (SortedSet<Variable>) cached;
@@ -59,19 +59,19 @@ public class VariablesFunction implements FormulaFunction<SortedSet<Variable>> {
                 break;
             case NOT:
                 final Not not = (Not) formula;
-                result = apply(not.operand(), cache);
+                result = apply(not.operand());
                 break;
             case IMPL:
             case EQUIV:
                 final BinaryOperator binary = (BinaryOperator) formula;
-                result.addAll(apply(binary.left(), cache));
-                result.addAll(apply(binary.right(), cache));
+                result.addAll(apply(binary.left()));
+                result.addAll(apply(binary.right()));
                 break;
             case OR:
             case AND:
                 final NAryOperator nary = (NAryOperator) formula;
                 for (final Formula op : nary) {
-                    result.addAll(apply(op, cache));
+                    result.addAll(apply(op));
                 }
                 break;
             case PBC:
@@ -82,7 +82,7 @@ public class VariablesFunction implements FormulaFunction<SortedSet<Variable>> {
                 throw new IllegalStateException("Unknown formula type " + formula.type());
         }
         result = Collections.unmodifiableSortedSet(result);
-        if (cache) {
+        if (useCache) {
             formula.setFunctionCacheEntry(VARIABLES, result);
         }
         return result;
