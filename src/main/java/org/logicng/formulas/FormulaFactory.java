@@ -333,7 +333,7 @@ public abstract class FormulaFactory {
         }
         final Formula operand = importOrPanic(formula);
         if (operand.type() == LITERAL || operand.type() == FALSE || operand.type() == TRUE || operand.type() == NOT) {
-            return operand.negate();
+            return operand.negate(this);
         }
         return internalNot(operand);
     }

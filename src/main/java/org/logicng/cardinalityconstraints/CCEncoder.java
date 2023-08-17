@@ -376,7 +376,7 @@ public class CCEncoder {
         }
         if (rhs == 0) {
             for (final Variable var : vars) {
-                result.addClause(var.negate());
+                result.addClause(var.negate(result.factory()));
             }
             return;
         }
