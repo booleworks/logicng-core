@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.functions;
 
@@ -41,22 +17,21 @@ import org.logicng.formulas.FormulaFunction;
  */
 public final class FormulaDepthFunction implements FormulaFunction<Integer> {
 
-    private static final FormulaDepthFunction INSTANCE = new FormulaDepthFunction();
+    private static final FormulaDepthFunction CACHING_INSTANCE = new FormulaDepthFunction(true);
+    private static final FormulaDepthFunction NON_CACHING_INSTANCE = new FormulaDepthFunction(false);
 
-    private FormulaDepthFunction() {
-        // Intentionally left empty
+    private final boolean useCache;
+
+    private FormulaDepthFunction(final boolean useCache) {
+        this.useCache = useCache;
     }
 
-    /**
-     * Returns the singleton instance of this function.
-     * @return an instance of this function
-     */
-    public static FormulaDepthFunction get() {
-        return INSTANCE;
+    public static FormulaDepthFunction get(final boolean useCache) {
+        return useCache ? CACHING_INSTANCE : NON_CACHING_INSTANCE;
     }
 
     @Override
-    public Integer apply(final Formula formula, final boolean cache) {
+    public Integer apply(final Formula formula) {
         final Object cached = formula.functionCacheEntry(DEPTH);
         if (cached != null) {
             return (Integer) cached;
@@ -67,11 +42,11 @@ public final class FormulaDepthFunction implements FormulaFunction<Integer> {
         } else {
             int maxDepth = 0;
             for (final Formula op : formula) {
-                maxDepth = Math.max(maxDepth, apply(op, cache));
+                maxDepth = Math.max(maxDepth, apply(op));
             }
             result = maxDepth + 1;
         }
-        if (cache) {
+        if (useCache) {
             formula.setFunctionCacheEntry(DEPTH, result);
         }
         return result;

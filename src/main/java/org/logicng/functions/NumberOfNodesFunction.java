@@ -20,25 +20,21 @@ import org.logicng.formulas.PBConstraint;
  */
 public class NumberOfNodesFunction implements FormulaFunction<Long> {
 
-    private final static NumberOfNodesFunction INSTANCE = new NumberOfNodesFunction();
+    private static final NumberOfNodesFunction CACHING_INSTANCE = new NumberOfNodesFunction(true);
+    private static final NumberOfNodesFunction NON_CACHING_INSTANCE = new NumberOfNodesFunction(false);
 
-    /**
-     * Private empty constructor.  Singleton class.
-     */
-    private NumberOfNodesFunction() {
-        // Intentionally left empty
+    private final boolean useCache;
+
+    private NumberOfNodesFunction(final boolean useCache) {
+        this.useCache = useCache;
     }
 
-    /**
-     * Returns the singleton of the function.
-     * @return the function instance
-     */
-    public static NumberOfNodesFunction get() {
-        return INSTANCE;
+    public static NumberOfNodesFunction get(final boolean useCache) {
+        return useCache ? CACHING_INSTANCE : NON_CACHING_INSTANCE;
     }
 
     @Override
-    public Long apply(final Formula formula, final boolean cache) {
+    public Long apply(final Formula formula) {
         final Object cached = formula.functionCacheEntry(NUMBER_OF_NODES);
         if (cached != null) {
             return (Long) cached;
@@ -51,19 +47,19 @@ public class NumberOfNodesFunction implements FormulaFunction<Long> {
                 result = 1L;
                 break;
             case NOT:
-                result = apply(((Not) formula).operand(), cache) + 1L;
+                result = apply(((Not) formula).operand()) + 1L;
                 break;
             case IMPL:
             case EQUIV:
                 final BinaryOperator binary = (BinaryOperator) formula;
-                result = apply(binary.left(), cache) + apply(binary.right(), cache) + 1L;
+                result = apply(binary.left()) + apply(binary.right()) + 1L;
                 break;
             case OR:
             case AND:
                 final NAryOperator nary = (NAryOperator) formula;
                 result = 1L;
                 for (final Formula op : nary) {
-                    result += apply(op, cache);
+                    result += apply(op);
                 }
                 break;
             case PBC:
@@ -73,7 +69,7 @@ public class NumberOfNodesFunction implements FormulaFunction<Long> {
             default:
                 throw new IllegalStateException("Unknown formula type " + formula.type());
         }
-        if (cache) {
+        if (useCache) {
             formula.setFunctionCacheEntry(NUMBER_OF_NODES, result);
         }
         return result;

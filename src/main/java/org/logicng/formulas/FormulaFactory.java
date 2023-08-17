@@ -102,7 +102,7 @@ public abstract class FormulaFactory {
         this.simplifyComplementaryOperands = config.simplifyComplementaryOperands;
         this.configurations = initDefaultConfigs();
         clear();
-        subformulaFunction = SubNodeFunction.get();
+        subformulaFunction = SubNodeFunction.get(true);
         if (!name.isEmpty()) {
             ccPrefix = CC_PREFIX + name + "_";
             pbPrefix = PB_PREFIX + name + "_";

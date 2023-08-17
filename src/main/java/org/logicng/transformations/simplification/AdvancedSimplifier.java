@@ -166,8 +166,8 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
         if (!config.useRatingFunction) {
             return simplifiedOneStep;
         }
-        final Number ratingSimplified = config.ratingFunction.apply(simplifiedOneStep, true);
-        final Number ratingFormula = config.ratingFunction.apply(formula, true);
+        final Number ratingSimplified = config.ratingFunction.apply(simplifiedOneStep);
+        final Number ratingFormula = config.ratingFunction.apply(formula);
         return ratingSimplified.intValue() < ratingFormula.intValue() ? simplifiedOneStep : formula;
     }
 }

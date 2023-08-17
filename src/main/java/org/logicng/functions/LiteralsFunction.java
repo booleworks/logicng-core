@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.functions;
 
 import static org.logicng.formulas.cache.FunctionCacheEntry.LITERALS;
@@ -17,30 +21,26 @@ import java.util.TreeSet;
 
 /**
  * A function that computes all literals occurring in a given formula.
- * @version 2.2.0
+ * @version 3.0.0
  * @since 2.2.0
  */
 public class LiteralsFunction implements FormulaFunction<SortedSet<Literal>> {
 
-    private final static LiteralsFunction INSTANCE = new LiteralsFunction();
+    private static final LiteralsFunction CACHING_INSTANCE = new LiteralsFunction(true);
+    private static final LiteralsFunction NON_CACHING_INSTANCE = new LiteralsFunction(false);
 
-    /**
-     * Private empty constructor.  Singleton class.
-     */
-    private LiteralsFunction() {
-        // Intentionally left empty
+    private final boolean useCache;
+
+    private LiteralsFunction(final boolean useCache) {
+        this.useCache = useCache;
     }
 
-    /**
-     * Returns the singleton of the function.
-     * @return the function instance
-     */
-    public static LiteralsFunction get() {
-        return INSTANCE;
+    public static LiteralsFunction get(final boolean useCache) {
+        return useCache ? CACHING_INSTANCE : NON_CACHING_INSTANCE;
     }
 
     @Override
-    public SortedSet<Literal> apply(final Formula formula, final boolean cache) {
+    public SortedSet<Literal> apply(final Formula formula) {
         final Object cached = formula.functionCacheEntry(LITERALS);
         if (cached != null) {
             return (SortedSet<Literal>) cached;
@@ -57,19 +57,19 @@ public class LiteralsFunction implements FormulaFunction<SortedSet<Literal>> {
                 break;
             case NOT:
                 final Not not = (Not) formula;
-                result = apply(not.operand(), cache);
+                result = apply(not.operand());
                 break;
             case IMPL:
             case EQUIV:
                 final BinaryOperator binary = (BinaryOperator) formula;
-                result.addAll(apply(binary.left(), cache));
-                result.addAll(apply(binary.right(), cache));
+                result.addAll(apply(binary.left()));
+                result.addAll(apply(binary.right()));
                 break;
             case OR:
             case AND:
                 final NAryOperator nary = (NAryOperator) formula;
                 for (final Formula op : nary) {
-                    result.addAll(apply(op, cache));
+                    result.addAll(apply(op));
                 }
                 break;
             case PBC:
@@ -80,7 +80,7 @@ public class LiteralsFunction implements FormulaFunction<SortedSet<Literal>> {
                 throw new IllegalStateException("Unknown formula type " + formula.type());
         }
         result = Collections.unmodifiableSortedSet(result);
-        if (cache) {
+        if (useCache) {
             formula.setFunctionCacheEntry(LITERALS, result);
         }
         return result;
