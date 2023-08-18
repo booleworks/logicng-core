@@ -115,6 +115,7 @@ public final class Backbone {
     /**
      * Returns all literals of the backbone.  Positive backbone variables have positive polarity, negative
      * backbone variables have negative polarity.
+     * @param f the formula factory to generate the solver and formulas
      * @return the set of both positive and negative backbone variables as literals
      */
     public SortedSet<Literal> getCompleteBackbone(final FormulaFactory f) {

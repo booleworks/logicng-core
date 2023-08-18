@@ -51,6 +51,7 @@ public final class ModelCounter {
      * formulas' variables.  No projected model counting is supported.
      * @param formulas  the list of formulas
      * @param variables the relevant variables
+     * @param f         the formula factory to generate new formulas
      * @return the model count of the formulas for the variables
      */
     public static BigInteger count(final Collection<Formula> formulas, final SortedSet<Variable> variables, final FormulaFactory f) {

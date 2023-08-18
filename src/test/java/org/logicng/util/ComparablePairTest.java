@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.util;
 
@@ -32,11 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for {@link ComparablePair}.
- * @version 2.0.0
- * @since 1.2
- */
 public class ComparablePairTest {
 
     private final ComparablePair<String, Integer> pair1 = new ComparablePair<>("abc", 12);
@@ -45,43 +16,43 @@ public class ComparablePairTest {
 
     @Test
     public void testGetters() {
-        assertThat(this.pair1.first()).isEqualTo("abc");
-        assertThat(this.pair2.first()).isEqualTo("cde");
-        assertThat(this.pair3.first()).isEqualTo("cde");
-        assertThat((int) this.pair1.second()).isEqualTo(12);
-        assertThat((int) this.pair2.second()).isEqualTo(12);
-        assertThat((int) this.pair3.second()).isEqualTo(42);
+        assertThat(pair1.first()).isEqualTo("abc");
+        assertThat(pair2.first()).isEqualTo("cde");
+        assertThat(pair3.first()).isEqualTo("cde");
+        assertThat((int) pair1.second()).isEqualTo(12);
+        assertThat((int) pair2.second()).isEqualTo(12);
+        assertThat((int) pair3.second()).isEqualTo(42);
     }
 
     @Test
     public void testHashCode() {
-        assertThat(this.pair1.hashCode()).isEqualTo(this.pair1.hashCode());
-        assertThat(new ComparablePair<>("abc", 12).hashCode()).isEqualTo(this.pair1.hashCode());
+        assertThat(pair1.hashCode()).isEqualTo(pair1.hashCode());
+        assertThat(new ComparablePair<>("abc", 12).hashCode()).isEqualTo(pair1.hashCode());
     }
 
     @Test
     public void testEquals() {
-        assertThat(this.pair1.equals(this.pair1)).isTrue();
-        assertThat(this.pair1.equals(new ComparablePair<>("abc", 12))).isTrue();
-        assertThat(this.pair1.equals(this.pair2)).isFalse();
-        assertThat(this.pair2.equals(this.pair3)).isFalse();
-        assertThat(this.pair1.equals(this.pair3)).isFalse();
-        assertThat(this.pair1.equals("String")).isFalse();
-        assertThat(this.pair1.equals(null)).isFalse();
+        assertThat(pair1.equals(pair1)).isTrue();
+        assertThat(pair1.equals(new ComparablePair<>("abc", 12))).isTrue();
+        assertThat(pair1.equals(pair2)).isFalse();
+        assertThat(pair2.equals(pair3)).isFalse();
+        assertThat(pair1.equals(pair3)).isFalse();
+        assertThat(pair1.equals("String")).isFalse();
+        assertThat(pair1.equals(null)).isFalse();
     }
 
     @Test
     public void testToString() {
-        assertThat(this.pair1.toString()).isEqualTo("<abc, 12>");
-        assertThat(this.pair2.toString()).isEqualTo("<cde, 12>");
-        assertThat(this.pair3.toString()).isEqualTo("<cde, 42>");
+        assertThat(pair1.toString()).isEqualTo("<abc, 12>");
+        assertThat(pair2.toString()).isEqualTo("<cde, 12>");
+        assertThat(pair3.toString()).isEqualTo("<cde, 42>");
     }
 
     @Test
     public void testCompare() {
-        assertThat((int) Math.signum(this.pair1.compareTo(this.pair1))).isEqualTo(0);
-        assertThat((int) Math.signum(this.pair1.compareTo(this.pair2))).isEqualTo(-1);
-        assertThat((int) Math.signum(this.pair3.compareTo(this.pair1))).isEqualTo(1);
-        assertThat((int) Math.signum(this.pair2.compareTo(this.pair3))).isEqualTo(-1);
+        assertThat((int) Math.signum(pair1.compareTo(pair1))).isEqualTo(0);
+        assertThat((int) Math.signum(pair1.compareTo(pair2))).isEqualTo(-1);
+        assertThat((int) Math.signum(pair3.compareTo(pair1))).isEqualTo(1);
+        assertThat((int) Math.signum(pair2.compareTo(pair3))).isEqualTo(-1);
     }
 }

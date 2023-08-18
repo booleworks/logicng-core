@@ -126,6 +126,7 @@ public final class BDDFactory {
      * If a BDD handler is given and the BDD generation is aborted due to the handler, the method will return
      * {@link BDDKernel#BDD_ABORT} as result. If {@code null} is passed as handler, the generation will continue without
      * interruption.
+     * @param f       the formula factory to generate new formulas
      * @param formula the formula
      * @param kernel  the BBD kernel to use
      * @param handler the BDD handler

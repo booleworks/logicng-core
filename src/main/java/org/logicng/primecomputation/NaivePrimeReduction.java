@@ -37,6 +37,7 @@ public final class NaivePrimeReduction {
 
     /**
      * Creates a new prime implicant computation for a given formula.
+     * @param f       the formula factory to generate new formulas
      * @param formula the formula
      */
     public NaivePrimeReduction(final FormulaFactory f, final Formula formula) {

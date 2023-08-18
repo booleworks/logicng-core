@@ -33,6 +33,7 @@ public final class FactorOutSimplifier extends StatelessFormulaTransformation {
 
     /**
      * Constructs a new factor out simplification with the default rating function {@link DefaultRatingFunction}.
+     * @param f the formula factory to generate new formulas
      */
     public FactorOutSimplifier(final FormulaFactory f) {
         this(f, DefaultRatingFunction.get());
@@ -40,6 +41,7 @@ public final class FactorOutSimplifier extends StatelessFormulaTransformation {
 
     /**
      * Constructs a new factor out simplification with the given rating function.
+     * @param f              the formula factory to generate new formulas
      * @param ratingFunction the rating function
      */
     public FactorOutSimplifier(final FormulaFactory f, final RatingFunction<? extends Number> ratingFunction) {

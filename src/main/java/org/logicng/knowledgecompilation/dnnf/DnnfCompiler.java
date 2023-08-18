@@ -55,6 +55,7 @@ public class DnnfCompiler {
     /**
      * Constructs a new DNNF compiler for the given formula.
      * @param formula the formula to compile
+     * @param f       the formula factory to generate new formulas
      */
     public DnnfCompiler(final Formula formula, final FormulaFactory f) {
         this.f = f;

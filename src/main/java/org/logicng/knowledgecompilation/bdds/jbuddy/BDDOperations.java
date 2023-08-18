@@ -444,6 +444,7 @@ public class BDDOperations {
      * or {@code false} paths, respectively.
      * @param r                 the BDD root node
      * @param followPathsToTrue the extraction style
+     * @param f                 the formula factory to generate new formulas
      * @return the formula
      */
     public Formula toFormula(final int r, final boolean followPathsToTrue, final FormulaFactory f) {

@@ -108,10 +108,11 @@ public class PBEncoder {
 
     /**
      * Builds a pseudo Boolean constraint of the form {@code c_1 * lit_1 + c_2 * lit_2 + ... + c_n * lit_n >= k}.
-     * @param lits   the literals {@code lit_1 ... lit_n}
-     * @param coeffs the coefficients {@code c_1 ... c_n}
-     * @param rhs    the right-hand side {@code k} of the constraint
-     * @param f      the formula factory to generate new formulas
+     * @param lits     the literals {@code lit_1 ... lit_n}
+     * @param coeffs   the coefficients {@code c_1 ... c_n}
+     * @param rhs      the right-hand side {@code k} of the constraint
+     * @param f        the formula factory to generate new formulas
+     * @param pbConfig the configuration for the encoding
      * @return the CNF encoding of the pseudo Boolean constraint
      * @throws IllegalArgumentException if the right-hand side of the cardinality constraint is negative or
      *                                  larger than the number of literals

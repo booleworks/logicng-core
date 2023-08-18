@@ -52,6 +52,7 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
 
     /**
      * Constructs a new evaluation predicate.
+     * @param f               the formula factory to generate new formulas
      * @param evaluatesToTrue {@code false} if the check aims for true, {@code false} if the check aims for false
      * @param mapping         the (partial) assignment
      */

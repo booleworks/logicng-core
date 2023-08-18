@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.io.graphical;
 
@@ -45,71 +21,71 @@ public class GraphicalEdgeTest {
 
     @BeforeEach
     public void init() {
-        this.grDirected = new GraphicalRepresentation(false, true);
-        this.grUndirected = new GraphicalRepresentation(false, false);
-        this.grDirected.addNode(this.n1);
-        this.grDirected.addNode(this.n2);
-        this.grUndirected.addNode(this.n1);
-        this.grUndirected.addNode(this.n2);
+        grDirected = new GraphicalRepresentation(false, true);
+        grUndirected = new GraphicalRepresentation(false, false);
+        grDirected.addNode(n1);
+        grDirected.addNode(n2);
+        grUndirected.addNode(n1);
+        grUndirected.addNode(n2);
     }
 
     @Test
     public void testNoStyle() {
-        final GraphicalEdge edge = new GraphicalEdge(this.n1, this.n2, GraphicalEdgeStyle.noStyle());
-        this.grDirected.addEdge(edge);
-        this.grUndirected.addEdge(edge);
+        final GraphicalEdge edge = new GraphicalEdge(n1, n2, GraphicalEdgeStyle.noStyle());
+        grDirected.addEdge(edge);
+        grUndirected.addEdge(edge);
 
-        assertThat(this.grDirected.writeString(dotWriter)).contains("id1 -> id2");
-        assertThat(this.grDirected.writeString(mermaidWriter)).contains("id1 --> id2");
-        assertThat(this.grDirected.writeString(mermaidWriter)).doesNotContain("linkStyle");
+        assertThat(grDirected.writeString(dotWriter)).contains("id1 -> id2");
+        assertThat(grDirected.writeString(mermaidWriter)).contains("id1 --> id2");
+        assertThat(grDirected.writeString(mermaidWriter)).doesNotContain("linkStyle");
 
-        assertThat(this.grUndirected.writeString(dotWriter)).contains("id1 -- id2");
-        assertThat(this.grUndirected.writeString(mermaidWriter)).contains("id1 --- id2");
-        assertThat(this.grUndirected.writeString(mermaidWriter)).doesNotContain("linkStyle");
+        assertThat(grUndirected.writeString(dotWriter)).contains("id1 -- id2");
+        assertThat(grUndirected.writeString(mermaidWriter)).contains("id1 --- id2");
+        assertThat(grUndirected.writeString(mermaidWriter)).doesNotContain("linkStyle");
     }
 
     @Test
     public void testOnlyEdgeType() {
-        final GraphicalEdge edge = new GraphicalEdge(this.n1, this.n2, GraphicalEdgeStyle.dotted(null));
-        this.grDirected.addEdge(edge);
-        this.grUndirected.addEdge(edge);
+        final GraphicalEdge edge = new GraphicalEdge(n1, n2, GraphicalEdgeStyle.dotted(null));
+        grDirected.addEdge(edge);
+        grUndirected.addEdge(edge);
 
-        assertThat(this.grDirected.writeString(dotWriter)).contains("id1 -> id2 [style=dotted]");
-        assertThat(this.grDirected.writeString(mermaidWriter)).contains("id1 --> id2");
-        assertThat(this.grDirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke-width:2,stroke-dasharray:3");
+        assertThat(grDirected.writeString(dotWriter)).contains("id1 -> id2 [style=dotted]");
+        assertThat(grDirected.writeString(mermaidWriter)).contains("id1 --> id2");
+        assertThat(grDirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke-width:2,stroke-dasharray:3");
 
-        assertThat(this.grUndirected.writeString(dotWriter)).contains("id1 -- id2 [style=dotted]");
-        assertThat(this.grUndirected.writeString(mermaidWriter)).contains("id1 --- id2");
-        assertThat(this.grUndirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke-width:2,stroke-dasharray:3");
+        assertThat(grUndirected.writeString(dotWriter)).contains("id1 -- id2 [style=dotted]");
+        assertThat(grUndirected.writeString(mermaidWriter)).contains("id1 --- id2");
+        assertThat(grUndirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke-width:2,stroke-dasharray:3");
     }
 
     @Test
     public void testOnlyColor() {
-        final GraphicalEdge edge = new GraphicalEdge(this.n1, this.n2, GraphicalEdgeStyle.style(null, BLACK));
-        this.grDirected.addEdge(edge);
-        this.grUndirected.addEdge(edge);
+        final GraphicalEdge edge = new GraphicalEdge(n1, n2, GraphicalEdgeStyle.style(null, BLACK));
+        grDirected.addEdge(edge);
+        grUndirected.addEdge(edge);
 
-        assertThat(this.grDirected.writeString(dotWriter)).contains("id1 -> id2 [color=\"#000000\", fontcolor=\"#000000\"]");
-        assertThat(this.grDirected.writeString(mermaidWriter)).contains("id1 --> id2");
-        assertThat(this.grDirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke:#000000");
+        assertThat(grDirected.writeString(dotWriter)).contains("id1 -> id2 [color=\"#000000\", fontcolor=\"#000000\"]");
+        assertThat(grDirected.writeString(mermaidWriter)).contains("id1 --> id2");
+        assertThat(grDirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke:#000000");
 
-        assertThat(this.grUndirected.writeString(dotWriter)).contains("id1 -- id2 [color=\"#000000\", fontcolor=\"#000000\"]");
-        assertThat(this.grUndirected.writeString(mermaidWriter)).contains("id1 --- id2");
-        assertThat(this.grUndirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke:#000000");
+        assertThat(grUndirected.writeString(dotWriter)).contains("id1 -- id2 [color=\"#000000\", fontcolor=\"#000000\"]");
+        assertThat(grUndirected.writeString(mermaidWriter)).contains("id1 --- id2");
+        assertThat(grUndirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke:#000000");
     }
 
     @Test
     public void testAll() {
-        final GraphicalEdge edge = new GraphicalEdge(this.n1, this.n2, GraphicalEdgeStyle.bold(BLACK));
-        this.grDirected.addEdge(edge);
-        this.grUndirected.addEdge(edge);
+        final GraphicalEdge edge = new GraphicalEdge(n1, n2, GraphicalEdgeStyle.bold(BLACK));
+        grDirected.addEdge(edge);
+        grUndirected.addEdge(edge);
 
-        assertThat(this.grDirected.writeString(dotWriter)).contains("id1 -> id2 [color=\"#000000\", fontcolor=\"#000000\", style=bold]");
-        assertThat(this.grDirected.writeString(mermaidWriter)).contains("id1 --> id2");
-        assertThat(this.grDirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke:#000000,stroke-width:4");
+        assertThat(grDirected.writeString(dotWriter)).contains("id1 -> id2 [color=\"#000000\", fontcolor=\"#000000\", style=bold]");
+        assertThat(grDirected.writeString(mermaidWriter)).contains("id1 --> id2");
+        assertThat(grDirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke:#000000,stroke-width:4");
 
-        assertThat(this.grUndirected.writeString(dotWriter)).contains("id1 -- id2 [color=\"#000000\", fontcolor=\"#000000\", style=bold]");
-        assertThat(this.grUndirected.writeString(mermaidWriter)).contains("id1 --- id2");
-        assertThat(this.grUndirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke:#000000,stroke-width:4");
+        assertThat(grUndirected.writeString(dotWriter)).contains("id1 -- id2 [color=\"#000000\", fontcolor=\"#000000\", style=bold]");
+        assertThat(grUndirected.writeString(mermaidWriter)).contains("id1 --- id2");
+        assertThat(grUndirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke:#000000,stroke-width:4");
     }
 }
