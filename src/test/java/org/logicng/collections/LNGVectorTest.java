@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.collections;
 
@@ -39,17 +15,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-/**
- * Unit tests for {@link LNGVector}.
- * @version 2.0.0
- * @since 1.0
- */
 public class LNGVectorTest {
 
     private final Comparator<String> stringComparator;
 
     public LNGVectorTest() {
-        this.stringComparator = String::compareTo;
+        stringComparator = String::compareTo;
     }
 
     @Test
@@ -294,8 +265,8 @@ public class LNGVectorTest {
         for (int i = 0; i < 1000; i++) {
             v2.push("s" + i);
         }
-        v1.manualSort(this.stringComparator);
-        v2.manualSort(this.stringComparator);
+        v1.manualSort(stringComparator);
+        v2.manualSort(stringComparator);
         for (int i = 0; i < 1000; i++) {
             assertThat(v1.get(i)).isEqualTo(v2.get(i));
             if (i != 999) {
@@ -303,7 +274,7 @@ public class LNGVectorTest {
             }
         }
         final LNGVector<String> v3 = new LNGVector<>(1000);
-        v3.manualSort(this.stringComparator);
+        v3.manualSort(stringComparator);
         assertThat(v3.empty()).isTrue();
     }
 
@@ -317,8 +288,8 @@ public class LNGVectorTest {
         for (int i = 0; i < 1000; i++) {
             v2.push("s" + i);
         }
-        v1.sort(this.stringComparator);
-        v2.sort(this.stringComparator);
+        v1.sort(stringComparator);
+        v2.sort(stringComparator);
         for (int i = 0; i < 1000; i++) {
             assertThat(v1.get(i)).isEqualTo(v2.get(i));
             if (i != 999) {
@@ -326,7 +297,7 @@ public class LNGVectorTest {
             }
         }
         final LNGVector<String> v3 = new LNGVector<>(1000);
-        v3.sort(this.stringComparator);
+        v3.sort(stringComparator);
         assertThat(v3.empty()).isTrue();
     }
 
@@ -340,8 +311,8 @@ public class LNGVectorTest {
         for (int i = 0; i < 1000; i++) {
             v2.push("s" + i);
         }
-        v1.sortReverse(this.stringComparator);
-        v2.sortReverse(this.stringComparator);
+        v1.sortReverse(stringComparator);
+        v2.sortReverse(stringComparator);
         for (int i = 0; i < 1000; i++) {
             assertThat(v1.get(i)).isEqualTo(v2.get(i));
             if (i != 999) {
@@ -349,7 +320,7 @@ public class LNGVectorTest {
             }
         }
         final LNGVector<String> v3 = new LNGVector<>(1000);
-        v3.sortReverse(this.stringComparator);
+        v3.sortReverse(stringComparator);
         assertThat(v3.empty()).isTrue();
     }
 

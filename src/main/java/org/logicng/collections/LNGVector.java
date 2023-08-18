@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.collections;
 
@@ -58,7 +34,7 @@ public final class LNGVector<T> implements Iterable<T> {
      */
     @SuppressWarnings("unchecked")
     public LNGVector(final int size) {
-        this.elements = (T[]) new Object[size];
+        elements = (T[]) new Object[size];
     }
 
     /**
@@ -68,8 +44,8 @@ public final class LNGVector<T> implements Iterable<T> {
      */
     @SuppressWarnings("unchecked")
     public LNGVector(final int size, final T pad) {
-        this.elements = (T[]) new Object[size];
-        Arrays.fill(this.elements, pad);
+        elements = (T[]) new Object[size];
+        Arrays.fill(elements, pad);
         this.size = size;
     }
 
@@ -79,8 +55,8 @@ public final class LNGVector<T> implements Iterable<T> {
      */
     @SafeVarargs
     public LNGVector(final T... elems) {
-        this.elements = Arrays.copyOf(elems, elems.length);
-        this.size = elems.length;
+        elements = Arrays.copyOf(elems, elems.length);
+        size = elems.length;
     }
 
     /**
@@ -89,12 +65,12 @@ public final class LNGVector<T> implements Iterable<T> {
      */
     @SuppressWarnings("unchecked")
     public LNGVector(final Collection<T> elems) {
-        this.elements = (T[]) new Object[elems.size()];
+        elements = (T[]) new Object[elems.size()];
         int count = 0;
         for (final T e : elems) {
-            this.elements[count++] = e;
+            elements[count++] = e;
         }
-        this.size = elems.size();
+        size = elems.size();
     }
 
     /**
@@ -102,7 +78,7 @@ public final class LNGVector<T> implements Iterable<T> {
      * @return {@code true} if the vector is empty, {@code false} otherwise
      */
     public boolean empty() {
-        return this.size == 0;
+        return size == 0;
     }
 
     /**
@@ -110,7 +86,7 @@ public final class LNGVector<T> implements Iterable<T> {
      * @return the size of the vector
      */
     public int size() {
-        return this.size;
+        return size;
     }
 
     /**
@@ -118,7 +94,7 @@ public final class LNGVector<T> implements Iterable<T> {
      * @return the last element of the vector
      */
     public T back() {
-        return this.elements[this.size - 1];
+        return elements[size - 1];
     }
 
     /**
@@ -126,9 +102,9 @@ public final class LNGVector<T> implements Iterable<T> {
      * @param element the element
      */
     public void push(final T element) {
-        final int newSize = this.size + 1;
-        this.ensure(newSize);
-        this.elements[this.size++] = element;
+        final int newSize = size + 1;
+        ensure(newSize);
+        elements[size++] = element;
     }
 
     /**
@@ -137,7 +113,7 @@ public final class LNGVector<T> implements Iterable<T> {
      * @throws ArrayIndexOutOfBoundsException if there was not enough space on the vector
      */
     public void unsafePush(final T element) {
-        this.elements[this.size++] = element;
+        elements[size++] = element;
     }
 
     /**
@@ -147,7 +123,7 @@ public final class LNGVector<T> implements Iterable<T> {
      * @throws ArrayIndexOutOfBoundsException if the position is not found in the vector
      */
     public T get(final int position) {
-        return this.elements[position];
+        return elements[position];
     }
 
     /**
@@ -157,14 +133,14 @@ public final class LNGVector<T> implements Iterable<T> {
      * @throws ArrayIndexOutOfBoundsException if the position is not found in the vector
      */
     public void set(final int position, final T element) {
-        this.elements[position] = element;
+        elements[position] = element;
     }
 
     /**
      * Removes the last element of the vector.
      */
     public void pop() {
-        this.elements[--this.size] = null;
+        elements[--size] = null;
     }
 
     /**
@@ -173,11 +149,11 @@ public final class LNGVector<T> implements Iterable<T> {
      * @param newSize the new size
      */
     public void shrinkTo(final int newSize) {
-        if (newSize < this.size) {
-            for (int i = this.size; i > newSize; i--) {
-                this.elements[i - 1] = null;
+        if (newSize < size) {
+            for (int i = size; i > newSize; i--) {
+                elements[i - 1] = null;
             }
-            this.size = newSize;
+            size = newSize;
         }
     }
 
@@ -190,9 +166,9 @@ public final class LNGVector<T> implements Iterable<T> {
         if (this.size >= size) {
             return;
         }
-        this.ensure(size);
+        ensure(size);
         for (int i = this.size; i < size; i++) {
-            this.elements[i] = pad;
+            elements[i] = pad;
         }
         this.size = size;
     }
@@ -205,7 +181,7 @@ public final class LNGVector<T> implements Iterable<T> {
         if (this.size >= size) {
             return;
         }
-        this.ensure(size);
+        ensure(size);
         this.size = size;
     }
 
@@ -217,7 +193,7 @@ public final class LNGVector<T> implements Iterable<T> {
     public void removeElements(final int num) {
         int n = num;
         while (n-- > 0) {
-            this.elements[--this.size] = null;
+            elements[--size] = null;
         }
     }
 
@@ -227,10 +203,10 @@ public final class LNGVector<T> implements Iterable<T> {
      * @return {@code true} if the element was removed, {@code false} if the element was not in the vector
      */
     public boolean remove(final T element) {
-        for (int i = 0; i < this.size; i++) {
-            if (this.elements[i].equals(element)) {
-                System.arraycopy(this.elements, i + 1, this.elements, i, this.size - (i + 1));
-                this.size--;
+        for (int i = 0; i < size; i++) {
+            if (elements[i].equals(element)) {
+                System.arraycopy(elements, i + 1, elements, i, size - (i + 1));
+                size--;
                 return true;
             }
         }
@@ -247,11 +223,11 @@ public final class LNGVector<T> implements Iterable<T> {
         if (this == other) {
             throw new IllegalArgumentException("cannot replace a vector in-place with itself");
         }
-        this.elements = (T[]) new Object[other.size()];
+        elements = (T[]) new Object[other.size()];
         for (int i = 0; i < other.size(); i++) {
-            this.elements[i] = other.get(i);
+            elements[i] = other.get(i);
         }
-        this.size = other.size;
+        size = other.size;
     }
 
     /**
@@ -259,15 +235,15 @@ public final class LNGVector<T> implements Iterable<T> {
      * Use {@link #release()} for this purpose.
      */
     public void clear() {
-        this.size = 0;
+        size = 0;
     }
 
     /**
      * Clears the vector and sets all elements to {@code null}.
      */
     public void release() {
-        Arrays.fill(this.elements, null);
-        this.size = 0;
+        Arrays.fill(elements, null);
+        size = 0;
     }
 
     /**
@@ -275,7 +251,7 @@ public final class LNGVector<T> implements Iterable<T> {
      * @param comparator the comparator
      */
     public void sort(final Comparator<T> comparator) {
-        Arrays.sort(this.elements, 0, this.size, comparator);
+        Arrays.sort(elements, 0, size, comparator);
     }
 
     /**
@@ -284,7 +260,7 @@ public final class LNGVector<T> implements Iterable<T> {
      * @param comparator the comparator
      */
     public void manualSort(final Comparator<T> comparator) {
-        this.sort(this.elements, 0, this.size, comparator);
+        sort(elements, 0, size, comparator);
     }
 
     /**
@@ -324,7 +300,7 @@ public final class LNGVector<T> implements Iterable<T> {
             return;
         }
         if ((end - start) <= 15) {
-            this.selectionSort(array, start, end, lt);
+            selectionSort(array, start, end, lt);
         } else {
             final T pivot = array[start + ((end - start) / 2)];
             T tmp;
@@ -346,8 +322,8 @@ public final class LNGVector<T> implements Iterable<T> {
                 array[i] = array[j];
                 array[j] = tmp;
             }
-            this.sort(array, start, i, lt);
-            this.sort(array, i, end, lt);
+            sort(array, start, i, lt);
+            sort(array, i, end, lt);
         }
     }
 
@@ -356,11 +332,11 @@ public final class LNGVector<T> implements Iterable<T> {
      * @param comparator the comparator
      */
     public void sortReverse(final Comparator<T> comparator) {
-        this.sort(comparator);
-        for (int i = 0; i < this.size / 2; i++) {
-            final T temp = this.elements[i];
-            this.elements[i] = this.elements[this.size - i - 1];
-            this.elements[this.size - i - 1] = temp;
+        sort(comparator);
+        for (int i = 0; i < size / 2; i++) {
+            final T temp = elements[i];
+            elements[i] = elements[size - i - 1];
+            elements[size - i - 1] = temp;
         }
     }
 
@@ -370,16 +346,16 @@ public final class LNGVector<T> implements Iterable<T> {
      */
     @SuppressWarnings("unchecked")
     private void ensure(final int newSize) {
-        if (newSize >= this.elements.length) {
-            final T[] newArray = (T[]) new Object[Math.max(newSize, this.size * 2)];
-            System.arraycopy(this.elements, 0, newArray, 0, this.size);
-            this.elements = newArray;
+        if (newSize >= elements.length) {
+            final T[] newArray = (T[]) new Object[Math.max(newSize, size * 2)];
+            System.arraycopy(elements, 0, newArray, 0, size);
+            elements = newArray;
         }
     }
 
     @Override
     public Iterator<T> iterator() {
-        return new Iterator<T>() {
+        return new Iterator<>() {
             private int i;
 
             @Override
@@ -405,9 +381,9 @@ public final class LNGVector<T> implements Iterable<T> {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("[");
-        for (int i = 0; i < this.size; i++) {
-            sb.append(this.elements[i]);
-            if (i != this.size - 1) {
+        for (int i = 0; i < size; i++) {
+            sb.append(elements[i]);
+            if (i != size - 1) {
                 sb.append(", ");
             }
         }

@@ -1,52 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-
-/*
- * Copyright (C) 2012 - 2014 Armin Biere JKU Linz
- * <p>
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * <p>
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * <p>
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- */
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.collections;
 
@@ -67,9 +21,9 @@ public final class LNGDoublePriorityQueue {
      * Creates a new priority queue.
      */
     public LNGDoublePriorityQueue() {
-        this.heap = new LNGIntVector();
-        this.prior = new LNGDoubleVector();
-        this.pos = new LNGIntVector();
+        heap = new LNGIntVector();
+        prior = new LNGDoubleVector();
+        pos = new LNGIntVector();
     }
 
     /**
@@ -105,7 +59,7 @@ public final class LNGDoublePriorityQueue {
      * @return {@code true} if the queue is empty, {@code false} otherwise
      */
     public boolean empty() {
-        return this.heap.empty();
+        return heap.empty();
     }
 
     /**
@@ -113,7 +67,7 @@ public final class LNGDoublePriorityQueue {
      * @return the size of the queue
      */
     public int size() {
-        return this.heap.size();
+        return heap.size();
     }
 
     /**
@@ -122,7 +76,7 @@ public final class LNGDoublePriorityQueue {
      * @return {@code true} if the element is already imported and present in the queue, {@code false otherwise}.
      */
     public boolean contains(final int element) {
-        return element >= 0 && this.imported(element) && this.pos.get(Math.abs(element)) >= 0;
+        return element >= 0 && imported(element) && pos.get(Math.abs(element)) >= 0;
     }
 
     /**
@@ -131,8 +85,8 @@ public final class LNGDoublePriorityQueue {
      * @return the priority of the element
      */
     public double priority(final int element) {
-        assert this.imported(element);
-        return this.prior.get(Math.abs(element));
+        assert imported(element);
+        return prior.get(Math.abs(element));
     }
 
     /**
@@ -140,7 +94,7 @@ public final class LNGDoublePriorityQueue {
      * @return the top element of the priority queue
      */
     public int top() {
-        return this.heap.get(0);
+        return heap.get(0);
     }
 
     /**
@@ -152,12 +106,12 @@ public final class LNGDoublePriorityQueue {
         if (element < 0) {
             throw new IllegalArgumentException("Cannot add negative integers to the priority queue");
         }
-        assert !this.contains(element);
-        this.doImport(element);
-        this.pos.set(element, this.heap.size());
-        this.heap.push(element);
-        assert this.heap.get(this.pos.get(element)) == element;
-        this.up(element);
+        assert !contains(element);
+        doImport(element);
+        pos.set(element, heap.size());
+        heap.push(element);
+        assert heap.get(pos.get(element)) == element;
+        up(element);
     }
 
     /**
@@ -166,20 +120,20 @@ public final class LNGDoublePriorityQueue {
      * @param priority the new priority
      */
     public void update(final int element, final double priority) {
-        this.doImport(element);
-        final double q = this.prior.get(element);
+        doImport(element);
+        final double q = prior.get(element);
         if (Double.compare(q, priority) == 0) {
             return;
         }
-        this.prior.set(element, priority);
-        if (this.pos.get(element) < 0) {
+        prior.set(element, priority);
+        if (pos.get(element) < 0) {
             return;
         }
         if (priority < q) {
-            this.down(element);
+            down(element);
         }
         if (q < priority) {
-            this.up(element);
+            up(element);
         }
     }
 
@@ -188,27 +142,27 @@ public final class LNGDoublePriorityQueue {
      * @param element the element
      */
     public void pop(final int element) {
-        assert this.contains(element);
-        final int i = this.pos.get(element);
-        this.pos.set(element, -1);
-        final int last = this.heap.back();
-        this.heap.pop();
-        final int j = this.heap.size();
+        assert contains(element);
+        final int i = pos.get(element);
+        pos.set(element, -1);
+        final int last = heap.back();
+        heap.pop();
+        final int j = heap.size();
         if (i == j) {
             return;
         }
         assert i < j;
-        this.pos.set(last, i);
-        this.heap.set(i, last);
-        this.up(last);
-        this.down(last);
+        pos.set(last, i);
+        heap.set(i, last);
+        up(last);
+        down(last);
     }
 
     /**
      * Removes the top element from the priority queue.
      */
     public void pop() {
-        this.pop(this.top());
+        pop(top());
     }
 
     /**
@@ -216,8 +170,8 @@ public final class LNGDoublePriorityQueue {
      * @param factor the factor to multiply with
      */
     public void rescore(final double factor) {
-        for (int i = 0; i < this.prior.size(); i++) {
-            this.prior.set(i, this.prior.get(i) * factor);
+        for (int i = 0; i < prior.size(); i++) {
+            prior.set(i, prior.get(i) * factor);
         }
     }
 
@@ -229,7 +183,7 @@ public final class LNGDoublePriorityQueue {
      * @return {@code true} if the priority of the first element is less than the priority of the second element
      */
     private boolean less(final int e1, final int e2) {
-        return this.prior.get(e1) < this.prior.get(e2);
+        return prior.get(e1) < prior.get(e2);
     }
 
     /**
@@ -237,19 +191,19 @@ public final class LNGDoublePriorityQueue {
      * @param element the element
      */
     private void up(final int element) {
-        int epos = this.pos.get(element);
+        int epos = pos.get(element);
         while (epos > 0) {
             final int ppos = parent(epos);
-            final int p = this.heap.get(ppos);
-            if (!this.less(p, element)) {
+            final int p = heap.get(ppos);
+            if (!less(p, element)) {
                 break;
             }
-            this.heap.set(epos, p);
-            this.heap.set(ppos, element);
-            this.pos.set(p, epos);
+            heap.set(epos, p);
+            heap.set(ppos, element);
+            pos.set(p, epos);
             epos = ppos;
         }
-        this.pos.set(element, epos);
+        pos.set(element, epos);
     }
 
     /**
@@ -257,40 +211,40 @@ public final class LNGDoublePriorityQueue {
      * @param element the element
      */
     private void down(final int element) {
-        assert this.contains(element);
-        int epos = this.pos.get(element);
-        final int size = this.heap.size();
+        assert contains(element);
+        int epos = pos.get(element);
+        final int size = heap.size();
         while (true) {
             int cpos = left(epos);
             if (cpos >= size) {
                 break;
             }
-            int c = this.heap.get(cpos);
+            int c = heap.get(cpos);
             final int o;
             final int opos = right(epos);
-            if (!this.less(element, c)) {
+            if (!less(element, c)) {
                 if (opos >= size) {
                     break;
                 }
-                o = this.heap.get(opos);
-                if (!this.less(element, o)) {
+                o = heap.get(opos);
+                if (!less(element, o)) {
                     break;
                 }
                 cpos = opos;
                 c = o;
             } else if (opos < size) {
-                o = this.heap.get(opos);
-                if (!this.less(o, c)) {
+                o = heap.get(opos);
+                if (!less(o, c)) {
                     cpos = opos;
                     c = o;
                 }
             }
-            this.heap.set(cpos, element);
-            this.heap.set(epos, c);
-            this.pos.set(c, epos);
+            heap.set(cpos, element);
+            heap.set(epos, c);
+            pos.set(c, epos);
             epos = cpos;
         }
-        this.pos.set(element, epos);
+        pos.set(element, epos);
     }
 
     /**
@@ -300,7 +254,7 @@ public final class LNGDoublePriorityQueue {
      */
     private boolean imported(final int element) {
         assert 0 <= element;
-        return element < this.pos.size();
+        return element < pos.size();
     }
 
     /**
@@ -308,18 +262,18 @@ public final class LNGDoublePriorityQueue {
      * @param element the element
      */
     private void doImport(final int element) {
-        while (!this.imported(element)) {
-            this.pos.push(-1);
-            this.prior.push(0);
+        while (!imported(element)) {
+            pos.push(-1);
+            prior.push(0);
         }
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("LNGDoublePriorityQueue{");
-        for (int i = 0; i < this.heap.size(); i++) {
-            sb.append(String.format(Locale.ENGLISH, "<elem=%d, pos=%d, prio=%f>", this.heap.get(i), this.pos.get(i), this.prior.get(i)));
-            if (i != this.heap.size() - 1) {
+        for (int i = 0; i < heap.size(); i++) {
+            sb.append(String.format(Locale.ENGLISH, "<elem=%d, pos=%d, prio=%f>", heap.get(i), pos.get(i), prior.get(i)));
+            if (i != heap.size() - 1) {
                 sb.append(", ");
             }
         }
