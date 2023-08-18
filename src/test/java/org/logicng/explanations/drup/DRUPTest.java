@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015 Christoph Zengler                                     //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.explanations.drup;
 
@@ -57,11 +33,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Unit tests for {@link DRUPTrim}.
- * @version 2.0.0
- * @since 1.3
- */
 public class DRUPTest implements LogicNGTest {
 
     private final FormulaFactory f = FormulaFactory.caching();
@@ -69,21 +40,21 @@ public class DRUPTest implements LogicNGTest {
     private final SATSolver[] solvers;
 
     public DRUPTest() {
-        this.solvers = new SATSolver[3];
-        this.solvers[0] = MiniSat.miniSat(this.f, MiniSatConfig.builder().proofGeneration(true).incremental(true).build());
-        this.solvers[1] = MiniSat.miniSat(this.f, MiniSatConfig.builder().proofGeneration(true).incremental(false).build());
-        this.solvers[2] = MiniSat.glucose(this.f, MiniSatConfig.builder().proofGeneration(true).incremental(false).build(),
+        solvers = new SATSolver[3];
+        solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).incremental(true).build());
+        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).build());
+        solvers[2] = MiniSat.glucose(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).build(),
                 GlucoseConfig.builder().build());
     }
 
     @Test
     public void testUnsatCoresFromDimacs() throws IOException {
         final List<List<Formula>> cnfs = new ArrayList<>(3);
-        cnfs.add(DimacsReader.readCNF("src/test/resources/drup/simple_input.cnf", this.f));
-        cnfs.add(DimacsReader.readCNF("src/test/resources/drup/pg4_input.cnf", this.f));
-        cnfs.add(DimacsReader.readCNF("src/test/resources/drup/avg_input.cnf", this.f, "var"));
+        cnfs.add(DimacsReader.readCNF("src/test/resources/drup/simple_input.cnf", f));
+        cnfs.add(DimacsReader.readCNF("src/test/resources/drup/pg4_input.cnf", f));
+        cnfs.add(DimacsReader.readCNF("src/test/resources/drup/avg_input.cnf", f, "var"));
 
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             for (final List<Formula> cnf : cnfs) {
                 solver.add(cnf);
                 assertSolverUnsat(solver);
@@ -101,11 +72,11 @@ public class DRUPTest implements LogicNGTest {
         final File[] files = testFolder.listFiles();
         assert files != null;
         int count = 0;
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             for (final File file : files) {
                 final String fileName = file.getName();
                 if (fileName.endsWith(".cnf")) {
-                    final List<Formula> cnf = DimacsReader.readCNF(file, this.f);
+                    final List<Formula> cnf = DimacsReader.readCNF(file, f);
                     solver.add(cnf);
                     if (solver.sat() == FALSE) {
                         final UNSATCore<Proposition> unsatCore = solver.unsatCore();
@@ -117,7 +88,7 @@ public class DRUPTest implements LogicNGTest {
             }
             solver.reset();
         }
-        assertThat(count).isEqualTo(11 * this.solvers.length);
+        assertThat(count).isEqualTo(11 * solvers.length);
     }
 
     @Test
@@ -126,11 +97,11 @@ public class DRUPTest implements LogicNGTest {
         final File[] files = testFolder.listFiles();
         assert files != null;
         int count = 0;
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             for (final File file : files) {
                 final String fileName = file.getName();
                 if (fileName.endsWith(".cnf")) {
-                    final List<Formula> cnf = DimacsReader.readCNF(file, this.f);
+                    final List<Formula> cnf = DimacsReader.readCNF(file, f);
                     solver.add(cnf);
                     assertSolverUnsat(solver);
                     final UNSATCore<Proposition> unsatCore = solver.unsatCore();
@@ -141,22 +112,22 @@ public class DRUPTest implements LogicNGTest {
             }
             solver.reset();
         }
-        assertThat(count).isEqualTo(36 * this.solvers.length);
+        assertThat(count).isEqualTo(36 * solvers.length);
     }
 
     @Test
     public void testPropositionHandling() throws ParserException {
         final List<Proposition> propositions = new ArrayList<>();
-        propositions.add(new StandardProposition("P1", this.f.parse("((a & b) => c) &  ((a & b) => d)")));
-        propositions.add(new StandardProposition("P2", this.f.parse("(c & d) <=> ~e")));
-        propositions.add(new StandardProposition("P3", this.f.parse("~e => f | g")));
-        propositions.add(new StandardProposition("P4", this.f.parse("(f => ~a) & (g => ~b) & p & q")));
-        propositions.add(new StandardProposition("P5", this.f.parse("a => b")));
-        propositions.add(new StandardProposition("P6", this.f.parse("a")));
-        propositions.add(new StandardProposition("P7", this.f.parse("g | h")));
-        propositions.add(new StandardProposition("P8", this.f.parse("(x => ~y | z) & (z | w)")));
+        propositions.add(new StandardProposition("P1", f.parse("((a & b) => c) &  ((a & b) => d)")));
+        propositions.add(new StandardProposition("P2", f.parse("(c & d) <=> ~e")));
+        propositions.add(new StandardProposition("P3", f.parse("~e => f | g")));
+        propositions.add(new StandardProposition("P4", f.parse("(f => ~a) & (g => ~b) & p & q")));
+        propositions.add(new StandardProposition("P5", f.parse("a => b")));
+        propositions.add(new StandardProposition("P6", f.parse("a")));
+        propositions.add(new StandardProposition("P7", f.parse("g | h")));
+        propositions.add(new StandardProposition("P8", f.parse("(x => ~y | z) & (z | w)")));
 
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             solver.addPropositions(propositions);
             assertThat(solver.sat()).isEqualTo(FALSE);
             final UNSATCore<Proposition> unsatCore = solver.unsatCore();
@@ -168,18 +139,18 @@ public class DRUPTest implements LogicNGTest {
 
     @Test
     public void testPropositionIncDec() throws ParserException {
-        final SATSolver solver = this.solvers[0];
-        final StandardProposition p1 = new StandardProposition("P1", this.f.parse("((a & b) => c) &  ((a & b) => d)"));
-        final StandardProposition p2 = new StandardProposition("P2", this.f.parse("(c & d) <=> ~e"));
-        final StandardProposition p3 = new StandardProposition("P3", this.f.parse("~e => f | g"));
-        final StandardProposition p4 = new StandardProposition("P4", this.f.parse("(f => ~a) & (g => ~b) & p & q"));
-        final StandardProposition p5 = new StandardProposition("P5", this.f.parse("a => b"));
-        final StandardProposition p6 = new StandardProposition("P6", this.f.parse("a"));
-        final StandardProposition p7 = new StandardProposition("P7", this.f.parse("g | h"));
-        final StandardProposition p8 = new StandardProposition("P8", this.f.parse("(x => ~y | z) & (z | w)"));
-        final StandardProposition p9 = new StandardProposition("P9", this.f.parse("a & b"));
-        final StandardProposition p10 = new StandardProposition("P10", this.f.parse("(p => q) & p"));
-        final StandardProposition p11 = new StandardProposition("P11", this.f.parse("a & ~q"));
+        final SATSolver solver = solvers[0];
+        final StandardProposition p1 = new StandardProposition("P1", f.parse("((a & b) => c) &  ((a & b) => d)"));
+        final StandardProposition p2 = new StandardProposition("P2", f.parse("(c & d) <=> ~e"));
+        final StandardProposition p3 = new StandardProposition("P3", f.parse("~e => f | g"));
+        final StandardProposition p4 = new StandardProposition("P4", f.parse("(f => ~a) & (g => ~b) & p & q"));
+        final StandardProposition p5 = new StandardProposition("P5", f.parse("a => b"));
+        final StandardProposition p6 = new StandardProposition("P6", f.parse("a"));
+        final StandardProposition p7 = new StandardProposition("P7", f.parse("g | h"));
+        final StandardProposition p8 = new StandardProposition("P8", f.parse("(x => ~y | z) & (z | w)"));
+        final StandardProposition p9 = new StandardProposition("P9", f.parse("a & b"));
+        final StandardProposition p10 = new StandardProposition("P10", f.parse("(p => q) & p"));
+        final StandardProposition p11 = new StandardProposition("P11", f.parse("a & ~q"));
 
         solver.addPropositions(p1, p2, p3, p4);
         final SolverState state1 = solver.saveState();
@@ -219,9 +190,9 @@ public class DRUPTest implements LogicNGTest {
 
     @Test
     public void testTrivialCasesPropositions() throws ParserException {
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             assertSolverSat(solver);
-            final StandardProposition p1 = new StandardProposition("P1", this.f.parse("$false"));
+            final StandardProposition p1 = new StandardProposition("P1", f.parse("$false"));
             solver.add(p1);
             assertSolverUnsat(solver);
             UNSATCore<Proposition> unsatCore = solver.unsatCore();
@@ -229,10 +200,10 @@ public class DRUPTest implements LogicNGTest {
 
             solver.reset();
             assertSolverSat(solver);
-            final StandardProposition p2 = new StandardProposition("P2", this.f.parse("a"));
+            final StandardProposition p2 = new StandardProposition("P2", f.parse("a"));
             solver.add(p2);
             assertSolverSat(solver);
-            final StandardProposition p3 = new StandardProposition("P3", this.f.parse("~a"));
+            final StandardProposition p3 = new StandardProposition("P3", f.parse("~a"));
             solver.add(p3);
             assertSolverUnsat(solver);
             unsatCore = solver.unsatCore();
@@ -324,20 +295,20 @@ public class DRUPTest implements LogicNGTest {
     @Test
     public void testCoreAndAssumptions4() throws ParserException {
         final SATSolver[] solvers = new SATSolver[]{
-                MiniSat.miniSat(this.f, MiniSatConfig.builder().proofGeneration(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build()),
-                MiniSat.glucose(this.f, MiniSatConfig.builder().proofGeneration(true).incremental(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build(), GlucoseConfig.builder().build())
+                MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build()),
+                MiniSat.glucose(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build(), GlucoseConfig.builder().build())
         };
         for (final SATSolver solver : solvers) {
-            solver.add(this.f.parse("~X1"));
-            solver.sat(this.f.variable("X1")); // caused the bug
-            solver.add(this.f.variable("A1"));
-            solver.add(this.f.parse("A1 => A2"));
-            solver.add(this.f.parse("R & A2 => A3"));
-            solver.add(this.f.parse("L & A2 => A3"));
-            solver.add(this.f.parse("R & A3 => A4"));
-            solver.add(this.f.parse("L & A3 => A4"));
-            solver.add(this.f.parse("~A4"));
-            solver.add(this.f.parse("L | R"));
+            solver.add(f.parse("~X1"));
+            solver.sat(f.variable("X1")); // caused the bug
+            solver.add(f.variable("A1"));
+            solver.add(f.parse("A1 => A2"));
+            solver.add(f.parse("R & A2 => A3"));
+            solver.add(f.parse("L & A2 => A3"));
+            solver.add(f.parse("R & A3 => A4"));
+            solver.add(f.parse("L & A3 => A4"));
+            solver.add(f.parse("~A4"));
+            solver.add(f.parse("L | R"));
             solver.sat();
             assertThat(solver.unsatCore()).isNotNull();
         }
@@ -415,7 +386,7 @@ public class DRUPTest implements LogicNGTest {
         }
         final SoftAssertions softly = new SoftAssertions();
         softly.assertThat(cnf).as("Core contains only original clauses").containsAll(core);
-        final MiniSat solver = MiniSat.glucose(this.f,
+        final MiniSat solver = MiniSat.glucose(f,
                 MiniSatConfig.builder().proofGeneration(true).incremental(false).build(),
                 GlucoseConfig.builder().build());
         solver.add(core);
