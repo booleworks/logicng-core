@@ -18,6 +18,7 @@ public interface CCAtLeastK {
      * @param result the result of the encoding
      * @param vars   the variables {@code var_1 ... var_n}
      * @param rhs    the right-hand side {@code k} of the constraint
+     * @return the incremental data for the constraintyy
      * @throws IllegalArgumentException if the right-hand side of the cardinality constraint is negative
      */
     CCIncrementalData build(final EncodingResult result, final Variable[] vars, int rhs);

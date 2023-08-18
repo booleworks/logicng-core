@@ -146,11 +146,6 @@ public class CCEncoder {
         }
     }
 
-    /**
-     * Encodes the constraint in the given result.
-     * @param cc     the constraint
-     * @param result the result
-     */
     protected static void encodeConstraint(final CardinalityConstraint cc, final EncodingResult result, final CCConfig initConfig) {
         final var config = initConfig != null ? initConfig : (CCConfig) result.factory().configurationFor(ConfigurationType.CC_ENCODER);
         final Variable[] ops = literalsAsVariables(cc.operands());

@@ -93,14 +93,14 @@ public abstract class FormulaFactory {
     }
 
     protected FormulaFactory(final FormulaFactoryConfig config) {
-        this.name = config.name;
-        this.stringRepresentation = config.stringRepresentation.get();
-        this.formulaMergeStrategy = config.formulaMergeStrategy;
+        name = config.name;
+        stringRepresentation = config.stringRepresentation.get();
+        formulaMergeStrategy = config.formulaMergeStrategy;
         if (config.formulaMergeStrategy == FormulaMergeStrategy.USE_BUT_NO_IMPORT && this instanceof CachingFormulaFactory) {
             throw new IllegalArgumentException("The USE_BUT_NO_IMPORT merge strategy can only be used for non-caching formula factories.");
         }
-        this.simplifyComplementaryOperands = config.simplifyComplementaryOperands;
-        this.configurations = initDefaultConfigs();
+        simplifyComplementaryOperands = config.simplifyComplementaryOperands;
+        configurations = initDefaultConfigs();
         clear();
         subformulaFunction = SubNodeFunction.get(true);
         if (!name.isEmpty()) {
@@ -162,6 +162,7 @@ public abstract class FormulaFactory {
 
     /**
      * Returns whether this factory is in read-only mode.
+     * @return whether this factory is in read-only mode
      */
     public boolean isReadOnly() {
         return readOnly;

@@ -73,6 +73,7 @@ public final class CCSorting {
      * @param result    the result of the encoding
      * @param output    the output literals
      * @param direction the sorting direction
+     * @param f         the formula factory to generate new formulas
      */
     public static void sort(final int m, final LNGVector<Literal> input, final EncodingResult result, final LNGVector<Literal> output,
                             final ImplicationDirection direction, final FormulaFactory f) {
@@ -268,6 +269,7 @@ public final class CCSorting {
      * @param formula   the result formula
      * @param output    the output vector
      * @param direction the sorting direction
+     * @param f         the formula factory to generate new formulas
      */
     public static void merge(final int m, final LNGVector<Literal> inputA, final LNGVector<Literal> inputB, final EncodingResult formula,
                              final LNGVector<Literal> output, final ImplicationDirection direction, final FormulaFactory f) {

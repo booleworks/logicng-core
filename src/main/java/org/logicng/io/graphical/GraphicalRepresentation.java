@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.io.graphical;
 
@@ -106,7 +82,7 @@ public class GraphicalRepresentation {
      * @param node the new node
      */
     public void addNode(final GraphicalNode node) {
-        this.nodes.add(node);
+        nodes.add(node);
     }
 
     /**
@@ -114,7 +90,7 @@ public class GraphicalRepresentation {
      * @param edge the new edge
      */
     public void addEdge(final GraphicalEdge edge) {
-        this.edges.add(edge);
+        edges.add(edge);
     }
 
     /**
@@ -151,7 +127,7 @@ public class GraphicalRepresentation {
      * @return {@code true} if all terminal nodes should be aligned on the same level (only possible in DOT output), otherwise {@code false}
      */
     public boolean isAlignTerminals() {
-        return this.alignTerminals;
+        return alignTerminals;
     }
 
     /**
@@ -159,7 +135,7 @@ public class GraphicalRepresentation {
      * @return {@code true} if the graph of the representation is directed, otherwise {@code false}
      */
     public boolean isDirected() {
-        return this.directed;
+        return directed;
     }
 
     /**
@@ -167,7 +143,7 @@ public class GraphicalRepresentation {
      * @return the background color (only possible in DOT output)
      */
     public GraphicalColor getBackground() {
-        return this.background;
+        return background;
     }
 
     /**
@@ -175,7 +151,7 @@ public class GraphicalRepresentation {
      * @return the nodes of this graph
      */
     public List<GraphicalNode> getNodes() {
-        return this.nodes;
+        return nodes;
     }
 
     /**
@@ -183,7 +159,7 @@ public class GraphicalRepresentation {
      * @return the terminal nodes of this graph
      */
     public List<GraphicalNode> getTerminalNodes() {
-        return this.nodes.stream().filter(GraphicalNode::isTerminal).collect(Collectors.toList());
+        return nodes.stream().filter(GraphicalNode::isTerminal).collect(Collectors.toList());
     }
 
     /**
@@ -191,7 +167,7 @@ public class GraphicalRepresentation {
      * @return the non-terminal nodes of this graph
      */
     public List<GraphicalNode> getNonTerminalNodes() {
-        return this.nodes.stream().filter(n -> !n.isTerminal()).collect(Collectors.toList());
+        return nodes.stream().filter(n -> !n.isTerminal()).collect(Collectors.toList());
     }
 
     /**
@@ -199,17 +175,17 @@ public class GraphicalRepresentation {
      * @return the edges of this graph
      */
     public List<GraphicalEdge> getEdges() {
-        return this.edges;
+        return edges;
     }
 
     @Override
     public String toString() {
         return "GraphicalRepresentation{" +
-                "alignTerminals=" + this.alignTerminals +
-                ", directed=" + this.directed +
-                ", background=" + this.background +
-                ", nodes=" + this.nodes.stream().map(n -> n.getId() + ":" + n.getLabel()).collect(Collectors.joining(", ")) +
-                ", edges=" + this.edges.stream().map(e -> e.getSource().getLabel() + " -- "
+                "alignTerminals=" + alignTerminals +
+                ", directed=" + directed +
+                ", background=" + background +
+                ", nodes=" + nodes.stream().map(n -> n.getId() + ":" + n.getLabel()).collect(Collectors.joining(", ")) +
+                ", edges=" + edges.stream().map(e -> e.getSource().getLabel() + " -- "
                 + e.getDestination().getLabel()).collect(Collectors.joining(", ")) +
                 '}';
     }

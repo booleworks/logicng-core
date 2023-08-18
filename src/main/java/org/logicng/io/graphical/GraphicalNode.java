@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.io.graphical;
 
@@ -71,7 +47,7 @@ public class GraphicalNode {
      * @return the if of this node
      */
     public String getId() {
-        return this.id;
+        return id;
     }
 
     /**
@@ -79,7 +55,7 @@ public class GraphicalNode {
      * @return the label of this node
      */
     public String getLabel() {
-        return this.label;
+        return label;
     }
 
     /**
@@ -87,7 +63,7 @@ public class GraphicalNode {
      * @return {@code true} if this node is a terminal, otherwise {@code false}
      */
     public boolean isTerminal() {
-        return this.terminal;
+        return terminal;
     }
 
     /**
@@ -95,7 +71,7 @@ public class GraphicalNode {
      * @return the style of this node
      */
     public GraphicalNodeStyle getStyle() {
-        return this.style;
+        return style;
     }
 
     @Override
@@ -107,24 +83,24 @@ public class GraphicalNode {
             return false;
         }
         final GraphicalNode that = (GraphicalNode) o;
-        return this.terminal == that.terminal &&
-                Objects.equals(this.id, that.id) &&
-                Objects.equals(this.label, that.label) &&
-                Objects.equals(this.style, that.style);
+        return terminal == that.terminal &&
+                Objects.equals(id, that.id) &&
+                Objects.equals(label, that.label) &&
+                Objects.equals(style, that.style);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.id, this.label, this.terminal, this.style);
+        return Objects.hash(id, label, terminal, style);
     }
 
     @Override
     public String toString() {
         return "GraphicalNode{" +
-                "id='" + this.id + '\'' +
-                ", label='" + this.label + '\'' +
-                ", terminal=" + this.terminal +
-                ", style=" + this.style +
+                "id='" + id + '\'' +
+                ", label='" + label + '\'' +
+                ", terminal=" + terminal +
+                ", style=" + style +
                 '}';
     }
 }

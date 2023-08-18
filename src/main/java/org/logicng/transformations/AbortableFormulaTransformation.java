@@ -19,7 +19,8 @@ public abstract class AbortableFormulaTransformation<H extends Handler> extends 
 
     /**
      * Constructor.
-     * @param f the formula factory to generate new formulas
+     * @param f       the formula factory to generate new formulas
+     * @param handler the handler for the transformation
      **/
     protected AbortableFormulaTransformation(final FormulaFactory f, final H handler) {
         super(f);

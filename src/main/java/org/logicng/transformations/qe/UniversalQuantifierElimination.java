@@ -28,26 +28,28 @@ public final class UniversalQuantifierElimination extends StatelessFormulaTransf
 
     /**
      * Constructs a new universal quantifier elimination for the given variables.
+     * @param f         the formula factory to generate new formulas
      * @param variables the variables
      */
     public UniversalQuantifierElimination(final FormulaFactory f, final Variable... variables) {
         super(f);
-        this.elimination = Arrays.copyOf(variables, variables.length);
+        elimination = Arrays.copyOf(variables, variables.length);
     }
 
     /**
      * Constructs a new universal quantifier elimination for a given collection of variables.
+     * @param f         the formula factory to generate new formulas
      * @param variables the collection of variables
      */
     public UniversalQuantifierElimination(final FormulaFactory f, final Collection<Variable> variables) {
         super(f);
-        this.elimination = variables.toArray(new Variable[0]);
+        elimination = variables.toArray(new Variable[0]);
     }
 
     @Override
     public Formula apply(final Formula formula) {
         Formula result = formula;
-        for (final Variable var : this.elimination) {
+        for (final Variable var : elimination) {
             result = f.and(result.restrict(new Assignment(var), f), result.restrict(new Assignment(var.negate(f)), f));
         }
         return result;

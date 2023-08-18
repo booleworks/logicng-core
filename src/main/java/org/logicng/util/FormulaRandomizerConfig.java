@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.util;
 
@@ -88,33 +64,33 @@ public final class FormulaRandomizerConfig extends Configuration {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("FormulaRandomizerConfig{").append(System.lineSeparator());
-        sb.append("seed=").append(this.seed).append(System.lineSeparator());
-        sb.append("variables=").append(this.variables).append(System.lineSeparator());
-        sb.append("numVars=").append(this.numVars).append(System.lineSeparator());
-        sb.append("weightConstant=").append(this.weightConstant).append(System.lineSeparator());
-        sb.append("weightPositiveLiteral=").append(this.weightPositiveLiteral).append(System.lineSeparator());
-        sb.append("weightNegativeLiteral=").append(this.weightNegativeLiteral).append(System.lineSeparator());
-        sb.append("weightOr=").append(this.weightOr).append(System.lineSeparator());
-        sb.append("weightAnd=").append(this.weightAnd).append(System.lineSeparator());
-        sb.append("weightNot=").append(this.weightNot).append(System.lineSeparator());
-        sb.append("weightImpl=").append(this.weightImpl).append(System.lineSeparator());
-        sb.append("weightEquiv=").append(this.weightEquiv).append(System.lineSeparator());
-        sb.append("maximumOperandsAnd=").append(this.maximumOperandsAnd).append(System.lineSeparator());
-        sb.append("maximumOperandsOr=").append(this.maximumOperandsOr).append(System.lineSeparator());
-        sb.append("weightPbc=").append(this.weightPbc).append(System.lineSeparator());
-        sb.append("weightPbcCoeffPositive=").append(this.weightPbcCoeffPositive).append(System.lineSeparator());
-        sb.append("weightPbcCoeffNegative=").append(this.weightPbcCoeffNegative).append(System.lineSeparator());
-        sb.append("weightPbcTypeLe=").append(this.weightPbcTypeLe).append(System.lineSeparator());
-        sb.append("weightPbcTypeLt=").append(this.weightPbcTypeLt).append(System.lineSeparator());
-        sb.append("weightPbcTypeGe=").append(this.weightPbcTypeGe).append(System.lineSeparator());
-        sb.append("weightPbcTypeGt=").append(this.weightPbcTypeGt).append(System.lineSeparator());
-        sb.append("weightPbcTypeEq=").append(this.weightPbcTypeEq).append(System.lineSeparator());
-        sb.append("maximumOperandsPbc=").append(this.maximumOperandsPbc).append(System.lineSeparator());
-        sb.append("maximumCoefficientPbc=").append(this.maximumCoefficientPbc).append(System.lineSeparator());
-        sb.append("weightCc=").append(this.weightCc).append(System.lineSeparator());
-        sb.append("weightAmo=").append(this.weightAmo).append(System.lineSeparator());
-        sb.append("weightExo=").append(this.weightExo).append(System.lineSeparator());
-        sb.append("maximumOperandsCc=").append(this.maximumOperandsCc).append(System.lineSeparator());
+        sb.append("seed=").append(seed).append(System.lineSeparator());
+        sb.append("variables=").append(variables).append(System.lineSeparator());
+        sb.append("numVars=").append(numVars).append(System.lineSeparator());
+        sb.append("weightConstant=").append(weightConstant).append(System.lineSeparator());
+        sb.append("weightPositiveLiteral=").append(weightPositiveLiteral).append(System.lineSeparator());
+        sb.append("weightNegativeLiteral=").append(weightNegativeLiteral).append(System.lineSeparator());
+        sb.append("weightOr=").append(weightOr).append(System.lineSeparator());
+        sb.append("weightAnd=").append(weightAnd).append(System.lineSeparator());
+        sb.append("weightNot=").append(weightNot).append(System.lineSeparator());
+        sb.append("weightImpl=").append(weightImpl).append(System.lineSeparator());
+        sb.append("weightEquiv=").append(weightEquiv).append(System.lineSeparator());
+        sb.append("maximumOperandsAnd=").append(maximumOperandsAnd).append(System.lineSeparator());
+        sb.append("maximumOperandsOr=").append(maximumOperandsOr).append(System.lineSeparator());
+        sb.append("weightPbc=").append(weightPbc).append(System.lineSeparator());
+        sb.append("weightPbcCoeffPositive=").append(weightPbcCoeffPositive).append(System.lineSeparator());
+        sb.append("weightPbcCoeffNegative=").append(weightPbcCoeffNegative).append(System.lineSeparator());
+        sb.append("weightPbcTypeLe=").append(weightPbcTypeLe).append(System.lineSeparator());
+        sb.append("weightPbcTypeLt=").append(weightPbcTypeLt).append(System.lineSeparator());
+        sb.append("weightPbcTypeGe=").append(weightPbcTypeGe).append(System.lineSeparator());
+        sb.append("weightPbcTypeGt=").append(weightPbcTypeGt).append(System.lineSeparator());
+        sb.append("weightPbcTypeEq=").append(weightPbcTypeEq).append(System.lineSeparator());
+        sb.append("maximumOperandsPbc=").append(maximumOperandsPbc).append(System.lineSeparator());
+        sb.append("maximumCoefficientPbc=").append(maximumCoefficientPbc).append(System.lineSeparator());
+        sb.append("weightCc=").append(weightCc).append(System.lineSeparator());
+        sb.append("weightAmo=").append(weightAmo).append(System.lineSeparator());
+        sb.append("weightExo=").append(weightExo).append(System.lineSeparator());
+        sb.append("maximumOperandsCc=").append(maximumOperandsCc).append(System.lineSeparator());
         sb.append('}');
         return sb.toString();
     }
@@ -125,33 +101,33 @@ public final class FormulaRandomizerConfig extends Configuration {
      */
     private FormulaRandomizerConfig(final Builder builder) {
         super(ConfigurationType.FORMULA_RANDOMIZER);
-        this.seed = builder.seed;
-        this.variables = builder.variables;
-        this.numVars = builder.numVars;
-        this.weightConstant = builder.weightConstant;
-        this.weightPositiveLiteral = builder.weightPositiveLiteral;
-        this.weightNegativeLiteral = builder.weightNegativeLiteral;
-        this.weightOr = builder.weightOr;
-        this.weightAnd = builder.weightAnd;
-        this.weightNot = builder.weightNot;
-        this.weightImpl = builder.weightImpl;
-        this.weightEquiv = builder.weightEquiv;
-        this.maximumOperandsAnd = builder.maximumOperandsAnd;
-        this.maximumOperandsOr = builder.maximumOperandsOr;
-        this.weightPbc = builder.weightPbc;
-        this.weightPbcCoeffPositive = builder.weightPbcCoeffPositive;
-        this.weightPbcCoeffNegative = builder.weightPbcCoeffNegative;
-        this.weightPbcTypeLe = builder.weightPbcTypeLe;
-        this.weightPbcTypeLt = builder.weightPbcTypeLt;
-        this.weightPbcTypeGe = builder.weightPbcTypeGe;
-        this.weightPbcTypeGt = builder.weightPbcTypeGt;
-        this.weightPbcTypeEq = builder.weightPbcTypeEq;
-        this.maximumOperandsPbc = builder.maximumOperandsPbc;
-        this.maximumCoefficientPbc = builder.maximumCoefficientPbc;
-        this.weightCc = builder.weightCc;
-        this.weightAmo = builder.weightAmo;
-        this.weightExo = builder.weightExo;
-        this.maximumOperandsCc = builder.maximumOperandsCc;
+        seed = builder.seed;
+        variables = builder.variables;
+        numVars = builder.numVars;
+        weightConstant = builder.weightConstant;
+        weightPositiveLiteral = builder.weightPositiveLiteral;
+        weightNegativeLiteral = builder.weightNegativeLiteral;
+        weightOr = builder.weightOr;
+        weightAnd = builder.weightAnd;
+        weightNot = builder.weightNot;
+        weightImpl = builder.weightImpl;
+        weightEquiv = builder.weightEquiv;
+        maximumOperandsAnd = builder.maximumOperandsAnd;
+        maximumOperandsOr = builder.maximumOperandsOr;
+        weightPbc = builder.weightPbc;
+        weightPbcCoeffPositive = builder.weightPbcCoeffPositive;
+        weightPbcCoeffNegative = builder.weightPbcCoeffNegative;
+        weightPbcTypeLe = builder.weightPbcTypeLe;
+        weightPbcTypeLt = builder.weightPbcTypeLt;
+        weightPbcTypeGe = builder.weightPbcTypeGe;
+        weightPbcTypeGt = builder.weightPbcTypeGt;
+        weightPbcTypeEq = builder.weightPbcTypeEq;
+        maximumOperandsPbc = builder.maximumOperandsPbc;
+        maximumCoefficientPbc = builder.maximumCoefficientPbc;
+        weightCc = builder.weightCc;
+        weightAmo = builder.weightAmo;
+        weightExo = builder.weightExo;
+        maximumOperandsCc = builder.maximumOperandsCc;
     }
 
     /**
