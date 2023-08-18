@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.explanations.mus;
 
@@ -53,15 +29,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Unit tests for the class {@link MUSGeneration}.
- * @version 2.1.0
- * @since 1.1
- */
 public class MUSGenerationTest {
 
     private final FormulaFactory f = FormulaFactory.caching();
-    private final PigeonHoleGenerator pg = new PigeonHoleGenerator(this.f);
+    private final PigeonHoleGenerator pg = new PigeonHoleGenerator(f);
 
     private final List<StandardProposition> pg3;
     private final List<StandardProposition> pg4;
@@ -74,59 +45,59 @@ public class MUSGenerationTest {
     private final List<StandardProposition> file4;
 
     public MUSGenerationTest() throws IOException {
-        this.pg3 = generatePGPropositions(3);
-        this.pg4 = generatePGPropositions(4);
-        this.pg5 = generatePGPropositions(5);
-        this.pg6 = generatePGPropositions(6);
-        this.pg7 = generatePGPropositions(7);
-        this.file1 = readDimacs("src/test/resources/sat/3col40_5_10.shuffled.cnf");
-        this.file2 = readDimacs("src/test/resources/sat/x1_16.shuffled.cnf");
-        this.file3 = readDimacs("src/test/resources/sat/grid_10_20.shuffled.cnf");
-        this.file4 = readDimacs("src/test/resources/sat/ca032.shuffled.cnf");
+        pg3 = generatePGPropositions(3);
+        pg4 = generatePGPropositions(4);
+        pg5 = generatePGPropositions(5);
+        pg6 = generatePGPropositions(6);
+        pg7 = generatePGPropositions(7);
+        file1 = readDimacs("src/test/resources/sat/3col40_5_10.shuffled.cnf");
+        file2 = readDimacs("src/test/resources/sat/x1_16.shuffled.cnf");
+        file3 = readDimacs("src/test/resources/sat/grid_10_20.shuffled.cnf");
+        file4 = readDimacs("src/test/resources/sat/ca032.shuffled.cnf");
     }
 
     @Test
     public void testNoFormulas() {
         final MUSGeneration mus = new MUSGeneration();
-        assertThatThrownBy(() -> mus.computeMUS(Collections.emptyList(), this.f, MUSConfig.builder().build())).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> mus.computeMUS(Collections.emptyList(), f, MUSConfig.builder().build())).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void testSATFormulaSetDeletionBasedMUS() {
         final MUSGeneration mus = new MUSGeneration();
-        final StandardProposition proposition = new StandardProposition(this.f.variable("a"));
-        assertThatThrownBy(() -> mus.computeMUS(Collections.singletonList(proposition), this.f,
+        final StandardProposition proposition = new StandardProposition(f.variable("a"));
+        assertThatThrownBy(() -> mus.computeMUS(Collections.singletonList(proposition), f,
                 MUSConfig.builder().algorithm(MUSConfig.Algorithm.DELETION).build())).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void testDeletionBasedMUS() {
         final MUSGeneration mus = new MUSGeneration();
-        final UNSATCore<StandardProposition> mus1 = mus.computeMUS(this.pg3, this.f);
-        final UNSATCore<StandardProposition> mus2 = mus.computeMUS(this.pg4, this.f);
-        final UNSATCore<StandardProposition> mus3 = mus.computeMUS(this.pg5, this.f);
-        final UNSATCore<StandardProposition> mus4 = mus.computeMUS(this.pg6, this.f);
-        final UNSATCore<StandardProposition> mus5 = mus.computeMUS(this.pg7, this.f);
-        final UNSATCore<StandardProposition> mus6 = mus.computeMUS(this.file1, this.f);
-        final UNSATCore<StandardProposition> mus7 = mus.computeMUS(this.file2, this.f);
-        final UNSATCore<StandardProposition> mus8 = mus.computeMUS(this.file3, this.f);
-        final UNSATCore<StandardProposition> mus9 = mus.computeMUS(this.file4, this.f);
-        testMUS(this.pg3, mus1);
-        testMUS(this.pg4, mus2);
-        testMUS(this.pg5, mus3);
-        testMUS(this.pg6, mus4);
-        testMUS(this.pg7, mus5);
-        testMUS(this.file1, mus6);
-        testMUS(this.file2, mus7);
-        testMUS(this.file3, mus8);
-        testMUS(this.file4, mus9);
+        final UNSATCore<StandardProposition> mus1 = mus.computeMUS(pg3, f);
+        final UNSATCore<StandardProposition> mus2 = mus.computeMUS(pg4, f);
+        final UNSATCore<StandardProposition> mus3 = mus.computeMUS(pg5, f);
+        final UNSATCore<StandardProposition> mus4 = mus.computeMUS(pg6, f);
+        final UNSATCore<StandardProposition> mus5 = mus.computeMUS(pg7, f);
+        final UNSATCore<StandardProposition> mus6 = mus.computeMUS(file1, f);
+        final UNSATCore<StandardProposition> mus7 = mus.computeMUS(file2, f);
+        final UNSATCore<StandardProposition> mus8 = mus.computeMUS(file3, f);
+        final UNSATCore<StandardProposition> mus9 = mus.computeMUS(file4, f);
+        testMUS(pg3, mus1);
+        testMUS(pg4, mus2);
+        testMUS(pg5, mus3);
+        testMUS(pg6, mus4);
+        testMUS(pg7, mus5);
+        testMUS(file1, mus6);
+        testMUS(file2, mus7);
+        testMUS(file3, mus8);
+        testMUS(file4, mus9);
     }
 
     @Test
     public void testSATFormulaSetPlainInsertionBasedMUS() {
         final MUSGeneration mus = new MUSGeneration();
-        final StandardProposition proposition = new StandardProposition(this.f.variable("a"));
-        assertThatThrownBy(() -> mus.computeMUS(Collections.singletonList(proposition), this.f,
+        final StandardProposition proposition = new StandardProposition(f.variable("a"));
+        assertThatThrownBy(() -> mus.computeMUS(Collections.singletonList(proposition), f,
                 MUSConfig.builder().algorithm(MUSConfig.Algorithm.PLAIN_INSERTION).build())).isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -134,16 +105,16 @@ public class MUSGenerationTest {
     public void testPlainInsertionBasedMUS() {
         final MUSGeneration mus = new MUSGeneration();
         final MUSConfig config = MUSConfig.builder().algorithm(MUSConfig.Algorithm.PLAIN_INSERTION).build();
-        final UNSATCore<StandardProposition> mus1 = mus.computeMUS(this.pg3, this.f, config);
-        final UNSATCore<StandardProposition> mus2 = mus.computeMUS(this.pg4, this.f, config);
-        final UNSATCore<StandardProposition> mus3 = mus.computeMUS(this.pg5, this.f, config);
-        final UNSATCore<StandardProposition> mus6 = mus.computeMUS(this.file1, this.f, config);
-        final UNSATCore<StandardProposition> mus7 = mus.computeMUS(this.file2, this.f, config);
-        testMUS(this.pg3, mus1);
-        testMUS(this.pg4, mus2);
-        testMUS(this.pg5, mus3);
-        testMUS(this.file1, mus6);
-        testMUS(this.file2, mus7);
+        final UNSATCore<StandardProposition> mus1 = mus.computeMUS(pg3, f, config);
+        final UNSATCore<StandardProposition> mus2 = mus.computeMUS(pg4, f, config);
+        final UNSATCore<StandardProposition> mus3 = mus.computeMUS(pg5, f, config);
+        final UNSATCore<StandardProposition> mus6 = mus.computeMUS(file1, f, config);
+        final UNSATCore<StandardProposition> mus7 = mus.computeMUS(file2, f, config);
+        testMUS(pg3, mus1);
+        testMUS(pg4, mus2);
+        testMUS(pg5, mus3);
+        testMUS(file1, mus6);
+        testMUS(file2, mus7);
     }
 
     @Test
@@ -183,15 +154,9 @@ public class MUSGenerationTest {
         }
     }
 
-    @Test
-    public void testToString() {
-        final MUSGeneration mus = new MUSGeneration();
-        assertThat(mus.toString()).isEqualTo("MUSGeneration");
-    }
-
     private List<StandardProposition> generatePGPropositions(final int n) {
         final List<StandardProposition> result = new ArrayList<>();
-        final Formula pgf = this.pg.generate(n);
+        final Formula pgf = pg.generate(n);
         for (final Formula f : pgf) {
             result.add(new StandardProposition(f));
         }
@@ -208,9 +173,9 @@ public class MUSGenerationTest {
                 final List<Literal> clause = new ArrayList<>();
                 for (int i = 0; i < tokens.length - 1; i++) {
                     final int lit = Integer.parseInt(tokens[i]);
-                    clause.add(lit < 0 ? this.f.literal("v" + (-lit), false) : this.f.literal("v" + lit, true));
+                    clause.add(lit < 0 ? f.literal("v" + (-lit), false) : f.literal("v" + lit, true));
                 }
-                result.add(new StandardProposition(this.f.clause(clause)));
+                result.add(new StandardProposition(f.clause(clause)));
             }
         }
         return result;
@@ -219,7 +184,7 @@ public class MUSGenerationTest {
     private void testMUS(final List<StandardProposition> original, final UNSATCore<StandardProposition> mus) {
         assertThat(mus.isMUS()).isTrue();
         assertThat(mus.propositions().size() <= original.size()).isTrue();
-        final MiniSat miniSat = MiniSat.miniSat(this.f);
+        final MiniSat miniSat = MiniSat.miniSat(f);
         for (final StandardProposition p : mus.propositions()) {
             assertThat(original.contains(p)).isTrue();
             assertThat(miniSat.sat()).isEqualTo(Tristate.TRUE);
