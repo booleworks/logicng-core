@@ -89,7 +89,7 @@ public final class FormulaHelper {
 
     /**
      * Returns the negation of the given literals
-     * @param f                 the formula factory to generated new formulas
+     * @param f                 the formula factory to generate new formulas
      * @param literals          the literals
      * @param collectionFactory the supplier for the collection
      * @param <C>               the type parameters of the collection
@@ -106,7 +106,7 @@ public final class FormulaHelper {
 
     /**
      * Returns the negation of the given formulas.
-     * @param f                 the formula factory to generated new formulas
+     * @param f                 the formula factory to generate new formulas
      * @param formulas          the formulas
      * @param collectionFactory the supplier for the collection
      * @param <C>               the type parameters of the collection

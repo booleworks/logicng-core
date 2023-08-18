@@ -83,7 +83,7 @@ public final class NaivePrimeReduction {
      * Computes a prime implicate from the given implicate for the given formula.
      * Assumption: Given implicate is a falsifying assignment for the formula, i.e. a satisfying assignment for the
      * negated formula
-     * @param f         the formula factory to generated new formulas
+     * @param f         the formula factory to generate new formulas
      * @param implicate the implicate
      * @return a prime implicate
      */
@@ -95,7 +95,7 @@ public final class NaivePrimeReduction {
      * Computes a prime implicate from the given implicate for the given formula.
      * Assumption: Given implicate is a falsifying assignment for the formula, i.e. a satisfying assignment for the
      * negated formula
-     * @param f         the formula factory to generated new formulas
+     * @param f         the formula factory to generate new formulas
      * @param implicate the implicate
      * @param handler   a SAT handler for the underlying SAT Solver
      * @return a prime implicate of null if the computation was aborted by the handler

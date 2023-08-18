@@ -38,7 +38,7 @@ public final class BackboneSimplifier extends StatelessFormulaTransformation {
         }
         if (!backbone.getNegativeBackbone().isEmpty() || !backbone.getPositiveBackbone().isEmpty()) {
             final Formula backboneFormula = backbone.toFormula(f);
-            final Assignment assignment = new Assignment(backbone.getCompleteBackbone());
+            final Assignment assignment = new Assignment(backbone.getCompleteBackbone(f));
             final Formula restrictedFormula = formula.restrict(assignment, f);
             return f.and(backboneFormula, restrictedFormula);
         } else {

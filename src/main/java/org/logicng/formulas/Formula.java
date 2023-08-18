@@ -272,7 +272,7 @@ public interface Formula extends Iterable<Formula> {
      * <p>
      * Since CNF is the input for the SAT or MaxSAT solvers, it has a special treatment here.  For other conversions, use
      * the according formula functions.
-     * @param f the formula factory to generated new formulas
+     * @param f the formula factory to generate new formulas
      * @return a copy of this formula which is in CNF
      */
     default Formula cnf(final FormulaFactory f) {
@@ -389,7 +389,7 @@ public interface Formula extends Iterable<Formula> {
      * generating the variable order for this formula, and building a new BDD.  If more sophisticated operations should
      * be performed on the BDD or more than one formula should be constructed on the BDD, an own instance of
      * {@link BDDFactory} should be created and used.
-     * @param f        the formula factory to generated new formulas
+     * @param f        the formula factory to generate new formulas
      * @param provider the variable ordering provider
      * @return the BDD for this formula with the given ordering
      */
@@ -419,7 +419,7 @@ public interface Formula extends Iterable<Formula> {
      * Generates a BDD from this formula with no given variable ordering.  This is done by generating a new BDD factory
      * and building a new BDD.  If more sophisticated operations should be performed on the BDD or more than one
      * formula should be constructed on the BDD, an own instance of * {@link BDDFactory} should be created and used.
-     * @param f the formula factory to generated new formulas
+     * @param f the formula factory to generate new formulas
      * @return the BDD for this formula
      */
     default BDD bdd(final FormulaFactory f) {
