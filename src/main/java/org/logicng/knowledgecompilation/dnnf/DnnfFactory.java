@@ -25,7 +25,7 @@ public class DnnfFactory {
     /**
      * Compiles the given formula to a DNNF instance.
      * @param formula the formula
-     * @param f       the formula factory to generated new formulas
+     * @param f       the formula factory to generate new formulas
      * @return the compiled DNNF
      */
     public Dnnf compile(final Formula formula, final FormulaFactory f) {

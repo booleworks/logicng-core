@@ -79,7 +79,7 @@ public final class BDDFactory {
      * pseudo-Boolean constraints this number depends on the translation of the constraint.  Therefore, the caller first
      * has to transform any pseudo-Boolean constraints in their respective CNF representation before converting them
      * to a BDD.
-     * @param f       the formula factory to generated new formulas
+     * @param f       the formula factory to generate new formulas
      * @param formula the formula
      * @return the top node of the BDD
      */
@@ -107,7 +107,7 @@ public final class BDDFactory {
      * pseudo-Boolean constraints this number depends on the translation of the constraint.  Therefore, the caller first
      * has to transform any pseudo-Boolean constraints in their respective CNF representation before converting them
      * to a BDD.
-     * @param f       the formula factory to generated new formulas
+     * @param f       the formula factory to generate new formulas
      * @param formula the formula
      * @param kernel  the BBD kernel to use
      * @return the top node of the BDD or {@link BDDKernel#BDD_ABORT} if the computation was aborted

@@ -100,15 +100,15 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
         Formula simplified = formula;
         final SortedSet<Literal> backboneLiterals = new TreeSet<>();
         if (config.restrictBackbone) {
-            final Backbone backbone = BackboneGeneration
-                    .compute(Collections.singletonList(formula), formula.variables(), BackboneType.POSITIVE_AND_NEGATIVE, satHandler(handler));
+            final Backbone backbone = BackboneGeneration.compute(f, Collections.singletonList(formula),
+                    formula.variables(), BackboneType.POSITIVE_AND_NEGATIVE, satHandler(handler));
             if (backbone == null || aborted(handler)) {
                 return null;
             }
             if (!backbone.isSat()) {
                 return f.falsum();
             }
-            backboneLiterals.addAll(backbone.getCompleteBackbone());
+            backboneLiterals.addAll(backbone.getCompleteBackbone(f));
             simplified = formula.restrict(new Assignment(backboneLiterals), f);
         }
         final Formula simplifyMinDnf = computeMinDnf(f, simplified);

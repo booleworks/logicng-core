@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.backbones;
 
@@ -57,7 +33,7 @@ import java.util.TreeSet;
  * Therefore these variables can be assigned to true or false.
  * </ol>
  * All variable sets which were not computed are empty.
- * @version 2.3.1
+ * @version 3.0.0
  * @since 1.5.0
  */
 public final class Backbone {
@@ -109,7 +85,7 @@ public final class Backbone {
      * @return whether the original formula of this backbone was satisfiable or not
      */
     public boolean isSat() {
-        return this.sat;
+        return sat;
     }
 
     /**
@@ -117,7 +93,7 @@ public final class Backbone {
      * @return the set of positive backbone variables
      */
     public SortedSet<Variable> getPositiveBackbone() {
-        return unmodifiableSortedSet(this.positiveBackbone);
+        return unmodifiableSortedSet(positiveBackbone);
     }
 
     /**
@@ -125,7 +101,7 @@ public final class Backbone {
      * @return the set of negative backbone variables
      */
     public SortedSet<Variable> getNegativeBackbone() {
-        return unmodifiableSortedSet(this.negativeBackbone);
+        return unmodifiableSortedSet(negativeBackbone);
     }
 
     /**
@@ -133,7 +109,7 @@ public final class Backbone {
      * @return the set of non-backbone variables
      */
     public SortedSet<Variable> getOptionalVariables() {
-        return unmodifiableSortedSet(this.optionalVariables);
+        return unmodifiableSortedSet(optionalVariables);
     }
 
     /**
@@ -141,10 +117,10 @@ public final class Backbone {
      * backbone variables have negative polarity.
      * @return the set of both positive and negative backbone variables as literals
      */
-    public SortedSet<Literal> getCompleteBackbone() {
-        final SortedSet<Literal> completeBackbone = new TreeSet<Literal>(this.positiveBackbone);
-        for (final Variable var : this.negativeBackbone) {
-            completeBackbone.add(var.negate());
+    public SortedSet<Literal> getCompleteBackbone(final FormulaFactory f) {
+        final SortedSet<Literal> completeBackbone = new TreeSet<Literal>(positiveBackbone);
+        for (final Variable var : negativeBackbone) {
+            completeBackbone.add(var.negate(f));
         }
         return Collections.unmodifiableSortedSet(completeBackbone);
     }
@@ -155,7 +131,7 @@ public final class Backbone {
      * @return the backbone formula
      */
     public Formula toFormula(final FormulaFactory f) {
-        return this.sat ? f.and(this.getCompleteBackbone()) : f.falsum();
+        return sat ? f.and(getCompleteBackbone(f)) : f.falsum();
     }
 
     /**
@@ -165,13 +141,13 @@ public final class Backbone {
      */
     public SortedMap<Variable, Tristate> toMap() {
         final SortedMap<Variable, Tristate> map = new TreeMap<>();
-        for (final Variable var : this.positiveBackbone) {
+        for (final Variable var : positiveBackbone) {
             map.put(var, Tristate.TRUE);
         }
-        for (final Variable var : this.negativeBackbone) {
+        for (final Variable var : negativeBackbone) {
             map.put(var, Tristate.FALSE);
         }
-        for (final Variable var : this.optionalVariables) {
+        for (final Variable var : optionalVariables) {
             map.put(var, Tristate.UNDEF);
         }
         return Collections.unmodifiableSortedMap(map);
@@ -189,23 +165,23 @@ public final class Backbone {
             return false;
         }
         final Backbone backbone = (Backbone) other;
-        return this.sat == backbone.sat && Objects.equals(this.positiveBackbone, backbone.positiveBackbone) &&
-                Objects.equals(this.negativeBackbone, backbone.negativeBackbone) &&
-                Objects.equals(this.optionalVariables, backbone.optionalVariables);
+        return sat == backbone.sat && Objects.equals(positiveBackbone, backbone.positiveBackbone) &&
+                Objects.equals(negativeBackbone, backbone.negativeBackbone) &&
+                Objects.equals(optionalVariables, backbone.optionalVariables);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.sat, this.positiveBackbone, this.negativeBackbone, this.optionalVariables);
+        return Objects.hash(sat, positiveBackbone, negativeBackbone, optionalVariables);
     }
 
     @Override
     public String toString() {
         return "Backbone{" +
-                "sat=" + this.sat +
-                ", positiveBackbone=" + this.positiveBackbone +
-                ", negativeBackbone=" + this.negativeBackbone +
-                ", optionalVariables=" + this.optionalVariables +
+                "sat=" + sat +
+                ", positiveBackbone=" + positiveBackbone +
+                ", negativeBackbone=" + negativeBackbone +
+                ", optionalVariables=" + optionalVariables +
                 '}';
     }
 }

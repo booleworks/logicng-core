@@ -410,7 +410,7 @@ public class BDD {
     /**
      * Returns an arbitrary model of this BDD which contains at least the given variables or {@code null} if there is
      * none.  If a variable is a don't care variable, it will be assigned with the given default value.
-     * @param f            the formula factory to generated new formulas
+     * @param f            the formula factory to generate new formulas
      * @param defaultValue the default value for don't care variables
      * @param variables    the set of variable which has to be contained in the model
      * @return an arbitrary model of this BDD
@@ -436,7 +436,7 @@ public class BDD {
     /**
      * Returns an arbitrary model of this BDD which contains at least the given variables or {@code null} if there is
      * none.  If a variable is a don't care variable, it will be assigned with the given default value.
-     * @param f            the formula factory to generated new formulas
+     * @param f            the formula factory to generate new formulas
      * @param defaultValue the default value for don't care variables
      * @param variables    the set of variable which has to be contained in the model
      * @return an arbitrary model of this BDD
@@ -455,7 +455,7 @@ public class BDD {
 
     /**
      * Returns a full model of this BDD or {@code null} if there is none.
-     * @param f the formula factory to generated new formulas
+     * @param f the formula factory to generate new formulas
      * @return a full model of this BDD
      */
     public Assignment fullModel(final FormulaFactory f) {

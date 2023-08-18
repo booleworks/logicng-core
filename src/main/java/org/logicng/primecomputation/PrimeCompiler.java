@@ -81,7 +81,7 @@ public final class PrimeCompiler {
      * Computes prime implicants and prime implicates for a given formula.
      * The coverage type specifies if the implicants or the implicates will
      * be complete, the other one will still be a cover of the given formula.
-     * @param f       the formula factory to generated new formulas
+     * @param f       the formula factory to generate new formulas
      * @param formula the formula
      * @param type    the coverage type
      * @return the prime result
@@ -99,7 +99,7 @@ public final class PrimeCompiler {
      * The given handler instance will be used for every subsequent
      * {@link org.logicng.solvers.functions.OptimizationFunction} call and
      * the handler's SAT handler is used for every subsequent SAT call.
-     * @param f       the formula factory to generated new formulas
+     * @param f       the formula factory to generate new formulas
      * @param formula the formula
      * @param type    the coverage type
      * @param handler an optimization handler, can be {@code null}
