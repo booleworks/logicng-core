@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.handlers;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,15 +40,15 @@ class TimeoutMaxSATHandlerTest {
 
     @BeforeEach
     public void init() {
-        this.f = FormulaFactory.caching();
-        this.solvers = Arrays.asList(
-                MaxSATSolver.incWBO(this.f),
-                MaxSATSolver.wbo(this.f),
-                MaxSATSolver.linearSU(this.f),
-                MaxSATSolver.linearUS(this.f),
-                MaxSATSolver.msu3(this.f),
-                MaxSATSolver.wmsu3(this.f),
-                MaxSATSolver.oll(this.f)
+        f = FormulaFactory.caching();
+        solvers = Arrays.asList(
+                MaxSATSolver.incWBO(f),
+                MaxSATSolver.wbo(f),
+                MaxSATSolver.linearSU(f),
+                MaxSATSolver.linearUS(f),
+                MaxSATSolver.msu3(f),
+                MaxSATSolver.wmsu3(f),
+                MaxSATSolver.oll(f)
         );
     }
 
@@ -68,11 +72,11 @@ class TimeoutMaxSATHandlerTest {
 
     @Test
     public void testThatMethodsAreCalled() throws ParserException {
-        for (final MaxSATSolver solver : this.solvers) {
+        for (final MaxSATSolver solver : solvers) {
             final int weight = solver.isWeighted() ? 2 : 1;
-            solver.addHardFormula(this.f.parse("A&B"));
-            solver.addSoftFormula(this.f.parse("~A"), weight);
-            solver.addSoftFormula(this.f.parse("~B"), weight);
+            solver.addHardFormula(f.parse("A&B"));
+            solver.addSoftFormula(f.parse("~A"), weight);
+            solver.addSoftFormula(f.parse("~B"), weight);
             final TimeoutMaxSATHandler handler = Mockito.mock(TimeoutMaxSATHandler.class);
             solver.solve(handler);
 
@@ -84,8 +88,8 @@ class TimeoutMaxSATHandlerTest {
 
     @Test
     public void testThatSatHandlerIsHandledProperly() throws IOException {
-        final List<Formula> formulas = DimacsReader.readCNF("src/test/resources/sat/unsat/pret60_40.cnf", this.f);
-        for (final MaxSATSolver solver : this.solvers) {
+        final List<Formula> formulas = DimacsReader.readCNF("src/test/resources/sat/unsat/pret60_40.cnf", f);
+        for (final MaxSATSolver solver : solvers) {
             final int weight = solver.isWeighted() ? 2 : 1;
             formulas.forEach(c -> solver.addSoftFormula(c, weight));
             final TimeoutSATHandler satHandler = Mockito.mock(TimeoutSATHandler.class);
@@ -110,8 +114,8 @@ class TimeoutMaxSATHandlerTest {
 
     @Test
     public void testTimeoutHandlerSingleTimeout() throws IOException {
-        final List<Formula> formulas = DimacsReader.readCNF("src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf", this.f);
-        for (final MaxSATSolver solver : this.solvers) {
+        final List<Formula> formulas = DimacsReader.readCNF("src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf", f);
+        for (final MaxSATSolver solver : solvers) {
             final int weight = solver.isWeighted() ? 2 : 1;
             formulas.forEach(c -> solver.addSoftFormula(c, weight));
             final TimeoutMaxSATHandler handler = new TimeoutMaxSATHandler(10L);
@@ -125,8 +129,8 @@ class TimeoutMaxSATHandlerTest {
 
     @Test
     public void testTimeoutHandlerFixedEnd() {
-        final Formula ph = new PigeonHoleGenerator(this.f).generate(10);
-        for (final MaxSATSolver solver : this.solvers) {
+        final Formula ph = new PigeonHoleGenerator(f).generate(10);
+        for (final MaxSATSolver solver : solvers) {
             final int weight = solver.isWeighted() ? 2 : 1;
             ph.forEach(c -> solver.addSoftFormula(c, weight));
             final TimeoutMaxSATHandler handler = new TimeoutMaxSATHandler(System.currentTimeMillis() + 100L, TimeoutHandler.TimerType.FIXED_END);

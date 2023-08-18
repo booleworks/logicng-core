@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.handlers;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,11 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
-/**
- * Unit tests for {@link TimeoutHandler.TimerType}.
- * @version 2.1.0
- * @since 2.1.0
- */
 public class TimerTypeTest {
 
     @Test

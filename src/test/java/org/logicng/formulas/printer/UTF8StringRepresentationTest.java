@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas.printer;
 
@@ -36,57 +12,52 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.FormulaFactoryConfig;
 import org.logicng.formulas.Variable;
 
-/**
- * Unit tests for {@link UTF8StringRepresentation}
- * @version 2.0.0
- * @since 1.0
- */
 public class UTF8StringRepresentationTest extends TestWithExampleFormulas {
     private final FormulaStringRepresentation sr = new UTF8StringRepresentation();
 
     @Test
     public void testUTF8Printer() {
-        assertThat(this.f.string(this.FALSE, this.sr)).isEqualTo("⊥");
-        assertThat(this.f.string(this.TRUE, this.sr)).isEqualTo("⊤");
-        assertThat(this.f.string(this.X, this.sr)).isEqualTo("x");
-        assertThat(this.f.string(this.NA, this.sr)).isEqualTo("¬a");
-        assertThat(this.f.string(this.f.variable("x1"), this.sr)).isEqualTo("x₁");
-        assertThat(this.f.string(this.f.variable("x190"), this.sr)).isEqualTo("x₁₉₀");
-        assertThat(this.f.string(this.f.variable("x234"), this.sr)).isEqualTo("x₂₃₄");
-        assertThat(this.f.string(this.f.variable("x567"), this.sr)).isEqualTo("x₅₆₇");
-        assertThat(this.f.string(this.f.variable("abc8"), this.sr)).isEqualTo("abc₈");
-        assertThat(this.f.string(this.IMP2, this.sr)).isEqualTo("¬a ⇒ ¬b");
-        assertThat(this.f.string(this.IMP3, this.sr)).isEqualTo("a ∧ b ⇒ x ∨ y");
-        assertThat(this.f.string(this.EQ4, this.sr)).isEqualTo("a ⇒ b ⇔ ¬a ⇒ ¬b");
-        assertThat(this.f.string(this.AND3, this.sr)).isEqualTo("(x ∨ y) ∧ (¬x ∨ ¬y)");
-        assertThat(this.f.string(this.f.and(this.A, this.B, this.C, this.X), this.sr)).isEqualTo("a ∧ b ∧ c ∧ x");
-        assertThat(this.f.string(this.f.or(this.A, this.B, this.C, this.X), this.sr)).isEqualTo("a ∨ b ∨ c ∨ x");
-        assertThat(this.f.string(this.PBC1, this.sr)).isEqualTo("2a + -4b + 3x = 2");
-        assertThat(this.f.string(this.PBC2, this.sr)).isEqualTo("2a + -4b + 3x > 2");
-        assertThat(this.f.string(this.PBC3, this.sr)).isEqualTo("2a + -4b + 3x ≥ 2");
-        assertThat(this.f.string(this.PBC4, this.sr)).isEqualTo("2a + -4b + 3x < 2");
-        assertThat(this.f.string(this.PBC5, this.sr)).isEqualTo("2a + -4b + 3x ≤ 2");
-        assertThat(this.f.string(this.f.implication(this.A, this.f.exo()), this.sr)).isEqualTo("¬a");
-        assertThat(this.f.string(this.f.equivalence(this.A, this.f.exo()), this.sr)).isEqualTo("¬a");
-        assertThat(this.f.string(this.f.and(this.A, this.f.exo()), this.sr)).isEqualTo("⊥");
-        assertThat(this.f.string(this.f.or(this.A, this.f.exo()), this.sr)).isEqualTo("a");
-        assertThat(this.f.string(this.f.implication(this.A, this.f.amo()), this.sr)).isEqualTo("⊤");
-        assertThat(this.f.string(this.f.equivalence(this.A, this.f.amo()), this.sr)).isEqualTo("a");
-        assertThat(this.f.string(this.f.and(this.A, this.f.amo()), this.sr)).isEqualTo("a");
-        assertThat(this.f.string(this.f.or(this.A, this.f.amo()), this.sr)).isEqualTo("⊤");
-        assertThat(this.f.string(this.f.or(this.A, this.f.amo(), this.f.exo(), this.f.equivalence(this.f.amo(), this.B)), this.sr)).isEqualTo("⊤");
+        assertThat(f.string(FALSE, sr)).isEqualTo("⊥");
+        assertThat(f.string(TRUE, sr)).isEqualTo("⊤");
+        assertThat(f.string(X, sr)).isEqualTo("x");
+        assertThat(f.string(NA, sr)).isEqualTo("¬a");
+        assertThat(f.string(f.variable("x1"), sr)).isEqualTo("x₁");
+        assertThat(f.string(f.variable("x190"), sr)).isEqualTo("x₁₉₀");
+        assertThat(f.string(f.variable("x234"), sr)).isEqualTo("x₂₃₄");
+        assertThat(f.string(f.variable("x567"), sr)).isEqualTo("x₅₆₇");
+        assertThat(f.string(f.variable("abc8"), sr)).isEqualTo("abc₈");
+        assertThat(f.string(IMP2, sr)).isEqualTo("¬a ⇒ ¬b");
+        assertThat(f.string(IMP3, sr)).isEqualTo("a ∧ b ⇒ x ∨ y");
+        assertThat(f.string(EQ4, sr)).isEqualTo("a ⇒ b ⇔ ¬a ⇒ ¬b");
+        assertThat(f.string(AND3, sr)).isEqualTo("(x ∨ y) ∧ (¬x ∨ ¬y)");
+        assertThat(f.string(f.and(A, B, C, X), sr)).isEqualTo("a ∧ b ∧ c ∧ x");
+        assertThat(f.string(f.or(A, B, C, X), sr)).isEqualTo("a ∨ b ∨ c ∨ x");
+        assertThat(f.string(PBC1, sr)).isEqualTo("2a + -4b + 3x = 2");
+        assertThat(f.string(PBC2, sr)).isEqualTo("2a + -4b + 3x > 2");
+        assertThat(f.string(PBC3, sr)).isEqualTo("2a + -4b + 3x ≥ 2");
+        assertThat(f.string(PBC4, sr)).isEqualTo("2a + -4b + 3x < 2");
+        assertThat(f.string(PBC5, sr)).isEqualTo("2a + -4b + 3x ≤ 2");
+        assertThat(f.string(f.implication(A, f.exo()), sr)).isEqualTo("¬a");
+        assertThat(f.string(f.equivalence(A, f.exo()), sr)).isEqualTo("¬a");
+        assertThat(f.string(f.and(A, f.exo()), sr)).isEqualTo("⊥");
+        assertThat(f.string(f.or(A, f.exo()), sr)).isEqualTo("a");
+        assertThat(f.string(f.implication(A, f.amo()), sr)).isEqualTo("⊤");
+        assertThat(f.string(f.equivalence(A, f.amo()), sr)).isEqualTo("a");
+        assertThat(f.string(f.and(A, f.amo()), sr)).isEqualTo("a");
+        assertThat(f.string(f.or(A, f.amo()), sr)).isEqualTo("⊤");
+        assertThat(f.string(f.or(A, f.amo(), f.exo(), f.equivalence(f.amo(), B)), sr)).isEqualTo("⊤");
     }
 
     @Test
     public void testSpecialCases() {
-        final Variable var = this.f.variable("\ntest9t");
-        assertThat(this.f.string(var, this.sr)).isEqualTo("\ntest9t");
-        assertThat(this.sr.toString()).isEqualTo("UTF8StringRepresentation");
+        final Variable var = f.variable("\ntest9t");
+        assertThat(f.string(var, sr)).isEqualTo("\ntest9t");
+        assertThat(sr.toString()).isEqualTo("UTF8StringRepresentation");
     }
 
     @Test
     public void testViaFormulaFactoryConfig() {
-        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().stringRepresentation(() -> this.sr).build());
-        assertThat(f.importFormula(this.EQ4).toString()).isEqualTo("a ⇒ b ⇔ ¬a ⇒ ¬b");
+        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().stringRepresentation(() -> sr).build());
+        assertThat(f.importFormula(EQ4).toString()).isEqualTo("a ⇒ b ⇔ ¬a ⇒ ¬b");
     }
 }

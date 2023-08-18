@@ -20,11 +20,6 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-/**
- * Unit Tests for the class {@link PBConstraint}.
- * @version 3.0.0
- * @since 1.0
- */
 public class PBConstraintTest extends TestWithExampleFormulas {
 
     private static final FormulaFactory f =
@@ -48,15 +43,15 @@ public class PBConstraintTest extends TestWithExampleFormulas {
         final List<Variable> litsCC2 = Arrays.asList(f.variable("a"), f2.variable("b"), f.variable("c"));
         final int[] coeffs1 = new int[]{3};
         final List<Integer> coeffs2 = Arrays.asList(3, -2, 7);
-        this.pb1 = (PBConstraint) f.pbc(CType.LE, 2, lits1, coeffs1);
-        this.pb2 = (PBConstraint) f.pbc(CType.LE, 8, lits2, coeffs2);
-        this.pb22 = (PBConstraint) f2.pbc(CType.LE, 8, lits2, coeffs2);
-        this.cc1 = (CardinalityConstraint) f.cc(CType.LT, 1, lits1);
-        this.cc2 = (CardinalityConstraint) f.cc(CType.GE, 2, litsCC2);
-        this.amo1 = (CardinalityConstraint) f.amo(lits1);
-        this.amo2 = (CardinalityConstraint) f.amo(litsCC2);
-        this.exo1 = (CardinalityConstraint) f.exo(lits1);
-        this.exo2 = (CardinalityConstraint) f.exo(litsCC2);
+        pb1 = (PBConstraint) f.pbc(CType.LE, 2, lits1, coeffs1);
+        pb2 = (PBConstraint) f.pbc(CType.LE, 8, lits2, coeffs2);
+        pb22 = (PBConstraint) f2.pbc(CType.LE, 8, lits2, coeffs2);
+        cc1 = (CardinalityConstraint) f.cc(CType.LT, 1, lits1);
+        cc2 = (CardinalityConstraint) f.cc(CType.GE, 2, litsCC2);
+        amo1 = (CardinalityConstraint) f.amo(lits1);
+        amo2 = (CardinalityConstraint) f.amo(litsCC2);
+        exo1 = (CardinalityConstraint) f.exo(lits1);
+        exo2 = (CardinalityConstraint) f.exo(litsCC2);
     }
 
     @Test
@@ -68,14 +63,14 @@ public class PBConstraintTest extends TestWithExampleFormulas {
 
     @Test
     public void testType() {
-        assertThat(this.pb1.type()).isEqualTo(FType.PBC);
-        assertThat(this.pb2.type()).isEqualTo(FType.PBC);
-        assertThat(this.cc1.type()).isEqualTo(FType.PBC);
-        assertThat(this.cc2.type()).isEqualTo(FType.PBC);
-        assertThat(this.amo1.type()).isEqualTo(FType.PBC);
-        assertThat(this.amo2.type()).isEqualTo(FType.PBC);
-        assertThat(this.exo1.type()).isEqualTo(FType.PBC);
-        assertThat(this.exo2.type()).isEqualTo(FType.PBC);
+        assertThat(pb1.type()).isEqualTo(FType.PBC);
+        assertThat(pb2.type()).isEqualTo(FType.PBC);
+        assertThat(cc1.type()).isEqualTo(FType.PBC);
+        assertThat(cc2.type()).isEqualTo(FType.PBC);
+        assertThat(amo1.type()).isEqualTo(FType.PBC);
+        assertThat(amo2.type()).isEqualTo(FType.PBC);
+        assertThat(exo1.type()).isEqualTo(FType.PBC);
+        assertThat(exo2.type()).isEqualTo(FType.PBC);
     }
 
     @Test
@@ -89,77 +84,77 @@ public class PBConstraintTest extends TestWithExampleFormulas {
         final Integer[] coeffsCC1 = new Integer[]{1};
         final Integer[] coeffsCC2 = new Integer[]{1, 1, 1};
 
-        assertThat(this.pb1.operands()).containsExactly(lits1);
-        assertThat(this.pb1.coefficients()).containsExactly(coeffs1);
-        assertThat(this.pb1.comparator()).isEqualTo(CType.LE);
-        assertThat(this.pb1.rhs()).isEqualTo(2);
-        assertThat(this.pb1.isCC()).isFalse();
-        assertThat(this.pb1.isAmo()).isFalse();
-        assertThat(this.pb1.isExo()).isFalse();
-        assertThat(this.pb1.maxWeight()).isEqualTo(3);
+        assertThat(pb1.operands()).containsExactly(lits1);
+        assertThat(pb1.coefficients()).containsExactly(coeffs1);
+        assertThat(pb1.comparator()).isEqualTo(CType.LE);
+        assertThat(pb1.rhs()).isEqualTo(2);
+        assertThat(pb1.isCC()).isFalse();
+        assertThat(pb1.isAmo()).isFalse();
+        assertThat(pb1.isExo()).isFalse();
+        assertThat(pb1.maxWeight()).isEqualTo(3);
 
-        assertThat(this.pb2.operands()).containsExactly(lits2);
-        assertThat(this.pb2.coefficients()).containsExactly(coeffs2);
-        assertThat(this.pb2.comparator()).isEqualTo(CType.LE);
-        assertThat(this.pb2.rhs()).isEqualTo(8);
-        assertThat(this.pb2.isCC()).isFalse();
-        assertThat(this.pb2.isAmo()).isFalse();
-        assertThat(this.pb2.isExo()).isFalse();
-        assertThat(this.pb2.maxWeight()).isEqualTo(7);
+        assertThat(pb2.operands()).containsExactly(lits2);
+        assertThat(pb2.coefficients()).containsExactly(coeffs2);
+        assertThat(pb2.comparator()).isEqualTo(CType.LE);
+        assertThat(pb2.rhs()).isEqualTo(8);
+        assertThat(pb2.isCC()).isFalse();
+        assertThat(pb2.isAmo()).isFalse();
+        assertThat(pb2.isExo()).isFalse();
+        assertThat(pb2.maxWeight()).isEqualTo(7);
 
-        assertThat(this.cc1.operands()).containsExactly(lits1);
-        assertThat(this.cc1.coefficients()).containsExactly(coeffsCC1);
-        assertThat(this.cc1.comparator()).isEqualTo(CType.LT);
-        assertThat(this.cc1.rhs()).isEqualTo(1);
-        assertThat(this.cc1.isCC()).isTrue();
-        assertThat(this.cc1.isAmo()).isFalse();
-        assertThat(this.cc1.isExo()).isFalse();
-        assertThat(this.cc1.maxWeight()).isEqualTo(1);
+        assertThat(cc1.operands()).containsExactly(lits1);
+        assertThat(cc1.coefficients()).containsExactly(coeffsCC1);
+        assertThat(cc1.comparator()).isEqualTo(CType.LT);
+        assertThat(cc1.rhs()).isEqualTo(1);
+        assertThat(cc1.isCC()).isTrue();
+        assertThat(cc1.isAmo()).isFalse();
+        assertThat(cc1.isExo()).isFalse();
+        assertThat(cc1.maxWeight()).isEqualTo(1);
 
-        assertThat(this.cc2.operands()).containsExactly(litsCC2);
-        assertThat(this.cc2.coefficients()).containsExactly(coeffsCC2);
-        assertThat(this.cc2.comparator()).isEqualTo(CType.GE);
-        assertThat(this.cc2.rhs()).isEqualTo(2);
-        assertThat(this.cc2.isCC()).isTrue();
-        assertThat(this.cc2.isAmo()).isFalse();
-        assertThat(this.cc2.isExo()).isFalse();
-        assertThat(this.cc2.maxWeight()).isEqualTo(1);
+        assertThat(cc2.operands()).containsExactly(litsCC2);
+        assertThat(cc2.coefficients()).containsExactly(coeffsCC2);
+        assertThat(cc2.comparator()).isEqualTo(CType.GE);
+        assertThat(cc2.rhs()).isEqualTo(2);
+        assertThat(cc2.isCC()).isTrue();
+        assertThat(cc2.isAmo()).isFalse();
+        assertThat(cc2.isExo()).isFalse();
+        assertThat(cc2.maxWeight()).isEqualTo(1);
 
-        assertThat(this.amo1.operands()).containsExactly(lits1);
-        assertThat(this.amo1.coefficients()).containsExactly(coeffsCC1);
-        assertThat(this.amo1.comparator()).isEqualTo(CType.LE);
-        assertThat(this.amo1.rhs()).isEqualTo(1);
-        assertThat(this.amo1.isCC()).isTrue();
-        assertThat(this.amo1.isAmo()).isTrue();
-        assertThat(this.amo1.isExo()).isFalse();
-        assertThat(this.amo1.maxWeight()).isEqualTo(1);
+        assertThat(amo1.operands()).containsExactly(lits1);
+        assertThat(amo1.coefficients()).containsExactly(coeffsCC1);
+        assertThat(amo1.comparator()).isEqualTo(CType.LE);
+        assertThat(amo1.rhs()).isEqualTo(1);
+        assertThat(amo1.isCC()).isTrue();
+        assertThat(amo1.isAmo()).isTrue();
+        assertThat(amo1.isExo()).isFalse();
+        assertThat(amo1.maxWeight()).isEqualTo(1);
 
-        assertThat(this.amo2.operands()).containsExactly(litsCC2);
-        assertThat(this.amo2.coefficients()).containsExactly(coeffsCC2);
-        assertThat(this.amo2.comparator()).isEqualTo(CType.LE);
-        assertThat(this.amo2.rhs()).isEqualTo(1);
-        assertThat(this.amo2.isCC()).isTrue();
-        assertThat(this.amo2.isAmo()).isTrue();
-        assertThat(this.amo2.isExo()).isFalse();
-        assertThat(this.amo2.maxWeight()).isEqualTo(1);
+        assertThat(amo2.operands()).containsExactly(litsCC2);
+        assertThat(amo2.coefficients()).containsExactly(coeffsCC2);
+        assertThat(amo2.comparator()).isEqualTo(CType.LE);
+        assertThat(amo2.rhs()).isEqualTo(1);
+        assertThat(amo2.isCC()).isTrue();
+        assertThat(amo2.isAmo()).isTrue();
+        assertThat(amo2.isExo()).isFalse();
+        assertThat(amo2.maxWeight()).isEqualTo(1);
 
-        assertThat(this.exo1.operands()).containsExactly(lits1);
-        assertThat(this.exo1.coefficients()).containsExactly(coeffsCC1);
-        assertThat(this.exo1.comparator()).isEqualTo(CType.EQ);
-        assertThat(this.exo1.rhs()).isEqualTo(1);
-        assertThat(this.exo1.isCC()).isTrue();
-        assertThat(this.exo1.isAmo()).isFalse();
-        assertThat(this.exo1.isExo()).isTrue();
-        assertThat(this.exo1.maxWeight()).isEqualTo(1);
+        assertThat(exo1.operands()).containsExactly(lits1);
+        assertThat(exo1.coefficients()).containsExactly(coeffsCC1);
+        assertThat(exo1.comparator()).isEqualTo(CType.EQ);
+        assertThat(exo1.rhs()).isEqualTo(1);
+        assertThat(exo1.isCC()).isTrue();
+        assertThat(exo1.isAmo()).isFalse();
+        assertThat(exo1.isExo()).isTrue();
+        assertThat(exo1.maxWeight()).isEqualTo(1);
 
-        assertThat(this.exo2.operands()).containsExactly(litsCC2);
-        assertThat(this.exo2.coefficients()).containsExactly(coeffsCC2);
-        assertThat(this.exo2.comparator()).isEqualTo(CType.EQ);
-        assertThat(this.exo2.rhs()).isEqualTo(1);
-        assertThat(this.exo2.isCC()).isTrue();
-        assertThat(this.exo2.isAmo()).isFalse();
-        assertThat(this.exo2.isExo()).isTrue();
-        assertThat(this.exo2.maxWeight()).isEqualTo(1);
+        assertThat(exo2.operands()).containsExactly(litsCC2);
+        assertThat(exo2.coefficients()).containsExactly(coeffsCC2);
+        assertThat(exo2.comparator()).isEqualTo(CType.EQ);
+        assertThat(exo2.rhs()).isEqualTo(1);
+        assertThat(exo2.isCC()).isTrue();
+        assertThat(exo2.isAmo()).isFalse();
+        assertThat(exo2.isExo()).isTrue();
+        assertThat(exo2.maxWeight()).isEqualTo(1);
     }
 
     @Test
@@ -289,43 +284,43 @@ public class PBConstraintTest extends TestWithExampleFormulas {
 
     @Test
     public void testNumberOfAtoms() {
-        assertThat(this.pb1.numberOfAtoms()).isEqualTo(1);
-        assertThat(this.pb2.numberOfAtoms()).isEqualTo(1);
-        assertThat(this.cc1.numberOfAtoms()).isEqualTo(1);
-        assertThat(this.cc2.numberOfAtoms()).isEqualTo(1);
-        assertThat(this.amo1.numberOfAtoms()).isEqualTo(1);
-        assertThat(this.amo2.numberOfAtoms()).isEqualTo(1);
-        assertThat(this.exo1.numberOfAtoms()).isEqualTo(1);
-        assertThat(this.exo2.numberOfAtoms()).isEqualTo(1);
-        assertThat(this.exo2.numberOfAtoms()).isEqualTo(1);
+        assertThat(pb1.numberOfAtoms()).isEqualTo(1);
+        assertThat(pb2.numberOfAtoms()).isEqualTo(1);
+        assertThat(cc1.numberOfAtoms()).isEqualTo(1);
+        assertThat(cc2.numberOfAtoms()).isEqualTo(1);
+        assertThat(amo1.numberOfAtoms()).isEqualTo(1);
+        assertThat(amo2.numberOfAtoms()).isEqualTo(1);
+        assertThat(exo1.numberOfAtoms()).isEqualTo(1);
+        assertThat(exo2.numberOfAtoms()).isEqualTo(1);
+        assertThat(exo2.numberOfAtoms()).isEqualTo(1);
     }
 
     @Test
     public void testNumberOfNodes() {
-        assertThat(this.pb1.numberOfNodes()).isEqualTo(2);
-        assertThat(this.pb2.numberOfNodes()).isEqualTo(4);
-        assertThat(this.cc1.numberOfNodes()).isEqualTo(2);
-        assertThat(this.cc2.numberOfNodes()).isEqualTo(4);
-        assertThat(this.amo1.numberOfNodes()).isEqualTo(2);
-        assertThat(this.amo2.numberOfNodes()).isEqualTo(4);
-        assertThat(this.exo1.numberOfNodes()).isEqualTo(2);
-        assertThat(this.exo2.numberOfNodes()).isEqualTo(4);
-        assertThat(this.exo2.numberOfNodes()).isEqualTo(4);
+        assertThat(pb1.numberOfNodes()).isEqualTo(2);
+        assertThat(pb2.numberOfNodes()).isEqualTo(4);
+        assertThat(cc1.numberOfNodes()).isEqualTo(2);
+        assertThat(cc2.numberOfNodes()).isEqualTo(4);
+        assertThat(amo1.numberOfNodes()).isEqualTo(2);
+        assertThat(amo2.numberOfNodes()).isEqualTo(4);
+        assertThat(exo1.numberOfNodes()).isEqualTo(2);
+        assertThat(exo2.numberOfNodes()).isEqualTo(4);
+        assertThat(exo2.numberOfNodes()).isEqualTo(4);
     }
 
     @Test
     public void testVariables() {
         final SortedSet<Variable> lits1 = new TreeSet<>(Collections.singletonList(f.variable("a")));
         final SortedSet<Variable> lits2 = new TreeSet<>(Arrays.asList(f.variable("a"), f.variable("b"), f.variable("c")));
-        assertThat(this.pb1.variables()).isEqualTo(lits1);
-        assertThat(this.pb1.variables()).isEqualTo(lits1);
-        assertThat(this.pb2.variables()).isEqualTo(lits2);
-        assertThat(this.cc1.variables()).isEqualTo(lits1);
-        assertThat(this.cc2.variables()).isEqualTo(lits2);
-        assertThat(this.amo1.variables()).isEqualTo(lits1);
-        assertThat(this.amo2.variables()).isEqualTo(lits2);
-        assertThat(this.exo1.variables()).isEqualTo(lits1);
-        assertThat(this.exo2.variables()).isEqualTo(lits2);
+        assertThat(pb1.variables()).isEqualTo(lits1);
+        assertThat(pb1.variables()).isEqualTo(lits1);
+        assertThat(pb2.variables()).isEqualTo(lits2);
+        assertThat(cc1.variables()).isEqualTo(lits1);
+        assertThat(cc2.variables()).isEqualTo(lits2);
+        assertThat(amo1.variables()).isEqualTo(lits1);
+        assertThat(amo2.variables()).isEqualTo(lits2);
+        assertThat(exo1.variables()).isEqualTo(lits1);
+        assertThat(exo2.variables()).isEqualTo(lits2);
     }
 
     @Test
@@ -333,44 +328,44 @@ public class PBConstraintTest extends TestWithExampleFormulas {
         final SortedSet<Variable> lits1 = new TreeSet<>(Collections.singletonList(f.variable("a")));
         final SortedSet<Literal> lits2 = new TreeSet<>(Arrays.asList(f.variable("a"), f.literal("b", false), f.variable("c")));
         final SortedSet<Variable> litsCC2 = new TreeSet<>(Arrays.asList(f.variable("a"), f.variable("b"), f.variable("c")));
-        assertThat(this.pb1.literals()).isEqualTo(lits1);
-        assertThat(this.pb2.literals()).isEqualTo(lits2);
-        assertThat(this.cc1.literals()).isEqualTo(lits1);
-        assertThat(this.cc2.literals()).isEqualTo(litsCC2);
-        assertThat(this.amo1.literals()).isEqualTo(lits1);
-        assertThat(this.amo2.literals()).isEqualTo(litsCC2);
-        assertThat(this.exo1.literals()).isEqualTo(lits1);
-        assertThat(this.exo2.literals()).isEqualTo(litsCC2);
+        assertThat(pb1.literals()).isEqualTo(lits1);
+        assertThat(pb2.literals()).isEqualTo(lits2);
+        assertThat(cc1.literals()).isEqualTo(lits1);
+        assertThat(cc2.literals()).isEqualTo(litsCC2);
+        assertThat(amo1.literals()).isEqualTo(lits1);
+        assertThat(amo2.literals()).isEqualTo(litsCC2);
+        assertThat(exo1.literals()).isEqualTo(lits1);
+        assertThat(exo2.literals()).isEqualTo(litsCC2);
     }
 
     @Test
     public void testContains() {
-        assertThat(this.pb2.containsVariable(f.variable("a"))).isTrue();
-        assertThat(this.pb2.containsVariable(f.variable("b"))).isTrue();
-        assertThat(this.pb2.containsVariable(f.variable("c"))).isTrue();
-        assertThat(this.pb2.containsVariable(f.variable("d"))).isFalse();
-        assertThat(this.pb2.containsVariable(f.variable("x"))).isFalse();
+        assertThat(pb2.containsVariable(f.variable("a"))).isTrue();
+        assertThat(pb2.containsVariable(f.variable("b"))).isTrue();
+        assertThat(pb2.containsVariable(f.variable("c"))).isTrue();
+        assertThat(pb2.containsVariable(f.variable("d"))).isFalse();
+        assertThat(pb2.containsVariable(f.variable("x"))).isFalse();
     }
 
     @Test
     public void testIsNNF() {
-        assertThat(this.pb1.isNNF()).isFalse();
-        assertThat(this.pb2.isNNF()).isFalse();
-        assertThat(this.pb22.isNNF()).isFalse();
+        assertThat(pb1.isNNF()).isFalse();
+        assertThat(pb2.isNNF()).isFalse();
+        assertThat(pb22.isNNF()).isFalse();
     }
 
     @Test
     public void testIsDNF() {
-        assertThat(this.pb1.isDNF()).isFalse();
-        assertThat(this.pb2.isDNF()).isFalse();
-        assertThat(this.pb22.isDNF()).isFalse();
+        assertThat(pb1.isDNF()).isFalse();
+        assertThat(pb2.isDNF()).isFalse();
+        assertThat(pb22.isDNF()).isFalse();
     }
 
     @Test
     public void testIsCNF() {
-        assertThat(this.pb1.isCNF()).isFalse();
-        assertThat(this.pb2.isCNF()).isFalse();
-        assertThat(this.pb22.isCNF()).isFalse();
+        assertThat(pb1.isCNF()).isFalse();
+        assertThat(pb2.isCNF()).isFalse();
+        assertThat(pb22.isCNF()).isFalse();
     }
 
     @Test
@@ -456,14 +451,14 @@ public class PBConstraintTest extends TestWithExampleFormulas {
 
     @Test
     public void testContainsSubformula() {
-        assertThat(this.pb1.containsNode(f.variable("a"))).isTrue();
-        assertThat(this.pb1.containsNode(f.literal("a", false))).isFalse();
-        assertThat(this.pb2.containsNode(f.literal("b", false))).isTrue();
-        assertThat(this.pb2.containsNode(f.variable("b"))).isTrue();
-        assertThat(this.pb2.containsNode(f.variable("d"))).isFalse();
-        assertThat(this.pb1.containsNode(this.pb1)).isTrue();
-        assertThat(this.pb2.containsNode(this.pb2)).isTrue();
-        assertThat(this.pb2.containsNode(this.pb22)).isTrue();
+        assertThat(pb1.containsNode(f.variable("a"))).isTrue();
+        assertThat(pb1.containsNode(f.literal("a", false))).isFalse();
+        assertThat(pb2.containsNode(f.literal("b", false))).isTrue();
+        assertThat(pb2.containsNode(f.variable("b"))).isTrue();
+        assertThat(pb2.containsNode(f.variable("d"))).isFalse();
+        assertThat(pb1.containsNode(pb1)).isTrue();
+        assertThat(pb2.containsNode(pb2)).isTrue();
+        assertThat(pb2.containsNode(pb22)).isTrue();
     }
 
     @Test
@@ -502,9 +497,9 @@ public class PBConstraintTest extends TestWithExampleFormulas {
         assertThat(pb1.substitute(s1)).isEqualTo(f.pbc(CType.EQ, 0, litsS1, coeffS1));
         assertThat(pb1.substitute(s2)).isEqualTo(f.pbc(CType.EQ, 2, litsS2, coeffS2));
         assertThat(pb1.substitute(s3)).isEqualTo(f.falsum());
-        assertThat(this.pb2.substitute(s3)).isEqualTo(f.verum());
+        assertThat(pb2.substitute(s3)).isEqualTo(f.verum());
         assertThat(pb1.substitute(s4)).isEqualTo(f.falsum());
-        assertThat(this.pb2.substitute(s4)).isEqualTo(f.verum());
+        assertThat(pb2.substitute(s4)).isEqualTo(f.verum());
         assertThat(pb1.substitute(s5)).isEqualTo(f.pbc(CType.EQ, 2, litsS5, coeffs));
         assertThat(pb1.substitute(s6)).isEqualTo(f.pbc(CType.EQ, 4, litsS6, coeffS6));
     }
@@ -529,10 +524,10 @@ public class PBConstraintTest extends TestWithExampleFormulas {
 
     @Test
     public void testNNF() {
-        assertThat(this.pb1.nnf()).isEqualTo(f.literal("a", false));
-        assertThat(this.cc1.nnf()).isEqualTo(f.literal("a", false));
-        assertThat(this.amo1.nnf()).isEqualTo(f.verum());
-        assertThat(this.exo1.nnf()).isEqualTo(f.variable("a"));
+        assertThat(pb1.nnf()).isEqualTo(f.literal("a", false));
+        assertThat(cc1.nnf()).isEqualTo(f.literal("a", false));
+        assertThat(amo1.nnf()).isEqualTo(f.verum());
+        assertThat(exo1.nnf()).isEqualTo(f.variable("a"));
     }
 
     @Test
@@ -582,15 +577,15 @@ public class PBConstraintTest extends TestWithExampleFormulas {
 
     @Test
     public void testToString() {
-        assertThat(this.pb1.toString()).isEqualTo("3*a <= 2");
-        assertThat(this.pb2.toString()).isEqualTo("3*a + -2*~b + 7*c <= 8");
-        assertThat(this.pb22.toString()).isEqualTo("3*a + -2*~b + 7*c <= 8");
-        assertThat(this.cc1.toString()).isEqualTo("a < 1");
-        assertThat(this.cc2.toString()).isEqualTo("a + b + c >= 2");
-        assertThat(this.amo1.toString()).isEqualTo("a <= 1");
-        assertThat(this.amo2.toString()).isEqualTo("a + b + c <= 1");
-        assertThat(this.exo1.toString()).isEqualTo("a = 1");
-        assertThat(this.exo2.toString()).isEqualTo("a + b + c = 1");
+        assertThat(pb1.toString()).isEqualTo("3*a <= 2");
+        assertThat(pb2.toString()).isEqualTo("3*a + -2*~b + 7*c <= 8");
+        assertThat(pb22.toString()).isEqualTo("3*a + -2*~b + 7*c <= 8");
+        assertThat(cc1.toString()).isEqualTo("a < 1");
+        assertThat(cc2.toString()).isEqualTo("a + b + c >= 2");
+        assertThat(amo1.toString()).isEqualTo("a <= 1");
+        assertThat(amo2.toString()).isEqualTo("a + b + c <= 1");
+        assertThat(exo1.toString()).isEqualTo("a = 1");
+        assertThat(exo2.toString()).isEqualTo("a + b + c = 1");
     }
 
     @Test
@@ -601,62 +596,62 @@ public class PBConstraintTest extends TestWithExampleFormulas {
         final List<Integer> coeffs2alt1 = Arrays.asList(3, -2);
         final List<Variable> lits2alt2 = Arrays.asList(f2.variable("a"), f.variable("b"), f.variable("c"));
         final List<Integer> coeffs2alt2 = Arrays.asList(3, -2, 8);
-        assertThat(this.pb1).isEqualTo(this.pb1);
-        assertThat(this.pb22).isEqualTo(this.pb2);
-        assertThat(f.pbc(CType.LE, 8, lits2, coeffs2)).isEqualTo(this.pb2);
-        assertThat(this.cc2).isNotEqualTo(this.cc1);
-        assertThat(this.cc1).isNotEqualTo(null);
-        assertThat(this.cc2).isNotEqualTo("String");
-        assertThat("String").isNotEqualTo(this.cc2);
-        assertThat(f.pbc(CType.LE, 8, lits2alt1, coeffs2alt1)).isNotEqualTo(this.pb2);
-        assertThat(f.pbc(CType.LE, 8, lits2alt2, coeffs2)).isNotEqualTo(this.pb2);
-        assertThat(f.pbc(CType.LE, 8, lits2, coeffs2alt2)).isNotEqualTo(this.pb2);
-        assertThat(f.pbc(CType.LT, 8, lits2, coeffs2)).isNotEqualTo(this.pb2);
-        assertThat(f.pbc(CType.LE, 7, lits2, coeffs2)).isNotEqualTo(this.pb2);
+        assertThat(pb1).isEqualTo(pb1);
+        assertThat(pb22).isEqualTo(pb2);
+        assertThat(f.pbc(CType.LE, 8, lits2, coeffs2)).isEqualTo(pb2);
+        assertThat(cc2).isNotEqualTo(cc1);
+        assertThat(cc1).isNotEqualTo(null);
+        assertThat(cc2).isNotEqualTo("String");
+        assertThat("String").isNotEqualTo(cc2);
+        assertThat(f.pbc(CType.LE, 8, lits2alt1, coeffs2alt1)).isNotEqualTo(pb2);
+        assertThat(f.pbc(CType.LE, 8, lits2alt2, coeffs2)).isNotEqualTo(pb2);
+        assertThat(f.pbc(CType.LE, 8, lits2, coeffs2alt2)).isNotEqualTo(pb2);
+        assertThat(f.pbc(CType.LT, 8, lits2, coeffs2)).isNotEqualTo(pb2);
+        assertThat(f.pbc(CType.LE, 7, lits2, coeffs2)).isNotEqualTo(pb2);
     }
 
     @Test
     public void testHash() {
-        assertThat(this.pb1.hashCode()).isEqualTo(this.pb1.hashCode());
-        assertThat(this.pb2.hashCode()).isEqualTo(this.pb2.hashCode());
-        assertThat(this.pb22.hashCode()).isEqualTo(this.pb2.hashCode());
+        assertThat(pb1.hashCode()).isEqualTo(pb1.hashCode());
+        assertThat(pb2.hashCode()).isEqualTo(pb2.hashCode());
+        assertThat(pb22.hashCode()).isEqualTo(pb2.hashCode());
     }
 
     @Test
     public void testNumberOfInternalNodes() {
-        assertThat(this.pb2.numberOfInternalNodes()).isEqualTo(1);
+        assertThat(pb2.numberOfInternalNodes()).isEqualTo(1);
     }
 
     @Test
     public void testNumberOfOperands() {
-        assertThat(this.pb1.numberOfOperands()).isEqualTo(0);
-        assertThat(this.pb2.numberOfOperands()).isEqualTo(0);
+        assertThat(pb1.numberOfOperands()).isEqualTo(0);
+        assertThat(pb2.numberOfOperands()).isEqualTo(0);
     }
 
     @Test
     public void testIsConstantFormula() {
-        assertThat(this.pb1.isConstantFormula()).isFalse();
-        assertThat(this.pb2.isConstantFormula()).isFalse();
-        assertThat(this.pb22.isConstantFormula()).isFalse();
-        assertThat(this.cc1.isConstantFormula()).isFalse();
-        assertThat(this.cc2.isConstantFormula()).isFalse();
-        assertThat(this.amo1.isConstantFormula()).isFalse();
-        assertThat(this.amo2.isConstantFormula()).isFalse();
-        assertThat(this.exo1.isConstantFormula()).isFalse();
-        assertThat(this.exo2.isConstantFormula()).isFalse();
+        assertThat(pb1.isConstantFormula()).isFalse();
+        assertThat(pb2.isConstantFormula()).isFalse();
+        assertThat(pb22.isConstantFormula()).isFalse();
+        assertThat(cc1.isConstantFormula()).isFalse();
+        assertThat(cc2.isConstantFormula()).isFalse();
+        assertThat(amo1.isConstantFormula()).isFalse();
+        assertThat(amo2.isConstantFormula()).isFalse();
+        assertThat(exo1.isConstantFormula()).isFalse();
+        assertThat(exo2.isConstantFormula()).isFalse();
     }
 
     @Test
     public void testAtomicFormula() {
-        assertThat(this.pb1.isAtomicFormula()).isTrue();
-        assertThat(this.pb2.isAtomicFormula()).isTrue();
-        assertThat(this.pb22.isAtomicFormula()).isTrue();
-        assertThat(this.cc1.isAtomicFormula()).isTrue();
-        assertThat(this.cc2.isAtomicFormula()).isTrue();
-        assertThat(this.amo1.isAtomicFormula()).isTrue();
-        assertThat(this.amo2.isAtomicFormula()).isTrue();
-        assertThat(this.exo1.isAtomicFormula()).isTrue();
-        assertThat(this.exo2.isAtomicFormula()).isTrue();
+        assertThat(pb1.isAtomicFormula()).isTrue();
+        assertThat(pb2.isAtomicFormula()).isTrue();
+        assertThat(pb22.isAtomicFormula()).isTrue();
+        assertThat(cc1.isAtomicFormula()).isTrue();
+        assertThat(cc2.isAtomicFormula()).isTrue();
+        assertThat(amo1.isAtomicFormula()).isTrue();
+        assertThat(amo2.isAtomicFormula()).isTrue();
+        assertThat(exo1.isAtomicFormula()).isTrue();
+        assertThat(exo2.isAtomicFormula()).isTrue();
     }
 
     @Test
