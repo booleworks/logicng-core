@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.graphs.algorithms;
 
@@ -58,8 +34,8 @@ public final class BronKerbosch<T extends Comparable<T>> {
      */
     public BronKerbosch(final Graph<T> g) {
         this.g = g;
-        this.nodeComparator = Comparator.comparing(Node::content);
-        this.cliques = new LinkedHashSet<>();
+        nodeComparator = Comparator.comparing(Node::content);
+        cliques = new LinkedHashSet<>();
     }
 
     /**
@@ -67,31 +43,31 @@ public final class BronKerbosch<T extends Comparable<T>> {
      * @return the maximal cliques.
      */
     public Set<SortedSet<Node<T>>> compute() {
-        this.cliques.clear();
-        final SortedSet<Node<T>> p = new TreeSet<>(this.nodeComparator);
-        p.addAll(this.g.nodes());
-        bk(new TreeSet<>(this.nodeComparator), p, new TreeSet<>(this.nodeComparator));
-        return this.cliques;
+        cliques.clear();
+        final SortedSet<Node<T>> p = new TreeSet<>(nodeComparator);
+        p.addAll(g.nodes());
+        bk(new TreeSet<>(nodeComparator), p, new TreeSet<>(nodeComparator));
+        return cliques;
     }
 
     private void bk(final SortedSet<Node<T>> r, final SortedSet<Node<T>> p, final SortedSet<Node<T>> x) {
         if (p.isEmpty() && x.isEmpty()) {
-            this.cliques.add(r);
+            cliques.add(r);
             return;
         }
         final SortedSet<Node<T>> pvx = new TreeSet<>(new NodeNeighbourComparator());
         pvx.addAll(p);
         pvx.addAll(x);
         final Node<T> u = pvx.last();
-        final SortedSet<Node<T>> pwnu = new TreeSet<>(this.nodeComparator);
+        final SortedSet<Node<T>> pwnu = new TreeSet<>(nodeComparator);
         pwnu.addAll(p);
         pwnu.removeAll(u.neighbours());
         for (final Node<T> v : pwnu) {
-            final SortedSet<Node<T>> nr = new TreeSet<>(this.nodeComparator);
+            final SortedSet<Node<T>> nr = new TreeSet<>(nodeComparator);
             nr.addAll(r);
             nr.add(v);
-            final SortedSet<Node<T>> np = new TreeSet<>(this.nodeComparator);
-            final SortedSet<Node<T>> nx = new TreeSet<>(this.nodeComparator);
+            final SortedSet<Node<T>> np = new TreeSet<>(nodeComparator);
+            final SortedSet<Node<T>> nx = new TreeSet<>(nodeComparator);
             for (final Node<T> neigh : v.neighbours()) {
                 if (p.contains(neigh)) {
                     np.add(neigh);
@@ -112,7 +88,7 @@ public final class BronKerbosch<T extends Comparable<T>> {
      */
     public List<List<T>> getCliquesAsTLists() {
         final List<List<T>> result = new ArrayList<>();
-        for (final Set<Node<T>> clique : this.cliques) {
+        for (final Set<Node<T>> clique : cliques) {
             final List<T> curList = new ArrayList<>();
             for (final Node<T> node : clique) {
                 curList.add(node.content());
@@ -136,7 +112,7 @@ public final class BronKerbosch<T extends Comparable<T>> {
             } else if (n1.neighbours().size() < n2.neighbours().size()) {
                 return -1;
             } else {
-                return BronKerbosch.this.nodeComparator.compare(n1, n2);
+                return nodeComparator.compare(n1, n2);
             }
         }
     }

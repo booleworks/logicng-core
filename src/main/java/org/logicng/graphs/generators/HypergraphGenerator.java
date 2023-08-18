@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.graphs.generators;
 
@@ -43,27 +19,27 @@ import java.util.Set;
 import java.util.SortedSet;
 
 /**
- * A generator for hypergraphs from formulas.
+ * A generator for hyper-graphs from formulas.
  * @version 2.0.0
  * @since 1.4.0
  */
 public final class HypergraphGenerator {
 
     /**
-     * Generates a hypergraph from a CNF given as a list of clauses.  Each variable is represented by a node in the
-     * hypergraph, each clause is represented by a hyperedge between all variables of the clause.
-     * @param cnf the list of clauses of the CNF for the hypergraph
-     * @return the hypergraph for the CNF formula
+     * Generates a hyper-graph from a CNF given as a list of clauses.  Each variable is represented by a node in the
+     * hyper-graph, each clause is represented by a hyper-edge between all variables of the clause.
+     * @param cnf the list of clauses of the CNF for the hyper-graph
+     * @return the hyper-graph for the CNF formula
      */
     public static Hypergraph<Variable> fromCNF(final Formula... cnf) {
         return fromCNF(Arrays.asList(cnf));
     }
 
     /**
-     * Generates a hypergraph from a CNF given as a list of clauses.  Each variable is represented by a node in the
-     * hypergraph, each clause is represented by a hyperedge between all variables of the clause.
-     * @param cnf the list of clauses of the CNF for the hypergraph
-     * @return the hypergraph for the CNF formula
+     * Generates a hyper-graph from a CNF given as a list of clauses.  Each variable is represented by a node in the
+     * hyper-graph, each clause is represented by a hyper-edge between all variables of the clause.
+     * @param cnf the list of clauses of the CNF for the hyper-graph
+     * @return the hyper-graph for the CNF formula
      */
     public static Hypergraph<Variable> fromCNF(final List<Formula> cnf) {
         final Hypergraph<Variable> hypergraph = new Hypergraph<>();
@@ -86,10 +62,10 @@ public final class HypergraphGenerator {
     }
 
     /**
-     * Generates a hypergraph from a CNF.  Each variable is represented by a node in the hypergraph, each clause
-     * is represented by a hyperedge between all variables of the clause.
-     * @param cnf the CNF formula for the hypergraph
-     * @return the hypergraph for the CNF formula
+     * Generates a hyper-graph from a CNF.  Each variable is represented by a node in the hyper-graph, each clause
+     * is represented by a hyper-edge between all variables of the clause.
+     * @param cnf the CNF formula for the hyper-graph
+     * @return the hyper-graph for the CNF formula
      */
     public static Hypergraph<Variable> fromCNF(final Formula cnf) {
         if (!cnf.isCNF()) {
@@ -117,10 +93,10 @@ public final class HypergraphGenerator {
     }
 
     /**
-     * Adds a single clause to the given hypergraph and updates the variable to node mapping.
+     * Adds a single clause to the given hyper-graph and updates the variable to node mapping.
      * @param formula    the clause
-     * @param hypergraph the current hypergraph
-     * @param nodes      the mapping from variables in the CNF to nodes in the hypergraph
+     * @param hypergraph the current hyper-graph
+     * @param nodes      the mapping from variables in the CNF to nodes in the hyper-graph
      */
     private static void addClause(final Formula formula, final Hypergraph<Variable> hypergraph, final Map<Variable, HypergraphNode<Variable>> nodes) {
         assert formula.type() == FType.LITERAL || formula.type() == FType.OR;

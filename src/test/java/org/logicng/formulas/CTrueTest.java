@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
@@ -33,103 +9,98 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
 
-/**
- * Unit Tests for the class {@link CTrue}.
- * @version 2.3.0
- * @since 1.0
- */
 public class CTrueTest extends TestWithExampleFormulas {
 
     @Test
     public void testType() {
-        assertThat(this.TRUE.type()).isEqualTo(FType.TRUE);
+        assertThat(TRUE.type()).isEqualTo(FType.TRUE);
     }
 
     @Test
     public void testNumberOfAtoms() {
-        assertThat(this.TRUE.numberOfAtoms()).isEqualTo(1);
-        assertThat(this.TRUE.numberOfAtoms()).isEqualTo(1);
+        assertThat(TRUE.numberOfAtoms()).isEqualTo(1);
+        assertThat(TRUE.numberOfAtoms()).isEqualTo(1);
     }
 
     @Test
     public void testNegation() {
-        assertThat(this.TRUE.negate()).isEqualTo(this.FALSE);
+        assertThat(TRUE.negate()).isEqualTo(FALSE);
     }
 
     @Test
     public void testVariables() {
-        assertThat(this.TRUE.variables().size()).isEqualTo(0);
+        assertThat(TRUE.variables().size()).isEqualTo(0);
     }
 
     @Test
     public void testLiterals() {
-        assertThat(this.TRUE.literals().size()).isEqualTo(0);
+        assertThat(TRUE.literals().size()).isEqualTo(0);
     }
 
     @Test
     public void testToString() {
-        assertThat(this.TRUE.toString()).isEqualTo("$true");
+        assertThat(TRUE.toString()).isEqualTo("$true");
     }
 
     @Test
     public void testEquals() {
-        assertThat(this.f.verum()).isEqualTo(this.TRUE);
-        assertThat(this.f.falsum()).isNotEqualTo(this.TRUE);
+        assertThat(f.verum()).isEqualTo(TRUE);
+        assertThat(f.falsum()).isNotEqualTo(TRUE);
     }
 
     @Test
     public void testEqualsDifferentFormulaFactory() {
-        assertThat(this.g.verum()).isEqualTo(this.TRUE);
-        assertThat(this.g.falsum()).isNotEqualTo(this.TRUE);
+        assertThat(g.verum()).isEqualTo(TRUE);
+        assertThat(g.falsum()).isNotEqualTo(TRUE);
     }
 
     @Test
     public void testHash() {
-        assertThat(this.TRUE.hashCode()).isEqualTo(this.f.verum().hashCode());
+        assertThat(TRUE.hashCode()).isEqualTo(f.verum().hashCode());
     }
 
     @Test
     public void testNumberOfNodes() {
-        assertThat(this.TRUE.numberOfNodes()).isEqualTo(1);
+        assertThat(TRUE.numberOfNodes()).isEqualTo(1);
     }
 
     @Test
     public void testNumberOfInternalNodes() {
-        assertThat(this.TRUE.numberOfInternalNodes()).isEqualTo(1);
+        assertThat(TRUE.numberOfInternalNodes()).isEqualTo(1);
     }
 
     @Test
     public void testNumberOfOperands() {
-        assertThat(this.TRUE.numberOfOperands()).isEqualTo(0);
+        assertThat(TRUE.numberOfOperands()).isEqualTo(0);
     }
 
     @Test
     public void testIsConstantFormula() {
-        assertThat(this.TRUE.isConstantFormula()).isTrue();
+        assertThat(TRUE.isConstantFormula()).isTrue();
     }
 
     @Test
     public void testAtomicFormula() {
-        assertThat(this.TRUE.isAtomicFormula()).isTrue();
+        assertThat(TRUE.isAtomicFormula()).isTrue();
     }
 
     @Test
     public void testContains() {
-        assertThat(this.TRUE.containsVariable(this.f.variable("a"))).isFalse();
+        assertThat(TRUE.containsVariable(f.variable("a"))).isFalse();
     }
 
     @Test
     public void testIsNNF() {
-        assertThat(this.FALSE.isNNF()).isTrue();
+        assertThat(FALSE.isNNF()).isTrue();
     }
 
     @Test
     public void testIsDNF() {
-        assertThat(this.FALSE.isDNF()).isTrue();
+        assertThat(FALSE.isDNF()).isTrue();
     }
 
     @Test
     public void testIsCNF() {
-        assertThat(this.FALSE.isCNF()).isTrue();
+        assertThat(FALSE.isCNF()).isTrue();
     }
 }

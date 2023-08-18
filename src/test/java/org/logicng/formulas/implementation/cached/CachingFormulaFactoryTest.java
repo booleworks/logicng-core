@@ -27,11 +27,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Test some basic formula factory functionality.
- * @version 2.2.0
- * @since 1.0
- */
 public class CachingFormulaFactoryTest {
 
     @Test

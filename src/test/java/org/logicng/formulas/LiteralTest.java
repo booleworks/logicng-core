@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
@@ -34,176 +10,171 @@ import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
 import org.logicng.datastructures.Substitution;
 
-/**
- * Unit Tests for the class {@link Literal}.
- * @version 2.3.0
- * @since 1.0
- */
 public class LiteralTest extends TestWithExampleFormulas {
 
     @Test
     public void testType() {
-        assertThat(this.A.type()).isEqualTo(FType.LITERAL);
-        assertThat(this.NA.type()).isEqualTo(FType.LITERAL);
+        assertThat(A.type()).isEqualTo(FType.LITERAL);
+        assertThat(NA.type()).isEqualTo(FType.LITERAL);
     }
 
     @Test
     public void testShortcutCreators() {
-        assertThat(this.f.literal("a", true) == this.f.variable("a")).isTrue();
-        assertThat(this.f.literal("name", true) == this.f.variable("name")).isTrue();
+        assertThat(f.literal("a", true) == f.variable("a")).isTrue();
+        assertThat(f.literal("name", true) == f.variable("name")).isTrue();
     }
 
     @Test
     public void testNegation() {
-        assertThat(this.A.negate() == this.NA).isTrue();
-        assertThat(this.NA.negate() == this.A).isTrue();
+        assertThat(A.negate() == NA).isTrue();
+        assertThat(NA.negate() == A).isTrue();
     }
 
     @Test
     public void testGetters() {
-        assertThat(this.A.name()).isEqualTo("a");
-        assertThat(this.NA.name()).isEqualTo("a");
-        assertThat(this.A.phase()).isEqualTo(true);
-        assertThat(this.NA.phase()).isEqualTo(false);
+        assertThat(A.name()).isEqualTo("a");
+        assertThat(NA.name()).isEqualTo("a");
+        assertThat(A.phase()).isEqualTo(true);
+        assertThat(NA.phase()).isEqualTo(false);
     }
 
     @Test
     public void testVariables() {
-        assertThat(this.A.variables())
+        assertThat(A.variables())
                 .hasSize(1)
-                .containsExactly(this.A);
-        assertThat(this.NA.variables())
+                .containsExactly(A);
+        assertThat(NA.variables())
                 .hasSize(1)
-                .containsExactly(this.A);
+                .containsExactly(A);
     }
 
     @Test
     public void testLiterals() {
-        assertThat(this.A.literals())
+        assertThat(A.literals())
                 .hasSize(1)
-                .containsExactly(this.A);
-        assertThat(this.NA.literals())
+                .containsExactly(A);
+        assertThat(NA.literals())
                 .hasSize(1)
-                .containsExactly(this.NA);
+                .containsExactly(NA);
     }
 
     @Test
     public void testExpSubstitution() {
         final Substitution substitution = new Substitution();
-        substitution.addMapping(this.f.variable("a"), this.f.literal("b", false));
-        substitution.addMapping(this.f.variable("c"), this.f.variable("d"));
-        substitution.addMapping(this.f.variable("x"), this.f.and(this.f.variable("y"), this.f.variable("z")));
+        substitution.addMapping(f.variable("a"), f.literal("b", false));
+        substitution.addMapping(f.variable("c"), f.variable("d"));
+        substitution.addMapping(f.variable("x"), f.and(f.variable("y"), f.variable("z")));
     }
 
     @Test
     public void testToString() {
-        assertThat(this.A.toString()).isEqualTo("a");
-        assertThat(this.NA.toString()).isEqualTo("~a");
+        assertThat(A.toString()).isEqualTo("a");
+        assertThat(NA.toString()).isEqualTo("~a");
     }
 
     @Test
     public void testEquals() {
-        assertThat(this.f.literal("a", true).equals(this.A)).isTrue();
-        assertThat(this.f.literal("a", false).equals(this.NA)).isTrue();
-        assertThat(this.A.equals(this.A)).isTrue();
-        assertThat(this.B.equals(this.A)).isFalse();
-        assertThat(this.NA.equals(this.A)).isFalse();
-        assertThat(this.f.falsum()).isNotEqualTo(this.A);
+        assertThat(f.literal("a", true).equals(A)).isTrue();
+        assertThat(f.literal("a", false).equals(NA)).isTrue();
+        assertThat(A.equals(A)).isTrue();
+        assertThat(B.equals(A)).isFalse();
+        assertThat(NA.equals(A)).isFalse();
+        assertThat(f.falsum()).isNotEqualTo(A);
     }
 
     @Test
     public void testEqualsDifferentFormulaFactory() {
-        assertThat(this.g.literal("a", true).equals(this.A)).isTrue();
-        assertThat(this.g.literal("a", false).equals(this.NA)).isTrue();
-        assertThat(this.g.literal("a", false).equals(this.A)).isFalse();
-        assertThat(this.g.literal("b", true).equals(this.A)).isFalse();
-        assertThat(this.g.falsum()).isNotEqualTo(this.A);
+        assertThat(g.literal("a", true).equals(A)).isTrue();
+        assertThat(g.literal("a", false).equals(NA)).isTrue();
+        assertThat(g.literal("a", false).equals(A)).isFalse();
+        assertThat(g.literal("b", true).equals(A)).isFalse();
+        assertThat(g.falsum()).isNotEqualTo(A);
     }
 
     @Test
     public void testCompareTo() {
-        assertThat(this.A.compareTo(this.A) == 0).isTrue();
-        assertThat(this.NA.compareTo(this.NA) == 0).isTrue();
-        assertThat(this.A.compareTo(this.NA) < 0).isTrue();
-        assertThat(this.A.compareTo(this.NB) < 0).isTrue();
-        assertThat(this.A.compareTo(this.B) < 0).isTrue();
-        assertThat(this.A.compareTo(this.X) < 0).isTrue();
-        assertThat(this.NA.compareTo(this.NX) < 0).isTrue();
+        assertThat(A.compareTo(A) == 0).isTrue();
+        assertThat(NA.compareTo(NA) == 0).isTrue();
+        assertThat(A.compareTo(NA) < 0).isTrue();
+        assertThat(A.compareTo(NB) < 0).isTrue();
+        assertThat(A.compareTo(B) < 0).isTrue();
+        assertThat(A.compareTo(X) < 0).isTrue();
+        assertThat(NA.compareTo(NX) < 0).isTrue();
     }
 
     @Test
     public void testHash() {
-        assertThat(this.f.literal("a", true).hashCode()).isEqualTo(this.A.hashCode());
-        assertThat(this.f.literal("a", false).hashCode()).isEqualTo(this.NA.hashCode());
+        assertThat(f.literal("a", true).hashCode()).isEqualTo(A.hashCode());
+        assertThat(f.literal("a", false).hashCode()).isEqualTo(NA.hashCode());
     }
 
     @Test
     public void testNumberOfAtoms() {
-        assertThat(this.A.numberOfAtoms()).isEqualTo(1);
-        assertThat(this.NA.numberOfAtoms()).isEqualTo(1);
-        assertThat(this.NA.numberOfAtoms()).isEqualTo(1);
+        assertThat(A.numberOfAtoms()).isEqualTo(1);
+        assertThat(NA.numberOfAtoms()).isEqualTo(1);
+        assertThat(NA.numberOfAtoms()).isEqualTo(1);
     }
 
     @Test
     public void testNumberOfNodes() {
-        assertThat(this.A.numberOfNodes()).isEqualTo(1);
-        assertThat(this.NA.numberOfNodes()).isEqualTo(1);
-        assertThat(this.NA.numberOfNodes()).isEqualTo(1);
+        assertThat(A.numberOfNodes()).isEqualTo(1);
+        assertThat(NA.numberOfNodes()).isEqualTo(1);
+        assertThat(NA.numberOfNodes()).isEqualTo(1);
     }
 
     @Test
     public void testNumberOfInternalNodes() {
-        assertThat(this.A.numberOfInternalNodes()).isEqualTo(1);
-        assertThat(this.NA.numberOfInternalNodes()).isEqualTo(1);
+        assertThat(A.numberOfInternalNodes()).isEqualTo(1);
+        assertThat(NA.numberOfInternalNodes()).isEqualTo(1);
     }
 
     @Test
     public void testNumberOfOperands() {
-        assertThat(this.A.numberOfOperands()).isEqualTo(0);
-        assertThat(this.NA.numberOfOperands()).isEqualTo(0);
+        assertThat(A.numberOfOperands()).isEqualTo(0);
+        assertThat(NA.numberOfOperands()).isEqualTo(0);
     }
 
     @Test
     public void testIsConstantFormula() {
-        assertThat(this.A.isConstantFormula()).isFalse();
-        assertThat(this.NA.isConstantFormula()).isFalse();
+        assertThat(A.isConstantFormula()).isFalse();
+        assertThat(NA.isConstantFormula()).isFalse();
     }
 
     @Test
     public void testAtomicFormula() {
-        assertThat(this.A.isAtomicFormula()).isTrue();
-        assertThat(this.NA.isAtomicFormula()).isTrue();
+        assertThat(A.isAtomicFormula()).isTrue();
+        assertThat(NA.isAtomicFormula()).isTrue();
     }
 
     @Test
     public void testContains() {
-        assertThat(this.A.containsVariable(this.f.variable("b"))).isFalse();
-        assertThat(this.A.containsVariable(this.f.variable("a"))).isTrue();
-        assertThat(this.NA.containsVariable(this.f.variable("b"))).isFalse();
-        assertThat(this.NA.containsVariable(this.f.variable("a"))).isTrue();
+        assertThat(A.containsVariable(f.variable("b"))).isFalse();
+        assertThat(A.containsVariable(f.variable("a"))).isTrue();
+        assertThat(NA.containsVariable(f.variable("b"))).isFalse();
+        assertThat(NA.containsVariable(f.variable("a"))).isTrue();
     }
 
     @Test
     public void testIsNNF() {
-        assertThat(this.A.isNNF()).isTrue();
-        assertThat(this.NA.isNNF()).isTrue();
+        assertThat(A.isNNF()).isTrue();
+        assertThat(NA.isNNF()).isTrue();
     }
 
     @Test
     public void testIsDNF() {
-        assertThat(this.A.isDNF()).isTrue();
-        assertThat(this.NA.isDNF()).isTrue();
+        assertThat(A.isDNF()).isTrue();
+        assertThat(NA.isDNF()).isTrue();
     }
 
     @Test
     public void testIsCNF() {
-        assertThat(this.A.isCNF()).isTrue();
-        assertThat(this.NA.isCNF()).isTrue();
+        assertThat(A.isCNF()).isTrue();
+        assertThat(NA.isCNF()).isTrue();
     }
 
     @Test
     public void testPosNeg() {
-        assertThat(this.A.variable() == this.A).isTrue();
-        assertThat(this.NA.variable() == this.A).isTrue();
+        assertThat(A.variable() == A).isTrue();
+        assertThat(NA.variable() == A).isTrue();
     }
 }

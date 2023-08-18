@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.handlers;
 
 /**
@@ -18,17 +22,17 @@ public class BoundedSatHandler implements SATHandler {
      */
     public BoundedSatHandler(final int startsLimit) {
         this.startsLimit = startsLimit;
-        this.numStarts = 0;
+        numStarts = 0;
     }
 
     @Override
     public boolean aborted() {
-        return this.aborted;
+        return aborted;
     }
 
     @Override
     public void started() {
-        this.aborted = startsLimit != -1 && ++numStarts >= startsLimit;
+        aborted = startsLimit != -1 && ++numStarts >= startsLimit;
     }
 
     @Override

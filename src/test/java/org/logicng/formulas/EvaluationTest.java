@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
@@ -38,61 +14,56 @@ import org.logicng.io.parsers.PropositionalParser;
 
 import java.util.Arrays;
 
-/**
- * Unit tests for formula evaluation.
- * @version 2.0.0
- * @since 1.0
- */
 public class EvaluationTest extends TestWithExampleFormulas {
 
-    private final Assignment ass = new Assignment(Arrays.asList(this.A, this.B, this.C, this.NX, this.NY));
+    private final Assignment ass = new Assignment(Arrays.asList(A, B, C, NX, NY));
 
     @Test
     public void testConstantEval() {
-        assertThat(this.TRUE.evaluate(this.ass)).isTrue();
-        assertThat(this.FALSE.evaluate(this.ass)).isFalse();
+        assertThat(TRUE.evaluate(ass)).isTrue();
+        assertThat(FALSE.evaluate(ass)).isFalse();
     }
 
     @Test
     public void testLiteralEval() {
-        assertThat(this.A.evaluate(this.ass)).isTrue();
-        assertThat(this.NA.evaluate(this.ass)).isFalse();
-        assertThat(this.X.evaluate(this.ass)).isFalse();
-        assertThat(this.NX.evaluate(this.ass)).isTrue();
+        assertThat(A.evaluate(ass)).isTrue();
+        assertThat(NA.evaluate(ass)).isFalse();
+        assertThat(X.evaluate(ass)).isFalse();
+        assertThat(NX.evaluate(ass)).isTrue();
     }
 
     @Test
     public void testNotEval() {
-        assertThat(this.NOT1.evaluate(this.ass)).isFalse();
-        assertThat(this.NOT2.evaluate(this.ass)).isTrue();
+        assertThat(NOT1.evaluate(ass)).isFalse();
+        assertThat(NOT2.evaluate(ass)).isTrue();
     }
 
     @Test
     public void testBinaryEval() {
-        assertThat(this.IMP1.evaluate(this.ass)).isTrue();
-        assertThat(this.IMP2.evaluate(this.ass)).isTrue();
-        assertThat(this.IMP3.evaluate(this.ass)).isFalse();
-        assertThat(this.IMP4.evaluate(this.ass)).isTrue();
+        assertThat(IMP1.evaluate(ass)).isTrue();
+        assertThat(IMP2.evaluate(ass)).isTrue();
+        assertThat(IMP3.evaluate(ass)).isFalse();
+        assertThat(IMP4.evaluate(ass)).isTrue();
 
-        assertThat(this.EQ1.evaluate(this.ass)).isTrue();
-        assertThat(this.EQ2.evaluate(this.ass)).isTrue();
-        assertThat(this.EQ3.evaluate(this.ass)).isFalse();
-        assertThat(this.EQ4.evaluate(this.ass)).isTrue();
+        assertThat(EQ1.evaluate(ass)).isTrue();
+        assertThat(EQ2.evaluate(ass)).isTrue();
+        assertThat(EQ3.evaluate(ass)).isFalse();
+        assertThat(EQ4.evaluate(ass)).isTrue();
     }
 
     @Test
     public void testNAryEval() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(this.OR1.evaluate(this.ass)).isFalse();
-        assertThat(this.OR2.evaluate(this.ass)).isTrue();
-        assertThat(this.OR3.evaluate(this.ass)).isTrue();
-        assertThat(p.parse("~a | ~b | ~c | x | y").evaluate(this.ass)).isFalse();
-        assertThat(p.parse("~a | ~b | ~c | x | ~y").evaluate(this.ass)).isTrue();
+        final PropositionalParser p = new PropositionalParser(f);
+        assertThat(OR1.evaluate(ass)).isFalse();
+        assertThat(OR2.evaluate(ass)).isTrue();
+        assertThat(OR3.evaluate(ass)).isTrue();
+        assertThat(p.parse("~a | ~b | ~c | x | y").evaluate(ass)).isFalse();
+        assertThat(p.parse("~a | ~b | ~c | x | ~y").evaluate(ass)).isTrue();
 
-        assertThat(this.AND1.evaluate(this.ass)).isTrue();
-        assertThat(this.AND2.evaluate(this.ass)).isFalse();
-        assertThat(this.AND3.evaluate(this.ass)).isFalse();
-        assertThat(p.parse("a & b & c & ~x & ~y").evaluate(this.ass)).isTrue();
-        assertThat(p.parse("a & b & c & ~x & y").evaluate(this.ass)).isFalse();
+        assertThat(AND1.evaluate(ass)).isTrue();
+        assertThat(AND2.evaluate(ass)).isFalse();
+        assertThat(AND3.evaluate(ass)).isFalse();
+        assertThat(p.parse("a & b & c & ~x & ~y").evaluate(ass)).isTrue();
+        assertThat(p.parse("a & b & c & ~x & y").evaluate(ass)).isFalse();
     }
 }
