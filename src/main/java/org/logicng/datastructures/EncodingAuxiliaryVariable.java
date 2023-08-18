@@ -31,7 +31,7 @@ final class EncodingAuxiliaryVariable extends LngNativeVariable {
 
     @Override
     public Literal negate() {
-        return new EncodingAuxiliaryVariable(this.name(), !this.negated);
+        return new EncodingAuxiliaryVariable(name(), !negated);
     }
 
     @Override
