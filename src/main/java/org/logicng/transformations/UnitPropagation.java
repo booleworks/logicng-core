@@ -4,48 +4,55 @@
 
 package org.logicng.transformations;
 
+import static org.logicng.formulas.cache.TransformationCacheEntry.UNIT_PROPAGATION;
+
 import org.logicng.collections.LNGIntVector;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
-import org.logicng.formulas.cache.TransformationCacheEntry;
 import org.logicng.solvers.datastructures.MSClause;
 import org.logicng.solvers.sat.MiniSat2Solver;
 import org.logicng.solvers.sat.MiniSatConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A formula transformation which performs unit propagation.
  * @version 3.0.0
  * @since 1.2
  */
-public final class UnitPropagation extends StatelessFormulaTransformation {
+public final class UnitPropagation extends CacheableFormulaTransformation {
 
-    private final boolean useCache;
-
+    /**
+     * Constructs a new transformation.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
     public UnitPropagation(final FormulaFactory f) {
-        this(f, true);
+        super(f, UNIT_PROPAGATION);
     }
 
-    public UnitPropagation(final FormulaFactory f, final boolean useCache) {
-        super(f);
-        this.useCache = useCache;
+    /**
+     * Constructs a new transformation.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
+    public UnitPropagation(final FormulaFactory f, final Map<Formula, Formula> cache) {
+        super(f, UNIT_PROPAGATION, cache);
     }
 
     @Override
     public Formula apply(final Formula formula) {
-        final Formula cached = formula.transformationCacheEntry(TransformationCacheEntry.UNIT_PROPAGATION);
+        final Formula cached = lookupCache(formula);
         if (cached != null) {
             return cached;
         }
         final MiniSatPropagator miniSatPropagator = new MiniSatPropagator();
         miniSatPropagator.add(formula);
         final Formula result = miniSatPropagator.propagatedFormula(f);
-        if (useCache) {
-            formula.setTransformationCacheEntry(TransformationCacheEntry.UNIT_PROPAGATION, result);
-        }
+        setCache(formula, result);
         return result;
     }
 

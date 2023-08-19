@@ -5,6 +5,7 @@
 package org.logicng.transformations.simplification;
 
 import static org.logicng.formulas.FType.dual;
+import static org.logicng.formulas.cache.TransformationCacheEntry.DISTRIBUTIVE_SIMPLIFICATION;
 
 import org.logicng.formulas.Equivalence;
 import org.logicng.formulas.FType;
@@ -12,8 +13,7 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Implication;
 import org.logicng.formulas.Not;
-import org.logicng.formulas.cache.TransformationCacheEntry;
-import org.logicng.transformations.StatelessFormulaTransformation;
+import org.logicng.transformations.CacheableFormulaTransformation;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -25,22 +25,22 @@ import java.util.Set;
  * @version 3.0.0
  * @since 1.3
  */
-public final class DistributiveSimplifier extends StatelessFormulaTransformation {
-
-    private final boolean useCache;
+public final class DistributiveSimplifier extends CacheableFormulaTransformation {
 
     public DistributiveSimplifier(final FormulaFactory f) {
-        this(f, true);
+        super(f, DISTRIBUTIVE_SIMPLIFICATION);
     }
 
-    public DistributiveSimplifier(final FormulaFactory f, final boolean useCache) {
-        super(f);
-        this.useCache = useCache;
+    public DistributiveSimplifier(final FormulaFactory f, final Map<Formula, Formula> cache) {
+        super(f, DISTRIBUTIVE_SIMPLIFICATION, cache);
     }
 
     @Override
     public Formula apply(final Formula formula) {
-        final Formula result;
+        Formula result = lookupCache(formula);
+        if (result != null) {
+            return result;
+        }
         switch (formula.type()) {
             case FALSE:
             case TRUE:
@@ -67,9 +67,7 @@ public final class DistributiveSimplifier extends StatelessFormulaTransformation
             default:
                 throw new IllegalStateException("Unknown formula type: " + formula.type());
         }
-        if (useCache) {
-            formula.setTransformationCacheEntry(TransformationCacheEntry.DISTRIBUTIVE_SIMPLIFICATION, result);
-        }
+        setCache(formula, result);
         return result;
     }
 

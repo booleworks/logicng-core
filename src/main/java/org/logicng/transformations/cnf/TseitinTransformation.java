@@ -11,9 +11,9 @@ import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.And;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
-import org.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
 import org.logicng.transformations.StatefulFormulaTransformation;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
      * Constructor for a Tseitin transformation with the default factorization bound of 12.
      * @param f the caching formula factory to generate new formulas
      **/
-    public TseitinTransformation(final CachingFormulaFactory f) {
+    public TseitinTransformation(final FormulaFactory f) {
         this(f, DEFAULT_BOUNDARY);
     }
 
@@ -49,10 +49,10 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
      * @param f                        the caching formula factory to generate new formulas
      * @param boundaryForFactorization the boundary of number of atoms up to which classical factorization is used
      */
-    public TseitinTransformation(final CachingFormulaFactory f, final int boundaryForFactorization) {
+    public TseitinTransformation(final FormulaFactory f, final int boundaryForFactorization) {
         super(f);
         this.boundaryForFactorization = boundaryForFactorization;
-        this.factorization = new CNFFactorization(f);
+        factorization = new CNFFactorization(f);
     }
 
     /**
@@ -60,7 +60,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
      * @param f     the formula factory to generate new formulas
      * @param state the mutable state for a Tseitin transformation
      */
-    public TseitinTransformation(final NonCachingFormulaFactory f, final TseitinState state) {
+    public TseitinTransformation(final FormulaFactory f, final TseitinState state) {
         this(f, DEFAULT_BOUNDARY, state);
     }
 
@@ -70,15 +70,20 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
      * @param boundaryForFactorization the boundary of number of atoms up to which classical factorization is used
      * @param state                    the mutable state for a Tseitin transformation
      */
-    public TseitinTransformation(final NonCachingFormulaFactory f, final int boundaryForFactorization, final TseitinState state) {
+    public TseitinTransformation(final FormulaFactory f, final int boundaryForFactorization, final TseitinState state) {
         super(f, state);
         this.boundaryForFactorization = boundaryForFactorization;
-        this.factorization = new CNFFactorization(f);
+        factorization = new CNFFactorization(f);
     }
 
     @Override
     protected TseitinState initStateForCachingFactory(final CachingFormulaFactory f) {
         return new TseitinState(f);
+    }
+
+    @Override
+    protected TseitinState defaultStateForNonCachingFactory() {
+        return new TseitinState();
     }
 
     @Override
@@ -169,13 +174,13 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
         private final Map<Formula, Formula> literalCache;
 
         public TseitinState() {
-            this.formulaCache = new HashMap<>();
-            this.literalCache = new HashMap<>();
+            formulaCache = new HashMap<>();
+            literalCache = new HashMap<>();
         }
 
         public TseitinState(final CachingFormulaFactory f) {
-            this.formulaCache = f.getTransformationCacheForType(TSEITIN);
-            this.literalCache = f.getTransformationCacheForType(TSEITIN_VARIABLE);
+            formulaCache = f.getTransformationCacheForType(TSEITIN);
+            literalCache = f.getTransformationCacheForType(TSEITIN_VARIABLE);
         }
 
         public TseitinState(final Map<Formula, Formula> formulaCache, final Map<Formula, Formula> literalCache) {

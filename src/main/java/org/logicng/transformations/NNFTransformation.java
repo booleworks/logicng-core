@@ -18,16 +18,31 @@ import org.logicng.formulas.PBConstraint;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Transformation of a formula in NNF.
  * @version 3.0.0
  * @since 2.2.0
  */
-public class NNFTransformation extends StatelessFormulaTransformation {
+public class NNFTransformation extends CacheableFormulaTransformation {
 
+    /**
+     * Constructs a new transformation.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
     public NNFTransformation(final FormulaFactory f) {
-        super(f);
+        super(f, NNF);
+    }
+
+    /**
+     * Constructs a new transformation.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
+    public NNFTransformation(final FormulaFactory f, final Map<Formula, Formula> cache) {
+        super(f, NNF, cache);
     }
 
     @Override
@@ -38,7 +53,7 @@ public class NNFTransformation extends StatelessFormulaTransformation {
     private Formula applyRec(final Formula formula, final boolean polarity) {
         Formula nnf;
         if (polarity) {
-            nnf = formula.transformationCacheEntry(NNF);
+            nnf = lookupCache(formula);
             if (nnf != null) {
                 return nnf;
             }
@@ -88,7 +103,7 @@ public class NNFTransformation extends StatelessFormulaTransformation {
                 throw new IllegalStateException("Unknown formula type = " + type);
         }
         if (polarity) {
-            formula.setTransformationCacheEntry(NNF, nnf);
+            setCache(formula, nnf);
         }
         return nnf;
     }

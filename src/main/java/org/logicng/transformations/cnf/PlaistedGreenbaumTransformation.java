@@ -10,9 +10,9 @@ import static org.logicng.formulas.cache.TransformationCacheEntry.PLAISTED_GREEN
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
-import org.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
 import org.logicng.transformations.StatefulFormulaTransformation;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
      * factorization  bound of 12.
      * @param f the formula factory to generate new formulas
      */
-    public PlaistedGreenbaumTransformation(final CachingFormulaFactory f) {
+    public PlaistedGreenbaumTransformation(final FormulaFactory f) {
         this(f, DEFAULT_BOUNDARY);
     }
 
@@ -50,10 +50,10 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
      * @param f                        the formula factory to generate new formulas
      * @param boundaryForFactorization the boundary of number of atoms up to which classical factorization is used
      */
-    public PlaistedGreenbaumTransformation(final CachingFormulaFactory f, final int boundaryForFactorization) {
+    public PlaistedGreenbaumTransformation(final FormulaFactory f, final int boundaryForFactorization) {
         super(f);
         this.boundaryForFactorization = boundaryForFactorization;
-        this.factorization = new CNFFactorization(f);
+        factorization = new CNFFactorization(f);
     }
 
     /**
@@ -62,7 +62,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
      * @param f     the formula factory to generate new formulas
      * @param state the mutable state for a PG transformation
      */
-    public PlaistedGreenbaumTransformation(final NonCachingFormulaFactory f, final PGState state) {
+    public PlaistedGreenbaumTransformation(final FormulaFactory f, final PGState state) {
         this(f, DEFAULT_BOUNDARY, state);
     }
 
@@ -72,15 +72,20 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
      * @param boundaryForFactorization the boundary of number of atoms up to which classical factorization is used
      * @param state                    the mutable state for a PG transformation
      */
-    public PlaistedGreenbaumTransformation(final NonCachingFormulaFactory f, final int boundaryForFactorization, final PGState state) {
+    public PlaistedGreenbaumTransformation(final FormulaFactory f, final int boundaryForFactorization, final PGState state) {
         super(f, state);
         this.boundaryForFactorization = boundaryForFactorization;
-        this.factorization = new CNFFactorization(f);
+        factorization = new CNFFactorization(f);
     }
 
     @Override
     protected PGState initStateForCachingFactory(final CachingFormulaFactory f) {
         return new PGState(f);
+    }
+
+    @Override
+    protected PGState defaultStateForNonCachingFactory() {
+        return new PGState();
     }
 
     /**
@@ -177,13 +182,13 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
         private final Map<Formula, Formula> literalCache;
 
         public PGState() {
-            this.posCache = new HashMap<>();
-            this.literalCache = new HashMap<>();
+            posCache = new HashMap<>();
+            literalCache = new HashMap<>();
         }
 
         public PGState(final CachingFormulaFactory f) {
-            this.posCache = f.getTransformationCacheForType(PLAISTED_GREENBAUM_POS);
-            this.literalCache = f.getTransformationCacheForType(PLAISTED_GREENBAUM_VARIABLE);
+            posCache = f.getTransformationCacheForType(PLAISTED_GREENBAUM_POS);
+            literalCache = f.getTransformationCacheForType(PLAISTED_GREENBAUM_VARIABLE);
         }
 
         public PGState(final Map<Formula, Formula> posCache, final Map<Formula, Formula> literalCache) {

@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.cnf;
 
@@ -53,6 +29,7 @@ import java.util.Map;
  */
 public final class PlaistedGreenbaumTransformationSolver {
 
+    private final FormulaFactory f;
     private final boolean performNNF;
     private final Map<Formula, VarCacheEntry> variableCache;
     private final MiniSatStyleSolver solver;
@@ -60,13 +37,16 @@ public final class PlaistedGreenbaumTransformationSolver {
 
     /**
      * Constructs a new transformation for a given SAT solver.
+     * @param f            the formula factory to generate new formulas
      * @param performNNF   flag whether an NNF transformation should be performed on the input formula
      * @param solver       the solver
      * @param initialPhase the initial phase for new variables
      */
-    public PlaistedGreenbaumTransformationSolver(final boolean performNNF, final MiniSatStyleSolver solver, final boolean initialPhase) {
+    public PlaistedGreenbaumTransformationSolver(final FormulaFactory f, final boolean performNNF, final MiniSatStyleSolver solver,
+                                                 final boolean initialPhase) {
+        this.f = f;
         this.performNNF = performNNF;
-        this.variableCache = new HashMap<>();
+        variableCache = new HashMap<>();
         this.solver = solver;
         this.initialPhase = initialPhase;
     }
@@ -77,14 +57,14 @@ public final class PlaistedGreenbaumTransformationSolver {
      * @param proposition the optional proposition of the formula
      */
     public void addCNFtoSolver(final Formula formula, final Proposition proposition) {
-        final Formula workingFormula = this.performNNF ? formula.nnf() : formula;
-        final Formula withoutPBCs = !this.performNNF && workingFormula.holds(ContainsPBCPredicate.get()) ? workingFormula.nnf() : workingFormula;
+        final Formula workingFormula = performNNF ? formula.nnf(f) : formula;
+        final Formula withoutPBCs = !performNNF && workingFormula.holds(ContainsPBCPredicate.get()) ? workingFormula.nnf(f) : workingFormula;
         if (withoutPBCs.isCNF()) {
             addCNF(withoutPBCs, proposition);
         } else {
             final LNGIntVector topLevelVars = computeTransformation(withoutPBCs, true, proposition, true);
             if (topLevelVars != null) {
-                this.solver.addClause(topLevelVars, proposition);
+                solver.addClause(topLevelVars, proposition);
             }
         }
     }
@@ -93,7 +73,7 @@ public final class PlaistedGreenbaumTransformationSolver {
      * Clears the cache.
      */
     public void clearCache() {
-        this.variableCache.clear();
+        variableCache.clear();
     }
 
     private void addCNF(final Formula cnf, final Proposition proposition) {
@@ -103,11 +83,11 @@ public final class PlaistedGreenbaumTransformationSolver {
             case FALSE:
             case LITERAL:
             case OR:
-                this.solver.addClause(generateClauseVector(cnf.literals()), proposition);
+                solver.addClause(generateClauseVector(cnf.literals()), proposition);
                 break;
             case AND:
                 for (final Formula clause : cnf) {
-                    this.solver.addClause(generateClauseVector(clause.literals()), proposition);
+                    solver.addClause(generateClauseVector(clause.literals()), proposition);
                 }
                 break;
             default:
@@ -153,15 +133,15 @@ public final class PlaistedGreenbaumTransformationSolver {
             final LNGIntVector rightPgVarNeg = computeTransformation(formula.right(), false, proposition, topLevel);
             if (topLevel) {
                 if (leftPgVarPos != null) {
-                    this.solver.addClause(leftPgVarPos, proposition);
+                    solver.addClause(leftPgVarPos, proposition);
                 }
                 if (rightPgVarNeg != null) {
-                    this.solver.addClause(rightPgVarNeg, proposition);
+                    solver.addClause(rightPgVarNeg, proposition);
                 }
                 return null;
             } else {
-                this.solver.addClause(vector(pgVar, leftPgVarPos), proposition);
-                this.solver.addClause(vector(pgVar, rightPgVarNeg), proposition);
+                solver.addClause(vector(pgVar, leftPgVarPos), proposition);
+                solver.addClause(vector(pgVar, rightPgVarNeg), proposition);
                 return vector(pgVar ^ 1);
             }
         }
@@ -183,12 +163,12 @@ public final class PlaistedGreenbaumTransformationSolver {
             // = (pg & left => right) & (pg & right => left)
             // = (~pg | ~left | right) & (~pg | ~right | left)
             if (topLevel) {
-                this.solver.addClause(vector(leftPgVarNeg, rightPgVarPos), proposition);
-                this.solver.addClause(vector(leftPgVarPos, rightPgVarNeg), proposition);
+                solver.addClause(vector(leftPgVarNeg, rightPgVarPos), proposition);
+                solver.addClause(vector(leftPgVarPos, rightPgVarNeg), proposition);
                 return null;
             } else {
-                this.solver.addClause(vector(pgVar ^ 1, leftPgVarNeg, rightPgVarPos), proposition);
-                this.solver.addClause(vector(pgVar ^ 1, leftPgVarPos, rightPgVarNeg), proposition);
+                solver.addClause(vector(pgVar ^ 1, leftPgVarNeg, rightPgVarPos), proposition);
+                solver.addClause(vector(pgVar ^ 1, leftPgVarPos, rightPgVarNeg), proposition);
             }
         } else {
             // (left => right) & (right => left) => pg
@@ -196,12 +176,12 @@ public final class PlaistedGreenbaumTransformationSolver {
             // = left & ~right | right & ~left | pg
             // = (left | right | pg) & (~right | ~left | pg)
             if (topLevel) {
-                this.solver.addClause(vector(leftPgVarPos, rightPgVarPos), proposition);
-                this.solver.addClause(vector(leftPgVarNeg, rightPgVarNeg), proposition);
+                solver.addClause(vector(leftPgVarPos, rightPgVarPos), proposition);
+                solver.addClause(vector(leftPgVarNeg, rightPgVarNeg), proposition);
                 return null;
             } else {
-                this.solver.addClause(vector(pgVar, leftPgVarPos, rightPgVarPos), proposition);
-                this.solver.addClause(vector(pgVar, leftPgVarNeg, rightPgVarNeg), proposition);
+                solver.addClause(vector(pgVar, leftPgVarPos, rightPgVarPos), proposition);
+                solver.addClause(vector(pgVar, leftPgVarNeg, rightPgVarNeg), proposition);
             }
         }
         return polarity ? vector(pgVar) : vector(pgVar ^ 1);
@@ -222,10 +202,10 @@ public final class PlaistedGreenbaumTransformationSolver {
                         final LNGIntVector opPgVars = computeTransformation(op, true, proposition, topLevel);
                         if (topLevel) {
                             if (opPgVars != null) {
-                                this.solver.addClause(opPgVars, proposition);
+                                solver.addClause(opPgVars, proposition);
                             }
                         } else {
-                            this.solver.addClause(vector(pgVar ^ 1, opPgVars), proposition);
+                            solver.addClause(vector(pgVar ^ 1, opPgVars), proposition);
                         }
                     }
                     if (topLevel) {
@@ -263,10 +243,10 @@ public final class PlaistedGreenbaumTransformationSolver {
                         final LNGIntVector opPgVars = computeTransformation(op, false, proposition, topLevel);
                         if (topLevel) {
                             if (opPgVars != null) {
-                                this.solver.addClause(opPgVars, proposition);
+                                solver.addClause(opPgVars, proposition);
                             }
                         } else {
-                            this.solver.addClause(vector(pgVar, opPgVars), proposition);
+                            solver.addClause(vector(pgVar, opPgVars), proposition);
                         }
                     }
                     if (topLevel) {
@@ -282,7 +262,7 @@ public final class PlaistedGreenbaumTransformationSolver {
     }
 
     private Pair<Boolean, Integer> getPgVar(final Formula formula, final boolean polarity) {
-        final VarCacheEntry entry = this.variableCache.computeIfAbsent(formula, i -> new VarCacheEntry(newSolverVariable()));
+        final VarCacheEntry entry = variableCache.computeIfAbsent(formula, i -> new VarCacheEntry(newSolverVariable()));
         final boolean wasCached = entry.setPolarityCached(polarity);
         final int pgVar = entry.pgVar;
         return new Pair<>(wasCached, pgVar);
@@ -297,18 +277,18 @@ public final class PlaistedGreenbaumTransformationSolver {
     }
 
     private int solverLiteral(final String name, final boolean phase) {
-        int index = this.solver.idxForName(name);
+        int index = solver.idxForName(name);
         if (index == -1) {
-            index = this.solver.newVar(!this.initialPhase, true);
-            this.solver.addName(name, index);
+            index = solver.newVar(!initialPhase, true);
+            solver.addName(name, index);
         }
         return phase ? index * 2 : (index * 2) ^ 1;
     }
 
     private int newSolverVariable() {
-        final int index = this.solver.newVar(!this.initialPhase, true);
+        final int index = solver.newVar(!initialPhase, true);
         final String name = FormulaFactory.CNF_PREFIX + "MINISAT_" + index;
-        this.solver.addName(name, index);
+        solver.addName(name, index);
         return index * 2;
     }
 
@@ -360,11 +340,11 @@ public final class PlaistedGreenbaumTransformationSolver {
         public boolean setPolarityCached(final boolean polarity) {
             final boolean wasCached;
             if (polarity) {
-                wasCached = this.posPolarityCached;
-                this.posPolarityCached = true;
+                wasCached = posPolarityCached;
+                posPolarityCached = true;
             } else {
-                wasCached = this.negPolarityCached;
-                this.negPolarityCached = true;
+                wasCached = negPolarityCached;
+                negPolarityCached = true;
             }
             return wasCached;
         }

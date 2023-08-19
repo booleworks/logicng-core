@@ -7,7 +7,6 @@ package org.logicng.formulas;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.logicng.formulas.cache.PredicateCacheEntry.IS_CNF;
 import static org.logicng.formulas.cache.PredicateCacheEntry.IS_DNF;
-import static org.logicng.formulas.cache.TransformationCacheEntry.FACTORIZED_CNF;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.datastructures.Tristate;
@@ -31,26 +30,8 @@ public class FormulaTest {
 
         @Override
         public String description() {
-            return "MyOwnCacheKey{description=" + this.description + "}";
+            return "MyOwnCacheKey{description=" + description + "}";
         }
-    }
-
-    @Test
-    public void testStringContains() {
-        final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = f.not(f.and(f.variable("a"), f.variable("b")));
-        assertThat(formula.containsVariable("a")).isTrue();
-        assertThat(formula.containsVariable("b")).isTrue();
-        assertThat(formula.containsVariable("x")).isFalse();
-        assertThat(formula.containsVariable("y")).isFalse();
-    }
-
-    @Test
-    public void testTransformationCache() {
-        final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = f.not(f.and(f.variable("a"), f.variable("b")));
-        formula.setTransformationCacheEntry(FACTORIZED_CNF, f.or(f.literal("a", false), f.literal("b", false)));
-        assertThat(formula.transformationCacheEntry(FACTORIZED_CNF)).isEqualTo(f.or(f.literal("a", false), f.literal("b", false)));
     }
 
     @Test

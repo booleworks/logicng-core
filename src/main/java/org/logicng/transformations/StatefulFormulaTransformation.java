@@ -28,15 +28,26 @@ public abstract class StatefulFormulaTransformation<S> implements FormulaTransfo
      * Constructor.
      * @param f the formula factory to generate new formulas
      **/
-    protected StatefulFormulaTransformation(final CachingFormulaFactory f) {
+    protected StatefulFormulaTransformation(final FormulaFactory f) {
         this.f = f;
-        this.state = initStateForCachingFactory(f);
+        if (f instanceof CachingFormulaFactory) {
+            state = initStateForCachingFactory((CachingFormulaFactory) f);
+        } else {
+            state = defaultStateForNonCachingFactory();
+        }
     }
 
+    /**
+     * Constructor.
+     * @param f     the formula factory to generate new formulas
+     * @param state the internal state
+     **/
     protected StatefulFormulaTransformation(final FormulaFactory f, final S state) {
         this.f = f;
         this.state = state;
     }
 
     protected abstract S initStateForCachingFactory(final CachingFormulaFactory f);
+
+    protected abstract S defaultStateForNonCachingFactory();
 }

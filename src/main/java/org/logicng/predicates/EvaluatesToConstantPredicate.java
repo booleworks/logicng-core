@@ -86,7 +86,6 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
      * @return Falsum resp. Verum if the (partial) assignment resulted not to the specified constant, otherwise the restricted and simplified formula
      */
     private Formula innerTest(final Formula formula, final boolean topLevel) {
-        final FormulaFactory f = formula.factory();
         switch (formula.type()) {
             case TRUE:
             case FALSE:
