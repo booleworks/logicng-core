@@ -4,11 +4,6 @@
 
 package org.logicng.formulas.implementation.noncaching;
 
-import static org.logicng.formulas.FType.FALSE;
-import static org.logicng.formulas.FType.LITERAL;
-import static org.logicng.formulas.FType.NOT;
-import static org.logicng.formulas.FType.TRUE;
-
 import org.logicng.formulas.CType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
@@ -189,15 +184,7 @@ public class NonCachingFormulaFactory extends FormulaFactory {
 
     @Override
     protected Formula negateOrNull(final Formula formula) {
-        if (formula.type() == FALSE || formula.type() == TRUE || formula.type() == NOT) {
-            return formula.negate(this);
-        } else if (formula.type() == LITERAL) {
-            final Literal lit = (Literal) formula;
-            final String name = lit.name();
-            return lit.phase() ? negLiterals.get(name) : posLiterals.get(name);
-        } else {
-            return null;
-        }
+        return formula.negate(this);
     }
 
     @Override

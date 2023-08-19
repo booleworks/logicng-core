@@ -6,100 +6,120 @@ package org.logicng.formulas;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class CFalseTest extends TestWithExampleFormulas {
+public class CFalseTest extends TestWithFormulaContext {
 
-    @Test
-    public void testType() {
-        assertThat(FALSE.type()).isEqualTo(FType.FALSE);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testType(final FormulaContext _c) {
+        assertThat(_c.falsum.type()).isEqualTo(FType.FALSE);
     }
 
-    @Test
-    public void testNumberOfAtoms() {
-        assertThat(FALSE.numberOfAtoms()).isEqualTo(1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfAtoms(final FormulaContext _c) {
+        assertThat(_c.falsum.numberOfAtoms()).isEqualTo(1);
     }
 
-    @Test
-    public void testNegation() {
-        assertThat(FALSE.negate()).isEqualTo(TRUE);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNegation(final FormulaContext _c) {
+        assertThat(_c.falsum.negate()).isEqualTo(_c.verum);
     }
 
-    @Test
-    public void testVariables() {
-        assertThat(FALSE.variables().size()).isEqualTo(0);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testVariables(final FormulaContext _c) {
+        assertThat(_c.falsum.variables().size()).isEqualTo(0);
     }
 
-    @Test
-    public void testLiterals() {
-        assertThat(FALSE.literals().size()).isEqualTo(0);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        assertThat(_c.falsum.literals().size()).isEqualTo(0);
     }
 
-    @Test
-    public void testToString() {
-        assertThat(FALSE.toString()).isEqualTo("$false");
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testToString(final FormulaContext _c) {
+        assertThat(_c.falsum.toString()).isEqualTo("$false");
     }
 
-    @Test
-    public void testEquals() {
-        assertThat(f.falsum()).isEqualTo(FALSE);
-        assertThat(f.verum()).isNotEqualTo(FALSE);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEquals(final FormulaContext _c) {
+        assertThat(_c.f.falsum()).isEqualTo(_c.falsum);
+        assertThat(_c.f.verum()).isNotEqualTo(_c.falsum);
     }
 
-    @Test
-    public void testEqualsDifferentFormulaFactory() {
-        assertThat(g.falsum()).isEqualTo(FALSE);
-        assertThat(g.verum()).isNotEqualTo(FALSE);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEqualsDifferentFormulaFactory(final FormulaContext _c) {
+        assertThat(FormulaFactory.caching().falsum()).isEqualTo(_c.falsum);
+        assertThat(FormulaFactory.caching().verum()).isNotEqualTo(_c.falsum);
+        assertThat(FormulaFactory.nonCaching().falsum()).isEqualTo(_c.falsum);
+        assertThat(FormulaFactory.nonCaching().verum()).isNotEqualTo(_c.falsum);
     }
 
-    @Test
-    public void testHash() {
-        assertThat(FALSE.hashCode()).isEqualTo(f.falsum().hashCode());
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testHash(final FormulaContext _c) {
+        assertThat(_c.falsum.hashCode()).isEqualTo(_c.f.falsum().hashCode());
     }
 
-    @Test
-    public void testNumberOfNodes() {
-        assertThat(FALSE.numberOfNodes()).isEqualTo(1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfNodes(final FormulaContext _c) {
+        assertThat(_c.falsum.numberOfNodes()).isEqualTo(1);
     }
 
-    @Test
-    public void testNumberOfInternalNodes() {
-        assertThat(FALSE.numberOfInternalNodes()).isEqualTo(1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfInternalNodes(final FormulaContext _c) {
+        assertThat(_c.falsum.numberOfInternalNodes()).isEqualTo(1);
     }
 
-    @Test
-    public void testNumberOfOperands() {
-        assertThat(FALSE.numberOfOperands()).isEqualTo(0);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfOperands(final FormulaContext _c) {
+        assertThat(_c.falsum.numberOfOperands()).isEqualTo(0);
     }
 
-    @Test
-    public void testIsConstantFormula() {
-        assertThat(FALSE.isConstantFormula()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsConstantFormula(final FormulaContext _c) {
+        assertThat(_c.falsum.isConstantFormula()).isTrue();
     }
 
-    @Test
-    public void testAtomicFormula() {
-        assertThat(FALSE.isAtomicFormula()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testAtomicFormula(final FormulaContext _c) {
+        assertThat(_c.falsum.isAtomicFormula()).isTrue();
     }
 
-    @Test
-    public void testContains() {
-        assertThat(FALSE.containsVariable(f.variable("a"))).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testContains(final FormulaContext _c) {
+        assertThat(_c.falsum.containsVariable(_c.a)).isFalse();
     }
 
-    @Test
-    public void testIsNNF() {
-        assertThat(FALSE.isNNF()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsNNF(final FormulaContext _c) {
+        assertThat(_c.falsum.isNNF()).isTrue();
     }
 
-    @Test
-    public void testIsDNF() {
-        assertThat(FALSE.isDNF()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsDNF(final FormulaContext _c) {
+        assertThat(_c.falsum.isDNF()).isTrue();
     }
 
-    @Test
-    public void testIsCNF() {
-        assertThat(FALSE.isCNF()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsCNF(final FormulaContext _c) {
+        assertThat(_c.falsum.isCNF()).isTrue();
     }
 }

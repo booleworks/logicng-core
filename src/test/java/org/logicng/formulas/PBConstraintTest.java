@@ -8,7 +8,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Substitution;
 import org.logicng.datastructures.Tristate;
@@ -20,371 +21,351 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class PBConstraintTest extends TestWithExampleFormulas {
+public class PBConstraintTest extends TestWithFormulaContext {
 
-    private static final FormulaFactory f =
-            FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-    private static final FormulaFactory f2 =
-            FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-
-    private final PBConstraint pb1;
-    private final PBConstraint pb2;
-    private final PBConstraint pb22;
-    private final CardinalityConstraint cc1;
-    private final CardinalityConstraint cc2;
-    private final CardinalityConstraint amo1;
-    private final CardinalityConstraint amo2;
-    private final CardinalityConstraint exo1;
-    private final CardinalityConstraint exo2;
-
-    public PBConstraintTest() {
-        final Variable[] lits1 = new Variable[]{f.variable("a")};
-        final List<Literal> lits2 = Arrays.asList(f2.variable("a"), f.literal("b", false), f.variable("c"));
-        final List<Variable> litsCC2 = Arrays.asList(f.variable("a"), f2.variable("b"), f.variable("c"));
-        final int[] coeffs1 = new int[]{3};
-        final List<Integer> coeffs2 = Arrays.asList(3, -2, 7);
-        pb1 = (PBConstraint) f.pbc(CType.LE, 2, lits1, coeffs1);
-        pb2 = (PBConstraint) f.pbc(CType.LE, 8, lits2, coeffs2);
-        pb22 = (PBConstraint) f2.pbc(CType.LE, 8, lits2, coeffs2);
-        cc1 = (CardinalityConstraint) f.cc(CType.LT, 1, lits1);
-        cc2 = (CardinalityConstraint) f.cc(CType.GE, 2, litsCC2);
-        amo1 = (CardinalityConstraint) f.amo(lits1);
-        amo2 = (CardinalityConstraint) f.amo(litsCC2);
-        exo1 = (CardinalityConstraint) f.exo(lits1);
-        exo2 = (CardinalityConstraint) f.exo(litsCC2);
-    }
-
-    @Test
-    public void testIllegalPB() {
-        final List<Literal> lits = Arrays.asList(f.variable("a"), f.literal("b", false), f.variable("c"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIllegalPB(final FormulaContext _c) {
+        final List<Literal> lits = Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"));
         final List<Integer> coeffs = Arrays.asList(3, -2, 7, 2);
-        assertThatThrownBy(() -> f.pbc(CType.EQ, 3, lits, coeffs)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> _c.f.pbc(CType.EQ, 3, lits, coeffs)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test
-    public void testType() {
-        assertThat(pb1.type()).isEqualTo(FType.PBC);
-        assertThat(pb2.type()).isEqualTo(FType.PBC);
-        assertThat(cc1.type()).isEqualTo(FType.PBC);
-        assertThat(cc2.type()).isEqualTo(FType.PBC);
-        assertThat(amo1.type()).isEqualTo(FType.PBC);
-        assertThat(amo2.type()).isEqualTo(FType.PBC);
-        assertThat(exo1.type()).isEqualTo(FType.PBC);
-        assertThat(exo2.type()).isEqualTo(FType.PBC);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testType(final FormulaContext _c) {
+        assertThat(_c.pb1.type()).isEqualTo(FType.PBC);
+        assertThat(_c.pb2.type()).isEqualTo(FType.PBC);
+        assertThat(_c.cc1.type()).isEqualTo(FType.PBC);
+        assertThat(_c.cc2.type()).isEqualTo(FType.PBC);
+        assertThat(_c.amo1.type()).isEqualTo(FType.PBC);
+        assertThat(_c.amo2.type()).isEqualTo(FType.PBC);
+        assertThat(_c.exo1.type()).isEqualTo(FType.PBC);
+        assertThat(_c.exo2.type()).isEqualTo(FType.PBC);
     }
 
-    @Test
-    public void testGetters() {
-        final Literal[] lits1 = new Literal[]{f.variable("a")};
-        final Literal[] lits2 = new Literal[]{f2.variable("a"), f.literal("b", false), f.variable("c")};
-        final Literal[] litsCC2 = new Literal[]{f.variable("a"), f.variable("b"), f2.variable("c")};
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testGetters(final FormulaContext _c) {
+        final Literal[] lits1 = new Literal[]{_c.f.variable("a")};
+        final Literal[] lits2 = new Literal[]{_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c")};
+        final Literal[] litsCC2 = new Literal[]{_c.f.variable("a"), _c.f.variable("b"), _c.f.variable("c")};
         final Integer[] coeffs1 = new Integer[]{3};
         final Integer[] coeffs2 = new Integer[]{3, -2, 7};
 
         final Integer[] coeffsCC1 = new Integer[]{1};
         final Integer[] coeffsCC2 = new Integer[]{1, 1, 1};
 
-        assertThat(pb1.operands()).containsExactly(lits1);
-        assertThat(pb1.coefficients()).containsExactly(coeffs1);
-        assertThat(pb1.comparator()).isEqualTo(CType.LE);
-        assertThat(pb1.rhs()).isEqualTo(2);
-        assertThat(pb1.isCC()).isFalse();
-        assertThat(pb1.isAmo()).isFalse();
-        assertThat(pb1.isExo()).isFalse();
-        assertThat(pb1.maxWeight()).isEqualTo(3);
+        assertThat(_c.pb1.operands()).containsExactly(lits1);
+        assertThat(_c.pb1.coefficients()).containsExactly(coeffs1);
+        assertThat(_c.pb1.comparator()).isEqualTo(CType.LE);
+        assertThat(_c.pb1.rhs()).isEqualTo(2);
+        assertThat(_c.pb1.isCC()).isFalse();
+        assertThat(_c.pb1.isAmo()).isFalse();
+        assertThat(_c.pb1.isExo()).isFalse();
+        assertThat(_c.pb1.maxWeight()).isEqualTo(3);
 
-        assertThat(pb2.operands()).containsExactly(lits2);
-        assertThat(pb2.coefficients()).containsExactly(coeffs2);
-        assertThat(pb2.comparator()).isEqualTo(CType.LE);
-        assertThat(pb2.rhs()).isEqualTo(8);
-        assertThat(pb2.isCC()).isFalse();
-        assertThat(pb2.isAmo()).isFalse();
-        assertThat(pb2.isExo()).isFalse();
-        assertThat(pb2.maxWeight()).isEqualTo(7);
+        assertThat(_c.pb2.operands()).containsExactly(lits2);
+        assertThat(_c.pb2.coefficients()).containsExactly(coeffs2);
+        assertThat(_c.pb2.comparator()).isEqualTo(CType.LE);
+        assertThat(_c.pb2.rhs()).isEqualTo(8);
+        assertThat(_c.pb2.isCC()).isFalse();
+        assertThat(_c.pb2.isAmo()).isFalse();
+        assertThat(_c.pb2.isExo()).isFalse();
+        assertThat(_c.pb2.maxWeight()).isEqualTo(7);
 
-        assertThat(cc1.operands()).containsExactly(lits1);
-        assertThat(cc1.coefficients()).containsExactly(coeffsCC1);
-        assertThat(cc1.comparator()).isEqualTo(CType.LT);
-        assertThat(cc1.rhs()).isEqualTo(1);
-        assertThat(cc1.isCC()).isTrue();
-        assertThat(cc1.isAmo()).isFalse();
-        assertThat(cc1.isExo()).isFalse();
-        assertThat(cc1.maxWeight()).isEqualTo(1);
+        assertThat(_c.cc1.operands()).containsExactly(lits1);
+        assertThat(_c.cc1.coefficients()).containsExactly(coeffsCC1);
+        assertThat(_c.cc1.comparator()).isEqualTo(CType.LT);
+        assertThat(_c.cc1.rhs()).isEqualTo(1);
+        assertThat(_c.cc1.isCC()).isTrue();
+        assertThat(_c.cc1.isAmo()).isFalse();
+        assertThat(_c.cc1.isExo()).isFalse();
+        assertThat(_c.cc1.maxWeight()).isEqualTo(1);
 
-        assertThat(cc2.operands()).containsExactly(litsCC2);
-        assertThat(cc2.coefficients()).containsExactly(coeffsCC2);
-        assertThat(cc2.comparator()).isEqualTo(CType.GE);
-        assertThat(cc2.rhs()).isEqualTo(2);
-        assertThat(cc2.isCC()).isTrue();
-        assertThat(cc2.isAmo()).isFalse();
-        assertThat(cc2.isExo()).isFalse();
-        assertThat(cc2.maxWeight()).isEqualTo(1);
+        assertThat(_c.cc2.operands()).containsExactly(litsCC2);
+        assertThat(_c.cc2.coefficients()).containsExactly(coeffsCC2);
+        assertThat(_c.cc2.comparator()).isEqualTo(CType.GE);
+        assertThat(_c.cc2.rhs()).isEqualTo(2);
+        assertThat(_c.cc2.isCC()).isTrue();
+        assertThat(_c.cc2.isAmo()).isFalse();
+        assertThat(_c.cc2.isExo()).isFalse();
+        assertThat(_c.cc2.maxWeight()).isEqualTo(1);
 
-        assertThat(amo1.operands()).containsExactly(lits1);
-        assertThat(amo1.coefficients()).containsExactly(coeffsCC1);
-        assertThat(amo1.comparator()).isEqualTo(CType.LE);
-        assertThat(amo1.rhs()).isEqualTo(1);
-        assertThat(amo1.isCC()).isTrue();
-        assertThat(amo1.isAmo()).isTrue();
-        assertThat(amo1.isExo()).isFalse();
-        assertThat(amo1.maxWeight()).isEqualTo(1);
+        assertThat(_c.amo1.operands()).containsExactly(lits1);
+        assertThat(_c.amo1.coefficients()).containsExactly(coeffsCC1);
+        assertThat(_c.amo1.comparator()).isEqualTo(CType.LE);
+        assertThat(_c.amo1.rhs()).isEqualTo(1);
+        assertThat(_c.amo1.isCC()).isTrue();
+        assertThat(_c.amo1.isAmo()).isTrue();
+        assertThat(_c.amo1.isExo()).isFalse();
+        assertThat(_c.amo1.maxWeight()).isEqualTo(1);
 
-        assertThat(amo2.operands()).containsExactly(litsCC2);
-        assertThat(amo2.coefficients()).containsExactly(coeffsCC2);
-        assertThat(amo2.comparator()).isEqualTo(CType.LE);
-        assertThat(amo2.rhs()).isEqualTo(1);
-        assertThat(amo2.isCC()).isTrue();
-        assertThat(amo2.isAmo()).isTrue();
-        assertThat(amo2.isExo()).isFalse();
-        assertThat(amo2.maxWeight()).isEqualTo(1);
+        assertThat(_c.amo2.operands()).containsExactly(litsCC2);
+        assertThat(_c.amo2.coefficients()).containsExactly(coeffsCC2);
+        assertThat(_c.amo2.comparator()).isEqualTo(CType.LE);
+        assertThat(_c.amo2.rhs()).isEqualTo(1);
+        assertThat(_c.amo2.isCC()).isTrue();
+        assertThat(_c.amo2.isAmo()).isTrue();
+        assertThat(_c.amo2.isExo()).isFalse();
+        assertThat(_c.amo2.maxWeight()).isEqualTo(1);
 
-        assertThat(exo1.operands()).containsExactly(lits1);
-        assertThat(exo1.coefficients()).containsExactly(coeffsCC1);
-        assertThat(exo1.comparator()).isEqualTo(CType.EQ);
-        assertThat(exo1.rhs()).isEqualTo(1);
-        assertThat(exo1.isCC()).isTrue();
-        assertThat(exo1.isAmo()).isFalse();
-        assertThat(exo1.isExo()).isTrue();
-        assertThat(exo1.maxWeight()).isEqualTo(1);
+        assertThat(_c.exo1.operands()).containsExactly(lits1);
+        assertThat(_c.exo1.coefficients()).containsExactly(coeffsCC1);
+        assertThat(_c.exo1.comparator()).isEqualTo(CType.EQ);
+        assertThat(_c.exo1.rhs()).isEqualTo(1);
+        assertThat(_c.exo1.isCC()).isTrue();
+        assertThat(_c.exo1.isAmo()).isFalse();
+        assertThat(_c.exo1.isExo()).isTrue();
+        assertThat(_c.exo1.maxWeight()).isEqualTo(1);
 
-        assertThat(exo2.operands()).containsExactly(litsCC2);
-        assertThat(exo2.coefficients()).containsExactly(coeffsCC2);
-        assertThat(exo2.comparator()).isEqualTo(CType.EQ);
-        assertThat(exo2.rhs()).isEqualTo(1);
-        assertThat(exo2.isCC()).isTrue();
-        assertThat(exo2.isAmo()).isFalse();
-        assertThat(exo2.isExo()).isTrue();
-        assertThat(exo2.maxWeight()).isEqualTo(1);
+        assertThat(_c.exo2.operands()).containsExactly(litsCC2);
+        assertThat(_c.exo2.coefficients()).containsExactly(coeffsCC2);
+        assertThat(_c.exo2.comparator()).isEqualTo(CType.EQ);
+        assertThat(_c.exo2.rhs()).isEqualTo(1);
+        assertThat(_c.exo2.isCC()).isTrue();
+        assertThat(_c.exo2.isAmo()).isFalse();
+        assertThat(_c.exo2.isExo()).isTrue();
+        assertThat(_c.exo2.maxWeight()).isEqualTo(1);
     }
 
-    @Test
-    public void testIsCC() {
-        final Literal[] lits1 = new Literal[]{f2.variable("a"), f.variable("b")};
-        final Literal[] lits2 = new Literal[]{f2.variable("a"), f.literal("b", false)};
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsCC(final FormulaContext _c) {
+        final Literal[] lits1 = new Literal[]{_c.f.variable("a"), _c.f.variable("b")};
+        final Literal[] lits2 = new Literal[]{_c.f.variable("a"), _c.f.literal("b", false)};
         final int[] coeffs1 = new int[]{1, 1};
         final int[] coeffs2 = new int[]{-1, 1};
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, 4, lits1, coeffs1)).isCC()).isTrue();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 4, lits1, coeffs1)).isCC()).isTrue();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 4, lits1, coeffs1)).isCC()).isTrue();
-        assertThat(((PBConstraint) f.pbc(CType.GT, 4, lits1, coeffs1)).isCC()).isTrue();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 4, lits1, coeffs1)).isCC()).isTrue();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 4, lits1, coeffs1)).isCC()).isTrue();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 4, lits1, coeffs1)).isCC()).isTrue();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 4, lits1, coeffs1)).isCC()).isTrue();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, 4, lits1, coeffs1)).isCC()).isTrue();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 4, lits1, coeffs1)).isCC()).isTrue();
 
         // Corner cases
-        assertThat(((PBConstraint) f.pbc(CType.LE, 0, lits1, coeffs1)).isCC()).isTrue();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 1, lits1, coeffs1)).isCC()).isTrue();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 0, lits1, coeffs1)).isCC()).isTrue();
-        assertThat(((PBConstraint) f.pbc(CType.GT, -1, lits1, coeffs1)).isCC()).isTrue();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 0, lits1, coeffs1)).isCC()).isTrue();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 0, lits1, coeffs1)).isCC()).isTrue();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 1, lits1, coeffs1)).isCC()).isTrue();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 0, lits1, coeffs1)).isCC()).isTrue();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, -1, lits1, coeffs1)).isCC()).isTrue();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 0, lits1, coeffs1)).isCC()).isTrue();
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, -1, lits1, coeffs1)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 0, lits1, coeffs1)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GE, -1, lits1, coeffs1)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GT, -2, lits1, coeffs1)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, -1, lits1, coeffs1)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, -1, lits1, coeffs1)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 0, lits1, coeffs1)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, -1, lits1, coeffs1)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, -2, lits1, coeffs1)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, -1, lits1, coeffs1)).isCC()).isFalse();
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, 4, lits1, coeffs2)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 4, lits1, coeffs2)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 4, lits1, coeffs2)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GT, 4, lits1, coeffs2)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 4, lits1, coeffs2)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 4, lits1, coeffs2)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 4, lits1, coeffs2)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 4, lits1, coeffs2)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, 4, lits1, coeffs2)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 4, lits1, coeffs2)).isCC()).isFalse();
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, 4, lits2, coeffs1)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 4, lits2, coeffs1)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 4, lits2, coeffs1)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GT, 4, lits2, coeffs1)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 4, lits2, coeffs1)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 4, lits2, coeffs1)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 4, lits2, coeffs1)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 4, lits2, coeffs1)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, 4, lits2, coeffs1)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 4, lits2, coeffs1)).isCC()).isFalse();
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, 4, lits2, coeffs2)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 4, lits2, coeffs2)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 4, lits2, coeffs2)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GT, 4, lits2, coeffs2)).isCC()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 4, lits2, coeffs2)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 4, lits2, coeffs2)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 4, lits2, coeffs2)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 4, lits2, coeffs2)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, 4, lits2, coeffs2)).isCC()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 4, lits2, coeffs2)).isCC()).isFalse();
     }
 
-    @Test
-    public void testIsAmo() {
-        final Literal[] lits1 = new Literal[]{f2.variable("a"), f.variable("b")};
-        final Literal[] lits2 = new Literal[]{f2.variable("a"), f.literal("b", false)};
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsAmo(final FormulaContext _c) {
+        final Literal[] lits1 = new Literal[]{_c.f.variable("a"), _c.f.variable("b")};
+        final Literal[] lits2 = new Literal[]{_c.f.variable("a"), _c.f.literal("b", false)};
         final int[] coeffs1 = new int[]{1, 1};
         final int[] coeffs2 = new int[]{-1, 1};
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, 1, lits1, coeffs1)).isAmo()).isTrue();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 2, lits1, coeffs1)).isAmo()).isTrue();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 1, lits1, coeffs1)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 1, lits1, coeffs1)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GT, 1, lits1, coeffs1)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 1, lits1, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 1, lits1, coeffs1)).isAmo()).isTrue();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 2, lits1, coeffs1)).isAmo()).isTrue();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 1, lits1, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 1, lits1, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, 1, lits1, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 1, lits1, coeffs1)).isAmo()).isFalse();
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, 3, lits1, coeffs1)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 3, lits1, coeffs1)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 3, lits1, coeffs1)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 3, lits1, coeffs1)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GT, 3, lits1, coeffs1)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 3, lits1, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 3, lits1, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 3, lits1, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 3, lits1, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 3, lits1, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, 3, lits1, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 3, lits1, coeffs1)).isAmo()).isFalse();
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, 4, lits1, coeffs2)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 4, lits1, coeffs2)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 4, lits1, coeffs2)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GT, 4, lits1, coeffs2)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 4, lits1, coeffs2)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 4, lits1, coeffs2)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 4, lits1, coeffs2)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 4, lits1, coeffs2)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, 4, lits1, coeffs2)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 4, lits1, coeffs2)).isAmo()).isFalse();
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, 4, lits2, coeffs1)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 4, lits2, coeffs1)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 4, lits2, coeffs1)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GT, 4, lits2, coeffs1)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 4, lits2, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 4, lits2, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 4, lits2, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 4, lits2, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, 4, lits2, coeffs1)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 4, lits2, coeffs1)).isAmo()).isFalse();
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, 4, lits2, coeffs2)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 4, lits2, coeffs2)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 4, lits2, coeffs2)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GT, 4, lits2, coeffs2)).isAmo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 4, lits2, coeffs2)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 4, lits2, coeffs2)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 4, lits2, coeffs2)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 4, lits2, coeffs2)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, 4, lits2, coeffs2)).isAmo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 4, lits2, coeffs2)).isAmo()).isFalse();
     }
 
-    @Test
-    public void testIsExo() {
-        final Literal[] lits1 = new Literal[]{f2.variable("a"), f.variable("b")};
-        final Literal[] lits2 = new Literal[]{f2.variable("a"), f.literal("b", false)};
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsExo(final FormulaContext _c) {
+        final Literal[] lits1 = new Literal[]{_c.f.variable("a"), _c.f.variable("b")};
+        final Literal[] lits2 = new Literal[]{_c.f.variable("a"), _c.f.literal("b", false)};
         final int[] coeffs1 = new int[]{1, 1};
         final int[] coeffs2 = new int[]{-1, 1};
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, 1, lits1, coeffs1)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 2, lits1, coeffs1)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 1, lits1, coeffs1)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 1, lits1, coeffs1)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GT, 1, lits1, coeffs1)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 1, lits1, coeffs1)).isExo()).isTrue();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 1, lits1, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 2, lits1, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 1, lits1, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 1, lits1, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, 1, lits1, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 1, lits1, coeffs1)).isExo()).isTrue();
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, 3, lits1, coeffs1)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 3, lits1, coeffs1)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 3, lits1, coeffs1)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 3, lits1, coeffs1)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GT, 3, lits1, coeffs1)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 3, lits1, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 3, lits1, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 3, lits1, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 3, lits1, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 3, lits1, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, 3, lits1, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 3, lits1, coeffs1)).isExo()).isFalse();
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, 4, lits1, coeffs2)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 4, lits1, coeffs2)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 4, lits1, coeffs2)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GT, 4, lits1, coeffs2)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 4, lits1, coeffs2)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 4, lits1, coeffs2)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 4, lits1, coeffs2)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 4, lits1, coeffs2)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, 4, lits1, coeffs2)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 4, lits1, coeffs2)).isExo()).isFalse();
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, 4, lits2, coeffs1)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 4, lits2, coeffs1)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 4, lits2, coeffs1)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GT, 4, lits2, coeffs1)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 4, lits2, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 4, lits2, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 4, lits2, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 4, lits2, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, 4, lits2, coeffs1)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 4, lits2, coeffs1)).isExo()).isFalse();
 
-        assertThat(((PBConstraint) f.pbc(CType.LE, 4, lits2, coeffs2)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.LT, 4, lits2, coeffs2)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GE, 4, lits2, coeffs2)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.GT, 4, lits2, coeffs2)).isExo()).isFalse();
-        assertThat(((PBConstraint) f.pbc(CType.EQ, 4, lits2, coeffs2)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LE, 4, lits2, coeffs2)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.LT, 4, lits2, coeffs2)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GE, 4, lits2, coeffs2)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.GT, 4, lits2, coeffs2)).isExo()).isFalse();
+        assertThat(((PBConstraint) _c.f.pbc(CType.EQ, 4, lits2, coeffs2)).isExo()).isFalse();
     }
 
-    @Test
-    public void testNumberOfAtoms() {
-        assertThat(pb1.numberOfAtoms()).isEqualTo(1);
-        assertThat(pb2.numberOfAtoms()).isEqualTo(1);
-        assertThat(cc1.numberOfAtoms()).isEqualTo(1);
-        assertThat(cc2.numberOfAtoms()).isEqualTo(1);
-        assertThat(amo1.numberOfAtoms()).isEqualTo(1);
-        assertThat(amo2.numberOfAtoms()).isEqualTo(1);
-        assertThat(exo1.numberOfAtoms()).isEqualTo(1);
-        assertThat(exo2.numberOfAtoms()).isEqualTo(1);
-        assertThat(exo2.numberOfAtoms()).isEqualTo(1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfAtoms(final FormulaContext _c) {
+        assertThat(_c.pb1.numberOfAtoms()).isEqualTo(1);
+        assertThat(_c.pb2.numberOfAtoms()).isEqualTo(1);
+        assertThat(_c.cc1.numberOfAtoms()).isEqualTo(1);
+        assertThat(_c.cc2.numberOfAtoms()).isEqualTo(1);
+        assertThat(_c.amo1.numberOfAtoms()).isEqualTo(1);
+        assertThat(_c.amo2.numberOfAtoms()).isEqualTo(1);
+        assertThat(_c.exo1.numberOfAtoms()).isEqualTo(1);
+        assertThat(_c.exo2.numberOfAtoms()).isEqualTo(1);
+        assertThat(_c.exo2.numberOfAtoms()).isEqualTo(1);
     }
 
-    @Test
-    public void testNumberOfNodes() {
-        assertThat(pb1.numberOfNodes()).isEqualTo(2);
-        assertThat(pb2.numberOfNodes()).isEqualTo(4);
-        assertThat(cc1.numberOfNodes()).isEqualTo(2);
-        assertThat(cc2.numberOfNodes()).isEqualTo(4);
-        assertThat(amo1.numberOfNodes()).isEqualTo(2);
-        assertThat(amo2.numberOfNodes()).isEqualTo(4);
-        assertThat(exo1.numberOfNodes()).isEqualTo(2);
-        assertThat(exo2.numberOfNodes()).isEqualTo(4);
-        assertThat(exo2.numberOfNodes()).isEqualTo(4);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfNodes(final FormulaContext _c) {
+        assertThat(_c.pb1.numberOfNodes()).isEqualTo(2);
+        assertThat(_c.pb2.numberOfNodes()).isEqualTo(4);
+        assertThat(_c.cc1.numberOfNodes()).isEqualTo(2);
+        assertThat(_c.cc2.numberOfNodes()).isEqualTo(4);
+        assertThat(_c.amo1.numberOfNodes()).isEqualTo(2);
+        assertThat(_c.amo2.numberOfNodes()).isEqualTo(4);
+        assertThat(_c.exo1.numberOfNodes()).isEqualTo(2);
+        assertThat(_c.exo2.numberOfNodes()).isEqualTo(4);
+        assertThat(_c.exo2.numberOfNodes()).isEqualTo(4);
     }
 
-    @Test
-    public void testVariables() {
-        final SortedSet<Variable> lits1 = new TreeSet<>(Collections.singletonList(f.variable("a")));
-        final SortedSet<Variable> lits2 = new TreeSet<>(Arrays.asList(f.variable("a"), f.variable("b"), f.variable("c")));
-        assertThat(pb1.variables()).isEqualTo(lits1);
-        assertThat(pb1.variables()).isEqualTo(lits1);
-        assertThat(pb2.variables()).isEqualTo(lits2);
-        assertThat(cc1.variables()).isEqualTo(lits1);
-        assertThat(cc2.variables()).isEqualTo(lits2);
-        assertThat(amo1.variables()).isEqualTo(lits1);
-        assertThat(amo2.variables()).isEqualTo(lits2);
-        assertThat(exo1.variables()).isEqualTo(lits1);
-        assertThat(exo2.variables()).isEqualTo(lits2);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testVariables(final FormulaContext _c) {
+        final SortedSet<Variable> lits1 = new TreeSet<>(Collections.singletonList(_c.f.variable("a")));
+        final SortedSet<Variable> lits2 = new TreeSet<>(Arrays.asList(_c.f.variable("a"), _c.f.variable("b"), _c.f.variable("c")));
+        assertThat(_c.pb1.variables()).isEqualTo(lits1);
+        assertThat(_c.pb1.variables()).isEqualTo(lits1);
+        assertThat(_c.pb2.variables()).isEqualTo(lits2);
+        assertThat(_c.cc1.variables()).isEqualTo(lits1);
+        assertThat(_c.cc2.variables()).isEqualTo(lits2);
+        assertThat(_c.amo1.variables()).isEqualTo(lits1);
+        assertThat(_c.amo2.variables()).isEqualTo(lits2);
+        assertThat(_c.exo1.variables()).isEqualTo(lits1);
+        assertThat(_c.exo2.variables()).isEqualTo(lits2);
     }
 
-    @Test
-    public void testLiterals() {
-        final SortedSet<Variable> lits1 = new TreeSet<>(Collections.singletonList(f.variable("a")));
-        final SortedSet<Literal> lits2 = new TreeSet<>(Arrays.asList(f.variable("a"), f.literal("b", false), f.variable("c")));
-        final SortedSet<Variable> litsCC2 = new TreeSet<>(Arrays.asList(f.variable("a"), f.variable("b"), f.variable("c")));
-        assertThat(pb1.literals()).isEqualTo(lits1);
-        assertThat(pb2.literals()).isEqualTo(lits2);
-        assertThat(cc1.literals()).isEqualTo(lits1);
-        assertThat(cc2.literals()).isEqualTo(litsCC2);
-        assertThat(amo1.literals()).isEqualTo(lits1);
-        assertThat(amo2.literals()).isEqualTo(litsCC2);
-        assertThat(exo1.literals()).isEqualTo(lits1);
-        assertThat(exo2.literals()).isEqualTo(litsCC2);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        final SortedSet<Variable> lits1 = new TreeSet<>(Collections.singletonList(_c.f.variable("a")));
+        final SortedSet<Literal> lits2 = new TreeSet<>(Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c")));
+        final SortedSet<Variable> litsCC2 = new TreeSet<>(Arrays.asList(_c.f.variable("a"), _c.f.variable("b"), _c.f.variable("c")));
+        assertThat(_c.pb1.literals()).isEqualTo(lits1);
+        assertThat(_c.pb2.literals()).isEqualTo(lits2);
+        assertThat(_c.cc1.literals()).isEqualTo(lits1);
+        assertThat(_c.cc2.literals()).isEqualTo(litsCC2);
+        assertThat(_c.amo1.literals()).isEqualTo(lits1);
+        assertThat(_c.amo2.literals()).isEqualTo(litsCC2);
+        assertThat(_c.exo1.literals()).isEqualTo(lits1);
+        assertThat(_c.exo2.literals()).isEqualTo(litsCC2);
     }
 
-    @Test
-    public void testContains() {
-        assertThat(pb2.containsVariable(f.variable("a"))).isTrue();
-        assertThat(pb2.containsVariable(f.variable("b"))).isTrue();
-        assertThat(pb2.containsVariable(f.variable("c"))).isTrue();
-        assertThat(pb2.containsVariable(f.variable("d"))).isFalse();
-        assertThat(pb2.containsVariable(f.variable("x"))).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testContains(final FormulaContext _c) {
+        assertThat(_c.pb2.containsVariable(_c.f.variable("a"))).isTrue();
+        assertThat(_c.pb2.containsVariable(_c.f.variable("b"))).isTrue();
+        assertThat(_c.pb2.containsVariable(_c.f.variable("c"))).isTrue();
+        assertThat(_c.pb2.containsVariable(_c.f.variable("d"))).isFalse();
+        assertThat(_c.pb2.containsVariable(_c.f.variable("x"))).isFalse();
     }
 
-    @Test
-    public void testIsNNF() {
-        assertThat(pb1.isNNF()).isFalse();
-        assertThat(pb2.isNNF()).isFalse();
-        assertThat(pb22.isNNF()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsNNF(final FormulaContext _c) {
+        assertThat(_c.pb1.isNNF()).isFalse();
+        assertThat(_c.pb2.isNNF()).isFalse();
     }
 
-    @Test
-    public void testIsDNF() {
-        assertThat(pb1.isDNF()).isFalse();
-        assertThat(pb2.isDNF()).isFalse();
-        assertThat(pb22.isDNF()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsDNF(final FormulaContext _c) {
+        assertThat(_c.pb1.isDNF()).isFalse();
+        assertThat(_c.pb2.isDNF()).isFalse();
     }
 
-    @Test
-    public void testIsCNF() {
-        assertThat(pb1.isCNF()).isFalse();
-        assertThat(pb2.isCNF()).isFalse();
-        assertThat(pb22.isCNF()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsCNF(final FormulaContext _c) {
+        assertThat(_c.pb1.isCNF()).isFalse();
+        assertThat(_c.pb2.isCNF()).isFalse();
     }
 
-    @Test
-    public void testEvaluate() {
-        final List<Literal> lits = Arrays.asList(f2.variable("a"), f.literal("b", false), f.variable("c"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEvaluate(final FormulaContext _c) {
+        final List<Literal> lits = Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"));
         final List<Integer> coeffs = Arrays.asList(2, -2, 3);
         final Assignment a1 = new Assignment();
-        a1.addLiteral(f.variable("a"));
-        a1.addLiteral(f.variable("b"));
-        a1.addLiteral(f.literal("c", false));
+        a1.addLiteral(_c.f.variable("a"));
+        a1.addLiteral(_c.f.variable("b"));
+        a1.addLiteral(_c.f.literal("c", false));
         final Assignment a2 = new Assignment();
-        a2.addLiteral(f.variable("a"));
-        a2.addLiteral(f.literal("b", false));
-        a2.addLiteral(f.literal("c", false));
-        final PBConstraint pb1 = (PBConstraint) f.pbc(CType.EQ, 2, lits, coeffs);
-        final PBConstraint pb3 = (PBConstraint) f.pbc(CType.GE, 1, lits, coeffs);
-        final PBConstraint pb4 = (PBConstraint) f.pbc(CType.GT, 0, lits, coeffs);
-        final PBConstraint pb5 = (PBConstraint) f.pbc(CType.LE, 1, lits, coeffs);
-        final PBConstraint pb6 = (PBConstraint) f.pbc(CType.LT, 2, lits, coeffs);
+        a2.addLiteral(_c.f.variable("a"));
+        a2.addLiteral(_c.f.literal("b", false));
+        a2.addLiteral(_c.f.literal("c", false));
+        final PBConstraint pb1 = (PBConstraint) _c.f.pbc(CType.EQ, 2, lits, coeffs);
+        final PBConstraint pb3 = (PBConstraint) _c.f.pbc(CType.GE, 1, lits, coeffs);
+        final PBConstraint pb4 = (PBConstraint) _c.f.pbc(CType.GT, 0, lits, coeffs);
+        final PBConstraint pb5 = (PBConstraint) _c.f.pbc(CType.LE, 1, lits, coeffs);
+        final PBConstraint pb6 = (PBConstraint) _c.f.pbc(CType.LT, 2, lits, coeffs);
         assertThat(pb1.evaluate(a1)).isTrue();
         assertThat(pb1.evaluate(a2)).isFalse();
         assertThat(pb3.evaluate(a1)).isTrue();
@@ -397,261 +378,272 @@ public class PBConstraintTest extends TestWithExampleFormulas {
         assertThat(pb6.evaluate(a2)).isTrue();
     }
 
-    @Test
-    public void testRestrict() {
-        final List<Literal> lits = Arrays.asList(f2.variable("a"), f.literal("b", false), f.variable("c"));
-        final List<Literal> litsA1 = Arrays.asList(f.literal("b", false), f.variable("c"));
-        final List<Variable> litsA2 = Collections.singletonList(f.variable("c"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testRestrict(final FormulaContext _c) {
+        final List<Literal> lits = Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"));
+        final List<Literal> litsA1 = Arrays.asList(_c.f.literal("b", false), _c.f.variable("c"));
+        final List<Variable> litsA2 = Collections.singletonList(_c.f.variable("c"));
         final List<Integer> coeffs = Arrays.asList(2, -2, 3);
         final List<Integer> coeffA1 = Arrays.asList(-2, 3);
         final List<Integer> coeffA2 = Collections.singletonList(3);
         final Assignment a1 = new Assignment();
-        a1.addLiteral(f.variable("a"));
+        a1.addLiteral(_c.f.variable("a"));
         final Assignment a2 = new Assignment();
-        a2.addLiteral(f.variable("a"));
-        a2.addLiteral(f.literal("b", false));
+        a2.addLiteral(_c.f.variable("a"));
+        a2.addLiteral(_c.f.literal("b", false));
         final Assignment a3 = new Assignment();
-        a3.addLiteral(f.variable("a"));
-        a3.addLiteral(f.literal("b", false));
-        a3.addLiteral(f.variable("c"));
+        a3.addLiteral(_c.f.variable("a"));
+        a3.addLiteral(_c.f.literal("b", false));
+        a3.addLiteral(_c.f.variable("c"));
         final Assignment a4 = new Assignment();
-        a4.addLiteral(f.literal("a", false));
-        a4.addLiteral(f.variable("b"));
-        a4.addLiteral(f.literal("c", false));
-        final PBConstraint pb1 = (PBConstraint) f.pbc(CType.EQ, 2, lits, coeffs);
-        assertThat(pb1.restrict(a1)).isEqualTo(f.pbc(CType.EQ, 0, litsA1, coeffA1));
-        assertThat(pb1.restrict(a2)).isEqualTo(f.pbc(CType.EQ, 2, litsA2, coeffA2));
-        assertThat(pb1.restrict(a3)).isEqualTo(f.falsum());
-        assertThat(pb1.restrict(a4)).isEqualTo(f.falsum());
+        a4.addLiteral(_c.f.literal("a", false));
+        a4.addLiteral(_c.f.variable("b"));
+        a4.addLiteral(_c.f.literal("c", false));
+        final PBConstraint pb1 = (PBConstraint) _c.f.pbc(CType.EQ, 2, lits, coeffs);
+        assertThat(pb1.restrict(a1)).isEqualTo(_c.f.pbc(CType.EQ, 0, litsA1, coeffA1));
+        assertThat(pb1.restrict(a2)).isEqualTo(_c.f.pbc(CType.EQ, 2, litsA2, coeffA2));
+        assertThat(pb1.restrict(a3)).isEqualTo(_c.f.falsum());
+        assertThat(pb1.restrict(a4)).isEqualTo(_c.f.falsum());
     }
 
-    @Test
-    public void testRestrictInequality() {
-        final List<Literal> lits = Arrays.asList(f.variable("a"), f.literal("b", false), f.variable("c"), f.variable("d"), f.variable("e"), f.literal("f", false));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testRestrictInequality(final FormulaContext _c) {
+        final List<Literal> lits = Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"), _c.f.variable("d"), _c.f.variable("e"),
+                _c.f.literal("f", false));
         final List<Integer> coeffs = Arrays.asList(75, 50, 201, -3, -24, 1);
-        final PBConstraint pb1 = (PBConstraint) f.pbc(CType.GE, -24, lits, coeffs);
-        final PBConstraint pb2 = (PBConstraint) f.pbc(CType.LE, 150, lits, coeffs);
+        final PBConstraint pb1 = (PBConstraint) _c.f.pbc(CType.GE, -24, lits, coeffs);
+        final PBConstraint pb2 = (PBConstraint) _c.f.pbc(CType.LE, 150, lits, coeffs);
         final Assignment a1 = new Assignment();
-        a1.addLiteral(f.literal("b", false));
-        a1.addLiteral(f.variable("c"));
+        a1.addLiteral(_c.f.literal("b", false));
+        a1.addLiteral(_c.f.variable("c"));
         final Assignment a2 = new Assignment();
-        a2.addLiteral(f.literal("a", false));
-        a2.addLiteral(f.variable("b"));
-        a2.addLiteral(f.literal("c", false));
-        a2.addLiteral(f.variable("d"));
-        a2.addLiteral(f.variable("e"));
+        a2.addLiteral(_c.f.literal("a", false));
+        a2.addLiteral(_c.f.variable("b"));
+        a2.addLiteral(_c.f.literal("c", false));
+        a2.addLiteral(_c.f.variable("d"));
+        a2.addLiteral(_c.f.variable("e"));
         final Assignment a3 = new Assignment();
-        a3.addLiteral(f.literal("c", false));
+        a3.addLiteral(_c.f.literal("c", false));
 
-        assertThat(pb1.restrict(a1)).isEqualTo(f.verum());
-        assertThat(pb2.restrict(a1)).isEqualTo(f.falsum());
-        assertThat(pb1.restrict(a2)).isEqualTo(f.falsum());
-        assertThat(pb2.restrict(a3)).isEqualTo(f.verum());
+        assertThat(pb1.restrict(a1)).isEqualTo(_c.f.verum());
+        assertThat(pb2.restrict(a1)).isEqualTo(_c.f.falsum());
+        assertThat(pb1.restrict(a2)).isEqualTo(_c.f.falsum());
+        assertThat(pb2.restrict(a3)).isEqualTo(_c.f.verum());
     }
 
-    @Test
-    public void testContainsSubformula() {
-        assertThat(pb1.containsNode(f.variable("a"))).isTrue();
-        assertThat(pb1.containsNode(f.literal("a", false))).isFalse();
-        assertThat(pb2.containsNode(f.literal("b", false))).isTrue();
-        assertThat(pb2.containsNode(f.variable("b"))).isTrue();
-        assertThat(pb2.containsNode(f.variable("d"))).isFalse();
-        assertThat(pb1.containsNode(pb1)).isTrue();
-        assertThat(pb2.containsNode(pb2)).isTrue();
-        assertThat(pb2.containsNode(pb22)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testContainsSubformula(final FormulaContext _c) {
+        assertThat(_c.pb1.containsNode(_c.f.variable("a"))).isTrue();
+        assertThat(_c.pb1.containsNode(_c.f.literal("a", false))).isFalse();
+        assertThat(_c.pb2.containsNode(_c.f.literal("b", false))).isTrue();
+        assertThat(_c.pb2.containsNode(_c.f.variable("b"))).isTrue();
+        assertThat(_c.pb2.containsNode(_c.f.variable("d"))).isFalse();
+        assertThat(_c.pb1.containsNode(_c.pb1)).isTrue();
+        assertThat(_c.pb2.containsNode(_c.pb2)).isTrue();
     }
 
-    @Test
-    public void testSubstitute() {
-        final List<Literal> lits = Arrays.asList(f2.variable("a"), f.literal("b", false), f.variable("c"));
-        final List<Literal> litsS1 = Arrays.asList(f.literal("b", false), f.variable("c"));
-        final List<Variable> litsS2 = Collections.singletonList(f.variable("c"));
-        final List<Literal> litsS5 = Arrays.asList(f.variable("a2"), f.literal("b2", false), f.variable("c2"));
-        final List<Variable> litsS6 = Arrays.asList(f.variable("a2"), f.variable("c"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSubstitute(final FormulaContext _c) {
+        final List<Literal> lits = Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"));
+        final List<Literal> litsS1 = Arrays.asList(_c.f.literal("b", false), _c.f.variable("c"));
+        final List<Variable> litsS2 = Collections.singletonList(_c.f.variable("c"));
+        final List<Literal> litsS5 = Arrays.asList(_c.f.variable("a2"), _c.f.literal("b2", false), _c.f.variable("c2"));
+        final List<Variable> litsS6 = Arrays.asList(_c.f.variable("a2"), _c.f.variable("c"));
         final List<Integer> coeffs = Arrays.asList(2, -2, 3);
         final List<Integer> coeffS1 = Arrays.asList(-2, 3);
         final List<Integer> coeffS2 = Collections.singletonList(3);
         final List<Integer> coeffS6 = Arrays.asList(2, 3);
         final Substitution s1 = new Substitution();
-        s1.addMapping(f.variable("a"), f.verum());
+        s1.addMapping(_c.f.variable("a"), _c.f.verum());
         final Substitution s2 = new Substitution();
-        s2.addMapping(f.variable("a"), f.verum());
-        s2.addMapping(f.variable("b"), f.falsum());
+        s2.addMapping(_c.f.variable("a"), _c.f.verum());
+        s2.addMapping(_c.f.variable("b"), _c.f.falsum());
         final Substitution s3 = new Substitution();
-        s3.addMapping(f.variable("a"), f.verum());
-        s3.addMapping(f.variable("b"), f.falsum());
-        s3.addMapping(f.variable("c"), f.verum());
+        s3.addMapping(_c.f.variable("a"), _c.f.verum());
+        s3.addMapping(_c.f.variable("b"), _c.f.falsum());
+        s3.addMapping(_c.f.variable("c"), _c.f.verum());
         final Substitution s4 = new Substitution();
-        s4.addMapping(f.variable("a"), f.falsum());
-        s4.addMapping(f.variable("b"), f.verum());
-        s4.addMapping(f.variable("c"), f.falsum());
+        s4.addMapping(_c.f.variable("a"), _c.f.falsum());
+        s4.addMapping(_c.f.variable("b"), _c.f.verum());
+        s4.addMapping(_c.f.variable("c"), _c.f.falsum());
         final Substitution s5 = new Substitution();
-        s5.addMapping(f.variable("a"), f.variable("a2"));
-        s5.addMapping(f.variable("b"), f.variable("b2"));
-        s5.addMapping(f.variable("c"), f.variable("c2"));
-        s5.addMapping(f.variable("d"), f.variable("d2"));
+        s5.addMapping(_c.f.variable("a"), _c.f.variable("a2"));
+        s5.addMapping(_c.f.variable("b"), _c.f.variable("b2"));
+        s5.addMapping(_c.f.variable("c"), _c.f.variable("c2"));
+        s5.addMapping(_c.f.variable("d"), _c.f.variable("d2"));
         final Substitution s6 = new Substitution();
-        s6.addMapping(f.variable("a"), f.variable("a2"));
-        s6.addMapping(f.variable("b"), f.falsum());
-        final PBConstraint pb1 = (PBConstraint) f.pbc(CType.EQ, 2, lits, coeffs);
-        assertThat(pb1.substitute(s1)).isEqualTo(f.pbc(CType.EQ, 0, litsS1, coeffS1));
-        assertThat(pb1.substitute(s2)).isEqualTo(f.pbc(CType.EQ, 2, litsS2, coeffS2));
-        assertThat(pb1.substitute(s3)).isEqualTo(f.falsum());
-        assertThat(pb2.substitute(s3)).isEqualTo(f.verum());
-        assertThat(pb1.substitute(s4)).isEqualTo(f.falsum());
-        assertThat(pb2.substitute(s4)).isEqualTo(f.verum());
-        assertThat(pb1.substitute(s5)).isEqualTo(f.pbc(CType.EQ, 2, litsS5, coeffs));
-        assertThat(pb1.substitute(s6)).isEqualTo(f.pbc(CType.EQ, 4, litsS6, coeffS6));
+        s6.addMapping(_c.f.variable("a"), _c.f.variable("a2"));
+        s6.addMapping(_c.f.variable("b"), _c.f.falsum());
+        final PBConstraint pb = (PBConstraint) _c.f.pbc(CType.EQ, 2, lits, coeffs);
+        assertThat(pb.substitute(s1)).isEqualTo(_c.f.pbc(CType.EQ, 0, litsS1, coeffS1));
+        assertThat(pb.substitute(s2)).isEqualTo(_c.f.pbc(CType.EQ, 2, litsS2, coeffS2));
+        assertThat(pb.substitute(s3)).isEqualTo(_c.f.falsum());
+        assertThat(_c.pb2.substitute(s3)).isEqualTo(_c.f.verum());
+        assertThat(pb.substitute(s4)).isEqualTo(_c.f.falsum());
+        assertThat(_c.pb2.substitute(s4)).isEqualTo(_c.f.verum());
+        assertThat(pb.substitute(s5)).isEqualTo(_c.f.pbc(CType.EQ, 2, litsS5, coeffs));
+        assertThat(pb.substitute(s6)).isEqualTo(_c.f.pbc(CType.EQ, 4, litsS6, coeffS6));
     }
 
-    @Test
-    public void testNegation() {
-        final List<Literal> lits = Arrays.asList(f2.variable("a"), f.literal("b", false), f.variable("c"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNegation(final FormulaContext _c) {
+        final List<Literal> lits = Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"));
         final List<Integer> coeffs = Arrays.asList(2, -2, 3);
-        final PBConstraint pb1 = (PBConstraint) f.pbc(CType.EQ, 2, lits, coeffs);
-        final PBConstraint pb3 = (PBConstraint) f.pbc(CType.GE, 1, lits, coeffs);
-        final PBConstraint pb4 = (PBConstraint) f.pbc(CType.GT, 0, lits, coeffs);
-        final PBConstraint pb5 = (PBConstraint) f.pbc(CType.LE, 1, lits, coeffs);
-        final PBConstraint pb6 = (PBConstraint) f.pbc(CType.LT, 2, lits, coeffs);
-        final PBConstraint pb7 = (PBConstraint) f.pbc(CType.EQ, -2, lits, coeffs);
-        assertThat(pb1.negate()).isEqualTo(f.or(f.pbc(CType.LT, 2, lits, coeffs), f.pbc(CType.GT, 2, lits, coeffs)));
-        assertThat(pb3.negate()).isEqualTo(f.pbc(CType.LT, 1, lits, coeffs));
-        assertThat(pb4.negate()).isEqualTo(f.pbc(CType.LE, 0, lits, coeffs));
-        assertThat(pb5.negate()).isEqualTo(f.pbc(CType.GT, 1, lits, coeffs));
-        assertThat(pb6.negate()).isEqualTo(f.pbc(CType.GE, 2, lits, coeffs));
-        assertThat(pb7.negate()).isEqualTo(f.or(f.pbc(CType.LT, -2, lits, coeffs), f.pbc(CType.GT, -2, lits, coeffs)));
+        final PBConstraint pb1 = (PBConstraint) _c.f.pbc(CType.EQ, 2, lits, coeffs);
+        final PBConstraint pb3 = (PBConstraint) _c.f.pbc(CType.GE, 1, lits, coeffs);
+        final PBConstraint pb4 = (PBConstraint) _c.f.pbc(CType.GT, 0, lits, coeffs);
+        final PBConstraint pb5 = (PBConstraint) _c.f.pbc(CType.LE, 1, lits, coeffs);
+        final PBConstraint pb6 = (PBConstraint) _c.f.pbc(CType.LT, 2, lits, coeffs);
+        final PBConstraint pb7 = (PBConstraint) _c.f.pbc(CType.EQ, -2, lits, coeffs);
+        assertThat(pb1.negate()).isEqualTo(_c.f.or(_c.f.pbc(CType.LT, 2, lits, coeffs), _c.f.pbc(CType.GT, 2, lits, coeffs)));
+        assertThat(pb3.negate()).isEqualTo(_c.f.pbc(CType.LT, 1, lits, coeffs));
+        assertThat(pb4.negate()).isEqualTo(_c.f.pbc(CType.LE, 0, lits, coeffs));
+        assertThat(pb5.negate()).isEqualTo(_c.f.pbc(CType.GT, 1, lits, coeffs));
+        assertThat(pb6.negate()).isEqualTo(_c.f.pbc(CType.GE, 2, lits, coeffs));
+        assertThat(pb7.negate()).isEqualTo(_c.f.or(_c.f.pbc(CType.LT, -2, lits, coeffs), _c.f.pbc(CType.GT, -2, lits, coeffs)));
     }
 
-    @Test
-    public void testNNF() {
-        assertThat(pb1.nnf()).isEqualTo(f.literal("a", false));
-        assertThat(cc1.nnf()).isEqualTo(f.literal("a", false));
-        assertThat(amo1.nnf()).isEqualTo(f.verum());
-        assertThat(exo1.nnf()).isEqualTo(f.variable("a"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNNF(final FormulaContext _c) {
+        assertThat(_c.pb1.nnf()).isEqualTo(_c.f.literal("a", false));
+        assertThat(_c.cc1.nnf()).isEqualTo(_c.f.literal("a", false));
+        assertThat(_c.amo1.nnf()).isEqualTo(_c.f.verum());
+        assertThat(_c.exo1.nnf()).isEqualTo(_c.f.variable("a"));
     }
 
-    @Test
-    public void testNormalization() {
-        final List<Literal> lits = Arrays.asList(f2.variable("a"), f.literal("b", false), f.variable("c"), f.variable("d"),
-                f.literal("b", false));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNormalization(final FormulaContext _c) {
+        final List<Literal> lits = Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"), _c.f.variable("d"),
+                _c.f.literal("b", false));
         final List<Integer> coeffs = Arrays.asList(2, -3, 3, 0, 1);
-        final PBConstraint pb1 = (PBConstraint) f.pbc(CType.EQ, 2, lits, coeffs);
-        final PBConstraint pb2 = (PBConstraint) f.pbc(CType.GE, 1, lits, coeffs);
-        final PBConstraint pb3 = (PBConstraint) f.pbc(CType.GT, 0, lits, coeffs);
-        final PBConstraint pb4 = (PBConstraint) f.pbc(CType.LE, 1, lits, coeffs);
-        final PBConstraint pb5 = (PBConstraint) f.pbc(CType.LT, 2, lits, coeffs);
-        assertThat(pb1.normalize(f).toString()).isEqualTo("(2*a + 2*b + 3*c <= 4) & (2*~a + 2*~b + 3*~c <= 3)");
-        assertThat(pb2.normalize(f).toString()).isEqualTo("2*~a + 2*~b + 3*~c <= 4");
-        assertThat(pb3.normalize(f).toString()).isEqualTo("2*~a + 2*~b + 3*~c <= 4");
-        assertThat(pb4.normalize(f).toString()).isEqualTo("2*a + 2*b + 3*c <= 3");
-        assertThat(pb5.normalize(f).toString()).isEqualTo("2*a + 2*b + 3*c <= 3");
+        final PBConstraint pb1 = (PBConstraint) _c.f.pbc(CType.EQ, 2, lits, coeffs);
+        final PBConstraint pb2 = (PBConstraint) _c.f.pbc(CType.GE, 1, lits, coeffs);
+        final PBConstraint pb3 = (PBConstraint) _c.f.pbc(CType.GT, 0, lits, coeffs);
+        final PBConstraint pb4 = (PBConstraint) _c.f.pbc(CType.LE, 1, lits, coeffs);
+        final PBConstraint pb5 = (PBConstraint) _c.f.pbc(CType.LT, 2, lits, coeffs);
+        assertThat(pb1.normalize(_c.f).toString()).isEqualTo("(2*a + 2*b + 3*c <= 4) & (2*~a + 2*~b + 3*~c <= 3)");
+        assertThat(pb2.normalize(_c.f).toString()).isEqualTo("2*~a + 2*~b + 3*~c <= 4");
+        assertThat(pb3.normalize(_c.f).toString()).isEqualTo("2*~a + 2*~b + 3*~c <= 4");
+        assertThat(pb4.normalize(_c.f).toString()).isEqualTo("2*a + 2*b + 3*c <= 3");
+        assertThat(pb5.normalize(_c.f).toString()).isEqualTo("2*a + 2*b + 3*c <= 3");
     }
 
-    @Test
-    public void testNormalizationTrivial() {
-        final List<Literal> lits = Arrays.asList(f2.variable("a"), f.literal("b", false), f.variable("c"), f.variable("d"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNormalizationTrivial(final FormulaContext _c) {
+        final List<Literal> lits = Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"), _c.f.variable("d"));
         final List<Integer> coeffs = Arrays.asList(2, -2, 3, 0);
-        final PBConstraint pb1 = (PBConstraint) f.pbc(CType.LE, 4, lits, coeffs);
-        final PBConstraint pb2 = (PBConstraint) f.pbc(CType.LE, 5, lits, coeffs);
-        final PBConstraint pb3 = (PBConstraint) f.pbc(CType.LE, 7, lits, coeffs);
-        final PBConstraint pb4 = (PBConstraint) f.pbc(CType.LE, 10, lits, coeffs);
-        final PBConstraint pb5 = (PBConstraint) f.pbc(CType.LE, -3, lits, coeffs);
-        assertThat(pb1.normalize(f).toString()).isEqualTo("2*a + 2*b + 3*c <= 6");
-        assertThat(pb2.normalize(f)).isEqualTo(f.verum());
-        assertThat(pb3.normalize(f)).isEqualTo(f.verum());
-        assertThat(pb4.normalize(f)).isEqualTo(f.verum());
-        assertThat(pb5.normalize(f)).isEqualTo(f.falsum());
+        final PBConstraint pb1 = (PBConstraint) _c.f.pbc(CType.LE, 4, lits, coeffs);
+        final PBConstraint pb2 = (PBConstraint) _c.f.pbc(CType.LE, 5, lits, coeffs);
+        final PBConstraint pb3 = (PBConstraint) _c.f.pbc(CType.LE, 7, lits, coeffs);
+        final PBConstraint pb4 = (PBConstraint) _c.f.pbc(CType.LE, 10, lits, coeffs);
+        final PBConstraint pb5 = (PBConstraint) _c.f.pbc(CType.LE, -3, lits, coeffs);
+        assertThat(pb1.normalize(_c.f).toString()).isEqualTo("2*a + 2*b + 3*c <= 6");
+        assertThat(pb2.normalize(_c.f)).isEqualTo(_c.f.verum());
+        assertThat(pb3.normalize(_c.f)).isEqualTo(_c.f.verum());
+        assertThat(pb4.normalize(_c.f)).isEqualTo(_c.f.verum());
+        assertThat(pb5.normalize(_c.f)).isEqualTo(_c.f.falsum());
     }
 
-    @Test
-    public void testNormalizationSimplifications() {
-        List<? extends Literal> lits = Arrays.asList(f2.variable("a"), f.variable("a"), f.variable("c"), f.variable("d"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNormalizationSimplifications(final FormulaContext _c) {
+        List<? extends Literal> lits = Arrays.asList(_c.f.variable("a"), _c.f.variable("a"), _c.f.variable("c"), _c.f.variable("d"));
         List<Integer> coeffs = Arrays.asList(2, -2, 4, 4);
-        final PBConstraint pb1 = (PBConstraint) f.pbc(CType.LE, 4, lits, coeffs);
-        assertThat(pb1.normalize(f).toString()).isEqualTo("c + d <= 1");
-        lits = Arrays.asList(f2.variable("a"), f.literal("a", false), f.variable("c"), f.variable("d"));
+        final PBConstraint pb1 = (PBConstraint) _c.f.pbc(CType.LE, 4, lits, coeffs);
+        assertThat(pb1.normalize(_c.f).toString()).isEqualTo("c + d <= 1");
+        lits = Arrays.asList(_c.f.variable("a"), _c.f.literal("a", false), _c.f.variable("c"), _c.f.variable("d"));
         coeffs = Arrays.asList(2, 2, 4, 2);
-        final PBConstraint pb2 = (PBConstraint) f.pbc(CType.LE, 4, lits, coeffs);
-        assertThat(pb2.normalize(f).toString()).isEqualTo("2*c + d <= 1");
+        final PBConstraint pb2 = (PBConstraint) _c.f.pbc(CType.LE, 4, lits, coeffs);
+        assertThat(pb2.normalize(_c.f).toString()).isEqualTo("2*c + d <= 1");
     }
 
-    @Test
-    public void testToString() {
-        assertThat(pb1.toString()).isEqualTo("3*a <= 2");
-        assertThat(pb2.toString()).isEqualTo("3*a + -2*~b + 7*c <= 8");
-        assertThat(pb22.toString()).isEqualTo("3*a + -2*~b + 7*c <= 8");
-        assertThat(cc1.toString()).isEqualTo("a < 1");
-        assertThat(cc2.toString()).isEqualTo("a + b + c >= 2");
-        assertThat(amo1.toString()).isEqualTo("a <= 1");
-        assertThat(amo2.toString()).isEqualTo("a + b + c <= 1");
-        assertThat(exo1.toString()).isEqualTo("a = 1");
-        assertThat(exo2.toString()).isEqualTo("a + b + c = 1");
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testToString(final FormulaContext _c) {
+        assertThat(_c.pb1.toString()).isEqualTo("3*a <= 2");
+        assertThat(_c.pb2.toString()).isEqualTo("3*a + -2*~b + 7*c <= 8");
+        assertThat(_c.cc1.toString()).isEqualTo("a < 1");
+        assertThat(_c.cc2.toString()).isEqualTo("a + b + c >= 2");
+        assertThat(_c.amo1.toString()).isEqualTo("a <= 1");
+        assertThat(_c.amo2.toString()).isEqualTo("a + b + c <= 1");
+        assertThat(_c.exo1.toString()).isEqualTo("a = 1");
+        assertThat(_c.exo2.toString()).isEqualTo("a + b + c = 1");
     }
 
-    @Test
-    public void testEquals() {
-        final List<Literal> lits2 = Arrays.asList(f2.variable("a"), f.literal("b", false), f.variable("c"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEquals(final FormulaContext _c) {
+        final List<Literal> lits2 = Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"));
         final List<Integer> coeffs2 = Arrays.asList(3, -2, 7);
-        final List<Literal> lits2alt1 = Arrays.asList(f2.variable("a"), f.literal("b", false));
+        final List<Literal> lits2alt1 = Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false));
         final List<Integer> coeffs2alt1 = Arrays.asList(3, -2);
-        final List<Variable> lits2alt2 = Arrays.asList(f2.variable("a"), f.variable("b"), f.variable("c"));
+        final List<Variable> lits2alt2 = Arrays.asList(_c.f.variable("a"), _c.f.variable("b"), _c.f.variable("c"));
         final List<Integer> coeffs2alt2 = Arrays.asList(3, -2, 8);
-        assertThat(pb1).isEqualTo(pb1);
-        assertThat(pb22).isEqualTo(pb2);
-        assertThat(f.pbc(CType.LE, 8, lits2, coeffs2)).isEqualTo(pb2);
-        assertThat(cc2).isNotEqualTo(cc1);
-        assertThat(cc1).isNotEqualTo(null);
-        assertThat(cc2).isNotEqualTo("String");
-        assertThat("String").isNotEqualTo(cc2);
-        assertThat(f.pbc(CType.LE, 8, lits2alt1, coeffs2alt1)).isNotEqualTo(pb2);
-        assertThat(f.pbc(CType.LE, 8, lits2alt2, coeffs2)).isNotEqualTo(pb2);
-        assertThat(f.pbc(CType.LE, 8, lits2, coeffs2alt2)).isNotEqualTo(pb2);
-        assertThat(f.pbc(CType.LT, 8, lits2, coeffs2)).isNotEqualTo(pb2);
-        assertThat(f.pbc(CType.LE, 7, lits2, coeffs2)).isNotEqualTo(pb2);
+        assertThat(_c.pb1).isEqualTo(_c.pb1);
+        assertThat(_c.f.pbc(CType.LE, 8, lits2, coeffs2)).isEqualTo(_c.pb2);
+        assertThat(_c.cc2).isNotEqualTo(_c.cc1);
+        assertThat(_c.cc1).isNotEqualTo(null);
+        assertThat(_c.cc2).isNotEqualTo("String");
+        assertThat("String").isNotEqualTo(_c.cc2);
+        assertThat(_c.f.pbc(CType.LE, 8, lits2alt1, coeffs2alt1)).isNotEqualTo(_c.pb2);
+        assertThat(_c.f.pbc(CType.LE, 8, lits2alt2, coeffs2)).isNotEqualTo(_c.pb2);
+        assertThat(_c.f.pbc(CType.LE, 8, lits2, coeffs2alt2)).isNotEqualTo(_c.pb2);
+        assertThat(_c.f.pbc(CType.LT, 8, lits2, coeffs2)).isNotEqualTo(_c.pb2);
+        assertThat(_c.f.pbc(CType.LE, 7, lits2, coeffs2)).isNotEqualTo(_c.pb2);
     }
 
-    @Test
-    public void testHash() {
-        assertThat(pb1.hashCode()).isEqualTo(pb1.hashCode());
-        assertThat(pb2.hashCode()).isEqualTo(pb2.hashCode());
-        assertThat(pb22.hashCode()).isEqualTo(pb2.hashCode());
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testHash(final FormulaContext _c) {
+        assertThat(_c.pb1.hashCode()).isEqualTo(_c.pb1.hashCode());
+        assertThat(_c.pb2.hashCode()).isEqualTo(_c.pb2.hashCode());
     }
 
-    @Test
-    public void testNumberOfInternalNodes() {
-        assertThat(pb2.numberOfInternalNodes()).isEqualTo(1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfInternalNodes(final FormulaContext _c) {
+        assertThat(_c.pb2.numberOfInternalNodes()).isEqualTo(1);
     }
 
-    @Test
-    public void testNumberOfOperands() {
-        assertThat(pb1.numberOfOperands()).isEqualTo(0);
-        assertThat(pb2.numberOfOperands()).isEqualTo(0);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfOperands(final FormulaContext _c) {
+        assertThat(_c.pb1.numberOfOperands()).isEqualTo(0);
+        assertThat(_c.pb2.numberOfOperands()).isEqualTo(0);
     }
 
-    @Test
-    public void testIsConstantFormula() {
-        assertThat(pb1.isConstantFormula()).isFalse();
-        assertThat(pb2.isConstantFormula()).isFalse();
-        assertThat(pb22.isConstantFormula()).isFalse();
-        assertThat(cc1.isConstantFormula()).isFalse();
-        assertThat(cc2.isConstantFormula()).isFalse();
-        assertThat(amo1.isConstantFormula()).isFalse();
-        assertThat(amo2.isConstantFormula()).isFalse();
-        assertThat(exo1.isConstantFormula()).isFalse();
-        assertThat(exo2.isConstantFormula()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsConstantFormula(final FormulaContext _c) {
+        assertThat(_c.pb1.isConstantFormula()).isFalse();
+        assertThat(_c.pb2.isConstantFormula()).isFalse();
+        assertThat(_c.cc1.isConstantFormula()).isFalse();
+        assertThat(_c.cc2.isConstantFormula()).isFalse();
+        assertThat(_c.amo1.isConstantFormula()).isFalse();
+        assertThat(_c.amo2.isConstantFormula()).isFalse();
+        assertThat(_c.exo1.isConstantFormula()).isFalse();
+        assertThat(_c.exo2.isConstantFormula()).isFalse();
     }
 
-    @Test
-    public void testAtomicFormula() {
-        assertThat(pb1.isAtomicFormula()).isTrue();
-        assertThat(pb2.isAtomicFormula()).isTrue();
-        assertThat(pb22.isAtomicFormula()).isTrue();
-        assertThat(cc1.isAtomicFormula()).isTrue();
-        assertThat(cc2.isAtomicFormula()).isTrue();
-        assertThat(amo1.isAtomicFormula()).isTrue();
-        assertThat(amo2.isAtomicFormula()).isTrue();
-        assertThat(exo1.isAtomicFormula()).isTrue();
-        assertThat(exo2.isAtomicFormula()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testAtomicFormula(final FormulaContext _c) {
+        assertThat(_c.pb1.isAtomicFormula()).isTrue();
+        assertThat(_c.pb2.isAtomicFormula()).isTrue();
+        assertThat(_c.cc1.isAtomicFormula()).isTrue();
+        assertThat(_c.cc2.isAtomicFormula()).isTrue();
+        assertThat(_c.amo1.isAtomicFormula()).isTrue();
+        assertThat(_c.amo2.isAtomicFormula()).isTrue();
+        assertThat(_c.exo1.isAtomicFormula()).isTrue();
+        assertThat(_c.exo2.isAtomicFormula()).isTrue();
     }
 
     @Test
@@ -687,68 +679,71 @@ public class PBConstraintTest extends TestWithExampleFormulas {
         assertThat(PBConstraint.evaluateCoeffs(-2, 2, 0, CType.LT)).isEqualTo(Tristate.UNDEF);
     }
 
-    @Test
-    public void testTrivialTrue() {
-        assertThat(f.pbc(CType.EQ, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.verum());
-        assertThat(f.pbc(CType.EQ, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
-        assertThat(f.pbc(CType.EQ, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testTrivialTrue(final FormulaContext _c) {
+        assertThat(_c.f.pbc(CType.EQ, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.verum());
+        assertThat(_c.f.pbc(CType.EQ, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
+        assertThat(_c.f.pbc(CType.EQ, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
 
-        assertThat(f.pbc(CType.GT, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
-        assertThat(f.pbc(CType.GT, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
-        assertThat(f.pbc(CType.GT, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.verum());
+        assertThat(_c.f.pbc(CType.GT, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
+        assertThat(_c.f.pbc(CType.GT, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
+        assertThat(_c.f.pbc(CType.GT, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.verum());
 
-        assertThat(f.pbc(CType.GE, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.verum());
-        assertThat(f.pbc(CType.GE, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
-        assertThat(f.pbc(CType.GE, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.verum());
+        assertThat(_c.f.pbc(CType.GE, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.verum());
+        assertThat(_c.f.pbc(CType.GE, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
+        assertThat(_c.f.pbc(CType.GE, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.verum());
 
-        assertThat(f.pbc(CType.LT, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
-        assertThat(f.pbc(CType.LT, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.verum());
-        assertThat(f.pbc(CType.LT, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
+        assertThat(_c.f.pbc(CType.LT, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
+        assertThat(_c.f.pbc(CType.LT, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.verum());
+        assertThat(_c.f.pbc(CType.LT, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
 
-        assertThat(f.pbc(CType.LE, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.verum());
-        assertThat(f.pbc(CType.LE, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.verum());
-        assertThat(f.pbc(CType.LE, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
+        assertThat(_c.f.pbc(CType.LE, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.verum());
+        assertThat(_c.f.pbc(CType.LE, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.verum());
+        assertThat(_c.f.pbc(CType.LE, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
     }
 
-    @Test
-    public void testTrivialFalse() {
-        assertThat(f.pbc(CType.EQ, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.verum());
-        assertThat(f.pbc(CType.EQ, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
-        assertThat(f.pbc(CType.EQ, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testTrivialFalse(final FormulaContext _c) {
+        assertThat(_c.f.pbc(CType.EQ, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.verum());
+        assertThat(_c.f.pbc(CType.EQ, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
+        assertThat(_c.f.pbc(CType.EQ, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
 
-        assertThat(f.pbc(CType.GT, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
-        assertThat(f.pbc(CType.GT, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
-        assertThat(f.pbc(CType.GT, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.verum());
+        assertThat(_c.f.pbc(CType.GT, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
+        assertThat(_c.f.pbc(CType.GT, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
+        assertThat(_c.f.pbc(CType.GT, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.verum());
 
-        assertThat(f.pbc(CType.GE, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.verum());
-        assertThat(f.pbc(CType.GE, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
-        assertThat(f.pbc(CType.GE, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.verum());
+        assertThat(_c.f.pbc(CType.GE, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.verum());
+        assertThat(_c.f.pbc(CType.GE, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
+        assertThat(_c.f.pbc(CType.GE, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.verum());
 
-        assertThat(f.pbc(CType.LT, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
-        assertThat(f.pbc(CType.LT, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.verum());
-        assertThat(f.pbc(CType.LT, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
+        assertThat(_c.f.pbc(CType.LT, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
+        assertThat(_c.f.pbc(CType.LT, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.verum());
+        assertThat(_c.f.pbc(CType.LT, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
 
-        assertThat(f.pbc(CType.LE, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.verum());
-        assertThat(f.pbc(CType.LE, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.verum());
-        assertThat(f.pbc(CType.LE, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(f.falsum());
+        assertThat(_c.f.pbc(CType.LE, 0, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.verum());
+        assertThat(_c.f.pbc(CType.LE, 1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.verum());
+        assertThat(_c.f.pbc(CType.LE, -1, new ArrayList<>(), new ArrayList<>())).isEqualTo(_c.f.falsum());
     }
 
-    @Test
-    public void testSimplifiedToString() {
-        assertThat(f.pbc(CType.EQ, 0, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$true");
-        assertThat(f.pbc(CType.EQ, 1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
-        assertThat(f.pbc(CType.EQ, -1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
-        assertThat(f.pbc(CType.GT, 0, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
-        assertThat(f.pbc(CType.GT, 1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
-        assertThat(f.pbc(CType.GT, -1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$true");
-        assertThat(f.pbc(CType.GE, 0, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$true");
-        assertThat(f.pbc(CType.GE, 1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
-        assertThat(f.pbc(CType.GE, -1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$true");
-        assertThat(f.pbc(CType.LT, 0, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
-        assertThat(f.pbc(CType.LT, 1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$true");
-        assertThat(f.pbc(CType.LT, -1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
-        assertThat(f.pbc(CType.LE, 0, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$true");
-        assertThat(f.pbc(CType.LE, 1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$true");
-        assertThat(f.pbc(CType.LE, -1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSimplifiedToString(final FormulaContext _c) {
+        assertThat(_c.f.pbc(CType.EQ, 0, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$true");
+        assertThat(_c.f.pbc(CType.EQ, 1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
+        assertThat(_c.f.pbc(CType.EQ, -1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
+        assertThat(_c.f.pbc(CType.GT, 0, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
+        assertThat(_c.f.pbc(CType.GT, 1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
+        assertThat(_c.f.pbc(CType.GT, -1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$true");
+        assertThat(_c.f.pbc(CType.GE, 0, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$true");
+        assertThat(_c.f.pbc(CType.GE, 1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
+        assertThat(_c.f.pbc(CType.GE, -1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$true");
+        assertThat(_c.f.pbc(CType.LT, 0, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
+        assertThat(_c.f.pbc(CType.LT, 1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$true");
+        assertThat(_c.f.pbc(CType.LT, -1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
+        assertThat(_c.f.pbc(CType.LE, 0, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$true");
+        assertThat(_c.f.pbc(CType.LE, 1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$true");
+        assertThat(_c.f.pbc(CType.LE, -1, new ArrayList<>(), new ArrayList<>()).toString()).isEqualTo("$false");
     }
 }

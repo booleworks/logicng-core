@@ -159,9 +159,4 @@ public final class UTF8StringRepresentation extends FormulaStringRepresentation 
     protected String rbr() {
         return ")";
     }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
-    }
 }

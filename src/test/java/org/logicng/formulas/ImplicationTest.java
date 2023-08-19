@@ -7,8 +7,8 @@ package org.logicng.formulas;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
 
@@ -16,175 +16,210 @@ import java.util.Arrays;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class ImplicationTest extends TestWithExampleFormulas {
+public class ImplicationTest extends TestWithFormulaContext {
 
-    @Test
-    public void testType() {
-        assertThat(IMP1.type()).isEqualTo(FType.IMPL);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testType(final FormulaContext _c) {
+        assertThat(_c.imp1.type()).isEqualTo(FType.IMPL);
     }
 
-    @Test
-    public void testCreator() {
-        assertThat(f.implication(FALSE, A)).isEqualTo(TRUE);
-        assertThat(f.implication(A, TRUE)).isEqualTo(TRUE);
-        assertThat(f.implication(TRUE, A)).isEqualTo(A);
-        assertThat(f.implication(A, FALSE)).isEqualTo(NA);
-        assertThat(f.implication(A, A)).isEqualTo(TRUE);
-        assertThat(f.binaryOperator(FType.IMPL, AND1, OR1)).isEqualTo(IMP3);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testCreator(final FormulaContext _c) {
+        assertThat(_c.f.implication(_c.falsum, _c.a)).isEqualTo(_c.verum);
+        assertThat(_c.f.implication(_c.a, _c.verum)).isEqualTo(_c.verum);
+        assertThat(_c.f.implication(_c.verum, _c.a)).isEqualTo(_c.a);
+        assertThat(_c.f.implication(_c.a, _c.falsum)).isEqualTo(_c.na);
+        assertThat(_c.f.implication(_c.a, _c.a)).isEqualTo(_c.verum);
+        assertThat(_c.f.binaryOperator(FType.IMPL, _c.and1, _c.or1)).isEqualTo(_c.imp3);
     }
 
-    @Test
-    public void testIllegalCreation() {
-        assertThatThrownBy(() -> f.binaryOperator(FType.NOT, AND1, OR1)).isInstanceOf(IllegalArgumentException.class);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIllegalCreation(final FormulaContext _c) {
+        assertThatThrownBy(() -> _c.f.binaryOperator(FType.NOT, _c.and1, _c.or1)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test
-    public void testGetters() {
-        assertThat(((Implication) IMP2).left()).isEqualTo(NA);
-        assertThat(((Implication) IMP2).right()).isEqualTo(NB);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testGetters(final FormulaContext _c) {
+        assertThat(((Implication) _c.imp2).left()).isEqualTo(_c.na);
+        assertThat(((Implication) _c.imp2).right()).isEqualTo(_c.nb);
     }
 
-    @Test
-    public void testVariables() {
-        assertThat(IMP3.variables().size()).isEqualTo(4);
-        SortedSet<Variable> lits = new TreeSet<>(Arrays.asList(A, B, X, Y));
-        assertThat(IMP3.variables()).isEqualTo(lits);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testVariables(final FormulaContext _c) {
+        assertThat(_c.imp3.variables().size()).isEqualTo(4);
+        SortedSet<Variable> lits = new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y));
+        assertThat(_c.imp3.variables()).isEqualTo(lits);
 
-        final Formula imp = f.implication(AND1, AND2);
+        final Formula imp = _c.f.implication(_c.and1, _c.and2);
         assertThat(imp.variables().size()).isEqualTo(2);
-        lits = new TreeSet<>(Arrays.asList(A, B));
+        lits = new TreeSet<>(Arrays.asList(_c.a, _c.b));
         assertThat(imp.variables()).isEqualTo(lits);
     }
 
-    @Test
-    public void testLiterals() {
-        assertThat(IMP3.literals().size()).isEqualTo(4);
-        SortedSet<Literal> lits = new TreeSet<>(Arrays.asList(A, B, X, Y));
-        assertThat(IMP3.literals()).isEqualTo(lits);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        assertThat(_c.imp3.literals().size()).isEqualTo(4);
+        SortedSet<Literal> lits = new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y));
+        assertThat(_c.imp3.literals()).isEqualTo(lits);
 
-        Formula imp = f.implication(AND1, AND2);
+        Formula imp = _c.f.implication(_c.and1, _c.and2);
         assertThat(imp.literals().size()).isEqualTo(4);
-        lits = new TreeSet<>(Arrays.asList(A, B, NA, NB));
+        lits = new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.na, _c.nb));
         assertThat(imp.literals()).isEqualTo(lits);
 
-        imp = f.implication(AND1, A);
+        imp = _c.f.implication(_c.and1, _c.a);
         assertThat(imp.literals().size()).isEqualTo(2);
-        lits = new TreeSet<>(Arrays.asList(A, B));
+        lits = new TreeSet<>(Arrays.asList(_c.a, _c.b));
         assertThat(imp.literals()).isEqualTo(lits);
     }
 
-    @Test
-    public void testNegation() {
-        assertThat(IMP1.negate()).isEqualTo(f.not(IMP1));
-        assertThat(IMP2.negate()).isEqualTo(f.not(IMP2));
-        assertThat(IMP3.negate()).isEqualTo(f.not(IMP3));
-        assertThat(IMP4.negate()).isEqualTo(f.not(IMP4));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNegation(final FormulaContext _c) {
+        assertThat(_c.imp1.negate()).isEqualTo(_c.f.not(_c.imp1));
+        assertThat(_c.imp2.negate()).isEqualTo(_c.f.not(_c.imp2));
+        assertThat(_c.imp3.negate()).isEqualTo(_c.f.not(_c.imp3));
+        assertThat(_c.imp4.negate()).isEqualTo(_c.f.not(_c.imp4));
     }
 
-    @Test
-    public void testToString() {
-        assertThat(IMP1.toString()).isEqualTo("a => b");
-        assertThat(IMP2.toString()).isEqualTo("~a => ~b");
-        assertThat(IMP3.toString()).isEqualTo("a & b => x | y");
-        assertThat(IMP4.toString()).isEqualTo("(a <=> b) => (~x <=> ~y)");
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testToString(final FormulaContext _c) {
+        assertThat(_c.imp1.toString()).isEqualTo("a => b");
+        assertThat(_c.imp2.toString()).isEqualTo("~a => ~b");
+        assertThat(_c.imp3.toString()).isEqualTo("a & b => x | y");
+        assertThat(_c.imp4.toString()).isEqualTo("(a <=> b) => (~x <=> ~y)");
     }
 
-    @Test
-    public void testEquals() {
-        assertThat(f.implication(A, B)).isEqualTo(IMP1);
-        assertThat(f.implication(AND1, OR1)).isEqualTo(IMP3);
-        assertThat(IMP2).isEqualTo(IMP2);
-        assertThat(IMP2).isNotEqualTo(IMP1);
-        assertThat(IMP2).isNotEqualTo("String");
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEquals(final FormulaContext _c) {
+        assertThat(_c.f.implication(_c.a, _c.b)).isEqualTo(_c.imp1);
+        assertThat(_c.f.implication(_c.and1, _c.or1)).isEqualTo(_c.imp3);
+        assertThat(_c.imp2).isEqualTo(_c.imp2);
+        assertThat(_c.imp2).isNotEqualTo(_c.imp1);
+        assertThat(_c.imp2).isNotEqualTo("String");
     }
 
-    @Test
-    public void testEqualsDifferentFormulaFactory() {
-        final FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        assertThat(g.implication(g.variable("a"), g.variable("b"))).isEqualTo(IMP1);
-        assertThat(g.implication(AND1, OR1)).isEqualTo(IMP3);
-        assertThat(g.implication(g.variable("b"), g.variable("a"))).isNotEqualTo(IMP1);
-        assertThat(g.implication(g.literal("a", false), g.variable("b"))).isNotEqualTo(IMP1);
-        assertThat(g.implication(g.variable("a"), g.literal("b", false))).isNotEqualTo(IMP1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEqualsDifferentFormulaFactory(final FormulaContext _c) {
+        FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        assertThat(g.implication(g.variable("a"), g.variable("b"))).isEqualTo(_c.imp1);
+        assertThat(g.implication(_c.and1, _c.or1)).isEqualTo(_c.imp3);
+        assertThat(g.implication(g.variable("b"), g.variable("a"))).isNotEqualTo(_c.imp1);
+        assertThat(g.implication(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.imp1);
+        assertThat(g.implication(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.imp1);
+
+        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        assertThat(g.implication(g.variable("a"), g.variable("b"))).isEqualTo(_c.imp1);
+        assertThat(g.implication(_c.and1, _c.or1)).isEqualTo(_c.imp3);
+        assertThat(g.implication(g.variable("b"), g.variable("a"))).isNotEqualTo(_c.imp1);
+        assertThat(g.implication(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.imp1);
+        assertThat(g.implication(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.imp1);
+
+        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT).build());
+        assertThat(g.implication(g.variable("a"), g.variable("b"))).isEqualTo(_c.imp1);
+        assertThat(g.implication(_c.and1, _c.or1)).isEqualTo(_c.imp3);
+        assertThat(g.implication(g.variable("b"), g.variable("a"))).isNotEqualTo(_c.imp1);
+        assertThat(g.implication(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.imp1);
+        assertThat(g.implication(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.imp1);
     }
 
-    @Test
-    public void testHash() {
-        final Formula imp = f.implication(NA, NB);
-        assertThat(imp.hashCode()).isEqualTo(IMP2.hashCode());
-        assertThat(imp.hashCode()).isEqualTo(IMP2.hashCode());
-        assertThat(f.implication(AND1, OR1).hashCode()).isEqualTo(IMP3.hashCode());
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testHash(final FormulaContext _c) {
+        final Formula imp = _c.f.implication(_c.na, _c.nb);
+        assertThat(imp.hashCode()).isEqualTo(_c.imp2.hashCode());
+        assertThat(imp.hashCode()).isEqualTo(_c.imp2.hashCode());
+        assertThat(_c.f.implication(_c.and1, _c.or1).hashCode()).isEqualTo(_c.imp3.hashCode());
     }
 
-    @Test
-    public void testNumberOfAtoms() {
-        assertThat(IMP1.numberOfAtoms()).isEqualTo(2);
-        assertThat(IMP3.numberOfAtoms()).isEqualTo(4);
-        assertThat(IMP3.numberOfAtoms()).isEqualTo(4);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfAtoms(final FormulaContext _c) {
+        assertThat(_c.imp1.numberOfAtoms()).isEqualTo(2);
+        assertThat(_c.imp3.numberOfAtoms()).isEqualTo(4);
+        assertThat(_c.imp3.numberOfAtoms()).isEqualTo(4);
     }
 
-    @Test
-    public void testNumberOfNodes() {
-        assertThat(IMP1.numberOfNodes()).isEqualTo(3);
-        assertThat(IMP4.numberOfNodes()).isEqualTo(7);
-        assertThat(IMP4.numberOfNodes()).isEqualTo(7);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfNodes(final FormulaContext _c) {
+        assertThat(_c.imp1.numberOfNodes()).isEqualTo(3);
+        assertThat(_c.imp4.numberOfNodes()).isEqualTo(7);
+        assertThat(_c.imp4.numberOfNodes()).isEqualTo(7);
     }
 
-    @Test
-    public void testNumberOfInternalNodes() throws ParserException {
-        final Formula imp = new PropositionalParser(f).parse("a & (b | c) => (d <=> (b | c))");
-        assertThat(IMP4.numberOfInternalNodes()).isEqualTo(7);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfInternalNodes(final FormulaContext _c) throws ParserException {
+        final Formula imp = new PropositionalParser(_c.f).parse("a & (b | c) => (d <=> (b | c))");
+        assertThat(_c.imp4.numberOfInternalNodes()).isEqualTo(7);
         assertThat(imp.numberOfInternalNodes()).isEqualTo(8);
     }
 
-    @Test
-    public void testNumberOfOperands() {
-        assertThat(IMP1.numberOfOperands()).isEqualTo(2);
-        assertThat(IMP3.numberOfOperands()).isEqualTo(2);
-        assertThat(IMP4.numberOfOperands()).isEqualTo(2);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfOperands(final FormulaContext _c) {
+        assertThat(_c.imp1.numberOfOperands()).isEqualTo(2);
+        assertThat(_c.imp3.numberOfOperands()).isEqualTo(2);
+        assertThat(_c.imp4.numberOfOperands()).isEqualTo(2);
     }
 
-    @Test
-    public void testIsConstantFormula() {
-        assertThat(IMP1.isConstantFormula()).isFalse();
-        assertThat(IMP2.isConstantFormula()).isFalse();
-        assertThat(IMP3.isConstantFormula()).isFalse();
-        assertThat(IMP4.isConstantFormula()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsConstantFormula(final FormulaContext _c) {
+        assertThat(_c.imp1.isConstantFormula()).isFalse();
+        assertThat(_c.imp2.isConstantFormula()).isFalse();
+        assertThat(_c.imp3.isConstantFormula()).isFalse();
+        assertThat(_c.imp4.isConstantFormula()).isFalse();
     }
 
-    @Test
-    public void testAtomicFormula() {
-        assertThat(IMP1.isAtomicFormula()).isFalse();
-        assertThat(IMP4.isAtomicFormula()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testAtomicFormula(final FormulaContext _c) {
+        assertThat(_c.imp1.isAtomicFormula()).isFalse();
+        assertThat(_c.imp4.isAtomicFormula()).isFalse();
     }
 
-    @Test
-    public void testContains() {
-        assertThat(IMP4.containsVariable(f.variable("a"))).isTrue();
-        assertThat(IMP4.containsVariable(f.variable("c"))).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testContains(final FormulaContext _c) {
+        assertThat(_c.imp4.containsVariable(_c.f.variable("a"))).isTrue();
+        assertThat(_c.imp4.containsVariable(_c.f.variable("c"))).isFalse();
     }
 
-    @Test
-    public void testIsNNF() {
-        assertThat(IMP1.isNNF()).isFalse();
-        assertThat(IMP2.isNNF()).isFalse();
-        assertThat(IMP3.isNNF()).isFalse();
-        assertThat(IMP4.isNNF()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsNNF(final FormulaContext _c) {
+        assertThat(_c.imp1.isNNF()).isFalse();
+        assertThat(_c.imp2.isNNF()).isFalse();
+        assertThat(_c.imp3.isNNF()).isFalse();
+        assertThat(_c.imp4.isNNF()).isFalse();
     }
 
-    @Test
-    public void testIsDNF() {
-        assertThat(IMP1.isDNF()).isFalse();
-        assertThat(IMP2.isDNF()).isFalse();
-        assertThat(IMP3.isDNF()).isFalse();
-        assertThat(IMP4.isDNF()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsDNF(final FormulaContext _c) {
+        assertThat(_c.imp1.isDNF()).isFalse();
+        assertThat(_c.imp2.isDNF()).isFalse();
+        assertThat(_c.imp3.isDNF()).isFalse();
+        assertThat(_c.imp4.isDNF()).isFalse();
     }
 
-    @Test
-    public void testIsCNF() {
-        assertThat(IMP1.isCNF()).isFalse();
-        assertThat(IMP2.isCNF()).isFalse();
-        assertThat(IMP3.isCNF()).isFalse();
-        assertThat(IMP4.isCNF()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsCNF(final FormulaContext _c) {
+        assertThat(_c.imp1.isCNF()).isFalse();
+        assertThat(_c.imp2.isCNF()).isFalse();
+        assertThat(_c.imp3.isCNF()).isFalse();
+        assertThat(_c.imp4.isCNF()).isFalse();
     }
 }
