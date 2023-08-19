@@ -8,50 +8,55 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.LongRunningTag;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.io.readers.FormulaReader;
 import org.logicng.predicates.satisfiability.TautologyPredicate;
 
 import java.io.IOException;
 
-public class CNFSubsumptionTest {
+public class CNFSubsumptionTest extends TestWithFormulaContext {
 
-    private final FormulaFactory f = FormulaFactory.caching();
-    private final PropositionalParser p = new PropositionalParser(this.f);
-    private final CNFSubsumption s = new CNFSubsumption(f);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSimpleCNFSubsumption(final FormulaContext _c) throws ParserException {
+        final CNFSubsumption s = new CNFSubsumption(_c.f);
+        assertThat(s.apply(_c.p.parse("$false"))).isEqualTo(_c.p.parse("$false"));
+        assertThat(s.apply(_c.p.parse("$true"))).isEqualTo(_c.p.parse("$true"));
+        assertThat(s.apply(_c.p.parse("a"))).isEqualTo(_c.p.parse("a"));
+        assertThat(s.apply(_c.p.parse("~a"))).isEqualTo(_c.p.parse("~a"));
+        assertThat(s.apply(_c.p.parse("a | b | c"))).isEqualTo(_c.p.parse("a | b | c"));
+        assertThat(s.apply(_c.p.parse("a & b & c"))).isEqualTo(_c.p.parse("a & b & c"));
+        assertThat(s.apply(_c.p.parse("a & (a | b)"))).isEqualTo(_c.p.parse("a"));
+        assertThat(s.apply(_c.p.parse("(a | b) & (a | b | c)"))).isEqualTo(_c.p.parse("a | b"));
+        assertThat(s.apply(_c.p.parse("a & (a | b) & (a | b | c)"))).isEqualTo(_c.p.parse("a"));
+        assertThat(s.apply(_c.p.parse("a & (a | b) & b"))).isEqualTo(_c.p.parse("a & b"));
+        assertThat(s.apply(_c.p.parse("a & (a | b) & c & (c | b)"))).isEqualTo(_c.p.parse("a & c"));
+        assertThat(s.apply(_c.p.parse("(a | b) & (a | c) & (a | b | c)"))).isEqualTo(_c.p.parse("(a | b) & (a | c)"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLargeCNFSubsumption(final FormulaContext _c) throws ParserException {
+        final CNFSubsumption s = new CNFSubsumption(_c.f);
+        assertThat(s.apply(_c.p.parse("(a | b | c | d) & (a | b | c | e) & (a | b | c)"))).isEqualTo(_c.p.parse("(a | b | c)"));
+        assertThat(s.apply(_c.p.parse("(a | b) & (a | c) & (a | b | c) & (a | ~b | c) & (a | b | ~c) & (b | c)"))).isEqualTo(_c.p.parse("(a | b) & (a | c) & (b | c)"));
+        assertThat(s.apply(_c.p.parse("(a | b) & (a | c) & (a | b | c) & (a | ~b | c) & (a | b | ~c) & (b | c)"))).isEqualTo(_c.p.parse("(a | b) & (a | c) & (b | c)"));
+        assertThat(s.apply(_c.p.parse("a & ~b & (c | d) & (~a | ~b | ~c) & (b | c | d) & (a | b | c | d)"))).isEqualTo(_c.p.parse("a & ~b & (c | d)"));
+        assertThat(s.apply(_c.p.parse("(a | b | c | d | e | f | g) & (b | d | f) & (a | c | e | g)"))).isEqualTo(_c.p.parse("(b | d | f) & (a | c | e | g)"));
+    }
 
     @Test
     public void testNotInCNF() {
-        assertThatThrownBy(() -> this.s.apply(this.p.parse("a => b"))).isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    public void testSimpleCNFSubsumption() throws ParserException {
-        assertThat(this.s.apply(this.p.parse("$false"))).isEqualTo(this.p.parse("$false"));
-        assertThat(this.s.apply(this.p.parse("$true"))).isEqualTo(this.p.parse("$true"));
-        assertThat(this.s.apply(this.p.parse("a"))).isEqualTo(this.p.parse("a"));
-        assertThat(this.s.apply(this.p.parse("~a"))).isEqualTo(this.p.parse("~a"));
-        assertThat(this.s.apply(this.p.parse("a | b | c"))).isEqualTo(this.p.parse("a | b | c"));
-        assertThat(this.s.apply(this.p.parse("a & b & c"))).isEqualTo(this.p.parse("a & b & c"));
-        assertThat(this.s.apply(this.p.parse("a & (a | b)"))).isEqualTo(this.p.parse("a"));
-        assertThat(this.s.apply(this.p.parse("(a | b) & (a | b | c)"))).isEqualTo(this.p.parse("a | b"));
-        assertThat(this.s.apply(this.p.parse("a & (a | b) & (a | b | c)"))).isEqualTo(this.p.parse("a"));
-        assertThat(this.s.apply(this.p.parse("a & (a | b) & b"))).isEqualTo(this.p.parse("a & b"));
-        assertThat(this.s.apply(this.p.parse("a & (a | b) & c & (c | b)"))).isEqualTo(this.p.parse("a & c"));
-        assertThat(this.s.apply(this.p.parse("(a | b) & (a | c) & (a | b | c)"))).isEqualTo(this.p.parse("(a | b) & (a | c)"));
-    }
-
-    @Test
-    public void testLargeCNFSubsumption() throws ParserException {
-        assertThat(this.s.apply(this.p.parse("(a | b | c | d) & (a | b | c | e) & (a | b | c)"))).isEqualTo(this.p.parse("(a | b | c)"));
-        assertThat(this.s.apply(this.p.parse("(a | b) & (a | c) & (a | b | c) & (a | ~b | c) & (a | b | ~c) & (b | c)"))).isEqualTo(this.p.parse("(a | b) & (a | c) & (b | c)"));
-        assertThat(this.s.apply(this.p.parse("(a | b) & (a | c) & (a | b | c) & (a | ~b | c) & (a | b | ~c) & (b | c)"))).isEqualTo(this.p.parse("(a | b) & (a | c) & (b | c)"));
-        assertThat(this.s.apply(this.p.parse("a & ~b & (c | d) & (~a | ~b | ~c) & (b | c | d) & (a | b | c | d)"))).isEqualTo(this.p.parse("a & ~b & (c | d)"));
-        assertThat(this.s.apply(this.p.parse("(a | b | c | d | e | f | g) & (b | d | f) & (a | c | e | g)"))).isEqualTo(this.p.parse("(b | d | f) & (a | c | e | g)"));
+        final FormulaFactory f = FormulaFactory.caching();
+        final CNFSubsumption s = new CNFSubsumption(f);
+        assertThatThrownBy(() -> s.apply(f.parse("a => b"))).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

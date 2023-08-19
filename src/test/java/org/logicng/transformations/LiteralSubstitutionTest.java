@@ -6,62 +6,69 @@ package org.logicng.transformations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.io.parsers.ParserException;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class LiteralSubstitutionTest {
+public class LiteralSubstitutionTest extends TestWithFormulaContext {
 
-    private final FormulaFactory f = FormulaFactory.caching();
-    private LiteralSubstitution s1;
-
-    @BeforeEach
-    public void init() {
+    public LiteralSubstitution ls(final FormulaFactory f) {
         final Map<Literal, Literal> map = new HashMap<>();
-        map.put(this.f.literal("a", true), this.f.literal("a_t", true));
-        map.put(this.f.literal("a", false), this.f.literal("a_f", true));
-        map.put(this.f.literal("b", false), this.f.literal("x", true));
-        map.put(this.f.literal("c", true), this.f.literal("y", true));
-        this.s1 = new LiteralSubstitution(f, map);
+        map.put(f.literal("a", true), f.literal("a_t", true));
+        map.put(f.literal("a", false), f.literal("a_f", true));
+        map.put(f.literal("b", false), f.literal("x", true));
+        map.put(f.literal("c", true), f.literal("y", true));
+        return new LiteralSubstitution(f, map);
     }
 
-    @Test
-    public void testSimpleFormula() throws ParserException {
-        assertThat(this.f.parse("$true").transform(this.s1)).isEqualTo(this.f.parse("$true"));
-        assertThat(this.f.parse("$false").transform(this.s1)).isEqualTo(this.f.parse("$false"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSimpleFormula(final FormulaContext _c) throws ParserException {
+        final LiteralSubstitution s1 = ls(_c.f);
+
+        assertThat(_c.f.parse("$true").transform(s1)).isEqualTo(_c.f.parse("$true"));
+        assertThat(_c.f.parse("$false").transform(s1)).isEqualTo(_c.f.parse("$false"));
     }
 
-    @Test
-    public void testLiterals() throws ParserException {
-        assertThat(this.f.parse("m").transform(this.s1)).isEqualTo(this.f.parse("m"));
-        assertThat(this.f.parse("~m").transform(this.s1)).isEqualTo(this.f.parse("~m"));
-        assertThat(this.f.parse("a").transform(this.s1)).isEqualTo(this.f.parse("a_t"));
-        assertThat(this.f.parse("~a").transform(this.s1)).isEqualTo(this.f.parse("a_f"));
-        assertThat(this.f.parse("b").transform(this.s1)).isEqualTo(this.f.parse("b"));
-        assertThat(this.f.parse("~b").transform(this.s1)).isEqualTo(this.f.parse("x"));
-        assertThat(this.f.parse("c").transform(this.s1)).isEqualTo(this.f.parse("y"));
-        assertThat(this.f.parse("~c").transform(this.s1)).isEqualTo(this.f.parse("~y"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) throws ParserException {
+        final LiteralSubstitution s1 = ls(_c.f);
+
+        assertThat(_c.f.parse("m").transform(s1)).isEqualTo(_c.f.parse("m"));
+        assertThat(_c.f.parse("~m").transform(s1)).isEqualTo(_c.f.parse("~m"));
+        assertThat(_c.f.parse("a").transform(s1)).isEqualTo(_c.f.parse("a_t"));
+        assertThat(_c.f.parse("~a").transform(s1)).isEqualTo(_c.f.parse("a_f"));
+        assertThat(_c.f.parse("b").transform(s1)).isEqualTo(_c.f.parse("b"));
+        assertThat(_c.f.parse("~b").transform(s1)).isEqualTo(_c.f.parse("x"));
+        assertThat(_c.f.parse("c").transform(s1)).isEqualTo(_c.f.parse("y"));
+        assertThat(_c.f.parse("~c").transform(s1)).isEqualTo(_c.f.parse("~y"));
     }
 
-    @Test
-    public void testFormulas() throws ParserException {
-        assertThat(this.f.parse("~(a & b & ~c & x)").transform(this.s1)).isEqualTo(this.f.parse("~(a_t & b & ~y & x)"));
-        assertThat(this.f.parse("a & b & ~c & x").transform(this.s1)).isEqualTo(this.f.parse("a_t & b & ~y & x"));
-        assertThat(this.f.parse("a | b | ~c | x").transform(this.s1)).isEqualTo(this.f.parse("a_t | b | ~y | x"));
-        assertThat(this.f.parse("(a | b) => (~c | x)").transform(this.s1)).isEqualTo(this.f.parse("(a_t | b) => (~y | x)"));
-        assertThat(this.f.parse("(a | b) <=> (~c | x)").transform(this.s1)).isEqualTo(this.f.parse("(a_t | b) <=> (~y | x)"));
-        assertThat(this.f.parse("2*a + 3*~b + -4*~c + x <= 5").transform(this.s1)).isEqualTo(this.f.parse("2*a_t + 3*x + -4*~y + x <= 5"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testFormulas(final FormulaContext _c) throws ParserException {
+        final LiteralSubstitution s1 = ls(_c.f);
+
+        assertThat(_c.f.parse("~(a & b & ~c & x)").transform(s1)).isEqualTo(_c.f.parse("~(a_t & b & ~y & x)"));
+        assertThat(_c.f.parse("a & b & ~c & x").transform(s1)).isEqualTo(_c.f.parse("a_t & b & ~y & x"));
+        assertThat(_c.f.parse("a | b | ~c | x").transform(s1)).isEqualTo(_c.f.parse("a_t | b | ~y | x"));
+        assertThat(_c.f.parse("(a | b) => (~c | x)").transform(s1)).isEqualTo(_c.f.parse("(a_t | b) => (~y | x)"));
+        assertThat(_c.f.parse("(a | b) <=> (~c | x)").transform(s1)).isEqualTo(_c.f.parse("(a_t | b) <=> (~y | x)"));
+        assertThat(_c.f.parse("2*a + 3*~b + -4*~c + x <= 5").transform(s1)).isEqualTo(_c.f.parse("2*a_t + 3*x + -4*~y + x <= 5"));
     }
 
-    @Test
-    public void testEmptySubstitution() throws ParserException {
-        assertThat(this.f.parse("2*a + 3*~b + -4*~c + x <= 5").transform(new LiteralSubstitution(f, Map.of())))
-                .isEqualTo(this.f.parse("2*a + 3*~b + -4*~c + x <= 5"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEmptySubstitution(final FormulaContext _c) throws ParserException {
+        assertThat(_c.f.parse("2*a + 3*~b + -4*~c + x <= 5").transform(new LiteralSubstitution(_c.f, Map.of())))
+                .isEqualTo(_c.f.parse("2*a + 3*~b + -4*~c + x <= 5"));
     }
-
 }

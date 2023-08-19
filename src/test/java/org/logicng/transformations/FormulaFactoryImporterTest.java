@@ -25,169 +25,169 @@ public class FormulaFactoryImporterTest extends TestWithExampleFormulas {
 
     @BeforeEach
     public void initialize() {
-        this.myF = (CachingFormulaFactory) this.f;
-        this.myG = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("Factory G").build());
-        this.importer = new FormulaFactoryImporter(this.myG);
+        myF = f;
+        myG = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("Factory G").build());
+        importer = new FormulaFactoryImporter(myG);
     }
 
     @Test
     public void testSameFactory() {
-        final FormulaFactoryImporter sameImporter = new FormulaFactoryImporter(this.myF);
-        assertThat(this.NOT1.factory()).isSameAs(this.myF);
-        assertThat(this.NOT2.factory()).isSameAs(this.myF);
-        assertThat(sameImporter.apply(this.NOT1).factory()).isSameAs(this.myF);
-        assertThat(sameImporter.apply(this.NOT2).factory()).isSameAs(this.myF);
-        assertThat(sameImporter.apply(this.NOT1)).isEqualTo(this.NOT1);
-        assertThat(sameImporter.apply(this.NOT2)).isEqualTo(this.NOT2);
+        final FormulaFactoryImporter sameImporter = new FormulaFactoryImporter(myF);
+        assertThat(NOT1.factory()).isSameAs(myF);
+        assertThat(NOT2.factory()).isSameAs(myF);
+        assertThat(sameImporter.apply(NOT1).factory()).isSameAs(myF);
+        assertThat(sameImporter.apply(NOT2).factory()).isSameAs(myF);
+        assertThat(sameImporter.apply(NOT1)).isEqualTo(NOT1);
+        assertThat(sameImporter.apply(NOT2)).isEqualTo(NOT2);
     }
 
     @Test
     public void testConstants() {
-        assertThat(this.TRUE.factory()).isSameAs(this.myF);
-        assertThat(this.FALSE.factory()).isSameAs(this.myF);
-        assertThat(imp(this.TRUE).factory()).isSameAs(this.myG);
-        assertThat(imp(this.FALSE).factory()).isSameAs(this.myG);
-        assertThat(imp(this.TRUE)).isEqualTo(this.TRUE);
-        assertThat(imp(this.FALSE)).isEqualTo(this.FALSE);
+        assertThat(TRUE.factory()).isSameAs(myF);
+        assertThat(FALSE.factory()).isSameAs(myF);
+        assertThat(imp(TRUE).factory()).isSameAs(myG);
+        assertThat(imp(FALSE).factory()).isSameAs(myG);
+        assertThat(imp(TRUE)).isEqualTo(TRUE);
+        assertThat(imp(FALSE)).isEqualTo(FALSE);
     }
 
     @Test
     public void testLiteral() {
-        assertThat(this.A.factory()).isSameAs(this.myF);
-        assertThat(this.NA.factory()).isSameAs(this.myF);
-        assertThat(imp(this.A).factory()).isSameAs(this.myG);
-        assertThat(imp(this.NA).factory()).isSameAs(this.myG);
-        assertThat(imp(this.A)).isEqualTo(this.A);
-        assertThat(imp(this.NA)).isEqualTo(this.NA);
-        assertThat(this.myG.statistics().positiveLiterals()).isEqualTo(1);
-        assertThat(this.myG.statistics().negativeLiterals()).isEqualTo(1);
+        assertThat(A.factory()).isSameAs(myF);
+        assertThat(NA.factory()).isSameAs(myF);
+        assertThat(imp(A).factory()).isSameAs(myG);
+        assertThat(imp(NA).factory()).isSameAs(myG);
+        assertThat(imp(A)).isEqualTo(A);
+        assertThat(imp(NA)).isEqualTo(NA);
+        assertThat(myG.statistics().positiveLiterals()).isEqualTo(1);
+        assertThat(myG.statistics().negativeLiterals()).isEqualTo(1);
     }
 
     @Test
     public void testNot() {
-        assertThat(this.NOT1.factory()).isSameAs(this.myF);
-        assertThat(this.NOT2.factory()).isSameAs(this.myF);
-        assertThat(imp(this.NOT1).factory()).isSameAs(this.myG);
-        assertThat(imp(this.NOT2).factory()).isSameAs(this.myG);
-        assertThat(imp(this.NOT1)).isEqualTo(this.NOT1);
-        assertThat(imp(this.NOT2)).isEqualTo(this.NOT2);
-        assertThat(this.myG.statistics().positiveLiterals()).isEqualTo(4);
-        assertThat(this.myG.statistics().negativeLiterals()).isEqualTo(0);
-        assertThat(this.myG.statistics().conjunctions2()).isEqualTo(1);
-        assertThat(this.myG.statistics().disjunctions2()).isEqualTo(1);
-        assertThat(this.myG.statistics().negations()).isEqualTo(2);
+        assertThat(NOT1.factory()).isSameAs(myF);
+        assertThat(NOT2.factory()).isSameAs(myF);
+        assertThat(imp(NOT1).factory()).isSameAs(myG);
+        assertThat(imp(NOT2).factory()).isSameAs(myG);
+        assertThat(imp(NOT1)).isEqualTo(NOT1);
+        assertThat(imp(NOT2)).isEqualTo(NOT2);
+        assertThat(myG.statistics().positiveLiterals()).isEqualTo(4);
+        assertThat(myG.statistics().negativeLiterals()).isEqualTo(0);
+        assertThat(myG.statistics().conjunctions2()).isEqualTo(1);
+        assertThat(myG.statistics().disjunctions2()).isEqualTo(1);
+        assertThat(myG.statistics().negations()).isEqualTo(2);
     }
 
     @Test
     public void testImplication() {
-        assertThat(this.IMP1.factory()).isSameAs(this.myF);
-        assertThat(this.IMP2.factory()).isSameAs(this.myF);
-        assertThat(this.IMP3.factory()).isSameAs(this.myF);
-        assertThat(this.IMP4.factory()).isSameAs(this.myF);
-        assertThat(imp(this.IMP1).factory()).isSameAs(this.myG);
-        assertThat(imp(this.IMP2).factory()).isSameAs(this.myG);
-        assertThat(imp(this.IMP3).factory()).isSameAs(this.myG);
-        assertThat(imp(this.IMP4).factory()).isSameAs(this.myG);
-        assertThat(imp(this.IMP1)).isEqualTo(this.IMP1);
-        assertThat(imp(this.IMP2)).isEqualTo(this.IMP2);
-        assertThat(imp(this.IMP3)).isEqualTo(this.IMP3);
-        assertThat(imp(this.IMP4)).isEqualTo(this.IMP4);
-        assertThat(this.myG.statistics().positiveLiterals()).isEqualTo(4);
-        assertThat(this.myG.statistics().negativeLiterals()).isEqualTo(4);
-        assertThat(this.myG.statistics().conjunctions2()).isEqualTo(1);
-        assertThat(this.myG.statistics().disjunctions2()).isEqualTo(1);
-        assertThat(this.myG.statistics().negations()).isEqualTo(0);
-        assertThat(this.myG.statistics().implications()).isEqualTo(4);
-        assertThat(this.myG.statistics().equivalences()).isEqualTo(2);
+        assertThat(IMP1.factory()).isSameAs(myF);
+        assertThat(IMP2.factory()).isSameAs(myF);
+        assertThat(IMP3.factory()).isSameAs(myF);
+        assertThat(IMP4.factory()).isSameAs(myF);
+        assertThat(imp(IMP1).factory()).isSameAs(myG);
+        assertThat(imp(IMP2).factory()).isSameAs(myG);
+        assertThat(imp(IMP3).factory()).isSameAs(myG);
+        assertThat(imp(IMP4).factory()).isSameAs(myG);
+        assertThat(imp(IMP1)).isEqualTo(IMP1);
+        assertThat(imp(IMP2)).isEqualTo(IMP2);
+        assertThat(imp(IMP3)).isEqualTo(IMP3);
+        assertThat(imp(IMP4)).isEqualTo(IMP4);
+        assertThat(myG.statistics().positiveLiterals()).isEqualTo(4);
+        assertThat(myG.statistics().negativeLiterals()).isEqualTo(4);
+        assertThat(myG.statistics().conjunctions2()).isEqualTo(1);
+        assertThat(myG.statistics().disjunctions2()).isEqualTo(1);
+        assertThat(myG.statistics().negations()).isEqualTo(0);
+        assertThat(myG.statistics().implications()).isEqualTo(4);
+        assertThat(myG.statistics().equivalences()).isEqualTo(2);
     }
 
     @Test
     public void testEquivalence() {
-        assertThat(this.EQ1.factory()).isSameAs(this.myF);
-        assertThat(this.EQ2.factory()).isSameAs(this.myF);
-        assertThat(this.EQ3.factory()).isSameAs(this.myF);
-        assertThat(this.EQ4.factory()).isSameAs(this.myF);
-        assertThat(imp(this.EQ1).factory()).isSameAs(this.myG);
-        assertThat(imp(this.EQ2).factory()).isSameAs(this.myG);
-        assertThat(imp(this.EQ3).factory()).isSameAs(this.myG);
-        assertThat(imp(this.EQ4).factory()).isSameAs(this.myG);
-        assertThat(imp(this.EQ1)).isEqualTo(this.EQ1);
-        assertThat(imp(this.EQ2)).isEqualTo(this.EQ2);
-        assertThat(imp(this.EQ3)).isEqualTo(this.EQ3);
-        assertThat(imp(this.EQ4)).isEqualTo(this.EQ4);
-        assertThat(this.myG.statistics().positiveLiterals()).isEqualTo(4);
-        assertThat(this.myG.statistics().negativeLiterals()).isEqualTo(2);
-        assertThat(this.myG.statistics().conjunctions2()).isEqualTo(1);
-        assertThat(this.myG.statistics().disjunctions2()).isEqualTo(1);
-        assertThat(this.myG.statistics().negations()).isEqualTo(0);
-        assertThat(this.myG.statistics().implications()).isEqualTo(2);
-        assertThat(this.myG.statistics().equivalences()).isEqualTo(4);
+        assertThat(EQ1.factory()).isSameAs(myF);
+        assertThat(EQ2.factory()).isSameAs(myF);
+        assertThat(EQ3.factory()).isSameAs(myF);
+        assertThat(EQ4.factory()).isSameAs(myF);
+        assertThat(imp(EQ1).factory()).isSameAs(myG);
+        assertThat(imp(EQ2).factory()).isSameAs(myG);
+        assertThat(imp(EQ3).factory()).isSameAs(myG);
+        assertThat(imp(EQ4).factory()).isSameAs(myG);
+        assertThat(imp(EQ1)).isEqualTo(EQ1);
+        assertThat(imp(EQ2)).isEqualTo(EQ2);
+        assertThat(imp(EQ3)).isEqualTo(EQ3);
+        assertThat(imp(EQ4)).isEqualTo(EQ4);
+        assertThat(myG.statistics().positiveLiterals()).isEqualTo(4);
+        assertThat(myG.statistics().negativeLiterals()).isEqualTo(2);
+        assertThat(myG.statistics().conjunctions2()).isEqualTo(1);
+        assertThat(myG.statistics().disjunctions2()).isEqualTo(1);
+        assertThat(myG.statistics().negations()).isEqualTo(0);
+        assertThat(myG.statistics().implications()).isEqualTo(2);
+        assertThat(myG.statistics().equivalences()).isEqualTo(4);
     }
 
     @Test
     public void testOr() {
-        assertThat(this.OR1.factory()).isSameAs(this.myF);
-        assertThat(this.OR2.factory()).isSameAs(this.myF);
-        assertThat(this.OR3.factory()).isSameAs(this.myF);
-        assertThat(imp(this.OR1).factory()).isSameAs(this.myG);
-        assertThat(imp(this.OR2).factory()).isSameAs(this.myG);
-        assertThat(imp(this.OR3).factory()).isSameAs(this.myG);
-        assertThat(imp(this.OR1)).isEqualTo(this.OR1);
-        assertThat(imp(this.OR2)).isEqualTo(this.OR2);
-        assertThat(imp(this.OR3)).isEqualTo(this.OR3);
-        assertThat(this.myG.statistics().positiveLiterals()).isEqualTo(4);
-        assertThat(this.myG.statistics().negativeLiterals()).isEqualTo(4);
-        assertThat(this.myG.statistics().conjunctions2()).isEqualTo(2);
-        assertThat(this.myG.statistics().disjunctions2()).isEqualTo(3);
-        assertThat(this.myG.statistics().negations()).isEqualTo(0);
-        assertThat(this.myG.statistics().implications()).isEqualTo(0);
-        assertThat(this.myG.statistics().equivalences()).isEqualTo(0);
+        assertThat(OR1.factory()).isSameAs(myF);
+        assertThat(OR2.factory()).isSameAs(myF);
+        assertThat(OR3.factory()).isSameAs(myF);
+        assertThat(imp(OR1).factory()).isSameAs(myG);
+        assertThat(imp(OR2).factory()).isSameAs(myG);
+        assertThat(imp(OR3).factory()).isSameAs(myG);
+        assertThat(imp(OR1)).isEqualTo(OR1);
+        assertThat(imp(OR2)).isEqualTo(OR2);
+        assertThat(imp(OR3)).isEqualTo(OR3);
+        assertThat(myG.statistics().positiveLiterals()).isEqualTo(4);
+        assertThat(myG.statistics().negativeLiterals()).isEqualTo(4);
+        assertThat(myG.statistics().conjunctions2()).isEqualTo(2);
+        assertThat(myG.statistics().disjunctions2()).isEqualTo(3);
+        assertThat(myG.statistics().negations()).isEqualTo(0);
+        assertThat(myG.statistics().implications()).isEqualTo(0);
+        assertThat(myG.statistics().equivalences()).isEqualTo(0);
     }
 
     @Test
     public void testAnd() {
-        assertThat(this.AND1.factory()).isSameAs(this.myF);
-        assertThat(this.AND2.factory()).isSameAs(this.myF);
-        assertThat(this.AND3.factory()).isSameAs(this.myF);
-        assertThat(imp(this.AND1).factory()).isSameAs(this.myG);
-        assertThat(imp(this.AND2).factory()).isSameAs(this.myG);
-        assertThat(imp(this.AND3).factory()).isSameAs(this.myG);
-        assertThat(imp(this.AND1)).isEqualTo(this.AND1);
-        assertThat(imp(this.AND2)).isEqualTo(this.AND2);
-        assertThat(imp(this.AND3)).isEqualTo(this.AND3);
-        assertThat(this.myG.statistics().positiveLiterals()).isEqualTo(4);
-        assertThat(this.myG.statistics().negativeLiterals()).isEqualTo(4);
-        assertThat(this.myG.statistics().conjunctions2()).isEqualTo(3);
-        assertThat(this.myG.statistics().disjunctions2()).isEqualTo(2);
-        assertThat(this.myG.statistics().negations()).isEqualTo(0);
-        assertThat(this.myG.statistics().implications()).isEqualTo(0);
-        assertThat(this.myG.statistics().equivalences()).isEqualTo(0);
+        assertThat(AND1.factory()).isSameAs(myF);
+        assertThat(AND2.factory()).isSameAs(myF);
+        assertThat(AND3.factory()).isSameAs(myF);
+        assertThat(imp(AND1).factory()).isSameAs(myG);
+        assertThat(imp(AND2).factory()).isSameAs(myG);
+        assertThat(imp(AND3).factory()).isSameAs(myG);
+        assertThat(imp(AND1)).isEqualTo(AND1);
+        assertThat(imp(AND2)).isEqualTo(AND2);
+        assertThat(imp(AND3)).isEqualTo(AND3);
+        assertThat(myG.statistics().positiveLiterals()).isEqualTo(4);
+        assertThat(myG.statistics().negativeLiterals()).isEqualTo(4);
+        assertThat(myG.statistics().conjunctions2()).isEqualTo(3);
+        assertThat(myG.statistics().disjunctions2()).isEqualTo(2);
+        assertThat(myG.statistics().negations()).isEqualTo(0);
+        assertThat(myG.statistics().implications()).isEqualTo(0);
+        assertThat(myG.statistics().equivalences()).isEqualTo(0);
     }
 
     @Test
     public void testPBC() {
-        assertThat(this.PBC1.factory()).isSameAs(this.myF);
-        assertThat(this.PBC2.factory()).isSameAs(this.myF);
-        assertThat(this.PBC3.factory()).isSameAs(this.myF);
-        assertThat(this.PBC4.factory()).isSameAs(this.myF);
-        assertThat(this.PBC5.factory()).isSameAs(this.myF);
-        assertThat(imp(this.PBC1).factory()).isSameAs(this.myG);
-        assertThat(imp(this.PBC2).factory()).isSameAs(this.myG);
-        assertThat(imp(this.PBC3).factory()).isSameAs(this.myG);
-        assertThat(imp(this.PBC4).factory()).isSameAs(this.myG);
-        assertThat(imp(this.PBC5).factory()).isSameAs(this.myG);
-        assertThat(imp(this.PBC1)).isEqualTo(this.PBC1);
-        assertThat(imp(this.PBC2)).isEqualTo(this.PBC2);
-        assertThat(imp(this.PBC3)).isEqualTo(this.PBC3);
-        assertThat(imp(this.PBC4)).isEqualTo(this.PBC4);
-        assertThat(imp(this.PBC5)).isEqualTo(this.PBC5);
-        assertThat(this.myG.statistics().positiveLiterals()).isEqualTo(3);
-        assertThat(this.myG.statistics().negativeLiterals()).isEqualTo(0);
-        assertThat(this.myG.statistics().conjunctions2()).isEqualTo(0);
-        assertThat(this.myG.statistics().disjunctions2()).isEqualTo(0);
-        assertThat(this.myG.statistics().negations()).isEqualTo(0);
-        assertThat(this.myG.statistics().implications()).isEqualTo(0);
-        assertThat(this.myG.statistics().equivalences()).isEqualTo(0);
+        assertThat(PBC1.factory()).isSameAs(myF);
+        assertThat(PBC2.factory()).isSameAs(myF);
+        assertThat(PBC3.factory()).isSameAs(myF);
+        assertThat(PBC4.factory()).isSameAs(myF);
+        assertThat(PBC5.factory()).isSameAs(myF);
+        assertThat(imp(PBC1).factory()).isSameAs(myG);
+        assertThat(imp(PBC2).factory()).isSameAs(myG);
+        assertThat(imp(PBC3).factory()).isSameAs(myG);
+        assertThat(imp(PBC4).factory()).isSameAs(myG);
+        assertThat(imp(PBC5).factory()).isSameAs(myG);
+        assertThat(imp(PBC1)).isEqualTo(PBC1);
+        assertThat(imp(PBC2)).isEqualTo(PBC2);
+        assertThat(imp(PBC3)).isEqualTo(PBC3);
+        assertThat(imp(PBC4)).isEqualTo(PBC4);
+        assertThat(imp(PBC5)).isEqualTo(PBC5);
+        assertThat(myG.statistics().positiveLiterals()).isEqualTo(3);
+        assertThat(myG.statistics().negativeLiterals()).isEqualTo(0);
+        assertThat(myG.statistics().conjunctions2()).isEqualTo(0);
+        assertThat(myG.statistics().disjunctions2()).isEqualTo(0);
+        assertThat(myG.statistics().negations()).isEqualTo(0);
+        assertThat(myG.statistics().implications()).isEqualTo(0);
+        assertThat(myG.statistics().equivalences()).isEqualTo(0);
     }
 
     @Test
@@ -221,6 +221,6 @@ public class FormulaFactoryImporterTest extends TestWithExampleFormulas {
      * @return the imported formula
      */
     private Formula imp(final Formula formula) {
-        return this.importer.apply(formula);
+        return importer.apply(formula);
     }
 }

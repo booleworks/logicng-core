@@ -7,176 +7,192 @@ package org.logicng.transformations.cnf;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.formulas.Variable;
-import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PropositionalParser;
-import org.logicng.io.parsers.PseudoBooleanParser;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 
 import java.util.List;
 import java.util.SortedSet;
 
-public class PlaistedGreenbaumTest extends TestWithExampleFormulas {
+public class PlaistedGreenbaumTest extends TestWithFormulaContext {
 
-    private final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(f, 0);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testConstants(final FormulaContext _c) {
+        final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(_c.f, 0);
 
-    @Test
-    public void testConstants() {
-        assertThat(this.TRUE.transform(this.pg)).isEqualTo(this.TRUE);
-        assertThat(this.FALSE.transform(this.pg)).isEqualTo(this.FALSE);
+        assertThat(_c.verum.transform(pg)).isEqualTo(_c.verum);
+        assertThat(_c.falsum.transform(pg)).isEqualTo(_c.falsum);
     }
 
-    @Test
-    public void testLiterals() {
-        assertThat(this.A.transform(this.pg)).isEqualTo(this.A);
-        assertThat(this.NA.transform(this.pg)).isEqualTo(this.NA);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(_c.f, 0);
+
+        assertThat(_c.a.transform(pg)).isEqualTo(_c.a);
+        assertThat(_c.na.transform(pg)).isEqualTo(_c.na);
     }
 
-    @Test
-    public void testBinaryOperators() {
-        assertThat(this.IMP1.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(this.IMP1, this.IMP1.transform(this.pg), this.IMP1.variables())).isTrue();
-        assertThat(this.IMP2.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(this.IMP2, this.IMP2.transform(this.pg), this.IMP2.variables())).isTrue();
-        assertThat(this.IMP3.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(this.IMP3, this.IMP3.transform(this.pg), this.IMP3.variables())).isTrue();
-        assertThat(this.EQ1.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(this.EQ1, this.EQ1.transform(this.pg), this.EQ1.variables())).isTrue();
-        assertThat(this.EQ2.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(this.EQ2, this.EQ2.transform(this.pg), this.EQ2.variables())).isTrue();
-        assertThat(this.EQ3.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(this.EQ3, this.EQ3.transform(this.pg), this.EQ3.variables())).isTrue();
-        assertThat(this.EQ4.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(this.EQ4, this.EQ4.transform(this.pg), this.EQ4.variables())).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testBinaryOperators(final FormulaContext _c) {
+        final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(_c.f, 0);
+
+        assertThat(_c.imp1.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(_c.imp1, _c.imp1.transform(pg), _c.imp1.variables())).isTrue();
+        assertThat(_c.imp2.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(_c.imp2, _c.imp2.transform(pg), _c.imp2.variables())).isTrue();
+        assertThat(_c.imp3.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(_c.imp3, _c.imp3.transform(pg), _c.imp3.variables())).isTrue();
+        assertThat(_c.eq1.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(_c.eq1, _c.eq1.transform(pg), _c.eq1.variables())).isTrue();
+        assertThat(_c.eq2.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(_c.eq2, _c.eq2.transform(pg), _c.eq2.variables())).isTrue();
+        assertThat(_c.eq3.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(_c.eq3, _c.eq3.transform(pg), _c.eq3.variables())).isTrue();
+        assertThat(_c.eq4.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(_c.eq4, _c.eq4.transform(pg), _c.eq4.variables())).isTrue();
     }
 
-    @Test
-    public void testNAryOperators() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(this.AND1.transform(this.pg)).isEqualTo(this.AND1);
-        assertThat(this.OR1.transform(this.pg)).isEqualTo(this.OR1);
-        final Formula f1 = p.parse("(a & b & x) | (c & d & ~y)");
-        final Formula f2 = p.parse("(a & b & x) | (c & d & ~y) | (~z | (c & d & ~y)) ");
-        final Formula f3 = p.parse("a | b | (~x & ~y)");
-        assertThat(f1.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f1, f1.transform(this.pg), f1.variables())).isTrue();
-        assertThat(f2.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f2, f2.transform(this.pg), f2.variables())).isTrue();
-        assertThat(f3.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f3, f3.transform(this.pg), f3.variables())).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNAryOperators(final FormulaContext _c) throws ParserException {
+        final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(_c.f, 0);
+
+        assertThat(_c.and1.transform(pg)).isEqualTo(_c.and1);
+        assertThat(_c.or1.transform(pg)).isEqualTo(_c.or1);
+        final Formula f1 = _c.p.parse("(a & b & x) | (c & d & ~y)");
+        final Formula f2 = _c.p.parse("(a & b & x) | (c & d & ~y) | (~z | (c & d & ~y)) ");
+        final Formula f3 = _c.p.parse("a | b | (~x & ~y)");
+        assertThat(f1.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f1, f1.transform(pg), f1.variables())).isTrue();
+        assertThat(f2.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f2, f2.transform(pg), f2.variables())).isTrue();
+        assertThat(f3.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f3, f3.transform(pg), f3.variables())).isTrue();
     }
 
-    @Test
-    public void testNotNary() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(p.parse("~a").transform(this.pg)).isEqualTo(p.parse("~a"));
-        assertThat(p.parse("~~a").transform(this.pg)).isEqualTo(p.parse("a"));
-        final Formula f0 = p.parse("~(~a | b)");
-        final Formula f1 = p.parse("~((a | b) | ~(x | y))");
-        final Formula f2 = p.parse("~(a & b | ~a & ~b)");
-        final Formula f3 = p.parse("~(~(a | b) & ~(x | y) | (a | b) & (x | y))");
-        final Formula f4 = p.parse("~(a & b & ~x & ~y)");
-        final Formula f5 = p.parse("~(a | b | ~x | ~y)");
-        final Formula f6 = p.parse("~(a & b) & (c | (a & b))");
-        assertThat(f0.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f0, f0.transform(this.pg), f0.variables())).isTrue();
-        assertThat(f1.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f1, f1.transform(this.pg), f1.variables())).isTrue();
-        assertThat(f2.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f2, f2.transform(this.pg), f2.variables())).isTrue();
-        assertThat(f3.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f3, f3.transform(this.pg), f3.variables())).isTrue();
-        assertThat(f4.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f4, f4.transform(this.pg), f4.variables())).isTrue();
-        assertThat(f5.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f5, f5.transform(this.pg), f5.variables())).isTrue();
-        assertThat(f5.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f5, f5.transform(this.pg), f5.variables())).isTrue();
-        assertThat(f6.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f6, f6.transform(this.pg), f6.variables())).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNotNary(final FormulaContext _c) throws ParserException {
+        final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(_c.f, 0);
+
+        assertThat(_c.p.parse("~a").transform(pg)).isEqualTo(_c.p.parse("~a"));
+        assertThat(_c.p.parse("~~a").transform(pg)).isEqualTo(_c.p.parse("a"));
+        final Formula f0 = _c.p.parse("~(~a | b)");
+        final Formula f1 = _c.p.parse("~((a | b) | ~(x | y))");
+        final Formula f2 = _c.p.parse("~(a & b | ~a & ~b)");
+        final Formula f3 = _c.p.parse("~(~(a | b) & ~(x | y) | (a | b) & (x | y))");
+        final Formula f4 = _c.p.parse("~(a & b & ~x & ~y)");
+        final Formula f5 = _c.p.parse("~(a | b | ~x | ~y)");
+        final Formula f6 = _c.p.parse("~(a & b) & (c | (a & b))");
+        assertThat(f0.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f0, f0.transform(pg), f0.variables())).isTrue();
+        assertThat(f1.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f1, f1.transform(pg), f1.variables())).isTrue();
+        assertThat(f2.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f2, f2.transform(pg), f2.variables())).isTrue();
+        assertThat(f3.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f3, f3.transform(pg), f3.variables())).isTrue();
+        assertThat(f4.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f4, f4.transform(pg), f4.variables())).isTrue();
+        assertThat(f5.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f5, f5.transform(pg), f5.variables())).isTrue();
+        assertThat(f5.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f5, f5.transform(pg), f5.variables())).isTrue();
+        assertThat(f6.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f6, f6.transform(pg), f6.variables())).isTrue();
     }
 
-    @Test
-    public void testNotBinary() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(p.parse("~a").transform(this.pg)).isEqualTo(p.parse("~a"));
-        assertThat(p.parse("~~a").transform(this.pg)).isEqualTo(p.parse("a"));
-        final Formula f1 = p.parse("~(~(a | b) => ~(x | y))");
-        final Formula f2 = p.parse("~(a <=> b)");
-        final Formula f3 = p.parse("~(~(a | b) <=> ~(x | y))");
-        assertThat(f1.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f1, f1.transform(this.pg), f1.variables())).isTrue();
-        assertThat(f2.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f2, f2.transform(this.pg), f2.variables())).isTrue();
-        assertThat(f3.transform(this.pg).isCNF()).isTrue();
-        assertThat(equivalentModels(f3, f3.transform(this.pg), f3.variables())).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNotBinary(final FormulaContext _c) throws ParserException {
+        final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(_c.f, 0);
+
+        assertThat(_c.p.parse("~a").transform(pg)).isEqualTo(_c.p.parse("~a"));
+        assertThat(_c.p.parse("~~a").transform(pg)).isEqualTo(_c.p.parse("a"));
+        final Formula f1 = _c.p.parse("~(~(a | b) => ~(x | y))");
+        final Formula f2 = _c.p.parse("~(a <=> b)");
+        final Formula f3 = _c.p.parse("~(~(a | b) <=> ~(x | y))");
+        assertThat(f1.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f1, f1.transform(pg), f1.variables())).isTrue();
+        assertThat(f2.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f2, f2.transform(pg), f2.variables())).isTrue();
+        assertThat(f3.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f3, f3.transform(pg), f3.variables())).isTrue();
     }
 
-    @Test
-    public void testCC() throws ParserException {
-        final PseudoBooleanParser p = new PseudoBooleanParser(f);
-        assertThat(p.parse("a <=> (1 * b <= 1)").transform(this.pg)).isEqualTo(p.parse("a"));
-        assertThat(p.parse("~(1 * b <= 1)").transform(this.pg)).isEqualTo(p.parse("$false"));
-        assertThat(p.parse("(1 * b + 1 * c + 1 * d <= 1)").transform(this.pg)).isEqualTo(p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
-        assertThat(p.parse("~(1 * b + 1 * c + 1 * d <= 1)").transform(this.pg)).isEqualTo(p.parse("(d | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | d | @RESERVED_CC_4) & (~@RESERVED_CC_4 | @RESERVED_CC_0) & (~@RESERVED_CC_2 | @RESERVED_CC_0) & (~@RESERVED_CC_4 | ~@RESERVED_CC_2) & (c | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | c | @RESERVED_CC_5) & (~@RESERVED_CC_5 | @RESERVED_CC_2) & ~@RESERVED_CC_0"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testCC(final FormulaContext _c) throws ParserException {
+        final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(_c.f, 0);
+
+        assertThat(_c.p.parse("a <=> (1 * b <= 1)").transform(pg)).isEqualTo(_c.p.parse("a"));
+        assertThat(_c.p.parse("~(1 * b <= 1)").transform(pg)).isEqualTo(_c.p.parse("$false"));
+        assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").transform(pg)).isEqualTo(_c.p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
+        assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").transform(pg)).isEqualTo(_c.p.parse("(d | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | d | @RESERVED_CC_4) & (~@RESERVED_CC_4 | @RESERVED_CC_0) & (~@RESERVED_CC_2 | @RESERVED_CC_0) & (~@RESERVED_CC_4 | ~@RESERVED_CC_2) & (c | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | c | @RESERVED_CC_5) & (~@RESERVED_CC_5 | @RESERVED_CC_2) & ~@RESERVED_CC_0"));
     }
 
-    @Test
-    public void testFormulas() throws ParserException {
-        final CachingFormulaFactory fac = FormulaFactory.caching();
-        final PlaistedGreenbaumTransformation pgNNF = new PlaistedGreenbaumTransformation(fac, 0);
-        final PropositionalParser p = new PropositionalParser(fac);
-        final Formula f1 = p.parse("(a | b) => c");
-        final Formula f2 = p.parse("~x & ~y");
-        final Formula f3 = p.parse("d & ((a | b) => c)");
-        final Formula f4 = p.parse("d & ((a | b) => c) | ~x & ~y");
-        assertThat(f1.transform(pgNNF)).isEqualTo(p.parse("(@RESERVED_CNF_1 | c) & (~@RESERVED_CNF_1 | ~a) & (~@RESERVED_CNF_1 | ~b)"));
-        assertThat(f2.transform(pgNNF)).isEqualTo(p.parse("~x & ~y"));
-        assertThat(f3.transform(pgNNF)).isEqualTo(p.parse("d & @RESERVED_CNF_0 & (~@RESERVED_CNF_0 | @RESERVED_CNF_1 | c) & " +
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testFormulas(final FormulaContext _c) throws ParserException {
+        final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(_c.f, 0);
+
+        final Formula f1 = _c.p.parse("(a | b) => c");
+        final Formula f2 = _c.p.parse("~x & ~y");
+        final Formula f3 = _c.p.parse("d & ((a | b) => c)");
+        final Formula f4 = _c.p.parse("d & ((a | b) => c) | ~x & ~y");
+        assertThat(f1.transform(pg)).isEqualTo(_c.p.parse("(@RESERVED_CNF_1 | c) & (~@RESERVED_CNF_1 | ~a) & (~@RESERVED_CNF_1 | ~b)"));
+        assertThat(f2.transform(pg)).isEqualTo(_c.p.parse("~x & ~y"));
+        assertThat(f3.transform(pg)).isEqualTo(_c.p.parse("d & @RESERVED_CNF_0 & (~@RESERVED_CNF_0 | @RESERVED_CNF_1 | c) & " +
                 "(~@RESERVED_CNF_1 | ~a) & (~@RESERVED_CNF_1 | ~b)"));
-        assertThat(f4.transform(pgNNF)).isEqualTo(p.parse("(@RESERVED_CNF_2 | @RESERVED_CNF_4) & (~@RESERVED_CNF_2 | d) & " +
+        assertThat(f4.transform(pg)).isEqualTo(_c.p.parse("(@RESERVED_CNF_2 | @RESERVED_CNF_4) & (~@RESERVED_CNF_2 | d) & " +
                 "(~@RESERVED_CNF_2 | @RESERVED_CNF_0) & (~@RESERVED_CNF_0 | @RESERVED_CNF_1 | c) & " +
                 "(~@RESERVED_CNF_1 | ~a) & (~@RESERVED_CNF_1 | ~b) & (~@RESERVED_CNF_4 | ~x) & " +
                 "(~@RESERVED_CNF_4 | ~y)"));
-        assertThat(f1.transform(pgNNF).isCNF()).isTrue();
-        assertThat(equivalentModels(f1, f1.transform(pgNNF), f1.variables())).isTrue();
-        assertThat(f2.transform(pgNNF).isCNF()).isTrue();
-        assertThat(equivalentModels(f2, f2.transform(pgNNF), f2.variables())).isTrue();
-        assertThat(f3.transform(pgNNF).isCNF()).isTrue();
-        assertThat(equivalentModels(f3, f3.transform(pgNNF), f3.variables())).isTrue();
-        assertThat(f4.transform(pgNNF).isCNF()).isTrue();
-        assertThat(equivalentModels(f4, f4.transform(pgNNF), f4.variables())).isTrue();
-        assertThat(f4.transform(pgNNF).isCNF()).isTrue();
-        assertThat(equivalentModels(f4, f4.transform(pgNNF), f4.variables())).isTrue();
+        assertThat(f1.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f1, f1.transform(pg), f1.variables())).isTrue();
+        assertThat(f2.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f2, f2.transform(pg), f2.variables())).isTrue();
+        assertThat(f3.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f3, f3.transform(pg), f3.variables())).isTrue();
+        assertThat(f4.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f4, f4.transform(pg), f4.variables())).isTrue();
+        assertThat(f4.transform(pg).isCNF()).isTrue();
+        assertThat(equivalentModels(f4, f4.transform(pg), f4.variables())).isTrue();
     }
 
-    @Test
-    public void testFactorization() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        final PlaistedGreenbaumTransformation pgf = new PlaistedGreenbaumTransformation(f);
-        final Formula f1 = p.parse("(a | b) => c");
-        final Formula f2 = p.parse("~x & ~y");
-        final Formula f3 = p.parse("d & ((a | b) => c)");
-        final Formula f4 = p.parse("d & ((a | b) => c) | ~x & ~y");
-        assertThat(f1.transform(pgf).isCNF()).isTrue();
-        assertThat(f1.transform(pgf).variables().size()).isEqualTo(f1.variables().size());
-        assertThat(f2.transform(pgf).isCNF()).isTrue();
-        assertThat(f2.transform(pgf).variables().size()).isEqualTo(f2.variables().size());
-        assertThat(f3.transform(pgf).isCNF()).isTrue();
-        assertThat(f3.transform(pgf).variables().size()).isEqualTo(f3.variables().size());
-        assertThat(f4.transform(pgf).isCNF()).isTrue();
-        assertThat(f4.transform(pgf).variables().size()).isEqualTo(f4.variables().size());
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testFactorization(final FormulaContext _c) throws ParserException {
+        final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(_c.f);
+
+        final Formula f1 = _c.p.parse("(a | b) => c");
+        final Formula f2 = _c.p.parse("~x & ~y");
+        final Formula f3 = _c.p.parse("d & ((a | b) => c)");
+        final Formula f4 = _c.p.parse("d & ((a | b) => c) | ~x & ~y");
+        assertThat(f1.transform(pg).isCNF()).isTrue();
+        assertThat(f1.transform(pg).variables().size()).isEqualTo(f1.variables().size());
+        assertThat(f2.transform(pg).isCNF()).isTrue();
+        assertThat(f2.transform(pg).variables().size()).isEqualTo(f2.variables().size());
+        assertThat(f3.transform(pg).isCNF()).isTrue();
+        assertThat(f3.transform(pg).variables().size()).isEqualTo(f3.variables().size());
+        assertThat(f4.transform(pg).isCNF()).isTrue();
+        assertThat(f4.transform(pg).variables().size()).isEqualTo(f4.variables().size());
     }
 
     @Test
     public void testToString() {
-        final PlaistedGreenbaumTransformation pGTransformation = new PlaistedGreenbaumTransformation(f, 5);
+        final PlaistedGreenbaumTransformation pGTransformation = new PlaistedGreenbaumTransformation(FormulaFactory.caching(), 5);
         assertThat(pGTransformation.toString()).isEqualTo("PlaistedGreenbaumTransformation{boundary=5}");
     }
 

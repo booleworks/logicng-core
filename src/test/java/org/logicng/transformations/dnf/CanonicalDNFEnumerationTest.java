@@ -6,10 +6,13 @@ package org.logicng.transformations.dnf;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.RandomTag;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.predicates.DNFPredicate;
 import org.logicng.predicates.satisfiability.ContradictionPredicate;
@@ -18,39 +21,40 @@ import org.logicng.util.FormulaCornerCases;
 import org.logicng.util.FormulaRandomizer;
 import org.logicng.util.FormulaRandomizerConfig;
 
-public class CanonicalDNFEnumerationTest {
+public class CanonicalDNFEnumerationTest extends TestWithFormulaContext {
 
-    @Test
-    public void testSamples() throws ParserException {
-        final FormulaFactory f = FormulaFactory.caching();
-        assertThat(f.falsum().transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("$false"));
-        assertThat(f.verum().transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("$true"));
-        assertThat(f.parse("a").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("a"));
-        assertThat(f.parse("~a").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("~a"));
-        assertThat(f.parse("~a & b").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("~a & b"));
-        assertThat(f.parse("~a | b").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("~a & ~b | ~a & b | a & b"));
-        assertThat(f.parse("a => b").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("~a & ~b | ~a & b | a & b"));
-        assertThat(f.parse("a <=> b").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("a & b | ~a & ~b"));
-        assertThat(f.parse("a + b = 1").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("~a & b | a & ~b"));
-        assertThat(f.parse("a & (b | ~c)").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("a & b & c | a & b & ~c | a & ~b & ~c"));
-        assertThat(f.parse("a & b & (~a | ~b)").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("$false"));
-        assertThat(f.parse("a | b | ~a & ~b").transform(new CanonicalDNFEnumeration(f))).isEqualTo(f.parse("~a & b | a & b | a & ~b | ~a & ~b"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSamples(final FormulaContext _c) throws ParserException {
+        final CanonicalDNFEnumeration de = new CanonicalDNFEnumeration(_c.f);
+        assertThat(_c.f.falsum().transform(de)).isEqualTo(_c.f.parse("$false"));
+        assertThat(_c.f.verum().transform(de)).isEqualTo(_c.f.parse("$true"));
+        assertThat(_c.f.parse("a").transform(de)).isEqualTo(_c.f.parse("a"));
+        assertThat(_c.f.parse("~a").transform(de)).isEqualTo(_c.f.parse("~a"));
+        assertThat(_c.f.parse("~a & b").transform(de)).isEqualTo(_c.f.parse("~a & b"));
+        assertThat(_c.f.parse("~a | b").transform(de)).isEqualTo(_c.f.parse("~a & ~b | ~a & b | a & b"));
+        assertThat(_c.f.parse("a => b").transform(de)).isEqualTo(_c.f.parse("~a & ~b | ~a & b | a & b"));
+        assertThat(_c.f.parse("a <=> b").transform(de)).isEqualTo(_c.f.parse("a & b | ~a & ~b"));
+        assertThat(_c.f.parse("a + b = 1").transform(de)).isEqualTo(_c.f.parse("~a & b | a & ~b"));
+        assertThat(_c.f.parse("a & (b | ~c)").transform(de)).isEqualTo(_c.f.parse("a & b & c | a & b & ~c | a & ~b & ~c"));
+        assertThat(_c.f.parse("a & b & (~a | ~b)").transform(de)).isEqualTo(_c.f.parse("$false"));
+        assertThat(_c.f.parse("a | b | ~a & ~b").transform(de)).isEqualTo(_c.f.parse("~a & b | a & b | a & ~b | ~a & ~b"));
     }
 
-    @Test
-    public void testCornerCases() {
-        final FormulaFactory f = FormulaFactory.caching();
-        final FormulaCornerCases cornerCases = new FormulaCornerCases(f);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testCornerCases(final FormulaContext _c) {
+        final FormulaCornerCases cornerCases = new FormulaCornerCases(_c.f);
         for (final Formula formula : cornerCases.cornerCases()) {
             test(formula);
         }
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("contexts")
     @RandomTag
-    public void random() {
-        final FormulaFactory f = FormulaFactory.caching();
-        final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(5).weightPbc(0.5).seed(42).build());
+    public void random(final FormulaContext _c) {
+        final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, FormulaRandomizerConfig.builder().numVars(5).weightPbc(0.5).seed(42).build());
         for (int i = 0; i < 1000; i++) {
             final Formula formula = randomizer.formula(3);
             test(formula);
