@@ -113,15 +113,6 @@ public interface Formula extends Iterable<Formula> {
      * @param variable the variable to search for
      * @return {@code true} if a given variable is found in this formula
      */
-    default boolean containsVariable(final String variable) {
-        return containsVariable(factory().variable(variable));
-    }
-
-    /**
-     * Returns {@code true} if a given variable name is found in this formula, {@code false} otherwise.
-     * @param variable the variable to search for
-     * @return {@code true} if a given variable is found in this formula
-     */
     boolean containsVariable(final Variable variable);
 
     /**
@@ -454,20 +445,6 @@ public interface Formula extends Iterable<Formula> {
     default <T> T apply(final FormulaFunction<T> function) {
         return function.apply(this);
     }
-
-    /**
-     * Returns an entry of the transformation cache of this formula.
-     * @param key the cache key
-     * @return the cache value or {@code null} if the key is not found
-     */
-    Formula transformationCacheEntry(final CacheEntry key);
-
-    /**
-     * Sets an entry in the transformation cache of this formula
-     * @param key   the cache key
-     * @param value the cache value
-     */
-    void setTransformationCacheEntry(final CacheEntry key, final Formula value);
 
     /**
      * Returns an entry of the predicate cache of this formula.

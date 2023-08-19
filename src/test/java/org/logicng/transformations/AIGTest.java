@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.cache.TransformationCacheEntry;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.predicates.AIGPredicate;
@@ -17,102 +16,92 @@ import org.logicng.predicates.AIGPredicate;
 public class AIGTest extends TestWithExampleFormulas {
 
     private final AIGTransformation aigCaching = new AIGTransformation(f);
-    private final AIGTransformation aigNonCaching = new AIGTransformation(f, false);
+    private final AIGTransformation aigNonCaching = new AIGTransformation(f, null);
     private final AIGPredicate aigPred = new AIGPredicate();
 
     @Test
     public void testConstants() {
-        assertThat(this.TRUE.transform(this.aigCaching)).isEqualTo(this.TRUE);
-        assertThat(this.FALSE.transform(this.aigCaching)).isEqualTo(this.FALSE);
-        assertThat(this.TRUE.holds(this.aigPred)).isTrue();
-        assertThat(this.FALSE.holds(this.aigPred)).isTrue();
+        assertThat(TRUE.transform(aigCaching)).isEqualTo(TRUE);
+        assertThat(FALSE.transform(aigCaching)).isEqualTo(FALSE);
+        assertThat(TRUE.holds(aigPred)).isTrue();
+        assertThat(FALSE.holds(aigPred)).isTrue();
     }
 
     @Test
     public void testLiterals() {
-        assertThat(this.A.transform(this.aigCaching)).isEqualTo(this.A);
-        assertThat(this.NA.transform(this.aigCaching)).isEqualTo(this.NA);
-        assertThat(this.A.holds(this.aigPred)).isTrue();
-        assertThat(this.NA.holds(this.aigPred)).isTrue();
+        assertThat(A.transform(aigCaching)).isEqualTo(A);
+        assertThat(NA.transform(aigCaching)).isEqualTo(NA);
+        assertThat(A.holds(aigPred)).isTrue();
+        assertThat(NA.holds(aigPred)).isTrue();
     }
 
     @Test
     public void testBinaryOperators() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(this.IMP1.transform(this.aigCaching)).isEqualTo(p.parse("~(a & ~b)"));
-        assertThat(this.IMP2.transform(this.aigCaching)).isEqualTo(p.parse("~(~a & b)"));
-        assertThat(this.IMP3.transform(this.aigCaching)).isEqualTo(p.parse("~((a & b) & (~x & ~y))"));
-        assertThat(this.EQ1.transform(this.aigCaching)).isEqualTo(p.parse("~(a & ~b) & ~(~a & b)"));
-        assertThat(this.EQ2.transform(this.aigCaching)).isEqualTo(p.parse("~(a & ~b) & ~(~a & b)"));
-        assertThat(this.IMP1.transform(this.aigCaching).holds(this.aigPred)).isTrue();
-        assertThat(this.IMP2.transform(this.aigCaching).holds(this.aigPred)).isTrue();
-        assertThat(this.IMP3.transform(this.aigCaching).holds(this.aigPred)).isTrue();
-        assertThat(this.EQ1.transform(this.aigCaching).holds(this.aigPred)).isTrue();
-        assertThat(this.EQ2.transform(this.aigCaching).holds(this.aigPred)).isTrue();
-        assertThat(this.IMP1.holds(this.aigPred)).isFalse();
-        assertThat(this.IMP2.holds(this.aigPred)).isFalse();
-        assertThat(this.IMP3.holds(this.aigPred)).isFalse();
-        assertThat(this.EQ1.holds(this.aigPred)).isFalse();
-        assertThat(this.EQ2.holds(this.aigPred)).isFalse();
+        final PropositionalParser p = new PropositionalParser(f);
+        assertThat(IMP1.transform(aigCaching)).isEqualTo(p.parse("~(a & ~b)"));
+        assertThat(IMP2.transform(aigCaching)).isEqualTo(p.parse("~(~a & b)"));
+        assertThat(IMP3.transform(aigCaching)).isEqualTo(p.parse("~((a & b) & (~x & ~y))"));
+        assertThat(EQ1.transform(aigCaching)).isEqualTo(p.parse("~(a & ~b) & ~(~a & b)"));
+        assertThat(EQ2.transform(aigCaching)).isEqualTo(p.parse("~(a & ~b) & ~(~a & b)"));
+        assertThat(IMP1.transform(aigCaching).holds(aigPred)).isTrue();
+        assertThat(IMP2.transform(aigCaching).holds(aigPred)).isTrue();
+        assertThat(IMP3.transform(aigCaching).holds(aigPred)).isTrue();
+        assertThat(EQ1.transform(aigCaching).holds(aigPred)).isTrue();
+        assertThat(EQ2.transform(aigCaching).holds(aigPred)).isTrue();
+        assertThat(IMP1.holds(aigPred)).isFalse();
+        assertThat(IMP2.holds(aigPred)).isFalse();
+        assertThat(IMP3.holds(aigPred)).isFalse();
+        assertThat(EQ1.holds(aigPred)).isFalse();
+        assertThat(EQ2.holds(aigPred)).isFalse();
         final Formula impl = p.parse("m => n");
-        impl.transform(this.aigNonCaching);
-        final Formula aigIMPL = impl.transformationCacheEntry(TransformationCacheEntry.AIG);
-        assertThat(aigIMPL).isNull();
+        impl.transform(aigNonCaching);
         final Formula equi = p.parse("m <=> n");
-        equi.transform(this.aigNonCaching);
-        final Formula aigEQUI = impl.transformationCacheEntry(TransformationCacheEntry.AIG);
-        assertThat(aigEQUI).isNull();
+        equi.transform(aigNonCaching);
     }
 
     @Test
     public void testNAryOperators() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(this.AND1.transform(this.aigCaching)).isEqualTo(this.AND1);
-        assertThat(this.OR1.transform(this.aigCaching)).isEqualTo(p.parse("~(~x & ~y)"));
-        assertThat(p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(this.aigCaching)).isEqualTo(p.parse("(~a & ~b) & c & ~(x & ~y) & ~(w & ~z)"));
-        assertThat(p.parse("~(a & b) | c | ~(x | ~y)").transform(this.aigCaching)).isEqualTo(p.parse("~(a & b & ~c & ~(~x & y))"));
-        assertThat(p.parse("a | b | (~x & ~y)").transform(this.aigCaching)).isEqualTo(p.parse("~(~a & ~b & ~(~x & ~y))"));
-        assertThat(this.AND1.transform(this.aigCaching).holds(this.aigPred)).isTrue();
-        assertThat(this.OR1.transform(this.aigCaching).holds(this.aigPred)).isTrue();
-        assertThat(p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(this.aigCaching).holds(this.aigPred)).isTrue();
-        assertThat(p.parse("~(a & b) | c | ~(x | ~y)").transform(this.aigCaching).holds(this.aigPred)).isTrue();
-        assertThat(p.parse("a | b | (~x & ~y)").transform(this.aigCaching).holds(this.aigPred)).isTrue();
-        assertThat(this.AND1.holds(this.aigPred)).isTrue();
-        assertThat(this.f.and(this.AND1, this.PBC1).holds(this.aigPred)).isFalse();
-        assertThat(this.OR1.holds(this.aigPred)).isFalse();
-        assertThat(p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").holds(this.aigPred)).isFalse();
-        assertThat(p.parse("~(a & b) | c | ~(x | ~y)").holds(this.aigPred)).isFalse();
-        assertThat(p.parse("a | b | (~x & ~y)").holds(this.aigPred)).isFalse();
+        final PropositionalParser p = new PropositionalParser(f);
+        assertThat(AND1.transform(aigCaching)).isEqualTo(AND1);
+        assertThat(OR1.transform(aigCaching)).isEqualTo(p.parse("~(~x & ~y)"));
+        assertThat(p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(aigCaching)).isEqualTo(p.parse("(~a & ~b) & c & ~(x & ~y) & ~(w & ~z)"));
+        assertThat(p.parse("~(a & b) | c | ~(x | ~y)").transform(aigCaching)).isEqualTo(p.parse("~(a & b & ~c & ~(~x & y))"));
+        assertThat(p.parse("a | b | (~x & ~y)").transform(aigCaching)).isEqualTo(p.parse("~(~a & ~b & ~(~x & ~y))"));
+        assertThat(AND1.transform(aigCaching).holds(aigPred)).isTrue();
+        assertThat(OR1.transform(aigCaching).holds(aigPred)).isTrue();
+        assertThat(p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(aigCaching).holds(aigPred)).isTrue();
+        assertThat(p.parse("~(a & b) | c | ~(x | ~y)").transform(aigCaching).holds(aigPred)).isTrue();
+        assertThat(p.parse("a | b | (~x & ~y)").transform(aigCaching).holds(aigPred)).isTrue();
+        assertThat(AND1.holds(aigPred)).isTrue();
+        assertThat(f.and(AND1, PBC1).holds(aigPred)).isFalse();
+        assertThat(OR1.holds(aigPred)).isFalse();
+        assertThat(p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").holds(aigPred)).isFalse();
+        assertThat(p.parse("~(a & b) | c | ~(x | ~y)").holds(aigPred)).isFalse();
+        assertThat(p.parse("a | b | (~x & ~y)").holds(aigPred)).isFalse();
         final Formula or = p.parse("m | n | o");
-        or.transform(this.aigNonCaching);
-        final Formula aigOR = or.transformationCacheEntry(TransformationCacheEntry.AIG);
-        assertThat(aigOR).isNull();
+        or.transform(aigNonCaching);
         final Formula and = p.parse("m & n & o");
-        and.transform(this.aigNonCaching);
-        final Formula aigAND = and.transformationCacheEntry(TransformationCacheEntry.AIG);
-        assertThat(aigAND).isNull();
+        and.transform(aigNonCaching);
     }
 
     @Test
     public void testNot() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(p.parse("~a").transform(this.aigCaching)).isEqualTo(p.parse("~a"));
-        assertThat(p.parse("~~a").transform(this.aigCaching)).isEqualTo(p.parse("a"));
-        assertThat(p.parse("~(a => b)").transform(this.aigCaching)).isEqualTo(p.parse("a & ~b"));
-        assertThat(p.parse("~(~(a | b) => ~(x | y))").transform(this.aigCaching)).isEqualTo(p.parse("(~a & ~b) & ~(~x & ~y)"));
-        assertThat(p.parse("~(a <=> b)").transform(this.aigCaching)).isEqualTo(p.parse("~(~(a & ~b) & ~(~a & b))"));
-        assertThat(p.parse("~(~(a | b) <=> ~(x | y))").transform(this.aigCaching)).isEqualTo(p.parse("~(~(~a & ~b & ~(~x & ~y)) & ~((a | b) & ~(x | y)))"));
-        assertThat(p.parse("~(a & b & ~x & ~y)").transform(this.aigCaching)).isEqualTo(p.parse("~(a & b & ~x & ~y)"));
-        assertThat(p.parse("~(a | b | ~x | ~y)").transform(this.aigCaching)).isEqualTo(p.parse("~a & ~b & x & y"));
-        assertThat(p.parse("~(a | b | ~x | ~y)").transform(this.aigCaching)).isEqualTo(p.parse("~a & ~b & x & y")); // test caching
+        final PropositionalParser p = new PropositionalParser(f);
+        assertThat(p.parse("~a").transform(aigCaching)).isEqualTo(p.parse("~a"));
+        assertThat(p.parse("~~a").transform(aigCaching)).isEqualTo(p.parse("a"));
+        assertThat(p.parse("~(a => b)").transform(aigCaching)).isEqualTo(p.parse("a & ~b"));
+        assertThat(p.parse("~(~(a | b) => ~(x | y))").transform(aigCaching)).isEqualTo(p.parse("(~a & ~b) & ~(~x & ~y)"));
+        assertThat(p.parse("~(a <=> b)").transform(aigCaching)).isEqualTo(p.parse("~(~(a & ~b) & ~(~a & b))"));
+        assertThat(p.parse("~(~(a | b) <=> ~(x | y))").transform(aigCaching)).isEqualTo(p.parse("~(~(~a & ~b & ~(~x & ~y)) & ~((a | b) & ~(x | y)))"));
+        assertThat(p.parse("~(a & b & ~x & ~y)").transform(aigCaching)).isEqualTo(p.parse("~(a & b & ~x & ~y)"));
+        assertThat(p.parse("~(a | b | ~x | ~y)").transform(aigCaching)).isEqualTo(p.parse("~a & ~b & x & y"));
+        assertThat(p.parse("~(a | b | ~x | ~y)").transform(aigCaching)).isEqualTo(p.parse("~a & ~b & x & y")); // test caching
         final Formula not = p.parse("~(m | n)");
-        not.transform(this.aigNonCaching);
-        final Formula aig = not.transformationCacheEntry(TransformationCacheEntry.AIG);
-        assertThat(aig).isNull();
+        not.transform(aigNonCaching);
     }
 
     @Test
     public void testPBC() {
-        assertThat(this.PBC1.transform(this.aigCaching).holds(this.aigPred)).isTrue();
+        assertThat(PBC1.transform(aigCaching).holds(aigPred)).isTrue();
     }
 }

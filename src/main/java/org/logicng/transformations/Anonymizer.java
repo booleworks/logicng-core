@@ -4,8 +4,6 @@
 
 package org.logicng.transformations;
 
-import static org.logicng.formulas.cache.TransformationCacheEntry.ANONYMIZATION;
-
 import org.logicng.datastructures.Substitution;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
@@ -25,7 +23,6 @@ import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
  */
 public final class Anonymizer extends StatefulFormulaTransformation<Substitution> {
 
-    private final boolean useCache;
     private final String prefix;
     private int counter;
 
@@ -53,22 +50,9 @@ public final class Anonymizer extends StatefulFormulaTransformation<Substitution
      * @param startCounter where should the counter start
      */
     public Anonymizer(final FormulaFactory f, final String prefix, final int startCounter) {
-        this(f, prefix, startCounter, true);
-    }
-
-    /**
-     * Constructs a new anonymizer with a given prefix for the newly introduced variables.
-     * @param f            the formula factory to generate new formulas
-     * @param prefix       the prefix for the new variables
-     * @param startCounter where should the counter start
-     * @param useCache     a flag whether the result per formula should be cached
-     *                     (only relevant for caching formula factory)
-     */
-    public Anonymizer(final FormulaFactory f, final String prefix, final int startCounter, final boolean useCache) {
-        super(f, new Substitution());
+        super(f);
         this.prefix = prefix;
-        this.counter = startCounter;
-        this.useCache = useCache;
+        counter = startCounter;
     }
 
     /**
@@ -90,24 +74,21 @@ public final class Anonymizer extends StatefulFormulaTransformation<Substitution
         if (formula.variables().isEmpty()) {
             return formula;
         }
-        final Formula cached = formula.transformationCacheEntry(ANONYMIZATION);
-        if (useCache && cached != null) {
-            return cached;
-        }
         for (final Variable variable : formula.variables()) {
             if (state.getSubstitution(variable) == null) {
                 state.addMapping(variable, f.variable(prefix + counter++));
             }
         }
-        final Formula transformed = formula.substitute(state, f);
-        if (useCache) {
-            formula.setTransformationCacheEntry(ANONYMIZATION, transformed);
-        }
-        return transformed;
+        return formula.substitute(state, f);
     }
 
     @Override
     protected Substitution initStateForCachingFactory(final CachingFormulaFactory f) {
-        return null; // not used
+        return new Substitution();
+    }
+
+    @Override
+    protected Substitution defaultStateForNonCachingFactory() {
+        return new Substitution();
     }
 }

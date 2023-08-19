@@ -30,15 +30,6 @@ public abstract class LngNativeFormula implements Formula {
     }
 
     @Override
-    public Formula transformationCacheEntry(final CacheEntry key) {
-        return null;
-    }
-
-    @Override
-    public void setTransformationCacheEntry(final CacheEntry key, final Formula value) {
-    }
-
-    @Override
     public Tristate predicateCacheEntry(final CacheEntry key) {
         return Tristate.UNDEF;
     }
@@ -66,6 +57,6 @@ public abstract class LngNativeFormula implements Formula {
 
     @Override
     public String toString() {
-        return this.f.string(this);
+        return f.string(this);
     }
 }

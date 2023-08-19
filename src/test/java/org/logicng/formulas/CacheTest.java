@@ -37,7 +37,7 @@ public class CacheTest {
     @Test
     public void testValues() {
         final List<TransformationCacheEntry> valuesTrans = Arrays.asList(TransformationCacheEntry.values());
-        assertThat(valuesTrans.size()).isEqualTo(13);
+        assertThat(valuesTrans.size()).isEqualTo(12);
         assertThat(valuesTrans.contains(TransformationCacheEntry.valueOf("FACTORIZED_DNF"))).isTrue();
 
         final List<PredicateCacheEntry> valuesPred = Arrays.asList(PredicateCacheEntry.values());

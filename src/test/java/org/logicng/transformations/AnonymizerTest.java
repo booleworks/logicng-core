@@ -68,7 +68,7 @@ public class AnonymizerTest {
     public void testSimpleFormulasOwnPrefixAndCounterWithoutCache() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
-        final Anonymizer anonymizer = new Anonymizer(f, "var", 10, false);
+        final Anonymizer anonymizer = new Anonymizer(f, "var", 10);
         assertThat(p.parse("$true").transform(anonymizer)).isEqualTo(p.parse("$true"));
         assertThat(p.parse("$false").transform(anonymizer)).isEqualTo(p.parse("$false"));
         assertThat(p.parse("A").transform(anonymizer)).isEqualTo(p.parse("var10"));
@@ -83,7 +83,7 @@ public class AnonymizerTest {
     public void testGetSubstitution() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
-        final Anonymizer anonymizer = new Anonymizer(f, "v", 0, false);
+        final Anonymizer anonymizer = new Anonymizer(f, "v", 0);
         assertThat(anonymizer.getSubstitution()).isEqualTo(new Substitution());
         assertThat(p.parse("A & B & C & ~D").transform(anonymizer)).isEqualTo(p.parse("v0 & v1 & v2 & ~v3"));
         final HashMap<Variable, Formula> mapping = new HashMap<>();

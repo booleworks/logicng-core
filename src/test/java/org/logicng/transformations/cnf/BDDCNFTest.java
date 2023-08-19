@@ -68,7 +68,7 @@ public class BDDCNFTest extends TestWithExampleFormulas {
     @Test
     public void testNAryOperatorsWithExternalFactory() throws ParserException {
         final PropositionalParser p = new PropositionalParser(f);
-        final BDDCNFTransformation transformation = new BDDCNFTransformation(f, 7);
+        final BDDCNFTransformation transformation = new BDDCNFTransformation(f, new BDDKernel(f, 7, 100, 1000));
         assertThat(AND1.transform(bddcnf)).isEqualTo(AND1);
         assertThat(OR1.transform(bddcnf)).isEqualTo(OR1);
         final Formula f1 = p.parse("~(a | b) & c & ~(x & ~y) & (w => z)");

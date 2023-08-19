@@ -12,50 +12,57 @@ import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.handlers.FactorizationHandler;
-import org.logicng.transformations.AbortableFormulaTransformation;
+import org.logicng.transformations.CacheableAndAbortableFormulaTransformation;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 /**
  * Transformation of a formula in DNF by factorization.
  * @version 3.0.0
  * @since 1.0
  */
-public final class DNFFactorization extends AbortableFormulaTransformation<FactorizationHandler> {
+public final class DNFFactorization extends CacheableAndAbortableFormulaTransformation<FactorizationHandler> {
 
-    private final boolean useCache;
-    private boolean proceed;
+    private boolean proceed = true;
 
     /**
      * Constructor for a DNF Factorization.
      * @param f the formula factory to generate new formulas
      */
     public DNFFactorization(final FormulaFactory f) {
-        this(f, null, true);
+        super(f, FACTORIZED_DNF, null);
     }
 
     /**
      * Constructor for a DNF Factorization.
-     * @param f        the formula factory to generate new formulas
-     * @param useCache a flag whether the result per formula should be cached
-     *                 (only relevant for caching formula factory)
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
      */
-    public DNFFactorization(final FormulaFactory f, final boolean useCache) {
-        this(f, null, useCache);
+    public DNFFactorization(final FormulaFactory f, final Map<Formula, Formula> cache) {
+        this(f, null, cache);
     }
 
     /**
-     * Constructor for a DNF Factorization with a given factorization handler.
-     * @param f        the formula factory to generate new formulas
-     * @param handler  the handler
-     * @param useCache a flag whether the result per formula should be cached
-     *                 (only relevant for caching formula factory)
+     * Constructor for a DNF Factorization.
+     * @param f       the formula factory to generate new formulas
+     * @param handler the handler for the transformation
      */
-    public DNFFactorization(final FormulaFactory f, final FactorizationHandler handler, final boolean useCache) {
-        super(f, handler);
-        this.useCache = useCache;
-        this.proceed = true;
+    public DNFFactorization(final FormulaFactory f, final FactorizationHandler handler) {
+        super(f, FACTORIZED_DNF, handler);
+    }
+
+    /**
+     * Constructs a new transformation.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.  The handler - if not null - is used for aborting
+     * the computation.
+     * @param f       the formula factory to generate new formulas
+     * @param cache   the cache to use for the transformation
+     * @param handler the handler for the transformation
+     */
+    public DNFFactorization(final FormulaFactory f, final FactorizationHandler handler, final Map<Formula, Formula> cache) {
+        super(f, FACTORIZED_DNF, cache, handler);
     }
 
     @Override
@@ -72,7 +79,7 @@ public final class DNFFactorization extends AbortableFormulaTransformation<Facto
         if (formula.type().precedence() >= LITERAL.precedence()) {
             return formula;
         }
-        Formula cached = formula.transformationCacheEntry(FACTORIZED_DNF);
+        Formula cached = lookupCache(formula);
         if (cached != null) {
             return cached;
         }
@@ -115,9 +122,7 @@ public final class DNFFactorization extends AbortableFormulaTransformation<Facto
                 throw new IllegalArgumentException("Could not process the formula type " + formula.type());
         }
         if (proceed) {
-            if (useCache) {
-                formula.setTransformationCacheEntry(FACTORIZED_DNF, cached);
-            }
+            setCache(formula, cached);
             return cached;
         }
         return null;

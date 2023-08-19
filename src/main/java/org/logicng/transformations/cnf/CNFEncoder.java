@@ -92,7 +92,7 @@ public class CNFEncoder {
     protected static Formula advancedEncoding(final Formula formula, final FormulaFactory f, final CNFConfig config) {
         final var factorizationHandler = new AdvancedFactorizationHandler();
         factorizationHandler.setBounds(config.distributionBoundary, config.createdClauseBoundary);
-        final var advancedFactorization = new CNFFactorization(f, factorizationHandler, true);
+        final var advancedFactorization = new CNFFactorization(f, factorizationHandler);
         final FormulaTransformation fallbackTransformation;
         switch (config.fallbackAlgorithmForAdvancedEncoding) {
             case TSEITIN:
@@ -156,20 +156,20 @@ public class CNFEncoder {
         @Override
         public void started() {
             super.started();
-            this.currentDistributions = 0;
-            this.currentClauses = 0;
+            currentDistributions = 0;
+            currentClauses = 0;
         }
 
         @Override
         public boolean performedDistribution() {
-            this.aborted = this.distributionBoundary != -1 && ++this.currentDistributions > this.distributionBoundary;
-            return !this.aborted;
+            aborted = distributionBoundary != -1 && ++currentDistributions > distributionBoundary;
+            return !aborted;
         }
 
         @Override
         public boolean createdClause(final Formula clause) {
-            this.aborted = this.createdClauseBoundary != -1 && ++this.currentClauses > this.createdClauseBoundary;
-            return !this.aborted;
+            aborted = createdClauseBoundary != -1 && ++currentClauses > createdClauseBoundary;
+            return !aborted;
         }
     }
 }
