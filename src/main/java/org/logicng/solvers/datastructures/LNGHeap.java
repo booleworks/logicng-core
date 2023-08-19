@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * MiniSat -- Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
@@ -64,12 +40,12 @@ public final class LNGHeap {
      * @param solver the solver
      */
     public LNGHeap(final MiniSatStyleSolver solver) {
-        this.s = solver;
-        this.heap = new LNGIntVector(1000);
-        this.indices = new LNGIntVector(1000);
+        s = solver;
+        heap = new LNGIntVector(1000);
+        indices = new LNGIntVector(1000);
     }
 
-    LNGHeap(MiniSatStyleSolver s, LNGIntVector heap, LNGIntVector indices) {
+    LNGHeap(final MiniSatStyleSolver s, final LNGIntVector heap, final LNGIntVector indices) {
         this.s = s;
         this.heap = heap;
         this.indices = indices;
@@ -107,7 +83,7 @@ public final class LNGHeap {
      * @return the size of the heap
      */
     public int size() {
-        return this.heap.size();
+        return heap.size();
     }
 
     /**
@@ -115,7 +91,7 @@ public final class LNGHeap {
      * @return {@code true} if the heap ist empty
      */
     public boolean empty() {
-        return this.heap.size() == 0;
+        return heap.size() == 0;
     }
 
     /**
@@ -124,7 +100,7 @@ public final class LNGHeap {
      * @return {@code true} if a given variable index is in the heap
      */
     public boolean inHeap(final int n) {
-        return n < this.indices.size() && this.indices.get(n) >= 0;
+        return n < indices.size() && indices.get(n) >= 0;
     }
 
     /**
@@ -133,8 +109,8 @@ public final class LNGHeap {
      * @return the element at the position
      */
     public int get(final int index) {
-        assert index < this.heap.size();
-        return this.heap.get(index);
+        assert index < heap.size();
+        return heap.get(index);
     }
 
     /**
@@ -142,8 +118,8 @@ public final class LNGHeap {
      * @param n the element
      */
     public void decrease(final int n) {
-        assert this.inHeap(n);
-        this.percolateUp(this.indices.get(n));
+        assert inHeap(n);
+        percolateUp(indices.get(n));
     }
 
     /**
@@ -151,11 +127,11 @@ public final class LNGHeap {
      * @param n the element
      */
     public void insert(final int n) {
-        this.indices.growTo(n + 1, -1);
-        assert !this.inHeap(n);
-        this.indices.set(n, this.heap.size());
-        this.heap.push(n);
-        this.percolateUp(this.indices.get(n));
+        indices.growTo(n + 1, -1);
+        assert !inHeap(n);
+        indices.set(n, heap.size());
+        heap.push(n);
+        percolateUp(indices.get(n));
     }
 
     /**
@@ -163,13 +139,13 @@ public final class LNGHeap {
      * @return the minimal element of the heap
      */
     public int removeMin() {
-        final int x = this.heap.get(0);
-        this.heap.set(0, this.heap.back());
-        this.indices.set(this.heap.get(0), 0);
-        this.indices.set(x, -1);
-        this.heap.pop();
-        if (this.heap.size() > 1) {
-            this.percolateDown(0);
+        final int x = heap.get(0);
+        heap.set(0, heap.back());
+        indices.set(heap.get(0), 0);
+        indices.set(x, -1);
+        heap.pop();
+        if (heap.size() > 1) {
+            percolateDown(0);
         }
         return x;
     }
@@ -179,16 +155,16 @@ public final class LNGHeap {
      * @param n the element
      */
     public void remove(final int n) {
-        assert this.inHeap(n);
-        final int kPos = this.indices.get(n);
-        this.indices.set(n, -1);
-        if (kPos < this.heap.size() - 1) {
-            this.heap.set(kPos, this.heap.back());
-            this.indices.set(this.heap.get(kPos), kPos);
-            this.heap.pop();
-            this.percolateDown(kPos);
+        assert inHeap(n);
+        final int kPos = indices.get(n);
+        indices.set(n, -1);
+        if (kPos < heap.size() - 1) {
+            heap.set(kPos, heap.back());
+            indices.set(heap.get(kPos), kPos);
+            heap.pop();
+            percolateDown(kPos);
         } else {
-            this.heap.pop();
+            heap.pop();
         }
     }
 
@@ -197,16 +173,16 @@ public final class LNGHeap {
      * @param ns the vector of elements
      */
     public void build(final LNGIntVector ns) {
-        for (int i = 0; i < this.heap.size(); i++) {
-            this.indices.set(this.heap.get(i), -1);
+        for (int i = 0; i < heap.size(); i++) {
+            indices.set(heap.get(i), -1);
         }
-        this.heap.clear();
+        heap.clear();
         for (int i = 0; i < ns.size(); i++) {
-            this.indices.set(ns.get(i), i);
-            this.heap.push(ns.get(i));
+            indices.set(ns.get(i), i);
+            heap.push(ns.get(i));
         }
-        for (int i = this.heap.size() / 2 - 1; i >= 0; i--) {
-            this.percolateDown(i);
+        for (int i = heap.size() / 2 - 1; i >= 0; i--) {
+            percolateDown(i);
         }
     }
 
@@ -214,10 +190,10 @@ public final class LNGHeap {
      * Clears the heap.
      */
     public void clear() {
-        for (int i = 0; i < this.heap.size(); i++) {
-            this.indices.set(this.heap.get(i), -1);
+        for (int i = 0; i < heap.size(); i++) {
+            indices.set(heap.get(i), -1);
         }
-        this.heap.clear();
+        heap.clear();
     }
 
     /**
@@ -225,17 +201,17 @@ public final class LNGHeap {
      * @param pos the position
      */
     private void percolateUp(final int pos) {
-        final int x = this.heap.get(pos);
+        final int x = heap.get(pos);
         int p = parent(pos);
         int j = pos;
-        while (j != 0 && this.s.lt(x, this.heap.get(p))) {
-            this.heap.set(j, this.heap.get(p));
-            this.indices.set(this.heap.get(p), j);
+        while (j != 0 && s.lt(x, heap.get(p))) {
+            heap.set(j, heap.get(p));
+            indices.set(heap.get(p), j);
             j = p;
             p = parent(p);
         }
-        this.heap.set(j, x);
-        this.indices.set(x, j);
+        heap.set(j, x);
+        indices.set(x, j);
     }
 
     /**
@@ -244,18 +220,18 @@ public final class LNGHeap {
      */
     private void percolateDown(final int pos) {
         int p = pos;
-        final int y = this.heap.get(p);
-        while (left(p) < this.heap.size()) {
-            final int child = right(p) < this.heap.size() && this.s.lt(this.heap.get(right(p)), this.heap.get(left(p))) ? right(p) : left(p);
-            if (!this.s.lt(this.heap.get(child), y)) {
+        final int y = heap.get(p);
+        while (left(p) < heap.size()) {
+            final int child = right(p) < heap.size() && s.lt(heap.get(right(p)), heap.get(left(p))) ? right(p) : left(p);
+            if (!s.lt(heap.get(child), y)) {
                 break;
             }
-            this.heap.set(p, this.heap.get(child));
-            this.indices.set(this.heap.get(p), p);
+            heap.set(p, heap.get(child));
+            indices.set(heap.get(p), p);
             p = child;
         }
-        this.heap.set(p, y);
-        this.indices.set(y, p);
+        heap.set(p, y);
+        indices.set(y, p);
     }
 
     LNGIntVector getHeap() {
@@ -269,10 +245,10 @@ public final class LNGHeap {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("LNGHeap{");
-        for (int i = 0; i < this.heap.size(); i++) {
-            sb.append("[").append(this.heap.get(i)).append(", ");
-            sb.append(this.indices.get(i)).append("]");
-            if (i != this.heap.size() - 1) {
+        for (int i = 0; i < heap.size(); i++) {
+            sb.append("[").append(heap.get(i)).append(", ");
+            sb.append(indices.get(i)).append("]");
+            if (i != heap.size() - 1) {
                 sb.append(", ");
             }
         }

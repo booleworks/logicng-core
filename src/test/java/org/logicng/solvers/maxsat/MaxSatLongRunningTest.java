@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.solvers.maxsat;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,11 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * MaxSat tests with a long running time.
- * @version 2.4.0
- * @since 2.4.0
- */
 public class MaxSatLongRunningTest {
 
     @LongRunningTag

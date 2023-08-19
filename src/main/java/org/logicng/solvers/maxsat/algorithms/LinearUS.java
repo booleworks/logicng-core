@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines Lynce
@@ -86,147 +62,147 @@ public class LinearUS extends MaxSAT {
      */
     public LinearUS(final MaxSATConfig config) {
         super(config);
-        this.solver = null;
-        this.verbosity = config.verbosity;
-        this.incrementalStrategy = config.incrementalStrategy;
-        this.encoder = new Encoder(config.cardinalityEncoding);
-        this.objFunction = new LNGIntVector();
-        this.output = config.output;
+        solver = null;
+        verbosity = config.verbosity;
+        incrementalStrategy = config.incrementalStrategy;
+        encoder = new Encoder(config.cardinalityEncoding);
+        objFunction = new LNGIntVector();
+        output = config.output;
     }
 
     @Override
     public MaxSATResult search() {
-        if (this.problemType == ProblemType.WEIGHTED) {
+        if (problemType == ProblemType.WEIGHTED) {
             throw new IllegalStateException("Error: Currently LinearUS does not support weighted MaxSAT instances.");
         }
-        switch (this.incrementalStrategy) {
+        switch (incrementalStrategy) {
             case NONE:
-                return this.none();
+                return none();
             case ITERATIVE:
-                if (this.encoder.cardEncoding() != MaxSATConfig.CardinalityEncoding.TOTALIZER) {
+                if (encoder.cardEncoding() != MaxSATConfig.CardinalityEncoding.TOTALIZER) {
                     throw new IllegalStateException("Error: Currently iterative encoding in LinearUS only supports the Totalizer encoding.");
                 }
-                return this.iterative();
+                return iterative();
             default:
-                throw new IllegalArgumentException("Unknown incremental strategy: " + this.incrementalStrategy);
+                throw new IllegalArgumentException("Unknown incremental strategy: " + incrementalStrategy);
         }
     }
 
     protected MaxSATResult none() {
-        this.nbInitialVariables = nVars();
+        nbInitialVariables = nVars();
         Tristate res;
-        this.initRelaxation();
-        this.solver = this.rebuildSolver();
+        initRelaxation();
+        solver = rebuildSolver();
         final LNGIntVector assumptions = new LNGIntVector();
-        this.encoder.setIncremental(MaxSATConfig.IncrementalStrategy.NONE);
+        encoder.setIncremental(MaxSATConfig.IncrementalStrategy.NONE);
         while (true) {
             final SATHandler satHandler = satHandler();
-            res = searchSATSolver(this.solver, satHandler, assumptions);
+            res = searchSATSolver(solver, satHandler, assumptions);
             if (aborted(satHandler)) {
                 return MaxSATResult.UNDEF;
             } else if (res == Tristate.TRUE) {
-                this.nbSatisfiable++;
-                final int newCost = computeCostModel(this.solver.model(), Integer.MAX_VALUE);
-                saveModel(this.solver.model());
-                if (this.verbosity != MaxSATConfig.Verbosity.NONE) {
-                    this.output.println("o " + newCost);
+                nbSatisfiable++;
+                final int newCost = computeCostModel(solver.model(), Integer.MAX_VALUE);
+                saveModel(solver.model());
+                if (verbosity != MaxSATConfig.Verbosity.NONE) {
+                    output.println("o " + newCost);
                 }
-                this.ubCost = newCost;
-                if (this.nbSatisfiable == 1) {
-                    if (!foundUpperBound(this.ubCost, null)) {
+                ubCost = newCost;
+                if (nbSatisfiable == 1) {
+                    if (!foundUpperBound(ubCost, null)) {
                         return MaxSATResult.UNDEF;
                     }
-                    if (this.encoder.cardEncoding() == MaxSATConfig.CardinalityEncoding.MTOTALIZER) {
-                        this.encoder.setModulo((int) Math.ceil(Math.sqrt(this.ubCost + 1.0)));
+                    if (encoder.cardEncoding() == MaxSATConfig.CardinalityEncoding.MTOTALIZER) {
+                        encoder.setModulo((int) Math.ceil(Math.sqrt(ubCost + 1.0)));
                     }
-                    this.encoder.encodeCardinality(this.solver, this.objFunction, 0);
+                    encoder.encodeCardinality(solver, objFunction, 0);
                 } else {
                     return MaxSATResult.OPTIMUM;
                 }
             } else {
-                this.lbCost++;
-                if (this.verbosity != MaxSATConfig.Verbosity.NONE) {
-                    this.output.println("c LB : " + this.lbCost);
+                lbCost++;
+                if (verbosity != MaxSATConfig.Verbosity.NONE) {
+                    output.println("c LB : " + lbCost);
                 }
-                if (this.nbSatisfiable == 0) {
+                if (nbSatisfiable == 0) {
                     return MaxSATResult.UNSATISFIABLE;
-                } else if (this.lbCost == this.ubCost) {
-                    if (this.nbSatisfiable > 0) {
-                        if (this.verbosity != MaxSATConfig.Verbosity.NONE) {
-                            this.output.println("c LB = UB");
+                } else if (lbCost == ubCost) {
+                    if (nbSatisfiable > 0) {
+                        if (verbosity != MaxSATConfig.Verbosity.NONE) {
+                            output.println("c LB = UB");
                         }
                         return MaxSATResult.OPTIMUM;
                     } else {
                         return MaxSATResult.UNSATISFIABLE;
                     }
-                } else if (!foundLowerBound(this.lbCost, null)) {
+                } else if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                this.solver = this.rebuildSolver();
-                this.encoder.encodeCardinality(this.solver, this.objFunction, this.lbCost);
+                solver = rebuildSolver();
+                encoder.encodeCardinality(solver, objFunction, lbCost);
             }
         }
     }
 
     protected MaxSATResult iterative() {
-        assert this.encoder.cardEncoding() == MaxSATConfig.CardinalityEncoding.TOTALIZER;
-        this.nbInitialVariables = nVars();
+        assert encoder.cardEncoding() == MaxSATConfig.CardinalityEncoding.TOTALIZER;
+        nbInitialVariables = nVars();
         Tristate res;
-        this.initRelaxation();
-        this.solver = this.rebuildSolver();
+        initRelaxation();
+        solver = rebuildSolver();
         final LNGIntVector assumptions = new LNGIntVector();
-        this.encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
+        encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
         while (true) {
             final SATHandler satHandler = satHandler();
-            res = searchSATSolver(this.solver, satHandler, assumptions);
+            res = searchSATSolver(solver, satHandler, assumptions);
             if (aborted(satHandler)) {
                 return MaxSATResult.UNDEF;
             } else if (res == Tristate.TRUE) {
-                this.nbSatisfiable++;
-                final int newCost = computeCostModel(this.solver.model(), Integer.MAX_VALUE);
-                saveModel(this.solver.model());
-                if (this.verbosity != MaxSATConfig.Verbosity.NONE) {
-                    this.output.println("o " + newCost);
+                nbSatisfiable++;
+                final int newCost = computeCostModel(solver.model(), Integer.MAX_VALUE);
+                saveModel(solver.model());
+                if (verbosity != MaxSATConfig.Verbosity.NONE) {
+                    output.println("o " + newCost);
                 }
-                this.ubCost = newCost;
-                if (this.nbSatisfiable == 1) {
-                    if (!foundUpperBound(this.ubCost, null)) {
+                ubCost = newCost;
+                if (nbSatisfiable == 1) {
+                    if (!foundUpperBound(ubCost, null)) {
                         return MaxSATResult.UNDEF;
                     }
-                    for (int i = 0; i < this.objFunction.size(); i++) {
-                        assumptions.push(not(this.objFunction.get(i)));
+                    for (int i = 0; i < objFunction.size(); i++) {
+                        assumptions.push(not(objFunction.get(i)));
                     }
                 } else {
-                    assert this.lbCost == this.ubCost;
+                    assert lbCost == ubCost;
                     return MaxSATResult.OPTIMUM;
                 }
             } else {
-                this.nbCores++;
-                this.lbCost++;
-                if (this.verbosity != MaxSATConfig.Verbosity.NONE) {
-                    this.output.println("c LB : " + this.lbCost);
+                nbCores++;
+                lbCost++;
+                if (verbosity != MaxSATConfig.Verbosity.NONE) {
+                    output.println("c LB : " + lbCost);
                 }
-                if (this.nbSatisfiable == 0) {
+                if (nbSatisfiable == 0) {
                     return MaxSATResult.UNSATISFIABLE;
                 }
-                if (this.lbCost == this.ubCost) {
-                    if (this.nbSatisfiable > 0) {
-                        if (this.verbosity != MaxSATConfig.Verbosity.NONE) {
-                            this.output.println("c LB = UB");
+                if (lbCost == ubCost) {
+                    if (nbSatisfiable > 0) {
+                        if (verbosity != MaxSATConfig.Verbosity.NONE) {
+                            output.println("c LB = UB");
                         }
                         return MaxSATResult.OPTIMUM;
                     } else {
                         return MaxSATResult.UNSATISFIABLE;
                     }
                 }
-                if (!foundLowerBound(this.lbCost, null)) {
+                if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                if (!this.encoder.hasCardEncoding()) {
-                    this.encoder.buildCardinality(this.solver, this.objFunction, this.lbCost);
+                if (!encoder.hasCardEncoding()) {
+                    encoder.buildCardinality(solver, objFunction, lbCost);
                 }
                 final LNGIntVector join = new LNGIntVector();
-                this.encoder.incUpdateCardinality(this.solver, join, this.objFunction, this.lbCost, assumptions);
+                encoder.incUpdateCardinality(solver, join, objFunction, lbCost, assumptions);
             }
         }
     }
@@ -237,13 +213,13 @@ public class LinearUS extends MaxSAT {
             newSATVariable(s);
         }
         for (int i = 0; i < nHard(); i++) {
-            s.addClause(this.hardClauses.get(i).clause(), null);
+            s.addClause(hardClauses.get(i).clause(), null);
         }
         LNGIntVector clause;
         for (int i = 0; i < nSoft(); i++) {
-            clause = new LNGIntVector(this.softClauses.get(i).clause());
-            for (int j = 0; j < this.softClauses.get(i).relaxationVars().size(); j++) {
-                clause.push(this.softClauses.get(i).relaxationVars().get(j));
+            clause = new LNGIntVector(softClauses.get(i).clause());
+            for (int j = 0; j < softClauses.get(i).relaxationVars().size(); j++) {
+                clause.push(softClauses.get(i).relaxationVars().get(j));
             }
             s.addClause(clause, null);
         }
@@ -251,16 +227,16 @@ public class LinearUS extends MaxSAT {
     }
 
     protected void initRelaxation() {
-        for (int i = 0; i < this.nbSoft; i++) {
+        for (int i = 0; i < nbSoft; i++) {
             final int l = newLiteral(false);
-            this.softClauses.get(i).relaxationVars().push(l);
-            this.softClauses.get(i).setAssumptionVar(l);
-            this.objFunction.push(l);
+            softClauses.get(i).relaxationVars().push(l);
+            softClauses.get(i).setAssumptionVar(l);
+            objFunction.push(l);
         }
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName();
+        return getClass().getSimpleName();
     }
 }

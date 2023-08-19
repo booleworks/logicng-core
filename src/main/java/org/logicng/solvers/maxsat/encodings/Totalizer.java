@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines Lynce
@@ -84,17 +60,17 @@ public class Totalizer extends Encoding {
      * @param strategy the incremental strategy
      */
     Totalizer(final MaxSATConfig.IncrementalStrategy strategy) {
-        this.blocking = LIT_UNDEF;
-        this.joinMode = false;
-        this.currentCardinalityRhs = -1;
-        this.incrementalStrategy = strategy;
-        this.totalizerIterativeLeft = new LNGVector<>();
-        this.totalizerIterativeRight = new LNGVector<>();
-        this.totalizerIterativeOutput = new LNGVector<>();
-        this.totalizerIterativeRhs = new LNGIntVector();
-        this.cardinalityInlits = new LNGIntVector();
-        this.cardinalityOutlits = new LNGIntVector();
-        this.ilits = new LNGIntVector();
+        blocking = LIT_UNDEF;
+        joinMode = false;
+        currentCardinalityRhs = -1;
+        incrementalStrategy = strategy;
+        totalizerIterativeLeft = new LNGVector<>();
+        totalizerIterativeRight = new LNGVector<>();
+        totalizerIterativeOutput = new LNGVector<>();
+        totalizerIterativeRhs = new LNGIntVector();
+        cardinalityInlits = new LNGIntVector();
+        cardinalityOutlits = new LNGIntVector();
+        ilits = new LNGIntVector();
     }
 
     /**
@@ -104,7 +80,7 @@ public class Totalizer extends Encoding {
      */
     public void update(final MiniSatStyleSolver s, final int rhs) {
         final LNGIntVector assumptions = new LNGIntVector();
-        this.update(s, rhs, assumptions);
+        update(s, rhs, assumptions);
     }
 
     /**
@@ -112,7 +88,7 @@ public class Totalizer extends Encoding {
      * @return {@code true} if an encoding was created
      */
     boolean hasCreatedEncoding() {
-        return this.hasEncoding;
+        return hasEncoding;
     }
 
     /**
@@ -120,7 +96,7 @@ public class Totalizer extends Encoding {
      * @param incremental the incremental strategy
      */
     public void setIncremental(final MaxSATConfig.IncrementalStrategy incremental) {
-        this.incrementalStrategy = incremental;
+        incrementalStrategy = incremental;
     }
 
     /**
@@ -128,7 +104,7 @@ public class Totalizer extends Encoding {
      * @return the incremental strategy
      */
     public MaxSATConfig.IncrementalStrategy incremental() {
-        return this.incrementalStrategy;
+        return incrementalStrategy;
     }
 
     /**
@@ -138,28 +114,28 @@ public class Totalizer extends Encoding {
      * @param rhs  the right-hand side of the constraint
      */
     void join(final MiniSatStyleSolver s, final LNGIntVector lits, final int rhs) {
-        assert this.incrementalStrategy == MaxSATConfig.IncrementalStrategy.ITERATIVE;
-        final LNGIntVector leftCardinalityOutlits = new LNGIntVector(this.cardinalityOutlits);
-        final int oldCardinality = this.currentCardinalityRhs;
+        assert incrementalStrategy == MaxSATConfig.IncrementalStrategy.ITERATIVE;
+        final LNGIntVector leftCardinalityOutlits = new LNGIntVector(cardinalityOutlits);
+        final int oldCardinality = currentCardinalityRhs;
         if (lits.size() > 1) {
-            this.build(s, lits, Math.min(rhs, lits.size()));
+            build(s, lits, Math.min(rhs, lits.size()));
         } else {
             assert lits.size() == 1;
-            this.cardinalityOutlits.clear();
-            this.cardinalityOutlits.push(lits.get(0));
+            cardinalityOutlits.clear();
+            cardinalityOutlits.push(lits.get(0));
         }
-        final LNGIntVector rightCardinalityOutlits = new LNGIntVector(this.cardinalityOutlits);
-        this.cardinalityOutlits.clear();
+        final LNGIntVector rightCardinalityOutlits = new LNGIntVector(cardinalityOutlits);
+        cardinalityOutlits.clear();
         for (int i = 0; i < leftCardinalityOutlits.size() + rightCardinalityOutlits.size(); i++) {
             final int p = mkLit(s.nVars(), false);
             MaxSAT.newSATVariable(s);
-            this.cardinalityOutlits.push(p);
+            cardinalityOutlits.push(p);
         }
-        this.currentCardinalityRhs = rhs;
-        this.adder(s, leftCardinalityOutlits, rightCardinalityOutlits, this.cardinalityOutlits);
-        this.currentCardinalityRhs = oldCardinality;
+        currentCardinalityRhs = rhs;
+        adder(s, leftCardinalityOutlits, rightCardinalityOutlits, cardinalityOutlits);
+        currentCardinalityRhs = oldCardinality;
         for (int i = 0; i < lits.size(); i++) {
-            this.ilits.push(lits.get(i));
+            ilits.push(lits.get(i));
         }
     }
 
@@ -171,22 +147,22 @@ public class Totalizer extends Encoding {
      * @throws IllegalStateException if the incremental strategy is unknown
      */
     public void update(final MiniSatStyleSolver s, final int rhs, final LNGIntVector assumptions) {
-        assert this.hasEncoding;
-        switch (this.incrementalStrategy) {
+        assert hasEncoding;
+        switch (incrementalStrategy) {
             case NONE:
-                for (int i = rhs; i < this.cardinalityOutlits.size(); i++) {
-                    addUnitClause(s, not(this.cardinalityOutlits.get(i)));
+                for (int i = rhs; i < cardinalityOutlits.size(); i++) {
+                    addUnitClause(s, not(cardinalityOutlits.get(i)));
                 }
                 break;
             case ITERATIVE:
-                this.incremental(s, rhs);
+                incremental(s, rhs);
                 assumptions.clear();
-                for (int i = rhs; i < this.cardinalityOutlits.size(); i++) {
-                    assumptions.push(not(this.cardinalityOutlits.get(i)));
+                for (int i = rhs; i < cardinalityOutlits.size(); i++) {
+                    assumptions.push(not(cardinalityOutlits.get(i)));
                 }
                 break;
             default:
-                throw new IllegalStateException("Unknown incremental strategy: " + this.incrementalStrategy);
+                throw new IllegalStateException("Unknown incremental strategy: " + incrementalStrategy);
         }
     }
 
@@ -197,8 +173,8 @@ public class Totalizer extends Encoding {
      * @param rhs  the right-hand side of the constraint
      */
     public void build(final MiniSatStyleSolver s, final LNGIntVector lits, final int rhs) {
-        this.cardinalityOutlits.clear();
-        this.hasEncoding = false;
+        cardinalityOutlits.clear();
+        hasEncoding = false;
         if (rhs == 0) {
             for (int i = 0; i < lits.size(); i++) {
                 addUnitClause(s, not(lits.get(i)));
@@ -206,26 +182,26 @@ public class Totalizer extends Encoding {
             return;
         }
         assert rhs >= 1 && rhs <= lits.size();
-        if (this.incrementalStrategy == MaxSATConfig.IncrementalStrategy.NONE && rhs == lits.size()) {
+        if (incrementalStrategy == MaxSATConfig.IncrementalStrategy.NONE && rhs == lits.size()) {
             return;
         }
-        if (rhs == lits.size() && !this.joinMode) {
+        if (rhs == lits.size() && !joinMode) {
             return;
         }
         for (int i = 0; i < lits.size(); i++) {
             final int p = mkLit(s.nVars(), false);
             MaxSAT.newSATVariable(s);
-            this.cardinalityOutlits.push(p);
+            cardinalityOutlits.push(p);
         }
-        this.cardinalityInlits = new LNGIntVector(lits);
-        this.currentCardinalityRhs = rhs;
-        this.toCNF(s, this.cardinalityOutlits);
-        assert this.cardinalityInlits.size() == 0;
-        if (!this.joinMode) {
-            this.joinMode = true;
+        cardinalityInlits = new LNGIntVector(lits);
+        currentCardinalityRhs = rhs;
+        toCNF(s, cardinalityOutlits);
+        assert cardinalityInlits.size() == 0;
+        if (!joinMode) {
+            joinMode = true;
         }
-        this.hasEncoding = true;
-        this.ilits = new LNGIntVector(lits);
+        hasEncoding = true;
+        ilits = new LNGIntVector(lits);
     }
 
     protected void toCNF(final MiniSatStyleSolver s, final LNGIntVector lits) {
@@ -236,9 +212,9 @@ public class Totalizer extends Encoding {
         for (int i = 0; i < lits.size(); i++) {
             if (i < split) {
                 if (split == 1) {
-                    assert this.cardinalityInlits.size() > 0;
-                    left.push(this.cardinalityInlits.back());
-                    this.cardinalityInlits.pop();
+                    assert cardinalityInlits.size() > 0;
+                    left.push(cardinalityInlits.back());
+                    cardinalityInlits.pop();
                 } else {
                     final int p = mkLit(s.nVars(), false);
                     MaxSAT.newSATVariable(s);
@@ -246,9 +222,9 @@ public class Totalizer extends Encoding {
                 }
             } else {
                 if (lits.size() - split == 1) {
-                    assert this.cardinalityInlits.size() > 0;
-                    right.push(this.cardinalityInlits.back());
-                    this.cardinalityInlits.pop();
+                    assert cardinalityInlits.size() > 0;
+                    right.push(cardinalityInlits.back());
+                    cardinalityInlits.pop();
                 } else {
                     final int p = mkLit(s.nVars(), false);
                     MaxSAT.newSATVariable(s);
@@ -256,62 +232,62 @@ public class Totalizer extends Encoding {
                 }
             }
         }
-        this.adder(s, left, right, lits);
+        adder(s, left, right, lits);
         if (left.size() > 1) {
-            this.toCNF(s, left);
+            toCNF(s, left);
         }
         if (right.size() > 1) {
-            this.toCNF(s, right);
+            toCNF(s, right);
         }
     }
 
     protected void adder(final MiniSatStyleSolver s, final LNGIntVector left, final LNGIntVector right, final LNGIntVector output) {
         assert output.size() == left.size() + right.size();
-        if (this.incrementalStrategy == MaxSATConfig.IncrementalStrategy.ITERATIVE) {
-            this.totalizerIterativeLeft.push(new LNGIntVector(left));
-            this.totalizerIterativeRight.push(new LNGIntVector(right));
-            this.totalizerIterativeOutput.push(new LNGIntVector(output));
-            this.totalizerIterativeRhs.push(this.currentCardinalityRhs);
+        if (incrementalStrategy == MaxSATConfig.IncrementalStrategy.ITERATIVE) {
+            totalizerIterativeLeft.push(new LNGIntVector(left));
+            totalizerIterativeRight.push(new LNGIntVector(right));
+            totalizerIterativeOutput.push(new LNGIntVector(output));
+            totalizerIterativeRhs.push(currentCardinalityRhs);
         }
         for (int i = 0; i <= left.size(); i++) {
             for (int j = 0; j <= right.size(); j++) {
                 if (i == 0 && j == 0) {
                     continue;
                 }
-                if (i + j > this.currentCardinalityRhs + 1) {
+                if (i + j > currentCardinalityRhs + 1) {
                     continue;
                 }
                 if (i == 0) {
-                    addBinaryClause(s, not(right.get(j - 1)), output.get(j - 1), this.blocking);
+                    addBinaryClause(s, not(right.get(j - 1)), output.get(j - 1), blocking);
                 } else if (j == 0) {
-                    addBinaryClause(s, not(left.get(i - 1)), output.get(i - 1), this.blocking);
+                    addBinaryClause(s, not(left.get(i - 1)), output.get(i - 1), blocking);
                 } else {
-                    addTernaryClause(s, not(left.get(i - 1)), not(right.get(j - 1)), output.get(i + j - 1), this.blocking);
+                    addTernaryClause(s, not(left.get(i - 1)), not(right.get(j - 1)), output.get(i + j - 1), blocking);
                 }
             }
         }
     }
 
     protected void incremental(final MiniSatStyleSolver s, final int rhs) {
-        for (int z = 0; z < this.totalizerIterativeRhs.size(); z++) {
-            for (int i = 0; i <= this.totalizerIterativeLeft.get(z).size(); i++) {
-                for (int j = 0; j <= this.totalizerIterativeRight.get(z).size(); j++) {
+        for (int z = 0; z < totalizerIterativeRhs.size(); z++) {
+            for (int i = 0; i <= totalizerIterativeLeft.get(z).size(); i++) {
+                for (int j = 0; j <= totalizerIterativeRight.get(z).size(); j++) {
                     if (i == 0 && j == 0) {
                         continue;
                     }
-                    if (i + j > rhs + 1 || i + j <= this.totalizerIterativeRhs.get(z) + 1) {
+                    if (i + j > rhs + 1 || i + j <= totalizerIterativeRhs.get(z) + 1) {
                         continue;
                     }
                     if (i == 0) {
-                        addBinaryClause(s, not(this.totalizerIterativeRight.get(z).get(j - 1)), this.totalizerIterativeOutput.get(z).get(j - 1));
+                        addBinaryClause(s, not(totalizerIterativeRight.get(z).get(j - 1)), totalizerIterativeOutput.get(z).get(j - 1));
                     } else if (j == 0) {
-                        addBinaryClause(s, not(this.totalizerIterativeLeft.get(z).get(i - 1)), this.totalizerIterativeOutput.get(z).get(i - 1));
+                        addBinaryClause(s, not(totalizerIterativeLeft.get(z).get(i - 1)), totalizerIterativeOutput.get(z).get(i - 1));
                     } else {
-                        addTernaryClause(s, not(this.totalizerIterativeLeft.get(z).get(i - 1)), not(this.totalizerIterativeRight.get(z).get(j - 1)), this.totalizerIterativeOutput.get(z).get(i + j - 1));
+                        addTernaryClause(s, not(totalizerIterativeLeft.get(z).get(i - 1)), not(totalizerIterativeRight.get(z).get(j - 1)), totalizerIterativeOutput.get(z).get(i + j - 1));
                     }
                 }
             }
-            this.totalizerIterativeRhs.set(z, rhs);
+            totalizerIterativeRhs.set(z, rhs);
         }
     }
 
@@ -320,7 +296,7 @@ public class Totalizer extends Encoding {
      * @return the literals
      */
     public LNGIntVector lits() {
-        return this.ilits;
+        return ilits;
     }
 
     /**
@@ -328,11 +304,11 @@ public class Totalizer extends Encoding {
      * @return the literals
      */
     public LNGIntVector outputs() {
-        return this.cardinalityOutlits;
+        return cardinalityOutlits;
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName();
+        return getClass().getSimpleName();
     }
 }

@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.solvers.functions;
 
@@ -78,9 +54,9 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
     private OptimizationFunction(final Collection<? extends Literal> literals, final Collection<Variable> additionalVariables, final boolean maximize,
                                  final OptimizationHandler handler) {
         this.literals = literals;
-        this.resultModelVariables = new TreeSet<>(additionalVariables);
+        resultModelVariables = new TreeSet<>(additionalVariables);
         for (final Literal lit : literals) {
-            this.resultModelVariables.add(lit.variable());
+            resultModelVariables.add(lit.variable());
         }
         this.maximize = maximize;
         this.handler = handler;
@@ -126,24 +102,24 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
     }
 
     private Assignment maximize(final MiniSat solver) {
-        start(this.handler);
+        start(handler);
         final FormulaFactory f = solver.factory();
         LNGBooleanVector internalModel;
         final Map<Variable, Literal> selectorMap = new TreeMap<>();
-        for (final Literal lit : this.literals) {
+        for (final Literal lit : literals) {
             final Variable selVar = f.variable(SEL_PREFIX + selectorMap.size());
             selectorMap.put(selVar, lit);
         }
         final Set<Variable> selectors = selectorMap.keySet();
-        if (this.maximize) {
-            selectorMap.forEach((selVar, lit) -> solver.add(f.or(selVar.negate(), lit)));
-            selectorMap.forEach((selVar, lit) -> solver.add(f.or(lit.negate(), selVar)));
+        if (maximize) {
+            selectorMap.forEach((selVar, lit) -> solver.add(f.or(selVar.negate(f), lit)));
+            selectorMap.forEach((selVar, lit) -> solver.add(f.or(lit.negate(f), selVar)));
         } else {
-            selectorMap.forEach((selVar, lit) -> solver.add(f.or(selVar.negate(), lit.negate())));
+            selectorMap.forEach((selVar, lit) -> solver.add(f.or(selVar.negate(f), lit.negate(f))));
             selectorMap.forEach((selVar, lit) -> solver.add(f.or(lit, selVar)));
         }
-        Tristate sat = solver.sat(satHandler(this.handler));
-        if (sat != Tristate.TRUE || aborted(this.handler)) {
+        Tristate sat = solver.sat(satHandler(handler));
+        if (sat != Tristate.TRUE || aborted(handler)) {
             return null;
         }
         internalModel = solver.underlyingSolver().model();
@@ -151,8 +127,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         int currentBound = currentModel.positiveVariables().size();
         if (currentBound == 0) {
             solver.add(f.cc(CType.GE, 1, selectors));
-            sat = solver.sat(satHandler(this.handler));
-            if (aborted(this.handler)) {
+            sat = solver.sat(satHandler(handler));
+            if (aborted(handler)) {
                 return null;
             } else if (sat == Tristate.FALSE) {
                 return mkResultModel(solver, internalModel);
@@ -167,13 +143,13 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         final Formula cc = f.cc(CType.GE, currentBound + 1, selectors);
         assert cc instanceof CardinalityConstraint;
         final CCIncrementalData incrementalData = solver.addIncrementalCC((CardinalityConstraint) cc);
-        sat = solver.sat(satHandler(this.handler));
-        if (aborted(this.handler)) {
+        sat = solver.sat(satHandler(handler));
+        if (aborted(handler)) {
             return null;
         }
         while (sat == Tristate.TRUE) {
             final LNGBooleanVector modelCopy = new LNGBooleanVector(solver.underlyingSolver().model());
-            if (this.handler != null && !this.handler.foundBetterBound(() -> mkResultModel(solver, modelCopy))) {
+            if (handler != null && !handler.foundBetterBound(() -> mkResultModel(solver, modelCopy))) {
                 return null;
             }
             internalModel = modelCopy;
@@ -183,8 +159,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
                 return mkResultModel(solver, internalModel);
             }
             incrementalData.newLowerBoundForSolver(currentBound + 1);
-            sat = solver.sat(satHandler(this.handler));
-            if (aborted(this.handler)) {
+            sat = solver.sat(satHandler(handler));
+            if (aborted(handler)) {
                 return null;
             }
         }
@@ -192,8 +168,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
     }
 
     private Assignment mkResultModel(final MiniSat solver, final LNGBooleanVector internalModel) {
-        final LNGIntVector relevantIndices = new LNGIntVector(this.resultModelVariables.size());
-        for (final Variable var : this.resultModelVariables) {
+        final LNGIntVector relevantIndices = new LNGIntVector(resultModelVariables.size());
+        for (final Variable var : resultModelVariables) {
             relevantIndices.push(solver.underlyingSolver().idxForName(var.name()));
         }
         return solver.createAssignment(internalModel, relevantIndices);
@@ -238,7 +214,7 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
          * @return the current builder
          */
         public Builder additionalVariables(final Collection<Variable> variables) {
-            this.additionalVariables = variables;
+            additionalVariables = variables;
             return this;
         }
 
@@ -248,7 +224,7 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
          * @return the current builder
          */
         public Builder additionalVariables(final Variable... variables) {
-            this.additionalVariables = Arrays.asList(variables);
+            additionalVariables = Arrays.asList(variables);
             return this;
         }
 
@@ -257,7 +233,7 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
          * @return the current builder
          */
         public Builder minimize() {
-            this.maximize = false;
+            maximize = false;
             return this;
         }
 
@@ -266,7 +242,7 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
          * @return the current builder
          */
         public Builder maximize() {
-            this.maximize = true;
+            maximize = true;
             return this;
         }
 
@@ -285,7 +261,7 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
          * @return the optimization function
          */
         public OptimizationFunction build() {
-            return new OptimizationFunction(this.literals, this.additionalVariables, this.maximize, this.handler);
+            return new OptimizationFunction(literals, additionalVariables, maximize, handler);
         }
     }
 }

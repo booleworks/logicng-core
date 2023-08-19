@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * Glucose -- Copyright (c) 2009-2014, Gilles Audemard, Laurent Simon
@@ -96,12 +72,12 @@ public final class LNGBoundedLongQueue {
      * Constructs a new bounded long queue.
      */
     public LNGBoundedLongQueue() {
-        this.elems = new LNGLongVector();
-        this.first = 0;
-        this.last = 0;
-        this.sumOfQueue = 0;
-        this.maxSize = 0;
-        this.queueSize = 0;
+        elems = new LNGLongVector();
+        first = 0;
+        last = 0;
+        sumOfQueue = 0;
+        maxSize = 0;
+        queueSize = 0;
     }
 
     LNGBoundedLongQueue(final LNGLongVector elems, final int first, final int last, final long sumOfQueue, final int maxSize, final int queueSize) {
@@ -118,7 +94,7 @@ public final class LNGBoundedLongQueue {
      * @param size the size
      */
     public void initSize(final int size) {
-        this.growTo(size);
+        growTo(size);
     }
 
     /**
@@ -126,20 +102,20 @@ public final class LNGBoundedLongQueue {
      * @param x the new element
      */
     public void push(final long x) {
-        if (this.queueSize == this.maxSize) {
-            assert this.last == this.first;
-            this.sumOfQueue -= this.elems.get(this.last);
-            if ((++this.last) == this.maxSize) {
-                this.last = 0;
+        if (queueSize == maxSize) {
+            assert last == first;
+            sumOfQueue -= elems.get(last);
+            if ((++last) == maxSize) {
+                last = 0;
             }
         } else {
-            this.queueSize++;
+            queueSize++;
         }
-        this.sumOfQueue += x;
-        this.elems.set(this.first, x);
-        if ((++this.first) == this.maxSize) {
-            this.first = 0;
-            this.last = 0;
+        sumOfQueue += x;
+        elems.set(first, x);
+        if ((++first) == maxSize) {
+            first = 0;
+            last = 0;
         }
     }
 
@@ -148,7 +124,7 @@ public final class LNGBoundedLongQueue {
      * @return the average value of this queue
      */
     public int avg() {
-        return (int) (this.sumOfQueue / this.queueSize);
+        return (int) (sumOfQueue / queueSize);
     }
 
     /**
@@ -156,7 +132,7 @@ public final class LNGBoundedLongQueue {
      * @return {@code true} if this queue is valid
      */
     public boolean valid() {
-        return this.queueSize == this.maxSize;
+        return queueSize == maxSize;
     }
 
     /**
@@ -164,50 +140,50 @@ public final class LNGBoundedLongQueue {
      * @param size the size
      */
     private void growTo(final int size) {
-        this.elems.growTo(size, 0);
-        this.first = 0;
-        this.maxSize = size;
-        this.queueSize = 0;
-        this.last = 0;
+        elems.growTo(size, 0);
+        first = 0;
+        maxSize = size;
+        queueSize = 0;
+        last = 0;
     }
 
     /**
      * Performs a fast clear of this queue (the elements are left untouched).
      */
     public void fastClear() {
-        this.first = 0;
-        this.last = 0;
-        this.queueSize = 0;
-        this.sumOfQueue = 0;
+        first = 0;
+        last = 0;
+        queueSize = 0;
+        sumOfQueue = 0;
     }
 
     LNGLongVector getElems() {
-        return this.elems;
+        return elems;
     }
 
     int getFirst() {
-        return this.first;
+        return first;
     }
 
     int getLast() {
-        return this.last;
+        return last;
     }
 
     long getSumOfQueue() {
-        return this.sumOfQueue;
+        return sumOfQueue;
     }
 
     int getMaxSize() {
-        return this.maxSize;
+        return maxSize;
     }
 
     int getQueueSize() {
-        return this.queueSize;
+        return queueSize;
     }
 
     @Override
     public String toString() {
         return String.format("LNGBoundedLongQueue{first=%d, last=%d, sumOfQueue=%d, maxSize=%d, queueSize=%d, elems=%s}",
-                this.first, this.last, this.sumOfQueue, this.maxSize, this.queueSize, this.elems);
+                first, last, sumOfQueue, maxSize, queueSize, elems);
     }
 }

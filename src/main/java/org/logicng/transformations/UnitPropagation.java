@@ -37,7 +37,8 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
     /**
      * Constructs a new transformation.  For all factory type the provided cache will be used.
      * If it is null, no cache will be used.
-     * @param f the formula factory to generate new formulas
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache for this transformation
      */
     public UnitPropagation(final FormulaFactory f, final Map<Formula, Formula> cache) {
         super(f, UNIT_PROPAGATION, cache);

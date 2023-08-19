@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.solvers;
 
@@ -87,7 +63,7 @@ public class MaxSATSolver {
         this.f = f;
         this.algorithm = algorithm;
         this.configuration = configuration;
-        this.reset();
+        reset();
     }
 
     /**
@@ -231,7 +207,7 @@ public class MaxSATSolver {
      * @return whether this solver can handle weighted instances or not
      */
     public boolean isWeighted() {
-        return this.algorithm == Algorithm.INC_WBO || this.algorithm == Algorithm.WMSU3 || this.algorithm == Algorithm.WBO || this.algorithm == Algorithm.OLL;
+        return algorithm == Algorithm.INC_WBO || algorithm == Algorithm.WMSU3 || algorithm == Algorithm.WBO || algorithm == Algorithm.OLL;
     }
 
     /**
@@ -239,34 +215,34 @@ public class MaxSATSolver {
      * @throws IllegalArgumentException if the algorithm was unknown
      */
     public void reset() {
-        this.result = UNDEF;
-        this.var2index = new TreeMap<>();
-        this.index2var = new TreeMap<>();
-        this.selectorVariables = new TreeSet<>();
-        switch (this.algorithm) {
+        result = UNDEF;
+        var2index = new TreeMap<>();
+        index2var = new TreeMap<>();
+        selectorVariables = new TreeSet<>();
+        switch (algorithm) {
             case WBO:
-                this.solver = new WBO(this.configuration);
+                solver = new WBO(configuration);
                 break;
             case INC_WBO:
-                this.solver = new IncWBO(this.configuration);
+                solver = new IncWBO(configuration);
                 break;
             case LINEAR_SU:
-                this.solver = new LinearSU(this.configuration);
+                solver = new LinearSU(configuration);
                 break;
             case LINEAR_US:
-                this.solver = new LinearUS(this.configuration);
+                solver = new LinearUS(configuration);
                 break;
             case MSU3:
-                this.solver = new MSU3(this.configuration);
+                solver = new MSU3(configuration);
                 break;
             case WMSU3:
-                this.solver = new WMSU3(this.configuration);
+                solver = new WMSU3(configuration);
                 break;
             case OLL:
-                this.solver = new OLL(this.configuration);
+                solver = new OLL(configuration);
                 break;
             default:
-                throw new IllegalArgumentException("Unknown MaxSAT algorithm: " + this.algorithm);
+                throw new IllegalArgumentException("Unknown MaxSAT algorithm: " + algorithm);
         }
     }
 
@@ -276,10 +252,10 @@ public class MaxSATSolver {
      * @throws IllegalStateException if a formula is added to a solver which is already solved.
      */
     public void addHardFormula(final Formula formula) {
-        if (this.result != UNDEF) {
+        if (result != UNDEF) {
             throw new IllegalStateException("The MaxSAT solver does currently not support an incremental interface.  Reset the solver.");
         }
-        addCNF(formula.cnf(), -1);
+        addCNF(formula.cnf(f), -1);
     }
 
     /**
@@ -290,17 +266,16 @@ public class MaxSATSolver {
      * @throws IllegalArgumentException if the weight is &lt;1
      */
     public void addSoftFormula(final Formula formula, final int weight) {
-        if (this.result != UNDEF) {
+        if (result != UNDEF) {
             throw new IllegalStateException("The MaxSAT solver does currently not support an incremental interface.  Reset the solver.");
         }
         if (weight < 1) {
             throw new IllegalArgumentException("The weight of a formula must be > 0");
         }
-        final FormulaFactory f = formula.factory();
-        final Variable selVar = f.variable(SEL_PREFIX + this.selectorVariables.size());
-        this.selectorVariables.add(selVar);
-        addHardFormula(f.or(selVar.negate(), formula));
-        addHardFormula(f.or(formula.negate(), selVar));
+        final Variable selVar = f.variable(SEL_PREFIX + selectorVariables.size());
+        selectorVariables.add(selVar);
+        addHardFormula(f.or(selVar.negate(f), formula));
+        addHardFormula(f.or(formula.negate(f), selVar));
         addClause(selVar, weight);
     }
 
@@ -316,11 +291,11 @@ public class MaxSATSolver {
             case FALSE:
             case LITERAL:
             case OR:
-                this.addClause(formula, weight);
+                addClause(formula, weight);
                 break;
             case AND:
                 for (final Formula op : formula) {
-                    this.addClause(op, weight);
+                    addClause(op, weight);
                 }
                 break;
             default:
@@ -334,24 +309,24 @@ public class MaxSATSolver {
      * @param weight  the weight of the clause (or -1 for a hard clause)
      */
     protected void addClause(final Formula formula, final int weight) {
-        this.result = UNDEF;
+        result = UNDEF;
         final LNGIntVector clauseVec = new LNGIntVector((int) formula.numberOfAtoms());
         for (final Literal lit : formula.literals()) {
-            Integer index = this.var2index.get(lit.variable());
+            Integer index = var2index.get(lit.variable());
             if (index == null) {
-                index = this.solver.newLiteral(false) >> 1;
-                this.var2index.put(lit.variable(), index);
-                this.index2var.put(index, lit.variable());
+                index = solver.newLiteral(false) >> 1;
+                var2index.put(lit.variable(), index);
+                index2var.put(index, lit.variable());
             }
             final int litNum = lit.phase() ? index * 2 : (index * 2) ^ 1;
             clauseVec.push(litNum);
         }
         if (weight == -1) {
-            this.solver.addHardClause(clauseVec);
+            solver.addHardClause(clauseVec);
         } else {
-            this.solver.setCurrentWeight(weight);
-            this.solver.updateSumWeights(weight);
-            this.solver.addSoftClause(weight, clauseVec);
+            solver.setCurrentWeight(weight);
+            solver.updateSumWeights(weight);
+            solver.addSoftClause(weight, clauseVec);
         }
     }
 
@@ -369,16 +344,16 @@ public class MaxSATSolver {
      * @return the result (SAT, UNSAT, Optimum found, or UNDEF if canceled by the handler)
      */
     public MaxSAT.MaxSATResult solve(final MaxSATHandler handler) {
-        if (this.result != UNDEF) {
-            return this.result;
+        if (result != UNDEF) {
+            return result;
         }
-        if (this.solver.currentWeight() == 1) {
-            this.solver.setProblemType(MaxSAT.ProblemType.UNWEIGHTED);
+        if (solver.currentWeight() == 1) {
+            solver.setProblemType(MaxSAT.ProblemType.UNWEIGHTED);
         } else {
-            this.solver.setProblemType(MaxSAT.ProblemType.WEIGHTED);
+            solver.setProblemType(MaxSAT.ProblemType.WEIGHTED);
         }
-        this.result = this.solver.search(handler);
-        return this.result;
+        result = solver.search(handler);
+        return result;
     }
 
     /**
@@ -388,10 +363,10 @@ public class MaxSATSolver {
      * @throws IllegalStateException if the formula is not yet solved
      */
     public int result() {
-        if (this.result == UNDEF) {
+        if (result == UNDEF) {
             throw new IllegalStateException("Cannot get a result as long as the formula is not solved.  Call 'solver' first.");
         }
-        return this.result == OPTIMUM ? this.solver.result() : -1;
+        return result == OPTIMUM ? solver.result() : -1;
     }
 
     /**
@@ -400,10 +375,10 @@ public class MaxSATSolver {
      * @throws IllegalStateException if the formula is not yet solved
      */
     public Assignment model() {
-        if (this.result == UNDEF) {
+        if (result == UNDEF) {
             throw new IllegalStateException("Cannot get a model as long as the formula is not solved.  Call 'solver' first.");
         }
-        return this.result != UNSATISFIABLE ? this.createAssignment(this.solver.model()) : null;
+        return result != UNSATISFIABLE ? createAssignment(solver.model()) : null;
     }
 
     /**
@@ -414,12 +389,12 @@ public class MaxSATSolver {
     protected Assignment createAssignment(final LNGBooleanVector vec) {
         final Assignment model = new Assignment();
         for (int i = 0; i < vec.size(); i++) {
-            final Literal lit = this.index2var.get(i);
-            if (lit != null && !this.selectorVariables.contains(lit.variable())) {
+            final Literal lit = index2var.get(i);
+            if (lit != null && !selectorVariables.contains(lit.variable())) {
                 if (vec.get(i)) {
                     model.addLiteral(lit);
                 } else {
-                    model.addLiteral(lit.negate());
+                    model.addLiteral(lit.negate(f));
                 }
             }
         }
@@ -431,7 +406,7 @@ public class MaxSATSolver {
      * @return the stats of the underlying solver
      */
     public MaxSAT.Stats stats() {
-        return this.solver.stats();
+        return solver.stats();
     }
 
     /**
@@ -439,7 +414,7 @@ public class MaxSATSolver {
      * @return the algorithm
      */
     public Algorithm getAlgorithm() {
-        return this.algorithm;
+        return algorithm;
     }
 
     /**
@@ -447,11 +422,11 @@ public class MaxSATSolver {
      * @return the formula factory
      */
     public FormulaFactory factory() {
-        return this.f;
+        return f;
     }
 
     @Override
     public String toString() {
-        return String.format("MaxSATSolver{result=%s, var2index=%s}", this.result, this.var2index);
+        return String.format("MaxSATSolver{result=%s, var2index=%s}", result, var2index);
     }
 }

@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines Lynce
@@ -78,14 +54,14 @@ public class SequentialWeightCounter extends Encoding {
      * Constructs a new sequential weight counter encoder.
      */
     SequentialWeightCounter() {
-        this.currentPbRhs = -1;
-        this.currentLitBlocking = LIT_UNDEF;
-        this.pbOutlits = new LNGIntVector();
-        this.unitLits = new LNGIntVector();
-        this.unitCoeffs = new LNGIntVector();
-        this.seqAuxiliaryInc = new LNGVector<>();
-        this.litsInc = new LNGIntVector();
-        this.coeffsInc = new LNGIntVector();
+        currentPbRhs = -1;
+        currentLitBlocking = LIT_UNDEF;
+        pbOutlits = new LNGIntVector();
+        unitLits = new LNGIntVector();
+        unitCoeffs = new LNGIntVector();
+        seqAuxiliaryInc = new LNGVector<>();
+        litsInc = new LNGIntVector();
+        coeffsInc = new LNGIntVector();
     }
 
     /**
@@ -93,9 +69,9 @@ public class SequentialWeightCounter extends Encoding {
      * @param assumptions the current assumptions
      */
     void updateAssumptions(final LNGIntVector assumptions) {
-        assumptions.push(not(this.currentLitBlocking));
-        for (int i = 0; i < this.unitLits.size(); i++) {
-            assumptions.push(not(this.unitLits.get(i)));
+        assumptions.push(not(currentLitBlocking));
+        for (int i = 0; i < unitLits.size(); i++) {
+            assumptions.push(not(unitLits.get(i)));
         }
     }
 
@@ -104,7 +80,7 @@ public class SequentialWeightCounter extends Encoding {
      * @return {@code true} if an encoding was created
      */
     boolean hasCreatedEncoding() {
-        return this.hasEncoding;
+        return hasEncoding;
     }
 
     /**
@@ -118,7 +94,7 @@ public class SequentialWeightCounter extends Encoding {
         if (rhs == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Overflow in the encoding.");
         }
-        this.hasEncoding = false;
+        hasEncoding = false;
         final LNGIntVector simpLits = new LNGIntVector(lits);
         final LNGIntVector simpCoeffs = new LNGIntVector(coeffs);
         lits.clear();
@@ -151,7 +127,7 @@ public class SequentialWeightCounter extends Encoding {
             }
         }
         for (int i = 1; i <= rhs; ++i) {
-            this.pbOutlits.push(seqAuxiliary[n].get(i));
+            pbOutlits.push(seqAuxiliary[n].get(i));
         }
         for (int i = 1; i <= n; i++) {
             final int wi = coeffs.get(i - 1);
@@ -171,8 +147,8 @@ public class SequentialWeightCounter extends Encoding {
                 addBinaryClause(s, not(seqAuxiliary[i - 1].get(rhs + 1 - wi)), not(lits.get(i - 1)));
             }
         }
-        this.currentPbRhs = rhs;
-        this.hasEncoding = true;
+        currentPbRhs = rhs;
+        hasEncoding = true;
     }
 
     /**
@@ -189,22 +165,22 @@ public class SequentialWeightCounter extends Encoding {
         if (rhs == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Overflow in the encoding.");
         }
-        this.hasEncoding = false;
+        hasEncoding = false;
         final LNGIntVector simpLits = new LNGIntVector(lits);
         final LNGIntVector simpCoeffs = new LNGIntVector(coeffs);
         lits.clear();
         coeffs.clear();
-        final LNGIntVector simpUnitLits = new LNGIntVector(this.unitLits);
-        final LNGIntVector simpUnitCoeffs = new LNGIntVector(this.unitCoeffs);
-        this.unitLits.clear();
-        this.unitCoeffs.clear();
+        final LNGIntVector simpUnitLits = new LNGIntVector(unitLits);
+        final LNGIntVector simpUnitCoeffs = new LNGIntVector(unitCoeffs);
+        unitLits.clear();
+        unitCoeffs.clear();
         for (int i = 0; i < simpUnitLits.size(); i++) {
             if (simpUnitCoeffs.get(i) <= rhs) {
                 lits.push(simpUnitLits.get(i));
                 coeffs.push(simpUnitCoeffs.get(i));
             } else {
-                this.unitLits.push(simpUnitLits.get(i));
-                this.unitCoeffs.push(simpUnitCoeffs.get(i));
+                unitLits.push(simpUnitLits.get(i));
+                unitCoeffs.push(simpUnitCoeffs.get(i));
             }
         }
         for (int i = 0; i < simpLits.size(); i++) {
@@ -212,65 +188,65 @@ public class SequentialWeightCounter extends Encoding {
                 lits.push(simpLits.get(i));
                 coeffs.push(simpCoeffs.get(i));
             } else {
-                this.unitLits.push(simpLits.get(i));
-                this.unitCoeffs.push(simpCoeffs.get(i));
+                unitLits.push(simpLits.get(i));
+                unitCoeffs.push(simpCoeffs.get(i));
             }
         }
         if (lits.size() == 1) {
-            for (int i = 0; i < this.unitLits.size(); i++) {
-                assumptions.push(not(this.unitLits.get(i)));
+            for (int i = 0; i < unitLits.size(); i++) {
+                assumptions.push(not(unitLits.get(i)));
             }
-            this.unitLits.push(lits.get(0));
-            this.unitCoeffs.push(coeffs.get(0));
+            unitLits.push(lits.get(0));
+            unitCoeffs.push(coeffs.get(0));
             return;
         }
         if (lits.size() == 0) {
-            for (int i = 0; i < this.unitLits.size(); i++) {
-                assumptions.push(not(this.unitLits.get(i)));
+            for (int i = 0; i < unitLits.size(); i++) {
+                assumptions.push(not(unitLits.get(i)));
             }
             return;
         }
         final int n = lits.size();
-        this.seqAuxiliaryInc = new LNGVector<>(size + 1);
+        seqAuxiliaryInc = new LNGVector<>(size + 1);
         for (int i = 0; i <= n; i++) {
-            this.seqAuxiliaryInc.set(i, new LNGIntVector());
-            this.seqAuxiliaryInc.get(i).growTo(rhs + 1, -1);
+            seqAuxiliaryInc.set(i, new LNGIntVector());
+            seqAuxiliaryInc.get(i).growTo(rhs + 1, -1);
         }
         for (int i = 1; i <= n; ++i) {
             for (int j = 1; j <= rhs; ++j) {
-                this.seqAuxiliaryInc.get(i).set(j, mkLit(s.nVars(), false));
+                seqAuxiliaryInc.get(i).set(j, mkLit(s.nVars(), false));
                 newSATVariable(s);
             }
         }
         final int blocking = mkLit(s.nVars(), false);
         newSATVariable(s);
-        this.currentLitBlocking = blocking;
+        currentLitBlocking = blocking;
         assumptions.push(not(blocking));
         for (int i = 1; i <= n; i++) {
             final int wi = coeffs.get(i - 1);
             assert rhs >= wi;
             for (int j = 1; j <= rhs; j++) {
                 if (i >= 2 && i <= n) {
-                    addBinaryClause(s, not(this.seqAuxiliaryInc.get(i - 1).get(j)), this.seqAuxiliaryInc.get(i).get(j));
+                    addBinaryClause(s, not(seqAuxiliaryInc.get(i - 1).get(j)), seqAuxiliaryInc.get(i).get(j));
                 }
                 if (i <= n && j <= wi) {
-                    addBinaryClause(s, not(lits.get(i - 1)), this.seqAuxiliaryInc.get(i).get(j));
+                    addBinaryClause(s, not(lits.get(i - 1)), seqAuxiliaryInc.get(i).get(j));
                 }
                 if (i >= 2 && i <= n && j <= rhs - wi) {
-                    addTernaryClause(s, not(this.seqAuxiliaryInc.get(i - 1).get(j)), not(lits.get(i - 1)), this.seqAuxiliaryInc.get(i).get(j + wi));
+                    addTernaryClause(s, not(seqAuxiliaryInc.get(i - 1).get(j)), not(lits.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
                 }
             }
             if (i >= 2) {
-                addBinaryClause(s, not(this.seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)), not(lits.get(i - 1)), blocking);
+                addBinaryClause(s, not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)), not(lits.get(i - 1)), blocking);
             }
         }
-        for (int i = 0; i < this.unitLits.size(); i++) {
-            assumptions.push(not(this.unitLits.get(i)));
+        for (int i = 0; i < unitLits.size(); i++) {
+            assumptions.push(not(unitLits.get(i)));
         }
-        this.currentPbRhs = rhs;
-        this.hasEncoding = true;
-        this.litsInc = new LNGIntVector(lits);
-        this.coeffsInc = new LNGIntVector(coeffs);
+        currentPbRhs = rhs;
+        hasEncoding = true;
+        litsInc = new LNGIntVector(lits);
+        coeffsInc = new LNGIntVector(coeffs);
     }
 
     /**
@@ -280,11 +256,11 @@ public class SequentialWeightCounter extends Encoding {
      * @param rhs the new right-hand side
      */
     public void update(final MiniSatStyleSolver s, final int rhs) {
-        assert this.currentPbRhs != -1;
-        for (int i = rhs; i < this.currentPbRhs; i++) {
-            addUnitClause(s, not(this.pbOutlits.get(i)));
+        assert currentPbRhs != -1;
+        for (int i = rhs; i < currentPbRhs; i++) {
+            addUnitClause(s, not(pbOutlits.get(i)));
         }
-        this.currentPbRhs = rhs;
+        currentPbRhs = rhs;
     }
 
     /**
@@ -293,50 +269,50 @@ public class SequentialWeightCounter extends Encoding {
      * @param rhs the new right-hand side
      */
     public void updateInc(final MiniSatStyleSolver s, final int rhs) {
-        if (this.currentLitBlocking != LIT_UNDEF) {
-            addUnitClause(s, this.currentLitBlocking);
+        if (currentLitBlocking != LIT_UNDEF) {
+            addUnitClause(s, currentLitBlocking);
         }
-        final int n = this.litsInc.size();
-        final int offset = this.currentPbRhs + 1;
-        assert this.currentPbRhs < rhs;
+        final int n = litsInc.size();
+        final int offset = currentPbRhs + 1;
+        assert currentPbRhs < rhs;
         for (int i = 1; i <= n; i++) {
             for (int j = offset; j <= rhs; j++) {
-                this.seqAuxiliaryInc.get(i).push(LIT_UNDEF);
+                seqAuxiliaryInc.get(i).push(LIT_UNDEF);
             }
         }
         for (int i = 1; i <= n; ++i) {
             for (int j = offset; j <= rhs; ++j) {
-                assert this.seqAuxiliaryInc.get(i).size() > j;
-                this.seqAuxiliaryInc.get(i).set(j, mkLit(s.nVars(), false));
+                assert seqAuxiliaryInc.get(i).size() > j;
+                seqAuxiliaryInc.get(i).set(j, mkLit(s.nVars(), false));
                 newSATVariable(s);
             }
         }
-        for (int i = 1; i < this.litsInc.size(); i++) {
-            assert this.seqAuxiliaryInc.get(i).size() == rhs + 1;
+        for (int i = 1; i < litsInc.size(); i++) {
+            assert seqAuxiliaryInc.get(i).size() == rhs + 1;
         }
-        this.currentLitBlocking = mkLit(s.nVars(), false);
+        currentLitBlocking = mkLit(s.nVars(), false);
         newSATVariable(s);
         for (int i = 1; i <= n; i++) {
-            final int wi = this.coeffsInc.get(i - 1);
+            final int wi = coeffsInc.get(i - 1);
             assert wi > 0;
             assert rhs >= wi;
             for (int j = 1; j <= rhs; j++) {
                 if (i >= 2 && i <= n && j <= rhs && j >= offset) {
-                    assert this.seqAuxiliaryInc.get(i).size() > j;
-                    addBinaryClause(s, not(this.seqAuxiliaryInc.get(i - 1).get(j)), this.seqAuxiliaryInc.get(i).get(j));
+                    assert seqAuxiliaryInc.get(i).size() > j;
+                    addBinaryClause(s, not(seqAuxiliaryInc.get(i - 1).get(j)), seqAuxiliaryInc.get(i).get(j));
                 }
                 if (i >= 2 && i <= n && j <= rhs - wi && j >= offset - wi) {
-                    addTernaryClause(s, not(this.seqAuxiliaryInc.get(i - 1).get(j)), not(this.litsInc.get(i - 1)), this.seqAuxiliaryInc.get(i).get(j + wi));
+                    addTernaryClause(s, not(seqAuxiliaryInc.get(i - 1).get(j)), not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
                 }
             }
             if (i >= 2) {
-                assert this.seqAuxiliaryInc.get(i - 1).size() > rhs + 1 - wi;
+                assert seqAuxiliaryInc.get(i - 1).size() > rhs + 1 - wi;
                 assert rhs + 1 - wi > 0;
-                assert i - 1 < this.litsInc.size();
-                addBinaryClause(s, not(this.seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)), not(this.litsInc.get(i - 1)), this.currentLitBlocking);
+                assert i - 1 < litsInc.size();
+                addBinaryClause(s, not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)), not(litsInc.get(i - 1)), currentLitBlocking);
             }
         }
-        this.currentPbRhs = rhs;
+        currentPbRhs = rhs;
     }
 
     /**
@@ -346,80 +322,80 @@ public class SequentialWeightCounter extends Encoding {
      * @param coeffs the coefficients of the constraint
      */
     void join(final MiniSatStyleSolver s, final LNGIntVector lits, final LNGIntVector coeffs) {
-        assert this.currentLitBlocking != LIT_UNDEF;
-        final int rhs = this.currentPbRhs;
+        assert currentLitBlocking != LIT_UNDEF;
+        final int rhs = currentPbRhs;
         if (rhs == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Overflow in the encoding.");
         }
-        final LNGIntVector simpUnitLits = new LNGIntVector(this.unitLits);
-        final LNGIntVector simpUnitCoeffs = new LNGIntVector(this.unitCoeffs);
-        this.unitLits.clear();
-        this.unitCoeffs.clear();
-        final int lhsJoin = this.litsInc.size();
+        final LNGIntVector simpUnitLits = new LNGIntVector(unitLits);
+        final LNGIntVector simpUnitCoeffs = new LNGIntVector(unitCoeffs);
+        unitLits.clear();
+        unitCoeffs.clear();
+        final int lhsJoin = litsInc.size();
         for (int i = 0; i < simpUnitLits.size(); i++) {
             if (simpUnitCoeffs.get(i) <= rhs) {
-                this.litsInc.push(simpUnitLits.get(i));
-                this.coeffsInc.push(simpUnitCoeffs.get(i));
+                litsInc.push(simpUnitLits.get(i));
+                coeffsInc.push(simpUnitCoeffs.get(i));
             } else {
-                this.unitLits.push(simpUnitLits.get(i));
-                this.unitCoeffs.push(simpUnitCoeffs.get(i));
+                unitLits.push(simpUnitLits.get(i));
+                unitCoeffs.push(simpUnitCoeffs.get(i));
             }
         }
         for (int i = 0; i < lits.size(); i++) {
             if (coeffs.get(i) <= rhs) {
-                this.litsInc.push(lits.get(i));
-                this.coeffsInc.push(coeffs.get(i));
+                litsInc.push(lits.get(i));
+                coeffsInc.push(coeffs.get(i));
             } else {
-                this.unitLits.push(lits.get(i));
-                this.unitCoeffs.push(coeffs.get(i));
+                unitLits.push(lits.get(i));
+                unitCoeffs.push(coeffs.get(i));
             }
         }
-        if (this.litsInc.size() == lhsJoin) {
+        if (litsInc.size() == lhsJoin) {
             return;
         }
-        final int n = this.litsInc.size();
-        assert this.seqAuxiliaryInc.get(lhsJoin).size() > 0;
+        final int n = litsInc.size();
+        assert seqAuxiliaryInc.get(lhsJoin).size() > 0;
         for (int i = lhsJoin + 1; i <= n; i++) {
-            this.seqAuxiliaryInc.set(i, new LNGIntVector());
-            this.seqAuxiliaryInc.get(i).growTo(rhs + 1, -1);
+            seqAuxiliaryInc.set(i, new LNGIntVector());
+            seqAuxiliaryInc.get(i).growTo(rhs + 1, -1);
         }
         for (int i = lhsJoin + 1; i <= n; ++i) {
             for (int j = 1; j <= rhs; ++j) {
-                this.seqAuxiliaryInc.get(i).set(j, mkLit(s.nVars(), false));
+                seqAuxiliaryInc.get(i).set(j, mkLit(s.nVars(), false));
                 newSATVariable(s);
             }
         }
         for (int i = 1; i <= n; i++) {
-            assert this.seqAuxiliaryInc.get(i).size() == rhs + 1;
+            assert seqAuxiliaryInc.get(i).size() == rhs + 1;
         }
         for (int i = lhsJoin; i <= n; i++) {
-            final int wi = this.coeffsInc.get(i - 1);
+            final int wi = coeffsInc.get(i - 1);
             assert wi > 0;
             assert wi <= rhs;
             for (int j = 1; j <= rhs; j++) {
-                assert this.seqAuxiliaryInc.get(i).size() > j;
-                assert this.seqAuxiliaryInc.get(i - 1).size() > j;
-                addBinaryClause(s, not(this.seqAuxiliaryInc.get(i - 1).get(j)), this.seqAuxiliaryInc.get(i).get(j));
+                assert seqAuxiliaryInc.get(i).size() > j;
+                assert seqAuxiliaryInc.get(i - 1).size() > j;
+                addBinaryClause(s, not(seqAuxiliaryInc.get(i - 1).get(j)), seqAuxiliaryInc.get(i).get(j));
                 if (j <= wi) {
-                    assert this.seqAuxiliaryInc.get(i).size() > j;
-                    assert i - 1 < this.litsInc.size() && i - 1 >= 0;
-                    addBinaryClause(s, not(this.litsInc.get(i - 1)), this.seqAuxiliaryInc.get(i).get(j));
+                    assert seqAuxiliaryInc.get(i).size() > j;
+                    assert i - 1 < litsInc.size() && i - 1 >= 0;
+                    addBinaryClause(s, not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j));
                 }
                 if (j <= rhs - wi) {
-                    addTernaryClause(s, not(this.seqAuxiliaryInc.get(i - 1).get(j)), not(this.litsInc.get(i - 1)), this.seqAuxiliaryInc.get(i).get(j + wi));
+                    addTernaryClause(s, not(seqAuxiliaryInc.get(i - 1).get(j)), not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
                 }
             }
             if (i > lhsJoin) {
                 assert rhs + 1 - wi >= 0;
-                assert this.seqAuxiliaryInc.get(i - 1).size() > rhs + 1 - wi;
-                assert i - 1 < this.litsInc.size();
-                addBinaryClause(s, not(this.seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)), not(this.litsInc.get(i - 1)), this.currentLitBlocking);
+                assert seqAuxiliaryInc.get(i - 1).size() > rhs + 1 - wi;
+                assert i - 1 < litsInc.size();
+                addBinaryClause(s, not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)), not(litsInc.get(i - 1)), currentLitBlocking);
             }
         }
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName();
+        return getClass().getSimpleName();
     }
 }

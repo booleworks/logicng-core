@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.solvers;
 
@@ -109,7 +85,7 @@ public abstract class SATSolver {
      * @param proposition the proposition
      */
     public void add(final Proposition proposition) {
-        this.add(proposition.formula(), proposition);
+        add(proposition.formula(), proposition);
     }
 
     /**
@@ -118,7 +94,7 @@ public abstract class SATSolver {
      */
     public void add(final Collection<? extends Formula> formulas) {
         for (final Formula formula : formulas) {
-            this.add(formula);
+            add(formula);
         }
     }
 
@@ -129,7 +105,7 @@ public abstract class SATSolver {
      * @param formula       the formula
      */
     public void addWithRelaxation(final Variable relaxationVar, final Formula formula) {
-        this.add(this.f.or(relaxationVar, formula));
+        add(f.or(relaxationVar, formula));
     }
 
     /**
@@ -140,7 +116,7 @@ public abstract class SATSolver {
      */
     public void addWithRelaxation(final Variable relaxationVar, final Collection<? extends Formula> formulas) {
         for (final Formula formula : formulas) {
-            this.addWithRelaxation(relaxationVar, formula);
+            addWithRelaxation(relaxationVar, formula);
         }
     }
 
@@ -171,11 +147,11 @@ public abstract class SATSolver {
             case FALSE:
             case LITERAL:
             case OR:
-                this.addClause(formula, proposition);
+                addClause(formula, proposition);
                 break;
             case AND:
                 for (final Formula op : formula) {
-                    this.addClause(op, proposition);
+                    addClause(op, proposition);
                 }
                 break;
             default:
@@ -196,7 +172,7 @@ public abstract class SATSolver {
      * @return the satisfiability of the formula in the solver
      */
     public Tristate sat() {
-        return this.sat((SATHandler) null);
+        return sat((SATHandler) null);
     }
 
     /**
@@ -214,7 +190,7 @@ public abstract class SATSolver {
      * @return the satisfiability of the formula in the solver
      */
     public Tristate sat(final Literal literal) {
-        return this.sat(null, literal);
+        return sat(null, literal);
     }
 
     /**
@@ -226,7 +202,7 @@ public abstract class SATSolver {
      * @return the satisfiability of the formula in the solver
      */
     public Tristate sat(final Collection<? extends Literal> assumptions) {
-        return this.sat(null, assumptions);
+        return sat(null, assumptions);
     }
 
     /**
@@ -299,7 +275,7 @@ public abstract class SATSolver {
      * @return a model of the current formula
      */
     public Assignment model() {
-        return this.model((Collection<Variable>) null);
+        return model((Collection<Variable>) null);
     }
 
     /**
@@ -311,7 +287,7 @@ public abstract class SATSolver {
      * @throws IllegalStateException if the formula is not yet solved
      */
     public Assignment model(final Variable[] variables) {
-        return this.model(Arrays.asList(variables));
+        return model(Arrays.asList(variables));
     }
 
     /**
@@ -380,7 +356,7 @@ public abstract class SATSolver {
      * Sets the solver state to UNDEF (required if you fiddle e.g. with the underlying solver).
      */
     public void setSolverToUndef() {
-        this.result = Tristate.UNDEF;
+        result = Tristate.UNDEF;
     }
 
     /**
@@ -426,7 +402,7 @@ public abstract class SATSolver {
      * @return the formula factory
      */
     public FormulaFactory factory() {
-        return this.f;
+        return f;
     }
 
     /**
