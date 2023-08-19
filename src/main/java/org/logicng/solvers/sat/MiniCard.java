@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * MiniCARD Copyright (c) 2012, Mark Liffiton, Jordyn Maglalang
@@ -87,29 +63,29 @@ public class MiniCard extends MiniSatStyleSolver {
      */
     public MiniCard(final MiniSatConfig config) {
         super(config);
-        this.initializeMiniSAT();
+        initializeMiniSAT();
     }
 
     /**
      * Initializes the additional parameters.
      */
     protected void initializeMiniSAT() {
-        this.unitClauses = new LNGIntVector();
-        this.learntsizeAdjustConfl = 0;
-        this.learntsizeAdjustCnt = 0;
-        this.learntsizeAdjustStartConfl = 100;
-        this.learntsizeAdjustInc = 1.5;
-        this.maxLearnts = 0;
+        unitClauses = new LNGIntVector();
+        learntsizeAdjustConfl = 0;
+        learntsizeAdjustCnt = 0;
+        learntsizeAdjustStartConfl = 100;
+        learntsizeAdjustInc = 1.5;
+        maxLearnts = 0;
     }
 
     @Override
     public int newVar(final boolean sign, final boolean dvar) {
-        final int v = this.vars.size();
+        final int v = vars.size();
         final MSVariable newVar = new MSVariable(sign);
-        this.vars.push(newVar);
-        this.watches.push(new LNGVector<>());
-        this.watches.push(new LNGVector<>());
-        this.seen.push(false);
+        vars.push(newVar);
+        watches.push(new LNGVector<>());
+        watches.push(new LNGVector<>());
+        seen.push(false);
         newVar.setDecision(dvar);
         insertVarOrder(v);
         return v;
@@ -118,7 +94,7 @@ public class MiniCard extends MiniSatStyleSolver {
     @Override
     public boolean addClause(final LNGIntVector ps, final Proposition proposition) {
         assert decisionLevel() == 0;
-        if (!this.ok) {
+        if (!ok) {
             return false;
         }
         ps.sort();
@@ -135,18 +111,18 @@ public class MiniCard extends MiniSatStyleSolver {
         }
         ps.removeElements(i - j);
         if (ps.empty()) {
-            this.ok = false;
+            ok = false;
             return false;
         } else if (ps.size() == 1) {
             uncheckedEnqueue(ps.get(0), null);
-            this.ok = propagate() == null;
-            if (this.incremental) {
-                this.unitClauses.push(ps.get(0));
+            ok = propagate() == null;
+            if (incremental) {
+                unitClauses.push(ps.get(0));
             }
-            return this.ok;
+            return ok;
         } else {
             final MSClause c = new MSClause(ps, false);
-            this.clauses.push(c);
+            clauses.push(c);
             attachClause(c);
         }
         return true;
@@ -156,40 +132,40 @@ public class MiniCard extends MiniSatStyleSolver {
     public Tristate solve(final SATHandler handler) {
         this.handler = handler;
         start(handler);
-        this.model.clear();
-        this.conflict.clear();
-        if (!this.ok) {
+        model.clear();
+        conflict.clear();
+        if (!ok) {
             return Tristate.FALSE;
         }
-        this.learntsizeAdjustConfl = this.learntsizeAdjustStartConfl;
-        this.learntsizeAdjustCnt = (int) this.learntsizeAdjustConfl;
-        this.maxLearnts = this.clauses.size() * this.learntsizeFactor;
+        learntsizeAdjustConfl = learntsizeAdjustStartConfl;
+        learntsizeAdjustCnt = (int) learntsizeAdjustConfl;
+        maxLearnts = clauses.size() * learntsizeFactor;
         Tristate status = Tristate.UNDEF;
         int currRestarts = 0;
-        while (status == Tristate.UNDEF && !this.canceledByHandler) {
-            final double restBase = luby(this.restartInc, currRestarts);
-            status = search((int) (restBase * this.restartFirst));
+        while (status == Tristate.UNDEF && !canceledByHandler) {
+            final double restBase = luby(restartInc, currRestarts);
+            status = search((int) (restBase * restartFirst));
             currRestarts++;
         }
         if (status == Tristate.TRUE) {
-            this.model = new LNGBooleanVector(this.vars.size());
-            for (final MSVariable v : this.vars) {
-                this.model.push(v.assignment() == Tristate.TRUE);
+            model = new LNGBooleanVector(vars.size());
+            for (final MSVariable v : vars) {
+                model.push(v.assignment() == Tristate.TRUE);
             }
-        } else if (status == Tristate.FALSE && this.conflict.empty()) {
-            this.ok = false;
+        } else if (status == Tristate.FALSE && conflict.empty()) {
+            ok = false;
         }
         finishSolving(handler);
         cancelUntil(0);
         this.handler = null;
-        this.canceledByHandler = false;
+        canceledByHandler = false;
         return status;
     }
 
     @Override
     public void reset() {
         super.initialize();
-        this.initializeMiniSAT();
+        initializeMiniSAT();
     }
 
     /**
@@ -201,47 +177,47 @@ public class MiniCard extends MiniSatStyleSolver {
      */
     @Override
     public int[] saveState() {
-        if (!this.incremental) {
+        if (!incremental) {
             throw new IllegalStateException("Cannot save a state when the incremental mode is deactivated");
         }
         final int[] state;
         state = new int[5];
-        state[0] = this.ok ? 1 : 0;
-        state[1] = this.vars.size();
-        state[2] = this.clauses.size();
-        state[3] = this.learnts.size();
-        state[4] = this.unitClauses.size();
+        state[0] = ok ? 1 : 0;
+        state[1] = vars.size();
+        state[2] = clauses.size();
+        state[3] = learnts.size();
+        state[4] = unitClauses.size();
         return state;
     }
 
     @Override
     public void loadState(final int[] state) {
-        if (!this.incremental) {
+        if (!incremental) {
             throw new IllegalStateException("Cannot save a state when the incremental mode is deactivated");
         }
         int i;
         completeBacktrack();
-        this.ok = state[0] == 1;
-        final int newVarsSize = Math.min(state[1], this.vars.size());
-        for (i = this.vars.size() - 1; i >= newVarsSize; i--) {
-            this.orderHeap.remove(this.name2idx.remove(this.idx2name.remove(i)));
+        ok = state[0] == 1;
+        final int newVarsSize = Math.min(state[1], vars.size());
+        for (i = vars.size() - 1; i >= newVarsSize; i--) {
+            orderHeap.remove(name2idx.remove(idx2name.remove(i)));
         }
-        this.vars.shrinkTo(newVarsSize);
-        final int newClausesSize = Math.min(state[2], this.clauses.size());
-        for (i = this.clauses.size() - 1; i >= newClausesSize; i--) {
-            simpleRemoveClause(this.clauses.get(i));
+        vars.shrinkTo(newVarsSize);
+        final int newClausesSize = Math.min(state[2], clauses.size());
+        for (i = clauses.size() - 1; i >= newClausesSize; i--) {
+            simpleRemoveClause(clauses.get(i));
         }
-        this.clauses.shrinkTo(newClausesSize);
-        final int newLearntsSize = Math.min(state[3], this.learnts.size());
-        for (i = this.learnts.size() - 1; i >= newLearntsSize; i--) {
-            simpleRemoveClause(this.learnts.get(i));
+        clauses.shrinkTo(newClausesSize);
+        final int newLearntsSize = Math.min(state[3], learnts.size());
+        for (i = learnts.size() - 1; i >= newLearntsSize; i--) {
+            simpleRemoveClause(learnts.get(i));
         }
-        this.learnts.shrinkTo(newLearntsSize);
-        this.watches.shrinkTo(newVarsSize * 2);
-        this.unitClauses.shrinkTo(state[4]);
-        for (i = 0; this.ok && i < this.unitClauses.size(); i++) {
-            uncheckedEnqueue(this.unitClauses.get(i), null);
-            this.ok = propagate() == null;
+        learnts.shrinkTo(newLearntsSize);
+        watches.shrinkTo(newVarsSize * 2);
+        unitClauses.shrinkTo(state[4]);
+        for (i = 0; ok && i < unitClauses.size(); i++) {
+            uncheckedEnqueue(unitClauses.get(i), null);
+            ok = propagate() == null;
         }
     }
 
@@ -252,7 +228,7 @@ public class MiniCard extends MiniSatStyleSolver {
         var.assign(Tristate.fromBool(!sign(lit)));
         var.setReason(reason);
         var.setLevel(decisionLevel());
-        this.trail.push(lit);
+        trail.push(lit);
     }
 
     @Override
@@ -260,17 +236,17 @@ public class MiniCard extends MiniSatStyleSolver {
         if (c.isAtMost()) {
             for (int i = 0; i < c.atMostWatchers(); i++) {
                 final int l = c.get(i);
-                this.watches.get(l).push(new MSWatcher(c, LIT_UNDEF));
+                watches.get(l).push(new MSWatcher(c, LIT_UNDEF));
             }
-            this.clausesLiterals += c.size();
+            clausesLiterals += c.size();
         } else {
             assert c.size() > 1;
-            this.watches.get(not(c.get(0))).push(new MSWatcher(c, c.get(1)));
-            this.watches.get(not(c.get(1))).push(new MSWatcher(c, c.get(0)));
+            watches.get(not(c.get(0))).push(new MSWatcher(c, c.get(1)));
+            watches.get(not(c.get(1))).push(new MSWatcher(c, c.get(0)));
             if (c.learnt()) {
-                this.learntsLiterals += c.size();
+                learntsLiterals += c.size();
             } else {
-                this.clausesLiterals += c.size();
+                clausesLiterals += c.size();
             }
         }
     }
@@ -279,12 +255,12 @@ public class MiniCard extends MiniSatStyleSolver {
     protected void detachClause(final MSClause c) {
         assert !c.isAtMost();
         assert c.size() > 1;
-        this.watches.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
-        this.watches.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
+        watches.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
+        watches.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
         if (c.learnt()) {
-            this.learntsLiterals -= c.size();
+            learntsLiterals -= c.size();
         } else {
-            this.clausesLiterals -= c.size();
+            clausesLiterals -= c.size();
         }
     }
 
@@ -309,9 +285,9 @@ public class MiniCard extends MiniSatStyleSolver {
     protected MSClause propagate() {
         MSClause confl = null;
         int numProps = 0;
-        while (this.qhead < this.trail.size()) {
-            final int p = this.trail.get(this.qhead++);
-            final LNGVector<MSWatcher> ws = this.watches.get(p);
+        while (qhead < trail.size()) {
+            final int p = trail.get(qhead++);
+            final LNGVector<MSWatcher> ws = watches.get(p);
             int iInd = 0;
             int jInd = 0;
             numProps++;
@@ -337,7 +313,7 @@ public class MiniCard extends MiniSatStyleSolver {
                         ws.set(jInd++, ws.get(iInd++));
                     } else if (newWatch == LIT_ERROR) {
                         confl = c;
-                        this.qhead = this.trail.size();
+                        qhead = trail.size();
                         while (iInd < ws.size()) {
                             ws.set(jInd++, ws.get(iInd++));
                         }
@@ -346,7 +322,7 @@ public class MiniCard extends MiniSatStyleSolver {
                     } else {
                         iInd++;
                         final MSWatcher w = new MSWatcher(c, LIT_UNDEF);
-                        this.watches.get(newWatch).push(w);
+                        watches.get(newWatch).push(w);
                     }
                 } else {
                     final int falseLit = not(p);
@@ -367,7 +343,7 @@ public class MiniCard extends MiniSatStyleSolver {
                         if (value(c.get(k)) != Tristate.FALSE) {
                             c.set(1, c.get(k));
                             c.set(k, falseLit);
-                            this.watches.get(not(c.get(1))).push(w);
+                            watches.get(not(c.get(1))).push(w);
                             foundWatch = true;
                         }
                     }
@@ -375,7 +351,7 @@ public class MiniCard extends MiniSatStyleSolver {
                         ws.set(jInd++, w);
                         if (value(first) == Tristate.FALSE) {
                             confl = c;
-                            this.qhead = this.trail.size();
+                            qhead = trail.size();
                             while (iInd < ws.size()) {
                                 ws.set(jInd++, ws.get(iInd++));
                             }
@@ -387,7 +363,7 @@ public class MiniCard extends MiniSatStyleSolver {
             }
             ws.removeElements(iInd - jInd);
         }
-        this.simpDBProps -= numProps;
+        simpDBProps -= numProps;
         return confl;
     }
 
@@ -406,14 +382,14 @@ public class MiniCard extends MiniSatStyleSolver {
                         continue;
                     }
                     final int q = not(c.get(i));
-                    if (!this.seen.get(var(q)) && v(q).level() > 0) {
+                    if (!seen.get(var(q)) && v(q).level() > 0) {
                         if (v(q).reason() != null && (abstractLevel(var(q)) & abstractLevels) != 0) {
-                            this.seen.set(var(q), true);
+                            seen.set(var(q), true);
                             analyzeStack.push(q);
                             analyzeToClear.push(q);
                         } else {
                             for (int j = top; j < analyzeToClear.size(); j++) {
-                                this.seen.set(var(analyzeToClear.get(j)), false);
+                                seen.set(var(analyzeToClear.get(j)), false);
                             }
                             analyzeToClear.removeElements(analyzeToClear.size() - top);
                             return false;
@@ -423,14 +399,14 @@ public class MiniCard extends MiniSatStyleSolver {
             } else {
                 for (int i = 1; i < c.size(); i++) {
                     final int q = c.get(i);
-                    if (!this.seen.get(var(q)) && v(q).level() > 0) {
+                    if (!seen.get(var(q)) && v(q).level() > 0) {
                         if (v(q).reason() != null && (abstractLevel(var(q)) & abstractLevels) != 0) {
-                            this.seen.set(var(q), true);
+                            seen.set(var(q), true);
                             analyzeStack.push(q);
                             analyzeToClear.push(q);
                         } else {
                             for (int j = top; j < analyzeToClear.size(); j++) {
-                                this.seen.set(var(analyzeToClear.get(j)), false);
+                                seen.set(var(analyzeToClear.get(j)), false);
                             }
                             analyzeToClear.removeElements(analyzeToClear.size() - top);
                             return false;
@@ -449,54 +425,54 @@ public class MiniCard extends MiniSatStyleSolver {
         if (decisionLevel() == 0) {
             return;
         }
-        this.seen.set(var(p), true);
+        seen.set(var(p), true);
         int x;
         MSVariable v;
-        for (int i = this.trail.size() - 1; i >= this.trailLim.get(0); i--) {
-            x = var(this.trail.get(i));
-            if (this.seen.get(x)) {
-                v = this.vars.get(x);
+        for (int i = trail.size() - 1; i >= trailLim.get(0); i--) {
+            x = var(trail.get(i));
+            if (seen.get(x)) {
+                v = vars.get(x);
                 if (v.reason() == null) {
                     assert v.level() > 0;
-                    outConflict.push(not(this.trail.get(i)));
+                    outConflict.push(not(trail.get(i)));
                 } else {
                     final MSClause c = v.reason();
                     if (!c.isAtMost()) {
                         for (int j = 1; j < c.size(); j++) {
                             if (v(c.get(j)).level() > 0) {
-                                this.seen.set(var(c.get(j)), true);
+                                seen.set(var(c.get(j)), true);
                             }
                         }
                     } else {
                         for (int j = 0; j < c.size(); j++) {
                             if (value(c.get(j)) == Tristate.TRUE && v(c.get(j)).level() > 0) {
-                                this.seen.set(var(c.get(j)), true);
+                                seen.set(var(c.get(j)), true);
                             }
                         }
                     }
                 }
-                this.seen.set(x, false);
+                seen.set(x, false);
             }
         }
-        this.seen.set(var(p), false);
+        seen.set(var(p), false);
     }
 
     @Override
     protected void reduceDB() {
         int i;
         int j;
-        final double extraLim = this.claInc / this.learnts.size();
-        this.learnts.manualSort(MSClause.minisatComparator);
-        for (i = j = 0; i < this.learnts.size(); i++) {
-            final MSClause c = this.learnts.get(i);
+        final double extraLim = claInc / learnts.size();
+        learnts.manualSort(MSClause.minisatComparator);
+        for (i = j = 0; i < learnts.size(); i++) {
+            final MSClause c = learnts.get(i);
             assert !c.isAtMost();
-            if (c.size() > 2 && !locked(c) && (i < this.learnts.size() / 2 || c.activity() < extraLim)) {
-                removeClause(this.learnts.get(i));
+            if (c.size() > 2 && !locked(c) && (i < learnts.size() / 2 || c.activity() < extraLim)) {
+                removeClause(learnts.get(i));
             } else {
-                this.learnts.set(j++, this.learnts.get(i));
+                learnts.set(j++, learnts.get(i));
             }
         }
-        this.learnts.removeElements(i - j);
+        learnts.removeElements(i - j);
     }
 
     @Override
@@ -539,20 +515,20 @@ public class MiniCard extends MiniSatStyleSolver {
     @Override
     protected boolean simplify() {
         assert decisionLevel() == 0;
-        if (!this.ok || propagate() != null) {
-            this.ok = false;
+        if (!ok || propagate() != null) {
+            ok = false;
             return false;
         }
-        if (nAssigns() == this.simpDBAssigns || (this.simpDBProps > 0)) {
+        if (nAssigns() == simpDBAssigns || (simpDBProps > 0)) {
             return true;
         }
-        removeSatisfied(this.learnts);
-        if (this.shouldRemoveSatsisfied) {
-            removeSatisfied(this.clauses);
+        removeSatisfied(learnts);
+        if (shouldRemoveSatsisfied) {
+            removeSatisfied(clauses);
         }
         rebuildOrderHeap();
-        this.simpDBAssigns = nAssigns();
-        this.simpDBProps = this.clausesLiterals + this.learntsLiterals;
+        simpDBAssigns = nAssigns();
+        simpDBProps = clausesLiterals + learntsLiterals;
         return true;
     }
 
@@ -565,7 +541,7 @@ public class MiniCard extends MiniSatStyleSolver {
     public boolean addAtMost(final LNGIntVector ps, final int rhs) {
         int k = rhs;
         assert decisionLevel() == 0;
-        if (!this.ok) {
+        if (!ok) {
             return false;
         }
         ps.sort();
@@ -589,22 +565,22 @@ public class MiniCard extends MiniSatStyleSolver {
             return true;
         }
         if (k < 0) {
-            this.ok = false;
+            ok = false;
             return false;
         }
         if (k == 0) {
             for (i = 0; i < ps.size(); i++) {
                 uncheckedEnqueue(not(ps.get(i)), null);
-                if (this.incremental) {
-                    this.unitClauses.push(not(ps.get(i)));
+                if (incremental) {
+                    unitClauses.push(not(ps.get(i)));
                 }
             }
-            this.ok = propagate() == null;
-            return this.ok;
+            ok = propagate() == null;
+            return ok;
         }
         final MSClause cr = new MSClause(ps, false, true);
         cr.setAtMostWatchers(ps.size() - k + 1);
-        this.clauses.push(cr);
+        clauses.push(cr);
         attachClause(cr);
         return true;
     }
@@ -615,9 +591,9 @@ public class MiniCard extends MiniSatStyleSolver {
      */
     protected void detachAtMost(final MSClause c) {
         for (int i = 0; i < c.atMostWatchers(); i++) {
-            this.watches.get(c.get(i)).remove(new MSWatcher(c, c.get(i)));
+            watches.get(c.get(i)).remove(new MSWatcher(c, c.get(i)));
         }
-        this.clausesLiterals -= c.size();
+        clausesLiterals -= c.size();
     }
 
     /**
@@ -627,16 +603,16 @@ public class MiniCard extends MiniSatStyleSolver {
      * formula is SAT, and {@code UNKNOWN} if the state is not known yet (restart)
      */
     protected Tristate search(final int nofConflicts) {
-        if (!this.ok) {
+        if (!ok) {
             return Tristate.FALSE;
         }
         int conflictC = 0;
-        this.selectionOrderIdx = 0;
+        selectionOrderIdx = 0;
         while (true) {
             final MSClause confl = propagate();
             if (confl != null) {
-                if (this.handler != null && !this.handler.detectedConflict()) {
-                    this.canceledByHandler = true;
+                if (handler != null && !handler.detectedConflict()) {
+                    canceledByHandler = true;
                     return Tristate.UNDEF;
                 }
                 conflictC++;
@@ -645,18 +621,18 @@ public class MiniCard extends MiniSatStyleSolver {
                 }
                 final LNGIntVector learntClause = new LNGIntVector();
                 analyze(confl, learntClause);
-                cancelUntil(this.analyzeBtLevel);
-                if (this.analyzeBtLevel < this.selectionOrder.size()) {
-                    this.selectionOrderIdx = this.analyzeBtLevel;
+                cancelUntil(analyzeBtLevel);
+                if (analyzeBtLevel < selectionOrder.size()) {
+                    selectionOrderIdx = analyzeBtLevel;
                 }
                 if (learntClause.size() == 1) {
                     uncheckedEnqueue(learntClause.get(0), null);
-                    this.unitClauses.push(learntClause.get(0));
+                    unitClauses.push(learntClause.get(0));
                 } else {
                     final MSClause cr = new MSClause(learntClause, true);
-                    this.learnts.push(cr);
+                    learnts.push(cr);
                     attachClause(cr);
-                    if (!this.incremental) {
+                    if (!incremental) {
                         claBumpActivity(cr);
                     }
                     uncheckedEnqueue(learntClause.get(0), cr);
@@ -667,21 +643,21 @@ public class MiniCard extends MiniSatStyleSolver {
                     cancelUntil(0);
                     return Tristate.UNDEF;
                 }
-                if (!this.incremental) {
+                if (!incremental) {
                     if (decisionLevel() == 0 && !simplify()) {
                         return Tristate.FALSE;
                     }
-                    if (this.learnts.size() - nAssigns() >= this.maxLearnts) {
+                    if (learnts.size() - nAssigns() >= maxLearnts) {
                         reduceDB();
                     }
                 }
                 int next = LIT_UNDEF;
-                while (decisionLevel() < this.assumptions.size()) {
-                    final int p = this.assumptions.get(decisionLevel());
+                while (decisionLevel() < assumptions.size()) {
+                    final int p = assumptions.get(decisionLevel());
                     if (value(p) == Tristate.TRUE) {
-                        this.trailLim.push(this.trail.size());
+                        trailLim.push(trail.size());
                     } else if (value(p) == Tristate.FALSE) {
-                        analyzeFinal(not(p), this.conflict);
+                        analyzeFinal(not(p), conflict);
                         return Tristate.FALSE;
                     } else {
                         next = p;
@@ -694,7 +670,7 @@ public class MiniCard extends MiniSatStyleSolver {
                         return Tristate.TRUE;
                     }
                 }
-                this.trailLim.push(this.trail.size());
+                trailLim.push(trail.size());
                 uncheckedEnqueue(next, null);
             }
         }
@@ -754,7 +730,7 @@ public class MiniCard extends MiniSatStyleSolver {
         int pathC = 0;
         int p = LIT_UNDEF;
         outLearnt.push(-1);
-        int index = this.trail.size() - 1;
+        int index = trail.size() - 1;
         do {
             assert c != null;
             if (c.isAtMost()) {
@@ -763,9 +739,9 @@ public class MiniCard extends MiniSatStyleSolver {
                         continue;
                     }
                     final int q = not(c.get(j));
-                    if (!this.seen.get(var(q)) && v(q).level() > 0) {
+                    if (!seen.get(var(q)) && v(q).level() > 0) {
                         varBumpActivity(var(q));
-                        this.seen.set(var(q), true);
+                        seen.set(var(q), true);
                         if (v(q).level() >= decisionLevel()) {
                             pathC++;
                         } else {
@@ -774,14 +750,14 @@ public class MiniCard extends MiniSatStyleSolver {
                     }
                 }
             } else {
-                if (!this.incremental && c.learnt()) {
+                if (!incremental && c.learnt()) {
                     claBumpActivity(c);
                 }
                 for (int j = (p == LIT_UNDEF) ? 0 : 1; j < c.size(); j++) {
                     final int q = c.get(j);
-                    if (!this.seen.get(var(q)) && v(q).level() > 0) {
+                    if (!seen.get(var(q)) && v(q).level() > 0) {
                         varBumpActivity(var(q));
-                        this.seen.set(var(q), true);
+                        seen.set(var(q), true);
                         if (v(q).level() >= decisionLevel()) {
                             pathC++;
                         } else {
@@ -790,11 +766,11 @@ public class MiniCard extends MiniSatStyleSolver {
                     }
                 }
             }
-            while (!this.seen.get(var(this.trail.get(index--)))) {
+            while (!seen.get(var(trail.get(index--)))) {
             }
-            p = this.trail.get(index + 1);
+            p = trail.get(index + 1);
             c = v(p).reason();
-            this.seen.set(var(p), false);
+            seen.set(var(p), false);
             pathC--;
         } while (pathC > 0);
         outLearnt.set(0, not(p));
@@ -809,7 +785,7 @@ public class MiniCard extends MiniSatStyleSolver {
         int i;
         int j;
         final LNGIntVector analyzeToClear = new LNGIntVector(outLearnt);
-        if (this.ccminMode == MiniSatConfig.ClauseMinimization.DEEP) {
+        if (ccminMode == MiniSatConfig.ClauseMinimization.DEEP) {
             int abstractLevel = 0;
             for (i = 1; i < outLearnt.size(); i++) {
                 abstractLevel |= abstractLevel(var(outLearnt.get(i)));
@@ -819,14 +795,14 @@ public class MiniCard extends MiniSatStyleSolver {
                     outLearnt.set(j++, outLearnt.get(i));
                 }
             }
-        } else if (this.ccminMode == MiniSatConfig.ClauseMinimization.BASIC) {
+        } else if (ccminMode == MiniSatConfig.ClauseMinimization.BASIC) {
             for (i = j = 1; i < outLearnt.size(); i++) {
                 if (v(outLearnt.get(i)).reason() == null) {
                     outLearnt.set(j++, outLearnt.get(i));
                 } else {
                     final MSClause c = v(outLearnt.get(i)).reason();
                     for (int k = 1; k < c.size(); k++) {
-                        if (!this.seen.get(var(c.get(k))) && v(c.get(k)).level() > 0) {
+                        if (!seen.get(var(c.get(k))) && v(c.get(k)).level() > 0) {
                             outLearnt.set(j++, outLearnt.get(i));
                             break;
                         }
@@ -837,7 +813,7 @@ public class MiniCard extends MiniSatStyleSolver {
             i = j = outLearnt.size();
         }
         outLearnt.removeElements(i - j);
-        this.analyzeBtLevel = 0;
+        analyzeBtLevel = 0;
         if (outLearnt.size() > 1) {
             int max = 1;
             for (int k = 2; k < outLearnt.size(); k++) {
@@ -848,10 +824,10 @@ public class MiniCard extends MiniSatStyleSolver {
             final int p = outLearnt.get(max);
             outLearnt.set(max, outLearnt.get(1));
             outLearnt.set(1, p);
-            this.analyzeBtLevel = v(p).level();
+            analyzeBtLevel = v(p).level();
         }
         for (int l = 0; l < analyzeToClear.size(); l++) {
-            this.seen.set(var(analyzeToClear.get(l)), false);
+            seen.set(var(analyzeToClear.get(l)), false);
         }
     }
 
@@ -859,17 +835,17 @@ public class MiniCard extends MiniSatStyleSolver {
      * Performs an unconditional backtrack to level zero.
      */
     protected void completeBacktrack() {
-        for (int v = 0; v < this.vars.size(); v++) {
-            final MSVariable var = this.vars.get(v);
+        for (int v = 0; v < vars.size(); v++) {
+            final MSVariable var = vars.get(v);
             var.assign(Tristate.UNDEF);
             var.setReason(null);
-            if (!this.orderHeap.inHeap(v) && var.decision()) {
-                this.orderHeap.insert(v);
+            if (!orderHeap.inHeap(v) && var.decision()) {
+                orderHeap.insert(v);
             }
         }
-        this.trail.clear();
-        this.trailLim.clear();
-        this.qhead = 0;
+        trail.clear();
+        trailLim.clear();
+        qhead = 0;
     }
 
     /**
@@ -879,11 +855,11 @@ public class MiniCard extends MiniSatStyleSolver {
     protected void simpleRemoveClause(final MSClause c) {
         if (c.isAtMost()) {
             for (int i = 0; i < c.atMostWatchers(); i++) {
-                this.watches.get(c.get(i)).remove(new MSWatcher(c, c.get(i)));
+                watches.get(c.get(i)).remove(new MSWatcher(c, c.get(i)));
             }
         } else {
-            this.watches.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
-            this.watches.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
+            watches.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
+            watches.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
         }
     }
 }

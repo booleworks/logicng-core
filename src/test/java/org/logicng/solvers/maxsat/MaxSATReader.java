@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.solvers.maxsat;
 
 import org.logicng.formulas.FormulaFactory;
@@ -10,11 +14,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Helper class for reading MaxSAT input files in the <a href="http://www.maxhs.org/docs/wdimacs.html">WDIMACS format</a>.
- * @version 2.4.0
- * @since 2.4.0
- */
 public class MaxSATReader {
 
     /**

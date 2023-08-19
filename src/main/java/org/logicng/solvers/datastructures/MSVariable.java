@@ -1,46 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-
-/*
- * MiniSat -- Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
- * OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.solvers.datastructures;
 
@@ -66,15 +26,15 @@ public final class MSVariable {
      * @param polarity the initial polarity
      */
     public MSVariable(final boolean polarity) {
-        this.assignment = Tristate.UNDEF;
-        this.level = -1;
-        this.reason = null;
-        this.activity = 0;
+        assignment = Tristate.UNDEF;
+        level = -1;
+        reason = null;
+        activity = 0;
         this.polarity = polarity;
-        this.decision = false;
+        decision = false;
     }
 
-    MSVariable(Tristate assignment, int level, MSClause reason, double activity, boolean polarity, boolean decision) {
+    MSVariable(final Tristate assignment, final int level, final MSClause reason, final double activity, final boolean polarity, final boolean decision) {
         this.assignment = assignment;
         this.level = level;
         this.reason = reason;
@@ -96,7 +56,7 @@ public final class MSVariable {
      * @return the decision level of this variable
      */
     public int level() {
-        return this.level;
+        return level;
     }
 
     /**
@@ -112,7 +72,7 @@ public final class MSVariable {
      * @return the reason for this variable
      */
     public MSClause reason() {
-        return this.reason;
+        return reason;
     }
 
     /**
@@ -128,14 +88,14 @@ public final class MSVariable {
      * @return the current assignment of this variable
      */
     public Tristate assignment() {
-        return this.assignment;
+        return assignment;
     }
 
     /**
      * Rescales this variable's activity.
      */
     public void rescaleActivity() {
-        this.activity *= 1e-100;
+        activity *= 1e-100;
     }
 
     /**
@@ -143,7 +103,7 @@ public final class MSVariable {
      * @param inc the increment value
      */
     public void incrementActivity(final double inc) {
-        this.activity += inc;
+        activity += inc;
     }
 
     /**
@@ -151,7 +111,7 @@ public final class MSVariable {
      * @return the activity of this variable
      */
     public double activity() {
-        return this.activity;
+        return activity;
     }
 
     /**
@@ -167,7 +127,7 @@ public final class MSVariable {
      * @return the polarity of this variable
      */
     public boolean polarity() {
-        return this.polarity;
+        return polarity;
     }
 
     /**
@@ -176,7 +136,7 @@ public final class MSVariable {
      * @return {@code true} if this variable should be used as a decision variable
      */
     public boolean decision() {
-        return this.decision;
+        return decision;
     }
 
     /**
@@ -190,6 +150,6 @@ public final class MSVariable {
     @Override
     public String toString() {
         return String.format(Locale.ENGLISH, "MSVariable{assignment=%s, level=%d, reason=%s, activity=%f, polarity=%s, decision=%s}",
-                this.assignment, this.level, this.reason, this.activity, this.polarity, this.decision);
+                assignment, level, reason, activity, polarity, decision);
     }
 }

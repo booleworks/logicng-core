@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.solvers.functions;
 
@@ -78,11 +54,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Supplier;
 
-/**
- * Unit tests for {@link OptimizationFunction}.
- * @version 2.0.0
- * @since 2.0.0
- */
 public class OptimizationFunctionTest implements LogicNGTest {
 
     public static Collection<Object[]> solvers() {
@@ -452,14 +423,14 @@ public class OptimizationFunctionTest implements LogicNGTest {
 
         @Override
         public boolean aborted() {
-            return this.aborted;
+            return aborted;
         }
 
         @Override
         public boolean foundBetterBound(final Supplier<Assignment> currentResultProvider) {
-            this.currentResult = currentResultProvider.get();
-            this.aborted = this.currentResult.positiveVariables().size() >= 161;
-            return !this.aborted;
+            currentResult = currentResultProvider.get();
+            aborted = currentResult.positiveVariables().size() >= 161;
+            return !aborted;
         }
     }
 }

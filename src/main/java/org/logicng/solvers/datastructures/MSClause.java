@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * MiniSat -- Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
@@ -109,22 +85,22 @@ public final class MSClause {
      * @param isAtMost {@code true} if it is an at-most clause, {@code false} otherwise
      */
     public MSClause(final LNGIntVector ps, final boolean learnt, final boolean isAtMost) {
-        this.data = new LNGIntVector(ps.size());
+        data = new LNGIntVector(ps.size());
         for (int i = 0; i < ps.size(); i++) {
-            this.data.unsafePush(ps.get(i));
+            data.unsafePush(ps.get(i));
         }
         this.learnt = learnt;
-        this.szWithoutSelectors = 0;
-        this.seen = false;
-        this.lbd = 0;
-        this.canBeDel = true;
-        this.oneWatched = false;
+        szWithoutSelectors = 0;
+        seen = false;
+        lbd = 0;
+        canBeDel = true;
+        oneWatched = false;
         this.isAtMost = isAtMost;
-        this.atMostWatchers = -1;
+        atMostWatchers = -1;
     }
 
-    MSClause(LNGIntVector data, boolean learnt, boolean isAtMost, double activity, int szWithoutSelectors, boolean seen,
-             long lbd, boolean canBeDel, boolean oneWatched, int atMostWatchers) {
+    MSClause(final LNGIntVector data, final boolean learnt, final boolean isAtMost, final double activity, final int szWithoutSelectors, final boolean seen,
+             final long lbd, final boolean canBeDel, final boolean oneWatched, final int atMostWatchers) {
         this.data = data;
         this.learnt = learnt;
         this.isAtMost = isAtMost;
@@ -142,7 +118,7 @@ public final class MSClause {
      * @return the size
      */
     public int size() {
-        return this.data.size();
+        return data.size();
     }
 
     /**
@@ -151,7 +127,7 @@ public final class MSClause {
      * @return the literal at index {@code i}
      */
     public int get(final int i) {
-        return this.data.get(i);
+        return data.get(i);
     }
 
     /**
@@ -160,7 +136,7 @@ public final class MSClause {
      * @param lit the literal
      */
     public void set(final int i, final int lit) {
-        this.data.set(i, lit);
+        data.set(i, lit);
     }
 
     /**
@@ -168,7 +144,7 @@ public final class MSClause {
      * @return the activity of this clause
      */
     public double activity() {
-        return this.activity;
+        return activity;
     }
 
     /**
@@ -176,14 +152,14 @@ public final class MSClause {
      * @param inc the increment value
      */
     public void incrementActivity(final double inc) {
-        this.activity += inc;
+        activity += inc;
     }
 
     /**
      * Rescales this clause's activity
      */
     public void rescaleActivity() {
-        this.activity *= 1e-20;
+        activity *= 1e-20;
     }
 
     /**
@@ -191,7 +167,7 @@ public final class MSClause {
      * @return {@code true} if this clause is learnt
      */
     public boolean learnt() {
-        return this.learnt;
+        return learnt;
     }
 
     /**
@@ -199,7 +175,7 @@ public final class MSClause {
      * @return the size of this clause without selector variables
      */
     public int sizeWithoutSelectors() {
-        return this.szWithoutSelectors;
+        return szWithoutSelectors;
     }
 
     /**
@@ -215,7 +191,7 @@ public final class MSClause {
      * @return {@code true} if this clause is marked 'seen'
      */
     public boolean seen() {
-        return this.seen;
+        return seen;
     }
 
     /**
@@ -231,7 +207,7 @@ public final class MSClause {
      * @return the LBD of this clause
      */
     public long lbd() {
-        return this.lbd;
+        return lbd;
     }
 
     /**
@@ -247,7 +223,7 @@ public final class MSClause {
      * @return {@code true} if this clause can be deleted
      */
     public boolean canBeDel() {
-        return this.canBeDel;
+        return canBeDel;
     }
 
     /**
@@ -263,7 +239,7 @@ public final class MSClause {
      * @return {@code true} if this clause is a one literal watched clause
      */
     public boolean oneWatched() {
-        return this.oneWatched;
+        return oneWatched;
     }
 
     /**
@@ -279,7 +255,7 @@ public final class MSClause {
      * @return {@code true} if this is an at-most clause
      */
     public boolean isAtMost() {
-        return this.isAtMost;
+        return isAtMost;
     }
 
     /**
@@ -287,8 +263,8 @@ public final class MSClause {
      * @return the number of watchers
      */
     public int atMostWatchers() {
-        assert this.isAtMost;
-        return this.atMostWatchers;
+        assert isAtMost;
+        return atMostWatchers;
     }
 
     /**
@@ -296,7 +272,7 @@ public final class MSClause {
      * @param atMostWatchers the number of watchers
      */
     public void setAtMostWatchers(final int atMostWatchers) {
-        assert this.isAtMost;
+        assert isAtMost;
         this.atMostWatchers = atMostWatchers;
     }
 
@@ -304,7 +280,7 @@ public final class MSClause {
      * Pops (removes) the last literal of this clause.
      */
     public void pop() {
-        this.data.pop();
+        data.pop();
     }
 
     /**
@@ -312,7 +288,7 @@ public final class MSClause {
      * @return the right-hand side
      */
     public int cardinality() {
-        return this.data.size() - this.atMostWatchers + 1;
+        return data.size() - atMostWatchers + 1;
     }
 
     LNGIntVector getData() {
@@ -321,7 +297,7 @@ public final class MSClause {
 
     @Override
     public int hashCode() {
-        return this.data.hashCode();
+        return data.hashCode();
     }
 
     @Override
@@ -332,20 +308,20 @@ public final class MSClause {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("MSClause{");
-        sb.append("activity=").append(this.activity).append(", ");
-        sb.append("learnt=").append(this.learnt).append(", ");
-        sb.append("szWithoutSelectors=").append(this.szWithoutSelectors).append(", ");
-        sb.append("seen=").append(this.seen).append(", ");
-        sb.append("lbd=").append(this.lbd).append(", ");
-        sb.append("canBeDel=").append(this.canBeDel).append(", ");
-        sb.append("oneWatched=").append(this.oneWatched).append(", ");
-        sb.append("isAtMost=").append(this.isAtMost).append(", ");
-        sb.append("atMostWatchers=").append(this.atMostWatchers).append(", ");
+        sb.append("activity=").append(activity).append(", ");
+        sb.append("learnt=").append(learnt).append(", ");
+        sb.append("szWithoutSelectors=").append(szWithoutSelectors).append(", ");
+        sb.append("seen=").append(seen).append(", ");
+        sb.append("lbd=").append(lbd).append(", ");
+        sb.append("canBeDel=").append(canBeDel).append(", ");
+        sb.append("oneWatched=").append(oneWatched).append(", ");
+        sb.append("isAtMost=").append(isAtMost).append(", ");
+        sb.append("atMostWatchers=").append(atMostWatchers).append(", ");
         sb.append("lits=[");
-        for (int i = 0; i < this.data.size(); i++) {
-            final int lit = this.data.get(i);
+        for (int i = 0; i < data.size(); i++) {
+            final int lit = data.get(i);
             sb.append((lit & 1) == 1 ? "-" : "").append(lit >> 1);
-            if (i != this.data.size() - 1) {
+            if (i != data.size() - 1) {
                 sb.append(", ");
             }
         }
