@@ -6,63 +6,71 @@ package org.logicng.formulas;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.datastructures.Assignment;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
 
 import java.util.Arrays;
 
-public class EvaluationTest extends TestWithExampleFormulas {
+public class EvaluationTest extends TestWithFormulaContext {
 
-    private final Assignment ass = new Assignment(Arrays.asList(A, B, C, NX, NY));
-
-    @Test
-    public void testConstantEval() {
-        assertThat(TRUE.evaluate(ass)).isTrue();
-        assertThat(FALSE.evaluate(ass)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testConstantEval(final FormulaContext _c) {
+        final Assignment ass = new Assignment(Arrays.asList(_c.a, _c.b, _c.c, _c.nx, _c.ny));
+        assertThat(_c.verum.evaluate(ass)).isTrue();
+        assertThat(_c.falsum.evaluate(ass)).isFalse();
     }
 
-    @Test
-    public void testLiteralEval() {
-        assertThat(A.evaluate(ass)).isTrue();
-        assertThat(NA.evaluate(ass)).isFalse();
-        assertThat(X.evaluate(ass)).isFalse();
-        assertThat(NX.evaluate(ass)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiteralEval(final FormulaContext _c) {
+        final Assignment ass = new Assignment(Arrays.asList(_c.a, _c.b, _c.c, _c.nx, _c.ny));
+        assertThat(_c.a.evaluate(ass)).isTrue();
+        assertThat(_c.na.evaluate(ass)).isFalse();
+        assertThat(_c.x.evaluate(ass)).isFalse();
+        assertThat(_c.nx.evaluate(ass)).isTrue();
     }
 
-    @Test
-    public void testNotEval() {
-        assertThat(NOT1.evaluate(ass)).isFalse();
-        assertThat(NOT2.evaluate(ass)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNotEval(final FormulaContext _c) {
+        final Assignment ass = new Assignment(Arrays.asList(_c.a, _c.b, _c.c, _c.nx, _c.ny));
+        assertThat(_c.not1.evaluate(ass)).isFalse();
+        assertThat(_c.not2.evaluate(ass)).isTrue();
     }
 
-    @Test
-    public void testBinaryEval() {
-        assertThat(IMP1.evaluate(ass)).isTrue();
-        assertThat(IMP2.evaluate(ass)).isTrue();
-        assertThat(IMP3.evaluate(ass)).isFalse();
-        assertThat(IMP4.evaluate(ass)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testBinaryEval(final FormulaContext _c) {
+        final Assignment ass = new Assignment(Arrays.asList(_c.a, _c.b, _c.c, _c.nx, _c.ny));
+        assertThat(_c.imp1.evaluate(ass)).isTrue();
+        assertThat(_c.imp2.evaluate(ass)).isTrue();
+        assertThat(_c.imp3.evaluate(ass)).isFalse();
+        assertThat(_c.imp4.evaluate(ass)).isTrue();
 
-        assertThat(EQ1.evaluate(ass)).isTrue();
-        assertThat(EQ2.evaluate(ass)).isTrue();
-        assertThat(EQ3.evaluate(ass)).isFalse();
-        assertThat(EQ4.evaluate(ass)).isTrue();
+        assertThat(_c.eq1.evaluate(ass)).isTrue();
+        assertThat(_c.eq2.evaluate(ass)).isTrue();
+        assertThat(_c.eq3.evaluate(ass)).isFalse();
+        assertThat(_c.eq4.evaluate(ass)).isTrue();
     }
 
-    @Test
-    public void testNAryEval() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(f);
-        assertThat(OR1.evaluate(ass)).isFalse();
-        assertThat(OR2.evaluate(ass)).isTrue();
-        assertThat(OR3.evaluate(ass)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNAryEval(final FormulaContext _c) throws ParserException {
+        final Assignment ass = new Assignment(Arrays.asList(_c.a, _c.b, _c.c, _c.nx, _c.ny));
+        final PropositionalParser p = new PropositionalParser(_c.f);
+        assertThat(_c.or1.evaluate(ass)).isFalse();
+        assertThat(_c.or2.evaluate(ass)).isTrue();
+        assertThat(_c.or3.evaluate(ass)).isTrue();
         assertThat(p.parse("~a | ~b | ~c | x | y").evaluate(ass)).isFalse();
         assertThat(p.parse("~a | ~b | ~c | x | ~y").evaluate(ass)).isTrue();
 
-        assertThat(AND1.evaluate(ass)).isTrue();
-        assertThat(AND2.evaluate(ass)).isFalse();
-        assertThat(AND3.evaluate(ass)).isFalse();
+        assertThat(_c.and1.evaluate(ass)).isTrue();
+        assertThat(_c.and2.evaluate(ass)).isFalse();
+        assertThat(_c.and3.evaluate(ass)).isFalse();
         assertThat(p.parse("a & b & c & ~x & ~y").evaluate(ass)).isTrue();
         assertThat(p.parse("a & b & c & ~x & y").evaluate(ass)).isFalse();
     }

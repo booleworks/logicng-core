@@ -315,6 +315,9 @@ public abstract class FormulaFactory {
         if (left.equals(right)) {
             return verum();
         }
+        if (left.equals(negateOrNull(right))) {
+            return falsum();
+        }
         return internalEquivalence(left, right);
     }
 

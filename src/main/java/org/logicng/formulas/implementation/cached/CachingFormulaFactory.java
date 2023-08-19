@@ -94,9 +94,6 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     @Override
     protected Formula internalEquivalence(final Formula left, final Formula right) {
-        if (left.equals(negateOrNull(right))) {
-            return falsum();
-        }
         final LinkedHashSet<Formula> key = new LinkedHashSet<>(List.of(left, right));
         Equivalence equivalence = equivalences.get(key);
         if (equivalence == null) {

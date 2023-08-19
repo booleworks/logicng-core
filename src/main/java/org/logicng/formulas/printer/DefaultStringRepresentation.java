@@ -85,9 +85,4 @@ public class DefaultStringRepresentation extends FormulaStringRepresentation {
     protected String rbr() {
         return ")";
     }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
-    }
 }

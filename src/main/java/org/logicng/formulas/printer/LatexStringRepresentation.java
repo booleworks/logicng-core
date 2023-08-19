@@ -118,9 +118,4 @@ public final class LatexStringRepresentation extends FormulaStringRepresentation
     protected String rbr() {
         return "\\right)";
     }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
-    }
 }

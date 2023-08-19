@@ -6,58 +6,59 @@ package org.logicng.formulas;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PropositionalParser;
 
-public class NNFTest extends TestWithExampleFormulas {
+public class NNFTest extends TestWithFormulaContext {
 
-    @Test
-    public void testConstants() {
-        assertThat(TRUE.nnf()).isEqualTo(TRUE);
-        assertThat(FALSE.nnf()).isEqualTo(FALSE);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testConstants(final FormulaContext _c) {
+        assertThat(_c.verum.nnf()).isEqualTo(_c.verum);
+        assertThat(_c.falsum.nnf()).isEqualTo(_c.falsum);
     }
 
-    @Test
-    public void testLiterals() {
-        assertThat(A.nnf()).isEqualTo(A);
-        assertThat(NA.nnf()).isEqualTo(NA);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        assertThat(_c.a.nnf()).isEqualTo(_c.a);
+        assertThat(_c.na.nnf()).isEqualTo(_c.na);
     }
 
-    @Test
-    public void testBinaryOperators() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(f);
-        assertThat(IMP1.nnf()).isEqualTo(p.parse("~a | b"));
-        assertThat(IMP2.nnf()).isEqualTo(p.parse("a | ~b"));
-        assertThat(IMP3.nnf()).isEqualTo(p.parse("~a | ~b | x | y"));
-        assertThat(IMP4.nnf()).isEqualTo(p.parse("(~a | ~b) & (a | b) | (x | ~y) & (y | ~x)"));
-        assertThat(EQ1.nnf()).isEqualTo(p.parse("(~a | b) & (~b | a)"));
-        assertThat(EQ2.nnf()).isEqualTo(p.parse("(a | ~b) & (b | ~a)"));
-        assertThat(EQ3.nnf()).isEqualTo(p.parse("(~a | ~b | x | y) & (~x & ~y | a & b)"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testBinaryOperators(final FormulaContext _c) throws ParserException {
+        assertThat(_c.imp1.nnf()).isEqualTo(_c.p.parse("~a | b"));
+        assertThat(_c.imp2.nnf()).isEqualTo(_c.p.parse("a | ~b"));
+        assertThat(_c.imp3.nnf()).isEqualTo(_c.p.parse("~a | ~b | x | y"));
+        assertThat(_c.imp4.nnf()).isEqualTo(_c.p.parse("(~a | ~b) & (a | b) | (x | ~y) & (y | ~x)"));
+        assertThat(_c.eq1.nnf()).isEqualTo(_c.p.parse("(~a | b) & (~b | a)"));
+        assertThat(_c.eq2.nnf()).isEqualTo(_c.p.parse("(a | ~b) & (b | ~a)"));
+        assertThat(_c.eq3.nnf()).isEqualTo(_c.p.parse("(~a | ~b | x | y) & (~x & ~y | a & b)"));
     }
 
-    @Test
-    public void testNAryOperators() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(f);
-        assertThat(AND1.nnf()).isEqualTo(AND1);
-        assertThat(OR1.nnf()).isEqualTo(OR1);
-        assertThat(p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").nnf()).isEqualTo(p.parse("~a & ~b & c & (~x | y) & (~w | z)"));
-        assertThat(p.parse("~(a & b) | c | ~(x | ~y) | (w => z)").nnf()).isEqualTo(p.parse("~a  | ~b | c | (~x & y) | (~w | z)"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNAryOperators(final FormulaContext _c) throws ParserException {
+        assertThat(_c.and1.nnf()).isEqualTo(_c.and1);
+        assertThat(_c.or1.nnf()).isEqualTo(_c.or1);
+        assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").nnf()).isEqualTo(_c.p.parse("~a & ~b & c & (~x | y) & (~w | z)"));
+        assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y) | (w => z)").nnf()).isEqualTo(_c.p.parse("~a  | ~b | c | (~x & y) | (~w | z)"));
     }
 
-    @Test
-    public void testNot() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(f);
-        assertThat(p.parse("~a").nnf()).isEqualTo(p.parse("~a"));
-        assertThat(p.parse("~~a").nnf()).isEqualTo(p.parse("a"));
-        assertThat(p.parse("~(a => b)").nnf()).isEqualTo(p.parse("a & ~b"));
-        assertThat(p.parse("~(~(a | b) => ~(x | y))").nnf()).isEqualTo(p.parse("~a & ~b & (x | y)"));
-        assertThat(p.parse("a <=> b").nnf()).isEqualTo(p.parse("(~a | b) & (~b | a)"));
-        assertThat(p.parse("~(a <=> b)").nnf()).isEqualTo(p.parse("(~a | ~b) & (a | b)"));
-        assertThat(p.parse("~(~(a | b) <=> ~(x | y))").nnf()).isEqualTo(p.parse("((a | b) | (x | y)) & ((~a & ~b) | (~x & ~y))"));
-        assertThat(p.parse("~(a & b & ~x & ~y)").nnf()).isEqualTo(p.parse("~a | ~b | x | y"));
-        assertThat(p.parse("~(a | b | ~x | ~y)").nnf()).isEqualTo(p.parse("~a & ~b & x & y"));
-        assertThat(p.parse("~(a | b | ~x | ~y)").nnf()).isEqualTo(p.parse("~a & ~b & x & y"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNot(final FormulaContext _c) throws ParserException {
+        assertThat(_c.p.parse("~a").nnf()).isEqualTo(_c.p.parse("~a"));
+        assertThat(_c.p.parse("~~a").nnf()).isEqualTo(_c.p.parse("a"));
+        assertThat(_c.p.parse("~(a => b)").nnf()).isEqualTo(_c.p.parse("a & ~b"));
+        assertThat(_c.p.parse("~(~(a | b) => ~(x | y))").nnf()).isEqualTo(_c.p.parse("~a & ~b & (x | y)"));
+        assertThat(_c.p.parse("a <=> b").nnf()).isEqualTo(_c.p.parse("(~a | b) & (~b | a)"));
+        assertThat(_c.p.parse("~(a <=> b)").nnf()).isEqualTo(_c.p.parse("(~a | ~b) & (a | b)"));
+        assertThat(_c.p.parse("~(~(a | b) <=> ~(x | y))").nnf()).isEqualTo(_c.p.parse("((a | b) | (x | y)) & ((~a & ~b) | (~x & ~y))"));
+        assertThat(_c.p.parse("~(a & b & ~x & ~y)").nnf()).isEqualTo(_c.p.parse("~a | ~b | x | y"));
+        assertThat(_c.p.parse("~(a | b | ~x | ~y)").nnf()).isEqualTo(_c.p.parse("~a & ~b & x & y"));
+        assertThat(_c.p.parse("~(a | b | ~x | ~y)").nnf()).isEqualTo(_c.p.parse("~a & ~b & x & y"));
     }
 }
