@@ -8,65 +8,72 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.io.readers.FormulaReader;
 import org.logicng.predicates.satisfiability.TautologyPredicate;
 
 import java.io.IOException;
 
-public class DNFSubsumptionTest {
+public class DNFSubsumptionTest extends TestWithFormulaContext {
 
-    private final FormulaFactory f = FormulaFactory.caching();
-    private final PropositionalParser p = new PropositionalParser(this.f);
-    private final DNFSubsumption s = new DNFSubsumption(f);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSimpleDNFSubsumption(final FormulaContext _c) throws ParserException {
+        final DNFSubsumption s = new DNFSubsumption(_c.f);
 
-    @Test
-    public void testNotInDNF() {
-        assertThatThrownBy(() -> this.s.apply(this.p.parse("a => b"))).isInstanceOf(IllegalArgumentException.class);
+        assertThat(s.apply(_c.p.parse("$false"))).isEqualTo(_c.p.parse("$false"));
+        assertThat(s.apply(_c.p.parse("$true"))).isEqualTo(_c.p.parse("$true"));
+        assertThat(s.apply(_c.p.parse("a"))).isEqualTo(_c.p.parse("a"));
+        assertThat(s.apply(_c.p.parse("~a"))).isEqualTo(_c.p.parse("~a"));
+        assertThat(s.apply(_c.p.parse("a | b | c"))).isEqualTo(_c.p.parse("a | b | c"));
+        assertThat(s.apply(_c.p.parse("a & b & c"))).isEqualTo(_c.p.parse("a & b & c"));
+        assertThat(s.apply(_c.p.parse("a | (a & b)"))).isEqualTo(_c.p.parse("a"));
+        assertThat(s.apply(_c.p.parse("(a & b) | (a & b & c)"))).isEqualTo(_c.p.parse("a & b"));
+        assertThat(s.apply(_c.p.parse("a | (a & b) | (a & b & c)"))).isEqualTo(_c.p.parse("a"));
+        assertThat(s.apply(_c.p.parse("a | (a & b) | b"))).isEqualTo(_c.p.parse("a | b"));
+        assertThat(s.apply(_c.p.parse("a | (a & b) | c | (c & b)"))).isEqualTo(_c.p.parse("a | c"));
+        assertThat(s.apply(_c.p.parse("(a & b) | (a & c) | (a & b & c)"))).isEqualTo(_c.p.parse("(a & b) | (a & c)"));
     }
 
-    @Test
-    public void testSimpleDNFSubsumption() throws ParserException {
-        assertThat(this.s.apply(this.p.parse("$false"))).isEqualTo(this.p.parse("$false"));
-        assertThat(this.s.apply(this.p.parse("$true"))).isEqualTo(this.p.parse("$true"));
-        assertThat(this.s.apply(this.p.parse("a"))).isEqualTo(this.p.parse("a"));
-        assertThat(this.s.apply(this.p.parse("~a"))).isEqualTo(this.p.parse("~a"));
-        assertThat(this.s.apply(this.p.parse("a | b | c"))).isEqualTo(this.p.parse("a | b | c"));
-        assertThat(this.s.apply(this.p.parse("a & b & c"))).isEqualTo(this.p.parse("a & b & c"));
-        assertThat(this.s.apply(this.p.parse("a | (a & b)"))).isEqualTo(this.p.parse("a"));
-        assertThat(this.s.apply(this.p.parse("(a & b) | (a & b & c)"))).isEqualTo(this.p.parse("a & b"));
-        assertThat(this.s.apply(this.p.parse("a | (a & b) | (a & b & c)"))).isEqualTo(this.p.parse("a"));
-        assertThat(this.s.apply(this.p.parse("a | (a & b) | b"))).isEqualTo(this.p.parse("a | b"));
-        assertThat(this.s.apply(this.p.parse("a | (a & b) | c | (c & b)"))).isEqualTo(this.p.parse("a | c"));
-        assertThat(this.s.apply(this.p.parse("(a & b) | (a & c) | (a & b & c)"))).isEqualTo(this.p.parse("(a & b) | (a & c)"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLargeDNFSubsumption(final FormulaContext _c) throws ParserException {
+        final DNFSubsumption s = new DNFSubsumption(_c.f);
+
+        assertThat(s.apply(_c.p.parse("(a & b & c & d) | (a & b & c & e) | (a & b & c)"))).isEqualTo(_c.p.parse("(a & b & c)"));
+        assertThat(s.apply(_c.p.parse("(a & b) | (a & c) | (a & b & c) | (a & ~b & c) | (a & b & ~c) | (b & c)"))).isEqualTo(_c.p.parse("(a & b) | (a & c) | (b & c)"));
+        assertThat(s.apply(_c.p.parse("(a & b) | (a & c) | (a & b & c) | (a & ~b & c) | (a & b & ~c) | (b & c)"))).isEqualTo(_c.p.parse("(a & b) | (a & c) | (b & c)"));
+        assertThat(s.apply(_c.p.parse("a | ~b | (c & d) | (~a & ~b & ~c) | (b & c & d) | (a & b & c & d)"))).isEqualTo(_c.p.parse("a | ~b | (c & d)"));
+        assertThat(s.apply(_c.p.parse("(a & b & c & d & e & f & g) | (b & d & f) | (a & c & e & g)"))).isEqualTo(_c.p.parse("(b & d & f) | (a & c & e & g)"));
     }
 
-    @Test
-    public void testLargeDNFSubsumption() throws ParserException {
-        assertThat(this.s.apply(this.p.parse("(a & b & c & d) | (a & b & c & e) | (a & b & c)"))).isEqualTo(this.p.parse("(a & b & c)"));
-        assertThat(this.s.apply(this.p.parse("(a & b) | (a & c) | (a & b & c) | (a & ~b & c) | (a & b & ~c) | (b & c)"))).isEqualTo(this.p.parse("(a & b) | (a & c) | (b & c)"));
-        assertThat(this.s.apply(this.p.parse("(a & b) | (a & c) | (a & b & c) | (a & ~b & c) | (a & b & ~c) | (b & c)"))).isEqualTo(this.p.parse("(a & b) | (a & c) | (b & c)"));
-        assertThat(this.s.apply(this.p.parse("a | ~b | (c & d) | (~a & ~b & ~c) | (b & c & d) | (a & b & c & d)"))).isEqualTo(this.p.parse("a | ~b | (c & d)"));
-        assertThat(this.s.apply(this.p.parse("(a & b & c & d & e & f & g) | (b & d & f) | (a & c & e & g)"))).isEqualTo(this.p.parse("(b & d & f) | (a & c & e & g)"));
-    }
-
-    @Test
-    public void testEvenLargerFormulas() throws IOException, ParserException {
-        final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", f);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEvenLargerFormulas(final FormulaContext _c) throws IOException, ParserException {
+        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", _c.f);
         int count = 10; // test only first 10 formulas
         for (final Formula op : formula) {
             if (count == 0) {
                 break;
             }
-            final Formula dnf = op.transform(new DNFFactorization(f));
-            final Formula subsumed = dnf.transform(new DNFSubsumption(f));
-            assertThat(f.equivalence(dnf, subsumed).holds(new TautologyPredicate(f))).isTrue();
+            final Formula dnf = op.transform(new DNFFactorization(_c.f));
+            final Formula subsumed = dnf.transform(new DNFSubsumption(_c.f));
+            assertThat(_c.f.equivalence(dnf, subsumed).holds(new TautologyPredicate(_c.f))).isTrue();
             assertThat(dnf.numberOfOperands() > subsumed.numberOfOperands()).isTrue();
             count--;
         }
+    }
+
+    @Test
+    public void testNotInDNF() {
+        final FormulaFactory f = FormulaFactory.caching();
+        final DNFSubsumption s = new DNFSubsumption(f);
+        assertThatThrownBy(() -> s.apply(f.parse("a => b"))).isInstanceOf(IllegalArgumentException.class);
     }
 }
