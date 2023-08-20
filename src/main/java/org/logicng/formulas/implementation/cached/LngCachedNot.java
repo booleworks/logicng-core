@@ -21,7 +21,7 @@ public class LngCachedNot extends LngCachedFormula implements Not {
     LngCachedNot(final Formula operand, final CachingFormulaFactory f) {
         super(FType.NOT, f);
         this.operand = operand;
-        this.hashCode = 0;
+        hashCode = 0;
     }
 
     @Override

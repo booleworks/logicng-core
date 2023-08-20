@@ -21,7 +21,7 @@ public class LngNativeNot extends LngNativeFormula implements Not {
     LngNativeNot(final Formula operand, final NonCachingFormulaFactory f) {
         super(FType.NOT, f);
         this.operand = operand;
-        this.hashCode = 0;
+        hashCode = 0;
     }
 
     @Override

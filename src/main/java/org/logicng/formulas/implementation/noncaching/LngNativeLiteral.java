@@ -40,7 +40,7 @@ public class LngNativeLiteral extends LngNativeFormula implements Literal {
 
     @Override
     public Variable variable() {
-        return f.variable(this.name);
+        return f.variable(name);
     }
 
     @Override

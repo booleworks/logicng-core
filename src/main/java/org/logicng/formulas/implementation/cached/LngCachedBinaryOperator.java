@@ -25,7 +25,7 @@ public abstract class LngCachedBinaryOperator extends LngCachedFormula implement
         super(type, f);
         this.left = left;
         this.right = right;
-        this.hashCode = 0;
+        hashCode = 0;
     }
 
     @Override

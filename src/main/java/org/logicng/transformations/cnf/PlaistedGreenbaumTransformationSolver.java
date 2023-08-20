@@ -157,12 +157,11 @@ public final class PlaistedGreenbaumTransformationSolver {
     }
 
     private LNGIntVector handleEquivalence(final Equivalence formula, final boolean polarity, final Proposition proposition, final boolean topLevel) {
-        final boolean skipPg = topLevel;
-        final Pair<Boolean, Integer> pgVarResult = skipPg ? new Pair<>(false, null) : getPgVar(formula, polarity);
+        final Pair<Boolean, Integer> pgVarResult = topLevel ? new Pair<>(false, null) : getPgVar(formula, polarity);
         if (pgVarResult.first()) {
             return polarity ? vector(pgVarResult.second()) : vector(pgVarResult.second() ^ 1);
         }
-        final int pgVar = skipPg ? -1 : pgVarResult.second();
+        final int pgVar = topLevel ? -1 : pgVarResult.second();
         final LNGIntVector leftPgVarPos = computeTransformation(formula.left(), true, proposition, false);
         final LNGIntVector leftPgVarNeg = computeTransformation(formula.left(), false, proposition, false);
         final LNGIntVector rightPgVarPos = computeTransformation(formula.right(), true, proposition, false);

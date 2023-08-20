@@ -10,7 +10,7 @@ import org.logicng.formulas.Formula;
 public abstract class LngNativeFormula implements Formula {
 
     protected final NonCachingFormulaFactory f;
-    protected FType type;
+    protected final FType type;
 
     protected LngNativeFormula(final FType type, final NonCachingFormulaFactory f) {
         this.f = f;
