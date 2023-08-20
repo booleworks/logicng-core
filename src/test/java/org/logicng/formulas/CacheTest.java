@@ -26,7 +26,6 @@ public class CacheTest {
         assertThat(TransformationCacheEntry.FACTORIZED_CNF.description()).isEqualTo("TransformationCacheEntry{description=factorized conjunctive normal form}");
 
         assertThat(PredicateCacheEntry.IS_AIG.description()).isEqualTo("PredicateCacheEntry{description=and-inverter graph}");
-        assertThat(PredicateCacheEntry.IS_TAUTOLOGY.description()).isEqualTo("PredicateCacheEntry{description=tautology}");
         assertThat(PredicateCacheEntry.IS_CNF.description()).isEqualTo("PredicateCacheEntry{description=conjunctive normal form}");
 
         assertThat(FunctionCacheEntry.LITPROFILE.description()).isEqualTo("FunctionCacheEntry{description=literal profile}");
@@ -41,7 +40,7 @@ public class CacheTest {
         assertThat(valuesTrans.contains(TransformationCacheEntry.valueOf("FACTORIZED_DNF"))).isTrue();
 
         final List<PredicateCacheEntry> valuesPred = Arrays.asList(PredicateCacheEntry.values());
-        assertThat(valuesPred.size()).isEqualTo(6);
+        assertThat(valuesPred.size()).isEqualTo(5);
         assertThat(valuesPred.contains(PredicateCacheEntry.valueOf("IS_NNF"))).isTrue();
         assertThat(valuesPred.contains(PredicateCacheEntry.valueOf("IS_CNF"))).isTrue();
         assertThat(valuesPred.contains(PredicateCacheEntry.valueOf("IS_DNF"))).isTrue();

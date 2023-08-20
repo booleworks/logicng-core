@@ -4,7 +4,6 @@
 
 package org.logicng.formulas.implementation.cached;
 
-import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.Or;
@@ -29,7 +28,7 @@ public class LngCachedOr extends LngCachedNAryOperator implements Or {
      */
     @Override
     public boolean isCNFClause() {
-        return f.predicateCacheEntry(this, PredicateCacheEntry.IS_CNF) == Tristate.TRUE;
+        return f.getPredicateCacheForType(PredicateCacheEntry.IS_CNF).get(this) == Boolean.TRUE;
     }
 
     @Override

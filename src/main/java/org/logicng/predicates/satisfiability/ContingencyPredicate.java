@@ -16,7 +16,6 @@ import org.logicng.formulas.FormulaPredicate;
  */
 public final class ContingencyPredicate implements FormulaPredicate {
 
-    private final boolean useCache;
     private final FormulaFactory f;
 
     /**
@@ -24,22 +23,11 @@ public final class ContingencyPredicate implements FormulaPredicate {
      * @param f the formula factory
      */
     public ContingencyPredicate(final FormulaFactory f) {
-        this(f, true);
-    }
-
-    /**
-     * Constructs a new contingency predicate with a given formula factory.
-     * @param f        the formula factory
-     * @param useCache a flag whether the result per formula should be cached
-     *                 (only relevant for caching formula factory)
-     */
-    public ContingencyPredicate(final FormulaFactory f, final boolean useCache) {
         this.f = f;
-        this.useCache = useCache;
     }
 
     @Override
     public boolean test(final Formula formula) {
-        return formula.holds(new SATPredicate(f, useCache)) && !formula.holds(new TautologyPredicate(f, useCache));
+        return formula.holds(new SATPredicate(f)) && !formula.holds(new TautologyPredicate(f));
     }
 }

@@ -64,7 +64,7 @@ public class CanonicalDNFEnumerationTest extends TestWithFormulaContext {
     private void test(final Formula formula) {
         final FormulaFactory f = formula.factory();
         final Formula dnf = new CanonicalDNFEnumeration(f).apply(formula);
-        assertThat(dnf.holds(new DNFPredicate())).isTrue();
+        assertThat(dnf.holds(new DNFPredicate(f))).isTrue();
         assertThat(f.equivalence(formula, dnf).holds(new TautologyPredicate(f))).isTrue();
         if (formula.holds(new ContradictionPredicate(f))) {
             assertThat(dnf).isEqualTo(f.falsum());

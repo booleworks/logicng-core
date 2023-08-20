@@ -4,10 +4,8 @@
 
 package org.logicng.formulas.implementation.cached;
 
-import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.cache.CacheEntry;
 
 public abstract class LngCachedFormula implements Formula {
 
@@ -27,21 +25,6 @@ public abstract class LngCachedFormula implements Formula {
     @Override
     public CachingFormulaFactory factory() {
         return f;
-    }
-
-    @Override
-    public Tristate predicateCacheEntry(final CacheEntry key) {
-        return f.predicateCacheEntry(this, key);
-    }
-
-    @Override
-    public void setPredicateCacheEntry(final CacheEntry key, final boolean value) {
-        f.setPredicateCacheEntry(this, key, value);
-    }
-
-    @Override
-    public void setPredicateCacheEntry(final CacheEntry key, final Tristate value) {
-        f.setPredicateCacheEntry(this, key, value);
     }
 
     @Override

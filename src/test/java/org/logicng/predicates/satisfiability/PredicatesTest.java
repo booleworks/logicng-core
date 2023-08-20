@@ -5,109 +5,125 @@
 package org.logicng.predicates.satisfiability;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.logicng.formulas.cache.PredicateCacheEntry.IS_SAT;
-import static org.logicng.formulas.cache.PredicateCacheEntry.IS_TAUTOLOGY;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
-import org.logicng.datastructures.Tristate;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaPredicate;
-import org.logicng.formulas.Variable;
+import org.logicng.formulas.FormulaContext;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.testutils.PigeonHoleGenerator;
 
-public class PredicatesTest extends TestWithExampleFormulas {
+public class PredicatesTest extends TestWithFormulaContext {
 
-    private final FormulaPredicate sat = new SATPredicate(this.f);
-    private final FormulaPredicate ctr = new ContradictionPredicate(this.f);
-    private final FormulaPredicate tau = new TautologyPredicate(this.f);
-    private final FormulaPredicate con = new ContingencyPredicate(this.f);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testTrue(final FormulaContext _c) {
+        final var sat = new SATPredicate(_c.f);
+        final var ctr = new ContradictionPredicate(_c.f);
+        final var tau = new TautologyPredicate(_c.f);
+        final var con = new ContingencyPredicate(_c.f);
 
-    @Test
-    public void testTrue() {
-        assertThat(this.TRUE.holds(this.sat)).isTrue();
-        assertThat(this.TRUE.holds(this.ctr)).isFalse();
-        assertThat(this.TRUE.holds(this.tau)).isTrue();
-        assertThat(this.TRUE.holds(this.con)).isFalse();
+        assertThat(_c.verum.holds(sat)).isTrue();
+        assertThat(_c.verum.holds(ctr)).isFalse();
+        assertThat(_c.verum.holds(tau)).isTrue();
+        assertThat(_c.verum.holds(con)).isFalse();
     }
 
-    @Test
-    public void testFalse() {
-        assertThat(this.FALSE.holds(this.sat)).isFalse();
-        assertThat(this.FALSE.holds(this.ctr)).isTrue();
-        assertThat(this.FALSE.holds(this.tau)).isFalse();
-        assertThat(this.FALSE.holds(this.con)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testFalse(final FormulaContext _c) {
+        final var sat = new SATPredicate(_c.f);
+        final var ctr = new ContradictionPredicate(_c.f);
+        final var tau = new TautologyPredicate(_c.f);
+        final var con = new ContingencyPredicate(_c.f);
+
+        assertThat(_c.falsum.holds(sat)).isFalse();
+        assertThat(_c.falsum.holds(ctr)).isTrue();
+        assertThat(_c.falsum.holds(tau)).isFalse();
+        assertThat(_c.falsum.holds(con)).isFalse();
     }
 
-    @Test
-    public void testLiterals() {
-        assertThat(this.A.holds(this.sat)).isTrue();
-        assertThat(this.A.holds(this.ctr)).isFalse();
-        assertThat(this.A.holds(this.tau)).isFalse();
-        assertThat(this.A.holds(this.con)).isTrue();
-        assertThat(this.NA.holds(this.sat)).isTrue();
-        assertThat(this.NA.holds(this.ctr)).isFalse();
-        assertThat(this.NA.holds(this.tau)).isFalse();
-        assertThat(this.NA.holds(this.con)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        final var sat = new SATPredicate(_c.f);
+        final var ctr = new ContradictionPredicate(_c.f);
+        final var tau = new TautologyPredicate(_c.f);
+        final var con = new ContingencyPredicate(_c.f);
+
+        assertThat(_c.a.holds(sat)).isTrue();
+        assertThat(_c.a.holds(ctr)).isFalse();
+        assertThat(_c.a.holds(tau)).isFalse();
+        assertThat(_c.a.holds(con)).isTrue();
+        assertThat(_c.na.holds(sat)).isTrue();
+        assertThat(_c.na.holds(ctr)).isFalse();
+        assertThat(_c.na.holds(tau)).isFalse();
+        assertThat(_c.na.holds(con)).isTrue();
     }
 
-    @Test
-    public void testOther() {
-        assertThat(this.AND1.holds(this.sat)).isTrue();
-        assertThat(this.AND1.holds(this.ctr)).isFalse();
-        assertThat(this.AND1.holds(this.tau)).isFalse();
-        assertThat(this.AND1.holds(this.con)).isTrue();
-        assertThat(this.NOT2.holds(this.sat)).isTrue();
-        assertThat(this.NOT2.holds(this.ctr)).isFalse();
-        assertThat(this.NOT2.holds(this.tau)).isFalse();
-        assertThat(this.NOT2.holds(this.con)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testOther(final FormulaContext _c) {
+        final var sat = new SATPredicate(_c.f);
+        final var ctr = new ContradictionPredicate(_c.f);
+        final var tau = new TautologyPredicate(_c.f);
+        final var con = new ContingencyPredicate(_c.f);
+
+        assertThat(_c.and1.holds(sat)).isTrue();
+        assertThat(_c.and1.holds(ctr)).isFalse();
+        assertThat(_c.and1.holds(tau)).isFalse();
+        assertThat(_c.and1.holds(con)).isTrue();
+        assertThat(_c.not2.holds(sat)).isTrue();
+        assertThat(_c.not2.holds(ctr)).isFalse();
+        assertThat(_c.not2.holds(tau)).isFalse();
+        assertThat(_c.not2.holds(con)).isTrue();
     }
 
-    @Test
-    public void testTaut() {
-        final Formula taut = this.f.or(this.AND1, this.f.and(this.NA, this.B), this.f.and(this.A, this.NB), this.f.and(this.NA, this.NB));
-        assertThat(taut.holds(this.sat)).isTrue();
-        assertThat(taut.holds(this.ctr)).isFalse();
-        assertThat(taut.holds(this.tau)).isTrue();
-        assertThat(taut.holds(this.con)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testTaut(final FormulaContext _c) {
+        final var sat = new SATPredicate(_c.f);
+        final var ctr = new ContradictionPredicate(_c.f);
+        final var tau = new TautologyPredicate(_c.f);
+        final var con = new ContingencyPredicate(_c.f);
+
+        final Formula taut = _c.f.or(_c.and1, _c.f.and(_c.na, _c.b), _c.f.and(_c.a, _c.nb), _c.f.and(_c.na, _c.nb));
+        assertThat(taut.holds(sat)).isTrue();
+        assertThat(taut.holds(ctr)).isFalse();
+        assertThat(taut.holds(tau)).isTrue();
+        assertThat(taut.holds(con)).isFalse();
     }
 
-    @Test
-    public void testCont() {
-        final Formula cont = this.f.and(this.OR1, this.f.or(this.NX, this.Y), this.f.or(this.X, this.NY), this.f.or(this.NX, this.NY));
-        assertThat(cont.holds(this.sat)).isFalse();
-        assertThat(cont.holds(this.ctr)).isTrue();
-        assertThat(cont.holds(this.tau)).isFalse();
-        assertThat(cont.holds(this.con)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testCont(final FormulaContext _c) {
+        final var sat = new SATPredicate(_c.f);
+        final var ctr = new ContradictionPredicate(_c.f);
+        final var tau = new TautologyPredicate(_c.f);
+        final var con = new ContingencyPredicate(_c.f);
+
+        final Formula cont = _c.f.and(_c.or1, _c.f.or(_c.nx, _c.y), _c.f.or(_c.x, _c.ny), _c.f.or(_c.nx, _c.ny));
+        assertThat(cont.holds(sat)).isFalse();
+        assertThat(cont.holds(ctr)).isTrue();
+        assertThat(cont.holds(tau)).isFalse();
+        assertThat(cont.holds(con)).isFalse();
     }
 
-    @Test
-    public void testSat() {
-        assertThat(this.AND1.holds(this.sat)).isTrue();
-        assertThat(this.AND2.holds(this.sat)).isTrue();
-        assertThat(this.AND3.holds(this.sat)).isTrue();
-        assertThat(this.OR1.holds(this.sat)).isTrue();
-        assertThat(this.OR2.holds(this.sat)).isTrue();
-        assertThat(this.OR3.holds(this.sat)).isTrue();
-        assertThat(this.NOT1.holds(this.sat)).isTrue();
-        assertThat(this.NOT2.holds(this.sat)).isTrue();
-        assertThat(new PigeonHoleGenerator(this.f).generate(1).holds(this.sat)).isFalse();
-        assertThat(new PigeonHoleGenerator(this.f).generate(2).holds(this.sat)).isFalse();
-        assertThat(new PigeonHoleGenerator(this.f).generate(3).holds(this.sat)).isFalse();
-    }
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSat(final FormulaContext _c) {
+        final var sat = new SATPredicate(_c.f);
 
-    @Test
-    public void testNotCache() {
-        final Formula taut = this.f.or(this.AND1, this.f.and(this.NA, this.B), this.f.and(this.A, this.NB), this.f.and(this.NA, this.NB));
-        taut.holds(new TautologyPredicate(f, false));
-        assertThat(taut.predicateCacheEntry(IS_TAUTOLOGY)).isEqualTo(Tristate.UNDEF);
-
-        final Variable a = this.f.variable("A");
-        final Variable b = this.f.variable("B");
-        final Variable c = this.f.variable("C");
-        final Variable d = this.f.variable("D");
-        final Formula satDNF = this.f.or(this.f.and(a, b), this.f.and(b, c), this.f.and(d, a));
-        assertThat(satDNF.holds(new SATPredicate(f, false))).isTrue();
-        assertThat(satDNF.predicateCacheEntry(IS_SAT)).isEqualTo(Tristate.UNDEF);
+        assertThat(_c.and1.holds(sat)).isTrue();
+        assertThat(_c.and2.holds(sat)).isTrue();
+        assertThat(_c.and3.holds(sat)).isTrue();
+        assertThat(_c.or1.holds(sat)).isTrue();
+        assertThat(_c.or2.holds(sat)).isTrue();
+        assertThat(_c.or3.holds(sat)).isTrue();
+        assertThat(_c.not1.holds(sat)).isTrue();
+        assertThat(_c.not2.holds(sat)).isTrue();
+        assertThat(new PigeonHoleGenerator(_c.f).generate(1).holds(sat)).isFalse();
+        assertThat(new PigeonHoleGenerator(_c.f).generate(2).holds(sat)).isFalse();
+        assertThat(new PigeonHoleGenerator(_c.f).generate(3).holds(sat)).isFalse();
     }
 }

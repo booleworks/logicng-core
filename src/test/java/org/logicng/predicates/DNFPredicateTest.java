@@ -6,29 +6,32 @@ package org.logicng.predicates;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.logicng.formulas.FormulaContext;
+import org.logicng.formulas.TestWithFormulaContext;
 
-public class DNFPredicateTest extends TestWithExampleFormulas {
+public class DNFPredicateTest extends TestWithFormulaContext {
 
-    private final DNFPredicate dnfPredicate = new DNFPredicate();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void test(final FormulaContext _c) {
+        final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
 
-    @Test
-    public void test() {
-        assertThat(this.f.verum().holds(this.dnfPredicate)).isTrue();
-        assertThat(this.f.falsum().holds(this.dnfPredicate)).isTrue();
-        assertThat(this.A.holds(this.dnfPredicate)).isTrue();
-        assertThat(this.NA.holds(this.dnfPredicate)).isTrue();
-        assertThat(this.AND1.holds(this.dnfPredicate)).isTrue();
-        assertThat(this.OR1.holds(this.dnfPredicate)).isTrue();
-        assertThat(this.OR3.holds(this.dnfPredicate)).isTrue();
-        assertThat(this.f.or(this.AND1, this.AND2, this.A, this.NY).holds(this.dnfPredicate)).isTrue();
-        assertThat(this.PBC1.holds(this.dnfPredicate)).isFalse();
-        assertThat(this.AND3.holds(this.dnfPredicate)).isFalse();
-        assertThat(this.IMP1.holds(this.dnfPredicate)).isFalse();
-        assertThat(this.EQ1.holds(this.dnfPredicate)).isFalse();
-        assertThat(this.NOT1.holds(this.dnfPredicate)).isFalse();
-        assertThat(this.NOT2.holds(this.dnfPredicate)).isFalse();
-        assertThat(this.f.or(this.AND1, this.EQ1).holds(this.dnfPredicate)).isFalse();
+        assertThat(_c.f.verum().holds(dnfPredicate)).isTrue();
+        assertThat(_c.f.falsum().holds(dnfPredicate)).isTrue();
+        assertThat(_c.a.holds(dnfPredicate)).isTrue();
+        assertThat(_c.na.holds(dnfPredicate)).isTrue();
+        assertThat(_c.and1.holds(dnfPredicate)).isTrue();
+        assertThat(_c.or1.holds(dnfPredicate)).isTrue();
+        assertThat(_c.or3.holds(dnfPredicate)).isTrue();
+        assertThat(_c.f.or(_c.and1, _c.and2, _c.a, _c.ny).holds(dnfPredicate)).isTrue();
+        assertThat(_c.pbc1.holds(dnfPredicate)).isFalse();
+        assertThat(_c.and3.holds(dnfPredicate)).isFalse();
+        assertThat(_c.imp1.holds(dnfPredicate)).isFalse();
+        assertThat(_c.eq1.holds(dnfPredicate)).isFalse();
+        assertThat(_c.not1.holds(dnfPredicate)).isFalse();
+        assertThat(_c.not2.holds(dnfPredicate)).isFalse();
+        assertThat(_c.f.or(_c.and1, _c.eq1).holds(dnfPredicate)).isFalse();
     }
 }
