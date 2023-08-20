@@ -19,8 +19,6 @@ import org.logicng.predicates.DNFPredicate;
 
 public class BDDDNFTest extends TestWithFormulaContext {
 
-    private final DNFPredicate dnfPredicate = new DNFPredicate();
-
     @ParameterizedTest
     @MethodSource("contexts")
     public void testConstants(final FormulaContext _c) {
@@ -42,6 +40,7 @@ public class BDDDNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testBinaryOperators(final FormulaContext _c) {
+        final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
         final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
 
         assertThat(_c.imp1.transform(bdddnf).holds(dnfPredicate)).isTrue();
@@ -63,6 +62,7 @@ public class BDDDNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNAryOperators(final FormulaContext _c) throws ParserException {
+        final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
         final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
 
         assertThat(_c.and1.transform(bdddnf)).isEqualTo(_c.and1);
@@ -81,6 +81,7 @@ public class BDDDNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNAryOperatorsWithExternalFactory(final FormulaContext _c) throws ParserException {
+        final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
         final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
 
         final BDDDNFTransformation transformation = new BDDDNFTransformation(_c.f, new BDDKernel(_c.f, 7, 100, 1000));
@@ -100,6 +101,7 @@ public class BDDDNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNAryOperatorsWithExternalFactory2(final FormulaContext _c) throws ParserException {
+        final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
         final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
 
         final BDDDNFTransformation transformation = new BDDDNFTransformation(_c.f, new BDDKernel(_c.f, 7, 50, 50));
@@ -119,6 +121,7 @@ public class BDDDNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNot(final FormulaContext _c) throws ParserException {
+        final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
         final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
 
         assertThat(_c.p.parse("~a").transform(bdddnf)).isEqualTo(_c.p.parse("~a"));
@@ -146,6 +149,7 @@ public class BDDDNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testCC(final FormulaContext _c) throws ParserException {
+        final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
         final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
 
         final PseudoBooleanParser p = new PseudoBooleanParser(_c.f);

@@ -14,8 +14,7 @@ public enum PredicateCacheEntry implements CacheEntry {
     IS_CNF("conjunctive normal form"),
     IS_DNF("disjunctive normal form"),
     IS_AIG("and-inverter graph"),
-    IS_SAT("satisfiable"),
-    IS_TAUTOLOGY("tautology");
+    IS_SAT("satisfiable");
 
     private final String description;
 

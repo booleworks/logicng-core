@@ -16,11 +16,11 @@ import org.logicng.predicates.AIGPredicate;
 
 public class AIGTest extends TestWithFormulaContext {
 
-    private final AIGPredicate aigPred = new AIGPredicate();
-
     @ParameterizedTest
     @MethodSource("contexts")
     public void testConstants(final FormulaContext _c) {
+        final AIGPredicate aigPred = new AIGPredicate(_c.f);
+
         final AIGTransformation aigCaching = new AIGTransformation(_c.f);
 
         assertThat(_c.verum.transform(aigCaching)).isEqualTo(_c.verum);
@@ -32,6 +32,7 @@ public class AIGTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLiterals(final FormulaContext _c) {
+        final AIGPredicate aigPred = new AIGPredicate(_c.f);
         final AIGTransformation aigCaching = new AIGTransformation(_c.f);
 
         assertThat(_c.a.transform(aigCaching)).isEqualTo(_c.a);
@@ -43,6 +44,7 @@ public class AIGTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testBinaryOperators(final FormulaContext _c) throws ParserException {
+        final AIGPredicate aigPred = new AIGPredicate(_c.f);
         final AIGTransformation aigCaching = new AIGTransformation(_c.f);
         final AIGTransformation aigNonCaching = new AIGTransformation(_c.f, null);
 
@@ -70,6 +72,7 @@ public class AIGTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNAryOperators(final FormulaContext _c) throws ParserException {
+        final AIGPredicate aigPred = new AIGPredicate(_c.f);
         final AIGTransformation aigCaching = new AIGTransformation(_c.f);
         final AIGTransformation aigNonCaching = new AIGTransformation(_c.f, null);
 
@@ -117,6 +120,7 @@ public class AIGTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testPBC(final FormulaContext _c) {
+        final AIGPredicate aigPred = new AIGPredicate(_c.f);
         final AIGTransformation aigCaching = new AIGTransformation(_c.f);
         final AIGTransformation aigNonCaching = new AIGTransformation(_c.f, null);
 

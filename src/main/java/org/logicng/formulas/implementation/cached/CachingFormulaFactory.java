@@ -11,7 +11,6 @@ import static org.logicng.formulas.FType.TRUE;
 import static org.logicng.formulas.cache.PredicateCacheEntry.IS_CNF;
 import static org.logicng.formulas.cache.TransformationCacheEntry.FACTORIZED_CNF;
 
-import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.And;
 import org.logicng.formulas.CType;
 import org.logicng.formulas.CardinalityConstraint;
@@ -58,7 +57,7 @@ public class CachingFormulaFactory extends FormulaFactory {
     Map<PBOperands, PBConstraint> pbConstraints;
     Map<CCOperands, CardinalityConstraint> cardinalityConstraints;
     Map<CacheEntry, Map<Formula, Formula>> transformationCache;
-    Map<CacheEntry, Map<Formula, Tristate>> predicateCache;
+    Map<CacheEntry, Map<Formula, Boolean>> predicateCache;
     Map<CacheEntry, Map<Formula, Object>> functionCache;
     Map<PBConstraint, List<Formula>> pbEncodingCache;
 
@@ -392,88 +391,10 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     private void setCnfCaches(final Formula formula, final boolean isCNF) {
         if (isCNF) {
-            setPredicateCacheEntry(formula, IS_CNF, true);
-            setTransformationCacheEntry(formula, FACTORIZED_CNF, formula);
+            predicateCache.computeIfAbsent(IS_CNF, k -> new HashMap<>()).put(formula, true);
+            transformationCache.computeIfAbsent(FACTORIZED_CNF, k -> new HashMap<>()).put(formula, formula);
         } else {
-            setPredicateCacheEntry(formula, IS_CNF, false);
-        }
-    }
-
-    /**
-     * Sets an entry in the predicate cache for the given formula.
-     * @param formula the formula
-     * @param key     the cache key
-     * @param value   the cache value
-     */
-    protected void setPredicateCacheEntry(final Formula formula, final CacheEntry key, final boolean value) {
-        setPredicateCacheEntry(formula, key, Tristate.fromBool(value));
-    }
-
-    /**
-     * Sets an entry in the predicate cache for the given formula.
-     * @param formula the formula
-     * @param key     the cache key
-     * @param value   the cache value
-     */
-    protected void setPredicateCacheEntry(final Formula formula, final CacheEntry key, final Tristate value) {
-        predicateCache.computeIfAbsent(key, k -> new HashMap<>()).put(formula, value);
-    }
-
-    /**
-     * Returns an entry of the function cache for the given formula.
-     * @param formula the formula
-     * @param key     the cache key
-     * @return the cache value or {@code null} if the key is not found
-     */
-    protected Object functionCacheEntry(final Formula formula, final CacheEntry key) {
-        final Map<Formula, Object> cache = functionCache.get(key);
-        return cache == null ? null : cache.get(formula);
-    }
-
-    /**
-     * Sets an entry in the function cache for the given formula.
-     * @param formula the formula
-     * @param key     the cache key
-     * @param value   the cache value
-     */
-    protected void setFunctionCacheEntry(final Formula formula, final CacheEntry key, final Object value) {
-        functionCache.computeIfAbsent(key, k -> new HashMap<>()).put(formula, value);
-    }
-
-    /**
-     * Returns an entry of the transformation cache for the given formula.
-     * @param formula the formula
-     * @param key     the cache key
-     * @return the cache value or {@code null} if the key is not found
-     */
-    protected Formula transformationCacheEntry(final Formula formula, final CacheEntry key) {
-        final Map<Formula, Formula> cache = transformationCache.get(key);
-        return cache == null ? null : cache.get(formula);
-    }
-
-    /**
-     * Sets an entry in the transformation cache for the given formula.
-     * @param formula the formula
-     * @param key     the cache key
-     * @param value   the cache value
-     */
-    protected void setTransformationCacheEntry(final Formula formula, final CacheEntry key, final Formula value) {
-        transformationCache.computeIfAbsent(key, k -> new HashMap<>()).put(formula, value);
-    }
-
-    /**
-     * Returns an entry of the predicate cache for the given formula.
-     * @param formula the formula
-     * @param key     the cache key
-     * @return the cache value (which is {@code UNDEF} if nothing is present)
-     */
-    protected Tristate predicateCacheEntry(final Formula formula, final CacheEntry key) {
-        final Map<Formula, Tristate> cache = predicateCache.get(key);
-        if (cache == null) {
-            return Tristate.UNDEF;
-        } else {
-            final Tristate tristate = cache.get(formula);
-            return tristate == null ? Tristate.UNDEF : tristate;
+            predicateCache.computeIfAbsent(IS_CNF, k -> new HashMap<>()).put(formula, false);
         }
     }
 
@@ -495,6 +416,7 @@ public class CachingFormulaFactory extends FormulaFactory {
      * Attention: this cache should only be modified by formula functions and not be altered in any other way.
      * Manipulating this cache manually can lead to a serious malfunction of algorithms.
      * @param key the cache entry type
+     * @param <T> the type of the cache result
      * @return the cache (mapping from formula to formula)
      */
     @SuppressWarnings("unchecked")
@@ -503,18 +425,15 @@ public class CachingFormulaFactory extends FormulaFactory {
     }
 
     /**
-     * Clears the transformation, function, and PB encoding cache for the given formula.
-     * @param formula the formula
+     * Returns the complete predicate cache for a given cache entry type.
+     * <p>
+     * Attention: this cache should only be modified by formula predicate and not be altered in any other way.
+     * Manipulating this cache manually can lead to a serious malfunction of algorithms.
+     * @param key the cache entry type
+     * @return the cache (mapping from formula to formula)
      */
-    public void clearCaches(final Formula formula) {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        transformationCache.values().forEach(cache -> cache.remove(formula));
-        functionCache.values().forEach(cache -> cache.remove(formula));
-        if (formula instanceof PBConstraint) {
-            pbEncodingCache.remove(formula);
-        }
+    public Map<Formula, Boolean> getPredicateCacheForType(final CacheEntry key) {
+        return predicateCache.computeIfAbsent(key, m -> new HashMap<>());
     }
 
     @Override

@@ -6,32 +6,42 @@ package org.logicng.predicates;
 
 import static org.logicng.formulas.cache.PredicateCacheEntry.IS_NNF;
 
-import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaPredicate;
+import org.logicng.formulas.FormulaFactory;
+
+import java.util.Map;
 
 /**
  * NNF predicate.  Indicates whether a formula is in NNF or not.
  * @version 3.0.0
  * @since 1.5.1
  */
-public final class NNFPredicate implements FormulaPredicate {
+public final class NNFPredicate extends CacheableFormulaPredicate {
 
-    private final boolean useCache;
-
-    public NNFPredicate() {
-        this(true);
+    /**
+     * Constructs a new predicate.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
+    public NNFPredicate(final FormulaFactory f) {
+        super(f, IS_NNF);
     }
 
-    public NNFPredicate(final boolean useCache) {
-        this.useCache = useCache;
+    /**
+     * Constructs a new predicate.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
+     */
+    public NNFPredicate(final FormulaFactory f, final Map<Formula, Boolean> cache) {
+        super(f, cache);
     }
 
     @Override
     public boolean test(final Formula formula) {
-        final Tristate cached = formula.predicateCacheEntry(IS_NNF);
-        if (cached != Tristate.UNDEF) {
-            return cached == Tristate.TRUE;
+        final Boolean cached = lookupCache(formula);
+        if (cached != null) {
+            return cached;
         }
         boolean result;
         switch (formula.type()) {
@@ -59,9 +69,7 @@ public final class NNFPredicate implements FormulaPredicate {
             default:
                 throw new IllegalArgumentException("Cannot compute NNF predicate on " + formula.type());
         }
-        if (useCache) {
-            formula.setPredicateCacheEntry(IS_NNF, result);
-        }
+        setCache(formula, result);
         return result;
     }
 }

@@ -154,8 +154,8 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     public void testPredicates(final FormulaContext _c) {
         assertThat(_c.tautology.isCNF()).isTrue();
         assertThat(_c.contradiction.isCNF()).isTrue();
-        assertThat(_c.tautology.holds(new NNFPredicate())).isTrue();
-        assertThat(_c.contradiction.holds(new NNFPredicate())).isTrue();
+        assertThat(_c.tautology.holds(new NNFPredicate(_c.f))).isTrue();
+        assertThat(_c.contradiction.holds(new NNFPredicate(_c.f))).isTrue();
         assertThat(_c.tautology.isDNF()).isTrue();
         assertThat(_c.contradiction.isDNF()).isTrue();
         assertThat(_c.tautology.holds(new SATPredicate(_c.f))).isTrue();

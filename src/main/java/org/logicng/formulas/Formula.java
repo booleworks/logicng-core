@@ -6,8 +6,6 @@ package org.logicng.formulas;
 
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Substitution;
-import org.logicng.datastructures.Tristate;
-import org.logicng.formulas.cache.CacheEntry;
 import org.logicng.functions.LiteralsFunction;
 import org.logicng.functions.NumberOfAtomsFunction;
 import org.logicng.functions.NumberOfNodesFunction;
@@ -155,7 +153,7 @@ public interface Formula extends Iterable<Formula> {
      * @see NNFPredicate the NNF predicate
      */
     default boolean isNNF() {
-        return holds(new NNFPredicate());
+        return holds(new NNFPredicate(factory()));
     }
 
     /**
@@ -164,7 +162,7 @@ public interface Formula extends Iterable<Formula> {
      * @see DNFPredicate the DNF predicate
      */
     default boolean isDNF() {
-        return holds(new DNFPredicate());
+        return holds(new DNFPredicate(factory()));
     }
 
     /**
@@ -173,7 +171,7 @@ public interface Formula extends Iterable<Formula> {
      * @see CNFPredicate the CNF predicate
      */
     default boolean isCNF() {
-        return holds(new CNFPredicate());
+        return holds(new CNFPredicate(factory()));
     }
 
     /**
@@ -445,27 +443,6 @@ public interface Formula extends Iterable<Formula> {
     default <T> T apply(final FormulaFunction<T> function) {
         return function.apply(this);
     }
-
-    /**
-     * Returns an entry of the predicate cache of this formula.
-     * @param key the cache key
-     * @return the cache value (which is {@code UNDEF} if nothing is present)
-     */
-    Tristate predicateCacheEntry(final CacheEntry key);
-
-    /**
-     * Sets an entry in the predicate cache of this formula
-     * @param key   the cache key
-     * @param value the cache value
-     */
-    void setPredicateCacheEntry(final CacheEntry key, final boolean value);
-
-    /**
-     * Sets an entry in the predicate cache of this formula
-     * @param key   the cache key
-     * @param value the cache value
-     */
-    void setPredicateCacheEntry(final CacheEntry key, final Tristate value);
 
     /**
      * Returns a stream of this formula's operands.

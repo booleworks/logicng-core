@@ -8,34 +8,58 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.logicng.formulas.cache.PredicateCacheEntry.IS_CNF;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaContext;
+import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.TestWithFormulaContext;
+import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
+import org.logicng.io.parsers.ParserException;
 
-public class CNFPredicateTest extends TestWithExampleFormulas {
+import java.util.HashMap;
+import java.util.Map;
 
-    private final CNFPredicate cnfPredicate = new CNFPredicate();
+public class CNFPredicateTest extends TestWithFormulaContext {
 
-    @Test
-    public void test() {
-        assertThat(this.f.verum().holds(this.cnfPredicate)).isTrue();
-        assertThat(this.f.falsum().holds(this.cnfPredicate)).isTrue();
-        assertThat(this.A.holds(this.cnfPredicate)).isTrue();
-        assertThat(this.NA.holds(this.cnfPredicate)).isTrue();
-        assertThat(this.OR1.holds(this.cnfPredicate)).isTrue();
-        assertThat(this.AND1.holds(this.cnfPredicate)).isTrue();
-        assertThat(this.AND3.holds(this.cnfPredicate)).isTrue();
-        assertThat(this.f.and(this.OR1, this.OR2, this.A, this.NY).holds(this.cnfPredicate)).isTrue();
-        assertThat(this.PBC1.holds(this.cnfPredicate)).isFalse();
-        assertThat(this.OR3.holds(this.cnfPredicate)).isFalse();
-        assertThat(this.IMP1.holds(this.cnfPredicate)).isFalse();
-        assertThat(this.EQ1.holds(this.cnfPredicate)).isFalse();
-        assertThat(this.NOT1.holds(this.cnfPredicate)).isFalse();
-        assertThat(this.NOT2.holds(this.cnfPredicate)).isFalse();
-        assertThat(this.f.and(this.OR1, this.EQ1).holds(this.cnfPredicate)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void test(final FormulaContext _c) {
+        final CNFPredicate cnfPredicate = new CNFPredicate(_c.f);
+
+        assertThat(_c.f.verum().holds(cnfPredicate)).isTrue();
+        assertThat(_c.f.falsum().holds(cnfPredicate)).isTrue();
+        assertThat(_c.a.holds(cnfPredicate)).isTrue();
+        assertThat(_c.na.holds(cnfPredicate)).isTrue();
+        assertThat(_c.or1.holds(cnfPredicate)).isTrue();
+        assertThat(_c.and1.holds(cnfPredicate)).isTrue();
+        assertThat(_c.and3.holds(cnfPredicate)).isTrue();
+        assertThat(_c.f.and(_c.or1, _c.or2, _c.a, _c.ny).holds(cnfPredicate)).isTrue();
+        assertThat(_c.pbc1.holds(cnfPredicate)).isFalse();
+        assertThat(_c.or3.holds(cnfPredicate)).isFalse();
+        assertThat(_c.imp1.holds(cnfPredicate)).isFalse();
+        assertThat(_c.eq1.holds(cnfPredicate)).isFalse();
+        assertThat(_c.not1.holds(cnfPredicate)).isFalse();
+        assertThat(_c.not2.holds(cnfPredicate)).isFalse();
+        assertThat(_c.f.and(_c.or1, _c.eq1).holds(cnfPredicate)).isFalse();
     }
 
     @Test
-    public void testAndClearedCache() {
-        this.AND1.setPredicateCacheEntry(IS_CNF, null);
-        assertThat(this.AND1.holds(this.cnfPredicate)).isTrue();
+    public void testWithCachingFF() throws ParserException {
+        final CachingFormulaFactory f = FormulaFactory.caching();
+        final CNFPredicate cnfPredicate = new CNFPredicate(f);
+        final Formula formula = f.parse("(a => b) & b & ~c");
+        assertThat(formula.holds(cnfPredicate)).isFalse();
+        assertThat(f.getPredicateCacheForType(IS_CNF).get(formula)).isEqualTo(false);
+    }
+
+    @Test
+    public void testWithNonCaching() throws ParserException {
+        final FormulaFactory f = FormulaFactory.nonCaching();
+        final Map<Formula, Boolean> cache = new HashMap<>();
+        final CNFPredicate cnfPredicate = new CNFPredicate(f, cache);
+        final Formula formula = f.parse("(a => b) & b & ~c");
+        assertThat(formula.holds(cnfPredicate)).isFalse();
+        assertThat(cache.get(formula)).isEqualTo(false);
     }
 }

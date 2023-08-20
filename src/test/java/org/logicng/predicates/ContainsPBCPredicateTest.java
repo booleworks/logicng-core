@@ -6,62 +6,67 @@ package org.logicng.predicates;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.RandomTag;
-import org.logicng.TestWithExampleFormulas;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.FormulaContext;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.util.FormulaRandomizer;
 import org.logicng.util.FormulaRandomizerConfig;
 
-public class ContainsPBCPredicateTest extends TestWithExampleFormulas {
+public class ContainsPBCPredicateTest extends TestWithFormulaContext {
 
     private final ContainsPBCPredicate predicate = ContainsPBCPredicate.get();
 
-    @Test
-    public void testConstants() {
-        assertThat(this.f.falsum().holds(this.predicate)).isFalse();
-        assertThat(this.f.verum().holds(this.predicate)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testConstants(final FormulaContext _c) {
+        assertThat(_c.f.falsum().holds(predicate)).isFalse();
+        assertThat(_c.f.verum().holds(predicate)).isFalse();
     }
 
-    @Test
-    public void testLiterals() {
-        assertThat(this.A.holds(this.predicate)).isFalse();
-        assertThat(this.NA.holds(this.predicate)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        assertThat(_c.a.holds(predicate)).isFalse();
+        assertThat(_c.na.holds(predicate)).isFalse();
     }
 
-    @Test
-    public void testNot() throws ParserException {
-        assertThat(this.f.parse("~a").holds(this.predicate)).isFalse();
-        assertThat(this.f.parse("~(a | b)").holds(this.predicate)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNot(final FormulaContext _c) throws ParserException {
+        assertThat(_c.f.parse("~a").holds(predicate)).isFalse();
+        assertThat(_c.f.parse("~(a | b)").holds(predicate)).isFalse();
 
-        assertThat(this.f.parse("~(a | (a + b = 3))").holds(this.predicate)).isTrue();
-        assertThat(this.f.parse("~(a & ~(a + b = 3))").holds(this.predicate)).isTrue();
+        assertThat(_c.f.parse("~(a | (a + b = 3))").holds(predicate)).isTrue();
+        assertThat(_c.f.parse("~(a & ~(a + b = 3))").holds(predicate)).isTrue();
     }
 
-    @Test
-    public void testMixed() throws ParserException {
-        assertThat(this.f.parse("a => b").holds(this.predicate)).isFalse();
-        assertThat(this.f.parse("a <=> b").holds(this.predicate)).isFalse();
-        assertThat(this.f.parse("a => (b | c & ~(e | d))").holds(this.predicate)).isFalse();
-        assertThat(this.f.parse("a <=> (b | c & ~(e | d))").holds(this.predicate)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testMixed(final FormulaContext _c) throws ParserException {
+        assertThat(_c.f.parse("a => b").holds(predicate)).isFalse();
+        assertThat(_c.f.parse("a <=> b").holds(predicate)).isFalse();
+        assertThat(_c.f.parse("a => (b | c & ~(e | d))").holds(predicate)).isFalse();
+        assertThat(_c.f.parse("a <=> (b | c & ~(e | d))").holds(predicate)).isFalse();
 
-        assertThat(this.f.parse("a => (3*a + ~b <= 4)").holds(this.predicate)).isTrue();
-        assertThat(this.f.parse("(3*a + ~b <= 4) <=> b").holds(this.predicate)).isTrue();
-        assertThat(this.f.parse("a => (b | c & (3*a + ~b <= 4) & ~(e | d))").holds(this.predicate)).isTrue();
-        assertThat(this.f.parse("a <=> (b | c & ~(e | (3*a + ~b <= 4) | d))").holds(this.predicate)).isTrue();
-        assertThat(this.f.parse("3*a + ~b <= 4").holds(this.predicate)).isTrue();
+        assertThat(_c.f.parse("a => (3*a + ~b <= 4)").holds(predicate)).isTrue();
+        assertThat(_c.f.parse("(3*a + ~b <= 4) <=> b").holds(predicate)).isTrue();
+        assertThat(_c.f.parse("a => (b | c & (3*a + ~b <= 4) & ~(e | d))").holds(predicate)).isTrue();
+        assertThat(_c.f.parse("a <=> (b | c & ~(e | (3*a + ~b <= 4) | d))").holds(predicate)).isTrue();
+        assertThat(_c.f.parse("3*a + ~b <= 4").holds(predicate)).isTrue();
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("contexts")
     @RandomTag
-    public void randomWithoutPBCs() {
+    public void randomWithoutPBCs(final FormulaContext _c) {
         for (int i = 0; i < 500; i++) {
-            final FormulaFactory f = FormulaFactory.caching();
-            final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(10).weightPbc(0).seed(i * 42).build());
+            final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, FormulaRandomizerConfig.builder().numVars(10).weightPbc(0).seed(i * 42).build());
             final Formula formula = randomizer.formula(5);
-            assertThat(formula.holds(this.predicate)).isFalse();
+            assertThat(formula.holds(predicate)).isFalse();
         }
     }
 }

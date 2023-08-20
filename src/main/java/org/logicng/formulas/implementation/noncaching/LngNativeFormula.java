@@ -4,10 +4,8 @@
 
 package org.logicng.formulas.implementation.noncaching;
 
-import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.cache.CacheEntry;
 
 public abstract class LngNativeFormula implements Formula {
 
@@ -27,19 +25,6 @@ public abstract class LngNativeFormula implements Formula {
     @Override
     public NonCachingFormulaFactory factory() {
         return f;
-    }
-
-    @Override
-    public Tristate predicateCacheEntry(final CacheEntry key) {
-        return Tristate.UNDEF;
-    }
-
-    @Override
-    public void setPredicateCacheEntry(final CacheEntry key, final boolean value) {
-    }
-
-    @Override
-    public void setPredicateCacheEntry(final CacheEntry key, final Tristate value) {
     }
 
     @Override
