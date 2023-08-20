@@ -41,7 +41,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
      * @param cache the cache for this transformation
      */
     public UnitPropagation(final FormulaFactory f, final Map<Formula, Formula> cache) {
-        super(f, UNIT_PROPAGATION, cache);
+        super(f, cache);
     }
 
     @Override

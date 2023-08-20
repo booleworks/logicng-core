@@ -8,7 +8,7 @@ import static org.logicng.formulas.cache.FunctionCacheEntry.LITERALS;
 
 import org.logicng.formulas.BinaryOperator;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFunction;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.NAryOperator;
 import org.logicng.formulas.Not;
@@ -16,6 +16,7 @@ import org.logicng.formulas.PBConstraint;
 import org.logicng.util.FormulaHelper;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -24,26 +25,32 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 2.2.0
  */
-public class LiteralsFunction implements FormulaFunction<SortedSet<Literal>> {
+public class LiteralsFunction extends CacheableFormulaFunction<SortedSet<Literal>> {
 
-    private static final LiteralsFunction CACHING_INSTANCE = new LiteralsFunction(true);
-    private static final LiteralsFunction NON_CACHING_INSTANCE = new LiteralsFunction(false);
-
-    private final boolean useCache;
-
-    private LiteralsFunction(final boolean useCache) {
-        this.useCache = useCache;
+    /**
+     * Constructs a new function.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
+    public LiteralsFunction(final FormulaFactory f) {
+        super(f, LITERALS);
     }
 
-    public static LiteralsFunction get(final boolean useCache) {
-        return useCache ? CACHING_INSTANCE : NON_CACHING_INSTANCE;
+    /**
+     * Constructs a new function.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
+     */
+    public LiteralsFunction(final FormulaFactory f, final Map<Formula, SortedSet<Literal>> cache) {
+        super(f, cache);
     }
 
     @Override
     public SortedSet<Literal> apply(final Formula formula) {
-        final Object cached = formula.functionCacheEntry(LITERALS);
+        final SortedSet<Literal> cached = lookupCache(formula);
         if (cached != null) {
-            return (SortedSet<Literal>) cached;
+            return cached;
         }
         SortedSet<Literal> result = new TreeSet<>();
         switch (formula.type()) {
@@ -81,9 +88,7 @@ public class LiteralsFunction implements FormulaFunction<SortedSet<Literal>> {
                 throw new IllegalStateException("Unknown formula type " + formula.type());
         }
         result = Collections.unmodifiableSortedSet(result);
-        if (useCache) {
-            formula.setFunctionCacheEntry(LITERALS, result);
-        }
+        setCache(formula, result);
         return result;
     }
 }

@@ -8,7 +8,7 @@ import static org.logicng.formulas.cache.FunctionCacheEntry.VARPROFILE;
 
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFunction;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
@@ -27,24 +27,30 @@ import java.util.TreeMap;
  * @version 3.0.0
  * @since 1.0
  */
-public final class VariableProfileFunction implements FormulaFunction<Map<Variable, Integer>> {
+public final class VariableProfileFunction extends CacheableFormulaFunction<Map<Variable, Integer>> {
 
-    private static final VariableProfileFunction CACHING_INSTANCE = new VariableProfileFunction(true);
-    private static final VariableProfileFunction NON_CACHING_INSTANCE = new VariableProfileFunction(false);
-
-    private final boolean useCache;
-
-    private VariableProfileFunction(final boolean useCache) {
-        this.useCache = useCache;
+    /**
+     * Constructs a new function.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
+    public VariableProfileFunction(final FormulaFactory f) {
+        super(f, VARPROFILE);
     }
 
-    public static VariableProfileFunction get(final boolean useCache) {
-        return useCache ? CACHING_INSTANCE : NON_CACHING_INSTANCE;
+    /**
+     * Constructs a new function.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
+     */
+    public VariableProfileFunction(final FormulaFactory f, final Map<Formula, Map<Variable, Integer>> cache) {
+        super(f, cache);
     }
 
     @Override
     public Map<Variable, Integer> apply(final Formula formula) {
-        return useCache ? cachingVariableProfile(formula) : nonCachingVariableProfile(formula);
+        return hasCache() ? cachingVariableProfile(formula) : nonCachingVariableProfile(formula);
     }
 
     /**
@@ -85,11 +91,10 @@ public final class VariableProfileFunction implements FormulaFunction<Map<Variab
      * @param formula the formula
      * @return the variable profile
      */
-    @SuppressWarnings("unchecked")
-    private static Map<Variable, Integer> cachingVariableProfile(final Formula formula) {
-        final Object cached = formula.functionCacheEntry(VARPROFILE);
+    private Map<Variable, Integer> cachingVariableProfile(final Formula formula) {
+        final Map<Variable, Integer> cached = lookupCache(formula);
         if (cached != null) {
-            return (Map<Variable, Integer>) cached;
+            return cached;
         }
         final Map<Variable, Integer> result = new HashMap<>();
         if (formula.type() == FType.LITERAL) {
@@ -106,7 +111,7 @@ public final class VariableProfileFunction implements FormulaFunction<Map<Variab
                 }
             }
         }
-        formula.setFunctionCacheEntry(VARPROFILE, result);
+        setCache(formula, result);
         return result;
     }
 }

@@ -43,7 +43,7 @@ public class NNFTransformation extends CacheableFormulaTransformation {
      * @param cache the cache for this transformation
      */
     public NNFTransformation(final FormulaFactory f, final Map<Formula, Formula> cache) {
-        super(f, NNF, cache);
+        super(f, cache);
     }
 
     @Override

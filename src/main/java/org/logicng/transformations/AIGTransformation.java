@@ -40,7 +40,7 @@ public final class AIGTransformation extends CacheableFormulaTransformation {
      * @param cache the cache to use for the transformation
      */
     public AIGTransformation(final FormulaFactory f, final Map<Formula, Formula> cache) {
-        super(f, AIG, cache);
+        super(f, cache);
     }
 
     @Override

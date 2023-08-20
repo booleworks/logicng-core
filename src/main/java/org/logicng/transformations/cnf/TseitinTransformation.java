@@ -121,7 +121,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
         switch (formula.type()) {
             case LITERAL:
                 state.formulaCache.put(formula, formula);
-                state.literalCache.put(formula, formula);
+                state.literalCache.put(formula, (Literal) formula);
                 break;
             case AND:
             case OR:
@@ -171,19 +171,20 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
 
     public static final class TseitinState {
         private final Map<Formula, Formula> formulaCache;
-        private final Map<Formula, Formula> literalCache;
+        private final Map<Formula, Literal> literalCache;
 
         public TseitinState() {
             formulaCache = new HashMap<>();
             literalCache = new HashMap<>();
         }
 
+        @SuppressWarnings("unchecked")
         public TseitinState(final CachingFormulaFactory f) {
             formulaCache = f.getTransformationCacheForType(TSEITIN);
-            literalCache = f.getTransformationCacheForType(TSEITIN_VARIABLE);
+            literalCache = (Map<Formula, Literal>) (Map<?, ?>) f.getTransformationCacheForType(TSEITIN_VARIABLE);
         }
 
-        public TseitinState(final Map<Formula, Formula> formulaCache, final Map<Formula, Formula> literalCache) {
+        public TseitinState(final Map<Formula, Formula> formulaCache, final Map<Formula, Literal> literalCache) {
             this.formulaCache = formulaCache;
             this.literalCache = literalCache;
         }
@@ -193,7 +194,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
         }
 
         private Literal literal(final Formula formula) {
-            return (Literal) literalCache.get(formula);
+            return literalCache.get(formula);
         }
     }
 }

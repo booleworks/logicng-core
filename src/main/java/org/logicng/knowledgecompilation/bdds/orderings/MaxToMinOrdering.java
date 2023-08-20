@@ -21,11 +21,11 @@ import java.util.Map;
  */
 public final class MaxToMinOrdering implements VariableOrderingProvider {
 
-    private final VariableProfileFunction profileFunction = VariableProfileFunction.get(true);
     private final DFSOrdering dfsOrdering = new DFSOrdering();
 
     @Override
     public List<Variable> getOrder(final Formula formula) {
+        final VariableProfileFunction profileFunction = new VariableProfileFunction(formula.factory());
         final Map<Variable, Integer> profile = formula.apply(profileFunction);
         final List<Variable> dfs = dfsOrdering.getOrder(formula);
 

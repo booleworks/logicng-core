@@ -43,17 +43,6 @@ public class FormulaTest {
     }
 
     @Test
-    public void testFunctionCache() {
-        final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = f.not(f.and(f.variable("a"), f.variable("b")));
-        formula.setFunctionCacheEntry(MyOwnCacheKey.MYKEY1, "key1");
-        formula.setFunctionCacheEntry(MyOwnCacheKey.MYKEY2, "key2");
-        assertThat(MyOwnCacheKey.MYKEY1.description).isEqualTo("My Key 1");
-        assertThat(formula.functionCacheEntry(MyOwnCacheKey.MYKEY1)).isEqualTo("key1");
-        assertThat(formula.functionCacheEntry(MyOwnCacheKey.MYKEY2)).isEqualTo("key2");
-    }
-
-    @Test
     public void testFType() {
         assertThat(FType.valueOf("AND")).isEqualTo(FType.AND);
         assertThat(Arrays.asList(FType.values()).contains(FType.valueOf("PBC"))).isTrue();

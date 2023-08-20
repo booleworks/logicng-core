@@ -23,8 +23,7 @@ import java.util.Map;
  */
 public abstract class CacheableFormulaTransformation implements FormulaTransformation {
     protected final FormulaFactory f;
-    protected final Map<Formula, Formula> cache;
-    protected final CacheEntry cacheEntry;
+    private final Map<Formula, Formula> cache;
 
     /**
      * Creates a new cacheable formula transformation.  For a caching formula factory, the cache for
@@ -33,20 +32,18 @@ public abstract class CacheableFormulaTransformation implements FormulaTransform
      * @param cacheEntry the type for the transformation cache entries in a caching formula factory
      **/
     protected CacheableFormulaTransformation(final FormulaFactory f, final CacheEntry cacheEntry) {
-        this(f, cacheEntry, f instanceof CachingFormulaFactory ? ((CachingFormulaFactory) f).getTransformationCacheForType(cacheEntry) : null);
+        this(f, f instanceof CachingFormulaFactory ? ((CachingFormulaFactory) f).getTransformationCacheForType(cacheEntry) : null);
     }
 
     /**
      * Creates a new cacheable formula transformation with a given cache.  This cache will always be used
      * - even it the factory is caching and brings its own cache it is ignored in this case.
-     * @param f          the formula factory to generate new formulas
-     * @param cacheEntry the type for the transformation cache entries in a caching formula factory
-     * @param cache      the cache to use for the transformation (if null, none will be used)
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation (if null, none will be used)
      */
-    public CacheableFormulaTransformation(final FormulaFactory f, final CacheEntry cacheEntry, final Map<Formula, Formula> cache) {
+    public CacheableFormulaTransformation(final FormulaFactory f, final Map<Formula, Formula> cache) {
         this.f = f;
         this.cache = cache;
-        this.cacheEntry = cacheEntry;
     }
 
     protected void setCache(final Formula key, final Formula value) {

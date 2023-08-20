@@ -7,68 +7,124 @@ package org.logicng.functions;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.formulas.Variable;
 import org.logicng.formulas.cache.FunctionCacheEntry;
+import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
+import org.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
 import org.logicng.io.parsers.ParserException;
 
-public class FormulaDepthFunctionTest extends TestWithExampleFormulas {
+import java.util.HashMap;
+import java.util.Map;
 
-    @Test
-    public void testAtoms() {
-        assertThat(this.TRUE.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
-        assertThat(this.FALSE.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
-        assertThat(this.A.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
-        assertThat(this.NA.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
-        assertThat(this.PBC1.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
-        assertThat(this.PBC2.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
-        assertThat(this.PBC3.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
-        assertThat(this.PBC4.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
-        assertThat(this.PBC5.apply(FormulaDepthFunction.get(true))).isEqualTo(0);
+public class FormulaDepthFunctionTest extends TestWithFormulaContext {
+
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testAtoms(final FormulaContext _c) {
+        final FormulaDepthFunction df = new FormulaDepthFunction(_c.f);
+
+        assertThat(_c.verum.apply(df)).isEqualTo(0);
+        assertThat(_c.falsum.apply(df)).isEqualTo(0);
+        assertThat(_c.a.apply(df)).isEqualTo(0);
+        assertThat(_c.na.apply(df)).isEqualTo(0);
+        assertThat(_c.pbc1.apply(df)).isEqualTo(0);
+        assertThat(_c.pbc2.apply(df)).isEqualTo(0);
+        assertThat(_c.pbc3.apply(df)).isEqualTo(0);
+        assertThat(_c.pbc4.apply(df)).isEqualTo(0);
+        assertThat(_c.pbc5.apply(df)).isEqualTo(0);
     }
 
-    @Test
-    public void testDeepFormulas() {
-        assertThat(this.AND1.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
-        assertThat(this.AND2.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
-        assertThat(this.AND3.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
-        assertThat(this.OR1.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
-        assertThat(this.OR2.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
-        assertThat(this.OR3.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
-        assertThat(this.NOT1.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
-        assertThat(this.NOT2.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
-        assertThat(this.IMP1.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
-        assertThat(this.IMP2.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
-        assertThat(this.IMP3.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
-        assertThat(this.IMP4.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
-        assertThat(this.EQ1.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
-        assertThat(this.EQ2.apply(FormulaDepthFunction.get(true))).isEqualTo(1);
-        assertThat(this.EQ3.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
-        assertThat(this.EQ4.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testDeepFormulas(final FormulaContext _c) {
+        final FormulaDepthFunction df = new FormulaDepthFunction(_c.f);
+
+        assertThat(_c.and1.apply(df)).isEqualTo(1);
+        assertThat(_c.and2.apply(df)).isEqualTo(1);
+        assertThat(_c.and3.apply(df)).isEqualTo(2);
+        assertThat(_c.or1.apply(df)).isEqualTo(1);
+        assertThat(_c.or2.apply(df)).isEqualTo(1);
+        assertThat(_c.or3.apply(df)).isEqualTo(2);
+        assertThat(_c.not1.apply(df)).isEqualTo(2);
+        assertThat(_c.not2.apply(df)).isEqualTo(2);
+        assertThat(_c.imp1.apply(df)).isEqualTo(1);
+        assertThat(_c.imp2.apply(df)).isEqualTo(1);
+        assertThat(_c.imp3.apply(df)).isEqualTo(2);
+        assertThat(_c.imp4.apply(df)).isEqualTo(2);
+        assertThat(_c.eq1.apply(df)).isEqualTo(1);
+        assertThat(_c.eq2.apply(df)).isEqualTo(1);
+        assertThat(_c.eq3.apply(df)).isEqualTo(2);
+        assertThat(_c.eq4.apply(df)).isEqualTo(2);
     }
 
-    @Test
-    public void testDeeperFormulas() {
-        Formula formula = this.PBC1;
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testDeeperFormulas(final FormulaContext _c) {
+        final FormulaDepthFunction df = new FormulaDepthFunction(_c.f);
+
+        Formula formula = _c.pbc1;
         for (int i = 0; i < 10; i++) {
-            final Variable var = this.f.variable("X" + i);
-            formula = i % 2 == 0 ? this.f.or(formula, var) : this.f.and(formula, var);
+            final Variable var = _c.f.variable("X" + i);
+            formula = i % 2 == 0 ? _c.f.or(formula, var) : _c.f.and(formula, var);
         }
-        assertThat(formula.apply(FormulaDepthFunction.get(true))).isEqualTo(10);
+        assertThat(formula.apply(df)).isEqualTo(10);
     }
 
     @Test
-    public void testCache() throws ParserException {
-        final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = f.parse("A & B | C");
-        assertThat(formula.functionCacheEntry(FunctionCacheEntry.DEPTH)).isNull();
-        assertThat(formula.apply(FormulaDepthFunction.get(true))).isEqualTo(2);
-        assertThat(formula.functionCacheEntry(FunctionCacheEntry.DEPTH)).isEqualTo(2);
-        assertThat(f.variable("A").functionCacheEntry(FunctionCacheEntry.DEPTH)).isEqualTo(0);
+    public void testCacheCachingFF() throws ParserException {
+        final CachingFormulaFactory f = FormulaFactory.caching();
+        final FormulaDepthFunction df = new FormulaDepthFunction(f);
 
-        formula.setFunctionCacheEntry(FunctionCacheEntry.DEPTH, 3);
-        assertThat(formula.apply(FormulaDepthFunction.get(true))).isEqualTo(3);
+        final Formula formula = f.parse("A & B | C");
+        final Map<Formula, Integer> cache = f.getFunctionCacheForType(FunctionCacheEntry.DEPTH);
+        assertThat(cache.get(formula)).isNull();
+        assertThat(formula.apply(df)).isEqualTo(2);
+        assertThat(cache.get(formula)).isEqualTo(2);
+        assertThat(cache.get(f.variable("A"))).isEqualTo(0);
+        cache.put(formula, 3);
+        assertThat(formula.apply(df)).isEqualTo(3);
+    }
+
+    @Test
+    public void testCacheCachingOwnCache() throws ParserException {
+        final CachingFormulaFactory f = FormulaFactory.caching();
+        final Map<Formula, Integer> cache = new HashMap<>();
+        final FormulaDepthFunction df = new FormulaDepthFunction(f, cache);
+
+        final Formula formula = f.parse("A & B | C");
+        final Map<Formula, Integer> ffCache = f.getFunctionCacheForType(FunctionCacheEntry.DEPTH);
+
+        assertThat(cache.get(formula)).isNull();
+        assertThat(formula.apply(df)).isEqualTo(2);
+        assertThat(cache.get(formula)).isEqualTo(2);
+        assertThat(cache.get(f.variable("A"))).isEqualTo(0);
+        cache.put(formula, 3);
+        assertThat(formula.apply(df)).isEqualTo(3);
+
+        assertThat(ffCache.get(formula)).isNull();
+        assertThat(ffCache.get(f.variable("A"))).isNull();
+        ffCache.put(formula, 5);
+        assertThat(formula.apply(df)).isEqualTo(3);
+    }
+
+    @Test
+    public void testCacheNonCaching() throws ParserException {
+        final NonCachingFormulaFactory f = FormulaFactory.nonCaching();
+        final Map<Formula, Integer> cache = new HashMap<>();
+        final FormulaDepthFunction df = new FormulaDepthFunction(f, cache);
+
+        final Formula formula = f.parse("A & B | C");
+        assertThat(cache.get(formula)).isNull();
+        assertThat(formula.apply(df)).isEqualTo(2);
+        assertThat(cache.get(formula)).isEqualTo(2);
+        assertThat(cache.get(f.variable("A"))).isEqualTo(0);
+        cache.put(formula, 3);
+        assertThat(formula.apply(df)).isEqualTo(3);
     }
 }

@@ -33,19 +33,18 @@ public abstract class CacheableAndAbortableFormulaTransformation<H extends Handl
      * @param handler    the handler for the transformation
      **/
     protected CacheableAndAbortableFormulaTransformation(final FormulaFactory f, final CacheEntry cacheEntry, final H handler) {
-        this(f, cacheEntry, f instanceof CachingFormulaFactory ? ((CachingFormulaFactory) f).getTransformationCacheForType(cacheEntry) : null, handler);
+        this(f, f instanceof CachingFormulaFactory ? ((CachingFormulaFactory) f).getTransformationCacheForType(cacheEntry) : null, handler);
     }
 
     /**
      * Creates a new cacheable formula transformation with a given cache.  This cache will always be used
      * - even it the factory is caching and brings its own cache it is ignored in this case.
-     * @param f          the formula factory to generate new formulas
-     * @param cacheEntry the type for the transformation cache entries in a caching formula factory
-     * @param cache      the cache to use for the transformation (if null, none will be used)
-     * @param handler    the handler for the transformation
+     * @param f       the formula factory to generate new formulas
+     * @param cache   the cache to use for the transformation (if null, none will be used)
+     * @param handler the handler for the transformation
      */
-    protected CacheableAndAbortableFormulaTransformation(final FormulaFactory f, final CacheEntry cacheEntry, final Map<Formula, Formula> cache, final H handler) {
-        super(f, cacheEntry, cache);
+    protected CacheableAndAbortableFormulaTransformation(final FormulaFactory f, final Map<Formula, Formula> cache, final H handler) {
+        super(f, cache);
         this.handler = handler;
     }
 }

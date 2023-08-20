@@ -100,7 +100,7 @@ public class DnnfCompilerTest {
         final Formula parsed = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/formula1.txt", f);
         final DnnfFactory dnnfFactory = new DnnfFactory();
         Dnnf dnnf = dnnfFactory.compile(parsed, f);
-        final BigInteger dnnfCount = dnnf.execute(DnnfModelCountFunction.get());
+        final BigInteger dnnfCount = dnnf.execute(new DnnfModelCountFunction(f));
         final List<Formula> formulas = new ArrayList<>();
         final List<Formula> originalFormulas = new ArrayList<>();
         for (final Formula formula : parsed) {
@@ -117,7 +117,7 @@ public class DnnfCompilerTest {
         BigInteger multipliedCount = BigInteger.ONE;
         for (final List<Formula> component : split) {
             dnnf = dnnfFactory.compile(f.and(component), f);
-            multipliedCount = multipliedCount.multiply(dnnf.execute(DnnfModelCountFunction.get()));
+            multipliedCount = multipliedCount.multiply(dnnf.execute(new DnnfModelCountFunction(f)));
         }
         assertThat(dnnfCount).isEqualTo(multipliedCount);
     }
@@ -125,7 +125,7 @@ public class DnnfCompilerTest {
     private void testFormula(final Formula formula, final FormulaFactory f, final boolean withEquivalence) {
         final DnnfFactory dnnfFactory = new DnnfFactory();
         final Dnnf dnnf = dnnfFactory.compile(formula, f);
-        final BigInteger dnnfCount = dnnf.execute(DnnfModelCountFunction.get());
+        final BigInteger dnnfCount = dnnf.execute(new DnnfModelCountFunction(f));
         if (withEquivalence) {
             final Formula equivalence = f.equivalence(formula, dnnf.formula());
             assertThat(equivalence.holds(new TautologyPredicate(formula.factory()))).isTrue();

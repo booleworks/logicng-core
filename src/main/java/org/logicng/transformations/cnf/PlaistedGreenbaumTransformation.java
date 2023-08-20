@@ -179,19 +179,20 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
 
     public static final class PGState {
         private final Map<Formula, Formula> posCache;
-        private final Map<Formula, Formula> literalCache;
+        private final Map<Formula, Literal> literalCache;
 
         public PGState() {
             posCache = new HashMap<>();
             literalCache = new HashMap<>();
         }
 
+        @SuppressWarnings("unchecked")
         public PGState(final CachingFormulaFactory f) {
             posCache = f.getTransformationCacheForType(PLAISTED_GREENBAUM_POS);
-            literalCache = f.getTransformationCacheForType(PLAISTED_GREENBAUM_VARIABLE);
+            literalCache = (Map<Formula, Literal>) (Map<?, ?>) f.getTransformationCacheForType(PLAISTED_GREENBAUM_VARIABLE);
         }
 
-        public PGState(final Map<Formula, Formula> posCache, final Map<Formula, Formula> literalCache) {
+        public PGState(final Map<Formula, Formula> posCache, final Map<Formula, Literal> literalCache) {
             this.posCache = posCache;
             this.literalCache = literalCache;
         }
@@ -201,7 +202,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
         }
 
         private Literal literal(final Formula formula) {
-            return (Literal) literalCache.get(formula);
+            return literalCache.get(formula);
         }
     }
 }

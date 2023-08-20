@@ -8,7 +8,7 @@ import static org.logicng.formulas.cache.FunctionCacheEntry.VARIABLES;
 
 import org.logicng.formulas.BinaryOperator;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFunction;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.NAryOperator;
 import org.logicng.formulas.Not;
@@ -17,6 +17,7 @@ import org.logicng.formulas.Variable;
 import org.logicng.util.FormulaHelper;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -25,26 +26,32 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 2.2.0
  */
-public class VariablesFunction implements FormulaFunction<SortedSet<Variable>> {
+public class VariablesFunction extends CacheableFormulaFunction<SortedSet<Variable>> {
 
-    private static final VariablesFunction CACHING_INSTANCE = new VariablesFunction(true);
-    private static final VariablesFunction NON_CACHING_INSTANCE = new VariablesFunction(false);
-
-    private final boolean useCache;
-
-    private VariablesFunction(final boolean useCache) {
-        this.useCache = useCache;
+    /**
+     * Constructs a new function.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
+    public VariablesFunction(final FormulaFactory f) {
+        super(f, VARIABLES);
     }
 
-    public static VariablesFunction get(final boolean useCache) {
-        return useCache ? CACHING_INSTANCE : NON_CACHING_INSTANCE;
+    /**
+     * Constructs a new function.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
+     */
+    public VariablesFunction(final FormulaFactory f, final Map<Formula, SortedSet<Variable>> cache) {
+        super(f, cache);
     }
 
     @Override
     public SortedSet<Variable> apply(final Formula formula) {
-        final Object cached = formula.functionCacheEntry(VARIABLES);
+        final SortedSet<Variable> cached = lookupCache(formula);
         if (cached != null) {
-            return (SortedSet<Variable>) cached;
+            return cached;
         }
         SortedSet<Variable> result = new TreeSet<>();
         switch (formula.type()) {
@@ -82,9 +89,7 @@ public class VariablesFunction implements FormulaFunction<SortedSet<Variable>> {
                 throw new IllegalStateException("Unknown formula type " + formula.type());
         }
         result = Collections.unmodifiableSortedSet(result);
-        if (useCache) {
-            formula.setFunctionCacheEntry(VARIABLES, result);
-        }
+        setCache(formula, result);
         return result;
     }
 }

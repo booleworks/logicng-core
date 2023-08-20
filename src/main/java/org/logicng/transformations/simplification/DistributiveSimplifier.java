@@ -32,7 +32,7 @@ public final class DistributiveSimplifier extends CacheableFormulaTransformation
     }
 
     public DistributiveSimplifier(final FormulaFactory f, final Map<Formula, Formula> cache) {
-        super(f, DISTRIBUTIVE_SIMPLIFICATION, cache);
+        super(f, cache);
     }
 
     @Override

@@ -14,6 +14,7 @@ import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BDDConstructionTests {
@@ -28,54 +29,54 @@ public class BDDConstructionTests {
 
     @BeforeEach
     public void init() throws ParserException {
-        this.f = FormulaFactory.caching();
-        this.variables = this.f.variables("a", "b", "c", "d", "e", "f", "g");
-        this.kernel = new BDDKernel(this.f, this.variables, 1000, 10000);
-        this.initFormula = this.f.parse("(a & b) => (c | d & ~e)");
-        this.secondFormula = this.f.parse("(g & f) <=> (c | ~a | ~d)");
-        this.initBdd = BDDFactory.build(this.initFormula, this.kernel);
-        this.secondBdd = BDDFactory.build(this.secondFormula, this.kernel);
+        f = FormulaFactory.caching();
+        variables = new ArrayList<>(f.variables("a", "b", "c", "d", "e", "f", "g"));
+        kernel = new BDDKernel(f, variables, 1000, 10000);
+        initFormula = f.parse("(a & b) => (c | d & ~e)");
+        secondFormula = f.parse("(g & f) <=> (c | ~a | ~d)");
+        initBdd = BDDFactory.build(initFormula, kernel);
+        secondBdd = BDDFactory.build(secondFormula, kernel);
     }
 
     @Test
     public void testNegation() {
-        final BDD negation = this.initBdd.negate();
-        final BDD expected = BDDFactory.build(this.initFormula.negate(), this.kernel);
+        final BDD negation = initBdd.negate();
+        final BDD expected = BDDFactory.build(initFormula.negate(), kernel);
         assertThat(negation).isEqualTo(expected);
     }
 
     @Test
     public void testImplies() {
-        final BDD implication = this.initBdd.implies(this.secondBdd);
-        final BDD expected = BDDFactory.build(this.f.implication(this.initFormula, this.secondFormula), this.kernel);
+        final BDD implication = initBdd.implies(secondBdd);
+        final BDD expected = BDDFactory.build(f.implication(initFormula, secondFormula), kernel);
         assertThat(implication).isEqualTo(expected);
     }
 
     @Test
     public void testIsImplied() {
-        final BDD implication = this.initBdd.impliedBy(this.secondBdd);
-        final BDD expected = BDDFactory.build(this.f.implication(this.secondFormula, this.initFormula), this.kernel);
+        final BDD implication = initBdd.impliedBy(secondBdd);
+        final BDD expected = BDDFactory.build(f.implication(secondFormula, initFormula), kernel);
         assertThat(implication).isEqualTo(expected);
     }
 
     @Test
     public void testEquivalence() {
-        final BDD equivalence = this.initBdd.equivalence(this.secondBdd);
-        final BDD expected = BDDFactory.build(this.f.equivalence(this.secondFormula, this.initFormula), this.kernel);
+        final BDD equivalence = initBdd.equivalence(secondBdd);
+        final BDD expected = BDDFactory.build(f.equivalence(secondFormula, initFormula), kernel);
         assertThat(equivalence).isEqualTo(expected);
     }
 
     @Test
     public void testAnd() {
-        final BDD and = this.initBdd.and(this.secondBdd);
-        final BDD expected = BDDFactory.build(this.f.and(this.secondFormula, this.initFormula), this.kernel);
+        final BDD and = initBdd.and(secondBdd);
+        final BDD expected = BDDFactory.build(f.and(secondFormula, initFormula), kernel);
         assertThat(and).isEqualTo(expected);
     }
 
     @Test
     public void testOr() {
-        final BDD or = this.initBdd.or(this.secondBdd);
-        final BDD expected = BDDFactory.build(this.f.or(this.secondFormula, this.initFormula), this.kernel);
+        final BDD or = initBdd.or(secondBdd);
+        final BDD expected = BDDFactory.build(f.or(secondFormula, initFormula), kernel);
         assertThat(or).isEqualTo(expected);
     }
 }

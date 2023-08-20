@@ -52,7 +52,7 @@ public abstract class BDDNormalFormTransformation extends CacheableAndStatefulFo
      * @param cache  the cache to use for the transformation
      */
     public BDDNormalFormTransformation(final boolean cnf, final FormulaFactory f, final BDDKernel kernel, final Map<Formula, Formula> cache) {
-        super(f, cnf ? BDD_CNF : BDD_DNF, cache, kernel);
+        super(f, cache, kernel);
         this.cnf = cnf;
     }
 
