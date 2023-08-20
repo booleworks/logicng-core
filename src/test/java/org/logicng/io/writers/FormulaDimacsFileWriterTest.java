@@ -8,9 +8,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.io.parsers.PseudoBooleanParser;
@@ -22,37 +22,37 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class FormulaDimacsFileWriterTest extends TestWithExampleFormulas {
+public class FormulaDimacsFileWriterTest extends TestWithFormulaContext {
 
     private final FormulaFactory f = FormulaFactory.caching();
     private final CNFConfig config = CNFConfig.builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build();
-    private final PropositionalParser p = new PropositionalParser(this.f);
-    private final PseudoBooleanParser pp = new PseudoBooleanParser(this.f);
+    private final PropositionalParser p = new PropositionalParser(f);
+    private final PseudoBooleanParser pp = new PseudoBooleanParser(f);
 
     @Test
     public void testNonCNF() {
-        assertThatThrownBy(() -> FormulaDimacsFileWriter.write("non-cnf", this.IMP1, false)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> FormulaDimacsFileWriter.write("non-cnf", FormulaFactory.nonCaching().parse("a => b"), false)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void testConstants() throws IOException {
-        testFiles("false", this.f.falsum());
-        testFiles("true", this.f.verum());
+        testFiles("false", f.falsum());
+        testFiles("true", f.verum());
     }
 
     @Test
     public void testLiterals() throws IOException {
-        testFiles("x", this.f.variable("x"));
-        testFiles("not_x", this.f.literal("x", false));
+        testFiles("x", f.variable("x"));
+        testFiles("not_x", f.literal("x", false));
     }
 
     @Test
     public void testFormulas() throws IOException, ParserException {
-        final Formula f1 = CNFEncoder.encode(this.p.parse("(a & b) <=> (~c => (x | z))"), config);
-        final Formula f2 = CNFEncoder.encode(this.p.parse("a & b | b & ~c"), config);
-        final Formula f3 = CNFEncoder.encode(this.p.parse("(a & b) <=> (~c => (a | b))"), config);
-        final Formula f4 = CNFEncoder.encode(this.p.parse("~(a & b) | b & ~c"), config);
-        final Formula f5 = CNFEncoder.encode(this.pp.parse("a | ~b | (2*a + 3*~b + 4*c <= 4)"), config);
+        final Formula f1 = CNFEncoder.encode(p.parse("(a & b) <=> (~c => (x | z))"), config);
+        final Formula f2 = CNFEncoder.encode(p.parse("a & b | b & ~c"), config);
+        final Formula f3 = CNFEncoder.encode(p.parse("(a & b) <=> (~c => (a | b))"), config);
+        final Formula f4 = CNFEncoder.encode(p.parse("~(a & b) | b & ~c"), config);
+        final Formula f5 = CNFEncoder.encode(pp.parse("a | ~b | (2*a + 3*~b + 4*c <= 4)"), config);
         testFiles("f1", f1);
         testFiles("f2", f2);
         testFiles("f3", f3);
@@ -62,9 +62,9 @@ public class FormulaDimacsFileWriterTest extends TestWithExampleFormulas {
 
     @Test
     public void testDuplicateFormulaParts() throws ParserException, IOException {
-        final Formula f6 = CNFEncoder.encode(this.p.parse("(a & b) | (c & ~(a & b))"), config);
+        final Formula f6 = CNFEncoder.encode(p.parse("(a & b) | (c & ~(a & b))"), config);
         testFiles("f6", f6);
-        final Formula f7 = CNFEncoder.encode(this.p.parse("(c & d) | (a & b) | ((c & d) <=> (a & b))"), config);
+        final Formula f7 = CNFEncoder.encode(p.parse("(c & d) | (a & b) | ((c & d) <=> (a & b))"), config);
         testFiles("f7", f7);
     }
 

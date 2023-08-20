@@ -12,9 +12,11 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Implication;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Not;
+import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import org.logicng.predicates.ContainsPBCPredicate;
 import org.logicng.propositions.Proposition;
 import org.logicng.solvers.sat.MiniSatStyleSolver;
+import org.logicng.transformations.NNFTransformation;
 import org.logicng.util.Pair;
 
 import java.util.Collection;
@@ -32,6 +34,7 @@ public final class PlaistedGreenbaumTransformationSolver {
     private final FormulaFactory f;
     private final boolean performNNF;
     private final Map<Formula, VarCacheEntry> variableCache;
+    private final NNFTransformation nnfTransformation;
     private final MiniSatStyleSolver solver;
     private final boolean initialPhase;
 
@@ -47,6 +50,12 @@ public final class PlaistedGreenbaumTransformationSolver {
         this.f = f;
         this.performNNF = performNNF;
         variableCache = new HashMap<>();
+        if (f instanceof CachingFormulaFactory) {
+            nnfTransformation = new NNFTransformation(f);
+        } else {
+            final Map<Formula, Formula> nnfCache = new HashMap<>();
+            nnfTransformation = new NNFTransformation(f, nnfCache);
+        }
         this.solver = solver;
         this.initialPhase = initialPhase;
     }
@@ -57,7 +66,7 @@ public final class PlaistedGreenbaumTransformationSolver {
      * @param proposition the optional proposition of the formula
      */
     public void addCNFtoSolver(final Formula formula, final Proposition proposition) {
-        final Formula workingFormula = performNNF ? formula.nnf(f) : formula;
+        final Formula workingFormula = performNNF ? formula.transform(nnfTransformation) : formula;
         final Formula withoutPBCs = !performNNF && workingFormula.holds(ContainsPBCPredicate.get()) ? workingFormula.nnf(f) : workingFormula;
         if (withoutPBCs.isCNF()) {
             addCNF(withoutPBCs, proposition);

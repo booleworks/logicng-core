@@ -8,10 +8,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.LongRunningTag;
-import org.logicng.TestWithExampleFormulas;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.knowledgecompilation.bdds.datastructures.BDDConstant;
@@ -29,7 +32,6 @@ import org.logicng.util.FormulaRandomizerConfig;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -37,78 +39,81 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class BDDReorderingTest extends TestWithExampleFormulas {
+public class BDDReorderingTest extends TestWithFormulaContext {
 
     private final SwapStats stats = new SwapStats();
     private static final List<BDDReorderingMethod> REORDER_METHODS =
-            Arrays.asList(BDDReorderingMethod.BDD_REORDER_WIN2, BDDReorderingMethod.BDD_REORDER_WIN2ITE, BDDReorderingMethod.BDD_REORDER_WIN3, BDDReorderingMethod.BDD_REORDER_WIN3ITE,
+            List.of(BDDReorderingMethod.BDD_REORDER_WIN2, BDDReorderingMethod.BDD_REORDER_WIN2ITE, BDDReorderingMethod.BDD_REORDER_WIN3, BDDReorderingMethod.BDD_REORDER_WIN3ITE,
                     BDDReorderingMethod.BDD_REORDER_SIFT,
                     BDDReorderingMethod.BDD_REORDER_SIFTITE, BDDReorderingMethod.BDD_REORDER_RANDOM);
 
-    @Test
-    public void testExceptionalBehavior() {
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testExceptionalBehavior(final FormulaContext _c) {
         assertThatThrownBy(() -> {
-            final BDDKernel kernel = new BDDKernel(this.f, Arrays.asList(this.A, this.B), 100, 100);
+            final BDDKernel kernel = new BDDKernel(_c.f, List.of(_c.a, _c.b), 100, 100);
             final BDDReordering reordering = new BDDReordering(kernel);
-            final Formula formula = this.f.parse("a | b");
+            final Formula formula = _c.f.parse("a | b");
             BDDFactory.build(formula, kernel);
             reordering.swapVariables(0, 2);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Unknown variable number: " + 2);
         assertThatThrownBy(() -> {
-            final BDDKernel kernel = new BDDKernel(this.f, Arrays.asList(this.A, this.B), 100, 100);
+            final BDDKernel kernel = new BDDKernel(_c.f, List.of(_c.a, _c.b), 100, 100);
             final BDDReordering reordering = new BDDReordering(kernel);
-            final Formula formula = this.f.parse("a | b");
+            final Formula formula = _c.f.parse("a | b");
             BDDFactory.build(formula, kernel);
             reordering.swapVariables(3, 0);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Unknown variable number: " + 3);
     }
 
-    @Test
-    public void testSwapping() throws ParserException {
-        final BDDKernel kernel = new BDDKernel(this.f, Arrays.asList(this.A, this.B, this.C), 100, 100);
-        final Formula formula = this.f.parse("a | b | c");
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSwapping(final FormulaContext _c) throws ParserException {
+        final BDDKernel kernel = new BDDKernel(_c.f, List.of(_c.a, _c.b, _c.c), 100, 100);
+        final Formula formula = _c.f.parse("a | b | c");
         final BDD bdd = BDDFactory.build(formula, kernel);
-        assertThat(bdd.getVariableOrder()).containsExactly(this.A, this.B, this.C);
-        bdd.swapVariables(this.A, this.B);
-        assertThat(bdd.getVariableOrder()).containsExactly(this.B, this.A, this.C);
-        bdd.swapVariables(this.A, this.B);
-        assertThat(bdd.getVariableOrder()).containsExactly(this.A, this.B, this.C);
-        bdd.swapVariables(this.A, this.A);
-        assertThat(bdd.getVariableOrder()).containsExactly(this.A, this.B, this.C);
-        bdd.swapVariables(this.A, this.C);
-        assertThat(bdd.getVariableOrder()).containsExactly(this.C, this.B, this.A);
-        bdd.swapVariables(this.B, this.C);
-        assertThat(bdd.getVariableOrder()).containsExactly(this.B, this.C, this.A);
-        assertThat(this.f.equivalence(formula, bdd.cnf()).holds(new TautologyPredicate(this.f))).isTrue();
-        assertThat(bdd.apply(new LngBDDFunction(f))).isEqualTo(
-                new BDDInnerNode(this.B,
-                        new BDDInnerNode(this.C,
-                                new BDDInnerNode(this.A, BDDConstant.getFalsumNode(this.f), BDDConstant.getVerumNode(this.f)),
-                                BDDConstant.getVerumNode(this.f)),
-                        BDDConstant.getVerumNode(this.f)));
-        assertThatThrownBy(() -> bdd.swapVariables(this.B, this.X)).isInstanceOf(IllegalArgumentException.class);
+        assertThat(bdd.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
+        bdd.swapVariables(_c.a, _c.b);
+        assertThat(bdd.getVariableOrder()).containsExactly(_c.b, _c.a, _c.c);
+        bdd.swapVariables(_c.a, _c.b);
+        assertThat(bdd.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
+        bdd.swapVariables(_c.a, _c.a);
+        assertThat(bdd.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
+        bdd.swapVariables(_c.a, _c.c);
+        assertThat(bdd.getVariableOrder()).containsExactly(_c.c, _c.b, _c.a);
+        bdd.swapVariables(_c.b, _c.c);
+        assertThat(bdd.getVariableOrder()).containsExactly(_c.b, _c.c, _c.a);
+        assertThat(_c.f.equivalence(formula, bdd.cnf()).holds(new TautologyPredicate(_c.f))).isTrue();
+        assertThat(bdd.apply(new LngBDDFunction(_c.f))).isEqualTo(
+                new BDDInnerNode(_c.b,
+                        new BDDInnerNode(_c.c,
+                                new BDDInnerNode(_c.a, BDDConstant.getFalsumNode(_c.f), BDDConstant.getVerumNode(_c.f)),
+                                BDDConstant.getVerumNode(_c.f)),
+                        BDDConstant.getVerumNode(_c.f)));
+        assertThatThrownBy(() -> bdd.swapVariables(_c.b, _c.x)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test
-    public void testSwappingMultipleBdds() throws ParserException {
-        final BDDKernel kernel = new BDDKernel(this.f, Arrays.asList(this.A, this.B, this.C), 100, 100);
-        final Formula formula1 = this.f.parse("a | b | c");
-        final Formula formula2 = this.f.parse("a & b");
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSwappingMultipleBdds(final FormulaContext _c) throws ParserException {
+        final BDDKernel kernel = new BDDKernel(_c.f, List.of(_c.a, _c.b, _c.c), 100, 100);
+        final Formula formula1 = _c.f.parse("a | b | c");
+        final Formula formula2 = _c.f.parse("a & b");
         final BDD bdd1 = BDDFactory.build(formula1, kernel);
         final BDD bdd2 = BDDFactory.build(formula2, kernel);
-        assertThat(bdd1.getVariableOrder()).containsExactly(this.A, this.B, this.C);
-        assertThat(bdd2.getVariableOrder()).containsExactly(this.A, this.B, this.C);
-        assertThat(bdd2.apply(new LngBDDFunction(f))).isEqualTo(
-                new BDDInnerNode(this.A, BDDConstant.getFalsumNode(this.f),
-                        new BDDInnerNode(this.B, BDDConstant.getFalsumNode(this.f), BDDConstant.getVerumNode(this.f))));
-        bdd1.swapVariables(this.A, this.B);
-        assertThat(bdd1.getVariableOrder()).containsExactly(this.B, this.A, this.C);
-        assertThat(bdd2.getVariableOrder()).containsExactly(this.B, this.A, this.C);
-        assertThat(bdd2.apply(new LngBDDFunction(f))).isEqualTo(
-                new BDDInnerNode(this.B, BDDConstant.getFalsumNode(this.f),
-                        new BDDInnerNode(this.A, BDDConstant.getFalsumNode(this.f), BDDConstant.getVerumNode(this.f))));
+        assertThat(bdd1.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
+        assertThat(bdd2.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
+        assertThat(bdd2.apply(new LngBDDFunction(_c.f))).isEqualTo(
+                new BDDInnerNode(_c.a, BDDConstant.getFalsumNode(_c.f),
+                        new BDDInnerNode(_c.b, BDDConstant.getFalsumNode(_c.f), BDDConstant.getVerumNode(_c.f))));
+        bdd1.swapVariables(_c.a, _c.b);
+        assertThat(bdd1.getVariableOrder()).containsExactly(_c.b, _c.a, _c.c);
+        assertThat(bdd2.getVariableOrder()).containsExactly(_c.b, _c.a, _c.c);
+        assertThat(bdd2.apply(new LngBDDFunction(_c.f))).isEqualTo(
+                new BDDInnerNode(_c.b, BDDConstant.getFalsumNode(_c.f),
+                        new BDDInnerNode(_c.a, BDDConstant.getFalsumNode(_c.f), BDDConstant.getVerumNode(_c.f))));
     }
 
     @Test
@@ -248,7 +253,7 @@ public class BDDReorderingTest extends TestWithExampleFormulas {
         if (nodes < 0) {
             return false;
         }
-        this.stats.newBddSize(nodes);
+        stats.newBddSize(nodes);
         if (modelCount != null && !modelCount.equals(bdd.modelCount())) {
             System.out.println("Nodecount changed!");
             return false;
@@ -305,25 +310,25 @@ public class BDDReorderingTest extends TestWithExampleFormulas {
         private long maxBddSize = 0;  // num nodes without caching
 
         public void newFormula(final Formula formula) {
-            this.maxFormulaSize = Math.max(this.maxFormulaSize, formula.numberOfNodes());
+            maxFormulaSize = Math.max(maxFormulaSize, formula.numberOfNodes());
         }
 
         public void newBdd(final BDD bdd) {
-            this.maxBddNodes = Math.max(this.maxBddNodes, bdd.nodeCount());
+            maxBddNodes = Math.max(maxBddNodes, bdd.nodeCount());
         }
 
         public void newBddSize(final long size) {
-            this.maxBddSize = Math.max(this.maxBddSize, size);
+            maxBddSize = Math.max(maxBddSize, size);
         }
 
         @Override
         public String toString() {
             return "SwapStats{" +
-                    "testedFormulas=" + this.testedFormulas +
-                    ", numSwaps=" + this.numSwaps +
-                    ", maxFormulaSize=" + this.maxFormulaSize +
-                    ", maxBddNodes=" + this.maxBddNodes +
-                    ", maxBddSize=" + this.maxBddSize +
+                    "testedFormulas=" + testedFormulas +
+                    ", numSwaps=" + numSwaps +
+                    ", maxFormulaSize=" + maxFormulaSize +
+                    ", maxBddNodes=" + maxBddNodes +
+                    ", maxBddSize=" + maxBddSize +
                     '}';
         }
     }

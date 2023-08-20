@@ -8,12 +8,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
 import org.logicng.collections.LNGIntVector;
 import org.logicng.solvers.maxsat.algorithms.MaxSATConfig;
 import org.logicng.solvers.sat.MiniSat2Solver;
 
-public class EncodingsTest extends TestWithExampleFormulas {
+public class EncodingsTest {
 
     @Test
     public void testEncoder() {
