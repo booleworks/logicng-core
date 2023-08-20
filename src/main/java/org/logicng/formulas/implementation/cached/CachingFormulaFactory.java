@@ -399,7 +399,7 @@ public class CachingFormulaFactory extends FormulaFactory {
     }
 
     /**
-     * Returns the complete transformationcache for a given cache entry type.
+     * Returns the complete transformation cache for a given cache entry type.
      * <p>
      * Attention: this cache should only be modified by formula transformations and not be altered in any other way.
      * Manipulating this cache manually can lead to a serious malfunction of algorithms.

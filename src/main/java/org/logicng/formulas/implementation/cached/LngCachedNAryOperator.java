@@ -25,12 +25,12 @@ public abstract class LngCachedNAryOperator extends LngCachedFormula implements 
     LngCachedNAryOperator(final FType type, final Collection<? extends Formula> operands, final CachingFormulaFactory f) {
         super(type, f);
         this.operands = List.copyOf(operands);
-        this.hashCode = 0;
+        hashCode = 0;
     }
 
     @Override
     public List<Formula> operands() {
-        return this.operands;
+        return operands;
     }
 
     /**

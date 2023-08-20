@@ -45,10 +45,10 @@ public final class FormulaFactoryConfig extends Configuration {
 
     private FormulaFactoryConfig(final Builder builder) {
         super(ConfigurationType.FORMULA_FACTORY);
-        this.name = builder.name;
-        this.formulaMergeStrategy = builder.formulaMergeStrategy;
-        this.stringRepresentation = builder.stringRepresentation;
-        this.simplifyComplementaryOperands = builder.simplifyComplementaryOperands;
+        name = builder.name;
+        formulaMergeStrategy = builder.formulaMergeStrategy;
+        stringRepresentation = builder.stringRepresentation;
+        simplifyComplementaryOperands = builder.simplifyComplementaryOperands;
     }
 
     /**

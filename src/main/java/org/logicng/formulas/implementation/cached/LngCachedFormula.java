@@ -10,7 +10,7 @@ import org.logicng.formulas.Formula;
 public abstract class LngCachedFormula implements Formula {
 
     protected final CachingFormulaFactory f;
-    protected FType type;
+    protected final FType type;
 
     protected LngCachedFormula(final FType type, final CachingFormulaFactory f) {
         this.f = f;

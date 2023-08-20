@@ -42,25 +42,25 @@ public class LngCachedPBConstraint extends LngCachedFormula implements PBConstra
         }
         this.literals = List.copyOf(literals);
         this.coefficients = List.copyOf(coefficients);
-        this.maxWeight = Integer.MIN_VALUE;
+        maxWeight = Integer.MIN_VALUE;
         for (final int c : coefficients) {
-            if (c > this.maxWeight) {
-                this.maxWeight = c;
+            if (c > maxWeight) {
+                maxWeight = c;
             }
         }
         this.comparator = comparator;
         this.rhs = rhs;
-        this.hashCode = 0;
+        hashCode = 0;
     }
 
     @Override
     public List<Literal> operands() {
-        return this.literals;
+        return literals;
     }
 
     @Override
     public List<Integer> coefficients() {
-        return this.coefficients;
+        return coefficients;
     }
 
     @Override
