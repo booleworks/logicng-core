@@ -7,9 +7,10 @@ package org.logicng.functions;
 import static org.logicng.formulas.cache.FunctionCacheEntry.SUBFORMULAS;
 
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFunction;
+import org.logicng.formulas.FormulaFactory;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 /**
  * A function that computes all sub-nodes of a given formula.  The order of the sub-nodes is bottom-up, i.e. a
@@ -17,27 +18,32 @@ import java.util.LinkedHashSet;
  * @version 3.0.0
  * @since 1.0
  */
-public final class SubNodeFunction implements FormulaFunction<LinkedHashSet<Formula>> {
+public final class SubNodeFunction extends CacheableFormulaFunction<LinkedHashSet<Formula>> {
 
-    private static final SubNodeFunction CACHING_INSTANCE = new SubNodeFunction(true);
-    private static final SubNodeFunction NON_CACHING_INSTANCE = new SubNodeFunction(false);
-
-    private final boolean useCache;
-
-    private SubNodeFunction(final boolean useCache) {
-        this.useCache = useCache;
+    /**
+     * Constructs a new function.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
+    public SubNodeFunction(final FormulaFactory f) {
+        super(f, SUBFORMULAS);
     }
 
-    public static SubNodeFunction get(final boolean useCache) {
-        return useCache ? CACHING_INSTANCE : NON_CACHING_INSTANCE;
+    /**
+     * Constructs a new function.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
+     */
+    public SubNodeFunction(final FormulaFactory f, final Map<Formula, LinkedHashSet<Formula>> cache) {
+        super(f, cache);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public LinkedHashSet<Formula> apply(final Formula formula) {
-        final Object cached = formula.functionCacheEntry(SUBFORMULAS);
+        final LinkedHashSet<Formula> cached = lookupCache(formula);
         if (cached != null) {
-            return (LinkedHashSet<Formula>) cached;
+            return cached;
         }
         final LinkedHashSet<Formula> result = new LinkedHashSet<>();
         for (final Formula op : formula) {
@@ -46,9 +52,7 @@ public final class SubNodeFunction implements FormulaFunction<LinkedHashSet<Form
             }
         }
         result.add(formula);
-        if (useCache) {
-            formula.setFunctionCacheEntry(SUBFORMULAS, result);
-        }
+        setCache(formula, result);
         return result;
     }
 }

@@ -37,6 +37,8 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -102,7 +104,7 @@ public abstract class FormulaFactory {
         simplifyComplementaryOperands = config.simplifyComplementaryOperands;
         configurations = initDefaultConfigs();
         clear();
-        subformulaFunction = SubNodeFunction.get(true);
+        subformulaFunction = new SubNodeFunction(this);
         if (!name.isEmpty()) {
             ccPrefix = CC_PREFIX + name + "_";
             pbPrefix = PB_PREFIX + name + "_";
@@ -546,11 +548,11 @@ public abstract class FormulaFactory {
      * @param names the variable names
      * @return a new list of literals with the given names and positive phase
      */
-    public List<Variable> variables(final Collection<String> names) {
+    public SortedSet<Variable> variables(final Collection<String> names) {
         if (readOnly) {
             throwReadOnlyException();
         }
-        final List<Variable> variables = new ArrayList<>();
+        final SortedSet<Variable> variables = new TreeSet<>();
         for (final String name : names) {
             variables.add(variable(name));
         }
@@ -562,11 +564,11 @@ public abstract class FormulaFactory {
      * @param names the variable names
      * @return a new list of literals with the given names and positive phase
      */
-    public List<Variable> variables(final String... names) {
+    public SortedSet<Variable> variables(final String... names) {
         if (readOnly) {
             throwReadOnlyException();
         }
-        final List<Variable> variables = new ArrayList<>();
+        final SortedSet<Variable> variables = new TreeSet<>();
         for (final String name : names) {
             variables.add(variable(name));
         }

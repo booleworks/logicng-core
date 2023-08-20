@@ -8,36 +8,44 @@ import static org.logicng.formulas.cache.FunctionCacheEntry.NUMBER_OF_NODES;
 
 import org.logicng.formulas.BinaryOperator;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFunction;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.NAryOperator;
 import org.logicng.formulas.Not;
 import org.logicng.formulas.PBConstraint;
+
+import java.util.Map;
 
 /**
  * A function that computes the number of nodes of a given formula.
  * @version 3.0.0
  * @since 2.2.0
  */
-public class NumberOfNodesFunction implements FormulaFunction<Long> {
+public class NumberOfNodesFunction extends CacheableFormulaFunction<Long> {
 
-    private static final NumberOfNodesFunction CACHING_INSTANCE = new NumberOfNodesFunction(true);
-    private static final NumberOfNodesFunction NON_CACHING_INSTANCE = new NumberOfNodesFunction(false);
-
-    private final boolean useCache;
-
-    private NumberOfNodesFunction(final boolean useCache) {
-        this.useCache = useCache;
+    /**
+     * Constructs a new function.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
+    public NumberOfNodesFunction(final FormulaFactory f) {
+        super(f, NUMBER_OF_NODES);
     }
 
-    public static NumberOfNodesFunction get(final boolean useCache) {
-        return useCache ? CACHING_INSTANCE : NON_CACHING_INSTANCE;
+    /**
+     * Constructs a new function.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
+     */
+    public NumberOfNodesFunction(final FormulaFactory f, final Map<Formula, Long> cache) {
+        super(f, cache);
     }
 
     @Override
     public Long apply(final Formula formula) {
-        final Object cached = formula.functionCacheEntry(NUMBER_OF_NODES);
+        final Long cached = lookupCache(formula);
         if (cached != null) {
-            return (Long) cached;
+            return cached;
         }
         long result;
         switch (formula.type()) {
@@ -69,9 +77,7 @@ public class NumberOfNodesFunction implements FormulaFunction<Long> {
             default:
                 throw new IllegalStateException("Unknown formula type " + formula.type());
         }
-        if (useCache) {
-            formula.setFunctionCacheEntry(NUMBER_OF_NODES, result);
-        }
+        setCache(formula, result);
         return result;
     }
 }

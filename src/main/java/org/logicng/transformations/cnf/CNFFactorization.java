@@ -62,7 +62,7 @@ public final class CNFFactorization extends CacheableAndAbortableFormulaTransfor
      * @param handler the handler for the transformation
      */
     public CNFFactorization(final FormulaFactory f, final FactorizationHandler handler, final Map<Formula, Formula> cache) {
-        super(f, FACTORIZED_CNF, cache, handler);
+        super(f, cache, handler);
     }
 
     @Override

@@ -62,7 +62,7 @@ public final class DNFFactorization extends CacheableAndAbortableFormulaTransfor
      * @param handler the handler for the transformation
      */
     public DNFFactorization(final FormulaFactory f, final FactorizationHandler handler, final Map<Formula, Formula> cache) {
-        super(f, FACTORIZED_DNF, cache, handler);
+        super(f, cache, handler);
     }
 
     @Override

@@ -7,7 +7,9 @@ package org.logicng.functions;
 import static org.logicng.formulas.cache.FunctionCacheEntry.DEPTH;
 
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFunction;
+import org.logicng.formulas.FormulaFactory;
+
+import java.util.Map;
 
 /**
  * A function that computes the depth of a formula. The depth of an atomic formula
@@ -15,26 +17,32 @@ import org.logicng.formulas.FormulaFunction;
  * @version 3.0.0
  * @since 2.0
  */
-public final class FormulaDepthFunction implements FormulaFunction<Integer> {
+public final class FormulaDepthFunction extends CacheableFormulaFunction<Integer> {
 
-    private static final FormulaDepthFunction CACHING_INSTANCE = new FormulaDepthFunction(true);
-    private static final FormulaDepthFunction NON_CACHING_INSTANCE = new FormulaDepthFunction(false);
-
-    private final boolean useCache;
-
-    private FormulaDepthFunction(final boolean useCache) {
-        this.useCache = useCache;
+    /**
+     * Constructs a new function.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
+    public FormulaDepthFunction(final FormulaFactory f) {
+        super(f, DEPTH);
     }
 
-    public static FormulaDepthFunction get(final boolean useCache) {
-        return useCache ? CACHING_INSTANCE : NON_CACHING_INSTANCE;
+    /**
+     * Constructs a new function.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
+     */
+    public FormulaDepthFunction(final FormulaFactory f, final Map<Formula, Integer> cache) {
+        super(f, cache);
     }
 
     @Override
     public Integer apply(final Formula formula) {
-        final Object cached = formula.functionCacheEntry(DEPTH);
+        final Integer cached = lookupCache(formula);
         if (cached != null) {
-            return (Integer) cached;
+            return cached;
         }
         final int result;
         if (formula.isAtomicFormula()) {
@@ -46,9 +54,7 @@ public final class FormulaDepthFunction implements FormulaFunction<Integer> {
             }
             result = maxDepth + 1;
         }
-        if (useCache) {
-            formula.setFunctionCacheEntry(DEPTH, result);
-        }
+        setCache(formula, result);
         return result;
     }
 }

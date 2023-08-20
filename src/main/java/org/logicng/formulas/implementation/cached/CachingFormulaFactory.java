@@ -478,7 +478,7 @@ public class CachingFormulaFactory extends FormulaFactory {
     }
 
     /**
-     * Returns the complete cache for a given cache entry type.
+     * Returns the complete transformationcache for a given cache entry type.
      * <p>
      * Attention: this cache should only be modified by formula transformations and not be altered in any other way.
      * Manipulating this cache manually can lead to a serious malfunction of algorithms.
@@ -487,6 +487,19 @@ public class CachingFormulaFactory extends FormulaFactory {
      */
     public Map<Formula, Formula> getTransformationCacheForType(final CacheEntry key) {
         return transformationCache.computeIfAbsent(key, m -> new HashMap<>());
+    }
+
+    /**
+     * Returns the complete function cache for a given cache entry type.
+     * <p>
+     * Attention: this cache should only be modified by formula functions and not be altered in any other way.
+     * Manipulating this cache manually can lead to a serious malfunction of algorithms.
+     * @param key the cache entry type
+     * @return the cache (mapping from formula to formula)
+     */
+    @SuppressWarnings("unchecked")
+    public <T> Map<Formula, T> getFunctionCacheForType(final CacheEntry key) {
+        return (Map<Formula, T>) functionCache.computeIfAbsent(key, m -> new HashMap<>());
     }
 
     /**

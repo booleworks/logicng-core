@@ -4,9 +4,12 @@
 
 package org.logicng.knowledgecompilation.dnnf.functions;
 
+import static org.logicng.formulas.cache.FunctionCacheEntry.DNNF_MODELCOUNT;
+
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
-import org.logicng.formulas.cache.FunctionCacheEntry;
+import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -16,35 +19,21 @@ import java.util.TreeSet;
 
 /**
  * A DNNF function which counts models.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public final class DnnfModelCountFunction implements DnnfFunction<BigInteger> {
 
-    private static final DnnfModelCountFunction INSTANCE = new DnnfModelCountFunction();
+    private final Map<Formula, BigInteger> cache;
 
-    private DnnfModelCountFunction() {
-        // intentionally left empty
-    }
-
-    /**
-     * Returns the singleton instance of this function.
-     * @return an instance of this function
-     */
-    public static DnnfModelCountFunction get() {
-        return INSTANCE;
+    public DnnfModelCountFunction(final FormulaFactory f) {
+        cache = f instanceof CachingFormulaFactory ? ((CachingFormulaFactory) f).getFunctionCacheForType(DNNF_MODELCOUNT) : new HashMap<>();
     }
 
     @Override
     public BigInteger apply(final SortedSet<Variable> originalVariables, final Formula formula) {
-        final Object cached = formula.functionCacheEntry(FunctionCacheEntry.DNNF_MODELCOUNT);
-        final BigInteger result;
-        if (cached != null) {
-            result = (BigInteger) cached;
-        } else {
-            result = count(formula, new HashMap<>());
-        }
-        formula.setFunctionCacheEntry(FunctionCacheEntry.DNNF_MODELCOUNT, result);
+        final BigInteger cached = cache.get(formula);
+        final BigInteger result = cached != null ? cached : count(formula);
         final SortedSet<Variable> dontCareVariables = new TreeSet<>();
         final SortedSet<Variable> dnnfVariables = formula.variables();
         for (final Variable originalVariable : originalVariables) {
@@ -56,8 +45,8 @@ public final class DnnfModelCountFunction implements DnnfFunction<BigInteger> {
         return result.multiply(factor);
     }
 
-    private BigInteger count(final Formula dnnf, final Map<Formula, BigInteger> internalCache) {
-        BigInteger c = internalCache.get(dnnf);
+    private BigInteger count(final Formula dnnf) {
+        BigInteger c = cache.get(dnnf);
         if (c == null) {
             switch (dnnf.type()) {
                 case LITERAL:
@@ -67,14 +56,14 @@ public final class DnnfModelCountFunction implements DnnfFunction<BigInteger> {
                 case AND:
                     c = BigInteger.ONE;
                     for (final Formula op : dnnf) {
-                        c = c.multiply(count(op, internalCache));
+                        c = c.multiply(count(op));
                     }
                     break;
                 case OR:
                     final int allVariables = dnnf.variables().size();
                     c = BigInteger.ZERO;
                     for (final Formula op : dnnf) {
-                        final BigInteger opCount = count(op, internalCache);
+                        final BigInteger opCount = count(op);
                         final BigInteger factor = BigInteger.valueOf(2L).pow(allVariables - op.variables().size());
                         c = c.add(opCount.multiply(factor));
                     }
@@ -83,7 +72,7 @@ public final class DnnfModelCountFunction implements DnnfFunction<BigInteger> {
                     c = BigInteger.ZERO;
                     break;
             }
-            internalCache.put(dnnf, c);
+            cache.put(dnnf, c);
         }
         return c;
     }

@@ -53,7 +53,7 @@ public interface Formula extends Iterable<Formula> {
      * @return the number of atomic formulas of this formula.
      */
     default long numberOfAtoms() {
-        return NumberOfAtomsFunction.get(true).apply(this);
+        return new NumberOfAtomsFunction(factory()).apply(this);
     }
 
     /**
@@ -61,7 +61,7 @@ public interface Formula extends Iterable<Formula> {
      * @return the number of nodes of this formula.
      */
     default long numberOfNodes() {
-        return NumberOfNodesFunction.get(true).apply(this);
+        return new NumberOfNodesFunction(factory()).apply(this);
     }
 
     /**
@@ -96,7 +96,7 @@ public interface Formula extends Iterable<Formula> {
      * @return all variables occurring in this formula
      */
     default SortedSet<Variable> variables() {
-        return VariablesFunction.get(true).apply(this);
+        return new VariablesFunction(factory()).apply(this);
     }
 
     /**
@@ -105,7 +105,7 @@ public interface Formula extends Iterable<Formula> {
      * @return all literals occurring in this formula
      */
     default SortedSet<Literal> literals() {
-        return LiteralsFunction.get(true).apply(this);
+        return new LiteralsFunction(factory()).apply(this);
     }
 
     /**
@@ -466,25 +466,6 @@ public interface Formula extends Iterable<Formula> {
      * @param value the cache value
      */
     void setPredicateCacheEntry(final CacheEntry key, final Tristate value);
-
-    /**
-     * Returns an entry of the function cache of this formula.
-     * @param key the cache key
-     * @return the cache value or {@code null} if the key is not found
-     */
-    Object functionCacheEntry(final CacheEntry key);
-
-    /**
-     * Sets an entry in the function cache of this formula
-     * @param key   the cache key
-     * @param value the cache value
-     */
-    void setFunctionCacheEntry(final CacheEntry key, final Object value);
-
-    /**
-     * Clears the transformation and function cache of the formula.
-     */
-    void clearCaches();
 
     /**
      * Returns a stream of this formula's operands.

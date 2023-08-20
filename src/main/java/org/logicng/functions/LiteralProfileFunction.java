@@ -8,7 +8,7 @@ import static org.logicng.formulas.cache.FunctionCacheEntry.LITPROFILE;
 
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFunction;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 
 import java.util.HashMap;
@@ -26,24 +26,30 @@ import java.util.TreeMap;
  * @version 3.0.0
  * @since 1.0
  */
-public final class LiteralProfileFunction implements FormulaFunction<Map<Literal, Integer>> {
+public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<Literal, Integer>> {
 
-    private static final LiteralProfileFunction CACHING_INSTANCE = new LiteralProfileFunction(true);
-    private static final LiteralProfileFunction NON_CACHING_INSTANCE = new LiteralProfileFunction(false);
-
-    private final boolean useCache;
-
-    private LiteralProfileFunction(final boolean useCache) {
-        this.useCache = useCache;
+    /**
+     * Constructs a new function.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
+    public LiteralProfileFunction(final FormulaFactory f) {
+        super(f, LITPROFILE);
     }
 
-    public static LiteralProfileFunction get(final boolean useCache) {
-        return useCache ? CACHING_INSTANCE : NON_CACHING_INSTANCE;
+    /**
+     * Constructs a new function.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
+     */
+    public LiteralProfileFunction(final FormulaFactory f, final Map<Formula, Map<Literal, Integer>> cache) {
+        super(f, cache);
     }
 
     @Override
     public Map<Literal, Integer> apply(final Formula formula) {
-        return useCache ? cachingLiteralProfile(formula) : nonCachingLiteralProfile(formula);
+        return hasCache() ? cachingLiteralProfile(formula) : nonCachingLiteralProfile(formula);
     }
 
     /**
@@ -84,11 +90,10 @@ public final class LiteralProfileFunction implements FormulaFunction<Map<Literal
      * @param formula the formula
      * @return the literal profile
      */
-    @SuppressWarnings("unchecked")
-    private static Map<Literal, Integer> cachingLiteralProfile(final Formula formula) {
-        final Object cached = formula.functionCacheEntry(LITPROFILE);
+    private Map<Literal, Integer> cachingLiteralProfile(final Formula formula) {
+        final Map<Literal, Integer> cached = lookupCache(formula);
         if (cached != null) {
-            return (Map<Literal, Integer>) cached;
+            return cached;
         }
         final Map<Literal, Integer> result = new HashMap<>();
         if (formula.type() == FType.LITERAL) {
@@ -105,7 +110,7 @@ public final class LiteralProfileFunction implements FormulaFunction<Map<Literal
                 }
             }
         }
-        formula.setFunctionCacheEntry(LITPROFILE, result);
+        setCache(formula, result);
         return result;
     }
 }

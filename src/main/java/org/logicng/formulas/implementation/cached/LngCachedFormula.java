@@ -45,21 +45,6 @@ public abstract class LngCachedFormula implements Formula {
     }
 
     @Override
-    public Object functionCacheEntry(final CacheEntry key) {
-        return f.functionCacheEntry(this, key);
-    }
-
-    @Override
-    public void setFunctionCacheEntry(final CacheEntry key, final Object value) {
-        f.setFunctionCacheEntry(this, key, value);
-    }
-
-    @Override
-    public void clearCaches() {
-        f.clearCaches(this);
-    }
-
-    @Override
     public String toString() {
         return f.string(this);
     }

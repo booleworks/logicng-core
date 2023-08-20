@@ -108,7 +108,7 @@ public final class ModelCounter {
         BigInteger count = BigInteger.ONE;
         for (final List<Formula> component : components) {
             final Dnnf dnnf = factory.compile(f.and(component), f);
-            count = count.multiply(dnnf.execute(DnnfModelCountFunction.get()));
+            count = count.multiply(dnnf.execute(new DnnfModelCountFunction(f)));
         }
         return count;
     }

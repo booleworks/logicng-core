@@ -43,19 +43,6 @@ public abstract class LngNativeFormula implements Formula {
     }
 
     @Override
-    public Object functionCacheEntry(final CacheEntry key) {
-        return null;
-    }
-
-    @Override
-    public void setFunctionCacheEntry(final CacheEntry key, final Object value) {
-    }
-
-    @Override
-    public void clearCaches() {
-    }
-
-    @Override
     public String toString() {
         return f.string(this);
     }
