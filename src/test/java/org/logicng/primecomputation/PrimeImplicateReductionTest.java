@@ -7,12 +7,15 @@ package org.logicng.primecomputation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.RandomTag;
-import org.logicng.TestWithExampleFormulas;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.handlers.BoundedSatHandler;
 import org.logicng.handlers.SATHandler;
 import org.logicng.io.parsers.ParserException;
@@ -31,53 +34,58 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class PrimeImplicateReductionTest extends TestWithExampleFormulas {
+public class PrimeImplicateReductionTest extends TestWithFormulaContext {
 
-    @Test
-    public void testPrimeImplicateNaive() throws ParserException {
-        final NaivePrimeReduction naive01 = new NaivePrimeReduction(f, f.parse("a&b"));
-        assertThat(naive01.reduceImplicate(f, new TreeSet<>(Arrays.asList(A, B))))
-                .containsAnyOf(A, B).hasSize(1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testPrimeImplicateNaive(final FormulaContext _c) throws ParserException {
+        final NaivePrimeReduction naive01 = new NaivePrimeReduction(_c.f, _c.f.parse("a&b"));
+        assertThat(naive01.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.a, _c.b))))
+                .containsAnyOf(_c.a, _c.b).hasSize(1);
 
-        final NaivePrimeReduction naive02 = new NaivePrimeReduction(f, f.parse("(a => b) | b | c"));
-        assertThat(naive02.reduceImplicate(f, new TreeSet<>(Arrays.asList(A.negate(), B, C))))
-                .containsExactly(A.negate(), B, C);
+        final NaivePrimeReduction naive02 = new NaivePrimeReduction(_c.f, _c.f.parse("(a => b) | b | c"));
+        assertThat(naive02.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.a.negate(), _c.b, _c.c))))
+                .containsExactly(_c.a.negate(), _c.b, _c.c);
 
-        final NaivePrimeReduction naive03 = new NaivePrimeReduction(f, f.parse("(a => b) & b & c"));
-        assertThat(naive03.reduceImplicate(f, new TreeSet<>(Arrays.asList(B, C))))
-                .containsAnyOf(B, C).hasSize(1);
+        final NaivePrimeReduction naive03 = new NaivePrimeReduction(_c.f, _c.f.parse("(a => b) & b & c"));
+        assertThat(naive03.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.b, _c.c))))
+                .containsAnyOf(_c.b, _c.c).hasSize(1);
     }
 
-    @Test
-    public void testFormula1() throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/formula1.txt", f);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testFormula1(final FormulaContext _c) throws IOException, ParserException {
+        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/formula1.txt", _c.f);
         testFormula(formula);
     }
 
-    @Test
-    public void testSimplifyFormulas() throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/simplify_formulas.txt", f);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSimplifyFormulas(final FormulaContext _c) throws IOException, ParserException {
+        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/simplify_formulas.txt", _c.f);
         testFormula(formula);
     }
 
-    @Test
-    public void testLargeFormula() throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLargeFormula(final FormulaContext _c) throws IOException, ParserException {
+        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", _c.f);
         testFormula(formula);
     }
 
-    @Test
-    public void testSmallFormulas() throws IOException, ParserException {
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSmallFormulas(final FormulaContext _c) throws IOException, ParserException {
         final List<String> lines = Files.readAllLines(Paths.get("src/test/resources/formulas/small_formulas.txt"));
         for (final String line : lines) {
-            testFormula(f.parse(line));
+            testFormula(_c.f.parse(line));
         }
     }
 
-    @Test
-    public void testCornerCases() {
-        final FormulaFactory f = FormulaFactory.caching();
-        final FormulaCornerCases cornerCases = new FormulaCornerCases(f);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testCornerCases(final FormulaContext _c) {
+        final FormulaCornerCases cornerCases = new FormulaCornerCases(_c.f);
         cornerCases.cornerCases().forEach(this::testFormula);
     }
 
@@ -94,7 +102,7 @@ public class PrimeImplicateReductionTest extends TestWithExampleFormulas {
 
     @Test
     public void testCancellationPoints() throws ParserException, IOException {
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
+        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", FormulaFactory.nonCaching());
         for (int numStarts = 0; numStarts < 20; numStarts++) {
             final SATHandler handler = new BoundedSatHandler(numStarts);
             testFormula(formula, handler, true);

@@ -7,13 +7,11 @@ package org.logicng.solvers.sat;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.solvers.maxsat.algorithms.MaxSATConfig;
 import org.logicng.util.FormulaRandomizerConfig;
 
-import java.util.Arrays;
-
-public class ConfigurationsTest extends TestWithExampleFormulas {
+public class ConfigurationsTest {
 
     @Test
     public void testMiniSatConfigToString() {
@@ -120,7 +118,7 @@ public class ConfigurationsTest extends TestWithExampleFormulas {
         final FormulaRandomizerConfig config = FormulaRandomizerConfig.builder()
                 .seed(42)
                 .numVars(21)
-                .variables(Arrays.asList(A, B, C))
+                .variables(FormulaFactory.caching().variables("a", "b", "c"))
                 .build();
         final String expected = String.format("FormulaRandomizerConfig{%n" +
                 "seed=42%n" +

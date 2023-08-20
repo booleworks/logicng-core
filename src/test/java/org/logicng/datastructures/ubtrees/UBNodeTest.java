@@ -7,16 +7,15 @@ package org.logicng.datastructures.ubtrees;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class UBNodeTest extends TestWithExampleFormulas {
+public class UBNodeTest {
 
     private final UBNode<Integer> node1;
     private final UBNode<String> node2;
@@ -34,12 +33,13 @@ public class UBNodeTest extends TestWithExampleFormulas {
 
     @Test
     public void testEquals() {
+        final FormulaFactory f = FormulaFactory.nonCaching();
         assertThat(node1.hashCode()).isEqualTo(node1.hashCode());
         final List<SortedSet<Literal>> primeImplicants = new ArrayList<>();
-        primeImplicants.add(new TreeSet<>(Arrays.asList(A, NB)));
-        primeImplicants.add(new TreeSet<>(Arrays.asList(A, C)));
+        primeImplicants.add(new TreeSet<>(List.of(f.variable("a"), f.literal("b", false))));
+        primeImplicants.add(new TreeSet<>(List.of(f.variable("a"), f.variable("c"))));
         final List<SortedSet<Literal>> primeImplicates = new ArrayList<>();
-        primeImplicates.add(new TreeSet<>(Arrays.asList(A, NB)));
+        primeImplicates.add(new TreeSet<>(List.of(f.variable("a"), f.literal("b", false))));
         assertThat(node1.equals(node1)).isTrue();
         assertThat(node1.equals(new UBNode<>(1))).isTrue();
         assertThat(node1.equals(node2)).isFalse();
