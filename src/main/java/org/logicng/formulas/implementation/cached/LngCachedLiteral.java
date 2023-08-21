@@ -52,8 +52,11 @@ public class LngCachedLiteral extends LngCachedFormula implements Literal {
         if (negated != null) {
             return negated;
         }
-        negated = f.literal(name, !phase);
-        return negated;
+        final Literal lit = f.literal(name, !phase);
+        if (f == factory()) {
+            negated = lit;
+        }
+        return lit;
     }
 
     @Override

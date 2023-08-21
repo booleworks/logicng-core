@@ -84,7 +84,9 @@ public class LngCachedPBConstraint extends LngCachedFormula implements PBConstra
         encoding = f.pbEncodingCache.get(this);
         if (encoding == null) {
             encoding = PBEncoder.encode(this, generatingFactory);
-            f.pbEncodingCache.put(this, encoding);
+            if (generatingFactory == factory()) {
+                f.pbEncodingCache.put(this, encoding);
+            }
         }
         return Collections.unmodifiableList(encoding);
     }
