@@ -48,20 +48,20 @@ public interface Formula extends Iterable<Formula> {
     /**
      * Returns the number of atomic formulas of this formula.  An atomic formula is a predicate (constants and literals)
      * or a pseudo-Boolean constraint.
+     * @param f the formula to use for caching
      * @return the number of atomic formulas of this formula.
      */
-    default long numberOfAtoms() {
-        //TODO not default factory
-        return new NumberOfAtomsFunction(factory()).apply(this);
+    default long numberOfAtoms(final FormulaFactory f) {
+        return new NumberOfAtomsFunction(f).apply(this);
     }
 
     /**
      * Returns the number of nodes of this formula.
+     * @param f the formula to use for caching
      * @return the number of nodes of this formula.
      */
-    default long numberOfNodes() {
-        //TODO not default factory
-        return new NumberOfNodesFunction(factory()).apply(this);
+    default long numberOfNodes(final FormulaFactory f) {
+        return new NumberOfNodesFunction(f).apply(this);
     }
 
     /**
@@ -103,11 +103,11 @@ public interface Formula extends Iterable<Formula> {
     /**
      * Returns all literals occurring in this formula.  Returns an unmodifiable set, so do not try to change the literal
      * set manually.
+     * @param f the formula to use for caching
      * @return all literals occurring in this formula
      */
-    default SortedSet<Literal> literals() {
-        //TODO not default factory
-        return new LiteralsFunction(factory()).apply(this);
+    default SortedSet<Literal> literals(final FormulaFactory f) {
+        return new LiteralsFunction(f).apply(this);
     }
 
     /**

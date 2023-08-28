@@ -87,6 +87,11 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
     }
 
     @Override
+    public FormulaFactory f() {
+        return f;
+    }
+
+    @Override
     public void add(final Formula formula) {
         final Formula cnf = formula.cnf(f);
         switch (cnf.type()) {
@@ -95,11 +100,11 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
             case FALSE:
             case LITERAL:
             case OR:
-                addClause(generateClauseVector(cnf.literals()), null);
+                addClause(generateClauseVector(cnf.literals(f)), null);
                 break;
             case AND:
                 for (final Formula op : cnf) {
-                    addClause(generateClauseVector(op.literals()), null);
+                    addClause(generateClauseVector(op.literals(f)), null);
                 }
                 break;
             default:

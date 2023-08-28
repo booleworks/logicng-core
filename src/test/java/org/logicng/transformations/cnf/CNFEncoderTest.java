@@ -32,7 +32,7 @@ public class CNFEncoderTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testFactorization(final FormulaContext _c) throws ParserException {
         final Formula phi1 = _c.p.parse(p1);
-        assertThat(phi1.numberOfAtoms()).isEqualTo(10);
+        assertThat(phi1.numberOfAtoms(_c.f)).isEqualTo(10);
         assertThat(phi1.cnf(_c.f)).isEqualTo(_c.p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
         _c.f.putConfiguration(CNFConfig.builder().build());
         assertThat(phi1.cnf(_c.f)).isEqualTo(_c.p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));

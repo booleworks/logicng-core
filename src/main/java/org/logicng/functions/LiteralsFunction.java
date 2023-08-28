@@ -81,7 +81,7 @@ public class LiteralsFunction extends CacheableFormulaFunction<SortedSet<Literal
                 break;
             case PBC:
                 final PBConstraint pbc = (PBConstraint) formula;
-                result = FormulaHelper.literals(pbc.operands());
+                result = FormulaHelper.literals(f, pbc.operands());
                 break;
             default:
                 throw new IllegalStateException("Unknown formula type " + formula.type());

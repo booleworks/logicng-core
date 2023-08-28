@@ -59,7 +59,7 @@ public final class VariableProfileFunction extends CacheableFormulaFunction<Map<
      * @param formula the formula
      * @return the variable profile
      */
-    private static Map<Variable, Integer> nonCachingVariableProfile(final Formula formula) {
+    private Map<Variable, Integer> nonCachingVariableProfile(final Formula formula) {
         final SortedMap<Variable, Integer> map = new TreeMap<>();
         nonCachingRecursion(formula, map);
         return map;
@@ -70,12 +70,12 @@ public final class VariableProfileFunction extends CacheableFormulaFunction<Map<
      * @param formula the formula
      * @param map     the variable profile
      */
-    private static void nonCachingRecursion(final Formula formula, final Map<Variable, Integer> map) {
+    private void nonCachingRecursion(final Formula formula, final Map<Variable, Integer> map) {
         if (formula.type() == FType.LITERAL) {
             final Literal lit = (Literal) formula;
             map.merge(lit.variable(), 1, Integer::sum);
         } else if (formula.type() == FType.PBC) {
-            for (final Literal l : formula.literals()) {
+            for (final Literal l : formula.literals(f)) {
                 nonCachingRecursion(l.variable(), map);
             }
         } else {
@@ -100,7 +100,7 @@ public final class VariableProfileFunction extends CacheableFormulaFunction<Map<
         if (formula.type() == FType.LITERAL) {
             result.put(((Literal) formula).variable(), 1);
         } else if (formula.type() == FType.PBC) {
-            for (final Literal l : formula.literals()) {
+            for (final Literal l : formula.literals(f)) {
                 result.put(l.variable(), 1);
             }
         } else {

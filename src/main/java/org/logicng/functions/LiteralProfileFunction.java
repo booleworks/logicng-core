@@ -58,7 +58,7 @@ public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<L
      * @param formula the formula
      * @return the literal profile
      */
-    private static Map<Literal, Integer> nonCachingLiteralProfile(final Formula formula) {
+    private Map<Literal, Integer> nonCachingLiteralProfile(final Formula formula) {
         final SortedMap<Literal, Integer> map = new TreeMap<>();
         nonCachingRecursion(formula, map);
         return map;
@@ -69,12 +69,12 @@ public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<L
      * @param formula the formula
      * @param map     the literal profile
      */
-    private static void nonCachingRecursion(final Formula formula, final Map<Literal, Integer> map) {
+    private void nonCachingRecursion(final Formula formula, final Map<Literal, Integer> map) {
         if (formula.type() == FType.LITERAL) {
             final Literal lit = (Literal) formula;
             map.merge(lit, 1, Integer::sum);
         } else if (formula.type() == FType.PBC) {
-            for (final Literal l : formula.literals()) {
+            for (final Literal l : formula.literals(f)) {
                 nonCachingRecursion(l, map);
             }
         } else {
@@ -99,7 +99,7 @@ public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<L
         if (formula.type() == FType.LITERAL) {
             result.put((Literal) formula, 1);
         } else if (formula.type() == FType.PBC) {
-            for (final Literal l : formula.literals()) {
+            for (final Literal l : formula.literals(f)) {
                 result.put(l, 1);
             }
         } else {

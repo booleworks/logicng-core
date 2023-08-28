@@ -63,26 +63,28 @@ public final class FormulaHelper {
 
     /**
      * Returns all literals occurring in the given formulas.
+     * @param f        the formula to use for caching
      * @param formulas formulas
      * @return all literals occurring in the given formulas
      */
-    public static SortedSet<Literal> literals(final Formula... formulas) {
+    public static SortedSet<Literal> literals(final FormulaFactory f, final Formula... formulas) {
         final SortedSet<Literal> literals = new TreeSet<>();
-        for (final Formula f : formulas) {
-            literals.addAll(f.literals());
+        for (final Formula op : formulas) {
+            literals.addAll(op.literals(f));
         }
         return literals;
     }
 
     /**
      * Returns all literals occurring in the given formulas.
+     * @param f        the formula to use for caching
      * @param formulas formulas
      * @return all literals occurring in the given formulas
      */
-    public static SortedSet<Literal> literals(final Collection<? extends Formula> formulas) {
+    public static SortedSet<Literal> literals(final FormulaFactory f, final Collection<? extends Formula> formulas) {
         final SortedSet<Literal> literals = new TreeSet<>();
-        for (final Formula f : formulas) {
-            literals.addAll(f.literals());
+        for (final Formula op : formulas) {
+            literals.addAll(op.literals(f));
         }
         return literals;
     }

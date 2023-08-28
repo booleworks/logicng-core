@@ -182,7 +182,7 @@ public class CNFTest extends TestWithFormulaContext {
         @Override
         public boolean createdClause(final Formula clause) {
             clauseCount++;
-            longestClause = Math.max(clause.numberOfAtoms(), longestClause);
+            longestClause = Math.max(clause.numberOfAtoms(clause.factory()), longestClause);
             return true;
         }
     }

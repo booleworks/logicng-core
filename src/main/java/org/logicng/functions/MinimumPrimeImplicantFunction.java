@@ -43,7 +43,7 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<Sort
         final Formula nnf = formula.nnf(f);
         final Map<Variable, Literal> newVar2oldLit = new HashMap<>();
         final Map<Literal, Literal> substitution = new HashMap<>();
-        for (final Literal literal : nnf.literals()) {
+        for (final Literal literal : nnf.literals(f)) {
             final Variable newVar = f.variable(literal.name() + (literal.phase() ? POS : NEG));
             newVar2oldLit.put(newVar, literal);
             substitution.put(literal, newVar);

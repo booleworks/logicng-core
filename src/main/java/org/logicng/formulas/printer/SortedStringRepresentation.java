@@ -8,6 +8,7 @@ import org.logicng.formulas.BinaryOperator;
 import org.logicng.formulas.Equivalence;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.NAryOperator;
 import org.logicng.formulas.Not;
@@ -71,11 +72,12 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
 
     /**
      * Constructs a new sorted string representation with a given ordering of variables.
+     * @param f        the formula to use for caching
      * @param varOrder the given variable ordering
      */
-    public SortedStringRepresentation(final List<Variable> varOrder) {
+    public SortedStringRepresentation(final FormulaFactory f, final List<Variable> varOrder) {
         this.varOrder = varOrder;
-        this.comparator = new FormulaComparator(varOrder);
+        comparator = new FormulaComparator(f, varOrder);
     }
 
     /**
@@ -126,7 +128,7 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
             operands.add(op);
         }
         final int size = operator.numberOfOperands();
-        operands.sort(this.comparator);
+        operands.sort(comparator);
         final StringBuilder sb = new StringBuilder();
         int count = 0;
         Formula last = null;
@@ -155,7 +157,7 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
         assert operands.size() == coefficients.size();
         final List<Literal> sortedOperands = new ArrayList<>();
         final List<Integer> sortedCoefficients = new ArrayList<>();
-        for (final Variable v : this.varOrder) {
+        for (final Variable v : varOrder) {
             final int index = operands.indexOf(v);
             if (index != -1) {
                 sortedOperands.add(v);
@@ -196,7 +198,7 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
     private String sortedEquivalence(final Equivalence equivalence) {
         final Formula right;
         final Formula left;
-        if (this.comparator.compare(equivalence.left(), equivalence.right()) <= 0) {
+        if (comparator.compare(equivalence.left(), equivalence.right()) <= 0) {
             right = equivalence.right();
             left = equivalence.left();
         } else {
@@ -210,9 +212,11 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
 
     static class FormulaComparator implements Comparator<Formula> {
 
-        final List<Variable> varOrder;
+        private final List<Variable> varOrder;
+        private final FormulaFactory f;
 
-        FormulaComparator(final List<Variable> varOrder) {
+        FormulaComparator(final FormulaFactory f, final List<Variable> varOrder) {
+            this.f = f;
             this.varOrder = varOrder;
         }
 
@@ -228,7 +232,7 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
         public int compare(final Formula formula1, final Formula formula2) {
             final SortedSet<Variable> vars1 = new TreeSet<>(formula1.variables());
             final SortedSet<Variable> vars2 = new TreeSet<>(formula2.variables());
-            for (final Variable v : this.varOrder) {
+            for (final Variable v : varOrder) {
                 if (vars1.isEmpty() && vars2.isEmpty()) {
                     break;
                 } else if (vars1.isEmpty() || (vars1.contains(v) && !vars2.contains(v))) {
@@ -240,7 +244,7 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
                     vars2.remove(v);
                 }
             }
-            return (int) formula1.numberOfAtoms() - (int) formula2.numberOfAtoms();
+            return (int) formula1.numberOfAtoms(f) - (int) formula2.numberOfAtoms(f);
         }
     }
 }

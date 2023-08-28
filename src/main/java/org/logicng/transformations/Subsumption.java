@@ -37,10 +37,10 @@ public abstract class Subsumption extends StatelessFormulaTransformation {
      * @param formula the formula (must be an n-ary operator and CNF or DNF)
      * @return the UBTree with the operands and deleted subsumed operands
      */
-    protected static UBTree<Literal> generateSubsumedUBTree(final Formula formula) {
+    protected UBTree<Literal> generateSubsumedUBTree(final Formula formula) {
         final SortedMap<Integer, List<SortedSet<Literal>>> mapping = new TreeMap<>();
         for (final Formula term : formula) {
-            mapping.computeIfAbsent(term.literals().size(), k -> new ArrayList<>()).add(term.literals());
+            mapping.computeIfAbsent(term.literals(f).size(), k -> new ArrayList<>()).add(term.literals(f));
         }
         final UBTree<Literal> ubTree = new UBTree<>();
         for (final Map.Entry<Integer, List<SortedSet<Literal>>> entry : mapping.entrySet()) {

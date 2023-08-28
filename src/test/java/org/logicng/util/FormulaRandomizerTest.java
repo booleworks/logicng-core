@@ -278,7 +278,7 @@ public class FormulaRandomizerTest {
             }
             assertThat(pbc.numberOfOperands()).isLessThanOrEqualTo(10);
             assertThat(pbc.rhs()).isStrictlyBetween(negSum - 1, posSum + 1);
-            for (final Literal literal : pbc.literals()) {
+            for (final Literal literal : pbc.literals(f)) {
                 if (literal.phase()) {
                     posLit++;
                 } else {
@@ -538,7 +538,7 @@ public class FormulaRandomizerTest {
             final Formula formula = random.pbc();
             assertThat(formula.type()).isEqualTo(FType.PBC);
             final PBConstraint pbc = (PBConstraint) formula;
-            assertThat(pbc.literals().size()).isLessThanOrEqualTo(10);
+            assertThat(pbc.literals(f).size()).isLessThanOrEqualTo(10);
         }
     }
 
@@ -549,7 +549,7 @@ public class FormulaRandomizerTest {
             final Formula formula = random.cc();
             assertThat(formula.type()).isEqualTo(FType.PBC);
             final CardinalityConstraint cc = (CardinalityConstraint) formula;
-            assertThat(cc.literals().size()).isLessThanOrEqualTo(10);
+            assertThat(cc.literals(f).size()).isLessThanOrEqualTo(10);
         }
     }
 }

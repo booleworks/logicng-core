@@ -155,7 +155,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
          */
         private LNGIntVector generateClauseVector(final Formula clause) {
             final LNGIntVector clauseVec = new LNGIntVector(clause.numberOfOperands());
-            for (final Literal lit : clause.literals()) {
+            for (final Literal lit : clause.literals(f)) {
                 int index = idxForName(lit.name());
                 if (index == -1) {
                     index = newVar(false, false);

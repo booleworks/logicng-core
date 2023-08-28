@@ -92,11 +92,11 @@ public final class PlaistedGreenbaumTransformationSolver {
             case FALSE:
             case LITERAL:
             case OR:
-                solver.addClause(generateClauseVector(cnf.literals()), proposition);
+                solver.addClause(generateClauseVector(cnf.literals(f)), proposition);
                 break;
             case AND:
                 for (final Formula clause : cnf) {
-                    solver.addClause(generateClauseVector(clause.literals()), proposition);
+                    solver.addClause(generateClauseVector(clause.literals(f)), proposition);
                 }
                 break;
             default:

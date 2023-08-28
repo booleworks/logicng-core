@@ -266,7 +266,7 @@ public class MiniSat extends SATSolver {
     @Override
     protected void addClause(final Formula formula, final Proposition proposition) {
         result = UNDEF;
-        final LNGIntVector ps = generateClauseVector(formula.literals());
+        final LNGIntVector ps = generateClauseVector(formula.literals(f));
         solver.addClause(ps, proposition);
     }
 
