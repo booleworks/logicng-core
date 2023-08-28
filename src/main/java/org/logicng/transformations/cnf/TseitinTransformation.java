@@ -89,7 +89,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
     @Override
     public Formula apply(final Formula formula) {
         final Formula nnf = formula.nnf(f);
-        if (nnf.isCNF()) {
+        if (nnf.isCNF(f)) {
             return nnf;
         }
         Formula tseitin = state.formula(nnf);

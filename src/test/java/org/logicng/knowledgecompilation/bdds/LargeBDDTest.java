@@ -57,7 +57,7 @@ public class LargeBDDTest {
         final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
         final BDD bdd = BDDFactory.build(queens, kernel);
         final Formula cnf = bdd.cnf();
-        assertThat(cnf.isCNF()).isTrue();
+        assertThat(cnf.isCNF(f)).isTrue();
         final BDD cnfBDD = BDDFactory.build(cnf, kernel);
         assertThat(cnfBDD).isEqualTo(bdd);
         assertThat(bdd.support()).isEqualTo(queens.variables());

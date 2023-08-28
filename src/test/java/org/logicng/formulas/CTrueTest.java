@@ -108,18 +108,18 @@ public class CTrueTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsNNF(final FormulaContext _c) {
-        assertThat(_c.verum.isNNF()).isTrue();
+        assertThat(_c.verum.isNNF(_c.f)).isTrue();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsDNF(final FormulaContext _c) {
-        assertThat(_c.verum.isDNF()).isTrue();
+        assertThat(_c.verum.isDNF(_c.f)).isTrue();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsCNF(final FormulaContext _c) {
-        assertThat(_c.verum.isCNF()).isTrue();
+        assertThat(_c.verum.isCNF(_c.f)).isTrue();
     }
 }

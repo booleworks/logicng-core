@@ -109,7 +109,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
     @Override
     public Formula apply(final Formula formula) {
         final Formula nnf = formula.nnf(f);
-        if (nnf.isCNF()) {
+        if (nnf.isCNF(f)) {
             return nnf;
         }
         Formula pg;

@@ -33,7 +33,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     public void testSimple1(final FormulaContext _c) throws ParserException {
         final Formula formula = _c.p.parse("(~a & ~b & ~c) | (~a & ~b & c) | (~a & b & ~c) | (a & ~b & c) | (a & b & ~c) | (a & b & c)");
         final Formula dnf = formula.transform(new QuineMcCluskeySimplifier(_c.f));
-        assertThat(dnf.isDNF()).isTrue();
+        assertThat(dnf.isDNF(_c.f)).isTrue();
         assertThat(_c.f.equivalence(formula, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
     }
 
@@ -42,7 +42,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     public void testSimple2(final FormulaContext _c) throws ParserException {
         final Formula formula = _c.p.parse("(~a & ~b & ~c) | (~a & b & ~c) | (a & ~b & c) | (a & b & c)");
         final Formula dnf = formula.transform(new QuineMcCluskeySimplifier(_c.f));
-        assertThat(dnf.isDNF()).isTrue();
+        assertThat(dnf.isDNF(_c.f)).isTrue();
         assertThat(_c.f.equivalence(formula, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
     }
 
@@ -56,7 +56,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     public void testSimple3(final FormulaContext _c) throws ParserException {
         final Formula formula = _c.p.parse("~5 & ~4 & 3 & 2 & 1 | ~3 & ~7 & ~2 & 1 | ~6 & 1 & ~3 & 2 | ~9 & 6 & 8 & ~1 | 3 & 4 & 2 & 1 | ~2 & 7 & 1 | ~10 & ~8 & ~1");
         final Formula dnf = formula.transform(new QuineMcCluskeySimplifier(_c.f));
-        assertThat(dnf.isDNF()).isTrue();
+        assertThat(dnf.isDNF(_c.f)).isTrue();
         assertThat(_c.f.equivalence(formula, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
         assertThat(formula.variables()).containsAll(dnf.variables());
     }
@@ -66,7 +66,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     public void testLarge1(final FormulaContext _c) throws ParserException {
         final Formula formula = _c.p.parse("A => B & ~((D | E | I | J) & ~K) & L");
         final Formula dnf = formula.transform(new QuineMcCluskeySimplifier(_c.f));
-        assertThat(dnf.isDNF()).isTrue();
+        assertThat(dnf.isDNF(_c.f)).isTrue();
         assertThat(_c.f.equivalence(formula, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
     }
 
@@ -93,7 +93,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
         }
         final Formula canonicalDNF = _c.f.or(operands);
         final Formula dnf = canonicalDNF.transform(new QuineMcCluskeySimplifier(_c.f));
-        assertThat(dnf.isDNF()).isTrue();
+        assertThat(dnf.isDNF(_c.f)).isTrue();
         assertThat(_c.f.equivalence(canonicalDNF, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
     }
 
@@ -124,7 +124,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
         }
         final Formula canonicalDNF = _c.f.or(operands);
         final Formula dnf = canonicalDNF.transform(new QuineMcCluskeySimplifier(_c.f));
-        assertThat(dnf.isDNF()).isTrue();
+        assertThat(dnf.isDNF(_c.f)).isTrue();
         assertThat(_c.f.equivalence(canonicalDNF, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
     }
 
@@ -147,7 +147,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
             final Formula canonicalDNF = _c.f.or(operands);
 
             final Formula dnf = canonicalDNF.transform(new QuineMcCluskeySimplifier(_c.f));
-            assertThat(dnf.isDNF()).isTrue();
+            assertThat(dnf.isDNF(_c.f)).isTrue();
             assertThat(_c.f.equivalence(canonicalDNF, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
         }
     }

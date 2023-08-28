@@ -31,7 +31,7 @@ public final class DNFSubsumption extends Subsumption {
 
     @Override
     public Formula apply(final Formula formula) {
-        if (!formula.isDNF()) {
+        if (!formula.isDNF(f)) {
             throw new IllegalArgumentException("DNF subsumption can only be applied to formulas in DNF");
         }
         if (formula.type().precedence() >= FType.LITERAL.precedence() || formula.type() == FType.AND) {

@@ -5,6 +5,7 @@
 package org.logicng.knowledgecompilation.dnnf.datastructures.dtree;
 
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 
 /**
  * A generator for a DTree.
@@ -15,8 +16,9 @@ public interface DTreeGenerator {
 
     /**
      * Generates a DTree for the given CNF.
+     * @param f   the formula factory
      * @param cnf the CNF
      * @return the DTree
      */
-    DTree generate(final Formula cnf);
+    DTree generate(final FormulaFactory f, final Formula cnf);
 }

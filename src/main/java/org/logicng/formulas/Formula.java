@@ -149,29 +149,32 @@ public interface Formula extends Iterable<Formula> {
 
     /**
      * Returns {@code true} if this formula is in NNF, otherwise {@code false}
+     * @param f the formula to use for caching
      * @return {@code true} if this formula is in NNF, otherwise {@code false}
      * @see NNFPredicate the NNF predicate
      */
-    default boolean isNNF() {
-        return holds(new NNFPredicate(factory()));
+    default boolean isNNF(final FormulaFactory f) {
+        return holds(new NNFPredicate(f));
     }
 
     /**
      * Returns {@code true} if this formula is in DNF, otherwise {@code false}
+     * @param f the formula to use for caching
      * @return {@code true} if this formula is in DNF, otherwise {@code false}
      * @see DNFPredicate the DNF predicate
      */
-    default boolean isDNF() {
-        return holds(new DNFPredicate(factory()));
+    default boolean isDNF(final FormulaFactory f) {
+        return holds(new DNFPredicate(f));
     }
 
     /**
      * Returns {@code true} if this formula is in CNF, otherwise {@code false}
+     * @param f the formula to use for caching
      * @return {@code true} if this formula is in CNF, otherwise {@code false}
      * @see CNFPredicate the CNF predicate
      */
-    default boolean isCNF() {
-        return holds(new CNFPredicate(factory()));
+    default boolean isCNF(final FormulaFactory f) {
+        return holds(new CNFPredicate(f));
     }
 
     /**

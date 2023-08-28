@@ -113,8 +113,8 @@ public class FormulaMergeTest {
         final Variable a2 = g.variable("A");
         final Variable b2 = g.variable("B");
         final Variable c2 = g.variable("C");
-        assertThat(f.not(a2)).isEqualTo(g.not(a2)).allMatch(it -> it.factory() == g);
         assertThat(f.not(a2).factory()).isEqualTo(f);
+        assertThat(f.not(a2)).isEqualTo(g.not(a2)).allMatch(it -> it.factory() == g);
         assertThat(f.and(a2, b1)).isEqualTo(g.and(a2, b2));
         assertThat(f.and(a2, b1).factory()).isEqualTo(f);
         assertThat(f.and(a2, b2)).isEqualTo(g.and(a2, b2)).allMatch(it -> it.factory() == g);

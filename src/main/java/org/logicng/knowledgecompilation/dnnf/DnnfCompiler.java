@@ -91,7 +91,7 @@ public class DnnfCompiler {
         if (!cnf.holds(new SATPredicate(f))) {
             return f.falsum();
         }
-        final DTree dTree = generateDTree(generator);
+        final DTree dTree = generateDTree(f, generator);
         return compile(dTree, handler);
     }
 
@@ -134,11 +134,11 @@ public class DnnfCompiler {
         return new Pair<>(f.and(units), f.and(nonUnits));
     }
 
-    protected DTree generateDTree(final DTreeGenerator generator) {
+    protected DTree generateDTree(final FormulaFactory f, final DTreeGenerator generator) {
         if (nonUnitClauses.isAtomicFormula()) {
             return null;
         }
-        final DTree tree = generator.generate(nonUnitClauses);
+        final DTree tree = generator.generate(f, nonUnitClauses);
         tree.initialize(solver);
         return tree;
     }

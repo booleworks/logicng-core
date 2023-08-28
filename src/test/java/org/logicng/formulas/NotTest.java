@@ -170,21 +170,21 @@ public class NotTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsNNF(final FormulaContext _c) {
-        assertThat(_c.not1.isNNF()).isFalse();
-        assertThat(_c.not2.isNNF()).isFalse();
+        assertThat(_c.not1.isNNF(_c.f)).isFalse();
+        assertThat(_c.not2.isNNF(_c.f)).isFalse();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsDNF(final FormulaContext _c) {
-        assertThat(_c.not1.isDNF()).isFalse();
-        assertThat(_c.not2.isDNF()).isFalse();
+        assertThat(_c.not1.isDNF(_c.f)).isFalse();
+        assertThat(_c.not2.isDNF(_c.f)).isFalse();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsCNF(final FormulaContext _c) {
-        assertThat(_c.not1.isCNF()).isFalse();
-        assertThat(_c.not2.isCNF()).isFalse();
+        assertThat(_c.not1.isCNF(_c.f)).isFalse();
+        assertThat(_c.not2.isCNF(_c.f)).isFalse();
     }
 }
