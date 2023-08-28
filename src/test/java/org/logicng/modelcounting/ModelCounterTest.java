@@ -193,7 +193,7 @@ public class ModelCounterTest extends TestWithFormulaContext {
             final Formula formula = _c.f.and(formulas);
             if (!formula.variables().isEmpty()) {
                 // Without PB constraints we can use the BDD model count as reference
-                assertThat(count).isEqualTo(formula.bdd(new ForceOrdering(_c.f)).modelCount());
+                assertThat(count).isEqualTo(formula.bdd(_c.f, new ForceOrdering()).modelCount());
             }
         }
     }

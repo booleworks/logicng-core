@@ -32,15 +32,10 @@ public final class ForceOrdering implements VariableOrderingProvider {
 
     private static final Comparator<? super Map.Entry<HypergraphNode<Variable>, Double>> COMPARATOR = Map.Entry.comparingByValue();
 
-    private final FormulaFactory f;
     private final DFSOrdering dfsOrdering = new DFSOrdering();
 
-    public ForceOrdering(final FormulaFactory f) {
-        this.f = f;
-    }
-
     @Override
-    public List<Variable> getOrder(final Formula formula) {
+    public List<Variable> getOrder(final FormulaFactory f, final Formula formula) {
         final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables());
         final Formula nnf = formula.nnf(f);
         originalVariables.addAll(nnf.variables());
@@ -50,21 +45,14 @@ public final class ForceOrdering implements VariableOrderingProvider {
         for (final HypergraphNode<Variable> node : hypergraph.nodes()) {
             nodes.put(node.content(), node);
         }
-        final List<Variable> ordering = force(cnf, hypergraph, nodes).stream().filter(originalVariables::contains).collect(Collectors.toList());
+        final List<Variable> ordering = force(f, cnf, hypergraph, nodes).stream().filter(originalVariables::contains).collect(Collectors.toList());
         originalVariables.stream().filter(v -> !ordering.contains(v)).forEach(ordering::add);
         return ordering;
     }
 
-    /**
-     * Executes the main FORCE algorithm.
-     * @param formula    the CNF formula for the ordering
-     * @param hypergraph the hyper-graph for this formula
-     * @param nodes      the variable to hyper-graph node mapping
-     * @return the variable ordering according to the FORCE algorithm
-     */
-    private List<Variable> force(final Formula formula, final Hypergraph<Variable> hypergraph,
+    private List<Variable> force(final FormulaFactory f, final Formula formula, final Hypergraph<Variable> hypergraph,
                                  final Map<Variable, HypergraphNode<Variable>> nodes) {
-        final LinkedHashMap<HypergraphNode<Variable>, Integer> initialOrdering = createInitialOrdering(formula, nodes);
+        final LinkedHashMap<HypergraphNode<Variable>, Integer> initialOrdering = createInitialOrdering(f, formula, nodes);
         LinkedHashMap<HypergraphNode<Variable>, Integer> lastOrdering;
         LinkedHashMap<HypergraphNode<Variable>, Integer> currentOrdering = initialOrdering;
         do {
@@ -88,9 +76,10 @@ public final class ForceOrdering implements VariableOrderingProvider {
      * @param nodes   the variable to hyper-graph node mapping
      * @return the initial variable ordering
      */
-    private LinkedHashMap<HypergraphNode<Variable>, Integer> createInitialOrdering(final Formula formula, final Map<Variable, HypergraphNode<Variable>> nodes) {
+    private LinkedHashMap<HypergraphNode<Variable>, Integer> createInitialOrdering(final FormulaFactory f, final Formula formula,
+                                                                                   final Map<Variable, HypergraphNode<Variable>> nodes) {
         final LinkedHashMap<HypergraphNode<Variable>, Integer> initialOrdering = new LinkedHashMap<>();
-        final List<Variable> dfsOrder = dfsOrdering.getOrder(formula);
+        final List<Variable> dfsOrder = dfsOrdering.getOrder(f, formula);
         for (int i = 0; i < dfsOrder.size(); i++) {
             initialOrdering.put(nodes.get(dfsOrder.get(i)), i);
         }

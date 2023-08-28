@@ -101,10 +101,10 @@ public class CNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testCC(final FormulaContext _c) throws ParserException {
-        assertThat(_c.p.parse("a <=> (1 * b <= 1)").cnf()).isEqualTo(_c.p.parse("a"));
-        assertThat(_c.p.parse("~(1 * b <= 1)").cnf()).isEqualTo(_c.p.parse("$false"));
-        assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").cnf()).isEqualTo(_c.p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
-        assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").cnf()).isEqualTo(_c.p.parse("(d | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | d | @RESERVED_CC_4) & (~@RESERVED_CC_4 | @RESERVED_CC_0) & (~@RESERVED_CC_2 | @RESERVED_CC_0) & (~@RESERVED_CC_4 | ~@RESERVED_CC_2) & (c | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | c | @RESERVED_CC_5) & (~@RESERVED_CC_5 | @RESERVED_CC_2) & ~@RESERVED_CC_0"));
+        assertThat(_c.p.parse("a <=> (1 * b <= 1)").cnf(_c.f)).isEqualTo(_c.p.parse("a"));
+        assertThat(_c.p.parse("~(1 * b <= 1)").cnf(_c.f)).isEqualTo(_c.p.parse("$false"));
+        assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").cnf(_c.f)).isEqualTo(_c.p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
+        assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").cnf(_c.f)).isEqualTo(_c.p.parse("(d | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | d | @RESERVED_CC_4) & (~@RESERVED_CC_4 | @RESERVED_CC_0) & (~@RESERVED_CC_2 | @RESERVED_CC_0) & (~@RESERVED_CC_4 | ~@RESERVED_CC_2) & (c | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | c | @RESERVED_CC_5) & (~@RESERVED_CC_5 | @RESERVED_CC_2) & ~@RESERVED_CC_0"));
     }
 
     @ParameterizedTest

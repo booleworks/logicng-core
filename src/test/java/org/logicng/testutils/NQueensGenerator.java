@@ -42,42 +42,42 @@ public class NQueensGenerator {
 
         for (int i = 0; i < n; i++) {
             vars.addAll(Arrays.asList(varNames[i]).subList(0, n));
-            operands.add(f.exo(vars).cnf());
+            operands.add(f.exo(vars).cnf(f));
             vars.clear();
         }
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 vars.add(varNames[j][i]);
             }
-            operands.add(f.exo(vars).cnf());
+            operands.add(f.exo(vars).cnf(f));
             vars.clear();
         }
         for (int i = 0; i < n - 1; i++) {
             for (int j = 0; j < n - i; j++) {
                 vars.add(varNames[j][i + j]);
             }
-            operands.add(f.amo(vars).cnf());
+            operands.add(f.amo(vars).cnf(f));
             vars.clear();
         }
         for (int i = 1; i < n - 1; i++) {
             for (int j = 0; j < n - i; j++) {
                 vars.add(varNames[j + i][j]);
             }
-            operands.add(f.amo(vars).cnf());
+            operands.add(f.amo(vars).cnf(f));
             vars.clear();
         }
         for (int i = 0; i < n - 1; i++) {
             for (int j = 0; j < n - i; j++) {
                 vars.add(varNames[j][n - 1 - (i + j)]);
             }
-            operands.add(f.amo(vars).cnf());
+            operands.add(f.amo(vars).cnf(f));
             vars.clear();
         }
         for (int i = 1; i < n - 1; i++) {
             for (int j = 0; j < n - i; j++) {
                 vars.add(varNames[j + i][n - 1 - j]);
             }
-            operands.add(f.amo(vars).cnf());
+            operands.add(f.amo(vars).cnf(f));
             vars.clear();
         }
         return f.and(operands);

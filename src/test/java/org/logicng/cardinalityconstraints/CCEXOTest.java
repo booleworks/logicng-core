@@ -34,18 +34,18 @@ public class CCEXOTest implements LogicNGTest {
     private final CCConfig[] configs;
 
     public CCEXOTest() {
-        this.configs = new CCConfig[11];
-        this.configs[0] = CCConfig.builder().amoEncoding(PURE).build();
-        this.configs[1] = CCConfig.builder().amoEncoding(LADDER).build();
-        this.configs[2] = CCConfig.builder().amoEncoding(PRODUCT).build();
-        this.configs[3] = CCConfig.builder().amoEncoding(BINARY).build();
-        this.configs[4] = CCConfig.builder().amoEncoding(NESTED).build();
-        this.configs[5] = CCConfig.builder().amoEncoding(COMMANDER).commanderGroupSize(3).build();
-        this.configs[6] = CCConfig.builder().amoEncoding(COMMANDER).commanderGroupSize(7).build();
-        this.configs[7] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(FIXED).build();
-        this.configs[8] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(HALF).build();
-        this.configs[9] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(SQRT).build();
-        this.configs[10] = CCConfig.builder().amoEncoding(BEST).build();
+        configs = new CCConfig[11];
+        configs[0] = CCConfig.builder().amoEncoding(PURE).build();
+        configs[1] = CCConfig.builder().amoEncoding(LADDER).build();
+        configs[2] = CCConfig.builder().amoEncoding(PRODUCT).build();
+        configs[3] = CCConfig.builder().amoEncoding(BINARY).build();
+        configs[4] = CCConfig.builder().amoEncoding(NESTED).build();
+        configs[5] = CCConfig.builder().amoEncoding(COMMANDER).commanderGroupSize(3).build();
+        configs[6] = CCConfig.builder().amoEncoding(COMMANDER).commanderGroupSize(7).build();
+        configs[7] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(FIXED).build();
+        configs[8] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(HALF).build();
+        configs[9] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(SQRT).build();
+        configs[10] = CCConfig.builder().amoEncoding(BEST).build();
     }
 
     @Test
@@ -59,7 +59,7 @@ public class CCEXOTest implements LogicNGTest {
     public void testEXO1() {
         final FormulaFactory f = FormulaFactory.caching();
         final CardinalityConstraint cc = (CardinalityConstraint) f.exo(f.variable("v0"));
-        for (final CCConfig config : this.configs) {
+        for (final CCConfig config : configs) {
             assertThat(CCEncoder.encode(cc, f, config)).containsExactly(f.variable("v0"));
         }
         assertThat(f.newCCVariable().name()).endsWith("_0");
@@ -69,7 +69,7 @@ public class CCEXOTest implements LogicNGTest {
     public void testEXOK() {
         final FormulaFactory f = FormulaFactory.caching();
         int counter = 0;
-        for (final CCConfig config : this.configs) {
+        for (final CCConfig config : configs) {
             if (config != null) {
                 f.putConfiguration(config);
                 testEXO(2, f);
@@ -87,19 +87,19 @@ public class CCEXOTest implements LogicNGTest {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(CCConfig.builder().amoEncoding(PURE).build());
         final CardinalityConstraint exo = (CardinalityConstraint) f.exo(IntStream.range(0, 100).mapToObj(i -> f.variable("v" + i)).collect(Collectors.toList()));
-        assertThat(exo.cnf().variables()).hasSize(100);
-        assertThat(exo.cnf().numberOfOperands()).isEqualTo(4951);
+        assertThat(exo.cnf(f).variables()).hasSize(100);
+        assertThat(exo.cnf(f).numberOfOperands()).isEqualTo(4951);
     }
 
     @Test
     public void testToString() {
-        assertThat(this.configs[0].amoEncoder.toString()).isEqualTo("PURE");
-        assertThat(this.configs[1].amoEncoder.toString()).isEqualTo("LADDER");
-        assertThat(this.configs[2].amoEncoder.toString()).isEqualTo("PRODUCT");
-        assertThat(this.configs[3].amoEncoder.toString()).isEqualTo("BINARY");
-        assertThat(this.configs[4].amoEncoder.toString()).isEqualTo("NESTED");
-        assertThat(this.configs[5].amoEncoder.toString()).isEqualTo("COMMANDER");
-        assertThat(this.configs[7].amoEncoder.toString()).isEqualTo("BIMANDER");
+        assertThat(configs[0].amoEncoder.toString()).isEqualTo("PURE");
+        assertThat(configs[1].amoEncoder.toString()).isEqualTo("LADDER");
+        assertThat(configs[2].amoEncoder.toString()).isEqualTo("PRODUCT");
+        assertThat(configs[3].amoEncoder.toString()).isEqualTo("BINARY");
+        assertThat(configs[4].amoEncoder.toString()).isEqualTo("NESTED");
+        assertThat(configs[5].amoEncoder.toString()).isEqualTo("COMMANDER");
+        assertThat(configs[7].amoEncoder.toString()).isEqualTo("BIMANDER");
     }
 
     private void testEXO(final int numLits, final FormulaFactory f) {

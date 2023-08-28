@@ -20,15 +20,15 @@ public class BFSOrderingTest {
     public void testSimpleCases() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
-        assertThat(this.ordering.getOrder(p.parse("$true"))).isEmpty();
-        assertThat(this.ordering.getOrder(p.parse("$false"))).isEmpty();
-        assertThat(this.ordering.getOrder(p.parse("A"))).containsExactly(f.variable("A"));
-        assertThat(this.ordering.getOrder(p.parse("A => ~B"))).containsExactly(f.variable("A"), f.variable("B"));
-        assertThat(this.ordering.getOrder(p.parse("A <=> ~B"))).containsExactly(f.variable("A"), f.variable("B"));
-        assertThat(this.ordering.getOrder(p.parse("~(A <=> ~B)"))).containsExactly(f.variable("A"), f.variable("B"));
-        assertThat(this.ordering.getOrder(p.parse("A | ~C | B | D"))).containsExactly(f.variable("A"), f.variable("B"), f.variable("D"), f.variable("C"));
-        assertThat(this.ordering.getOrder(p.parse("A & ~C & B & D"))).containsExactly(f.variable("A"), f.variable("B"), f.variable("D"), f.variable("C"));
-        assertThat(this.ordering.getOrder(p.parse("A + C + B + D < 2"))).containsExactly(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
+        assertThat(ordering.getOrder(f, p.parse("$true"))).isEmpty();
+        assertThat(ordering.getOrder(f, p.parse("$false"))).isEmpty();
+        assertThat(ordering.getOrder(f, p.parse("A"))).containsExactly(f.variable("A"));
+        assertThat(ordering.getOrder(f, p.parse("A => ~B"))).containsExactly(f.variable("A"), f.variable("B"));
+        assertThat(ordering.getOrder(f, p.parse("A <=> ~B"))).containsExactly(f.variable("A"), f.variable("B"));
+        assertThat(ordering.getOrder(f, p.parse("~(A <=> ~B)"))).containsExactly(f.variable("A"), f.variable("B"));
+        assertThat(ordering.getOrder(f, p.parse("A | ~C | B | D"))).containsExactly(f.variable("A"), f.variable("B"), f.variable("D"), f.variable("C"));
+        assertThat(ordering.getOrder(f, p.parse("A & ~C & B & D"))).containsExactly(f.variable("A"), f.variable("B"), f.variable("D"), f.variable("C"));
+        assertThat(ordering.getOrder(f, p.parse("A + C + B + D < 2"))).containsExactly(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
     }
 
     @Test
@@ -37,7 +37,7 @@ public class BFSOrderingTest {
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (W + A + F < 1)))");
 
-        assertThat(this.ordering.getOrder(formula)).containsExactly(
+        assertThat(ordering.getOrder(f, formula)).containsExactly(
                 f.variable("A"),
                 f.variable("Y"),
                 f.variable("X"),

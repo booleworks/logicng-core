@@ -140,8 +140,8 @@ public class DnnfCompilerTest {
         } else if (formula.type() == FType.FALSE) {
             return BigInteger.ZERO;
         }
-        final BDDKernel kernel = new BDDKernel(formula.factory(), new ForceOrdering(formula.factory()).getOrder(formula), 100000, 1000000);
-        final BDD bdd = BDDFactory.build(formula, kernel);
+        final BDDKernel kernel = new BDDKernel(formula.factory(), new ForceOrdering().getOrder(formula.factory(), formula), 100000, 1000000);
+        final BDD bdd = BDDFactory.build(formula.factory(), formula, kernel);
         return bdd.modelCount();
     }
 }

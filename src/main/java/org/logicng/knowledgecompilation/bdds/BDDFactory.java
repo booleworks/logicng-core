@@ -66,39 +66,12 @@ public final class BDDFactory {
      * pseudo-Boolean constraints this number depends on the translation of the constraint.  Therefore, the caller first
      * has to transform any pseudo-Boolean constraints in their respective CNF representation before converting them
      * to a BDD.
-     * @param formula the formula
-     * @return the top node of the BDD
-     */
-    public static BDD build(final Formula formula) {
-        return build(formula.factory(), formula, null, null);
-    }
-
-    /**
-     * Builds a BDD for a given formula.  BDDs support all Boolean formula types but not pseudo-Boolean constraints.
-     * The reason is that before converting a formula to a BDD one must specify the number of variables.  In case of
-     * pseudo-Boolean constraints this number depends on the translation of the constraint.  Therefore, the caller first
-     * has to transform any pseudo-Boolean constraints in their respective CNF representation before converting them
-     * to a BDD.
      * @param f       the formula factory to generate new formulas
      * @param formula the formula
      * @return the top node of the BDD
      */
     public static BDD build(final FormulaFactory f, final Formula formula) {
         return build(f, formula, null, null);
-    }
-
-    /**
-     * Builds a BDD for a given formula.  BDDs support all Boolean formula types but not pseudo-Boolean constraints.
-     * The reason is that before converting a formula to a BDD one must specify the number of variables.  In case of
-     * pseudo-Boolean constraints this number depends on the translation of the constraint.  Therefore, the caller first
-     * has to transform any pseudo-Boolean constraints in their respective CNF representation before converting them
-     * to a BDD.
-     * @param formula the formula
-     * @param kernel  the BBD kernel to use
-     * @return the top node of the BDD or {@link BDDKernel#BDD_ABORT} if the computation was aborted
-     */
-    public static BDD build(final Formula formula, final BDDKernel kernel) {
-        return build(formula.factory(), formula, kernel, null);
     }
 
     /**

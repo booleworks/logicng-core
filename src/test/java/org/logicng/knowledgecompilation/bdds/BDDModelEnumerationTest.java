@@ -32,7 +32,7 @@ public class BDDModelEnumerationTest {
 
     public BDDModelEnumerationTest() {
         final int[] problems = new int[]{3, 4, 5, 6, 7, 8, 9};
-        this.expected = new BigInteger[]{
+        expected = new BigInteger[]{
                 BigInteger.valueOf(0),
                 BigInteger.valueOf(2),
                 BigInteger.valueOf(10),
@@ -42,36 +42,36 @@ public class BDDModelEnumerationTest {
                 BigInteger.valueOf(352)
         };
 
-        this.f = FormulaFactory.caching();
-        final NQueensGenerator generator = new NQueensGenerator(this.f);
-        this.formulas = new ArrayList<>(problems.length);
-        this.variables = new ArrayList<>(problems.length);
+        f = FormulaFactory.caching();
+        final NQueensGenerator generator = new NQueensGenerator(f);
+        formulas = new ArrayList<>(problems.length);
+        variables = new ArrayList<>(problems.length);
 
         for (final int problem : problems) {
             final Formula p = generator.generate(problem);
-            this.formulas.add(p);
-            this.variables.add(p.variables());
+            formulas.add(p);
+            variables.add(p.variables());
         }
     }
 
     @Test
     public void testModelCount() {
-        for (int i = 0; i < this.formulas.size(); i++) {
-            final BDDKernel kernel = new BDDKernel(this.f, this.variables.get(i).size(), 10000, 10000);
-            final BDD bdd = BDDFactory.build(this.formulas.get(i), kernel);
-            assertThat(bdd.modelCount()).isEqualTo(this.expected[i]);
+        for (int i = 0; i < formulas.size(); i++) {
+            final BDDKernel kernel = new BDDKernel(f, variables.get(i).size(), 10000, 10000);
+            final BDD bdd = BDDFactory.build(f, formulas.get(i), kernel);
+            assertThat(bdd.modelCount()).isEqualTo(expected[i]);
         }
     }
 
     @Test
     public void testModelEnumeration() {
-        for (int i = 0; i < this.formulas.size(); i++) {
-            final BDDKernel kernel = new BDDKernel(this.f, this.variables.get(i).size(), 10000, 10000);
-            final BDD bdd = BDDFactory.build(this.formulas.get(i), kernel);
+        for (int i = 0; i < formulas.size(); i++) {
+            final BDDKernel kernel = new BDDKernel(f, variables.get(i).size(), 10000, 10000);
+            final BDD bdd = BDDFactory.build(f, formulas.get(i), kernel);
             final Set<Assignment> models = new HashSet<>(bdd.enumerateAllModels());
-            assertThat(models.size()).isEqualTo(this.expected[i].intValue());
+            assertThat(models.size()).isEqualTo(expected[i].intValue());
             for (final Assignment model : models) {
-                assertThat(this.formulas.get(i).evaluate(model)).isTrue();
+                assertThat(formulas.get(i).evaluate(model)).isTrue();
             }
         }
     }
@@ -79,9 +79,9 @@ public class BDDModelEnumerationTest {
     @Test
     public void testExo() {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula constraint = f.exo(generateVariables(100, f)).cnf();
+        final Formula constraint = f.exo(generateVariables(100, f)).cnf(f);
         final BDDKernel kernel = new BDDKernel(f, constraint.variables().size(), 100000, 1000000);
-        final BDD bdd = BDDFactory.build(constraint, kernel);
+        final BDD bdd = BDDFactory.build(f, constraint, kernel);
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(100));
         assertThat(bdd.enumerateAllModels()).hasSize(100);
     }
@@ -89,9 +89,9 @@ public class BDDModelEnumerationTest {
     @Test
     public void testExk() {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula constraint = f.cc(CType.EQ, 8, generateVariables(15, f)).cnf();
+        final Formula constraint = f.cc(CType.EQ, 8, generateVariables(15, f)).cnf(f);
         final BDDKernel kernel = new BDDKernel(f, constraint.variables().size(), 100000, 1000000);
-        final BDD bdd = BDDFactory.build(constraint, kernel);
+        final BDD bdd = BDDFactory.build(f, constraint, kernel);
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(6435));
         assertThat(bdd.enumerateAllModels()).hasSize(6435);
     }
@@ -99,9 +99,9 @@ public class BDDModelEnumerationTest {
     @Test
     public void testAmo() {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula constraint = f.amo(generateVariables(100, f)).cnf();
+        final Formula constraint = f.amo(generateVariables(100, f)).cnf(f);
         final BDDKernel kernel = new BDDKernel(f, constraint.variables().size(), 100000, 1000000);
-        final BDD bdd = BDDFactory.build(constraint, kernel);
+        final BDD bdd = BDDFactory.build(f, constraint, kernel);
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(221));
         assertThat(bdd.enumerateAllModels(generateVariables(100, f))).hasSize(101);
     }

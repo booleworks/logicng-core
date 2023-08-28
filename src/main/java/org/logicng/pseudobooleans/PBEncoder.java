@@ -54,15 +54,6 @@ public class PBEncoder {
     /**
      * Encodes a pseudo-Boolean constraint and returns its CNF encoding.
      * @param constraint the pseudo-Boolean constraint
-     * @return the CNF encoding of the pseudo-Boolean constraint
-     */
-    public static List<Formula> encode(final PBConstraint constraint) {
-        return encode(constraint, constraint.factory(), null, null);
-    }
-
-    /**
-     * Encodes a pseudo-Boolean constraint and returns its CNF encoding.
-     * @param constraint the pseudo-Boolean constraint
      * @param f          the formula factory to generate new formulas
      * @param pbConfig   the pseudo-Boolean encoder configuration
      * @param ccConfig   the cardinality constraints encoder configuration

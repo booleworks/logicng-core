@@ -128,7 +128,7 @@ public class CachingFormulaFactoryTest {
         final Variable c = f.variable("C");
         final Variable d = f.variable("D");
         final Formula clause1 = f.or(a, b);
-        final Formula clause2 = f.or(c, d.negate());
+        final Formula clause2 = f.or(c, d.negate(f));
         final Formula nClause1 = f.implication(a, c);
 
         final List<Formula> clauses = new ArrayList<>();
@@ -142,8 +142,8 @@ public class CachingFormulaFactoryTest {
 
         final Formula cnf = f.cnf(clauses);
         final Formula nCnf = f.cnf(nClauses);
-        assertThat(cnf.cnf()).isEqualTo(cnf);
-        assertThat(nCnf.cnf()).isNotEqualTo(nCnf);
+        assertThat(cnf.cnf(f)).isEqualTo(cnf);
+        assertThat(nCnf.cnf(f)).isNotEqualTo(nCnf);
         assertThat(f.cnf(Collections.emptyList())).isEqualTo(f.verum());
     }
 

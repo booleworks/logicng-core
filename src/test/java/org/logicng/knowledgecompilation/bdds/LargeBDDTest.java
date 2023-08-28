@@ -37,7 +37,7 @@ public class LargeBDDTest {
     private void testPigeonHole(final FormulaFactory f, final PigeonHoleGenerator generator, final int size) {
         final Formula pigeon = generator.generate(size);
         final BDDKernel kernel = new BDDKernel(f, pigeon.variables().size(), 10000, 10000);
-        final BDD bdd = BDDFactory.build(pigeon, kernel);
+        final BDD bdd = BDDFactory.build(f, pigeon, kernel);
         assertThat(bdd.isContradiction()).isTrue();
     }
 
@@ -55,10 +55,10 @@ public class LargeBDDTest {
     private void testQueens(final FormulaFactory f, final NQueensGenerator generator, final int size, final int models) {
         final Formula queens = generator.generate(size);
         final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
-        final BDD bdd = BDDFactory.build(queens, kernel);
+        final BDD bdd = BDDFactory.build(f, queens, kernel);
         final Formula cnf = bdd.cnf();
         assertThat(cnf.isCNF(f)).isTrue();
-        final BDD cnfBDD = BDDFactory.build(cnf, kernel);
+        final BDD cnfBDD = BDDFactory.build(f, cnf, kernel);
         assertThat(cnfBDD).isEqualTo(bdd);
         assertThat(bdd.support()).isEqualTo(queens.variables());
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(models));

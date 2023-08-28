@@ -34,49 +34,49 @@ public class BDDConstructionTests {
         kernel = new BDDKernel(f, variables, 1000, 10000);
         initFormula = f.parse("(a & b) => (c | d & ~e)");
         secondFormula = f.parse("(g & f) <=> (c | ~a | ~d)");
-        initBdd = BDDFactory.build(initFormula, kernel);
-        secondBdd = BDDFactory.build(secondFormula, kernel);
+        initBdd = BDDFactory.build(f, initFormula, kernel);
+        secondBdd = BDDFactory.build(f, secondFormula, kernel);
     }
 
     @Test
     public void testNegation() {
         final BDD negation = initBdd.negate();
-        final BDD expected = BDDFactory.build(initFormula.negate(), kernel);
+        final BDD expected = BDDFactory.build(f, initFormula.negate(f), kernel);
         assertThat(negation).isEqualTo(expected);
     }
 
     @Test
     public void testImplies() {
         final BDD implication = initBdd.implies(secondBdd);
-        final BDD expected = BDDFactory.build(f.implication(initFormula, secondFormula), kernel);
+        final BDD expected = BDDFactory.build(f, f.implication(initFormula, secondFormula), kernel);
         assertThat(implication).isEqualTo(expected);
     }
 
     @Test
     public void testIsImplied() {
         final BDD implication = initBdd.impliedBy(secondBdd);
-        final BDD expected = BDDFactory.build(f.implication(secondFormula, initFormula), kernel);
+        final BDD expected = BDDFactory.build(f, f.implication(secondFormula, initFormula), kernel);
         assertThat(implication).isEqualTo(expected);
     }
 
     @Test
     public void testEquivalence() {
         final BDD equivalence = initBdd.equivalence(secondBdd);
-        final BDD expected = BDDFactory.build(f.equivalence(secondFormula, initFormula), kernel);
+        final BDD expected = BDDFactory.build(f, f.equivalence(secondFormula, initFormula), kernel);
         assertThat(equivalence).isEqualTo(expected);
     }
 
     @Test
     public void testAnd() {
         final BDD and = initBdd.and(secondBdd);
-        final BDD expected = BDDFactory.build(f.and(secondFormula, initFormula), kernel);
+        final BDD expected = BDDFactory.build(f, f.and(secondFormula, initFormula), kernel);
         assertThat(and).isEqualTo(expected);
     }
 
     @Test
     public void testOr() {
         final BDD or = initBdd.or(secondBdd);
-        final BDD expected = BDDFactory.build(f.or(secondFormula, initFormula), kernel);
+        final BDD expected = BDDFactory.build(f, f.or(secondFormula, initFormula), kernel);
         assertThat(or).isEqualTo(expected);
     }
 }

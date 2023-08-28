@@ -54,7 +54,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
             final BDDKernel kernel = new BDDKernel(_c.f, List.of(_c.a, _c.b), 100, 100);
             final BDDReordering reordering = new BDDReordering(kernel);
             final Formula formula = _c.f.parse("a | b");
-            BDDFactory.build(formula, kernel);
+            BDDFactory.build(_c.f, formula, kernel);
             reordering.swapVariables(0, 2);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Unknown variable number: " + 2);
@@ -62,7 +62,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
             final BDDKernel kernel = new BDDKernel(_c.f, List.of(_c.a, _c.b), 100, 100);
             final BDDReordering reordering = new BDDReordering(kernel);
             final Formula formula = _c.f.parse("a | b");
-            BDDFactory.build(formula, kernel);
+            BDDFactory.build(_c.f, formula, kernel);
             reordering.swapVariables(3, 0);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Unknown variable number: " + 3);
@@ -73,7 +73,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
     public void testSwapping(final FormulaContext _c) throws ParserException {
         final BDDKernel kernel = new BDDKernel(_c.f, List.of(_c.a, _c.b, _c.c), 100, 100);
         final Formula formula = _c.f.parse("a | b | c");
-        final BDD bdd = BDDFactory.build(formula, kernel);
+        final BDD bdd = BDDFactory.build(_c.f, formula, kernel);
         assertThat(bdd.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
         bdd.swapVariables(_c.a, _c.b);
         assertThat(bdd.getVariableOrder()).containsExactly(_c.b, _c.a, _c.c);
@@ -101,8 +101,8 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         final BDDKernel kernel = new BDDKernel(_c.f, List.of(_c.a, _c.b, _c.c), 100, 100);
         final Formula formula1 = _c.f.parse("a | b | c");
         final Formula formula2 = _c.f.parse("a & b");
-        final BDD bdd1 = BDDFactory.build(formula1, kernel);
-        final BDD bdd2 = BDDFactory.build(formula2, kernel);
+        final BDD bdd1 = BDDFactory.build(_c.f, formula1, kernel);
+        final BDD bdd2 = BDDFactory.build(_c.f, formula2, kernel);
         assertThat(bdd1.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
         assertThat(bdd2.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
         assertThat(bdd2.apply(new LngBDDFunction(_c.f))).isEqualTo(
@@ -167,7 +167,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
 
     private void performReorder(final FormulaFactory f, final Formula formula, final BDDReorderingMethod reorderMethod, final boolean withBlocks, final boolean verbose) {
         final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables()), 1000, 10000);
-        final BDD bdd = BDDFactory.build(formula, kernel);
+        final BDD bdd = BDDFactory.build(f, formula, kernel);
         final BigInteger count = bdd.modelCount();
         final int usedBefore = new BDDOperations(kernel).nodeCount(bdd.index());
         final long start = System.currentTimeMillis();
@@ -214,7 +214,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
                     System.out.println(String.format("vars = %2d, depth = %2d, nodes = %5d", vars, depth, formula.numberOfNodes()));
                 }
                 final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables()), 1000, 10000);
-                final BDD bdd = BDDFactory.build(formula, kernel);
+                final BDD bdd = BDDFactory.build(f, formula, kernel);
                 final int nodeCount = new BDDOperations(kernel).nodeCount(bdd.index());
                 final BigInteger modelCount = bdd.modelCount();
                 for (final BDDReorderingMethod method : REORDER_METHODS) {
@@ -233,7 +233,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         addVariableBlocks(formula.variables().size(), withBlocks, kernel);
         kernel.getReordering().setReorderDuringConstruction(method, 10000);
         final long start = System.currentTimeMillis();
-        final BDD bdd = BDDFactory.build(formula, kernel);
+        final BDD bdd = BDDFactory.build(f, formula, kernel);
         final long duration = System.currentTimeMillis() - start;
         final int usedAfter = new BDDOperations(kernel).nodeCount(bdd.index());
         verifyVariableBlocks(f, formula, withBlocks, bdd);

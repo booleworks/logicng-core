@@ -6,6 +6,7 @@ package org.logicng.knowledgecompilation.bdds.orderings;
 
 import org.logicng.formulas.BinaryOperator;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Not;
 import org.logicng.formulas.PBConstraint;
@@ -24,7 +25,7 @@ import java.util.List;
 public final class DFSOrdering implements VariableOrderingProvider {
 
     @Override
-    public List<Variable> getOrder(final Formula formula) {
+    public List<Variable> getOrder(final FormulaFactory f, final Formula formula) {
         final LinkedHashSet<Variable> order = new LinkedHashSet<>(formula.variables().size());
         dfs(formula, order);
         return new ArrayList<>(order);

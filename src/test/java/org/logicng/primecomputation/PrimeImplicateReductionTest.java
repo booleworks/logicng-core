@@ -44,8 +44,8 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
                 .containsAnyOf(_c.a, _c.b).hasSize(1);
 
         final NaivePrimeReduction naive02 = new NaivePrimeReduction(_c.f, _c.f.parse("(a => b) | b | c"));
-        assertThat(naive02.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.a.negate(), _c.b, _c.c))))
-                .containsExactly(_c.a.negate(), _c.b, _c.c);
+        assertThat(naive02.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.a.negate(_c.f), _c.b, _c.c))))
+                .containsExactly(_c.a.negate(_c.f), _c.b, _c.c);
 
         final NaivePrimeReduction naive03 = new NaivePrimeReduction(_c.f, _c.f.parse("(a => b) & b & c"));
         assertThat(naive03.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.b, _c.c))))
@@ -116,7 +116,7 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
     private void testFormula(final Formula formula, final SATHandler handler, final boolean expAborted) {
         final FormulaFactory f = formula.factory();
         final MiniSat solver = MiniSat.miniSat(f);
-        solver.add(formula.negate());
+        solver.add(formula.negate(f));
         final boolean isSAT = solver.sat() == Tristate.TRUE;
         if (!isSAT) {
             return;

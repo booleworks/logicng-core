@@ -59,8 +59,8 @@ public class FormulaMergeTest {
         assertThatThrownBy(() -> _c.f.clause(a1, b1, c2)).isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> _c.f.cnf(_c.f.clause(a1, b1), _c.f.clause(a1, c1), c2)).isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> _c.f.cnf(_c.f.clause(a1, b1), g.clause(a2, c2), c1)).isInstanceOf(UnsupportedOperationException.class);
-        assertThatThrownBy(() -> _c.f.pbc(CType.GE, 1, new Literal[]{a1, b2.negate(), c1}, new int[]{1, 2, 3})).isInstanceOf(UnsupportedOperationException.class);
-        assertThatThrownBy(() -> _c.f.pbc(CType.GE, 1, new Literal[]{a2, b2, c2.negate()}, new int[]{1, 2, 3})).isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> _c.f.pbc(CType.GE, 1, new Literal[]{a1, b2.negate(g), c1}, new int[]{1, 2, 3})).isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> _c.f.pbc(CType.GE, 1, new Literal[]{a2, b2, c2.negate(g)}, new int[]{1, 2, 3})).isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> _c.f.cc(CType.GE, 1, a1, b2, c1)).isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> _c.f.cc(CType.GE, 1, a2, b2, c2)).isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> _c.f.amo(a1, b2, c1)).isInstanceOf(UnsupportedOperationException.class);
@@ -92,8 +92,8 @@ public class FormulaMergeTest {
         assertThat(_c.f.clause(a1, b1, c2)).isEqualTo(g.clause(a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
         assertThat(_c.f.cnf(_c.f.clause(a1, b1), _c.f.clause(a1, c1), c2)).isNotNull().allMatch(it -> it.factory() == _c.f);
         assertThat(_c.f.cnf(_c.f.clause(a1, b1), g.clause(a2, c2), c1)).isNotNull().allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.pbc(CType.GE, 1, new Literal[]{a1, b2.negate(), c1}, new int[]{1, 2, 3})).isNotNull().allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.pbc(CType.GE, 1, new Literal[]{a2, b2, c2.negate()}, new int[]{1, 2, 3})).isNotNull().allMatch(it -> it.factory() == _c.f);
+        assertThat(_c.f.pbc(CType.GE, 1, new Literal[]{a1, b2.negate(g), c1}, new int[]{1, 2, 3})).isNotNull().allMatch(it -> it.factory() == _c.f);
+        assertThat(_c.f.pbc(CType.GE, 1, new Literal[]{a2, b2, c2.negate(g)}, new int[]{1, 2, 3})).isNotNull().allMatch(it -> it.factory() == _c.f);
         assertThat(_c.f.cc(CType.GE, 1, a1, b2, c1)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
         assertThat(_c.f.cc(CType.GE, 1, a2, b2, c2)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
         assertThat(_c.f.amo(a1, b2, c1)).isEqualTo(g.amo(a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
@@ -140,8 +140,8 @@ public class FormulaMergeTest {
         assertThat(f.cnf(g.clause(a2, b2), g.clause(a2, c2), c2)).isNotNull().allMatch(it -> it.factory() == g);
         assertThat(f.cnf(g.clause(a2, b2), g.clause(a2, c2), c2).factory()).isEqualTo(f);
         assertThat(f.cnf(f.clause(a1, b1), g.clause(a2, c2), c1)).isNotNull();
-        assertThat(f.pbc(CType.GE, 1, new Literal[]{a1, b2.negate(), c1}, new int[]{1, 2, 3})).isNotNull().allMatch(it -> it.factory() == g);
-        assertThat(f.pbc(CType.GE, 1, new Literal[]{a2, b2, c2.negate()}, new int[]{1, 2, 3})).isNotNull().allMatch(it -> it.factory() == g);
+        assertThat(f.pbc(CType.GE, 1, new Literal[]{a1, b2.negate(g), c1}, new int[]{1, 2, 3})).isNotNull().allMatch(it -> it.factory() == g);
+        assertThat(f.pbc(CType.GE, 1, new Literal[]{a2, b2, c2.negate(g)}, new int[]{1, 2, 3})).isNotNull().allMatch(it -> it.factory() == g);
         assertThat(f.cc(CType.GE, 1, a1, b2, c1)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2)).allMatch(it -> it.factory() == g);
         assertThat(f.cc(CType.GE, 1, a2, b2, c2)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2)).allMatch(it -> it.factory() == g);
         assertThat(f.amo(a1, b2, c1)).isEqualTo(g.amo(a2, b2, c2)).allMatch(it -> it.factory() == g);

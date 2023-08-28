@@ -641,7 +641,7 @@ public class EvaluatesToConstantPredicateTest extends TestWithFormulaContext {
                     assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::phase)));
             final EvaluatesToConstantPredicate trueEvaluation = new EvaluatesToConstantPredicate(_c.f, true,
                     assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::phase)));
-            final Formula restricted = formula.restrict(assignment);
+            final Formula restricted = formula.restrict(assignment, _c.f);
             assertThat(restricted.type() == FType.FALSE).isEqualTo(formula.holds(falseEvaluation));
             assertThat(restricted.type() == FType.TRUE).isEqualTo(formula.holds(trueEvaluation));
         }
@@ -663,7 +663,7 @@ public class EvaluatesToConstantPredicateTest extends TestWithFormulaContext {
                     assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::phase)));
             final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, FormulaRandomizerConfig.builder().numVars(10).weightPbc(1).seed(i * 42).build());
             final Formula formula = randomizer.formula(6);
-            final Formula restricted = formula.restrict(assignment);
+            final Formula restricted = formula.restrict(assignment, _c.f);
             assertThat(restricted.type() == FType.FALSE).isEqualTo(formula.holds(falseEvaluation));
             assertThat(restricted.type() == FType.TRUE).isEqualTo(formula.holds(trueEvaluation));
         }
