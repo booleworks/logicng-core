@@ -87,6 +87,6 @@ public abstract class BDDNormalFormTransformation extends CacheableAndStatefulFo
     }
 
     private boolean hasNormalForm(final Formula formula, final boolean cnf) {
-        return cnf ? formula.isCNF() : formula.isDNF();
+        return cnf ? formula.isCNF(f) : formula.isDNF(f);
     }
 }

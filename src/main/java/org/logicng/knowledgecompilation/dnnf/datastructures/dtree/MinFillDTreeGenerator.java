@@ -6,6 +6,7 @@ package org.logicng.knowledgecompilation.dnnf.datastructures.dtree;
 
 import org.logicng.collections.LNGIntVector;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
@@ -24,10 +25,10 @@ import java.util.SortedSet;
 public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
 
     @Override
-    public DTree generate(final Formula cnf) {
+    public DTree generate(final FormulaFactory f, final Formula cnf) {
         final Graph graph = new Graph(cnf);
         final List<Variable> ordering = graph.getMinFillOrdering();
-        return generateWithEliminatingOrder(cnf, ordering);
+        return generateWithEliminatingOrder(f, cnf, ordering);
     }
 
     /**

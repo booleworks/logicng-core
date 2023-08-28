@@ -48,13 +48,13 @@ public class CNFTest extends TestWithFormulaContext {
         assertThat(_c.imp3.transform(cnf)).isEqualTo(_c.p.parse("~a | ~b | x | y"));
         assertThat(_c.eq1.transform(cnf)).isEqualTo(_c.p.parse("(a | ~b) & (~a | b)"));
         assertThat(_c.eq2.transform(cnf)).isEqualTo(_c.p.parse("(~a | b) & (a | ~b)"));
-        assertThat(_c.imp1.transform(cnf).isCNF()).isTrue();
-        assertThat(_c.imp2.transform(cnf).isCNF()).isTrue();
-        assertThat(_c.imp3.transform(cnf).isCNF()).isTrue();
-        assertThat(_c.eq1.transform(cnf).isCNF()).isTrue();
-        assertThat(_c.eq1.transform(cnf).isDNF()).isFalse();
-        assertThat(_c.eq2.transform(cnf).isCNF()).isTrue();
-        assertThat(_c.eq2.transform(cnf).isDNF()).isFalse();
+        assertThat(_c.imp1.transform(cnf).isCNF(_c.f)).isTrue();
+        assertThat(_c.imp2.transform(cnf).isCNF(_c.f)).isTrue();
+        assertThat(_c.imp3.transform(cnf).isCNF(_c.f)).isTrue();
+        assertThat(_c.eq1.transform(cnf).isCNF(_c.f)).isTrue();
+        assertThat(_c.eq1.transform(cnf).isDNF(_c.f)).isFalse();
+        assertThat(_c.eq2.transform(cnf).isCNF(_c.f)).isTrue();
+        assertThat(_c.eq2.transform(cnf).isDNF(_c.f)).isFalse();
     }
 
     @ParameterizedTest
@@ -67,14 +67,14 @@ public class CNFTest extends TestWithFormulaContext {
         assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(cnf)).isEqualTo(_c.p.parse("~a & ~b & c & (~x | y) & (~w | z)"));
         assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(cnf)).isEqualTo(_c.p.parse("(~a | ~b | c | ~x) & (~a  | ~b | c | y)"));
         assertThat(_c.p.parse("a | b | (~x & ~y)").transform(cnf)).isEqualTo(_c.p.parse("(a | b | ~x) & (a | b | ~y)"));
-        assertThat(_c.and1.transform(cnf).isCNF()).isTrue();
-        assertThat(_c.or1.transform(cnf).isCNF()).isTrue();
-        assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(cnf).isCNF()).isTrue();
-        assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(cnf).isDNF()).isFalse();
-        assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(cnf).isCNF()).isTrue();
-        assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(cnf).isDNF()).isFalse();
-        assertThat(_c.p.parse("a | b | (~x & ~y)").transform(cnf).isCNF()).isTrue();
-        assertThat(_c.p.parse("a | b | (~x & ~y)").transform(cnf).isDNF()).isFalse();
+        assertThat(_c.and1.transform(cnf).isCNF(_c.f)).isTrue();
+        assertThat(_c.or1.transform(cnf).isCNF(_c.f)).isTrue();
+        assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(cnf).isCNF(_c.f)).isTrue();
+        assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(cnf).isDNF(_c.f)).isFalse();
+        assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(cnf).isCNF(_c.f)).isTrue();
+        assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(cnf).isDNF(_c.f)).isFalse();
+        assertThat(_c.p.parse("a | b | (~x & ~y)").transform(cnf).isCNF(_c.f)).isTrue();
+        assertThat(_c.p.parse("a | b | (~x & ~y)").transform(cnf).isDNF(_c.f)).isFalse();
     }
 
     @ParameterizedTest

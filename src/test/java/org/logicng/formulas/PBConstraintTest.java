@@ -330,22 +330,22 @@ public class PBConstraintTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsNNF(final FormulaContext _c) {
-        assertThat(_c.pb1.isNNF()).isFalse();
-        assertThat(_c.pb2.isNNF()).isFalse();
+        assertThat(_c.pb1.isNNF(_c.f)).isFalse();
+        assertThat(_c.pb2.isNNF(_c.f)).isFalse();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsDNF(final FormulaContext _c) {
-        assertThat(_c.pb1.isDNF()).isFalse();
-        assertThat(_c.pb2.isDNF()).isFalse();
+        assertThat(_c.pb1.isDNF(_c.f)).isFalse();
+        assertThat(_c.pb2.isDNF(_c.f)).isFalse();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsCNF(final FormulaContext _c) {
-        assertThat(_c.pb1.isCNF()).isFalse();
-        assertThat(_c.pb2.isCNF()).isFalse();
+        assertThat(_c.pb1.isCNF(_c.f)).isFalse();
+        assertThat(_c.pb2.isCNF(_c.f)).isFalse();
     }
 
     @ParameterizedTest

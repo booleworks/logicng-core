@@ -68,7 +68,7 @@ public final class PlaistedGreenbaumTransformationSolver {
     public void addCNFtoSolver(final Formula formula, final Proposition proposition) {
         final Formula workingFormula = performNNF ? formula.transform(nnfTransformation) : formula;
         final Formula withoutPBCs = !performNNF && workingFormula.holds(ContainsPBCPredicate.get()) ? workingFormula.nnf(f) : workingFormula;
-        if (withoutPBCs.isCNF()) {
+        if (withoutPBCs.isCNF(f)) {
             addCNF(withoutPBCs, proposition);
         } else {
             final LNGIntVector topLevelVars = computeTransformation(withoutPBCs, true, proposition, true);

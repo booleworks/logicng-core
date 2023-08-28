@@ -31,7 +31,7 @@ public final class CNFSubsumption extends Subsumption {
 
     @Override
     public Formula apply(final Formula formula) {
-        if (!formula.isCNF()) {
+        if (!formula.isCNF(f)) {
             throw new IllegalArgumentException("CNF subsumption can only be applied to formulas in CNF");
         }
         if (formula.type().precedence() >= FType.LITERAL.precedence() || formula.type() == FType.OR) {
