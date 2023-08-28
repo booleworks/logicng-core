@@ -32,7 +32,7 @@ public final class BackboneSimplifier extends StatelessFormulaTransformation {
     public Formula apply(final Formula formula) {
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(formula);
-        final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables()).type(BackboneType.POSITIVE_AND_NEGATIVE).build());
+        final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).type(BackboneType.POSITIVE_AND_NEGATIVE).build());
         if (!backbone.isSat()) {
             return f.falsum();
         }

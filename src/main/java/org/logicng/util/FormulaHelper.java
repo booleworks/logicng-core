@@ -37,33 +37,35 @@ public final class FormulaHelper {
 
     /**
      * Returns all variables occurring in the given formulas.
+     * @param f        the formula factory to use for caching
      * @param formulas formulas
      * @return all variables occurring in the given formulas
      */
-    public static SortedSet<Variable> variables(final Formula... formulas) {
+    public static SortedSet<Variable> variables(final FormulaFactory f, final Formula... formulas) {
         final SortedSet<Variable> variables = new TreeSet<>();
-        for (final Formula f : formulas) {
-            variables.addAll(f.variables());
+        for (final Formula op : formulas) {
+            variables.addAll(op.variables(f));
         }
         return variables;
     }
 
     /**
      * Returns all variables occurring in the given formulas.
+     * @param f        the formula factory to use for caching
      * @param formulas formulas
      * @return all variables occurring in the given formulas
      */
-    public static SortedSet<Variable> variables(final Collection<? extends Formula> formulas) {
+    public static SortedSet<Variable> variables(final FormulaFactory f, final Collection<? extends Formula> formulas) {
         final SortedSet<Variable> variables = new TreeSet<>();
-        for (final Formula f : formulas) {
-            variables.addAll(f.variables());
+        for (final Formula op : formulas) {
+            variables.addAll(op.variables(f));
         }
         return variables;
     }
 
     /**
      * Returns all literals occurring in the given formulas.
-     * @param f        the formula to use for caching
+     * @param f        the formula factory to use for caching
      * @param formulas formulas
      * @return all literals occurring in the given formulas
      */
@@ -77,7 +79,7 @@ public final class FormulaHelper {
 
     /**
      * Returns all literals occurring in the given formulas.
-     * @param f        the formula to use for caching
+     * @param f        the formula factory to use for caching
      * @param formulas formulas
      * @return all literals occurring in the given formulas
      */

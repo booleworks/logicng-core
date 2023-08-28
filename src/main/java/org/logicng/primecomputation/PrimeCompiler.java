@@ -157,7 +157,7 @@ public final class PrimeCompiler {
                 hSolver.add(f.or(blockingClause));
             } else {
                 final SortedSet<Literal> implicate = new TreeSet<>();
-                for (final Literal lit : (computeWithMaximization ? fModel : fSolver.model(formula.variables())).literals()) {
+                for (final Literal lit : (computeWithMaximization ? fModel : fSolver.model(formula.variables(f))).literals()) {
                     implicate.add(lit.negate(f));
                 }
                 final SortedSet<Literal> primeImplicate = primeReduction.reduceImplicate(f, implicate, satHandler(handler));
@@ -174,7 +174,7 @@ public final class PrimeCompiler {
         final Map<Variable, Literal> newVar2oldLit = new HashMap<>();
         final Map<Literal, Literal> substitution = new HashMap<>();
         final List<Formula> constraintOps = new ArrayList<>();
-        for (final Variable variable : formula.variables()) {
+        for (final Variable variable : formula.variables(f)) {
             final Variable posVar = f.variable(variable.name() + POS);
             newVar2oldLit.put(posVar, variable);
             substitution.put(variable, posVar);

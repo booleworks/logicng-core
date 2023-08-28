@@ -107,7 +107,7 @@ public final class BDDFactory {
      */
     public static BDD build(final FormulaFactory f, final Formula formula, final BDDKernel kernel, final BDDHandler handler) {
         start(handler);
-        final int varNum = formula.variables().size();
+        final int varNum = formula.variables(f).size();
         final BDDKernel bddKernel = kernel == null
                 ? new BDDKernel(f, varNum, varNum * 30, varNum * 20)
                 : kernel;

@@ -26,7 +26,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
 
     @Override
     public DTree generate(final FormulaFactory f, final Formula cnf) {
-        final Graph graph = new Graph(cnf);
+        final Graph graph = new Graph(f, cnf);
         final List<Variable> ordering = graph.getMinFillOrdering();
         return generateWithEliminatingOrder(f, cnf, ordering);
     }
@@ -54,15 +54,16 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
 
         /**
          * Computes the DTree from the given CNF.
+         * @param f   the formula factory to use for caching
          * @param cnf the CNF
          */
-        public Graph(final Formula cnf) {
+        public Graph(final FormulaFactory f, final Formula cnf) {
             /* build vertices */
-            numberOfVertices = cnf.variables().size();
+            numberOfVertices = cnf.variables(f).size();
             vertices = new ArrayList<>(numberOfVertices);
             final Map<Literal, Integer> varToIndex = new HashMap<>();
             int index = 0;
-            for (final Variable variable : cnf.variables()) {
+            for (final Variable variable : cnf.variables(f)) {
                 vertices.add(variable);
                 varToIndex.put(variable, index++);
             }
@@ -75,7 +76,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
             }
 
             for (final Formula clause : cnf) {
-                final SortedSet<Variable> variables = clause.variables();
+                final SortedSet<Variable> variables = clause.variables(f);
                 final int[] varNums = new int[variables.size()];
                 index = 0;
                 for (final Literal var : variables) {

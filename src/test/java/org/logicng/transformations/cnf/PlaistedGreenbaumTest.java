@@ -48,19 +48,19 @@ public class PlaistedGreenbaumTest extends TestWithFormulaContext {
         final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(_c.f, 0);
 
         assertThat(_c.imp1.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(_c.imp1, _c.imp1.transform(pg), _c.imp1.variables())).isTrue();
+        assertThat(equivalentModels(_c.imp1, _c.imp1.transform(pg), _c.imp1.variables(_c.f))).isTrue();
         assertThat(_c.imp2.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(_c.imp2, _c.imp2.transform(pg), _c.imp2.variables())).isTrue();
+        assertThat(equivalentModels(_c.imp2, _c.imp2.transform(pg), _c.imp2.variables(_c.f))).isTrue();
         assertThat(_c.imp3.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(_c.imp3, _c.imp3.transform(pg), _c.imp3.variables())).isTrue();
+        assertThat(equivalentModels(_c.imp3, _c.imp3.transform(pg), _c.imp3.variables(_c.f))).isTrue();
         assertThat(_c.eq1.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(_c.eq1, _c.eq1.transform(pg), _c.eq1.variables())).isTrue();
+        assertThat(equivalentModels(_c.eq1, _c.eq1.transform(pg), _c.eq1.variables(_c.f))).isTrue();
         assertThat(_c.eq2.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(_c.eq2, _c.eq2.transform(pg), _c.eq2.variables())).isTrue();
+        assertThat(equivalentModels(_c.eq2, _c.eq2.transform(pg), _c.eq2.variables(_c.f))).isTrue();
         assertThat(_c.eq3.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(_c.eq3, _c.eq3.transform(pg), _c.eq3.variables())).isTrue();
+        assertThat(equivalentModels(_c.eq3, _c.eq3.transform(pg), _c.eq3.variables(_c.f))).isTrue();
         assertThat(_c.eq4.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(_c.eq4, _c.eq4.transform(pg), _c.eq4.variables())).isTrue();
+        assertThat(equivalentModels(_c.eq4, _c.eq4.transform(pg), _c.eq4.variables(_c.f))).isTrue();
     }
 
     @ParameterizedTest
@@ -74,11 +74,11 @@ public class PlaistedGreenbaumTest extends TestWithFormulaContext {
         final Formula f2 = _c.p.parse("(a & b & x) | (c & d & ~y) | (~z | (c & d & ~y)) ");
         final Formula f3 = _c.p.parse("a | b | (~x & ~y)");
         assertThat(f1.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f1, f1.transform(pg), f1.variables())).isTrue();
+        assertThat(equivalentModels(f1, f1.transform(pg), f1.variables(_c.f))).isTrue();
         assertThat(f2.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f2, f2.transform(pg), f2.variables())).isTrue();
+        assertThat(equivalentModels(f2, f2.transform(pg), f2.variables(_c.f))).isTrue();
         assertThat(f3.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f3, f3.transform(pg), f3.variables())).isTrue();
+        assertThat(equivalentModels(f3, f3.transform(pg), f3.variables(_c.f))).isTrue();
     }
 
     @ParameterizedTest
@@ -96,21 +96,21 @@ public class PlaistedGreenbaumTest extends TestWithFormulaContext {
         final Formula f5 = _c.p.parse("~(a | b | ~x | ~y)");
         final Formula f6 = _c.p.parse("~(a & b) & (c | (a & b))");
         assertThat(f0.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f0, f0.transform(pg), f0.variables())).isTrue();
+        assertThat(equivalentModels(f0, f0.transform(pg), f0.variables(_c.f))).isTrue();
         assertThat(f1.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f1, f1.transform(pg), f1.variables())).isTrue();
+        assertThat(equivalentModels(f1, f1.transform(pg), f1.variables(_c.f))).isTrue();
         assertThat(f2.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f2, f2.transform(pg), f2.variables())).isTrue();
+        assertThat(equivalentModels(f2, f2.transform(pg), f2.variables(_c.f))).isTrue();
         assertThat(f3.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f3, f3.transform(pg), f3.variables())).isTrue();
+        assertThat(equivalentModels(f3, f3.transform(pg), f3.variables(_c.f))).isTrue();
         assertThat(f4.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f4, f4.transform(pg), f4.variables())).isTrue();
+        assertThat(equivalentModels(f4, f4.transform(pg), f4.variables(_c.f))).isTrue();
         assertThat(f5.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f5, f5.transform(pg), f5.variables())).isTrue();
+        assertThat(equivalentModels(f5, f5.transform(pg), f5.variables(_c.f))).isTrue();
         assertThat(f5.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f5, f5.transform(pg), f5.variables())).isTrue();
+        assertThat(equivalentModels(f5, f5.transform(pg), f5.variables(_c.f))).isTrue();
         assertThat(f6.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f6, f6.transform(pg), f6.variables())).isTrue();
+        assertThat(equivalentModels(f6, f6.transform(pg), f6.variables(_c.f))).isTrue();
     }
 
     @ParameterizedTest
@@ -124,11 +124,11 @@ public class PlaistedGreenbaumTest extends TestWithFormulaContext {
         final Formula f2 = _c.p.parse("~(a <=> b)");
         final Formula f3 = _c.p.parse("~(~(a | b) <=> ~(x | y))");
         assertThat(f1.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f1, f1.transform(pg), f1.variables())).isTrue();
+        assertThat(equivalentModels(f1, f1.transform(pg), f1.variables(_c.f))).isTrue();
         assertThat(f2.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f2, f2.transform(pg), f2.variables())).isTrue();
+        assertThat(equivalentModels(f2, f2.transform(pg), f2.variables(_c.f))).isTrue();
         assertThat(f3.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f3, f3.transform(pg), f3.variables())).isTrue();
+        assertThat(equivalentModels(f3, f3.transform(pg), f3.variables(_c.f))).isTrue();
     }
 
     @ParameterizedTest
@@ -160,15 +160,15 @@ public class PlaistedGreenbaumTest extends TestWithFormulaContext {
                 "(~@RESERVED_CNF_1 | ~a) & (~@RESERVED_CNF_1 | ~b) & (~@RESERVED_CNF_4 | ~x) & " +
                 "(~@RESERVED_CNF_4 | ~y)"));
         assertThat(f1.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f1, f1.transform(pg), f1.variables())).isTrue();
+        assertThat(equivalentModels(f1, f1.transform(pg), f1.variables(_c.f))).isTrue();
         assertThat(f2.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f2, f2.transform(pg), f2.variables())).isTrue();
+        assertThat(equivalentModels(f2, f2.transform(pg), f2.variables(_c.f))).isTrue();
         assertThat(f3.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f3, f3.transform(pg), f3.variables())).isTrue();
+        assertThat(equivalentModels(f3, f3.transform(pg), f3.variables(_c.f))).isTrue();
         assertThat(f4.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f4, f4.transform(pg), f4.variables())).isTrue();
+        assertThat(equivalentModels(f4, f4.transform(pg), f4.variables(_c.f))).isTrue();
         assertThat(f4.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(f4, f4.transform(pg), f4.variables())).isTrue();
+        assertThat(equivalentModels(f4, f4.transform(pg), f4.variables(_c.f))).isTrue();
     }
 
     @ParameterizedTest
@@ -181,13 +181,13 @@ public class PlaistedGreenbaumTest extends TestWithFormulaContext {
         final Formula f3 = _c.p.parse("d & ((a | b) => c)");
         final Formula f4 = _c.p.parse("d & ((a | b) => c) | ~x & ~y");
         assertThat(f1.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(f1.transform(pg).variables().size()).isEqualTo(f1.variables().size());
+        assertThat(f1.transform(pg).variables(_c.f).size()).isEqualTo(f1.variables(_c.f).size());
         assertThat(f2.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(f2.transform(pg).variables().size()).isEqualTo(f2.variables().size());
+        assertThat(f2.transform(pg).variables(_c.f).size()).isEqualTo(f2.variables(_c.f).size());
         assertThat(f3.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(f3.transform(pg).variables().size()).isEqualTo(f3.variables().size());
+        assertThat(f3.transform(pg).variables(_c.f).size()).isEqualTo(f3.variables(_c.f).size());
         assertThat(f4.transform(pg).isCNF(_c.f)).isTrue();
-        assertThat(f4.transform(pg).variables().size()).isEqualTo(f4.variables().size());
+        assertThat(f4.transform(pg).variables(_c.f).size()).isEqualTo(f4.variables(_c.f).size());
     }
 
     @Test

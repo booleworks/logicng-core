@@ -128,13 +128,13 @@ public class CNFEncoderTest extends TestWithFormulaContext {
         final CNFConfig config = CNFConfig.builder().algorithm(CNFConfig.Algorithm.BDD).build();
         final Formula phi1CNF = CNFEncoder.encode(phi1, _c.f, config);
         assertThat(phi1CNF.isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(phi1, phi1CNF, phi1.variables())).isTrue();
+        assertThat(equivalentModels(phi1, phi1CNF, phi1.variables(_c.f))).isTrue();
         final Formula phi2CNF = CNFEncoder.encode(phi2, _c.f, config);
         assertThat(phi2CNF.isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(phi2, phi2CNF, phi2.variables())).isTrue();
+        assertThat(equivalentModels(phi2, phi2CNF, phi2.variables(_c.f))).isTrue();
         final Formula phi3CNF = CNFEncoder.encode(phi3, _c.f, config);
         assertThat(phi3CNF.isCNF(_c.f)).isTrue();
-        assertThat(equivalentModels(phi3, phi3CNF, phi3.variables())).isTrue();
+        assertThat(equivalentModels(phi3, phi3CNF, phi3.variables(_c.f))).isTrue();
     }
 
     @ParameterizedTest

@@ -32,7 +32,7 @@ public class CFalseTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testVariables(final FormulaContext _c) {
-        assertThat(_c.falsum.variables().size()).isEqualTo(0);
+        assertThat(_c.falsum.variables(_c.f).size()).isEqualTo(0);
     }
 
     @ParameterizedTest

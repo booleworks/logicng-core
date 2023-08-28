@@ -68,7 +68,7 @@ class TimeoutOptimizationHandlerTest {
 
             solver.execute(OptimizationFunction.builder()
                     .handler(handler)
-                    .literals(formula.variables())
+                    .literals(formula.variables(f))
                     .maximize().build());
 
             verify(handler, times(1)).started();
@@ -85,7 +85,7 @@ class TimeoutOptimizationHandlerTest {
 
             final Assignment result = solver.execute(OptimizationFunction.builder()
                     .handler(handler)
-                    .literals(FormulaHelper.variables(formulas))
+                    .literals(FormulaHelper.variables(f, formulas))
                     .maximize().build());
 
             assertThat(result).isNull();
@@ -101,7 +101,7 @@ class TimeoutOptimizationHandlerTest {
 
             final Assignment result = solver.execute(OptimizationFunction.builder()
                     .handler(handler)
-                    .literals(FormulaHelper.variables(formulas))
+                    .literals(FormulaHelper.variables(f, formulas))
                     .maximize().build());
 
             assertThat(result).isNull();

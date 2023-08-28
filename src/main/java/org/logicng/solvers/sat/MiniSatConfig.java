@@ -31,9 +31,9 @@ public final class MiniSatConfig extends Configuration {
     /**
      * The different methods for generating a CNF for a formula to put on the solver.
      * <ul>
-     * <li> {@code FACTORY_CNF} calls the {@link Formula#cnf()} method on the formula
-     * to convert it to CNF.  Therefore the CNF including all its auxiliary variables will
-     * be added to the formula factory.
+     * <li> {@code FACTORY_CNF} calls the {@link Formula#cnf(org.logicng.formulas.FormulaFactory)}
+     * method on the formula to convert it to CNF.  Therefore the CNF including all its auxiliary
+     * variables will be added to the formula factory.
      * <li> {@code PG_ON_SOLVER} uses a solver-internal implementation of Plaisted-Greenbaum.
      * Auxiliary variables are only added on the solver, not on the factory.  This usually
      * leads to a reduced heap usage and often faster performance.

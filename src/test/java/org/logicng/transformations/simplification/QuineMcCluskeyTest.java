@@ -58,7 +58,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
         final Formula dnf = formula.transform(new QuineMcCluskeySimplifier(_c.f));
         assertThat(dnf.isDNF(_c.f)).isTrue();
         assertThat(_c.f.equivalence(formula, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
-        assertThat(formula.variables()).containsAll(dnf.variables());
+        assertThat(formula.variables(_c.f)).containsAll(dnf.variables(_c.f));
     }
 
     @ParameterizedTest
@@ -134,7 +134,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
         final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/formulas/small_formulas.txt"));
         while (reader.ready()) {
             final Formula formula = _c.p.parse(reader.readLine());
-            final List<Variable> variables = new ArrayList<>(formula.variables());
+            final List<Variable> variables = new ArrayList<>(formula.variables(_c.f));
             final List<Variable> projectedVars = variables.subList(0, Math.min(6, variables.size()));
 
             final SATSolver solver = MiniSat.miniSat(_c.f);

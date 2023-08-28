@@ -55,7 +55,7 @@ public final class ModelCounter {
      * @return the model count of the formulas for the variables
      */
     public static BigInteger count(final Collection<Formula> formulas, final SortedSet<Variable> variables, final FormulaFactory f) {
-        if (!variables.containsAll(FormulaHelper.variables(formulas))) {
+        if (!variables.containsAll(FormulaHelper.variables(f, formulas))) {
             throw new IllegalArgumentException("Expected variables to contain all of the formulas' variables.");
         }
         if (variables.isEmpty()) {
@@ -97,13 +97,13 @@ public final class ModelCounter {
                 simplified.add(restrict);
             }
         }
-        return new SimplificationResult(simplified, backboneVariables);
+        return new SimplificationResult(simplified, backboneVariables, f);
     }
 
     private static BigInteger count(final Collection<Formula> formulas, final FormulaFactory f) {
-        final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(formulas);
+        final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(f, formulas);
         final Set<Set<Node<Variable>>> ccs = ConnectedComponentsComputation.compute(constraintGraph);
-        final List<List<Formula>> components = ConnectedComponentsComputation.splitFormulasByComponent(formulas, ccs);
+        final List<List<Formula>> components = ConnectedComponentsComputation.splitFormulasByComponent(f, formulas, ccs);
         final DnnfFactory factory = new DnnfFactory();
         BigInteger count = BigInteger.ONE;
         for (final List<Formula> component : components) {
@@ -116,15 +116,17 @@ public final class ModelCounter {
     private static class SimplificationResult {
         private final List<Formula> simplifiedFormulas;
         private final SortedSet<Variable> backboneVariables;
+        private final FormulaFactory f;
 
-        public SimplificationResult(final List<Formula> simplifiedFormulas, final SortedSet<Variable> backboneVariables) {
+        public SimplificationResult(final List<Formula> simplifiedFormulas, final SortedSet<Variable> backboneVariables, final FormulaFactory f) {
             this.simplifiedFormulas = simplifiedFormulas;
             this.backboneVariables = backboneVariables;
+            this.f = f;
         }
 
         public SortedSet<Variable> getDontCareVariables(final SortedSet<Variable> variables) {
             final SortedSet<Variable> dontCareVariables = new TreeSet<>(variables);
-            dontCareVariables.removeAll(FormulaHelper.variables(simplifiedFormulas));
+            dontCareVariables.removeAll(FormulaHelper.variables(f, simplifiedFormulas));
             dontCareVariables.removeAll(backboneVariables);
             return dontCareVariables;
         }

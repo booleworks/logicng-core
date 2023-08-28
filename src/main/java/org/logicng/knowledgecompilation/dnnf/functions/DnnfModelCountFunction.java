@@ -24,9 +24,11 @@ import java.util.TreeSet;
  */
 public final class DnnfModelCountFunction implements DnnfFunction<BigInteger> {
 
+    private final FormulaFactory f;
     private final Map<Formula, BigInteger> cache;
 
     public DnnfModelCountFunction(final FormulaFactory f) {
+        this.f = f;
         cache = f instanceof CachingFormulaFactory ? ((CachingFormulaFactory) f).getFunctionCacheForType(DNNF_MODELCOUNT) : new HashMap<>();
     }
 
@@ -35,7 +37,7 @@ public final class DnnfModelCountFunction implements DnnfFunction<BigInteger> {
         final BigInteger cached = cache.get(formula);
         final BigInteger result = cached != null ? cached : count(formula);
         final SortedSet<Variable> dontCareVariables = new TreeSet<>();
-        final SortedSet<Variable> dnnfVariables = formula.variables();
+        final SortedSet<Variable> dnnfVariables = formula.variables(f);
         for (final Variable originalVariable : originalVariables) {
             if (!dnnfVariables.contains(originalVariable)) {
                 dontCareVariables.add(originalVariable);
@@ -60,11 +62,11 @@ public final class DnnfModelCountFunction implements DnnfFunction<BigInteger> {
                     }
                     break;
                 case OR:
-                    final int allVariables = dnnf.variables().size();
+                    final int allVariables = dnnf.variables(f).size();
                     c = BigInteger.ZERO;
                     for (final Formula op : dnnf) {
                         final BigInteger opCount = count(op);
-                        final BigInteger factor = BigInteger.valueOf(2L).pow(allVariables - op.variables().size());
+                        final BigInteger factor = BigInteger.valueOf(2L).pow(allVariables - op.variables(f).size());
                         c = c.add(opCount.multiply(factor));
                     }
                     break;

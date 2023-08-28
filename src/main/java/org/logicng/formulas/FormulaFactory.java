@@ -951,7 +951,7 @@ public abstract class FormulaFactory {
     }
 
     private void adjustCounters(final Formula formula) {
-        for (final Variable variable : formula.variables()) {
+        for (final Variable variable : formula.variables(this)) {
             if (variable.name().startsWith(CC_PREFIX)) {
                 final String[] tokens = variable.name().split("_");
                 final int counter = Integer.parseInt(tokens[tokens.length - 1]);

@@ -68,7 +68,7 @@ class TimeoutModelEnumerationHandlerTest {
         for (final SATSolver solver : solvers) {
             solver.add(formula);
             final TimeoutModelEnumerationHandler handler = Mockito.mock(TimeoutModelEnumerationHandler.class);
-            final ModelEnumerationFunction me = ModelEnumerationFunction.builder().handler(handler).variables(formula.variables()).build();
+            final ModelEnumerationFunction me = ModelEnumerationFunction.builder().handler(handler).variables(formula.variables(f)).build();
 
             solver.execute(me);
 
@@ -92,7 +92,7 @@ class TimeoutModelEnumerationHandlerTest {
             when(handler.foundModel(any())).thenReturn(true);
             when(handler.aborted()).then(invocationOnMock -> count.get() > 5);
             lenient().when(satHandler.detectedConflict()).thenReturn(true);
-            final ModelEnumerationFunction me = ModelEnumerationFunction.builder().handler(handler).variables(formula.variables()).build();
+            final ModelEnumerationFunction me = ModelEnumerationFunction.builder().handler(handler).variables(formula.variables(f)).build();
 
             solver.execute(me);
 
@@ -107,7 +107,7 @@ class TimeoutModelEnumerationHandlerTest {
         for (final SATSolver solver : solvers) {
             solver.add(formula);
             final TimeoutModelEnumerationHandler handler = new TimeoutModelEnumerationHandler(100L);
-            final ModelEnumerationFunction me = ModelEnumerationFunction.builder().handler(handler).variables(formula.variables()).build();
+            final ModelEnumerationFunction me = ModelEnumerationFunction.builder().handler(handler).variables(formula.variables(f)).build();
 
             final List<Assignment> result = solver.execute(me);
 
@@ -122,7 +122,7 @@ class TimeoutModelEnumerationHandlerTest {
         for (final SATSolver solver : solvers) {
             solver.add(formula);
             final TimeoutModelEnumerationHandler handler = new TimeoutModelEnumerationHandler(System.currentTimeMillis() + 100L, TimeoutHandler.TimerType.FIXED_END);
-            final ModelEnumerationFunction me = ModelEnumerationFunction.builder().handler(handler).variables(formula.variables()).build();
+            final ModelEnumerationFunction me = ModelEnumerationFunction.builder().handler(handler).variables(formula.variables(f)).build();
 
             final List<Assignment> result = solver.execute(me);
 

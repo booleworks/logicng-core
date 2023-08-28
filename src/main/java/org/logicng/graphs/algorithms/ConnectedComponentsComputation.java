@@ -5,6 +5,7 @@
 package org.logicng.graphs.algorithms;
 
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.graphs.datastructures.Graph;
 import org.logicng.graphs.datastructures.Node;
@@ -53,11 +54,13 @@ public final class ConnectedComponentsComputation {
 
     /**
      * Split a list of formulas in their respective connected components.  The
+     * @param f          the formula factory to use for caching
      * @param formulas   the list of formulas
      * @param components the connected components which should be used for the split
      * @return the list of split formulas
      */
-    public static List<List<Formula>> splitFormulasByComponent(final Collection<Formula> formulas, final Set<Set<Node<Variable>>> components) {
+    public static List<List<Formula>> splitFormulasByComponent(final FormulaFactory f, final Collection<Formula> formulas,
+                                                               final Set<Set<Node<Variable>>> components) {
         final Map<Set<Node<Variable>>, List<Formula>> map = new LinkedHashMap<>();
         final Map<Variable, Set<Node<Variable>>> varMap = new TreeMap<>();
         for (final Set<Node<Variable>> component : components) {
@@ -66,7 +69,7 @@ public final class ConnectedComponentsComputation {
             }
         }
         for (final Formula formula : formulas) {
-            final SortedSet<Variable> variables = formula.variables();
+            final SortedSet<Variable> variables = formula.variables(f);
             if (variables.isEmpty()) {
                 map.computeIfAbsent(Collections.emptySet(), l -> new ArrayList<>()).add(formula);
             } else {

@@ -32,7 +32,7 @@ public class CTrueTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testVariables(final FormulaContext _c) {
-        assertThat(_c.verum.variables().size()).isEqualTo(0);
+        assertThat(_c.verum.variables(_c.f).size()).isEqualTo(0);
     }
 
     @ParameterizedTest

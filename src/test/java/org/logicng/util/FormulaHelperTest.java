@@ -26,16 +26,16 @@ public class FormulaHelperTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testVariables(final FormulaContext _c) {
-        assertThat(FormulaHelper.variables(_c.verum)).isEqualTo(new TreeSet<>());
-        assertThat(FormulaHelper.variables(_c.falsum)).isEqualTo(new TreeSet<>());
-        assertThat(FormulaHelper.variables(_c.a)).isEqualTo(new TreeSet<>(Collections.singletonList(_c.a)));
-        assertThat(FormulaHelper.variables(_c.na)).isEqualTo(new TreeSet<>(Collections.singletonList(_c.a)));
-        assertThat(FormulaHelper.variables(_c.imp1, _c.imp2, _c.imp3)).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y)));
-        assertThat(FormulaHelper.variables(_c.imp1, _c.y)).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.y)));
+        assertThat(FormulaHelper.variables(_c.f, _c.verum)).isEqualTo(new TreeSet<>());
+        assertThat(FormulaHelper.variables(_c.f, _c.falsum)).isEqualTo(new TreeSet<>());
+        assertThat(FormulaHelper.variables(_c.f, _c.a)).isEqualTo(new TreeSet<>(Collections.singletonList(_c.a)));
+        assertThat(FormulaHelper.variables(_c.f, _c.na)).isEqualTo(new TreeSet<>(Collections.singletonList(_c.a)));
+        assertThat(FormulaHelper.variables(_c.f, _c.imp1, _c.imp2, _c.imp3)).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y)));
+        assertThat(FormulaHelper.variables(_c.f, _c.imp1, _c.y)).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.y)));
 
-        assertThat(FormulaHelper.variables(Arrays.asList(_c.verum, _c.falsum))).isEqualTo(new TreeSet<>());
-        assertThat(FormulaHelper.variables(Arrays.asList(_c.imp1, _c.imp2, _c.imp3))).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y)));
-        assertThat(FormulaHelper.variables(Arrays.asList(_c.imp1, _c.y))).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.y)));
+        assertThat(FormulaHelper.variables(_c.f, Arrays.asList(_c.verum, _c.falsum))).isEqualTo(new TreeSet<>());
+        assertThat(FormulaHelper.variables(_c.f, Arrays.asList(_c.imp1, _c.imp2, _c.imp3))).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y)));
+        assertThat(FormulaHelper.variables(_c.f, Arrays.asList(_c.imp1, _c.y))).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.y)));
     }
 
     @ParameterizedTest

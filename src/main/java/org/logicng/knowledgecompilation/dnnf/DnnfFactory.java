@@ -29,9 +29,9 @@ public class DnnfFactory {
      * @return the compiled DNNF
      */
     public Dnnf compile(final Formula formula, final FormulaFactory f) {
-        final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables());
+        final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables(f));
         final Formula cnf = formula.cnf(f);
-        originalVariables.addAll(cnf.variables());
+        originalVariables.addAll(cnf.variables(f));
         final Formula simplifedFormula = simplifyFormula(cnf, f);
         final DnnfCompiler compiler = new DnnfCompiler(simplifedFormula, f);
         final Formula dnnf = compiler.compile(new MinFillDTreeGenerator());

@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * A generator for a DTree from an arbitrary eliminating order of variables as described in
  * A. Darwiche "Decomposable Negation Normal Form" (algorithm "el2dt").
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public abstract class EliminatingOrderDTreeGenerator implements DTreeGenerator {
@@ -29,18 +29,18 @@ public abstract class EliminatingOrderDTreeGenerator implements DTreeGenerator {
      * @return the DTree
      */
     public final DTree generateWithEliminatingOrder(final FormulaFactory f, final Formula cnf, final List<Variable> ordering) {
-        assert cnf.variables().size() == ordering.size();
+        assert cnf.variables(f).size() == ordering.size();
 
         if (!cnf.isCNF(f) || cnf.isAtomicFormula()) {
             throw new IllegalArgumentException("Cannot generate DTree from a non-cnf formula or atomic formula");
         } else if (cnf.type() != FType.AND) {
-            return new DTreeLeaf(0, cnf);
+            return new DTreeLeaf(0, cnf, f);
         }
 
         final List<DTree> sigma = new ArrayList<>();
         int id = 0;
         for (final Formula clause : cnf) {
-            sigma.add(new DTreeLeaf(id++, clause));
+            sigma.add(new DTreeLeaf(id++, clause, f));
         }
 
         for (final Variable variable : ordering) {
@@ -48,28 +48,28 @@ public abstract class EliminatingOrderDTreeGenerator implements DTreeGenerator {
             final Iterator<DTree> sigmaIterator = sigma.iterator();
             while (sigmaIterator.hasNext()) {
                 final DTree tree = sigmaIterator.next();
-                if (tree.staticVariableSet().contains(variable)) {
+                if (tree.staticVariableSet(f).contains(variable)) {
                     gamma.add(tree);
                     sigmaIterator.remove();
                 }
             }
             if (!gamma.isEmpty()) {
-                sigma.add(compose(gamma));
+                sigma.add(compose(gamma, f));
             }
         }
 
-        return compose(sigma);
+        return compose(sigma, f);
     }
 
-    protected DTree compose(final List<DTree> trees) {
+    protected DTree compose(final List<DTree> trees, final FormulaFactory f) {
         assert !trees.isEmpty();
 
         if (trees.size() == 1) {
             return trees.get(0);
         } else {
-            final DTree left = compose(trees.subList(0, trees.size() / 2));
-            final DTree right = compose(trees.subList(trees.size() / 2, trees.size()));
-            return new DTreeNode(left, right);
+            final DTree left = compose(trees.subList(0, trees.size() / 2), f);
+            final DTree right = compose(trees.subList(trees.size() / 2, trees.size()), f);
+            return new DTreeNode(left, right, f);
         }
     }
 }

@@ -50,14 +50,14 @@ public class EquivalenceTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testVariables(final FormulaContext _c) {
-        assertThat(_c.imp3.variables().size()).isEqualTo(4);
+        assertThat(_c.imp3.variables(_c.f).size()).isEqualTo(4);
         SortedSet<Variable> lits = new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y));
-        assertThat(_c.imp3.variables()).isEqualTo(lits);
+        assertThat(_c.imp3.variables(_c.f)).isEqualTo(lits);
 
         final Formula equiv = _c.f.equivalence(_c.and1, _c.and2);
-        assertThat(equiv.variables().size()).isEqualTo(2);
+        assertThat(equiv.variables(_c.f).size()).isEqualTo(2);
         lits = new TreeSet<>(Arrays.asList(_c.a, _c.b));
-        assertThat(equiv.variables()).isEqualTo(lits);
+        assertThat(equiv.variables(_c.f)).isEqualTo(lits);
     }
 
     @ParameterizedTest

@@ -214,7 +214,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
         final PigeonHoleGenerator pg = new PigeonHoleGenerator(f);
         final Formula formula = pg.generate(10);
         solver.addHardFormula(formula);
-        solver.addSoftFormula(f.or(formula.variables()), 1);
+        solver.addSoftFormula(f.or(formula.variables(f)), 1);
         MaxSAT.MaxSATResult result = solver.solve(handler);
         assertThat(handler.aborted()).isTrue();
         assertThat(result).isEqualTo(MaxSAT.MaxSATResult.UNDEF);

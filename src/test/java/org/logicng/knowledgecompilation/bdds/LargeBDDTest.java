@@ -36,7 +36,7 @@ public class LargeBDDTest {
 
     private void testPigeonHole(final FormulaFactory f, final PigeonHoleGenerator generator, final int size) {
         final Formula pigeon = generator.generate(size);
-        final BDDKernel kernel = new BDDKernel(f, pigeon.variables().size(), 10000, 10000);
+        final BDDKernel kernel = new BDDKernel(f, pigeon.variables(f).size(), 10000, 10000);
         final BDD bdd = BDDFactory.build(f, pigeon, kernel);
         assertThat(bdd.isContradiction()).isTrue();
     }
@@ -54,13 +54,13 @@ public class LargeBDDTest {
 
     private void testQueens(final FormulaFactory f, final NQueensGenerator generator, final int size, final int models) {
         final Formula queens = generator.generate(size);
-        final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
+        final BDDKernel kernel = new BDDKernel(f, queens.variables(f).size(), 10000, 10000);
         final BDD bdd = BDDFactory.build(f, queens, kernel);
         final Formula cnf = bdd.cnf();
         assertThat(cnf.isCNF(f)).isTrue();
         final BDD cnfBDD = BDDFactory.build(f, cnf, kernel);
         assertThat(cnfBDD).isEqualTo(bdd);
-        assertThat(bdd.support()).isEqualTo(queens.variables());
+        assertThat(bdd.support()).isEqualTo(queens.variables(f));
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(models));
     }
 
@@ -69,7 +69,7 @@ public class LargeBDDTest {
         final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);
         final Formula queens = generator.generate(4);
-        final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
+        final BDDKernel kernel = new BDDKernel(f, queens.variables(f).size(), 10000, 10000);
         final TimeoutBDDHandler handler = new TimeoutBDDHandler(2000L);
         final BDD bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(handler.aborted()).isFalse();
@@ -81,7 +81,7 @@ public class LargeBDDTest {
         final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);
         final Formula queens = generator.generate(10);
-        final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
+        final BDDKernel kernel = new BDDKernel(f, queens.variables(f).size(), 10000, 10000);
         final TimeoutBDDHandler handler = new TimeoutBDDHandler(1000L);
         final BDD bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(handler.aborted()).isTrue();
@@ -93,7 +93,7 @@ public class LargeBDDTest {
         final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);
         final Formula queens = generator.generate(4);
-        final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
+        final BDDKernel kernel = new BDDKernel(f, queens.variables(f).size(), 10000, 10000);
         final NumberOfNodesBDDHandler handler = new NumberOfNodesBDDHandler(1000);
         final BDD bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(handler.aborted()).isFalse();
@@ -105,7 +105,7 @@ public class LargeBDDTest {
         final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);
         final Formula queens = generator.generate(10);
-        final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
+        final BDDKernel kernel = new BDDKernel(f, queens.variables(f).size(), 10000, 10000);
         final NumberOfNodesBDDHandler handler = new NumberOfNodesBDDHandler(5);
         final BDD bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(handler.aborted()).isTrue();
@@ -116,7 +116,7 @@ public class LargeBDDTest {
     public void testNumberOfNodesHandler() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = f.parse("A <=> ~(B => C & F & G & ~H | A & D & ~E)");
-        final BDDKernel kernel = new BDDKernel(f, formula.variables().size(), 10000, 10000);
+        final BDDKernel kernel = new BDDKernel(f, formula.variables(f).size(), 10000, 10000);
         final NumberOfNodesBDDHandler handler = new NumberOfNodesBDDHandler(5);
         final BDD bdd = BDDFactory.build(f, formula, kernel, handler);
         assertThat(handler.aborted()).isTrue();

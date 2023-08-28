@@ -165,30 +165,30 @@ public class BackboneFunctionTest {
             expectedBackbones.add(reader.readLine());
         }
         reader.close();
-        Backbone backbone = solver.backbone(formula.variables());
+        Backbone backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(0)));
         solver.add(f.variable("v411"));
-        backbone = solver.backbone(formula.variables());
+        backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(1)));
         assertThat(backbone.isSat()).isTrue();
         solver.add(f.variable("v385"));
-        backbone = solver.backbone(formula.variables());
+        backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(2)));
         assertThat(backbone.isSat()).isTrue();
         solver.add(f.variable("v275"));
-        backbone = solver.backbone(formula.variables());
+        backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(3)));
         assertThat(backbone.isSat()).isTrue();
         solver.add(f.variable("v188"));
-        backbone = solver.backbone(formula.variables());
+        backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(4)));
         assertThat(backbone.isSat()).isTrue();
         solver.add(f.variable("v103"));
-        backbone = solver.backbone(formula.variables());
+        backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(5)));
         assertThat(backbone.isSat()).isTrue();
         solver.add(f.variable("v404"));
-        backbone = solver.backbone(formula.variables());
+        backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEmpty();
         assertThat(backbone.isSat()).isFalse();
     }
@@ -206,30 +206,30 @@ public class BackboneFunctionTest {
             expectedBackbones.add(reader.readLine());
         }
         reader.close();
-        Backbone backbone = solver.backbone(formula.variables());
+        Backbone backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(0)));
         solver.add(f.variable("v2609"));
-        backbone = solver.backbone(formula.variables());
+        backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(1)));
         assertThat(backbone.isSat()).isTrue();
         solver.add(f.variable("v2416"));
-        backbone = solver.backbone(formula.variables());
+        backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(2)));
         assertThat(backbone.isSat()).isTrue();
         solver.add(f.variable("v2048"));
-        backbone = solver.backbone(formula.variables());
+        backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(3)));
         assertThat(backbone.isSat()).isTrue();
         solver.add(f.variable("v39"));
-        backbone = solver.backbone(formula.variables());
+        backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(4)));
         assertThat(backbone.isSat()).isTrue();
         solver.add(f.variable("v1663"));
-        backbone = solver.backbone(formula.variables());
+        backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(5)));
         assertThat(backbone.isSat()).isTrue();
         solver.add(f.variable("v2238"));
-        backbone = solver.backbone(formula.variables());
+        backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEmpty();
         assertThat(backbone.isSat()).isFalse();
     }
@@ -248,40 +248,40 @@ public class BackboneFunctionTest {
                 expectedBackbones.add(reader.readLine());
             }
             reader.close();
-            Backbone backbone = solver.backbone(formula.variables());
+            Backbone backbone = solver.backbone(formula.variables(f));
             assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(0)));
             solver.add(f.variable("v411"));
-            backbone = solver.backbone(formula.variables());
+            backbone = solver.backbone(formula.variables(f));
             assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(1)));
             assertThat(backbone.isSat()).isTrue();
 
             solver.loadState(state);
             solver.add(f.parse("v411 & v385"));
-            backbone = solver.backbone(formula.variables());
+            backbone = solver.backbone(formula.variables(f));
             assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(2)));
             assertThat(backbone.isSat()).isTrue();
 
             solver.loadState(state);
             solver.add(f.parse("v411 & v385 & v275"));
-            backbone = solver.backbone(formula.variables());
+            backbone = solver.backbone(formula.variables(f));
             assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(3)));
             assertThat(backbone.isSat()).isTrue();
 
             solver.loadState(state);
             solver.add(f.parse("v411 & v385 & v275 & v188"));
-            backbone = solver.backbone(formula.variables());
+            backbone = solver.backbone(formula.variables(f));
             assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(4)));
             assertThat(backbone.isSat()).isTrue();
 
             solver.loadState(state);
             solver.add(f.parse("v411 & v385 & v275 & v188 & v103"));
-            backbone = solver.backbone(formula.variables());
+            backbone = solver.backbone(formula.variables(f));
             assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(5)));
             assertThat(backbone.isSat()).isTrue();
 
             solver.loadState(state);
             solver.add(f.parse("v411 & v385 & v275 & v188 & v103 & v404"));
-            backbone = solver.backbone(formula.variables());
+            backbone = solver.backbone(formula.variables(f));
             assertThat(backbone.getCompleteBackbone(f)).isEmpty();
             assertThat(backbone.isSat()).isFalse();
         }
@@ -302,40 +302,40 @@ public class BackboneFunctionTest {
                 expectedBackbones.add(reader.readLine());
             }
             reader.close();
-            Backbone backbone = solver.backbone(formula.variables());
+            Backbone backbone = solver.backbone(formula.variables(f));
             assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(0)));
             solver.add(f.variable("v2609"));
-            backbone = solver.backbone(formula.variables());
+            backbone = solver.backbone(formula.variables(f));
             assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(1)));
             assertThat(backbone.isSat()).isTrue();
 
             solver.loadState(state);
             solver.add(f.parse("v2609 & v2416"));
-            backbone = solver.backbone(formula.variables());
+            backbone = solver.backbone(formula.variables(f));
             assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(2)));
             assertThat(backbone.isSat()).isTrue();
 
             solver.loadState(state);
             solver.add(f.parse("v2609 & v2416 & v2048"));
-            backbone = solver.backbone(formula.variables());
+            backbone = solver.backbone(formula.variables(f));
             assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(3)));
             assertThat(backbone.isSat()).isTrue();
 
             solver.loadState(state);
             solver.add(f.parse("v2609 & v2416 & v2048 & v39"));
-            backbone = solver.backbone(formula.variables());
+            backbone = solver.backbone(formula.variables(f));
             assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(4)));
             assertThat(backbone.isSat()).isTrue();
 
             solver.loadState(state);
             solver.add(f.parse("v2609 & v2416 & v2048 & v39 & v1663"));
-            backbone = solver.backbone(formula.variables());
+            backbone = solver.backbone(formula.variables(f));
             assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(5)));
             assertThat(backbone.isSat()).isTrue();
 
             solver.loadState(state);
             solver.add(f.parse("v2609 & v2416 & v2048 & v39 & v1663 & v2238"));
-            backbone = solver.backbone(formula.variables());
+            backbone = solver.backbone(formula.variables(f));
             assertThat(backbone.getCompleteBackbone(f)).isEmpty();
             assertThat(backbone.isSat()).isFalse();
         }

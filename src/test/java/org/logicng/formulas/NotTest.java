@@ -46,13 +46,13 @@ public class NotTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testVariables(final FormulaContext _c) {
-        assertThat(_c.not1.variables().size()).isEqualTo(2);
+        assertThat(_c.not1.variables(_c.f).size()).isEqualTo(2);
         SortedSet<Variable> lits = new TreeSet<>(Arrays.asList(_c.a, _c.b));
-        assertThat(_c.not1.variables()).isEqualTo(lits);
+        assertThat(_c.not1.variables(_c.f)).isEqualTo(lits);
 
-        assertThat(_c.not2.variables().size()).isEqualTo(2);
+        assertThat(_c.not2.variables(_c.f).size()).isEqualTo(2);
         lits = new TreeSet<>(Arrays.asList(_c.x, _c.y));
-        assertThat(_c.not2.variables()).isEqualTo(lits);
+        assertThat(_c.not2.variables(_c.f)).isEqualTo(lits);
     }
 
     @ParameterizedTest

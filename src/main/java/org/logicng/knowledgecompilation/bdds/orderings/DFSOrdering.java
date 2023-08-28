@@ -26,7 +26,7 @@ public final class DFSOrdering implements VariableOrderingProvider {
 
     @Override
     public List<Variable> getOrder(final FormulaFactory f, final Formula formula) {
-        final LinkedHashSet<Variable> order = new LinkedHashSet<>(formula.variables().size());
+        final LinkedHashSet<Variable> order = new LinkedHashSet<>(formula.variables(f).size());
         dfs(formula, order);
         return new ArrayList<>(order);
     }
