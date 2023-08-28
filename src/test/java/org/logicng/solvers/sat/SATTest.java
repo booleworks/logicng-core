@@ -954,7 +954,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                 if (fileName.endsWith(".cnf")) {
                     readCNF(solver, file);
                     final List<Literal> selectionOrder = new ArrayList<>();
-                    for (final Variable var : FormulaHelper.variables(solver.execute(FormulaOnSolverFunction.get()))) {
+                    for (final Variable var : FormulaHelper.variables(f, solver.execute(FormulaOnSolverFunction.get()))) {
                         if (selectionOrder.size() < 10) {
                             selectionOrder.add(var.negate(f));
                         }
@@ -1001,7 +1001,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     private void compareFormulas(final Collection<Formula> original, final Collection<Formula> solver) {
         final SortedSet<Variable> vars = new TreeSet<>();
         for (final Formula formula : original) {
-            vars.addAll(formula.variables());
+            vars.addAll(formula.variables(f));
         }
         final MiniSat miniSat = MiniSat.miniSat(f);
         miniSat.add(original);

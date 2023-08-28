@@ -101,7 +101,7 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
         final SortedSet<Literal> backboneLiterals = new TreeSet<>();
         if (config.restrictBackbone) {
             final Backbone backbone = BackboneGeneration.compute(f, Collections.singletonList(formula),
-                    formula.variables(), BackboneType.POSITIVE_AND_NEGATIVE, satHandler(handler));
+                    formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE, satHandler(handler));
             if (backbone == null || aborted(handler)) {
                 return null;
             }

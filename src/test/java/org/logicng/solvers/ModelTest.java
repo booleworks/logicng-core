@@ -127,16 +127,16 @@ public class ModelTest {
         final List<Assignment> allModels = solver.enumerateAllModels();
         assertThat(allModels).hasSize(4);
         if (solver.getConfig().isAuxiliaryVariablesInModels()) {
-            assertThat(model.formula(f).variables()).isEqualTo(cnf.variables());
+            assertThat(model.formula(f).variables(f)).isEqualTo(cnf.variables(f));
             for (final Assignment assignment : allModels) {
                 assertThat(formula.evaluate(assignment)).isTrue();
-                assertThat(assignment.formula(f).variables()).isEqualTo(cnf.variables());
+                assertThat(assignment.formula(f).variables(f)).isEqualTo(cnf.variables(f));
             }
         } else {
-            assertThat(model.formula(f).variables()).isEqualTo(formula.variables());
+            assertThat(model.formula(f).variables(f)).isEqualTo(formula.variables(f));
             for (final Assignment assignment : allModels) {
                 assertThat(formula.evaluate(assignment)).isTrue();
-                assertThat(assignment.formula(f).variables()).isEqualTo(formula.variables());
+                assertThat(assignment.formula(f).variables(f)).isEqualTo(formula.variables(f));
             }
         }
     }
@@ -149,14 +149,14 @@ public class ModelTest {
         final Formula cnf = formula.transform(new TseitinTransformation((CachingFormulaFactory) solver.f, 0));
         solver.add(cnf);
         solver.sat();
-        final Assignment model = solver.model(formula.variables());
+        final Assignment model = solver.model(formula.variables(f));
         assertThat(formula.evaluate(model)).isTrue();
-        final List<Assignment> allModels = solver.enumerateAllModels(formula.variables());
+        final List<Assignment> allModels = solver.enumerateAllModels(formula.variables(f));
         assertThat(allModels).hasSize(4);
-        assertThat(model.formula(f).variables()).isEqualTo(formula.variables());
+        assertThat(model.formula(f).variables(f)).isEqualTo(formula.variables(f));
         for (final Assignment assignment : allModels) {
             assertThat(formula.evaluate(assignment)).isTrue();
-            assertThat(assignment.formula(f).variables()).isEqualTo(formula.variables());
+            assertThat(assignment.formula(f).variables(f)).isEqualTo(formula.variables(f));
         }
     }
 
@@ -174,13 +174,13 @@ public class ModelTest {
             assertThat(allModels).hasSize(4);
             for (final Assignment assignment : allModels) {
                 assertThat(formula.evaluate(assignment)).isTrue();
-                assertThat(assignment.formula(f).variables()).isEqualTo(formula.variables());
+                assertThat(assignment.formula(f).variables(f)).isEqualTo(formula.variables(f));
             }
         } else {
             assertThat(allModels).hasSize(6);
             for (final Assignment assignment : allModels) {
                 assertThat(formula.evaluate(assignment)).isTrue();
-                assertThat(formula.variables()).isSubsetOf(assignment.formula(f).variables());
+                assertThat(formula.variables(f)).isSubsetOf(assignment.formula(f).variables(f));
             }
         }
     }
@@ -192,14 +192,14 @@ public class ModelTest {
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solver.add(formula);
         solver.sat();
-        final Assignment model = solver.model(formula.variables());
+        final Assignment model = solver.model(formula.variables(f));
         assertThat(formula.evaluate(model)).isTrue();
-        assertThat(model.formula(f).variables()).isEqualTo(formula.variables());
-        final List<Assignment> allModels = solver.enumerateAllModels(formula.variables());
+        assertThat(model.formula(f).variables(f)).isEqualTo(formula.variables(f));
+        final List<Assignment> allModels = solver.enumerateAllModels(formula.variables(f));
         assertThat(allModels).hasSize(4);
         for (final Assignment assignment : allModels) {
             assertThat(formula.evaluate(assignment)).isTrue();
-            assertThat(assignment.formula(f).variables()).isEqualTo(formula.variables());
+            assertThat(assignment.formula(f).variables(f)).isEqualTo(formula.variables(f));
         }
     }
 
@@ -215,12 +215,12 @@ public class ModelTest {
         final SortedSet<Variable> relevantVariables = new TreeSet<>(Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C")));
         final Assignment model = solver.model(relevantVariables);
         assertThat(miniSat.sat(model.literals())).isEqualTo(Tristate.TRUE);
-        assertThat(model.formula(f).variables()).isEqualTo(relevantVariables);
+        assertThat(model.formula(f).variables(f)).isEqualTo(relevantVariables);
         final List<Assignment> allModels = solver.enumerateAllModels(relevantVariables);
         assertThat(allModels).hasSize(2);
         for (final Assignment assignment : allModels) {
             assertThat(miniSat.sat(assignment.literals())).isEqualTo(Tristate.TRUE);
-            assertThat(assignment.formula(f).variables()).isEqualTo(relevantVariables);
+            assertThat(assignment.formula(f).variables(f)).isEqualTo(relevantVariables);
         }
     }
 
@@ -239,12 +239,12 @@ public class ModelTest {
         allVariables.add(f.variable("D"));
         final Assignment model = solver.model(additionalVariables);
         assertThat(miniSat.sat(model.literals())).isEqualTo(Tristate.TRUE);
-        assertThat(model.formula(f).variables()).containsExactly(f.variable("D"));
+        assertThat(model.formula(f).variables(f)).containsExactly(f.variable("D"));
         final List<Assignment> allModels = solver.execute(ModelEnumerationFunction.builder().variables(relevantVariables).additionalVariables(additionalVariables).build());
         assertThat(allModels).hasSize(2);
         for (final Assignment assignment : allModels) {
             assertThat(miniSat.sat(assignment.literals())).isEqualTo(Tristate.TRUE);
-            assertThat(assignment.formula(f).variables()).isEqualTo(allVariables);
+            assertThat(assignment.formula(f).variables(f)).isEqualTo(allVariables);
         }
     }
 

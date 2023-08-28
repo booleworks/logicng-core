@@ -5,6 +5,7 @@
 package org.logicng.graphs.generators;
 
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.graphs.datastructures.Graph;
 
@@ -27,32 +28,34 @@ public final class ConstraintGraphGenerator {
 
     /**
      * Constructs the constraint graph.
+     * @param f        the formula factory to use for caching
      * @param formulas the formulas
      * @return the constraint graph for the given formula
      */
-    public static Graph<Variable> generateFromFormulas(final Formula... formulas) {
+    public static Graph<Variable> generateFromFormulas(final FormulaFactory f, final Formula... formulas) {
         final Graph<Variable> constraintGraph = new Graph<>();
         for (final Formula formula : formulas) {
-            addClause(formula, constraintGraph);
+            addClause(f, formula, constraintGraph);
         }
         return constraintGraph;
     }
 
     /**
      * Constructs the constraint graph.
+     * @param f        the formula factory to use for caching
      * @param formulas the formulas
      * @return the constraint graph for the given formula
      */
-    public static Graph<Variable> generateFromFormulas(final Collection<Formula> formulas) {
+    public static Graph<Variable> generateFromFormulas(final FormulaFactory f, final Collection<Formula> formulas) {
         final Graph<Variable> constraintGraph = new Graph<>();
         for (final Formula formula : formulas) {
-            addClause(formula, constraintGraph);
+            addClause(f, formula, constraintGraph);
         }
         return constraintGraph;
     }
 
-    private static void addClause(final Formula clause, final Graph<Variable> graph) {
-        final Variable[] variables = clause.variables().toArray(new Variable[0]);
+    private static void addClause(final FormulaFactory f, final Formula clause, final Graph<Variable> graph) {
+        final Variable[] variables = clause.variables(f).toArray(new Variable[0]);
         if (variables.length == 1) {
             graph.node(variables[0]);
         }

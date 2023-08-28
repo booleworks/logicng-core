@@ -9,6 +9,7 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 import org.logicng.functions.LiteralsFunction;
+import org.logicng.functions.VariablesFunction;
 import org.logicng.predicates.CNFPredicate;
 
 import java.io.BufferedWriter;
@@ -51,10 +52,11 @@ public final class FormulaDimacsFileWriter {
      */
     public static void write(final String fileName, final Formula formula, final boolean writeMapping) throws IOException {
         final LiteralsFunction lf = new LiteralsFunction(formula.factory(), null);
+        final VariablesFunction vf = new VariablesFunction(formula.factory(), null);
         final File file = new File(fileName.endsWith(CNF_EXTENSION) ? fileName : fileName + CNF_EXTENSION);
         final SortedMap<Variable, Long> var2id = new TreeMap<>();
         long i = 1;
-        for (final Variable var : new TreeSet<>(formula.variables())) {
+        for (final Variable var : new TreeSet<>(formula.apply(vf))) {
             var2id.put(var, i++);
         }
         if (!formula.holds(new CNFPredicate(formula.factory(), null))) {

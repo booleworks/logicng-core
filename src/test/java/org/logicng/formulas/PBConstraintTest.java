@@ -290,15 +290,15 @@ public class PBConstraintTest extends TestWithFormulaContext {
     public void testVariables(final FormulaContext _c) {
         final SortedSet<Variable> lits1 = new TreeSet<>(Collections.singletonList(_c.f.variable("a")));
         final SortedSet<Variable> lits2 = new TreeSet<>(Arrays.asList(_c.f.variable("a"), _c.f.variable("b"), _c.f.variable("c")));
-        assertThat(_c.pb1.variables()).isEqualTo(lits1);
-        assertThat(_c.pb1.variables()).isEqualTo(lits1);
-        assertThat(_c.pb2.variables()).isEqualTo(lits2);
-        assertThat(_c.cc1.variables()).isEqualTo(lits1);
-        assertThat(_c.cc2.variables()).isEqualTo(lits2);
-        assertThat(_c.amo1.variables()).isEqualTo(lits1);
-        assertThat(_c.amo2.variables()).isEqualTo(lits2);
-        assertThat(_c.exo1.variables()).isEqualTo(lits1);
-        assertThat(_c.exo2.variables()).isEqualTo(lits2);
+        assertThat(_c.pb1.variables(_c.f)).isEqualTo(lits1);
+        assertThat(_c.pb1.variables(_c.f)).isEqualTo(lits1);
+        assertThat(_c.pb2.variables(_c.f)).isEqualTo(lits2);
+        assertThat(_c.cc1.variables(_c.f)).isEqualTo(lits1);
+        assertThat(_c.cc2.variables(_c.f)).isEqualTo(lits2);
+        assertThat(_c.amo1.variables(_c.f)).isEqualTo(lits1);
+        assertThat(_c.amo2.variables(_c.f)).isEqualTo(lits2);
+        assertThat(_c.exo1.variables(_c.f)).isEqualTo(lits1);
+        assertThat(_c.exo2.variables(_c.f)).isEqualTo(lits2);
     }
 
     @ParameterizedTest

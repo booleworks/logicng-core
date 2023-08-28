@@ -63,9 +63,9 @@ public class DnnfCompiler {
         final Pair<Formula, Formula> pair = initializeClauses();
         unitClauses = f.and(pair.first());
         nonUnitClauses = f.and(pair.second());
-        solver = new DnnfMiniSatStyleSolver(f, cnf.variables().size());
+        solver = new DnnfMiniSatStyleSolver(f, cnf.variables(f).size());
         solver.add(cnf);
-        numberOfVariables = cnf.variables().size();
+        numberOfVariables = cnf.variables(f).size();
         cache = new HashMap<>();
         final int maxClauseSize = computeMaxClauseSize(cnf);
         leafResultOperands = new ArrayList<>(maxClauseSize);
@@ -167,7 +167,7 @@ public class DnnfCompiler {
     protected void initializeCaches(final DTree dTree) {
         final int depth = dTree.depth() + 1;
         final int sep = dTree.widestSeparator() + 1;
-        final int variables = cnf.variables().size();
+        final int variables = cnf.variables(f).size();
 
         localCacheKeys = new BitSet[depth][sep];
         localOccurrences = new int[depth][sep][variables];

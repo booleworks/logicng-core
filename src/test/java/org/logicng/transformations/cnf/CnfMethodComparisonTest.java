@@ -83,7 +83,7 @@ public class CnfMethodComparisonTest {
         final Formula formula = FormulaReader.readPseudoBooleanFormula(fileName, f);
         final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(cnfMethod).build());
         solver.add(formula);
-        return solver.backbone(formula.variables());
+        return solver.backbone(formula.variables(f));
     }
 
     private void compareBackbonePerVariable(final String fileName) throws IOException, ParserException {
@@ -107,11 +107,11 @@ public class CnfMethodComparisonTest {
         final SolverState solverState = solver.saveState();
         final Map<Variable, Backbone> result = new TreeMap<>();
         int counter = 1000;
-        for (final Variable variable : formula.variables()) {
+        for (final Variable variable : formula.variables(f)) {
             if (counter-- > 0) {
                 solver.add(variable);
                 if (solver.sat() == Tristate.TRUE) {
-                    final Backbone backbone = solver.backbone(formula.variables());
+                    final Backbone backbone = solver.backbone(formula.variables(f));
                     result.put(variable, backbone);
                 }
                 solver.loadState(solverState);

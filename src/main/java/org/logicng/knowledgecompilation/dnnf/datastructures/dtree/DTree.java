@@ -4,6 +4,7 @@
 
 package org.logicng.knowledgecompilation.dnnf.datastructures.dtree;
 
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.knowledgecompilation.dnnf.DnnfSatSolver;
 
@@ -59,9 +60,10 @@ public abstract class DTree {
      * Returns all variables of this DTree.
      * <p>
      * Since this set of variables can be cached, this is a constant time operation.
+     * @param f the formula factory to use for caching
      * @return all variables of this DTree
      */
-    abstract SortedSet<Variable> staticVariableSet();
+    abstract SortedSet<Variable> staticVariableSet(final FormulaFactory f);
 
     /**
      * The dynamic separator of this DTree.  "Dynamic" means that subsumed clauses are ignored during the separator computation.

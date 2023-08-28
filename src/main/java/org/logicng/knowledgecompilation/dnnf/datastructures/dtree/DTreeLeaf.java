@@ -6,6 +6,7 @@ package org.logicng.knowledgecompilation.dnnf.datastructures.dtree;
 
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 import org.logicng.knowledgecompilation.dnnf.DnnfSatSolver;
@@ -38,12 +39,13 @@ public class DTreeLeaf extends DTree {
      * Constructs a new leaf with the given id and clause.
      * @param id     the id
      * @param clause the clause
+     * @param f      the formula factory for caching
      */
-    public DTreeLeaf(final int id, final Formula clause) {
+    public DTreeLeaf(final int id, final Formula clause, final FormulaFactory f) {
         this.id = id;
         this.clause = clause;
         staticClauseIds = new int[]{id};
-        clauseSize = clause.variables().size();
+        clauseSize = clause.variables(f).size();
         staticSeparator = new int[0];
         assert clauseSize >= 2;
     }
@@ -72,8 +74,8 @@ public class DTreeLeaf extends DTree {
     }
 
     @Override
-    public SortedSet<Variable> staticVariableSet() {
-        return clause.variables();
+    public SortedSet<Variable> staticVariableSet(final FormulaFactory f) {
+        return clause.variables(f);
     }
 
     @Override

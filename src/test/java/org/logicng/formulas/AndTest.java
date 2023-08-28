@@ -71,14 +71,14 @@ public class AndTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testVariables(final FormulaContext _c) {
-        assertThat(_c.and2.variables().size()).isEqualTo(2);
+        assertThat(_c.and2.variables(_c.f).size()).isEqualTo(2);
         SortedSet<Variable> lits = new TreeSet<>(Arrays.asList(_c.a, _c.b));
-        assertThat(_c.and2.variables()).isEqualTo(lits);
+        assertThat(_c.and2.variables(_c.f)).isEqualTo(lits);
 
         final Formula and = _c.f.and(_c.a, _c.a, _c.b, _c.imp3);
-        assertThat(and.variables().size()).isEqualTo(4);
+        assertThat(and.variables(_c.f).size()).isEqualTo(4);
         lits = new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y));
-        assertThat(and.variables()).isEqualTo(lits);
+        assertThat(and.variables(_c.f)).isEqualTo(lits);
     }
 
     @ParameterizedTest

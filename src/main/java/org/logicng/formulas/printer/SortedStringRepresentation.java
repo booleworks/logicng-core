@@ -72,7 +72,7 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
 
     /**
      * Constructs a new sorted string representation with a given ordering of variables.
-     * @param f        the formula to use for caching
+     * @param f        the formula factory to use for caching
      * @param varOrder the given variable ordering
      */
     public SortedStringRepresentation(final FormulaFactory f, final List<Variable> varOrder) {
@@ -232,8 +232,8 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
          */
         @Override
         public int compare(final Formula formula1, final Formula formula2) {
-            final SortedSet<Variable> vars1 = new TreeSet<>(formula1.variables());
-            final SortedSet<Variable> vars2 = new TreeSet<>(formula2.variables());
+            final SortedSet<Variable> vars1 = new TreeSet<>(formula1.variables(f));
+            final SortedSet<Variable> vars2 = new TreeSet<>(formula2.variables(f));
             for (final Variable v : varOrder) {
                 if (vars1.isEmpty() && vars2.isEmpty()) {
                     break;

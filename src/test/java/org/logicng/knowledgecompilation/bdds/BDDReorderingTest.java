@@ -161,17 +161,17 @@ public class BDDReorderingTest extends TestWithFormulaContext {
                 .numVars(vars).seed(vars * depth * 42)
                 .weightEquiv(0).weightImpl(0).weightNot(0).build());
         return Stream.generate(() -> randomizer.and(depth))
-                .filter(fm -> fm.variables().size() == vars && fm.holds(new SATPredicate(f)))
+                .filter(fm -> fm.variables(f).size() == vars && fm.holds(new SATPredicate(f)))
                 .findAny().get();
     }
 
     private void performReorder(final FormulaFactory f, final Formula formula, final BDDReorderingMethod reorderMethod, final boolean withBlocks, final boolean verbose) {
-        final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables()), 1000, 10000);
+        final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables(f)), 1000, 10000);
         final BDD bdd = BDDFactory.build(f, formula, kernel);
         final BigInteger count = bdd.modelCount();
         final int usedBefore = new BDDOperations(kernel).nodeCount(bdd.index());
         final long start = System.currentTimeMillis();
-        addVariableBlocks(formula.variables().size(), withBlocks, kernel);
+        addVariableBlocks(formula.variables(f).size(), withBlocks, kernel);
         kernel.getReordering().reorder(reorderMethod);
         final long duration = System.currentTimeMillis() - start;
         final int usedAfter = new BDDOperations(kernel).nodeCount(bdd.index());
@@ -213,7 +213,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
                 if (verbose) {
                     System.out.println(String.format("vars = %2d, depth = %2d, nodes = %5d", vars, depth, formula.numberOfNodes(f)));
                 }
-                final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables()), 1000, 10000);
+                final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables(f)), 1000, 10000);
                 final BDD bdd = BDDFactory.build(f, formula, kernel);
                 final int nodeCount = new BDDOperations(kernel).nodeCount(bdd.index());
                 final BigInteger modelCount = bdd.modelCount();
@@ -229,8 +229,8 @@ public class BDDReorderingTest extends TestWithFormulaContext {
 
     private void reorderOnBuild(final FormulaFactory f, final Formula formula, final BDDReorderingMethod method, final BigInteger originalCount, final int originalUsedNodes, final boolean withBlocks,
                                 final boolean verbose) {
-        final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables()), 1000, 10000);
-        addVariableBlocks(formula.variables().size(), withBlocks, kernel);
+        final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables(f)), 1000, 10000);
+        addVariableBlocks(formula.variables(f).size(), withBlocks, kernel);
         kernel.getReordering().setReorderDuringConstruction(method, 10000);
         final long start = System.currentTimeMillis();
         final BDD bdd = BDDFactory.build(f, formula, kernel);
@@ -273,8 +273,8 @@ public class BDDReorderingTest extends TestWithFormulaContext {
             assertThat(findSequence(bdd, IntStream.range(15, 20).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
             assertThat(findSequence(bdd, IntStream.range(15, 18).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
             assertThat(findSequence(bdd, IntStream.range(18, 20).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
-            assertThat(findSequence(bdd, IntStream.range(21, formula.variables().size()).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
-            if (formula.variables().size() > 33) {
+            assertThat(findSequence(bdd, IntStream.range(21, formula.variables(f).size()).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
+            if (formula.variables(f).size() > 33) {
                 assertThat(findSequence(bdd, IntStream.range(30, 34).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
             }
             final List<Variable> order = bdd.getVariableOrder();

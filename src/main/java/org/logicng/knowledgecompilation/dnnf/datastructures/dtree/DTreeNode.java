@@ -6,6 +6,7 @@ package org.logicng.knowledgecompilation.dnnf.datastructures.dtree;
 
 import org.logicng.collections.LNGIntVector;
 import org.logicng.datastructures.Tristate;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.knowledgecompilation.dnnf.DnnfSatSolver;
 import org.logicng.solvers.sat.MiniSatStyleSolver;
@@ -49,8 +50,9 @@ public class DTreeNode extends DTree {
      * Constructs a new DTree node with the given left and right DTree.
      * @param left  the left DTree
      * @param right the right DTree
-     */
-    public DTreeNode(final DTree left, final DTree right) {
+     * @param f     the formula factory to use for caching
+     **/
+    public DTreeNode(final DTree left, final DTree right, final FormulaFactory f) {
         this.left = left;
         this.right = right;
         size = left.size() + right.size();
@@ -65,8 +67,8 @@ public class DTreeNode extends DTree {
         System.arraycopy(leftLeafs, 0, leafs, 0, leftLeafs.length);
         System.arraycopy(rightLeafs, 0, leafs, leftLeafs.length, rightLeafs.length);
 
-        staticVariableSet = new TreeSet<>(left.staticVariableSet());
-        staticVariableSet.addAll(right.staticVariableSet());
+        staticVariableSet = new TreeSet<>(left.staticVariableSet(f));
+        staticVariableSet.addAll(right.staticVariableSet(f));
         staticSeparatorBitSet = new BitSet();
         final int[] leftClauseIds = left.staticClauseIds();
         final int[] rightClauseIds = right.staticClauseIds();
@@ -135,7 +137,7 @@ public class DTreeNode extends DTree {
     }
 
     @Override
-    public SortedSet<Variable> staticVariableSet() {
+    public SortedSet<Variable> staticVariableSet(final FormulaFactory f) {
         return staticVariableSet;
     }
 

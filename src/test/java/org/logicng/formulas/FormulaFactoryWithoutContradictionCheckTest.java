@@ -102,8 +102,8 @@ public class FormulaFactoryWithoutContradictionCheckTest {
         assertThat(_c.contradiction.numberOfNodes(_c.f)).isEqualTo(3);
         assertThat(_c.tautology.type()).isEqualTo(FType.OR);
         assertThat(_c.contradiction.type()).isEqualTo(FType.AND);
-        assertThat(_c.tautology.variables()).containsExactly(_c.a);
-        assertThat(_c.contradiction.variables()).containsExactly(_c.a);
+        assertThat(_c.tautology.variables(_c.f)).containsExactly(_c.a);
+        assertThat(_c.contradiction.variables(_c.f)).containsExactly(_c.a);
         assertThat(_c.tautology.literals(_c.f)).containsExactlyInAnyOrder(_c.a, _c.na);
         assertThat(_c.contradiction.literals(_c.f)).containsExactlyInAnyOrder(_c.a, _c.na);
         assertThat(_c.tautology.containsNode(_c.a)).isTrue();

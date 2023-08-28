@@ -87,7 +87,7 @@ public class CCEXOTest implements LogicNGTest {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(CCConfig.builder().amoEncoding(PURE).build());
         final CardinalityConstraint exo = (CardinalityConstraint) f.exo(IntStream.range(0, 100).mapToObj(i -> f.variable("v" + i)).collect(Collectors.toList()));
-        assertThat(exo.cnf(f).variables()).hasSize(100);
+        assertThat(exo.cnf(f).variables(f)).hasSize(100);
         assertThat(exo.cnf(f).numberOfOperands()).isEqualTo(4951);
     }
 

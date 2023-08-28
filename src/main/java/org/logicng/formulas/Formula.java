@@ -48,7 +48,7 @@ public interface Formula extends Iterable<Formula> {
     /**
      * Returns the number of atomic formulas of this formula.  An atomic formula is a predicate (constants and literals)
      * or a pseudo-Boolean constraint.
-     * @param f the formula to use for caching
+     * @param f the formula factory to use for caching
      * @return the number of atomic formulas of this formula.
      */
     default long numberOfAtoms(final FormulaFactory f) {
@@ -57,7 +57,7 @@ public interface Formula extends Iterable<Formula> {
 
     /**
      * Returns the number of nodes of this formula.
-     * @param f the formula to use for caching
+     * @param f the formula factory to use for caching
      * @return the number of nodes of this formula.
      */
     default long numberOfNodes(final FormulaFactory f) {
@@ -93,17 +93,17 @@ public interface Formula extends Iterable<Formula> {
     /**
      * Returns all variables occurring in this formula.  Returns an unmodifiable set, so do not try to change the variable
      * set manually.
+     * @param f the formula factory to use for caching
      * @return all variables occurring in this formula
      */
-    default SortedSet<Variable> variables() {
-        //TODO not default factory
-        return new VariablesFunction(factory()).apply(this);
+    default SortedSet<Variable> variables(final FormulaFactory f) {
+        return new VariablesFunction(f).apply(this);
     }
 
     /**
      * Returns all literals occurring in this formula.  Returns an unmodifiable set, so do not try to change the literal
      * set manually.
-     * @param f the formula to use for caching
+     * @param f the formula factory to use for caching
      * @return all literals occurring in this formula
      */
     default SortedSet<Literal> literals(final FormulaFactory f) {
@@ -144,7 +144,7 @@ public interface Formula extends Iterable<Formula> {
 
     /**
      * Returns {@code true} if this formula is in NNF, otherwise {@code false}
-     * @param f the formula to use for caching
+     * @param f the formula factory to use for caching
      * @return {@code true} if this formula is in NNF, otherwise {@code false}
      * @see NNFPredicate the NNF predicate
      */
@@ -154,7 +154,7 @@ public interface Formula extends Iterable<Formula> {
 
     /**
      * Returns {@code true} if this formula is in DNF, otherwise {@code false}
-     * @param f the formula to use for caching
+     * @param f the formula factory to use for caching
      * @return {@code true} if this formula is in DNF, otherwise {@code false}
      * @see DNFPredicate the DNF predicate
      */
@@ -164,7 +164,7 @@ public interface Formula extends Iterable<Formula> {
 
     /**
      * Returns {@code true} if this formula is in CNF, otherwise {@code false}
-     * @param f the formula to use for caching
+     * @param f the formula factory to use for caching
      * @return {@code true} if this formula is in CNF, otherwise {@code false}
      * @see CNFPredicate the CNF predicate
      */
@@ -237,7 +237,7 @@ public interface Formula extends Iterable<Formula> {
      * predicate {@link org.logicng.predicates.satisfiability.SATPredicate}. If you want to
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
-     * @param f the formula to use for caching
+     * @param f the formula factory to use for caching
      * @return {@code true} when this formula is satisfiable, {@code false} otherwise
      */
     default boolean isSatisfiable(final FormulaFactory f) {
@@ -250,7 +250,7 @@ public interface Formula extends Iterable<Formula> {
      * predicate {@link org.logicng.predicates.satisfiability.TautologyPredicate}. If you want to
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
-     * @param f the formula to use for caching
+     * @param f the formula factory to use for caching
      * @return {@code true} when this formula is a tautology, {@code false} otherwise
      */
     default boolean isTautology(final FormulaFactory f) {
@@ -263,7 +263,7 @@ public interface Formula extends Iterable<Formula> {
      * predicate {@link org.logicng.predicates.satisfiability.ContradictionPredicate}. If you want to
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
-     * @param f the formula to use for caching
+     * @param f the formula factory to use for caching
      * @return {@code true} when this formula is a contradiction, {@code false} otherwise
      */
     default boolean isContradiction(final FormulaFactory f) {
@@ -276,11 +276,11 @@ public interface Formula extends Iterable<Formula> {
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
      * @param other the formula which should be checked if it is implied by this formula
-     * @param f     the formula to use for caching
+     * @param f     the formula factory to use for caching
      * @return {@code true} when this formula implies the given other formula, {@code false} otherwise
      */
     default boolean implies(final Formula other, final FormulaFactory f) {
-        return factory().implication(this, other).holds(new TautologyPredicate(f));
+        return f.implication(this, other).holds(new TautologyPredicate(f));
     }
 
     /**
@@ -289,11 +289,11 @@ public interface Formula extends Iterable<Formula> {
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
      * @param other the formula which should be checked if it implies this formula
-     * @param f     the formula to use for caching
+     * @param f     the formula factory to use for caching
      * @return {@code true} when this formula is implied by the given other formula, {@code false} otherwise
      */
     default boolean isImpliedBy(final Formula other, final FormulaFactory f) {
-        return factory().implication(other, this).holds(new TautologyPredicate(f));
+        return f.implication(other, this).holds(new TautologyPredicate(f));
     }
 
     /**
@@ -302,11 +302,11 @@ public interface Formula extends Iterable<Formula> {
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
      * @param other the formula which should be checked if it is equivalent with this formula
-     * @param f     the formula to use for caching
+     * @param f     the formula factory to use for caching
      * @return {@code true} when this formula is equivalent to the given other formula, {@code false} otherwise
      */
     default boolean isEquivalentTo(final Formula other, final FormulaFactory f) {
-        return factory().equivalence(this, other).holds(new TautologyPredicate(f));
+        return f.equivalence(this, other).holds(new TautologyPredicate(f));
     }
 
     /**
@@ -320,7 +320,7 @@ public interface Formula extends Iterable<Formula> {
      */
     default BDD bdd(final FormulaFactory f, final VariableOrderingProvider provider) {
         final Formula formula = nnf(f);
-        final int varNum = formula.variables().size();
+        final int varNum = formula.variables(f).size();
         final BDDKernel kernel;
         if (provider == null) {
             kernel = new BDDKernel(f, varNum, varNum * 30, varNum * 20);

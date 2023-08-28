@@ -45,10 +45,10 @@ public class LiteralTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testVariables(final FormulaContext _c) {
-        assertThat(_c.a.variables())
+        assertThat(_c.a.variables(_c.f))
                 .hasSize(1)
                 .containsExactly(_c.a);
-        assertThat(_c.na.variables())
+        assertThat(_c.na.variables(_c.f))
                 .hasSize(1)
                 .containsExactly(_c.a);
     }

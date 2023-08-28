@@ -99,7 +99,7 @@ public class FormulaRandomizerTest {
                 .weightExo(1)
                 .seed(42).build());
         for (int i = 0; i < 100; i++) {
-            assertThat(random2.formula(4).variables()).isSubsetOf(vars2);
+            assertThat(random2.formula(4).variables(f)).isSubsetOf(vars2);
         }
     }
 

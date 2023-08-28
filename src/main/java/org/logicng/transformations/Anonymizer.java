@@ -71,10 +71,10 @@ public final class Anonymizer extends StatefulFormulaTransformation<Substitution
 
     @Override
     public Formula apply(final Formula formula) {
-        if (formula.variables().isEmpty()) {
+        if (formula.variables(f).isEmpty()) {
             return formula;
         }
-        for (final Variable variable : formula.variables()) {
+        for (final Variable variable : formula.variables(f)) {
             if (state.getSubstitution(variable) == null) {
                 state.addMapping(variable, f.variable(prefix + counter++));
             }

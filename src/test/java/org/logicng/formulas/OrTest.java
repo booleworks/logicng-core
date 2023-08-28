@@ -61,14 +61,14 @@ public class OrTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testVariables(final FormulaContext _c) {
-        assertThat(_c.or2.variables().size()).isEqualTo(2);
+        assertThat(_c.or2.variables(_c.f).size()).isEqualTo(2);
         SortedSet<Variable> lits = new TreeSet<>(Arrays.asList(_c.x, _c.y));
-        assertThat(_c.or2.variables()).isEqualTo(lits);
+        assertThat(_c.or2.variables(_c.f)).isEqualTo(lits);
 
         final Formula or = _c.f.or(_c.a, _c.a, _c.b, _c.imp3);
-        assertThat(or.variables().size()).isEqualTo(4);
+        assertThat(or.variables(_c.f).size()).isEqualTo(4);
         lits = new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y));
-        assertThat(or.variables()).isEqualTo(lits);
+        assertThat(or.variables(_c.f)).isEqualTo(lits);
     }
 
     @ParameterizedTest

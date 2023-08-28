@@ -51,14 +51,14 @@ public class ImplicationTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testVariables(final FormulaContext _c) {
-        assertThat(_c.imp3.variables().size()).isEqualTo(4);
+        assertThat(_c.imp3.variables(_c.f).size()).isEqualTo(4);
         SortedSet<Variable> lits = new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y));
-        assertThat(_c.imp3.variables()).isEqualTo(lits);
+        assertThat(_c.imp3.variables(_c.f)).isEqualTo(lits);
 
         final Formula imp = _c.f.implication(_c.and1, _c.and2);
-        assertThat(imp.variables().size()).isEqualTo(2);
+        assertThat(imp.variables(_c.f).size()).isEqualTo(2);
         lits = new TreeSet<>(Arrays.asList(_c.a, _c.b));
-        assertThat(imp.variables()).isEqualTo(lits);
+        assertThat(imp.variables(_c.f)).isEqualTo(lits);
     }
 
     @ParameterizedTest

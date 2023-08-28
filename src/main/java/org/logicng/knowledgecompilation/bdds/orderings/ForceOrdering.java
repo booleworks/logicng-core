@@ -36,11 +36,11 @@ public final class ForceOrdering implements VariableOrderingProvider {
 
     @Override
     public List<Variable> getOrder(final FormulaFactory f, final Formula formula) {
-        final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables());
+        final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables(f));
         final Formula nnf = formula.nnf(f);
-        originalVariables.addAll(nnf.variables());
+        originalVariables.addAll(nnf.variables(f));
         final Formula cnf = nnf.cnf(f);
-        final Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(cnf);
+        final Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(f, cnf);
         final Map<Variable, HypergraphNode<Variable>> nodes = new HashMap<>();
         for (final HypergraphNode<Variable> node : hypergraph.nodes()) {
             nodes.put(node.content(), node);

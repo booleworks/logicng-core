@@ -32,11 +32,11 @@ public class ConstraintGraphGeneratorTest {
     public void testSimple() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        assertThat(ConstraintGraphGenerator.generateFromFormulas(List.of(f.falsum())).nodes()).isEmpty();
-        assertThat(ConstraintGraphGenerator.generateFromFormulas(f.verum()).nodes()).isEmpty();
-        Graph<Variable> graph = ConstraintGraphGenerator.generateFromFormulas(p.parse("a"));
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f, List.of(f.falsum())).nodes()).isEmpty();
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f, f.verum()).nodes()).isEmpty();
+        Graph<Variable> graph = ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a"));
         assertThat(graph.nodes()).containsExactly(graph.node(f.variable("a")));
-        graph = ConstraintGraphGenerator.generateFromFormulas(p.parse("~a"));
+        graph = ConstraintGraphGenerator.generateFromFormulas(f, p.parse("~a"));
         assertThat(graph.nodes()).containsExactly(graph.node(f.variable("a")));
     }
 
@@ -51,7 +51,7 @@ public class ConstraintGraphGeneratorTest {
         expected.connect(a, b);
         expected.connect(a, c);
         expected.connect(b, c);
-        assertThat(ConstraintGraphGenerator.generateFromFormulas(p.parse("a | ~b | c")).toString()).isEqualTo(expected.toString());
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a | ~b | c")).toString()).isEqualTo(expected.toString());
     }
 
     @Test
@@ -65,7 +65,7 @@ public class ConstraintGraphGeneratorTest {
         expected.connect(a, b);
         expected.connect(a, c);
         expected.connect(b, c);
-        assertThat(ConstraintGraphGenerator.generateFromFormulas(p.parse("a + b + c <= 1")).toString()).isEqualTo(expected.toString());
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a + b + c <= 1")).toString()).isEqualTo(expected.toString());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class ConstraintGraphGeneratorTest {
         expected.connect(b, c);
         expected.connect(d, a);
         expected.connect(d, e);
-        assertThat(ConstraintGraphGenerator.generateFromFormulas(
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f,
                 p.parse("a | ~b | c"),
                 p.parse("d | ~a"),
                 p.parse("d + e = 1"),
@@ -105,7 +105,7 @@ public class ConstraintGraphGeneratorTest {
                 formulas.add(formula.transform(new CNFFactorization(f)));
             }
         }
-        final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(formulas);
+        final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(f, formulas);
         final Set<Set<Node<Variable>>> ccs = ConnectedComponentsComputation.compute(constraintGraph);
         assertThat(ccs).hasSize(4);
     }

@@ -82,7 +82,7 @@ public final class BackboneGeneration {
      * @return the backbone
      */
     public static Backbone compute(final FormulaFactory f, final Collection<Formula> formulas, final BackboneType type) {
-        return compute(f, formulas, FormulaHelper.variables(formulas), type);
+        return compute(f, formulas, FormulaHelper.variables(f, formulas), type);
     }
 
     /**
@@ -92,7 +92,7 @@ public final class BackboneGeneration {
      * @return the backbone
      */
     public static Backbone compute(final FormulaFactory f, final Collection<Formula> formulas) {
-        return compute(f, formulas, FormulaHelper.variables(formulas), BackboneType.POSITIVE_AND_NEGATIVE);
+        return compute(f, formulas, FormulaHelper.variables(f, formulas), BackboneType.POSITIVE_AND_NEGATIVE);
     }
 
     /**
@@ -126,7 +126,7 @@ public final class BackboneGeneration {
      * @return the backbone
      */
     public static Backbone compute(final FormulaFactory f, final Formula formula, final BackboneType type) {
-        return compute(f, formula, formula.variables(), type);
+        return compute(f, formula, formula.variables(f), type);
     }
 
     /**
@@ -136,7 +136,7 @@ public final class BackboneGeneration {
      * @return the backbone
      */
     public static Backbone compute(final FormulaFactory f, final Formula formula) {
-        return compute(f, formula, formula.variables(), BackboneType.POSITIVE_AND_NEGATIVE);
+        return compute(f, formula, formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE);
     }
 
     /**
@@ -157,7 +157,7 @@ public final class BackboneGeneration {
      * @return the positive backbone
      */
     public static Backbone computePositive(final FormulaFactory f, final Collection<Formula> formulas) {
-        return compute(f, formulas, FormulaHelper.variables(formulas), BackboneType.ONLY_POSITIVE);
+        return compute(f, formulas, FormulaHelper.variables(f, formulas), BackboneType.ONLY_POSITIVE);
     }
 
     /**
@@ -178,7 +178,7 @@ public final class BackboneGeneration {
      * @return the positive backbone
      */
     public static Backbone computePositive(final FormulaFactory f, final Formula formula) {
-        return compute(f, formula, formula.variables(), BackboneType.ONLY_POSITIVE);
+        return compute(f, formula, formula.variables(f), BackboneType.ONLY_POSITIVE);
     }
 
     /**
@@ -199,7 +199,7 @@ public final class BackboneGeneration {
      * @return the negative backbone
      */
     public static Backbone computeNegative(final FormulaFactory f, final Collection<Formula> formulas) {
-        return compute(f, formulas, FormulaHelper.variables(formulas), BackboneType.ONLY_NEGATIVE);
+        return compute(f, formulas, FormulaHelper.variables(f, formulas), BackboneType.ONLY_NEGATIVE);
     }
 
     /**
@@ -220,6 +220,6 @@ public final class BackboneGeneration {
      * @return the negative backbone
      */
     public static Backbone computeNegative(final FormulaFactory f, final Formula formula) {
-        return compute(f, formula, formula.variables(), BackboneType.ONLY_NEGATIVE);
+        return compute(f, formula, formula.variables(f), BackboneType.ONLY_NEGATIVE);
     }
 }
