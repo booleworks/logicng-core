@@ -144,7 +144,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
                 final FormulaFactory f = FormulaFactory.caching();
                 final Formula formula = randomFormula(vars, depth, f);
                 if (verbose) {
-                    System.out.printf("vars = %2d, depth = %2d, nodes = %5d%n", vars, depth, formula.numberOfNodes());
+                    System.out.printf("vars = %2d, depth = %2d, nodes = %5d%n", vars, depth, formula.numberOfNodes(f));
                 }
                 for (final BDDReorderingMethod method : REORDER_METHODS) {
                     performReorder(f, formula, method, true, verbose);
@@ -211,7 +211,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
                 final FormulaFactory f = FormulaFactory.caching();
                 final Formula formula = randomFormula(vars, depth, f);
                 if (verbose) {
-                    System.out.println(String.format("vars = %2d, depth = %2d, nodes = %5d", vars, depth, formula.numberOfNodes()));
+                    System.out.println(String.format("vars = %2d, depth = %2d, nodes = %5d", vars, depth, formula.numberOfNodes(f)));
                 }
                 final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables()), 1000, 10000);
                 final BDD bdd = BDDFactory.build(f, formula, kernel);
@@ -310,7 +310,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         private long maxBddSize = 0;  // num nodes without caching
 
         public void newFormula(final Formula formula) {
-            maxFormulaSize = Math.max(maxFormulaSize, formula.numberOfNodes());
+            maxFormulaSize = Math.max(maxFormulaSize, formula.numberOfNodes(formula.factory()));
         }
 
         public void newBdd(final BDD bdd) {

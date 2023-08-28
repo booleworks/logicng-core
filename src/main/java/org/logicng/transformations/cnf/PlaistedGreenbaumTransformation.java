@@ -113,7 +113,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
             return nnf;
         }
         Formula pg;
-        if (nnf.numberOfAtoms() < boundaryForFactorization) {
+        if (nnf.numberOfAtoms(f) < boundaryForFactorization) {
             pg = nnf.transform(factorization);
         } else {
             pg = computeTransformation(nnf);

@@ -260,29 +260,29 @@ public class PBConstraintTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNumberOfAtoms(final FormulaContext _c) {
-        assertThat(_c.pb1.numberOfAtoms()).isEqualTo(1);
-        assertThat(_c.pb2.numberOfAtoms()).isEqualTo(1);
-        assertThat(_c.cc1.numberOfAtoms()).isEqualTo(1);
-        assertThat(_c.cc2.numberOfAtoms()).isEqualTo(1);
-        assertThat(_c.amo1.numberOfAtoms()).isEqualTo(1);
-        assertThat(_c.amo2.numberOfAtoms()).isEqualTo(1);
-        assertThat(_c.exo1.numberOfAtoms()).isEqualTo(1);
-        assertThat(_c.exo2.numberOfAtoms()).isEqualTo(1);
-        assertThat(_c.exo2.numberOfAtoms()).isEqualTo(1);
+        assertThat(_c.pb1.numberOfAtoms(_c.f)).isEqualTo(1);
+        assertThat(_c.pb2.numberOfAtoms(_c.f)).isEqualTo(1);
+        assertThat(_c.cc1.numberOfAtoms(_c.f)).isEqualTo(1);
+        assertThat(_c.cc2.numberOfAtoms(_c.f)).isEqualTo(1);
+        assertThat(_c.amo1.numberOfAtoms(_c.f)).isEqualTo(1);
+        assertThat(_c.amo2.numberOfAtoms(_c.f)).isEqualTo(1);
+        assertThat(_c.exo1.numberOfAtoms(_c.f)).isEqualTo(1);
+        assertThat(_c.exo2.numberOfAtoms(_c.f)).isEqualTo(1);
+        assertThat(_c.exo2.numberOfAtoms(_c.f)).isEqualTo(1);
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNumberOfNodes(final FormulaContext _c) {
-        assertThat(_c.pb1.numberOfNodes()).isEqualTo(2);
-        assertThat(_c.pb2.numberOfNodes()).isEqualTo(4);
-        assertThat(_c.cc1.numberOfNodes()).isEqualTo(2);
-        assertThat(_c.cc2.numberOfNodes()).isEqualTo(4);
-        assertThat(_c.amo1.numberOfNodes()).isEqualTo(2);
-        assertThat(_c.amo2.numberOfNodes()).isEqualTo(4);
-        assertThat(_c.exo1.numberOfNodes()).isEqualTo(2);
-        assertThat(_c.exo2.numberOfNodes()).isEqualTo(4);
-        assertThat(_c.exo2.numberOfNodes()).isEqualTo(4);
+        assertThat(_c.pb1.numberOfNodes(_c.f)).isEqualTo(2);
+        assertThat(_c.pb2.numberOfNodes(_c.f)).isEqualTo(4);
+        assertThat(_c.cc1.numberOfNodes(_c.f)).isEqualTo(2);
+        assertThat(_c.cc2.numberOfNodes(_c.f)).isEqualTo(4);
+        assertThat(_c.amo1.numberOfNodes(_c.f)).isEqualTo(2);
+        assertThat(_c.amo2.numberOfNodes(_c.f)).isEqualTo(4);
+        assertThat(_c.exo1.numberOfNodes(_c.f)).isEqualTo(2);
+        assertThat(_c.exo2.numberOfNodes(_c.f)).isEqualTo(4);
+        assertThat(_c.exo2.numberOfNodes(_c.f)).isEqualTo(4);
     }
 
     @ParameterizedTest
@@ -307,14 +307,14 @@ public class PBConstraintTest extends TestWithFormulaContext {
         final SortedSet<Variable> lits1 = new TreeSet<>(Collections.singletonList(_c.f.variable("a")));
         final SortedSet<Literal> lits2 = new TreeSet<>(Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c")));
         final SortedSet<Variable> litsCC2 = new TreeSet<>(Arrays.asList(_c.f.variable("a"), _c.f.variable("b"), _c.f.variable("c")));
-        assertThat(_c.pb1.literals()).isEqualTo(lits1);
-        assertThat(_c.pb2.literals()).isEqualTo(lits2);
-        assertThat(_c.cc1.literals()).isEqualTo(lits1);
-        assertThat(_c.cc2.literals()).isEqualTo(litsCC2);
-        assertThat(_c.amo1.literals()).isEqualTo(lits1);
-        assertThat(_c.amo2.literals()).isEqualTo(litsCC2);
-        assertThat(_c.exo1.literals()).isEqualTo(lits1);
-        assertThat(_c.exo2.literals()).isEqualTo(litsCC2);
+        assertThat(_c.pb1.literals(_c.f)).isEqualTo(lits1);
+        assertThat(_c.pb2.literals(_c.f)).isEqualTo(lits2);
+        assertThat(_c.cc1.literals(_c.f)).isEqualTo(lits1);
+        assertThat(_c.cc2.literals(_c.f)).isEqualTo(litsCC2);
+        assertThat(_c.amo1.literals(_c.f)).isEqualTo(lits1);
+        assertThat(_c.amo2.literals(_c.f)).isEqualTo(litsCC2);
+        assertThat(_c.exo1.literals(_c.f)).isEqualTo(lits1);
+        assertThat(_c.exo2.literals(_c.f)).isEqualTo(litsCC2);
     }
 
     @ParameterizedTest

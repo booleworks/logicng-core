@@ -11,6 +11,7 @@ import org.logicng.formulas.Literal;
 import org.logicng.formulas.NAryOperator;
 import org.logicng.formulas.Not;
 import org.logicng.formulas.PBConstraint;
+import org.logicng.functions.LiteralsFunction;
 import org.logicng.io.graphical.GraphicalEdge;
 import org.logicng.io.graphical.GraphicalNode;
 import org.logicng.io.graphical.GraphicalRepresentation;
@@ -51,7 +52,8 @@ public class FormulaDagGraphicalGenerator extends GraphicalGenerator<Formula> {
     public GraphicalRepresentation translate(final Formula formula) {
         final Map<Formula, GraphicalNode> nodes = new HashMap<>();
         final GraphicalRepresentation graphicalRepresentation = new GraphicalRepresentation(alignTerminals, true, backgroundColor);
-        for (final Literal lit : formula.literals()) {
+        final LiteralsFunction lf = new LiteralsFunction(formula.factory(), null);
+        for (final Literal lit : formula.apply(lf)) {
             final String label = (lit.phase() ? "" : "¬") + lit.name();
             final GraphicalNode literalNode = new GraphicalNode(ID + nodes.size(), label, true, nodeStyle(lit));
             graphicalRepresentation.addNode(literalNode);

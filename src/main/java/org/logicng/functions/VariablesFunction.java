@@ -83,7 +83,7 @@ public class VariablesFunction extends CacheableFormulaFunction<SortedSet<Variab
                 break;
             case PBC:
                 final PBConstraint pbc = (PBConstraint) formula;
-                result = FormulaHelper.variables(pbc.literals());
+                result = FormulaHelper.variables(pbc.literals(f));
                 break;
             default:
                 throw new IllegalStateException("Unknown formula type " + formula.type());

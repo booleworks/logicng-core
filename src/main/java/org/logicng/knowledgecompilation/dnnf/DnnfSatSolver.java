@@ -6,6 +6,7 @@ package org.logicng.knowledgecompilation.dnnf;
 
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 
 import java.util.BitSet;
@@ -16,6 +17,12 @@ import java.util.BitSet;
  * @since 2.0.0
  */
 public interface DnnfSatSolver {
+
+    /**
+     * Returns the factory of the solver
+     * @return the factory
+     */
+    public FormulaFactory f();
 
     /**
      * Adds a formula to the solver.  The formula is first converted to CNF.

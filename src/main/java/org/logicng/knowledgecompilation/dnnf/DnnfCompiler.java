@@ -291,7 +291,7 @@ public class DnnfCompiler {
     }
 
     protected Formula leaf2Ddnnf(final DTreeLeaf leaf) {
-        final Iterator<Literal> literals = leaf.clause().literals().iterator();
+        final Iterator<Literal> literals = leaf.clause().literals(f).iterator();
         leafResultOperands.clear();
         leafCurrentLiterals.clear();
         Literal lit;

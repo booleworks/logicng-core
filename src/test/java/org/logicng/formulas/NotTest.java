@@ -58,14 +58,14 @@ public class NotTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLiterals(final FormulaContext _c) {
-        assertThat(_c.not1.literals().size()).isEqualTo(2);
+        assertThat(_c.not1.literals(_c.f).size()).isEqualTo(2);
         SortedSet<? extends Literal> lits = new TreeSet<>(Arrays.asList(_c.a, _c.b));
-        assertThat(_c.not1.literals()).isEqualTo(lits);
+        assertThat(_c.not1.literals(_c.f)).isEqualTo(lits);
 
         final Formula not = _c.f.not(_c.f.and(_c.a, _c.nb, _c.f.implication(_c.b, _c.na)));
-        assertThat(not.literals().size()).isEqualTo(4);
+        assertThat(not.literals(_c.f).size()).isEqualTo(4);
         lits = new TreeSet<>(Arrays.asList(_c.a, _c.na, _c.b, _c.nb));
-        assertThat(not.literals()).isEqualTo(lits);
+        assertThat(not.literals(_c.f)).isEqualTo(lits);
     }
 
     @ParameterizedTest
@@ -116,19 +116,19 @@ public class NotTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNumberOfAtoms(final FormulaContext _c) {
-        assertThat(_c.not1.numberOfAtoms()).isEqualTo(2);
-        assertThat(_c.not1.numberOfAtoms()).isEqualTo(2);
-        assertThat(_c.not2.numberOfAtoms()).isEqualTo(2);
-        assertThat(_c.or1.numberOfAtoms()).isEqualTo(2);
-        assertThat(_c.or1.numberOfAtoms()).isEqualTo(2);
+        assertThat(_c.not1.numberOfAtoms(_c.f)).isEqualTo(2);
+        assertThat(_c.not1.numberOfAtoms(_c.f)).isEqualTo(2);
+        assertThat(_c.not2.numberOfAtoms(_c.f)).isEqualTo(2);
+        assertThat(_c.or1.numberOfAtoms(_c.f)).isEqualTo(2);
+        assertThat(_c.or1.numberOfAtoms(_c.f)).isEqualTo(2);
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNumberOfNodes(final FormulaContext _c) {
-        assertThat(_c.not1.numberOfNodes()).isEqualTo(4);
-        assertThat(_c.not2.numberOfNodes()).isEqualTo(4);
-        assertThat(_c.not2.numberOfNodes()).isEqualTo(4);
+        assertThat(_c.not1.numberOfNodes(_c.f)).isEqualTo(4);
+        assertThat(_c.not2.numberOfNodes(_c.f)).isEqualTo(4);
+        assertThat(_c.not2.numberOfNodes(_c.f)).isEqualTo(4);
     }
 
     @ParameterizedTest

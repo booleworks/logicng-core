@@ -25,7 +25,7 @@ public class SortedStringRepresentationTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testFormulaComparator(final FormulaContext _c) {
         final List<Variable> varOrder = new ArrayList<>(Arrays.asList(_c.y, _c.x, _c.b, _c.a, _c.c));
-        final SortedStringRepresentation.FormulaComparator comparator = new SortedStringRepresentation.FormulaComparator(varOrder);
+        final SortedStringRepresentation.FormulaComparator comparator = new SortedStringRepresentation.FormulaComparator(_c.f, varOrder);
         assertThat(comparator.compare(_c.falsum, _c.verum)).isZero();
         assertThat(comparator.compare(_c.a, _c.a)).isZero();
         assertThat(comparator.compare(_c.a, _c.b)).isPositive();
@@ -44,7 +44,7 @@ public class SortedStringRepresentationTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testSortedPrinter(final FormulaContext _c) {
         final List<Variable> varOrder = new ArrayList<>(Arrays.asList(_c.y, _c.x, _c.b, _c.a, _c.c));
-        final FormulaStringRepresentation sr = new SortedStringRepresentation(varOrder);
+        final FormulaStringRepresentation sr = new SortedStringRepresentation(_c.f, varOrder);
         assertThat(_c.f.string(_c.falsum, sr)).isEqualTo("$false");
         assertThat(_c.f.string(_c.verum, sr)).isEqualTo("$true");
         assertThat(_c.f.string(_c.x, sr)).isEqualTo("x");
@@ -78,14 +78,14 @@ public class SortedStringRepresentationTest extends TestWithFormulaContext {
         assertThat(_c.f.string(_c.pbc2, sr)).isEqualTo("-4*b + 2*a + 3*x > 2");
 
         // empty varOrder
-        assertThat(_c.f.string(_c.eq3, new SortedStringRepresentation(new ArrayList<>()))).isEqualTo("a & b <=> x | y");
+        assertThat(_c.f.string(_c.eq3, new SortedStringRepresentation(_c.f, new ArrayList<>()))).isEqualTo("a & b <=> x | y");
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testViaFormulaFactoryConfig(final FormulaContext _c) {
         final List<Variable> varOrder = new ArrayList<>(Arrays.asList(_c.y, _c.x, _c.b, _c.a, _c.c));
-        final FormulaStringRepresentation sr = new SortedStringRepresentation(varOrder);
+        final FormulaStringRepresentation sr = new SortedStringRepresentation(_c.f, varOrder);
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().stringRepresentation(() -> sr).build());
         assertThat(f.importFormula(_c.eq4).toString()).isEqualTo("a => b <=> ~a => ~b");
     }

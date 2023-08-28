@@ -63,19 +63,19 @@ public class EquivalenceTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLiterals(final FormulaContext _c) {
-        assertThat(_c.imp3.literals().size()).isEqualTo(4);
+        assertThat(_c.imp3.literals(_c.f).size()).isEqualTo(4);
         SortedSet<Literal> lits = new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y));
-        assertThat(_c.imp3.literals()).isEqualTo(lits);
+        assertThat(_c.imp3.literals(_c.f)).isEqualTo(lits);
 
         Formula equiv = _c.f.equivalence(_c.and1, _c.and2);
-        assertThat(equiv.literals().size()).isEqualTo(4);
+        assertThat(equiv.literals(_c.f).size()).isEqualTo(4);
         lits = new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.na, _c.nb));
-        assertThat(equiv.literals()).isEqualTo(lits);
+        assertThat(equiv.literals(_c.f)).isEqualTo(lits);
 
         equiv = _c.f.equivalence(_c.and1, _c.a);
-        assertThat(equiv.literals().size()).isEqualTo(2);
+        assertThat(equiv.literals(_c.f).size()).isEqualTo(2);
         lits = new TreeSet<>(Arrays.asList(_c.a, _c.b));
-        assertThat(equiv.literals()).isEqualTo(lits);
+        assertThat(equiv.literals(_c.f)).isEqualTo(lits);
     }
 
     @ParameterizedTest
@@ -143,17 +143,17 @@ public class EquivalenceTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNumberOfAtoms(final FormulaContext _c) {
-        assertThat(_c.eq1.numberOfAtoms()).isEqualTo(2);
-        assertThat(_c.eq4.numberOfAtoms()).isEqualTo(4);
-        assertThat(_c.eq4.numberOfAtoms()).isEqualTo(4);
+        assertThat(_c.eq1.numberOfAtoms(_c.f)).isEqualTo(2);
+        assertThat(_c.eq4.numberOfAtoms(_c.f)).isEqualTo(4);
+        assertThat(_c.eq4.numberOfAtoms(_c.f)).isEqualTo(4);
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNumberOfNodes(final FormulaContext _c) {
-        assertThat(_c.eq1.numberOfNodes()).isEqualTo(3);
-        assertThat(_c.eq4.numberOfNodes()).isEqualTo(7);
-        assertThat(_c.eq4.numberOfNodes()).isEqualTo(7);
+        assertThat(_c.eq1.numberOfNodes(_c.f)).isEqualTo(3);
+        assertThat(_c.eq4.numberOfNodes(_c.f)).isEqualTo(7);
+        assertThat(_c.eq4.numberOfNodes(_c.f)).isEqualTo(7);
     }
 
     @ParameterizedTest

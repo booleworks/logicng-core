@@ -8,6 +8,7 @@ import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
+import org.logicng.functions.LiteralsFunction;
 import org.logicng.predicates.CNFPredicate;
 
 import java.io.BufferedWriter;
@@ -49,6 +50,7 @@ public final class FormulaDimacsFileWriter {
      * @throws IllegalArgumentException if the formula was not in CNF
      */
     public static void write(final String fileName, final Formula formula, final boolean writeMapping) throws IOException {
+        final LiteralsFunction lf = new LiteralsFunction(formula.factory(), null);
         final File file = new File(fileName.endsWith(CNF_EXTENSION) ? fileName : fileName + CNF_EXTENSION);
         final SortedMap<Variable, Long> var2id = new TreeMap<>();
         long i = 1;
@@ -71,7 +73,7 @@ public final class FormulaDimacsFileWriter {
         sb.append(var2id.size()).append(" ").append(partsSize).append(System.lineSeparator());
 
         for (final Formula part : parts) {
-            for (final Literal lit : part.literals()) {
+            for (final Literal lit : part.apply(lf)) {
                 sb.append(lit.phase() ? "" : "-").append(var2id.get(lit.variable())).append(" ");
             }
             sb.append(String.format(" 0%n"));

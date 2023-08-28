@@ -56,10 +56,10 @@ public class LiteralTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLiterals(final FormulaContext _c) {
-        assertThat(_c.a.literals())
+        assertThat(_c.a.literals(_c.f))
                 .hasSize(1)
                 .containsExactly(_c.a);
-        assertThat(_c.na.literals())
+        assertThat(_c.na.literals(_c.f))
                 .hasSize(1)
                 .containsExactly(_c.na);
     }
@@ -129,17 +129,17 @@ public class LiteralTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNumberOfAtoms(final FormulaContext _c) {
-        assertThat(_c.a.numberOfAtoms()).isEqualTo(1);
-        assertThat(_c.na.numberOfAtoms()).isEqualTo(1);
-        assertThat(_c.na.numberOfAtoms()).isEqualTo(1);
+        assertThat(_c.a.numberOfAtoms(_c.f)).isEqualTo(1);
+        assertThat(_c.na.numberOfAtoms(_c.f)).isEqualTo(1);
+        assertThat(_c.na.numberOfAtoms(_c.f)).isEqualTo(1);
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNumberOfNodes(final FormulaContext _c) {
-        assertThat(_c.a.numberOfNodes()).isEqualTo(1);
-        assertThat(_c.na.numberOfNodes()).isEqualTo(1);
-        assertThat(_c.na.numberOfNodes()).isEqualTo(1);
+        assertThat(_c.a.numberOfNodes(_c.f)).isEqualTo(1);
+        assertThat(_c.na.numberOfNodes(_c.f)).isEqualTo(1);
+        assertThat(_c.na.numberOfNodes(_c.f)).isEqualTo(1);
     }
 
     @ParameterizedTest

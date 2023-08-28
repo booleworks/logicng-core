@@ -157,7 +157,7 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
     private List<Formula> negateAllLiteralsInFormulas(final Collection<Formula> formulas, final FormulaFactory f) {
         final List<Formula> result = new ArrayList<>();
         for (final Formula formula : formulas) {
-            result.add(f.and(FormulaHelper.negateLiterals(f, formula.literals(), ArrayList::new)));
+            result.add(f.and(FormulaHelper.negateLiterals(f, formula.literals(f), ArrayList::new)));
         }
         return result;
     }

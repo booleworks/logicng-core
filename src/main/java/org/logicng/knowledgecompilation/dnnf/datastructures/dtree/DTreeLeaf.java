@@ -51,7 +51,7 @@ public class DTreeLeaf extends DTree {
     @Override
     public void initialize(final DnnfSatSolver solver) {
         this.solver = solver;
-        final SortedSet<Literal> lits = clause.literals();
+        final SortedSet<Literal> lits = clause.literals(solver.f());
         final int size = lits.size();
         staticVarSet = new BitSet();
         staticVariables = new int[size];

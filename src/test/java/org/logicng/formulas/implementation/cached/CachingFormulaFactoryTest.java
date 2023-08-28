@@ -161,11 +161,11 @@ public class CachingFormulaFactoryTest {
         assertThat(f.statistics()).isEqualToComparingOnlyGivenFields(g.statistics(), "positiveLiterals",
                 "negativeLiterals", "negations", "implications", "equivalences", "conjunctions2", "conjunctions3",
                 "conjunctions4", "conjunctionsN", "disjunctions2", "disjunctions3", "disjunctions4");
-        for (final Literal litF : ff.literals()) {
+        for (final Literal litF : ff.literals(f)) {
             assertThat(litF.factory()).isSameAs(f);
         }
-        for (final Literal litG : fg.literals()) {
-            assertThat(litG.factory()).isSameAs(g);
+        for (final Literal litG : fg.literals(f)) {
+            assertThat(litG.factory()).isSameAs(f);
         }
     }
 

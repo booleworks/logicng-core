@@ -310,8 +310,8 @@ public class MaxSATSolver {
      */
     protected void addClause(final Formula formula, final int weight) {
         result = UNDEF;
-        final LNGIntVector clauseVec = new LNGIntVector((int) formula.numberOfAtoms());
-        for (final Literal lit : formula.literals()) {
+        final LNGIntVector clauseVec = new LNGIntVector((int) formula.numberOfAtoms(f));
+        for (final Literal lit : formula.literals(f)) {
             Integer index = var2index.get(lit.variable());
             if (index == null) {
                 index = solver.newLiteral(false) >> 1;

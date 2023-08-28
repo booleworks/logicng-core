@@ -20,7 +20,7 @@ public class CFalseTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNumberOfAtoms(final FormulaContext _c) {
-        assertThat(_c.falsum.numberOfAtoms()).isEqualTo(1);
+        assertThat(_c.falsum.numberOfAtoms(_c.f)).isEqualTo(1);
     }
 
     @ParameterizedTest
@@ -38,7 +38,7 @@ public class CFalseTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLiterals(final FormulaContext _c) {
-        assertThat(_c.falsum.literals().size()).isEqualTo(0);
+        assertThat(_c.falsum.literals(_c.f).size()).isEqualTo(0);
     }
 
     @ParameterizedTest
@@ -72,7 +72,7 @@ public class CFalseTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNumberOfNodes(final FormulaContext _c) {
-        assertThat(_c.falsum.numberOfNodes()).isEqualTo(1);
+        assertThat(_c.falsum.numberOfNodes(_c.f)).isEqualTo(1);
     }
 
     @ParameterizedTest
