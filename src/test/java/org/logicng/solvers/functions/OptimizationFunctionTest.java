@@ -356,7 +356,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
 
     private int solveMaxSat(final List<Formula> formulas, final SortedSet<Variable> variables, final MaxSATSolver solver) {
         formulas.forEach(solver::addHardFormula);
-        variables.forEach(v -> solver.addSoftFormula(v.negate(), 1));
+        variables.forEach(v -> solver.addSoftFormula(v.negate(formulas.iterator().next().factory()), 1));
         solver.solve();
         return solver.result();
     }
@@ -400,9 +400,9 @@ public class OptimizationFunctionTest implements LogicNGTest {
             for (final Literal lit : literals) {
                 final Variable selVar = f.variable("SEL_VAR_" + selVars.size());
                 if (maximize) {
-                    solver.add(f.equivalence(selVar.negate(), lit));
+                    solver.add(f.equivalence(selVar.negate(f), lit));
                 } else {
-                    solver.add(f.equivalence(selVar.negate(), lit.negate()));
+                    solver.add(f.equivalence(selVar.negate(f), lit.negate(f)));
                 }
             }
             solver.add(formula.factory().cc(CType.GT, numSatisfiedLiterals + 1, selVars));

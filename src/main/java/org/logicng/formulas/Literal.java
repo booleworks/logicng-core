@@ -104,11 +104,6 @@ public interface Literal extends Formula, Comparable<Literal> {
     Variable variable();
 
     @Override
-    default Literal negate() {
-        return negate(factory());
-    }
-
-    @Override
     Literal negate(final FormulaFactory f);
 
     @Override

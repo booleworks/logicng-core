@@ -26,7 +26,7 @@ public class CTrueTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNegation(final FormulaContext _c) {
-        assertThat(_c.verum.negate()).isEqualTo(_c.falsum);
+        assertThat(_c.verum.negate(_c.f)).isEqualTo(_c.falsum);
     }
 
     @ParameterizedTest

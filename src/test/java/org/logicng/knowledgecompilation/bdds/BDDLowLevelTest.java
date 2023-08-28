@@ -24,19 +24,19 @@ public class BDDLowLevelTest {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser parser = new PropositionalParser(f);
         final BDDKernel kernel = new BDDKernel(f, 3, 1000, 1000);
-        BDDFactory.build(f.verum(), kernel);
-        BDDFactory.build(f.falsum(), kernel);
-        BDDFactory.build(f.literal("A", true), kernel);
-        BDDFactory.build(f.literal("A", false), kernel);
-        BDDFactory.build(parser.parse("A => ~B"), kernel);
-        BDDFactory.build(parser.parse("A <=> ~B"), kernel);
-        BDDFactory.build(parser.parse("A | B | ~C"), kernel);
-        this.bdd = BDDFactory.build(parser.parse("A & B & ~C"), kernel);
+        BDDFactory.build(f, f.verum(), kernel);
+        BDDFactory.build(f, f.falsum(), kernel);
+        BDDFactory.build(f, f.literal("A", true), kernel);
+        BDDFactory.build(f, f.literal("A", false), kernel);
+        BDDFactory.build(f, parser.parse("A => ~B"), kernel);
+        BDDFactory.build(f, parser.parse("A <=> ~B"), kernel);
+        BDDFactory.build(f, parser.parse("A | B | ~C"), kernel);
+        bdd = BDDFactory.build(f, parser.parse("A & B & ~C"), kernel);
     }
 
     @Test
     public void testStatistics() {
-        final BDDKernel.BDDStatistics statistics = this.bdd.underlyingKernel().statistics();
+        final BDDKernel.BDDStatistics statistics = bdd.underlyingKernel().statistics();
         assertThat(statistics.cachesize()).isEqualTo(1000);
         assertThat(statistics.freenum()).isEqualTo(993);
         assertThat(statistics.gbcollectnum()).isEqualTo(0);
@@ -48,7 +48,7 @@ public class BDDLowLevelTest {
 
     @Test
     public void kernelTests() {
-        final BDDConstruction kernel = new BDDConstruction(this.bdd.underlyingKernel());
+        final BDDConstruction kernel = new BDDConstruction(bdd.underlyingKernel());
         assertThat(kernel.ithVar(0)).isEqualTo(2);
         assertThat(kernel.nithVar(0)).isEqualTo(3);
         assertThat(kernel.bddVar(2)).isEqualTo(0);
@@ -59,31 +59,31 @@ public class BDDLowLevelTest {
 
     @Test
     public void illegalKernel1() {
-        final BDDConstruction kernel = new BDDConstruction(this.bdd.underlyingKernel());
+        final BDDConstruction kernel = new BDDConstruction(bdd.underlyingKernel());
         assertThatThrownBy(() -> kernel.ithVar(-1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void illegalKernel2() {
-        final BDDConstruction kernel = new BDDConstruction(this.bdd.underlyingKernel());
+        final BDDConstruction kernel = new BDDConstruction(bdd.underlyingKernel());
         assertThatThrownBy(() -> kernel.nithVar(-1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void illegalKernel3() {
-        final BDDConstruction kernel = new BDDConstruction(this.bdd.underlyingKernel());
+        final BDDConstruction kernel = new BDDConstruction(bdd.underlyingKernel());
         assertThatThrownBy(() -> kernel.bddVar(1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void illegalKernel4() {
-        final BDDConstruction kernel = new BDDConstruction(this.bdd.underlyingKernel());
+        final BDDConstruction kernel = new BDDConstruction(bdd.underlyingKernel());
         assertThatThrownBy(() -> kernel.bddLow(1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void illegalKernel5() {
-        final BDDConstruction kernel = new BDDConstruction(this.bdd.underlyingKernel());
+        final BDDConstruction kernel = new BDDConstruction(bdd.underlyingKernel());
         assertThatThrownBy(() -> kernel.bddHigh(1)).isInstanceOf(IllegalArgumentException.class);
     }
 

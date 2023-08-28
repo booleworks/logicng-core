@@ -23,11 +23,11 @@ public class FormulaBDDTest {
     @Test
     public void testSimpleCases() {
         final FormulaFactory f = FormulaFactory.caching();
-        BDD bdd = f.verum().bdd();
+        BDD bdd = f.verum().bdd(f);
         assertThat(bdd.isTautology()).isTrue();
-        bdd = f.falsum().bdd();
+        bdd = f.falsum().bdd(f);
         assertThat(bdd.isContradiction()).isTrue();
-        bdd = f.variable("A").bdd();
+        bdd = f.variable("A").bdd(f);
         assertThat(bdd.enumerateAllModels()).containsExactly(new Assignment(f.variable("A")));
     }
 
@@ -36,11 +36,11 @@ public class FormulaBDDTest {
         final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (W + A + F < 1)))");
-        final BDD bddNoOrder = formula.bdd();
-        final BDD bddBfs = formula.bdd(new BFSOrdering());
-        final BDD bddDfs = formula.bdd(new DFSOrdering());
-        final BDD bddMin2Max = formula.bdd(new MinToMaxOrdering());
-        final BDD bddMax2Min = formula.bdd(new MaxToMinOrdering());
+        final BDD bddNoOrder = formula.bdd(f);
+        final BDD bddBfs = formula.bdd(f, new BFSOrdering());
+        final BDD bddDfs = formula.bdd(f, new DFSOrdering());
+        final BDD bddMin2Max = formula.bdd(f, new MinToMaxOrdering());
+        final BDD bddMax2Min = formula.bdd(f, new MaxToMinOrdering());
 
         assertThat(bddNoOrder.nodeCount()).isEqualTo(13);
         assertThat(bddBfs.nodeCount()).isEqualTo(14);
@@ -65,7 +65,7 @@ public class FormulaBDDTest {
     @Test
     public void testNonNnfs() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        assertThat(f.parse("A + 2*B - C = 1").bdd()).isNotNull();
-        assertThat(f.parse("(A & B & C | D & E & F) & (A - 2*B -D <= 0) | (C + 3*D - F > 0)").bdd()).isNotNull();
+        assertThat(f.parse("A + 2*B - C = 1").bdd(f)).isNotNull();
+        assertThat(f.parse("(A & B & C | D & E & F) & (A - 2*B -D <= 0) | (C + 3*D - F > 0)").bdd(f)).isNotNull();
     }
 }

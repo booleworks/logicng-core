@@ -79,7 +79,7 @@ class TimeoutModelEnumerationHandlerTest {
 
     @Test
     public void testThatSatHandlerIsHandledProperly() {
-        final Formula formula = pg.generate(10).negate();
+        final Formula formula = pg.generate(10).negate(f);
         for (final SATSolver solver : solvers) {
             solver.add(formula);
             final TimeoutSATHandler satHandler = Mockito.mock(TimeoutSATHandler.class);
@@ -103,7 +103,7 @@ class TimeoutModelEnumerationHandlerTest {
 
     @Test
     public void testTimeoutHandlerSingleTimeout() {
-        final Formula formula = pg.generate(10).negate();
+        final Formula formula = pg.generate(10).negate(f);
         for (final SATSolver solver : solvers) {
             solver.add(formula);
             final TimeoutModelEnumerationHandler handler = new TimeoutModelEnumerationHandler(100L);
@@ -118,7 +118,7 @@ class TimeoutModelEnumerationHandlerTest {
 
     @Test
     public void testTimeoutHandlerFixedEnd() {
-        final Formula formula = pg.generate(10).negate();
+        final Formula formula = pg.generate(10).negate(f);
         for (final SATSolver solver : solvers) {
             solver.add(formula);
             final TimeoutModelEnumerationHandler handler = new TimeoutModelEnumerationHandler(System.currentTimeMillis() + 100L, TimeoutHandler.TimerType.FIXED_END);

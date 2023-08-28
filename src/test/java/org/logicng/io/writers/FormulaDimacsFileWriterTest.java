@@ -48,11 +48,11 @@ public class FormulaDimacsFileWriterTest extends TestWithFormulaContext {
 
     @Test
     public void testFormulas() throws IOException, ParserException {
-        final Formula f1 = CNFEncoder.encode(p.parse("(a & b) <=> (~c => (x | z))"), config);
-        final Formula f2 = CNFEncoder.encode(p.parse("a & b | b & ~c"), config);
-        final Formula f3 = CNFEncoder.encode(p.parse("(a & b) <=> (~c => (a | b))"), config);
-        final Formula f4 = CNFEncoder.encode(p.parse("~(a & b) | b & ~c"), config);
-        final Formula f5 = CNFEncoder.encode(pp.parse("a | ~b | (2*a + 3*~b + 4*c <= 4)"), config);
+        final Formula f1 = CNFEncoder.encode(p.parse("(a & b) <=> (~c => (x | z))"), f, config);
+        final Formula f2 = CNFEncoder.encode(p.parse("a & b | b & ~c"), f, config);
+        final Formula f3 = CNFEncoder.encode(p.parse("(a & b) <=> (~c => (a | b))"), f, config);
+        final Formula f4 = CNFEncoder.encode(p.parse("~(a & b) | b & ~c"), f, config);
+        final Formula f5 = CNFEncoder.encode(pp.parse("a | ~b | (2*a + 3*~b + 4*c <= 4)"), f, config);
         testFiles("f1", f1);
         testFiles("f2", f2);
         testFiles("f3", f3);
@@ -62,9 +62,9 @@ public class FormulaDimacsFileWriterTest extends TestWithFormulaContext {
 
     @Test
     public void testDuplicateFormulaParts() throws ParserException, IOException {
-        final Formula f6 = CNFEncoder.encode(p.parse("(a & b) | (c & ~(a & b))"), config);
+        final Formula f6 = CNFEncoder.encode(p.parse("(a & b) | (c & ~(a & b))"), f, config);
         testFiles("f6", f6);
-        final Formula f7 = CNFEncoder.encode(p.parse("(c & d) | (a & b) | ((c & d) <=> (a & b))"), config);
+        final Formula f7 = CNFEncoder.encode(p.parse("(c & d) | (a & b) | ((c & d) <=> (a & b))"), f, config);
         testFiles("f7", f7);
     }
 

@@ -82,10 +82,10 @@ public class ImplicationTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNegation(final FormulaContext _c) {
-        assertThat(_c.imp1.negate()).isEqualTo(_c.f.not(_c.imp1));
-        assertThat(_c.imp2.negate()).isEqualTo(_c.f.not(_c.imp2));
-        assertThat(_c.imp3.negate()).isEqualTo(_c.f.not(_c.imp3));
-        assertThat(_c.imp4.negate()).isEqualTo(_c.f.not(_c.imp4));
+        assertThat(_c.imp1.negate(_c.f)).isEqualTo(_c.f.not(_c.imp1));
+        assertThat(_c.imp2.negate(_c.f)).isEqualTo(_c.f.not(_c.imp2));
+        assertThat(_c.imp3.negate(_c.f)).isEqualTo(_c.f.not(_c.imp3));
+        assertThat(_c.imp4.negate(_c.f)).isEqualTo(_c.f.not(_c.imp4));
     }
 
     @ParameterizedTest

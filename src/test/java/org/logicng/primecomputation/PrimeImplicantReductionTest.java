@@ -42,21 +42,21 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
         assertThat(naiveTautology.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a, _c.b)))).isEmpty();
 
         final NaivePrimeReduction naive01 = new NaivePrimeReduction(_c.f, _c.f.parse("a&b|c&d"));
-        assertThat(naive01.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.c, _c.d.negate()))))
+        assertThat(naive01.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.c, _c.d.negate(_c.f)))))
                 .containsExactlyInAnyOrder(_c.a, _c.b);
-        assertThat(naive01.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a.negate(), _c.b, _c.c, _c.d))))
+        assertThat(naive01.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a.negate(_c.f), _c.b, _c.c, _c.d))))
                 .containsExactlyInAnyOrder(_c.c, _c.d);
 
         final NaivePrimeReduction naive02 = new NaivePrimeReduction(_c.f, _c.f.parse("a|b|~a&~b"));
-        assertThat(naive02.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a.negate(), _c.b))))
+        assertThat(naive02.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a.negate(_c.f), _c.b))))
                 .containsExactlyInAnyOrder();
-        assertThat(naive02.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a.negate(), _c.b))))
+        assertThat(naive02.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a.negate(_c.f), _c.b))))
                 .containsExactlyInAnyOrder();
 
         final NaivePrimeReduction naive03 = new NaivePrimeReduction(_c.f, _c.f.parse("(a => b) | b | c"));
-        assertThat(naive03.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.c.negate()))))
+        assertThat(naive03.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.c.negate(_c.f)))))
                 .containsExactlyInAnyOrder(_c.b);
-        assertThat(naive03.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a, _c.b.negate(), _c.c))))
+        assertThat(naive03.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a, _c.b.negate(_c.f), _c.c))))
                 .containsExactlyInAnyOrder(_c.c);
     }
 
@@ -144,7 +144,7 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
     public static void testPrimeImplicantProperty(final Formula formula, final SortedSet<Literal> primeImplicant) {
         final FormulaFactory f = formula.factory();
         final MiniSat solver = MiniSat.miniSat(f);
-        solver.add(formula.negate());
+        solver.add(formula.negate(f));
         assertThat(solver.sat(primeImplicant)).isEqualTo(Tristate.FALSE);
         for (final Literal lit : primeImplicant) {
             final SortedSet<Literal> reducedPrimeImplicant = new TreeSet<>(primeImplicant);

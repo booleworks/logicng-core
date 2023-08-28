@@ -81,10 +81,10 @@ public class EquivalenceTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNegation(final FormulaContext _c) {
-        assertThat(_c.eq1.negate()).isEqualTo(_c.f.not(_c.eq1));
-        assertThat(_c.eq2.negate()).isEqualTo(_c.f.not(_c.eq2));
-        assertThat(_c.eq3.negate()).isEqualTo(_c.f.not(_c.eq3));
-        assertThat(_c.eq4.negate()).isEqualTo(_c.f.not(_c.eq4));
+        assertThat(_c.eq1.negate(_c.f)).isEqualTo(_c.f.not(_c.eq1));
+        assertThat(_c.eq2.negate(_c.f)).isEqualTo(_c.f.not(_c.eq2));
+        assertThat(_c.eq3.negate(_c.f)).isEqualTo(_c.f.not(_c.eq3));
+        assertThat(_c.eq4.negate(_c.f)).isEqualTo(_c.f.not(_c.eq4));
     }
 
     @ParameterizedTest

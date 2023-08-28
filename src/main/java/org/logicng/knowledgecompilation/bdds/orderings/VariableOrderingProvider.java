@@ -25,10 +25,11 @@ public interface VariableOrderingProvider {
     /**
      * Generates a variable ordering for a given formula.  Such a variable ordering can then be
      * used for the initialization of the BDD Kernel in {@link org.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel#BDDKernel(FormulaFactory, List, int, int)}.
+     * @param f       the factory for caching and generating new formulas
      * @param formula the formula
      * @return the variable ordering
      */
-    List<Variable> getOrder(final Formula formula);
+    List<Variable> getOrder(final FormulaFactory f, final Formula formula);
 
     static List<Variable> sortProfile(final Map<Variable, Integer> profile, final Comparator<Map.Entry<Variable, Integer>> comparator) {
         final Map<Variable, Integer> sortedProfile = sortProfileByOccurrence(profile, comparator);

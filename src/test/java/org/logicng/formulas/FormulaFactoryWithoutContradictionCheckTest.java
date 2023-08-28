@@ -130,21 +130,21 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testRestrict(final FormulaContext _c) {
-        assertThat(_c.tautology.restrict(new Assignment())).isEqualTo(_c.tautology);
-        assertThat(_c.tautology.restrict(new Assignment(_c.a))).isEqualTo(_c.f.verum());
-        assertThat(_c.tautology.restrict(new Assignment(_c.na))).isEqualTo(_c.f.verum());
-        assertThat(_c.contradiction.restrict(new Assignment())).isEqualTo(_c.contradiction);
-        assertThat(_c.contradiction.restrict(new Assignment(_c.a))).isEqualTo(_c.f.falsum());
-        assertThat(_c.contradiction.restrict(new Assignment(_c.na))).isEqualTo(_c.f.falsum());
+        assertThat(_c.tautology.restrict(new Assignment(), _c.f)).isEqualTo(_c.tautology);
+        assertThat(_c.tautology.restrict(new Assignment(_c.a), _c.f)).isEqualTo(_c.f.verum());
+        assertThat(_c.tautology.restrict(new Assignment(_c.na), _c.f)).isEqualTo(_c.f.verum());
+        assertThat(_c.contradiction.restrict(new Assignment(), _c.f)).isEqualTo(_c.contradiction);
+        assertThat(_c.contradiction.restrict(new Assignment(_c.a), _c.f)).isEqualTo(_c.f.falsum());
+        assertThat(_c.contradiction.restrict(new Assignment(_c.na), _c.f)).isEqualTo(_c.f.falsum());
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNormalforms(final FormulaContext _c) {
-        assertThat(_c.tautology.nnf()).isEqualTo(_c.tautology);
-        assertThat(_c.contradiction.nnf()).isEqualTo(_c.contradiction);
-        assertThat(_c.tautology.cnf()).isEqualTo(_c.tautology);
-        assertThat(_c.contradiction.cnf()).isEqualTo(_c.contradiction);
+        assertThat(_c.tautology.nnf(_c.f)).isEqualTo(_c.tautology);
+        assertThat(_c.contradiction.nnf(_c.f)).isEqualTo(_c.contradiction);
+        assertThat(_c.tautology.cnf(_c.f)).isEqualTo(_c.tautology);
+        assertThat(_c.contradiction.cnf(_c.f)).isEqualTo(_c.contradiction);
         assertThat(_c.tautology.transform(new DNFFactorization(_c.f))).isEqualTo(_c.tautology);
         assertThat(_c.contradiction.transform(new DNFFactorization(_c.f))).isEqualTo(_c.contradiction);
     }
@@ -201,19 +201,19 @@ public class FormulaFactoryWithoutContradictionCheckTest {
 
     @ParameterizedTest
     @MethodSource("contexts")
-    public void testSubsumption(final FormulaContext _c) throws ParserException {
-        assertThat(_c.tautology.substitute(_c.a, _c.na)).isEqualTo(_c.tautology);
-        assertThat(_c.contradiction.substitute(_c.a, _c.na)).isEqualTo(_c.contradiction);
-        assertThat(_c.tautology.substitute(_c.a, _c.f.variable("B"))).isEqualTo(_c.f.parse("B | ~B"));
-        assertThat(_c.contradiction.substitute(_c.a, _c.f.variable("B"))).isEqualTo(_c.f.parse("B & ~B"));
+    public void testSubstitution(final FormulaContext _c) throws ParserException {
+        assertThat(_c.tautology.substitute(_c.a, _c.na, _c.f)).isEqualTo(_c.tautology);
+        assertThat(_c.contradiction.substitute(_c.a, _c.na, _c.f)).isEqualTo(_c.contradiction);
+        assertThat(_c.tautology.substitute(_c.a, _c.f.variable("B"), _c.f)).isEqualTo(_c.f.parse("B | ~B"));
+        assertThat(_c.contradiction.substitute(_c.a, _c.f.variable("B"), _c.f)).isEqualTo(_c.f.parse("B & ~B"));
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testBdds(final FormulaContext _c) {
-        assertThat(_c.tautology.bdd().isTautology()).isTrue();
-        assertThat(_c.contradiction.bdd().isTautology()).isFalse();
-        assertThat(_c.tautology.bdd().isContradiction()).isFalse();
-        assertThat(_c.contradiction.bdd().isContradiction()).isTrue();
+        assertThat(_c.tautology.bdd(_c.f).isTautology()).isTrue();
+        assertThat(_c.contradiction.bdd(_c.f).isTautology()).isFalse();
+        assertThat(_c.tautology.bdd(_c.f).isContradiction()).isFalse();
+        assertThat(_c.contradiction.bdd(_c.f).isContradiction()).isTrue();
     }
 }

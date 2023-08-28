@@ -42,16 +42,16 @@ public class BddGraphicalGeneratorTest {
         final PropositionalParser p = new PropositionalParser(f);
         final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
-        testFiles("false", BDDFactory.build(p.parse("$false"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("true", BDDFactory.build(p.parse("$true"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("a", BDDFactory.build(p.parse("A"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("not_a", BDDFactory.build(p.parse("~A"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("impl", BDDFactory.build(p.parse("A => ~C"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("equiv", BDDFactory.build(p.parse("A <=> ~C"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("or", BDDFactory.build(p.parse("A | B | ~C"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("and", BDDFactory.build(p.parse("A & B & ~C"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("not", BDDFactory.build(p.parse("~(A & B & ~C)"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("formula", BDDFactory.build(p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("false", BDDFactory.build(f, p.parse("$false"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("true", BDDFactory.build(f, p.parse("$true"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("a", BDDFactory.build(f, p.parse("A"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("not_a", BDDFactory.build(f, p.parse("~A"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("impl", BDDFactory.build(f, p.parse("A => ~C"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("equiv", BDDFactory.build(f, p.parse("A <=> ~C"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("or", BDDFactory.build(f, p.parse("A | B | ~C"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("and", BDDFactory.build(f, p.parse("A & B & ~C"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("not", BDDFactory.build(f, p.parse("~(A & B & ~C)"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("formula", BDDFactory.build(f, p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel), BddGraphicalGenerator.builder().build());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class BddGraphicalGeneratorTest {
         final PropositionalParser p = new PropositionalParser(f);
         final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
-        final BDD bdd = BDDFactory.build(p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel);
+        final BDD bdd = BDDFactory.build(f, p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel);
 
         final BddGraphicalGenerator generator = BddGraphicalGenerator.builder()
                 .falseNodeStyle(GraphicalNodeStyle.rectangle(PURPLE, WHITE, PURPLE))
@@ -80,7 +80,7 @@ public class BddGraphicalGeneratorTest {
         final PropositionalParser p = new PropositionalParser(f);
         final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
-        final BDD bdd = BDDFactory.build(p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel);
+        final BDD bdd = BDDFactory.build(f, p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel);
 
         final BddGraphicalGenerator generator = BddGraphicalGenerator.builder()
                 .negativeEdgeMapper(new MyNegEdgeMapper(kernel))

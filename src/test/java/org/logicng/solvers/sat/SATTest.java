@@ -316,7 +316,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             s.addWithRelaxation(f.variable("x"), f.parse("~a & ~b"));
             assertSolverSat(s);
             assertThat(s.model().positiveVariables()).contains(f.variable("x"));
-            s.add(f.variable("x").negate());
+            s.add(f.variable("x").negate(f));
             assertSolverUnsat(s);
         }
     }
@@ -800,7 +800,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                         final SortedSet<Literal> upZeroLiterals = solver.execute(UpZeroLiteralsFunction.get());
                         final List<Literal> negations = new ArrayList<>(upZeroLiterals.size());
                         for (final Literal lit : upZeroLiterals) {
-                            negations.add(lit.negate());
+                            negations.add(lit.negate(f));
                         }
                         solver.add(f.or(negations));
                         // Test if CNF implies identified unit propagated literals on level zero, i.e., each literal is a backbone literal
@@ -956,7 +956,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                     final List<Literal> selectionOrder = new ArrayList<>();
                     for (final Variable var : FormulaHelper.variables(solver.execute(FormulaOnSolverFunction.get()))) {
                         if (selectionOrder.size() < 10) {
-                            selectionOrder.add(var.negate());
+                            selectionOrder.add(var.negate(f));
                         }
                     }
                     final boolean res = solver.satWithSelectionOrder(selectionOrder) == Tristate.TRUE;
@@ -1025,7 +1025,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
         for (final Literal lit : relevantLiterals) {
             if (!literals.contains(lit)) {
                 final SortedSet<Literal> literalsWithFlip = new TreeSet<>(literals);
-                literalsWithFlip.remove(lit.negate());
+                literalsWithFlip.remove(lit.negate(f));
                 literalsWithFlip.add(lit);
                 assertThat(solver.sat(literalsWithFlip)).isEqualTo(Tristate.FALSE);
             }
@@ -1046,11 +1046,11 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             final boolean containsLit = literals.contains(lit);
             if (!containsLit) {
                 final SortedSet<Literal> orderSubsetWithFlip = new TreeSet<>(orderSublist);
-                orderSubsetWithFlip.remove(lit.negate());
+                orderSubsetWithFlip.remove(lit.negate(f));
                 orderSubsetWithFlip.add(lit);
                 assertThat(solver.sat(orderSubsetWithFlip)).isEqualTo(Tristate.FALSE);
             }
-            orderSublist.add(containsLit ? lit : lit.negate());
+            orderSublist.add(containsLit ? lit : lit.negate(f));
         }
     }
 }

@@ -52,7 +52,7 @@ class TimeoutBDDHandlerTest {
     public void testThatMethodsAreCalled() throws ParserException {
         final Formula formula = f.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X)");
         final VariableOrderingProvider provider = new BFSOrdering();
-        final BDDKernel kernel = new BDDKernel(f, provider.getOrder(formula), 100, 100);
+        final BDDKernel kernel = new BDDKernel(f, provider.getOrder(f, formula), 100, 100);
         final TimeoutBDDHandler handler = Mockito.mock(TimeoutBDDHandler.class);
 
         BDDFactory.build(f, formula, kernel, handler);
@@ -65,7 +65,7 @@ class TimeoutBDDHandlerTest {
     public void testThatNewRefAddedHandledProperly() throws ParserException {
         final Formula formula = f.parse("(A => ~B) & ((A & C) | ~(D & ~C)) & (A | Y | X)");
         final VariableOrderingProvider provider = new BFSOrdering();
-        final BDDKernel kernel = new BDDKernel(f, provider.getOrder(formula), 100, 100);
+        final BDDKernel kernel = new BDDKernel(f, provider.getOrder(f, formula), 100, 100);
         final TimeoutBDDHandler handler = Mockito.mock(TimeoutBDDHandler.class);
         final AtomicInteger count = new AtomicInteger(0);
         when(handler.newRefAdded()).then(invocationOnMock -> count.addAndGet(1) < 5);
@@ -82,7 +82,7 @@ class TimeoutBDDHandlerTest {
     public void testTimeoutHandlerSingleTimeout() {
         final Formula formula = pg.generate(10);
         final VariableOrderingProvider provider = new BFSOrdering();
-        final BDDKernel kernel = new BDDKernel(f, provider.getOrder(formula), 100, 100);
+        final BDDKernel kernel = new BDDKernel(f, provider.getOrder(f, formula), 100, 100);
         final TimeoutBDDHandler handler = new TimeoutBDDHandler(100L);
 
         final BDD result = BDDFactory.build(f, formula, kernel, handler);
@@ -95,7 +95,7 @@ class TimeoutBDDHandlerTest {
     public void testTimeoutHandlerFixedEnd() {
         final Formula formula = pg.generate(10);
         final VariableOrderingProvider provider = new BFSOrdering();
-        final BDDKernel kernel = new BDDKernel(f, provider.getOrder(formula), 100, 100);
+        final BDDKernel kernel = new BDDKernel(f, provider.getOrder(f, formula), 100, 100);
         final TimeoutBDDHandler handler = new TimeoutBDDHandler(System.currentTimeMillis() + 100L, TimeoutHandler.TimerType.FIXED_END);
 
         final BDD result = BDDFactory.build(f, formula, kernel, handler);

@@ -197,8 +197,8 @@ public class FormulaFactoryImporterTest extends TestWithFormulaContext {
     public void testAdjustCounters() throws ParserException {
         final CachingFormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().name("Factory").build());
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
-        final Formula cc = p.parse("A + B + C + D + E <= 2").cnf();
-        final Formula pbc = p.parse("2*A + -2*B + 3*C + D + 2*E <= 3").cnf();
+        final Formula cc = p.parse("A + B + C + D + E <= 2").cnf(f);
+        final Formula pbc = p.parse("2*A + -2*B + 3*C + D + 2*E <= 3").cnf(f);
         final Formula cnf = p.parse("A & B & C | C & D & ~A").transform(new TseitinTransformation(f, 0));
 
         final CachingFormulaFactory g = new CachingFormulaFactory();

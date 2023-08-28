@@ -4,6 +4,7 @@
 
 package org.logicng.datastructures;
 
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.implementation.noncaching.LngNativeVariable;
 
@@ -30,7 +31,7 @@ final class EncodingAuxiliaryVariable extends LngNativeVariable {
     }
 
     @Override
-    public Literal negate() {
+    public Literal negate(final FormulaFactory f) {
         return new EncodingAuxiliaryVariable(name(), !negated);
     }
 

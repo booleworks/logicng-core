@@ -30,30 +30,11 @@ public class CNFEncoder {
     /**
      * Encodes a formula to CNF.
      * @param formula formula
-     * @return the CNF encoding of the formula
-     */
-    public static Formula encode(final Formula formula) {
-        return encode(formula, formula.factory(), null);
-    }
-
-    /**
-     * Encodes a formula to CNF.
-     * @param formula formula
      * @param f       the formula factory to generate new formulas
      * @return the CNF encoding of the formula
      */
     public static Formula encode(final Formula formula, final FormulaFactory f) {
         return encode(formula, f, null);
-    }
-
-    /**
-     * Encodes a formula to CNF.
-     * @param formula    formula
-     * @param initConfig the configuration for the encoder
-     * @return the CNF encoding of the formula
-     */
-    public static Formula encode(final Formula formula, final CNFConfig initConfig) {
-        return encode(formula, formula.factory(), initConfig);
     }
 
     /**

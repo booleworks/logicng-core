@@ -15,23 +15,23 @@ import org.logicng.io.parsers.PseudoBooleanParser;
 public class ForceOrderingTest {
 
     private final FormulaFactory f = FormulaFactory.caching();
-    private final ForceOrdering ordering = new ForceOrdering(f);
+    private final ForceOrdering ordering = new ForceOrdering();
 
     @Test
     public void testSimpleCases() throws ParserException {
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
-        assertThat(ordering.getOrder(p.parse("$true"))).isEmpty();
-        assertThat(ordering.getOrder(p.parse("$false"))).isEmpty();
-        assertThat(ordering.getOrder(p.parse("A"))).containsExactly(f.variable("A"));
-        assertThat(ordering.getOrder(p.parse("A | ~C | B | D"))).containsExactlyInAnyOrder(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
-        assertThat(ordering.getOrder(p.parse("A & ~C & B & D"))).containsExactlyInAnyOrder(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
+        assertThat(ordering.getOrder(f, p.parse("$true"))).isEmpty();
+        assertThat(ordering.getOrder(f, p.parse("$false"))).isEmpty();
+        assertThat(ordering.getOrder(f, p.parse("A"))).containsExactly(f.variable("A"));
+        assertThat(ordering.getOrder(f, p.parse("A | ~C | B | D"))).containsExactlyInAnyOrder(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
+        assertThat(ordering.getOrder(f, p.parse("A & ~C & B & D"))).containsExactlyInAnyOrder(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
     }
 
     @Test
     public void testIllegalFormula() throws ParserException {
         try {
             final PseudoBooleanParser p = new PseudoBooleanParser(f);
-            ordering.getOrder(p.parse("A <=> ~B"));
+            ordering.getOrder(f, p.parse("A <=> ~B"));
         } catch (final IllegalArgumentException e) {
             assertThat(e).hasMessage("FORCE variable ordering can only be applied to CNF formulas.");
         }
@@ -40,8 +40,8 @@ public class ForceOrderingTest {
     @Test
     public void testComplexFormula() throws ParserException {
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
-        final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (W + A + F < 1)))").cnf();
-        assertThat(ordering.getOrder(formula)).containsExactly(
+        final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (W + A + F < 1)))").cnf(f);
+        assertThat(ordering.getOrder(f, formula)).containsExactly(
                 f.variable("B"),
                 f.variable("D"),
                 f.variable("C"),

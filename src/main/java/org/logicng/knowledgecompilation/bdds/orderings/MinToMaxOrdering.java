@@ -5,6 +5,7 @@
 package org.logicng.knowledgecompilation.bdds.orderings;
 
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.functions.VariableProfileFunction;
 
@@ -26,10 +27,10 @@ public final class MinToMaxOrdering implements VariableOrderingProvider {
     private final DFSOrdering dfsOrdering = new DFSOrdering();
 
     @Override
-    public List<Variable> getOrder(final Formula formula) {
-        final VariableProfileFunction profileFunction = new VariableProfileFunction(formula.factory());
+    public List<Variable> getOrder(final FormulaFactory f, final Formula formula) {
+        final VariableProfileFunction profileFunction = new VariableProfileFunction(f);
         final Map<Variable, Integer> profile = formula.apply(profileFunction);
-        final List<Variable> dfs = dfsOrdering.getOrder(formula);
+        final List<Variable> dfs = dfsOrdering.getOrder(f, formula);
 
         final Comparator<Map.Entry<Variable, Integer>> comparator = (o1, o2) -> {
             final int occComp = o1.getValue().compareTo(o2.getValue());

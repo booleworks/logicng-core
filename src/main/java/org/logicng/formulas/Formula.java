@@ -51,6 +51,7 @@ public interface Formula extends Iterable<Formula> {
      * @return the number of atomic formulas of this formula.
      */
     default long numberOfAtoms() {
+        //TODO not default factory
         return new NumberOfAtomsFunction(factory()).apply(this);
     }
 
@@ -59,6 +60,7 @@ public interface Formula extends Iterable<Formula> {
      * @return the number of nodes of this formula.
      */
     default long numberOfNodes() {
+        //TODO not default factory
         return new NumberOfNodesFunction(factory()).apply(this);
     }
 
@@ -94,6 +96,7 @@ public interface Formula extends Iterable<Formula> {
      * @return all variables occurring in this formula
      */
     default SortedSet<Variable> variables() {
+        //TODO not default factory
         return new VariablesFunction(factory()).apply(this);
     }
 
@@ -103,6 +106,7 @@ public interface Formula extends Iterable<Formula> {
      * @return all literals occurring in this formula
      */
     default SortedSet<Literal> literals() {
+        //TODO not default factory
         return new LiteralsFunction(factory()).apply(this);
     }
 
@@ -120,15 +124,6 @@ public interface Formula extends Iterable<Formula> {
      * @return the result of the evaluation, {@code true} or {@code false}
      */
     boolean evaluate(final Assignment assignment);
-
-    /**
-     * Restricts this formula with a given assignment.
-     * @param assignment the given assignment
-     * @return a new restricted formula
-     */
-    default Formula restrict(final Assignment assignment) {
-        return restrict(assignment, factory());
-    }
 
     /**
      * Restricts this formula with a given assignment and a formula factory that generates new formulas.
@@ -181,16 +176,6 @@ public interface Formula extends Iterable<Formula> {
      * Performs a simultaneous substitution on this formula given a single mapping from variable to formula.
      * @param variable the variable
      * @param formula  the formula
-     * @return a new substituted formula
-     */
-    default Formula substitute(final Variable variable, final Formula formula) {
-        return substitute(variable, formula, factory());
-    }
-
-    /**
-     * Performs a simultaneous substitution on this formula given a single mapping from variable to formula.
-     * @param variable the variable
-     * @param formula  the formula
      * @param f        the formula factory to generate new formulas
      * @return a new substituted formula
      */
@@ -203,15 +188,6 @@ public interface Formula extends Iterable<Formula> {
     /**
      * Performs a given substitution on this formula.
      * @param substitution the substitution
-     * @return a new substituted formula
-     */
-    default Formula substitute(final Substitution substitution) {
-        return substitute(substitution, factory());
-    }
-
-    /**
-     * Performs a given substitution on this formula.
-     * @param substitution the substitution
      * @param f            the formula factory to generate new formulas
      * @return a new substituted formula
      */
@@ -219,26 +195,10 @@ public interface Formula extends Iterable<Formula> {
 
     /**
      * Returns a negated copy of this formula.
-     * @return a negated copy of this formula
-     */
-    default Formula negate() {
-        return negate(factory());
-    }
-
-    /**
-     * Returns a negated copy of this formula.
      * @param f the formula factory to generate new formulas
      * @return a negated copy of this formula
      */
     Formula negate(final FormulaFactory f);
-
-    /**
-     * Returns a copy of this formula which is in NNF.
-     * @return a copy of this formula which is in NNF
-     */
-    default Formula nnf() {
-        return transform(new NNFTransformation(factory()));
-    }
 
     /**
      * Returns a copy of this formula which is in NNF.
@@ -272,36 +232,16 @@ public interface Formula extends Iterable<Formula> {
     }
 
     /**
-     * Returns a copy of this formula which is in CNF.  The algorithm which is used for the default CNF transformation
-     * can be configured in the {@link FormulaFactory}.
-     * <p>
-     * Be aware that the default algorithm for the CNF transformation may result in a CNF containing additional auxiliary
-     * variables with prefix {@value FormulaFactory#CNF_PREFIX}.  Also, the result may not be a semantically equivalent CNF
-     * but an equisatisfiable CNF.
-     * <p>
-     * If the introduction of auxiliary variables is unwanted, you can choose one of the algorithms
-     * {@link org.logicng.transformations.cnf.CNFConfig.Algorithm#FACTORIZATION} and
-     * {@link org.logicng.transformations.cnf.CNFConfig.Algorithm#BDD}.  Both algorithms provide CNF conversions without
-     * the introduction of auxiliary variables and the result is a semantically equivalent CNF.
-     * <p>
-     * Since CNF is the input for the SAT or MaxSAT solvers, it has a special treatment here.  For other conversions, use
-     * the according formula functions.
-     * @return a copy of this formula which is in CNF
-     */
-    default Formula cnf() {
-        return CNFEncoder.encode(this, factory(), null);
-    }
-
-    /**
      * Returns whether this formula is satisfiable.
      * A new SAT solver is used to check the satisfiability. This is a convenience method for the
      * predicate {@link org.logicng.predicates.satisfiability.SATPredicate}. If you want to
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
+     * @param f the formula to use for caching
      * @return {@code true} when this formula is satisfiable, {@code false} otherwise
      */
-    default boolean isSatisfiable() {
-        return holds(new SATPredicate(factory()));
+    default boolean isSatisfiable(final FormulaFactory f) {
+        return holds(new SATPredicate(f));
     }
 
     /**
@@ -310,10 +250,11 @@ public interface Formula extends Iterable<Formula> {
      * predicate {@link org.logicng.predicates.satisfiability.TautologyPredicate}. If you want to
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
+     * @param f the formula to use for caching
      * @return {@code true} when this formula is a tautology, {@code false} otherwise
      */
-    default boolean isTautology() {
-        return holds(new TautologyPredicate(factory()));
+    default boolean isTautology(final FormulaFactory f) {
+        return holds(new TautologyPredicate(f));
     }
 
     /**
@@ -322,10 +263,11 @@ public interface Formula extends Iterable<Formula> {
      * predicate {@link org.logicng.predicates.satisfiability.ContradictionPredicate}. If you want to
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
+     * @param f the formula to use for caching
      * @return {@code true} when this formula is a contradiction, {@code false} otherwise
      */
-    default boolean isContradiction() {
-        return holds(new ContradictionPredicate(factory()));
+    default boolean isContradiction(final FormulaFactory f) {
+        return holds(new ContradictionPredicate(f));
     }
 
     /**
@@ -334,10 +276,11 @@ public interface Formula extends Iterable<Formula> {
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
      * @param other the formula which should be checked if it is implied by this formula
+     * @param f     the formula to use for caching
      * @return {@code true} when this formula implies the given other formula, {@code false} otherwise
      */
-    default boolean implies(final Formula other) {
-        return factory().implication(this, other).holds(new TautologyPredicate(factory()));
+    default boolean implies(final Formula other, final FormulaFactory f) {
+        return factory().implication(this, other).holds(new TautologyPredicate(f));
     }
 
     /**
@@ -346,10 +289,11 @@ public interface Formula extends Iterable<Formula> {
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
      * @param other the formula which should be checked if it implies this formula
+     * @param f     the formula to use for caching
      * @return {@code true} when this formula is implied by the given other formula, {@code false} otherwise
      */
-    default boolean isImpliedBy(final Formula other) {
-        return factory().implication(other, this).holds(new TautologyPredicate(factory()));
+    default boolean isImpliedBy(final Formula other, final FormulaFactory f) {
+        return factory().implication(other, this).holds(new TautologyPredicate(f));
     }
 
     /**
@@ -358,22 +302,11 @@ public interface Formula extends Iterable<Formula> {
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
      * @param other the formula which should be checked if it is equivalent with this formula
+     * @param f     the formula to use for caching
      * @return {@code true} when this formula is equivalent to the given other formula, {@code false} otherwise
      */
-    default boolean isEquivalentTo(final Formula other) {
-        return factory().equivalence(this, other).holds(new TautologyPredicate(factory()));
-    }
-
-    /**
-     * Generates a BDD from this formula with a given variable ordering.  This is done by generating a new BDD factory,
-     * generating the variable order for this formula, and building a new BDD.  If more sophisticated operations should
-     * be performed on the BDD or more than one formula should be constructed on the BDD, an own instance of
-     * {@link BDDFactory} should be created and used.
-     * @param provider the variable ordering provider
-     * @return the BDD for this formula with the given ordering
-     */
-    default BDD bdd(final VariableOrderingProvider provider) {
-        return bdd(factory(), provider);
+    default boolean isEquivalentTo(final Formula other, final FormulaFactory f) {
+        return factory().equivalence(this, other).holds(new TautologyPredicate(f));
     }
 
     /**
@@ -392,19 +325,9 @@ public interface Formula extends Iterable<Formula> {
         if (provider == null) {
             kernel = new BDDKernel(f, varNum, varNum * 30, varNum * 20);
         } else {
-            kernel = new BDDKernel(f, provider.getOrder(formula), varNum * 30, varNum * 20);
+            kernel = new BDDKernel(f, provider.getOrder(f, formula), varNum * 30, varNum * 20);
         }
         return BDDFactory.build(f, formula, kernel, null);
-    }
-
-    /**
-     * Generates a BDD from this formula with no given variable ordering.  This is done by generating a new BDD factory
-     * and building a new BDD.  If more sophisticated operations should be performed on the BDD or more than one
-     * formula should be constructed on the BDD, an own instance of * {@link BDDFactory} should be created and used.
-     * @return the BDD for this formula
-     */
-    default BDD bdd() {
-        return bdd(factory(), null);
     }
 
     /**

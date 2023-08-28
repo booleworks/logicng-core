@@ -29,8 +29,8 @@ public class LiteralTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNegation(final FormulaContext _c) {
-        assertThat(_c.a.negate() == _c.na).isTrue();
-        assertThat(_c.na.negate() == _c.a).isTrue();
+        assertThat(_c.a.negate(_c.f) == _c.na).isTrue();
+        assertThat(_c.na.negate(_c.f) == _c.a).isTrue();
     }
 
     @ParameterizedTest
