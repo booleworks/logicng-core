@@ -4,15 +4,11 @@
 
 package org.logicng.transformations.cnf;
 
-import static org.logicng.formulas.cache.TransformationCacheEntry.PLAISTED_GREENBAUM_POS;
-import static org.logicng.formulas.cache.TransformationCacheEntry.PLAISTED_GREENBAUM_VARIABLE;
-
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
-import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import org.logicng.transformations.StatefulFormulaTransformation;
 
 import java.util.ArrayList;
@@ -79,12 +75,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
     }
 
     @Override
-    protected PGState initStateForCachingFactory(final CachingFormulaFactory f) {
-        return new PGState(f);
-    }
-
-    @Override
-    protected PGState defaultStateForNonCachingFactory() {
+    protected PGState inititialState() {
         return new PGState();
     }
 
@@ -101,7 +92,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
         Literal var = state.literal(formula);
         if (var == null) {
             var = f.newCNFVariable();
-            state.literalCache.put(formula, var);
+            state.literalMap.put(formula, var);
         }
         return var;
     }
@@ -120,7 +111,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
             final Assignment topLevel = new Assignment(state.literal(nnf));
             pg = pg.restrict(topLevel, f);
         }
-        state.literalCache.put(formula, state.literal(nnf));
+        state.literalMap.put(formula, state.literal(nnf));
         return pg;
     }
 
@@ -154,7 +145,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
                     nops.add(f.clause(pgVar.negate(f), pgVariable(op)));
                 }
                 result = f.and(nops);
-                state.posCache.put(formula, result);
+                state.posMap.put(formula, result);
                 return result;
             }
             case OR: {
@@ -164,7 +155,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
                     nops.add(pgVariable(op));
                 }
                 result = f.clause(nops);
-                state.posCache.put(formula, result);
+                state.posMap.put(formula, result);
                 return result;
             }
             default:
@@ -178,31 +169,25 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
     }
 
     public static final class PGState {
-        private final Map<Formula, Formula> posCache;
-        private final Map<Formula, Literal> literalCache;
+        private final Map<Formula, Formula> posMap;
+        private final Map<Formula, Literal> literalMap;
 
         public PGState() {
-            posCache = new HashMap<>();
-            literalCache = new HashMap<>();
+            posMap = new HashMap<>();
+            literalMap = new HashMap<>();
         }
 
-        @SuppressWarnings("unchecked")
-        public PGState(final CachingFormulaFactory f) {
-            posCache = f.getTransformationCacheForType(PLAISTED_GREENBAUM_POS);
-            literalCache = (Map<Formula, Literal>) (Map<?, ?>) f.getTransformationCacheForType(PLAISTED_GREENBAUM_VARIABLE);
-        }
-
-        public PGState(final Map<Formula, Formula> posCache, final Map<Formula, Literal> literalCache) {
-            this.posCache = posCache;
-            this.literalCache = literalCache;
+        public PGState(final Map<Formula, Formula> posMap, final Map<Formula, Literal> literalMap) {
+            this.posMap = posMap;
+            this.literalMap = literalMap;
         }
 
         private Formula pos(final Formula formula) {
-            return posCache.get(formula);
+            return posMap.get(formula);
         }
 
         private Literal literal(final Formula formula) {
-            return literalCache.get(formula);
+            return literalMap.get(formula);
         }
     }
 }

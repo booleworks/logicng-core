@@ -11,10 +11,6 @@ package org.logicng.formulas.cache;
  */
 public enum TransformationCacheEntry implements CacheEntry {
     NNF("negation normal form"),
-    PLAISTED_GREENBAUM_POS("Plaisted & Greenbaum conjunctive normal form (positive polarity)"),
-    PLAISTED_GREENBAUM_VARIABLE("Plaisted & Greenbaum variable"),
-    TSEITIN("Tseitin conjunctive normal form"),
-    TSEITIN_VARIABLE("Tseitin variable"),
     FACTORIZED_CNF("factorized conjunctive normal form"),
     BDD_CNF("conjunctive normal form via BDD"),
     FACTORIZED_DNF("factorized disjunctive normal form"),
