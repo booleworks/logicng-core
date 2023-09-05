@@ -20,9 +20,6 @@ public class CacheTest {
     public void testDescription() {
         assertThat(TransformationCacheEntry.AIG.description()).isEqualTo("TransformationCacheEntry{description=and-inverter graph}");
         assertThat(TransformationCacheEntry.NNF.description()).isEqualTo("TransformationCacheEntry{description=negation normal form}");
-        assertThat(TransformationCacheEntry.PLAISTED_GREENBAUM_POS.description()).isEqualTo("TransformationCacheEntry{description=Plaisted & Greenbaum conjunctive normal form " +
-                "(positive polarity)}");
-        assertThat(TransformationCacheEntry.TSEITIN.description()).isEqualTo("TransformationCacheEntry{description=Tseitin conjunctive normal form}");
         assertThat(TransformationCacheEntry.FACTORIZED_CNF.description()).isEqualTo("TransformationCacheEntry{description=factorized conjunctive normal form}");
 
         assertThat(PredicateCacheEntry.IS_AIG.description()).isEqualTo("PredicateCacheEntry{description=and-inverter graph}");
@@ -36,7 +33,7 @@ public class CacheTest {
     @Test
     public void testValues() {
         final List<TransformationCacheEntry> valuesTrans = Arrays.asList(TransformationCacheEntry.values());
-        assertThat(valuesTrans.size()).isEqualTo(12);
+        assertThat(valuesTrans.size()).isEqualTo(8);
         assertThat(valuesTrans.contains(TransformationCacheEntry.valueOf("FACTORIZED_DNF"))).isTrue();
 
         final List<PredicateCacheEntry> valuesPred = Arrays.asList(PredicateCacheEntry.values());

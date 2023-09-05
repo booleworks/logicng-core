@@ -8,7 +8,6 @@ import org.logicng.datastructures.Substitution;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
-import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
 
 /**
  * An anonymizer replaces all variables in a formula with new variables generated from a given prefix and a counter.
@@ -55,6 +54,11 @@ public final class Anonymizer extends StatefulFormulaTransformation<Substitution
         counter = startCounter;
     }
 
+    @Override
+    protected Substitution inititialState() {
+        return new Substitution();
+    }
+
     /**
      * Returns the substitution which was used to anonymize the formula(s).
      * <p>
@@ -80,15 +84,5 @@ public final class Anonymizer extends StatefulFormulaTransformation<Substitution
             }
         }
         return formula.substitute(state, f);
-    }
-
-    @Override
-    protected Substitution initStateForCachingFactory(final CachingFormulaFactory f) {
-        return new Substitution();
-    }
-
-    @Override
-    protected Substitution defaultStateForNonCachingFactory() {
-        return new Substitution();
     }
 }

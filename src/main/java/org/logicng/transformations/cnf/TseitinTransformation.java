@@ -4,16 +4,12 @@
 
 package org.logicng.transformations.cnf;
 
-import static org.logicng.formulas.cache.TransformationCacheEntry.TSEITIN;
-import static org.logicng.formulas.cache.TransformationCacheEntry.TSEITIN_VARIABLE;
-
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.And;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
-import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import org.logicng.transformations.StatefulFormulaTransformation;
 
 import java.util.ArrayList;
@@ -77,12 +73,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
     }
 
     @Override
-    protected TseitinState initStateForCachingFactory(final CachingFormulaFactory f) {
-        return new TseitinState(f);
-    }
-
-    @Override
-    protected TseitinState defaultStateForNonCachingFactory() {
+    protected TseitinState inititialState() {
         return new TseitinState();
     }
 
@@ -106,7 +97,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
             final Assignment topLevel = new Assignment(state.literal(nnf));
             tseitin = state.formula(nnf).restrict(topLevel, f);
         }
-        state.literalCache.put(formula, state.literal(nnf));
+        state.literalMap.put(formula, state.literal(nnf));
         return tseitin;
     }
 
@@ -120,8 +111,8 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
         }
         switch (formula.type()) {
             case LITERAL:
-                state.formulaCache.put(formula, formula);
-                state.literalCache.put(formula, (Literal) formula);
+                state.formulaMap.put(formula, formula);
+                state.literalMap.put(formula, (Literal) formula);
                 break;
             case AND:
             case OR:
@@ -145,8 +136,8 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
                     }
                     nops.add(f.or(operands));
                 }
-                state.literalCache.put(formula, tsLiteral);
-                state.formulaCache.put(formula, f.and(nops));
+                state.literalMap.put(formula, tsLiteral);
+                state.formulaMap.put(formula, f.and(nops));
                 break;
             default:
                 throw new IllegalArgumentException("Could not process the formula type " + formula.type());
@@ -170,31 +161,25 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
     }
 
     public static final class TseitinState {
-        private final Map<Formula, Formula> formulaCache;
-        private final Map<Formula, Literal> literalCache;
+        private final Map<Formula, Formula> formulaMap;
+        private final Map<Formula, Literal> literalMap;
 
         public TseitinState() {
-            formulaCache = new HashMap<>();
-            literalCache = new HashMap<>();
+            formulaMap = new HashMap<>();
+            literalMap = new HashMap<>();
         }
 
-        @SuppressWarnings("unchecked")
-        public TseitinState(final CachingFormulaFactory f) {
-            formulaCache = f.getTransformationCacheForType(TSEITIN);
-            literalCache = (Map<Formula, Literal>) (Map<?, ?>) f.getTransformationCacheForType(TSEITIN_VARIABLE);
-        }
-
-        public TseitinState(final Map<Formula, Formula> formulaCache, final Map<Formula, Literal> literalCache) {
-            this.formulaCache = formulaCache;
-            this.literalCache = literalCache;
+        public TseitinState(final Map<Formula, Formula> formulaMap, final Map<Formula, Literal> literalMap) {
+            this.formulaMap = formulaMap;
+            this.literalMap = literalMap;
         }
 
         private Formula formula(final Formula formula) {
-            return formulaCache.get(formula);
+            return formulaMap.get(formula);
         }
 
         private Literal literal(final Formula formula) {
-            return literalCache.get(formula);
+            return literalMap.get(formula);
         }
     }
 }

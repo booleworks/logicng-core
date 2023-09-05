@@ -6,7 +6,6 @@ package org.logicng.transformations;
 
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.FormulaTransformation;
-import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
 
 /**
  * A stateful formula transformation does hold an internal mutable state.  So you must think about,
@@ -30,11 +29,7 @@ public abstract class StatefulFormulaTransformation<S> implements FormulaTransfo
      **/
     protected StatefulFormulaTransformation(final FormulaFactory f) {
         this.f = f;
-        if (f instanceof CachingFormulaFactory) {
-            state = initStateForCachingFactory((CachingFormulaFactory) f);
-        } else {
-            state = defaultStateForNonCachingFactory();
-        }
+        state = inititialState();
     }
 
     /**
@@ -47,7 +42,13 @@ public abstract class StatefulFormulaTransformation<S> implements FormulaTransfo
         this.state = state;
     }
 
-    protected abstract S initStateForCachingFactory(final CachingFormulaFactory f);
+    /**
+     * Returns the state of this transformation.
+     * @return the state
+     */
+    public S getState() {
+        return state;
+    }
 
-    protected abstract S defaultStateForNonCachingFactory();
+    protected abstract S inititialState();
 }
