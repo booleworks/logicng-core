@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.bdds.datastructures;
 
@@ -60,7 +36,7 @@ public final class BDDInnerNode implements BDDNode {
 
     @Override
     public Variable label() {
-        return this.var;
+        return var;
     }
 
     @Override
@@ -70,25 +46,25 @@ public final class BDDInnerNode implements BDDNode {
 
     @Override
     public BDDNode low() {
-        return this.low;
+        return low;
     }
 
     @Override
     public BDDNode high() {
-        return this.high;
+        return high;
     }
 
     @Override
     public Set<BDDNode> nodes() {
         final Set<BDDNode> res = new HashSet<>(Collections.singleton(this));
-        res.addAll(this.low.nodes());
-        res.addAll(this.high.nodes());
+        res.addAll(low.nodes());
+        res.addAll(high.nodes());
         return res;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.var, this.low, this.high);
+        return Objects.hash(var, low, high);
     }
 
     @Override
@@ -98,15 +74,15 @@ public final class BDDInnerNode implements BDDNode {
         }
         if (other instanceof BDDInnerNode) {
             final BDDInnerNode o = (BDDInnerNode) other;
-            return Objects.equals(this.var, o.var)
-                    && Objects.equals(this.low, o.low)
-                    && Objects.equals(this.high, o.high);
+            return Objects.equals(var, o.var)
+                    && Objects.equals(low, o.low)
+                    && Objects.equals(high, o.high);
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return "<" + this.var + " | low=" + this.low + " high=" + this.high + ">";
+        return "<" + var + " | low=" + low + " high=" + high + ">";
     }
 }

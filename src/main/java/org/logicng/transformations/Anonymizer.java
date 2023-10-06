@@ -1,38 +1,12 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations;
 
-import static org.logicng.formulas.cache.TransformationCacheEntry.ANONYMIZATION;
-
 import org.logicng.datastructures.Substitution;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaTransformation;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 
 /**
@@ -43,39 +17,46 @@ import org.logicng.formulas.Variable;
  * <p>
  * After anonymizing one or more formulas, the mapping from original variable to anonymized variable can be accessed
  * via {@link #getSubstitution()}.
- * @version 1.4.0
+ * @version 3.0.0
  * @since 1.4.0
  */
-public final class Anonymizer implements FormulaTransformation {
+public final class Anonymizer extends StatefulFormulaTransformation<Substitution> {
 
-    private final Substitution substitution;
     private final String prefix;
     private int counter;
 
     /**
+     * Constructs a new anonymizer with the standard variable prefix 'v'.
+     * @param f the formula factory to generate new formulas
+     */
+    public Anonymizer(final FormulaFactory f) {
+        this(f, "v");
+    }
+
+    /**
      * Constructs a new anonymizer with a given prefix for the newly introduced variables.
+     * @param f      the formula factory to generate new formulas
+     * @param prefix the prefix for the new variables
+     */
+    public Anonymizer(final FormulaFactory f, final String prefix) {
+        this(f, prefix, 0);
+    }
+
+    /**
+     * Constructs a new anonymizer with a given prefix for the newly introduced variables.
+     * @param f            the formula factory to generate new formulas
      * @param prefix       the prefix for the new variables
      * @param startCounter where should the counter start
      */
-    public Anonymizer(final String prefix, final int startCounter) {
+    public Anonymizer(final FormulaFactory f, final String prefix, final int startCounter) {
+        super(f);
         this.prefix = prefix;
-        this.substitution = new Substitution();
-        this.counter = startCounter;
+        counter = startCounter;
     }
 
-    /**
-     * Constructs a new anonymizer with a given prefix for the newly introduced variables.
-     * @param prefix the prefix for the new variables
-     */
-    public Anonymizer(final String prefix) {
-        this(prefix, 0);
-    }
-
-    /**
-     * Constructs a new anonymizer with the standard variable prefix 'v'.
-     */
-    public Anonymizer() {
-        this("v");
+    @Override
+    protected Substitution inititialState() {
+        return new Substitution();
     }
 
     /**
@@ -89,27 +70,19 @@ public final class Anonymizer implements FormulaTransformation {
      * @return the substitution which was used to anonymize the formula(s)
      */
     public Substitution getSubstitution() {
-        return new Substitution(this.substitution);
+        return state;
     }
 
     @Override
-    public Formula apply(final Formula formula, final boolean cache) {
-        if (formula.variables().isEmpty()) {
+    public Formula apply(final Formula formula) {
+        if (formula.variables(f).isEmpty()) {
             return formula;
         }
-        final Formula cached = formula.transformationCacheEntry(ANONYMIZATION);
-        if (cache && cached != null) {
-            return cached;
-        }
-        for (final Variable variable : formula.variables()) {
-            if (this.substitution.getSubstitution(variable) == null) {
-                this.substitution.addMapping(variable, formula.factory().variable(this.prefix + this.counter++));
+        for (final Variable variable : formula.variables(f)) {
+            if (state.getSubstitution(variable) == null) {
+                state.addMapping(variable, f.variable(prefix + counter++));
             }
         }
-        final Formula transformed = formula.substitute(this.substitution);
-        if (cache) {
-            formula.setTransformationCacheEntry(ANONYMIZATION, transformed);
-        }
-        return transformed;
+        return formula.substitute(state, f);
     }
 }

@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.cardinalityconstraints;
 
@@ -53,52 +29,47 @@ import org.logicng.solvers.SATSolver;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * Unit tests for the exactly-one encoders.
- * @version 2.0.0
- * @since 1.0
- */
 public class CCEXOTest implements LogicNGTest {
 
     private final CCConfig[] configs;
 
     public CCEXOTest() {
-        this.configs = new CCConfig[11];
-        this.configs[0] = CCConfig.builder().amoEncoding(PURE).build();
-        this.configs[1] = CCConfig.builder().amoEncoding(LADDER).build();
-        this.configs[2] = CCConfig.builder().amoEncoding(PRODUCT).build();
-        this.configs[3] = CCConfig.builder().amoEncoding(BINARY).build();
-        this.configs[4] = CCConfig.builder().amoEncoding(NESTED).build();
-        this.configs[5] = CCConfig.builder().amoEncoding(COMMANDER).commanderGroupSize(3).build();
-        this.configs[6] = CCConfig.builder().amoEncoding(COMMANDER).commanderGroupSize(7).build();
-        this.configs[7] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(FIXED).build();
-        this.configs[8] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(HALF).build();
-        this.configs[9] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(SQRT).build();
-        this.configs[10] = CCConfig.builder().amoEncoding(BEST).build();
+        configs = new CCConfig[11];
+        configs[0] = CCConfig.builder().amoEncoding(PURE).build();
+        configs[1] = CCConfig.builder().amoEncoding(LADDER).build();
+        configs[2] = CCConfig.builder().amoEncoding(PRODUCT).build();
+        configs[3] = CCConfig.builder().amoEncoding(BINARY).build();
+        configs[4] = CCConfig.builder().amoEncoding(NESTED).build();
+        configs[5] = CCConfig.builder().amoEncoding(COMMANDER).commanderGroupSize(3).build();
+        configs[6] = CCConfig.builder().amoEncoding(COMMANDER).commanderGroupSize(7).build();
+        configs[7] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(FIXED).build();
+        configs[8] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(HALF).build();
+        configs[9] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(SQRT).build();
+        configs[10] = CCConfig.builder().amoEncoding(BEST).build();
     }
 
     @Test
     public void testEXO0() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula cc = f.exo();
         assertThat(cc).isEqualTo(f.falsum());
     }
 
     @Test
     public void testEXO1() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final CardinalityConstraint cc = (CardinalityConstraint) f.exo(f.variable("v0"));
-        for (final CCConfig config : this.configs) {
-            assertThat(new CCEncoder(f, config).encode(cc)).containsExactly(f.variable("v0"));
+        for (final CCConfig config : configs) {
+            assertThat(CCEncoder.encode(cc, f, config)).containsExactly(f.variable("v0"));
         }
         assertThat(f.newCCVariable().name()).endsWith("_0");
     }
 
     @Test
     public void testEXOK() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         int counter = 0;
-        for (final CCConfig config : this.configs) {
+        for (final CCConfig config : configs) {
             if (config != null) {
                 f.putConfiguration(config);
                 testEXO(2, f);
@@ -113,22 +84,22 @@ public class CCEXOTest implements LogicNGTest {
 
     @Test
     public void testEncodingSetting() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(CCConfig.builder().amoEncoding(PURE).build());
         final CardinalityConstraint exo = (CardinalityConstraint) f.exo(IntStream.range(0, 100).mapToObj(i -> f.variable("v" + i)).collect(Collectors.toList()));
-        assertThat(exo.cnf().variables()).hasSize(100);
-        assertThat(exo.cnf().numberOfOperands()).isEqualTo(4951);
+        assertThat(exo.cnf(f).variables(f)).hasSize(100);
+        assertThat(exo.cnf(f).numberOfOperands()).isEqualTo(4951);
     }
 
     @Test
     public void testToString() {
-        assertThat(this.configs[0].amoEncoder.toString()).isEqualTo("PURE");
-        assertThat(this.configs[1].amoEncoder.toString()).isEqualTo("LADDER");
-        assertThat(this.configs[2].amoEncoder.toString()).isEqualTo("PRODUCT");
-        assertThat(this.configs[3].amoEncoder.toString()).isEqualTo("BINARY");
-        assertThat(this.configs[4].amoEncoder.toString()).isEqualTo("NESTED");
-        assertThat(this.configs[5].amoEncoder.toString()).isEqualTo("COMMANDER");
-        assertThat(this.configs[7].amoEncoder.toString()).isEqualTo("BIMANDER");
+        assertThat(configs[0].amoEncoder.toString()).isEqualTo("PURE");
+        assertThat(configs[1].amoEncoder.toString()).isEqualTo("LADDER");
+        assertThat(configs[2].amoEncoder.toString()).isEqualTo("PRODUCT");
+        assertThat(configs[3].amoEncoder.toString()).isEqualTo("BINARY");
+        assertThat(configs[4].amoEncoder.toString()).isEqualTo("NESTED");
+        assertThat(configs[5].amoEncoder.toString()).isEqualTo("COMMANDER");
+        assertThat(configs[7].amoEncoder.toString()).isEqualTo("BIMANDER");
     }
 
     private void testEXO(final int numLits, final FormulaFactory f) {

@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.solvers.sat;
 
@@ -55,9 +31,9 @@ public final class MiniSatConfig extends Configuration {
     /**
      * The different methods for generating a CNF for a formula to put on the solver.
      * <ul>
-     * <li> {@code FACTORY_CNF} calls the {@link Formula#cnf()} method on the formula
-     * to convert it to CNF.  Therefore the CNF including all its auxiliary variables will
-     * be added to the formula factory.
+     * <li> {@code FACTORY_CNF} calls the {@link Formula#cnf(org.logicng.formulas.FormulaFactory)}
+     * method on the formula to convert it to CNF.  Therefore the CNF including all its auxiliary
+     * variables will be added to the formula factory.
      * <li> {@code PG_ON_SOLVER} uses a solver-internal implementation of Plaisted-Greenbaum.
      * Auxiliary variables are only added on the solver, not on the factory.  This usually
      * leads to a reduced heap usage and often faster performance.
@@ -100,23 +76,23 @@ public final class MiniSatConfig extends Configuration {
      */
     private MiniSatConfig(final Builder builder) {
         super(ConfigurationType.MINISAT);
-        this.varDecay = builder.varDecay;
-        this.varInc = builder.varInc;
-        this.clauseMin = builder.clauseMin;
-        this.restartFirst = builder.restartFirst;
-        this.restartInc = builder.restartInc;
-        this.clauseDecay = builder.clauseDecay;
-        this.removeSatisfied = builder.removeSatisfied;
-        this.learntsizeFactor = builder.learntsizeFactor;
-        this.learntsizeInc = builder.learntsizeInc;
-        this.incremental = builder.incremental;
-        this.initialPhase = builder.initialPhase;
-        this.proofGeneration = builder.proofGeneration;
-        this.cnfMethod = builder.cnfMethod;
-        this.auxiliaryVariablesInModels = builder.auxiliaryVariablesInModels;
-        this.bbInitialUBCheckForRotatableLiterals = builder.bbInitialUBCheckForRotatableLiterals;
-        this.bbCheckForComplementModelLiterals = builder.bbCheckForComplementModelLiterals;
-        this.bbCheckForRotatableLiterals = builder.bbCheckForRotatableLiterals;
+        varDecay = builder.varDecay;
+        varInc = builder.varInc;
+        clauseMin = builder.clauseMin;
+        restartFirst = builder.restartFirst;
+        restartInc = builder.restartInc;
+        clauseDecay = builder.clauseDecay;
+        removeSatisfied = builder.removeSatisfied;
+        learntsizeFactor = builder.learntsizeFactor;
+        learntsizeInc = builder.learntsizeInc;
+        incremental = builder.incremental;
+        initialPhase = builder.initialPhase;
+        proofGeneration = builder.proofGeneration;
+        cnfMethod = builder.cnfMethod;
+        auxiliaryVariablesInModels = builder.auxiliaryVariablesInModels;
+        bbInitialUBCheckForRotatableLiterals = builder.bbInitialUBCheckForRotatableLiterals;
+        bbCheckForComplementModelLiterals = builder.bbCheckForComplementModelLiterals;
+        bbCheckForRotatableLiterals = builder.bbCheckForRotatableLiterals;
     }
 
     /**
@@ -132,7 +108,7 @@ public final class MiniSatConfig extends Configuration {
      * @return {@code true} if the solver is incremental, {@code false} otherwise
      */
     public boolean incremental() {
-        return this.incremental;
+        return incremental;
     }
 
     /**
@@ -140,7 +116,7 @@ public final class MiniSatConfig extends Configuration {
      * @return the initial phase of the solver
      */
     public boolean initialPhase() {
-        return this.initialPhase;
+        return initialPhase;
     }
 
     /**
@@ -148,7 +124,7 @@ public final class MiniSatConfig extends Configuration {
      * @return whether proof generation should be performed or not
      */
     public boolean proofGeneration() {
-        return this.proofGeneration;
+        return proofGeneration;
     }
 
     /**
@@ -156,7 +132,7 @@ public final class MiniSatConfig extends Configuration {
      * @return the CNF method
      */
     public CNFMethod getCnfMethod() {
-        return this.cnfMethod;
+        return cnfMethod;
     }
 
     /**
@@ -164,29 +140,29 @@ public final class MiniSatConfig extends Configuration {
      * @return whether auxiliary Variables should be included in the model or not
      */
     public boolean isAuxiliaryVariablesInModels() {
-        return this.auxiliaryVariablesInModels;
+        return auxiliaryVariablesInModels;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("MiniSatConfig{").append(System.lineSeparator());
-        sb.append("varDecay=").append(this.varDecay).append(System.lineSeparator());
-        sb.append("varInc=").append(this.varInc).append(System.lineSeparator());
-        sb.append("clauseMin=").append(this.clauseMin).append(System.lineSeparator());
-        sb.append("restartFirst=").append(this.restartFirst).append(System.lineSeparator());
-        sb.append("restartInc=").append(this.restartInc).append(System.lineSeparator());
-        sb.append("clauseDecay=").append(this.clauseDecay).append(System.lineSeparator());
-        sb.append("removeSatisfied=").append(this.removeSatisfied).append(System.lineSeparator());
-        sb.append("learntsizeFactor=").append(this.learntsizeFactor).append(System.lineSeparator());
-        sb.append("learntsizeInc=").append(this.learntsizeInc).append(System.lineSeparator());
-        sb.append("incremental=").append(this.incremental).append(System.lineSeparator());
-        sb.append("initialPhase=").append(this.initialPhase).append(System.lineSeparator());
-        sb.append("proofGeneration=").append(this.proofGeneration).append(System.lineSeparator());
-        sb.append("cnfMethod=").append(this.cnfMethod).append(System.lineSeparator());
-        sb.append("auxiliaryVariablesInModels=").append(this.auxiliaryVariablesInModels).append(System.lineSeparator());
-        sb.append("bbInitialUBCheckForRotatableLiterals=").append(this.bbInitialUBCheckForRotatableLiterals).append(System.lineSeparator());
-        sb.append("bbCheckForComplementModelLiterals=").append(this.bbCheckForComplementModelLiterals).append(System.lineSeparator());
-        sb.append("bbCheckForRotatableLiterals=").append(this.bbCheckForRotatableLiterals).append(System.lineSeparator());
+        sb.append("varDecay=").append(varDecay).append(System.lineSeparator());
+        sb.append("varInc=").append(varInc).append(System.lineSeparator());
+        sb.append("clauseMin=").append(clauseMin).append(System.lineSeparator());
+        sb.append("restartFirst=").append(restartFirst).append(System.lineSeparator());
+        sb.append("restartInc=").append(restartInc).append(System.lineSeparator());
+        sb.append("clauseDecay=").append(clauseDecay).append(System.lineSeparator());
+        sb.append("removeSatisfied=").append(removeSatisfied).append(System.lineSeparator());
+        sb.append("learntsizeFactor=").append(learntsizeFactor).append(System.lineSeparator());
+        sb.append("learntsizeInc=").append(learntsizeInc).append(System.lineSeparator());
+        sb.append("incremental=").append(incremental).append(System.lineSeparator());
+        sb.append("initialPhase=").append(initialPhase).append(System.lineSeparator());
+        sb.append("proofGeneration=").append(proofGeneration).append(System.lineSeparator());
+        sb.append("cnfMethod=").append(cnfMethod).append(System.lineSeparator());
+        sb.append("auxiliaryVariablesInModels=").append(auxiliaryVariablesInModels).append(System.lineSeparator());
+        sb.append("bbInitialUBCheckForRotatableLiterals=").append(bbInitialUBCheckForRotatableLiterals).append(System.lineSeparator());
+        sb.append("bbCheckForComplementModelLiterals=").append(bbCheckForComplementModelLiterals).append(System.lineSeparator());
+        sb.append("bbCheckForRotatableLiterals=").append(bbCheckForRotatableLiterals).append(System.lineSeparator());
         sb.append("}");
         return sb.toString();
     }
@@ -246,7 +222,7 @@ public final class MiniSatConfig extends Configuration {
          * @return the builder
          */
         public Builder clMinimization(final ClauseMinimization ccmin) {
-            this.clauseMin = ccmin;
+            clauseMin = ccmin;
             return this;
         }
 
@@ -378,7 +354,7 @@ public final class MiniSatConfig extends Configuration {
          * @return the builder
          */
         public Builder bbCheckForRotatableLiterals(final boolean checkForRotatableLiterals) {
-            this.bbCheckForRotatableLiterals = checkForRotatableLiterals;
+            bbCheckForRotatableLiterals = checkForRotatableLiterals;
             return this;
         }
 
@@ -390,7 +366,7 @@ public final class MiniSatConfig extends Configuration {
          * @return the builder
          */
         public Builder bbInitialUBCheckForRotatableLiterals(final boolean initialUBCheckForRotatableLiterals) {
-            this.bbInitialUBCheckForRotatableLiterals = initialUBCheckForRotatableLiterals;
+            bbInitialUBCheckForRotatableLiterals = initialUBCheckForRotatableLiterals;
             return this;
         }
 
@@ -402,7 +378,7 @@ public final class MiniSatConfig extends Configuration {
          * @return the builder
          */
         public Builder bbCheckForComplementModelLiterals(final boolean checkForComplementModelLiterals) {
-            this.bbCheckForComplementModelLiterals = checkForComplementModelLiterals;
+            bbCheckForComplementModelLiterals = checkForComplementModelLiterals;
             return this;
         }
 

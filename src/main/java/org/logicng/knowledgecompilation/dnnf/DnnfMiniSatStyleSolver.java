@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.dnnf;
 
@@ -65,20 +41,20 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
      */
     public DnnfMiniSatStyleSolver(final FormulaFactory f, final int numberOfVariables) {
         this.f = f;
-        this.assignment = new Tristate[2 * numberOfVariables];
-        Arrays.fill(this.assignment, Tristate.UNDEF);
-        this.impliedOperands = new ArrayList<>();
+        assignment = new Tristate[2 * numberOfVariables];
+        Arrays.fill(assignment, Tristate.UNDEF);
+        impliedOperands = new ArrayList<>();
     }
 
     @Override
     public boolean start() {
-        this.newlyImpliedDirty = true;
+        newlyImpliedDirty = true;
         return propagate() == null;
     }
 
     @Override
     public Tristate valueOf(final int lit) {
-        return this.assignment[lit];
+        return assignment[lit];
     }
 
     @Override
@@ -88,7 +64,7 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
 
     @Override
     public Literal litForIdx(final int var) {
-        return this.f.literal(this.idx2name.get(var), true);
+        return f.literal(idx2name.get(var), true);
     }
 
     /**
@@ -111,19 +87,24 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
     }
 
     @Override
+    public FormulaFactory f() {
+        return f;
+    }
+
+    @Override
     public void add(final Formula formula) {
-        final Formula cnf = formula.cnf();
+        final Formula cnf = formula.cnf(f);
         switch (cnf.type()) {
             case TRUE:
                 break;
             case FALSE:
             case LITERAL:
             case OR:
-                this.addClause(generateClauseVector(cnf.literals()), null);
+                addClause(generateClauseVector(cnf.literals(f)), null);
                 break;
             case AND:
                 for (final Formula op : cnf) {
-                    this.addClause(generateClauseVector(op.literals()), null);
+                    addClause(generateClauseVector(op.literals(f)), null);
                 }
                 break;
             default:
@@ -147,42 +128,42 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
 
     @Override
     public boolean decide(final int var, final boolean phase) {
-        this.newlyImpliedDirty = true;
+        newlyImpliedDirty = true;
         final int lit = mkLit(var, !phase);
-        this.trailLim.push(this.trail.size());
+        trailLim.push(trail.size());
         uncheckedEnqueue(lit, null);
         return propagateAfterDecide();
     }
 
     @Override
     public void undoDecide(final int var) {
-        this.newlyImpliedDirty = false;
-        cancelUntil(this.vars.get(var).level() - 1);
+        newlyImpliedDirty = false;
+        cancelUntil(vars.get(var).level() - 1);
     }
 
     @Override
     public boolean atAssertionLevel() {
-        return decisionLevel() == this.assertionLevel;
+        return decisionLevel() == assertionLevel;
     }
 
     @Override
     public boolean assertCdLiteral() {
-        this.newlyImpliedDirty = true;
+        newlyImpliedDirty = true;
         if (!atAssertionLevel()) {
             throw new IllegalStateException("assertCdLiteral called although not at assertion level!");
         }
 
-        if (this.lastLearnt.size() == 1) {
-            uncheckedEnqueue(this.lastLearnt.get(0), null);
-            this.unitClauses.push(this.lastLearnt.get(0));
+        if (lastLearnt.size() == 1) {
+            uncheckedEnqueue(lastLearnt.get(0), null);
+            unitClauses.push(lastLearnt.get(0));
         } else {
-            final MSClause cr = new MSClause(this.lastLearnt, true);
-            this.learnts.push(cr);
+            final MSClause cr = new MSClause(lastLearnt, true);
+            learnts.push(cr);
             attachClause(cr);
-            if (!this.incremental) {
+            if (!incremental) {
                 claBumpActivity(cr);
             }
-            uncheckedEnqueue(this.lastLearnt.get(0), cr);
+            uncheckedEnqueue(lastLearnt.get(0), cr);
         }
         decayActivities();
         return propagateAfterDecide();
@@ -190,23 +171,23 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
 
     @Override
     public Formula newlyImplied(final BitSet knownVariables) {
-        this.impliedOperands.clear();
-        if (this.newlyImpliedDirty) {
-            final int limit = this.trailLim.empty() ? -1 : this.trailLim.back();
-            for (int i = this.trail.size() - 1; i > limit; i--) {
-                final int lit = this.trail.get(i);
+        impliedOperands.clear();
+        if (newlyImpliedDirty) {
+            final int limit = trailLim.empty() ? -1 : trailLim.back();
+            for (int i = trail.size() - 1; i > limit; i--) {
+                final int lit = trail.get(i);
                 if (knownVariables.get(var(lit))) {
-                    this.impliedOperands.add(intToLiteral(lit));
+                    impliedOperands.add(intToLiteral(lit));
                 }
             }
         }
-        this.newlyImpliedDirty = false;
-        return this.f.and(this.impliedOperands);
+        newlyImpliedDirty = false;
+        return f.and(impliedOperands);
     }
 
     protected Literal intToLiteral(final int lit) {
         final String name = nameForIdx(var(lit));
-        return this.f.literal(name, !sign(lit));
+        return f.literal(name, !sign(lit));
     }
 
     protected boolean propagateAfterDecide() {
@@ -220,40 +201,40 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
 
     @Override
     protected void uncheckedEnqueue(final int lit, final MSClause reason) {
-        this.assignment[lit] = Tristate.TRUE;
-        this.assignment[lit ^ 1] = Tristate.FALSE;
+        assignment[lit] = Tristate.TRUE;
+        assignment[lit ^ 1] = Tristate.FALSE;
         super.uncheckedEnqueue(lit, reason);
     }
 
     @Override
     protected void cancelUntil(final int level) {
         if (decisionLevel() > level) {
-            for (int c = this.trail.size() - 1; c >= this.trailLim.get(level); c--) {
-                final int l = this.trail.get(c);
-                this.assignment[l] = Tristate.UNDEF;
-                this.assignment[l ^ 1] = Tristate.UNDEF;
+            for (int c = trail.size() - 1; c >= trailLim.get(level); c--) {
+                final int l = trail.get(c);
+                assignment[l] = Tristate.UNDEF;
+                assignment[l ^ 1] = Tristate.UNDEF;
                 final int x = var(l);
-                final MSVariable v = this.vars.get(x);
+                final MSVariable v = vars.get(x);
                 v.assign(Tristate.UNDEF);
-                v.setPolarity(sign(this.trail.get(c)));
+                v.setPolarity(sign(trail.get(c)));
                 insertVarOrder(x);
             }
-            this.qhead = this.trailLim.get(level);
-            this.trail.removeElements(this.trail.size() - this.trailLim.get(level));
-            this.trailLim.removeElements(this.trailLim.size() - level);
+            qhead = trailLim.get(level);
+            trail.removeElements(trail.size() - trailLim.get(level));
+            trailLim.removeElements(trailLim.size() - level);
         }
     }
 
     protected void handleConflict(final MSClause conflict) {
         if (decisionLevel() > 0) {
-            this.lastLearnt = new LNGIntVector();
-            analyze(conflict, this.lastLearnt);
-            this.assertionLevel = this.analyzeBtLevel;
+            lastLearnt = new LNGIntVector();
+            analyze(conflict, lastLearnt);
+            assertionLevel = analyzeBtLevel;
         } else {
             // solver unsat
             cancelUntil(0);
-            this.lastLearnt = null;
-            this.assertionLevel = -1;
+            lastLearnt = null;
+            assertionLevel = -1;
         }
     }
 }

@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas.printer;
 
@@ -32,6 +8,7 @@ import org.logicng.formulas.BinaryOperator;
 import org.logicng.formulas.Equivalence;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.NAryOperator;
 import org.logicng.formulas.Not;
@@ -39,7 +16,6 @@ import org.logicng.formulas.PBConstraint;
 import org.logicng.formulas.Variable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.SortedSet;
@@ -83,7 +59,7 @@ import java.util.TreeSet;
  * Example 4:
  * Given the variable ordering [b, c, d], the sorted string representation for the formula a &amp; (c | (d =&gt; b)) would be
  * ((d =&gt; b) | c) &amp; a.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.5.0
  */
 public final class SortedStringRepresentation extends DefaultStringRepresentation {
@@ -96,11 +72,12 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
 
     /**
      * Constructs a new sorted string representation with a given ordering of variables.
+     * @param f        the formula factory to use for caching
      * @param varOrder the given variable ordering
      */
-    public SortedStringRepresentation(final List<Variable> varOrder) {
+    public SortedStringRepresentation(final FormulaFactory f, final List<Variable> varOrder) {
         this.varOrder = varOrder;
-        this.comparator = new FormulaComparator(varOrder);
+        comparator = new FormulaComparator(f, varOrder);
     }
 
     /**
@@ -153,7 +130,7 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
             operands.add(op);
         }
         final int size = operator.numberOfOperands();
-        operands.sort(this.comparator);
+        operands.sort(comparator);
         final StringBuilder sb = new StringBuilder();
         int count = 0;
         Formula last = null;
@@ -178,22 +155,21 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
      * @return the sorted string representation
      */
     @Override
-    protected String pbLhs(final Literal[] operands, final int[] coefficients) {
-        assert operands.length == coefficients.length;
+    protected String pbLhs(final List<Literal> operands, final List<Integer> coefficients) {
+        assert operands.size() == coefficients.size();
         final List<Literal> sortedOperands = new ArrayList<>();
         final List<Integer> sortedCoefficients = new ArrayList<>();
-        final List<Literal> givenOperands = Arrays.asList(operands);
-        for (final Variable v : this.varOrder) {
-            final int index = givenOperands.indexOf(v);
+        for (final Variable v : varOrder) {
+            final int index = operands.indexOf(v);
             if (index != -1) {
                 sortedOperands.add(v);
-                sortedCoefficients.add(coefficients[index]);
+                sortedCoefficients.add(coefficients.get(index));
             }
         }
-        for (final Literal givenOperand : givenOperands) {
+        for (final Literal givenOperand : operands) {
             if (!sortedOperands.contains(givenOperand)) {
                 sortedOperands.add(givenOperand);
-                sortedCoefficients.add(coefficients[givenOperands.indexOf(givenOperand)]);
+                sortedCoefficients.add(coefficients.get(operands.indexOf(givenOperand)));
             }
         }
         final StringBuilder sb = new StringBuilder();
@@ -224,7 +200,7 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
     private String sortedEquivalence(final Equivalence equivalence) {
         final Formula right;
         final Formula left;
-        if (this.comparator.compare(equivalence.left(), equivalence.right()) <= 0) {
+        if (comparator.compare(equivalence.left(), equivalence.right()) <= 0) {
             right = equivalence.right();
             left = equivalence.left();
         } else {
@@ -238,9 +214,11 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
 
     static class FormulaComparator implements Comparator<Formula> {
 
-        final List<Variable> varOrder;
+        private final List<Variable> varOrder;
+        private final FormulaFactory f;
 
-        FormulaComparator(final List<Variable> varOrder) {
+        FormulaComparator(final FormulaFactory f, final List<Variable> varOrder) {
+            this.f = f;
             this.varOrder = varOrder;
         }
 
@@ -254,9 +232,9 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
          */
         @Override
         public int compare(final Formula formula1, final Formula formula2) {
-            final SortedSet<Variable> vars1 = new TreeSet<>(formula1.variables());
-            final SortedSet<Variable> vars2 = new TreeSet<>(formula2.variables());
-            for (final Variable v : this.varOrder) {
+            final SortedSet<Variable> vars1 = new TreeSet<>(formula1.variables(f));
+            final SortedSet<Variable> vars2 = new TreeSet<>(formula2.variables(f));
+            for (final Variable v : varOrder) {
                 if (vars1.isEmpty() && vars2.isEmpty()) {
                     break;
                 } else if (vars1.isEmpty() || (vars1.contains(v) && !vars2.contains(v))) {
@@ -268,7 +246,7 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
                     vars2.remove(v);
                 }
             }
-            return (int) formula1.numberOfAtoms() - (int) formula2.numberOfAtoms();
+            return (int) formula1.numberOfAtoms(f) - (int) formula2.numberOfAtoms(f);
         }
     }
 }

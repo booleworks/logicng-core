@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015 Christoph Zengler                                     //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * Copyright (c) 2014-2015, Marijn Heule and Nathan Wetzler
@@ -131,44 +107,44 @@ public final class DRUPTrim {
         private Solver(final LNGVector<LNGIntVector> originalProblem, final LNGVector<LNGIntVector> proof) {
             this.originalProblem = originalProblem;
             this.proof = proof;
-            this.core = new LNGVector<>();
-            this.delete = true;
+            core = new LNGVector<>();
+            delete = true;
         }
 
         private void assign(final int a) {
-            this.internalFalse[index(-a)] = 1;
-            this.falseStack[this.assignedPtr++] = -a;
+            internalFalse[index(-a)] = 1;
+            falseStack[assignedPtr++] = -a;
         }
 
         private void addWatch(final int cPtr, final int index) {
-            final int lit = this.DB.get(cPtr + index);
-            this.wlist[index(lit)].push((cPtr << 1));
+            final int lit = DB.get(cPtr + index);
+            wlist[index(lit)].push((cPtr << 1));
         }
 
         private void addWatchLit(final int l, final int m) {
-            this.wlist[index(l)].push(m);
+            wlist[index(l)].push(m);
         }
 
         private void removeWatch(final int cPtr, final int index) {
-            final int lit = this.DB.get(cPtr + index);
-            final LNGIntVector watch = this.wlist[index(lit)];
+            final int lit = DB.get(cPtr + index);
+            final LNGIntVector watch = wlist[index(lit)];
             int watchPtr = 0;
             while (true) {
                 final int _cPtr = watch.get(watchPtr++) >> 1;
                 if (_cPtr == cPtr) {
-                    watch.set(watchPtr - 1, this.wlist[index(lit)].back());
-                    this.wlist[index(lit)].pop();
+                    watch.set(watchPtr - 1, wlist[index(lit)].back());
+                    wlist[index(lit)].pop();
                     return;
                 }
             }
         }
 
         private void markWatch(final int clausePtr, final int index, final int offset) {
-            final LNGIntVector watch = this.wlist[index(this.DB.get(clausePtr + index))];
-            final int clause = this.DB.get(clausePtr - offset - 1);
+            final LNGIntVector watch = wlist[index(DB.get(clausePtr + index))];
+            final int clause = DB.get(clausePtr - offset - 1);
             int watchPtr = 0;
             while (true) {
-                final int _clause = (this.DB.get((watch.get(watchPtr++) >> 1) - 1));
+                final int _clause = (DB.get((watch.get(watchPtr++) >> 1) - 1));
                 if (_clause == clause) {
                     watch.set(watchPtr - 1, watch.get(watchPtr - 1) | 1);
                     return;
@@ -177,30 +153,30 @@ public final class DRUPTrim {
         }
 
         private void markClause(int clausePtr, final int index) {
-            if ((this.DB.get(clausePtr + index - 1) & 1) == 0) {
-                this.DB.set(clausePtr + index - 1, this.DB.get(clausePtr + index - 1) | 1);
-                if (this.DB.get(clausePtr + 1 + index) == 0) {
+            if ((DB.get(clausePtr + index - 1) & 1) == 0) {
+                DB.set(clausePtr + index - 1, DB.get(clausePtr + index - 1) | 1);
+                if (DB.get(clausePtr + 1 + index) == 0) {
                     return;
                 }
-                this.markWatch(clausePtr, index, -index);
-                this.markWatch(clausePtr, 1 + index, -index);
+                markWatch(clausePtr, index, -index);
+                markWatch(clausePtr, 1 + index, -index);
             }
-            while (this.DB.get(clausePtr) != 0) {
-                this.internalFalse[index(this.DB.get(clausePtr++))] = MARK;
+            while (DB.get(clausePtr) != 0) {
+                internalFalse[index(DB.get(clausePtr++))] = MARK;
             }
         }
 
         private void analyze(final int clausePtr) {
-            this.markClause(clausePtr, 0);
-            while (this.assignedPtr > 0) {
-                final int lit = this.falseStack[--this.assignedPtr];
-                if ((this.internalFalse[index(lit)] == MARK) && this.reason[Math.abs(lit)] != 0) {
-                    this.markClause(this.reason[Math.abs(lit)], -1);
+            markClause(clausePtr, 0);
+            while (assignedPtr > 0) {
+                final int lit = falseStack[--assignedPtr];
+                if ((internalFalse[index(lit)] == MARK) && reason[Math.abs(lit)] != 0) {
+                    markClause(reason[Math.abs(lit)], -1);
                 }
-                this.internalFalse[index(lit)] = this.assignedPtr < this.forcedPtr ? 1 : 0;
+                internalFalse[index(lit)] = assignedPtr < forcedPtr ? 1 : 0;
             }
-            this.processedPtr = this.forcedPtr;
-            this.assignedPtr = this.forcedPtr;
+            processedPtr = forcedPtr;
+            assignedPtr = forcedPtr;
         }
 
         private int propagate() {
@@ -211,15 +187,15 @@ public final class DRUPTrim {
             int _lit = 0;
             LNGIntVector watch;
             int _watchPtr = 0;
-            start[0] = this.processedPtr;
-            start[1] = this.processedPtr;
+            start[0] = processedPtr;
+            start[1] = processedPtr;
             boolean gotoFlipCheck = true;
             while (gotoFlipCheck) {
                 gotoFlipCheck = false;
                 check ^= 1;
-                while (!gotoFlipCheck && start[check] < this.assignedPtr) { // While unprocessed false literals
-                    lit = this.falseStack[start[check]++]; // Get first unprocessed literal
-                    watch = this.wlist[index(lit)]; // Obtain the first watch pointer
+                while (!gotoFlipCheck && start[check] < assignedPtr) { // While unprocessed false literals
+                    lit = falseStack[start[check]++]; // Get first unprocessed literal
+                    watch = wlist[index(lit)]; // Obtain the first watch pointer
                     int watchPtr = lit == _lit ? _watchPtr : 0;
 
                     while (watchPtr < watch.size()) { // While there are watched clauses (watched by lit)
@@ -228,31 +204,31 @@ public final class DRUPTrim {
                             continue;
                         }
                         final int clausePtr = watch.get(watchPtr) / 2; // Get the clause from DB
-                        if (this.internalFalse[index(-this.DB.get(clausePtr))] != 0 || this.internalFalse[index(-this.DB.get(clausePtr + 1))] != 0) {
+                        if (internalFalse[index(-DB.get(clausePtr))] != 0 || internalFalse[index(-DB.get(clausePtr + 1))] != 0) {
                             watchPtr++;
                             continue;
                         }
-                        if (this.DB.get(clausePtr) == lit) {
-                            this.DB.set(clausePtr, this.DB.get(clausePtr + 1)); // Ensure that the other watched literal is in front
+                        if (DB.get(clausePtr) == lit) {
+                            DB.set(clausePtr, DB.get(clausePtr + 1)); // Ensure that the other watched literal is in front
                         }
                         boolean gotoNextClause = false;
-                        for (i = 2; this.DB.get(clausePtr + i) != 0; i++) { // Scan the non-watched literals
-                            if (this.internalFalse[index(this.DB.get(clausePtr + i))] == 0) { // When clause[j] is not false, it is either true or unset
-                                this.DB.set(clausePtr + 1, this.DB.get(clausePtr + i));
-                                this.DB.set(clausePtr + i, lit); // Swap literals
-                                this.addWatchLit(this.DB.get(clausePtr + 1), watch.get(watchPtr)); // Add the watch to the list of clause[1]
-                                watch.set(watchPtr, this.wlist[index(lit)].back()); // Remove pointer
-                                this.wlist[index(lit)].pop();
+                        for (i = 2; DB.get(clausePtr + i) != 0; i++) { // Scan the non-watched literals
+                            if (internalFalse[index(DB.get(clausePtr + i))] == 0) { // When clause[j] is not false, it is either true or unset
+                                DB.set(clausePtr + 1, DB.get(clausePtr + i));
+                                DB.set(clausePtr + i, lit); // Swap literals
+                                addWatchLit(DB.get(clausePtr + 1), watch.get(watchPtr)); // Add the watch to the list of clause[1]
+                                watch.set(watchPtr, wlist[index(lit)].back()); // Remove pointer
+                                wlist[index(lit)].pop();
                                 gotoNextClause = true;
                                 break;
                             } // go to the next watched clause
                         }
                         if (!gotoNextClause) {
-                            this.DB.set(clausePtr + 1, lit);
+                            DB.set(clausePtr + 1, lit);
                             watchPtr++; // Set lit at clause[1] and set next watch
-                            if (this.internalFalse[index(this.DB.get(clausePtr))] == 0) { // If the other watched literal is falsified,
-                                this.assign(this.DB.get(clausePtr)); // A unit clause is found, and the reason is set
-                                this.reason[Math.abs(this.DB.get(clausePtr))] = clausePtr + 1;
+                            if (internalFalse[index(DB.get(clausePtr))] == 0) { // If the other watched literal is falsified,
+                                assign(DB.get(clausePtr)); // A unit clause is found, and the reason is set
+                                reason[Math.abs(DB.get(clausePtr))] = clausePtr + 1;
                                 if (check == 0) {
                                     start[0]--;
                                     _lit = lit;
@@ -261,7 +237,7 @@ public final class DRUPTrim {
                                     break;
                                 }
                             } else {
-                                this.analyze(clausePtr);
+                                analyze(clausePtr);
                                 return UNSAT;
                             } // Found a root level conflict -> UNSAT
                         }
@@ -271,7 +247,7 @@ public final class DRUPTrim {
                     gotoFlipCheck = true;
                 }
             }
-            this.processedPtr = this.assignedPtr;
+            processedPtr = assignedPtr;
             return SAT;
         }
 
@@ -281,8 +257,8 @@ public final class DRUPTrim {
             for (i = 0; i < clauselist.size(); i++) {
                 matchsize = 0;
                 boolean aborted = false;
-                for (int l = clauselist.get(i); this.DB.get(l) != 0; l++) {
-                    if (_marks[index(this.DB.get(l))] != mark) {
+                for (int l = clauselist.get(i); DB.get(l) != 0; l++) {
+                    if (_marks[index(DB.get(l))] != mark) {
                         aborted = true;
                         break;
                     }
@@ -303,47 +279,47 @@ public final class DRUPTrim {
          * @return {@code true} if further processing is required and {@code false} if the formula is trivially UNSAT
          */
         private boolean parse() {
-            this.nVars = 0;
-            for (final LNGIntVector vector : this.originalProblem) {
+            nVars = 0;
+            for (final LNGIntVector vector : originalProblem) {
                 for (int i = 0; i < vector.size(); i++) {
-                    if (Math.abs(vector.get(i)) > this.nVars) {
-                        this.nVars = Math.abs(vector.get(i));
+                    if (Math.abs(vector.get(i)) > nVars) {
+                        nVars = Math.abs(vector.get(i));
                     }
                 }
             }
-            this.nClauses = this.originalProblem.size();
+            nClauses = originalProblem.size();
 
             boolean del = false;
-            int nZeros = this.nClauses;
+            int nZeros = nClauses;
             final LNGIntVector buffer = new LNGIntVector();
 
-            this.DB = new LNGIntVector();
+            DB = new LNGIntVector();
 
-            this.count = 1;
-            this.falseStack = new int[this.nVars + 1];
-            this.reason = new int[this.nVars + 1];
-            this.internalFalse = new int[2 * this.nVars + 3];
+            count = 1;
+            falseStack = new int[nVars + 1];
+            reason = new int[nVars + 1];
+            internalFalse = new int[2 * nVars + 3];
 
-            this.wlist = new LNGIntVector[2 * this.nVars + 3];
-            for (int i = 1; i <= this.nVars; ++i) {
-                this.wlist[index(i)] = new LNGIntVector();
-                this.wlist[index(-i)] = new LNGIntVector();
+            wlist = new LNGIntVector[2 * nVars + 3];
+            for (int i = 1; i <= nVars; ++i) {
+                wlist[index(i)] = new LNGIntVector();
+                wlist[index(-i)] = new LNGIntVector();
             }
 
-            this.adlist = new LNGIntVector();
+            adlist = new LNGIntVector();
 
-            final int[] marks = new int[2 * this.nVars + 3];
+            final int[] marks = new int[2 * nVars + 3];
             int mark = 0;
 
             final Map<Integer, LNGIntVector> hashTable = new HashMap<>();
-            LNGVector<LNGIntVector> currentFile = this.originalProblem;
+            LNGVector<LNGIntVector> currentFile = originalProblem;
             boolean fileSwitchFlag;
             int clauseNr = 0;
             while (true) {
                 fileSwitchFlag = nZeros <= 0;
                 final LNGIntVector clause = currentFile.get(clauseNr++);
                 if (clause == null) {
-                    this.lemmas = this.DB.size() + 1;
+                    lemmas = DB.size() + 1;
                     break;
                 }
                 final List<Integer> toks = new ArrayList<>(clause.size() - 1);
@@ -359,28 +335,28 @@ public final class DRUPTrim {
                 if (clauseNr >= currentFile.size() && !fileSwitchFlag) {
                     fileSwitchFlag = true;
                     clauseNr = 0;
-                    currentFile = this.proof;
+                    currentFile = proof;
                 }
                 if (clauseNr > currentFile.size() && fileSwitchFlag && !currentFile.empty()) {
                     break;
                 }
                 final int hash = getHash(marks, ++mark, buffer);
                 if (del) {
-                    if (this.delete) {
-                        final int match = this.matchClause(hashTable.get(hash), marks, mark, buffer);
+                    if (delete) {
+                        final int match = matchClause(hashTable.get(hash), marks, mark, buffer);
                         hashTable.get(hash).pop();
-                        this.adlist.push((match << 1) + 1);
+                        adlist.push((match << 1) + 1);
                     }
                     del = false;
                     buffer.clear();
                     continue;
                 }
-                final int clausePtr = this.DB.size() + 1;
-                this.DB.push(2 * this.count++);
+                final int clausePtr = DB.size() + 1;
+                DB.push(2 * count++);
                 for (int i = 0; i < buffer.size(); i++) {
-                    this.DB.push(buffer.get(i));
+                    DB.push(buffer.get(i));
                 }
-                this.DB.push(0);
+                DB.push(0);
 
                 LNGIntVector vec = hashTable.get(hash);
                 if (vec == null) {
@@ -389,23 +365,23 @@ public final class DRUPTrim {
                 }
                 vec.push(clausePtr);
 
-                this.adlist.push(clausePtr << 1);
+                adlist.push(clausePtr << 1);
 
                 if (nZeros == 0) {
-                    this.lemmas = clausePtr;
-                    this.adlemmas = this.adlist.size() - 1;
+                    lemmas = clausePtr;
+                    adlemmas = adlist.size() - 1;
                 }
                 if (nZeros > 0) {
-                    if (buffer.empty() || ((buffer.size() == 1) && this.internalFalse[index(this.DB.get(clausePtr))] != 0)) {
+                    if (buffer.empty() || ((buffer.size() == 1) && internalFalse[index(DB.get(clausePtr))] != 0)) {
                         return false;
                     } else if (buffer.size() == 1) {
-                        if (this.internalFalse[index(-this.DB.get(clausePtr))] == 0) {
-                            this.reason[Math.abs(this.DB.get(clausePtr))] = clausePtr + 1;
-                            this.assign(this.DB.get(clausePtr));
+                        if (internalFalse[index(-DB.get(clausePtr))] == 0) {
+                            reason[Math.abs(DB.get(clausePtr))] = clausePtr + 1;
+                            assign(DB.get(clausePtr));
                         }
                     } else {
-                        this.addWatch(clausePtr, 0);
-                        this.addWatch(clausePtr, 1);
+                        addWatch(clausePtr, 0);
+                        addWatch(clausePtr, 1);
                     }
                 } else if (buffer.empty()) {
                     break;
@@ -421,64 +397,64 @@ public final class DRUPTrim {
             long d;
             boolean flag = false;
             int clausePtr = 0;
-            int lemmasPtr = this.lemmas;
-            final int lastPtr = this.lemmas;
-            final int endPtr = this.lemmas;
-            int checked = this.adlemmas;
+            int lemmasPtr = lemmas;
+            final int lastPtr = lemmas;
+            final int endPtr = lemmas;
+            int checked = adlemmas;
             final LNGIntVector buffer = new LNGIntVector();
-            this.time = this.DB.get(lemmasPtr - 1);
+            time = DB.get(lemmasPtr - 1);
 
             boolean gotoPostProcess = false;
-            if (this.processedPtr < this.assignedPtr) {
-                if (this.propagate() == UNSAT) {
+            if (processedPtr < assignedPtr) {
+                if (propagate() == UNSAT) {
                     gotoPostProcess = true;
                 }
             }
-            this.forcedPtr = this.processedPtr;
+            forcedPtr = processedPtr;
 
             if (!gotoPostProcess) {
                 boolean gotoVerification = false;
                 while (!gotoVerification) {
                     flag = false;
                     buffer.clear();
-                    this.time = this.DB.get(lemmasPtr - 1);
+                    time = DB.get(lemmasPtr - 1);
                     clausePtr = lemmasPtr;
                     do {
-                        ad = this.adlist.get(checked++);
+                        ad = adlist.get(checked++);
                         d = ad & 1;
                         final int cPtr = ad >> 1;
-                        if (d != 0 && this.DB.get(cPtr + 1) != 0) {
-                            if (this.reason[Math.abs(this.DB.get(cPtr))] - 1 == ad >> 1) {
+                        if (d != 0 && DB.get(cPtr + 1) != 0) {
+                            if (reason[Math.abs(DB.get(cPtr))] - 1 == ad >> 1) {
                                 continue;
                             }
-                            this.removeWatch(cPtr, 0);
-                            this.removeWatch(cPtr, 1);
+                            removeWatch(cPtr, 0);
+                            removeWatch(cPtr, 1);
                         }
                     } while (d != 0);
 
-                    while (this.DB.get(lemmasPtr) != 0) {
-                        final int lit = this.DB.get(lemmasPtr++);
-                        if (this.internalFalse[index(-lit)] != 0) {
+                    while (DB.get(lemmasPtr) != 0) {
+                        final int lit = DB.get(lemmasPtr++);
+                        if (internalFalse[index(-lit)] != 0) {
                             flag = true;
                         }
-                        if (this.internalFalse[index(lit)] == 0) {
+                        if (internalFalse[index(lit)] == 0) {
                             if (buffer.size() <= 1) {
-                                this.DB.set(lemmasPtr - 1, this.DB.get(clausePtr + buffer.size()));
-                                this.DB.set(clausePtr + buffer.size(), lit);
+                                DB.set(lemmasPtr - 1, DB.get(clausePtr + buffer.size()));
+                                DB.set(clausePtr + buffer.size(), lit);
                             }
                             buffer.push(lit);
                         }
                     }
 
-                    if (this.DB.get(clausePtr + 1) != 0) {
-                        this.addWatch(clausePtr, 0);
-                        this.addWatch(clausePtr, 1);
+                    if (DB.get(clausePtr + 1) != 0) {
+                        addWatch(clausePtr, 0);
+                        addWatch(clausePtr, 1);
                     }
 
                     lemmasPtr += EXTRA;
 
                     if (flag) {
-                        this.adlist.set(checked - 1, 0);
+                        adlist.set(checked - 1, 0);
                     }
                     if (flag) {
                         continue;   // Clause is already satisfied
@@ -488,15 +464,15 @@ public final class DRUPTrim {
                     }
 
                     if (buffer.size() == 1) {
-                        this.assign(buffer.get(0));
-                        this.reason[Math.abs(buffer.get(0))] = clausePtr + 1;
-                        this.forcedPtr = this.processedPtr;
-                        if (this.propagate() == UNSAT) {
+                        assign(buffer.get(0));
+                        reason[Math.abs(buffer.get(0))] = clausePtr + 1;
+                        forcedPtr = processedPtr;
+                        if (propagate() == UNSAT) {
                             gotoVerification = true;
                         }
                     }
 
-                    if (lemmasPtr >= this.DB.size()) {
+                    if (lemmasPtr >= DB.size()) {
                         break;
                     }
                 }
@@ -504,60 +480,60 @@ public final class DRUPTrim {
                     throw new IllegalStateException("No conflict");
                 }
 
-                this.forcedPtr = this.processedPtr;
+                forcedPtr = processedPtr;
                 lemmasPtr = clausePtr - EXTRA;
 
                 while (true) {
                     buffer.clear();
                     clausePtr = lemmasPtr + EXTRA;
                     do {
-                        ad = this.adlist.get(--checked);
+                        ad = adlist.get(--checked);
                         d = ad & 1;
                         final int cPtr = ad >> 1;
-                        if (d != 0 && this.DB.get(cPtr + 1) != 0) {
-                            if (this.reason[Math.abs(this.DB.get(cPtr))] - 1 == ad >> 1) {
+                        if (d != 0 && DB.get(cPtr + 1) != 0) {
+                            if (reason[Math.abs(DB.get(cPtr))] - 1 == ad >> 1) {
                                 continue;
                             }
-                            this.addWatch(cPtr, 0);
-                            this.addWatch(cPtr, 1);
+                            addWatch(cPtr, 0);
+                            addWatch(cPtr, 1);
                         }
                     } while (d != 0);
 
-                    this.time = this.DB.get(clausePtr - 1);
+                    time = DB.get(clausePtr - 1);
 
-                    if (this.DB.get(clausePtr + 1) != 0) {
-                        this.removeWatch(clausePtr, 0);
-                        this.removeWatch(clausePtr, 1);
+                    if (DB.get(clausePtr + 1) != 0) {
+                        removeWatch(clausePtr, 0);
+                        removeWatch(clausePtr, 1);
                     }
 
                     final boolean gotoNextLemma = ad == 0;
 
                     if (!gotoNextLemma) {
-                        while (this.DB.get(clausePtr) != 0) {
-                            final int lit = this.DB.get(clausePtr++);
-                            if (this.internalFalse[index(-lit)] != 0) {
+                        while (DB.get(clausePtr) != 0) {
+                            final int lit = DB.get(clausePtr++);
+                            if (internalFalse[index(-lit)] != 0) {
                                 flag = true;
                             }
-                            if (this.internalFalse[index(lit)] == 0) {
+                            if (internalFalse[index(lit)] == 0) {
                                 buffer.push(lit);
                             }
                         }
 
                         if (flag && buffer.size() == 1) {
                             do {
-                                this.internalFalse[index(this.falseStack[--this.forcedPtr])] = 0;
-                            } while (this.falseStack[this.forcedPtr] != -buffer.get(0));
-                            this.processedPtr = this.forcedPtr;
-                            this.assignedPtr = this.forcedPtr;
+                                internalFalse[index(falseStack[--forcedPtr])] = 0;
+                            } while (falseStack[forcedPtr] != -buffer.get(0));
+                            processedPtr = forcedPtr;
+                            assignedPtr = forcedPtr;
                         }
 
-                        if ((this.time & 1) != 0) {
+                        if ((time & 1) != 0) {
                             int i;
                             for (i = 0; i < buffer.size(); ++i) {
-                                this.assign(-buffer.get(i));
-                                this.reason[Math.abs(buffer.get(i))] = 0;
+                                assign(-buffer.get(i));
+                                reason[Math.abs(buffer.get(i))] = 0;
                             }
-                            if (this.propagate() == SAT) {
+                            if (propagate() == SAT) {
                                 throw new IllegalStateException("Formula is SAT");
                             }
                         }
@@ -566,7 +542,7 @@ public final class DRUPTrim {
                     if (lemmasPtr + EXTRA == lastPtr) {
                         break;
                     }
-                    while (this.DB.get(--lemmasPtr) != 0) {
+                    while (DB.get(--lemmasPtr) != 0) {
                         // empty on purpose
                     }
                 }
@@ -575,10 +551,10 @@ public final class DRUPTrim {
             int marked;
             lemmasPtr = 0;
             while (lemmasPtr + EXTRA <= lastPtr) {
-                if ((this.DB.get(lemmasPtr++) & 1) != 0) {
-                    this.count++;
+                if ((DB.get(lemmasPtr++) & 1) != 0) {
+                    count++;
                 }
-                while (this.DB.get(lemmasPtr++) != 0) {
+                while (DB.get(lemmasPtr++) != 0) {
                     // empty on purpose
                 }
             }
@@ -586,32 +562,32 @@ public final class DRUPTrim {
 
             while (lemmasPtr + EXTRA <= lastPtr) {
                 final LNGIntVector coreVec = new LNGIntVector();
-                marked = this.DB.get(lemmasPtr++) & 1;
-                while (this.DB.get(lemmasPtr) != 0) {
+                marked = DB.get(lemmasPtr++) & 1;
+                while (DB.get(lemmasPtr) != 0) {
                     if (marked != 0) {
-                        coreVec.push(this.DB.get(lemmasPtr));
+                        coreVec.push(DB.get(lemmasPtr));
                     }
                     lemmasPtr++;
                 }
                 if (marked != 0) {
-                    this.core.push(coreVec);
+                    core.push(coreVec);
                 }
                 lemmasPtr++;
             }
 
-            this.count = 0;
+            count = 0;
             while (lemmasPtr + EXTRA <= endPtr) {
-                this.time = this.DB.get(lemmasPtr);
-                marked = this.DB.get(lemmasPtr++) & 1;
+                time = DB.get(lemmasPtr);
+                marked = DB.get(lemmasPtr++) & 1;
                 if (marked != 0) {
-                    this.count++;
+                    count++;
                 }
-                while (this.DB.get(lemmasPtr) != 0) {
+                while (DB.get(lemmasPtr) != 0) {
                     lemmasPtr++;
                 }
                 lemmasPtr++;
             }
-            return this.core;
+            return core;
         }
     }
 
@@ -627,7 +603,7 @@ public final class DRUPTrim {
          * @return {@code true} if the formula was trivially unsatisfiable
          */
         public boolean trivialUnsat() {
-            return this.trivialUnsat;
+            return trivialUnsat;
         }
 
         /**
@@ -635,7 +611,7 @@ public final class DRUPTrim {
          * @return the unsat core of the formula
          */
         public LNGVector<LNGIntVector> unsatCore() {
-            return this.unsatCore;
+            return unsatCore;
         }
     }
 }

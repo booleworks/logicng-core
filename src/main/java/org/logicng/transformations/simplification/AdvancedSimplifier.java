@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.simplification;
 
@@ -40,11 +16,11 @@ import org.logicng.datastructures.Assignment;
 import org.logicng.explanations.smus.SmusComputation;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.FormulaTransformation;
 import org.logicng.formulas.Literal;
 import org.logicng.handlers.OptimizationHandler;
 import org.logicng.primecomputation.PrimeCompiler;
 import org.logicng.primecomputation.PrimeResult;
+import org.logicng.transformations.AbortableFormulaTransformation;
 import org.logicng.util.FormulaHelper;
 
 import java.util.ArrayList;
@@ -75,76 +51,95 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class AdvancedSimplifier implements FormulaTransformation {
+public final class AdvancedSimplifier extends AbortableFormulaTransformation<OptimizationHandler> {
 
-    private final AdvancedSimplifierConfig initConfig;
+    private final AdvancedSimplifierConfig config;
 
     /**
      * Constructs a new simplifier with the advanced simplifier configuration from the formula factory.
+     * @param f the formula factory to generate new formulas
      */
-    public AdvancedSimplifier() {
-        this.initConfig = null;
+    public AdvancedSimplifier(final FormulaFactory f) {
+        this(f, (AdvancedSimplifierConfig) f.configurationFor(ConfigurationType.ADVANCED_SIMPLIFIER), null);
+    }
+
+    /**
+     * Constructs a new simplifier with the advanced simplifier configuration from the formula factory.
+     * @param f       the formula factory to generate new formulas
+     * @param handler the optimization handler to abort the simplification
+     */
+    public AdvancedSimplifier(final FormulaFactory f, final OptimizationHandler handler) {
+        this(f, (AdvancedSimplifierConfig) f.configurationFor(ConfigurationType.ADVANCED_SIMPLIFIER), handler);
     }
 
     /**
      * Constructs a new simplifier with the given configuration.
-     * @param config The configuration for the advanced simplifier, including a handler, a rating function and flags for which steps should pe performed
-     *               during the computation.
+     * @param f      the formula factory to generate new formulas
+     * @param config The configuration for the advanced simplifier, including a handler, a rating function and flags
+     *               for which steps should pe performed during the computation.
      */
-    public AdvancedSimplifier(final AdvancedSimplifierConfig config) {
-        this.initConfig = config;
+    public AdvancedSimplifier(final FormulaFactory f, final AdvancedSimplifierConfig config) {
+        this(f, config, null);
+    }
+
+    /**
+     * Constructs a new simplifier with the given configuration.
+     * @param f       the formula factory to generate new formulas
+     * @param handler the optimization handler to abort the simplification
+     * @param config  The configuration for the advanced simplifier, including a handler, a rating function and flags
+     *                for which steps should pe performed during the computation.
+     */
+    public AdvancedSimplifier(final FormulaFactory f, final AdvancedSimplifierConfig config, final OptimizationHandler handler) {
+        super(f, handler);
+        this.config = config;
     }
 
     @Override
-    public Formula apply(final Formula formula, final boolean cache) {
-        final AdvancedSimplifierConfig config = this.initConfig != null
-                ? this.initConfig
-                : (AdvancedSimplifierConfig) formula.factory().configurationFor(ConfigurationType.ADVANCED_SIMPLIFIER);
-        start(config.handler);
-        final FormulaFactory f = formula.factory();
+    public Formula apply(final Formula formula) {
+        start(handler);
         Formula simplified = formula;
         final SortedSet<Literal> backboneLiterals = new TreeSet<>();
         if (config.restrictBackbone) {
-            final Backbone backbone = BackboneGeneration
-                    .compute(Collections.singletonList(formula), formula.variables(), BackboneType.POSITIVE_AND_NEGATIVE, satHandler(config.handler));
-            if (backbone == null || aborted(config.handler)) {
+            final Backbone backbone = BackboneGeneration.compute(f, Collections.singletonList(formula),
+                    formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE, satHandler(handler));
+            if (backbone == null || aborted(handler)) {
                 return null;
             }
             if (!backbone.isSat()) {
                 return f.falsum();
             }
-            backboneLiterals.addAll(backbone.getCompleteBackbone());
-            simplified = formula.restrict(new Assignment(backboneLiterals));
+            backboneLiterals.addAll(backbone.getCompleteBackbone(f));
+            simplified = formula.restrict(new Assignment(backboneLiterals), f);
         }
-        final Formula simplifyMinDnf = computeMinDnf(f, simplified, config);
+        final Formula simplifyMinDnf = computeMinDnf(f, simplified);
         if (simplifyMinDnf == null) {
             return null;
         }
         simplified = simplifyWithRating(simplified, simplifyMinDnf, config);
         if (config.factorOut) {
-            final Formula factoredOut = simplified.transform(new FactorOutSimplifier(config.ratingFunction));
+            final Formula factoredOut = simplified.transform(new FactorOutSimplifier(f, config.ratingFunction));
             simplified = simplifyWithRating(simplified, factoredOut, config);
         }
         if (config.restrictBackbone) {
             simplified = f.and(f.and(backboneLiterals), simplified);
         }
         if (config.simplifyNegations) {
-            final Formula negationSimplified = simplified.transform(NegationSimplifier.get());
+            final Formula negationSimplified = simplified.transform(new NegationSimplifier(f));
             simplified = simplifyWithRating(simplified, negationSimplified, config);
         }
         return simplified;
     }
 
-    private Formula computeMinDnf(final FormulaFactory f, Formula simplified, final AdvancedSimplifierConfig config) {
+    private Formula computeMinDnf(final FormulaFactory f, Formula simplified) {
         final PrimeResult primeResult =
-                PrimeCompiler.getWithMinimization().compute(simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE, config.handler);
-        if (primeResult == null || aborted(config.handler)) {
+                PrimeCompiler.getWithMinimization().compute(f, simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE, handler);
+        if (primeResult == null || aborted(handler)) {
             return null;
         }
         final List<SortedSet<Literal>> primeImplicants = primeResult.getPrimeImplicants();
         final List<Formula> minimizedPIs = SmusComputation.computeSmusForFormulas(negateAllLiterals(primeImplicants, f),
-                Collections.singletonList(simplified), f, config.handler);
-        if (minimizedPIs == null || aborted(config.handler)) {
+                Collections.singletonList(simplified), f, handler);
+        if (minimizedPIs == null || aborted(handler)) {
             return null;
         }
         simplified = f.or(negateAllLiteralsInFormulas(minimizedPIs, f).stream().map(f::and).collect(Collectors.toList()));
@@ -154,7 +149,7 @@ public final class AdvancedSimplifier implements FormulaTransformation {
     private List<Formula> negateAllLiterals(final Collection<SortedSet<Literal>> literalSets, final FormulaFactory f) {
         final List<Formula> result = new ArrayList<>();
         for (final SortedSet<Literal> literals : literalSets) {
-            result.add(f.or(FormulaHelper.negateLiterals(literals, ArrayList::new)));
+            result.add(f.or(FormulaHelper.negateLiterals(f, literals, ArrayList::new)));
         }
         return result;
     }
@@ -162,14 +157,17 @@ public final class AdvancedSimplifier implements FormulaTransformation {
     private List<Formula> negateAllLiteralsInFormulas(final Collection<Formula> formulas, final FormulaFactory f) {
         final List<Formula> result = new ArrayList<>();
         for (final Formula formula : formulas) {
-            result.add(f.and(FormulaHelper.negateLiterals(formula.literals(), ArrayList::new)));
+            result.add(f.and(FormulaHelper.negateLiterals(f, formula.literals(f), ArrayList::new)));
         }
         return result;
     }
 
     private Formula simplifyWithRating(final Formula formula, final Formula simplifiedOneStep, final AdvancedSimplifierConfig config) {
-        final Number ratingSimplified = config.ratingFunction.apply(simplifiedOneStep, true);
-        final Number ratingFormula = config.ratingFunction.apply(formula, true);
+        if (!config.useRatingFunction) {
+            return simplifiedOneStep;
+        }
+        final Number ratingSimplified = config.ratingFunction.apply(simplifiedOneStep);
+        final Number ratingFormula = config.ratingFunction.apply(formula);
         return ratingSimplified.intValue() < ratingFormula.intValue() ? simplifiedOneStep : formula;
     }
 }

@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.bdds.jbuddy;
 
@@ -55,10 +31,10 @@ public class BDDConstruction {
      * @throws IllegalArgumentException if the index is not within the range of variables
      */
     public int ithVar(final int i) {
-        if (i < 0 || i >= this.k.varnum) {
+        if (i < 0 || i >= k.varnum) {
             throw new IllegalArgumentException("Illegal variable number: " + i);
         }
-        return this.k.vars[i * 2];
+        return k.vars[i * 2];
     }
 
     /**
@@ -68,10 +44,10 @@ public class BDDConstruction {
      * @throws IllegalArgumentException if the index is not within the range of variables
      */
     public int nithVar(final int i) {
-        if (i < 0 || i >= this.k.varnum) {
+        if (i < 0 || i >= k.varnum) {
             throw new IllegalArgumentException("Illegal variable number: " + i);
         }
-        return this.k.vars[i * 2 + 1];
+        return k.vars[i * 2 + 1];
     }
 
     /**
@@ -83,7 +59,7 @@ public class BDDConstruction {
         if (root < 2) {
             throw new IllegalArgumentException("Illegal node number: " + root);
         }
-        return this.k.level2var[this.k.level(root)];
+        return k.level2var[k.level(root)];
     }
 
     /**
@@ -95,7 +71,7 @@ public class BDDConstruction {
         if (root < 2) {
             throw new IllegalArgumentException("Illegal node number: " + root);
         }
-        return this.k.low(root);
+        return k.low(root);
     }
 
     /**
@@ -107,7 +83,7 @@ public class BDDConstruction {
         if (root < 2) {
             throw new IllegalArgumentException("Illegal node number: " + root);
         }
-        return this.k.high(root);
+        return k.high(root);
     }
 
     /**
@@ -117,7 +93,7 @@ public class BDDConstruction {
      * @return the conjunction of the two BDDs
      */
     public int and(final int l, final int r) {
-        return this.k.apply(l, r, BDDKernel.Operand.AND);
+        return k.apply(l, r, BDDKernel.Operand.AND);
     }
 
     /**
@@ -127,7 +103,7 @@ public class BDDConstruction {
      * @return the disjunction of the two BDDs
      */
     public int or(final int l, final int r) {
-        return this.k.apply(l, r, BDDKernel.Operand.OR);
+        return k.apply(l, r, BDDKernel.Operand.OR);
     }
 
     /**
@@ -137,7 +113,7 @@ public class BDDConstruction {
      * @return the implication of the two BDDs
      */
     public int implication(final int l, final int r) {
-        return this.k.apply(l, r, BDDKernel.Operand.IMP);
+        return k.apply(l, r, BDDKernel.Operand.IMP);
     }
 
     /**
@@ -147,7 +123,7 @@ public class BDDConstruction {
      * @return the equivalence of the two BDDs
      */
     public int equivalence(final int l, final int r) {
-        return this.k.apply(l, r, BDDKernel.Operand.EQUIV);
+        return k.apply(l, r, BDDKernel.Operand.EQUIV);
     }
 
     /**
@@ -156,24 +132,24 @@ public class BDDConstruction {
      * @return the negation of the BDD
      */
     public int not(final int r) {
-        return this.k.doWithPotentialReordering(() -> notRec(r));
+        return k.doWithPotentialReordering(() -> notRec(r));
     }
 
     protected int notRec(final int r) throws BDDKernel.BddReorderRequest {
-        if (this.k.isZero(r)) {
+        if (k.isZero(r)) {
             return BDDKernel.BDD_TRUE;
         }
-        if (this.k.isOne(r)) {
+        if (k.isOne(r)) {
             return BDDKernel.BDD_FALSE;
         }
-        final BDDCacheEntry entry = this.k.applycache.lookup(r);
+        final BDDCacheEntry entry = k.applycache.lookup(r);
         if (entry.a == r && entry.c == BDDKernel.Operand.NOT.v) {
             return entry.res;
         }
-        this.k.pushRef(notRec(this.k.low(r)));
-        this.k.pushRef(notRec(this.k.high(r)));
-        final int res = this.k.makeNode(this.k.level(r), this.k.readRef(2), this.k.readRef(1));
-        this.k.popref(2);
+        k.pushRef(notRec(k.low(r)));
+        k.pushRef(notRec(k.high(r)));
+        final int res = k.makeNode(k.level(r), k.readRef(2), k.readRef(1));
+        k.popref(2);
         entry.a = r;
         entry.c = BDDKernel.Operand.NOT.v;
         entry.res = res;
@@ -192,29 +168,29 @@ public class BDDConstruction {
             return r;
         }
         varset2svartable(var);
-        return this.k.doWithPotentialReordering(() -> restrictRec(r, (var << 3) | CACHEID_RESTRICT));
+        return k.doWithPotentialReordering(() -> restrictRec(r, (var << 3) | CACHEID_RESTRICT));
     }
 
     protected int restrictRec(final int r, final int miscid) throws BDDKernel.BddReorderRequest {
         final int res;
-        if (this.k.isConst(r) || this.k.level(r) > this.k.quantlast) {
+        if (k.isConst(r) || k.level(r) > k.quantlast) {
             return r;
         }
-        final BDDCacheEntry entry = this.k.misccache.lookup(this.k.pair(r, miscid));
+        final BDDCacheEntry entry = k.misccache.lookup(k.pair(r, miscid));
         if (entry.a == r && entry.c == miscid) {
             return entry.res;
         }
-        if (insvarset(this.k.level(r))) {
-            if (this.k.quantvarset[this.k.level(r)] > 0) {
-                res = restrictRec(this.k.high(r), miscid);
+        if (insvarset(k.level(r))) {
+            if (k.quantvarset[k.level(r)] > 0) {
+                res = restrictRec(k.high(r), miscid);
             } else {
-                res = restrictRec(this.k.low(r), miscid);
+                res = restrictRec(k.low(r), miscid);
             }
         } else {
-            this.k.pushRef(restrictRec(this.k.low(r), miscid));
-            this.k.pushRef(restrictRec(this.k.high(r), miscid));
-            res = this.k.makeNode(this.k.level(r), this.k.readRef(2), this.k.readRef(1));
-            this.k.popref(2);
+            k.pushRef(restrictRec(k.low(r), miscid));
+            k.pushRef(restrictRec(k.high(r), miscid));
+            res = k.makeNode(k.level(r), k.readRef(2), k.readRef(1));
+            k.popref(2);
         }
         entry.a = r;
         entry.c = miscid;
@@ -233,7 +209,7 @@ public class BDDConstruction {
             return r;
         }
         varset2vartable(var);
-        return this.k.doWithPotentialReordering(() -> quantRec(r, BDDKernel.Operand.OR, var << 3));
+        return k.doWithPotentialReordering(() -> quantRec(r, BDDKernel.Operand.OR, var << 3));
     }
 
     /**
@@ -247,26 +223,26 @@ public class BDDConstruction {
             return r;
         }
         varset2vartable(var);
-        return this.k.doWithPotentialReordering(() -> quantRec(r, BDDKernel.Operand.AND, (var << 3) | CACHEID_FORALL));
+        return k.doWithPotentialReordering(() -> quantRec(r, BDDKernel.Operand.AND, (var << 3) | CACHEID_FORALL));
     }
 
     protected int quantRec(final int r, final BDDKernel.Operand op, final int quantid) throws BDDKernel.BddReorderRequest {
         final int res;
-        if (r < 2 || this.k.level(r) > this.k.quantlast) {
+        if (r < 2 || k.level(r) > k.quantlast) {
             return r;
         }
-        final BDDCacheEntry entry = this.k.quantcache.lookup(r);
+        final BDDCacheEntry entry = k.quantcache.lookup(r);
         if (entry.a == r && entry.c == quantid) {
             return entry.res;
         }
-        this.k.pushRef(quantRec(this.k.low(r), op, quantid));
-        this.k.pushRef(quantRec(this.k.high(r), op, quantid));
-        if (invarset(this.k.level(r))) {
-            res = this.k.applyRec(this.k.readRef(2), this.k.readRef(1), op);
+        k.pushRef(quantRec(k.low(r), op, quantid));
+        k.pushRef(quantRec(k.high(r), op, quantid));
+        if (invarset(k.level(r))) {
+            res = k.applyRec(k.readRef(2), k.readRef(1), op);
         } else {
-            res = this.k.makeNode(this.k.level(r), this.k.readRef(2), this.k.readRef(1));
+            res = k.makeNode(k.level(r), k.readRef(2), k.readRef(1));
         }
-        this.k.popref(2);
+        k.popref(2);
         entry.a = r;
         entry.c = quantid;
         entry.res = res;
@@ -277,20 +253,20 @@ public class BDDConstruction {
         if (r < 2) {
             throw new IllegalArgumentException("Illegal variable: " + r);
         }
-        this.k.quantvarsetID++;
-        if (this.k.quantvarsetID == Integer.MAX_VALUE / 2) {
-            this.k.quantvarset = new int[this.k.varnum];
-            this.k.quantvarsetID = 1;
+        k.quantvarsetID++;
+        if (k.quantvarsetID == Integer.MAX_VALUE / 2) {
+            k.quantvarset = new int[k.varnum];
+            k.quantvarsetID = 1;
         }
-        for (int n = r; !this.k.isConst(n); ) {
-            if (this.k.isZero(this.k.low(n))) {
-                this.k.quantvarset[this.k.level(n)] = this.k.quantvarsetID;
-                n = this.k.high(n);
+        for (int n = r; !k.isConst(n); ) {
+            if (k.isZero(k.low(n))) {
+                k.quantvarset[k.level(n)] = k.quantvarsetID;
+                n = k.high(n);
             } else {
-                this.k.quantvarset[this.k.level(n)] = -this.k.quantvarsetID;
-                n = this.k.low(n);
+                k.quantvarset[k.level(n)] = -k.quantvarsetID;
+                n = k.low(n);
             }
-            this.k.quantlast = this.k.level(n);
+            k.quantlast = k.level(n);
         }
     }
 
@@ -298,22 +274,22 @@ public class BDDConstruction {
         if (r < 2) {
             throw new IllegalArgumentException("Illegal variable: " + r);
         }
-        this.k.quantvarsetID++;
-        if (this.k.quantvarsetID == Integer.MAX_VALUE) {
-            this.k.quantvarset = new int[this.k.varnum];
-            this.k.quantvarsetID = 1;
+        k.quantvarsetID++;
+        if (k.quantvarsetID == Integer.MAX_VALUE) {
+            k.quantvarset = new int[k.varnum];
+            k.quantvarsetID = 1;
         }
-        for (int n = r; n > 1; n = this.k.high(n)) {
-            this.k.quantvarset[this.k.level(n)] = this.k.quantvarsetID;
-            this.k.quantlast = this.k.level(n);
+        for (int n = r; n > 1; n = k.high(n)) {
+            k.quantvarset[k.level(n)] = k.quantvarsetID;
+            k.quantlast = k.level(n);
         }
     }
 
     protected boolean insvarset(final int a) {
-        return Math.abs(this.k.quantvarset[a]) == this.k.quantvarsetID;
+        return Math.abs(k.quantvarset[a]) == k.quantvarsetID;
     }
 
     protected boolean invarset(final int a) {
-        return this.k.quantvarset[a] == this.k.quantvarsetID;
+        return k.quantvarset[a] == k.quantvarsetID;
     }
 }

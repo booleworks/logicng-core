@@ -1,68 +1,47 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.predicates;
 
 import static org.logicng.formulas.cache.PredicateCacheEntry.IS_NNF;
 
-import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaPredicate;
+import org.logicng.formulas.FormulaFactory;
+
+import java.util.Map;
 
 /**
  * NNF predicate.  Indicates whether a formula is in NNF or not.
- * @version 1.5.1
+ * @version 3.0.0
  * @since 1.5.1
  */
-public final class NNFPredicate implements FormulaPredicate {
-
-    private final static NNFPredicate INSTANCE = new NNFPredicate();
+public final class NNFPredicate extends CacheableFormulaPredicate {
 
     /**
-     * Private empty constructor.  Singleton class.
+     * Constructs a new predicate.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
      */
-    private NNFPredicate() {
-        // Intentionally left empty
+    public NNFPredicate(final FormulaFactory f) {
+        super(f, IS_NNF);
     }
 
     /**
-     * Returns the singleton of the predicate.
-     * @return the predicate instance
+     * Constructs a new predicate.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
      */
-    public static NNFPredicate get() {
-        return INSTANCE;
+    public NNFPredicate(final FormulaFactory f, final Map<Formula, Boolean> cache) {
+        super(f, cache);
     }
 
     @Override
-    public boolean test(final Formula formula, final boolean cache) {
-        final Tristate cached = formula.predicateCacheEntry(IS_NNF);
-        if (cached != Tristate.UNDEF) {
-            return cached == Tristate.TRUE;
+    public boolean test(final Formula formula) {
+        final Boolean cached = lookupCache(formula);
+        if (cached != null) {
+            return cached;
         }
         boolean result;
         switch (formula.type()) {
@@ -76,7 +55,7 @@ public final class NNFPredicate implements FormulaPredicate {
             case OR:
                 result = true;
                 for (final Formula op : formula) {
-                    if (!test(op, cache)) {
+                    if (!test(op)) {
                         result = false;
                         break;
                     }
@@ -91,14 +70,7 @@ public final class NNFPredicate implements FormulaPredicate {
             default:
                 throw new IllegalArgumentException("Cannot compute NNF predicate on " + formula.type());
         }
-        if (cache) {
-            formula.setPredicateCacheEntry(IS_NNF, result);
-        }
+        setCache(formula, result);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
     }
 }

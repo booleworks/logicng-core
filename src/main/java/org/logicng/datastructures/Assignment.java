@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.datastructures;
 
@@ -48,7 +24,7 @@ import java.util.TreeSet;
  * Note: the internal data structure is a plain list - no checking of the model is performed e.g. if
  * contradictory literals are added. Since assignments are used e.g. in the model enumeration of the SAT solvers these
  * checks would be too costly.
- * @version 2.3.1
+ * @version 3.0.0
  * @since 1.0
  */
 public final class Assignment {
@@ -73,11 +49,11 @@ public final class Assignment {
     public Assignment(final boolean fastEvaluable) {
         this.fastEvaluable = fastEvaluable;
         if (!fastEvaluable) {
-            this.pos = new ArrayList<>();
-            this.neg = new ArrayList<>();
+            pos = new ArrayList<>();
+            neg = new ArrayList<>();
         } else {
-            this.pos = new HashSet<>();
-            this.neg = new HashSet<>();
+            pos = new HashSet<>();
+            neg = new HashSet<>();
         }
     }
 
@@ -138,10 +114,10 @@ public final class Assignment {
      * Converts this assignment to a fast evaluable assignment.
      */
     public void convertToFastEvaluable() {
-        if (!this.fastEvaluable) {
-            this.pos = new HashSet<>(this.pos);
-            this.neg = new HashSet<>(this.neg);
-            this.fastEvaluable = true;
+        if (!fastEvaluable) {
+            pos = new HashSet<>(pos);
+            neg = new HashSet<>(neg);
+            fastEvaluable = true;
         }
     }
 
@@ -150,7 +126,7 @@ public final class Assignment {
      * @return {@code true} if this assignment is fast evaluable, {@code false} otherwise
      */
     public boolean fastEvaluable() {
-        return this.fastEvaluable;
+        return fastEvaluable;
     }
 
     /**
@@ -158,7 +134,7 @@ public final class Assignment {
      * @return the number of literals in this assignment
      */
     public int size() {
-        return this.pos.size() + this.neg.size();
+        return pos.size() + neg.size();
     }
 
     /**
@@ -166,7 +142,7 @@ public final class Assignment {
      * @return the positive literals of this assignment
      */
     public List<Variable> positiveVariables() {
-        return this.fastEvaluable ? Collections.unmodifiableList(new ArrayList<>(this.pos)) : Collections.unmodifiableList((List<Variable>) this.pos);
+        return fastEvaluable ? Collections.unmodifiableList(new ArrayList<>(pos)) : Collections.unmodifiableList((List<Variable>) pos);
     }
 
     /**
@@ -174,7 +150,7 @@ public final class Assignment {
      * @return the negative literals of this assignment
      */
     public List<Literal> negativeLiterals() {
-        return this.fastEvaluable ? Collections.unmodifiableList(new ArrayList<>(this.neg)) : Collections.unmodifiableList((List<Literal>) this.neg);
+        return fastEvaluable ? Collections.unmodifiableList(new ArrayList<>(neg)) : Collections.unmodifiableList((List<Literal>) neg);
     }
 
     /**
@@ -183,7 +159,7 @@ public final class Assignment {
      */
     public List<Variable> negativeVariables() {
         final ArrayList<Variable> negatedVariables = new ArrayList<>();
-        for (final Literal lit : this.neg) {
+        for (final Literal lit : neg) {
             negatedVariables.add(lit.variable());
         }
         return negatedVariables;
@@ -195,8 +171,8 @@ public final class Assignment {
      */
     public SortedSet<Literal> literals() {
         final SortedSet<Literal> set = new TreeSet<>();
-        set.addAll(this.pos);
-        set.addAll(this.neg);
+        set.addAll(pos);
+        set.addAll(neg);
         return set;
     }
 
@@ -206,9 +182,9 @@ public final class Assignment {
      */
     public void addLiteral(final Literal lit) {
         if (lit.phase()) {
-            this.pos.add(lit.variable());
+            pos.add(lit.variable());
         } else {
-            this.neg.add(lit);
+            neg.add(lit);
         }
     }
 
@@ -219,21 +195,21 @@ public final class Assignment {
      * @return the evaluation of the literal
      */
     public boolean evaluateLit(final Literal lit) {
-        return lit.phase() ? this.pos.contains(lit.variable()) : this.neg.contains(lit) || !this.pos.contains(lit.variable());
+        return lit.phase() ? pos.contains(lit.variable()) : neg.contains(lit) || !pos.contains(lit.variable());
     }
 
     /**
      * Restricts a given literal to a constant.  Returns the literal itself, if the literal's variable is not known.
      * @param lit the literal
+     * @param f   the formula factory to create the restricted formula
      * @return the restriction of the literal or the literal itself, if the literal's variable is not known
      */
-    public Formula restrictLit(final Literal lit) {
-        final FormulaFactory f = lit.factory();
+    public Formula restrictLit(final Literal lit, final FormulaFactory f) {
         final Variable var = lit.variable();
-        if (this.pos.contains(var)) {
+        if (pos.contains(var)) {
             return f.constant(lit.phase());
         }
-        if (this.neg.contains(var.negate())) {
+        if (neg.contains(var.negate(f))) {
             return f.constant(!lit.phase());
         }
         return lit;
@@ -245,7 +221,7 @@ public final class Assignment {
      * @return the assignment as a formula
      */
     public Formula formula(final FormulaFactory f) {
-        return f.and(this.literals());
+        return f.and(literals());
     }
 
     /**
@@ -255,11 +231,11 @@ public final class Assignment {
      */
     public Formula blockingClause(final FormulaFactory f) {
         final List<Literal> ops = new ArrayList<>();
-        for (final Literal lit : this.pos) {
-            ops.add(lit.negate());
+        for (final Literal lit : pos) {
+            ops.add(lit.negate(f));
         }
-        for (final Literal lit : this.neg) {
-            ops.add(lit.negate());
+        for (final Literal lit : neg) {
+            ops.add(lit.negate(f));
         }
         return f.or(ops);
     }
@@ -278,10 +254,10 @@ public final class Assignment {
         final List<Literal> ops = new ArrayList<>();
         for (final Literal lit : literals) {
             final Variable var = lit.variable();
-            final Literal negatedVar = var.negate();
-            if (this.pos.contains(var)) {
+            final Literal negatedVar = var.negate(f);
+            if (pos.contains(var)) {
                 ops.add(negatedVar);
-            } else if (this.neg.contains(negatedVar)) {
+            } else if (neg.contains(negatedVar)) {
                 ops.add(var);
             }
         }
@@ -290,7 +266,7 @@ public final class Assignment {
 
     @Override
     public int hashCode() {
-        return Objects.hash(toHashSet(this.pos), toHashSet(this.neg));
+        return Objects.hash(toHashSet(pos), toHashSet(neg));
     }
 
     @Override
@@ -301,10 +277,10 @@ public final class Assignment {
         if (this == other) {
             return true;
         }
-        if (this.getClass() == other.getClass()) {
+        if (getClass() == other.getClass()) {
             final Assignment o = (Assignment) other;
-            return Objects.equals(toHashSet(this.pos), o.toHashSet(o.pos))
-                    && Objects.equals(toHashSet(this.neg), o.toHashSet(o.neg));
+            return Objects.equals(toHashSet(pos), o.toHashSet(o.pos))
+                    && Objects.equals(toHashSet(neg), o.toHashSet(o.neg));
         }
         return false;
     }
@@ -316,11 +292,11 @@ public final class Assignment {
      */
     private Collection<? extends Literal> toHashSet(final Collection<? extends Literal> literals) {
         // invariant: if fastEvaluable is active, the pos and neg collections are already hash sets
-        return this.fastEvaluable ? literals : new HashSet<>(literals);
+        return fastEvaluable ? literals : new HashSet<>(literals);
     }
 
     @Override
     public String toString() {
-        return String.format("Assignment{pos=%s, neg=%s}", this.pos, this.neg);
+        return String.format("Assignment{pos=%s, neg=%s}", pos, neg);
     }
 }

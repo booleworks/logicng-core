@@ -1,46 +1,23 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.predicates;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.RandomTag;
-import org.logicng.TestWithExampleFormulas;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.CType;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.PBConstraint;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.util.FormulaCornerCases;
@@ -50,617 +27,671 @@ import org.logicng.util.FormulaRandomizerConfig;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-/**
- * Unit Tests for the class {@link EvaluatesToConstantPredicate}.
- * @version 2.0.0
- * @since 2.0.0
- */
-public class EvaluatesToConstantPredicateTest extends TestWithExampleFormulas {
+public class EvaluatesToConstantPredicateTest extends TestWithFormulaContext {
 
-    private final EvaluatesToConstantPredicate emptyToFalse;
-    private final EvaluatesToConstantPredicate aToFalse;
-    private final EvaluatesToConstantPredicate aNotBToFalse;
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void getMapping(final FormulaContext _c) {
+        final var e = new Preds(_c);
 
-    private final EvaluatesToConstantPredicate emptyToTrue;
-    private final EvaluatesToConstantPredicate aToTrue;
-    private final EvaluatesToConstantPredicate aNotBToTrue;
+        assertThat(e.emptyToFalse.getMapping()).containsExactly();
+        assertThat(e.aToFalse.getMapping()).containsExactly(entry(_c.a, true));
+        assertThat(e.aNotBToFalse.getMapping()).containsExactly(entry(_c.a, true), entry(_c.b, false));
 
-    public EvaluatesToConstantPredicateTest() {
-        this.emptyToFalse = new EvaluatesToConstantPredicate(false, new HashMap<>());
-        this.emptyToTrue = new EvaluatesToConstantPredicate(true, new HashMap<>());
-
-        final HashMap<Variable, Boolean> aMap = new HashMap<>();
-        aMap.put(this.A, true);
-        this.aToFalse = new EvaluatesToConstantPredicate(false, aMap);
-        this.aToTrue = new EvaluatesToConstantPredicate(true, aMap);
-
-        final HashMap<Variable, Boolean> aNotBMap = new HashMap<>();
-        aNotBMap.put(this.A, true);
-        aNotBMap.put(this.B, false);
-        this.aNotBToFalse = new EvaluatesToConstantPredicate(false, aNotBMap);
-        this.aNotBToTrue = new EvaluatesToConstantPredicate(true, aNotBMap);
+        assertThat(e.emptyToTrue.getMapping()).containsExactly();
+        assertThat(e.aToTrue.getMapping()).containsExactly(entry(_c.a, true));
+        assertThat(e.aNotBToTrue.getMapping()).containsExactly(entry(_c.a, true), entry(_c.b, false));
     }
 
-    @Test
-    public void getMapping() {
-        assertThat(this.emptyToFalse.getMapping()).containsExactly();
-        assertThat(this.aToFalse.getMapping()).containsExactly(entry(this.A, true));
-        assertThat(this.aNotBToFalse.getMapping()).containsExactly(entry(this.A, true), entry(this.B, false));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testConstantsToFalse(final FormulaContext _c) {
+        final var e = new Preds(_c);
 
-        assertThat(this.emptyToTrue.getMapping()).containsExactly();
-        assertThat(this.aToTrue.getMapping()).containsExactly(entry(this.A, true));
-        assertThat(this.aNotBToTrue.getMapping()).containsExactly(entry(this.A, true), entry(this.B, false));
+        assertThat(_c.f.falsum().holds(e.emptyToFalse)).isTrue();
+        assertThat(_c.f.falsum().holds(e.aToFalse)).isTrue();
+        assertThat(_c.f.falsum().holds(e.aNotBToFalse)).isTrue();
+
+        assertThat(_c.f.verum().holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.verum().holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.verum().holds(e.aNotBToFalse)).isFalse();
     }
 
-    @Test
-    public void testConstantsToFalse() {
-        assertThat(this.f.falsum().holds(this.emptyToFalse)).isTrue();
-        assertThat(this.f.falsum().holds(this.aToFalse)).isTrue();
-        assertThat(this.f.falsum().holds(this.aNotBToFalse)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiteralsToFalse(final FormulaContext _c) {
+        final var e = new Preds(_c);
 
-        assertThat(this.f.verum().holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.verum().holds(this.aToFalse)).isFalse();
-        assertThat(this.f.verum().holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.a.holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.a.holds(e.aToFalse)).isFalse();
+        assertThat(_c.a.holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.na.holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.na.holds(e.aToFalse)).isTrue();
+        assertThat(_c.na.holds(e.aNotBToFalse)).isTrue();
+
+        assertThat(_c.b.holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.b.holds(e.aToFalse)).isFalse();
+        assertThat(_c.b.holds(e.aNotBToFalse)).isTrue();
+
+        assertThat(_c.nb.holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.nb.holds(e.aToFalse)).isFalse();
+        assertThat(_c.nb.holds(e.aNotBToFalse)).isFalse();
     }
 
-    @Test
-    public void testLiteralsToFalse() {
-        assertThat(this.A.holds(this.emptyToFalse)).isFalse();
-        assertThat(this.A.holds(this.aToFalse)).isFalse();
-        assertThat(this.A.holds(this.aNotBToFalse)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNotToFalse(final FormulaContext _c) throws ParserException {
+        final var e = new Preds(_c);
 
-        assertThat(this.NA.holds(this.emptyToFalse)).isFalse();
-        assertThat(this.NA.holds(this.aToFalse)).isTrue();
-        assertThat(this.NA.holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.f.parse("~~a").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~~a").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~~a").holds(e.aNotBToFalse)).isFalse();
 
-        assertThat(this.B.holds(this.emptyToFalse)).isFalse();
-        assertThat(this.B.holds(this.aToFalse)).isFalse();
-        assertThat(this.B.holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.f.parse("~~~a").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~~~a").holds(e.aToFalse)).isTrue();
+        assertThat(_c.f.parse("~~~a").holds(e.aNotBToFalse)).isTrue();
 
-        assertThat(this.NB.holds(this.emptyToFalse)).isFalse();
-        assertThat(this.NB.holds(this.aToFalse)).isFalse();
-        assertThat(this.NB.holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("~(a & b)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~(a & b)").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~(a & b)").holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.f.parse("~(~a & b)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~(~a & b)").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~(~a & b)").holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.f.parse("~(a & ~b)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~(a & ~b)").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~(a & ~b)").holds(e.aNotBToFalse)).isTrue();
+
+        assertThat(_c.f.parse("~(~a & ~b)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~(~a & ~b)").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~(~a & ~b)").holds(e.aNotBToFalse)).isFalse();
     }
 
-    @Test
-    public void testNotToFalse() throws ParserException {
-        assertThat(this.f.parse("~~a").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~~a").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~~a").holds(this.aNotBToFalse)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testAndToFalse(final FormulaContext _c) throws ParserException {
+        final var e = new Preds(_c);
 
-        assertThat(this.f.parse("~~~a").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~~~a").holds(this.aToFalse)).isTrue();
-        assertThat(this.f.parse("~~~a").holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.f.parse("a & ~a").holds(e.emptyToFalse)).isTrue();
+        assertThat(_c.f.parse("a & ~a").holds(e.aToFalse)).isTrue();
+        assertThat(_c.f.parse("a & ~a").holds(e.aNotBToFalse)).isTrue();
 
-        assertThat(this.f.parse("~(a & b)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~(a & b)").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~(a & b)").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("a & b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a & b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a & b").holds(e.aNotBToFalse)).isTrue();
 
-        assertThat(this.f.parse("~(~a & b)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~(~a & b)").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~(~a & b)").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("~a & b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~a & b").holds(e.aToFalse)).isTrue();
+        assertThat(_c.f.parse("~a & b").holds(e.aNotBToFalse)).isTrue();
 
-        assertThat(this.f.parse("~(a & ~b)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~(a & ~b)").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~(a & ~b)").holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.f.parse("a & ~b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a & ~b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a & ~b").holds(e.aNotBToFalse)).isFalse();
 
-        assertThat(this.f.parse("~(~a & ~b)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~(~a & ~b)").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~(~a & ~b)").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("~a & ~b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~a & ~b").holds(e.aToFalse)).isTrue();
+        assertThat(_c.f.parse("~a & ~b").holds(e.aNotBToFalse)).isTrue();
+
+        assertThat(_c.f.parse("~a & ~b & c & ~d").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~a & ~b & c & ~d").holds(e.aToFalse)).isTrue();
+        assertThat(_c.f.parse("~a & ~b & c & ~d").holds(e.aNotBToFalse)).isTrue();
     }
 
-    @Test
-    public void testAndToFalse() throws ParserException {
-        assertThat(this.f.parse("a & ~a").holds(this.emptyToFalse)).isTrue();
-        assertThat(this.f.parse("a & ~a").holds(this.aToFalse)).isTrue();
-        assertThat(this.f.parse("a & ~a").holds(this.aNotBToFalse)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testOrToFalse(final FormulaContext _c) throws ParserException {
+        final var e = new Preds(_c);
 
-        assertThat(this.f.parse("a & b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a & b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a & b").holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.f.parse("a | b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a | b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a | b").holds(e.aNotBToFalse)).isFalse();
 
-        assertThat(this.f.parse("~a & b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~a & b").holds(this.aToFalse)).isTrue();
-        assertThat(this.f.parse("~a & b").holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.f.parse("~a | b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~a | b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~a | b").holds(e.aNotBToFalse)).isTrue();
 
-        assertThat(this.f.parse("a & ~b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a & ~b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a & ~b").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("a | ~b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a | ~b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a | ~b").holds(e.aNotBToFalse)).isFalse();
 
-        assertThat(this.f.parse("~a & ~b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~a & ~b").holds(this.aToFalse)).isTrue();
-        assertThat(this.f.parse("~a & ~b").holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.f.parse("~a | ~b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~a | ~b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~a | ~b").holds(e.aNotBToFalse)).isFalse();
 
-        assertThat(this.f.parse("~a & ~b & c & ~d").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~a & ~b & c & ~d").holds(this.aToFalse)).isTrue();
-        assertThat(this.f.parse("~a & ~b & c & ~d").holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.f.parse("~a | ~b | c | ~d").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~a | ~b | c | ~d").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~a | ~b | c | ~d").holds(e.aNotBToFalse)).isFalse();
     }
 
-    @Test
-    public void testOrToFalse() throws ParserException {
-        assertThat(this.f.parse("a | b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a | b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a | b").holds(this.aNotBToFalse)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testImplicationToFalse(final FormulaContext _c) throws ParserException {
+        final var e = new Preds(_c);
 
-        assertThat(this.f.parse("~a | b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~a | b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~a | b").holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.f.parse("a => a").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a => a").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a => a").holds(e.aNotBToFalse)).isFalse();
 
-        assertThat(this.f.parse("a | ~b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a | ~b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a | ~b").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("b => b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("b => b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("b => b").holds(e.aNotBToFalse)).isFalse();
 
-        assertThat(this.f.parse("~a | ~b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~a | ~b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~a | ~b").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("a => b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a => b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a => b").holds(e.aNotBToFalse)).isTrue();
 
-        assertThat(this.f.parse("~a | ~b | c | ~d").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~a | ~b | c | ~d").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~a | ~b | c | ~d").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("~a => b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~a => b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~a => b").holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.f.parse("a => ~b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a => ~b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a => ~b").holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.f.parse("~a => ~b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~a => ~b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~a => ~b").holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.f.parse("b => a").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("b => a").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("b => a").holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.f.parse("~b => a").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~b => a").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~b => a").holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.f.parse("b => ~a").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("b => ~a").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("b => ~a").holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.f.parse("~b => ~a").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~b => ~a").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~b => ~a").holds(e.aNotBToFalse)).isTrue();
     }
 
-    @Test
-    public void testImplicationToFalse() throws ParserException {
-        assertThat(this.f.parse("a => a").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a => a").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a => a").holds(this.aNotBToFalse)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEquivalenceToFalse(final FormulaContext _c) throws ParserException {
+        final var e = new Preds(_c);
 
-        assertThat(this.f.parse("b => b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("b => b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("b => b").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("a <=> a").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a <=> a").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a <=> a").holds(e.aNotBToFalse)).isFalse();
 
-        assertThat(this.f.parse("a => b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a => b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a => b").holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.f.parse("b <=> b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("b <=> b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("b <=> b").holds(e.aNotBToFalse)).isFalse();
 
-        assertThat(this.f.parse("~a => b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~a => b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~a => b").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("a <=> b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a <=> b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a <=> b").holds(e.aNotBToFalse)).isTrue();
 
-        assertThat(this.f.parse("a => ~b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a => ~b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a => ~b").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("~a <=> b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~a <=> b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~a <=> b").holds(e.aNotBToFalse)).isFalse();
 
-        assertThat(this.f.parse("~a => ~b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~a => ~b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~a => ~b").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("a <=> ~b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a <=> ~b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a <=> ~b").holds(e.aNotBToFalse)).isFalse();
 
-        assertThat(this.f.parse("b => a").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("b => a").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("b => a").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("~a <=> ~b").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~a <=> ~b").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~a <=> ~b").holds(e.aNotBToFalse)).isTrue();
 
-        assertThat(this.f.parse("~b => a").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~b => a").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~b => a").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("b <=> a").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("b <=> a").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("b <=> a").holds(e.aNotBToFalse)).isTrue();
 
-        assertThat(this.f.parse("b => ~a").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("b => ~a").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("b => ~a").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("~b <=> a").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~b <=> a").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~b <=> a").holds(e.aNotBToFalse)).isFalse();
 
-        assertThat(this.f.parse("~b => ~a").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~b => ~a").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~b => ~a").holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.f.parse("b <=> ~a").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("b <=> ~a").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("b <=> ~a").holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.f.parse("~b <=> ~a").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~b <=> ~a").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("~b <=> ~a").holds(e.aNotBToFalse)).isTrue();
     }
 
-    @Test
-    public void testEquivalenceToFalse() throws ParserException {
-        assertThat(this.f.parse("a <=> a").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a <=> a").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a <=> a").holds(this.aNotBToFalse)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testPBCToFalse(final FormulaContext _c) {
+        final var e = new Preds(_c);
 
-        assertThat(this.f.parse("b <=> b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("b <=> b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("b <=> b").holds(this.aNotBToFalse)).isFalse();
+        final PBConstraint pbc01 = (PBConstraint) _c.f.pbc(CType.EQ, 2, new Literal[]{_c.a, _c.b}, new int[]{2, -4});
+        assertThat(pbc01.holds(e.emptyToFalse)).isFalse();
+        assertThat(pbc01.holds(e.aToFalse)).isFalse();
+        assertThat(pbc01.holds(e.aNotBToFalse)).isFalse();
 
-        assertThat(this.f.parse("a <=> b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a <=> b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a <=> b").holds(this.aNotBToFalse)).isTrue();
+        final PBConstraint pbc02 = (PBConstraint) _c.f.pbc(CType.GT, 2, new Literal[]{_c.b, _c.c}, new int[]{2, 1});
+        assertThat(pbc02.holds(e.emptyToFalse)).isFalse();
+        assertThat(pbc02.holds(e.aToFalse)).isFalse();
+        assertThat(pbc02.holds(e.aNotBToFalse)).isTrue();
 
-        assertThat(this.f.parse("~a <=> b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~a <=> b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~a <=> b").holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.pbc1.holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.pbc1.holds(e.aToFalse)).isFalse();
+        assertThat(_c.pbc1.holds(e.aNotBToFalse)).isFalse();
 
-        assertThat(this.f.parse("a <=> ~b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a <=> ~b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a <=> ~b").holds(this.aNotBToFalse)).isFalse();
-
-        assertThat(this.f.parse("~a <=> ~b").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~a <=> ~b").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~a <=> ~b").holds(this.aNotBToFalse)).isTrue();
-
-        assertThat(this.f.parse("b <=> a").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("b <=> a").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("b <=> a").holds(this.aNotBToFalse)).isTrue();
-
-        assertThat(this.f.parse("~b <=> a").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~b <=> a").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~b <=> a").holds(this.aNotBToFalse)).isFalse();
-
-        assertThat(this.f.parse("b <=> ~a").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("b <=> ~a").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("b <=> ~a").holds(this.aNotBToFalse)).isFalse();
-
-        assertThat(this.f.parse("~b <=> ~a").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~b <=> ~a").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("~b <=> ~a").holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.pbc2.holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.pbc2.holds(e.aToFalse)).isFalse();
+        assertThat(_c.pbc2.holds(e.aNotBToFalse)).isFalse();
     }
 
-    @Test
-    public void testPBCToFalse() {
-        final PBConstraint pbc01 = (PBConstraint) this.f.pbc(CType.EQ, 2, new Literal[]{this.A, this.B}, new int[]{2, -4});
-        assertThat(pbc01.holds(this.emptyToFalse)).isFalse();
-        assertThat(pbc01.holds(this.aToFalse)).isFalse();
-        assertThat(pbc01.holds(this.aNotBToFalse)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testMixedToFalse(final FormulaContext _c) throws ParserException {
+        final var e = new Preds(_c);
 
-        final PBConstraint pbc02 = (PBConstraint) this.f.pbc(CType.GT, 2, new Literal[]{this.B, this.C}, new int[]{2, 1});
-        assertThat(pbc02.holds(this.emptyToFalse)).isFalse();
-        assertThat(pbc02.holds(this.aToFalse)).isFalse();
-        assertThat(pbc02.holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.f.parse("~a & (a | ~b)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~a & (a | ~b)").holds(e.aToFalse)).isTrue();
+        assertThat(_c.f.parse("~a & (a | ~b)").holds(e.aNotBToFalse)).isTrue();
 
-        assertThat(this.PBC1.holds(this.emptyToFalse)).isFalse();
-        assertThat(this.PBC1.holds(this.aToFalse)).isFalse();
-        assertThat(this.PBC1.holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("~b & (b | ~a)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~b & (b | ~a)").holds(e.aToFalse)).isTrue();
+        assertThat(_c.f.parse("~b & (b | ~a)").holds(e.aNotBToFalse)).isTrue();
 
-        assertThat(this.PBC2.holds(this.emptyToFalse)).isFalse();
-        assertThat(this.PBC2.holds(this.aToFalse)).isFalse();
-        assertThat(this.PBC2.holds(this.aNotBToFalse)).isFalse();
+        assertThat(_c.f.parse("~a & (a | ~b) & c & (a => b | e)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~a & (a | ~b) & c & (a => b | e)").holds(e.aToFalse)).isTrue();
+        assertThat(_c.f.parse("~a & (a | ~b) & c & (a => b | e)").holds(e.aNotBToFalse)).isTrue();
+
+        assertThat(_c.f.parse("~a & ~(a | ~b) & c & (a => b | e)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("~a & ~(a | ~b) & c & (a => b | e)").holds(e.aToFalse)).isTrue();
+        assertThat(_c.f.parse("~a & ~(a | ~b) & c & (a => b | e)").holds(e.aNotBToFalse)).isTrue();
+
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a => b | e)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a => b | e)").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a => b | e)").holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a => ~b | e)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a => ~b | e)").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a => ~b | e)").holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.f.parse("a & (a | ~b) & (a => b | e)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (a => b | e)").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (a => b | e)").holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a <=> ~b | e)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a <=> ~b | e)").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a <=> ~b | e)").holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.f.parse("a & (a | ~b) & (a <=> b | e)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (a <=> b | e)").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (a <=> b | e)").holds(e.aNotBToFalse)).isFalse();
+
+        assertThat(_c.f.parse("a & (a | ~b) & (a <=> b)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (a <=> b)").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (a <=> b)").holds(e.aNotBToFalse)).isTrue();
+
+        assertThat(_c.f.parse("a & (a | ~b) & (3 * a + 2 * b > 4)").holds(e.emptyToFalse)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (3 * a + 2 * b > 4)").holds(e.aToFalse)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (3 * a + 2 * b > 4)").holds(e.aNotBToFalse)).isTrue();
     }
 
-    @Test
-    public void testMixedToFalse() throws ParserException {
-        assertThat(this.f.parse("~a & (a | ~b)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~a & (a | ~b)").holds(this.aToFalse)).isTrue();
-        assertThat(this.f.parse("~a & (a | ~b)").holds(this.aNotBToFalse)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testConstantsToTrue(final FormulaContext _c) {
+        final var e = new Preds(_c);
 
-        assertThat(this.f.parse("~b & (b | ~a)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~b & (b | ~a)").holds(this.aToFalse)).isTrue();
-        assertThat(this.f.parse("~b & (b | ~a)").holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.f.falsum().holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.falsum().holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.falsum().holds(e.aNotBToTrue)).isFalse();
 
-        assertThat(this.f.parse("~a & (a | ~b) & c & (a => b | e)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~a & (a | ~b) & c & (a => b | e)").holds(this.aToFalse)).isTrue();
-        assertThat(this.f.parse("~a & (a | ~b) & c & (a => b | e)").holds(this.aNotBToFalse)).isTrue();
-
-        assertThat(this.f.parse("~a & ~(a | ~b) & c & (a => b | e)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("~a & ~(a | ~b) & c & (a => b | e)").holds(this.aToFalse)).isTrue();
-        assertThat(this.f.parse("~a & ~(a | ~b) & c & (a => b | e)").holds(this.aNotBToFalse)).isTrue();
-
-        assertThat(this.f.parse("a & (a | ~b) & c & (a => b | e)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & c & (a => b | e)").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & c & (a => b | e)").holds(this.aNotBToFalse)).isFalse();
-
-        assertThat(this.f.parse("a & (a | ~b) & c & (a => ~b | e)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & c & (a => ~b | e)").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & c & (a => ~b | e)").holds(this.aNotBToFalse)).isFalse();
-
-        assertThat(this.f.parse("a & (a | ~b) & (a => b | e)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (a => b | e)").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (a => b | e)").holds(this.aNotBToFalse)).isFalse();
-
-        assertThat(this.f.parse("a & (a | ~b) & c & (a <=> ~b | e)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & c & (a <=> ~b | e)").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & c & (a <=> ~b | e)").holds(this.aNotBToFalse)).isFalse();
-
-        assertThat(this.f.parse("a & (a | ~b) & (a <=> b | e)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (a <=> b | e)").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (a <=> b | e)").holds(this.aNotBToFalse)).isFalse();
-
-        assertThat(this.f.parse("a & (a | ~b) & (a <=> b)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (a <=> b)").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (a <=> b)").holds(this.aNotBToFalse)).isTrue();
-
-        assertThat(this.f.parse("a & (a | ~b) & (3 * a + 2 * b > 4)").holds(this.emptyToFalse)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (3 * a + 2 * b > 4)").holds(this.aToFalse)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (3 * a + 2 * b > 4)").holds(this.aNotBToFalse)).isTrue();
+        assertThat(_c.f.verum().holds(e.emptyToTrue)).isTrue();
+        assertThat(_c.f.verum().holds(e.aToTrue)).isTrue();
+        assertThat(_c.f.verum().holds(e.aNotBToTrue)).isTrue();
     }
 
-    @Test
-    public void testConstantsToTrue() {
-        assertThat(this.f.falsum().holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.falsum().holds(this.aToTrue)).isFalse();
-        assertThat(this.f.falsum().holds(this.aNotBToTrue)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiteralsToTrue(final FormulaContext _c) {
+        final var e = new Preds(_c);
 
-        assertThat(this.f.verum().holds(this.emptyToTrue)).isTrue();
-        assertThat(this.f.verum().holds(this.aToTrue)).isTrue();
-        assertThat(this.f.verum().holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.a.holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.a.holds(e.aToTrue)).isTrue();
+        assertThat(_c.a.holds(e.aNotBToTrue)).isTrue();
+
+        assertThat(_c.na.holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.na.holds(e.aToTrue)).isFalse();
+        assertThat(_c.na.holds(e.aNotBToTrue)).isFalse();
+
+        assertThat(_c.b.holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.b.holds(e.aToTrue)).isFalse();
+        assertThat(_c.b.holds(e.aNotBToTrue)).isFalse();
+
+        assertThat(_c.nb.holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.nb.holds(e.aToTrue)).isFalse();
+        assertThat(_c.nb.holds(e.aNotBToTrue)).isTrue();
     }
 
-    @Test
-    public void testLiteralsToTrue() {
-        assertThat(this.A.holds(this.emptyToTrue)).isFalse();
-        assertThat(this.A.holds(this.aToTrue)).isTrue();
-        assertThat(this.A.holds(this.aNotBToTrue)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNotToTrue(final FormulaContext _c) throws ParserException {
+        final var e = new Preds(_c);
 
-        assertThat(this.NA.holds(this.emptyToTrue)).isFalse();
-        assertThat(this.NA.holds(this.aToTrue)).isFalse();
-        assertThat(this.NA.holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.f.parse("~~a").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~~a").holds(e.aToTrue)).isTrue();
+        assertThat(_c.f.parse("~~a").holds(e.aNotBToTrue)).isTrue();
 
-        assertThat(this.B.holds(this.emptyToTrue)).isFalse();
-        assertThat(this.B.holds(this.aToTrue)).isFalse();
-        assertThat(this.B.holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.f.parse("~~~a").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~~~a").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~~~a").holds(e.aNotBToTrue)).isFalse();
 
-        assertThat(this.NB.holds(this.emptyToTrue)).isFalse();
-        assertThat(this.NB.holds(this.aToTrue)).isFalse();
-        assertThat(this.NB.holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("~(a & b)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~(a & b)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~(a & b)").holds(e.aNotBToTrue)).isTrue();
+
+        assertThat(_c.f.parse("~(~a & b)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~(~a & b)").holds(e.aToTrue)).isTrue();
+        assertThat(_c.f.parse("~(~a & b)").holds(e.aNotBToTrue)).isTrue();
+
+        assertThat(_c.f.parse("~(a & ~b)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~(a & ~b)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~(a & ~b)").holds(e.aNotBToTrue)).isFalse();
+
+        assertThat(_c.f.parse("~(~a & ~b)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~(~a & ~b)").holds(e.aToTrue)).isTrue();
+        assertThat(_c.f.parse("~(~a & ~b)").holds(e.aNotBToTrue)).isTrue();
     }
 
-    @Test
-    public void testNotToTrue() throws ParserException {
-        assertThat(this.f.parse("~~a").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~~a").holds(this.aToTrue)).isTrue();
-        assertThat(this.f.parse("~~a").holds(this.aNotBToTrue)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testAndToTrue(final FormulaContext _c) throws ParserException {
+        final var e = new Preds(_c);
 
-        assertThat(this.f.parse("~~~a").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~~~a").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~~~a").holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.f.parse("a & ~a").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a & ~a").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("a & ~a").holds(e.aNotBToTrue)).isFalse();
 
-        assertThat(this.f.parse("~(a & b)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~(a & b)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~(a & b)").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("a & b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a & b").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("a & b").holds(e.aNotBToTrue)).isFalse();
 
-        assertThat(this.f.parse("~(~a & b)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~(~a & b)").holds(this.aToTrue)).isTrue();
-        assertThat(this.f.parse("~(~a & b)").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("~a & b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & b").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & b").holds(e.aNotBToTrue)).isFalse();
 
-        assertThat(this.f.parse("~(a & ~b)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~(a & ~b)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~(a & ~b)").holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.f.parse("a & ~b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a & ~b").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("a & ~b").holds(e.aNotBToTrue)).isTrue();
 
-        assertThat(this.f.parse("~(~a & ~b)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~(~a & ~b)").holds(this.aToTrue)).isTrue();
-        assertThat(this.f.parse("~(~a & ~b)").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("~a & ~b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & ~b").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & ~b").holds(e.aNotBToTrue)).isFalse();
+
+        assertThat(_c.f.parse("~a & ~b & c & ~d").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & ~b & c & ~d").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & ~b & c & ~d").holds(e.aNotBToTrue)).isFalse();
     }
 
-    @Test
-    public void testAndToTrue() throws ParserException {
-        assertThat(this.f.parse("a & ~a").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a & ~a").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("a & ~a").holds(this.aNotBToTrue)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testOrToTrue(final FormulaContext _c) throws ParserException {
+        final var e = new Preds(_c);
 
-        assertThat(this.f.parse("a & b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a & b").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("a & b").holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.f.parse("a | b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a | b").holds(e.aToTrue)).isTrue();
+        assertThat(_c.f.parse("a | b").holds(e.aNotBToTrue)).isTrue();
 
-        assertThat(this.f.parse("~a & b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~a & b").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~a & b").holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.f.parse("~a | b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~a | b").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~a | b").holds(e.aNotBToTrue)).isFalse();
 
-        assertThat(this.f.parse("a & ~b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a & ~b").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("a & ~b").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("a | ~b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a | ~b").holds(e.aToTrue)).isTrue();
+        assertThat(_c.f.parse("a | ~b").holds(e.aNotBToTrue)).isTrue();
 
-        assertThat(this.f.parse("~a & ~b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~a & ~b").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~a & ~b").holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.f.parse("~a | ~b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~a | ~b").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~a | ~b").holds(e.aNotBToTrue)).isTrue();
 
-        assertThat(this.f.parse("~a & ~b & c & ~d").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~a & ~b & c & ~d").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~a & ~b & c & ~d").holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.f.parse("~a | ~b | c | ~d").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~a | ~b | c | ~d").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~a | ~b | c | ~d").holds(e.aNotBToTrue)).isTrue();
     }
 
-    @Test
-    public void testOrToTrue() throws ParserException {
-        assertThat(this.f.parse("a | b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a | b").holds(this.aToTrue)).isTrue();
-        assertThat(this.f.parse("a | b").holds(this.aNotBToTrue)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testImplicationToTrue(final FormulaContext _c) throws ParserException {
+        final var e = new Preds(_c);
 
-        assertThat(this.f.parse("~a | b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~a | b").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~a | b").holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.f.parse("a => a").holds(e.emptyToTrue)).isTrue();
+        assertThat(_c.f.parse("a => a").holds(e.aToTrue)).isTrue();
+        assertThat(_c.f.parse("a => a").holds(e.aNotBToTrue)).isTrue();
 
-        assertThat(this.f.parse("a | ~b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a | ~b").holds(this.aToTrue)).isTrue();
-        assertThat(this.f.parse("a | ~b").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("b => b").holds(e.emptyToTrue)).isTrue();
+        assertThat(_c.f.parse("b => b").holds(e.aToTrue)).isTrue();
+        assertThat(_c.f.parse("b => b").holds(e.aNotBToTrue)).isTrue();
 
-        assertThat(this.f.parse("~a | ~b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~a | ~b").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~a | ~b").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("a => b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a => b").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("a => b").holds(e.aNotBToTrue)).isFalse();
 
-        assertThat(this.f.parse("~a | ~b | c | ~d").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~a | ~b | c | ~d").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~a | ~b | c | ~d").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("~a => b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~a => b").holds(e.aToTrue)).isTrue();
+        assertThat(_c.f.parse("~a => b").holds(e.aNotBToTrue)).isTrue();
+
+        assertThat(_c.f.parse("a => ~b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a => ~b").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("a => ~b").holds(e.aNotBToTrue)).isTrue();
+
+        assertThat(_c.f.parse("~a => ~b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~a => ~b").holds(e.aToTrue)).isTrue();
+        assertThat(_c.f.parse("~a => ~b").holds(e.aNotBToTrue)).isTrue();
+
+        assertThat(_c.f.parse("b => a").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("b => a").holds(e.aToTrue)).isTrue();
+        assertThat(_c.f.parse("b => a").holds(e.aNotBToTrue)).isTrue();
+
+        assertThat(_c.f.parse("~b => a").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~b => a").holds(e.aToTrue)).isTrue();
+        assertThat(_c.f.parse("~b => a").holds(e.aNotBToTrue)).isTrue();
+
+        assertThat(_c.f.parse("b => ~a").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("b => ~a").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("b => ~a").holds(e.aNotBToTrue)).isTrue();
+
+        assertThat(_c.f.parse("~b => ~a").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~b => ~a").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~b => ~a").holds(e.aNotBToTrue)).isFalse();
     }
 
-    @Test
-    public void testImplicationToTrue() throws ParserException {
-        assertThat(this.f.parse("a => a").holds(this.emptyToTrue)).isTrue();
-        assertThat(this.f.parse("a => a").holds(this.aToTrue)).isTrue();
-        assertThat(this.f.parse("a => a").holds(this.aNotBToTrue)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEquivalenceToTrue(final FormulaContext _c) throws ParserException {
+        final var e = new Preds(_c);
 
-        assertThat(this.f.parse("b => b").holds(this.emptyToTrue)).isTrue();
-        assertThat(this.f.parse("b => b").holds(this.aToTrue)).isTrue();
-        assertThat(this.f.parse("b => b").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("a <=> a").holds(e.emptyToTrue)).isTrue();
+        assertThat(_c.f.parse("a <=> a").holds(e.aToTrue)).isTrue();
+        assertThat(_c.f.parse("a <=> a").holds(e.aNotBToTrue)).isTrue();
 
-        assertThat(this.f.parse("a => b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a => b").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("a => b").holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.f.parse("b <=> b").holds(e.emptyToTrue)).isTrue();
+        assertThat(_c.f.parse("b <=> b").holds(e.aToTrue)).isTrue();
+        assertThat(_c.f.parse("b <=> b").holds(e.aNotBToTrue)).isTrue();
 
-        assertThat(this.f.parse("~a => b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~a => b").holds(this.aToTrue)).isTrue();
-        assertThat(this.f.parse("~a => b").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("a <=> b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a <=> b").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("a <=> b").holds(e.aNotBToTrue)).isFalse();
 
-        assertThat(this.f.parse("a => ~b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a => ~b").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("a => ~b").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("~a <=> b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~a <=> b").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~a <=> b").holds(e.aNotBToTrue)).isTrue();
 
-        assertThat(this.f.parse("~a => ~b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~a => ~b").holds(this.aToTrue)).isTrue();
-        assertThat(this.f.parse("~a => ~b").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("a <=> ~b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a <=> ~b").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("a <=> ~b").holds(e.aNotBToTrue)).isTrue();
 
-        assertThat(this.f.parse("b => a").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("b => a").holds(this.aToTrue)).isTrue();
-        assertThat(this.f.parse("b => a").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("~a <=> ~b").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~a <=> ~b").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~a <=> ~b").holds(e.aNotBToTrue)).isFalse();
 
-        assertThat(this.f.parse("~b => a").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~b => a").holds(this.aToTrue)).isTrue();
-        assertThat(this.f.parse("~b => a").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("b <=> a").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("b <=> a").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("b <=> a").holds(e.aNotBToTrue)).isFalse();
 
-        assertThat(this.f.parse("b => ~a").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("b => ~a").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("b => ~a").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.f.parse("~b <=> a").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~b <=> a").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~b <=> a").holds(e.aNotBToTrue)).isTrue();
 
-        assertThat(this.f.parse("~b => ~a").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~b => ~a").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~b => ~a").holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.f.parse("b <=> ~a").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("b <=> ~a").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("b <=> ~a").holds(e.aNotBToTrue)).isTrue();
+
+        assertThat(_c.f.parse("~b <=> ~a").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~b <=> ~a").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~b <=> ~a").holds(e.aNotBToTrue)).isFalse();
     }
 
-    @Test
-    public void testEquivalenceToTrue() throws ParserException {
-        assertThat(this.f.parse("a <=> a").holds(this.emptyToTrue)).isTrue();
-        assertThat(this.f.parse("a <=> a").holds(this.aToTrue)).isTrue();
-        assertThat(this.f.parse("a <=> a").holds(this.aNotBToTrue)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testPBCToTrue(final FormulaContext _c) {
+        final var e = new Preds(_c);
 
-        assertThat(this.f.parse("b <=> b").holds(this.emptyToTrue)).isTrue();
-        assertThat(this.f.parse("b <=> b").holds(this.aToTrue)).isTrue();
-        assertThat(this.f.parse("b <=> b").holds(this.aNotBToTrue)).isTrue();
+        final PBConstraint pbc01 = (PBConstraint) _c.f.pbc(CType.EQ, 2, new Literal[]{_c.a, _c.b}, new int[]{2, -4});
+        assertThat(pbc01.holds(e.emptyToTrue)).isFalse();
+        assertThat(pbc01.holds(e.aToTrue)).isFalse();
+        assertThat(pbc01.holds(e.aNotBToTrue)).isTrue();
 
-        assertThat(this.f.parse("a <=> b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a <=> b").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("a <=> b").holds(this.aNotBToTrue)).isFalse();
+        final PBConstraint pbc02 = (PBConstraint) _c.f.pbc(CType.GT, 2, new Literal[]{_c.b, _c.c}, new int[]{2, 1});
+        assertThat(pbc02.holds(e.emptyToTrue)).isFalse();
+        assertThat(pbc02.holds(e.aToTrue)).isFalse();
+        assertThat(pbc02.holds(e.aNotBToTrue)).isFalse();
 
-        assertThat(this.f.parse("~a <=> b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~a <=> b").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~a <=> b").holds(this.aNotBToTrue)).isTrue();
+        assertThat(_c.pbc1.holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.pbc1.holds(e.aToTrue)).isFalse();
+        assertThat(_c.pbc1.holds(e.aNotBToTrue)).isFalse();
 
-        assertThat(this.f.parse("a <=> ~b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a <=> ~b").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("a <=> ~b").holds(this.aNotBToTrue)).isTrue();
-
-        assertThat(this.f.parse("~a <=> ~b").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~a <=> ~b").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~a <=> ~b").holds(this.aNotBToTrue)).isFalse();
-
-        assertThat(this.f.parse("b <=> a").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("b <=> a").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("b <=> a").holds(this.aNotBToTrue)).isFalse();
-
-        assertThat(this.f.parse("~b <=> a").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~b <=> a").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~b <=> a").holds(this.aNotBToTrue)).isTrue();
-
-        assertThat(this.f.parse("b <=> ~a").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("b <=> ~a").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("b <=> ~a").holds(this.aNotBToTrue)).isTrue();
-
-        assertThat(this.f.parse("~b <=> ~a").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~b <=> ~a").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~b <=> ~a").holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.pbc2.holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.pbc2.holds(e.aToTrue)).isFalse();
+        assertThat(_c.pbc2.holds(e.aNotBToTrue)).isFalse();
     }
 
-    @Test
-    public void testPBCToTrue() {
-        final PBConstraint pbc01 = (PBConstraint) this.f.pbc(CType.EQ, 2, new Literal[]{this.A, this.B}, new int[]{2, -4});
-        assertThat(pbc01.holds(this.emptyToTrue)).isFalse();
-        assertThat(pbc01.holds(this.aToTrue)).isFalse();
-        assertThat(pbc01.holds(this.aNotBToTrue)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testMixedToTrue(final FormulaContext _c) throws ParserException {
+        final var e = new Preds(_c);
 
-        final PBConstraint pbc02 = (PBConstraint) this.f.pbc(CType.GT, 2, new Literal[]{this.B, this.C}, new int[]{2, 1});
-        assertThat(pbc02.holds(this.emptyToTrue)).isFalse();
-        assertThat(pbc02.holds(this.aToTrue)).isFalse();
-        assertThat(pbc02.holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & (a | ~b)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & (a | ~b)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & (a | ~b)").holds(e.aNotBToTrue)).isFalse();
 
-        assertThat(this.PBC1.holds(this.emptyToTrue)).isFalse();
-        assertThat(this.PBC1.holds(this.aToTrue)).isFalse();
-        assertThat(this.PBC1.holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.f.parse("~b & (b | ~a)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~b & (b | ~a)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~b & (b | ~a)").holds(e.aNotBToTrue)).isFalse();
 
-        assertThat(this.PBC2.holds(this.emptyToTrue)).isFalse();
-        assertThat(this.PBC2.holds(this.aToTrue)).isFalse();
-        assertThat(this.PBC2.holds(this.aNotBToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & (a | ~b)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & (a | ~b)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & (a | ~b)").holds(e.aNotBToTrue)).isFalse();
+
+        assertThat(_c.f.parse("~b & (b | ~a)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~b & (b | ~a)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~b & (b | ~a)").holds(e.aNotBToTrue)).isFalse();
+
+        assertThat(_c.f.parse("~a & (a | ~b) & c & (a => b | e)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & (a | ~b) & c & (a => b | e)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & (a | ~b) & c & (a => b | e)").holds(e.aNotBToTrue)).isFalse();
+
+        assertThat(_c.f.parse("~a & ~(a | ~b) & c & (a => b | e)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & ~(a | ~b) & c & (a => b | e)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("~a & ~(a | ~b) & c & (a => b | e)").holds(e.aNotBToTrue)).isFalse();
+
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a => b | e)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a => b | e)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a => b | e)").holds(e.aNotBToTrue)).isFalse();
+
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a => ~b | e)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a => ~b | e)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a => ~b | e)").holds(e.aNotBToTrue)).isFalse();
+
+        assertThat(_c.f.parse("a & (a | ~b) & (a => b | e)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (a => b | e)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (a => b | e)").holds(e.aNotBToTrue)).isFalse();
+
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a <=> ~b | e)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a <=> ~b | e)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & c & (a <=> ~b | e)").holds(e.aNotBToTrue)).isFalse();
+
+        assertThat(_c.f.parse("a & (a | ~b) & (a <=> b | e)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (a <=> b | e)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (a <=> b | e)").holds(e.aNotBToTrue)).isFalse();
+
+        assertThat(_c.f.parse("a & (a | ~b) & (a <=> b)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (a <=> b)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (a <=> b)").holds(e.aNotBToTrue)).isFalse();
+
+        assertThat(_c.f.parse("a & (a | ~b) & (3 * a + 2 * b > 4)").holds(e.emptyToTrue)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (3 * a + 2 * b > 4)").holds(e.aToTrue)).isFalse();
+        assertThat(_c.f.parse("a & (a | ~b) & (3 * a + 2 * b > 4)").holds(e.aNotBToTrue)).isFalse();
     }
 
-    @Test
-    public void testMixedToTrue() throws ParserException {
-        assertThat(this.f.parse("~a & (a | ~b)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~a & (a | ~b)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~a & (a | ~b)").holds(this.aNotBToTrue)).isFalse();
-
-        assertThat(this.f.parse("~b & (b | ~a)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~b & (b | ~a)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~b & (b | ~a)").holds(this.aNotBToTrue)).isFalse();
-
-        assertThat(this.f.parse("~a & (a | ~b)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~a & (a | ~b)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~a & (a | ~b)").holds(this.aNotBToTrue)).isFalse();
-
-        assertThat(this.f.parse("~b & (b | ~a)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~b & (b | ~a)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~b & (b | ~a)").holds(this.aNotBToTrue)).isFalse();
-
-        assertThat(this.f.parse("~a & (a | ~b) & c & (a => b | e)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~a & (a | ~b) & c & (a => b | e)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~a & (a | ~b) & c & (a => b | e)").holds(this.aNotBToTrue)).isFalse();
-
-        assertThat(this.f.parse("~a & ~(a | ~b) & c & (a => b | e)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("~a & ~(a | ~b) & c & (a => b | e)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("~a & ~(a | ~b) & c & (a => b | e)").holds(this.aNotBToTrue)).isFalse();
-
-        assertThat(this.f.parse("a & (a | ~b) & c & (a => b | e)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & c & (a => b | e)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & c & (a => b | e)").holds(this.aNotBToTrue)).isFalse();
-
-        assertThat(this.f.parse("a & (a | ~b) & c & (a => ~b | e)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & c & (a => ~b | e)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & c & (a => ~b | e)").holds(this.aNotBToTrue)).isFalse();
-
-        assertThat(this.f.parse("a & (a | ~b) & (a => b | e)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (a => b | e)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (a => b | e)").holds(this.aNotBToTrue)).isFalse();
-
-        assertThat(this.f.parse("a & (a | ~b) & c & (a <=> ~b | e)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & c & (a <=> ~b | e)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & c & (a <=> ~b | e)").holds(this.aNotBToTrue)).isFalse();
-
-        assertThat(this.f.parse("a & (a | ~b) & (a <=> b | e)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (a <=> b | e)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (a <=> b | e)").holds(this.aNotBToTrue)).isFalse();
-
-        assertThat(this.f.parse("a & (a | ~b) & (a <=> b)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (a <=> b)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (a <=> b)").holds(this.aNotBToTrue)).isFalse();
-
-        assertThat(this.f.parse("a & (a | ~b) & (3 * a + 2 * b > 4)").holds(this.emptyToTrue)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (3 * a + 2 * b > 4)").holds(this.aToTrue)).isFalse();
-        assertThat(this.f.parse("a & (a | ~b) & (3 * a + 2 * b > 4)").holds(this.aNotBToTrue)).isFalse();
-    }
-
-    @Test
-    public void testCornerCases() {
-        final FormulaFactory f = new FormulaFactory();
-        final FormulaCornerCases cornerCases = new FormulaCornerCases(f);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testCornerCases(final FormulaContext _c) {
+        final FormulaCornerCases cornerCases = new FormulaCornerCases(_c.f);
         for (final Formula formula : cornerCases.cornerCases()) {
             final Assignment assignment = new Assignment();
-            assignment.addLiteral(f.literal("v0", false));
-            assignment.addLiteral(f.literal("v1", false));
-            assignment.addLiteral(f.literal("v2", true));
-            assignment.addLiteral(f.literal("v3", true));
-            final EvaluatesToConstantPredicate falseEvaluation = new EvaluatesToConstantPredicate(false,
+            assignment.addLiteral(_c.f.literal("v0", false));
+            assignment.addLiteral(_c.f.literal("v1", false));
+            assignment.addLiteral(_c.f.literal("v2", true));
+            assignment.addLiteral(_c.f.literal("v3", true));
+            final EvaluatesToConstantPredicate falseEvaluation = new EvaluatesToConstantPredicate(_c.f, false,
                     assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::phase)));
-            final EvaluatesToConstantPredicate trueEvaluation = new EvaluatesToConstantPredicate(true,
+            final EvaluatesToConstantPredicate trueEvaluation = new EvaluatesToConstantPredicate(_c.f, true,
                     assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::phase)));
-            final Formula restricted = formula.restrict(assignment);
+            final Formula restricted = formula.restrict(assignment, _c.f);
             assertThat(restricted.type() == FType.FALSE).isEqualTo(formula.holds(falseEvaluation));
             assertThat(restricted.type() == FType.TRUE).isEqualTo(formula.holds(trueEvaluation));
         }
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("contexts")
     @RandomTag
-    public void testRandom() {
+    public void testRandom(final FormulaContext _c) {
         for (int i = 0; i < 1000; i++) {
-            final FormulaFactory f = new FormulaFactory();
             final Assignment assignment = new Assignment();
-            assignment.addLiteral(f.literal("v0", false));
-            assignment.addLiteral(f.literal("v1", false));
-            assignment.addLiteral(f.literal("v2", true));
-            assignment.addLiteral(f.literal("v3", true));
-            final EvaluatesToConstantPredicate falseEvaluation = new EvaluatesToConstantPredicate(false,
+            assignment.addLiteral(_c.f.literal("v0", false));
+            assignment.addLiteral(_c.f.literal("v1", false));
+            assignment.addLiteral(_c.f.literal("v2", true));
+            assignment.addLiteral(_c.f.literal("v3", true));
+            final EvaluatesToConstantPredicate falseEvaluation = new EvaluatesToConstantPredicate(_c.f, false,
                     assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::phase)));
-            final EvaluatesToConstantPredicate trueEvaluation = new EvaluatesToConstantPredicate(true,
+            final EvaluatesToConstantPredicate trueEvaluation = new EvaluatesToConstantPredicate(_c.f, true,
                     assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::phase)));
-            final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(10).weightPbc(1).seed(i * 42).build());
+            final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, FormulaRandomizerConfig.builder().numVars(10).weightPbc(1).seed(i * 42).build());
             final Formula formula = randomizer.formula(6);
-            final Formula restricted = formula.restrict(assignment);
+            final Formula restricted = formula.restrict(assignment, _c.f);
             assertThat(restricted.type() == FType.FALSE).isEqualTo(formula.holds(falseEvaluation));
             assertThat(restricted.type() == FType.TRUE).isEqualTo(formula.holds(trueEvaluation));
+        }
+    }
+
+    private static final class Preds {
+        private final EvaluatesToConstantPredicate emptyToFalse;
+        private final EvaluatesToConstantPredicate aToFalse;
+        private final EvaluatesToConstantPredicate aNotBToFalse;
+
+        private final EvaluatesToConstantPredicate emptyToTrue;
+        private final EvaluatesToConstantPredicate aToTrue;
+        private final EvaluatesToConstantPredicate aNotBToTrue;
+
+        public Preds(final FormulaContext c) {
+            emptyToFalse = new EvaluatesToConstantPredicate(c.f, false, new HashMap<>());
+            emptyToTrue = new EvaluatesToConstantPredicate(c.f, true, new HashMap<>());
+
+            final HashMap<Variable, Boolean> aMap = new HashMap<>();
+            aMap.put(c.a, true);
+            aToFalse = new EvaluatesToConstantPredicate(c.f, false, aMap);
+            aToTrue = new EvaluatesToConstantPredicate(c.f, true, aMap);
+
+            final HashMap<Variable, Boolean> aNotBMap = new HashMap<>();
+            aNotBMap.put(c.a, true);
+            aNotBMap.put(c.b, false);
+            aNotBToFalse = new EvaluatesToConstantPredicate(c.f, false, aNotBMap);
+            aNotBToTrue = new EvaluatesToConstantPredicate(c.f, true, aNotBMap);
         }
     }
 }

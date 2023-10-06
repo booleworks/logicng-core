@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * Glucose -- Copyright (c) 2009-2014, Gilles Audemard, Laurent Simon
@@ -159,64 +135,64 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
     public GlucoseSyrup(final MiniSatConfig config, final GlucoseConfig glucoseConfig) {
         super(config);
         this.glucoseConfig = glucoseConfig;
-        this.initializeGlucose();
+        initializeGlucose();
     }
 
     /**
      * Initializes the additional parameters.
      */
     protected void initializeGlucose() {
-        this.initializeGlucoseConfig();
-        this.watchesBin = new LNGVector<>();
-        this.permDiff = new LNGIntVector();
-        this.lastDecisionLevel = new LNGIntVector();
-        this.lbdQueue = new LNGBoundedLongQueue();
-        this.trailQueue = new LNGBoundedIntQueue();
-        this.assump = new LNGBooleanVector();
-        this.lbdQueue.initSize(this.sizeLBDQueue);
-        this.trailQueue.initSize(this.sizeTrailQueue);
-        this.myflag = 0;
-        this.analyzeBtLevel = 0;
-        this.analyzeLBD = 0;
-        this.analyzeSzWithoutSelectors = 0;
-        this.nbclausesbeforereduce = this.firstReduceDB;
-        this.conflicts = 0;
-        this.conflictsRestarts = 0;
-        this.sumLBD = 0;
-        this.curRestart = 1;
+        initializeGlucoseConfig();
+        watchesBin = new LNGVector<>();
+        permDiff = new LNGIntVector();
+        lastDecisionLevel = new LNGIntVector();
+        lbdQueue = new LNGBoundedLongQueue();
+        trailQueue = new LNGBoundedIntQueue();
+        assump = new LNGBooleanVector();
+        lbdQueue.initSize(sizeLBDQueue);
+        trailQueue.initSize(sizeTrailQueue);
+        myflag = 0;
+        analyzeBtLevel = 0;
+        analyzeLBD = 0;
+        analyzeSzWithoutSelectors = 0;
+        nbclausesbeforereduce = firstReduceDB;
+        conflicts = 0;
+        conflictsRestarts = 0;
+        sumLBD = 0;
+        curRestart = 1;
     }
 
     /**
      * Initializes the glucose configuration.
      */
     protected void initializeGlucoseConfig() {
-        this.lbLBDMinimizingClause = this.glucoseConfig.lbLBDMinimizingClause;
-        this.lbLBDFrozenClause = this.glucoseConfig.lbLBDFrozenClause;
-        this.lbSizeMinimizingClause = this.glucoseConfig.lbSizeMinimizingClause;
-        this.firstReduceDB = this.glucoseConfig.firstReduceDB;
-        this.specialIncReduceDB = this.glucoseConfig.specialIncReduceDB;
-        this.incReduceDB = this.glucoseConfig.incReduceDB;
-        this.factorK = this.glucoseConfig.factorK;
-        this.factorR = this.glucoseConfig.factorR;
-        this.sizeLBDQueue = this.glucoseConfig.sizeLBDQueue;
-        this.sizeTrailQueue = this.glucoseConfig.sizeTrailQueue;
-        this.reduceOnSize = this.glucoseConfig.reduceOnSize;
-        this.reduceOnSizeSize = this.glucoseConfig.reduceOnSizeSize;
-        this.maxVarDecay = this.glucoseConfig.maxVarDecay;
+        lbLBDMinimizingClause = glucoseConfig.lbLBDMinimizingClause;
+        lbLBDFrozenClause = glucoseConfig.lbLBDFrozenClause;
+        lbSizeMinimizingClause = glucoseConfig.lbSizeMinimizingClause;
+        firstReduceDB = glucoseConfig.firstReduceDB;
+        specialIncReduceDB = glucoseConfig.specialIncReduceDB;
+        incReduceDB = glucoseConfig.incReduceDB;
+        factorK = glucoseConfig.factorK;
+        factorR = glucoseConfig.factorR;
+        sizeLBDQueue = glucoseConfig.sizeLBDQueue;
+        sizeTrailQueue = glucoseConfig.sizeTrailQueue;
+        reduceOnSize = glucoseConfig.reduceOnSize;
+        reduceOnSizeSize = glucoseConfig.reduceOnSizeSize;
+        maxVarDecay = glucoseConfig.maxVarDecay;
     }
 
     @Override
     public int newVar(final boolean sign, final boolean dvar) {
         final int v = nVars();
         final MSVariable newVar = new MSVariable(sign);
-        this.watches.push(new LNGVector<>());
-        this.watches.push(new LNGVector<>());
-        this.watchesBin.push(new LNGVector<>());
-        this.watchesBin.push(new LNGVector<>());
-        this.vars.push(newVar);
-        this.seen.push(false);
-        this.permDiff.push(0);
-        this.assump.push(false);
+        watches.push(new LNGVector<>());
+        watches.push(new LNGVector<>());
+        watchesBin.push(new LNGVector<>());
+        watchesBin.push(new LNGVector<>());
+        vars.push(newVar);
+        seen.push(false);
+        permDiff.push(0);
+        assump.push(false);
         newVar.setDecision(dvar);
         insertVarOrder(v);
         return v;
@@ -228,21 +204,21 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
         int p;
         int i;
         int j;
-        if (this.config.proofGeneration) {
+        if (config.proofGeneration) {
             final LNGIntVector vec = new LNGIntVector(ps.size());
             for (i = 0; i < ps.size(); i++) {
                 vec.push((var(ps.get(i)) + 1) * (-2 * (sign(ps.get(i)) ? 1 : 0) + 1));
             }
-            this.pgOriginalClauses.push(new ProofInformation(vec, proposition));
+            pgOriginalClauses.push(new ProofInformation(vec, proposition));
         }
-        if (!this.ok) {
+        if (!ok) {
             return false;
         }
         ps.sort();
 
         boolean flag = false;
         LNGIntVector oc = null;
-        if (this.config.proofGeneration) {
+        if (config.proofGeneration) {
             oc = new LNGIntVector();
             for (i = 0, p = LIT_UNDEF; i < ps.size(); i++) {
                 oc.push(ps.get(i));
@@ -268,32 +244,32 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
             for (i = 0; i < ps.size(); i++) {
                 vec.push((var(ps.get(i)) + 1) * (-2 * (sign(ps.get(i)) ? 1 : 0) + 1));
             }
-            this.pgProof.push(vec);
+            pgProof.push(vec);
 
             vec = new LNGIntVector(oc.size());
             vec.push(-1);
             for (i = 0; i < oc.size(); i++) {
                 vec.push((var(oc.get(i)) + 1) * (-2 * (sign(oc.get(i)) ? 1 : 0) + 1));
             }
-            this.pgProof.push(vec);
+            pgProof.push(vec);
         }
 
         if (ps.size() == 0) {
-            this.ok = false;
-            if (this.config.proofGeneration) {
-                this.pgProof.push(new LNGIntVector(1, 0));
+            ok = false;
+            if (config.proofGeneration) {
+                pgProof.push(new LNGIntVector(1, 0));
             }
             return false;
         } else if (ps.size() == 1) {
             uncheckedEnqueue(ps.get(0), null);
-            this.ok = propagate() == null;
-            if (!this.ok && this.config.proofGeneration) {
-                this.pgProof.push(new LNGIntVector(1, 0));
+            ok = propagate() == null;
+            if (!ok && config.proofGeneration) {
+                pgProof.push(new LNGIntVector(1, 0));
             }
-            return this.ok;
+            return ok;
         } else {
             final MSClause c = new MSClause(ps, false);
-            this.clauses.push(c);
+            clauses.push(c);
             attachClause(c);
         }
         return true;
@@ -301,45 +277,45 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
 
     @Override
     public Tristate solve(final SATHandler handler) {
-        if (this.config.incremental && this.config.proofGeneration) {
+        if (config.incremental && config.proofGeneration) {
             throw new IllegalStateException("Cannot use incremental and proof generation at the same time");
         }
         this.handler = handler;
         start(handler);
-        this.model.clear();
-        this.conflict.clear();
-        if (!this.ok) {
+        model.clear();
+        conflict.clear();
+        if (!ok) {
             return Tristate.FALSE;
         }
-        for (int i = 0; i < this.assumptions.size(); i++) {
-            this.assump.set(var(this.assumptions.get(i)), !sign(this.assumptions.get(i)));
+        for (int i = 0; i < assumptions.size(); i++) {
+            assump.set(var(assumptions.get(i)), !sign(assumptions.get(i)));
         }
 
         Tristate status = Tristate.UNDEF;
-        while (status == Tristate.UNDEF && !this.canceledByHandler) {
+        while (status == Tristate.UNDEF && !canceledByHandler) {
             status = search();
         }
 
-        if (this.config.proofGeneration && this.assumptions.empty()) {
+        if (config.proofGeneration && assumptions.empty()) {
             if (status == Tristate.FALSE) {
-                this.pgProof.push(new LNGIntVector(1, 0));
+                pgProof.push(new LNGIntVector(1, 0));
             }
         }
 
         if (status == Tristate.TRUE) {
-            this.model = new LNGBooleanVector(this.vars.size());
-            for (final MSVariable v : this.vars) {
-                this.model.push(v.assignment() == Tristate.TRUE);
+            model = new LNGBooleanVector(vars.size());
+            for (final MSVariable v : vars) {
+                model.push(v.assignment() == Tristate.TRUE);
             }
-        } else if (status == Tristate.FALSE && this.conflict.size() == 0) {
-            this.ok = false;
+        } else if (status == Tristate.FALSE && conflict.size() == 0) {
+            ok = false;
         }
         finishSolving(handler);
         cancelUntil(0);
         this.handler = null;
-        this.canceledByHandler = false;
-        for (int i = 0; i < this.assumptions.size(); i++) {
-            this.assump.set(var(this.assumptions.get(i)), false);
+        canceledByHandler = false;
+        for (int i = 0; i < assumptions.size(); i++) {
+            assump.set(var(assumptions.get(i)), false);
         }
         return status;
     }
@@ -347,7 +323,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
     @Override
     public void reset() {
         super.initialize();
-        this.initializeGlucose();
+        initializeGlucose();
     }
 
     @Override
@@ -367,23 +343,23 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
         var.assign(Tristate.fromBool(!sign(lit)));
         var.setReason(reason);
         var.setLevel(decisionLevel());
-        this.trail.push(lit);
+        trail.push(lit);
     }
 
     @Override
     protected void attachClause(final MSClause c) {
         assert c.size() > 1;
         if (c.size() == 2) {
-            this.watchesBin.get(not(c.get(0))).push(new MSWatcher(c, c.get(1)));
-            this.watchesBin.get(not(c.get(1))).push(new MSWatcher(c, c.get(0)));
+            watchesBin.get(not(c.get(0))).push(new MSWatcher(c, c.get(1)));
+            watchesBin.get(not(c.get(1))).push(new MSWatcher(c, c.get(0)));
         } else {
-            this.watches.get(not(c.get(0))).push(new MSWatcher(c, c.get(1)));
-            this.watches.get(not(c.get(1))).push(new MSWatcher(c, c.get(0)));
+            watches.get(not(c.get(0))).push(new MSWatcher(c, c.get(1)));
+            watches.get(not(c.get(1))).push(new MSWatcher(c, c.get(0)));
         }
         if (c.learnt()) {
-            this.learntsLiterals += c.size();
+            learntsLiterals += c.size();
         } else {
-            this.clausesLiterals += c.size();
+            clausesLiterals += c.size();
         }
     }
 
@@ -391,28 +367,28 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
     protected void detachClause(final MSClause c) {
         assert c.size() > 1;
         if (c.size() == 2) {
-            this.watchesBin.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
-            this.watchesBin.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
+            watchesBin.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
+            watchesBin.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
         } else {
-            this.watches.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
-            this.watches.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
+            watches.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
+            watches.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
         }
         if (c.learnt()) {
-            this.learntsLiterals -= c.size();
+            learntsLiterals -= c.size();
         } else {
-            this.clausesLiterals -= c.size();
+            clausesLiterals -= c.size();
         }
     }
 
     @Override
     protected void removeClause(final MSClause c) {
-        if (this.config.proofGeneration) {
+        if (config.proofGeneration) {
             final LNGIntVector vec = new LNGIntVector(c.size());
             vec.push(-1);
             for (int i = 0; i < c.size(); i++) {
                 vec.push((var(c.get(i)) + 1) * (-2 * (sign(c.get(i)) ? 1 : 0) + 1));
             }
-            this.pgProof.push(vec);
+            pgProof.push(vec);
         }
 
         detachClause(c);
@@ -425,13 +401,13 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
     protected MSClause propagate() {
         MSClause confl = null;
         int numProps = 0;
-        while (this.qhead < this.trail.size()) {
-            final int p = this.trail.get(this.qhead++);
-            final LNGVector<MSWatcher> ws = this.watches.get(p);
+        while (qhead < trail.size()) {
+            final int p = trail.get(qhead++);
+            final LNGVector<MSWatcher> ws = watches.get(p);
             int iInd = 0;
             int jInd = 0;
             numProps++;
-            final LNGVector<MSWatcher> wbin = this.watchesBin.get(p);
+            final LNGVector<MSWatcher> wbin = watchesBin.get(p);
             for (int k = 0; k < wbin.size(); k++) {
                 final int imp = wbin.get(k).blocker();
                 if (value(imp) == Tristate.FALSE) {
@@ -465,11 +441,11 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
                     continue;
                 }
                 boolean foundWatch = false;
-                if (this.incremental) {
+                if (incremental) {
                     int choosenPos = -1;
                     for (int k = 2; k < c.size(); k++) {
                         if (value(c.get(k)) != Tristate.FALSE) {
-                            if (decisionLevel() > this.assumptions.size()) {
+                            if (decisionLevel() > assumptions.size()) {
                                 choosenPos = k;
                                 break;
                             } else {
@@ -483,7 +459,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
                     if (choosenPos != -1) {
                         c.set(1, c.get(choosenPos));
                         c.set(choosenPos, falseLit);
-                        this.watches.get(not(c.get(1))).push(w);
+                        watches.get(not(c.get(1))).push(w);
                         foundWatch = true;
                     }
                 } else {
@@ -491,7 +467,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
                         if (value(c.get(k)) != Tristate.FALSE) {
                             c.set(1, c.get(k));
                             c.set(k, falseLit);
-                            this.watches.get(not(c.get(1))).push(w);
+                            watches.get(not(c.get(1))).push(w);
                             foundWatch = true;
                         }
                     }
@@ -500,7 +476,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
                     ws.set(jInd++, w);
                     if (value(first) == Tristate.FALSE) {
                         confl = c;
-                        this.qhead = this.trail.size();
+                        qhead = trail.size();
                         while (iInd < ws.size()) {
                             ws.set(jInd++, ws.get(iInd++));
                         }
@@ -511,7 +487,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
             }
             ws.removeElements(iInd - jInd);
         }
-        this.simpDBProps -= numProps;
+        simpDBProps -= numProps;
         return confl;
     }
 
@@ -532,14 +508,14 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
             }
             for (int i = 1; i < c.size(); i++) {
                 final int q = c.get(i);
-                if (!this.seen.get(var(q)) && v(q).level() > 0) {
+                if (!seen.get(var(q)) && v(q).level() > 0) {
                     if (v(q).reason() != null && (abstractLevel(var(q)) & abstractLevels) != 0) {
-                        this.seen.set(var(q), true);
+                        seen.set(var(q), true);
                         analyzeStack.push(q);
                         analyzeToClear.push(q);
                     } else {
                         for (int j = top; j < analyzeToClear.size(); j++) {
-                            this.seen.set(var(analyzeToClear.get(j)), false);
+                            seen.set(var(analyzeToClear.get(j)), false);
                         }
                         analyzeToClear.removeElements(analyzeToClear.size() - top);
                         return false;
@@ -557,55 +533,55 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
         if (decisionLevel() == 0) {
             return;
         }
-        this.seen.set(var(p), true);
+        seen.set(var(p), true);
         int x;
         MSVariable v;
-        for (int i = this.trail.size() - 1; i >= this.trailLim.get(0); i--) {
-            x = var(this.trail.get(i));
-            if (this.seen.get(x)) {
-                v = this.vars.get(x);
+        for (int i = trail.size() - 1; i >= trailLim.get(0); i--) {
+            x = var(trail.get(i));
+            if (seen.get(x)) {
+                v = vars.get(x);
                 if (v.reason() == null) {
                     assert v.level() > 0;
-                    outConflict.push(not(this.trail.get(i)));
+                    outConflict.push(not(trail.get(i)));
                 } else {
                     final MSClause c = v.reason();
                     for (int j = c.size() == 2 ? 0 : 1; j < c.size(); j++) {
                         if (v(c.get(j)).level() > 0) {
-                            this.seen.set(var(c.get(j)), true);
+                            seen.set(var(c.get(j)), true);
                         }
                     }
                 }
-                this.seen.set(x, false);
+                seen.set(x, false);
             }
         }
-        this.seen.set(var(p), false);
+        seen.set(var(p), false);
     }
 
     @Override
     protected void reduceDB() {
         int i;
         int j;
-        this.learnts.manualSort(MSClause.glucoseComparator);
-        if (this.learnts.get(this.learnts.size() / RATIO_REMOVE_CLAUSES).lbd() <= 3) {
-            this.nbclausesbeforereduce += this.specialIncReduceDB;
+        learnts.manualSort(MSClause.glucoseComparator);
+        if (learnts.get(learnts.size() / RATIO_REMOVE_CLAUSES).lbd() <= 3) {
+            nbclausesbeforereduce += specialIncReduceDB;
         }
-        if (this.learnts.back().lbd() <= 5) {
-            this.nbclausesbeforereduce += this.specialIncReduceDB;
+        if (learnts.back().lbd() <= 5) {
+            nbclausesbeforereduce += specialIncReduceDB;
         }
-        int limit = this.learnts.size() / 2;
-        for (i = j = 0; i < this.learnts.size(); i++) {
-            final MSClause c = this.learnts.get(i);
+        int limit = learnts.size() / 2;
+        for (i = j = 0; i < learnts.size(); i++) {
+            final MSClause c = learnts.get(i);
             if (c.lbd() > 2 && c.size() > 2 && c.canBeDel() && !locked(c) && (i < limit)) {
-                removeClause(this.learnts.get(i));
+                removeClause(learnts.get(i));
             } else {
                 if (!c.canBeDel()) {
                     limit++;
                 }
                 c.setCanBeDel(true);
-                this.learnts.set(j++, this.learnts.get(i));
+                learnts.set(j++, learnts.get(i));
             }
         }
-        this.learnts.removeElements(i - j);
+        learnts.removeElements(i - j);
     }
 
     @Override
@@ -625,7 +601,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
 
     @Override
     protected boolean satisfied(final MSClause c) {
-        if (this.incremental) {
+        if (incremental) {
             return (value(c.get(0)) == Tristate.TRUE) || (value(c.get(1)) == Tristate.TRUE);
         }
         for (int i = 0; i < c.size(); i++) {
@@ -639,24 +615,24 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
     @Override
     protected boolean simplify() {
         assert decisionLevel() == 0;
-        if (!this.ok) {
+        if (!ok) {
             return false;
         } else {
             final MSClause cr = propagate();
             if (cr != null) {
-                return this.ok = false;
+                return ok = false;
             }
         }
-        if (nAssigns() == this.simpDBAssigns || (this.simpDBProps > 0)) {
+        if (nAssigns() == simpDBAssigns || (simpDBProps > 0)) {
             return true;
         }
-        removeSatisfied(this.learnts);
-        if (this.shouldRemoveSatsisfied) {
-            removeSatisfied(this.clauses);
+        removeSatisfied(learnts);
+        if (shouldRemoveSatsisfied) {
+            removeSatisfied(clauses);
         }
         rebuildOrderHeap();
-        this.simpDBAssigns = nAssigns();
-        this.simpDBProps = this.clausesLiterals + this.learntsLiterals;
+        simpDBAssigns = nAssigns();
+        simpDBProps = clausesLiterals + learntsLiterals;
         return true;
     }
 
@@ -669,8 +645,8 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
     protected long computeLBD(final LNGIntVector lits, final int e) {
         int end = e;
         long nblevels = 0;
-        this.myflag++;
-        if (this.incremental) {
+        myflag++;
+        if (incremental) {
             if (end == -1) {
                 end = lits.size();
             }
@@ -684,24 +660,24 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
                 }
                 nbDone++;
                 final int l = v(lits.get(i)).level();
-                if (this.permDiff.get(l) != this.myflag) {
-                    this.permDiff.set(l, this.myflag);
+                if (permDiff.get(l) != myflag) {
+                    permDiff.set(l, myflag);
                     nblevels++;
                 }
             }
         } else {
             for (int i = 0; i < lits.size(); i++) {
                 final int l = v(lits.get(i)).level();
-                if (this.permDiff.get(l) != this.myflag) {
-                    this.permDiff.set(l, this.myflag);
+                if (permDiff.get(l) != myflag) {
+                    permDiff.set(l, myflag);
                     nblevels++;
                 }
             }
         }
-        if (!this.reduceOnSize) {
+        if (!reduceOnSize) {
             return nblevels;
         }
-        if (lits.size() < this.reduceOnSizeSize) {
+        if (lits.size() < reduceOnSizeSize) {
             return lits.size();
         }
         return lits.size() + nblevels;
@@ -714,8 +690,8 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
      */
     protected long computeLBD(final MSClause c) {
         long nblevels = 0;
-        this.myflag++;
-        if (this.incremental) {
+        myflag++;
+        if (incremental) {
             long nbDone = 0;
             for (int i = 0; i < c.size(); i++) {
                 if (nbDone >= c.sizeWithoutSelectors()) {
@@ -726,24 +702,24 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
                 }
                 nbDone++;
                 final int l = v(c.get(i)).level();
-                if (this.permDiff.get(l) != this.myflag) {
-                    this.permDiff.set(l, this.myflag);
+                if (permDiff.get(l) != myflag) {
+                    permDiff.set(l, myflag);
                     nblevels++;
                 }
             }
         } else {
             for (int i = 0; i < c.size(); i++) {
                 final int l = v(c.get(i)).level();
-                if (this.permDiff.get(l) != this.myflag) {
-                    this.permDiff.set(l, this.myflag);
+                if (permDiff.get(l) != myflag) {
+                    permDiff.set(l, myflag);
                     nblevels++;
                 }
             }
         }
-        if (!this.reduceOnSize) {
+        if (!reduceOnSize) {
             return nblevels;
         }
-        if (c.size() < this.reduceOnSizeSize) {
+        if (c.size() < reduceOnSizeSize) {
             return c.size();
         }
         return c.size() + nblevels;
@@ -755,7 +731,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
      * @return {@code true} if the given variable is a selector variable
      */
     protected boolean isSelector(final int v) {
-        return this.incremental && this.assump.get(v);
+        return incremental && assump.get(v);
     }
 
     /**
@@ -765,23 +741,23 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
     protected void minimisationWithBinaryResolution(final LNGIntVector outLearnt) {
         final long lbd = computeLBD(outLearnt, -1);
         int p = not(outLearnt.get(0));
-        if (lbd <= this.lbLBDMinimizingClause) {
-            this.myflag++;
+        if (lbd <= lbLBDMinimizingClause) {
+            myflag++;
             for (int i = 1; i < outLearnt.size(); i++) {
-                this.permDiff.set(var(outLearnt.get(i)), this.myflag);
+                permDiff.set(var(outLearnt.get(i)), myflag);
             }
             int nb = 0;
-            for (final MSWatcher wbin : this.watchesBin.get(p)) {
+            for (final MSWatcher wbin : watchesBin.get(p)) {
                 final int imp = wbin.blocker();
-                if (this.permDiff.get(var(imp)) == this.myflag && value(imp) == Tristate.TRUE) {
+                if (permDiff.get(var(imp)) == myflag && value(imp) == Tristate.TRUE) {
                     nb++;
-                    this.permDiff.set(var(imp), this.myflag - 1);
+                    permDiff.set(var(imp), myflag - 1);
                 }
             }
             int l = outLearnt.size() - 1;
             if (nb > 0) {
                 for (int i = 1; i < outLearnt.size() - nb; i++) {
-                    if (this.permDiff.get(var(outLearnt.get(i))) != this.myflag) {
+                    if (permDiff.get(var(outLearnt.get(i))) != myflag) {
                         p = outLearnt.get(l);
                         outLearnt.set(l, outLearnt.get(i));
                         outLearnt.set(i, p);
@@ -800,29 +776,29 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
      * formula is SAT, and {@code UNKNOWN} if the state is not known yet (restart)
      */
     protected Tristate search() {
-        assert this.ok;
+        assert ok;
         final LNGIntVector learntClause = new LNGIntVector();
         final LNGIntVector selectors = new LNGIntVector();
         boolean blocked = false;
-        this.selectionOrderIdx = 0;
+        selectionOrderIdx = 0;
         while (true) {
             final MSClause confl = propagate();
             if (confl != null) {
-                if (this.handler != null && !this.handler.detectedConflict()) {
-                    this.canceledByHandler = true;
+                if (handler != null && !handler.detectedConflict()) {
+                    canceledByHandler = true;
                     return Tristate.UNDEF;
                 }
-                this.conflicts++;
-                this.conflictsRestarts++;
-                if (this.conflicts % 5000 == 0 && this.varDecay < this.maxVarDecay) {
-                    this.varDecay += 0.01;
+                conflicts++;
+                conflictsRestarts++;
+                if (conflicts % 5000 == 0 && varDecay < maxVarDecay) {
+                    varDecay += 0.01;
                 }
                 if (decisionLevel() == 0) {
                     return Tristate.FALSE;
                 }
-                this.trailQueue.push(this.trail.size());
-                if (this.conflictsRestarts > LB_BLOCKING_RESTART && this.lbdQueue.valid() && this.trail.size() > this.factorR * this.trailQueue.avg()) {
-                    this.lbdQueue.fastClear();
+                trailQueue.push(trail.size());
+                if (conflictsRestarts > LB_BLOCKING_RESTART && lbdQueue.valid() && trail.size() > factorR * trailQueue.avg()) {
+                    lbdQueue.fastClear();
                     if (!blocked) {
                         blocked = true;
                     }
@@ -830,30 +806,30 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
                 learntClause.clear();
                 selectors.clear();
                 analyze(confl, learntClause, selectors);
-                this.lbdQueue.push(this.analyzeLBD);
-                this.sumLBD += this.analyzeLBD;
-                cancelUntil(this.analyzeBtLevel);
-                if (this.analyzeBtLevel < this.selectionOrder.size()) {
-                    this.selectionOrderIdx = this.analyzeBtLevel;
+                lbdQueue.push(analyzeLBD);
+                sumLBD += analyzeLBD;
+                cancelUntil(analyzeBtLevel);
+                if (analyzeBtLevel < selectionOrder.size()) {
+                    selectionOrderIdx = analyzeBtLevel;
                 }
 
-                if (this.config.proofGeneration) {
+                if (config.proofGeneration) {
                     final LNGIntVector vec = new LNGIntVector(learntClause.size() + 1);
                     vec.push(1);
                     for (int i = 0; i < learntClause.size(); i++) {
                         vec.push((var(learntClause.get(i)) + 1) * (-2 * (sign(learntClause.get(i)) ? 1 : 0) + 1));
                     }
-                    this.pgProof.push(vec);
+                    pgProof.push(vec);
                 }
 
                 if (learntClause.size() == 1) {
                     uncheckedEnqueue(learntClause.get(0), null);
                 } else {
                     final MSClause cr = new MSClause(learntClause, true);
-                    cr.setLBD(this.analyzeLBD);
+                    cr.setLBD(analyzeLBD);
                     cr.setOneWatched(false);
-                    cr.setSizeWithoutSelectors(this.analyzeSzWithoutSelectors);
-                    this.learnts.push(cr);
+                    cr.setSizeWithoutSelectors(analyzeSzWithoutSelectors);
+                    learnts.push(cr);
                     attachClause(cr);
                     claBumpActivity(cr);
                     uncheckedEnqueue(learntClause.get(0), cr);
@@ -861,11 +837,11 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
                 varDecayActivity();
                 claDecayActivity();
             } else {
-                if (this.lbdQueue.valid() && (this.lbdQueue.avg() * this.factorK) > (this.sumLBD / this.conflictsRestarts)) {
-                    this.lbdQueue.fastClear();
+                if (lbdQueue.valid() && (lbdQueue.avg() * factorK) > (sumLBD / conflictsRestarts)) {
+                    lbdQueue.fastClear();
                     int bt = 0;
-                    if (this.incremental) {
-                        bt = Math.min(decisionLevel(), this.assumptions.size());
+                    if (incremental) {
+                        bt = Math.min(decisionLevel(), assumptions.size());
                     }
                     cancelUntil(bt);
                     return Tristate.UNDEF;
@@ -873,18 +849,18 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
                 if (decisionLevel() == 0 && !simplify()) {
                     return Tristate.FALSE;
                 }
-                if (this.conflicts >= (this.curRestart * this.nbclausesbeforereduce) && this.learnts.size() > 0) {
-                    this.curRestart = (this.conflicts / this.nbclausesbeforereduce) + 1;
+                if (conflicts >= (curRestart * nbclausesbeforereduce) && learnts.size() > 0) {
+                    curRestart = (conflicts / nbclausesbeforereduce) + 1;
                     reduceDB();
-                    this.nbclausesbeforereduce += this.incReduceDB;
+                    nbclausesbeforereduce += incReduceDB;
                 }
                 int next = LIT_UNDEF;
-                while (decisionLevel() < this.assumptions.size()) {
-                    final int p = this.assumptions.get(decisionLevel());
+                while (decisionLevel() < assumptions.size()) {
+                    final int p = assumptions.get(decisionLevel());
                     if (value(p) == Tristate.TRUE) {
-                        this.trailLim.push(this.trail.size());
+                        trailLim.push(trail.size());
                     } else if (value(p) == Tristate.FALSE) {
-                        analyzeFinal(not(p), this.conflict);
+                        analyzeFinal(not(p), conflict);
                         return Tristate.FALSE;
                     } else {
                         next = p;
@@ -897,7 +873,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
                         return Tristate.TRUE;
                     }
                 }
-                this.trailLim.push(this.trail.size());
+                trailLim.push(trail.size());
                 uncheckedEnqueue(next, null);
             }
         }
@@ -916,7 +892,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
         int pathC = 0;
         int p = LIT_UNDEF;
         outLearnt.push(-1);
-        int index = this.trail.size() - 1;
+        int index = trail.size() - 1;
         do {
             assert c != null;
             if (p != LIT_UNDEF && c.size() == 2 && value(c.get(0)) == Tristate.FALSE) {
@@ -935,7 +911,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
             if (c.learnt() && c.lbd() > 2) {
                 final long nblevels = computeLBD(c);
                 if (nblevels + 1 < c.lbd()) {
-                    if (c.lbd() <= this.lbLBDFrozenClause) {
+                    if (c.lbd() <= lbLBDFrozenClause) {
                         c.setCanBeDel(false);
                     }
                     c.setLBD(nblevels);
@@ -943,15 +919,15 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
             }
             for (int j = (p == LIT_UNDEF) ? 0 : 1; j < c.size(); j++) {
                 final int q = c.get(j);
-                if (!this.seen.get(var(q)) && v(q).level() != 0) {
+                if (!seen.get(var(q)) && v(q).level() != 0) {
                     if (!isSelector(var(q))) {
                         varBumpActivity(var(q));
                     }
-                    this.seen.set(var(q), true);
+                    seen.set(var(q), true);
                     if (v(q).level() >= decisionLevel()) {
                         pathC++;
                         if (!isSelector(var(q)) && (v(q).reason() != null) && v(q).reason().learnt()) {
-                            this.lastDecisionLevel.push(q);
+                            lastDecisionLevel.push(q);
                         }
                     } else {
                         if (isSelector(var(q))) {
@@ -963,11 +939,11 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
                     }
                 }
             }
-            while (!this.seen.get(var(this.trail.get(index--)))) {
+            while (!seen.get(var(trail.get(index--)))) {
             }
-            p = this.trail.get(index + 1);
+            p = trail.get(index + 1);
             c = v(p).reason();
-            this.seen.set(var(p), false);
+            seen.set(var(p), false);
             pathC--;
         } while (pathC > 0);
         outLearnt.set(0, not(p));
@@ -986,7 +962,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
             outLearnt.push(selectors.get(i));
         }
         final LNGIntVector analyzeToClear = new LNGIntVector(outLearnt);
-        if (this.ccminMode == MiniSatConfig.ClauseMinimization.DEEP) {
+        if (ccminMode == MiniSatConfig.ClauseMinimization.DEEP) {
             int abstractLevel = 0;
             for (i = 1; i < outLearnt.size(); i++) {
                 abstractLevel |= abstractLevel(var(outLearnt.get(i)));
@@ -996,7 +972,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
                     outLearnt.set(j++, outLearnt.get(i));
                 }
             }
-        } else if (this.ccminMode == MiniSatConfig.ClauseMinimization.BASIC) {
+        } else if (ccminMode == MiniSatConfig.ClauseMinimization.BASIC) {
             for (i = j = 1; i < outLearnt.size(); i++) {
                 final MSVariable v = v(outLearnt.get(i));
                 if (v.reason() == null) {
@@ -1004,7 +980,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
                 } else {
                     final MSClause c = v(outLearnt.get(i)).reason();
                     for (int k = c.size() == 2 ? 0 : 1; k < c.size(); k++) {
-                        if (!this.seen.get(var(c.get(k))) && v(c.get(k)).level() > 0) {
+                        if (!seen.get(var(c.get(k))) && v(c.get(k)).level() > 0) {
                             outLearnt.set(j++, outLearnt.get(i));
                             break;
                         }
@@ -1015,10 +991,10 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
             i = j = outLearnt.size();
         }
         outLearnt.removeElements(i - j);
-        if (!this.incremental && outLearnt.size() <= this.lbSizeMinimizingClause) {
+        if (!incremental && outLearnt.size() <= lbSizeMinimizingClause) {
             minimisationWithBinaryResolution(outLearnt);
         }
-        this.analyzeBtLevel = 0;
+        analyzeBtLevel = 0;
         if (outLearnt.size() > 1) {
             int max = 1;
             for (int k = 2; k < outLearnt.size(); k++) {
@@ -1029,34 +1005,34 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
             final int p = outLearnt.get(max);
             outLearnt.set(max, outLearnt.get(1));
             outLearnt.set(1, p);
-            this.analyzeBtLevel = v(p).level();
+            analyzeBtLevel = v(p).level();
         }
-        this.analyzeSzWithoutSelectors = 0;
-        if (this.incremental) {
+        analyzeSzWithoutSelectors = 0;
+        if (incremental) {
             for (int k = 0; k < outLearnt.size(); k++) {
                 if (!isSelector(var(outLearnt.get(k)))) {
-                    this.analyzeSzWithoutSelectors++;
+                    analyzeSzWithoutSelectors++;
                 } else if (k > 0) {
                     break;
                 }
             }
         } else {
-            this.analyzeSzWithoutSelectors = outLearnt.size();
+            analyzeSzWithoutSelectors = outLearnt.size();
         }
-        this.analyzeLBD = computeLBD(outLearnt, outLearnt.size() - selectors.size());
-        if (this.lastDecisionLevel.size() > 0) {
-            for (int k = 0; k < this.lastDecisionLevel.size(); k++) {
-                if ((v(this.lastDecisionLevel.get(k)).reason()).lbd() < this.analyzeLBD) {
-                    varBumpActivity(var(this.lastDecisionLevel.get(k)));
+        analyzeLBD = computeLBD(outLearnt, outLearnt.size() - selectors.size());
+        if (lastDecisionLevel.size() > 0) {
+            for (int k = 0; k < lastDecisionLevel.size(); k++) {
+                if ((v(lastDecisionLevel.get(k)).reason()).lbd() < analyzeLBD) {
+                    varBumpActivity(var(lastDecisionLevel.get(k)));
                 }
             }
-            this.lastDecisionLevel.clear();
+            lastDecisionLevel.clear();
         }
         for (int m = 0; m < analyzeToClear.size(); m++) {
-            this.seen.set(var(analyzeToClear.get(m)), false);
+            seen.set(var(analyzeToClear.get(m)), false);
         }
         for (int m = 0; m < selectors.size(); m++) {
-            this.seen.set(var(selectors.get(m)), false);
+            seen.set(var(selectors.get(m)), false);
         }
     }
 
@@ -1065,7 +1041,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
         if (!super.isRotatable(lit)) {
             return false;
         }
-        for (final MSWatcher watcher : this.watchesBin.get(not(lit))) {
+        for (final MSWatcher watcher : watchesBin.get(not(lit))) {
             if (isUnit(lit, watcher.clause())) {
                 return false;
             }
@@ -1074,7 +1050,7 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
     }
 
     public GlucoseConfig getGlucoseConfig() {
-        return this.glucoseConfig;
+        return glucoseConfig;
     }
 }
 

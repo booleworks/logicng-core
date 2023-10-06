@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.solvers.functions;
 
@@ -84,7 +60,7 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
 
     @Override
     public List<Assignment> apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
-        start(this.handler);
+        start(handler);
         final List<Assignment> models = new ArrayList<>();
         SolverState stateBeforeEnumeration = null;
         if (solver.canSaveLoadState()) {
@@ -92,7 +68,7 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
         }
         boolean proceed = true;
         final LNGIntVector relevantIndices;
-        if (this.variables == null) {
+        if (variables == null) {
             if (!solver.getConfig().isAuxiliaryVariablesInModels()) {
                 relevantIndices = new LNGIntVector();
                 for (final Map.Entry<String, Integer> entry : solver.underlyingSolver().getName2idx().entrySet()) {
@@ -104,15 +80,15 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
                 relevantIndices = null;
             }
         } else {
-            relevantIndices = new LNGIntVector(this.variables.size());
-            for (final Variable var : this.variables) {
+            relevantIndices = new LNGIntVector(variables.size());
+            for (final Variable var : variables) {
                 relevantIndices.push(solver.underlyingSolver().idxForName(var.name()));
             }
         }
         LNGIntVector relevantAllIndices = null;
-        final SortedSet<Variable> uniqueAdditionalVariables = new TreeSet<>(this.additionalVariables == null ? Collections.emptyList() : this.additionalVariables);
-        if (this.variables != null) {
-            uniqueAdditionalVariables.removeAll(this.variables);
+        final SortedSet<Variable> uniqueAdditionalVariables = new TreeSet<>(additionalVariables == null ? Collections.emptyList() : additionalVariables);
+        if (variables != null) {
+            uniqueAdditionalVariables.removeAll(variables);
         }
         if (relevantIndices != null) {
             if (uniqueAdditionalVariables.isEmpty()) {
@@ -127,11 +103,11 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
                 }
             }
         }
-        while (proceed && modelEnumerationSATCall(solver, this.handler)) {
+        while (proceed && modelEnumerationSATCall(solver, handler)) {
             final LNGBooleanVector modelFromSolver = solver.underlyingSolver().model();
-            final Assignment model = solver.createAssignment(modelFromSolver, relevantAllIndices, this.fastEvaluable);
+            final Assignment model = solver.createAssignment(modelFromSolver, relevantAllIndices, fastEvaluable);
             models.add(model);
-            proceed = this.handler == null || this.handler.foundModel(model);
+            proceed = handler == null || handler.foundModel(model);
             if (model.size() > 0) {
                 final LNGIntVector blockingClause = generateBlockingClause(modelFromSolver, relevantIndices);
                 solver.underlyingSolver().addClause(blockingClause, null);
@@ -230,7 +206,7 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
          * @return the current builder
          */
         public Builder additionalVariables(final Collection<Variable> variables) {
-            this.additionalVariables = variables;
+            additionalVariables = variables;
             return this;
         }
 
@@ -240,7 +216,7 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
          * @return the current builder
          */
         public Builder additionalVariables(final Variable... variables) {
-            this.additionalVariables = Arrays.asList(variables);
+            additionalVariables = Arrays.asList(variables);
             return this;
         }
 
@@ -259,7 +235,7 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
          * @return the model enumeration function
          */
         public ModelEnumerationFunction build() {
-            return new ModelEnumerationFunction(this.handler, this.variables, this.additionalVariables, this.fastEvaluable);
+            return new ModelEnumerationFunction(handler, variables, additionalVariables, fastEvaluable);
         }
     }
 }

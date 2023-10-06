@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.pseudobooleans;
 
@@ -45,80 +21,71 @@ import java.util.List;
 
 /**
  * An encoder for pseudo-Boolean constraints.
- * @version 2.3.0
+ * @version 3.0.0
  * @since 1.0
  */
 public class PBEncoder {
 
-    protected final FormulaFactory f;
-    protected final PBConfig config;
-    protected final CCEncoder ccEncoder;
-
-    protected PBSWC swc;
-    protected PBAdderNetworks adderNetworks;
-
-    /**
-     * Constructs a new pseudo-Boolean encoder with given configurations.
-     * @param f        the formula factory
-     * @param pbConfig the pseudo-Boolean encoder configuration
-     * @param ccConfig the cardinality constraints encoder configuration
-     */
-    public PBEncoder(final FormulaFactory f, final PBConfig pbConfig, final CCConfig ccConfig) {
-        this.f = f;
-        this.config = pbConfig;
-        this.ccEncoder = new CCEncoder(f, ccConfig);
-    }
-
-    /**
-     * Constructs a new pseudo-Boolean encoder with a given configuration.
-     * @param f        the formula factory
-     * @param pbConfig the pseudo-Boolean encoder configuration
-     */
-    public PBEncoder(final FormulaFactory f, final PBConfig pbConfig) {
-        this.f = f;
-        this.config = pbConfig;
-        this.ccEncoder = new CCEncoder(f);
-    }
-
-    /**
-     * Constructs a new pseudo-Boolean encoder which uses the configuration of the formula factory.
-     * @param f the formula factory
-     */
-    public PBEncoder(final FormulaFactory f) {
-        this.f = f;
-        this.config = null;
-        this.ccEncoder = new CCEncoder(f);
+    private PBEncoder() {
+        // Only static methods
     }
 
     /**
      * Encodes a pseudo-Boolean constraint and returns its CNF encoding.
      * @param constraint the pseudo-Boolean constraint
+     * @param pbConfig   the pseudo-Boolean encoder configuration
+     * @param f          the formula factory to generate new formulas
      * @return the CNF encoding of the pseudo-Boolean constraint
      */
-    public List<Formula> encode(final PBConstraint constraint) {
+    public static List<Formula> encode(final PBConstraint constraint, final FormulaFactory f, final PBConfig pbConfig) {
+        return encode(constraint, f, pbConfig, null);
+    }
+
+    /**
+     * Encodes a pseudo-Boolean constraint and returns its CNF encoding.
+     * @param constraint the pseudo-Boolean constraint
+     * @param f          the formula factory to generate new formulas
+     * @return the CNF encoding of the pseudo-Boolean constraint
+     */
+    public static List<Formula> encode(final PBConstraint constraint, final FormulaFactory f) {
+        return encode(constraint, f, null, null);
+    }
+
+    /**
+     * Encodes a pseudo-Boolean constraint and returns its CNF encoding.
+     * @param constraint the pseudo-Boolean constraint
+     * @param f          the formula factory to generate new formulas
+     * @param pbConfig   the pseudo-Boolean encoder configuration
+     * @param ccConfig   the cardinality constraints encoder configuration
+     * @return the CNF encoding of the pseudo-Boolean constraint
+     */
+    public static List<Formula> encode(final PBConstraint constraint, final FormulaFactory f, final PBConfig pbConfig, final CCConfig ccConfig) {
         if (constraint.isCC()) {
-            return this.ccEncoder.encode((CardinalityConstraint) constraint);
+            return CCEncoder.encode((CardinalityConstraint) constraint, f, ccConfig != null ? ccConfig :
+                    (CCConfig) f.configurationFor(ConfigurationType.CC_ENCODER));
         }
-        final Formula normalized = constraint.normalize();
+        final Formula normalized = constraint.normalize(f);
         switch (normalized.type()) {
             case TRUE:
                 return Collections.emptyList();
             case FALSE:
-                return Collections.singletonList(this.f.falsum());
+                return Collections.singletonList(f.falsum());
             case PBC:
                 final PBConstraint pbc = (PBConstraint) normalized;
                 if (pbc.isCC()) {
-                    return this.ccEncoder.encode((CardinalityConstraint) pbc);
+                    return CCEncoder.encode((CardinalityConstraint) pbc, f, ccConfig != null ? ccConfig :
+                            (CCConfig) f.configurationFor(ConfigurationType.CC_ENCODER));
                 }
-                return this.encode(pbc.operands(), pbc.coefficients(), pbc.rhs());
+                return encode(pbc.operands(), pbc.coefficients(), pbc.rhs(), f, pbConfig != null ? pbConfig :
+                        (PBConfig) f.configurationFor(ConfigurationType.PB_ENCODER));
             case AND:
                 final List<Formula> list = new ArrayList<>();
                 for (final Formula op : normalized) {
                     switch (op.type()) {
                         case FALSE:
-                            return Collections.singletonList(this.f.falsum());
+                            return Collections.singletonList(f.falsum());
                         case PBC:
-                            list.addAll(this.encode((PBConstraint) op));
+                            list.addAll(encode((PBConstraint) op, f, pbConfig, ccConfig));
                             break;
                         default:
                             throw new IllegalArgumentException("Illegal return value of PBConstraint.normalize");
@@ -131,66 +98,54 @@ public class PBEncoder {
     }
 
     /**
-     * Returns the current configuration of this encoder.  If the encoder was constructed with a given configuration, this
-     * configuration will always be used.  Otherwise, the current configuration from the formula factory is used.
-     * @return the current configuration of
-     */
-    public PBConfig config() {
-        return this.config != null ? this.config : (PBConfig) this.f.configurationFor(ConfigurationType.PB_ENCODER);
-    }
-
-    /**
      * Builds a pseudo Boolean constraint of the form {@code c_1 * lit_1 + c_2 * lit_2 + ... + c_n * lit_n >= k}.
-     * @param lits   the literals {@code lit_1 ... lit_n}
-     * @param coeffs the coefficients {@code c_1 ... c_n}
-     * @param rhs    the right-hand side {@code k} of the constraint
+     * @param lits     the literals {@code lit_1 ... lit_n}
+     * @param coeffs   the coefficients {@code c_1 ... c_n}
+     * @param rhs      the right-hand side {@code k} of the constraint
+     * @param f        the formula factory to generate new formulas
+     * @param pbConfig the configuration for the encoding
      * @return the CNF encoding of the pseudo Boolean constraint
      * @throws IllegalArgumentException if the right-hand side of the cardinality constraint is negative or
      *                                  larger than the number of literals
      */
-    protected List<Formula> encode(final Literal[] lits, final int[] coeffs, final int rhs) {
+    protected static List<Formula> encode(final List<Literal> lits, final List<Integer> coeffs, final int rhs, final FormulaFactory f,
+                                          final PBConfig pbConfig) {
         if (rhs == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Overflow in the Encoding");
         }
         if (rhs < 0) {
-            return Collections.singletonList(this.f.falsum());
+            return Collections.singletonList(f.falsum());
         }
         final LNGVector<Literal> simplifiedLits = new LNGVector<>();
         final LNGIntVector simplifiedCoeffs = new LNGIntVector();
         final List<Formula> result = new ArrayList<>();
         if (rhs == 0) {
             for (final Literal lit : lits) {
-                result.add(lit.negate());
+                result.add(lit.negate(f));
             }
             return result;
         }
-        for (int i = 0; i < lits.length; i++) {
-            if (coeffs[i] <= rhs) {
-                simplifiedLits.push(lits[i]);
-                simplifiedCoeffs.push(coeffs[i]);
+        for (int i = 0; i < lits.size(); i++) {
+            if (coeffs.get(i) <= rhs) {
+                simplifiedLits.push(lits.get(i));
+                simplifiedCoeffs.push(coeffs.get(i));
             } else {
-                result.add(lits[i].negate());
+                result.add(lits.get(i).negate(f));
             }
         }
         if (simplifiedLits.size() <= 1) {
             return result;
         }
-        switch (this.config().pbEncoder) {
+        switch (pbConfig.pbEncoder) {
             case SWC:
             case BEST:
-                if (this.swc == null) {
-                    this.swc = new PBSWC(this.f);
-                }
-                return this.swc.encode(simplifiedLits, simplifiedCoeffs, rhs, result);
+                return PBSWC.get().encode(f, simplifiedLits, simplifiedCoeffs, rhs, result, pbConfig);
             case BINARY_MERGE:
-                return new PBBinaryMerge(this.f, this.config()).encode(simplifiedLits, simplifiedCoeffs, rhs, result);
+                return PBBinaryMerge.get().encode(f, simplifiedLits, simplifiedCoeffs, rhs, result, pbConfig);
             case ADDER_NETWORKS:
-                if (this.adderNetworks == null) {
-                    this.adderNetworks = new PBAdderNetworks(this.f);
-                }
-                return this.adderNetworks.encode(simplifiedLits, simplifiedCoeffs, rhs, result);
+                return PBAdderNetworks.get().encode(f, simplifiedLits, simplifiedCoeffs, rhs, result, pbConfig);
             default:
-                throw new IllegalStateException("Unknown pseudo-Boolean encoder: " + this.config().pbEncoder);
+                throw new IllegalStateException("Unknown pseudo-Boolean encoder: " + pbConfig.pbEncoder);
         }
     }
 }

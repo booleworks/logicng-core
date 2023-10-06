@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.solvers.maxsat.algorithms;
 
 import static org.logicng.handlers.Handler.aborted;
@@ -45,22 +49,22 @@ public class OLL extends MaxSAT {
      */
     public OLL(final MaxSATConfig config) {
         super(config);
-        this.solver = null;
-        this.verbosity = config.verbosity;
-        this.encoder = new Encoder(config.cardinalityEncoding);
-        this.encoder.setPBEncoding(config.pbEncoding);
-        this.coreMapping = new TreeMap<>();
-        this.boundMapping = new TreeMap<>();
-        this.activeSoft = new LNGBooleanVector();
-        this.minWeight = 1;
+        solver = null;
+        verbosity = config.verbosity;
+        encoder = new Encoder(config.cardinalityEncoding);
+        encoder.setPBEncoding(config.pbEncoding);
+        coreMapping = new TreeMap<>();
+        boundMapping = new TreeMap<>();
+        activeSoft = new LNGBooleanVector();
+        minWeight = 1;
     }
 
     @Override
     public MaxSATResult search() {
-        if (this.encoder.cardEncoding() != MaxSATConfig.CardinalityEncoding.TOTALIZER) {
+        if (encoder.cardEncoding() != MaxSATConfig.CardinalityEncoding.TOTALIZER) {
             throw new IllegalStateException("Error: Currently OLL only supports the totalizer encoding.");
         }
-        if (this.problemType == ProblemType.WEIGHTED) {
+        if (problemType == ProblemType.WEIGHTED) {
             return weighted();
         } else {
             return unweighted();
@@ -73,14 +77,14 @@ public class OLL extends MaxSAT {
             newSATVariable(s);
         }
         for (int i = 0; i < nHard(); i++) {
-            s.addClause(this.hardClauses.get(i).clause(), null);
+            s.addClause(hardClauses.get(i).clause(), null);
         }
 
         LNGIntVector clause;
         for (int i = 0; i < nSoft(); i++) {
-            clause = new LNGIntVector(this.softClauses.get(i).clause());
-            for (int j = 0; j < this.softClauses.get(i).relaxationVars().size(); j++) {
-                clause.push(this.softClauses.get(i).relaxationVars().get(j));
+            clause = new LNGIntVector(softClauses.get(i).clause());
+            for (int j = 0; j < softClauses.get(i).relaxationVars().size(); j++) {
+                clause.push(softClauses.get(i).relaxationVars().get(j));
             }
             s.addClause(clause, null);
         }
@@ -89,19 +93,19 @@ public class OLL extends MaxSAT {
     }
 
     private MaxSATResult unweighted() {
-        this.nbInitialVariables = nVars();
+        nbInitialVariables = nVars();
         Tristate res;
         initRelaxation();
-        this.solver = rebuildSolver();
+        solver = rebuildSolver();
 
         final LNGIntVector assumptions = new LNGIntVector();
         final LNGIntVector joinObjFunction = new LNGIntVector();
         final LNGIntVector encodingAssumptions = new LNGIntVector();
-        this.encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
+        encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
 
-        this.activeSoft.growTo(nSoft(), false);
+        activeSoft.growTo(nSoft(), false);
         for (int i = 0; i < nSoft(); i++) {
-            this.coreMapping.put(this.softClauses.get(i).assumptionVar(), i);
+            coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
 
         final LinkedHashSet<Integer> cardinalityAssumptions = new LinkedHashSet<>();
@@ -109,72 +113,72 @@ public class OLL extends MaxSAT {
 
         while (true) {
             final SATHandler satHandler = satHandler();
-            res = searchSATSolver(this.solver, satHandler, assumptions);
+            res = searchSATSolver(solver, satHandler, assumptions);
             if (aborted(satHandler)) {
                 return MaxSATResult.UNDEF;
             } else if (res == Tristate.TRUE) {
-                this.nbSatisfiable++;
-                final LNGBooleanVector model = this.solver.model();
+                nbSatisfiable++;
+                final LNGBooleanVector model = solver.model();
                 final int newCost = computeCostModel(model, Integer.MAX_VALUE);
                 saveModel(model);
 
-                this.ubCost = newCost;
-                if (this.nbSatisfiable == 1) {
+                ubCost = newCost;
+                if (nbSatisfiable == 1) {
                     if (newCost == 0) {
                         return MaxSATResult.OPTIMUM;
                     }
                     for (int i = 0; i < nSoft(); i++) {
-                        assumptions.push(not(this.softClauses.get(i).assumptionVar()));
+                        assumptions.push(not(softClauses.get(i).assumptionVar()));
                     }
                 } else {
-                    assert this.lbCost == newCost;
+                    assert lbCost == newCost;
                     return MaxSATResult.OPTIMUM;
                 }
             } else {
-                this.lbCost++;
-                this.nbCores++;
-                if (this.nbSatisfiable == 0) {
+                lbCost++;
+                nbCores++;
+                if (nbSatisfiable == 0) {
                     return MaxSATResult.UNSATISFIABLE;
                 }
-                if (this.lbCost == this.ubCost) {
-                    assert this.nbSatisfiable > 0;
+                if (lbCost == ubCost) {
+                    assert nbSatisfiable > 0;
                     return MaxSATResult.OPTIMUM;
                 }
 
-                this.sumSizeCores += this.solver.conflict().size();
+                sumSizeCores += solver.conflict().size();
                 final LNGIntVector softRelax = new LNGIntVector();
                 final LNGIntVector cardinalityRelax = new LNGIntVector();
 
-                for (int i = 0; i < this.solver.conflict().size(); i++) {
-                    final int p = this.solver.conflict().get(i);
-                    if (this.coreMapping.containsKey(p)) {
-                        assert !this.activeSoft.get(this.coreMapping.get(p));
-                        this.activeSoft.set(this.coreMapping.get(this.solver.conflict().get(i)), true);
-                        assert p == this.softClauses.get(this.coreMapping.get(this.solver.conflict().get(i))).relaxationVars().get(0);
+                for (int i = 0; i < solver.conflict().size(); i++) {
+                    final int p = solver.conflict().get(i);
+                    if (coreMapping.containsKey(p)) {
+                        assert !activeSoft.get(coreMapping.get(p));
+                        activeSoft.set(coreMapping.get(solver.conflict().get(i)), true);
+                        assert p == softClauses.get(coreMapping.get(solver.conflict().get(i))).relaxationVars().get(0);
                         softRelax.push(p);
                     }
 
-                    if (this.boundMapping.containsKey(p)) {
+                    if (boundMapping.containsKey(p)) {
                         assert cardinalityAssumptions.contains(p);
                         cardinalityAssumptions.remove(p);
                         cardinalityRelax.push(p);
 
                         // this is a soft cardinality -- bound must be increased
-                        final IntTriple softId = this.boundMapping.get(this.solver.conflict().get(i));
+                        final IntTriple softId = boundMapping.get(solver.conflict().get(i));
                         // // increase the bound
                         assert softId.id < softCardinality.size();
                         assert softCardinality.get(softId.id).hasCardEncoding();
 
                         joinObjFunction.clear();
                         encodingAssumptions.clear();
-                        softCardinality.get(softId.id).incUpdateCardinality(this.solver, joinObjFunction, softCardinality.get(softId.id).lits(),
+                        softCardinality.get(softId.id).incUpdateCardinality(solver, joinObjFunction, softCardinality.get(softId.id).lits(),
                                 softId.bound + 1, encodingAssumptions);
 
                         // if the bound is the same as the number of literals then no restriction is applied
                         if (softId.bound + 1 < softCardinality.get(softId.id).outputs().size()) {
                             assert softCardinality.get(softId.id).outputs().size() > softId.bound + 1;
                             final int out = softCardinality.get(softId.id).outputs().get(softId.bound + 1);
-                            this.boundMapping.put(out, new IntTriple(softId.id, softId.bound + 1, 1));
+                            boundMapping.put(out, new IntTriple(softId.id, softId.bound + 1, 1));
                             cardinalityAssumptions.add(out);
                         }
                     }
@@ -182,7 +186,7 @@ public class OLL extends MaxSAT {
 
                 assert softRelax.size() + cardinalityRelax.size() > 0;
                 if (softRelax.size() == 1 && cardinalityRelax.size() == 0) {
-                    this.solver.addClause(softRelax.get(0), null);
+                    solver.addClause(softRelax.get(0), null);
                 }
 
                 if (softRelax.size() + cardinalityRelax.size() > 1) {
@@ -192,20 +196,20 @@ public class OLL extends MaxSAT {
                     }
                     final Encoder e = new Encoder(MaxSATConfig.CardinalityEncoding.TOTALIZER);
                     e.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
-                    e.buildCardinality(this.solver, relaxHarden, 1);
+                    e.buildCardinality(solver, relaxHarden, 1);
                     softCardinality.push(e);
                     assert e.outputs().size() > 1;
 
                     final int out = e.outputs().get(1);
-                    this.boundMapping.put(out, new IntTriple(softCardinality.size() - 1, 1, 1));
+                    boundMapping.put(out, new IntTriple(softCardinality.size() - 1, 1, 1));
                     cardinalityAssumptions.add(out);
                 }
 
                 // reset the assumptions
                 assumptions.clear();
                 for (int i = 0; i < nSoft(); i++) {
-                    if (!this.activeSoft.get(i)) {
-                        assumptions.push(not(this.softClauses.get(i).assumptionVar()));
+                    if (!activeSoft.get(i)) {
+                        assumptions.push(not(softClauses.get(i).assumptionVar()));
                     }
                 }
                 for (final Integer it : cardinalityAssumptions) {
@@ -216,127 +220,127 @@ public class OLL extends MaxSAT {
     }
 
     private MaxSATResult weighted() {
-        this.nbInitialVariables = nVars();
+        nbInitialVariables = nVars();
         Tristate res;
         initRelaxation();
-        this.solver = rebuildSolver();
+        solver = rebuildSolver();
 
         final LNGIntVector assumptions = new LNGIntVector();
         final LNGIntVector joinObjFunction = new LNGIntVector();
         final LNGIntVector encodingAssumptions = new LNGIntVector();
-        this.encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
+        encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
 
-        this.activeSoft.growTo(nSoft(), false);
+        activeSoft.growTo(nSoft(), false);
         for (int i = 0; i < nSoft(); i++) {
-            this.coreMapping.put(this.softClauses.get(i).assumptionVar(), i);
+            coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
 
         final LinkedHashSet<Integer> cardinalityAssumptions = new LinkedHashSet<>();
         final LNGVector<Encoder> softCardinality = new LNGVector<>();
-        this.minWeight = this.currentWeight;
+        minWeight = currentWeight;
 
         while (true) {
             final SATHandler satHandler = satHandler();
-            res = searchSATSolver(this.solver, satHandler, assumptions);
+            res = searchSATSolver(solver, satHandler, assumptions);
             if (aborted(satHandler)) {
                 return MaxSATResult.UNDEF;
             } else if (res == Tristate.TRUE) {
-                this.nbSatisfiable++;
-                final LNGBooleanVector model = this.solver.model();
+                nbSatisfiable++;
+                final LNGBooleanVector model = solver.model();
                 final int newCost = computeCostModel(model, Integer.MAX_VALUE);
-                if (newCost < this.ubCost || this.nbSatisfiable == 1) {
+                if (newCost < ubCost || nbSatisfiable == 1) {
                     saveModel(model);
-                    this.ubCost = newCost;
+                    ubCost = newCost;
                 }
-                if (this.nbSatisfiable == 1) {
-                    this.minWeight = findNextWeightDiversity(this.minWeight, cardinalityAssumptions);
+                if (nbSatisfiable == 1) {
+                    minWeight = findNextWeightDiversity(minWeight, cardinalityAssumptions);
                     for (int i = 0; i < nSoft(); i++) {
-                        if (this.softClauses.get(i).weight() >= this.minWeight) {
-                            assumptions.push(not(this.softClauses.get(i).assumptionVar()));
+                        if (softClauses.get(i).weight() >= minWeight) {
+                            assumptions.push(not(softClauses.get(i).assumptionVar()));
                         }
                     }
                 } else {
                     // compute min weight in soft
                     int notConsidered = 0;
                     for (int i = 0; i < nSoft(); i++) {
-                        if (this.softClauses.get(i).weight() < this.minWeight) {
+                        if (softClauses.get(i).weight() < minWeight) {
                             notConsidered++;
                         }
                     }
                     for (final Integer it : cardinalityAssumptions) {
-                        final IntTriple softId = this.boundMapping.get(it);
+                        final IntTriple softId = boundMapping.get(it);
                         assert softId != null;
-                        if (softId.weight < this.minWeight) {
+                        if (softId.weight < minWeight) {
                             notConsidered++;
                         }
                     }
                     if (notConsidered != 0) {
-                        this.minWeight = findNextWeightDiversity(this.minWeight, cardinalityAssumptions);
+                        minWeight = findNextWeightDiversity(minWeight, cardinalityAssumptions);
                         assumptions.clear();
                         for (int i = 0; i < nSoft(); i++) {
-                            if (!this.activeSoft.get(i) && this.softClauses.get(i).weight() >= this.minWeight) {
-                                assumptions.push(not(this.softClauses.get(i).assumptionVar()));
+                            if (!activeSoft.get(i) && softClauses.get(i).weight() >= minWeight) {
+                                assumptions.push(not(softClauses.get(i).assumptionVar()));
                             }
                         }
                         for (final Integer it : cardinalityAssumptions) {
-                            final IntTriple softId = this.boundMapping.get(it);
+                            final IntTriple softId = boundMapping.get(it);
                             assert softId != null;
-                            if (softId.weight >= this.minWeight) {
+                            if (softId.weight >= minWeight) {
                                 assumptions.push(not(it));
                             }
                         }
                     } else {
-                        assert this.lbCost == newCost;
+                        assert lbCost == newCost;
                         return MaxSATResult.OPTIMUM;
                     }
                 }
             } else if (res == Tristate.FALSE) {
                 // reduce the weighted to the unweighted case
                 int minCore = Integer.MAX_VALUE;
-                for (int i = 0; i < this.solver.conflict().size(); i++) {
-                    final int p = this.solver.conflict().get(i);
-                    if (this.coreMapping.containsKey(p)) {
-                        assert !this.activeSoft.get(this.coreMapping.get(p));
-                        if (this.softClauses.get(this.coreMapping.get(this.solver.conflict().get(i))).weight() < minCore) {
-                            minCore = this.softClauses.get(this.coreMapping.get(this.solver.conflict().get(i))).weight();
+                for (int i = 0; i < solver.conflict().size(); i++) {
+                    final int p = solver.conflict().get(i);
+                    if (coreMapping.containsKey(p)) {
+                        assert !activeSoft.get(coreMapping.get(p));
+                        if (softClauses.get(coreMapping.get(solver.conflict().get(i))).weight() < minCore) {
+                            minCore = softClauses.get(coreMapping.get(solver.conflict().get(i))).weight();
                         }
                     }
-                    if (this.boundMapping.containsKey(p)) {
-                        final IntTriple softId = this.boundMapping.get(this.solver.conflict().get(i));
+                    if (boundMapping.containsKey(p)) {
+                        final IntTriple softId = boundMapping.get(solver.conflict().get(i));
                         if (softId.weight < minCore) {
                             minCore = softId.weight;
                         }
                     }
                 }
-                this.lbCost += minCore;
-                this.nbCores++;
-                if (this.nbSatisfiable == 0) {
+                lbCost += minCore;
+                nbCores++;
+                if (nbSatisfiable == 0) {
                     return MaxSATResult.UNSATISFIABLE;
                 }
-                if (this.lbCost == this.ubCost) {
-                    assert this.nbSatisfiable > 0;
+                if (lbCost == ubCost) {
+                    assert nbSatisfiable > 0;
                     return MaxSATResult.OPTIMUM;
                 }
-                this.sumSizeCores += this.solver.conflict().size();
+                sumSizeCores += solver.conflict().size();
                 final LNGIntVector softRelax = new LNGIntVector();
                 final LNGIntVector cardinalityRelax = new LNGIntVector();
 
-                for (int i = 0; i < this.solver.conflict().size(); i++) {
-                    final int p = this.solver.conflict().get(i);
-                    if (this.coreMapping.containsKey(p)) {
-                        if (this.softClauses.get(this.coreMapping.get(p)).weight() > minCore) {
-                            assert !this.activeSoft.get(this.coreMapping.get(p));
+                for (int i = 0; i < solver.conflict().size(); i++) {
+                    final int p = solver.conflict().get(i);
+                    if (coreMapping.containsKey(p)) {
+                        if (softClauses.get(coreMapping.get(p)).weight() > minCore) {
+                            assert !activeSoft.get(coreMapping.get(p));
                             // Split the clause
-                            final int indexSoft = this.coreMapping.get(p);
-                            assert this.softClauses.get(indexSoft).weight() - minCore > 0;
+                            final int indexSoft = coreMapping.get(p);
+                            assert softClauses.get(indexSoft).weight() - minCore > 0;
 
                             // Update the weight of the soft clause.
-                            this.softClauses.get(indexSoft).setWeight(this.softClauses.get(indexSoft).weight() - minCore);
-                            final LNGIntVector clause = new LNGIntVector(this.softClauses.get(indexSoft).clause());
+                            softClauses.get(indexSoft).setWeight(softClauses.get(indexSoft).weight() - minCore);
+                            final LNGIntVector clause = new LNGIntVector(softClauses.get(indexSoft).clause());
                             final LNGIntVector vars = new LNGIntVector();
 
                             // Since cardinality constraints are added the variables are not in sync...
-                            while (nVars() < this.solver.nVars()) {
+                            while (nVars() < solver.nVars()) {
                                 newLiteral(false);
                             }
                             final int l = newLiteral(false);
@@ -344,33 +348,33 @@ public class OLL extends MaxSAT {
 
                             // Add a new soft clause with the weight of the core.
                             addSoftClause(minCore, clause, vars);
-                            this.activeSoft.push(true);
+                            activeSoft.push(true);
 
                             // Add information to the SAT solver
-                            newSATVariable(this.solver);
+                            newSATVariable(solver);
                             clause.push(l);
-                            this.solver.addClause(clause, null);
-                            assert clause.size() - 1 == this.softClauses.get(indexSoft).clause().size();
-                            assert this.softClauses.get(nSoft() - 1).relaxationVars().size() == 1;
+                            solver.addClause(clause, null);
+                            assert clause.size() - 1 == softClauses.get(indexSoft).clause().size();
+                            assert softClauses.get(nSoft() - 1).relaxationVars().size() == 1;
 
                             // Create a new assumption literal.
-                            this.softClauses.get(nSoft() - 1).setAssumptionVar(l);
-                            assert this.softClauses.get(nSoft() - 1).assumptionVar() == this.softClauses.get(nSoft() - 1).relaxationVars().get(0);
-                            this.coreMapping.put(l, nSoft() - 1); // Map the new soft clause to its assumption literal.
+                            softClauses.get(nSoft() - 1).setAssumptionVar(l);
+                            assert softClauses.get(nSoft() - 1).assumptionVar() == softClauses.get(nSoft() - 1).relaxationVars().get(0);
+                            coreMapping.put(l, nSoft() - 1); // Map the new soft clause to its assumption literal.
                             softRelax.push(l);
-                            assert this.softClauses.get(this.coreMapping.get(l)).weight() == minCore;
-                            assert this.activeSoft.size() == nSoft();
+                            assert softClauses.get(coreMapping.get(l)).weight() == minCore;
+                            assert activeSoft.size() == nSoft();
                         } else {
-                            assert this.softClauses.get(this.coreMapping.get(this.solver.conflict().get(i))).weight() == minCore;
+                            assert softClauses.get(coreMapping.get(solver.conflict().get(i))).weight() == minCore;
                             softRelax.push(p);
-                            assert !this.activeSoft.get(this.coreMapping.get(p));
-                            this.activeSoft.set(this.coreMapping.get(p), true);
+                            assert !activeSoft.get(coreMapping.get(p));
+                            activeSoft.set(coreMapping.get(p), true);
                         }
                     }
-                    if (this.boundMapping.containsKey(p)) {
+                    if (boundMapping.containsKey(p)) {
                         assert cardinalityAssumptions.contains(p);
                         // this is a soft cardinality -- bound must be increased
-                        final IntTriple softId = this.boundMapping.get(this.solver.conflict().get(i));
+                        final IntTriple softId = boundMapping.get(solver.conflict().get(i));
 
                         // increase the bound
                         assert softId.id < softCardinality.size();
@@ -380,43 +384,43 @@ public class OLL extends MaxSAT {
                             cardinalityRelax.push(p);
                             joinObjFunction.clear();
                             encodingAssumptions.clear();
-                            softCardinality.get(softId.id).incUpdateCardinality(this.solver, joinObjFunction,
+                            softCardinality.get(softId.id).incUpdateCardinality(solver, joinObjFunction,
                                     softCardinality.get(softId.id).lits(), softId.bound + 1, encodingAssumptions);
 
                             // if the bound is the same as the number of literals then no restriction is applied
                             if (softId.bound + 1 < softCardinality.get(softId.id).outputs().size()) {
                                 assert softCardinality.get(softId.id).outputs().size() > softId.bound + 1;
                                 final int out = softCardinality.get(softId.id).outputs().get(softId.bound + 1);
-                                this.boundMapping.put(out, new IntTriple(softId.id, softId.bound + 1, minCore));
+                                boundMapping.put(out, new IntTriple(softId.id, softId.bound + 1, minCore));
                                 cardinalityAssumptions.add(out);
                             }
                         } else {
                             // Duplicate cardinality constraint
                             final Encoder e = new Encoder(MaxSATConfig.CardinalityEncoding.TOTALIZER);
                             e.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
-                            e.buildCardinality(this.solver, softCardinality.get(softId.id).lits(), softId.bound);
+                            e.buildCardinality(solver, softCardinality.get(softId.id).lits(), softId.bound);
                             assert e.outputs().size() > softId.bound;
                             final int out = e.outputs().get(softId.bound);
                             softCardinality.push(e);
-                            this.boundMapping.put(out, new IntTriple(softCardinality.size() - 1, softId.bound, minCore));
+                            boundMapping.put(out, new IntTriple(softCardinality.size() - 1, softId.bound, minCore));
                             cardinalityRelax.push(out);
 
                             // Update value of the previous cardinality constraint
                             assert softId.weight - minCore > 0;
-                            this.boundMapping.put(p, new IntTriple(softId.id, softId.bound, softId.weight - minCore));
+                            boundMapping.put(p, new IntTriple(softId.id, softId.bound, softId.weight - minCore));
 
                             // Update bound as usual...
-                            final IntTriple softCoreId = this.boundMapping.get(out);
+                            final IntTriple softCoreId = boundMapping.get(out);
                             joinObjFunction.clear();
                             encodingAssumptions.clear();
-                            softCardinality.get(softCoreId.id).incUpdateCardinality(this.solver, joinObjFunction,
+                            softCardinality.get(softCoreId.id).incUpdateCardinality(solver, joinObjFunction,
                                     softCardinality.get(softCoreId.id).lits(), softCoreId.bound + 1, encodingAssumptions);
 
                             // if the bound is the same as the number of literals then no restriction is applied
                             if (softCoreId.bound + 1 < softCardinality.get(softCoreId.id).outputs().size()) {
                                 assert softCardinality.get(softCoreId.id).outputs().size() > softCoreId.bound + 1;
                                 final int out2 = softCardinality.get(softCoreId.id).outputs().get(softCoreId.bound + 1);
-                                this.boundMapping.put(out2, new IntTriple(softCoreId.id, softCoreId.bound + 1, minCore));
+                                boundMapping.put(out2, new IntTriple(softCoreId.id, softCoreId.bound + 1, minCore));
                                 cardinalityAssumptions.add(out2);
                             }
                         }
@@ -424,7 +428,7 @@ public class OLL extends MaxSAT {
                 }
                 assert softRelax.size() + cardinalityRelax.size() > 0;
                 if (softRelax.size() == 1 && cardinalityRelax.size() == 0) {
-                    this.solver.addClause(softRelax.get(0), null);
+                    solver.addClause(softRelax.get(0), null);
                 }
                 if (softRelax.size() + cardinalityRelax.size() > 1) {
                     final LNGIntVector relaxHarden = new LNGIntVector(softRelax);
@@ -433,23 +437,23 @@ public class OLL extends MaxSAT {
                     }
                     final Encoder e = new Encoder(MaxSATConfig.CardinalityEncoding.TOTALIZER);
                     e.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
-                    e.buildCardinality(this.solver, relaxHarden, 1);
+                    e.buildCardinality(solver, relaxHarden, 1);
                     softCardinality.push(e);
                     assert e.outputs().size() > 1;
                     final int out = e.outputs().get(1);
-                    this.boundMapping.put(out, new IntTriple(softCardinality.size() - 1, 1, minCore));
+                    boundMapping.put(out, new IntTriple(softCardinality.size() - 1, 1, minCore));
                     cardinalityAssumptions.add(out);
                 }
                 assumptions.clear();
                 for (int i = 0; i < nSoft(); i++) {
-                    if (!this.activeSoft.get(i) && this.softClauses.get(i).weight() >= this.minWeight) {
-                        assumptions.push(not(this.softClauses.get(i).assumptionVar()));
+                    if (!activeSoft.get(i) && softClauses.get(i).weight() >= minWeight) {
+                        assumptions.push(not(softClauses.get(i).assumptionVar()));
                     }
                 }
                 for (final Integer it : cardinalityAssumptions) {
-                    final IntTriple softId = this.boundMapping.get(it);
+                    final IntTriple softId = boundMapping.get(it);
                     assert softId != null;
-                    if (softId.weight >= this.minWeight) {
+                    if (softId.weight >= minWeight) {
                         assumptions.push(not(it));
                     }
                 }
@@ -458,34 +462,34 @@ public class OLL extends MaxSAT {
     }
 
     private void initRelaxation() {
-        for (int i = 0; i < this.nbSoft; i++) {
+        for (int i = 0; i < nbSoft; i++) {
             final int l = newLiteral(false);
-            this.softClauses.get(i).relaxationVars().push(l);
-            this.softClauses.get(i).setAssumptionVar(l);
+            softClauses.get(i).relaxationVars().push(l);
+            softClauses.get(i).setAssumptionVar(l);
         }
     }
 
     private int findNextWeightDiversity(final int weight, final Set<Integer> cardinalityAssumptions) {
-        assert (this.nbSatisfiable > 0);
+        assert (nbSatisfiable > 0);
         int nextWeight = weight;
         int nbClauses;
         final LinkedHashSet<Integer> nbWeights = new LinkedHashSet<>();
         final double alpha = 1.25;
         boolean findNext = false;
         while (true) {
-            if (this.nbSatisfiable > 1 || findNext) {
+            if (nbSatisfiable > 1 || findNext) {
                 nextWeight = findNextWeight(nextWeight, cardinalityAssumptions);
             }
             nbClauses = 0;
             nbWeights.clear();
             for (int i = 0; i < nSoft(); i++) {
-                if (this.softClauses.get(i).weight() >= nextWeight) {
+                if (softClauses.get(i).weight() >= nextWeight) {
                     nbClauses++;
-                    nbWeights.add(this.softClauses.get(i).weight());
+                    nbWeights.add(softClauses.get(i).weight());
                 }
             }
             for (final Integer it : cardinalityAssumptions) {
-                final IntTriple softId = this.boundMapping.get(it);
+                final IntTriple softId = boundMapping.get(it);
                 assert softId != null;
                 if (softId.weight >= nextWeight) {
                     nbClauses++;
@@ -495,7 +499,7 @@ public class OLL extends MaxSAT {
             if ((float) nbClauses / nbWeights.size() > alpha || nbClauses == nSoft() + cardinalityAssumptions.size()) {
                 break;
             }
-            if (this.nbSatisfiable == 1 && !findNext) {
+            if (nbSatisfiable == 1 && !findNext) {
                 findNext = true;
             }
         }
@@ -505,12 +509,12 @@ public class OLL extends MaxSAT {
     int findNextWeight(final int weight, final Set<Integer> cardinalityAssumptions) {
         int nextWeight = 1;
         for (int i = 0; i < nSoft(); i++) {
-            if (this.softClauses.get(i).weight() > nextWeight && this.softClauses.get(i).weight() < weight) {
-                nextWeight = this.softClauses.get(i).weight();
+            if (softClauses.get(i).weight() > nextWeight && softClauses.get(i).weight() < weight) {
+                nextWeight = softClauses.get(i).weight();
             }
         }
         for (final Integer it : cardinalityAssumptions) {
-            final IntTriple softId = this.boundMapping.get(it);
+            final IntTriple softId = boundMapping.get(it);
             assert softId != null;
             if (softId.weight > nextWeight && softId.weight < weight) {
                 nextWeight = softId.weight;
@@ -521,7 +525,7 @@ public class OLL extends MaxSAT {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName();
+        return getClass().getSimpleName();
     }
 
     private static class IntTriple {

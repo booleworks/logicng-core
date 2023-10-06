@@ -1,68 +1,37 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.predicates;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.logicng.formulas.FormulaContext;
+import org.logicng.formulas.TestWithFormulaContext;
 
-/**
- * Unit tests for the dnf predicate.
- * @version 2.0.0
- * @since 1.0
- */
-public class DNFPredicateTest extends TestWithExampleFormulas {
+public class DNFPredicateTest extends TestWithFormulaContext {
 
-    private final DNFPredicate dnfPredicate = DNFPredicate.get();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void test(final FormulaContext _c) {
+        final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
 
-    @Test
-    public void test() {
-        assertThat(this.f.verum().holds(this.dnfPredicate)).isTrue();
-        assertThat(this.f.falsum().holds(this.dnfPredicate)).isTrue();
-        assertThat(this.A.holds(this.dnfPredicate)).isTrue();
-        assertThat(this.NA.holds(this.dnfPredicate)).isTrue();
-        assertThat(this.AND1.holds(this.dnfPredicate)).isTrue();
-        assertThat(this.OR1.holds(this.dnfPredicate)).isTrue();
-        assertThat(this.OR3.holds(this.dnfPredicate)).isTrue();
-        assertThat(this.f.or(this.AND1, this.AND2, this.A, this.NY).holds(this.dnfPredicate)).isTrue();
-        assertThat(this.PBC1.holds(this.dnfPredicate)).isFalse();
-        assertThat(this.AND3.holds(this.dnfPredicate)).isFalse();
-        assertThat(this.IMP1.holds(this.dnfPredicate)).isFalse();
-        assertThat(this.EQ1.holds(this.dnfPredicate)).isFalse();
-        assertThat(this.NOT1.holds(this.dnfPredicate)).isFalse();
-        assertThat(this.NOT2.holds(this.dnfPredicate)).isFalse();
-        assertThat(this.f.or(this.AND1, this.EQ1).holds(this.dnfPredicate)).isFalse();
-    }
-
-    @Test
-    public void testToString() {
-        assertThat(this.dnfPredicate.toString()).isEqualTo("DNFPredicate");
+        assertThat(_c.f.verum().holds(dnfPredicate)).isTrue();
+        assertThat(_c.f.falsum().holds(dnfPredicate)).isTrue();
+        assertThat(_c.a.holds(dnfPredicate)).isTrue();
+        assertThat(_c.na.holds(dnfPredicate)).isTrue();
+        assertThat(_c.and1.holds(dnfPredicate)).isTrue();
+        assertThat(_c.or1.holds(dnfPredicate)).isTrue();
+        assertThat(_c.or3.holds(dnfPredicate)).isTrue();
+        assertThat(_c.f.or(_c.and1, _c.and2, _c.a, _c.ny).holds(dnfPredicate)).isTrue();
+        assertThat(_c.pbc1.holds(dnfPredicate)).isFalse();
+        assertThat(_c.and3.holds(dnfPredicate)).isFalse();
+        assertThat(_c.imp1.holds(dnfPredicate)).isFalse();
+        assertThat(_c.eq1.holds(dnfPredicate)).isFalse();
+        assertThat(_c.not1.holds(dnfPredicate)).isFalse();
+        assertThat(_c.not2.holds(dnfPredicate)).isFalse();
+        assertThat(_c.f.or(_c.and1, _c.eq1).holds(dnfPredicate)).isFalse();
     }
 }

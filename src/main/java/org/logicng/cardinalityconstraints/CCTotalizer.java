@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines Lynce
@@ -51,26 +27,20 @@ package org.logicng.cardinalityconstraints;
 
 import org.logicng.collections.LNGVector;
 import org.logicng.datastructures.EncodingResult;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 
 /**
  * Totalizer due to Bailleux and Boufkhad.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.0
  */
 public final class CCTotalizer {
 
     private enum Bound {LOWER, UPPER, BOTH}
 
-    private LNGVector<Variable> cardinalityInvars;
-    private EncodingResult result;
-    private CCIncrementalData incData;
-
-    /**
-     * Constructs a new totalizer.
-     */
-    CCTotalizer() {
-        // intentionally left empty
+    private CCTotalizer() {
+        // Only static methods
     }
 
     /**
@@ -78,16 +48,17 @@ public final class CCTotalizer {
      * @param result the result
      * @param vars   the variables
      * @param rhs    the right-hand side
+     * @return the incremental data for the encoded constraint
      * @throws IllegalArgumentException if the right-hand side of the constraint was negative
      */
-    void buildAMK(final EncodingResult result, final Variable[] vars, final int rhs) {
-        final LNGVector<Variable> cardinalityOutvars = this.initializeConstraint(result, vars);
-        this.incData = new CCIncrementalData(result, CCConfig.AMK_ENCODER.TOTALIZER, rhs, cardinalityOutvars);
-        this.toCNF(cardinalityOutvars, rhs, Bound.UPPER);
-        assert this.cardinalityInvars.size() == 0;
-        for (int i = rhs; i < cardinalityOutvars.size(); i++) {
-            this.result.addClause(cardinalityOutvars.get(i).negate());
+    static CCIncrementalData buildAMK(final EncodingResult result, final Variable[] vars, final int rhs) {
+        final TotalizerVars tv = initializeConstraint(result, vars);
+        toCNF(result, tv, rhs, Bound.UPPER);
+        assert tv.invars.size() == 0;
+        for (int i = rhs; i < tv.outvars.size(); i++) {
+            result.addClause(tv.outvars.get(i).negate(result.factory()));
         }
+        return new CCIncrementalData(result, CCConfig.AMK_ENCODER.TOTALIZER, rhs, tv.outvars);
     }
 
     /**
@@ -95,16 +66,17 @@ public final class CCTotalizer {
      * @param result the result
      * @param vars   the variables
      * @param rhs    the right-hand side
+     * @return the incremental data for the encoded constraint
      * @throws IllegalArgumentException if the right-hand side of the constraint was negative
      */
-    void buildALK(final EncodingResult result, final Variable[] vars, final int rhs) {
-        final LNGVector<Variable> cardinalityOutvars = this.initializeConstraint(result, vars);
-        this.incData = new CCIncrementalData(result, CCConfig.ALK_ENCODER.TOTALIZER, rhs, vars.length, cardinalityOutvars);
-        this.toCNF(cardinalityOutvars, rhs, Bound.LOWER);
-        assert this.cardinalityInvars.size() == 0;
+    static CCIncrementalData buildALK(final EncodingResult result, final Variable[] vars, final int rhs) {
+        final TotalizerVars tv = initializeConstraint(result, vars);
+        toCNF(result, tv, rhs, Bound.LOWER);
+        assert tv.invars.size() == 0;
         for (int i = 0; i < rhs; i++) {
-            this.result.addClause(cardinalityOutvars.get(i));
+            result.addClause(tv.outvars.get(i));
         }
+        return new CCIncrementalData(result, CCConfig.ALK_ENCODER.TOTALIZER, rhs, vars.length, tv.outvars);
     }
 
     /**
@@ -113,84 +85,70 @@ public final class CCTotalizer {
      * @param rhs  the right-hand side
      * @throws IllegalArgumentException if the right-hand side of the constraint was negative
      */
-    void buildEXK(final EncodingResult result, final Variable[] vars, final int rhs) {
-        final LNGVector<Variable> cardinalityOutvars = this.initializeConstraint(result, vars);
-        this.toCNF(cardinalityOutvars, rhs, Bound.BOTH);
-        assert this.cardinalityInvars.size() == 0;
+    static void buildEXK(final EncodingResult result, final Variable[] vars, final int rhs) {
+        final TotalizerVars tv = initializeConstraint(result, vars);
+        toCNF(result, tv, rhs, Bound.BOTH);
+        assert tv.invars.size() == 0;
         for (int i = 0; i < rhs; i++) {
-            this.result.addClause(cardinalityOutvars.get(i));
+            result.addClause(tv.outvars.get(i));
         }
-        for (int i = rhs; i < cardinalityOutvars.size(); i++) {
-            this.result.addClause(cardinalityOutvars.get(i).negate());
+        for (int i = rhs; i < tv.outvars.size(); i++) {
+            result.addClause(tv.outvars.get(i).negate(result.factory()));
         }
     }
 
-    /**
-     * Initializes the constraint.
-     * @param vars the variables
-     * @return the auxiliary variables
-     */
-    private LNGVector<Variable> initializeConstraint(final EncodingResult result, final Variable[] vars) {
+    private static TotalizerVars initializeConstraint(final EncodingResult result, final Variable[] vars) {
         result.reset();
-        this.result = result;
-        this.cardinalityInvars = new LNGVector<>(vars.length);
-        final LNGVector<Variable> cardinalityOutvars = new LNGVector<>(vars.length);
+        final var tv = new TotalizerVars(vars.length);
         for (final Variable var : vars) {
-            this.cardinalityInvars.push(var);
-            cardinalityOutvars.push(this.result.newVariable());
+            tv.invars.push(var);
+            tv.outvars.push(result.newVariable());
         }
-        return cardinalityOutvars;
+        return tv;
     }
 
-    /**
-     * Returns the incremental data for the current encoded constraint.
-     * @return the incremental data for the current encoded constraint
-     */
-    CCIncrementalData incrementalData() {
-        return this.incData;
-    }
-
-    private void toCNF(final LNGVector<Variable> vars, final int rhs, final Bound bound) {
+    private static void toCNF(final EncodingResult result, final TotalizerVars tv, final int rhs, final Bound bound) {
         final LNGVector<Variable> left = new LNGVector<>();
         final LNGVector<Variable> right = new LNGVector<>();
-        assert vars.size() > 1;
-        final int split = vars.size() / 2;
-        for (int i = 0; i < vars.size(); i++) {
+        assert tv.outvars.size() > 1;
+        final int split = tv.outvars.size() / 2;
+        for (int i = 0; i < tv.outvars.size(); i++) {
             if (i < split) {
                 if (split == 1) {
-                    assert this.cardinalityInvars.size() > 0;
-                    left.push(this.cardinalityInvars.back());
-                    this.cardinalityInvars.pop();
+                    assert tv.invars.size() > 0;
+                    left.push(tv.invars.back());
+                    tv.invars.pop();
                 } else {
-                    left.push(this.result.newVariable());
+                    left.push(result.newVariable());
                 }
             } else {
-                if (vars.size() - split == 1) {
-                    assert this.cardinalityInvars.size() > 0;
-                    right.push(this.cardinalityInvars.back());
-                    this.cardinalityInvars.pop();
+                if (tv.outvars.size() - split == 1) {
+                    assert tv.invars.size() > 0;
+                    right.push(tv.invars.back());
+                    tv.invars.pop();
                 } else {
-                    right.push(this.result.newVariable());
+                    right.push(result.newVariable());
                 }
             }
         }
         if (bound == Bound.UPPER || bound == Bound.BOTH) {
-            this.adderAMK(left, right, vars, rhs);
+            adderAMK(result, left, right, tv.outvars, rhs);
         }
         if (bound == Bound.LOWER || bound == Bound.BOTH) {
-            this.adderALK(left, right, vars);
+            adderALK(result, left, right, tv.outvars);
         }
         if (left.size() > 1) {
-            this.toCNF(left, rhs, bound);
+            toCNF(result, tv.withNewOutvars(left), rhs, bound);
         }
         if (right.size() > 1) {
-            this.toCNF(right, rhs, bound);
+            toCNF(result, tv.withNewOutvars(right), rhs, bound);
         }
     }
 
-    private void adderAMK(final LNGVector<Variable> left, final LNGVector<Variable> right,
-                          final LNGVector<Variable> output, final int rhs) {
+    private static void adderAMK(final EncodingResult result, final LNGVector<Variable> left, final LNGVector<Variable> right,
+                                 final LNGVector<Variable> output, final int rhs) {
         assert output.size() == left.size() + right.size();
+        final FormulaFactory f = result.factory();
         for (int i = 0; i <= left.size(); i++) {
             for (int j = 0; j <= right.size(); j++) {
                 if (i == 0 && j == 0) {
@@ -200,37 +158,52 @@ public final class CCTotalizer {
                     continue;
                 }
                 if (i == 0) {
-                    this.result.addClause(right.get(j - 1).negate(), output.get(j - 1));
+                    result.addClause(right.get(j - 1).negate(f), output.get(j - 1));
                 } else if (j == 0) {
-                    this.result.addClause(left.get(i - 1).negate(), output.get(i - 1));
+                    result.addClause(left.get(i - 1).negate(f), output.get(i - 1));
                 } else {
-                    this.result.addClause(left.get(i - 1).negate(), right.get(j - 1).negate(), output.get(i + j - 1));
+                    result.addClause(left.get(i - 1).negate(f), right.get(j - 1).negate(f), output.get(i + j - 1));
                 }
             }
         }
     }
 
-    private void adderALK(final LNGVector<Variable> left, final LNGVector<Variable> right,
-                          final LNGVector<Variable> output) {
+    private static void adderALK(final EncodingResult result, final LNGVector<Variable> left, final LNGVector<Variable> right,
+                                 final LNGVector<Variable> output) {
         assert output.size() == left.size() + right.size();
+        final FormulaFactory f = result.factory();
         for (int i = 0; i <= left.size(); i++) {
             for (int j = 0; j <= right.size(); j++) {
                 if (i == 0 && j == 0) {
                     continue;
                 }
                 if (i == 0) {
-                    this.result.addClause(right.get(j - 1), output.get(left.size() + j - 1).negate());
+                    result.addClause(right.get(j - 1), output.get(left.size() + j - 1).negate(f));
                 } else if (j == 0) {
-                    this.result.addClause(left.get(i - 1), output.get(right.size() + i - 1).negate());
+                    result.addClause(left.get(i - 1), output.get(right.size() + i - 1).negate(f));
                 } else {
-                    this.result.addClause(left.get(i - 1), right.get(j - 1), output.get(i + j - 2).negate());
+                    result.addClause(left.get(i - 1), right.get(j - 1), output.get(i + j - 2).negate(f));
                 }
             }
         }
     }
 
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
+    private static final class TotalizerVars {
+        private final LNGVector<Variable> invars;
+        private final LNGVector<Variable> outvars;
+
+        private TotalizerVars(final LNGVector<Variable> invars, final LNGVector<Variable> outvars) {
+            this.invars = invars;
+            this.outvars = outvars;
+        }
+
+        private TotalizerVars(final int length) {
+            invars = new LNGVector<>(length);
+            outvars = new LNGVector<>(length);
+        }
+
+        private TotalizerVars withNewOutvars(final LNGVector<Variable> newOutvars) {
+            return new TotalizerVars(invars, newOutvars);
+        }
     }
 }

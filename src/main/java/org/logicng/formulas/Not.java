@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
@@ -37,116 +13,77 @@ import java.util.stream.Stream;
 
 /**
  * Boolean negation.
- * @version 2.2.0
+ * @version 3.0.0
  * @since 1.0
  */
-public final class Not extends Formula {
-
-    private final Formula operand;
-    private volatile int hashCode;
-
-    /**
-     * Constructor.
-     * @param operand the operand of the negation
-     * @param f       the factory which created this instance
-     */
-    Not(final Formula operand, final FormulaFactory f) {
-        super(FType.NOT, f);
-        this.operand = operand;
-        this.hashCode = 0;
-    }
+public interface Not extends Formula {
 
     /**
      * Returns the operand of this negation.
      * @return the operand of this negation
      */
-    public Formula operand() {
-        return this.operand;
-    }
+    Formula operand();
 
     @Override
-    public int numberOfOperands() {
+    default int numberOfOperands() {
         return 1;
     }
 
     @Override
-    public boolean isConstantFormula() {
+    default boolean isConstantFormula() {
         return false;
     }
 
     @Override
-    public boolean isAtomicFormula() {
+    default boolean isAtomicFormula() {
         return false;
     }
 
     @Override
-    public boolean containsVariable(final Variable variable) {
-        return this.operand.containsVariable(variable);
+    default boolean containsVariable(final Variable variable) {
+        return operand().containsVariable(variable);
     }
 
     @Override
-    public boolean evaluate(final Assignment assignment) {
-        return !this.operand.evaluate(assignment);
+    default boolean evaluate(final Assignment assignment) {
+        return !operand().evaluate(assignment);
     }
 
     @Override
-    public Formula restrict(final Assignment assignment) {
-        return this.f.not(this.operand.restrict(assignment));
+    default Formula restrict(final Assignment assignment, final FormulaFactory f) {
+        return f.not(operand().restrict(assignment, f));
     }
 
     @Override
-    public boolean containsNode(final Formula formula) {
-        return this == formula || this.equals(formula) || this.operand.containsNode(formula);
+    default boolean containsNode(final Formula formula) {
+        return this == formula || equals(formula) || operand().containsNode(formula);
     }
 
     @Override
-    public Formula substitute(final Substitution substitution) {
-        return this.f.not(this.operand.substitute(substitution));
+    default Formula substitute(final Substitution substitution, final FormulaFactory f) {
+        return f.not(operand().substitute(substitution, f));
     }
 
     @Override
-    public Formula negate() {
-        return this.operand;
+    default Formula negate(final FormulaFactory f) {
+        return operand();
     }
 
     @Override
-    public int hashCode() {
-        if (this.hashCode == 0) {
-            this.hashCode = 29 * this.operand.hashCode();
-        }
-        return this.hashCode;
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        if (other == this) {
-            return true;
-        }
-        if (other instanceof Formula && this.f == ((Formula) other).f) {
-            return false; // the same formula factory would have produced a == object
-        }
-        if (other instanceof Not) {
-            final Not otherNot = (Not) other;
-            return this.operand.equals(otherNot.operand);
-        }
-        return false;
-    }
-
-    @Override
-    public Iterator<Formula> iterator() {
-        return new Iterator<Formula>() {
+    default Iterator<Formula> iterator() {
+        return new Iterator<>() {
             private boolean iterated;
 
             @Override
             public boolean hasNext() {
-                return !this.iterated;
+                return !iterated;
             }
 
             @Override
             public Formula next() {
-                if (!this.iterated) {
-                    this.iterated = true;
-                    return Not.this.operand;
+                if (!iterated) {
+                    iterated = true;
+                    return Not.this.operand();
                 }
                 throw new NoSuchElementException();
             }
@@ -159,7 +96,7 @@ public final class Not extends Formula {
     }
 
     @Override
-    public Stream<Formula> stream() {
-        return Stream.of(this.operand);
+    default Stream<Formula> stream() {
+        return Stream.of(operand());
     }
 }

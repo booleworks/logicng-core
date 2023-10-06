@@ -1,37 +1,15 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.functions;
 
 import static org.logicng.formulas.cache.FunctionCacheEntry.DEPTH;
 
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFunction;
+import org.logicng.formulas.FormulaFactory;
+
+import java.util.Map;
 
 /**
  * A function that computes the depth of a formula. The depth of an atomic formula
@@ -39,27 +17,32 @@ import org.logicng.formulas.FormulaFunction;
  * @version 3.0.0
  * @since 2.0
  */
-public final class FormulaDepthFunction implements FormulaFunction<Integer> {
+public final class FormulaDepthFunction extends CacheableFormulaFunction<Integer> {
 
-    private static final FormulaDepthFunction INSTANCE = new FormulaDepthFunction();
-
-    private FormulaDepthFunction() {
-        // Intentionally left empty
+    /**
+     * Constructs a new function.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
+    public FormulaDepthFunction(final FormulaFactory f) {
+        super(f, DEPTH);
     }
 
     /**
-     * Returns the singleton instance of this function.
-     * @return an instance of this function
+     * Constructs a new function.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
      */
-    public static FormulaDepthFunction get() {
-        return INSTANCE;
+    public FormulaDepthFunction(final FormulaFactory f, final Map<Formula, Integer> cache) {
+        super(f, cache);
     }
 
     @Override
-    public Integer apply(final Formula formula, final boolean cache) {
-        final Object cached = formula.functionCacheEntry(DEPTH);
+    public Integer apply(final Formula formula) {
+        final Integer cached = lookupCache(formula);
         if (cached != null) {
-            return (Integer) cached;
+            return cached;
         }
         final int result;
         if (formula.isAtomicFormula()) {
@@ -67,13 +50,11 @@ public final class FormulaDepthFunction implements FormulaFunction<Integer> {
         } else {
             int maxDepth = 0;
             for (final Formula op : formula) {
-                maxDepth = Math.max(maxDepth, apply(op, cache));
+                maxDepth = Math.max(maxDepth, apply(op));
             }
             result = maxDepth + 1;
         }
-        if (cache) {
-            formula.setFunctionCacheEntry(DEPTH, result);
-        }
+        setCache(formula, result);
         return result;
     }
 }

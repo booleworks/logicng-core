@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.graphs.datastructures;
 
@@ -43,11 +19,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Unit tests for {@link HypergraphEdge}.
- * @version 2.0.0
- * @since 1.4.0
- */
 public class HypergraphEdgeTest {
 
     private final Offset<Double> offset = Offset.offset(0.000001);
@@ -63,28 +34,28 @@ public class HypergraphEdgeTest {
 
     @Test
     public void testCenterOfGravity() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        final Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(Collections.singletonList(p.parse("A | B | ~C | D")));
+        final Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("A | B | ~C | D")));
         final HypergraphEdge<Variable> edge = hypergraph.edges().iterator().next();
         final Map<HypergraphNode<Variable>, Integer> ordering = new HashMap<>();
         ordering.put(new HypergraphNode<>(hypergraph, f.variable("A")), 1);
         ordering.put(new HypergraphNode<>(hypergraph, f.variable("B")), 2);
         ordering.put(new HypergraphNode<>(hypergraph, f.variable("C")), 3);
         ordering.put(new HypergraphNode<>(hypergraph, f.variable("D")), 4);
-        assertThat(edge.centerOfGravity(ordering)).isCloseTo(2.5, this.offset);
+        assertThat(edge.centerOfGravity(ordering)).isCloseTo(2.5, offset);
         ordering.put(new HypergraphNode<>(hypergraph, f.variable("A")), 2);
         ordering.put(new HypergraphNode<>(hypergraph, f.variable("B")), 4);
         ordering.put(new HypergraphNode<>(hypergraph, f.variable("C")), 6);
         ordering.put(new HypergraphNode<>(hypergraph, f.variable("D")), 8);
-        assertThat(edge.centerOfGravity(ordering)).isCloseTo(5, this.offset);
+        assertThat(edge.centerOfGravity(ordering)).isCloseTo(5, offset);
     }
 
     @Test
     public void testIllegalCenterOfGravity() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.nonCaching();
         final PropositionalParser p = new PropositionalParser(f);
-        final Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(Collections.singletonList(p.parse("A | B | ~C | D")));
+        final Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("A | B | ~C | D")));
         final HypergraphEdge<Variable> edge = hypergraph.edges().iterator().next();
         assertThatThrownBy(() -> edge.centerOfGravity(new HashMap<>())).isInstanceOf(IllegalStateException.class);
     }

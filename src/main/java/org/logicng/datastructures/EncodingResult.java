@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.datastructures;
 
@@ -67,7 +43,7 @@ public final class EncodingResult {
         this.f = f;
         this.proposition = proposition;
         this.miniSat = miniSat;
-        this.reset();
+        reset();
     }
 
     /**
@@ -95,15 +71,15 @@ public final class EncodingResult {
      * @param literals the literals of the clause
      */
     public void addClause(final Literal... literals) {
-        if (this.miniSat == null) {
-            this.result.add(this.f.clause(literals));
+        if (miniSat == null) {
+            result.add(f.clause(literals));
         } else {
             final LNGIntVector clauseVec = new LNGIntVector(literals.length);
             for (final Literal literal : literals) {
                 addLiteral(clauseVec, literal);
             }
-            this.miniSat.underlyingSolver().addClause(clauseVec, this.proposition);
-            this.miniSat.setSolverToUndef();
+            miniSat.underlyingSolver().addClause(clauseVec, proposition);
+            miniSat.setSolverToUndef();
         }
     }
 
@@ -112,23 +88,23 @@ public final class EncodingResult {
      * @param literals the literals of the clause
      */
     public void addClause(final LNGVector<Literal> literals) {
-        if (this.miniSat == null) {
-            this.result.add(this.vec2clause(literals));
+        if (miniSat == null) {
+            result.add(vec2clause(literals));
         } else {
             final LNGIntVector clauseVec = new LNGIntVector(literals.size());
             for (final Literal l : literals) {
                 addLiteral(clauseVec, l);
             }
-            this.miniSat.underlyingSolver().addClause(clauseVec, this.proposition);
-            this.miniSat.setSolverToUndef();
+            miniSat.underlyingSolver().addClause(clauseVec, proposition);
+            miniSat.setSolverToUndef();
         }
     }
 
     private void addLiteral(final LNGIntVector clauseVec, final Literal lit) {
-        int index = this.miniSat.underlyingSolver().idxForName(lit.name());
+        int index = miniSat.underlyingSolver().idxForName(lit.name());
         if (index == -1) {
-            index = this.miniSat.underlyingSolver().newVar(!this.miniSat.initialPhase(), true);
-            this.miniSat.underlyingSolver().addName(lit.name(), index);
+            index = miniSat.underlyingSolver().newVar(!miniSat.initialPhase(), true);
+            miniSat.underlyingSolver().addName(lit.name(), index);
         }
         final int litNum;
         if (lit instanceof EncodingAuxiliaryVariable) {
@@ -149,7 +125,7 @@ public final class EncodingResult {
         for (final Literal l : literals) {
             lits.add(l);
         }
-        return this.f.clause(lits);
+        return f.clause(lits);
     }
 
     /**
@@ -157,12 +133,12 @@ public final class EncodingResult {
      * @return a new auxiliary variable
      */
     public Variable newVariable() {
-        if (this.miniSat == null) {
-            return this.f.newCCVariable();
+        if (miniSat == null) {
+            return f.newCCVariable();
         } else {
-            final int index = this.miniSat.underlyingSolver().newVar(!this.miniSat.initialPhase(), true);
+            final int index = miniSat.underlyingSolver().newVar(!miniSat.initialPhase(), true);
             final String name = FormulaFactory.CC_PREFIX + "MINISAT_" + index;
-            this.miniSat.underlyingSolver().addName(name, index);
+            miniSat.underlyingSolver().addName(name, index);
             return new EncodingAuxiliaryVariable(name, false);
         }
     }
@@ -171,7 +147,7 @@ public final class EncodingResult {
      * Resets the result.
      */
     public void reset() {
-        this.result = new ArrayList<>();
+        result = new ArrayList<>();
     }
 
     /**
@@ -179,6 +155,10 @@ public final class EncodingResult {
      * @return the result of this algorithm
      */
     public List<Formula> result() {
-        return this.result;
+        return result;
+    }
+
+    public FormulaFactory factory() {
+        return f;
     }
 }

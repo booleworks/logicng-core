@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.io.graphical.generators;
 
@@ -66,7 +42,7 @@ public class GraphicalGeneratorBuilder<T extends GraphicalGenerator<C>, C> {
      * @return the current builder
      */
     public GraphicalGeneratorBuilder<T, C> backgroundColor(final GraphicalColor color) {
-        this.backgroundColor = color;
+        backgroundColor = color;
         return this;
     }
 
@@ -76,7 +52,7 @@ public class GraphicalGeneratorBuilder<T extends GraphicalGenerator<C>, C> {
      * @return the current builder
      */
     public GraphicalGeneratorBuilder<T, C> backgroundColor(final String hexColor) {
-        this.backgroundColor = GraphicalColor.hex(hexColor);
+        backgroundColor = GraphicalColor.hex(hexColor);
         return this;
     }
 
@@ -88,7 +64,7 @@ public class GraphicalGeneratorBuilder<T extends GraphicalGenerator<C>, C> {
      * @return the current builder
      */
     public GraphicalGeneratorBuilder<T, C> backgroundColor(final int red, final int green, final int blue) {
-        this.backgroundColor = GraphicalColor.rgb(red, green, blue);
+        backgroundColor = GraphicalColor.rgb(red, green, blue);
         return this;
     }
 
@@ -113,7 +89,7 @@ public class GraphicalGeneratorBuilder<T extends GraphicalGenerator<C>, C> {
      * @return the current builder
      */
     public GraphicalGeneratorBuilder<T, C> defaultEdgeStyle(final GraphicalEdgeStyle edgeStyle) {
-        this.defaultEdgeStyle = edgeStyle;
+        defaultEdgeStyle = edgeStyle;
         return this;
     }
 
@@ -124,7 +100,7 @@ public class GraphicalGeneratorBuilder<T extends GraphicalGenerator<C>, C> {
      * @return the current builder
      */
     public GraphicalGeneratorBuilder<T, C> defaultNodeStyle(final GraphicalNodeStyle nodeStyle) {
-        this.defaultNodeStyle = nodeStyle;
+        defaultNodeStyle = nodeStyle;
         return this;
     }
 
@@ -166,6 +142,6 @@ public class GraphicalGeneratorBuilder<T extends GraphicalGenerator<C>, C> {
      * @return the graphical generator
      */
     public T build() {
-        return this.constructor.apply(this);
+        return constructor.apply(this);
     }
 }

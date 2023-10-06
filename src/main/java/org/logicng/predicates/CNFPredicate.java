@@ -1,68 +1,49 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.predicates;
 
 import static org.logicng.formulas.cache.PredicateCacheEntry.IS_CNF;
 
-import org.logicng.datastructures.Tristate;
+import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaPredicate;
+import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.Or;
+
+import java.util.Map;
 
 /**
  * CNF predicate.  Indicates whether a formula is in CNF or not.
- * @version 1.0
+ * @version 3.0.0
  * @since 1.0
  */
-public final class CNFPredicate implements FormulaPredicate {
-
-    private final static CNFPredicate INSTANCE = new CNFPredicate();
+public final class CNFPredicate extends CacheableFormulaPredicate {
 
     /**
-     * Private empty constructor.  Singleton class.
+     * Constructs a new predicate.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
      */
-    private CNFPredicate() {
-        // Intentionally left empty
+    public CNFPredicate(final FormulaFactory f) {
+        super(f, IS_CNF);
     }
 
     /**
-     * Returns the singleton of the predicate.
-     * @return the predicate instance
+     * Constructs a new predicate.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
      */
-    public static CNFPredicate get() {
-        return INSTANCE;
+    public CNFPredicate(final FormulaFactory f, final Map<Formula, Boolean> cache) {
+        super(f, cache);
     }
 
     @Override
-    public boolean test(final Formula formula, final boolean cache) {
-        final Tristate cached = formula.predicateCacheEntry(IS_CNF);
-        if (cached != Tristate.UNDEF) {
-            return cached == Tristate.TRUE;
+    public boolean test(final Formula formula) {
+        final Boolean cached = lookupCache(formula);
+        if (cached != null) {
+            return cached;
         }
         switch (formula.type()) {
             case FALSE:
@@ -76,15 +57,20 @@ public final class CNFPredicate implements FormulaPredicate {
             case PBC:
                 return false;
             case OR:
+                final boolean orIsCnf = ((Or) formula).isCNFClause();
+                setCache(formula, orIsCnf);
+                return orIsCnf;
             case AND:
-                throw new IllegalStateException("Formula of type AND/OR has no cached CNF predicate, but should have.");
+                final boolean andIsCnf = formula.stream().allMatch(this::isClause);
+                setCache(formula, andIsCnf);
+                return andIsCnf;
             default:
                 throw new IllegalArgumentException("Cannot compute CNF predicate on " + formula.type());
         }
     }
 
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
+    private boolean isClause(final Formula formula) {
+        return formula.type() == FType.LITERAL ||
+                formula.type() == FType.OR && ((Or) formula).isCNFClause();
     }
 }

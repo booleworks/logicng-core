@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.cardinalityconstraints;
 
@@ -53,59 +29,35 @@ import java.util.List;
  * has no associated cardinality constraint encoder configuration.  If you change the configuration in the factory,
  * all encoders constructed for this factory will be affected.</li>
  * </ol>
- * @version 2.3.0
+ * @version 3.0.0
  * @since 1.1
  */
 public class CCEncoder {
 
-    protected final FormulaFactory f;
-    protected final CCConfig config;
-
-    protected CCAMOPure amoPure;
-    protected CCAMOLadder amoLadder;
-    protected CCAMOProduct amoProduct;
-    protected CCAMONested amoNested;
-    protected CCAMOCommander amoCommander;
-    protected CCAMOBinary amoBinary;
-    protected CCAMOBimander amoBimander;
-
-    protected CCAMKCardinalityNetwork amkCardinalityNetwork;
-    protected CCAMKModularTotalizer amkModularTotalizer;
-    protected CCAMKTotalizer amkTotalizer;
-
-    protected CCALKTotalizer alkTotalizer;
-    protected CCALKModularTotalizer alkModularTotalizer;
-    protected CCALKCardinalityNetwork alkCardinalityNetwork;
-
-    protected CCEXKTotalizer exkTotalizer;
-    protected CCEXKCardinalityNetwork exkCardinalityNetwork;
-
-    /**
-     * Constructs a new cardinality constraint encoder with a given configuration.
-     * @param f      the formula factory
-     * @param config the configuration
-     */
-    public CCEncoder(final FormulaFactory f, final CCConfig config) {
-        this.f = f;
-        this.config = config;
-    }
-
-    /**
-     * Constructs a new cardinality constraint encoder which uses the configuration of the formula factory.
-     * @param f the formula factory
-     */
-    public CCEncoder(final FormulaFactory f) {
-        this(f, null);
+    private CCEncoder() {
+        // only static methods
     }
 
     /**
      * Encodes a cardinality constraint and returns its CNF encoding.
      * @param cc the cardinality constraint
+     * @param f  the formula factory to generate new formulas
      * @return the CNF encoding of the cardinality constraint
      */
-    public List<Formula> encode(final CardinalityConstraint cc) {
-        final EncodingResult result = EncodingResult.resultForFormula(this.f);
-        this.encodeConstraint(cc, result);
+    public static List<Formula> encode(final CardinalityConstraint cc, final FormulaFactory f) {
+        return encode(cc, f, null);
+    }
+
+    /**
+     * Encodes a cardinality constraint and returns its CNF encoding.
+     * @param cc     the cardinality constraint
+     * @param f      the formula factory to generate new formulas
+     * @param config the configuration for the encoder
+     * @return the CNF encoding of the cardinality constraint
+     */
+    public static List<Formula> encode(final CardinalityConstraint cc, final FormulaFactory f, final CCConfig config) {
+        final EncodingResult result = EncodingResult.resultForFormula(f);
+        encodeConstraint(cc, result, config);
         return Collections.unmodifiableList(result.result());
     }
 
@@ -114,18 +66,42 @@ public class CCEncoder {
      * @param cc     the cardinality constraint
      * @param result the result of the encoding
      */
-    public void encode(final CardinalityConstraint cc, final EncodingResult result) {
-        this.encodeConstraint(cc, result);
+    public static void encode(final CardinalityConstraint cc, final EncodingResult result) {
+        encodeConstraint(cc, result, null);
+    }
+
+    /**
+     * Encodes a cardinality constraint in a given result.
+     * @param cc     the cardinality constraint
+     * @param result the result of the encoding
+     * @param config the configuration for the encoder
+     */
+    public static void encode(final CardinalityConstraint cc, final EncodingResult result, final CCConfig config) {
+        encodeConstraint(cc, result, config);
     }
 
     /**
      * Encodes an incremental cardinality constraint and returns its encoding.
      * @param cc the cardinality constraint
+     * @param f  the formula factory to generate new formulas
      * @return the encoding of the constraint and the incremental data
      */
-    public Pair<List<Formula>, CCIncrementalData> encodeIncremental(final CardinalityConstraint cc) {
-        final EncodingResult result = EncodingResult.resultForFormula(this.f);
-        final CCIncrementalData incData = this.encodeIncremental(cc, result);
+    public static Pair<List<Formula>, CCIncrementalData> encodeIncremental(final CardinalityConstraint cc, final FormulaFactory f) {
+        final EncodingResult result = EncodingResult.resultForFormula(f);
+        final CCIncrementalData incData = encodeIncremental(cc, result);
+        return new Pair<>(Collections.unmodifiableList(result.result()), incData);
+    }
+
+    /**
+     * Encodes an incremental cardinality constraint and returns its encoding.
+     * @param cc     the cardinality constraint
+     * @param f      the formula factory to generate new formulas
+     * @param config the configuration for the encoder
+     * @return the encoding of the constraint and the incremental data
+     */
+    public static Pair<List<Formula>, CCIncrementalData> encodeIncremental(final CardinalityConstraint cc, final FormulaFactory f, final CCConfig config) {
+        final EncodingResult result = EncodingResult.resultForFormula(f);
+        final CCIncrementalData incData = encodeIncremental(cc, result, config);
         return new Pair<>(Collections.unmodifiableList(result.result()), incData);
     }
 
@@ -135,71 +111,70 @@ public class CCEncoder {
      * @param result the result of the encoding
      * @return the incremental data
      */
-    public CCIncrementalData encodeIncremental(final CardinalityConstraint cc, final EncodingResult result) {
-        return this.encodeIncrementalConstraint(cc, result);
+    public static CCIncrementalData encodeIncremental(final CardinalityConstraint cc, final EncodingResult result) {
+        return encodeIncrementalConstraint(cc, result, null);
     }
 
-    protected CCIncrementalData encodeIncrementalConstraint(final CardinalityConstraint cc, final EncodingResult result) {
+    /**
+     * Encodes an incremental cardinality constraint on a given solver.
+     * @param cc     the cardinality constraint
+     * @param result the result of the encoding
+     * @param config the configuration for the encoder
+     * @return the incremental data
+     */
+    public static CCIncrementalData encodeIncremental(final CardinalityConstraint cc, final EncodingResult result, final CCConfig config) {
+        return encodeIncrementalConstraint(cc, result, config);
+    }
+
+    protected static CCIncrementalData encodeIncrementalConstraint(final CardinalityConstraint cc, final EncodingResult result, final CCConfig initConfig) {
+        final var config = initConfig != null ? initConfig : (CCConfig) result.factory().configurationFor(ConfigurationType.CC_ENCODER);
         final Variable[] ops = literalsAsVariables(cc.operands());
         if (cc.isAmo()) {
             throw new IllegalArgumentException("Incremental encodings are not supported for at-most-one constraints");
         }
         switch (cc.comparator()) {
             case LE:
-                return this.amkIncremental(result, ops, cc.rhs());
+                return amkIncremental(result, config, ops, cc.rhs());
             case LT:
-                return this.amkIncremental(result, ops, cc.rhs() - 1);
+                return amkIncremental(result, config, ops, cc.rhs() - 1);
             case GE:
-                return this.alkIncremental(result, ops, cc.rhs());
+                return alkIncremental(result, config, ops, cc.rhs());
             case GT:
-                return this.alkIncremental(result, ops, cc.rhs() + 1);
+                return alkIncremental(result, config, ops, cc.rhs() + 1);
             default:
                 throw new IllegalArgumentException("Incremental encodings are only supported for at-most-k and at-least k constraints.");
         }
     }
 
-    /**
-     * Returns the current configuration of this encoder.  If the encoder was constructed with a given configuration, this
-     * configuration will always be used.  Otherwise, the current configuration from the formula factory is used.
-     * @return the current configuration of
-     */
-    public CCConfig config() {
-        return this.config != null ? this.config : (CCConfig) this.f.configurationFor(ConfigurationType.CC_ENCODER);
-    }
-
-    /**
-     * Encodes the constraint in the given result.
-     * @param cc     the constraint
-     * @param result the result
-     */
-    protected void encodeConstraint(final CardinalityConstraint cc, final EncodingResult result) {
+    protected static void encodeConstraint(final CardinalityConstraint cc, final EncodingResult result, final CCConfig initConfig) {
+        final var config = initConfig != null ? initConfig : (CCConfig) result.factory().configurationFor(ConfigurationType.CC_ENCODER);
         final Variable[] ops = literalsAsVariables(cc.operands());
         switch (cc.comparator()) {
             case LE:
                 if (cc.rhs() == 1) {
-                    this.amo(result, ops);
+                    amo(result, config, ops);
                 } else {
-                    this.amk(result, ops, cc.rhs());
+                    amk(result, config, ops, cc.rhs());
                 }
                 break;
             case LT:
                 if (cc.rhs() == 2) {
-                    this.amo(result, ops);
+                    amo(result, config, ops);
                 } else {
-                    this.amk(result, ops, cc.rhs() - 1);
+                    amk(result, config, ops, cc.rhs() - 1);
                 }
                 break;
             case GE:
-                this.alk(result, ops, cc.rhs());
+                alk(result, config, ops, cc.rhs());
                 break;
             case GT:
-                this.alk(result, ops, cc.rhs() + 1);
+                alk(result, config, ops, cc.rhs() + 1);
                 break;
             case EQ:
                 if (cc.rhs() == 1) {
-                    this.exo(result, ops);
+                    exo(result, config, ops);
                 } else {
-                    this.exk(result, ops, cc.rhs());
+                    exk(result, config, ops, cc.rhs());
                 }
                 break;
             default:
@@ -207,86 +182,41 @@ public class CCEncoder {
         }
     }
 
-    /**
-     * Encodes an at-most-one constraint.
-     * @param result the result
-     * @param vars   the variables of the constraint
-     */
-    protected void amo(final EncodingResult result, final Variable... vars) {
+    private static void amo(final EncodingResult result, final CCConfig config, final Variable... vars) {
         if (vars.length <= 1) {
             return;
         }
-        switch (this.config().amoEncoder) {
+        switch (config.amoEncoder) {
             case PURE:
-                if (this.amoPure == null) {
-                    this.amoPure = new CCAMOPure();
-                }
-                this.amoPure.build(result, vars);
+                CCAMOPure.get().build(result, config, vars);
                 break;
             case LADDER:
-                if (this.amoLadder == null) {
-                    this.amoLadder = new CCAMOLadder();
-                }
-                this.amoLadder.build(result, vars);
+                CCAMOLadder.get().build(result, config, vars);
                 break;
             case PRODUCT:
-                if (this.amoProduct == null) {
-                    this.amoProduct = new CCAMOProduct(this.config().productRecursiveBound);
-                }
-                this.amoProduct.build(result, vars);
+                CCAMOProduct.get().build(result, config, vars);
                 break;
             case NESTED:
-                if (this.amoNested == null) {
-                    this.amoNested = new CCAMONested(this.config().nestingGroupSize);
-                }
-                this.amoNested.build(result, vars);
+                CCAMONested.get().build(result, config, vars);
                 break;
             case COMMANDER:
-                if (this.amoCommander == null) {
-                    this.amoCommander = new CCAMOCommander(this.config().commanderGroupSize);
-                }
-                this.amoCommander.build(result, vars);
+                CCAMOCommander.get().build(result, config, vars);
                 break;
             case BINARY:
-                if (this.amoBinary == null) {
-                    this.amoBinary = new CCAMOBinary();
-                }
-                this.amoBinary.build(result, vars);
+                CCAMOBinary.get().build(result, config, vars);
                 break;
             case BIMANDER:
-                if (this.config().bimanderGroupSize != CCConfig.BIMANDER_GROUP_SIZE.FIXED || this.amoBimander == null) {
-                    final int groupSize;
-                    switch (this.config().bimanderGroupSize) {
-                        case FIXED:
-                            groupSize = this.config().bimanderFixedGroupSize;
-                            break;
-                        case HALF:
-                            groupSize = vars.length / 2;
-                            break;
-                        case SQRT:
-                            groupSize = (int) Math.sqrt(vars.length);
-                            break;
-                        default:
-                            throw new IllegalStateException("Unknown bimander group size: " + this.config().bimanderGroupSize);
-                    }
-                    this.amoBimander = new CCAMOBimander(groupSize);
-                }
-                this.amoBimander.build(result, vars);
+                CCAMOBimander.get().build(result, config, vars);
                 break;
             case BEST:
-                this.bestAMO(vars.length).build(result, vars);
+                bestAMO(vars.length).build(result, vars);
                 break;
             default:
-                throw new IllegalStateException("Unknown at-most-one encoder: " + this.config().amoEncoder);
+                throw new IllegalStateException("Unknown at-most-one encoder: " + config.amoEncoder);
         }
     }
 
-    /**
-     * Encodes an at-most-one constraint.
-     * @param result the result
-     * @param vars   the variables of the constraint
-     */
-    protected void exo(final EncodingResult result, final Variable... vars) {
+    protected static void exo(final EncodingResult result, final CCConfig config, final Variable... vars) {
         if (vars.length == 0) {
             result.addClause();
             return;
@@ -295,112 +225,69 @@ public class CCEncoder {
             result.addClause(vars[0]);
             return;
         }
-        this.amo(result, vars);
+        amo(result, config, vars);
         result.addClause(vars);
     }
 
-    /**
-     * Encodes an at-most-k constraint.
-     * @param result the result
-     * @param vars   the variables of the constraint
-     * @param rhs    the right-hand side of the constraint
-     */
-    protected void amk(final EncodingResult result, final Variable[] vars, final int rhs) {
+    protected static void amk(final EncodingResult result, final CCConfig config, final Variable[] vars, final int rhs) {
         if (rhs < 0) {
             throw new IllegalArgumentException("Invalid right hand side of cardinality constraint: " + rhs);
         }
-        if (rhs >= vars.length) // there is no constraint
-        {
+        if (rhs >= vars.length) { // there is no constraint
             return;
         }
         if (rhs == 0) { // no variable can be true
             for (final Variable var : vars) {
-                result.addClause(var.negate());
+                result.addClause(var.negate(result.factory()));
             }
             return;
         }
-        switch (this.config().amkEncoder) {
+        switch (config.amkEncoder) {
             case TOTALIZER:
-                if (this.amkTotalizer == null) {
-                    this.amkTotalizer = new CCAMKTotalizer();
-                }
-                this.amkTotalizer.build(result, vars, rhs);
+                CCAMKTotalizer.get().build(result, vars, rhs);
                 break;
             case MODULAR_TOTALIZER:
-                if (this.amkModularTotalizer == null) {
-                    this.amkModularTotalizer = new CCAMKModularTotalizer(this.f);
-                }
-                this.amkModularTotalizer.build(result, vars, rhs);
+                CCAMKModularTotalizer.get().build(result, vars, rhs);
                 break;
             case CARDINALITY_NETWORK:
-                if (this.amkCardinalityNetwork == null) {
-                    this.amkCardinalityNetwork = new CCAMKCardinalityNetwork();
-                }
-                this.amkCardinalityNetwork.build(result, vars, rhs);
+                CCAMKCardinalityNetwork.get().build(result, vars, rhs);
                 break;
             case BEST:
-                this.bestAMK(vars.length).build(result, vars, rhs);
+                bestAMK(vars.length).build(result, vars, rhs);
                 break;
             default:
-                throw new IllegalStateException("Unknown at-most-k encoder: " + this.config().amkEncoder);
+                throw new IllegalStateException("Unknown at-most-k encoder: " + config.amkEncoder);
         }
     }
 
-    /**
-     * Encodes an at-most-k constraint for incremental usage.
-     * @param result the result
-     * @param vars   the variables of the constraint
-     * @param rhs    the right-hand side of the constraint
-     * @return the incremental data
-     */
-    protected CCIncrementalData amkIncremental(final EncodingResult result, final Variable[] vars, final int rhs) {
+    protected static CCIncrementalData amkIncremental(final EncodingResult result, final CCConfig config, final Variable[] vars, final int rhs) {
         if (rhs < 0) {
             throw new IllegalArgumentException("Invalid right hand side of cardinality constraint: " + rhs);
         }
-        if (rhs >= vars.length) // there is no constraint
-        {
+        if (rhs >= vars.length) { // there is no constraint
             return null;
         }
         if (rhs == 0) { // no variable can be true
             for (final Variable var : vars) {
-                result.addClause(var.negate());
+                result.addClause(var.negate(result.factory()));
             }
             return null;
         }
-        switch (this.config().amkEncoder) {
+        switch (config.amkEncoder) {
             case TOTALIZER:
-                if (this.amkTotalizer == null) {
-                    this.amkTotalizer = new CCAMKTotalizer();
-                }
-                this.amkTotalizer.build(result, vars, rhs);
-                return this.amkTotalizer.incrementalData();
+                return CCAMKTotalizer.get().build(result, vars, rhs);
             case MODULAR_TOTALIZER:
-                if (this.amkModularTotalizer == null) {
-                    this.amkModularTotalizer = new CCAMKModularTotalizer(this.f);
-                }
-                this.amkModularTotalizer.build(result, vars, rhs);
-                return this.amkModularTotalizer.incrementalData();
+                return CCAMKModularTotalizer.get().build(result, vars, rhs);
             case CARDINALITY_NETWORK:
-                if (this.amkCardinalityNetwork == null) {
-                    this.amkCardinalityNetwork = new CCAMKCardinalityNetwork();
-                }
-                this.amkCardinalityNetwork.buildForIncremental(result, vars, rhs);
-                return this.amkCardinalityNetwork.incrementalData();
+                return CCAMKCardinalityNetwork.get().buildForIncremental(result, vars, rhs);
             case BEST:
-                this.bestAMK(vars.length).build(result, vars, rhs);
-                return this.bestAMK(vars.length).incrementalData();
+                return bestAMK(vars.length).build(result, vars, rhs);
             default:
-                throw new IllegalStateException("Unknown at-most-k encoder: " + this.config().amkEncoder);
+                throw new IllegalStateException("Unknown at-most-k encoder: " + config.amkEncoder);
         }
     }
 
-    /**
-     * Encodes an at-lest-k constraint.
-     * @param result the result
-     * @param vars   the variables of the constraint
-     * @param rhs    the right-hand side of the constraint
-     */
-    protected void alk(final EncodingResult result, final Variable[] vars, final int rhs) {
+    protected static void alk(final EncodingResult result, final CCConfig config, final Variable[] vars, final int rhs) {
         if (rhs < 0) {
             throw new IllegalArgumentException("Invalid right hand side of cardinality constraint: " + rhs);
         }
@@ -421,41 +308,25 @@ public class CCEncoder {
             }
             return;
         }
-        switch (this.config().alkEncoder) {
+        switch (config.alkEncoder) {
             case TOTALIZER:
-                if (this.alkTotalizer == null) {
-                    this.alkTotalizer = new CCALKTotalizer();
-                }
-                this.alkTotalizer.build(result, vars, rhs);
+                CCALKTotalizer.get().build(result, vars, rhs);
                 break;
             case MODULAR_TOTALIZER:
-                if (this.alkModularTotalizer == null) {
-                    this.alkModularTotalizer = new CCALKModularTotalizer(this.f);
-                }
-                this.alkModularTotalizer.build(result, vars, rhs);
+                CCALKModularTotalizer.get().build(result, vars, rhs);
                 break;
             case CARDINALITY_NETWORK:
-                if (this.alkCardinalityNetwork == null) {
-                    this.alkCardinalityNetwork = new CCALKCardinalityNetwork();
-                }
-                this.alkCardinalityNetwork.build(result, vars, rhs);
+                CCALKCardinalityNetwork.get().build(result, vars, rhs);
                 break;
             case BEST:
-                this.bestALK(vars.length).build(result, vars, rhs);
+                bestALK(vars.length).build(result, vars, rhs);
                 break;
             default:
-                throw new IllegalStateException("Unknown at-least-k encoder: " + this.config().alkEncoder);
+                throw new IllegalStateException("Unknown at-least-k encoder: " + config.alkEncoder);
         }
     }
 
-    /**
-     * Encodes an at-lest-k constraint for incremental usage.
-     * @param result the result
-     * @param vars   the variables of the constraint
-     * @param rhs    the right-hand side of the constraint
-     * @return the incremental data
-     */
-    protected CCIncrementalData alkIncremental(final EncodingResult result, final Variable[] vars, final int rhs) {
+    protected static CCIncrementalData alkIncremental(final EncodingResult result, final CCConfig config, final Variable[] vars, final int rhs) {
         if (rhs < 0) {
             throw new IllegalArgumentException("Invalid right hand side of cardinality constraint: " + rhs);
         }
@@ -476,40 +347,21 @@ public class CCEncoder {
             }
             return null;
         }
-        switch (this.config().alkEncoder) {
+        switch (config.alkEncoder) {
             case TOTALIZER:
-                if (this.alkTotalizer == null) {
-                    this.alkTotalizer = new CCALKTotalizer();
-                }
-                this.alkTotalizer.build(result, vars, rhs);
-                return this.alkTotalizer.incrementalData();
+                return CCALKTotalizer.get().build(result, vars, rhs);
             case MODULAR_TOTALIZER:
-                if (this.alkModularTotalizer == null) {
-                    this.alkModularTotalizer = new CCALKModularTotalizer(this.f);
-                }
-                this.alkModularTotalizer.build(result, vars, rhs);
-                return this.alkModularTotalizer.incrementalData();
+                return CCALKModularTotalizer.get().build(result, vars, rhs);
             case CARDINALITY_NETWORK:
-                if (this.alkCardinalityNetwork == null) {
-                    this.alkCardinalityNetwork = new CCALKCardinalityNetwork();
-                }
-                this.alkCardinalityNetwork.buildForIncremental(result, vars, rhs);
-                return this.alkCardinalityNetwork.incrementalData();
+                return CCALKCardinalityNetwork.get().buildForIncremental(result, vars, rhs);
             case BEST:
-                this.bestALK(vars.length).build(result, vars, rhs);
-                return this.bestALK(vars.length).incrementalData();
+                return bestALK(vars.length).build(result, vars, rhs);
             default:
-                throw new IllegalStateException("Unknown at-least-k encoder: " + this.config().alkEncoder);
+                throw new IllegalStateException("Unknown at-least-k encoder: " + config.alkEncoder);
         }
     }
 
-    /**
-     * Encodes an exactly-k constraint.
-     * @param result the result
-     * @param vars   the variables of the constraint
-     * @param rhs    the right-hand side of the constraint
-     */
-    protected void exk(final EncodingResult result, final Variable[] vars, final int rhs) {
+    protected static void exk(final EncodingResult result, final CCConfig config, final Variable[] vars, final int rhs) {
         if (rhs < 0) {
             throw new IllegalArgumentException("Invalid right hand side of cardinality constraint: " + rhs);
         }
@@ -519,7 +371,7 @@ public class CCEncoder {
         }
         if (rhs == 0) {
             for (final Variable var : vars) {
-                result.addClause(var.negate());
+                result.addClause(var.negate(result.factory()));
             }
             return;
         }
@@ -529,24 +381,18 @@ public class CCEncoder {
             }
             return;
         }
-        switch (this.config().exkEncoder) {
+        switch (config.exkEncoder) {
             case TOTALIZER:
-                if (this.exkTotalizer == null) {
-                    this.exkTotalizer = new CCEXKTotalizer();
-                }
-                this.exkTotalizer.build(result, vars, rhs);
+                CCEXKTotalizer.get().build(result, vars, rhs);
                 break;
             case CARDINALITY_NETWORK:
-                if (this.exkCardinalityNetwork == null) {
-                    this.exkCardinalityNetwork = new CCEXKCardinalityNetwork();
-                }
-                this.exkCardinalityNetwork.build(result, vars, rhs);
+                CCEXKCardinalityNetwork.get().build(result, vars, rhs);
                 break;
             case BEST:
-                this.bestEXK(vars.length).build(result, vars, rhs);
+                bestEXK(vars.length).build(result, vars, rhs);
                 break;
             default:
-                throw new IllegalStateException("Unknown exactly-k encoder: " + this.config().exkEncoder);
+                throw new IllegalStateException("Unknown exactly-k encoder: " + config.exkEncoder);
         }
     }
 
@@ -557,17 +403,11 @@ public class CCEncoder {
      * @param n the number of variables
      * @return the best at-most-one encoder
      */
-    protected CCAtMostOne bestAMO(final int n) {
+    protected static CCAtMostOne bestAMO(final int n) {
         if (n <= 10) {
-            if (this.amoPure == null) {
-                this.amoPure = new CCAMOPure();
-            }
-            return this.amoPure;
+            return CCAMOPure.get();
         } else {
-            if (this.amoProduct == null) {
-                this.amoProduct = new CCAMOProduct(this.config().productRecursiveBound);
-            }
-            return this.amoProduct;
+            return CCAMOProduct.get();
         }
     }
 
@@ -578,11 +418,8 @@ public class CCEncoder {
      * @param n the number of variables
      * @return the best at-most-one encoder
      */
-    protected CCAtMostK bestAMK(final int n) {
-        if (this.amkModularTotalizer == null) {
-            this.amkModularTotalizer = new CCAMKModularTotalizer(this.f);
-        }
-        return this.amkModularTotalizer;
+    protected static CCAtMostK bestAMK(final int n) {
+        return CCAMKModularTotalizer.get();
     }
 
     /**
@@ -592,11 +429,8 @@ public class CCEncoder {
      * @param n the number of variables
      * @return the best at-most-one encoder
      */
-    protected CCAtLeastK bestALK(final int n) {
-        if (this.alkModularTotalizer == null) {
-            this.alkModularTotalizer = new CCALKModularTotalizer(this.f);
-        }
-        return this.alkModularTotalizer;
+    protected static CCAtLeastK bestALK(final int n) {
+        return CCALKModularTotalizer.get();
     }
 
     /**
@@ -606,15 +440,7 @@ public class CCEncoder {
      * @param n the number of variables
      * @return the best at-most-one encoder
      */
-    protected CCExactlyK bestEXK(final int n) {
-        if (this.exkTotalizer == null) {
-            this.exkTotalizer = new CCEXKTotalizer();
-        }
-        return this.exkTotalizer;
-    }
-
-    @Override
-    public String toString() {
-        return this.config().toString();
+    protected static CCExactlyK bestEXK(final int n) {
+        return CCEXKTotalizer.get();
     }
 }

@@ -1,39 +1,16 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.functions;
 
 import static org.logicng.formulas.cache.FunctionCacheEntry.SUBFORMULAS;
 
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFunction;
+import org.logicng.formulas.FormulaFactory;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 /**
  * A function that computes all sub-nodes of a given formula.  The order of the sub-nodes is bottom-up, i.e. a
@@ -41,39 +18,41 @@ import java.util.LinkedHashSet;
  * @version 3.0.0
  * @since 1.0
  */
-public final class SubNodeFunction implements FormulaFunction<LinkedHashSet<Formula>> {
+public final class SubNodeFunction extends CacheableFormulaFunction<LinkedHashSet<Formula>> {
 
-    private static final SubNodeFunction INSTANCE = new SubNodeFunction();
-
-    private SubNodeFunction() {
-        // Intentionally left empty
+    /**
+     * Constructs a new function.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
+    public SubNodeFunction(final FormulaFactory f) {
+        super(f, SUBFORMULAS);
     }
 
     /**
-     * Returns the singleton instance of this function.
-     * @return an instance of this function
+     * Constructs a new function.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
      */
-    public static SubNodeFunction get() {
-        return INSTANCE;
+    public SubNodeFunction(final FormulaFactory f, final Map<Formula, LinkedHashSet<Formula>> cache) {
+        super(f, cache);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public LinkedHashSet<Formula> apply(final Formula formula, final boolean cache) {
-        final Object cached = formula.functionCacheEntry(SUBFORMULAS);
+    public LinkedHashSet<Formula> apply(final Formula formula) {
+        final LinkedHashSet<Formula> cached = lookupCache(formula);
         if (cached != null) {
-            return (LinkedHashSet<Formula>) cached;
+            return cached;
         }
         final LinkedHashSet<Formula> result = new LinkedHashSet<>();
         for (final Formula op : formula) {
             if (!result.contains(op)) {
-                result.addAll(apply(op, cache));
+                result.addAll(apply(op));
             }
         }
         result.add(formula);
-        if (cache) {
-            formula.setFunctionCacheEntry(SUBFORMULAS, result);
-        }
+        setCache(formula, result);
         return result;
     }
 }

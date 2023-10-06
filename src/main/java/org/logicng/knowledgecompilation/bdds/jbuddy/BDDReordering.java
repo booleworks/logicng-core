@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.bdds.jbuddy;
 
@@ -98,12 +74,13 @@ public class BDDReordering {
     }
 
     protected void init() {
-        this.reorderDisabled = false;
-        this.varTree = null;
+        reorderDisabled = false;
+        varTree = null;
         clrVarBlocks();
         setReorderDuringConstruction(BDDReorderingMethod.BDD_REORDER_NONE, 0);
-        this.usednumBefore = this.usednumAfter = 0;
-        this.blockId = 0;
+        usednumBefore = 0;
+        usednumAfter = 0;
+        blockId = 0;
     }
 
     /**
@@ -115,7 +92,7 @@ public class BDDReordering {
     public void swapVariables(int v1, int v2) {
         int l1, l2;
         /* Do not swap when variable-blocks are used */
-        if (this.varTree != null) {
+        if (varTree != null) {
             throw new IllegalStateException("Swapping variables is not allowed with variable blocks");
         }
 
@@ -125,34 +102,34 @@ public class BDDReordering {
         }
 
         /* Make sure the variable exists */
-        if (v1 < 0 || v1 >= this.k.varnum) {
+        if (v1 < 0 || v1 >= k.varnum) {
             throw new IllegalArgumentException("Unknown variable number: " + v1);
         }
 
-        if (v2 < 0 || v2 >= this.k.varnum) {
+        if (v2 < 0 || v2 >= k.varnum) {
             throw new IllegalArgumentException("Unknown variable number: " + v2);
         }
 
-        l1 = this.k.var2level[v1];
-        l2 = this.k.var2level[v2];
+        l1 = k.var2level[v1];
+        l2 = k.var2level[v2];
 
         /* Make sure v1 is before v2 */
         if (l1 > l2) {
             final int tmp = v1;
             v1 = v2;
             v2 = tmp;
-            l1 = this.k.var2level[v1];
-            l2 = this.k.var2level[v2];
+            l1 = k.var2level[v1];
+            l2 = k.var2level[v2];
         }
 
         reorderInit();
         /* Move v1 to v2's position */
-        while (this.k.var2level[v1] < l2) {
+        while (k.var2level[v1] < l2) {
             reorderVardown(v1);
         }
 
         /* Move v2 to v1's position */
-        while (this.k.var2level[v2] > l1) {
+        while (k.var2level[v2] > l1) {
             reorderVarup(v2);
         }
         reorderDone();
@@ -170,27 +147,27 @@ public class BDDReordering {
      */
     public void reorder(final BDDReorderingMethod method) {
         final BDDTree top;
-        final BDDReorderingMethod savemethod = this.reorderMethod;
-        final int savetimes = this.bddreorderTimes;
-        this.reorderMethod = method;
-        this.bddreorderTimes = 1;
+        final BDDReorderingMethod savemethod = reorderMethod;
+        final int savetimes = bddreorderTimes;
+        reorderMethod = method;
+        bddreorderTimes = 1;
         top = new BDDTree(-1);
         if (reorderInit() < 0) {
             return;
         }
-        this.usednumBefore = this.k.nodesize - this.k.freenum;
+        usednumBefore = k.nodesize - k.freenum;
         top.setFirst(0);
-        top.setLast(this.k.varnum - 1);
+        top.setLast(k.varnum - 1);
         top.setFixed(false);
         top.setNext(null);
-        top.setNextlevel(this.varTree);
+        top.setNextlevel(varTree);
 
         reorderBlock(top, method);
-        this.varTree = top.getNextlevel();
-        this.usednumAfter = this.k.nodesize - this.k.freenum;
+        varTree = top.getNextlevel();
+        usednumAfter = k.nodesize - k.freenum;
         reorderDone();
-        this.reorderMethod = savemethod;
-        this.bddreorderTimes = savetimes;
+        reorderMethod = savemethod;
+        bddreorderTimes = savetimes;
     }
 
     /**
@@ -203,8 +180,8 @@ public class BDDReordering {
      * @param num    the maximum number of reorders to be performed
      */
     public void setReorderDuringConstruction(final BDDReorderingMethod method, final int num) {
-        this.reorderMethod = method;
-        this.bddreorderTimes = num;
+        reorderMethod = method;
+        bddreorderTimes = num;
     }
 
     /**
@@ -278,22 +255,22 @@ public class BDDReordering {
      * @param fixed whether the block should be fixed or not
      */
     public void addVariableBlock(final int first, final int last, final boolean fixed) {
-        if (first < 0 || first >= this.k.varnum || last < 0 || last >= this.k.varnum) {
+        if (first < 0 || first >= k.varnum || last < 0 || last >= k.varnum) {
             throw new IllegalArgumentException("invalid var range from " + first + " to " + last);
         }
-        final BDDTree t = addRange(this.varTree, first, last, fixed, this.blockId, this.k.level2var);
+        final BDDTree t = addRange(varTree, first, last, fixed, blockId, k.level2var);
         if (t == null) {
             throw new IllegalStateException("Could not add range to tree");
         }
-        this.varTree = t;
-        this.blockId++;
+        varTree = t;
+        blockId++;
     }
 
     /**
      * Adds a single variable block for all variables known by the kernel.
      */
     public void addVariableBlockAll() {
-        for (int n = 0; n < this.k.varnum; n++) {
+        for (int n = 0; n < k.varnum; n++) {
             addVariableBlock(n, n, false);
         }
     }
@@ -308,15 +285,15 @@ public class BDDReordering {
      * @return the level of this variable
      */
     protected int var(final int n) {
-        return this.k.level(n);
+        return k.level(n);
     }
 
     protected int reorderNodenum() {
-        return this.k.nodesize - this.k.freenum;
+        return k.nodesize - k.freenum;
     }
 
     protected int nodehashReorder(final int var, final int l, final int h) {
-        return Math.abs(this.k.pair(l, h) % this.levels[var].size) + this.levels[var].start;
+        return Math.abs(k.pair(l, h) % levels[var].size) + levels[var].start;
     }
 
     protected void reorderBlock(final BDDTree t, final BDDReorderingMethod method) {
@@ -362,25 +339,25 @@ public class BDDReordering {
     }
 
     protected int varseqCmp(final Integer aa, final Integer bb) {
-        final int a = this.k.var2level[aa];
-        final int b = this.k.var2level[bb];
+        final int a = k.var2level[aa];
+        final int b = k.var2level[bb];
         return Integer.compare(a, b);
     }
 
     protected void reorderDone() {
-        for (int n = 0; n < this.extRootSize; n++) {
-            this.k.setMark(this.extRoots[n]);
+        for (int n = 0; n < extRootSize; n++) {
+            k.setMark(extRoots[n]);
         }
-        for (int n = 2; n < this.k.nodesize; n++) {
-            if (this.k.marked(n)) {
-                this.k.unmark(n);
+        for (int n = 2; n < k.nodesize; n++) {
+            if (k.marked(n)) {
+                k.unmark(n);
             } else {
-                this.k.setRefcou(n, 0);
+                k.setRefcou(n, 0);
             }
             /* This is where we go from .var to .level again! - Do NOT use the LEVEL macro here. */
-            this.k.setLevel(n, this.k.var2level[this.k.level(n)]);
+            k.setLevel(n, k.var2level[k.level(n)]);
         }
-        this.k.gbc();
+        k.gbc();
     }
 
     protected BDDTree reorderWin2(final BDDTree t) {
@@ -621,7 +598,7 @@ public class BDDReordering {
             /* Accumulate number of nodes for each block */
             p[n].val = 0;
             for (v = thisTree.getFirst(); v <= thisTree.getLast(); v++) {
-                p[n].val = p[n].val - this.levels[v].nodenum;
+                p[n].val = p[n].val - levels[v].nodenum;
             }
 
             p[n].block = thisTree;
@@ -781,32 +758,32 @@ public class BDDReordering {
         int n;
         final int leftsize = left.getLast() - left.getFirst();
         final int rightsize = right.getLast() - right.getFirst();
-        final int leftstart = this.k.var2level[left.getSeq()[0]];
+        final int leftstart = k.var2level[left.getSeq()[0]];
         final int[] lseq = left.getSeq();
         final int[] rseq = right.getSeq();
 
         /* Move left past right */
-        while (this.k.var2level[lseq[0]] < this.k.var2level[rseq[rightsize]]) {
+        while (k.var2level[lseq[0]] < k.var2level[rseq[rightsize]]) {
             for (n = 0; n < leftsize; n++) {
-                if (this.k.var2level[lseq[n]] + 1 != this.k.var2level[lseq[n + 1]] && this.k.var2level[lseq[n]] < this.k.var2level[rseq[rightsize]]) {
+                if (k.var2level[lseq[n]] + 1 != k.var2level[lseq[n + 1]] && k.var2level[lseq[n]] < k.var2level[rseq[rightsize]]) {
                     reorderVardown(lseq[n]);
                 }
             }
 
-            if (this.k.var2level[lseq[leftsize]] < this.k.var2level[rseq[rightsize]]) {
+            if (k.var2level[lseq[leftsize]] < k.var2level[rseq[rightsize]]) {
                 reorderVardown(lseq[leftsize]);
             }
         }
 
         /* Move right to where left started */
-        while (this.k.var2level[rseq[0]] > leftstart) {
+        while (k.var2level[rseq[0]] > leftstart) {
             for (n = rightsize; n > 0; n--) {
-                if (this.k.var2level[rseq[n]] - 1 != this.k.var2level[rseq[n - 1]] && this.k.var2level[rseq[n]] > leftstart) {
+                if (k.var2level[rseq[n]] - 1 != k.var2level[rseq[n - 1]] && k.var2level[rseq[n]] > leftstart) {
                     reorderVarup(rseq[n]);
                 }
             }
 
-            if (this.k.var2level[rseq[0]] > leftstart) {
+            if (k.var2level[rseq[0]] > leftstart) {
                 reorderVarup(rseq[0]);
             }
         }
@@ -829,70 +806,70 @@ public class BDDReordering {
     }
 
     protected void reorderVarup(final int var) {
-        if (var < 0 || var >= this.k.varnum) {
+        if (var < 0 || var >= k.varnum) {
             throw new IllegalStateException("Illegal variable in reordering");
         }
-        if (this.k.var2level[var] != 0) {
-            reorderVardown(this.k.level2var[this.k.var2level[var] - 1]);
+        if (k.var2level[var] != 0) {
+            reorderVardown(k.level2var[k.var2level[var] - 1]);
         }
     }
 
     protected void reorderVardown(final int var) {
         int n;
         final int level;
-        if (var < 0 || var >= this.k.varnum) {
+        if (var < 0 || var >= k.varnum) {
             throw new IllegalStateException("Illegal variable in reordering");
         }
-        level = this.k.var2level[var];
-        if (level >= this.k.varnum - 1) {
+        level = k.var2level[var];
+        if (level >= k.varnum - 1) {
             return;
         }
-        this.resizedInMakenode = false;
+        resizedInMakenode = false;
 
-        if (this.interactionMatrix.depends(var, this.k.level2var[level + 1]) > 0) {
+        if (interactionMatrix.depends(var, k.level2var[level + 1]) > 0) {
             final int toBeProcessed = reorderDownSimple(var);
             reorderSwap(toBeProcessed, var);
             reorderLocalGbc(var);
         }
 
         /* Swap the var<->level tables */
-        n = this.k.level2var[level];
-        this.k.level2var[level] = this.k.level2var[level + 1];
-        this.k.level2var[level + 1] = n;
-        n = this.k.var2level[var];
-        this.k.var2level[var] = this.k.var2level[this.k.level2var[level]];
-        this.k.var2level[this.k.level2var[level]] = n;
+        n = k.level2var[level];
+        k.level2var[level] = k.level2var[level + 1];
+        k.level2var[level + 1] = n;
+        n = k.var2level[var];
+        k.var2level[var] = k.var2level[k.level2var[level]];
+        k.var2level[k.level2var[level]] = n;
         /* Update all rename pairs */
         //        this.pairs.vardown(level);
 
-        if (this.resizedInMakenode) {
+        if (resizedInMakenode) {
             reorderRehashAll();
         }
     }
 
     protected int reorderDownSimple(final int var0) {
         int toBeProcessed = 0;
-        final int var1 = this.k.level2var[this.k.var2level[var0] + 1];
-        final int vl0 = this.levels[var0].start;
-        final int size0 = this.levels[var0].size;
+        final int var1 = k.level2var[k.var2level[var0] + 1];
+        final int vl0 = levels[var0].start;
+        final int size0 = levels[var0].size;
         int n;
 
-        this.levels[var0].nodenum = 0;
+        levels[var0].nodenum = 0;
 
         for (n = 0; n < size0; n++) {
             int r;
-            r = this.k.hash(n + vl0);
-            this.k.setHash(n + vl0, 0);
+            r = k.hash(n + vl0);
+            k.setHash(n + vl0, 0);
             while (r != 0) {
-                final int next = this.k.next(r);
-                if (var(this.k.low(r)) != var1 && var(this.k.high(r)) != var1) {
+                final int next = k.next(r);
+                if (var(k.low(r)) != var1 && var(k.high(r)) != var1) {
                     /* Node does not depend on next var, let it stay in the chain */
-                    this.k.setNext(r, this.k.hash(n + vl0));
-                    this.k.setHash(n + vl0, r);
-                    this.levels[var0].nodenum++;
+                    k.setNext(r, k.hash(n + vl0));
+                    k.setHash(n + vl0, r);
+                    levels[var0].nodenum++;
                 } else {
                     /* Node depends on next var - save it for later procesing */
-                    this.k.setNext(r, toBeProcessed);
+                    k.setNext(r, toBeProcessed);
                     toBeProcessed = r;
                 }
                 r = next;
@@ -902,11 +879,11 @@ public class BDDReordering {
     }
 
     protected void reorderSwap(int toBeProcessed, final int var0) {
-        final int var1 = this.k.level2var[this.k.var2level[var0] + 1];
+        final int var1 = k.level2var[k.var2level[var0] + 1];
         while (toBeProcessed > 0) {
-            final int next = this.k.next(toBeProcessed);
-            int f0 = this.k.low(toBeProcessed);
-            int f1 = this.k.high(toBeProcessed);
+            final int next = k.next(toBeProcessed);
+            int f0 = k.low(toBeProcessed);
+            int f1 = k.high(toBeProcessed);
             final int f00;
             final int f01;
             final int f10;
@@ -915,14 +892,14 @@ public class BDDReordering {
 
             /* Find the cofactors for the new nodes */
             if (var(f0) == var1) {
-                f00 = this.k.low(f0);
-                f01 = this.k.high(f0);
+                f00 = k.low(f0);
+                f01 = k.high(f0);
             } else {
                 f00 = f01 = f0;
             }
             if (var(f1) == var1) {
-                f10 = this.k.low(f1);
-                f11 = this.k.high(f1);
+                f10 = k.low(f1);
+                f11 = k.high(f1);
             } else {
                 f10 = f11 = f1;
             }
@@ -939,18 +916,18 @@ public class BDDReordering {
              * possible for the LOWp(node)/high nodes to come alive again,
              * so deref. of the childs is delayed until the local GBC. */
 
-            this.k.decRef(this.k.low(toBeProcessed));
-            this.k.decRef(this.k.high(toBeProcessed));
+            k.decRef(k.low(toBeProcessed));
+            k.decRef(k.high(toBeProcessed));
 
             /* Update in-place */
-            this.k.setLevel(toBeProcessed, var1);
-            this.k.setLow(toBeProcessed, f0);
-            this.k.setHigh(toBeProcessed, f1);
-            this.levels[var1].nodenum++;
+            k.setLevel(toBeProcessed, var1);
+            k.setLow(toBeProcessed, f0);
+            k.setHigh(toBeProcessed, f1);
+            levels[var1].nodenum++;
             /* Rehash the node since it got new childs */
-            hash = this.nodehashReorder(var(toBeProcessed), this.k.low(toBeProcessed), this.k.high(toBeProcessed));
-            this.k.setNext(toBeProcessed, this.k.hash(hash));
-            this.k.setHash(hash, toBeProcessed);
+            hash = nodehashReorder(var(toBeProcessed), k.low(toBeProcessed), k.high(toBeProcessed));
+            k.setNext(toBeProcessed, k.hash(hash));
+            k.setHash(hash, toBeProcessed);
             toBeProcessed = next;
         }
     }
@@ -962,79 +939,79 @@ public class BDDReordering {
         /* Note: We know that low,high has a refcou greater than zero, so there is no need to add reference *recursively* */
         /* check whether childs are equal */
         if (low == high) {
-            this.k.incRef(low);
+            k.incRef(low);
             return low;
         }
 
         /* Try to find an existing node of this kind */
-        hash = this.nodehashReorder(var, low, high);
-        res = this.k.hash(hash);
+        hash = nodehashReorder(var, low, high);
+        res = k.hash(hash);
 
         while (res != 0) {
-            if (this.k.low(res) == low && this.k.high(res) == high) {
-                this.k.incRef(res);
+            if (k.low(res) == low && k.high(res) == high) {
+                k.incRef(res);
                 return res;
             }
-            res = this.k.next(res);
+            res = k.next(res);
         }
         /* No existing node -> build one */
         /* Any free nodes to use ? */
-        if (this.k.freepos == 0) {
+        if (k.freepos == 0) {
             /* Try to allocate more nodes - call noderesize without
              * enabling rehashing.
              * Note: if ever rehashing is allowed here, then remember to
              * update local variable "hash" */
-            this.k.nodeResize(false);
-            this.resizedInMakenode = true;
-            assert this.k.freepos > 0;
+            k.nodeResize(false);
+            resizedInMakenode = true;
+            assert k.freepos > 0;
         }
 
         /* Build new node */
-        res = this.k.freepos;
-        this.k.freepos = this.k.next(this.k.freepos);
-        this.levels[var].nodenum++;
-        this.k.produced++;
-        this.k.freenum--;
+        res = k.freepos;
+        k.freepos = k.next(k.freepos);
+        levels[var].nodenum++;
+        k.produced++;
+        k.freenum--;
 
-        this.k.setLevel(res, var);
-        this.k.setLow(res, low);
-        this.k.setHigh(res, high);
+        k.setLevel(res, var);
+        k.setLow(res, low);
+        k.setHigh(res, high);
 
         /* Insert node in hash chain */
-        this.k.setNext(res, this.k.hash(hash));
-        this.k.setHash(hash, res);
+        k.setNext(res, k.hash(hash));
+        k.setHash(hash, res);
 
         /* Make sure it is reference counted */
-        this.k.setRefcou(res, 1);
-        this.k.incRef(this.k.low(res));
-        this.k.incRef(this.k.high(res));
+        k.setRefcou(res, 1);
+        k.incRef(k.low(res));
+        k.incRef(k.high(res));
         return res;
     }
 
     protected void reorderLocalGbc(final int var0) {
-        final int var1 = this.k.level2var[this.k.var2level[var0] + 1];
-        final int vl1 = this.levels[var1].start;
-        final int size1 = this.levels[var1].size;
+        final int var1 = k.level2var[k.var2level[var0] + 1];
+        final int vl1 = levels[var1].start;
+        final int size1 = levels[var1].size;
         int n;
 
         for (n = 0; n < size1; n++) {
             final int hash = n + vl1;
-            int r = this.k.hash(hash);
-            this.k.setHash(hash, 0);
+            int r = k.hash(hash);
+            k.setHash(hash, 0);
             while (r > 0) {
-                final int next = this.k.next(r);
+                final int next = k.next(r);
 
-                if (this.k.refcou(r) > 0) {
-                    this.k.setNext(r, this.k.hash(hash));
-                    this.k.setHash(hash, r);
+                if (k.refcou(r) > 0) {
+                    k.setNext(r, k.hash(hash));
+                    k.setHash(hash, r);
                 } else {
-                    this.k.decRef(this.k.low(r));
-                    this.k.decRef(this.k.high(r));
-                    this.k.setLow(r, -1);
-                    this.k.setNext(r, this.k.freepos);
-                    this.k.freepos = r;
-                    this.levels[var1].nodenum--;
-                    this.k.freenum++;
+                    k.decRef(k.low(r));
+                    k.decRef(k.high(r));
+                    k.setLow(r, -1);
+                    k.setNext(r, k.freepos);
+                    k.freepos = r;
+                    levels[var1].nodenum--;
+                    k.freenum++;
                 }
                 r = next;
             }
@@ -1044,66 +1021,66 @@ public class BDDReordering {
     protected void reorderRehashAll() {
         int n;
         reorderSetLevellookup();
-        this.k.freepos = 0;
-        for (n = this.k.nodesize - 1; n >= 0; n--) {
-            this.k.setHash(n, 0);
+        k.freepos = 0;
+        for (n = k.nodesize - 1; n >= 0; n--) {
+            k.setHash(n, 0);
         }
-        for (n = this.k.nodesize - 1; n >= 2; n--) {
-            if (this.k.refcou(n) > 0) {
-                final int hash = this.nodehashReorder(var(n), this.k.low(n), this.k.high(n));
-                this.k.setNext(n, this.k.hash(hash));
-                this.k.setHash(hash, n);
+        for (n = k.nodesize - 1; n >= 2; n--) {
+            if (k.refcou(n) > 0) {
+                final int hash = nodehashReorder(var(n), k.low(n), k.high(n));
+                k.setNext(n, k.hash(hash));
+                k.setHash(hash, n);
             } else {
-                this.k.setNext(n, this.k.freepos);
-                this.k.freepos = n;
+                k.setNext(n, k.freepos);
+                k.freepos = n;
             }
         }
     }
 
     protected void reorderSetLevellookup() {
         int n;
-        for (n = 0; n < this.k.varnum; n++) {
-            this.levels[n].maxsize = this.k.nodesize / this.k.varnum;
-            this.levels[n].start = n * this.levels[n].maxsize;
-            this.levels[n].size = this.levels[n].maxsize;
-            if (this.levels[n].size >= 4) {
-                this.levels[n].size = this.k.getPrime().primeLTE(this.levels[n].size);
+        for (n = 0; n < k.varnum; n++) {
+            levels[n].maxsize = k.nodesize / k.varnum;
+            levels[n].start = n * levels[n].maxsize;
+            levels[n].size = levels[n].maxsize;
+            if (levels[n].size >= 4) {
+                levels[n].size = k.getPrime().primeLTE(levels[n].size);
             }
         }
     }
 
     protected void clrVarBlocks() {
-        this.varTree = null;
-        this.blockId = 0;
+        varTree = null;
+        blockId = 0;
     }
 
     protected void disableReorder() {
-        this.reorderDisabled = true;
+        reorderDisabled = true;
     }
 
     protected void enableReorder() {
-        this.reorderDisabled = false;
+        reorderDisabled = false;
     }
 
     protected boolean reorderReady() {
-        return this.reorderMethod != BDDReorderingMethod.BDD_REORDER_NONE && this.varTree != null && this.bddreorderTimes != 0 && !this.reorderDisabled;
+        return reorderMethod != BDDReorderingMethod.BDD_REORDER_NONE && varTree != null && bddreorderTimes != 0 && !reorderDisabled;
     }
 
     protected void reorderAuto() {
         if (!reorderReady()) {
             return;
         }
-        reorder(this.reorderMethod);
-        this.bddreorderTimes--;
+        reorder(reorderMethod);
+        bddreorderTimes--;
     }
 
     protected int reorderInit() {
-        this.levels = new LevelData[this.k.varnum];
-        for (int n = 0; n < this.k.varnum; n++) {
-            this.levels[n] = new LevelData();
-            this.levels[n].start = -1;
-            this.levels[n].size = 0;
-            this.levels[n].nodenum = 0;
+        levels = new LevelData[k.varnum];
+        for (int n = 0; n < k.varnum; n++) {
+            levels[n] = new LevelData();
+            levels[n].start = -1;
+            levels[n].size = 0;
+            levels[n].nodenum = 0;
         }
         /* First mark and recursive refcou. all roots and childs. Also do some
          * setup here for both setLevellookup and reorder_gbc */
@@ -1118,51 +1095,51 @@ public class BDDReordering {
     }
 
     protected int markRoots() {
-        final int[] dep = new int[this.k.varnum];
-        this.extRootSize = 0;
-        for (int n = 2; n < this.k.nodesize; n++) {
+        final int[] dep = new int[k.varnum];
+        extRootSize = 0;
+        for (int n = 2; n < k.nodesize; n++) {
             /* This is where we go from .level to .var! - Do NOT use the LEVEL macro here. */
-            this.k.setLevel(n, this.k.level2var[this.k.level(n)]);
-            if (this.k.refcou(n) > 0) {
-                this.extRootSize++;
-                this.k.setMark(n);
+            k.setLevel(n, k.level2var[k.level(n)]);
+            if (k.refcou(n) > 0) {
+                extRootSize++;
+                k.setMark(n);
             }
         }
-        this.extRoots = new int[this.extRootSize];
-        this.interactionMatrix = new InteractionMatrix(this.k.varnum);
-        this.extRootSize = 0;
-        for (int n = 2; n < this.k.nodesize; n++) {
-            if (this.k.marked(n)) {
-                this.k.unmarkNode(n);
-                this.extRoots[this.extRootSize++] = n;
+        extRoots = new int[extRootSize];
+        interactionMatrix = new InteractionMatrix(k.varnum);
+        extRootSize = 0;
+        for (int n = 2; n < k.nodesize; n++) {
+            if (k.marked(n)) {
+                k.unmarkNode(n);
+                extRoots[extRootSize++] = n;
                 dep[var(n)] = 1;
-                this.levels[var(n)].nodenum++;
-                addrefRec(this.k.low(n), dep);
-                addrefRec(this.k.high(n), dep);
+                levels[var(n)].nodenum++;
+                addrefRec(k.low(n), dep);
+                addrefRec(k.high(n), dep);
                 addDependencies(dep);
             }
             /* Make sure the hash field is empty. This saves a loop in the initial GBC */
-            this.k.setHash(n, 0);
+            k.setHash(n, 0);
         }
-        this.k.setHash(0, 0);
-        this.k.setHash(1, 0);
+        k.setHash(0, 0);
+        k.setHash(1, 0);
         return 0;
     }
 
     protected void reorderGbc() {
-        this.k.freepos = 0;
-        this.k.freenum = 0;
+        k.freepos = 0;
+        k.freenum = 0;
         /* No need to zero all hash fields - this is done in mark_roots */
-        for (int n = this.k.nodesize - 1; n >= 2; n--) {
-            if (this.k.refcou(n) > 0) {
-                final int hash = nodehashReorder(var(n), this.k.low(n), this.k.high(n));
-                this.k.setNext(n, this.k.hash(hash));
-                this.k.setHash(hash, n);
+        for (int n = k.nodesize - 1; n >= 2; n--) {
+            if (k.refcou(n) > 0) {
+                final int hash = nodehashReorder(var(n), k.low(n), k.high(n));
+                k.setNext(n, k.hash(hash));
+                k.setHash(hash, n);
             } else {
-                this.k.setLow(n, -1);
-                this.k.setNext(n, this.k.freepos);
-                this.k.freepos = n;
-                this.k.freenum++;
+                k.setLow(n, -1);
+                k.setNext(n, k.freepos);
+                k.freepos = n;
+                k.freenum++;
             }
         }
     }
@@ -1170,11 +1147,11 @@ public class BDDReordering {
     protected void checkReorder() {
         reorderAuto();
         /* Do not reorder before twice as many nodes have been used */
-        this.usedNodesNextReorder = 2 * (this.k.nodesize - this.k.freenum);
+        usedNodesNextReorder = 2 * (k.nodesize - k.freenum);
         /* And if very little was gained this time (< 20%) then wait until
          * even more nodes (upto twice as many again) have been used */
         if (reorderGain() < 20) {
-            this.usedNodesNextReorder += (this.usedNodesNextReorder * (20 - reorderGain())) / 20;
+            usedNodesNextReorder += (usedNodesNextReorder * (20 - reorderGain())) / 20;
         }
     }
 
@@ -1182,45 +1159,45 @@ public class BDDReordering {
         if (r < 2) {
             return;
         }
-        if (this.k.refcou(r) == 0) {
-            this.k.freenum--;
+        if (k.refcou(r) == 0) {
+            k.freenum--;
 
             /* Detect variable dependencies for the interaction matrix */
             dep[var(r) & MARKHIDE] = 1;
 
             /* Make sure the nodenum field is updated. Used in the initial GBC */
-            this.levels[var(r) & MARKHIDE].nodenum++;
+            levels[var(r) & MARKHIDE].nodenum++;
 
-            addrefRec(this.k.low(r), dep);
-            addrefRec(this.k.high(r), dep);
+            addrefRec(k.low(r), dep);
+            addrefRec(k.high(r), dep);
         } else {
             int n;
 
             /* Update (from previously found) variable dependencies
              * for the interaction matrix */
-            for (n = 0; n < this.k.varnum; n++) {
-                dep[n] |= this.interactionMatrix.depends(var(r) & MARKHIDE, n);
+            for (n = 0; n < k.varnum; n++) {
+                dep[n] |= interactionMatrix.depends(var(r) & MARKHIDE, n);
             }
         }
-        this.k.incRef(r);
+        k.incRef(r);
     }
 
     protected void addDependencies(final int[] dep) {
-        for (int n = 0; n < this.k.varnum; n++) {
-            for (int m = n; m < this.k.varnum; m++) {
+        for (int n = 0; n < k.varnum; n++) {
+            for (int m = n; m < k.varnum; m++) {
                 if (dep[n] > 0 && dep[m] > 0) {
-                    this.interactionMatrix.set(n, m);
-                    this.interactionMatrix.set(m, n);
+                    interactionMatrix.set(n, m);
+                    interactionMatrix.set(m, n);
                 }
             }
         }
     }
 
     protected int reorderGain() {
-        if (this.usednumBefore == 0) {
+        if (usednumBefore == 0) {
             return 0;
         }
-        return (100 * (this.usednumBefore - this.usednumAfter)) / this.usednumBefore;
+        return (100 * (usednumBefore - usednumAfter)) / usednumBefore;
     }
 
     /* Level data */
@@ -1240,18 +1217,18 @@ public class BDDReordering {
         protected final int[][] rows;
 
         protected InteractionMatrix(final int size) {
-            this.rows = new int[size][];
+            rows = new int[size][];
             for (int n = 0; n < size; n++) {
-                this.rows[n] = new int[size / 8 + 1];
+                rows[n] = new int[size / 8 + 1];
             }
         }
 
         protected void set(final int a, final int b) {
-            this.rows[a][b / 8] |= 1 << (b % 8);
+            rows[a][b / 8] |= 1 << (b % 8);
         }
 
         protected int depends(final int a, final int b) {
-            return this.rows[a][b / 8] & (1 << (b % 8));
+            return rows[a][b / 8] & (1 << (b % 8));
         }
     }
 }

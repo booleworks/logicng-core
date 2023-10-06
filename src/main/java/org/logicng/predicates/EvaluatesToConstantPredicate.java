@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.predicates;
 
@@ -65,20 +41,23 @@ import java.util.Map;
  * <p>
  * Example 02: When evaluation to true the formula (a &amp; b) | (~a &amp; c) with partial assignment
  * [b -&gt; false, c -&gt; false] yields to a | ~a which is recognized as a tautology.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public final class EvaluatesToConstantPredicate implements FormulaPredicate {
 
+    private final FormulaFactory f;
     private final boolean evaluatesToTrue;
     private final Map<Variable, Boolean> mapping;
 
     /**
      * Constructs a new evaluation predicate.
+     * @param f               the formula factory to generate new formulas
      * @param evaluatesToTrue {@code false} if the check aims for true, {@code false} if the check aims for false
      * @param mapping         the (partial) assignment
      */
-    public EvaluatesToConstantPredicate(final boolean evaluatesToTrue, final Map<Variable, Boolean> mapping) {
+    public EvaluatesToConstantPredicate(final FormulaFactory f, final boolean evaluatesToTrue, final Map<Variable, Boolean> mapping) {
+        this.f = f;
         this.evaluatesToTrue = evaluatesToTrue;
         this.mapping = mapping;
     }
@@ -88,18 +67,16 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
      * @return the (partial) assignment
      */
     public Map<Variable, Boolean> getMapping() {
-        return Collections.unmodifiableMap(this.mapping);
+        return Collections.unmodifiableMap(mapping);
     }
 
     /**
      * Checks if the formula evaluates to false (or true) when the (partial) assignment is applied.
      * @param formula the formula
-     * @param caching indicator for caching (currently not used)
-     * @return {@code true} if applying the (partial) assignment yields to the specified constant, otherwise {@code false}
      */
     @Override
-    public boolean test(final Formula formula, final boolean caching) {
-        return innerTest(formula, true).type() == getConstantType(this.evaluatesToTrue);
+    public boolean test(final Formula formula) {
+        return innerTest(formula, true).type() == getConstantType(evaluatesToTrue);
     }
 
     /**
@@ -109,14 +86,13 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
      * @return Falsum resp. Verum if the (partial) assignment resulted not to the specified constant, otherwise the restricted and simplified formula
      */
     private Formula innerTest(final Formula formula, final boolean topLevel) {
-        final FormulaFactory f = formula.factory();
         switch (formula.type()) {
             case TRUE:
             case FALSE:
                 return formula;
             case LITERAL:
                 final Literal lit = (Literal) formula;
-                final Boolean found = this.mapping.get(lit.variable());
+                final Boolean found = mapping.get(lit.variable());
                 return found == null ? lit : f.constant(lit.phase() == found);
             case NOT:
                 return handleNot((Not) formula, topLevel);
@@ -138,27 +114,25 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     }
 
     private Formula handleNot(final Not formula, final boolean topLevel) {
-        final FormulaFactory f = formula.factory();
         final Formula opResult = innerTest(formula.operand(), false);
         if (topLevel && !opResult.isConstantFormula()) {
-            return f.constant(!this.evaluatesToTrue);
+            return f.constant(!evaluatesToTrue);
         }
         return opResult.isConstantFormula() ? f.constant(isFalsum(opResult)) : f.not(opResult);
     }
 
     private Formula handleImplication(final Implication formula, final boolean topLevel) {
-        final FormulaFactory f = formula.factory();
         final Formula left = formula.left();
         final Formula right = formula.right();
         final Formula leftResult = innerTest(left, false);
         if (leftResult.isConstantFormula()) {
-            if (this.evaluatesToTrue) {
+            if (evaluatesToTrue) {
                 return isFalsum(leftResult) ? f.verum() : innerTest(right, topLevel);
             } else {
                 return isVerum(leftResult) ? innerTest(right, topLevel) : f.verum();
             }
         }
-        if (!this.evaluatesToTrue && topLevel) {
+        if (!evaluatesToTrue && topLevel) {
             return f.verum();
         }
         final Formula rightResult = innerTest(right, false);
@@ -169,7 +143,6 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     }
 
     private Formula handleEquivalence(final Equivalence formula, final boolean topLevel) {
-        final FormulaFactory f = formula.factory();
         final Formula left = formula.left();
         final Formula right = formula.right();
         final Formula leftResult = innerTest(left, false);
@@ -179,7 +152,7 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
         final Formula rightResult = innerTest(right, false);
         if (rightResult.isConstantFormula()) {
             if (topLevel) {
-                return f.constant(!this.evaluatesToTrue);
+                return f.constant(!evaluatesToTrue);
             }
             return isVerum(rightResult) ? leftResult : f.not(leftResult);
         }
@@ -187,15 +160,14 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     }
 
     private Formula handleOr(final Or formula, final boolean topLevel) {
-        final FormulaFactory f = formula.factory();
         final List<Formula> nops = new ArrayList<>();
         for (final Formula op : formula) {
-            final Formula opResult = innerTest(op, !this.evaluatesToTrue && topLevel);
+            final Formula opResult = innerTest(op, !evaluatesToTrue && topLevel);
             if (isVerum(opResult)) {
                 return f.verum();
             }
             if (!opResult.isConstantFormula()) {
-                if (!this.evaluatesToTrue && topLevel) {
+                if (!evaluatesToTrue && topLevel) {
                     return f.verum();
                 }
                 nops.add(opResult);
@@ -205,15 +177,14 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     }
 
     private Formula handleAnd(final And formula, final boolean topLevel) {
-        final FormulaFactory f = formula.factory();
         final List<Formula> nops = new ArrayList<>();
         for (final Formula op : formula) {
-            final Formula opResult = innerTest(op, this.evaluatesToTrue && topLevel);
+            final Formula opResult = innerTest(op, evaluatesToTrue && topLevel);
             if (isFalsum(opResult)) {
                 return f.falsum();
             }
             if (!opResult.isConstantFormula()) {
-                if (this.evaluatesToTrue && topLevel) {
+                if (evaluatesToTrue && topLevel) {
                     return f.falsum();
                 }
                 nops.add(opResult);
@@ -223,12 +194,11 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     }
 
     private Formula handlePBC(final PBConstraint formula) {
-        final FormulaFactory f = formula.factory();
         final Assignment assignment = new Assignment();
-        for (final Map.Entry<Variable, Boolean> entry : this.mapping.entrySet()) {
+        for (final Map.Entry<Variable, Boolean> entry : mapping.entrySet()) {
             assignment.addLiteral(f.literal(entry.getKey().name(), entry.getValue()));
         }
-        return formula.restrict(assignment);
+        return formula.restrict(assignment, f);
     }
 
     private static FType getConstantType(final boolean constant) {

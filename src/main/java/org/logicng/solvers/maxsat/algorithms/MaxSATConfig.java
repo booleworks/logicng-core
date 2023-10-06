@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.solvers.maxsat.algorithms;
 
@@ -107,17 +83,17 @@ public final class MaxSATConfig extends Configuration {
      */
     private MaxSATConfig(final Builder builder) {
         super(ConfigurationType.MAXSAT);
-        this.incrementalStrategy = builder.incrementalStrategy;
-        this.amoEncoding = builder.amoEncoding;
-        this.pbEncoding = builder.pbEncoding;
-        this.cardinalityEncoding = builder.cardinalityEncoding;
-        this.weightStrategy = builder.weightStrategy;
-        this.solverType = builder.solverType;
-        this.verbosity = builder.verbosity;
-        this.output = builder.output;
-        this.symmetry = builder.symmetry;
-        this.limit = builder.limit;
-        this.bmo = builder.bmo;
+        incrementalStrategy = builder.incrementalStrategy;
+        amoEncoding = builder.amoEncoding;
+        pbEncoding = builder.pbEncoding;
+        cardinalityEncoding = builder.cardinalityEncoding;
+        weightStrategy = builder.weightStrategy;
+        solverType = builder.solverType;
+        verbosity = builder.verbosity;
+        output = builder.output;
+        symmetry = builder.symmetry;
+        limit = builder.limit;
+        bmo = builder.bmo;
     }
 
     /**
@@ -127,17 +103,17 @@ public final class MaxSATConfig extends Configuration {
      */
     public MaxSATConfig(final MaxSATConfig config, final CardinalityEncoding cardinalityEncoding) {
         super(ConfigurationType.MAXSAT);
-        this.incrementalStrategy = config.incrementalStrategy;
-        this.amoEncoding = config.amoEncoding;
-        this.pbEncoding = config.pbEncoding;
+        incrementalStrategy = config.incrementalStrategy;
+        amoEncoding = config.amoEncoding;
+        pbEncoding = config.pbEncoding;
         this.cardinalityEncoding = cardinalityEncoding;
-        this.weightStrategy = config.weightStrategy;
-        this.solverType = config.solverType;
-        this.verbosity = config.verbosity;
-        this.output = config.output;
-        this.symmetry = config.symmetry;
-        this.limit = config.limit;
-        this.bmo = config.bmo;
+        weightStrategy = config.weightStrategy;
+        solverType = config.solverType;
+        verbosity = config.verbosity;
+        output = config.output;
+        symmetry = config.symmetry;
+        limit = config.limit;
+        bmo = config.bmo;
     }
 
     /**
@@ -148,16 +124,16 @@ public final class MaxSATConfig extends Configuration {
     public MaxSATConfig(final MaxSATConfig config, final IncrementalStrategy incrementalStrategy) {
         super(ConfigurationType.MAXSAT);
         this.incrementalStrategy = incrementalStrategy;
-        this.amoEncoding = config.amoEncoding;
-        this.pbEncoding = config.pbEncoding;
-        this.cardinalityEncoding = config.cardinalityEncoding;
-        this.weightStrategy = config.weightStrategy;
-        this.solverType = config.solverType;
-        this.verbosity = config.verbosity;
-        this.output = config.output;
-        this.symmetry = config.symmetry;
-        this.limit = config.limit;
-        this.bmo = config.bmo;
+        amoEncoding = config.amoEncoding;
+        pbEncoding = config.pbEncoding;
+        cardinalityEncoding = config.cardinalityEncoding;
+        weightStrategy = config.weightStrategy;
+        solverType = config.solverType;
+        verbosity = config.verbosity;
+        output = config.output;
+        symmetry = config.symmetry;
+        limit = config.limit;
+        bmo = config.bmo;
     }
 
     /**
@@ -171,16 +147,16 @@ public final class MaxSATConfig extends Configuration {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("MaxSATConfig{").append(System.lineSeparator());
-        sb.append("incrementalStrategy=").append(this.incrementalStrategy).append(System.lineSeparator());
-        sb.append("pbEncoding=").append(this.amoEncoding).append(System.lineSeparator());
-        sb.append("pbEncoding=").append(this.pbEncoding).append(System.lineSeparator());
-        sb.append("cardinalityEncoding=").append(this.cardinalityEncoding).append(System.lineSeparator());
-        sb.append("weightStrategy=").append(this.weightStrategy).append(System.lineSeparator());
-        sb.append("solverType=").append(this.solverType).append(System.lineSeparator());
-        sb.append("verbosity=").append(this.verbosity).append(System.lineSeparator());
-        sb.append("symmetry=").append(this.symmetry).append(System.lineSeparator());
-        sb.append("limit=").append(this.limit).append(System.lineSeparator());
-        sb.append("bmo=").append(this.bmo).append(System.lineSeparator());
+        sb.append("incrementalStrategy=").append(incrementalStrategy).append(System.lineSeparator());
+        sb.append("pbEncoding=").append(amoEncoding).append(System.lineSeparator());
+        sb.append("pbEncoding=").append(pbEncoding).append(System.lineSeparator());
+        sb.append("cardinalityEncoding=").append(cardinalityEncoding).append(System.lineSeparator());
+        sb.append("weightStrategy=").append(weightStrategy).append(System.lineSeparator());
+        sb.append("solverType=").append(solverType).append(System.lineSeparator());
+        sb.append("verbosity=").append(verbosity).append(System.lineSeparator());
+        sb.append("symmetry=").append(symmetry).append(System.lineSeparator());
+        sb.append("limit=").append(limit).append(System.lineSeparator());
+        sb.append("bmo=").append(bmo).append(System.lineSeparator());
         sb.append("}");
         return sb.toString();
     }
@@ -205,8 +181,8 @@ public final class MaxSATConfig extends Configuration {
          * Constructor for the builder.
          */
         private Builder() {
-            this.amoEncoding = AMOEncoding.LADDER;
-            this.pbEncoding = PBEncoding.SWC;
+            amoEncoding = AMOEncoding.LADDER;
+            pbEncoding = PBEncoding.SWC;
         }
 
         /**
@@ -215,7 +191,7 @@ public final class MaxSATConfig extends Configuration {
          * @return the builder
          */
         public Builder incremental(final IncrementalStrategy inc) {
-            this.incrementalStrategy = inc;
+            incrementalStrategy = inc;
             return this;
         }
 
@@ -225,7 +201,7 @@ public final class MaxSATConfig extends Configuration {
          * @return the builder
          */
         public Builder cardinality(final CardinalityEncoding card) {
-            this.cardinalityEncoding = card;
+            cardinalityEncoding = card;
             return this;
         }
 
@@ -235,7 +211,7 @@ public final class MaxSATConfig extends Configuration {
          * @return the builder
          */
         public Builder weight(final WeightStrategy weight) {
-            this.weightStrategy = weight;
+            weightStrategy = weight;
             return this;
         }
 
@@ -245,7 +221,7 @@ public final class MaxSATConfig extends Configuration {
          * @return the builder
          */
         public Builder solver(final SolverType solver) {
-            this.solverType = solver;
+            solverType = solver;
             return this;
         }
 
@@ -255,7 +231,7 @@ public final class MaxSATConfig extends Configuration {
          * @return the builder
          */
         public Builder symmetry(final boolean symm) {
-            this.symmetry = symm;
+            symmetry = symm;
             return this;
         }
 
@@ -265,7 +241,7 @@ public final class MaxSATConfig extends Configuration {
          * @return the builder
          */
         public Builder limit(final int lim) {
-            this.limit = lim;
+            limit = lim;
             return this;
         }
 
@@ -286,7 +262,7 @@ public final class MaxSATConfig extends Configuration {
          * @return the builder
          */
         public Builder verbosity(final Verbosity verb) {
-            this.verbosity = verb;
+            verbosity = verb;
             return this;
         }
 

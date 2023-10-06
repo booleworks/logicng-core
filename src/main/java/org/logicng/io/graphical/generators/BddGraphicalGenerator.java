@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.io.graphical.generators;
 
@@ -69,8 +45,8 @@ public class BddGraphicalGenerator extends GraphicalGenerator<Integer> {
         super(builder.backgroundColor, builder.alignTerminals, builder.defaultEdgeStyle, builder.defaultNodeStyle, builder.nodeStyleMapper,
                 builder.labelMapper, builder.edgeMapper);
         final BddGraphicalGeneratorBuilder bddBuilder = (BddGraphicalGeneratorBuilder) builder;
-        this.negativeEdgeStyle = bddBuilder.negativeEdgeStyle;
-        this.negativeEdgeStyleMapper = bddBuilder.negativeEdgeMapper;
+        negativeEdgeStyle = bddBuilder.negativeEdgeStyle;
+        negativeEdgeStyleMapper = bddBuilder.negativeEdgeMapper;
     }
 
     /**
@@ -88,7 +64,7 @@ public class BddGraphicalGenerator extends GraphicalGenerator<Integer> {
      */
     public GraphicalRepresentation translate(final BDD bdd) {
         final Map<Integer, GraphicalNode> index2Node = new TreeMap<>();
-        final GraphicalRepresentation graphicalRepresentation = new GraphicalRepresentation(this.alignTerminals, true, this.backgroundColor);
+        final GraphicalRepresentation graphicalRepresentation = new GraphicalRepresentation(alignTerminals, true, backgroundColor);
         if (!bdd.isTautology()) {
             final GraphicalNode falseNode = new GraphicalNode(ID + BDD_FALSE, labelOrDefault(BDD_FALSE, "false"), true, nodeStyle(BDD_FALSE));
             graphicalRepresentation.addNode(falseNode);
@@ -128,7 +104,7 @@ public class BddGraphicalGenerator extends GraphicalGenerator<Integer> {
     }
 
     private GraphicalEdgeStyle negativeEdgeStyle(final Integer source, final Integer destination) {
-        return this.negativeEdgeStyleMapper != null ? this.negativeEdgeStyleMapper.computeStyle(source, destination) : this.negativeEdgeStyle;
+        return negativeEdgeStyleMapper != null ? negativeEdgeStyleMapper.computeStyle(source, destination) : negativeEdgeStyle;
     }
 
     /**
@@ -153,14 +129,14 @@ public class BddGraphicalGenerator extends GraphicalGenerator<Integer> {
          */
         BddGraphicalGeneratorBuilder(final Function<GraphicalGeneratorBuilder<BddGraphicalGenerator, Integer>, BddGraphicalGenerator> constructor) {
             super(constructor);
-            this.defaultEdgeStyle = DEFAULT_TRUE_EDGE_STYLE;
-            this.nodeStyleMapper = (index) -> {
+            defaultEdgeStyle = DEFAULT_TRUE_EDGE_STYLE;
+            nodeStyleMapper = (index) -> {
                 if (index == BDD_FALSE) {
-                    return this.defaultFalseNodeStyle;
+                    return defaultFalseNodeStyle;
                 } else if (index == BDD_TRUE) {
-                    return this.defaultTrueNodeStyle;
+                    return defaultTrueNodeStyle;
                 } else {
-                    return this.defaultNodeStyle;
+                    return defaultNodeStyle;
                 }
             };
         }
@@ -172,7 +148,7 @@ public class BddGraphicalGenerator extends GraphicalGenerator<Integer> {
          * @return the current builder
          */
         public BddGraphicalGeneratorBuilder trueNodeStyle(final GraphicalNodeStyle trueNodeStyle) {
-            this.defaultTrueNodeStyle = trueNodeStyle;
+            defaultTrueNodeStyle = trueNodeStyle;
             return this;
         }
 
@@ -183,7 +159,7 @@ public class BddGraphicalGenerator extends GraphicalGenerator<Integer> {
          * @return the current builder
          */
         public BddGraphicalGeneratorBuilder falseNodeStyle(final GraphicalNodeStyle falseNodeStyle) {
-            this.defaultFalseNodeStyle = falseNodeStyle;
+            defaultFalseNodeStyle = falseNodeStyle;
             return this;
         }
 

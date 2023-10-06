@@ -1,39 +1,17 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx _c.booleWorks GmbH
 
 package org.logicng.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.Literal;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.formulas.Variable;
 
 import java.util.ArrayList;
@@ -43,123 +21,126 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 
-/**
- * Unit tests for {@link FormulaHelper}.
- * @version 2.2.0
- * @since 1.5.1
- */
-public class FormulaHelperTest extends TestWithExampleFormulas {
+public class FormulaHelperTest extends TestWithFormulaContext {
 
-    @Test
-    public void testVariables() {
-        assertThat(FormulaHelper.variables(this.TRUE)).isEqualTo(new TreeSet<>());
-        assertThat(FormulaHelper.variables(this.FALSE)).isEqualTo(new TreeSet<>());
-        assertThat(FormulaHelper.variables(this.A)).isEqualTo(new TreeSet<>(Collections.singletonList(this.A)));
-        assertThat(FormulaHelper.variables(this.NA)).isEqualTo(new TreeSet<>(Collections.singletonList(this.A)));
-        assertThat(FormulaHelper.variables(this.IMP1, this.IMP2, this.IMP3)).isEqualTo(new TreeSet<>(Arrays.asList(this.A, this.B, this.X, this.Y)));
-        assertThat(FormulaHelper.variables(this.IMP1, this.Y)).isEqualTo(new TreeSet<>(Arrays.asList(this.A, this.B, this.Y)));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testVariables(final FormulaContext _c) {
+        assertThat(FormulaHelper.variables(_c.f, _c.verum)).isEqualTo(new TreeSet<>());
+        assertThat(FormulaHelper.variables(_c.f, _c.falsum)).isEqualTo(new TreeSet<>());
+        assertThat(FormulaHelper.variables(_c.f, _c.a)).isEqualTo(new TreeSet<>(Collections.singletonList(_c.a)));
+        assertThat(FormulaHelper.variables(_c.f, _c.na)).isEqualTo(new TreeSet<>(Collections.singletonList(_c.a)));
+        assertThat(FormulaHelper.variables(_c.f, _c.imp1, _c.imp2, _c.imp3)).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y)));
+        assertThat(FormulaHelper.variables(_c.f, _c.imp1, _c.y)).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.y)));
 
-        assertThat(FormulaHelper.variables(Arrays.asList(this.TRUE, this.FALSE))).isEqualTo(new TreeSet<>());
-        assertThat(FormulaHelper.variables(Arrays.asList(this.IMP1, this.IMP2, this.IMP3))).isEqualTo(new TreeSet<>(Arrays.asList(this.A, this.B, this.X, this.Y)));
-        assertThat(FormulaHelper.variables(Arrays.asList(this.IMP1, this.Y))).isEqualTo(new TreeSet<>(Arrays.asList(this.A, this.B, this.Y)));
+        assertThat(FormulaHelper.variables(_c.f, Arrays.asList(_c.verum, _c.falsum))).isEqualTo(new TreeSet<>());
+        assertThat(FormulaHelper.variables(_c.f, Arrays.asList(_c.imp1, _c.imp2, _c.imp3))).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y)));
+        assertThat(FormulaHelper.variables(_c.f, Arrays.asList(_c.imp1, _c.y))).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.y)));
     }
 
-    @Test
-    public void testLiterals() {
-        assertThat(FormulaHelper.literals(this.TRUE)).isEqualTo(new TreeSet<>());
-        assertThat(FormulaHelper.literals(this.FALSE)).isEqualTo(new TreeSet<>());
-        assertThat(FormulaHelper.literals(this.A)).isEqualTo(new TreeSet<>(Collections.singletonList(this.A)));
-        assertThat(FormulaHelper.literals(this.NA)).isEqualTo(new TreeSet<>(Collections.singletonList(this.NA)));
-        assertThat(FormulaHelper.literals(this.IMP1, this.IMP2, this.IMP3)).isEqualTo(new TreeSet<>(Arrays.asList(this.A, this.B, this.X, this.Y, this.NA, this.NB)));
-        assertThat(FormulaHelper.literals(this.IMP1, this.NY)).isEqualTo(new TreeSet<>(Arrays.asList(this.A, this.B, this.NY)));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        assertThat(FormulaHelper.literals(_c.f, _c.verum)).isEqualTo(new TreeSet<>());
+        assertThat(FormulaHelper.literals(_c.f, _c.falsum)).isEqualTo(new TreeSet<>());
+        assertThat(FormulaHelper.literals(_c.f, _c.a)).isEqualTo(new TreeSet<>(Collections.singletonList(_c.a)));
+        assertThat(FormulaHelper.literals(_c.f, _c.na)).isEqualTo(new TreeSet<>(Collections.singletonList(_c.na)));
+        assertThat(FormulaHelper.literals(_c.f, _c.imp1, _c.imp2, _c.imp3)).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y, _c.na, _c.nb)));
+        assertThat(FormulaHelper.literals(_c.f, _c.imp1, _c.ny)).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.ny)));
 
-        assertThat(FormulaHelper.literals(Arrays.asList(this.TRUE, this.FALSE))).isEqualTo(new TreeSet<>());
-        assertThat(FormulaHelper.literals(Arrays.asList(this.IMP1, this.IMP2, this.IMP3))).isEqualTo(new TreeSet<>(Arrays.asList(this.A, this.B, this.X, this.Y, this.NA,
-                this.NB)));
-        assertThat(FormulaHelper.literals(Arrays.asList(this.IMP1, this.NY))).isEqualTo(new TreeSet<>(Arrays.asList(this.A, this.B, this.NY)));
+        assertThat(FormulaHelper.literals(_c.f, Arrays.asList(_c.verum, _c.falsum))).isEqualTo(new TreeSet<>());
+        assertThat(FormulaHelper.literals(_c.f, Arrays.asList(_c.imp1, _c.imp2, _c.imp3))).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y, _c.na, _c.nb)));
+        assertThat(FormulaHelper.literals(_c.f, Arrays.asList(_c.imp1, _c.ny))).isEqualTo(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.ny)));
     }
 
-    @Test
-    public void testNegateLiterals() {
-        assertThat((ArrayList<Literal>) FormulaHelper.negateLiterals(Collections.emptyList(), ArrayList::new))
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNegateLiterals(final FormulaContext _c) {
+        assertThat((ArrayList<Literal>) FormulaHelper.negateLiterals(_c.f, Collections.emptyList(), ArrayList::new))
                 .isEqualTo(new ArrayList<Formula>());
-        assertThat((ArrayList<Literal>) FormulaHelper.negateLiterals(Arrays.asList(this.A, this.NB), ArrayList::new))
-                .isEqualTo(Arrays.asList(this.NA, this.B));
-        assertThat((HashSet<Literal>) FormulaHelper.negateLiterals(Arrays.asList(this.A, this.NB), HashSet::new))
-                .isEqualTo(new HashSet<>(Arrays.asList(this.NA, this.B)));
-        final List<Variable> variables = Arrays.asList(this.A, this.B);
-        assertThat((HashSet<Literal>) FormulaHelper.negateLiterals(variables, HashSet::new))
-                .isEqualTo(new HashSet<>(Arrays.asList(this.NA, this.NB)));
+        assertThat((ArrayList<Literal>) FormulaHelper.negateLiterals(_c.f, Arrays.asList(_c.a, _c.nb), ArrayList::new))
+                .isEqualTo(Arrays.asList(_c.na, _c.b));
+        assertThat((HashSet<Literal>) FormulaHelper.negateLiterals(_c.f, Arrays.asList(_c.a, _c.nb), HashSet::new))
+                .isEqualTo(new HashSet<>(Arrays.asList(_c.na, _c.b)));
+        final List<Variable> variables = Arrays.asList(_c.a, _c.b);
+        assertThat((HashSet<Literal>) FormulaHelper.negateLiterals(_c.f, variables, HashSet::new))
+                .isEqualTo(new HashSet<>(Arrays.asList(_c.na, _c.nb)));
     }
 
-    @Test
-    public void testNegate() {
-        assertThat((ArrayList<Formula>) FormulaHelper.negate(Collections.emptyList(), ArrayList::new))
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNegate(final FormulaContext _c) {
+        assertThat((ArrayList<Formula>) FormulaHelper.negate(_c.f, Collections.emptyList(), ArrayList::new))
                 .isEqualTo(new ArrayList<Formula>());
-        assertThat((ArrayList<Formula>) FormulaHelper.negate(Arrays.asList(this.A, this.TRUE, this.NB, this.AND1), ArrayList::new))
-                .isEqualTo(Arrays.asList(this.NA, this.FALSE, this.B, this.f.not(this.AND1)));
-        assertThat((HashSet<Formula>) FormulaHelper.negate(Arrays.asList(this.A, this.TRUE, this.NB, this.AND1), HashSet::new))
-                .isEqualTo(new HashSet<>(Arrays.asList(this.NA, this.FALSE, this.B, this.f.not(this.AND1))));
-        final List<Variable> variables = Arrays.asList(this.A, this.B);
-        assertThat((HashSet<Formula>) FormulaHelper.negate(variables, HashSet::new))
-                .isEqualTo(new HashSet<>(Arrays.asList(this.NA, this.NB)));
-        final List<Literal> literals = Arrays.asList(this.NA, this.B);
-        assertThat((HashSet<Formula>) FormulaHelper.negate(literals, HashSet::new))
-                .isEqualTo(new HashSet<>(Arrays.asList(this.A, this.NB)));
+        assertThat((ArrayList<Formula>) FormulaHelper.negate(_c.f, Arrays.asList(_c.a, _c.verum, _c.nb, _c.and1), ArrayList::new))
+                .isEqualTo(Arrays.asList(_c.na, _c.falsum, _c.b, _c.f.not(_c.and1)));
+        assertThat((HashSet<Formula>) FormulaHelper.negate(_c.f, Arrays.asList(_c.a, _c.verum, _c.nb, _c.and1), HashSet::new))
+                .isEqualTo(new HashSet<>(Arrays.asList(_c.na, _c.falsum, _c.b, _c.f.not(_c.and1))));
+        final List<Variable> variables = Arrays.asList(_c.a, _c.b);
+        assertThat((HashSet<Formula>) FormulaHelper.negate(_c.f, variables, HashSet::new))
+                .isEqualTo(new HashSet<>(Arrays.asList(_c.na, _c.nb)));
+        final List<Literal> literals = Arrays.asList(_c.na, _c.b);
+        assertThat((HashSet<Formula>) FormulaHelper.negate(_c.f, literals, HashSet::new))
+                .isEqualTo(new HashSet<>(Arrays.asList(_c.a, _c.nb)));
     }
 
-    @Test
-    public void testSplitTopLevelAnd() {
-        assertThat(FormulaHelper.splitTopLevelAnd(this.TRUE)).isEqualTo(Collections.singletonList(this.TRUE));
-        assertThat(FormulaHelper.splitTopLevelAnd(this.FALSE)).isEqualTo(Collections.singletonList(this.FALSE));
-        assertThat(FormulaHelper.splitTopLevelAnd(this.OR1)).isEqualTo(Collections.singletonList(this.OR1));
-        assertThat(FormulaHelper.splitTopLevelAnd(this.IMP1)).isEqualTo(Collections.singletonList(this.IMP1));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSplitTopLevelAnd(final FormulaContext _c) {
+        assertThat(FormulaHelper.splitTopLevelAnd(_c.verum)).isEqualTo(Collections.singletonList(_c.verum));
+        assertThat(FormulaHelper.splitTopLevelAnd(_c.falsum)).isEqualTo(Collections.singletonList(_c.falsum));
+        assertThat(FormulaHelper.splitTopLevelAnd(_c.or1)).isEqualTo(Collections.singletonList(_c.or1));
+        assertThat(FormulaHelper.splitTopLevelAnd(_c.imp1)).isEqualTo(Collections.singletonList(_c.imp1));
 
-        assertThat(FormulaHelper.splitTopLevelAnd(this.AND1)).isEqualTo(Arrays.asList(this.A, this.B));
-        assertThat(FormulaHelper.splitTopLevelAnd(this.AND3)).isEqualTo(Arrays.asList(this.OR1, this.OR2));
+        assertThat(FormulaHelper.splitTopLevelAnd(_c.and1)).isEqualTo(Arrays.asList(_c.a, _c.b));
+        assertThat(FormulaHelper.splitTopLevelAnd(_c.and3)).isEqualTo(Arrays.asList(_c.or1, _c.or2));
     }
 
-    @Test
-    public void testStrings2Vars() {
-        assertThat(FormulaHelper.strings2vars(null, this.f)).isEmpty();
-        assertThat(FormulaHelper.strings2vars(new TreeSet<>(), this.f)).isEmpty();
-        assertThat(FormulaHelper.strings2vars(Arrays.asList("a", "b", "c"), this.f))
-                .containsExactly(this.A, this.B, this.C);
-        assertThat(FormulaHelper.strings2vars(Arrays.asList("a", "b", "c", "a", "a"), this.f))
-                .containsExactly(this.A, this.B, this.C);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testStrings2Vars(final FormulaContext _c) {
+        assertThat(FormulaHelper.strings2vars(null, _c.f)).isEmpty();
+        assertThat(FormulaHelper.strings2vars(new TreeSet<>(), _c.f)).isEmpty();
+        assertThat(FormulaHelper.strings2vars(Arrays.asList("a", "b", "c"), _c.f))
+                .containsExactly(_c.a, _c.b, _c.c);
+        assertThat(FormulaHelper.strings2vars(Arrays.asList("a", "b", "c", "a", "a"), _c.f))
+                .containsExactly(_c.a, _c.b, _c.c);
     }
 
-    @Test
-    public void testStrings2Literals() {
-        assertThat(FormulaHelper.strings2literals(null, "~", this.f)).isEmpty();
-        assertThat(FormulaHelper.strings2literals(new TreeSet<>(), "~", this.f)).isEmpty();
-        assertThat(FormulaHelper.strings2literals(Arrays.asList("a", "~b", "c"), "~", this.f))
-                .containsExactly(this.A, this.NB, this.C);
-        assertThat(FormulaHelper.strings2literals(Arrays.asList("~a", "b", "c", "a", "a"), "~", this.f))
-                .containsExactly(this.A, this.NA, this.B, this.C);
-        assertThat(FormulaHelper.strings2literals(Arrays.asList("-a", "b", "c", "a", "a"), "-", this.f))
-                .containsExactly(this.A, this.NA, this.B, this.C);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testStrings2Literals(final FormulaContext _c) {
+        assertThat(FormulaHelper.strings2literals(null, "~", _c.f)).isEmpty();
+        assertThat(FormulaHelper.strings2literals(new TreeSet<>(), "~", _c.f)).isEmpty();
+        assertThat(FormulaHelper.strings2literals(Arrays.asList("a", "~b", "c"), "~", _c.f))
+                .containsExactly(_c.a, _c.nb, _c.c);
+        assertThat(FormulaHelper.strings2literals(Arrays.asList("~a", "b", "c", "a", "a"), "~", _c.f))
+                .containsExactly(_c.a, _c.na, _c.b, _c.c);
+        assertThat(FormulaHelper.strings2literals(Arrays.asList("-a", "b", "c", "a", "a"), "-", _c.f))
+                .containsExactly(_c.a, _c.na, _c.b, _c.c);
     }
 
-    @Test
-    public void testVars2Strings() {
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testVars2Strings(final FormulaContext _c) {
         assertThat(FormulaHelper.vars2strings(null)).isEmpty();
         assertThat(FormulaHelper.vars2strings(new TreeSet<>())).isEmpty();
-        assertThat(FormulaHelper.vars2strings(Arrays.asList(this.A, this.B, this.C)))
+        assertThat(FormulaHelper.vars2strings(Arrays.asList(_c.a, _c.b, _c.c)))
                 .containsExactly("a", "b", "c");
-        assertThat(FormulaHelper.vars2strings(Arrays.asList(this.A, this.B, this.C, this.A, this.A)))
+        assertThat(FormulaHelper.vars2strings(Arrays.asList(_c.a, _c.b, _c.c, _c.a, _c.a)))
                 .containsExactly("a", "b", "c");
     }
 
-    @Test
-    public void testVars2Literals() {
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testVars2Literals(final FormulaContext _c) {
         assertThat(FormulaHelper.literals2strings(null, "~")).isEmpty();
         assertThat(FormulaHelper.literals2strings(new TreeSet<>(), "~")).isEmpty();
-        assertThat(FormulaHelper.literals2strings(Arrays.asList(this.A, this.NB, this.C), "~"))
+        assertThat(FormulaHelper.literals2strings(Arrays.asList(_c.a, _c.nb, _c.c), "~"))
                 .containsExactly("a", "c", "~b");
-        assertThat(FormulaHelper.literals2strings(Arrays.asList(this.NA, this.B, this.C, this.A, this.A), "~"))
+        assertThat(FormulaHelper.literals2strings(Arrays.asList(_c.na, _c.b, _c.c, _c.a, _c.a), "~"))
                 .containsExactly("a", "b", "c", "~a");
-        assertThat(FormulaHelper.literals2strings(Arrays.asList(this.NA, this.B, this.C, this.A, this.A), "-"))
+        assertThat(FormulaHelper.literals2strings(Arrays.asList(_c.na, _c.b, _c.c, _c.a, _c.a), "-"))
                 .containsExactly("-a", "a", "b", "c");
     }
 }

@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.handlers;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,18 +35,18 @@ class TimeoutSATHandlerTest {
 
     @BeforeEach
     public void init() {
-        this.f = new FormulaFactory();
-        this.pg = new PigeonHoleGenerator(this.f);
-        this.solvers = new SATSolver[8];
-        this.solvers[0] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(true).build());
-        this.solvers[1] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(false).build());
-        this.solvers[2] = MiniSat.glucose(this.f, MiniSatConfig.builder().incremental(false).build(),
+        f = FormulaFactory.caching();
+        pg = new PigeonHoleGenerator(f);
+        solvers = new SATSolver[8];
+        solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).build());
+        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
+        solvers[2] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(false).build(),
                 GlucoseConfig.builder().build());
-        this.solvers[3] = MiniSat.miniCard(this.f, MiniSatConfig.builder().incremental(true).build());
-        this.solvers[4] = MiniSat.miniCard(this.f, MiniSatConfig.builder().incremental(false).build());
-        this.solvers[5] = MiniSat.miniSat(this.f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
-        this.solvers[6] = MiniSat.miniSat(this.f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
-        this.solvers[7] = MiniSat.miniSat(this.f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        solvers[3] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(true).build());
+        solvers[4] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(false).build());
+        solvers[5] = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        solvers[6] = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        solvers[7] = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
     }
 
     @Test
@@ -56,8 +60,8 @@ class TimeoutSATHandlerTest {
 
     @Test
     public void testThatMethodsAreCalled() throws ParserException {
-        for (final SATSolver solver : this.solvers) {
-            solver.add(this.f.parse("(x => y) & (~x => y) & (y => z) & (z => ~y)"));
+        for (final SATSolver solver : solvers) {
+            solver.add(f.parse("(x => y) & (~x => y) & (y => z) & (z => ~y)"));
             final TimeoutSATHandler handler = Mockito.mock(TimeoutSATHandler.class);
 
             solver.sat(handler);
@@ -70,7 +74,7 @@ class TimeoutSATHandlerTest {
 
     @Test
     public void testThatDetectedConflictIsHandledProperly() {
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             solver.add(pg.generate(10));
             final TimeoutSATHandler handler = Mockito.mock(TimeoutSATHandler.class);
             final AtomicInteger count = new AtomicInteger(0);
@@ -88,7 +92,7 @@ class TimeoutSATHandlerTest {
 
     @Test
     public void testTimeoutHandlerSingleTimeout() {
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             solver.add(pg.generate(10));
             final TimeoutSATHandler handler = new TimeoutSATHandler(100L);
 
@@ -101,7 +105,7 @@ class TimeoutSATHandlerTest {
 
     @Test
     public void testTimeoutHandlerFixedEnd() {
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             solver.add(pg.generate(10));
             final TimeoutSATHandler handler = new TimeoutSATHandler(System.currentTimeMillis() + 100L, TimeoutHandler.TimerType.FIXED_END);
 

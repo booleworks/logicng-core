@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.bdds;
 
@@ -32,10 +8,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.LongRunningTag;
-import org.logicng.TestWithExampleFormulas;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.knowledgecompilation.bdds.datastructures.BDDConstant;
@@ -53,7 +32,6 @@ import org.logicng.util.FormulaRandomizerConfig;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -61,83 +39,81 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-/**
- * Unit Tests for the reordering algorithms of BDDs.
- * @version 2.0.0
- * @since 2.0.0
- */
-public class BDDReorderingTest extends TestWithExampleFormulas {
+public class BDDReorderingTest extends TestWithFormulaContext {
 
     private final SwapStats stats = new SwapStats();
     private static final List<BDDReorderingMethod> REORDER_METHODS =
-            Arrays.asList(BDDReorderingMethod.BDD_REORDER_WIN2, BDDReorderingMethod.BDD_REORDER_WIN2ITE, BDDReorderingMethod.BDD_REORDER_WIN3, BDDReorderingMethod.BDD_REORDER_WIN3ITE,
+            List.of(BDDReorderingMethod.BDD_REORDER_WIN2, BDDReorderingMethod.BDD_REORDER_WIN2ITE, BDDReorderingMethod.BDD_REORDER_WIN3, BDDReorderingMethod.BDD_REORDER_WIN3ITE,
                     BDDReorderingMethod.BDD_REORDER_SIFT,
                     BDDReorderingMethod.BDD_REORDER_SIFTITE, BDDReorderingMethod.BDD_REORDER_RANDOM);
 
-    @Test
-    public void testExceptionalBehavior() {
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testExceptionalBehavior(final FormulaContext _c) {
         assertThatThrownBy(() -> {
-            final BDDKernel kernel = new BDDKernel(this.f, Arrays.asList(this.A, this.B), 100, 100);
+            final BDDKernel kernel = new BDDKernel(_c.f, List.of(_c.a, _c.b), 100, 100);
             final BDDReordering reordering = new BDDReordering(kernel);
-            final Formula formula = this.f.parse("a | b");
-            BDDFactory.build(formula, kernel);
+            final Formula formula = _c.f.parse("a | b");
+            BDDFactory.build(_c.f, formula, kernel);
             reordering.swapVariables(0, 2);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Unknown variable number: " + 2);
         assertThatThrownBy(() -> {
-            final BDDKernel kernel = new BDDKernel(this.f, Arrays.asList(this.A, this.B), 100, 100);
+            final BDDKernel kernel = new BDDKernel(_c.f, List.of(_c.a, _c.b), 100, 100);
             final BDDReordering reordering = new BDDReordering(kernel);
-            final Formula formula = this.f.parse("a | b");
-            BDDFactory.build(formula, kernel);
+            final Formula formula = _c.f.parse("a | b");
+            BDDFactory.build(_c.f, formula, kernel);
             reordering.swapVariables(3, 0);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Unknown variable number: " + 3);
     }
 
-    @Test
-    public void testSwapping() throws ParserException {
-        final BDDKernel kernel = new BDDKernel(this.f, Arrays.asList(this.A, this.B, this.C), 100, 100);
-        final Formula formula = this.f.parse("a | b | c");
-        final BDD bdd = BDDFactory.build(formula, kernel);
-        assertThat(bdd.getVariableOrder()).containsExactly(this.A, this.B, this.C);
-        bdd.swapVariables(this.A, this.B);
-        assertThat(bdd.getVariableOrder()).containsExactly(this.B, this.A, this.C);
-        bdd.swapVariables(this.A, this.B);
-        assertThat(bdd.getVariableOrder()).containsExactly(this.A, this.B, this.C);
-        bdd.swapVariables(this.A, this.A);
-        assertThat(bdd.getVariableOrder()).containsExactly(this.A, this.B, this.C);
-        bdd.swapVariables(this.A, this.C);
-        assertThat(bdd.getVariableOrder()).containsExactly(this.C, this.B, this.A);
-        bdd.swapVariables(this.B, this.C);
-        assertThat(bdd.getVariableOrder()).containsExactly(this.B, this.C, this.A);
-        assertThat(this.f.equivalence(formula, bdd.cnf()).holds(new TautologyPredicate(this.f))).isTrue();
-        assertThat(bdd.apply(LngBDDFunction.get())).isEqualTo(
-                new BDDInnerNode(this.B,
-                        new BDDInnerNode(this.C,
-                                new BDDInnerNode(this.A, BDDConstant.getFalsumNode(this.f), BDDConstant.getVerumNode(this.f)),
-                                BDDConstant.getVerumNode(this.f)),
-                        BDDConstant.getVerumNode(this.f)));
-        assertThatThrownBy(() -> bdd.swapVariables(this.B, this.X)).isInstanceOf(IllegalArgumentException.class);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSwapping(final FormulaContext _c) throws ParserException {
+        final BDDKernel kernel = new BDDKernel(_c.f, List.of(_c.a, _c.b, _c.c), 100, 100);
+        final Formula formula = _c.f.parse("a | b | c");
+        final BDD bdd = BDDFactory.build(_c.f, formula, kernel);
+        assertThat(bdd.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
+        bdd.swapVariables(_c.a, _c.b);
+        assertThat(bdd.getVariableOrder()).containsExactly(_c.b, _c.a, _c.c);
+        bdd.swapVariables(_c.a, _c.b);
+        assertThat(bdd.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
+        bdd.swapVariables(_c.a, _c.a);
+        assertThat(bdd.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
+        bdd.swapVariables(_c.a, _c.c);
+        assertThat(bdd.getVariableOrder()).containsExactly(_c.c, _c.b, _c.a);
+        bdd.swapVariables(_c.b, _c.c);
+        assertThat(bdd.getVariableOrder()).containsExactly(_c.b, _c.c, _c.a);
+        assertThat(_c.f.equivalence(formula, bdd.cnf()).holds(new TautologyPredicate(_c.f))).isTrue();
+        assertThat(bdd.apply(new LngBDDFunction(_c.f))).isEqualTo(
+                new BDDInnerNode(_c.b,
+                        new BDDInnerNode(_c.c,
+                                new BDDInnerNode(_c.a, BDDConstant.getFalsumNode(_c.f), BDDConstant.getVerumNode(_c.f)),
+                                BDDConstant.getVerumNode(_c.f)),
+                        BDDConstant.getVerumNode(_c.f)));
+        assertThatThrownBy(() -> bdd.swapVariables(_c.b, _c.x)).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test
-    public void testSwappingMultipleBdds() throws ParserException {
-        final BDDKernel kernel = new BDDKernel(this.f, Arrays.asList(this.A, this.B, this.C), 100, 100);
-        final Formula formula1 = this.f.parse("a | b | c");
-        final Formula formula2 = this.f.parse("a & b");
-        final BDD bdd1 = BDDFactory.build(formula1, kernel);
-        final BDD bdd2 = BDDFactory.build(formula2, kernel);
-        assertThat(bdd1.getVariableOrder()).containsExactly(this.A, this.B, this.C);
-        assertThat(bdd2.getVariableOrder()).containsExactly(this.A, this.B, this.C);
-        assertThat(bdd2.apply(LngBDDFunction.get())).isEqualTo(
-                new BDDInnerNode(this.A, BDDConstant.getFalsumNode(this.f),
-                        new BDDInnerNode(this.B, BDDConstant.getFalsumNode(this.f), BDDConstant.getVerumNode(this.f))));
-        bdd1.swapVariables(this.A, this.B);
-        assertThat(bdd1.getVariableOrder()).containsExactly(this.B, this.A, this.C);
-        assertThat(bdd2.getVariableOrder()).containsExactly(this.B, this.A, this.C);
-        assertThat(bdd2.apply(LngBDDFunction.get())).isEqualTo(
-                new BDDInnerNode(this.B, BDDConstant.getFalsumNode(this.f),
-                        new BDDInnerNode(this.A, BDDConstant.getFalsumNode(this.f), BDDConstant.getVerumNode(this.f))));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSwappingMultipleBdds(final FormulaContext _c) throws ParserException {
+        final BDDKernel kernel = new BDDKernel(_c.f, List.of(_c.a, _c.b, _c.c), 100, 100);
+        final Formula formula1 = _c.f.parse("a | b | c");
+        final Formula formula2 = _c.f.parse("a & b");
+        final BDD bdd1 = BDDFactory.build(_c.f, formula1, kernel);
+        final BDD bdd2 = BDDFactory.build(_c.f, formula2, kernel);
+        assertThat(bdd1.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
+        assertThat(bdd2.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
+        assertThat(bdd2.apply(new LngBDDFunction(_c.f))).isEqualTo(
+                new BDDInnerNode(_c.a, BDDConstant.getFalsumNode(_c.f),
+                        new BDDInnerNode(_c.b, BDDConstant.getFalsumNode(_c.f), BDDConstant.getVerumNode(_c.f))));
+        bdd1.swapVariables(_c.a, _c.b);
+        assertThat(bdd1.getVariableOrder()).containsExactly(_c.b, _c.a, _c.c);
+        assertThat(bdd2.getVariableOrder()).containsExactly(_c.b, _c.a, _c.c);
+        assertThat(bdd2.apply(new LngBDDFunction(_c.f))).isEqualTo(
+                new BDDInnerNode(_c.b, BDDConstant.getFalsumNode(_c.f),
+                        new BDDInnerNode(_c.a, BDDConstant.getFalsumNode(_c.f), BDDConstant.getVerumNode(_c.f))));
     }
 
     @Test
@@ -165,10 +141,10 @@ public class BDDReorderingTest extends TestWithExampleFormulas {
     private void testRandomReordering(final int minVars, final int maxVars, final boolean verbose) {
         for (int vars = minVars; vars <= maxVars; vars++) {
             for (int depth = 4; depth <= 6; depth++) {
-                final FormulaFactory f = new FormulaFactory();
+                final FormulaFactory f = FormulaFactory.caching();
                 final Formula formula = randomFormula(vars, depth, f);
                 if (verbose) {
-                    System.out.printf("vars = %2d, depth = %2d, nodes = %5d%n", vars, depth, formula.numberOfNodes());
+                    System.out.printf("vars = %2d, depth = %2d, nodes = %5d%n", vars, depth, formula.numberOfNodes(f));
                 }
                 for (final BDDReorderingMethod method : REORDER_METHODS) {
                     performReorder(f, formula, method, true, verbose);
@@ -185,17 +161,17 @@ public class BDDReorderingTest extends TestWithExampleFormulas {
                 .numVars(vars).seed(vars * depth * 42)
                 .weightEquiv(0).weightImpl(0).weightNot(0).build());
         return Stream.generate(() -> randomizer.and(depth))
-                .filter(fm -> fm.variables().size() == vars && fm.holds(new SATPredicate(f)))
+                .filter(fm -> fm.variables(f).size() == vars && fm.holds(new SATPredicate(f)))
                 .findAny().get();
     }
 
     private void performReorder(final FormulaFactory f, final Formula formula, final BDDReorderingMethod reorderMethod, final boolean withBlocks, final boolean verbose) {
-        final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables()), 1000, 10000);
-        final BDD bdd = BDDFactory.build(formula, kernel);
+        final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables(f)), 1000, 10000);
+        final BDD bdd = BDDFactory.build(f, formula, kernel);
         final BigInteger count = bdd.modelCount();
         final int usedBefore = new BDDOperations(kernel).nodeCount(bdd.index());
         final long start = System.currentTimeMillis();
-        addVariableBlocks(formula.variables().size(), withBlocks, kernel);
+        addVariableBlocks(formula.variables(f).size(), withBlocks, kernel);
         kernel.getReordering().reorder(reorderMethod);
         final long duration = System.currentTimeMillis() - start;
         final int usedAfter = new BDDOperations(kernel).nodeCount(bdd.index());
@@ -232,13 +208,13 @@ public class BDDReorderingTest extends TestWithExampleFormulas {
     private void testReorderOnBuild(final int minVars, final int maxVars, final boolean verbose) {
         for (int vars = minVars; vars <= maxVars; vars++) {
             for (int depth = 4; depth <= 6; depth++) {
-                final FormulaFactory f = new FormulaFactory();
+                final FormulaFactory f = FormulaFactory.caching();
                 final Formula formula = randomFormula(vars, depth, f);
                 if (verbose) {
-                    System.out.println(String.format("vars = %2d, depth = %2d, nodes = %5d", vars, depth, formula.numberOfNodes()));
+                    System.out.println(String.format("vars = %2d, depth = %2d, nodes = %5d", vars, depth, formula.numberOfNodes(f)));
                 }
-                final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables()), 1000, 10000);
-                final BDD bdd = BDDFactory.build(formula, kernel);
+                final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables(f)), 1000, 10000);
+                final BDD bdd = BDDFactory.build(f, formula, kernel);
                 final int nodeCount = new BDDOperations(kernel).nodeCount(bdd.index());
                 final BigInteger modelCount = bdd.modelCount();
                 for (final BDDReorderingMethod method : REORDER_METHODS) {
@@ -253,11 +229,11 @@ public class BDDReorderingTest extends TestWithExampleFormulas {
 
     private void reorderOnBuild(final FormulaFactory f, final Formula formula, final BDDReorderingMethod method, final BigInteger originalCount, final int originalUsedNodes, final boolean withBlocks,
                                 final boolean verbose) {
-        final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables()), 1000, 10000);
-        addVariableBlocks(formula.variables().size(), withBlocks, kernel);
+        final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables(f)), 1000, 10000);
+        addVariableBlocks(formula.variables(f).size(), withBlocks, kernel);
         kernel.getReordering().setReorderDuringConstruction(method, 10000);
         final long start = System.currentTimeMillis();
-        final BDD bdd = BDDFactory.build(formula, kernel);
+        final BDD bdd = BDDFactory.build(f, formula, kernel);
         final long duration = System.currentTimeMillis() - start;
         final int usedAfter = new BDDOperations(kernel).nodeCount(bdd.index());
         verifyVariableBlocks(f, formula, withBlocks, bdd);
@@ -277,7 +253,7 @@ public class BDDReorderingTest extends TestWithExampleFormulas {
         if (nodes < 0) {
             return false;
         }
-        this.stats.newBddSize(nodes);
+        stats.newBddSize(nodes);
         if (modelCount != null && !modelCount.equals(bdd.modelCount())) {
             System.out.println("Nodecount changed!");
             return false;
@@ -297,8 +273,8 @@ public class BDDReorderingTest extends TestWithExampleFormulas {
             assertThat(findSequence(bdd, IntStream.range(15, 20).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
             assertThat(findSequence(bdd, IntStream.range(15, 18).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
             assertThat(findSequence(bdd, IntStream.range(18, 20).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
-            assertThat(findSequence(bdd, IntStream.range(21, formula.variables().size()).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
-            if (formula.variables().size() > 33) {
+            assertThat(findSequence(bdd, IntStream.range(21, formula.variables(f).size()).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
+            if (formula.variables(f).size() > 33) {
                 assertThat(findSequence(bdd, IntStream.range(30, 34).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
             }
             final List<Variable> order = bdd.getVariableOrder();
@@ -334,25 +310,25 @@ public class BDDReorderingTest extends TestWithExampleFormulas {
         private long maxBddSize = 0;  // num nodes without caching
 
         public void newFormula(final Formula formula) {
-            this.maxFormulaSize = Math.max(this.maxFormulaSize, formula.numberOfNodes());
+            maxFormulaSize = Math.max(maxFormulaSize, formula.numberOfNodes(formula.factory()));
         }
 
         public void newBdd(final BDD bdd) {
-            this.maxBddNodes = Math.max(this.maxBddNodes, bdd.nodeCount());
+            maxBddNodes = Math.max(maxBddNodes, bdd.nodeCount());
         }
 
         public void newBddSize(final long size) {
-            this.maxBddSize = Math.max(this.maxBddSize, size);
+            maxBddSize = Math.max(maxBddSize, size);
         }
 
         @Override
         public String toString() {
             return "SwapStats{" +
-                    "testedFormulas=" + this.testedFormulas +
-                    ", numSwaps=" + this.numSwaps +
-                    ", maxFormulaSize=" + this.maxFormulaSize +
-                    ", maxBddNodes=" + this.maxBddNodes +
-                    ", maxBddSize=" + this.maxBddSize +
+                    "testedFormulas=" + testedFormulas +
+                    ", numSwaps=" + numSwaps +
+                    ", maxFormulaSize=" + maxFormulaSize +
+                    ", maxBddNodes=" + maxBddNodes +
+                    ", maxBddSize=" + maxBddSize +
                     '}';
         }
     }

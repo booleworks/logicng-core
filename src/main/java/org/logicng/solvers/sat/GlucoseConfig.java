@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.solvers.sat;
 
@@ -58,19 +34,19 @@ public final class GlucoseConfig extends Configuration {
      */
     private GlucoseConfig(final Builder builder) {
         super(ConfigurationType.GLUCOSE);
-        this.lbLBDMinimizingClause = builder.lbLBDMinimizingClause;
-        this.lbLBDFrozenClause = builder.lbLBDFrozenClause;
-        this.lbSizeMinimizingClause = builder.lbSizeMinimizingClause;
-        this.firstReduceDB = builder.firstReduceDB;
-        this.specialIncReduceDB = builder.specialIncReduceDB;
-        this.incReduceDB = builder.incReduceDB;
-        this.factorK = builder.factorK;
-        this.factorR = builder.factorR;
-        this.sizeLBDQueue = builder.sizeLBDQueue;
-        this.sizeTrailQueue = builder.sizeTrailQueue;
-        this.reduceOnSize = builder.reduceOnSize;
-        this.reduceOnSizeSize = builder.reduceOnSizeSize;
-        this.maxVarDecay = builder.maxVarDecay;
+        lbLBDMinimizingClause = builder.lbLBDMinimizingClause;
+        lbLBDFrozenClause = builder.lbLBDFrozenClause;
+        lbSizeMinimizingClause = builder.lbSizeMinimizingClause;
+        firstReduceDB = builder.firstReduceDB;
+        specialIncReduceDB = builder.specialIncReduceDB;
+        incReduceDB = builder.incReduceDB;
+        factorK = builder.factorK;
+        factorR = builder.factorR;
+        sizeLBDQueue = builder.sizeLBDQueue;
+        sizeTrailQueue = builder.sizeTrailQueue;
+        reduceOnSize = builder.reduceOnSize;
+        reduceOnSizeSize = builder.reduceOnSizeSize;
+        maxVarDecay = builder.maxVarDecay;
     }
 
     /**
@@ -84,19 +60,19 @@ public final class GlucoseConfig extends Configuration {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("GlucoseConfig{").append(System.lineSeparator());
-        sb.append("lbLBDMinimizingClause=").append(this.lbLBDMinimizingClause).append(System.lineSeparator());
-        sb.append("lbLBDFrozenClause=").append(this.lbLBDFrozenClause).append(System.lineSeparator());
-        sb.append("lbSizeMinimizingClause=").append(this.lbSizeMinimizingClause).append(System.lineSeparator());
-        sb.append("firstReduceDB=").append(this.firstReduceDB).append(System.lineSeparator());
-        sb.append("specialIncReduceDB=").append(this.specialIncReduceDB).append(System.lineSeparator());
-        sb.append("incReduceDB=").append(this.incReduceDB).append(System.lineSeparator());
-        sb.append("factorK=").append(this.factorK).append(System.lineSeparator());
-        sb.append("factorR=").append(this.factorR).append(System.lineSeparator());
-        sb.append("sizeLBDQueue=").append(this.sizeLBDQueue).append(System.lineSeparator());
-        sb.append("sizeTrailQueue=").append(this.sizeTrailQueue).append(System.lineSeparator());
-        sb.append("reduceOnSize=").append(this.reduceOnSize).append(System.lineSeparator());
-        sb.append("reduceOnSizeSize=").append(this.reduceOnSizeSize).append(System.lineSeparator());
-        sb.append("maxVarDecay=").append(this.maxVarDecay).append(System.lineSeparator());
+        sb.append("lbLBDMinimizingClause=").append(lbLBDMinimizingClause).append(System.lineSeparator());
+        sb.append("lbLBDFrozenClause=").append(lbLBDFrozenClause).append(System.lineSeparator());
+        sb.append("lbSizeMinimizingClause=").append(lbSizeMinimizingClause).append(System.lineSeparator());
+        sb.append("firstReduceDB=").append(firstReduceDB).append(System.lineSeparator());
+        sb.append("specialIncReduceDB=").append(specialIncReduceDB).append(System.lineSeparator());
+        sb.append("incReduceDB=").append(incReduceDB).append(System.lineSeparator());
+        sb.append("factorK=").append(factorK).append(System.lineSeparator());
+        sb.append("factorR=").append(factorR).append(System.lineSeparator());
+        sb.append("sizeLBDQueue=").append(sizeLBDQueue).append(System.lineSeparator());
+        sb.append("sizeTrailQueue=").append(sizeTrailQueue).append(System.lineSeparator());
+        sb.append("reduceOnSize=").append(reduceOnSize).append(System.lineSeparator());
+        sb.append("reduceOnSizeSize=").append(reduceOnSizeSize).append(System.lineSeparator());
+        sb.append("maxVarDecay=").append(maxVarDecay).append(System.lineSeparator());
         sb.append("}");
         return sb.toString();
     }

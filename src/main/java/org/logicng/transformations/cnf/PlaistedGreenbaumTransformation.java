@@ -1,45 +1,20 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.cnf;
-
-import static org.logicng.formulas.cache.TransformationCacheEntry.PLAISTED_GREENBAUM_POS;
-import static org.logicng.formulas.cache.TransformationCacheEntry.PLAISTED_GREENBAUM_VARIABLE;
 
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.FormulaTransformation;
 import org.logicng.formulas.Literal;
+import org.logicng.transformations.StatefulFormulaTransformation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Transformation of a formula into CNF due to Plaisted &amp; Greenbaum.  Results in this implementation will always be
@@ -47,28 +22,61 @@ import java.util.List;
  * <p>
  * ATTENTION: if you mix formulas from different formula factories this can lead to clashes in the naming of newly
  * introduced variables.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.0
  */
-public final class PlaistedGreenbaumTransformation implements FormulaTransformation {
+public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransformation<PlaistedGreenbaumTransformation.PGState> {
+
+    public static final int DEFAULT_BOUNDARY = 12;
 
     private final int boundaryForFactorization;
-    private final CNFFactorization factorization = new CNFFactorization();
+    private final CNFFactorization factorization;
 
     /**
-     * Constructor for a Plaisted &amp; Greenbaum transformation.
-     * @param boundaryForFactorization the boundary of number of atoms up to which classical factorization is used
+     * Constructor for a Plaisted &amp; Greenbaum transformation with conversion to nnf and the default
+     * factorization  bound of 12.
+     * @param f the formula factory to generate new formulas
      */
-    public PlaistedGreenbaumTransformation(final int boundaryForFactorization) {
-        this.boundaryForFactorization = boundaryForFactorization;
+    public PlaistedGreenbaumTransformation(final FormulaFactory f) {
+        this(f, DEFAULT_BOUNDARY);
     }
 
     /**
-     * Constructor for a Plaisted &amp; Greenbaum transformation with conversion to nnf and a factorization
-     * bound of 12.
+     * Constructor for a Plaisted &amp; Greenbaum transformation.
+     * @param f                        the formula factory to generate new formulas
+     * @param boundaryForFactorization the boundary of number of atoms up to which classical factorization is used
      */
-    public PlaistedGreenbaumTransformation() {
-        this(12);
+    public PlaistedGreenbaumTransformation(final FormulaFactory f, final int boundaryForFactorization) {
+        super(f);
+        this.boundaryForFactorization = boundaryForFactorization;
+        factorization = new CNFFactorization(f);
+    }
+
+    /**
+     * Constructor for a Plaisted &amp; Greenbaum transformation with conversion to nnf and the default
+     * factorization  bound of 12.
+     * @param f     the formula factory to generate new formulas
+     * @param state the mutable state for a PG transformation
+     */
+    public PlaistedGreenbaumTransformation(final FormulaFactory f, final PGState state) {
+        this(f, DEFAULT_BOUNDARY, state);
+    }
+
+    /**
+     * Constructor for a Plaisted &amp; Greenbaum transformation.
+     * @param f                        the formula factory to generate new formulas
+     * @param boundaryForFactorization the boundary of number of atoms up to which classical factorization is used
+     * @param state                    the mutable state for a PG transformation
+     */
+    public PlaistedGreenbaumTransformation(final FormulaFactory f, final int boundaryForFactorization, final PGState state) {
+        super(f, state);
+        this.boundaryForFactorization = boundaryForFactorization;
+        factorization = new CNFFactorization(f);
+    }
+
+    @Override
+    protected PGState inititialState() {
+        return new PGState();
     }
 
     /**
@@ -77,50 +85,46 @@ public final class PlaistedGreenbaumTransformation implements FormulaTransformat
      * @param formula the formula
      * @return the old or new auxiliary variable
      */
-    private static Literal pgVariable(final Formula formula) {
+    private Literal pgVariable(final Formula formula) {
         if (formula.type() == FType.LITERAL) {
             return (Literal) formula;
         }
-        Literal var = (Literal) formula.transformationCacheEntry(PLAISTED_GREENBAUM_VARIABLE);
+        Literal var = state.literal(formula);
         if (var == null) {
-            var = formula.factory().newCNFVariable();
-            formula.setTransformationCacheEntry(PLAISTED_GREENBAUM_VARIABLE, var);
+            var = f.newCNFVariable();
+            state.literalMap.put(formula, var);
         }
         return var;
     }
 
     @Override
-    public Formula apply(final Formula formula, final boolean cache) {
-        final Formula nnf = formula.nnf();
-        if (nnf.isCNF()) {
+    public Formula apply(final Formula formula) {
+        final Formula nnf = formula.nnf(f);
+        if (nnf.isCNF(f)) {
             return nnf;
         }
         Formula pg;
-        if (nnf.numberOfAtoms() < this.boundaryForFactorization) {
-            pg = nnf.transform(this.factorization);
+        if (nnf.numberOfAtoms(f) < boundaryForFactorization) {
+            pg = nnf.transform(factorization);
         } else {
-            pg = this.computeTransformation(nnf);
-            final Assignment topLevel = new Assignment((Literal) nnf.transformationCacheEntry(PLAISTED_GREENBAUM_VARIABLE));
-            pg = pg.restrict(topLevel);
+            pg = computeTransformation(nnf);
+            final Assignment topLevel = new Assignment(state.literal(nnf));
+            pg = pg.restrict(topLevel, f);
         }
-        if (cache) {
-            formula.setTransformationCacheEntry(PLAISTED_GREENBAUM_VARIABLE,
-                    nnf.transformationCacheEntry(PLAISTED_GREENBAUM_VARIABLE));
-        }
+        state.literalMap.put(formula, state.literal(nnf));
         return pg;
     }
 
     private Formula computeTransformation(final Formula formula) {
-        final FormulaFactory f = formula.factory();
         switch (formula.type()) {
             case LITERAL:
                 return f.verum();
             case OR:
             case AND:
                 final List<Formula> nops = new ArrayList<>();
-                nops.add(this.computePosPolarity(formula));
+                nops.add(computePosPolarity(formula));
                 for (final Formula op : formula) {
-                    nops.add(this.computeTransformation(op));
+                    nops.add(computeTransformation(op));
                 }
                 return f.and(nops);
             default:
@@ -129,30 +133,29 @@ public final class PlaistedGreenbaumTransformation implements FormulaTransformat
     }
 
     private Formula computePosPolarity(final Formula formula) {
-        Formula result = formula.transformationCacheEntry(PLAISTED_GREENBAUM_POS);
+        Formula result = state.pos(formula);
         if (result != null) {
             return result;
         }
-        final FormulaFactory f = formula.factory();
         final Literal pgVar = pgVariable(formula);
         switch (formula.type()) {
             case AND: {
                 final List<Formula> nops = new ArrayList<>();
                 for (final Formula op : formula) {
-                    nops.add(f.clause(pgVar.negate(), pgVariable(op)));
+                    nops.add(f.clause(pgVar.negate(f), pgVariable(op)));
                 }
                 result = f.and(nops);
-                formula.setTransformationCacheEntry(PLAISTED_GREENBAUM_POS, result);
+                state.posMap.put(formula, result);
                 return result;
             }
             case OR: {
                 final List<Literal> nops = new ArrayList<>();
-                nops.add(pgVar.negate());
+                nops.add(pgVar.negate(f));
                 for (final Formula op : formula) {
                     nops.add(pgVariable(op));
                 }
                 result = f.clause(nops);
-                formula.setTransformationCacheEntry(PLAISTED_GREENBAUM_POS, result);
+                state.posMap.put(formula, result);
                 return result;
             }
             default:
@@ -162,6 +165,29 @@ public final class PlaistedGreenbaumTransformation implements FormulaTransformat
 
     @Override
     public String toString() {
-        return String.format("PlaistedGreenbaumTransformation{boundary=%d}", this.boundaryForFactorization);
+        return String.format("PlaistedGreenbaumTransformation{boundary=%d}", boundaryForFactorization);
+    }
+
+    public static final class PGState {
+        private final Map<Formula, Formula> posMap;
+        private final Map<Formula, Literal> literalMap;
+
+        public PGState() {
+            posMap = new HashMap<>();
+            literalMap = new HashMap<>();
+        }
+
+        public PGState(final Map<Formula, Formula> posMap, final Map<Formula, Literal> literalMap) {
+            this.posMap = posMap;
+            this.literalMap = literalMap;
+        }
+
+        private Formula pos(final Formula formula) {
+            return posMap.get(formula);
+        }
+
+        private Literal literal(final Formula formula) {
+            return literalMap.get(formula);
+        }
     }
 }

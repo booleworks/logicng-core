@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.cardinalityconstraints;
 
@@ -50,11 +26,6 @@ import org.logicng.formulas.Variable;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 
-/**
- * Unit tests for the at-most-one configs.
- * @version 2.0.0
- * @since 1.0
- */
 public class CCAMOTest implements LogicNGTest {
 
     private final CCConfig[] configs;
@@ -79,24 +50,24 @@ public class CCAMOTest implements LogicNGTest {
 
     @Test
     public void testAMO0() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula cc = f.amo();
         assertThat(cc).isEqualTo(f.verum());
     }
 
     @Test
     public void testAMO1() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final CardinalityConstraint cc = (CardinalityConstraint) f.amo(f.variable("v0"));
         for (final CCConfig config : this.configs) {
-            assertThat(new CCEncoder(f, config).encode(cc)).isEmpty();
+            assertThat(CCEncoder.encode(cc, f, config)).isEmpty();
         }
         assertThat(f.newCCVariable().name()).endsWith("_0");
     }
 
     @Test
     public void testAMOK() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         int counter = 0;
         for (final CCConfig config : this.configs) {
             if (config != null) {
@@ -113,35 +84,13 @@ public class CCAMOTest implements LogicNGTest {
 
     @Test
     public void testAMOKMiniCard() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         testAMO(2, f, true);
         testAMO(10, f, true);
         testAMO(100, f, true);
         testAMO(250, f, true);
         testAMO(500, f, true);
         assertThat(f.newCCVariable().name()).endsWith("_0");
-    }
-
-    @Test
-    public void testToString() {
-        assertThat(this.configs[0].amoEncoder.toString()).isEqualTo("PURE");
-        assertThat(this.configs[1].amoEncoder.toString()).isEqualTo("LADDER");
-        assertThat(this.configs[2].amoEncoder.toString()).isEqualTo("PRODUCT");
-        assertThat(this.configs[3].amoEncoder.toString()).isEqualTo("BINARY");
-        assertThat(this.configs[4].amoEncoder.toString()).isEqualTo("NESTED");
-        assertThat(this.configs[5].amoEncoder.toString()).isEqualTo("COMMANDER");
-        assertThat(this.configs[7].amoEncoder.toString()).isEqualTo("BIMANDER");
-        assertThat(this.configs[13].amoEncoder.toString()).isEqualTo("BEST");
-        assertThat(new CCAMOPure().toString()).isEqualTo("CCAMOPure");
-        assertThat(new CCAMOLadder().toString()).isEqualTo("CCAMOLadder");
-        assertThat(new CCAMOProduct(2).toString()).isEqualTo("CCAMOProduct");
-        assertThat(new CCAMOBinary().toString()).isEqualTo("CCAMOBinary");
-        assertThat(new CCAMONested(2).toString()).isEqualTo("CCAMONested");
-        assertThat(new CCAMOCommander(2).toString()).isEqualTo("CCAMOCommander");
-        assertThat(new CCAMOBimander(2).toString()).isEqualTo("CCAMOBimander");
-
-        assertThat(CCConfig.AMO_ENCODER.values()).contains(CCConfig.AMO_ENCODER.valueOf("LADDER"));
-        assertThat(CCConfig.BIMANDER_GROUP_SIZE.values()).contains(CCConfig.BIMANDER_GROUP_SIZE.valueOf("SQRT"));
     }
 
     private void testAMO(final int numLits, final FormulaFactory f, final boolean miniCard) {

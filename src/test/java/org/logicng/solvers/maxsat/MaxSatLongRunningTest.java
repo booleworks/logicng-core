@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.solvers.maxsat;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,17 +21,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * MaxSat tests with a long running time.
- * @version 2.4.0
- * @since 2.4.0
- */
 public class MaxSatLongRunningTest {
 
     @LongRunningTag
     @Test
     public void testWeightedMaxSat() throws IOException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final File folder = new File("src/test/resources/longrunning/wms");
         final Map<String, Integer> result = readResult(new File("src/test/resources/longrunning/wms/result.txt"));
         final MaxSATSolver[] solvers = new MaxSATSolver[3];

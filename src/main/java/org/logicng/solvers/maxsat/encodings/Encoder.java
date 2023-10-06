@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines Lynce
@@ -90,14 +66,14 @@ public class Encoder {
      */
     protected Encoder(final IncrementalStrategy incremental, final CardinalityEncoding cardinality,
                       final AMOEncoding amo, final PBEncoding pb) {
-        this.incrementalStrategy = incremental;
-        this.cardinalityEncoding = cardinality;
-        this.amoEncoding = amo;
-        this.pbEncoding = pb;
-        this.ladder = new Ladder();
-        this.totalizer = new Totalizer(incremental);
-        this.mtotalizer = new ModularTotalizer();
-        this.swc = new SequentialWeightCounter();
+        incrementalStrategy = incremental;
+        cardinalityEncoding = cardinality;
+        amoEncoding = amo;
+        pbEncoding = pb;
+        ladder = new Ladder();
+        totalizer = new Totalizer(incremental);
+        mtotalizer = new ModularTotalizer();
+        swc = new SequentialWeightCounter();
     }
 
     /**
@@ -105,7 +81,7 @@ public class Encoder {
      * @return the cardinality encoding
      */
     public CardinalityEncoding cardEncoding() {
-        return this.cardinalityEncoding;
+        return cardinalityEncoding;
     }
 
     /**
@@ -113,7 +89,7 @@ public class Encoder {
      * @param enc the pseudo Boolean encoding
      */
     public void setPBEncoding(final PBEncoding enc) {
-        this.pbEncoding = enc;
+        pbEncoding = enc;
     }
 
     /**
@@ -121,7 +97,7 @@ public class Encoder {
      * @param enc the AMO encoding
      */
     public void setAMOEncoding(final AMOEncoding enc) {
-        this.amoEncoding = enc;
+        amoEncoding = enc;
     }
 
     /**
@@ -129,7 +105,7 @@ public class Encoder {
      * @param m the module value
      */
     public void setModulo(final int m) {
-        this.mtotalizer.setModulo(m);
+        mtotalizer.setModulo(m);
     }
 
     /**
@@ -137,8 +113,8 @@ public class Encoder {
      * @param incremental the incremental strategy
      */
     public void setIncremental(final IncrementalStrategy incremental) {
-        this.incrementalStrategy = incremental;
-        this.totalizer.setIncremental(incremental);
+        incrementalStrategy = incremental;
+        totalizer.setIncremental(incremental);
     }
 
     /**
@@ -148,12 +124,12 @@ public class Encoder {
      * @throws IllegalStateException if the AMO encoding is unknown
      */
     public void encodeAMO(final MiniSatStyleSolver s, final LNGIntVector lits) {
-        switch (this.amoEncoding) {
+        switch (amoEncoding) {
             case LADDER:
-                this.ladder.encode(s, lits);
+                ladder.encode(s, lits);
                 break;
             default:
-                throw new IllegalStateException("Unknown AMO encoding: " + this.amoEncoding);
+                throw new IllegalStateException("Unknown AMO encoding: " + amoEncoding);
         }
     }
 
@@ -165,18 +141,18 @@ public class Encoder {
      * @throws IllegalStateException if the cardinality encoding is unknown
      */
     public void encodeCardinality(final MiniSatStyleSolver s, final LNGIntVector lits, final int rhs) {
-        switch (this.cardinalityEncoding) {
+        switch (cardinalityEncoding) {
             case TOTALIZER:
-                this.totalizer.build(s, lits, rhs);
-                if (this.totalizer.hasCreatedEncoding()) {
-                    this.totalizer.update(s, rhs);
+                totalizer.build(s, lits, rhs);
+                if (totalizer.hasCreatedEncoding()) {
+                    totalizer.update(s, rhs);
                 }
                 break;
             case MTOTALIZER:
-                this.mtotalizer.encode(s, lits, rhs);
+                mtotalizer.encode(s, lits, rhs);
                 break;
             default:
-                throw new IllegalStateException("Unknown cardinality encoding: " + this.cardinalityEncoding);
+                throw new IllegalStateException("Unknown cardinality encoding: " + cardinalityEncoding);
         }
     }
 
@@ -187,15 +163,15 @@ public class Encoder {
      * @throws IllegalStateException if the cardinality encoding is unknown
      */
     public void updateCardinality(final MiniSatStyleSolver s, final int rhs) {
-        switch (this.cardinalityEncoding) {
+        switch (cardinalityEncoding) {
             case TOTALIZER:
-                this.totalizer.update(s, rhs);
+                totalizer.update(s, rhs);
                 break;
             case MTOTALIZER:
-                this.mtotalizer.update(s, rhs);
+                mtotalizer.update(s, rhs);
                 break;
             default:
-                throw new IllegalStateException("Unknown cardinality encoding: " + this.cardinalityEncoding);
+                throw new IllegalStateException("Unknown cardinality encoding: " + cardinalityEncoding);
         }
     }
 
@@ -207,13 +183,13 @@ public class Encoder {
      * @throws IllegalStateException if the cardinality encoding does not support incrementality
      */
     public void buildCardinality(final MiniSatStyleSolver s, final LNGIntVector lits, final int rhs) {
-        assert this.incrementalStrategy != IncrementalStrategy.NONE;
-        switch (this.cardinalityEncoding) {
+        assert incrementalStrategy != IncrementalStrategy.NONE;
+        switch (cardinalityEncoding) {
             case TOTALIZER:
-                this.totalizer.build(s, lits, rhs);
+                totalizer.build(s, lits, rhs);
                 break;
             default:
-                throw new IllegalStateException("Cardinality encoding does not support incrementality: " + this.incrementalStrategy);
+                throw new IllegalStateException("Cardinality encoding does not support incrementality: " + incrementalStrategy);
         }
     }
 
@@ -228,17 +204,17 @@ public class Encoder {
      */
     public void incUpdateCardinality(final MiniSatStyleSolver s, final LNGIntVector join, final LNGIntVector lits,
                                      final int rhs, final LNGIntVector assumptions) {
-        assert this.incrementalStrategy == IncrementalStrategy.ITERATIVE;
-        switch (this.cardinalityEncoding) {
+        assert incrementalStrategy == IncrementalStrategy.ITERATIVE;
+        switch (cardinalityEncoding) {
             case TOTALIZER:
                 if (join.size() > 0) {
-                    this.totalizer.join(s, join, rhs);
+                    totalizer.join(s, join, rhs);
                 }
                 assert lits.size() > 0;
-                this.totalizer.update(s, rhs, assumptions);
+                totalizer.update(s, rhs, assumptions);
                 break;
             default:
-                throw new IllegalArgumentException("Cardinality encoding does not support incrementality: " + this.incrementalStrategy);
+                throw new IllegalArgumentException("Cardinality encoding does not support incrementality: " + incrementalStrategy);
         }
     }
 
@@ -251,12 +227,12 @@ public class Encoder {
      * @throws IllegalStateException if the pseudo-Boolean encoding is unknown
      */
     public void encodePB(final MiniSatStyleSolver s, final LNGIntVector lits, final LNGIntVector coeffs, final int rhs) {
-        switch (this.pbEncoding) {
+        switch (pbEncoding) {
             case SWC:
-                this.swc.encode(s, lits, coeffs, rhs);
+                swc.encode(s, lits, coeffs, rhs);
                 break;
             default:
-                throw new IllegalStateException("Unknown pseudo-Boolean encoding: " + this.pbEncoding);
+                throw new IllegalStateException("Unknown pseudo-Boolean encoding: " + pbEncoding);
         }
     }
 
@@ -267,12 +243,12 @@ public class Encoder {
      * @throws IllegalStateException if the pseudo-Boolean encoding is unknown
      */
     public void updatePB(final MiniSatStyleSolver s, final int rhs) {
-        switch (this.pbEncoding) {
+        switch (pbEncoding) {
             case SWC:
-                this.swc.update(s, rhs);
+                swc.update(s, rhs);
                 break;
             default:
-                throw new IllegalStateException("Unknown pseudo-Boolean encoding: " + this.pbEncoding);
+                throw new IllegalStateException("Unknown pseudo-Boolean encoding: " + pbEncoding);
         }
     }
 
@@ -288,13 +264,13 @@ public class Encoder {
      */
     public void incEncodePB(final MiniSatStyleSolver s, final LNGIntVector lits, final LNGIntVector coeffs,
                             final int rhs, final LNGIntVector assumptions, final int size) {
-        assert this.incrementalStrategy == IncrementalStrategy.ITERATIVE;
-        switch (this.pbEncoding) {
+        assert incrementalStrategy == IncrementalStrategy.ITERATIVE;
+        switch (pbEncoding) {
             case SWC:
-                this.swc.encode(s, lits, coeffs, rhs, assumptions, size);
+                swc.encode(s, lits, coeffs, rhs, assumptions, size);
                 break;
             default:
-                throw new IllegalStateException("Unknown pseudo-Boolean encoding: " + this.pbEncoding);
+                throw new IllegalStateException("Unknown pseudo-Boolean encoding: " + pbEncoding);
         }
     }
 
@@ -307,14 +283,14 @@ public class Encoder {
      * @throws IllegalStateException if the pseudo-Boolean encoding is unknown
      */
     public void incUpdatePB(final MiniSatStyleSolver s, final LNGIntVector lits, final LNGIntVector coeffs, final int rhs) {
-        assert this.incrementalStrategy == IncrementalStrategy.ITERATIVE;
-        switch (this.pbEncoding) {
+        assert incrementalStrategy == IncrementalStrategy.ITERATIVE;
+        switch (pbEncoding) {
             case SWC:
-                this.swc.updateInc(s, rhs);
-                this.swc.join(s, lits, coeffs);
+                swc.updateInc(s, rhs);
+                swc.join(s, lits, coeffs);
                 break;
             default:
-                throw new IllegalStateException("Unknown pseudo-Boolean encoding: " + this.pbEncoding);
+                throw new IllegalStateException("Unknown pseudo-Boolean encoding: " + pbEncoding);
         }
     }
 
@@ -324,13 +300,13 @@ public class Encoder {
      * @throws IllegalStateException if the pseudo-Boolean encoding is unknown
      */
     public void incUpdatePBAssumptions(final LNGIntVector assumptions) {
-        assert this.incrementalStrategy == IncrementalStrategy.ITERATIVE;
-        switch (this.pbEncoding) {
+        assert incrementalStrategy == IncrementalStrategy.ITERATIVE;
+        switch (pbEncoding) {
             case SWC:
-                this.swc.updateAssumptions(assumptions);
+                swc.updateAssumptions(assumptions);
                 break;
             default:
-                throw new IllegalStateException("Unknown pseudo-Boolean encoding: " + this.pbEncoding);
+                throw new IllegalStateException("Unknown pseudo-Boolean encoding: " + pbEncoding);
         }
     }
 
@@ -339,13 +315,13 @@ public class Encoder {
      * @return {@code true} if the cardinality encoding was built
      */
     public boolean hasCardEncoding() {
-        switch (this.cardinalityEncoding) {
+        switch (cardinalityEncoding) {
             case TOTALIZER:
-                return this.totalizer.hasCreatedEncoding();
+                return totalizer.hasCreatedEncoding();
             case MTOTALIZER:
-                return this.mtotalizer.hasCreatedEncoding();
+                return mtotalizer.hasCreatedEncoding();
             default:
-                throw new IllegalStateException("Unknown cardinality encoding: " + this.cardinalityEncoding);
+                throw new IllegalStateException("Unknown cardinality encoding: " + cardinalityEncoding);
         }
     }
 
@@ -354,7 +330,7 @@ public class Encoder {
      * @return {@code true} if the pseudo-Boolean encoding was built
      */
     public boolean hasPBEncoding() {
-        return this.pbEncoding == PBEncoding.SWC && this.swc.hasCreatedEncoding();
+        return pbEncoding == PBEncoding.SWC && swc.hasCreatedEncoding();
     }
 
     /**
@@ -362,8 +338,8 @@ public class Encoder {
      * @return the literals
      */
     public LNGIntVector lits() {
-        assert this.cardinalityEncoding == CardinalityEncoding.TOTALIZER && this.incrementalStrategy == IncrementalStrategy.ITERATIVE;
-        return this.totalizer.lits();
+        assert cardinalityEncoding == CardinalityEncoding.TOTALIZER && incrementalStrategy == IncrementalStrategy.ITERATIVE;
+        return totalizer.lits();
     }
 
     /**
@@ -371,12 +347,12 @@ public class Encoder {
      * @return the literals
      */
     public LNGIntVector outputs() {
-        assert this.cardinalityEncoding == CardinalityEncoding.TOTALIZER && this.incrementalStrategy == IncrementalStrategy.ITERATIVE;
-        return this.totalizer.outputs();
+        assert cardinalityEncoding == CardinalityEncoding.TOTALIZER && incrementalStrategy == IncrementalStrategy.ITERATIVE;
+        return totalizer.outputs();
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName();
+        return getClass().getSimpleName();
     }
 }

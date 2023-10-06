@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.bdds;
 
@@ -42,16 +18,11 @@ import org.logicng.testutils.PigeonHoleGenerator;
 
 import java.math.BigInteger;
 
-/**
- * Some more extensive tests for BDDs
- * @version 2.0.0
- * @since 1.4.0
- */
 public class LargeBDDTest {
 
     @Test
     public void testPigeonHole() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PigeonHoleGenerator generator = new PigeonHoleGenerator(f);
         testPigeonHole(f, generator, 2);
         testPigeonHole(f, generator, 3);
@@ -65,14 +36,14 @@ public class LargeBDDTest {
 
     private void testPigeonHole(final FormulaFactory f, final PigeonHoleGenerator generator, final int size) {
         final Formula pigeon = generator.generate(size);
-        final BDDKernel kernel = new BDDKernel(f, pigeon.variables().size(), 10000, 10000);
-        final BDD bdd = BDDFactory.build(pigeon, kernel);
+        final BDDKernel kernel = new BDDKernel(f, pigeon.variables(f).size(), 10000, 10000);
+        final BDD bdd = BDDFactory.build(f, pigeon, kernel);
         assertThat(bdd.isContradiction()).isTrue();
     }
 
     @Test
     public void testQueens() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);
         testQueens(f, generator, 4, 2);
         testQueens(f, generator, 5, 10);
@@ -83,71 +54,71 @@ public class LargeBDDTest {
 
     private void testQueens(final FormulaFactory f, final NQueensGenerator generator, final int size, final int models) {
         final Formula queens = generator.generate(size);
-        final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
-        final BDD bdd = BDDFactory.build(queens, kernel);
+        final BDDKernel kernel = new BDDKernel(f, queens.variables(f).size(), 10000, 10000);
+        final BDD bdd = BDDFactory.build(f, queens, kernel);
         final Formula cnf = bdd.cnf();
-        assertThat(cnf.isCNF()).isTrue();
-        final BDD cnfBDD = BDDFactory.build(cnf, kernel);
+        assertThat(cnf.isCNF(f)).isTrue();
+        final BDD cnfBDD = BDDFactory.build(f, cnf, kernel);
         assertThat(cnfBDD).isEqualTo(bdd);
-        assertThat(bdd.support()).isEqualTo(queens.variables());
+        assertThat(bdd.support()).isEqualTo(queens.variables(f));
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(models));
     }
 
     @Test
     public void testTimeoutBDDHandlerSmall() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);
         final Formula queens = generator.generate(4);
-        final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
+        final BDDKernel kernel = new BDDKernel(f, queens.variables(f).size(), 10000, 10000);
         final TimeoutBDDHandler handler = new TimeoutBDDHandler(2000L);
-        final BDD bdd = BDDFactory.build(queens, kernel, handler);
+        final BDD bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(handler.aborted()).isFalse();
         assertThat(bdd.index()).isNotEqualTo(BDDKernel.BDD_ABORT);
     }
 
     @Test
     public void testTimeoutBDDHandlerLarge() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);
         final Formula queens = generator.generate(10);
-        final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
+        final BDDKernel kernel = new BDDKernel(f, queens.variables(f).size(), 10000, 10000);
         final TimeoutBDDHandler handler = new TimeoutBDDHandler(1000L);
-        final BDD bdd = BDDFactory.build(queens, kernel, handler);
+        final BDD bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(handler.aborted()).isTrue();
         assertThat(bdd.index()).isEqualTo(BDDKernel.BDD_ABORT);
     }
 
     @Test
     public void testNumberOfNodesHandlerSmall() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);
         final Formula queens = generator.generate(4);
-        final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
+        final BDDKernel kernel = new BDDKernel(f, queens.variables(f).size(), 10000, 10000);
         final NumberOfNodesBDDHandler handler = new NumberOfNodesBDDHandler(1000);
-        final BDD bdd = BDDFactory.build(queens, kernel, handler);
+        final BDD bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(handler.aborted()).isFalse();
         assertThat(bdd.index()).isNotEqualTo(BDDKernel.BDD_ABORT);
     }
 
     @Test
     public void testNumberOfNodesHandlerLarge() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);
         final Formula queens = generator.generate(10);
-        final BDDKernel kernel = new BDDKernel(f, queens.variables().size(), 10000, 10000);
+        final BDDKernel kernel = new BDDKernel(f, queens.variables(f).size(), 10000, 10000);
         final NumberOfNodesBDDHandler handler = new NumberOfNodesBDDHandler(5);
-        final BDD bdd = BDDFactory.build(queens, kernel, handler);
+        final BDD bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(handler.aborted()).isTrue();
         assertThat(bdd.index()).isEqualTo(BDDKernel.BDD_ABORT);
     }
 
     @Test
     public void testNumberOfNodesHandler() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = f.parse("A <=> ~(B => C & F & G & ~H | A & D & ~E)");
-        final BDDKernel kernel = new BDDKernel(f, formula.variables().size(), 10000, 10000);
+        final BDDKernel kernel = new BDDKernel(f, formula.variables(f).size(), 10000, 10000);
         final NumberOfNodesBDDHandler handler = new NumberOfNodesBDDHandler(5);
-        final BDD bdd = BDDFactory.build(formula, kernel, handler);
+        final BDD bdd = BDDFactory.build(f, formula, kernel, handler);
         assertThat(handler.aborted()).isTrue();
         assertThat(bdd.index()).isEqualTo(BDDKernel.BDD_ABORT);
     }

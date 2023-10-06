@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.functions;
 
@@ -32,7 +8,7 @@ import static org.logicng.formulas.cache.FunctionCacheEntry.VARPROFILE;
 
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFunction;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
@@ -51,20 +27,30 @@ import java.util.TreeMap;
  * @version 3.0.0
  * @since 1.0
  */
-public final class VariableProfileFunction implements FormulaFunction<Map<Variable, Integer>> {
+public final class VariableProfileFunction extends CacheableFormulaFunction<Map<Variable, Integer>> {
 
-    private static final VariableProfileFunction INSTANCE = new VariableProfileFunction();
-
-    private VariableProfileFunction() {
-        // Intentionally left empty
+    /**
+     * Constructs a new function.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
+    public VariableProfileFunction(final FormulaFactory f) {
+        super(f, VARPROFILE);
     }
 
     /**
-     * Returns the singleton instance of this function.
-     * @return an instance of this function
+     * Constructs a new function.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
      */
-    public static VariableProfileFunction get() {
-        return INSTANCE;
+    public VariableProfileFunction(final FormulaFactory f, final Map<Formula, Map<Variable, Integer>> cache) {
+        super(f, cache);
+    }
+
+    @Override
+    public Map<Variable, Integer> apply(final Formula formula) {
+        return hasCache() ? cachingVariableProfile(formula) : nonCachingVariableProfile(formula);
     }
 
     /**
@@ -73,7 +59,7 @@ public final class VariableProfileFunction implements FormulaFunction<Map<Variab
      * @param formula the formula
      * @return the variable profile
      */
-    private static Map<Variable, Integer> nonCachingVariableProfile(final Formula formula) {
+    private Map<Variable, Integer> nonCachingVariableProfile(final Formula formula) {
         final SortedMap<Variable, Integer> map = new TreeMap<>();
         nonCachingRecursion(formula, map);
         return map;
@@ -84,12 +70,12 @@ public final class VariableProfileFunction implements FormulaFunction<Map<Variab
      * @param formula the formula
      * @param map     the variable profile
      */
-    private static void nonCachingRecursion(final Formula formula, final Map<Variable, Integer> map) {
+    private void nonCachingRecursion(final Formula formula, final Map<Variable, Integer> map) {
         if (formula.type() == FType.LITERAL) {
             final Literal lit = (Literal) formula;
             map.merge(lit.variable(), 1, Integer::sum);
         } else if (formula.type() == FType.PBC) {
-            for (final Literal l : formula.literals()) {
+            for (final Literal l : formula.literals(f)) {
                 nonCachingRecursion(l.variable(), map);
             }
         } else {
@@ -105,17 +91,16 @@ public final class VariableProfileFunction implements FormulaFunction<Map<Variab
      * @param formula the formula
      * @return the variable profile
      */
-    @SuppressWarnings("unchecked")
-    private static Map<Variable, Integer> cachingVariableProfile(final Formula formula) {
-        final Object cached = formula.functionCacheEntry(VARPROFILE);
+    private Map<Variable, Integer> cachingVariableProfile(final Formula formula) {
+        final Map<Variable, Integer> cached = lookupCache(formula);
         if (cached != null) {
-            return (Map<Variable, Integer>) cached;
+            return cached;
         }
         final Map<Variable, Integer> result = new HashMap<>();
         if (formula.type() == FType.LITERAL) {
             result.put(((Literal) formula).variable(), 1);
         } else if (formula.type() == FType.PBC) {
-            for (final Literal l : formula.literals()) {
+            for (final Literal l : formula.literals(f)) {
                 result.put(l.variable(), 1);
             }
         } else {
@@ -126,12 +111,7 @@ public final class VariableProfileFunction implements FormulaFunction<Map<Variab
                 }
             }
         }
-        formula.setFunctionCacheEntry(VARPROFILE, result);
+        setCache(formula, result);
         return result;
-    }
-
-    @Override
-    public Map<Variable, Integer> apply(final Formula formula, final boolean cache) {
-        return cache ? cachingVariableProfile(formula) : nonCachingVariableProfile(formula);
     }
 }

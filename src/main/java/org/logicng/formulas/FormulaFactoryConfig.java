@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
@@ -37,7 +13,7 @@ import java.util.function.Supplier;
 
 /**
  * The configuration object for a formula factory.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public final class FormulaFactoryConfig extends Configuration {
@@ -47,14 +23,19 @@ public final class FormulaFactoryConfig extends Configuration {
      * Possible values are:
      * <ul>
      *     <li>{@link #PANIC}: If an operand of a formula comes from a different formula factory
-     *     an {@link UnsupportedOperationException} is thrown</li>
+     *     an {@link UnsupportedOperationException} is thrown. This also means, that cached and non-cached formulas
+     *     cannot be mixed.</li>
      *     <li>{@link #IMPORT}: Operands from different formula factories are {@link FormulaFactory#importFormula(Formula) imported}
-     *     before the new formula is constructed</li>
+     *     before the new formula is constructed. This works also when importing a cached formula into a non-caching formula
+     *     factory and vice versa.</li>
+     *     <li>{@link #USE_BUT_NO_IMPORT}: This strategy only works for the {@link org.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory}.
+     *     In this case, a non-caching formula factory can use a cached or uncached formula from another factory without importing it.</li>
      * </ul>
      */
     public enum FormulaMergeStrategy {
         PANIC,
-        IMPORT
+        IMPORT,
+        USE_BUT_NO_IMPORT
     }
 
     final String name;
@@ -64,10 +45,10 @@ public final class FormulaFactoryConfig extends Configuration {
 
     private FormulaFactoryConfig(final Builder builder) {
         super(ConfigurationType.FORMULA_FACTORY);
-        this.name = builder.name;
-        this.formulaMergeStrategy = builder.formulaMergeStrategy;
-        this.stringRepresentation = builder.stringRepresentation;
-        this.simplifyComplementaryOperands = builder.simplifyComplementaryOperands;
+        name = builder.name;
+        formulaMergeStrategy = builder.formulaMergeStrategy;
+        stringRepresentation = builder.stringRepresentation;
+        simplifyComplementaryOperands = builder.simplifyComplementaryOperands;
     }
 
     /**

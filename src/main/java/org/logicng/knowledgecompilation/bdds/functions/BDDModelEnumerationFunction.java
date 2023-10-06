@@ -1,34 +1,11 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.bdds.functions;
 
 import org.logicng.datastructures.Assignment;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.knowledgecompilation.bdds.BDD;
 import org.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
@@ -45,18 +22,20 @@ import java.util.TreeSet;
 
 /**
  * Performs model enumeration on a BDD. The models are returned as a list of {@link Assignment assignments}.
- * @version 2.3.0
+ * @version 3.0.0
  * @since 2.0.0
  */
-public final class BDDModelEnumerationFunction implements BDDFunction<List<Assignment>> {
+public final class BDDModelEnumerationFunction extends BDDFunction<List<Assignment>> {
 
     private final Collection<Variable> variables;
 
     /**
      * Constructs a new model enumeration function. The models are projected to a given set of variables.
+     * @param f         the formula factory to generate new formulas
      * @param variables the variables to which models are projected
      */
-    public BDDModelEnumerationFunction(final Collection<Variable> variables) {
+    public BDDModelEnumerationFunction(final FormulaFactory f, final Collection<Variable> variables) {
+        super(f);
         this.variables = variables;
     }
 
@@ -66,12 +45,12 @@ public final class BDDModelEnumerationFunction implements BDDFunction<List<Assig
         final BDDKernel kernel = bdd.underlyingKernel();
         final List<byte[]> models = new BDDOperations(kernel).allSat(bdd.index());
         final SortedSet<Integer> temp;
-        if (this.variables == null) {
+        if (variables == null) {
             temp = new TreeSet<>(kernel.var2idx().values());
         } else {
             temp = new TreeSet<>();
             for (final Map.Entry<Variable, Integer> e : kernel.var2idx().entrySet()) {
-                if (this.variables.contains(e.getKey())) {
+                if (variables.contains(e.getKey())) {
                     temp.add(e.getValue());
                 }
             }
@@ -94,7 +73,7 @@ public final class BDDModelEnumerationFunction implements BDDFunction<List<Assig
         if (position == relevantIndices.length) {
             final Assignment assignment = new Assignment();
             for (final int i : relevantIndices) {
-                assignment.addLiteral(model[i] == 0 ? kernel.getVariableForIndex(i).negate() : kernel.getVariableForIndex(i));
+                assignment.addLiteral(model[i] == 0 ? kernel.getVariableForIndex(i).negate(f) : kernel.getVariableForIndex(i));
             }
             assignments.add(assignment);
         } else if (model[relevantIndices[position]] != -1) {

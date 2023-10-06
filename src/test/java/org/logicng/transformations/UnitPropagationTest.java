@@ -1,77 +1,59 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.logicng.formulas.FormulaContext;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PropositionalParser;
 
-/**
- * Unit tests for {@link UnitPropagation}.
- * @version 2.0.0
- * @since 1.2
- */
-public class UnitPropagationTest extends TestWithExampleFormulas {
+public class UnitPropagationTest extends TestWithFormulaContext {
 
-    private final UnitPropagation unitPropagation = UnitPropagation.get();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testConstants(final FormulaContext _c) {
+        final UnitPropagation unitPropagation = new UnitPropagation(_c.f);
 
-    @Test
-    public void testConstants() {
-        assertThat(this.TRUE.transform(this.unitPropagation)).isEqualTo(this.TRUE);
-        assertThat(this.FALSE.transform(this.unitPropagation)).isEqualTo(this.FALSE);
+        assertThat(_c.verum.transform(unitPropagation)).isEqualTo(_c.verum);
+        assertThat(_c.falsum.transform(unitPropagation)).isEqualTo(_c.falsum);
     }
 
-    @Test
-    public void testLiterals() {
-        assertThat(this.A.transform(this.unitPropagation)).isEqualTo(this.A);
-        assertThat(this.NA.transform(this.unitPropagation)).isEqualTo(this.NA);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        final UnitPropagation unitPropagation = new UnitPropagation(_c.f);
+
+        assertThat(_c.a.transform(unitPropagation)).isEqualTo(_c.a);
+        assertThat(_c.na.transform(unitPropagation)).isEqualTo(_c.na);
     }
 
-    @Test
-    public void testNoPropagation() {
-        assertThat(this.AND1.transform(this.unitPropagation)).isEqualTo(this.AND1);
-        assertThat(this.AND2.transform(this.unitPropagation)).isEqualTo(this.AND2);
-        assertThat(this.OR1.transform(this.unitPropagation)).isEqualTo(this.OR1);
-        assertThat(this.OR2.transform(this.unitPropagation)).isEqualTo(this.OR2);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNoPropagation(final FormulaContext _c) {
+        final UnitPropagation unitPropagation = new UnitPropagation(_c.f);
+
+        assertThat(_c.and1.transform(unitPropagation)).isEqualTo(_c.and1);
+        assertThat(_c.and2.transform(unitPropagation)).isEqualTo(_c.and2);
+        assertThat(_c.or1.transform(unitPropagation)).isEqualTo(_c.or1);
+        assertThat(_c.or2.transform(unitPropagation)).isEqualTo(_c.or2);
     }
 
-    @Test
-    public void testPropagations() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(this.f.and(this.AND1, this.A).transform(this.unitPropagation)).isEqualTo(this.AND1);
-        assertThat(this.f.and(this.AND2, this.A).transform(this.unitPropagation)).isEqualTo(this.FALSE);
-        assertThat(this.f.and(this.OR1, this.X).transform(this.unitPropagation)).isEqualTo(this.X);
-        assertThat(this.f.or(this.AND1, this.A).transform(this.unitPropagation)).isEqualTo(this.A);
-        assertThat(this.f.or(this.OR1, this.X).transform(this.unitPropagation)).isEqualTo(this.OR1);
-        assertThat(p.parse("(a | b | ~c) & (~a | ~d) & (~c | d) & (~b | e | ~f | g) & (e | f | g | h) & (e | ~f | ~g | h) & f & c").transform(this.unitPropagation)).isEqualTo(p.parse("(e | g) & (e | ~g | h) & f & c & d & ~a & b"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testPropagations(final FormulaContext _c) throws ParserException {
+        final UnitPropagation unitPropagation = new UnitPropagation(_c.f);
+
+        assertThat(_c.f.and(_c.and1, _c.a).transform(unitPropagation)).isEqualTo(_c.and1);
+        assertThat(_c.f.and(_c.and2, _c.a).transform(unitPropagation)).isEqualTo(_c.falsum);
+        assertThat(_c.f.and(_c.or1, _c.x).transform(unitPropagation)).isEqualTo(_c.x);
+        assertThat(_c.f.or(_c.and1, _c.a).transform(unitPropagation)).isEqualTo(_c.a);
+        assertThat(_c.f.or(_c.or1, _c.x).transform(unitPropagation)).isEqualTo(_c.or1);
+        assertThat(_c.p.parse("(a | b | ~c) & (~a | ~d) & (~c | d) & (~b | e | ~f | g) & (e | f | g | h) & (e | ~f | ~g | h) & f & c")
+                .transform(unitPropagation)).isEqualTo(_c.p.parse("(e | g) & (e | ~g | h) & f & c & d & ~a & b"));
     }
 }

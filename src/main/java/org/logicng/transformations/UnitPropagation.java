@@ -1,86 +1,66 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations;
+
+import static org.logicng.formulas.cache.TransformationCacheEntry.UNIT_PROPAGATION;
 
 import org.logicng.collections.LNGIntVector;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.FormulaTransformation;
 import org.logicng.formulas.Literal;
-import org.logicng.formulas.cache.TransformationCacheEntry;
 import org.logicng.solvers.datastructures.MSClause;
 import org.logicng.solvers.sat.MiniSat2Solver;
 import org.logicng.solvers.sat.MiniSatConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A formula transformation which performs unit propagation.
  * @version 3.0.0
  * @since 1.2
  */
-public final class UnitPropagation implements FormulaTransformation {
+public final class UnitPropagation extends CacheableFormulaTransformation {
 
-    private static final UnitPropagation INSTANCE = new UnitPropagation();
-
-    private UnitPropagation() {
-        // Intentionally left empty
+    /**
+     * Constructs a new transformation.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
+     */
+    public UnitPropagation(final FormulaFactory f) {
+        super(f, UNIT_PROPAGATION);
     }
 
     /**
-     * Returns the singleton instance of this function.
-     * @return an instance of this function
+     * Constructs a new transformation.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache for this transformation
      */
-    public static UnitPropagation get() {
-        return INSTANCE;
+    public UnitPropagation(final FormulaFactory f, final Map<Formula, Formula> cache) {
+        super(f, cache);
     }
 
     @Override
-    public Formula apply(final Formula formula, final boolean cache) {
-        final Formula cached = formula.transformationCacheEntry(TransformationCacheEntry.UNIT_PROPAGATION);
+    public Formula apply(final Formula formula) {
+        final Formula cached = lookupCache(formula);
         if (cached != null) {
             return cached;
         }
         final MiniSatPropagator miniSatPropagator = new MiniSatPropagator();
         miniSatPropagator.add(formula);
-        final Formula result = miniSatPropagator.propagatedFormula(formula.factory());
-        if (cache) {
-            formula.setTransformationCacheEntry(TransformationCacheEntry.UNIT_PROPAGATION, result);
-        }
+        final Formula result = miniSatPropagator.propagatedFormula(f);
+        setCache(formula, result);
         return result;
     }
 
     /**
      * An extension of Minisat to propagate units on formulas.
      */
-    private static class MiniSatPropagator extends MiniSat2Solver {
+    private class MiniSatPropagator extends MiniSat2Solver {
 
         /**
          * Constructs a new MiniSatPropagator.
@@ -94,18 +74,18 @@ public final class UnitPropagation implements FormulaTransformation {
          * @param formula the formula
          */
         public void add(final Formula formula) {
-            final Formula cnf = formula.cnf();
+            final Formula cnf = formula.cnf(f);
             switch (cnf.type()) {
                 case TRUE:
                     break;
                 case FALSE:
                 case LITERAL:
                 case OR:
-                    this.addClause(generateClauseVector(cnf), null);
+                    addClause(generateClauseVector(cnf), null);
                     break;
                 case AND:
                     for (final Formula op : cnf) {
-                        this.addClause(generateClauseVector(op), null);
+                        addClause(generateClauseVector(op), null);
                     }
                     break;
                 default:
@@ -120,17 +100,17 @@ public final class UnitPropagation implements FormulaTransformation {
          */
         public Formula propagatedFormula(final FormulaFactory f) {
             assert decisionLevel() == 0;
-            if (!this.ok || this.propagate() != null) {
+            if (!ok || propagate() != null) {
                 return f.falsum();
             }
-            final List<Formula> clauses = new ArrayList<>();
-            for (final MSClause clause : this.clauses) {
-                clauses.add(clauseToFormula(clause, f));
+            final List<Formula> newClauses = new ArrayList<>();
+            for (final MSClause clause : clauses) {
+                newClauses.add(clauseToFormula(clause, f));
             }
-            for (int i = 0; i < this.trail.size(); i++) {
-                clauses.add(solverLiteralToFormula(this.trail.get(i), f));
+            for (int i = 0; i < trail.size(); i++) {
+                newClauses.add(solverLiteralToFormula(trail.get(i), f));
             }
-            return f.and(clauses);
+            return f.and(newClauses);
         }
 
         /**
@@ -140,7 +120,7 @@ public final class UnitPropagation implements FormulaTransformation {
          * @return the formula literal
          */
         private Literal solverLiteralToFormula(final int lit, final FormulaFactory f) {
-            return f.literal(this.nameForIdx(var(lit)), !sign(lit));
+            return f.literal(nameForIdx(var(lit)), !sign(lit));
         }
 
         /**
@@ -175,11 +155,11 @@ public final class UnitPropagation implements FormulaTransformation {
          */
         private LNGIntVector generateClauseVector(final Formula clause) {
             final LNGIntVector clauseVec = new LNGIntVector(clause.numberOfOperands());
-            for (final Literal lit : clause.literals()) {
-                int index = this.idxForName(lit.name());
+            for (final Literal lit : clause.literals(f)) {
+                int index = idxForName(lit.name());
                 if (index == -1) {
-                    index = this.newVar(false, false);
-                    this.addName(lit.name(), index);
+                    index = newVar(false, false);
+                    addName(lit.name(), index);
                 }
                 final int litNum = lit.phase() ? index * 2 : (index * 2) ^ 1;
                 clauseVec.push(litNum);

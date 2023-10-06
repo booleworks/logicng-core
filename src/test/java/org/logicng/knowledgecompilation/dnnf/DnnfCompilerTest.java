@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.dnnf;
 
@@ -62,74 +38,69 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Unit Tests for the class {@link DnnfCompiler}.
- * @version 2.0.0
- * @since 2.0.0
- */
 public class DnnfCompilerTest {
 
-    private final FormulaFactory f = new FormulaFactory();
-    private final FormulaParser parser = new PseudoBooleanParser(this.f);
+    private final FormulaFactory f = FormulaFactory.caching();
+    private final FormulaParser parser = new PseudoBooleanParser(f);
 
     @Test
     public void testTrivialFormulas() throws ParserException {
-        testFormula(this.parser.parse("$true"), true);
-        testFormula(this.parser.parse("$false"), true);
-        testFormula(this.parser.parse("a"), true);
-        testFormula(this.parser.parse("~a"), true);
-        testFormula(this.parser.parse("a & b"), true);
-        testFormula(this.parser.parse("a | b"), true);
-        testFormula(this.parser.parse("a => b"), true);
-        testFormula(this.parser.parse("a <=> b"), true);
-        testFormula(this.parser.parse("a | b | c"), true);
-        testFormula(this.parser.parse("a & b & c"), true);
-        testFormula(this.parser.parse("f & ((~b | c) <=> ~a & ~c)"), true);
-        testFormula(this.parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"), true);
-        testFormula(this.parser.parse("a + b + c + d <= 1"), true);
-        testFormula(this.parser.parse("a + b + c + d <= 3"), true);
-        testFormula(this.parser.parse("2*a + 3*b + -2*c + d < 5"), true);
-        testFormula(this.parser.parse("2*a + 3*b + -2*c + d >= 5"), true);
-        testFormula(this.parser.parse("~a & (~a | b | c | d)"), true);
+        testFormula(parser.parse("$true"), f, true);
+        testFormula(parser.parse("$false"), f, true);
+        testFormula(parser.parse("a"), f, true);
+        testFormula(parser.parse("~a"), f, true);
+        testFormula(parser.parse("a & b"), f, true);
+        testFormula(parser.parse("a | b"), f, true);
+        testFormula(parser.parse("a => b"), f, true);
+        testFormula(parser.parse("a <=> b"), f, true);
+        testFormula(parser.parse("a | b | c"), f, true);
+        testFormula(parser.parse("a & b & c"), f, true);
+        testFormula(parser.parse("f & ((~b | c) <=> ~a & ~c)"), f, true);
+        testFormula(parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"), f, true);
+        testFormula(parser.parse("a + b + c + d <= 1"), f, true);
+        testFormula(parser.parse("a + b + c + d <= 3"), f, true);
+        testFormula(parser.parse("2*a + 3*b + -2*c + d < 5"), f, true);
+        testFormula(parser.parse("2*a + 3*b + -2*c + d >= 5"), f, true);
+        testFormula(parser.parse("~a & (~a | b | c | d)"), f, true);
     }
 
     @Test
     public void testLargeFormulas() throws IOException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         List<Formula> dimacs = DimacsReader.readCNF("src/test/resources/dnnf/both_bdd_dnnf_1.cnf", f);
-        testFormula(f.cnf(dimacs), true);
+        testFormula(f.cnf(dimacs), f, true);
         dimacs = DimacsReader.readCNF("src/test/resources/dnnf/both_bdd_dnnf_2.cnf", f);
-        testFormula(f.cnf(dimacs), true);
+        testFormula(f.cnf(dimacs), f, true);
         dimacs = DimacsReader.readCNF("src/test/resources/dnnf/both_bdd_dnnf_3.cnf", f);
-        testFormula(f.cnf(dimacs), true);
+        testFormula(f.cnf(dimacs), f, true);
         dimacs = DimacsReader.readCNF("src/test/resources/dnnf/both_bdd_dnnf_4.cnf", f);
-        testFormula(f.cnf(dimacs), true);
+        testFormula(f.cnf(dimacs), f, true);
         dimacs = DimacsReader.readCNF("src/test/resources/dnnf/both_bdd_dnnf_5.cnf", f);
-        testFormula(f.cnf(dimacs), true);
+        testFormula(f.cnf(dimacs), f, true);
     }
 
     @Test
     public void testDnnfProperties() throws ParserException {
-        final Dnnf dnnf = new DnnfFactory().compile(this.parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"));
+        final Dnnf dnnf = new DnnfFactory().compile(parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"), f);
         assertThat(dnnf.getOriginalVariables()).extracting(Variable::name).containsExactlyInAnyOrder("a", "b", "c", "d", "e");
     }
 
     @Test
     @LongRunningTag
     public void testAllSmallFormulas() throws IOException, ParserException {
-        final Formula formulas = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", this.f);
-        formulas.stream().forEach(f -> testFormula(f, false));
+        final Formula formulas = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", f);
+        formulas.stream().forEach(op -> testFormula(op, f, false));
     }
 
     @Test
     @LongRunningTag
     public void testLargeFormula() throws IOException, ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());
         final Formula parsed = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/formula1.txt", f);
         final DnnfFactory dnnfFactory = new DnnfFactory();
-        Dnnf dnnf = dnnfFactory.compile(parsed);
-        final BigInteger dnnfCount = dnnf.execute(DnnfModelCountFunction.get());
+        Dnnf dnnf = dnnfFactory.compile(parsed, f);
+        final BigInteger dnnfCount = dnnf.execute(new DnnfModelCountFunction(f));
         final List<Formula> formulas = new ArrayList<>();
         final List<Formula> originalFormulas = new ArrayList<>();
         for (final Formula formula : parsed) {
@@ -137,26 +108,26 @@ public class DnnfCompilerTest {
             if (formula instanceof PBConstraint) {
                 formulas.add(formula);
             } else {
-                formulas.add(formula.transform(new CNFFactorization()));
+                formulas.add(formula.transform(new CNFFactorization(f)));
             }
         }
-        final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(formulas);
+        final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(f, formulas);
         final Set<Set<Node<Variable>>> ccs = ConnectedComponentsComputation.compute(constraintGraph);
-        final List<List<Formula>> split = ConnectedComponentsComputation.splitFormulasByComponent(originalFormulas, ccs);
+        final List<List<Formula>> split = ConnectedComponentsComputation.splitFormulasByComponent(f, originalFormulas, ccs);
         BigInteger multipliedCount = BigInteger.ONE;
         for (final List<Formula> component : split) {
-            dnnf = dnnfFactory.compile(f.and(component));
-            multipliedCount = multipliedCount.multiply(dnnf.execute(DnnfModelCountFunction.get()));
+            dnnf = dnnfFactory.compile(f.and(component), f);
+            multipliedCount = multipliedCount.multiply(dnnf.execute(new DnnfModelCountFunction(f)));
         }
         assertThat(dnnfCount).isEqualTo(multipliedCount);
     }
 
-    private void testFormula(final Formula formula, final boolean withEquivalence) {
+    private void testFormula(final Formula formula, final FormulaFactory f, final boolean withEquivalence) {
         final DnnfFactory dnnfFactory = new DnnfFactory();
-        final Dnnf dnnf = dnnfFactory.compile(formula);
-        final BigInteger dnnfCount = dnnf.execute(DnnfModelCountFunction.get());
+        final Dnnf dnnf = dnnfFactory.compile(formula, f);
+        final BigInteger dnnfCount = dnnf.execute(new DnnfModelCountFunction(f));
         if (withEquivalence) {
-            final Formula equivalence = formula.factory().equivalence(formula, dnnf.formula());
+            final Formula equivalence = f.equivalence(formula, dnnf.formula());
             assertThat(equivalence.holds(new TautologyPredicate(formula.factory()))).isTrue();
         }
         final BigInteger bddCount = countWithBdd(formula);
@@ -169,8 +140,8 @@ public class DnnfCompilerTest {
         } else if (formula.type() == FType.FALSE) {
             return BigInteger.ZERO;
         }
-        final BDDKernel kernel = new BDDKernel(formula.factory(), new ForceOrdering().getOrder(formula), 100000, 1000000);
-        final BDD bdd = BDDFactory.build(formula, kernel);
+        final BDDKernel kernel = new BDDKernel(formula.factory(), new ForceOrdering().getOrder(formula.factory(), formula), 100000, 1000000);
+        final BDD bdd = BDDFactory.build(formula.factory(), formula, kernel);
         return bdd.modelCount();
     }
 }

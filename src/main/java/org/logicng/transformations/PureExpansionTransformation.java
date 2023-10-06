@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations;
 
@@ -35,7 +11,6 @@ import org.logicng.datastructures.EncodingResult;
 import org.logicng.formulas.BinaryOperator;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.FormulaTransformation;
 import org.logicng.formulas.NAryOperator;
 import org.logicng.formulas.Not;
 import org.logicng.formulas.PBConstraint;
@@ -51,26 +26,14 @@ import java.util.List;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class PureExpansionTransformation implements FormulaTransformation {
+public final class PureExpansionTransformation extends StatelessFormulaTransformation {
 
-    private final CCAMOPure amoEncoder = new CCAMOPure();
-    private static final PureExpansionTransformation INSTANCE = new PureExpansionTransformation();
-
-    private PureExpansionTransformation() {
-        // Intentionally left empty
-    }
-
-    /**
-     * Returns the singleton instance of this function.
-     * @return an instance of this function
-     */
-    public static PureExpansionTransformation get() {
-        return INSTANCE;
+    public PureExpansionTransformation(final FormulaFactory f) {
+        super(f);
     }
 
     @Override
-    public Formula apply(final Formula formula, final boolean cache) {
-        final FormulaFactory f = formula.factory();
+    public Formula apply(final Formula formula) {
         switch (formula.type()) {
             case FALSE:
             case TRUE:
@@ -79,27 +42,27 @@ public final class PureExpansionTransformation implements FormulaTransformation 
                 return formula;
             case NOT:
                 final Not not = (Not) formula;
-                return f.not(apply(not.operand(), cache));
+                return f.not(apply(not.operand()));
             case OR:
             case AND:
                 final NAryOperator nary = (NAryOperator) formula;
                 final List<Formula> newOps = new ArrayList<>(nary.numberOfOperands());
                 for (final Formula op : nary) {
-                    newOps.add(apply(op, cache));
+                    newOps.add(apply(op));
                 }
                 return f.naryOperator(formula.type(), newOps);
             case IMPL:
             case EQUIV:
                 final BinaryOperator binary = (BinaryOperator) formula;
-                final Formula newLeft = apply(binary.left(), cache);
-                final Formula newRight = apply(binary.right(), cache);
+                final Formula newLeft = apply(binary.left());
+                final Formula newRight = apply(binary.right());
                 return f.binaryOperator(formula.type(), newLeft, newRight);
             case PBC:
                 final PBConstraint pbc = (PBConstraint) formula;
                 if (pbc.isAmo() || pbc.isExo()) {
                     final EncodingResult encodingResult = EncodingResult.resultForFormula(f);
                     final Variable[] vars = literalsAsVariables(pbc.operands());
-                    this.amoEncoder.build(encodingResult, vars);
+                    CCAMOPure.get().build(encodingResult, vars);
                     final List<Formula> encoding = encodingResult.result();
                     if (pbc.isExo()) {
                         encoding.add(f.or(vars));
@@ -111,10 +74,5 @@ public final class PureExpansionTransformation implements FormulaTransformation 
             default:
                 throw new IllegalStateException("Unknown formula type: " + formula.type());
         }
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
     }
 }

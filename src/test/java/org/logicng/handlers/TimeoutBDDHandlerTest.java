@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.handlers;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,7 +19,7 @@ import org.logicng.io.parsers.ParserException;
 import org.logicng.knowledgecompilation.bdds.BDD;
 import org.logicng.knowledgecompilation.bdds.BDDFactory;
 import org.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
-import org.logicng.knowledgecompilation.bdds.orderings.VariableOrdering;
+import org.logicng.knowledgecompilation.bdds.orderings.BFSOrdering;
 import org.logicng.knowledgecompilation.bdds.orderings.VariableOrderingProvider;
 import org.logicng.testutils.PigeonHoleGenerator;
 import org.mockito.Mockito;
@@ -31,8 +35,8 @@ class TimeoutBDDHandlerTest {
 
     @BeforeEach
     public void init() {
-        this.f = new FormulaFactory();
-        this.pg = new PigeonHoleGenerator(this.f);
+        f = FormulaFactory.caching();
+        pg = new PigeonHoleGenerator(f);
     }
 
     @Test
@@ -47,11 +51,11 @@ class TimeoutBDDHandlerTest {
     @Test
     public void testThatMethodsAreCalled() throws ParserException {
         final Formula formula = f.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X)");
-        final VariableOrderingProvider provider = VariableOrdering.BFS.provider();
-        final BDDKernel kernel = new BDDKernel(this.f, provider.getOrder(formula), 100, 100);
+        final VariableOrderingProvider provider = new BFSOrdering();
+        final BDDKernel kernel = new BDDKernel(f, provider.getOrder(f, formula), 100, 100);
         final TimeoutBDDHandler handler = Mockito.mock(TimeoutBDDHandler.class);
 
-        BDDFactory.build(formula, kernel, handler);
+        BDDFactory.build(f, formula, kernel, handler);
 
         verify(handler, times(1)).started();
         verify(handler, atLeast(1)).newRefAdded();
@@ -60,13 +64,13 @@ class TimeoutBDDHandlerTest {
     @Test
     public void testThatNewRefAddedHandledProperly() throws ParserException {
         final Formula formula = f.parse("(A => ~B) & ((A & C) | ~(D & ~C)) & (A | Y | X)");
-        final VariableOrderingProvider provider = VariableOrdering.BFS.provider();
-        final BDDKernel kernel = new BDDKernel(this.f, provider.getOrder(formula), 100, 100);
+        final VariableOrderingProvider provider = new BFSOrdering();
+        final BDDKernel kernel = new BDDKernel(f, provider.getOrder(f, formula), 100, 100);
         final TimeoutBDDHandler handler = Mockito.mock(TimeoutBDDHandler.class);
         final AtomicInteger count = new AtomicInteger(0);
         when(handler.newRefAdded()).then(invocationOnMock -> count.addAndGet(1) < 5);
 
-        final BDD result = BDDFactory.build(formula, kernel, handler);
+        final BDD result = BDDFactory.build(f, formula, kernel, handler);
 
         assertThat(result).isEqualTo(new BDD(BDDKernel.BDD_ABORT, kernel));
 
@@ -77,11 +81,11 @@ class TimeoutBDDHandlerTest {
     @Test
     public void testTimeoutHandlerSingleTimeout() {
         final Formula formula = pg.generate(10);
-        final VariableOrderingProvider provider = VariableOrdering.BFS.provider();
-        final BDDKernel kernel = new BDDKernel(this.f, provider.getOrder(formula), 100, 100);
+        final VariableOrderingProvider provider = new BFSOrdering();
+        final BDDKernel kernel = new BDDKernel(f, provider.getOrder(f, formula), 100, 100);
         final TimeoutBDDHandler handler = new TimeoutBDDHandler(100L);
 
-        final BDD result = BDDFactory.build(formula, kernel, handler);
+        final BDD result = BDDFactory.build(f, formula, kernel, handler);
 
         assertThat(handler.aborted).isTrue();
         assertThat(result).isEqualTo(new BDD(BDDKernel.BDD_ABORT, kernel));
@@ -90,11 +94,11 @@ class TimeoutBDDHandlerTest {
     @Test
     public void testTimeoutHandlerFixedEnd() {
         final Formula formula = pg.generate(10);
-        final VariableOrderingProvider provider = VariableOrdering.BFS.provider();
-        final BDDKernel kernel = new BDDKernel(this.f, provider.getOrder(formula), 100, 100);
+        final VariableOrderingProvider provider = new BFSOrdering();
+        final BDDKernel kernel = new BDDKernel(f, provider.getOrder(f, formula), 100, 100);
         final TimeoutBDDHandler handler = new TimeoutBDDHandler(System.currentTimeMillis() + 100L, TimeoutHandler.TimerType.FIXED_END);
 
-        final BDD result = BDDFactory.build(formula, kernel, handler);
+        final BDD result = BDDFactory.build(f, formula, kernel, handler);
 
         assertThat(handler.aborted).isTrue();
         assertThat(result).isEqualTo(new BDD(BDDKernel.BDD_ABORT, kernel));

@@ -1,36 +1,13 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.functions;
 
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.FormulaFunction;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
@@ -48,43 +25,36 @@ import java.util.TreeSet;
 /**
  * Computes a minimum-size prime implicant for the given formula.
  * Returns {@code null} if the formula was not satisfiable.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public final class MinimumPrimeImplicantFunction implements FormulaFunction<SortedSet<Literal>> {
 
     private static final String POS = "_POS";
     private static final String NEG = "_NEG";
-    private static final MinimumPrimeImplicantFunction INSTANCE = new MinimumPrimeImplicantFunction();
+    private final FormulaFactory f;
 
-    private MinimumPrimeImplicantFunction() {
-        // intentionally left empty
-    }
-
-    /**
-     * Returns the singleton instance of this function.
-     * @return an instance of this function
-     */
-    public static MinimumPrimeImplicantFunction get() {
-        return INSTANCE;
+    public MinimumPrimeImplicantFunction(final FormulaFactory f) {
+        this.f = f;
     }
 
     @Override
-    public SortedSet<Literal> apply(final Formula formula, final boolean cache) {
-        final Formula nnf = formula.nnf();
+    public SortedSet<Literal> apply(final Formula formula) {
+        final Formula nnf = formula.nnf(f);
         final Map<Variable, Literal> newVar2oldLit = new HashMap<>();
-        final LiteralSubstitution substitution = new LiteralSubstitution();
-        for (final Literal literal : nnf.literals()) {
-            final Variable newVar = formula.factory().variable(literal.name() + (literal.phase() ? POS : NEG));
+        final Map<Literal, Literal> substitution = new HashMap<>();
+        for (final Literal literal : nnf.literals(f)) {
+            final Variable newVar = f.variable(literal.name() + (literal.phase() ? POS : NEG));
             newVar2oldLit.put(newVar, literal);
-            substitution.addSubstitution(literal, newVar);
+            substitution.put(literal, newVar);
         }
-        final Formula substituted = nnf.transform(substitution);
-        final SATSolver solver = MiniSat.miniSat(formula.factory(), MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        final LiteralSubstitution substTransformation = new LiteralSubstitution(f, substitution);
+        final Formula substituted = nnf.transform(substTransformation);
+        final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
         solver.add(substituted);
         for (final Literal literal : newVar2oldLit.values()) {
-            if (literal.phase() && newVar2oldLit.containsValue(literal.negate())) {
-                solver.add(formula.factory().amo(formula.factory().variable(literal.name() + POS), formula.factory().variable(literal.name() + NEG)));
+            if (literal.phase() && newVar2oldLit.containsValue(literal.negate(f))) {
+                solver.add(f.amo(f.variable(literal.name() + POS), f.variable(literal.name() + NEG)));
             }
         }
 

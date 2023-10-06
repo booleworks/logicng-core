@@ -1,36 +1,11 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.simplification;
 
 import org.logicng.configurations.Configuration;
 import org.logicng.configurations.ConfigurationType;
-import org.logicng.handlers.OptimizationHandler;
 
 /**
  * The configuration object for the {@link AdvancedSimplifier}.
@@ -43,17 +18,17 @@ public class AdvancedSimplifierConfig extends Configuration {
     boolean restrictBackbone;
     boolean factorOut;
     boolean simplifyNegations;
+    boolean useRatingFunction;
     RatingFunction<?> ratingFunction;
-    OptimizationHandler handler;
 
     @Override
     public String toString() {
         return "AdvancedSimplifierConfig{" +
-                "restrictBackbone=" + this.restrictBackbone +
-                ", factorOut=" + this.factorOut +
-                ", simplifyNegations=" + this.simplifyNegations +
-                ", ratingFunction=" + this.ratingFunction +
-                ", handler=" + this.handler +
+                "restrictBackbone=" + restrictBackbone +
+                ", factorOut=" + factorOut +
+                ", simplifyNegations=" + simplifyNegations +
+                ", useRatingFunction=" + useRatingFunction +
+                ", ratingFunction=" + ratingFunction +
                 '}';
     }
 
@@ -66,8 +41,8 @@ public class AdvancedSimplifierConfig extends Configuration {
         this.restrictBackbone = builder.restrictBackbone;
         this.factorOut = builder.factorOut;
         this.simplifyNegations = builder.simplifyNegations;
+        this.useRatingFunction = builder.useRatingFunction;
         this.ratingFunction = builder.ratingFunction;
-        this.handler = builder.handler;
     }
 
     /**
@@ -86,8 +61,8 @@ public class AdvancedSimplifierConfig extends Configuration {
         boolean restrictBackbone = true;
         boolean factorOut = true;
         boolean simplifyNegations = true;
+        boolean useRatingFunction = true;
         private RatingFunction<?> ratingFunction = DefaultRatingFunction.get();
-        private OptimizationHandler handler = null;
 
         private Builder() {
             // Initialize only via factory
@@ -124,6 +99,16 @@ public class AdvancedSimplifierConfig extends Configuration {
         }
 
         /**
+         * Sets the flag for whether the rating function should be considered in the main simplification steps.
+         * @param useRatingFunction flag
+         * @return the current builder
+         */
+        public Builder useRatingFunction(final boolean useRatingFunction) {
+            this.useRatingFunction = useRatingFunction;
+            return this;
+        }
+
+        /**
          * Sets the rating function. The aim of the simplification is to minimize the formula with respect to this rating function,
          * e.g. finding a formula with a minimal number of symbols when represented as string. The default is the {@code DefaultRatingFunction}.
          * @param ratingFunction the desired rating function
@@ -131,16 +116,6 @@ public class AdvancedSimplifierConfig extends Configuration {
          */
         public Builder ratingFunction(final RatingFunction<?> ratingFunction) {
             this.ratingFunction = ratingFunction;
-            return this;
-        }
-
-        /**
-         * Sets the handler to control the computation. The default is 'no handler'.
-         * @param handler the optimization handler
-         * @return the current builder
-         */
-        public Builder handler(final OptimizationHandler handler) {
-            this.handler = handler;
             return this;
         }
 

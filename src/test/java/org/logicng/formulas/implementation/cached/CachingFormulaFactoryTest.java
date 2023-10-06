@@ -1,32 +1,8 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
-package org.logicng.formulas;
+package org.logicng.formulas.implementation.cached;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,6 +10,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 import org.logicng.configurations.Configuration;
 import org.logicng.configurations.ConfigurationType;
+import org.logicng.formulas.And;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.FormulaFactoryConfig;
+import org.logicng.formulas.Literal;
+import org.logicng.formulas.Or;
+import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.solvers.maxsat.algorithms.MaxSATConfig;
@@ -44,17 +27,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Test some basic formula factory functionality.
- * @version 2.2.0
- * @since 1.0
- */
-public class FormulaFactoryTest {
+public class CachingFormulaFactoryTest {
 
     @Test
     public void testPutConfigurationWithInvalidArgument() {
         assertThatThrownBy(() -> {
-            final FormulaFactory f = new FormulaFactory();
+            final FormulaFactory f = FormulaFactory.caching();
             f.putConfiguration(FormulaFactoryConfig.builder().build());
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Configurations for the formula factory itself can only be passed in the constructor.");
@@ -62,14 +40,14 @@ public class FormulaFactoryTest {
 
     @Test
     public void testConstant() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         assertThat(f.constant(true)).isEqualTo(f.verum());
         assertThat(f.constant(false)).isEqualTo(f.falsum());
     }
 
     @Test
     public void testToString() {
-        final FormulaFactory f = new FormulaFactory(FormulaFactoryConfig.builder().name("MyFormulaFactory").build());
+        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().name("MyFormulaFactory").build());
         f.variable("a");
         f.literal("b", false);
         f.and(f.variable("a"), f.literal("b", false));
@@ -95,13 +73,13 @@ public class FormulaFactoryTest {
 
     @Test
     public void testDefaultName() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         assertThat(f.name()).isEqualTo("");
     }
 
     @Test
     public void testConfigurations() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Configuration configMaxSat = MaxSATConfig.builder().build();
         final Configuration configMiniSat = MiniSatConfig.builder().build();
         final Configuration configGlucose = GlucoseConfig.builder().build();
@@ -115,7 +93,7 @@ public class FormulaFactoryTest {
 
     @Test
     public void testGeneratedVariables() {
-        FormulaFactory f = new FormulaFactory();
+        FormulaFactory f = FormulaFactory.caching();
         Variable ccVar = f.newCCVariable();
         Variable cnfVar = f.newCNFVariable();
         Variable pbVar = f.newPBVariable();
@@ -128,7 +106,7 @@ public class FormulaFactoryTest {
         assertThat(pbVar.name()).isEqualTo("@RESERVED_PB_0");
         assertThat(cnfVar.name()).isEqualTo("@RESERVED_CNF_0");
 
-        f = new FormulaFactory(FormulaFactoryConfig.builder().name("f").build());
+        f = FormulaFactory.caching(FormulaFactoryConfig.builder().name("f").build());
         ccVar = f.newCCVariable();
         cnfVar = f.newCNFVariable();
         pbVar = f.newPBVariable();
@@ -144,13 +122,13 @@ public class FormulaFactoryTest {
 
     @Test
     public void testCNF() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Variable a = f.variable("A");
         final Variable b = f.variable("B");
         final Variable c = f.variable("C");
         final Variable d = f.variable("D");
         final Formula clause1 = f.or(a, b);
-        final Formula clause2 = f.or(c, d.negate());
+        final Formula clause2 = f.or(c, d.negate(f));
         final Formula nClause1 = f.implication(a, c);
 
         final List<Formula> clauses = new ArrayList<>();
@@ -164,15 +142,15 @@ public class FormulaFactoryTest {
 
         final Formula cnf = f.cnf(clauses);
         final Formula nCnf = f.cnf(nClauses);
-        assertThat(cnf.cnf()).isEqualTo(cnf);
-        assertThat(nCnf.cnf()).isNotEqualTo(nCnf);
+        assertThat(cnf.cnf(f)).isEqualTo(cnf);
+        assertThat(nCnf.cnf(f)).isNotEqualTo(nCnf);
         assertThat(f.cnf(Collections.emptyList())).isEqualTo(f.verum());
     }
 
     @Test
     public void testImportFormula() throws ParserException {
-        final FormulaFactory f = new FormulaFactory(FormulaFactoryConfig.builder().name("Factory F").build());
-        final FormulaFactory g = new FormulaFactory(FormulaFactoryConfig.builder().name("Factory G").build());
+        final CachingFormulaFactory f = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("Factory F").build());
+        final CachingFormulaFactory g = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("Factory G").build());
         final PropositionalParser pf = new PropositionalParser(f);
         final String formula = "x1 & x2 & ~x3 => (x4 | (x5 <=> ~x1))";
         final Formula ff = pf.parse(formula);
@@ -183,20 +161,20 @@ public class FormulaFactoryTest {
         assertThat(f.statistics()).isEqualToComparingOnlyGivenFields(g.statistics(), "positiveLiterals",
                 "negativeLiterals", "negations", "implications", "equivalences", "conjunctions2", "conjunctions3",
                 "conjunctions4", "conjunctionsN", "disjunctions2", "disjunctions3", "disjunctions4");
-        for (final Literal litF : ff.literals()) {
+        for (final Literal litF : ff.literals(f)) {
             assertThat(litF.factory()).isSameAs(f);
         }
-        for (final Literal litG : fg.literals()) {
-            assertThat(litG.factory()).isSameAs(g);
+        for (final Literal litG : fg.literals(f)) {
+            assertThat(litG.factory()).isSameAs(f);
         }
     }
 
     @Test
     public void testStatistics() {
-        final FormulaFactory f = new FormulaFactory(FormulaFactoryConfig.builder().name("Factory F").build());
-        final FormulaFactory g = new FormulaFactory(FormulaFactoryConfig.builder().name("Factory F").build());
-        final FormulaFactory.FormulaFactoryStatistics statisticsF1 = f.statistics();
-        final FormulaFactory.FormulaFactoryStatistics statisticsG = g.statistics();
+        final CachingFormulaFactory f = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("Factory F").build());
+        final CachingFormulaFactory g = new CachingFormulaFactory(FormulaFactoryConfig.builder().name("Factory F").build());
+        final CachingFormulaFactory.Statistics statisticsF1 = f.statistics();
+        final CachingFormulaFactory.Statistics statisticsG = g.statistics();
 
         assertThat(statisticsF1.name()).isEqualTo("Factory F");
         assertThat(statisticsF1.positiveLiterals()).isEqualTo(0);
@@ -272,7 +250,7 @@ public class FormulaFactoryTest {
         assertThat(f.ors4).containsValue(or4);
         assertThat(f.orsN).containsValue(or5);
 
-        final FormulaFactory.FormulaFactoryStatistics statisticsF2 = f.statistics();
+        final CachingFormulaFactory.Statistics statisticsF2 = f.statistics();
 
         assertThat(statisticsF2.name()).isEqualTo("Factory F");
         assertThat(statisticsF2.positiveLiterals()).isEqualTo(5);

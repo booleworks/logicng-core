@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.solvers.sat;
 
@@ -43,11 +19,6 @@ import org.logicng.solvers.SATSolver;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Unit tests for the assume functionality of the MiniSat style SAT solvers.
- * @version 2.0.0
- * @since 1.0
- */
 public class AssumeTest {
 
     private final FormulaFactory f;
@@ -55,48 +26,48 @@ public class AssumeTest {
     private final PropositionalParser parser;
 
     public AssumeTest() {
-        this.f = new FormulaFactory();
-        this.parser = new PropositionalParser(this.f);
-        this.solvers = new SATSolver[6];
-        this.solvers[0] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(true).build());
-        this.solvers[1] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(false).build());
-        this.solvers[2] = MiniSat.glucose(this.f, MiniSatConfig.builder().incremental(true).build(),
+        f = FormulaFactory.caching();
+        parser = new PropositionalParser(f);
+        solvers = new SATSolver[6];
+        solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).build());
+        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
+        solvers[2] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(true).build(),
                 GlucoseConfig.builder().build());
-        this.solvers[3] = MiniSat.glucose(this.f, MiniSatConfig.builder().incremental(false).build(),
+        solvers[3] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(false).build(),
                 GlucoseConfig.builder().build());
-        this.solvers[4] = MiniSat.miniCard(this.f, MiniSatConfig.builder().incremental(true).build());
-        this.solvers[5] = MiniSat.miniCard(this.f, MiniSatConfig.builder().incremental(false).build());
+        solvers[4] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(true).build());
+        solvers[5] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(false).build());
     }
 
     @Test
     public void testAssume() throws ParserException {
-        final List<Literal> assumptions1 = Arrays.asList(this.f.literal("c", true), this.f.literal("d", true));
-        final List<Literal> assumptions2 = Arrays.asList(this.f.literal("x", false), this.f.literal("y", true), this.f.literal("d", true));
-        final List<Literal> assumptions3 = Arrays.asList(this.f.literal("a", false), this.f.literal("c", true), this.f.literal("a", false));
-        final List<Literal> assumptions4 = Arrays.asList(this.f.literal("c", false), this.f.literal("d", true));
-        final List<Literal> assumptions5 = Arrays.asList(this.f.literal("x", true), this.f.literal("x", false));
-        final List<Literal> assumptions6 = Arrays.asList(this.f.literal("a", true), this.f.literal("a", false));
-        for (final SATSolver s : this.solvers) {
-            s.add(this.parser.parse("~a"));
-            s.add(this.parser.parse("b"));
-            s.add(this.parser.parse("b => c"));
-            s.add(this.parser.parse("c => d"));
-            s.add(this.parser.parse("d => e"));
-            s.add(this.parser.parse("e => f"));
-            assertThat(s.sat(this.f.literal("a", false))).isEqualTo(TRUE);
-            assertThat(s.sat(this.f.variable("b"))).isEqualTo(TRUE);
-            assertThat(s.sat(this.f.variable("c"))).isEqualTo(TRUE);
-            assertThat(s.sat(this.f.variable("d"))).isEqualTo(TRUE);
-            assertThat(s.sat(this.f.variable("e"))).isEqualTo(TRUE);
-            assertThat(s.sat(this.f.variable("f"))).isEqualTo(TRUE);
-            assertThat(s.sat(this.f.variable("g"))).isEqualTo(TRUE);
-            assertThat(s.sat(this.f.variable("a"))).isEqualTo(FALSE);
-            assertThat(s.sat(this.f.literal("b", false))).isEqualTo(FALSE);
-            assertThat(s.sat(this.f.literal("c", false))).isEqualTo(FALSE);
-            assertThat(s.sat(this.f.literal("d", false))).isEqualTo(FALSE);
-            assertThat(s.sat(this.f.literal("e", false))).isEqualTo(FALSE);
-            assertThat(s.sat(this.f.literal("f", false))).isEqualTo(FALSE);
-            assertThat(s.sat(this.f.literal("g", false))).isEqualTo(TRUE);
+        final List<Literal> assumptions1 = Arrays.asList(f.literal("c", true), f.literal("d", true));
+        final List<Literal> assumptions2 = Arrays.asList(f.literal("x", false), f.literal("y", true), f.literal("d", true));
+        final List<Literal> assumptions3 = Arrays.asList(f.literal("a", false), f.literal("c", true), f.literal("a", false));
+        final List<Literal> assumptions4 = Arrays.asList(f.literal("c", false), f.literal("d", true));
+        final List<Literal> assumptions5 = Arrays.asList(f.literal("x", true), f.literal("x", false));
+        final List<Literal> assumptions6 = Arrays.asList(f.literal("a", true), f.literal("a", false));
+        for (final SATSolver s : solvers) {
+            s.add(parser.parse("~a"));
+            s.add(parser.parse("b"));
+            s.add(parser.parse("b => c"));
+            s.add(parser.parse("c => d"));
+            s.add(parser.parse("d => e"));
+            s.add(parser.parse("e => f"));
+            assertThat(s.sat(f.literal("a", false))).isEqualTo(TRUE);
+            assertThat(s.sat(f.variable("b"))).isEqualTo(TRUE);
+            assertThat(s.sat(f.variable("c"))).isEqualTo(TRUE);
+            assertThat(s.sat(f.variable("d"))).isEqualTo(TRUE);
+            assertThat(s.sat(f.variable("e"))).isEqualTo(TRUE);
+            assertThat(s.sat(f.variable("f"))).isEqualTo(TRUE);
+            assertThat(s.sat(f.variable("g"))).isEqualTo(TRUE);
+            assertThat(s.sat(f.variable("a"))).isEqualTo(FALSE);
+            assertThat(s.sat(f.literal("b", false))).isEqualTo(FALSE);
+            assertThat(s.sat(f.literal("c", false))).isEqualTo(FALSE);
+            assertThat(s.sat(f.literal("d", false))).isEqualTo(FALSE);
+            assertThat(s.sat(f.literal("e", false))).isEqualTo(FALSE);
+            assertThat(s.sat(f.literal("f", false))).isEqualTo(FALSE);
+            assertThat(s.sat(f.literal("g", false))).isEqualTo(TRUE);
             assertThat(s.sat(assumptions1)).isEqualTo(TRUE);
             assertThat(s.sat(assumptions2)).isEqualTo(TRUE);
             assertThat(s.sat(assumptions3)).isEqualTo(TRUE);

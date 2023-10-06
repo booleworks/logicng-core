@@ -1,37 +1,19 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.cnf;
+
+import static org.logicng.transformations.cnf.PlaistedGreenbaumTransformation.PGState;
+import static org.logicng.transformations.cnf.TseitinTransformation.TseitinState;
 
 import org.logicng.configurations.ConfigurationType;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.FormulaTransformation;
+import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
+import org.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
 import org.logicng.handlers.ComputationHandler;
 import org.logicng.handlers.FactorizationHandler;
 
@@ -40,78 +22,43 @@ import java.util.List;
 
 /**
  * An encoder for conjunctive normal form (CNF).
- * @version 2.3.0
+ * @version 3.0.0
  * @since 1.1
  */
 public class CNFEncoder {
 
-    protected final FormulaFactory f;
-    protected final CNFConfig config;
-
-    protected CNFFactorization factorization;
-    protected CNFFactorization advancedFactorization;
-    protected BDDCNFTransformation bddCnfTransformation;
-    protected TseitinTransformation tseitin;
-    protected PlaistedGreenbaumTransformation plaistedGreenbaum;
-    protected int currentAtomBoundary;
-    protected AdvancedFactorizationHandler factorizationHandler;
-
     /**
-     * Constructs a new CNF encoder with a given configuration.
-     * @param f      the formula factory
-     * @param config the configuration
+     * Encodes a formula to CNF.
+     * @param formula formula
+     * @param f       the formula factory to generate new formulas
+     * @return the CNF encoding of the formula
      */
-    public CNFEncoder(final FormulaFactory f, final CNFConfig config) {
-        this.f = f;
-        this.config = config;
-    }
-
-    /**
-     * Constructs a new CNF encoder which uses the configuration of the formula factory.
-     * @param f the formula factory
-     */
-    public CNFEncoder(final FormulaFactory f) {
-        this(f, null);
+    public static Formula encode(final Formula formula, final FormulaFactory f) {
+        return encode(formula, f, null);
     }
 
     /**
      * Encodes a formula to CNF.
-     * @param formula formula
+     * @param formula    formula
+     * @param f          the formula factory to generate new formulas
+     * @param initConfig the configuration for the encoder
      * @return the CNF encoding of the formula
      */
-    public Formula encode(final Formula formula) {
-        switch (this.config().algorithm) {
+    public static Formula encode(final Formula formula, final FormulaFactory f, final CNFConfig initConfig) {
+        final CNFConfig config = initConfig != null ? initConfig : (CNFConfig) f.configurationFor(ConfigurationType.CNF);
+        switch (config.algorithm) {
             case FACTORIZATION:
-                if (this.factorization == null) {
-                    this.factorization = new CNFFactorization();
-                }
-                return formula.transform(this.factorization);
+                return formula.transform(new CNFFactorization(f));
             case TSEITIN:
-                if (this.tseitin == null || this.currentAtomBoundary != this.config().atomBoundary) {
-                    this.currentAtomBoundary = this.config().atomBoundary;
-                    this.tseitin = new TseitinTransformation(this.config().atomBoundary);
-                }
-                return formula.transform(this.tseitin);
+                return formula.transform(getTseitinTransformation(f, config));
             case PLAISTED_GREENBAUM:
-                if (this.plaistedGreenbaum == null || this.currentAtomBoundary != this.config().atomBoundary) {
-                    this.currentAtomBoundary = this.config().atomBoundary;
-                    this.plaistedGreenbaum = new PlaistedGreenbaumTransformation(this.config().atomBoundary);
-                }
-                return formula.transform(this.plaistedGreenbaum);
+                return formula.transform(getPgTransformation(f, config));
             case BDD:
-                if (this.bddCnfTransformation == null) {
-                    this.bddCnfTransformation = new BDDCNFTransformation();
-                }
-                return formula.transform(this.bddCnfTransformation);
+                return formula.transform(new BDDCNFTransformation(f));
             case ADVANCED:
-                if (this.factorizationHandler == null) {
-                    this.factorizationHandler = new AdvancedFactorizationHandler();
-                    this.advancedFactorization = new CNFFactorization(this.factorizationHandler);
-                }
-                this.factorizationHandler.setBounds(this.config().distributionBoundary, this.config().createdClauseBoundary);
-                return this.advancedEncoding(formula);
+                return advancedEncoding(formula, f, config);
             default:
-                throw new IllegalStateException("Unknown CNF encoding algorithm: " + this.config().algorithm);
+                throw new IllegalStateException("Unknown CNF encoding algorithm: " + config.algorithm);
         }
     }
 
@@ -119,56 +66,57 @@ public class CNFEncoder {
      * Encodes the given formula to CNF by first trying to use Factorization for the single sub-formulas.  When certain
      * user-provided boundaries are met, the method is switched to Tseitin or Plaisted &amp; Greenbaum.
      * @param formula the formula
+     * @param f       the formula factory to generate new formulas
+     * @param config  the CNF configuration
      * @return the CNF encoding of the formula
      */
-    protected Formula advancedEncoding(final Formula formula) {
+    protected static Formula advancedEncoding(final Formula formula, final FormulaFactory f, final CNFConfig config) {
+        final var factorizationHandler = new AdvancedFactorizationHandler();
+        factorizationHandler.setBounds(config.distributionBoundary, config.createdClauseBoundary);
+        final var advancedFactorization = new CNFFactorization(f, factorizationHandler);
+        final FormulaTransformation fallbackTransformation;
+        switch (config.fallbackAlgorithmForAdvancedEncoding) {
+            case TSEITIN:
+                fallbackTransformation = getTseitinTransformation(f, config);
+                break;
+            case PLAISTED_GREENBAUM:
+                fallbackTransformation = getPgTransformation(f, config);
+                break;
+            default:
+                throw new IllegalStateException("Invalid fallback CNF encoding algorithm: " + config.fallbackAlgorithmForAdvancedEncoding);
+        }
         if (formula.type() == FType.AND) {
             final List<Formula> operands = new ArrayList<>(formula.numberOfOperands());
             for (final Formula op : formula) {
-                operands.add(singleAdvancedEncoding(op));
+                operands.add(singleAdvancedEncoding(op, advancedFactorization, fallbackTransformation));
             }
-            return this.f.and(operands);
+            return f.and(operands);
         }
-        return singleAdvancedEncoding(formula);
+        return singleAdvancedEncoding(formula, advancedFactorization, fallbackTransformation);
     }
 
-    protected Formula singleAdvancedEncoding(final Formula formula) {
-        Formula result = formula.transform(this.advancedFactorization);
+    protected static Formula singleAdvancedEncoding(final Formula formula, final CNFFactorization advancedFactorization, final FormulaTransformation fallback) {
+        Formula result = formula.transform(advancedFactorization);
         if (result == null) {
-            switch (this.config().fallbackAlgorithmForAdvancedEncoding) {
-                case TSEITIN:
-                    if (this.tseitin == null || this.currentAtomBoundary != this.config().atomBoundary) {
-                        this.currentAtomBoundary = this.config().atomBoundary;
-                        this.tseitin = new TseitinTransformation(this.config().atomBoundary);
-                    }
-                    result = formula.transform(this.tseitin);
-                    break;
-                case PLAISTED_GREENBAUM:
-                    if (this.plaistedGreenbaum == null || this.currentAtomBoundary != this.config().atomBoundary) {
-                        this.currentAtomBoundary = this.config().atomBoundary;
-                        this.plaistedGreenbaum = new PlaistedGreenbaumTransformation(this.config().atomBoundary);
-                    }
-                    result = formula.transform(this.plaistedGreenbaum);
-                    break;
-                default:
-                    throw new IllegalStateException("Invalid fallback CNF encoding algorithm: " + this.config().fallbackAlgorithmForAdvancedEncoding);
-            }
+            result = formula.transform(fallback);
         }
         return result;
     }
 
-    /**
-     * Returns the current configuration of this encoder.  If the encoder was constructed with a given configuration, this
-     * configuration will always be used.  Otherwise, the current configuration from the formula factory is used.
-     * @return the current configuration of
-     */
-    public CNFConfig config() {
-        return this.config != null ? this.config : (CNFConfig) this.f.configurationFor(ConfigurationType.CNF);
+    private static FormulaTransformation getTseitinTransformation(final FormulaFactory f, final CNFConfig config) {
+        if (f instanceof CachingFormulaFactory) {
+            return new TseitinTransformation((CachingFormulaFactory) f, config.atomBoundary);
+        } else {
+            return new TseitinTransformation((NonCachingFormulaFactory) f, config.atomBoundary, new TseitinState());
+        }
     }
 
-    @Override
-    public String toString() {
-        return this.config().toString();
+    private static FormulaTransformation getPgTransformation(final FormulaFactory f, final CNFConfig config) {
+        if (f instanceof CachingFormulaFactory) {
+            return new PlaistedGreenbaumTransformation((CachingFormulaFactory) f, config.atomBoundary);
+        } else {
+            return new PlaistedGreenbaumTransformation((NonCachingFormulaFactory) f, config.atomBoundary, new PGState());
+        }
     }
 
     /**
@@ -189,20 +137,20 @@ public class CNFEncoder {
         @Override
         public void started() {
             super.started();
-            this.currentDistributions = 0;
-            this.currentClauses = 0;
+            currentDistributions = 0;
+            currentClauses = 0;
         }
 
         @Override
         public boolean performedDistribution() {
-            this.aborted = this.distributionBoundary != -1 && ++this.currentDistributions > this.distributionBoundary;
-            return !this.aborted;
+            aborted = distributionBoundary != -1 && ++currentDistributions > distributionBoundary;
+            return !aborted;
         }
 
         @Override
         public boolean createdClause(final Formula clause) {
-            this.aborted = this.createdClauseBoundary != -1 && ++this.currentClauses > this.createdClauseBoundary;
-            return !this.aborted;
+            aborted = createdClauseBoundary != -1 && ++currentClauses > createdClauseBoundary;
+            return !aborted;
         }
     }
 }

@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.cardinalityconstraints;
 
@@ -34,28 +10,25 @@ import org.logicng.formulas.Variable;
 /**
  * Encodes that at most 'rhs' variables are assigned value true.  Uses the cardinality network
  * encoding due to Asín, Nieuwenhuis, Oliveras, and Rodríguez-Carbonell .
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.1
  */
 public final class CCAMKCardinalityNetwork implements CCAtMostK {
 
-    private final CCCardinalityNetworks cardinalityNetwork;
+    private static final CCAMKCardinalityNetwork INSTANCE = new CCAMKCardinalityNetwork();
 
-    /**
-     * Constructs a new cardinality encoder.
-     */
-    CCAMKCardinalityNetwork() {
-        this.cardinalityNetwork = new CCCardinalityNetworks();
+    private CCAMKCardinalityNetwork() {
+        // Singleton pattern
+    }
+
+    public static CCAMKCardinalityNetwork get() {
+        return INSTANCE;
     }
 
     @Override
-    public void build(final EncodingResult result, final Variable[] vars, final int rhs) {
-        this.cardinalityNetwork.buildAMK(result, vars, rhs);
-    }
-
-    @Override
-    public CCIncrementalData incrementalData() {
-        return this.cardinalityNetwork.incrementalData();
+    public CCIncrementalData build(final EncodingResult result, final Variable[] vars, final int rhs) {
+        CCCardinalityNetworks.buildAMK(result, vars, rhs);
+        return null;
     }
 
     /**
@@ -64,12 +37,7 @@ public final class CCAMKCardinalityNetwork implements CCAtMostK {
      * @param vars   the variables
      * @param rhs    the right-hand side
      */
-    void buildForIncremental(final EncodingResult result, final Variable[] vars, final int rhs) {
-        this.cardinalityNetwork.buildAMKForIncremental(result, vars, rhs);
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
+    CCIncrementalData buildForIncremental(final EncodingResult result, final Variable[] vars, final int rhs) {
+        return CCCardinalityNetworks.buildAMKForIncremental(result, vars, rhs);
     }
 }

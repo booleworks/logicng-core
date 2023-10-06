@@ -1,92 +1,64 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PropositionalParser;
 
-/**
- * Unit Tests for NNF conversion.
- * @version 2.2.0
- * @since 1.0
- */
-public class NNFTest extends TestWithExampleFormulas {
+public class NNFTest extends TestWithFormulaContext {
 
-    @Test
-    public void testConstants() {
-        assertThat(this.TRUE.nnf()).isEqualTo(this.TRUE);
-        assertThat(this.FALSE.nnf()).isEqualTo(this.FALSE);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testConstants(final FormulaContext _c) {
+        assertThat(_c.verum.nnf(_c.f)).isEqualTo(_c.verum);
+        assertThat(_c.falsum.nnf(_c.f)).isEqualTo(_c.falsum);
     }
 
-    @Test
-    public void testLiterals() {
-        assertThat(this.A.nnf()).isEqualTo(this.A);
-        assertThat(this.NA.nnf()).isEqualTo(this.NA);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        assertThat(_c.a.nnf(_c.f)).isEqualTo(_c.a);
+        assertThat(_c.na.nnf(_c.f)).isEqualTo(_c.na);
     }
 
-    @Test
-    public void testBinaryOperators() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(this.IMP1.nnf()).isEqualTo(p.parse("~a | b"));
-        assertThat(this.IMP2.nnf()).isEqualTo(p.parse("a | ~b"));
-        assertThat(this.IMP3.nnf()).isEqualTo(p.parse("~a | ~b | x | y"));
-        assertThat(this.IMP4.nnf()).isEqualTo(p.parse("(~a | ~b) & (a | b) | (x | ~y) & (y | ~x)"));
-        assertThat(this.EQ1.nnf()).isEqualTo(p.parse("(~a | b) & (~b | a)"));
-        assertThat(this.EQ2.nnf()).isEqualTo(p.parse("(a | ~b) & (b | ~a)"));
-        assertThat(this.EQ3.nnf()).isEqualTo(p.parse("(~a | ~b | x | y) & (~x & ~y | a & b)"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testBinaryOperators(final FormulaContext _c) throws ParserException {
+        assertThat(_c.imp1.nnf(_c.f)).isEqualTo(_c.p.parse("~a | b"));
+        assertThat(_c.imp2.nnf(_c.f)).isEqualTo(_c.p.parse("a | ~b"));
+        assertThat(_c.imp3.nnf(_c.f)).isEqualTo(_c.p.parse("~a | ~b | x | y"));
+        assertThat(_c.imp4.nnf(_c.f)).isEqualTo(_c.p.parse("(~a | ~b) & (a | b) | (x | ~y) & (y | ~x)"));
+        assertThat(_c.eq1.nnf(_c.f)).isEqualTo(_c.p.parse("(~a | b) & (~b | a)"));
+        assertThat(_c.eq2.nnf(_c.f)).isEqualTo(_c.p.parse("(a | ~b) & (b | ~a)"));
+        assertThat(_c.eq3.nnf(_c.f)).isEqualTo(_c.p.parse("(~a | ~b | x | y) & (~x & ~y | a & b)"));
     }
 
-    @Test
-    public void testNAryOperators() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(this.AND1.nnf()).isEqualTo(this.AND1);
-        assertThat(this.OR1.nnf()).isEqualTo(this.OR1);
-        assertThat(p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").nnf()).isEqualTo(p.parse("~a & ~b & c & (~x | y) & (~w | z)"));
-        assertThat(p.parse("~(a & b) | c | ~(x | ~y) | (w => z)").nnf()).isEqualTo(p.parse("~a  | ~b | c | (~x & y) | (~w | z)"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNAryOperators(final FormulaContext _c) throws ParserException {
+        assertThat(_c.and1.nnf(_c.f)).isEqualTo(_c.and1);
+        assertThat(_c.or1.nnf(_c.f)).isEqualTo(_c.or1);
+        assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").nnf(_c.f)).isEqualTo(_c.p.parse("~a & ~b & c & (~x | y) & (~w | z)"));
+        assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y) | (w => z)").nnf(_c.f)).isEqualTo(_c.p.parse("~a  | ~b | c | (~x & y) | (~w | z)"));
     }
 
-    @Test
-    public void testNot() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(p.parse("~a").nnf()).isEqualTo(p.parse("~a"));
-        assertThat(p.parse("~~a").nnf()).isEqualTo(p.parse("a"));
-        assertThat(p.parse("~(a => b)").nnf()).isEqualTo(p.parse("a & ~b"));
-        assertThat(p.parse("~(~(a | b) => ~(x | y))").nnf()).isEqualTo(p.parse("~a & ~b & (x | y)"));
-        assertThat(p.parse("a <=> b").nnf()).isEqualTo(p.parse("(~a | b) & (~b | a)"));
-        assertThat(p.parse("~(a <=> b)").nnf()).isEqualTo(p.parse("(~a | ~b) & (a | b)"));
-        assertThat(p.parse("~(~(a | b) <=> ~(x | y))").nnf()).isEqualTo(p.parse("((a | b) | (x | y)) & ((~a & ~b) | (~x & ~y))"));
-        assertThat(p.parse("~(a & b & ~x & ~y)").nnf()).isEqualTo(p.parse("~a | ~b | x | y"));
-        assertThat(p.parse("~(a | b | ~x | ~y)").nnf()).isEqualTo(p.parse("~a & ~b & x & y"));
-        assertThat(p.parse("~(a | b | ~x | ~y)").nnf()).isEqualTo(p.parse("~a & ~b & x & y"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNot(final FormulaContext _c) throws ParserException {
+        assertThat(_c.p.parse("~a").nnf(_c.f)).isEqualTo(_c.p.parse("~a"));
+        assertThat(_c.p.parse("~~a").nnf(_c.f)).isEqualTo(_c.p.parse("a"));
+        assertThat(_c.p.parse("~(a => b)").nnf(_c.f)).isEqualTo(_c.p.parse("a & ~b"));
+        assertThat(_c.p.parse("~(~(a | b) => ~(x | y))").nnf(_c.f)).isEqualTo(_c.p.parse("~a & ~b & (x | y)"));
+        assertThat(_c.p.parse("a <=> b").nnf(_c.f)).isEqualTo(_c.p.parse("(~a | b) & (~b | a)"));
+        assertThat(_c.p.parse("~(a <=> b)").nnf(_c.f)).isEqualTo(_c.p.parse("(~a | ~b) & (a | b)"));
+        assertThat(_c.p.parse("~(~(a | b) <=> ~(x | y))").nnf(_c.f)).isEqualTo(_c.p.parse("((a | b) | (x | y)) & ((~a & ~b) | (~x & ~y))"));
+        assertThat(_c.p.parse("~(a & b & ~x & ~y)").nnf(_c.f)).isEqualTo(_c.p.parse("~a | ~b | x | y"));
+        assertThat(_c.p.parse("~(a | b | ~x | ~y)").nnf(_c.f)).isEqualTo(_c.p.parse("~a & ~b & x & y"));
+        assertThat(_c.p.parse("~(a | b | ~x | ~y)").nnf(_c.f)).isEqualTo(_c.p.parse("~a & ~b & x & y"));
     }
 }

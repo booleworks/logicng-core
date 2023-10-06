@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.util;
 
@@ -47,7 +23,7 @@ import java.util.function.Supplier;
 
 /**
  * A class which contains utility methods for {@link Formula} objects.
- * @version 2.2.0
+ * @version 3.0.0
  * @since 1.5.1
  */
 public final class FormulaHelper {
@@ -61,82 +37,90 @@ public final class FormulaHelper {
 
     /**
      * Returns all variables occurring in the given formulas.
+     * @param f        the formula factory to use for caching
      * @param formulas formulas
      * @return all variables occurring in the given formulas
      */
-    public static SortedSet<Variable> variables(final Formula... formulas) {
+    public static SortedSet<Variable> variables(final FormulaFactory f, final Formula... formulas) {
         final SortedSet<Variable> variables = new TreeSet<>();
-        for (final Formula f : formulas) {
-            variables.addAll(f.variables());
+        for (final Formula op : formulas) {
+            variables.addAll(op.variables(f));
         }
         return variables;
     }
 
     /**
      * Returns all variables occurring in the given formulas.
+     * @param f        the formula factory to use for caching
      * @param formulas formulas
      * @return all variables occurring in the given formulas
      */
-    public static SortedSet<Variable> variables(final Collection<? extends Formula> formulas) {
+    public static SortedSet<Variable> variables(final FormulaFactory f, final Collection<? extends Formula> formulas) {
         final SortedSet<Variable> variables = new TreeSet<>();
-        for (final Formula f : formulas) {
-            variables.addAll(f.variables());
+        for (final Formula op : formulas) {
+            variables.addAll(op.variables(f));
         }
         return variables;
     }
 
     /**
      * Returns all literals occurring in the given formulas.
+     * @param f        the formula factory to use for caching
      * @param formulas formulas
      * @return all literals occurring in the given formulas
      */
-    public static SortedSet<Literal> literals(final Formula... formulas) {
+    public static SortedSet<Literal> literals(final FormulaFactory f, final Formula... formulas) {
         final SortedSet<Literal> literals = new TreeSet<>();
-        for (final Formula f : formulas) {
-            literals.addAll(f.literals());
+        for (final Formula op : formulas) {
+            literals.addAll(op.literals(f));
         }
         return literals;
     }
 
     /**
      * Returns all literals occurring in the given formulas.
+     * @param f        the formula factory to use for caching
      * @param formulas formulas
      * @return all literals occurring in the given formulas
      */
-    public static SortedSet<Literal> literals(final Collection<? extends Formula> formulas) {
+    public static SortedSet<Literal> literals(final FormulaFactory f, final Collection<? extends Formula> formulas) {
         final SortedSet<Literal> literals = new TreeSet<>();
-        for (final Formula f : formulas) {
-            literals.addAll(f.literals());
+        for (final Formula op : formulas) {
+            literals.addAll(op.literals(f));
         }
         return literals;
     }
 
     /**
      * Returns the negation of the given literals
+     * @param f                 the formula factory to generate new formulas
      * @param literals          the literals
      * @param collectionFactory the supplier for the collection
      * @param <C>               the type parameters of the collection
      * @return the negated literals
      */
-    public static <C extends Collection<Literal>> C negateLiterals(final Collection<? extends Literal> literals, final Supplier<C> collectionFactory) {
+    public static <C extends Collection<Literal>> C negateLiterals(final FormulaFactory f, final Collection<? extends Literal> literals,
+                                                                   final Supplier<C> collectionFactory) {
         final C result = collectionFactory.get();
         for (final Literal lit : literals) {
-            result.add(lit.negate());
+            result.add(lit.negate(f));
         }
         return result;
     }
 
     /**
      * Returns the negation of the given formulas.
+     * @param f                 the formula factory to generate new formulas
      * @param formulas          the formulas
      * @param collectionFactory the supplier for the collection
      * @param <C>               the type parameters of the collection
      * @return the negated literals
      */
-    public static <C extends Collection<Formula>> C negate(final Collection<? extends Formula> formulas, final Supplier<C> collectionFactory) {
+    public static <C extends Collection<Formula>> C negate(final FormulaFactory f, final Collection<? extends Formula> formulas,
+                                                           final Supplier<C> collectionFactory) {
         final C result = collectionFactory.get();
         for (final Formula formula : formulas) {
-            result.add(formula.negate());
+            result.add(formula.negate(f));
         }
         return result;
     }
@@ -146,10 +130,10 @@ public final class FormulaHelper {
      * @param literals the literals
      * @return the variables
      */
-    public static Variable[] literalsAsVariables(final Literal[] literals) {
-        final Variable[] vars = new Variable[literals.length];
+    public static Variable[] literalsAsVariables(final List<Literal> literals) {
+        final Variable[] vars = new Variable[literals.size()];
         for (int i = 0; i < vars.length; i++) {
-            vars[i] = literals[i].variable();
+            vars[i] = literals.get(i).variable();
         }
         return vars;
     }

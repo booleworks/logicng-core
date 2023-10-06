@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines Lynce
@@ -69,7 +45,7 @@ public abstract class Encoding {
      * Constructor.
      */
     Encoding() {
-        this.clause = new LNGIntVector();
+        clause = new LNGIntVector();
     }
 
     /**
@@ -78,7 +54,7 @@ public abstract class Encoding {
      * @param a the unit literal
      */
     void addUnitClause(final MiniSatStyleSolver s, final int a) {
-        this.addUnitClause(s, a, LIT_UNDEF);
+        addUnitClause(s, a, LIT_UNDEF);
     }
 
     /**
@@ -88,15 +64,15 @@ public abstract class Encoding {
      * @param blocking the blocking literal
      */
     private void addUnitClause(final MiniSatStyleSolver s, final int a, final int blocking) {
-        assert this.clause.size() == 0;
+        assert clause.size() == 0;
         assert a != LIT_UNDEF;
         assert var(a) < s.nVars();
-        this.clause.push(a);
+        clause.push(a);
         if (blocking != LIT_UNDEF) {
-            this.clause.push(blocking);
+            clause.push(blocking);
         }
-        s.addClause(this.clause, null);
-        this.clause.clear();
+        s.addClause(clause, null);
+        clause.clear();
     }
 
     /**
@@ -106,7 +82,7 @@ public abstract class Encoding {
      * @param b the second literal
      */
     void addBinaryClause(final MiniSatStyleSolver s, final int a, final int b) {
-        this.addBinaryClause(s, a, b, LIT_UNDEF);
+        addBinaryClause(s, a, b, LIT_UNDEF);
     }
 
     /**
@@ -117,16 +93,16 @@ public abstract class Encoding {
      * @param blocking the blocking literal
      */
     void addBinaryClause(final MiniSatStyleSolver s, final int a, final int b, final int blocking) {
-        assert this.clause.size() == 0;
+        assert clause.size() == 0;
         assert a != LIT_UNDEF && b != LIT_UNDEF;
         assert var(a) < s.nVars() && var(b) < s.nVars();
-        this.clause.push(a);
-        this.clause.push(b);
+        clause.push(a);
+        clause.push(b);
         if (blocking != LIT_UNDEF) {
-            this.clause.push(blocking);
+            clause.push(blocking);
         }
-        s.addClause(this.clause, null);
-        this.clause.clear();
+        s.addClause(clause, null);
+        clause.clear();
     }
 
     /**
@@ -137,7 +113,7 @@ public abstract class Encoding {
      * @param c the third literal
      */
     void addTernaryClause(final MiniSatStyleSolver s, final int a, final int b, final int c) {
-        this.addTernaryClause(s, a, b, c, LIT_UNDEF);
+        addTernaryClause(s, a, b, c, LIT_UNDEF);
     }
 
     /**
@@ -149,17 +125,17 @@ public abstract class Encoding {
      * @param blocking the blocking literal
      */
     void addTernaryClause(final MiniSatStyleSolver s, final int a, final int b, final int c, final int blocking) {
-        assert this.clause.size() == 0;
+        assert clause.size() == 0;
         assert a != LIT_UNDEF && b != LIT_UNDEF && c != LIT_UNDEF;
         assert var(a) < s.nVars() && var(b) < s.nVars() && var(c) < s.nVars();
-        this.clause.push(a);
-        this.clause.push(b);
-        this.clause.push(c);
+        clause.push(a);
+        clause.push(b);
+        clause.push(c);
         if (blocking != LIT_UNDEF) {
-            this.clause.push(blocking);
+            clause.push(blocking);
         }
-        s.addClause(this.clause, null);
-        this.clause.clear();
+        s.addClause(clause, null);
+        clause.clear();
     }
 
     /**
@@ -171,7 +147,7 @@ public abstract class Encoding {
      * @param d the fourth literal
      */
     void addQuaternaryClause(final MiniSatStyleSolver s, final int a, final int b, final int c, final int d) {
-        this.addQuaternaryClause(s, a, b, c, d, LIT_UNDEF);
+        addQuaternaryClause(s, a, b, c, d, LIT_UNDEF);
     }
 
     /**
@@ -184,17 +160,17 @@ public abstract class Encoding {
      * @param blocking the blocking literal
      */
     private void addQuaternaryClause(final MiniSatStyleSolver s, final int a, final int b, final int c, final int d, final int blocking) {
-        assert this.clause.size() == 0;
+        assert clause.size() == 0;
         assert a != LIT_UNDEF && b != LIT_UNDEF && c != LIT_UNDEF && d != LIT_UNDEF;
         assert var(a) < s.nVars() && var(b) < s.nVars() && var(c) < s.nVars() && var(d) < s.nVars();
-        this.clause.push(a);
-        this.clause.push(b);
-        this.clause.push(c);
-        this.clause.push(d);
+        clause.push(a);
+        clause.push(b);
+        clause.push(c);
+        clause.push(d);
         if (blocking != LIT_UNDEF) {
-            this.clause.push(blocking);
+            clause.push(blocking);
         }
-        s.addClause(this.clause, null);
-        this.clause.clear();
+        s.addClause(clause, null);
+        clause.clear();
     }
 }

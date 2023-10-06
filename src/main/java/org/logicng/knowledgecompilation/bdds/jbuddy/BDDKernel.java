@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*========================================================================
            Copyright (C) 1996-2002 by Jorn Lind-Nielsen
@@ -94,8 +70,8 @@ public class BDDKernel {
         private final int[] tt;
 
         Operand(final int value, final int[] truthTable) {
-            this.v = value;
-            this.tt = truthTable;
+            v = value;
+            tt = truthTable;
         }
     }
 
@@ -148,21 +124,21 @@ public class BDDKernel {
      */
     public BDDKernel(final FormulaFactory f, final int numVars, final int nodeSize, final int cacheSize) {
         this.f = f;
-        this.prime = new BDDPrime();
-        this.var2idx = new TreeMap<>();
-        this.idx2var = new TreeMap<>();
-        this.reordering = new BDDReordering(this);
-        this.nodesize = prime.primeGTE(Math.max(nodeSize, 3));
-        this.nodes = new int[this.nodesize * 6];
-        this.minfreenodes = 20;
-        for (int n = 0; n < this.nodesize; n++) {
+        prime = new BDDPrime();
+        var2idx = new TreeMap<>();
+        idx2var = new TreeMap<>();
+        reordering = new BDDReordering(this);
+        nodesize = prime.primeGTE(Math.max(nodeSize, 3));
+        nodes = new int[nodesize * 6];
+        minfreenodes = 20;
+        for (int n = 0; n < nodesize; n++) {
             setRefcou(n, 0);
             setLow(n, -1);
             setHash(n, 0);
             setLevel(n, 0);
             setNext(n, n + 1);
         }
-        setNext(this.nodesize - 1, 0);
+        setNext(nodesize - 1, 0);
         setRefcou(0, MAXREF);
         setRefcou(1, MAXREF);
         setLow(0, 0);
@@ -170,13 +146,13 @@ public class BDDKernel {
         setLow(1, 1);
         setHigh(1, 1);
         initOperators(Math.max(cacheSize, 3));
-        this.freepos = 2;
-        this.freenum = this.nodesize - 2;
-        this.varnum = 0;
-        this.gbcollectnum = 0;
-        this.cachesize = cacheSize;
-        this.reordering.usedNodesNextReorder = this.nodesize;
-        this.maxnodeincrease = 50000;
+        freepos = 2;
+        freenum = nodesize - 2;
+        varnum = 0;
+        gbcollectnum = 0;
+        cachesize = cacheSize;
+        reordering.usedNodesNextReorder = nodesize;
+        maxnodeincrease = 50000;
         setNumberOfVars(numVars);
     }
 
@@ -203,28 +179,28 @@ public class BDDKernel {
         if (num < 0 || num > MAXVAR) {
             throw new IllegalArgumentException("Invalid variable number: " + num);
         }
-        this.reordering.disableReorder();
-        this.vars = new int[num * 2];
-        this.level2var = new int[num + 1];
-        this.var2level = new int[num + 1];
-        this.refstack = new int[num * 2 + 4];
-        this.refstacktop = 0;
-        while (this.varnum < num) {
-            this.vars[this.varnum * 2] = pushRef(makeNode(this.varnum, 0, 1));
-            this.vars[this.varnum * 2 + 1] = makeNode(this.varnum, 1, 0);
+        reordering.disableReorder();
+        vars = new int[num * 2];
+        level2var = new int[num + 1];
+        var2level = new int[num + 1];
+        refstack = new int[num * 2 + 4];
+        refstacktop = 0;
+        while (varnum < num) {
+            vars[varnum * 2] = pushRef(makeNode(varnum, 0, 1));
+            vars[varnum * 2 + 1] = makeNode(varnum, 1, 0);
             popref(1);
-            setRefcou(this.vars[this.varnum * 2], MAXREF);
-            setRefcou(this.vars[this.varnum * 2 + 1], MAXREF);
-            this.level2var[this.varnum] = this.varnum;
-            this.var2level[this.varnum] = this.varnum;
-            this.varnum++;
+            setRefcou(vars[varnum * 2], MAXREF);
+            setRefcou(vars[varnum * 2 + 1], MAXREF);
+            level2var[varnum] = varnum;
+            var2level[varnum] = varnum;
+            varnum++;
         }
         setLevel(0, num);
         setLevel(1, num);
-        this.level2var[num] = num;
-        this.var2level[num] = num;
+        level2var[num] = num;
+        var2level[num] = num;
         varResize();
-        this.reordering.enableReorder();
+        reordering.enableReorder();
     }
 
     /**
@@ -237,14 +213,14 @@ public class BDDKernel {
      * @throws IllegalArgumentException if the variable does not yet exist in the kernel and there are no free variable indices left
      */
     public int getOrAddVarIndex(final Variable variable) {
-        Integer index = this.var2idx.get(variable);
+        Integer index = var2idx.get(variable);
         if (index == null) {
-            if (this.var2idx.size() >= this.varnum) {
+            if (var2idx.size() >= varnum) {
                 throw new IllegalArgumentException("No free variables left! You did not set the number of variables high enough.");
             } else {
-                index = this.var2idx.size();
-                this.var2idx.put(variable, index);
-                this.idx2var.put(index, variable);
+                index = var2idx.size();
+                var2idx.put(variable, index);
+                idx2var.put(index, variable);
             }
         }
         return index;
@@ -255,7 +231,7 @@ public class BDDKernel {
      * @return the formula factory
      */
     public FormulaFactory factory() {
-        return this.f;
+        return f;
     }
 
     /**
@@ -263,7 +239,7 @@ public class BDDKernel {
      * @return the reordering object
      */
     public BDDReordering getReordering() {
-        return this.reordering;
+        return reordering;
     }
 
     /**
@@ -271,7 +247,7 @@ public class BDDKernel {
      * @return the mapping from variables to indices
      */
     public SortedMap<Variable, Integer> var2idx() {
-        return this.var2idx;
+        return var2idx;
     }
 
     /**
@@ -279,7 +255,7 @@ public class BDDKernel {
      * @return the mapping from indices to variables
      */
     public SortedMap<Integer, Variable> idx2var() {
-        return this.idx2var;
+        return idx2var;
     }
 
     /**
@@ -288,7 +264,7 @@ public class BDDKernel {
      * @return the index for the given variable
      */
     public int getIndexForVariable(final Variable var) {
-        final Integer index = this.var2idx.get(var);
+        final Integer index = var2idx.get(var);
         return index == null ? -1 : index;
     }
 
@@ -298,7 +274,7 @@ public class BDDKernel {
      * @return the variable for the given index
      */
     public Variable getVariableForIndex(final int idx) {
-        return this.idx2var.get(idx);
+        return idx2var.get(idx);
     }
 
     /**
@@ -307,8 +283,8 @@ public class BDDKernel {
      * @return the level of the given variable
      */
     public int getLevel(final Variable var) {
-        final Integer idx = this.var2idx.get(var);
-        return idx != null && idx >= 0 && idx < this.var2level.length ? this.var2level[idx] : -1;
+        final Integer idx = var2idx.get(var);
+        return idx != null && idx >= 0 && idx < var2level.length ? var2level[idx] : -1;
     }
 
     /**
@@ -316,7 +292,7 @@ public class BDDKernel {
      * @return the current variable ordering
      */
     public int[] getCurrentVarOrder() {
-        return Arrays.copyOf(this.level2var, this.level2var.length - 1); // last var is always 0
+        return Arrays.copyOf(level2var, level2var.length - 1); // last var is always 0
     }
 
     protected int doWithPotentialReordering(final BddOperation operation) {
@@ -324,15 +300,15 @@ public class BDDKernel {
             initRef();
             return operation.perform();
         } catch (final BddReorderRequest reorderRequest) {
-            this.reordering.checkReorder();
+            reordering.checkReorder();
             initRef();
-            this.reordering.disableReorder();
+            reordering.disableReorder();
             try {
                 return operation.perform();
             } catch (final BddReorderRequest e) {
                 throw new IllegalStateException("Must not happen");
             } finally {
-                this.reordering.enableReorder();
+                reordering.enableReorder();
             }
         }
     }
@@ -387,7 +363,7 @@ public class BDDKernel {
         if (isConst(l) && isConst(r)) {
             res = op.tt[l << 1 | r];
         } else {
-            final BDDCacheEntry entry = this.applycache.lookup(triple(l, r, op.v));
+            final BDDCacheEntry entry = applycache.lookup(triple(l, r, op.v));
             if (entry.a == l && entry.b == r && entry.c == op.v) {
                 return entry.res;
             }
@@ -431,7 +407,7 @@ public class BDDKernel {
         if (root < 2) {
             return root;
         }
-        if (root >= this.nodesize) {
+        if (root >= nodesize) {
             throw new IllegalArgumentException("Not a valid BDD root node: " + root);
         }
         if (low(root) == -1) {
@@ -450,16 +426,16 @@ public class BDDKernel {
         if (root < 2) {
             return;
         }
-        if (root >= this.nodesize) {
+        if (root >= nodesize) {
             throw new IllegalStateException("Cannot dereference a variable > varnum");
         }
-        if (this.low(root) == -1) {
+        if (low(root) == -1) {
             throw new IllegalStateException("Cannot dereference variable -1");
         }
-        if (!this.hasref(root)) {
+        if (!hasref(root)) {
             throw new IllegalStateException("Cannot dereference a variable which has no reference");
         }
-        this.decRef(root);
+        decRef(root);
     }
 
     protected void decRef(final int n) {
@@ -486,23 +462,23 @@ public class BDDKernel {
             }
             res = next(res);
         }
-        if (this.freepos == 0) {
+        if (freepos == 0) {
             gbc();
-            if ((this.nodesize - this.freenum) >= this.reordering.usedNodesNextReorder && this.reordering.reorderReady()) {
+            if ((nodesize - freenum) >= reordering.usedNodesNextReorder && reordering.reorderReady()) {
                 throw new BddReorderRequest();
             }
-            if ((this.freenum * 100) / this.nodesize <= this.minfreenodes) {
+            if ((freenum * 100) / nodesize <= minfreenodes) {
                 nodeResize(true);
                 hash = nodehash(level, low, high);
             }
-            if (this.freepos == 0) {
+            if (freepos == 0) {
                 throw new IllegalStateException("Cannot allocate more space for more nodes.");
             }
         }
-        res = this.freepos;
-        this.freepos = next(this.freepos);
-        this.freenum--;
-        this.produced++;
+        res = freepos;
+        freepos = next(freepos);
+        freenum--;
+        produced++;
         setLevel(res, level);
         setLow(res, low);
         setHigh(res, high);
@@ -538,18 +514,18 @@ public class BDDKernel {
     }
 
     protected void gbc() {
-        for (int r = 0; r < this.refstacktop; r++) {
-            mark(this.refstack[r]);
+        for (int r = 0; r < refstacktop; r++) {
+            mark(refstack[r]);
         }
-        for (int n = 0; n < this.nodesize; n++) {
+        for (int n = 0; n < nodesize; n++) {
             if (refcou(n) > 0) {
                 mark(n);
             }
             setHash(n, 0);
         }
-        this.freepos = 0;
-        this.freenum = 0;
-        for (int n = this.nodesize - 1; n >= 2; n--) {
+        freepos = 0;
+        freenum = 0;
+        for (int n = nodesize - 1; n >= 2; n--) {
             if ((level(n) & MARKON) != 0 && low(n) != -1) {
                 setLevel(n, level(n) & MARKOFF);
                 final int hash = nodehash(level(n), low(n), high(n));
@@ -557,27 +533,27 @@ public class BDDKernel {
                 setHash(hash, n);
             } else {
                 setLow(n, -1);
-                setNext(n, this.freepos);
-                this.freepos = n;
-                this.freenum++;
+                setNext(n, freepos);
+                freepos = n;
+                freenum++;
             }
         }
         resetCaches();
-        this.gbcollectnum++;
+        gbcollectnum++;
     }
 
     protected void gbcRehash() {
-        this.freepos = 0;
-        this.freenum = 0;
-        for (int n = this.nodesize - 1; n >= 2; n--) {
+        freepos = 0;
+        freenum = 0;
+        for (int n = nodesize - 1; n >= 2; n--) {
             if (low(n) != -1) {
                 final int hash = nodehash(level(n), low(n), high(n));
                 setNext(n, hash(hash));
                 setHash(hash, n);
             } else {
-                setNext(n, this.freepos);
-                this.freepos = n;
-                this.freenum++;
+                setNext(n, freepos);
+                freepos = n;
+                freenum++;
             }
         }
     }
@@ -595,99 +571,99 @@ public class BDDKernel {
     }
 
     protected void nodeResize(final boolean doRehash) {
-        final int oldsize = this.nodesize;
+        final int oldsize = nodesize;
         int n;
-        this.nodesize = this.nodesize << 1;
-        if (this.nodesize > oldsize + this.maxnodeincrease) {
-            this.nodesize = oldsize + this.maxnodeincrease;
+        nodesize = nodesize << 1;
+        if (nodesize > oldsize + maxnodeincrease) {
+            nodesize = oldsize + maxnodeincrease;
         }
-        this.nodesize = prime.primeLTE(this.nodesize);
-        final int[] newnodes = new int[this.nodesize * 6];
-        System.arraycopy(this.nodes, 0, newnodes, 0, this.nodes.length);
-        this.nodes = newnodes;
+        nodesize = prime.primeLTE(nodesize);
+        final int[] newnodes = new int[nodesize * 6];
+        System.arraycopy(nodes, 0, newnodes, 0, nodes.length);
+        nodes = newnodes;
         if (doRehash) {
             for (n = 0; n < oldsize; n++) {
                 setHash(n, 0);
             }
         }
-        for (n = oldsize; n < this.nodesize; n++) {
+        for (n = oldsize; n < nodesize; n++) {
             setRefcou(n, 0);
             setHash(n, 0);
             setLevel(n, 0);
             setLow(n, -1);
             setNext(n, n + 1);
         }
-        setNext(this.nodesize - 1, this.freepos);
-        this.freepos = oldsize;
-        this.freenum += this.nodesize - oldsize;
+        setNext(nodesize - 1, freepos);
+        freepos = oldsize;
+        freenum += nodesize - oldsize;
         if (doRehash) {
             gbcRehash();
         }
     }
 
     protected int refcou(final int node) {
-        return this.nodes[6 * node];
+        return nodes[6 * node];
     }
 
     protected int level(final int node) {
-        return this.nodes[6 * node + 1];
+        return nodes[6 * node + 1];
     }
 
     protected int low(final int node) {
-        return this.nodes[6 * node + 2];
+        return nodes[6 * node + 2];
     }
 
     protected int high(final int node) {
-        return this.nodes[6 * node + 3];
+        return nodes[6 * node + 3];
     }
 
     protected int hash(final int node) {
-        return this.nodes[6 * node + 4];
+        return nodes[6 * node + 4];
     }
 
     protected int next(final int node) {
-        return this.nodes[6 * node + 5];
+        return nodes[6 * node + 5];
     }
 
     protected void setRefcou(final int node, final int refcou) {
-        this.nodes[6 * node] = refcou;
+        nodes[6 * node] = refcou;
     }
 
     protected void setLevel(final int node, final int level) {
-        this.nodes[6 * node + 1] = level;
+        nodes[6 * node + 1] = level;
     }
 
     protected void setLow(final int node, final int low) {
-        this.nodes[6 * node + 2] = low;
+        nodes[6 * node + 2] = low;
     }
 
     protected void setHigh(final int node, final int high) {
-        this.nodes[6 * node + 3] = high;
+        nodes[6 * node + 3] = high;
     }
 
     protected void setHash(final int node, final int hash) {
-        this.nodes[6 * node + 4] = hash;
+        nodes[6 * node + 4] = hash;
     }
 
     protected void setNext(final int node, final int next) {
-        this.nodes[6 * node + 5] = next;
+        nodes[6 * node + 5] = next;
     }
 
     protected void initRef() {
-        this.refstacktop = 0;
+        refstacktop = 0;
     }
 
     protected int pushRef(final int n) {
-        this.refstack[this.refstacktop++] = n;
+        refstack[refstacktop++] = n;
         return n;
     }
 
     protected int readRef(final int n) {
-        return this.refstack[this.refstacktop - n];
+        return refstack[refstacktop - n];
     }
 
     protected void popref(final int n) {
-        this.refstacktop -= n;
+        refstacktop -= n;
     }
 
     protected boolean hasref(final int n) {
@@ -719,7 +695,7 @@ public class BDDKernel {
     }
 
     protected int nodehash(final int lvl, final int l, final int h) {
-        return Math.abs(triple(lvl, l, h) % this.nodesize);
+        return Math.abs(triple(lvl, l, h) % nodesize);
     }
 
     protected int pair(final int a, final int b) {
@@ -731,28 +707,28 @@ public class BDDKernel {
     }
 
     protected void initOperators(final int cachesize) {
-        this.applycache = new BDDCache(cachesize);
-        this.itecache = new BDDCache(cachesize);
-        this.quantcache = new BDDCache(cachesize);
-        this.appexcache = new BDDCache(cachesize);
-        this.replacecache = new BDDCache(cachesize);
-        this.misccache = new BDDCache(cachesize);
-        this.quantvarsetID = 0;
-        this.quantvarset = null;
+        applycache = new BDDCache(cachesize);
+        itecache = new BDDCache(cachesize);
+        quantcache = new BDDCache(cachesize);
+        appexcache = new BDDCache(cachesize);
+        replacecache = new BDDCache(cachesize);
+        misccache = new BDDCache(cachesize);
+        quantvarsetID = 0;
+        quantvarset = null;
     }
 
     protected void resetCaches() {
-        this.applycache.reset();
-        this.itecache.reset();
-        this.quantcache.reset();
-        this.appexcache.reset();
-        this.replacecache.reset();
-        this.misccache.reset();
+        applycache.reset();
+        itecache.reset();
+        quantcache.reset();
+        appexcache.reset();
+        replacecache.reset();
+        misccache.reset();
     }
 
     protected void varResize() {
-        this.quantvarset = new int[this.varnum];
-        this.quantvarsetID = 0;
+        quantvarset = new int[varnum];
+        quantvarsetID = 0;
     }
 
     /**
@@ -761,12 +737,12 @@ public class BDDKernel {
      */
     public BDDStatistics statistics() {
         final BDDStatistics statistics = new BDDStatistics();
-        statistics.produced = this.produced;
-        statistics.nodesize = this.nodesize;
-        statistics.freenum = this.freenum;
-        statistics.varnum = this.varnum;
-        statistics.cachesize = this.cachesize;
-        statistics.gbcollectnum = this.gbcollectnum;
+        statistics.produced = produced;
+        statistics.nodesize = nodesize;
+        statistics.freenum = freenum;
+        statistics.varnum = varnum;
+        statistics.cachesize = cachesize;
+        statistics.gbcollectnum = gbcollectnum;
         return statistics;
     }
 
@@ -786,7 +762,7 @@ public class BDDKernel {
          * @return the number of produced nodes
          */
         public long produced() {
-            return this.produced;
+            return produced;
         }
 
         /**
@@ -794,7 +770,7 @@ public class BDDKernel {
          * @return the number of allocated nodes
          */
         public int nodesize() {
-            return this.nodesize;
+            return nodesize;
         }
 
         /**
@@ -802,7 +778,7 @@ public class BDDKernel {
          * @return the number of free nodes
          */
         public int freenum() {
-            return this.freenum;
+            return freenum;
         }
 
         /**
@@ -810,7 +786,7 @@ public class BDDKernel {
          * @return the number of variables
          */
         public int varnum() {
-            return this.varnum;
+            return varnum;
         }
 
         /**
@@ -818,7 +794,7 @@ public class BDDKernel {
          * @return the cache size
          */
         public int cachesize() {
-            return this.cachesize;
+            return cachesize;
         }
 
         /**
@@ -826,7 +802,7 @@ public class BDDKernel {
          * @return the number of garbage collections
          */
         public int gbcollectnum() {
-            return this.gbcollectnum;
+            return gbcollectnum;
         }
 
         /**
@@ -834,18 +810,18 @@ public class BDDKernel {
          * @return the number of used nodes
          */
         public int usedNodes() {
-            return this.nodesize - this.freenum;
+            return nodesize - freenum;
         }
 
         @Override
         public String toString() {
             return "BDDStatistics{" +
-                    "produced nodes=" + this.produced +
-                    ", allocated nodes=" + this.nodesize +
-                    ", free nodes=" + this.freenum +
-                    ", variables=" + this.varnum +
-                    ", cache size=" + this.cachesize +
-                    ", garbage collections=" + this.gbcollectnum +
+                    "produced nodes=" + produced +
+                    ", allocated nodes=" + nodesize +
+                    ", free nodes=" + freenum +
+                    ", variables=" + varnum +
+                    ", cache size=" + cachesize +
+                    ", garbage collections=" + gbcollectnum +
                     '}';
         }
     }

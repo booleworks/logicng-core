@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.io.graphical.generators;
 
@@ -58,40 +34,35 @@ import org.logicng.io.parsers.PseudoBooleanParser;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Unit tests for {@link FormulaDagGraphicalGenerator}.
- * @version 2.4.0
- * @since 2.4.0
- */
 public class FormulaDagGraphicalGeneratorTest {
     private FormulaFactory f;
     private PseudoBooleanParser p;
 
     @BeforeEach
     public void init() {
-        this.f = new FormulaFactory();
-        this.p = new PseudoBooleanParser(this.f);
+        f = FormulaFactory.caching();
+        p = new PseudoBooleanParser(f);
     }
 
     @Test
     public void testConstants() throws IOException {
-        testFiles("false", this.f.falsum(), FormulaDagGraphicalGenerator.builder().build());
-        testFiles("true", this.f.verum(), FormulaDagGraphicalGenerator.builder().build());
+        testFiles("false", f.falsum(), FormulaDagGraphicalGenerator.builder().build());
+        testFiles("true", f.verum(), FormulaDagGraphicalGenerator.builder().build());
     }
 
     @Test
     public void testLiterals() throws IOException {
-        testFiles("x", this.f.variable("x"), FormulaDagGraphicalGenerator.builder().build());
-        testFiles("not_x", this.f.literal("x", false), FormulaDagGraphicalGenerator.builder().build());
+        testFiles("x", f.variable("x"), FormulaDagGraphicalGenerator.builder().build());
+        testFiles("not_x", f.literal("x", false), FormulaDagGraphicalGenerator.builder().build());
     }
 
     @Test
     public void testFormulas() throws IOException, ParserException {
-        final Formula f1 = this.p.parse("(a & b) <=> (~c => (x | z))");
-        final Formula f2 = this.p.parse("a & b | b & ~c");
-        final Formula f3 = this.p.parse("(a & b) <=> (~c => (a | b))");
-        final Formula f4 = this.p.parse("~(a & b) | b & ~c");
-        final Formula f5 = this.p.parse("a | ~b | (2*a + 3*~b + 4*c <= 23)");
+        final Formula f1 = p.parse("(a & b) <=> (~c => (x | z))");
+        final Formula f2 = p.parse("a & b | b & ~c");
+        final Formula f3 = p.parse("(a & b) <=> (~c => (a | b))");
+        final Formula f4 = p.parse("~(a & b) | b & ~c");
+        final Formula f5 = p.parse("a | ~b | (2*a + 3*~b + 4*c <= 23)");
         testFiles("f1", f1, FormulaDagGraphicalGenerator.builder().build());
         testFiles("f2", f2, FormulaDagGraphicalGenerator.builder().build());
         testFiles("f3", f3, FormulaDagGraphicalGenerator.builder().build());
@@ -101,15 +72,15 @@ public class FormulaDagGraphicalGeneratorTest {
 
     @Test
     public void testDuplicateFormulaParts() throws ParserException, IOException {
-        final Formula f6 = this.p.parse("(a & b) | (c & ~(a & b))");
+        final Formula f6 = p.parse("(a & b) | (c & ~(a & b))");
         testFiles("f6", f6, FormulaDagGraphicalGenerator.builder().build());
-        final Formula f7 = this.p.parse("(c & d) | (a & b) | ((c & d) <=> (a & b))");
+        final Formula f7 = p.parse("(c & d) | (a & b) | ((c & d) <=> (a & b))");
         testFiles("f7", f7, FormulaDagGraphicalGenerator.builder().build());
     }
 
     @Test
     public void testFixedStyle() throws ParserException, IOException {
-        final Formula f8 = this.p.parse("(A <=> B & (~A | C | X)) => a + b + c <= 2");
+        final Formula f8 = p.parse("(A <=> B & (~A | C | X)) => a + b + c <= 2");
         final FormulaDagGraphicalGenerator generator = FormulaDagGraphicalGenerator.builder()
                 .backgroundColor("#020202")
                 .defaultEdgeStyle(GraphicalEdgeStyle.bold(CYAN))
@@ -121,7 +92,7 @@ public class FormulaDagGraphicalGeneratorTest {
 
     @Test
     public void testDynamicStyle() throws ParserException, IOException {
-        final Formula f9 = this.p.parse("(A <=> B & (~A | C | X)) => a + b + c <= 2 & (~a | d => X & ~B)");
+        final Formula f9 = p.parse("(A <=> B & (~A | C | X)) => a + b + c <= 2 & (~a | d => X & ~B)");
 
         final GraphicalNodeStyle style1 = GraphicalNodeStyle.rectangle(GRAY_DARK, GRAY_DARK, GRAY_LIGHT);
         final GraphicalNodeStyle style2 = GraphicalNodeStyle.circle(YELLOW, BLACK, YELLOW);
@@ -150,7 +121,7 @@ public class FormulaDagGraphicalGeneratorTest {
 
     @Test
     public void testEdgeMapper() throws ParserException, IOException {
-        final Formula f10 = this.p.parse("(A <=> B & (~A | C | X)) => a + b + c <= 2 & (~a | d => X & ~B)");
+        final Formula f10 = p.parse("(A <=> B & (~A | C | X)) => a + b + c <= 2 & (~a | d => X & ~B)");
 
         final GraphicalEdgeStyle style1 = GraphicalEdgeStyle.dotted(GRAY_DARK);
 

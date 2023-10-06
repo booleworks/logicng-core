@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*========================================================================
            Copyright (C) 1996-2002 by Jorn Lind-Nielsen
@@ -62,6 +38,7 @@ import static org.logicng.handlers.Handler.start;
 import org.logicng.formulas.And;
 import org.logicng.formulas.BinaryOperator;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Implication;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Not;
@@ -69,11 +46,12 @@ import org.logicng.handlers.BDDHandler;
 import org.logicng.knowledgecompilation.bdds.jbuddy.BDDConstruction;
 import org.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
  * The factory for the jBuddy implementation.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.4.0
  */
 public final class BDDFactory {
@@ -88,11 +66,12 @@ public final class BDDFactory {
      * pseudo-Boolean constraints this number depends on the translation of the constraint.  Therefore, the caller first
      * has to transform any pseudo-Boolean constraints in their respective CNF representation before converting them
      * to a BDD.
+     * @param f       the formula factory to generate new formulas
      * @param formula the formula
      * @return the top node of the BDD
      */
-    public static BDD build(final Formula formula) {
-        return build(formula, null, null);
+    public static BDD build(final FormulaFactory f, final Formula formula) {
+        return build(f, formula, null, null);
     }
 
     /**
@@ -101,12 +80,13 @@ public final class BDDFactory {
      * pseudo-Boolean constraints this number depends on the translation of the constraint.  Therefore, the caller first
      * has to transform any pseudo-Boolean constraints in their respective CNF representation before converting them
      * to a BDD.
+     * @param f       the formula factory to generate new formulas
      * @param formula the formula
      * @param kernel  the BBD kernel to use
      * @return the top node of the BDD or {@link BDDKernel#BDD_ABORT} if the computation was aborted
      */
-    public static BDD build(final Formula formula, final BDDKernel kernel) {
-        return build(formula, kernel, null);
+    public static BDD build(final FormulaFactory f, final Formula formula, final BDDKernel kernel) {
+        return build(f, formula, kernel, null);
     }
 
     /**
@@ -119,18 +99,46 @@ public final class BDDFactory {
      * If a BDD handler is given and the BDD generation is aborted due to the handler, the method will return
      * {@link BDDKernel#BDD_ABORT} as result. If {@code null} is passed as handler, the generation will continue without
      * interruption.
+     * @param f       the formula factory to generate new formulas
      * @param formula the formula
      * @param kernel  the BBD kernel to use
      * @param handler the BDD handler
      * @return the top node of the BDD or {@link BDDKernel#BDD_ABORT} if the computation was aborted
      */
-    public static BDD build(final Formula formula, final BDDKernel kernel, final BDDHandler handler) {
+    public static BDD build(final FormulaFactory f, final Formula formula, final BDDKernel kernel, final BDDHandler handler) {
         start(handler);
-        final int varNum = formula.variables().size();
+        final int varNum = formula.variables(f).size();
         final BDDKernel bddKernel = kernel == null
-                ? new BDDKernel(formula.factory(), varNum, varNum * 30, varNum * 20)
+                ? new BDDKernel(f, varNum, varNum * 30, varNum * 20)
                 : kernel;
-        return new BDD(buildRec(formula, bddKernel, new BDDConstruction(bddKernel), handler), bddKernel);
+        return new BDD(buildRec(f, formula, bddKernel, new BDDConstruction(bddKernel), handler), bddKernel);
+    }
+
+    public static BDD build(final Collection<? extends Literal> literals, final BDDKernel kernel) {
+        final var construction = new BDDConstruction(kernel);
+        int bdd;
+        if (literals.isEmpty()) {
+            bdd = BDDKernel.BDD_FALSE;
+        } else if (literals.size() == 1) {
+            final Literal lit = literals.iterator().next();
+            final int idx = kernel.getOrAddVarIndex(lit.variable());
+            bdd = lit.phase() ? construction.ithVar(idx) : construction.nithVar(idx);
+        } else {
+            final Iterator<? extends Literal> it = literals.iterator();
+            Literal lit = it.next();
+            int idx = kernel.getOrAddVarIndex(lit.variable());
+            bdd = lit.phase() ? construction.ithVar(idx) : construction.nithVar(idx);
+            while (it.hasNext()) {
+                lit = it.next();
+                idx = kernel.getOrAddVarIndex(lit.variable());
+                final int operand = lit.phase() ? construction.ithVar(idx) : construction.nithVar(idx);
+                final int previous = bdd;
+                bdd = kernel.addRef(construction.and(bdd, operand), null);
+                kernel.delRef(previous);
+                kernel.delRef(operand);
+            }
+        }
+        return new BDD(bdd, kernel);
     }
 
     /**
@@ -145,7 +153,8 @@ public final class BDDFactory {
      * @param handler      the BDD handler
      * @return the BDD index or {@link BDDKernel#BDD_ABORT} if the computation was aborted
      */
-    private static int buildRec(final Formula formula, final BDDKernel kernel, final BDDConstruction construction, final BDDHandler handler) {
+    private static int buildRec(final FormulaFactory f, final Formula formula, final BDDKernel kernel, final BDDConstruction construction,
+                                final BDDHandler handler) {
         switch (formula.type()) {
             case FALSE:
                 return BDDKernel.BDD_FALSE;
@@ -157,7 +166,7 @@ public final class BDDFactory {
                 return lit.phase() ? construction.ithVar(idx) : construction.nithVar(idx);
             case NOT: {
                 final Not not = (Not) formula;
-                final int operand = buildRec(not.operand(), kernel, construction, handler);
+                final int operand = buildRec(f, not.operand(), kernel, construction, handler);
                 if (operand == BDDKernel.BDD_ABORT) {
                     return BDDKernel.BDD_ABORT;
                 }
@@ -168,11 +177,11 @@ public final class BDDFactory {
             case IMPL:
             case EQUIV:
                 final BinaryOperator binary = (BinaryOperator) formula;
-                final int left = buildRec(binary.left(), kernel, construction, handler);
+                final int left = buildRec(f, binary.left(), kernel, construction, handler);
                 if (left == BDDKernel.BDD_ABORT) {
                     return BDDKernel.BDD_ABORT;
                 }
-                final int right = buildRec(binary.right(), kernel, construction, handler);
+                final int right = buildRec(f, binary.right(), kernel, construction, handler);
                 if (right == BDDKernel.BDD_ABORT) {
                     return BDDKernel.BDD_ABORT;
                 }
@@ -183,12 +192,12 @@ public final class BDDFactory {
             case AND:
             case OR: {
                 final Iterator<Formula> it = formula.iterator();
-                res = buildRec(it.next(), kernel, construction, handler);
+                res = buildRec(f, it.next(), kernel, construction, handler);
                 if (res == BDDKernel.BDD_ABORT) {
                     return BDDKernel.BDD_ABORT;
                 }
                 while (it.hasNext()) {
-                    final int operand = buildRec(it.next(), kernel, construction, handler);
+                    final int operand = buildRec(f, it.next(), kernel, construction, handler);
                     if (operand == BDDKernel.BDD_ABORT) {
                         return BDDKernel.BDD_ABORT;
                     }
@@ -202,7 +211,7 @@ public final class BDDFactory {
                 return res;
             }
             case PBC:
-                return buildRec(formula.nnf(), kernel, construction, handler);
+                return buildRec(f, formula.nnf(f), kernel, construction, handler);
             case PREDICATE:
                 throw new IllegalArgumentException("Cannot generate a BDD from a formula with predicates in it");
             default:

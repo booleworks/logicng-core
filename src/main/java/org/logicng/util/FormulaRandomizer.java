@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.util;
 
@@ -78,12 +54,12 @@ public final class FormulaRandomizer {
     public FormulaRandomizer(final FormulaFactory f, final FormulaRandomizerConfig config) {
         this.f = f;
         this.config = config != null ? config : (FormulaRandomizerConfig) f.configurationFor(ConfigurationType.FORMULA_RANDOMIZER);
-        this.random = this.config.seed != 0 ? new Random(this.config.seed) : new Random();
-        this.variables = generateVars(f, this.config);
-        this.formulaTypeProbabilities = new FormulaTypeProbabilities(this.config);
-        this.cTypeProbabilities = new CTypeProbabilities(this.config);
-        this.phaseProbability = generatePhaseProbability(this.config);
-        this.coefficientNegativeProbability = this.config.weightPbcCoeffNegative / (this.config.weightPbcCoeffPositive + this.config.weightPbcCoeffNegative);
+        random = this.config.seed != 0 ? new Random(this.config.seed) : new Random();
+        variables = generateVars(f, this.config);
+        formulaTypeProbabilities = new FormulaTypeProbabilities(this.config);
+        cTypeProbabilities = new CTypeProbabilities(this.config);
+        phaseProbability = generatePhaseProbability(this.config);
+        coefficientNegativeProbability = this.config.weightPbcCoeffNegative / (this.config.weightPbcCoeffPositive + this.config.weightPbcCoeffNegative);
     }
 
     /**
@@ -91,7 +67,7 @@ public final class FormulaRandomizer {
      * @return the random constant
      */
     public Constant constant() {
-        return this.f.constant(this.random.nextBoolean());
+        return f.constant(random.nextBoolean());
     }
 
     /**
@@ -99,7 +75,7 @@ public final class FormulaRandomizer {
      * @return the random variable
      */
     public Variable variable() {
-        return this.variables[this.random.nextInt(this.variables.length)];
+        return variables[random.nextInt(variables.length)];
     }
 
     /**
@@ -108,7 +84,7 @@ public final class FormulaRandomizer {
      * @return the random literal
      */
     public Literal literal() {
-        return this.f.literal(this.variables[this.random.nextInt(this.variables.length)].name(), this.random.nextDouble() < this.phaseProbability);
+        return f.literal(variables[random.nextInt(variables.length)].name(), random.nextDouble() < phaseProbability);
     }
 
     /**
@@ -116,16 +92,16 @@ public final class FormulaRandomizer {
      * @return the random atom
      */
     public Formula atom() {
-        final double n = this.random.nextDouble() * this.formulaTypeProbabilities.exo;
-        if (n < this.formulaTypeProbabilities.constant) {
+        final double n = random.nextDouble() * formulaTypeProbabilities.exo;
+        if (n < formulaTypeProbabilities.constant) {
             return constant();
-        } else if (n < this.formulaTypeProbabilities.literal) {
+        } else if (n < formulaTypeProbabilities.literal) {
             return literal();
-        } else if (n < this.formulaTypeProbabilities.pbc) {
+        } else if (n < formulaTypeProbabilities.pbc) {
             return pbc();
-        } else if (n < this.formulaTypeProbabilities.cc) {
+        } else if (n < formulaTypeProbabilities.cc) {
             return cc();
-        } else if (n < this.formulaTypeProbabilities.amo) {
+        } else if (n < formulaTypeProbabilities.amo) {
             return amo();
         } else {
             return exo();
@@ -141,7 +117,7 @@ public final class FormulaRandomizer {
         if (maxDepth == 0) {
             return atom();
         }
-        final Formula not = this.f.not(formula(maxDepth - 1));
+        final Formula not = f.not(formula(maxDepth - 1));
         if (maxDepth >= 2 && not.type() != FType.NOT) {
             return not(maxDepth);
         }
@@ -157,7 +133,7 @@ public final class FormulaRandomizer {
         if (maxDepth == 0) {
             return atom();
         }
-        final Formula implication = this.f.implication(formula(maxDepth - 1), formula(maxDepth - 1));
+        final Formula implication = f.implication(formula(maxDepth - 1), formula(maxDepth - 1));
         if (implication.type() != FType.IMPL) {
             return impl(maxDepth);
         }
@@ -173,7 +149,7 @@ public final class FormulaRandomizer {
         if (maxDepth == 0) {
             return atom();
         }
-        final Formula equiv = this.f.equivalence(formula(maxDepth - 1), formula(maxDepth - 1));
+        final Formula equiv = f.equivalence(formula(maxDepth - 1), formula(maxDepth - 1));
         if (equiv.type() != FType.EQUIV) {
             return equiv(maxDepth);
         }
@@ -189,11 +165,11 @@ public final class FormulaRandomizer {
         if (maxDepth == 0) {
             return atom();
         }
-        final Formula[] operands = new Formula[2 + this.random.nextInt(this.config.maximumOperandsAnd - 2)];
+        final Formula[] operands = new Formula[2 + random.nextInt(config.maximumOperandsAnd - 2)];
         for (int i = 0; i < operands.length; i++) {
             operands[i] = formula(maxDepth - 1);
         }
-        final Formula formula = this.f.and(operands);
+        final Formula formula = f.and(operands);
         if (formula.type() != FType.AND) {
             return and(maxDepth);
         }
@@ -209,11 +185,11 @@ public final class FormulaRandomizer {
         if (maxDepth == 0) {
             return atom();
         }
-        final Formula[] operands = new Formula[2 + this.random.nextInt(this.config.maximumOperandsOr - 2)];
+        final Formula[] operands = new Formula[2 + random.nextInt(config.maximumOperandsOr - 2)];
         for (int i = 0; i < operands.length; i++) {
             operands[i] = formula(maxDepth - 1);
         }
-        final Formula formula = this.f.or(operands);
+        final Formula formula = f.or(operands);
         if (formula.type() != FType.OR) {
             return or(maxDepth);
         }
@@ -239,8 +215,8 @@ public final class FormulaRandomizer {
         } else if (type == CType.LT) {
             rhsOffset = 1;
         }
-        final int rhs = rhsOffset + this.random.nextInt(rhsBound);
-        final Formula cc = this.f.cc(type, rhs, variables);
+        final int rhs = rhsOffset + random.nextInt(rhsBound);
+        final Formula cc = f.cc(type, rhs, variables);
         if (cc.isConstantFormula()) {
             return cc();
         }
@@ -252,7 +228,7 @@ public final class FormulaRandomizer {
      * @return the random at-most-one constraint
      */
     public Formula amo() {
-        return this.f.amo(variables());
+        return f.amo(variables());
     }
 
     /**
@@ -260,7 +236,7 @@ public final class FormulaRandomizer {
      * @return the random exactly-one constraint
      */
     public Formula exo() {
-        return this.f.exo(variables());
+        return f.exo(variables());
     }
 
     /**
@@ -268,15 +244,15 @@ public final class FormulaRandomizer {
      * @return the random pseudo boolean constraint
      */
     public Formula pbc() {
-        final int numOps = this.random.nextInt(this.config.maximumOperandsPbc);
+        final int numOps = random.nextInt(config.maximumOperandsPbc);
         final Literal[] literals = new Literal[numOps];
         final int[] coefficients = new int[numOps];
         int minSum = 0; // (positive) sum of all negative coefficients
         int maxSum = 0; // sum of all positive coefficients
         for (int i = 0; i < numOps; i++) {
             literals[i] = literal();
-            coefficients[i] = this.random.nextInt(this.config.maximumCoefficientPbc) + 1;
-            if (this.random.nextDouble() < this.coefficientNegativeProbability) {
+            coefficients[i] = random.nextInt(config.maximumCoefficientPbc) + 1;
+            if (random.nextDouble() < coefficientNegativeProbability) {
                 minSum += coefficients[i];
                 coefficients[i] = -coefficients[i];
             } else {
@@ -284,8 +260,8 @@ public final class FormulaRandomizer {
             }
         }
         final CType type = cType();
-        final int rhs = this.random.nextInt(maxSum + minSum + 1) - minSum;
-        final Formula pbc = this.f.pbc(type, rhs, literals, coefficients);
+        final int rhs = random.nextInt(maxSum + minSum + 1) - minSum;
+        final Formula pbc = f.pbc(type, rhs, literals, coefficients);
         if (pbc.isConstantFormula()) {
             return pbc();
         }
@@ -301,26 +277,26 @@ public final class FormulaRandomizer {
         if (maxDepth == 0) {
             return atom();
         } else {
-            final double n = this.random.nextDouble();
-            if (n < this.formulaTypeProbabilities.constant) {
+            final double n = random.nextDouble();
+            if (n < formulaTypeProbabilities.constant) {
                 return constant();
-            } else if (n < this.formulaTypeProbabilities.literal) {
+            } else if (n < formulaTypeProbabilities.literal) {
                 return literal();
-            } else if (n < this.formulaTypeProbabilities.pbc) {
+            } else if (n < formulaTypeProbabilities.pbc) {
                 return pbc();
-            } else if (n < this.formulaTypeProbabilities.cc) {
+            } else if (n < formulaTypeProbabilities.cc) {
                 return cc();
-            } else if (n < this.formulaTypeProbabilities.amo) {
+            } else if (n < formulaTypeProbabilities.amo) {
                 return amo();
-            } else if (n < this.formulaTypeProbabilities.exo) {
+            } else if (n < formulaTypeProbabilities.exo) {
                 return exo();
-            } else if (n < this.formulaTypeProbabilities.or) {
+            } else if (n < formulaTypeProbabilities.or) {
                 return or(maxDepth);
-            } else if (n < this.formulaTypeProbabilities.and) {
+            } else if (n < formulaTypeProbabilities.and) {
                 return and(maxDepth);
-            } else if (n < this.formulaTypeProbabilities.not) {
+            } else if (n < formulaTypeProbabilities.not) {
                 return not(maxDepth);
-            } else if (n < this.formulaTypeProbabilities.impl) {
+            } else if (n < formulaTypeProbabilities.impl) {
                 return impl(maxDepth);
             } else {
                 return equiv(maxDepth);
@@ -339,7 +315,7 @@ public final class FormulaRandomizer {
     }
 
     private Variable[] variables() {
-        final Variable[] variables = new Variable[this.random.nextInt(this.config.maximumOperandsCc - 1) + 2];
+        final Variable[] variables = new Variable[random.nextInt(config.maximumOperandsCc - 1) + 2];
         for (int i = 0; i < variables.length; i++) {
             variables[i] = variable();
         }
@@ -365,14 +341,14 @@ public final class FormulaRandomizer {
 
     private CType cType() {
         final CType type;
-        final double n = this.random.nextDouble();
-        if (n < this.cTypeProbabilities.le) {
+        final double n = random.nextDouble();
+        if (n < cTypeProbabilities.le) {
             type = CType.LE;
-        } else if (n < this.cTypeProbabilities.lt) {
+        } else if (n < cTypeProbabilities.lt) {
             type = CType.LT;
-        } else if (n < this.cTypeProbabilities.ge) {
+        } else if (n < cTypeProbabilities.ge) {
             type = CType.GE;
-        } else if (n < this.cTypeProbabilities.gt) {
+        } else if (n < cTypeProbabilities.gt) {
             type = CType.GT;
         } else {
             type = CType.EQ;
@@ -397,18 +373,18 @@ public final class FormulaRandomizer {
             final double total = config.weightConstant + config.weightPositiveLiteral + config.weightNegativeLiteral + config.weightOr +
                     config.weightAnd + config.weightNot + config.weightImpl + config.weightEquiv +
                     config.weightPbc + config.weightCc + config.weightAmo + config.weightExo;
-            this.constant = config.weightConstant / total;
-            this.literal = this.constant + (config.weightPositiveLiteral + config.weightNegativeLiteral) / total;
-            this.pbc = this.literal + config.weightPbc / total;
-            this.cc = this.pbc + config.weightCc / total;
-            this.amo = this.cc + config.weightAmo / total;
-            this.exo = this.amo + config.weightExo / total;
-            this.or = this.exo + config.weightOr / total;
-            this.and = this.or + config.weightAnd / total;
-            this.not = this.and + config.weightNot / total;
-            this.impl = this.not + config.weightImpl / total;
-            this.equiv = this.impl + config.weightEquiv / total;
-            assert Math.abs(this.equiv - 1) < 0.00000001;
+            constant = config.weightConstant / total;
+            literal = constant + (config.weightPositiveLiteral + config.weightNegativeLiteral) / total;
+            pbc = literal + config.weightPbc / total;
+            cc = pbc + config.weightCc / total;
+            amo = cc + config.weightAmo / total;
+            exo = amo + config.weightExo / total;
+            or = exo + config.weightOr / total;
+            and = or + config.weightAnd / total;
+            not = and + config.weightNot / total;
+            impl = not + config.weightImpl / total;
+            equiv = impl + config.weightEquiv / total;
+            assert Math.abs(equiv - 1) < 0.00000001;
         }
     }
 
@@ -421,12 +397,12 @@ public final class FormulaRandomizer {
 
         private CTypeProbabilities(final FormulaRandomizerConfig config) {
             final double total = config.weightPbcTypeLe + config.weightPbcTypeLt + config.weightPbcTypeGe + config.weightPbcTypeGt + config.weightPbcTypeEq;
-            this.le = config.weightPbcTypeLe / total;
-            this.lt = this.le + config.weightPbcTypeLt / total;
-            this.ge = this.lt + config.weightPbcTypeGe / total;
-            this.gt = this.ge + config.weightPbcTypeGt / total;
-            this.eq = this.gt + config.weightPbcTypeEq / total;
-            assert Math.abs(this.eq - 1) < 0.00000001;
+            le = config.weightPbcTypeLe / total;
+            lt = le + config.weightPbcTypeLt / total;
+            ge = lt + config.weightPbcTypeGe / total;
+            gt = ge + config.weightPbcTypeGt / total;
+            eq = gt + config.weightPbcTypeEq / total;
+            assert Math.abs(eq - 1) < 0.00000001;
         }
     }
 }

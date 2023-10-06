@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.cnf;
 
@@ -54,11 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- * Unit Tests for the CNF transformations in {@link CNFConfig} and {@link org.logicng.solvers.sat.MiniSatConfig.CNFMethod}.
- * @version 2.0.0
- * @since 2.0.0
- */
 public class CnfMethodComparisonTest {
 
     public static Collection<Object[]> cnfConfigurations() {
@@ -107,12 +78,12 @@ public class CnfMethodComparisonTest {
     }
 
     private Backbone computeBackbone(final String fileName, final CNFConfig cnfConfig, final MiniSatConfig.CNFMethod cnfMethod) throws IOException, ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(cnfConfig);
         final Formula formula = FormulaReader.readPseudoBooleanFormula(fileName, f);
         final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(cnfMethod).build());
         solver.add(formula);
-        return solver.backbone(formula.variables());
+        return solver.backbone(formula.variables(f));
     }
 
     private void compareBackbonePerVariable(final String fileName) throws IOException, ParserException {
@@ -128,7 +99,7 @@ public class CnfMethodComparisonTest {
     private Map<Variable, Backbone> computeBackbonePerVariable(final String fileName, final CNFConfig cnfConfig, final MiniSatConfig.CNFMethod cnfMethod)
             throws IOException, ParserException {
         final long start = System.currentTimeMillis();
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(cnfConfig);
         final Formula formula = FormulaReader.readPseudoBooleanFormula(fileName, f);
         final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(cnfMethod).build());
@@ -136,11 +107,11 @@ public class CnfMethodComparisonTest {
         final SolverState solverState = solver.saveState();
         final Map<Variable, Backbone> result = new TreeMap<>();
         int counter = 1000;
-        for (final Variable variable : formula.variables()) {
+        for (final Variable variable : formula.variables(f)) {
             if (counter-- > 0) {
                 solver.add(variable);
                 if (solver.sat() == Tristate.TRUE) {
-                    final Backbone backbone = solver.backbone(formula.variables());
+                    final Backbone backbone = solver.backbone(formula.variables(f));
                     result.put(variable, backbone);
                 }
                 solver.loadState(solverState);

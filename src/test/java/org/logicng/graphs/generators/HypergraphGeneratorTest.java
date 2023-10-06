@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.graphs.generators;
 
@@ -42,35 +18,30 @@ import org.logicng.io.parsers.PropositionalParser;
 import java.util.Arrays;
 import java.util.Collections;
 
-/**
- * Unit tests for {@link HypergraphGenerator}.
- * @version 2.0.0
- * @since 1.4.0
- */
 public class HypergraphGeneratorTest {
 
     @Test
     public void testCNF() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        assertThat(HypergraphGenerator.fromCNF(p.parse("$false")).nodes()).isEmpty();
-        assertThat(HypergraphGenerator.fromCNF(p.parse("$false")).edges()).isEmpty();
-        assertThat(HypergraphGenerator.fromCNF(p.parse("$true")).nodes()).isEmpty();
-        assertThat(HypergraphGenerator.fromCNF(p.parse("$true")).edges()).isEmpty();
+        assertThat(HypergraphGenerator.fromCNF(f, p.parse("$false")).nodes()).isEmpty();
+        assertThat(HypergraphGenerator.fromCNF(f, p.parse("$false")).edges()).isEmpty();
+        assertThat(HypergraphGenerator.fromCNF(f, p.parse("$true")).nodes()).isEmpty();
+        assertThat(HypergraphGenerator.fromCNF(f, p.parse("$true")).edges()).isEmpty();
 
-        Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(p.parse("A"));
+        Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(f, p.parse("A"));
         HypergraphNode<Variable> nodeA = new HypergraphNode<>(hypergraph, f.variable("A"));
         assertThat(hypergraph.nodes()).containsExactly(nodeA);
         assertThat(hypergraph.edges()).containsExactly(new HypergraphEdge<>(Collections.singletonList(nodeA)));
 
-        hypergraph = HypergraphGenerator.fromCNF(p.parse("A | B | ~C"));
+        hypergraph = HypergraphGenerator.fromCNF(f, p.parse("A | B | ~C"));
         nodeA = new HypergraphNode<>(hypergraph, f.variable("A"));
         HypergraphNode<Variable> nodeB = new HypergraphNode<>(hypergraph, f.variable("B"));
         HypergraphNode<Variable> nodeC = new HypergraphNode<>(hypergraph, f.variable("C"));
         assertThat(hypergraph.nodes()).containsExactlyInAnyOrder(nodeA, nodeB, nodeC);
         assertThat(hypergraph.edges()).containsExactlyInAnyOrder(new HypergraphEdge<>(Arrays.asList(nodeA, nodeB, nodeC)));
 
-        hypergraph = HypergraphGenerator.fromCNF(p.parse("(A | B | ~C) & (B | ~D) & (C | ~E) & (~B | ~D | E) & X & ~Y"));
+        hypergraph = HypergraphGenerator.fromCNF(f, p.parse("(A | B | ~C) & (B | ~D) & (C | ~E) & (~B | ~D | E) & X & ~Y"));
         nodeA = new HypergraphNode<>(hypergraph, f.variable("A"));
         nodeB = new HypergraphNode<>(hypergraph, f.variable("B"));
         nodeC = new HypergraphNode<>(hypergraph, f.variable("C"));
@@ -91,26 +62,26 @@ public class HypergraphGeneratorTest {
 
     @Test
     public void testCNFFromList() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        assertThat(HypergraphGenerator.fromCNF(Collections.singletonList(p.parse("$false"))).nodes()).isEmpty();
-        assertThat(HypergraphGenerator.fromCNF(Collections.singletonList(p.parse("$false"))).edges()).isEmpty();
-        assertThat(HypergraphGenerator.fromCNF(Collections.singletonList(p.parse("$true"))).nodes()).isEmpty();
-        assertThat(HypergraphGenerator.fromCNF(Collections.singletonList(p.parse("$true"))).edges()).isEmpty();
+        assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$false"))).nodes()).isEmpty();
+        assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$false"))).edges()).isEmpty();
+        assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$true"))).nodes()).isEmpty();
+        assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$true"))).edges()).isEmpty();
 
-        Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(Collections.singletonList(p.parse("A")));
+        Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("A")));
         HypergraphNode<Variable> nodeA = new HypergraphNode<>(hypergraph, f.variable("A"));
         assertThat(hypergraph.nodes()).containsExactly(nodeA);
         assertThat(hypergraph.edges()).containsExactly(new HypergraphEdge<>(Collections.singletonList(nodeA)));
 
-        hypergraph = HypergraphGenerator.fromCNF(Collections.singletonList(p.parse("A | B | ~C")));
+        hypergraph = HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("A | B | ~C")));
         nodeA = new HypergraphNode<>(hypergraph, f.variable("A"));
         HypergraphNode<Variable> nodeB = new HypergraphNode<>(hypergraph, f.variable("B"));
         HypergraphNode<Variable> nodeC = new HypergraphNode<>(hypergraph, f.variable("C"));
         assertThat(hypergraph.nodes()).containsExactlyInAnyOrder(nodeA, nodeB, nodeC);
         assertThat(hypergraph.edges()).containsExactlyInAnyOrder(new HypergraphEdge<>(Arrays.asList(nodeA, nodeB, nodeC)));
 
-        hypergraph = HypergraphGenerator.fromCNF(Arrays.asList(
+        hypergraph = HypergraphGenerator.fromCNF(f, Arrays.asList(
                 p.parse("(A | B | ~C)"),
                 p.parse("(B | ~D)"),
                 p.parse("(C | ~E)"),
@@ -135,7 +106,7 @@ public class HypergraphGeneratorTest {
                 new HypergraphEdge<>(Collections.singletonList(nodeY))
         );
 
-        hypergraph = HypergraphGenerator.fromCNF(
+        hypergraph = HypergraphGenerator.fromCNF(f,
                 p.parse("(A | B | ~C)"),
                 p.parse("(B | ~D)"),
                 p.parse("(C | ~E)"),
@@ -163,10 +134,10 @@ public class HypergraphGeneratorTest {
 
     @Test
     public void testNonCNF() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         try {
-            HypergraphGenerator.fromCNF(p.parse("A => B"));
+            HypergraphGenerator.fromCNF(f, p.parse("A => B"));
         } catch (final IllegalArgumentException e) {
             assertThat(e).hasMessage("Cannot generate a hypergraph from a non-cnf formula");
         }

@@ -1,235 +1,215 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.datastructures;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaContext;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PropositionalParser;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Unit tests for the class {@link Assignment}.
- * @version 2.3.1
- * @since 1.0
- */
-public class AssignmentTest extends TestWithExampleFormulas {
+public class AssignmentTest extends TestWithFormulaContext {
+
+    final FormulaContext c = new FormulaContext(FormulaFactory.caching());
+
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEvaluateLit(final FormulaContext _c) {
+        final Assignment ass = new Assignment(Arrays.asList(_c.a, _c.nx));
+        assertThat(ass.evaluateLit(_c.a)).isTrue();
+        assertThat(ass.evaluateLit(_c.nx)).isTrue();
+        assertThat(ass.evaluateLit(_c.nb)).isTrue();
+        assertThat(ass.evaluateLit(_c.na)).isFalse();
+        assertThat(ass.evaluateLit(_c.x)).isFalse();
+        assertThat(ass.evaluateLit(_c.b)).isFalse();
+    }
+
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testRestrictLit(final FormulaContext _c) {
+        final Assignment ass = new Assignment(Arrays.asList(_c.a, _c.nx));
+        assertThat(ass.restrictLit(_c.a, _c.f)).isEqualTo(_c.verum);
+        assertThat(ass.restrictLit(_c.nx, _c.f)).isEqualTo(_c.verum);
+        assertThat(ass.restrictLit(_c.na, _c.f)).isEqualTo(_c.falsum);
+        assertThat(ass.restrictLit(_c.x, _c.f)).isEqualTo(_c.falsum);
+        assertThat(ass.restrictLit(_c.b, _c.f)).isEqualTo(_c.b);
+        assertThat(ass.restrictLit(_c.nb, _c.f)).isEqualTo(_c.nb);
+    }
+
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testFormula(final FormulaContext _c) throws ParserException {
+        assertThat(new Assignment(List.of(_c.a)).formula(_c.f)).isEqualTo(_c.p.parse("a"));
+        assertThat(new Assignment(List.of(_c.na)).formula(_c.f)).isEqualTo(_c.p.parse("~a"));
+        assertThat(new Assignment(Arrays.asList(_c.a, _c.b)).formula(_c.f)).isEqualTo(_c.p.parse("a & b"));
+        assertThat(new Assignment(Arrays.asList(_c.a, _c.b, _c.nx, _c.ny)).formula(_c.f)).isEqualTo(_c.p.parse("a & b & ~x & ~y"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testFastEvaluable(final FormulaContext _c) {
+        Assignment ass = new Assignment(List.of(_c.a, _c.nx), false);
+        assertThat(ass.fastEvaluable()).isFalse();
+        ass.convertToFastEvaluable();
+        assertThat(ass.fastEvaluable()).isTrue();
+        assertThat(ass.positiveVariables()).containsExactly(_c.a);
+        assertThat(ass.negativeLiterals()).containsExactly(_c.nx);
+        assertThat(ass.negativeVariables()).containsExactly(_c.x);
+        ass.addLiteral(_c.nb);
+        ass.addLiteral(_c.y);
+        assertThat(ass.positiveVariables()).containsExactly(_c.a, _c.y);
+        assertThat(ass.negativeLiterals()).containsExactly(_c.nb, _c.nx);
+        assertThat(ass.negativeVariables()).containsExactlyInAnyOrder(_c.x, _c.b);
+        assertThat(ass.evaluateLit(_c.y)).isTrue();
+        assertThat(ass.evaluateLit(_c.b)).isFalse();
+        assertThat(ass.restrictLit(_c.nb, _c.f)).isEqualTo(_c.verum);
+        assertThat(ass.restrictLit(_c.x, _c.f)).isEqualTo(_c.falsum);
+        assertThat(ass.restrictLit(_c.c, _c.f)).isEqualTo(_c.c);
+        assertThat(ass.formula(_c.f)).isEqualTo(_c.f.and(_c.a, _c.nx, _c.nb, _c.y));
+        ass = new Assignment(Arrays.asList(_c.a, _c.nx), true);
+        assertThat(ass.fastEvaluable()).isTrue();
+        ass.convertToFastEvaluable();
+        assertThat(ass.fastEvaluable()).isTrue();
+    }
+
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testBlockingClause(final FormulaContext _c) throws ParserException {
+        final Assignment ass = new Assignment();
+        ass.addLiteral(_c.a);
+        ass.addLiteral(_c.b);
+        ass.addLiteral(_c.nx);
+        ass.addLiteral(_c.ny);
+        final Formula bc01 = ass.blockingClause(_c.f);
+        assertThat(bc01.containsVariable(_c.c)).isFalse();
+        assertThat(bc01).isEqualTo(_c.f.parse("~a | ~b | x | y"));
+        final Formula bc02 = ass.blockingClause(_c.f, null);
+        assertThat(bc02.containsVariable(_c.c)).isFalse();
+        assertThat(bc02).isEqualTo(_c.f.parse("~a | ~b | x | y"));
+        final List<Literal> lits = Arrays.asList(_c.a, _c.x, _c.c);
+        final Formula bcProjected = ass.blockingClause(_c.f, lits);
+        assertThat(bcProjected.containsVariable(_c.c)).isFalse();
+        assertThat(bcProjected).isEqualTo(_c.f.parse("~a | x"));
+    }
 
     @Test
     public void testCreators() {
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.X, this.Y))).isNotNull();
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.x, c.y))).isNotNull();
     }
 
     @Test
     public void testSize() {
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.X, this.Y), true).size()).isEqualTo(4);
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY), false).size()).isEqualTo(4);
-        assertThat(new Assignment(Arrays.asList(this.A, this.NB)).size()).isEqualTo(2);
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.x, c.y), true).size()).isEqualTo(4);
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), false).size()).isEqualTo(4);
+        assertThat(new Assignment(Arrays.asList(c.a, c.nb)).size()).isEqualTo(2);
     }
 
     @Test
     public void testPositiveVariables() {
-        final Variable[] a = {this.A, this.B, this.X, this.Y};
+        final Variable[] a = {c.a, c.b, c.x, c.y};
         Assignment ass1 = new Assignment(Arrays.asList(a), false);
         assertThat(ass1.positiveVariables()).containsExactly(a);
-        ass1 = new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY));
-        assertThat(ass1.positiveVariables()).containsExactly(this.A, this.B);
-        ass1 = new Assignment(Arrays.asList(this.NA, this.NB, this.NX, this.NY));
+        ass1 = new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny));
+        assertThat(ass1.positiveVariables()).containsExactly(c.a, c.b);
+        ass1 = new Assignment(Arrays.asList(c.na, c.nb, c.nx, c.ny));
         assertThat(ass1.positiveVariables().size()).isEqualTo(0);
     }
 
     @Test
     public void testNegativeLiterals() {
-        final Literal[] a = {this.NA, this.NB, this.NX, this.NY};
+        final Literal[] a = {c.na, c.nb, c.nx, c.ny};
         Assignment ass = new Assignment(Arrays.asList(a));
         assertThat(ass.negativeLiterals()).containsExactly(a);
-        ass = new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY));
-        assertThat(ass.negativeLiterals()).containsExactly(this.NX, this.NY);
-        ass = new Assignment(Arrays.asList(this.A, this.B, this.X, this.Y));
+        ass = new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny));
+        assertThat(ass.negativeLiterals()).containsExactly(c.nx, c.ny);
+        ass = new Assignment(Arrays.asList(c.a, c.b, c.x, c.y));
         assertThat(ass.negativeLiterals().size()).isEqualTo(0);
     }
 
     @Test
     public void testNegativeVariables() {
-        final Variable[] a = {this.A, this.B, this.X, this.Y};
-        final Literal[] na = {this.NA, this.NB, this.NX, this.NY};
+        final Variable[] a = {c.a, c.b, c.x, c.y};
+        final Literal[] na = {c.na, c.nb, c.nx, c.ny};
         Assignment ass = new Assignment(Arrays.asList(na));
         assertThat(ass.negativeVariables()).containsExactly(a);
-        ass = new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY));
-        assertThat(ass.negativeVariables()).containsExactly(this.X, this.Y);
-        ass = new Assignment(Arrays.asList(this.A, this.B, this.X, this.Y));
+        ass = new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny));
+        assertThat(ass.negativeVariables()).containsExactly(c.x, c.y);
+        ass = new Assignment(Arrays.asList(c.a, c.b, c.x, c.y));
         assertThat(ass.negativeVariables().size()).isEqualTo(0);
     }
 
     @Test
     public void testAddLiteral() {
         final Assignment ass = new Assignment();
-        ass.addLiteral(this.A);
-        ass.addLiteral(this.B);
-        ass.addLiteral(this.NX);
-        ass.addLiteral(this.NY);
-        assertThat(ass.positiveVariables()).containsExactly(this.A, this.B);
-        assertThat(ass.negativeLiterals()).containsExactly(this.NX, this.NY);
-    }
-
-    @Test
-    public void testEvaluateLit() {
-        final Assignment ass = new Assignment(Arrays.asList(this.A, this.NX));
-        assertThat(ass.evaluateLit(this.A)).isTrue();
-        assertThat(ass.evaluateLit(this.NX)).isTrue();
-        assertThat(ass.evaluateLit(this.NB)).isTrue();
-        assertThat(ass.evaluateLit(this.NA)).isFalse();
-        assertThat(ass.evaluateLit(this.X)).isFalse();
-        assertThat(ass.evaluateLit(this.B)).isFalse();
-    }
-
-    @Test
-    public void testRestrictLit() {
-        final Assignment ass = new Assignment(Arrays.asList(this.A, this.NX));
-        assertThat(ass.restrictLit(this.A)).isEqualTo(this.TRUE);
-        assertThat(ass.restrictLit(this.NX)).isEqualTo(this.TRUE);
-        assertThat(ass.restrictLit(this.NA)).isEqualTo(this.FALSE);
-        assertThat(ass.restrictLit(this.X)).isEqualTo(this.FALSE);
-        assertThat(ass.restrictLit(this.B)).isEqualTo(this.B);
-        assertThat(ass.restrictLit(this.NB)).isEqualTo(this.NB);
-    }
-
-    @Test
-    public void testFormula() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(new Assignment(Collections.singletonList(this.A)).formula(this.f)).isEqualTo(p.parse("a"));
-        assertThat(new Assignment(Collections.singletonList(this.NA)).formula(this.f)).isEqualTo(p.parse("~a"));
-        assertThat(new Assignment(Arrays.asList(this.A, this.B)).formula(this.f)).isEqualTo(p.parse("a & b"));
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY)).formula(this.f)).isEqualTo(p.parse("a & b & ~x & ~y"));
-    }
-
-    @Test
-    public void testFastEvaluable() {
-        Assignment ass = new Assignment(Arrays.asList(this.A, this.NX), false);
-        assertThat(ass.fastEvaluable()).isFalse();
-        ass.convertToFastEvaluable();
-        assertThat(ass.fastEvaluable()).isTrue();
-        assertThat(ass.positiveVariables()).containsExactly(this.A);
-        assertThat(ass.negativeLiterals()).containsExactly(this.NX);
-        assertThat(ass.negativeVariables()).containsExactly(this.X);
-        ass.addLiteral(this.NB);
-        ass.addLiteral(this.Y);
-        assertThat(ass.positiveVariables()).containsExactly(this.A, this.Y);
-        assertThat(ass.negativeLiterals()).containsExactly(this.NB, this.NX);
-        assertThat(ass.negativeVariables()).containsExactlyInAnyOrder(this.X, this.B);
-        assertThat(ass.evaluateLit(this.Y)).isTrue();
-        assertThat(ass.evaluateLit(this.B)).isFalse();
-        assertThat(ass.restrictLit(this.NB)).isEqualTo(this.TRUE);
-        assertThat(ass.restrictLit(this.X)).isEqualTo(this.FALSE);
-        assertThat(ass.restrictLit(this.C)).isEqualTo(this.C);
-        assertThat(ass.formula(this.f)).isEqualTo(this.f.and(this.A, this.NX, this.NB, this.Y));
-        ass = new Assignment(Arrays.asList(this.A, this.NX), true);
-        assertThat(ass.fastEvaluable()).isTrue();
-        ass.convertToFastEvaluable();
-        assertThat(ass.fastEvaluable()).isTrue();
+        ass.addLiteral(c.a);
+        ass.addLiteral(c.b);
+        ass.addLiteral(c.nx);
+        ass.addLiteral(c.ny);
+        assertThat(ass.positiveVariables()).containsExactly(c.a, c.b);
+        assertThat(ass.negativeLiterals()).containsExactly(c.nx, c.ny);
     }
 
     @Test
     public void testHashCode() {
         final Assignment ass = new Assignment();
-        ass.addLiteral(this.A);
-        ass.addLiteral(this.B);
-        ass.addLiteral(this.NX);
-        ass.addLiteral(this.NY);
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY)).hashCode()).isEqualTo(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY), true).hashCode());
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY)).hashCode()).isEqualTo(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY), true).hashCode());
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY), true).hashCode()).isEqualTo(ass.hashCode());
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY)).hashCode()).isEqualTo(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY)).hashCode());
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY)).hashCode()).isEqualTo(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY), true).hashCode());
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY)).hashCode()).isEqualTo(ass.hashCode());
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY)).hashCode()).isEqualTo(ass.hashCode());
+        ass.addLiteral(c.a);
+        ass.addLiteral(c.b);
+        ass.addLiteral(c.nx);
+        ass.addLiteral(c.ny);
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny)).hashCode()).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true).hashCode());
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny)).hashCode()).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true).hashCode());
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true).hashCode()).isEqualTo(ass.hashCode());
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny)).hashCode()).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny)).hashCode());
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny)).hashCode()).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true).hashCode());
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny)).hashCode()).isEqualTo(ass.hashCode());
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny)).hashCode()).isEqualTo(ass.hashCode());
     }
 
     @Test
     public void testEquals() {
         final Assignment ass = new Assignment();
-        ass.addLiteral(this.A);
-        ass.addLiteral(this.B);
-        ass.addLiteral(this.NX);
-        ass.addLiteral(this.NY);
+        ass.addLiteral(c.a);
+        ass.addLiteral(c.b);
+        ass.addLiteral(c.nx);
+        ass.addLiteral(c.ny);
         final Assignment fastAss = new Assignment(true);
-        fastAss.addLiteral(this.A);
-        fastAss.addLiteral(this.B);
-        fastAss.addLiteral(this.NX);
-        fastAss.addLiteral(this.NY);
+        fastAss.addLiteral(c.a);
+        fastAss.addLiteral(c.b);
+        fastAss.addLiteral(c.nx);
+        fastAss.addLiteral(c.ny);
         assertThat(ass).isNotEqualTo(null);
         assertThat(ass.equals(null)).isFalse();
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY), false)).isEqualTo(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY), false));
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY), true)).isEqualTo(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY), false));
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY), false)).isEqualTo(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY), true));
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY), true)).isEqualTo(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY), true));
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY))).isEqualTo(ass);
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY))).isEqualTo(ass);
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), false)).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), false));
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true)).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), false));
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), false)).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true));
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true)).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true));
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny))).isEqualTo(ass);
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny))).isEqualTo(ass);
         assertThat(ass).isEqualTo(ass);
         assertThat(ass.equals(ass)).isTrue();
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX))).isNotEqualTo(ass);
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY, this.C))).isNotEqualTo(ass);
-        assertThat(this.TRUE).isNotEqualTo(ass);
-    }
-
-    @Test
-    public void testBlockingClause() throws ParserException {
-        final Assignment ass = new Assignment();
-        ass.addLiteral(this.A);
-        ass.addLiteral(this.B);
-        ass.addLiteral(this.NX);
-        ass.addLiteral(this.NY);
-        final Formula bc01 = ass.blockingClause(this.f);
-        assertThat(bc01.containsVariable(this.C)).isFalse();
-        assertThat(bc01).isEqualTo(this.f.parse("~a | ~b | x | y"));
-        final Formula bc02 = ass.blockingClause(this.f, null);
-        assertThat(bc02.containsVariable(this.C)).isFalse();
-        assertThat(bc02).isEqualTo(this.f.parse("~a | ~b | x | y"));
-        final List<Literal> lits = Arrays.asList(this.A, this.X, this.C);
-        final Formula bcProjected = ass.blockingClause(this.f, lits);
-        assertThat(bcProjected.containsVariable(this.C)).isFalse();
-        assertThat(bcProjected).isEqualTo(this.f.parse("~a | x"));
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx))).isNotEqualTo(ass);
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny, c.c))).isNotEqualTo(ass);
+        assertThat(c.verum).isNotEqualTo(ass);
     }
 
     @Test
     public void testToString() {
         assertThat(new Assignment().toString()).isEqualTo("Assignment{pos=[], neg=[]}");
-        assertThat(new Assignment(Collections.singletonList(this.A)).toString()).isEqualTo("Assignment{pos=[a], neg=[]}");
-        assertThat(new Assignment(Collections.singletonList(this.NA)).toString()).isEqualTo("Assignment{pos=[], neg=[~a]}");
-        assertThat(new Assignment(Arrays.asList(this.A, this.B, this.NX, this.NY, this.C)).toString()).isEqualTo("Assignment{pos=[a, b, c], neg=[~x, ~y]}");
+        assertThat(new Assignment(Collections.singletonList(c.a)).toString()).isEqualTo("Assignment{pos=[a], neg=[]}");
+        assertThat(new Assignment(Collections.singletonList(c.na)).toString()).isEqualTo("Assignment{pos=[], neg=[~a]}");
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny, c.c)).toString()).isEqualTo("Assignment{pos=[a, b, c], neg=[~x, ~y]}");
     }
 }

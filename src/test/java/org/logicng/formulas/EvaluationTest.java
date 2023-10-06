@@ -1,98 +1,77 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.datastructures.Assignment;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
 
 import java.util.Arrays;
 
-/**
- * Unit tests for formula evaluation.
- * @version 2.0.0
- * @since 1.0
- */
-public class EvaluationTest extends TestWithExampleFormulas {
+public class EvaluationTest extends TestWithFormulaContext {
 
-    private final Assignment ass = new Assignment(Arrays.asList(this.A, this.B, this.C, this.NX, this.NY));
-
-    @Test
-    public void testConstantEval() {
-        assertThat(this.TRUE.evaluate(this.ass)).isTrue();
-        assertThat(this.FALSE.evaluate(this.ass)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testConstantEval(final FormulaContext _c) {
+        final Assignment ass = new Assignment(Arrays.asList(_c.a, _c.b, _c.c, _c.nx, _c.ny));
+        assertThat(_c.verum.evaluate(ass)).isTrue();
+        assertThat(_c.falsum.evaluate(ass)).isFalse();
     }
 
-    @Test
-    public void testLiteralEval() {
-        assertThat(this.A.evaluate(this.ass)).isTrue();
-        assertThat(this.NA.evaluate(this.ass)).isFalse();
-        assertThat(this.X.evaluate(this.ass)).isFalse();
-        assertThat(this.NX.evaluate(this.ass)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiteralEval(final FormulaContext _c) {
+        final Assignment ass = new Assignment(Arrays.asList(_c.a, _c.b, _c.c, _c.nx, _c.ny));
+        assertThat(_c.a.evaluate(ass)).isTrue();
+        assertThat(_c.na.evaluate(ass)).isFalse();
+        assertThat(_c.x.evaluate(ass)).isFalse();
+        assertThat(_c.nx.evaluate(ass)).isTrue();
     }
 
-    @Test
-    public void testNotEval() {
-        assertThat(this.NOT1.evaluate(this.ass)).isFalse();
-        assertThat(this.NOT2.evaluate(this.ass)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNotEval(final FormulaContext _c) {
+        final Assignment ass = new Assignment(Arrays.asList(_c.a, _c.b, _c.c, _c.nx, _c.ny));
+        assertThat(_c.not1.evaluate(ass)).isFalse();
+        assertThat(_c.not2.evaluate(ass)).isTrue();
     }
 
-    @Test
-    public void testBinaryEval() {
-        assertThat(this.IMP1.evaluate(this.ass)).isTrue();
-        assertThat(this.IMP2.evaluate(this.ass)).isTrue();
-        assertThat(this.IMP3.evaluate(this.ass)).isFalse();
-        assertThat(this.IMP4.evaluate(this.ass)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testBinaryEval(final FormulaContext _c) {
+        final Assignment ass = new Assignment(Arrays.asList(_c.a, _c.b, _c.c, _c.nx, _c.ny));
+        assertThat(_c.imp1.evaluate(ass)).isTrue();
+        assertThat(_c.imp2.evaluate(ass)).isTrue();
+        assertThat(_c.imp3.evaluate(ass)).isFalse();
+        assertThat(_c.imp4.evaluate(ass)).isTrue();
 
-        assertThat(this.EQ1.evaluate(this.ass)).isTrue();
-        assertThat(this.EQ2.evaluate(this.ass)).isTrue();
-        assertThat(this.EQ3.evaluate(this.ass)).isFalse();
-        assertThat(this.EQ4.evaluate(this.ass)).isTrue();
+        assertThat(_c.eq1.evaluate(ass)).isTrue();
+        assertThat(_c.eq2.evaluate(ass)).isTrue();
+        assertThat(_c.eq3.evaluate(ass)).isFalse();
+        assertThat(_c.eq4.evaluate(ass)).isTrue();
     }
 
-    @Test
-    public void testNAryEval() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(this.OR1.evaluate(this.ass)).isFalse();
-        assertThat(this.OR2.evaluate(this.ass)).isTrue();
-        assertThat(this.OR3.evaluate(this.ass)).isTrue();
-        assertThat(p.parse("~a | ~b | ~c | x | y").evaluate(this.ass)).isFalse();
-        assertThat(p.parse("~a | ~b | ~c | x | ~y").evaluate(this.ass)).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNAryEval(final FormulaContext _c) throws ParserException {
+        final Assignment ass = new Assignment(Arrays.asList(_c.a, _c.b, _c.c, _c.nx, _c.ny));
+        final PropositionalParser p = new PropositionalParser(_c.f);
+        assertThat(_c.or1.evaluate(ass)).isFalse();
+        assertThat(_c.or2.evaluate(ass)).isTrue();
+        assertThat(_c.or3.evaluate(ass)).isTrue();
+        assertThat(p.parse("~a | ~b | ~c | x | y").evaluate(ass)).isFalse();
+        assertThat(p.parse("~a | ~b | ~c | x | ~y").evaluate(ass)).isTrue();
 
-        assertThat(this.AND1.evaluate(this.ass)).isTrue();
-        assertThat(this.AND2.evaluate(this.ass)).isFalse();
-        assertThat(this.AND3.evaluate(this.ass)).isFalse();
-        assertThat(p.parse("a & b & c & ~x & ~y").evaluate(this.ass)).isTrue();
-        assertThat(p.parse("a & b & c & ~x & y").evaluate(this.ass)).isFalse();
+        assertThat(_c.and1.evaluate(ass)).isTrue();
+        assertThat(_c.and2.evaluate(ass)).isFalse();
+        assertThat(_c.and3.evaluate(ass)).isFalse();
+        assertThat(p.parse("a & b & c & ~x & ~y").evaluate(ass)).isTrue();
+        assertThat(p.parse("a & b & c & ~x & y").evaluate(ass)).isFalse();
     }
 }

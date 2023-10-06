@@ -1,37 +1,15 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.logicng.formulas.FormulaFactoryConfig.FormulaMergeStrategy.IMPORT;
+import static org.logicng.formulas.FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
 
@@ -39,182 +17,210 @@ import java.util.Arrays;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-/**
- * Unit Tests for the class {@link Equivalence}.
- * @version 2.3.0
- * @since 1.0
- */
-public class EquivalenceTest extends TestWithExampleFormulas {
+public class EquivalenceTest extends TestWithFormulaContext {
 
-    @Test
-    public void testType() {
-        assertThat(this.EQ1.type()).isEqualTo(FType.EQUIV);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testType(final FormulaContext _c) {
+        assertThat(_c.eq1.type()).isEqualTo(FType.EQUIV);
     }
 
-    @Test
-    public void testCreator() {
-        assertThat(this.f.equivalence(this.TRUE, this.AND1)).isEqualTo(this.AND1);
-        assertThat(this.f.equivalence(this.AND1, this.TRUE)).isEqualTo(this.AND1);
-        assertThat(this.f.equivalence(this.FALSE, this.AND1)).isEqualTo(this.NOT1);
-        assertThat(this.f.equivalence(this.AND1, this.FALSE)).isEqualTo(this.NOT1);
-        assertThat(this.f.equivalence(this.OR1, this.OR1)).isEqualTo(this.TRUE);
-        assertThat(this.f.equivalence(this.NOT1, this.AND1)).isEqualTo(this.FALSE);
-        assertThat(this.f.equivalence(this.AND1, this.NOT1)).isEqualTo(this.FALSE);
-        assertThat(this.f.equivalence(this.OR1, this.NOT2)).isEqualTo(this.FALSE);
-        assertThat(this.f.equivalence(this.NOT2, this.OR1)).isEqualTo(this.FALSE);
-        assertThat(this.f.binaryOperator(FType.EQUIV, this.AND1, this.OR1)).isEqualTo(this.EQ3);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testCreator(final FormulaContext _c) {
+        assertThat(_c.f.equivalence(_c.verum, _c.and1)).isEqualTo(_c.and1);
+        assertThat(_c.f.equivalence(_c.and1, _c.verum)).isEqualTo(_c.and1);
+        assertThat(_c.f.equivalence(_c.falsum, _c.and1)).isEqualTo(_c.not1);
+        assertThat(_c.f.equivalence(_c.and1, _c.falsum)).isEqualTo(_c.not1);
+        assertThat(_c.f.equivalence(_c.or1, _c.or1)).isEqualTo(_c.verum);
+        assertThat(_c.f.equivalence(_c.not1, _c.and1)).isEqualTo(_c.falsum);
+        assertThat(_c.f.equivalence(_c.and1, _c.not1)).isEqualTo(_c.falsum);
+        assertThat(_c.f.equivalence(_c.or1, _c.not2)).isEqualTo(_c.falsum);
+        assertThat(_c.f.equivalence(_c.not2, _c.or1)).isEqualTo(_c.falsum);
+        assertThat(_c.f.binaryOperator(FType.EQUIV, _c.and1, _c.or1)).isEqualTo(_c.eq3);
     }
 
-    @Test
-    public void testGetters() {
-        assertThat(((Equivalence) this.EQ2).left()).isEqualTo(this.NA);
-        assertThat(((Equivalence) this.EQ2).right()).isEqualTo(this.NB);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testGetters(final FormulaContext _c) {
+        assertThat(((Equivalence) _c.eq2).left()).isEqualTo(_c.na);
+        assertThat(((Equivalence) _c.eq2).right()).isEqualTo(_c.nb);
     }
 
-    @Test
-    public void testVariables() {
-        assertThat(this.IMP3.variables().size()).isEqualTo(4);
-        SortedSet<Variable> lits = new TreeSet<>(Arrays.asList(this.A, this.B, this.X, this.Y));
-        assertThat(this.IMP3.variables()).isEqualTo(lits);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testVariables(final FormulaContext _c) {
+        assertThat(_c.imp3.variables(_c.f).size()).isEqualTo(4);
+        SortedSet<Variable> lits = new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y));
+        assertThat(_c.imp3.variables(_c.f)).isEqualTo(lits);
 
-        final Formula equiv = this.f.equivalence(this.AND1, this.AND2);
-        assertThat(equiv.variables().size()).isEqualTo(2);
-        lits = new TreeSet<>(Arrays.asList(this.A, this.B));
-        assertThat(equiv.variables()).isEqualTo(lits);
+        final Formula equiv = _c.f.equivalence(_c.and1, _c.and2);
+        assertThat(equiv.variables(_c.f).size()).isEqualTo(2);
+        lits = new TreeSet<>(Arrays.asList(_c.a, _c.b));
+        assertThat(equiv.variables(_c.f)).isEqualTo(lits);
     }
 
-    @Test
-    public void testLiterals() {
-        assertThat(this.IMP3.literals().size()).isEqualTo(4);
-        SortedSet<Literal> lits = new TreeSet<>(Arrays.asList(this.A, this.B, this.X, this.Y));
-        assertThat(this.IMP3.literals()).isEqualTo(lits);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        assertThat(_c.imp3.literals(_c.f).size()).isEqualTo(4);
+        SortedSet<Literal> lits = new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.x, _c.y));
+        assertThat(_c.imp3.literals(_c.f)).isEqualTo(lits);
 
-        Formula equiv = this.f.equivalence(this.AND1, this.AND2);
-        assertThat(equiv.literals().size()).isEqualTo(4);
-        lits = new TreeSet<>(Arrays.asList(this.A, this.B, this.NA, this.NB));
-        assertThat(equiv.literals()).isEqualTo(lits);
+        Formula equiv = _c.f.equivalence(_c.and1, _c.and2);
+        assertThat(equiv.literals(_c.f).size()).isEqualTo(4);
+        lits = new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.na, _c.nb));
+        assertThat(equiv.literals(_c.f)).isEqualTo(lits);
 
-        equiv = this.f.equivalence(this.AND1, this.A);
-        assertThat(equiv.literals().size()).isEqualTo(2);
-        lits = new TreeSet<>(Arrays.asList(this.A, this.B));
-        assertThat(equiv.literals()).isEqualTo(lits);
+        equiv = _c.f.equivalence(_c.and1, _c.a);
+        assertThat(equiv.literals(_c.f).size()).isEqualTo(2);
+        lits = new TreeSet<>(Arrays.asList(_c.a, _c.b));
+        assertThat(equiv.literals(_c.f)).isEqualTo(lits);
     }
 
-    @Test
-    public void testNegation() {
-        assertThat(this.EQ1.negate()).isEqualTo(this.f.not(this.EQ1));
-        assertThat(this.EQ2.negate()).isEqualTo(this.f.not(this.EQ2));
-        assertThat(this.EQ3.negate()).isEqualTo(this.f.not(this.EQ3));
-        assertThat(this.EQ4.negate()).isEqualTo(this.f.not(this.EQ4));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNegation(final FormulaContext _c) {
+        assertThat(_c.eq1.negate(_c.f)).isEqualTo(_c.f.not(_c.eq1));
+        assertThat(_c.eq2.negate(_c.f)).isEqualTo(_c.f.not(_c.eq2));
+        assertThat(_c.eq3.negate(_c.f)).isEqualTo(_c.f.not(_c.eq3));
+        assertThat(_c.eq4.negate(_c.f)).isEqualTo(_c.f.not(_c.eq4));
     }
 
-    @Test
-    public void testToString() {
-        assertThat(this.EQ1.toString()).isEqualTo("a <=> b");
-        assertThat(this.EQ2.toString()).isEqualTo("~a <=> ~b");
-        assertThat(this.EQ3.toString()).isEqualTo("a & b <=> x | y");
-        assertThat(this.EQ4.toString()).isEqualTo("a => b <=> ~a => ~b");
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testToString(final FormulaContext _c) {
+        assertThat(_c.eq1.toString()).isEqualTo("a <=> b");
+        assertThat(_c.eq2.toString()).isEqualTo("~a <=> ~b");
+        assertThat(_c.eq3.toString()).isEqualTo("a & b <=> x | y");
+        assertThat(_c.eq4.toString()).isEqualTo("a => b <=> ~a => ~b");
     }
 
-    @Test
-    public void testEquals() {
-        assertThat(this.f.equivalence(this.A, this.B)).isEqualTo(this.EQ1);
-        assertThat(this.f.equivalence(this.B, this.A)).isEqualTo(this.EQ1);
-        assertThat(this.f.equivalence(this.AND1, this.OR1)).isEqualTo(this.EQ3);
-        assertThat(this.EQ4).isEqualTo(this.EQ4);
-        assertThat(this.EQ2).isNotEqualTo(this.EQ1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEquals(final FormulaContext _c) {
+        assertThat(_c.f.equivalence(_c.a, _c.b)).isEqualTo(_c.eq1);
+        assertThat(_c.f.equivalence(_c.b, _c.a)).isEqualTo(_c.eq1);
+        assertThat(_c.f.equivalence(_c.and1, _c.or1)).isEqualTo(_c.eq3);
+        assertThat(_c.eq4).isEqualTo(_c.eq4);
+        assertThat(_c.eq2).isNotEqualTo(_c.eq1);
     }
 
-    @Test
-    public void testEqualsDifferentFormulaFactory() {
-        final FormulaFactory f = new FormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final FormulaFactory g = new FormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        assertThat(g.equivalence(g.variable("a"), g.variable("b"))).isEqualTo(this.EQ1);
-        assertThat(g.equivalence(this.B, this.A)).isEqualTo(this.EQ1);
-        assertThat(g.equivalence(this.AND1, this.OR1)).isEqualTo(this.EQ3);
-        assertThat(g.equivalence(g.literal("a", false), g.variable("b"))).isNotEqualTo(this.EQ1);
-        assertThat(g.equivalence(g.variable("a"), g.literal("b", false))).isNotEqualTo(this.EQ1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEqualsDifferentFormulaFactory(final FormulaContext _c) {
+        FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(IMPORT).build());
+        assertThat(g.equivalence(g.variable("a"), g.variable("b"))).isEqualTo(_c.eq1);
+        assertThat(g.equivalence(_c.b, _c.a)).isEqualTo(_c.eq1);
+        assertThat(g.equivalence(_c.and1, _c.or1)).isEqualTo(_c.eq3);
+        assertThat(g.equivalence(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.eq1);
+        assertThat(g.equivalence(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.eq1);
+
+        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(IMPORT).build());
+        assertThat(g.equivalence(g.variable("a"), g.variable("b"))).isEqualTo(_c.eq1);
+        assertThat(g.equivalence(_c.b, _c.a)).isEqualTo(_c.eq1);
+        assertThat(g.equivalence(_c.and1, _c.or1)).isEqualTo(_c.eq3);
+        assertThat(g.equivalence(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.eq1);
+        assertThat(g.equivalence(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.eq1);
+
+        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(USE_BUT_NO_IMPORT).build());
+        assertThat(g.equivalence(g.variable("a"), g.variable("b"))).isEqualTo(_c.eq1);
+        assertThat(g.equivalence(_c.b, _c.a)).isEqualTo(_c.eq1);
+        assertThat(g.equivalence(_c.and1, _c.or1)).isEqualTo(_c.eq3);
+        assertThat(g.equivalence(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.eq1);
+        assertThat(g.equivalence(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.eq1);
     }
 
-    @Test
-    public void testHash() {
-        final Formula eq = this.f.equivalence(this.IMP1, this.IMP2);
-        assertThat(eq.hashCode()).isEqualTo(this.EQ4.hashCode());
-        assertThat(eq.hashCode()).isEqualTo(this.EQ4.hashCode());
-        assertThat(this.f.equivalence(this.AND1, this.OR1).hashCode()).isEqualTo(this.EQ3.hashCode());
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testHash(final FormulaContext _c) {
+        final Formula eq = _c.f.equivalence(_c.imp1, _c.imp2);
+        assertThat(eq.hashCode()).isEqualTo(_c.eq4.hashCode());
+        assertThat(eq.hashCode()).isEqualTo(_c.eq4.hashCode());
+        assertThat(_c.f.equivalence(_c.and1, _c.or1).hashCode()).isEqualTo(_c.eq3.hashCode());
     }
 
-    @Test
-    public void testNumberOfAtoms() {
-        assertThat(this.EQ1.numberOfAtoms()).isEqualTo(2);
-        assertThat(this.EQ4.numberOfAtoms()).isEqualTo(4);
-        assertThat(this.EQ4.numberOfAtoms()).isEqualTo(4);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfAtoms(final FormulaContext _c) {
+        assertThat(_c.eq1.numberOfAtoms(_c.f)).isEqualTo(2);
+        assertThat(_c.eq4.numberOfAtoms(_c.f)).isEqualTo(4);
+        assertThat(_c.eq4.numberOfAtoms(_c.f)).isEqualTo(4);
     }
 
-    @Test
-    public void testNumberOfNodes() {
-        assertThat(this.EQ1.numberOfNodes()).isEqualTo(3);
-        assertThat(this.EQ4.numberOfNodes()).isEqualTo(7);
-        assertThat(this.EQ4.numberOfNodes()).isEqualTo(7);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfNodes(final FormulaContext _c) {
+        assertThat(_c.eq1.numberOfNodes(_c.f)).isEqualTo(3);
+        assertThat(_c.eq4.numberOfNodes(_c.f)).isEqualTo(7);
+        assertThat(_c.eq4.numberOfNodes(_c.f)).isEqualTo(7);
     }
 
-    @Test
-    public void testNumberOfInternalNodes() throws ParserException {
-        final Formula eq = new PropositionalParser(this.f).parse("a & (b | c) <=> (d => (b | c))");
-        assertThat(this.EQ4.numberOfInternalNodes()).isEqualTo(7);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfInternalNodes(final FormulaContext _c) throws ParserException {
+        final Formula eq = new PropositionalParser(_c.f).parse("a & (b | c) <=> (d => (b | c))");
+        assertThat(_c.eq4.numberOfInternalNodes()).isEqualTo(7);
         assertThat(eq.numberOfInternalNodes()).isEqualTo(8);
     }
 
-    @Test
-    public void testNumberOfOperands() {
-        assertThat(this.EQ1.numberOfOperands()).isEqualTo(2);
-        assertThat(this.EQ3.numberOfOperands()).isEqualTo(2);
-        assertThat(this.EQ4.numberOfOperands()).isEqualTo(2);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfOperands(final FormulaContext _c) {
+        assertThat(_c.eq1.numberOfOperands()).isEqualTo(2);
+        assertThat(_c.eq3.numberOfOperands()).isEqualTo(2);
+        assertThat(_c.eq4.numberOfOperands()).isEqualTo(2);
     }
 
-    @Test
-    public void testIsConstantFormula() {
-        assertThat(this.EQ1.isConstantFormula()).isFalse();
-        assertThat(this.EQ2.isConstantFormula()).isFalse();
-        assertThat(this.EQ3.isConstantFormula()).isFalse();
-        assertThat(this.EQ4.isConstantFormula()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsConstantFormula(final FormulaContext _c) {
+        assertThat(_c.eq1.isConstantFormula()).isFalse();
+        assertThat(_c.eq2.isConstantFormula()).isFalse();
+        assertThat(_c.eq3.isConstantFormula()).isFalse();
+        assertThat(_c.eq4.isConstantFormula()).isFalse();
     }
 
-    @Test
-    public void testAtomicFormula() {
-        assertThat(this.EQ1.isAtomicFormula()).isFalse();
-        assertThat(this.EQ4.isAtomicFormula()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testAtomicFormula(final FormulaContext _c) {
+        assertThat(_c.eq1.isAtomicFormula()).isFalse();
+        assertThat(_c.eq4.isAtomicFormula()).isFalse();
     }
 
-    @Test
-    public void testContains() {
-        assertThat(this.EQ4.containsVariable(this.f.variable("a"))).isTrue();
-        assertThat(this.EQ4.containsVariable(this.f.variable("x"))).isFalse();
-        assertThat(this.EQ4.containsNode(this.IMP1)).isTrue();
-        assertThat(this.EQ4.containsNode(this.IMP4)).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testContains(final FormulaContext _c) {
+        assertThat(_c.eq4.containsVariable(_c.f.variable("a"))).isTrue();
+        assertThat(_c.eq4.containsVariable(_c.f.variable("x"))).isFalse();
+        assertThat(_c.eq4.containsNode(_c.imp1)).isTrue();
+        assertThat(_c.eq4.containsNode(_c.imp4)).isFalse();
     }
 
-    @Test
-    public void testIsNNF() {
-        assertThat(this.EQ1.isNNF()).isFalse();
-        assertThat(this.EQ2.isNNF()).isFalse();
-        assertThat(this.EQ3.isNNF()).isFalse();
-        assertThat(this.EQ4.isNNF()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsNNF(final FormulaContext _c) {
+        assertThat(_c.eq1.isNNF(_c.f)).isFalse();
+        assertThat(_c.eq2.isNNF(_c.f)).isFalse();
+        assertThat(_c.eq3.isNNF(_c.f)).isFalse();
+        assertThat(_c.eq4.isNNF(_c.f)).isFalse();
     }
 
-    @Test
-    public void testIsDNF() {
-        assertThat(this.EQ1.isDNF()).isFalse();
-        assertThat(this.EQ2.isDNF()).isFalse();
-        assertThat(this.EQ3.isDNF()).isFalse();
-        assertThat(this.EQ4.isDNF()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsDNF(final FormulaContext _c) {
+        assertThat(_c.eq1.isDNF(_c.f)).isFalse();
+        assertThat(_c.eq2.isDNF(_c.f)).isFalse();
+        assertThat(_c.eq3.isDNF(_c.f)).isFalse();
+        assertThat(_c.eq4.isDNF(_c.f)).isFalse();
     }
 
-    @Test
-    public void testIsCNF() {
-        assertThat(this.EQ1.isCNF()).isFalse();
-        assertThat(this.EQ2.isCNF()).isFalse();
-        assertThat(this.EQ3.isCNF()).isFalse();
-        assertThat(this.EQ4.isCNF()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsCNF(final FormulaContext _c) {
+        assertThat(_c.eq1.isCNF(_c.f)).isFalse();
+        assertThat(_c.eq2.isCNF(_c.f)).isFalse();
+        assertThat(_c.eq3.isCNF(_c.f)).isFalse();
+        assertThat(_c.eq4.isCNF(_c.f)).isFalse();
     }
 }

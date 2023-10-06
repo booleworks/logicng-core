@@ -1,37 +1,15 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.logicng.formulas.FormulaFactoryConfig.FormulaMergeStrategy.IMPORT;
+import static org.logicng.formulas.FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
 
@@ -39,150 +17,174 @@ import java.util.Arrays;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-/**
- * Unit Tests for the class {@link Not}.
- * @version 2.3.0
- * @since 1.0
- */
-public class NotTest extends TestWithExampleFormulas {
+public class NotTest extends TestWithFormulaContext {
 
-    @Test
-    public void testType() {
-        assertThat(this.NOT1.type()).isEqualTo(FType.NOT);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testType(final FormulaContext _c) {
+        assertThat(_c.not1.type()).isEqualTo(FType.NOT);
     }
 
-    @Test
-    public void testCreator() {
-        assertThat(this.f.not(this.FALSE)).isEqualTo(this.TRUE);
-        assertThat(this.f.not(this.TRUE)).isEqualTo(this.FALSE);
-        assertThat(this.f.not(this.NA)).isEqualTo(this.A);
-        assertThat(this.f.not(this.A)).isEqualTo(this.NA);
-        assertThat(this.f.not(this.f.not(this.IMP3))).isEqualTo(this.IMP3);
-        assertThat(this.f.not(this.AND1)).isEqualTo(this.NOT1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testCreator(final FormulaContext _c) {
+        assertThat(_c.f.not(_c.falsum)).isEqualTo(_c.verum);
+        assertThat(_c.f.not(_c.verum)).isEqualTo(_c.falsum);
+        assertThat(_c.f.not(_c.na)).isEqualTo(_c.a);
+        assertThat(_c.f.not(_c.a)).isEqualTo(_c.na);
+        assertThat(_c.f.not(_c.f.not(_c.imp3))).isEqualTo(_c.imp3);
+        assertThat(_c.f.not(_c.and1)).isEqualTo(_c.not1);
     }
 
-    @Test
-    public void testGetters() {
-        assertThat(((Not) this.NOT1).operand()).isEqualTo(this.AND1);
-        assertThat(((Not) this.NOT2).operand()).isEqualTo(this.OR1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testGetters(final FormulaContext _c) {
+        assertThat(((Not) _c.not1).operand()).isEqualTo(_c.and1);
+        assertThat(((Not) _c.not2).operand()).isEqualTo(_c.or1);
     }
 
-    @Test
-    public void testVariables() {
-        assertThat(this.NOT1.variables().size()).isEqualTo(2);
-        SortedSet<Variable> lits = new TreeSet<>(Arrays.asList(this.A, this.B));
-        assertThat(this.NOT1.variables()).isEqualTo(lits);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testVariables(final FormulaContext _c) {
+        assertThat(_c.not1.variables(_c.f).size()).isEqualTo(2);
+        SortedSet<Variable> lits = new TreeSet<>(Arrays.asList(_c.a, _c.b));
+        assertThat(_c.not1.variables(_c.f)).isEqualTo(lits);
 
-        assertThat(this.NOT2.variables().size()).isEqualTo(2);
-        lits = new TreeSet<>(Arrays.asList(this.X, this.Y));
-        assertThat(this.NOT2.variables()).isEqualTo(lits);
+        assertThat(_c.not2.variables(_c.f).size()).isEqualTo(2);
+        lits = new TreeSet<>(Arrays.asList(_c.x, _c.y));
+        assertThat(_c.not2.variables(_c.f)).isEqualTo(lits);
     }
 
-    @Test
-    public void testLiterals() {
-        assertThat(this.NOT1.literals().size()).isEqualTo(2);
-        SortedSet<? extends Literal> lits = new TreeSet<>(Arrays.asList(this.A, this.B));
-        assertThat(this.NOT1.literals()).isEqualTo(lits);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        assertThat(_c.not1.literals(_c.f).size()).isEqualTo(2);
+        SortedSet<? extends Literal> lits = new TreeSet<>(Arrays.asList(_c.a, _c.b));
+        assertThat(_c.not1.literals(_c.f)).isEqualTo(lits);
 
-        final Formula not = this.f.not(this.f.and(this.A, this.NB, this.f.implication(this.B, this.NA)));
-        assertThat(not.literals().size()).isEqualTo(4);
-        lits = new TreeSet<>(Arrays.asList(this.A, this.NA, this.B, this.NB));
-        assertThat(not.literals()).isEqualTo(lits);
+        final Formula not = _c.f.not(_c.f.and(_c.a, _c.nb, _c.f.implication(_c.b, _c.na)));
+        assertThat(not.literals(_c.f).size()).isEqualTo(4);
+        lits = new TreeSet<>(Arrays.asList(_c.a, _c.na, _c.b, _c.nb));
+        assertThat(not.literals(_c.f)).isEqualTo(lits);
     }
 
-    @Test
-    public void testToString() {
-        assertThat(this.NOT1.toString()).isEqualTo("~(a & b)");
-        assertThat(this.NOT2.toString()).isEqualTo("~(x | y)");
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testToString(final FormulaContext _c) {
+        assertThat(_c.not1.toString()).isEqualTo("~(a & b)");
+        assertThat(_c.not2.toString()).isEqualTo("~(x | y)");
     }
 
-    @Test
-    public void testEquals() {
-        assertThat(this.f.not(this.AND1)).isEqualTo(this.NOT1);
-        assertThat(this.f.not(this.OR1)).isEqualTo(this.NOT2);
-        assertThat(this.NOT1).isEqualTo(this.NOT1);
-        assertThat(this.NOT2).isNotEqualTo(this.NOT1);
-        assertThat(this.NOT2).isNotEqualTo("String");
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEquals(final FormulaContext _c) {
+        assertThat(_c.f.not(_c.and1)).isEqualTo(_c.not1);
+        assertThat(_c.f.not(_c.or1)).isEqualTo(_c.not2);
+        assertThat(_c.not1).isEqualTo(_c.not1);
+        assertThat(_c.not2).isNotEqualTo(_c.not1);
+        assertThat(_c.not2).isNotEqualTo("String");
     }
 
-    @Test
-    public void testEqualsDifferentFormulaFactory() {
-        final FormulaFactory g = new FormulaFactory(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        assertThat(g.not(this.AND1)).isEqualTo(this.NOT1);
-        assertThat(g.not(g.or(g.variable("x"), g.variable("y")))).isEqualTo(this.NOT2);
-        assertThat(g.not(g.or(g.variable("a"), g.variable("b")))).isNotEqualTo(this.NOT2);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEqualsDifferentFormulaFactory(final FormulaContext _c) {
+        FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(IMPORT).build());
+        assertThat(g.not(_c.and1)).isEqualTo(_c.not1);
+        assertThat(g.not(g.or(g.variable("x"), g.variable("y")))).isEqualTo(_c.not2);
+        assertThat(g.not(g.or(g.variable("a"), g.variable("b")))).isNotEqualTo(_c.not2);
+
+        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(IMPORT).build());
+        assertThat(g.not(_c.and1)).isEqualTo(_c.not1);
+        assertThat(g.not(g.or(g.variable("x"), g.variable("y")))).isEqualTo(_c.not2);
+        assertThat(g.not(g.or(g.variable("a"), g.variable("b")))).isNotEqualTo(_c.not2);
+
+        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(USE_BUT_NO_IMPORT).build());
+        assertThat(g.not(_c.and1)).isEqualTo(_c.not1);
+        assertThat(g.not(g.or(g.variable("x"), g.variable("y")))).isEqualTo(_c.not2);
+        assertThat(g.not(g.or(g.variable("a"), g.variable("b")))).isNotEqualTo(_c.not2);
     }
 
-    @Test
-    public void testHash() {
-        final Formula not = this.f.not(this.AND1);
-        assertThat(not.hashCode()).isEqualTo(this.NOT1.hashCode());
-        assertThat(not.hashCode()).isEqualTo(this.NOT1.hashCode());
-        assertThat(this.f.not(this.OR1).hashCode()).isEqualTo(this.NOT2.hashCode());
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testHash(final FormulaContext _c) {
+        final Formula not = _c.f.not(_c.and1);
+        assertThat(not.hashCode()).isEqualTo(_c.not1.hashCode());
+        assertThat(not.hashCode()).isEqualTo(_c.not1.hashCode());
+        assertThat(_c.f.not(_c.or1).hashCode()).isEqualTo(_c.not2.hashCode());
     }
 
-    @Test
-    public void testNumberOfAtoms() {
-        assertThat(this.NOT1.numberOfAtoms()).isEqualTo(2);
-        assertThat(this.NOT1.numberOfAtoms()).isEqualTo(2);
-        assertThat(this.NOT2.numberOfAtoms()).isEqualTo(2);
-        assertThat(this.OR1.numberOfAtoms()).isEqualTo(2);
-        assertThat(this.OR1.numberOfAtoms()).isEqualTo(2);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfAtoms(final FormulaContext _c) {
+        assertThat(_c.not1.numberOfAtoms(_c.f)).isEqualTo(2);
+        assertThat(_c.not1.numberOfAtoms(_c.f)).isEqualTo(2);
+        assertThat(_c.not2.numberOfAtoms(_c.f)).isEqualTo(2);
+        assertThat(_c.or1.numberOfAtoms(_c.f)).isEqualTo(2);
+        assertThat(_c.or1.numberOfAtoms(_c.f)).isEqualTo(2);
     }
 
-    @Test
-    public void testNumberOfNodes() {
-        assertThat(this.NOT1.numberOfNodes()).isEqualTo(4);
-        assertThat(this.NOT2.numberOfNodes()).isEqualTo(4);
-        assertThat(this.NOT2.numberOfNodes()).isEqualTo(4);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfNodes(final FormulaContext _c) {
+        assertThat(_c.not1.numberOfNodes(_c.f)).isEqualTo(4);
+        assertThat(_c.not2.numberOfNodes(_c.f)).isEqualTo(4);
+        assertThat(_c.not2.numberOfNodes(_c.f)).isEqualTo(4);
     }
 
-    @Test
-    public void testNumberOfInternalNodes() throws ParserException {
-        final Formula eq = new PropositionalParser(this.f).parse("a & (b | c) <=> ~(d => (b | c))");
-        assertThat(this.NOT1.numberOfInternalNodes()).isEqualTo(4);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfInternalNodes(final FormulaContext _c) throws ParserException {
+        final Formula eq = new PropositionalParser(_c.f).parse("a & (b | c) <=> ~(d => (b | c))");
+        assertThat(_c.not1.numberOfInternalNodes()).isEqualTo(4);
         assertThat(eq.numberOfInternalNodes()).isEqualTo(9);
     }
 
-    @Test
-    public void testNumberOfOperands() {
-        assertThat(this.NOT1.numberOfOperands()).isEqualTo(1);
-        assertThat(this.f.not(this.EQ1).numberOfOperands()).isEqualTo(1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfOperands(final FormulaContext _c) {
+        assertThat(_c.not1.numberOfOperands()).isEqualTo(1);
+        assertThat(_c.f.not(_c.eq1).numberOfOperands()).isEqualTo(1);
     }
 
-    @Test
-    public void testIsConstantFormula() {
-        assertThat(this.NOT1.isConstantFormula()).isFalse();
-        assertThat(this.NOT2.isConstantFormula()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsConstantFormula(final FormulaContext _c) {
+        assertThat(_c.not1.isConstantFormula()).isFalse();
+        assertThat(_c.not2.isConstantFormula()).isFalse();
     }
 
-    @Test
-    public void testAtomicFormula() {
-        assertThat(this.NOT1.isAtomicFormula()).isFalse();
-        assertThat(this.NOT2.isAtomicFormula()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testAtomicFormula(final FormulaContext _c) {
+        assertThat(_c.not1.isAtomicFormula()).isFalse();
+        assertThat(_c.not2.isAtomicFormula()).isFalse();
     }
 
-    @Test
-    public void testContains() {
-        assertThat(this.NOT1.containsVariable(this.f.variable("a"))).isTrue();
-        assertThat(this.NOT1.containsVariable(this.f.variable("x"))).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testContains(final FormulaContext _c) {
+        assertThat(_c.not1.containsVariable(_c.f.variable("a"))).isTrue();
+        assertThat(_c.not1.containsVariable(_c.f.variable("x"))).isFalse();
     }
 
-    @Test
-    public void testIsNNF() {
-        assertThat(this.NOT1.isNNF()).isFalse();
-        assertThat(this.NOT2.isNNF()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsNNF(final FormulaContext _c) {
+        assertThat(_c.not1.isNNF(_c.f)).isFalse();
+        assertThat(_c.not2.isNNF(_c.f)).isFalse();
     }
 
-    @Test
-    public void testIsDNF() {
-        assertThat(this.NOT1.isDNF()).isFalse();
-        assertThat(this.NOT2.isDNF()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsDNF(final FormulaContext _c) {
+        assertThat(_c.not1.isDNF(_c.f)).isFalse();
+        assertThat(_c.not2.isDNF(_c.f)).isFalse();
     }
 
-    @Test
-    public void testIsCNF() {
-        assertThat(this.NOT1.isCNF()).isFalse();
-        assertThat(this.NOT2.isCNF()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsCNF(final FormulaContext _c) {
+        assertThat(_c.not1.isCNF(_c.f)).isFalse();
+        assertThat(_c.not2.isCNF(_c.f)).isFalse();
     }
 }

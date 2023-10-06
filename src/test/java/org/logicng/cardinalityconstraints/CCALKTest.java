@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.cardinalityconstraints;
 
@@ -42,13 +18,6 @@ import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 import org.logicng.solvers.functions.ModelEnumerationFunction;
 
-import java.util.Arrays;
-
-/**
- * Unit tests for the at-least-k configs.
- * @version 2.0.0
- * @since 1.0
- */
 public class CCALKTest implements LogicNGTest {
 
     private final CCConfig[] configs;
@@ -62,7 +31,7 @@ public class CCALKTest implements LogicNGTest {
 
     @Test
     public void testALK() {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         int counter = 0;
         for (final CCConfig config : this.configs) {
             f.putConfiguration(config);
@@ -101,31 +70,12 @@ public class CCALKTest implements LogicNGTest {
 
     @Test
     public void testIllegalCC1() {
-        final FormulaFactory f = new FormulaFactory();
-        final CCEncoder encoder = new CCEncoder(f);
+        final FormulaFactory f = FormulaFactory.caching();
         final int numLits = 100;
         final Variable[] problemLits = new Variable[numLits];
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        assertThatThrownBy(() -> encoder.encode((CardinalityConstraint) f.cc(CType.GE, -1, problemLits))).isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
-    public void testToString() {
-        final FormulaFactory f = new FormulaFactory();
-        assertThat(this.configs[0].alkEncoder.toString()).isEqualTo("TOTALIZER");
-        assertThat(this.configs[1].alkEncoder.toString()).isEqualTo("MODULAR_TOTALIZER");
-        assertThat(this.configs[2].alkEncoder.toString()).isEqualTo("CARDINALITY_NETWORK");
-
-        assertThat(new CCTotalizer().toString()).isEqualTo("CCTotalizer");
-        assertThat(new CCModularTotalizer(f).toString()).isEqualTo("CCModularTotalizer");
-        assertThat(new CCCardinalityNetworks().toString()).isEqualTo("CCCardinalityNetworks");
-
-        assertThat(new CCALKTotalizer().toString()).isEqualTo("CCALKTotalizer");
-        assertThat(new CCALKModularTotalizer(f).toString()).isEqualTo("CCALKModularTotalizer");
-        assertThat(new CCALKCardinalityNetwork().toString()).isEqualTo("CCALKCardinalityNetwork");
-
-        assertThat(Arrays.asList(CCConfig.ALK_ENCODER.values())).contains(CCConfig.ALK_ENCODER.valueOf("MODULAR_TOTALIZER"));
+        assertThatThrownBy(() -> CCEncoder.encode((CardinalityConstraint) f.cc(CType.GE, -1, problemLits), f)).isInstanceOf(IllegalArgumentException.class);
     }
 }

@@ -1,135 +1,125 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-/**
- * Unit Tests for the class {@link CTrue}.
- * @version 2.3.0
- * @since 1.0
- */
-public class CTrueTest extends TestWithExampleFormulas {
+public class CTrueTest extends TestWithFormulaContext {
 
-    @Test
-    public void testType() {
-        assertThat(this.TRUE.type()).isEqualTo(FType.TRUE);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testType(final FormulaContext _c) {
+        assertThat(_c.verum.type()).isEqualTo(FType.TRUE);
     }
 
-    @Test
-    public void testNumberOfAtoms() {
-        assertThat(this.TRUE.numberOfAtoms()).isEqualTo(1);
-        assertThat(this.TRUE.numberOfAtoms()).isEqualTo(1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfAtoms(final FormulaContext _c) {
+        assertThat(_c.verum.numberOfAtoms(_c.f)).isEqualTo(1);
     }
 
-    @Test
-    public void testNegation() {
-        assertThat(this.TRUE.negate()).isEqualTo(this.FALSE);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNegation(final FormulaContext _c) {
+        assertThat(_c.verum.negate(_c.f)).isEqualTo(_c.falsum);
     }
 
-    @Test
-    public void testVariables() {
-        assertThat(this.TRUE.variables().size()).isEqualTo(0);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testVariables(final FormulaContext _c) {
+        assertThat(_c.verum.variables(_c.f).size()).isEqualTo(0);
     }
 
-    @Test
-    public void testLiterals() {
-        assertThat(this.TRUE.literals().size()).isEqualTo(0);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        assertThat(_c.verum.literals(_c.f).size()).isEqualTo(0);
     }
 
-    @Test
-    public void testToString() {
-        assertThat(this.TRUE.toString()).isEqualTo("$true");
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testToString(final FormulaContext _c) {
+        assertThat(_c.verum.toString()).isEqualTo("$true");
     }
 
-    @Test
-    public void testEquals() {
-        assertThat(this.f.verum()).isEqualTo(this.TRUE);
-        assertThat(this.f.falsum()).isNotEqualTo(this.TRUE);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEquals(final FormulaContext _c) {
+        assertThat(_c.f.verum()).isEqualTo(_c.verum);
+        assertThat(_c.f.falsum()).isNotEqualTo(_c.verum);
     }
 
-    @Test
-    public void testEqualsDifferentFormulaFactory() {
-        assertThat(this.g.verum()).isEqualTo(this.TRUE);
-        assertThat(this.g.falsum()).isNotEqualTo(this.TRUE);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEqualsDifferentFormulaFactory(final FormulaContext _c) {
+        assertThat(FormulaFactory.caching().verum()).isEqualTo(_c.verum);
+        assertThat(FormulaFactory.caching().falsum()).isNotEqualTo(_c.verum);
+        assertThat(FormulaFactory.nonCaching().verum()).isEqualTo(_c.verum);
+        assertThat(FormulaFactory.nonCaching().falsum()).isNotEqualTo(_c.verum);
     }
 
-    @Test
-    public void testHash() {
-        assertThat(this.TRUE.hashCode()).isEqualTo(this.f.verum().hashCode());
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testHash(final FormulaContext _c) {
+        assertThat(_c.verum.hashCode()).isEqualTo(_c.f.verum().hashCode());
     }
 
-    @Test
-    public void testNumberOfNodes() {
-        assertThat(this.TRUE.numberOfNodes()).isEqualTo(1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfNodes(final FormulaContext _c) {
+        assertThat(_c.verum.numberOfNodes(_c.f)).isEqualTo(1);
     }
 
-    @Test
-    public void testNumberOfInternalNodes() {
-        assertThat(this.TRUE.numberOfInternalNodes()).isEqualTo(1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfInternalNodes(final FormulaContext _c) {
+        assertThat(_c.verum.numberOfInternalNodes()).isEqualTo(1);
     }
 
-    @Test
-    public void testNumberOfOperands() {
-        assertThat(this.TRUE.numberOfOperands()).isEqualTo(0);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfOperands(final FormulaContext _c) {
+        assertThat(_c.verum.numberOfOperands()).isEqualTo(0);
     }
 
-    @Test
-    public void testIsConstantFormula() {
-        assertThat(this.TRUE.isConstantFormula()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsConstantFormula(final FormulaContext _c) {
+        assertThat(_c.verum.isConstantFormula()).isTrue();
     }
 
-    @Test
-    public void testAtomicFormula() {
-        assertThat(this.TRUE.isAtomicFormula()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testAtomicFormula(final FormulaContext _c) {
+        assertThat(_c.verum.isAtomicFormula()).isTrue();
     }
 
-    @Test
-    public void testContains() {
-        assertThat(this.TRUE.containsVariable(this.f.variable("a"))).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testContains(final FormulaContext _c) {
+        assertThat(_c.verum.containsVariable(_c.a)).isFalse();
     }
 
-    @Test
-    public void testIsNNF() {
-        assertThat(this.FALSE.isNNF()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsNNF(final FormulaContext _c) {
+        assertThat(_c.verum.isNNF(_c.f)).isTrue();
     }
 
-    @Test
-    public void testIsDNF() {
-        assertThat(this.FALSE.isDNF()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsDNF(final FormulaContext _c) {
+        assertThat(_c.verum.isDNF(_c.f)).isTrue();
     }
 
-    @Test
-    public void testIsCNF() {
-        assertThat(this.FALSE.isCNF()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsCNF(final FormulaContext _c) {
+        assertThat(_c.verum.isCNF(_c.f)).isTrue();
     }
 }

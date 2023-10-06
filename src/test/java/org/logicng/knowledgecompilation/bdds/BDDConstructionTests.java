@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.knowledgecompilation.bdds;
 
@@ -38,13 +14,9 @@ import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
 
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Unit tests for the BDD construction methods
- * @version 2.4.0
- * @since 2.4.0
- */
 public class BDDConstructionTests {
 
     FormulaFactory f;
@@ -57,54 +29,54 @@ public class BDDConstructionTests {
 
     @BeforeEach
     public void init() throws ParserException {
-        this.f = new FormulaFactory();
-        this.variables = this.f.variables("a", "b", "c", "d", "e", "f", "g");
-        this.kernel = new BDDKernel(this.f, this.variables, 1000, 10000);
-        this.initFormula = this.f.parse("(a & b) => (c | d & ~e)");
-        this.secondFormula = this.f.parse("(g & f) <=> (c | ~a | ~d)");
-        this.initBdd = BDDFactory.build(this.initFormula, this.kernel);
-        this.secondBdd = BDDFactory.build(this.secondFormula, this.kernel);
+        f = FormulaFactory.caching();
+        variables = new ArrayList<>(f.variables("a", "b", "c", "d", "e", "f", "g"));
+        kernel = new BDDKernel(f, variables, 1000, 10000);
+        initFormula = f.parse("(a & b) => (c | d & ~e)");
+        secondFormula = f.parse("(g & f) <=> (c | ~a | ~d)");
+        initBdd = BDDFactory.build(f, initFormula, kernel);
+        secondBdd = BDDFactory.build(f, secondFormula, kernel);
     }
 
     @Test
     public void testNegation() {
-        final BDD negation = this.initBdd.negate();
-        final BDD expected = BDDFactory.build(this.initFormula.negate(), this.kernel);
+        final BDD negation = initBdd.negate();
+        final BDD expected = BDDFactory.build(f, initFormula.negate(f), kernel);
         assertThat(negation).isEqualTo(expected);
     }
 
     @Test
     public void testImplies() {
-        final BDD implication = this.initBdd.implies(this.secondBdd);
-        final BDD expected = BDDFactory.build(this.f.implication(this.initFormula, this.secondFormula), this.kernel);
+        final BDD implication = initBdd.implies(secondBdd);
+        final BDD expected = BDDFactory.build(f, f.implication(initFormula, secondFormula), kernel);
         assertThat(implication).isEqualTo(expected);
     }
 
     @Test
     public void testIsImplied() {
-        final BDD implication = this.initBdd.impliedBy(this.secondBdd);
-        final BDD expected = BDDFactory.build(this.f.implication(this.secondFormula, this.initFormula), this.kernel);
+        final BDD implication = initBdd.impliedBy(secondBdd);
+        final BDD expected = BDDFactory.build(f, f.implication(secondFormula, initFormula), kernel);
         assertThat(implication).isEqualTo(expected);
     }
 
     @Test
     public void testEquivalence() {
-        final BDD equivalence = this.initBdd.equivalence(this.secondBdd);
-        final BDD expected = BDDFactory.build(this.f.equivalence(this.secondFormula, this.initFormula), this.kernel);
+        final BDD equivalence = initBdd.equivalence(secondBdd);
+        final BDD expected = BDDFactory.build(f, f.equivalence(secondFormula, initFormula), kernel);
         assertThat(equivalence).isEqualTo(expected);
     }
 
     @Test
     public void testAnd() {
-        final BDD and = this.initBdd.and(this.secondBdd);
-        final BDD expected = BDDFactory.build(this.f.and(this.secondFormula, this.initFormula), this.kernel);
+        final BDD and = initBdd.and(secondBdd);
+        final BDD expected = BDDFactory.build(f, f.and(secondFormula, initFormula), kernel);
         assertThat(and).isEqualTo(expected);
     }
 
     @Test
     public void testOr() {
-        final BDD or = this.initBdd.or(this.secondBdd);
-        final BDD expected = BDDFactory.build(this.f.or(this.secondFormula, this.initFormula), this.kernel);
+        final BDD or = initBdd.or(secondBdd);
+        final BDD expected = BDDFactory.build(f, f.or(secondFormula, initFormula), kernel);
         assertThat(or).isEqualTo(expected);
     }
 }

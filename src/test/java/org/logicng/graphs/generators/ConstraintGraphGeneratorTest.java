@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.graphs.generators;
 
@@ -50,28 +26,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Unit tests for {@link ConstraintGraphGenerator}.
- * @version 2.0.0
- * @since 2.0.0
- */
 public class ConstraintGraphGeneratorTest {
 
     @Test
     public void testSimple() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        assertThat(ConstraintGraphGenerator.generateFromFormulas(List.of(f.falsum())).nodes()).isEmpty();
-        assertThat(ConstraintGraphGenerator.generateFromFormulas(f.verum()).nodes()).isEmpty();
-        Graph<Variable> graph = ConstraintGraphGenerator.generateFromFormulas(p.parse("a"));
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f, List.of(f.falsum())).nodes()).isEmpty();
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f, f.verum()).nodes()).isEmpty();
+        Graph<Variable> graph = ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a"));
         assertThat(graph.nodes()).containsExactly(graph.node(f.variable("a")));
-        graph = ConstraintGraphGenerator.generateFromFormulas(p.parse("~a"));
+        graph = ConstraintGraphGenerator.generateFromFormulas(f, p.parse("~a"));
         assertThat(graph.nodes()).containsExactly(graph.node(f.variable("a")));
     }
 
     @Test
     public void testOr() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Graph<Variable> expected = new Graph<>();
         final Node<Variable> a = expected.node(f.variable("a"));
@@ -80,12 +51,12 @@ public class ConstraintGraphGeneratorTest {
         expected.connect(a, b);
         expected.connect(a, c);
         expected.connect(b, c);
-        assertThat(ConstraintGraphGenerator.generateFromFormulas(p.parse("a | ~b | c")).toString()).isEqualTo(expected.toString());
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a | ~b | c")).toString()).isEqualTo(expected.toString());
     }
 
     @Test
     public void testCC() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Graph<Variable> expected = new Graph<>();
         final Node<Variable> a = expected.node(f.variable("a"));
@@ -94,12 +65,12 @@ public class ConstraintGraphGeneratorTest {
         expected.connect(a, b);
         expected.connect(a, c);
         expected.connect(b, c);
-        assertThat(ConstraintGraphGenerator.generateFromFormulas(p.parse("a + b + c <= 1")).toString()).isEqualTo(expected.toString());
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a + b + c <= 1")).toString()).isEqualTo(expected.toString());
     }
 
     @Test
     public void testCnf() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final PseudoBooleanParser p = new PseudoBooleanParser(f);
         final Graph<Variable> expected = new Graph<>();
         final Node<Variable> a = expected.node(f.variable("a"));
@@ -113,7 +84,7 @@ public class ConstraintGraphGeneratorTest {
         expected.connect(b, c);
         expected.connect(d, a);
         expected.connect(d, e);
-        assertThat(ConstraintGraphGenerator.generateFromFormulas(
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f,
                 p.parse("a | ~b | c"),
                 p.parse("d | ~a"),
                 p.parse("d + e = 1"),
@@ -123,7 +94,7 @@ public class ConstraintGraphGeneratorTest {
 
     @Test
     public void testRealExample() throws IOException, ParserException {
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());
         final Formula parsed = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/formula1.txt", f);
         final List<Formula> formulas = new ArrayList<>();
@@ -131,10 +102,10 @@ public class ConstraintGraphGeneratorTest {
             if (formula instanceof PBConstraint) {
                 formulas.add(formula);
             } else {
-                formulas.add(formula.transform(new CNFFactorization()));
+                formulas.add(formula.transform(new CNFFactorization(f)));
             }
         }
-        final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(formulas);
+        final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(f, formulas);
         final Set<Set<Node<Variable>>> ccs = ConnectedComponentsComputation.compute(constraintGraph);
         assertThat(ccs).hasSize(4);
     }

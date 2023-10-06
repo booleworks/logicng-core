@@ -1,95 +1,74 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.io.parsers.ParserException;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Unit tests for {@link LiteralSubstitution}.
- * @version 2.0.0
- * @since 2.0.0
- */
-public class LiteralSubstitutionTest {
+public class LiteralSubstitutionTest extends TestWithFormulaContext {
 
-    private final FormulaFactory f = new FormulaFactory();
-    private LiteralSubstitution s1;
-
-    @BeforeEach
-    public void init() {
+    public LiteralSubstitution ls(final FormulaFactory f) {
         final Map<Literal, Literal> map = new HashMap<>();
-        map.put(this.f.literal("a", true), this.f.literal("a_t", true));
-        map.put(this.f.literal("a", false), this.f.literal("a_f", true));
-        map.put(this.f.literal("b", false), this.f.literal("x", true));
-        this.s1 = new LiteralSubstitution(map);
-        this.s1.addSubstitution(this.f.literal("c", true), this.f.literal("y", true));
+        map.put(f.literal("a", true), f.literal("a_t", true));
+        map.put(f.literal("a", false), f.literal("a_f", true));
+        map.put(f.literal("b", false), f.literal("x", true));
+        map.put(f.literal("c", true), f.literal("y", true));
+        return new LiteralSubstitution(f, map);
     }
 
-    @Test
-    public void testSimpleFormula() throws ParserException {
-        assertThat(this.f.parse("$true").transform(this.s1)).isEqualTo(this.f.parse("$true"));
-        assertThat(this.f.parse("$false").transform(this.s1)).isEqualTo(this.f.parse("$false"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSimpleFormula(final FormulaContext _c) throws ParserException {
+        final LiteralSubstitution s1 = ls(_c.f);
+
+        assertThat(_c.f.parse("$true").transform(s1)).isEqualTo(_c.f.parse("$true"));
+        assertThat(_c.f.parse("$false").transform(s1)).isEqualTo(_c.f.parse("$false"));
     }
 
-    @Test
-    public void testLiterals() throws ParserException {
-        assertThat(this.f.parse("m").transform(this.s1)).isEqualTo(this.f.parse("m"));
-        assertThat(this.f.parse("~m").transform(this.s1)).isEqualTo(this.f.parse("~m"));
-        assertThat(this.f.parse("a").transform(this.s1)).isEqualTo(this.f.parse("a_t"));
-        assertThat(this.f.parse("~a").transform(this.s1)).isEqualTo(this.f.parse("a_f"));
-        assertThat(this.f.parse("b").transform(this.s1)).isEqualTo(this.f.parse("b"));
-        assertThat(this.f.parse("~b").transform(this.s1)).isEqualTo(this.f.parse("x"));
-        assertThat(this.f.parse("c").transform(this.s1)).isEqualTo(this.f.parse("y"));
-        assertThat(this.f.parse("~c").transform(this.s1)).isEqualTo(this.f.parse("~y"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) throws ParserException {
+        final LiteralSubstitution s1 = ls(_c.f);
+
+        assertThat(_c.f.parse("m").transform(s1)).isEqualTo(_c.f.parse("m"));
+        assertThat(_c.f.parse("~m").transform(s1)).isEqualTo(_c.f.parse("~m"));
+        assertThat(_c.f.parse("a").transform(s1)).isEqualTo(_c.f.parse("a_t"));
+        assertThat(_c.f.parse("~a").transform(s1)).isEqualTo(_c.f.parse("a_f"));
+        assertThat(_c.f.parse("b").transform(s1)).isEqualTo(_c.f.parse("b"));
+        assertThat(_c.f.parse("~b").transform(s1)).isEqualTo(_c.f.parse("x"));
+        assertThat(_c.f.parse("c").transform(s1)).isEqualTo(_c.f.parse("y"));
+        assertThat(_c.f.parse("~c").transform(s1)).isEqualTo(_c.f.parse("~y"));
     }
 
-    @Test
-    public void testFormulas() throws ParserException {
-        assertThat(this.f.parse("~(a & b & ~c & x)").transform(this.s1)).isEqualTo(this.f.parse("~(a_t & b & ~y & x)"));
-        assertThat(this.f.parse("a & b & ~c & x").transform(this.s1)).isEqualTo(this.f.parse("a_t & b & ~y & x"));
-        assertThat(this.f.parse("a | b | ~c | x").transform(this.s1)).isEqualTo(this.f.parse("a_t | b | ~y | x"));
-        assertThat(this.f.parse("(a | b) => (~c | x)").transform(this.s1)).isEqualTo(this.f.parse("(a_t | b) => (~y | x)"));
-        assertThat(this.f.parse("(a | b) <=> (~c | x)").transform(this.s1)).isEqualTo(this.f.parse("(a_t | b) <=> (~y | x)"));
-        assertThat(this.f.parse("2*a + 3*~b + -4*~c + x <= 5").transform(this.s1)).isEqualTo(this.f.parse("2*a_t + 3*x + -4*~y + x <= 5"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testFormulas(final FormulaContext _c) throws ParserException {
+        final LiteralSubstitution s1 = ls(_c.f);
+
+        assertThat(_c.f.parse("~(a & b & ~c & x)").transform(s1)).isEqualTo(_c.f.parse("~(a_t & b & ~y & x)"));
+        assertThat(_c.f.parse("a & b & ~c & x").transform(s1)).isEqualTo(_c.f.parse("a_t & b & ~y & x"));
+        assertThat(_c.f.parse("a | b | ~c | x").transform(s1)).isEqualTo(_c.f.parse("a_t | b | ~y | x"));
+        assertThat(_c.f.parse("(a | b) => (~c | x)").transform(s1)).isEqualTo(_c.f.parse("(a_t | b) => (~y | x)"));
+        assertThat(_c.f.parse("(a | b) <=> (~c | x)").transform(s1)).isEqualTo(_c.f.parse("(a_t | b) <=> (~y | x)"));
+        assertThat(_c.f.parse("2*a + 3*~b + -4*~c + x <= 5").transform(s1)).isEqualTo(_c.f.parse("2*a_t + 3*x + -4*~y + x <= 5"));
     }
 
-    @Test
-    public void testEmptySubstitution() throws ParserException {
-        assertThat(this.f.parse("2*a + 3*~b + -4*~c + x <= 5").transform(new LiteralSubstitution())).isEqualTo(this.f.parse("2*a + 3*~b + -4*~c + x <= 5"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEmptySubstitution(final FormulaContext _c) throws ParserException {
+        assertThat(_c.f.parse("2*a + 3*~b + -4*~c + x <= 5").transform(new LiteralSubstitution(_c.f, Map.of())))
+                .isEqualTo(_c.f.parse("2*a + 3*~b + -4*~c + x <= 5"));
     }
-
 }

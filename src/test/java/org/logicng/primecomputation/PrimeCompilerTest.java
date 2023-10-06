@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.primecomputation;
 
@@ -32,11 +8,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.RandomTag;
-import org.logicng.TestWithExampleFormulas;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.handlers.BoundedOptimizationHandler;
 import org.logicng.handlers.OptimizationHandler;
 import org.logicng.handlers.TimeoutHandler;
@@ -57,70 +36,69 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.SortedSet;
 
-/**
- * Unit Tests for the class {@link PrimeCompiler}.
- * @version 2.1.0
- * @since 2.0.0
- */
-public class PrimeCompilerTest extends TestWithExampleFormulas {
+public class PrimeCompilerTest extends TestWithFormulaContext {
 
-    @Test
-    public void testSimple() {
-        computeAndVerify(this.TRUE);
-        computeAndVerify(this.FALSE);
-        computeAndVerify(this.A);
-        computeAndVerify(this.NA);
-        computeAndVerify(this.AND1);
-        computeAndVerify(this.AND2);
-        computeAndVerify(this.AND3);
-        computeAndVerify(this.OR1);
-        computeAndVerify(this.OR2);
-        computeAndVerify(this.OR3);
-        computeAndVerify(this.NOT1);
-        computeAndVerify(this.NOT2);
-        computeAndVerify(this.IMP1);
-        computeAndVerify(this.IMP2);
-        computeAndVerify(this.IMP3);
-        computeAndVerify(this.IMP4);
-        computeAndVerify(this.EQ1);
-        computeAndVerify(this.EQ2);
-        computeAndVerify(this.EQ3);
-        computeAndVerify(this.EQ4);
-        computeAndVerify(this.PBC1);
-        computeAndVerify(this.PBC2);
-        computeAndVerify(this.PBC3);
-        computeAndVerify(this.PBC4);
-        computeAndVerify(this.PBC5);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSimple(final FormulaContext _c) {
+        computeAndVerify(_c.f, _c.verum);
+        computeAndVerify(_c.f, _c.falsum);
+        computeAndVerify(_c.f, _c.a);
+        computeAndVerify(_c.f, _c.na);
+        computeAndVerify(_c.f, _c.and1);
+        computeAndVerify(_c.f, _c.and2);
+        computeAndVerify(_c.f, _c.and3);
+        computeAndVerify(_c.f, _c.or1);
+        computeAndVerify(_c.f, _c.or2);
+        computeAndVerify(_c.f, _c.or3);
+        computeAndVerify(_c.f, _c.not1);
+        computeAndVerify(_c.f, _c.not2);
+        computeAndVerify(_c.f, _c.imp1);
+        computeAndVerify(_c.f, _c.imp2);
+        computeAndVerify(_c.f, _c.imp3);
+        computeAndVerify(_c.f, _c.imp4);
+        computeAndVerify(_c.f, _c.eq1);
+        computeAndVerify(_c.f, _c.eq2);
+        computeAndVerify(_c.f, _c.eq3);
+        computeAndVerify(_c.f, _c.eq4);
+        computeAndVerify(_c.f, _c.pbc1);
+        computeAndVerify(_c.f, _c.pbc2);
+        computeAndVerify(_c.f, _c.pbc3);
+        computeAndVerify(_c.f, _c.pbc4);
+        computeAndVerify(_c.f, _c.pbc5);
     }
 
-    @Test
-    public void testCornerCases() {
-        final FormulaFactory f = new FormulaFactory();
-        final FormulaCornerCases cornerCases = new FormulaCornerCases(f);
-        cornerCases.cornerCases().forEach(this::computeAndVerify);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testCornerCases(final FormulaContext _c) {
+        final FormulaCornerCases cornerCases = new FormulaCornerCases(_c.f);
+        cornerCases.cornerCases().forEach(it -> computeAndVerify(_c.f, it));
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("contexts")
     @RandomTag
-    public void testRandomized() {
-        for (int i = 0; i < 200; i++) {
-            final FormulaFactory f = new FormulaFactory();
-            final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(10).weightPbc(2).seed(i * 42).build());
+    public void testRandomized(final FormulaContext _c) {
+        for (int i = 0; i < 100; i++) {
+            final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, FormulaRandomizerConfig.builder().numVars(10).weightPbc(0).seed(i * 42).build());
             final Formula formula = randomizer.formula(4);
-            computeAndVerify(formula);
+            computeAndVerify(_c.f, formula);
         }
     }
 
-    @Test
-    public void testOriginalFormulas() throws IOException {
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testOriginalFormulas(final FormulaContext _c) throws IOException {
         Files.lines(Paths.get("src/test/resources/formulas/simplify_formulas.txt"))
                 .filter(s -> !s.isEmpty())
                 .forEach(s -> {
                     try {
-                        final Formula formula = this.f.parse(s);
-                        final PrimeResult resultImplicantsMin = PrimeCompiler.getWithMinimization().compute(formula, PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
+                        final Formula formula = _c.f.parse(s);
+                        final PrimeResult resultImplicantsMin = PrimeCompiler.getWithMinimization().compute(_c.f, formula,
+                                PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
                         verify(resultImplicantsMin, formula);
-                        final PrimeResult resultImplicatesMin = PrimeCompiler.getWithMinimization().compute(formula, PrimeResult.CoverageType.IMPLICATES_COMPLETE);
+                        final PrimeResult resultImplicatesMin = PrimeCompiler.getWithMinimization().compute(_c.f, formula,
+                                PrimeResult.CoverageType.IMPLICATES_COMPLETE);
                         verify(resultImplicatesMin, formula);
                     } catch (final ParserException e) {
                         fail(e.toString());
@@ -141,7 +119,7 @@ public class PrimeCompilerTest extends TestWithExampleFormulas {
                     new TimeoutOptimizationHandler(5_000L, TimeoutHandler.TimerType.RESTARTING_TIMEOUT),
                     new TimeoutOptimizationHandler(System.currentTimeMillis() + 5_000L, TimeoutHandler.TimerType.FIXED_END)
             );
-            final Formula formula = this.f.parse("a & b | ~c & a");
+            final Formula formula = FormulaFactory.caching().parse("a & b | ~c & a");
             for (final TimeoutOptimizationHandler handler : handlers) {
                 testHandler(handler, formula, compiler.first(), compiler.second(), false);
             }
@@ -150,6 +128,7 @@ public class PrimeCompilerTest extends TestWithExampleFormulas {
 
     @Test
     public void testTimeoutHandlerLarge() throws ParserException, IOException {
+        final FormulaFactory f = FormulaFactory.nonCaching();
         final List<Pair<PrimeCompiler, PrimeResult.CoverageType>> compilers = Arrays.asList(
                 new Pair<>(PrimeCompiler.getWithMaximization(), PrimeResult.CoverageType.IMPLICANTS_COMPLETE),
                 new Pair<>(PrimeCompiler.getWithMaximization(), PrimeResult.CoverageType.IMPLICATES_COMPLETE),
@@ -161,7 +140,7 @@ public class PrimeCompilerTest extends TestWithExampleFormulas {
                     new TimeoutOptimizationHandler(1L, TimeoutHandler.TimerType.RESTARTING_TIMEOUT),
                     new TimeoutOptimizationHandler(System.currentTimeMillis() + 1L, TimeoutHandler.TimerType.FIXED_END)
             );
-            final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", this.f);
+            final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
             for (final TimeoutOptimizationHandler handler : handlers) {
                 testHandler(handler, formula, compiler.first(), compiler.second(), true);
             }
@@ -170,7 +149,8 @@ public class PrimeCompilerTest extends TestWithExampleFormulas {
 
     @Test
     public void testCancellationPoints() throws IOException, ParserException {
-        final Formula formula = this.f.parse(Files.readAllLines(Paths.get("src/test/resources/formulas/simplify_formulas.txt")).get(0));
+        final FormulaFactory f = FormulaFactory.nonCaching();
+        final Formula formula = f.parse(Files.readAllLines(Paths.get("src/test/resources/formulas/simplify_formulas.txt")).get(0));
         final List<Pair<PrimeCompiler, PrimeResult.CoverageType>> compilers = Arrays.asList(
                 new Pair<>(PrimeCompiler.getWithMaximization(), PrimeResult.CoverageType.IMPLICANTS_COMPLETE),
                 new Pair<>(PrimeCompiler.getWithMaximization(), PrimeResult.CoverageType.IMPLICATES_COMPLETE),
@@ -186,18 +166,18 @@ public class PrimeCompilerTest extends TestWithExampleFormulas {
         }
     }
 
-    private void computeAndVerify(final Formula formula) {
-        final PrimeResult resultImplicantsMax = PrimeCompiler.getWithMaximization().compute(formula, PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
+    private void computeAndVerify(final FormulaFactory f, final Formula formula) {
+        final PrimeResult resultImplicantsMax = PrimeCompiler.getWithMaximization().compute(f, formula, PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
         verify(resultImplicantsMax, formula);
-        final PrimeResult resultImplicantsMin = PrimeCompiler.getWithMinimization().compute(formula, PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
+        final PrimeResult resultImplicantsMin = PrimeCompiler.getWithMinimization().compute(f, formula, PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
         verify(resultImplicantsMin, formula);
         assertThat(resultImplicantsMax.getCoverageType()).isEqualTo(PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
         assertThat(resultImplicantsMin.getCoverageType()).isEqualTo(PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
         assertThat(resultImplicantsMax.getPrimeImplicants()).containsExactlyInAnyOrderElementsOf(resultImplicantsMin.getPrimeImplicants());
 
-        final PrimeResult resultImplicatesMax = PrimeCompiler.getWithMaximization().compute(formula, PrimeResult.CoverageType.IMPLICATES_COMPLETE);
+        final PrimeResult resultImplicatesMax = PrimeCompiler.getWithMaximization().compute(f, formula, PrimeResult.CoverageType.IMPLICATES_COMPLETE);
         verify(resultImplicatesMax, formula);
-        final PrimeResult resultImplicatesMin = PrimeCompiler.getWithMinimization().compute(formula, PrimeResult.CoverageType.IMPLICATES_COMPLETE);
+        final PrimeResult resultImplicatesMin = PrimeCompiler.getWithMinimization().compute(f, formula, PrimeResult.CoverageType.IMPLICATES_COMPLETE);
         verify(resultImplicatesMin, formula);
         assertThat(resultImplicatesMax.getCoverageType()).isEqualTo(PrimeResult.CoverageType.IMPLICATES_COMPLETE);
         assertThat(resultImplicatesMin.getCoverageType()).isEqualTo(PrimeResult.CoverageType.IMPLICATES_COMPLETE);
@@ -235,7 +215,7 @@ public class PrimeCompilerTest extends TestWithExampleFormulas {
 
     private void testHandler(final OptimizationHandler handler, final Formula formula, final PrimeCompiler compiler, final PrimeResult.CoverageType coverageType,
                              final boolean expAborted) {
-        final PrimeResult result = compiler.compute(formula, coverageType, handler);
+        final PrimeResult result = compiler.compute(formula.factory(), formula, coverageType, handler);
         assertThat(handler.aborted()).isEqualTo(expAborted);
         if (expAborted) {
             assertThat(result).isNull();

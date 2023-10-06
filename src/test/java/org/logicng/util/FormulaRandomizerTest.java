@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.util;
 
@@ -54,22 +30,17 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-/**
- * Unit Tests for the class {@link FormulaRandomizer}.
- * @version 2.0.0
- * @since 2.0.0
- */
 public class FormulaRandomizerTest {
 
-    private final FormulaFactory f = new FormulaFactory();
+    private final FormulaFactory f = FormulaFactory.caching();
     private final FormulaRandomizerConfig config = FormulaRandomizerConfig.builder().seed(42).build();
 
     @Test
     public void testDeterminism() {
-        final Formula expected = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().seed(42).build()).formula(3);
-        assertThat(new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().seed(42).build()).formula(3)).isEqualTo(expected);
-        assertThat(new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().seed(43).build()).formula(3)).isNotEqualTo(expected);
-        assertThat(new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().build()).formula(3)).isNotEqualTo(expected);
+        final Formula expected = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build()).formula(3);
+        assertThat(new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build()).formula(3)).isEqualTo(expected);
+        assertThat(new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(43).build()).formula(3)).isNotEqualTo(expected);
+        assertThat(new FormulaRandomizer(f, FormulaRandomizerConfig.builder().build()).formula(3)).isNotEqualTo(expected);
         final List<Formula> expectedList = randomFormulas();
         for (int i = 0; i < 10; i++) {
             assertThat(randomFormulas()).isEqualTo(expectedList);
@@ -78,12 +49,12 @@ public class FormulaRandomizerTest {
 
     @Test
     public void testConstant() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, this.config);
+        final FormulaRandomizer random = new FormulaRandomizer(f, config);
         int numTrue = 0;
         for (int i = 0; i < 100; i++) {
             final Formula constant = random.constant();
             assertThat(constant.isConstantFormula()).isTrue();
-            if (constant == this.f.verum()) {
+            if (constant == f.verum()) {
                 numTrue++;
             }
         }
@@ -92,8 +63,8 @@ public class FormulaRandomizerTest {
 
     @Test
     public void testVariable() {
-        final List<Variable> vars = Arrays.asList(this.f.variable("A"), this.f.variable("B"), this.f.variable("C"));
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().variables(vars).seed(42).build());
+        final List<Variable> vars = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"));
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().variables(vars).seed(42).build());
         int numA = 0;
         int numB = 0;
         int numC = 0;
@@ -118,9 +89,9 @@ public class FormulaRandomizerTest {
 
         final SortedSet<Variable> vars2 = new TreeSet<>();
         for (int i = 0; i < 20; i++) {
-            vars2.add(this.f.variable("TEST_VAR_" + i));
+            vars2.add(f.variable("TEST_VAR_" + i));
         }
-        final FormulaRandomizer random2 = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder()
+        final FormulaRandomizer random2 = new FormulaRandomizer(f, FormulaRandomizerConfig.builder()
                 .variables(vars2)
                 .weightPbc(1)
                 .weightCc(1)
@@ -128,13 +99,13 @@ public class FormulaRandomizerTest {
                 .weightExo(1)
                 .seed(42).build());
         for (int i = 0; i < 100; i++) {
-            assertThat(random2.formula(4).variables()).isSubsetOf(vars2);
+            assertThat(random2.formula(4).variables(f)).isSubsetOf(vars2);
         }
     }
 
     @Test
     public void testLiteral() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().weightPositiveLiteral(40).weightNegativeLiteral(60).seed(42).build());
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().weightPositiveLiteral(40).weightNegativeLiteral(60).seed(42).build());
         int numPos = 0;
         for (int i = 0; i < 100; i++) {
             final Literal literal = random.literal();
@@ -147,7 +118,7 @@ public class FormulaRandomizerTest {
 
     @Test
     public void testAtom() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder()
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder()
                 .weightConstant(1).weightPositiveLiteral(2).weightNegativeLiteral(3)
                 .weightPbc(4).weightCc(5).weightAmo(6).weightExo(7).seed(42).build());
         int numConst = 0;
@@ -187,7 +158,7 @@ public class FormulaRandomizerTest {
         assertThat(numPbc).isStrictlyBetween((int) (.8 * 4 / 3 * numNeg), (int) (1.2 * 4 / 3 * numNeg));
         assertThat(numNeg).isStrictlyBetween((int) (.8 * 3 / 2 * numPos), (int) (1.2 * 3 / 2 * numPos));
         assertThat(numPos).isStrictlyBetween((int) (.8 * 2 / 1 * numConst), (int) (1.2 * 2 / 1 * numConst));
-        final FormulaRandomizer randomOnlyLiterals = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().weightConstant(0).weightPositiveLiteral(3).weightNegativeLiteral(6).seed(42).build());
+        final FormulaRandomizer randomOnlyLiterals = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().weightConstant(0).weightPositiveLiteral(3).weightNegativeLiteral(6).seed(42).build());
         for (int i = 0; i < 100; i++) {
             assertThat(randomOnlyLiterals.atom().type()).isEqualTo(FType.LITERAL);
         }
@@ -195,7 +166,7 @@ public class FormulaRandomizerTest {
 
     @Test
     public void testAnd() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().seed(42).build());
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build());
         for (int i = 0; i < 10; i++) {
             assertThat(random.and(0).isAtomicFormula()).isTrue();
         }
@@ -203,14 +174,14 @@ public class FormulaRandomizerTest {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.and(depth);
                 assertThat(formula).isInstanceOf(And.class);
-                assertThat(formula.apply(FormulaDepthFunction.get())).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
             }
         }
     }
 
     @Test
     public void testOr() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().seed(42).build());
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build());
         for (int i = 0; i < 10; i++) {
             assertThat(random.or(0).isAtomicFormula()).isTrue();
         }
@@ -218,14 +189,14 @@ public class FormulaRandomizerTest {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.or(depth);
                 assertThat(formula).isInstanceOf(Or.class);
-                assertThat(formula.apply(FormulaDepthFunction.get())).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
             }
         }
     }
 
     @Test
     public void testNot() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().seed(42).build());
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build());
         for (int i = 0; i < 10; i++) {
             assertThat(random.not(0).isAtomicFormula()).isTrue();
             assertThat(random.not(1).isAtomicFormula()).isTrue();
@@ -234,14 +205,14 @@ public class FormulaRandomizerTest {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.not(depth);
                 assertThat(formula).isInstanceOf(Not.class);
-                assertThat(formula.apply(FormulaDepthFunction.get())).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
             }
         }
     }
 
     @Test
     public void testImpl() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().seed(42).build());
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build());
         for (int i = 0; i < 10; i++) {
             assertThat(random.impl(0).isAtomicFormula()).isTrue();
         }
@@ -249,14 +220,14 @@ public class FormulaRandomizerTest {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.impl(depth);
                 assertThat(formula).isInstanceOf(Implication.class);
-                assertThat(formula.apply(FormulaDepthFunction.get())).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
             }
         }
     }
 
     @Test
     public void testEquiv() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().seed(42).build());
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build());
         for (int i = 0; i < 10; i++) {
             assertThat(random.equiv(0).isAtomicFormula()).isTrue();
         }
@@ -264,14 +235,14 @@ public class FormulaRandomizerTest {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.equiv(depth);
                 assertThat(formula).isInstanceOf(Equivalence.class);
-                assertThat(formula.apply(FormulaDepthFunction.get())).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
             }
         }
     }
 
     @Test
     public void testPbc() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().seed(4242)
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(4242)
                 .weightPbcCoeffPositive(3).weightPbcCoeffNegative(1)
                 .weightPositiveLiteral(3).weightNegativeLiteral(1)
                 .weightPbcTypeLe(5)
@@ -307,7 +278,7 @@ public class FormulaRandomizerTest {
             }
             assertThat(pbc.numberOfOperands()).isLessThanOrEqualTo(10);
             assertThat(pbc.rhs()).isStrictlyBetween(negSum - 1, posSum + 1);
-            for (final Literal literal : pbc.literals()) {
+            for (final Literal literal : pbc.literals(f)) {
                 if (literal.phase()) {
                     posLit++;
                 } else {
@@ -342,7 +313,7 @@ public class FormulaRandomizerTest {
 
     @Test
     public void testCc() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().seed(4242)
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(4242)
                 .weightPbcTypeLe(5)
                 .weightPbcTypeLt(4)
                 .weightPbcTypeGe(3)
@@ -394,7 +365,7 @@ public class FormulaRandomizerTest {
 
     @Test
     public void testAmo() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().seed(4242)
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(4242)
                 .maximumCoefficientPbc(10)
                 .build());
         for (int i = 0; i < 100; i++) {
@@ -409,7 +380,7 @@ public class FormulaRandomizerTest {
 
     @Test
     public void testExo() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().seed(4242)
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(4242)
                 .maximumCoefficientPbc(10)
                 .build());
         for (int i = 0; i < 100; i++) {
@@ -424,7 +395,7 @@ public class FormulaRandomizerTest {
 
     @Test
     public void testFormula() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f,
+        final FormulaRandomizer random = new FormulaRandomizer(f,
                 FormulaRandomizerConfig.builder().weightConstant(1).weightPositiveLiteral(2).weightNegativeLiteral(3).weightAnd(4).weightOr(5).weightNot(6).weightImpl(7).weightEquiv(8).seed(42).build());
         final Map<String, Integer> occurrences = new HashMap<>();
         occurrences.put("constant", 0);
@@ -438,7 +409,7 @@ public class FormulaRandomizerTest {
         for (int i = 0; i < 10000; i++) {
             final Formula formula = random.formula(3);
             countOccurrences(formula, occurrences, 3);
-            assertThat(formula.apply(FormulaDepthFunction.get())).isLessThanOrEqualTo(3);
+            assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(3);
         }
         final int totalOccurrences = occurrences.get("and") + occurrences.get("or") + occurrences.get("impl") + occurrences.get("equiv");
         // Considering constants does not make sense (they are always removed)
@@ -456,7 +427,7 @@ public class FormulaRandomizerTest {
 
     @Test
     public void testFormulaWithPbcs() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f,
+        final FormulaRandomizer random = new FormulaRandomizer(f,
                 FormulaRandomizerConfig.builder()
                         .weightConstant(0).weightPositiveLiteral(1).weightNegativeLiteral(1)
                         .weightPbc(1).weightCc(1).weightAmo(1).weightExo(1)
@@ -466,7 +437,7 @@ public class FormulaRandomizerTest {
         for (int i = 0; i < 10000; i++) {
             final Formula formula = random.formula(3);
             countOccurrences(formula, occurrences, 3);
-            assertThat(formula.apply(FormulaDepthFunction.get())).isLessThanOrEqualTo(3);
+            assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(3);
         }
         assertThat(occurrences.get("negLit")).isStrictlyBetween((int) (.8 * occurrences.get("posLit")), (int) (1.2 * occurrences.get("posLit")));
         assertThat(occurrences.get("pbc")).isStrictlyBetween((int) (.8 * occurrences.get("posLit")), (int) (1.2 * occurrences.get("posLit")));
@@ -522,7 +493,7 @@ public class FormulaRandomizerTest {
     }
 
     private List<Formula> randomFormulas() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, this.config);
+        final FormulaRandomizer random = new FormulaRandomizer(f, config);
         final List<Formula> formulas = new ArrayList<>();
         formulas.add(random.constant());
         formulas.add(random.variable());
@@ -540,7 +511,7 @@ public class FormulaRandomizerTest {
 
     @Test
     public void testMaximumOperandsAnd() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().maximumOperandsAnd(10).seed(42).build());
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().maximumOperandsAnd(10).seed(42).build());
         for (int i = 0; i < 100; i++) {
             final Formula formula = random.and(1);
             assertThat(formula.type()).isEqualTo(FType.AND);
@@ -551,7 +522,7 @@ public class FormulaRandomizerTest {
 
     @Test
     public void testMaximumOperandsOr() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().maximumOperandsOr(10).seed(42).build());
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().maximumOperandsOr(10).seed(42).build());
         for (int i = 0; i < 100; i++) {
             final Formula formula = random.or(1);
             assertThat(formula.type()).isEqualTo(FType.OR);
@@ -562,23 +533,23 @@ public class FormulaRandomizerTest {
 
     @Test
     public void testMaximumOperandsPbc() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().maximumOperandsPbc(10).seed(42).build());
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().maximumOperandsPbc(10).seed(42).build());
         for (int i = 0; i < 100; i++) {
             final Formula formula = random.pbc();
             assertThat(formula.type()).isEqualTo(FType.PBC);
             final PBConstraint pbc = (PBConstraint) formula;
-            assertThat(pbc.literals().size()).isLessThanOrEqualTo(10);
+            assertThat(pbc.literals(f).size()).isLessThanOrEqualTo(10);
         }
     }
 
     @Test
     public void testMaximumOperandsCc() {
-        final FormulaRandomizer random = new FormulaRandomizer(this.f, FormulaRandomizerConfig.builder().maximumOperandsOr(10).seed(42).build());
+        final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().maximumOperandsOr(10).seed(42).build());
         for (int i = 0; i < 100; i++) {
             final Formula formula = random.cc();
             assertThat(formula.type()).isEqualTo(FType.PBC);
             final CardinalityConstraint cc = (CardinalityConstraint) formula;
-            assertThat(cc.literals().size()).isLessThanOrEqualTo(10);
+            assertThat(cc.literals(f).size()).isLessThanOrEqualTo(10);
         }
     }
 }

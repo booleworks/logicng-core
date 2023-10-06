@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.transformations;
 
 import static org.logicng.formulas.FType.dual;
@@ -7,7 +11,6 @@ import org.logicng.formulas.Equivalence;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.FormulaTransformation;
 import org.logicng.formulas.Implication;
 import org.logicng.formulas.Not;
 import org.logicng.formulas.PBConstraint;
@@ -15,41 +18,43 @@ import org.logicng.formulas.PBConstraint;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Transformation of a formula in NNF.
- * @version 2.2.0
+ * @version 3.0.0
  * @since 2.2.0
  */
-public class NNFTransformation implements FormulaTransformation {
-
-    private static final NNFTransformation INSTANCE = new NNFTransformation();
+public class NNFTransformation extends CacheableFormulaTransformation {
 
     /**
-     * Private constructor.
+     * Constructs a new transformation.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
      */
-    private NNFTransformation() {
-        // Intentionally left empty.
+    public NNFTransformation(final FormulaFactory f) {
+        super(f, NNF);
     }
 
     /**
-     * Returns the singleton of this transformation.
-     * @return the transformation instance
+     * Constructs a new transformation.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache for this transformation
      */
-    public static NNFTransformation get() {
-        return INSTANCE;
+    public NNFTransformation(final FormulaFactory f, final Map<Formula, Formula> cache) {
+        super(f, cache);
     }
 
     @Override
-    public Formula apply(final Formula formula, final boolean cache) {
+    public Formula apply(final Formula formula) {
         return applyRec(formula, true);
     }
 
     private Formula applyRec(final Formula formula, final boolean polarity) {
-        final FormulaFactory f = formula.factory();
         Formula nnf;
         if (polarity) {
-            nnf = formula.transformationCacheEntry(NNF);
+            nnf = lookupCache(formula);
             if (nnf != null) {
                 return nnf;
             }
@@ -60,7 +65,7 @@ public class NNFTransformation implements FormulaTransformation {
             case FALSE:
             case LITERAL:
             case PREDICATE:
-                nnf = polarity ? formula : formula.negate();
+                nnf = polarity ? formula : formula.negate(f);
                 break;
             case NOT:
                 nnf = applyRec(((Not) formula).operand(), !polarity);
@@ -90,17 +95,17 @@ public class NNFTransformation implements FormulaTransformation {
             case PBC:
                 final PBConstraint pbc = (PBConstraint) formula;
                 if (polarity) {
-                    final List<Formula> encoding = pbc.getEncoding();
+                    final List<Formula> encoding = pbc.getEncoding(f);
                     nnf = applyRec(encoding.iterator(), FType.AND, true, f);
                 } else {
-                    nnf = applyRec(pbc.negate(), true);
+                    nnf = applyRec(pbc.negate(f), true);
                 }
                 break;
             default:
                 throw new IllegalStateException("Unknown formula type = " + type);
         }
         if (polarity) {
-            formula.setTransformationCacheEntry(NNF, nnf);
+            setCache(formula, nnf);
         }
         return nnf;
     }

@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.datastructures;
 
@@ -48,7 +24,7 @@ public final class Substitution {
      * Constructs a new empty substitution.
      */
     public Substitution() {
-        this.subst = new HashMap<>();
+        subst = new HashMap<>();
     }
 
     /**
@@ -56,7 +32,7 @@ public final class Substitution {
      * @param other the substitution to copy
      */
     public Substitution(final Substitution other) {
-        this.subst = new HashMap<>(other.subst);
+        subst = new HashMap<>(other.subst);
     }
 
     /**
@@ -64,7 +40,7 @@ public final class Substitution {
      * @param mapping the initial mapping
      */
     public Substitution(final Map<Variable, Formula> mapping) {
-        this.subst = new HashMap<>(mapping);
+        subst = new HashMap<>(mapping);
     }
 
     /**
@@ -72,7 +48,7 @@ public final class Substitution {
      * @return the number of mappings in this substitution
      */
     public int size() {
-        return this.subst.size();
+        return subst.size();
     }
 
     /**
@@ -83,7 +59,7 @@ public final class Substitution {
      * @param formula  the formula
      */
     public void addMapping(final Variable variable, final Formula formula) {
-        this.subst.put(variable, formula);
+        subst.put(variable, formula);
     }
 
     /**
@@ -92,7 +68,7 @@ public final class Substitution {
      * @return a formula or {@code null}
      */
     public Formula getSubstitution(final Variable variable) {
-        return this.subst.get(variable);
+        return subst.get(variable);
     }
 
     /**
@@ -100,21 +76,21 @@ public final class Substitution {
      * @return the internal mapping of variables to formulas
      */
     public Map<Variable, Formula> getMapping() {
-        return Collections.unmodifiableMap(this.subst);
+        return Collections.unmodifiableMap(subst);
     }
 
     @Override
     public int hashCode() {
-        return this.subst.hashCode();
+        return subst.hashCode();
     }
 
     @Override
     public boolean equals(final Object other) {
-        return other != null && (this == other || (this.getClass() == other.getClass() && this.subst.equals(((Substitution) other).subst)));
+        return other != null && (this == other || (getClass() == other.getClass() && subst.equals(((Substitution) other).subst)));
     }
 
     @Override
     public String toString() {
-        return "Substitution" + this.subst;
+        return "Substitution" + subst;
     }
 }

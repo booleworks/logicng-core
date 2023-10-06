@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.modelcounting;
 
@@ -57,7 +33,7 @@ import java.util.stream.Collectors;
 
 /**
  * A model counter for large formulas.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public final class ModelCounter {
@@ -75,34 +51,36 @@ public final class ModelCounter {
      * formulas' variables.  No projected model counting is supported.
      * @param formulas  the list of formulas
      * @param variables the relevant variables
+     * @param f         the formula factory to generate new formulas
      * @return the model count of the formulas for the variables
      */
-    public static BigInteger count(final Collection<Formula> formulas, final SortedSet<Variable> variables) {
-        if (!variables.containsAll(FormulaHelper.variables(formulas))) {
+    public static BigInteger count(final Collection<Formula> formulas, final SortedSet<Variable> variables, final FormulaFactory f) {
+        if (!variables.containsAll(FormulaHelper.variables(f, formulas))) {
             throw new IllegalArgumentException("Expected variables to contain all of the formulas' variables.");
         }
         if (variables.isEmpty()) {
             final List<Formula> remainingConstants = formulas.stream().filter(formula -> formula.type() != FType.TRUE).collect(Collectors.toList());
             return remainingConstants.isEmpty() ? BigInteger.ONE : BigInteger.ZERO;
         }
-        final FormulaFactory f = variables.first().factory();
         final List<Formula> cnfs = encodeAsCnf(formulas, f);
-        final SimplificationResult simplification = simplify(cnfs);
+        final SimplificationResult simplification = simplify(cnfs, f);
         final BigInteger count = count(simplification.simplifiedFormulas, f);
         final SortedSet<Variable> dontCareVariables = simplification.getDontCareVariables(variables);
         return count.multiply(BigInteger.valueOf(2).pow(dontCareVariables.size()));
     }
 
     private static List<Formula> encodeAsCnf(final Collection<Formula> formulas, final FormulaFactory f) {
-        final PureExpansionTransformation expander = PureExpansionTransformation.get();
+        final PureExpansionTransformation expander = new PureExpansionTransformation(f);
         final List<Formula> expandedFormulas = formulas.stream().map(formula -> formula.transform(expander)).collect(Collectors.toList());
-        final CNFEncoder cnfEncoder = new CNFEncoder(f, CNFConfig.builder()
+
+        final CNFConfig cnfConfig = CNFConfig.builder()
                 .algorithm(CNFConfig.Algorithm.ADVANCED)
-                .fallbackAlgorithmForAdvancedEncoding(CNFConfig.Algorithm.TSEITIN).build());
-        return expandedFormulas.stream().map(cnfEncoder::encode).collect(Collectors.toList());
+                .fallbackAlgorithmForAdvancedEncoding(CNFConfig.Algorithm.TSEITIN).build();
+
+        return expandedFormulas.stream().map(it -> CNFEncoder.encode(it, f, cnfConfig)).collect(Collectors.toList());
     }
 
-    private static SimplificationResult simplify(final Collection<Formula> formulas) {
+    private static SimplificationResult simplify(final Collection<Formula> formulas, final FormulaFactory f) {
         final Assignment simpleBackbone = new Assignment();
         final SortedSet<Variable> backboneVariables = new TreeSet<>();
         for (final Formula formula : formulas) {
@@ -114,23 +92,23 @@ public final class ModelCounter {
         }
         final List<Formula> simplified = new ArrayList<>();
         for (final Formula formula : formulas) {
-            final Formula restrict = formula.restrict(simpleBackbone);
+            final Formula restrict = formula.restrict(simpleBackbone, f);
             if (restrict.type() != FType.TRUE) {
                 simplified.add(restrict);
             }
         }
-        return new SimplificationResult(simplified, backboneVariables);
+        return new SimplificationResult(simplified, backboneVariables, f);
     }
 
     private static BigInteger count(final Collection<Formula> formulas, final FormulaFactory f) {
-        final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(formulas);
+        final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(f, formulas);
         final Set<Set<Node<Variable>>> ccs = ConnectedComponentsComputation.compute(constraintGraph);
-        final List<List<Formula>> components = ConnectedComponentsComputation.splitFormulasByComponent(formulas, ccs);
+        final List<List<Formula>> components = ConnectedComponentsComputation.splitFormulasByComponent(f, formulas, ccs);
         final DnnfFactory factory = new DnnfFactory();
         BigInteger count = BigInteger.ONE;
         for (final List<Formula> component : components) {
-            final Dnnf dnnf = factory.compile(f.and(component));
-            count = count.multiply(dnnf.execute(DnnfModelCountFunction.get()));
+            final Dnnf dnnf = factory.compile(f.and(component), f);
+            count = count.multiply(dnnf.execute(new DnnfModelCountFunction(f)));
         }
         return count;
     }
@@ -138,16 +116,18 @@ public final class ModelCounter {
     private static class SimplificationResult {
         private final List<Formula> simplifiedFormulas;
         private final SortedSet<Variable> backboneVariables;
+        private final FormulaFactory f;
 
-        public SimplificationResult(final List<Formula> simplifiedFormulas, final SortedSet<Variable> backboneVariables) {
+        public SimplificationResult(final List<Formula> simplifiedFormulas, final SortedSet<Variable> backboneVariables, final FormulaFactory f) {
             this.simplifiedFormulas = simplifiedFormulas;
             this.backboneVariables = backboneVariables;
+            this.f = f;
         }
 
         public SortedSet<Variable> getDontCareVariables(final SortedSet<Variable> variables) {
             final SortedSet<Variable> dontCareVariables = new TreeSet<>(variables);
-            dontCareVariables.removeAll(FormulaHelper.variables(this.simplifiedFormulas));
-            dontCareVariables.removeAll(this.backboneVariables);
+            dontCareVariables.removeAll(FormulaHelper.variables(f, simplifiedFormulas));
+            dontCareVariables.removeAll(backboneVariables);
             return dontCareVariables;
         }
     }

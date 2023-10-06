@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.cnf;
 
@@ -35,54 +11,75 @@ import static org.logicng.handlers.Handler.start;
 
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.FormulaTransformation;
 import org.logicng.handlers.FactorizationHandler;
+import org.logicng.transformations.CacheableAndAbortableFormulaTransformation;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 /**
  * Transformation of a formula in CNF by factorization.
- * @version 2.1.0
+ * @version 3.0.0
  * @since 1.0
  */
-public final class CNFFactorization implements FormulaTransformation {
+public final class CNFFactorization extends CacheableAndAbortableFormulaTransformation<FactorizationHandler> {
 
-    private final FactorizationHandler handler;
-    private boolean proceed;
+    private boolean proceed = true;
 
     /**
-     * Constructor for a CNF Factorization without a factorization handler.
+     * Constructor for a CNF Factorization.
+     * @param f the formula factory to generate new formulas
      */
-    public CNFFactorization() {
-        this.proceed = true;
-        this.handler = null;
+    public CNFFactorization(final FormulaFactory f) {
+        super(f, FACTORIZED_CNF, null);
     }
 
     /**
-     * Constructor for a CNF Factorization with a given factorization handler.
-     * @param handler the handler
+     * Constructor for a CNF Factorization.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
      */
-    public CNFFactorization(final FactorizationHandler handler) {
-        this.proceed = true;
-        this.handler = handler;
+    public CNFFactorization(final FormulaFactory f, final Map<Formula, Formula> cache) {
+        this(f, null, cache);
+    }
+
+    /**
+     * Constructor for a CNF Factorization.
+     * @param f       the formula factory to generate new formulas
+     * @param handler the handler for the transformation
+     */
+    public CNFFactorization(final FormulaFactory f, final FactorizationHandler handler) {
+        super(f, FACTORIZED_CNF, handler);
+    }
+
+    /**
+     * Constructs a new transformation.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.  The handler - if not null - is used for aborting
+     * the computation.
+     * @param f       the formula factory to generate new formulas
+     * @param cache   the cache to use for the transformation
+     * @param handler the handler for the transformation
+     */
+    public CNFFactorization(final FormulaFactory f, final FactorizationHandler handler, final Map<Formula, Formula> cache) {
+        super(f, cache, handler);
     }
 
     @Override
-    public Formula apply(final Formula formula, final boolean cache) {
-        start(this.handler);
-        this.proceed = true;
-        return applyRec(formula, cache);
+    public Formula apply(final Formula formula) {
+        start(handler);
+        proceed = true;
+        return applyRec(formula);
     }
 
-    private Formula applyRec(final Formula formula, final boolean cache) {
-        if (!this.proceed) {
+    private Formula applyRec(final Formula formula) {
+        if (!proceed) {
             return null;
         }
         if (formula.type().precedence() >= LITERAL.precedence()) {
             return formula;
         }
-        Formula cached = formula.transformationCacheEntry(FACTORIZED_CNF);
+        Formula cached = lookupCache(formula);
         if (cached != null) {
             return cached;
         }
@@ -90,46 +87,44 @@ public final class CNFFactorization implements FormulaTransformation {
             case NOT:
             case IMPL:
             case EQUIV:
-                cached = this.applyRec(formula.nnf(), cache);
+                cached = applyRec(formula.nnf(f));
                 break;
             case OR:
                 LinkedHashSet<Formula> nops = new LinkedHashSet<>();
                 for (final Formula op : formula) {
-                    if (!this.proceed) {
+                    if (!proceed) {
                         return null;
                     }
-                    nops.add(this.applyRec(op, cache));
+                    nops.add(applyRec(op));
                 }
                 final Iterator<Formula> it = nops.iterator();
                 cached = it.next();
                 while (it.hasNext()) {
-                    if (!this.proceed) {
+                    if (!proceed) {
                         return null;
                     }
-                    cached = this.distribute(cached, it.next());
+                    cached = distribute(cached, it.next());
                 }
                 break;
             case AND:
                 nops = new LinkedHashSet<>();
                 for (final Formula op : formula) {
-                    final Formula apply = this.applyRec(op, cache);
-                    if (!this.proceed) {
+                    final Formula apply = applyRec(op);
+                    if (!proceed) {
                         return null;
                     }
                     nops.add(apply);
                 }
-                cached = formula.factory().and(nops);
+                cached = f.and(nops);
                 break;
             case PBC:
-                cached = formula.nnf();
+                cached = formula.nnf(f);
                 break;
             default:
                 throw new IllegalArgumentException("Could not process the formula type " + formula.type());
         }
-        if (this.proceed) {
-            if (cache) {
-                formula.setTransformationCacheEntry(FACTORIZED_CNF, cached);
-            }
+        if (proceed) {
+            setCache(formula, cached);
             return cached;
         }
         return null;
@@ -142,16 +137,15 @@ public final class CNFFactorization implements FormulaTransformation {
      * @return the distribution of the two formulas
      */
     private Formula distribute(final Formula f1, final Formula f2) {
-        if (this.handler != null) {
-            this.proceed = this.handler.performedDistribution();
+        if (handler != null) {
+            proceed = handler.performedDistribution();
         }
-        if (this.proceed) {
-            final FormulaFactory f = f1.factory();
+        if (proceed) {
             if (f1.type() == AND || f2.type() == AND) {
                 final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
                 for (final Formula op : f1.type() == AND ? f1 : f2) {
-                    final Formula distribute = this.distribute(op, f1.type() == AND ? f2 : f1);
-                    if (!this.proceed) {
+                    final Formula distribute = distribute(op, f1.type() == AND ? f2 : f1);
+                    if (!proceed) {
                         return null;
                     }
                     nops.add(distribute);
@@ -159,16 +153,11 @@ public final class CNFFactorization implements FormulaTransformation {
                 return f.and(nops);
             }
             final Formula clause = f.or(f1, f2);
-            if (this.handler != null) {
-                this.proceed = this.handler.createdClause(clause);
+            if (handler != null) {
+                proceed = handler.createdClause(clause);
             }
             return clause;
         }
         return null;
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
     }
 }

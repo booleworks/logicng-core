@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.util;
 
@@ -64,12 +40,12 @@ public final class FormulaCornerCases {
      */
     public FormulaCornerCases(final FormulaFactory f) {
         this.f = f;
-        this.a = f.variable("a");
-        this.b = f.variable("b");
-        this.c = f.variable("c");
-        this.na = this.a.negate();
-        this.nb = this.b.negate();
-        this.nc = this.c.negate();
+        a = f.variable("a");
+        b = f.variable("b");
+        c = f.variable("c");
+        na = a.negate(f);
+        nb = b.negate(f);
+        nc = c.negate(f);
     }
 
     /**
@@ -77,7 +53,7 @@ public final class FormulaCornerCases {
      * @return the set of variables
      */
     public SortedSet<Variable> getVariables() {
-        return new TreeSet<>(Arrays.asList(this.a, this.b, this.c));
+        return new TreeSet<>(Arrays.asList(a, b, c));
     }
 
     /**
@@ -86,73 +62,73 @@ public final class FormulaCornerCases {
      */
     public List<Formula> cornerCases() {
         final List<Formula> formulas = new ArrayList<>();
-        formulas.add(this.f.falsum());
-        formulas.add(this.f.not(this.f.falsum()));
-        formulas.add(this.f.verum());
-        formulas.add(this.f.not(this.f.verum()));
-        formulas.add(this.a);
-        formulas.add(this.a.negate());
-        formulas.add(this.f.not(this.a));
-        formulas.add(this.f.not(this.f.not(this.a)));
-        formulas.add(this.f.not(this.f.not(this.f.not(this.a))));
-        formulas.addAll(binaryCornerCases(FType.IMPL, this.a, this.b));
-        formulas.addAll(binaryCornerCases(FType.EQUIV, this.a, this.b));
-        formulas.addAll(naryCornerCases(FType.OR, this.a, this.b, this.c));
-        formulas.addAll(naryCornerCases(FType.AND, this.a, this.b, this.c));
-        formulas.addAll(pbcCornerCases(this.a, this.b, this.c));
+        formulas.add(f.falsum());
+        formulas.add(f.not(f.falsum()));
+        formulas.add(f.verum());
+        formulas.add(f.not(f.verum()));
+        formulas.add(a);
+        formulas.add(a.negate(f));
+        formulas.add(f.not(a));
+        formulas.add(f.not(f.not(a)));
+        formulas.add(f.not(f.not(f.not(a))));
+        formulas.addAll(binaryCornerCases(FType.IMPL, a, b));
+        formulas.addAll(binaryCornerCases(FType.EQUIV, a, b));
+        formulas.addAll(naryCornerCases(FType.OR, a, b, c));
+        formulas.addAll(naryCornerCases(FType.AND, a, b, c));
+        formulas.addAll(pbcCornerCases(a, b, c));
         return formulas;
     }
 
     private List<Formula> binaryCornerCases(final FType type, final Variable a, final Variable b) {
         final List<Formula> formulas = new ArrayList<>();
-        formulas.add(this.f.binaryOperator(type, this.f.verum(), this.f.verum()));
-        formulas.add(this.f.binaryOperator(type, this.f.falsum(), this.f.verum()));
-        formulas.add(this.f.binaryOperator(type, this.f.verum(), this.f.falsum()));
-        formulas.add(this.f.binaryOperator(type, this.f.falsum(), this.f.falsum()));
+        formulas.add(f.binaryOperator(type, f.verum(), f.verum()));
+        formulas.add(f.binaryOperator(type, f.falsum(), f.verum()));
+        formulas.add(f.binaryOperator(type, f.verum(), f.falsum()));
+        formulas.add(f.binaryOperator(type, f.falsum(), f.falsum()));
 
-        formulas.add(this.f.binaryOperator(type, this.f.verum(), a));
-        formulas.add(this.f.binaryOperator(type, a, this.f.verum()));
-        formulas.add(this.f.binaryOperator(type, this.f.verum(), this.na));
-        formulas.add(this.f.binaryOperator(type, this.na, this.f.verum()));
+        formulas.add(f.binaryOperator(type, f.verum(), a));
+        formulas.add(f.binaryOperator(type, a, f.verum()));
+        formulas.add(f.binaryOperator(type, f.verum(), na));
+        formulas.add(f.binaryOperator(type, na, f.verum()));
 
-        formulas.add(this.f.binaryOperator(type, this.f.falsum(), a));
-        formulas.add(this.f.binaryOperator(type, a, this.f.falsum()));
-        formulas.add(this.f.binaryOperator(type, this.f.falsum(), this.na));
-        formulas.add(this.f.binaryOperator(type, this.na, this.f.falsum()));
+        formulas.add(f.binaryOperator(type, f.falsum(), a));
+        formulas.add(f.binaryOperator(type, a, f.falsum()));
+        formulas.add(f.binaryOperator(type, f.falsum(), na));
+        formulas.add(f.binaryOperator(type, na, f.falsum()));
 
-        formulas.add(this.f.binaryOperator(type, a, a));
-        formulas.add(this.f.binaryOperator(type, a, this.na));
-        formulas.add(this.f.binaryOperator(type, this.na, a));
-        formulas.add(this.f.binaryOperator(type, this.na, this.na));
+        formulas.add(f.binaryOperator(type, a, a));
+        formulas.add(f.binaryOperator(type, a, na));
+        formulas.add(f.binaryOperator(type, na, a));
+        formulas.add(f.binaryOperator(type, na, na));
 
-        formulas.add(this.f.binaryOperator(type, a, b));
-        formulas.add(this.f.binaryOperator(type, a, this.nb));
-        formulas.add(this.f.binaryOperator(type, this.na, b));
-        formulas.add(this.f.binaryOperator(type, this.na, this.nb));
+        formulas.add(f.binaryOperator(type, a, b));
+        formulas.add(f.binaryOperator(type, a, nb));
+        formulas.add(f.binaryOperator(type, na, b));
+        formulas.add(f.binaryOperator(type, na, nb));
         return formulas;
     }
 
     private List<Formula> naryCornerCases(final FType type, final Variable a, final Variable b, final Variable c) {
         final List<Formula> formulas = new ArrayList<>();
-        formulas.add(this.f.naryOperator(type, new Variable[0]));
+        formulas.add(f.naryOperator(type, new Variable[0]));
 
-        formulas.add(this.f.naryOperator(type, this.f.falsum()));
-        formulas.add(this.f.naryOperator(type, this.f.verum()));
-        formulas.add(this.f.naryOperator(type, this.f.falsum(), this.f.verum()));
+        formulas.add(f.naryOperator(type, f.falsum()));
+        formulas.add(f.naryOperator(type, f.verum()));
+        formulas.add(f.naryOperator(type, f.falsum(), f.verum()));
 
-        formulas.add(this.f.naryOperator(type, a));
-        formulas.add(this.f.naryOperator(type, this.na));
+        formulas.add(f.naryOperator(type, a));
+        formulas.add(f.naryOperator(type, na));
 
-        formulas.add(this.f.naryOperator(type, this.f.verum(), a));
-        formulas.add(this.f.naryOperator(type, this.f.verum(), this.na));
-        formulas.add(this.f.naryOperator(type, this.f.falsum(), this.na));
-        formulas.add(this.f.naryOperator(type, this.f.falsum(), this.na));
+        formulas.add(f.naryOperator(type, f.verum(), a));
+        formulas.add(f.naryOperator(type, f.verum(), na));
+        formulas.add(f.naryOperator(type, f.falsum(), na));
+        formulas.add(f.naryOperator(type, f.falsum(), na));
 
-        formulas.add(this.f.naryOperator(type, a, this.na));
-        formulas.add(this.f.naryOperator(type, a, b));
-        formulas.add(this.f.naryOperator(type, a, b, c));
-        formulas.add(this.f.naryOperator(type, this.na, this.nb, this.nc));
-        formulas.add(this.f.naryOperator(type, a, b, c, this.na));
+        formulas.add(f.naryOperator(type, a, na));
+        formulas.add(f.naryOperator(type, a, b));
+        formulas.add(f.naryOperator(type, a, b, c));
+        formulas.add(f.naryOperator(type, na, nb, nc));
+        formulas.add(f.naryOperator(type, a, b, c, na));
         return formulas;
     }
 
@@ -166,36 +142,36 @@ public final class FormulaCornerCases {
 
     private List<Formula> pbcCornerCases(final CType comparator, final Variable a, final Variable b, final Variable c) {
         final List<Formula> formulas = new ArrayList<>();
-        formulas.addAll(pbcCornerCases(comparator, new Literal[0], new int[0], this.f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[0], new int[0], f));
 
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a}, new int[]{-1}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a}, new int[]{0}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a}, new int[]{1}, this.f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a}, new int[]{-1}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a}, new int[]{0}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a}, new int[]{1}, f));
 
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{this.na}, new int[]{-1}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{this.na}, new int[]{0}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{this.na}, new int[]{1}, this.f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{na}, new int[]{-1}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{na}, new int[]{0}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{na}, new int[]{1}, f));
 
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b}, new int[]{-1, -1}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b}, new int[]{0, 0}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b}, new int[]{1, 1}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b}, new int[]{1, -1}, this.f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b}, new int[]{-1, -1}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b}, new int[]{0, 0}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b}, new int[]{1, 1}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b}, new int[]{1, -1}, f));
 
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, this.nb}, new int[]{-1, -1}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, this.nb}, new int[]{0, 0}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, this.nb}, new int[]{1, 1}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, this.nb}, new int[]{1, -1}, this.f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, nb}, new int[]{-1, -1}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, nb}, new int[]{0, 0}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, nb}, new int[]{1, 1}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, nb}, new int[]{1, -1}, f));
 
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, this.na}, new int[]{-1, -1}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, this.na}, new int[]{0, 0}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, this.na}, new int[]{1, 1}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, this.na}, new int[]{1, -1}, this.f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, na}, new int[]{-1, -1}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, na}, new int[]{0, 0}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, na}, new int[]{1, 1}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, na}, new int[]{1, -1}, f));
 
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b, c}, new int[]{-1, -1, -1}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b, c}, new int[]{0, 0, 0}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b, c}, new int[]{1, 1, 1}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b, c}, new int[]{-1, 1, -1}, this.f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{this.na, this.nb, c}, new int[]{-1, 1, -1}, this.f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b, c}, new int[]{-1, -1, -1}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b, c}, new int[]{0, 0, 0}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b, c}, new int[]{1, 1, 1}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b, c}, new int[]{-1, 1, -1}, f));
+        formulas.addAll(pbcCornerCases(comparator, new Literal[]{na, nb, c}, new int[]{-1, 1, -1}, f));
         return formulas;
     }
 

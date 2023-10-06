@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * PBLib       -- Copyright (c) 2012-2013  Peter Steinke
@@ -53,93 +29,65 @@ package org.logicng.cardinalityconstraints;
 
 import org.logicng.collections.LNGVector;
 import org.logicng.datastructures.EncodingResult;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
 /**
  * Encodes that at most one variable is assigned value true.  Uses the commander encoding due to Klieber &amp; Kwon.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.1
  */
 public final class CCAMOCommander implements CCAtMostOne {
 
-    private final int k;
-    private final LNGVector<Literal> literals;
-    private final LNGVector<Literal> nextLiterals;
-    private final LNGVector<Literal> currentLiterals;
-    private EncodingResult result;
+    private static final CCAMOCommander INSTANCE = new CCAMOCommander();
 
-    /**
-     * Constructs the commander AMO encoder with a given group size.
-     * @param k the group size for the encoding
-     */
-    CCAMOCommander(final int k) {
-        this.k = k;
-        this.literals = new LNGVector<>();
-        this.nextLiterals = new LNGVector<>();
-        this.currentLiterals = new LNGVector<>();
+    private CCAMOCommander() {
+        // Singleton pattern
+    }
+
+    public static CCAMOCommander get() {
+        return INSTANCE;
     }
 
     @Override
-    public void build(final EncodingResult result, final Variable... vars) {
+    public void build(final EncodingResult result, final CCConfig config, final Variable... vars) {
         result.reset();
-        this.result = result;
-        this.currentLiterals.clear();
-        this.nextLiterals.clear();
+        final LNGVector<Literal> currentLiterals = new LNGVector<>();
         for (final Variable var : vars) {
-            this.currentLiterals.push(var);
+            currentLiterals.push(var);
         }
-        this.encodeRecursive();
+        final int groupSize = config.commanderGroupSize;
+        encodeRecursive(result, groupSize, currentLiterals);
     }
 
-    /**
-     * Internal recursive encoding.
-     */
-    private void encodeRecursive() {
+    private static void encodeRecursive(final EncodingResult result, final int groupSize, final LNGVector<Literal> currentLiterals) {
+        final FormulaFactory f = result.factory();
         boolean isExactlyOne = false;
-        while (this.currentLiterals.size() > this.k) {
-            this.literals.clear();
-            this.nextLiterals.clear();
-            for (int i = 0; i < this.currentLiterals.size(); i++) {
-                this.literals.push(this.currentLiterals.get(i));
-                if (i % this.k == this.k - 1 || i == this.currentLiterals.size() - 1) {
-                    this.encodeNonRecursive(this.literals);
-                    this.literals.push(this.result.newVariable());
-                    this.nextLiterals.push(this.literals.back().negate());
-                    if (isExactlyOne && this.literals.size() > 0) {
-                        this.result.addClause(this.literals);
+        while (currentLiterals.size() > groupSize) {
+            final LNGVector<Literal> literals = new LNGVector<>();
+            final LNGVector<Literal> nextLiterals = new LNGVector<>();
+            for (int i = 0; i < currentLiterals.size(); i++) {
+                literals.push(currentLiterals.get(i));
+                if (i % groupSize == groupSize - 1 || i == currentLiterals.size() - 1) {
+                    CCAtMostOne.encodeNaive(result, literals);
+                    literals.push(result.newVariable());
+                    nextLiterals.push(literals.back().negate(f));
+                    if (isExactlyOne && literals.size() > 0) {
+                        result.addClause(literals);
                     }
-                    for (int j = 0; j < this.literals.size() - 1; j++) {
-                        this.result.addClause(this.literals.back().negate(), this.literals.get(j).negate());
+                    for (int j = 0; j < literals.size() - 1; j++) {
+                        result.addClause(literals.back().negate(f), literals.get(j).negate(f));
                     }
-                    this.literals.clear();
+                    literals.clear();
                 }
             }
-            this.currentLiterals.replaceInplace(this.nextLiterals);
+            currentLiterals.replaceInplace(nextLiterals);
             isExactlyOne = true;
         }
-        this.encodeNonRecursive(this.currentLiterals);
-        if (isExactlyOne && this.currentLiterals.size() > 0) {
-            this.result.addClause(this.currentLiterals);
+        CCAtMostOne.encodeNaive(result, currentLiterals);
+        if (isExactlyOne && currentLiterals.size() > 0) {
+            result.addClause(currentLiterals);
         }
-    }
-
-    /**
-     * Internal non-recursive encoding.
-     * @param literals the current literals
-     */
-    private void encodeNonRecursive(final LNGVector<Literal> literals) {
-        if (literals.size() > 1) {
-            for (int i = 0; i < literals.size(); i++) {
-                for (int j = i + 1; j < literals.size(); j++) {
-                    this.result.addClause(literals.get(i).negate(), literals.get(j).negate());
-                }
-            }
-        }
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
     }
 }

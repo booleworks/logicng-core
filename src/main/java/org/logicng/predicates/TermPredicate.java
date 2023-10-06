@@ -1,3 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.predicates;
 
 import org.logicng.formulas.FType;
@@ -7,7 +11,7 @@ import org.logicng.formulas.NAryOperator;
 
 /**
  * Term predicate. Indicates whether a formula is a minterm (conjunction of literals) or maxterm (disjunction of literals).
- * @version 2.3.0
+ * @version 3.0.0
  * @since 2.2.0
  */
 public final class TermPredicate implements FormulaPredicate {
@@ -41,7 +45,7 @@ public final class TermPredicate implements FormulaPredicate {
     }
 
     @Override
-    public boolean test(final Formula formula, final boolean cache) {
+    public boolean test(final Formula formula) {
         switch (formula.type()) {
             case TRUE:
             case FALSE:
@@ -54,12 +58,12 @@ public final class TermPredicate implements FormulaPredicate {
             case NOT:
                 return false;
             case OR:
-                if (this.mintermPredicate) {
+                if (mintermPredicate) {
                     return false;
                 }
                 return onlyLiteralOperands((NAryOperator) formula);
             case AND:
-                if (!this.mintermPredicate) {
+                if (!mintermPredicate) {
                     return false;
                 }
                 return onlyLiteralOperands((NAryOperator) formula);
@@ -75,11 +79,6 @@ public final class TermPredicate implements FormulaPredicate {
             }
         }
         return true;
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
     }
 }
 

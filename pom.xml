@@ -42,16 +42,11 @@
 
   <developers>
     <developer>
-      <name>Christoph Zengler</name>
-      <email>christoph.zengler@booleworks.com</email>
-    </developer>
-    <developer>
-      <name>Steffen Hildebrandt</name>
-      <email>steffen.hildebrandt@booleworks.com</email>
-    </developer>
-    <developer>
-      <name>Rouven Walter</name>
-      <email>rouven.walter@booleworks.com</email>
+      <id>BooleWorks</id>
+      <name>BooleWorks Team</name>
+      <organization>BooleWorks GmbH</organization>
+      <organizationUrl>https://www.booleworks.com</organizationUrl>
+      <email>info@booleworks.com</email>
     </developer>
   </developers>
 
@@ -71,19 +66,19 @@
     <sonar.exclusions>**/LogicNGPropositional*.java,**/LogicNGPseudoBoolean*.java</sonar.exclusions>
 
     <!-- Dependency Versions -->
-    <version.antlr>4.11.1</version.antlr>
-    <version.junit>5.9.2</version.junit>
+    <version.antlr>4.13.0</version.antlr>
+    <version.junit>5.10.0</version.junit>
     <version.assertj>3.24.2</version.assertj>
     <version.mockito>5.1.1</version.mockito>
 
     <!-- Plugin Versions -->
-    <version.antlr-plugin>4.11.1</version.antlr-plugin>
+    <version.antlr-plugin>4.13.0</version.antlr-plugin>
     <version.jacoco>0.8.8</version.jacoco>
     <version.coveralls>4.3.0</version.coveralls>
     <version.surefire>3.0.0-M9</version.surefire>
     <version.nexus-staging>1.6.13</version.nexus-staging>
     <version.maven-gpg>1.6</version.maven-gpg>
-    <version.osgi-plugin>5.1.8</version.osgi-plugin>
+    <version.osgi-plugin>5.1.9</version.osgi-plugin>
     <version.maven-source>3.2.1</version.maven-source>
     <version.maven-javadoc>3.5.0</version.maven-javadoc>
     <version.maven-jar>3.3.0</version.maven-jar>
@@ -219,6 +214,9 @@
         <configuration>
           <instructions>
             <Bundle-RequiredExecutionEnvironment>JavaSE-11</Bundle-RequiredExecutionEnvironment>
+            <Export-Package>
+              org.logicng.formulas.implementation
+            </Export-Package>
           </instructions>
         </configuration>
       </plugin>
@@ -243,7 +241,7 @@
         <configuration>
           <useSystemClassLoader>false</useSystemClassLoader>
           <trimStackTrace>false</trimStackTrace>
-          <argLine>-Xmx2g</argLine>
+          <argLine>-Xmx4g</argLine>
         </configuration>
       </plugin>
     </plugins>
@@ -379,5 +377,23 @@
       </properties>
     </profile>
   </profiles>
+
+  <repositories>
+    <repository>
+      <id>boolerules-registry</id>
+      <url>https://gitlab.booleworks.org/api/v4/projects/61/packages/maven</url>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>boolerules-registry</id>
+      <url>https://gitlab.booleworks.org/api/v4/projects/61/packages/maven</url>
+    </snapshotRepository>
+    <repository>
+      <id>boolerules-registry</id>
+      <url>https://gitlab.booleworks.org/api/v4/projects/61/packages/maven</url>
+    </repository>
+  </distributionManagement>
 </project>
 

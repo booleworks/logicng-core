@@ -1,59 +1,32 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Substitution;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PropositionalParser;
 
 import java.util.Collections;
 import java.util.HashMap;
 
-/**
- * Unit tests for the class {@link Substitution}.
- * @version 2.0.0
- * @since 1.0
- */
-public class SubstitutionTest extends TestWithExampleFormulas {
+public class SubstitutionTest extends TestWithFormulaContext {
 
-    private final Substitution subst;
+    private final FormulaContext _s = new FormulaContext(FormulaFactory.nonCaching());
 
-    public SubstitutionTest() {
-        this.subst = new Substitution();
-        this.subst.addMapping(this.A, this.NA);
-        this.subst.addMapping(this.B, this.OR1);
-        this.subst.addMapping(this.X, this.AND1);
+    private Substitution getSubstitution(final FormulaContext context) {
+        final Substitution subst;
+        subst = new Substitution();
+        subst.addMapping(context.a, context.na);
+        subst.addMapping(context.b, context.or1);
+        subst.addMapping(context.x, context.and1);
+        return subst;
     }
 
     @Test
@@ -64,151 +37,98 @@ public class SubstitutionTest extends TestWithExampleFormulas {
     @Test
     public void testCopyConstructor() {
         final Substitution original = new Substitution();
-        original.addMapping(this.A, this.NA);
-        original.addMapping(this.B, this.NB);
+        original.addMapping(_s.a, _s.na);
+        original.addMapping(_s.b, _s.nb);
         final Substitution copy = new Substitution(original);
-        copy.addMapping(this.X, this.NX);
-        original.addMapping(this.Y, this.NY);
+        copy.addMapping(_s.x, _s.nx);
+        original.addMapping(_s.y, _s.ny);
         assertThat(original.size()).isEqualTo(3);
         assertThat(copy.size()).isEqualTo(3);
-        assertThat(copy.getSubstitution(this.A)).isEqualTo(this.NA);
-        assertThat(copy.getSubstitution(this.B)).isEqualTo(this.NB);
-        assertThat(original.getSubstitution(this.X)).isNull();
-        assertThat(copy.getSubstitution(this.X)).isEqualTo(this.NX);
-        assertThat(original.getSubstitution(this.Y)).isEqualTo(this.NY);
-        assertThat(copy.getSubstitution(this.Y)).isNull();
+        assertThat(copy.getSubstitution(_s.a)).isEqualTo(_s.na);
+        assertThat(copy.getSubstitution(_s.b)).isEqualTo(_s.nb);
+        assertThat(original.getSubstitution(_s.x)).isNull();
+        assertThat(copy.getSubstitution(_s.x)).isEqualTo(_s.nx);
+        assertThat(original.getSubstitution(_s.y)).isEqualTo(_s.ny);
+        assertThat(copy.getSubstitution(_s.y)).isNull();
     }
 
     @Test
     public void testConstructionWithMapping() {
         final HashMap<Variable, Formula> mapping = new HashMap<>();
-        mapping.put(this.X, this.OR1);
-        mapping.put(this.Y, this.AND1);
+        mapping.put(_s.x, _s.or1);
+        mapping.put(_s.y, _s.and1);
         final Substitution substitution = new Substitution(mapping);
-        assertThat(substitution.getSubstitution(this.X)).isEqualTo(this.OR1);
-        assertThat(substitution.getSubstitution(this.Y)).isEqualTo(this.AND1);
-        assertThat(substitution.getSubstitution(this.A)).isNull();
-        substitution.addMapping(this.A, this.NA);
-        assertThat(substitution.getSubstitution(this.A)).isEqualTo(this.NA);
+        assertThat(substitution.getSubstitution(_s.x)).isEqualTo(_s.or1);
+        assertThat(substitution.getSubstitution(_s.y)).isEqualTo(_s.and1);
+        assertThat(substitution.getSubstitution(_s.a)).isNull();
+        substitution.addMapping(_s.a, _s.na);
+        assertThat(substitution.getSubstitution(_s.a)).isEqualTo(_s.na);
         assertThat(new Substitution(Collections.emptyMap()).size()).isEqualTo(0);
     }
 
     @Test
     public void testSize() {
         final Substitution subst = new Substitution();
-        subst.addMapping(this.A, this.NA);
-        subst.addMapping(this.B, this.OR1);
-        subst.addMapping(this.C, this.AND1);
+        subst.addMapping(_s.a, _s.na);
+        subst.addMapping(_s.b, _s.or1);
+        subst.addMapping(_s.c, _s.and1);
         assertThat(subst.size()).isEqualTo(3);
     }
 
     @Test
     public void testGetSubstitution() {
         final Substitution subst = new Substitution();
-        subst.addMapping(this.A, this.NA);
-        subst.addMapping(this.B, this.OR1);
-        subst.addMapping(this.C, this.AND1);
-        assertThat(subst.getSubstitution(this.A)).isEqualTo(this.NA);
-        assertThat(subst.getSubstitution(this.B)).isEqualTo(this.OR1);
-        assertThat(subst.getSubstitution(this.C)).isEqualTo(this.AND1);
-        assertThat(subst.getSubstitution(this.X)).isNull();
-        subst.addMapping(this.B, this.AND1);
-        assertThat(subst.getSubstitution(this.B)).isEqualTo(this.AND1);
+        subst.addMapping(_s.a, _s.na);
+        subst.addMapping(_s.b, _s.or1);
+        subst.addMapping(_s.c, _s.and1);
+        assertThat(subst.getSubstitution(_s.a)).isEqualTo(_s.na);
+        assertThat(subst.getSubstitution(_s.b)).isEqualTo(_s.or1);
+        assertThat(subst.getSubstitution(_s.c)).isEqualTo(_s.and1);
+        assertThat(subst.getSubstitution(_s.x)).isNull();
+        subst.addMapping(_s.b, _s.and1);
+        assertThat(subst.getSubstitution(_s.b)).isEqualTo(_s.and1);
     }
 
     @Test
     public void testGetMapping() {
         final Substitution subst = new Substitution();
         assertThat(subst.getMapping()).isEqualTo(Collections.emptyMap());
-        subst.addMapping(this.A, this.NA);
-        subst.addMapping(this.B, this.OR1);
-        subst.addMapping(this.C, this.AND1);
+        subst.addMapping(_s.a, _s.na);
+        subst.addMapping(_s.b, _s.or1);
+        subst.addMapping(_s.c, _s.and1);
         final HashMap<Variable, Formula> expected = new HashMap<>();
-        expected.put(this.A, this.NA);
-        expected.put(this.B, this.OR1);
-        expected.put(this.C, this.AND1);
+        expected.put(_s.a, _s.na);
+        expected.put(_s.b, _s.or1);
+        expected.put(_s.c, _s.and1);
         assertThat(subst.getMapping()).isEqualTo(expected);
-    }
-
-    @Test
-    public void testConstantSubstitution() {
-        assertThat(this.FALSE.substitute(this.subst)).isEqualTo(this.FALSE);
-        assertThat(this.TRUE.substitute(this.subst)).isEqualTo(this.TRUE);
-    }
-
-    @Test
-    public void testLiteralSubstitution() {
-        assertThat(this.C.substitute(this.subst)).isEqualTo(this.C);
-        assertThat(this.A.substitute(this.subst)).isEqualTo(this.NA);
-        assertThat(this.B.substitute(this.subst)).isEqualTo(this.OR1);
-        assertThat(this.X.substitute(this.subst)).isEqualTo(this.AND1);
-        assertThat(this.NA.substitute(this.subst)).isEqualTo(this.A);
-        assertThat(this.NB.substitute(this.subst)).isEqualTo(this.NOT2);
-        assertThat(this.NX.substitute(this.subst)).isEqualTo(this.NOT1);
-    }
-
-    @Test
-    public void testNotSubstitution() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(this.NOT1.substitute(this.subst)).isEqualTo(p.parse("~(~a & (x | y))"));
-        assertThat(this.NOT2.substitute(this.subst)).isEqualTo(p.parse("~(a & b | y)"));
-    }
-
-    @Test
-    public void testBinarySubstitution() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(this.IMP1.substitute(this.subst)).isEqualTo(p.parse("~a => (x | y)"));
-        assertThat(this.IMP4.substitute(this.subst)).isEqualTo(p.parse("(~a <=> (x | y)) => (~(a & b) <=> ~y)"));
-        assertThat(this.EQ2.substitute(this.subst)).isEqualTo(p.parse("a <=> ~(x | y)"));
-        assertThat(this.EQ3.substitute(this.subst)).isEqualTo(p.parse("(~a & (x | y)) <=> (a & b | y)"));
-    }
-
-    @Test
-    public void testNArySubstitution() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(this.AND3.substitute(this.subst)).isEqualTo(p.parse("(a & b | y) & (~(a & b) | ~y)"));
-        assertThat(this.f.and(this.NB, this.C, this.X, this.NY).substitute(this.subst)).isEqualTo(p.parse("~(x | y) & c & a & b & ~y"));
-        assertThat(this.OR3.substitute(this.subst)).isEqualTo(p.parse("(~a & (x | y)) | (a & ~(x | y))"));
-        assertThat(this.f.or(this.A, this.NB, this.C, this.X, this.NY).substitute(this.subst)).isEqualTo(p.parse("~a | ~(x | y) | c | a & b | ~y"));
-    }
-
-    @Test
-    public void testSingleSubstitution() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(this.A.substitute(this.A, this.OR1)).isEqualTo(p.parse("x | y"));
-        assertThat(this.NA.substitute(this.A, this.OR1)).isEqualTo(p.parse("~(x | y)"));
-        assertThat(this.IMP1.substitute(this.B, this.OR1)).isEqualTo(p.parse("a => (x | y)"));
-        assertThat(this.EQ2.substitute(this.B, this.OR1)).isEqualTo(p.parse("~a <=> ~(x | y)"));
-        assertThat(this.f.and(this.A, this.NB, this.C, this.NX, this.NY).substitute(this.Y, this.X)).isEqualTo(p.parse("a & ~b & c & ~x"));
-        assertThat(this.f.or(this.A, this.NB, this.C, this.NX, this.NY).substitute(this.Y, this.X)).isEqualTo(p.parse("a | ~b | c | ~x"));
     }
 
     @Test
     public void testHashCode() {
         final Substitution subst = new Substitution();
-        subst.addMapping(this.A, this.NA);
-        subst.addMapping(this.B, this.OR1);
-        subst.addMapping(this.C, this.AND1);
+        subst.addMapping(_s.a, _s.na);
+        subst.addMapping(_s.b, _s.or1);
+        subst.addMapping(_s.c, _s.and1);
         final Substitution subst2 = new Substitution();
-        subst2.addMapping(this.B, this.OR1);
-        subst2.addMapping(this.C, this.AND1);
-        subst2.addMapping(this.A, this.NA);
+        subst2.addMapping(_s.b, _s.or1);
+        subst2.addMapping(_s.c, _s.and1);
+        subst2.addMapping(_s.a, _s.na);
         assertThat(subst2.hashCode()).isEqualTo(subst.hashCode());
     }
 
     @Test
     public void testEquals() {
         final Substitution subst = new Substitution();
-        subst.addMapping(this.A, this.NA);
-        subst.addMapping(this.B, this.OR1);
-        subst.addMapping(this.C, this.AND1);
+        subst.addMapping(_s.a, _s.na);
+        subst.addMapping(_s.b, _s.or1);
+        subst.addMapping(_s.c, _s.and1);
         final Substitution subst2 = new Substitution();
-        subst2.addMapping(this.B, this.OR1);
-        subst2.addMapping(this.C, this.AND1);
-        subst2.addMapping(this.A, this.NA);
+        subst2.addMapping(_s.b, _s.or1);
+        subst2.addMapping(_s.c, _s.and1);
+        subst2.addMapping(_s.a, _s.na);
         final Substitution subst3 = new Substitution();
-        subst3.addMapping(this.B, this.OR1);
-        subst3.addMapping(this.C, this.AND1);
+        subst3.addMapping(_s.b, _s.or1);
+        subst3.addMapping(_s.c, _s.and1);
         assertThat(subst2).isEqualTo(subst);
         assertThat(subst).isEqualTo(subst);
         assertThat(new Assignment()).isNotEqualTo(subst);
@@ -219,10 +139,69 @@ public class SubstitutionTest extends TestWithExampleFormulas {
     public void testToString() {
         final Substitution subst = new Substitution();
         assertThat(subst.toString()).isEqualTo("Substitution{}");
-        subst.addMapping(this.A, this.NA);
+        subst.addMapping(_s.a, _s.na);
         assertThat(subst.toString()).isEqualTo("Substitution{a=~a}");
-        subst.addMapping(this.B, this.OR1);
+        subst.addMapping(_s.b, _s.or1);
         assertThat(subst.toString()).isEqualTo("Substitution{a=~a, b=x | y}");
     }
 
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testConstantSubstitution(final FormulaContext _c) {
+        final Substitution subst = getSubstitution(_c);
+        assertThat(_c.falsum.substitute(subst, _c.f)).isEqualTo(_c.falsum);
+        assertThat(_c.verum.substitute(subst, _c.f)).isEqualTo(_c.verum);
+    }
+
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiteralSubstitution(final FormulaContext _c) {
+        final Substitution subst = getSubstitution(_c);
+        assertThat(_c.c.substitute(subst, _c.f)).isEqualTo(_c.c);
+        assertThat(_c.a.substitute(subst, _c.f)).isEqualTo(_c.na);
+        assertThat(_c.b.substitute(subst, _c.f)).isEqualTo(_c.or1);
+        assertThat(_c.x.substitute(subst, _c.f)).isEqualTo(_c.and1);
+        assertThat(_c.na.substitute(subst, _c.f)).isEqualTo(_c.a);
+        assertThat(_c.nb.substitute(subst, _c.f)).isEqualTo(_c.not2);
+        assertThat(_c.nx.substitute(subst, _c.f)).isEqualTo(_c.not1);
+    }
+
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNotSubstitution(final FormulaContext _c) throws ParserException {
+        final Substitution subst = getSubstitution(_c);
+        assertThat(_c.not1.substitute(subst, _c.f)).isEqualTo(_c.p.parse("~(~a & (x | y))"));
+        assertThat(_c.not2.substitute(subst, _c.f)).isEqualTo(_c.p.parse("~(a & b | y)"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testBinarySubstitution(final FormulaContext _c) throws ParserException {
+        final Substitution subst = getSubstitution(_c);
+        assertThat(_c.imp1.substitute(subst, _c.f)).isEqualTo(_c.p.parse("~a => (x | y)"));
+        assertThat(_c.imp4.substitute(subst, _c.f)).isEqualTo(_c.p.parse("(~a <=> (x | y)) => (~(a & b) <=> ~y)"));
+        assertThat(_c.eq2.substitute(subst, _c.f)).isEqualTo(_c.p.parse("a <=> ~(x | y)"));
+        assertThat(_c.eq3.substitute(subst, _c.f)).isEqualTo(_c.p.parse("(~a & (x | y)) <=> (a & b | y)"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNArySubstitution(final FormulaContext _c) throws ParserException {
+        final Substitution subst = getSubstitution(_c);
+        assertThat(_c.and3.substitute(subst, _c.f)).isEqualTo(_c.p.parse("(a & b | y) & (~(a & b) | ~y)"));
+        assertThat(_c.f.and(_c.nb, _c.c, _c.x, _c.ny).substitute(subst, _c.f)).isEqualTo(_c.p.parse("~(x | y) & c & a & b & ~y"));
+        assertThat(_c.or3.substitute(subst, _c.f)).isEqualTo(_c.p.parse("(~a & (x | y)) | (a & ~(x | y))"));
+        assertThat(_c.f.or(_c.a, _c.nb, _c.c, _c.x, _c.ny).substitute(subst, _c.f)).isEqualTo(_c.p.parse("~a | ~(x | y) | c | a & b | ~y"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSingleSubstitution(final FormulaContext _c) throws ParserException {
+        assertThat(_c.a.substitute(_c.a, _c.or1, _c.f)).isEqualTo(_c.p.parse("x | y"));
+        assertThat(_c.na.substitute(_c.a, _c.or1, _c.f)).isEqualTo(_c.p.parse("~(x | y)"));
+        assertThat(_c.imp1.substitute(_c.b, _c.or1, _c.f)).isEqualTo(_c.p.parse("a => (x | y)"));
+        assertThat(_c.eq2.substitute(_c.b, _c.or1, _c.f)).isEqualTo(_c.p.parse("~a <=> ~(x | y)"));
+        assertThat(_c.f.and(_c.a, _c.nb, _c.c, _c.nx, _c.ny).substitute(_c.y, _c.x, _c.f)).isEqualTo(_c.p.parse("a & ~b & c & ~x"));
+        assertThat(_c.f.or(_c.a, _c.nb, _c.c, _c.nx, _c.ny).substitute(_c.y, _c.x, _c.f)).isEqualTo(_c.p.parse("a | ~b | c | ~x"));
+    }
 }

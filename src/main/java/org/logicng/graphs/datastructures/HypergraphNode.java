@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.graphs.datastructures;
 
@@ -53,7 +29,7 @@ public final class HypergraphNode<T> {
     public HypergraphNode(final Hypergraph<T> graph, final T content) {
         this.graph = graph;
         this.content = content;
-        this.edges = new LinkedHashSet<>();
+        edges = new LinkedHashSet<>();
         this.graph.addNode(this);
     }
 
@@ -62,7 +38,7 @@ public final class HypergraphNode<T> {
      * @return the hypergraph of this node
      */
     public Hypergraph<T> graph() {
-        return this.graph;
+        return graph;
     }
 
     /**
@@ -70,7 +46,7 @@ public final class HypergraphNode<T> {
      * @return the content of this node
      */
     public T content() {
-        return this.content;
+        return content;
     }
 
     /**
@@ -78,7 +54,7 @@ public final class HypergraphNode<T> {
      * @return the edges which are connected with this node
      */
     public Set<HypergraphEdge<T>> edges() {
-        return this.edges;
+        return edges;
     }
 
     /**
@@ -86,7 +62,7 @@ public final class HypergraphNode<T> {
      * @param edge the edge
      */
     public void addEdge(final HypergraphEdge<T> edge) {
-        this.edges.add(edge);
+        edges.add(edge);
     }
 
     /**
@@ -96,10 +72,10 @@ public final class HypergraphNode<T> {
      */
     public double computeTentativeNewLocation(final Map<HypergraphNode<T>, Integer> nodeOrdering) {
         double newLocation = 0;
-        for (final HypergraphEdge<T> edge : this.edges) {
+        for (final HypergraphEdge<T> edge : edges) {
             newLocation += edge.centerOfGravity(nodeOrdering);
         }
-        return newLocation / this.edges.size();
+        return newLocation / edges.size();
     }
 
     @Override
@@ -111,19 +87,19 @@ public final class HypergraphNode<T> {
             return false;
         }
         final HypergraphNode<?> that = (HypergraphNode<?>) o;
-        return Objects.equals(this.graph, that.graph) &&
-                Objects.equals(this.content, that.content);
+        return Objects.equals(graph, that.graph) &&
+                Objects.equals(content, that.content);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.graph, this.content);
+        return Objects.hash(graph, content);
     }
 
     @Override
     public String toString() {
         return "HypergraphNode{" +
-                "content=" + this.content +
+                "content=" + content +
                 '}';
     }
 }

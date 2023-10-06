@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.io;
 
@@ -49,18 +25,13 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
-/**
- * Unit tests for {@link org.logicng.io.writers.FormulaWriter} and {@link org.logicng.io.readers.FormulaReader}.
- * @version 2.0.0
- * @since 1.2
- */
 public class FormulaWriterReaderTest {
 
     @Test
     public void testSimpleFormulaOneLine() throws ParserException, IOException {
         final String fileName = "src/test/resources/writers/temp/simple_formula1.txt";
         final File file = new File(fileName);
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E))");
         FormulaWriter.write(file, p1, false);
         final Formula p2 = FormulaReader.readPropositionalFormula(fileName, f);
@@ -82,7 +53,7 @@ public class FormulaWriterReaderTest {
     public void testSimpleFormulaMultiLine() throws ParserException, IOException {
         final String fileName = "src/test/resources/writers/temp/simple_formula2.txt";
         final File file = new File(fileName);
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E))");
         FormulaWriter.write(fileName, p1, true);
         final Formula p2 = FormulaReader.readPropositionalFormula(fileName, f);
@@ -102,7 +73,7 @@ public class FormulaWriterReaderTest {
     public void testPBFormulaOneLine() throws ParserException, IOException {
         final String fileName = "src/test/resources/writers/temp/simple_formula3.txt";
         final File file = new File(fileName);
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PseudoBooleanParser(f).parse("A & B & ~(C | (D => ~E)) & (2*y + 3*y >= 4) & (x <= 1)");
         FormulaWriter.write(fileName, p1, false);
         final Formula p2 = FormulaReader.readPseudoBooleanFormula(fileName, f);
@@ -124,7 +95,7 @@ public class FormulaWriterReaderTest {
     public void testPBFormulaMultiLine() throws ParserException, IOException {
         final String fileName = "src/test/resources/writers/temp/simple_formula4.txt";
         final File file = new File(fileName);
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PseudoBooleanParser(f).parse("A & B & ~(C | (D => ~E)) & (2*y + 3*y >= 4) & (x <= 1)");
         FormulaWriter.write(fileName, p1, true);
         final Formula p2 = FormulaReader.readPseudoBooleanFormula(fileName, f);
@@ -144,7 +115,7 @@ public class FormulaWriterReaderTest {
     public void testSimpleFormulaOneLineFormatter() throws ParserException, IOException {
         final String fileName = "src/test/resources/writers/temp/simple_formula5.txt";
         final File file = new File(fileName);
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E))");
         FormulaWriter.write(fileName, p1, false, new UTF8StringRepresentation());
         try (final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
@@ -157,7 +128,7 @@ public class FormulaWriterReaderTest {
     public void testSimpleFormulaMultiLineFormatter() throws ParserException, IOException {
         final String fileName = "src/test/resources/writers/temp/simple_formula6.txt";
         final File file = new File(fileName);
-        final FormulaFactory f = new FormulaFactory();
+        final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E))");
         FormulaWriter.write(fileName, p1, true, new UTF8StringRepresentation());
         try (final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {

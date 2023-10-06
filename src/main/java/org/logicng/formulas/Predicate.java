@@ -7,8 +7,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
-public abstract class Predicate extends Formula {
-    private static final Iterator<Formula> ITERATOR = new Iterator<>() {
+public interface Predicate extends Formula {
+    Iterator<Formula> ITERATOR = new Iterator<>() {
         @Override
         public boolean hasNext() {
             return false;
@@ -25,72 +25,58 @@ public abstract class Predicate extends Formula {
         }
     };
 
-    /**
-     * Constructs a new formula.
-     * @param f    the factory which created this formula
-     */
-    protected Predicate(FormulaFactory f) {
-        super(FType.PREDICATE, f);
-    }
-
     @Override
-    public abstract long numberOfNodes();
-
-    @Override
-    public abstract long numberOfInternalNodes();
-
-    @Override
-    public int numberOfOperands() {
+    default int numberOfOperands() {
         return 0;
     }
 
     @Override
-    public boolean isConstantFormula() {
+    default boolean isConstantFormula() {
         return false;
     }
 
     @Override
-    public boolean isAtomicFormula() {
+    default boolean isAtomicFormula() {
         return true;
     }
 
     @Override
-    public boolean containsVariable(Variable variable) {
+    default boolean containsVariable(final Variable variable) {
         return false;
     }
 
     @Override
-    public boolean evaluate(Assignment assignment) {
+    default boolean evaluate(final Assignment assignment) {
         throw new UnsupportedOperationException("Cannot evaluate a formula with predicates with a boolean assignment");
     }
 
     @Override
-    public Formula restrict(Assignment assignment) {
+    default Formula restrict(final Assignment assignment, final FormulaFactory f) {
         return this;
     }
 
     @Override
-    public boolean containsNode(Formula formula) {
-        return this.equals(formula);
+    default boolean containsNode(final Formula formula) {
+        return equals(formula);
     }
 
     @Override
-    public Formula substitute(Substitution substitution) {
+    default Formula substitute(final Substitution substitution, final FormulaFactory f) {
         return this;
     }
 
     @Override
-    public Formula negate() {
-        return this.factory().not(this);
+    default Formula negate(final FormulaFactory f) {
+        return f.not(this);
     }
 
     @Override
-    public Stream<Formula> stream() {
+    default Stream<Formula> stream() {
         return Stream.empty();
     }
 
     @Override
-    public Iterator<Formula> iterator() {
+    default Iterator<Formula> iterator() {
         return ITERATOR;
     }
 }

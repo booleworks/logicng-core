@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
@@ -36,8 +12,6 @@ import org.logicng.datastructures.Tristate;
 import org.logicng.util.Pair;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -49,12 +23,11 @@ import java.util.stream.Stream;
 /**
  * A pseudo-Boolean constraint of the form {@code c_1 * l_1 + ... + c_n * l_n R k} where {@code R} is one of
  * {@code =, >, >=, <, <=}.
- * @version 2.3.2
+ * @version 3.0.0
  * @since 1.0
  */
-public class PBConstraint extends Formula {
-
-    private static final Iterator<Formula> ITERATOR = new Iterator<Formula>() {
+public interface PBConstraint extends Formula {
+    Iterator<Formula> ITERATOR = new Iterator<>() {
         @Override
         public boolean hasNext() {
             return false;
@@ -70,40 +43,6 @@ public class PBConstraint extends Formula {
             throw new UnsupportedOperationException();
         }
     };
-
-    protected final Literal[] literals;
-    protected final int[] coefficients;
-    protected CType comparator;
-    protected int rhs;
-    protected int hashCode;
-    protected int maxWeight;
-
-    /**
-     * Constructs a new pseudo-Boolean constraint.
-     * @param literals     the literals
-     * @param coefficients the coefficients
-     * @param comparator   the comparator
-     * @param rhs          the right-hand side
-     * @param f            the formula factory
-     * @throws IllegalArgumentException if the number of literals and coefficients do not correspond
-     */
-    PBConstraint(final Literal[] literals, final int[] coefficients, final CType comparator, final int rhs, final FormulaFactory f) {
-        super(FType.PBC, f);
-        if (literals.length != coefficients.length) {
-            throw new IllegalArgumentException("Cannot generate a pseudo-Boolean constraint with literals.length != coefficients.length");
-        }
-        this.literals = literals;
-        this.coefficients = coefficients;
-        this.maxWeight = Integer.MIN_VALUE;
-        for (final int c : coefficients) {
-            if (c > this.maxWeight) {
-                this.maxWeight = c;
-            }
-        }
-        this.comparator = comparator;
-        this.rhs = rhs;
-        this.hashCode = 0;
-    }
 
     /**
      * Returns the GCD of two given values.
@@ -160,39 +99,31 @@ public class PBConstraint extends Formula {
      * Returns the literals of this constraint.
      * @return the literals of this constraint
      */
-    public Literal[] operands() {
-        return Arrays.copyOf(this.literals, this.literals.length);
-    }
+    List<Literal> operands();
 
     /**
      * Returns the coefficients of this constraint.
      * @return the coefficients of this constraint
      */
-    public int[] coefficients() {
-        return Arrays.copyOf(this.coefficients, this.coefficients.length);
-    }
+    List<Integer> coefficients();
 
     /**
      * Returns the comparator of this constraint.
      * @return the comparator of this constraint
      */
-    public CType comparator() {
-        return this.comparator;
-    }
+    CType comparator();
 
     /**
      * Returns the right-hand side of this constraint.
      * @return the right-hand side of this constraint
      */
-    public int rhs() {
-        return this.rhs;
-    }
+    int rhs();
 
     /**
      * Returns {@code true} if this constraint is a cardinality constraint, {@code false} otherwise.
      * @return {@code true} if this constraint is a cardinality constraint
      */
-    public boolean isCC() {
+    default boolean isCC() {
         return false;
     }
 
@@ -200,15 +131,15 @@ public class PBConstraint extends Formula {
      * Returns {@code true} if this constraint is an at-most-one cardinality constraint, {@code false} otherwise.
      * @return {@code true} if this constraint is an at-most-one cardinality constraint
      */
-    public boolean isAmo() {
+    default boolean isAmo() {
         return false;
     }
 
     /**
      * Returns {@code true} if this constraint is an exactly-one cardinality constraint, {@code false} otherwise.
-     * @return {@code true} if this constraint is an excatly-one cardinality constraint
+     * @return {@code true} if this constraint is an exactly-one cardinality constraint
      */
-    public boolean isExo() {
+    default boolean isExo() {
         return false;
     }
 
@@ -216,53 +147,52 @@ public class PBConstraint extends Formula {
      * Returns the maximal coefficient of this constraint.
      * @return the maximal coefficient of this constraint
      */
-    public int maxWeight() {
-        return this.maxWeight;
-    }
+    int maxWeight();
 
     /**
      * Normalizes this constraint s.t. it can be converted to CNF.
+     * @param f the formula factory to generate new formulas
      * @return the normalized constraint
      */
-    public Formula normalize() {
-        final LNGVector<Literal> normPs = new LNGVector<>(this.literals.length);
-        final LNGIntVector normCs = new LNGIntVector(this.literals.length);
+    default Formula normalize(final FormulaFactory f) {
+        final LNGVector<Literal> normPs = new LNGVector<>(operands().size());
+        final LNGIntVector normCs = new LNGIntVector(operands().size());
         int normRhs;
-        switch (this.comparator) {
+        switch (comparator()) {
             case EQ:
-                for (int i = 0; i < this.literals.length; i++) {
-                    normPs.push(this.literals[i]);
-                    normCs.push(this.coefficients[i]);
+                for (int i = 0; i < operands().size(); i++) {
+                    normPs.push(operands().get(i));
+                    normCs.push(coefficients().get(i));
                 }
-                normRhs = this.rhs;
-                final Formula f1 = this.normalize(normPs, normCs, normRhs);
+                normRhs = rhs();
+                final Formula f1 = normalize(normPs, normCs, normRhs, f);
                 normPs.clear();
                 normCs.clear();
-                for (int i = 0; i < this.literals.length; i++) {
-                    normPs.push(this.literals[i]);
-                    normCs.push(-this.coefficients[i]);
+                for (int i = 0; i < operands().size(); i++) {
+                    normPs.push(operands().get(i));
+                    normCs.push(-coefficients().get(i));
                 }
-                normRhs = -this.rhs;
-                final Formula f2 = this.normalize(normPs, normCs, normRhs);
-                return this.f.and(f1, f2);
+                normRhs = -rhs();
+                final Formula f2 = normalize(normPs, normCs, normRhs, f);
+                return f.and(f1, f2);
             case LT:
             case LE:
-                for (int i = 0; i < this.literals.length; i++) {
-                    normPs.push(this.literals[i]);
-                    normCs.push(this.coefficients[i]);
+                for (int i = 0; i < operands().size(); i++) {
+                    normPs.push(operands().get(i));
+                    normCs.push(coefficients().get(i));
                 }
-                normRhs = this.comparator == CType.LE ? this.rhs : this.rhs - 1;
-                return this.normalize(normPs, normCs, normRhs);
+                normRhs = comparator() == CType.LE ? rhs() : rhs() - 1;
+                return normalize(normPs, normCs, normRhs, f);
             case GT:
             case GE:
-                for (int i = 0; i < this.literals.length; i++) {
-                    normPs.push(this.literals[i]);
-                    normCs.push(-this.coefficients[i]);
+                for (int i = 0; i < operands().size(); i++) {
+                    normPs.push(operands().get(i));
+                    normCs.push(-coefficients().get(i));
                 }
-                normRhs = this.comparator == CType.GE ? -this.rhs : -this.rhs - 1;
-                return this.normalize(normPs, normCs, normRhs);
+                normRhs = comparator() == CType.GE ? -rhs() : -rhs() - 1;
+                return normalize(normPs, normCs, normRhs, f);
             default:
-                throw new IllegalStateException("Unknown pseudo-Boolean comparator: " + this.comparator);
+                throw new IllegalStateException("Unknown pseudo-Boolean comparator: " + comparator());
         }
     }
 
@@ -272,9 +202,10 @@ public class PBConstraint extends Formula {
      * @param ps  the literals
      * @param cs  the coefficients
      * @param rhs the right-hand side
+     * @param f   the formula factory to generate new formulas
      * @return the normalized constraint
      */
-    private Formula normalize(final LNGVector<Literal> ps, final LNGIntVector cs, final int rhs) {
+    private Formula normalize(final LNGVector<Literal> ps, final LNGIntVector cs, final int rhs, final FormulaFactory f) {
         int c = rhs;
         int newSize = 0;
         for (int i = 0; i < ps.size(); i++) {
@@ -306,7 +237,7 @@ public class PBConstraint extends Formula {
                 csps.push(new Pair<>(all.getValue().second() - all.getValue().first(), all.getKey()));
             } else {
                 c -= all.getValue().second();
-                csps.push(new Pair<>(all.getValue().first() - all.getValue().second(), all.getKey().negate()));
+                csps.push(new Pair<>(all.getValue().first() - all.getValue().second(), all.getKey().negate(f)));
             }
         }
         int sum = 0;
@@ -328,10 +259,10 @@ public class PBConstraint extends Formula {
         do {
             changed = false;
             if (c < 0) {
-                return this.f.falsum();
+                return f.falsum();
             }
             if (sum <= c) {
-                return this.f.verum();
+                return f.verum();
             }
             assert cs.size() > 0;
             int div = c;
@@ -356,27 +287,27 @@ public class PBConstraint extends Formula {
         for (int i = 0; i < coeffs.length; i++) {
             coeffs[i] = cs.get(i);
         }
-        return this.f.pbc(CType.LE, c, lits, coeffs);
+        return f.pbc(CType.LE, c, lits, coeffs);
     }
 
     @Override
-    public int numberOfOperands() {
+    default int numberOfOperands() {
         return 0;
     }
 
     @Override
-    public boolean isConstantFormula() {
+    default boolean isConstantFormula() {
         return false;
     }
 
     @Override
-    public boolean isAtomicFormula() {
+    default boolean isAtomicFormula() {
         return true;
     }
 
     @Override
-    public boolean containsVariable(final Variable variable) {
-        for (final Literal lit : this.literals) {
+    default boolean containsVariable(final Variable variable) {
+        for (final Literal lit : operands()) {
             if (lit.containsVariable(variable)) {
                 return true;
             }
@@ -385,57 +316,57 @@ public class PBConstraint extends Formula {
     }
 
     @Override
-    public boolean evaluate(final Assignment assignment) {
-        final int lhs = this.evaluateLHS(assignment);
-        return this.evaluateComparator(lhs);
+    default boolean evaluate(final Assignment assignment) {
+        final int lhs = evaluateLHS(assignment);
+        return evaluateComparator(lhs);
     }
 
     @Override
-    public Formula restrict(final Assignment assignment) {
+    default Formula restrict(final Assignment assignment, final FormulaFactory f) {
         final List<Literal> newLits = new ArrayList<>();
         final List<Integer> newCoeffs = new ArrayList<>();
         int lhsFixed = 0;
         int minValue = 0;
         int maxValue = 0;
-        for (int i = 0; i < this.literals.length; i++) {
-            final Formula restriction = assignment.restrictLit(this.literals[i]);
-            if (restriction.type == FType.LITERAL) {
-                newLits.add(this.literals[i]);
-                final int coeff = this.coefficients[i];
+        for (int i = 0; i < operands().size(); i++) {
+            final Formula restriction = assignment.restrictLit(operands().get(i), f);
+            if (restriction.type() == FType.LITERAL) {
+                newLits.add(operands().get(i));
+                final int coeff = coefficients().get(i);
                 newCoeffs.add(coeff);
                 if (coeff > 0) {
                     maxValue += coeff;
                 } else {
                     minValue += coeff;
                 }
-            } else if (restriction.type == FType.TRUE) {
-                lhsFixed += this.coefficients[i];
+            } else if (restriction.type() == FType.TRUE) {
+                lhsFixed += coefficients().get(i);
             }
         }
 
         if (newLits.isEmpty()) {
-            return this.f.constant(this.evaluateComparator(lhsFixed));
+            return f.constant(evaluateComparator(lhsFixed));
         }
 
-        final int newRHS = this.rhs - lhsFixed;
-        if (this.comparator != CType.EQ) {
-            final Tristate fixed = evaluateCoeffs(minValue, maxValue, newRHS, this.comparator);
+        final int newRHS = rhs() - lhsFixed;
+        if (comparator() != CType.EQ) {
+            final Tristate fixed = evaluateCoeffs(minValue, maxValue, newRHS, comparator());
             if (fixed == Tristate.TRUE) {
-                return this.f.verum();
+                return f.verum();
             } else if (fixed == Tristate.FALSE) {
-                return this.f.falsum();
+                return f.falsum();
             }
         }
-        return this.f.pbc(this.comparator, newRHS, newLits, newCoeffs);
+        return f.pbc(comparator(), newRHS, newLits, newCoeffs);
     }
 
     @Override
-    public boolean containsNode(final Formula formula) {
-        if (this == formula || this.equals(formula)) {
+    default boolean containsNode(final Formula formula) {
+        if (this == formula || equals(formula)) {
             return true;
         }
-        if (formula.type == FType.LITERAL) {
-            for (final Literal lit : this.literals) {
+        if (formula.type() == FType.LITERAL) {
+            for (final Literal lit : operands()) {
                 if (lit.equals(formula) || lit.variable().equals(formula)) {
                     return true;
                 }
@@ -446,30 +377,30 @@ public class PBConstraint extends Formula {
     }
 
     @Override
-    public Formula substitute(final Substitution substitution) {
+    default Formula substitute(final Substitution substitution, final FormulaFactory f) {
         final List<Literal> newLits = new ArrayList<>();
         final List<Integer> newCoeffs = new ArrayList<>();
         int lhsFixed = 0;
-        for (int i = 0; i < this.literals.length; i++) {
-            final Formula subst = substitution.getSubstitution(this.literals[i].variable());
+        for (int i = 0; i < operands().size(); i++) {
+            final Formula subst = substitution.getSubstitution(operands().get(i).variable());
             if (subst == null) {
-                newLits.add(this.literals[i]);
-                newCoeffs.add(this.coefficients[i]);
+                newLits.add(operands().get(i));
+                newCoeffs.add(coefficients().get(i));
             } else {
-                switch (subst.type) {
+                switch (subst.type()) {
                     case TRUE:
-                        if (this.literals[i].phase()) {
-                            lhsFixed += this.coefficients[i];
+                        if (operands().get(i).phase()) {
+                            lhsFixed += coefficients().get(i);
                         }
                         break;
                     case FALSE:
-                        if (!this.literals[i].phase()) {
-                            lhsFixed += this.coefficients[i];
+                        if (!operands().get(i).phase()) {
+                            lhsFixed += coefficients().get(i);
                         }
                         break;
                     case LITERAL:
-                        newLits.add(this.literals[i].phase() ? (Literal) subst : ((Literal) subst).negate());
-                        newCoeffs.add(this.coefficients[i]);
+                        newLits.add(operands().get(i).phase() ? (Literal) subst : ((Literal) subst).negate(f));
+                        newCoeffs.add(coefficients().get(i));
                         break;
                     default:
                         throw new IllegalArgumentException("Cannot substitute a formula for a literal in a pseudo-Boolean constraint");
@@ -477,23 +408,23 @@ public class PBConstraint extends Formula {
             }
         }
         return newLits.isEmpty()
-                ? this.evaluateComparator(lhsFixed) ? this.f.verum() : this.f.falsum()
-                : this.f.pbc(this.comparator, this.rhs - lhsFixed, newLits, newCoeffs);
+                ? evaluateComparator(lhsFixed) ? f.verum() : f.falsum()
+                : f.pbc(comparator(), rhs() - lhsFixed, newLits, newCoeffs);
     }
 
     @Override
-    public Formula negate() {
-        switch (this.comparator) {
+    default Formula negate(final FormulaFactory f) {
+        switch (comparator()) {
             case EQ:
-                return this.f.or(this.f.pbc(CType.LT, this.rhs, this.literals, this.coefficients), this.f.pbc(CType.GT, this.rhs, this.literals, this.coefficients));
+                return f.or(f.pbc(CType.LT, rhs(), operands(), coefficients()), f.pbc(CType.GT, rhs(), operands(), coefficients()));
             case LE:
-                return this.f.pbc(CType.GT, this.rhs, this.literals, this.coefficients);
+                return f.pbc(CType.GT, rhs(), operands(), coefficients());
             case LT:
-                return this.f.pbc(CType.GE, this.rhs, this.literals, this.coefficients);
+                return f.pbc(CType.GE, rhs(), operands(), coefficients());
             case GE:
-                return this.f.pbc(CType.LT, this.rhs, this.literals, this.coefficients);
+                return f.pbc(CType.LT, rhs(), operands(), coefficients());
             case GT:
-                return this.f.pbc(CType.LE, this.rhs, this.literals, this.coefficients);
+                return f.pbc(CType.LE, rhs(), operands(), coefficients());
             default:
                 throw new IllegalStateException("Unknown pseudo-Boolean comparator");
         }
@@ -506,9 +437,9 @@ public class PBConstraint extends Formula {
      */
     private int evaluateLHS(final Assignment assignment) {
         int lhs = 0;
-        for (int i = 0; i < this.literals.length; i++) {
-            if (this.literals[i].evaluate(assignment)) {
-                lhs += this.coefficients[i];
+        for (int i = 0; i < operands().size(); i++) {
+            if (operands().get(i).evaluate(assignment)) {
+                lhs += coefficients().get(i);
             }
         }
         return lhs;
@@ -520,72 +451,45 @@ public class PBConstraint extends Formula {
      * @return {@code true} if the comparator evaluates to true, {@code false} otherwise
      */
     private boolean evaluateComparator(final int lhs) {
-        switch (this.comparator) {
+        switch (comparator()) {
             case EQ:
-                return lhs == this.rhs;
+                return lhs == rhs();
             case LE:
-                return lhs <= this.rhs;
+                return lhs <= rhs();
             case LT:
-                return lhs < this.rhs;
+                return lhs < rhs();
             case GE:
-                return lhs >= this.rhs;
+                return lhs >= rhs();
             case GT:
-                return lhs > this.rhs;
+                return lhs > rhs();
             default:
                 throw new IllegalStateException("Unknown pseudo-Boolean comparator");
         }
     }
 
+    default int computeHash() {
+        int hashCode = comparator().hashCode() + rhs();
+        for (int i = 0; i < operands().size(); i++) {
+            hashCode += 11 * operands().get(i).hashCode();
+            hashCode += 13 * coefficients().get(i);
+        }
+        return hashCode;
+    }
+
     /**
      * Encodes this constraint as CNF and stores the result, if the encoding does not already exist.
+     * @param f the formula factory to generate new formulas
      * @return the encoding
      */
-    public List<Formula> getEncoding() {
-        List<Formula> encoding = this.f.pbEncodingCache.get(this);
-        if (encoding == null) {
-            encoding = this.f.pbEncoder().encode(this);
-            this.f.pbEncodingCache.put(this, encoding);
-        }
-        return Collections.unmodifiableList(encoding);
-    }
+    List<Formula> getEncoding(final FormulaFactory f);
 
     @Override
-    public int hashCode() {
-        if (this.hashCode == 0) {
-            int temp = this.comparator.hashCode() + this.rhs;
-            for (int i = 0; i < this.literals.length; i++) {
-                temp += 11 * this.literals[i].hashCode();
-                temp += 13 * this.coefficients[i];
-            }
-            this.hashCode = temp;
-        }
-        return this.hashCode;
-    }
-
-    @Override
-    public boolean equals(final Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (other instanceof Formula && this.f == ((Formula) other).f) {
-            return false;
-        }
-        if (other instanceof PBConstraint) {
-            final PBConstraint o = (PBConstraint) other;
-            return this.rhs == o.rhs && this.comparator == o.comparator
-                    && Arrays.equals(this.coefficients, o.coefficients)
-                    && Arrays.equals(this.literals, o.literals);
-        }
-        return false;
-    }
-
-    @Override
-    public Iterator<Formula> iterator() {
+    default Iterator<Formula> iterator() {
         return ITERATOR;
     }
 
     @Override
-    public Stream<Formula> stream() {
+    default Stream<Formula> stream() {
         return Stream.empty();
     }
 }

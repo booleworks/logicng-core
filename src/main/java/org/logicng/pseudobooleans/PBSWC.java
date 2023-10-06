@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 /*
  * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines Lynce
@@ -59,29 +35,30 @@ import java.util.List;
 
 /**
  * A sequential weight counter for the encoding of pseudo-Boolean constraints in CNF.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.0
  */
 public final class PBSWC implements PBEncoding {
 
-    private final FormulaFactory f;
+    private static final PBSWC INSTANCE = new PBSWC();
 
-    /**
-     * Constructs a new sequential weight counter encoder.
-     * @param f the formula factory
-     */
-    PBSWC(final FormulaFactory f) {
-        this.f = f;
+    private PBSWC() {
+        // Singleton pattern
+    }
+
+    public static PBSWC get() {
+        return INSTANCE;
     }
 
     @Override
-    public List<Formula> encode(final LNGVector<Literal> lits, final LNGIntVector coeffs, final int rhs, final List<Formula> result) {
-        this.generateConstraint(rhs, lits, coeffs, result);
+    public List<Formula> encode(final FormulaFactory f, final LNGVector<Literal> lits, final LNGIntVector coeffs, final int rhs, final List<Formula> result,
+                                final PBConfig config) {
+        generateConstraint(rhs, lits, coeffs, result, f);
         return result;
     }
 
-    private void generateConstraint(final int rhs, final LNGVector<Literal> lits, final LNGIntVector coeffs,
-                                    final List<Formula> result) {
+    private static void generateConstraint(final int rhs, final LNGVector<Literal> lits, final LNGIntVector coeffs,
+                                           final List<Formula> result, final FormulaFactory f) {
         final int n = lits.size();
         final LNGVector<LNGVector<Literal>> seqAuxiliary = new LNGVector<>(n + 1);
         for (int i = 0; i < n + 1; i++) {
@@ -91,7 +68,7 @@ public final class PBSWC implements PBEncoding {
         }
         for (int i = 1; i <= n; ++i) {
             for (int j = 1; j <= rhs; ++j) {
-                seqAuxiliary.get(i).set(j, this.f.newPBVariable());
+                seqAuxiliary.get(i).set(j, f.newPBVariable());
             }
         }
         for (int i = 1; i <= n; i++) {
@@ -99,23 +76,18 @@ public final class PBSWC implements PBEncoding {
             assert wi <= rhs;
             for (int j = 1; j <= rhs; j++) {
                 if (i >= 2 && i <= n && j <= rhs) {
-                    result.add(this.f.clause(seqAuxiliary.get(i - 1).get(j).negate(), seqAuxiliary.get(i).get(j)));
+                    result.add(f.clause(seqAuxiliary.get(i - 1).get(j).negate(f), seqAuxiliary.get(i).get(j)));
                 }
                 if (i <= n && j <= wi) {
-                    result.add(this.f.clause(lits.get(i - 1).negate(), seqAuxiliary.get(i).get(j)));
+                    result.add(f.clause(lits.get(i - 1).negate(f), seqAuxiliary.get(i).get(j)));
                 }
                 if (i >= 2 && i <= n && j <= rhs - wi) {
-                    result.add(this.f.clause(seqAuxiliary.get(i - 1).get(j).negate(), lits.get(i - 1).negate(), seqAuxiliary.get(i).get(j + wi)));
+                    result.add(f.clause(seqAuxiliary.get(i - 1).get(j).negate(f), lits.get(i - 1).negate(f), seqAuxiliary.get(i).get(j + wi)));
                 }
             }
             if (i >= 2) {
-                result.add(this.f.clause(seqAuxiliary.get(i - 1).get(rhs + 1 - wi).negate(), lits.get(i - 1).negate()));
+                result.add(f.clause(seqAuxiliary.get(i - 1).get(rhs + 1 - wi).negate(f), lits.get(i - 1).negate(f)));
             }
         }
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
     }
 }

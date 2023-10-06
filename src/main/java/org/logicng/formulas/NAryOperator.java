@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
@@ -32,7 +8,7 @@ import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Substitution;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -41,44 +17,33 @@ import java.util.stream.Stream;
 
 /**
  * Super class for Boolean n-ary operators.
- * @version 2.2.0
+ * @version 3.0.0
  * @since 1.0
  */
-public abstract class NAryOperator extends Formula {
+public interface NAryOperator extends Formula {
 
-    protected final Formula[] operands;
-    private volatile int hashCode;
+    int BOUNDARY_SET_CREATION_EQUALS = 20;
 
-    /**
-     * Constructor.
-     * @param type     the operator's type
-     * @param operands the list of operands
-     * @param f        the factory which created this instance
-     */
-    NAryOperator(final FType type, final Collection<? extends Formula> operands, final FormulaFactory f) {
-        super(type, f);
-        this.operands = operands.toArray(new Formula[0]);
-        this.hashCode = 0;
+    List<Formula> operands();
+
+    @Override
+    default int numberOfOperands() {
+        return operands().size();
     }
 
     @Override
-    public int numberOfOperands() {
-        return this.operands.length;
-    }
-
-    @Override
-    public boolean isConstantFormula() {
+    default boolean isConstantFormula() {
         return false;
     }
 
     @Override
-    public boolean isAtomicFormula() {
+    default boolean isAtomicFormula() {
         return false;
     }
 
     @Override
-    public boolean containsVariable(final Variable variable) {
-        for (final Formula op : this.operands) {
+    default boolean containsVariable(final Variable variable) {
+        for (final Formula op : operands()) {
             if (op.containsVariable(variable)) {
                 return true;
             }
@@ -87,21 +52,21 @@ public abstract class NAryOperator extends Formula {
     }
 
     @Override
-    public Formula restrict(final Assignment assignment) {
+    default Formula restrict(final Assignment assignment, final FormulaFactory f) {
         final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
-        for (final Formula op : this.operands) {
-            nops.add(op.restrict(assignment));
+        for (final Formula op : operands()) {
+            nops.add(op.restrict(assignment, f));
         }
-        return this.f.naryOperator(this.type, nops);
+        return f.naryOperator(type(), nops);
     }
 
     @Override
-    public boolean containsNode(final Formula formula) {
-        if (this.equals(formula)) {
+    default boolean containsNode(final Formula formula) {
+        if (equals(formula)) {
             return true;
         }
-        if (this.type != formula.type) {
-            for (final Formula op : this.operands) {
+        if (type() != formula.type()) {
+            for (final Formula op : operands()) {
                 if (op.containsNode(formula)) {
                     return true;
                 }
@@ -112,7 +77,7 @@ public abstract class NAryOperator extends Formula {
         for (final Formula op : formula) {
             fOps.add(op);
         }
-        for (final Formula op : this.operands) {
+        for (final Formula op : operands()) {
             fOps.remove(op);
             if (op.containsNode(formula)) {
                 return true;
@@ -122,71 +87,63 @@ public abstract class NAryOperator extends Formula {
     }
 
     @Override
-    public Formula substitute(final Substitution substitution) {
+    default Formula substitute(final Substitution substitution, final FormulaFactory f) {
         final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
-        for (final Formula op : this.operands) {
-            nops.add(op.substitute(substitution));
+        for (final Formula op : operands()) {
+            nops.add(op.substitute(substitution, f));
         }
-        return this.f.naryOperator(this.type, nops);
+        return f.naryOperator(type(), nops);
     }
 
     @Override
-    public Formula negate() {
-        return this.f.not(this);
+    default Formula negate(final FormulaFactory f) {
+        return f.not(this);
     }
 
-    /**
-     * Helper method for generating the hashcode.
-     * @param shift shift value
-     * @return hashcode
-     */
-    protected int hashCode(final int shift) {
-        if (this.hashCode == 0) {
-            int temp = 1;
-            for (final Formula formula : this.operands) {
-                temp += formula.hashCode();
-            }
-            temp *= shift;
-            this.hashCode = temp;
-        }
-        return this.hashCode;
-    }
-
-    protected boolean compareOperands(final Formula[] other) {
-        if (this.operands.length != other.length) {
+    default boolean compareOperands(final List<Formula> other) {
+        if (operands().size() != other.size()) {
             return false;
         }
-        for (final Formula op1 : this.operands) {
-            boolean found = false;
-            for (final Formula op2 : other) {
-                if (op1.equals(op2)) {
-                    found = true;
-                    break;
+        if (operands().size() > BOUNDARY_SET_CREATION_EQUALS) {
+            final HashSet<Formula> otherSet = new HashSet<>(other);
+            for (final Formula op : operands()) {
+                if (!otherSet.contains(op)) {
+                    return false;
                 }
             }
-            if (!found) {
-                return false;
+        } else {
+            for (final Formula op1 : operands()) {
+                boolean found = false;
+                for (final Formula op2 : other) {
+                    if (op1.equals(op2)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    return false;
+                }
             }
         }
         return true;
     }
 
     @Override
-    public Iterator<Formula> iterator() {
-        return new Iterator<Formula>() {
+    default Iterator<Formula> iterator() {
+        return new Iterator<>() {
             private int i;
 
             @Override
             public boolean hasNext() {
-                return this.i < NAryOperator.this.operands.length;
+                return i < NAryOperator.this.operands().size();
             }
 
             @Override
             public Formula next() {
-                if (this.i == NAryOperator.this.operands.length) {
+                if (i == NAryOperator.this.operands().size()) {
                     throw new NoSuchElementException();
                 }
-                return NAryOperator.this.operands[this.i++];
+                return NAryOperator.this.operands().get(i++);
             }
 
             @Override
@@ -197,7 +154,16 @@ public abstract class NAryOperator extends Formula {
     }
 
     @Override
-    public Stream<Formula> stream() {
-        return Stream.of(this.operands);
+    default Stream<Formula> stream() {
+        return operands().stream();
+    }
+
+    default int computeHash(final int shift) {
+        int hashcode = 1;
+        for (final Formula formula : operands()) {
+            hashcode += formula.hashCode();
+        }
+        hashcode *= shift;
+        return hashcode;
     }
 }

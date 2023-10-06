@@ -1,34 +1,11 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.graphs.generators;
 
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.graphs.datastructures.Graph;
 
@@ -51,32 +28,34 @@ public final class ConstraintGraphGenerator {
 
     /**
      * Constructs the constraint graph.
+     * @param f        the formula factory to use for caching
      * @param formulas the formulas
      * @return the constraint graph for the given formula
      */
-    public static Graph<Variable> generateFromFormulas(final Formula... formulas) {
+    public static Graph<Variable> generateFromFormulas(final FormulaFactory f, final Formula... formulas) {
         final Graph<Variable> constraintGraph = new Graph<>();
         for (final Formula formula : formulas) {
-            addClause(formula, constraintGraph);
+            addClause(f, formula, constraintGraph);
         }
         return constraintGraph;
     }
 
     /**
      * Constructs the constraint graph.
+     * @param f        the formula factory to use for caching
      * @param formulas the formulas
      * @return the constraint graph for the given formula
      */
-    public static Graph<Variable> generateFromFormulas(final Collection<Formula> formulas) {
+    public static Graph<Variable> generateFromFormulas(final FormulaFactory f, final Collection<Formula> formulas) {
         final Graph<Variable> constraintGraph = new Graph<>();
         for (final Formula formula : formulas) {
-            addClause(formula, constraintGraph);
+            addClause(f, formula, constraintGraph);
         }
         return constraintGraph;
     }
 
-    private static void addClause(final Formula clause, final Graph<Variable> graph) {
-        final Variable[] variables = clause.variables().toArray(new Variable[0]);
+    private static void addClause(final FormulaFactory f, final Formula clause, final Graph<Variable> graph) {
+        final Variable[] variables = clause.variables(f).toArray(new Variable[0]);
         if (variables.length == 1) {
             graph.node(variables[0]);
         }

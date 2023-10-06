@@ -1,209 +1,209 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.datastructures.Substitution;
 
-/**
- * Unit Tests for the class {@link Literal}.
- * @version 2.3.0
- * @since 1.0
- */
-public class LiteralTest extends TestWithExampleFormulas {
+public class LiteralTest extends TestWithFormulaContext {
 
-    @Test
-    public void testType() {
-        assertThat(this.A.type()).isEqualTo(FType.LITERAL);
-        assertThat(this.NA.type()).isEqualTo(FType.LITERAL);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testType(final FormulaContext _c) {
+        assertThat(_c.a.type()).isEqualTo(FType.LITERAL);
+        assertThat(_c.na.type()).isEqualTo(FType.LITERAL);
     }
 
-    @Test
-    public void testShortcutCreators() {
-        assertThat(this.f.literal("a", true) == this.f.variable("a")).isTrue();
-        assertThat(this.f.literal("name", true) == this.f.variable("name")).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testShortcutCreators(final FormulaContext _c) {
+        assertThat(_c.f.literal("a", true) == _c.f.variable("a")).isTrue();
+        assertThat(_c.f.literal("name", true) == _c.f.variable("name")).isTrue();
     }
 
-    @Test
-    public void testNegation() {
-        assertThat(this.A.negate() == this.NA).isTrue();
-        assertThat(this.NA.negate() == this.A).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNegation(final FormulaContext _c) {
+        assertThat(_c.a.negate(_c.f) == _c.na).isTrue();
+        assertThat(_c.na.negate(_c.f) == _c.a).isTrue();
     }
 
-    @Test
-    public void testGetters() {
-        assertThat(this.A.name()).isEqualTo("a");
-        assertThat(this.NA.name()).isEqualTo("a");
-        assertThat(this.A.phase()).isEqualTo(true);
-        assertThat(this.NA.phase()).isEqualTo(false);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testGetters(final FormulaContext _c) {
+        assertThat(_c.a.name()).isEqualTo("a");
+        assertThat(_c.na.name()).isEqualTo("a");
+        assertThat(_c.a.phase()).isEqualTo(true);
+        assertThat(_c.na.phase()).isEqualTo(false);
     }
 
-    @Test
-    public void testVariables() {
-        assertThat(this.A.variables())
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testVariables(final FormulaContext _c) {
+        assertThat(_c.a.variables(_c.f))
                 .hasSize(1)
-                .containsExactly(this.A);
-        assertThat(this.NA.variables())
+                .containsExactly(_c.a);
+        assertThat(_c.na.variables(_c.f))
                 .hasSize(1)
-                .containsExactly(this.A);
+                .containsExactly(_c.a);
     }
 
-    @Test
-    public void testLiterals() {
-        assertThat(this.A.literals())
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        assertThat(_c.a.literals(_c.f))
                 .hasSize(1)
-                .containsExactly(this.A);
-        assertThat(this.NA.literals())
+                .containsExactly(_c.a);
+        assertThat(_c.na.literals(_c.f))
                 .hasSize(1)
-                .containsExactly(this.NA);
+                .containsExactly(_c.na);
     }
 
-    @Test
-    public void testExpSubstitution() {
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testExpSubstitution(final FormulaContext _c) {
         final Substitution substitution = new Substitution();
-        substitution.addMapping(this.f.variable("a"), this.f.literal("b", false));
-        substitution.addMapping(this.f.variable("c"), this.f.variable("d"));
-        substitution.addMapping(this.f.variable("x"), this.f.and(this.f.variable("y"), this.f.variable("z")));
+        substitution.addMapping(_c.f.variable("a"), _c.f.literal("b", false));
+        substitution.addMapping(_c.f.variable("c"), _c.f.variable("d"));
+        substitution.addMapping(_c.f.variable("x"), _c.f.and(_c.f.variable("y"), _c.f.variable("z")));
     }
 
-    @Test
-    public void testToString() {
-        assertThat(this.A.toString()).isEqualTo("a");
-        assertThat(this.NA.toString()).isEqualTo("~a");
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testToString(final FormulaContext _c) {
+        assertThat(_c.a.toString()).isEqualTo("a");
+        assertThat(_c.na.toString()).isEqualTo("~a");
     }
 
-    @Test
-    public void testEquals() {
-        assertThat(this.f.literal("a", true).equals(this.A)).isTrue();
-        assertThat(this.f.literal("a", false).equals(this.NA)).isTrue();
-        assertThat(this.A.equals(this.A)).isTrue();
-        assertThat(this.B.equals(this.A)).isFalse();
-        assertThat(this.NA.equals(this.A)).isFalse();
-        assertThat(this.f.falsum()).isNotEqualTo(this.A);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEquals(final FormulaContext _c) {
+        assertThat(_c.f.literal("a", true).equals(_c.a)).isTrue();
+        assertThat(_c.f.literal("a", false).equals(_c.na)).isTrue();
+        assertThat(_c.a.equals(_c.a)).isTrue();
+        assertThat(_c.b.equals(_c.a)).isFalse();
+        assertThat(_c.na.equals(_c.a)).isFalse();
+        assertThat(_c.f.falsum()).isNotEqualTo(_c.a);
     }
 
-    @Test
-    public void testEqualsDifferentFormulaFactory() {
-        assertThat(this.g.literal("a", true).equals(this.A)).isTrue();
-        assertThat(this.g.literal("a", false).equals(this.NA)).isTrue();
-        assertThat(this.g.literal("a", false).equals(this.A)).isFalse();
-        assertThat(this.g.literal("b", true).equals(this.A)).isFalse();
-        assertThat(this.g.falsum()).isNotEqualTo(this.A);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testEqualsDifferentFormulaFactory(final FormulaContext _c) {
+        assertThat(FormulaFactory.caching().literal("a", true).equals(_c.a)).isTrue();
+        assertThat(FormulaFactory.caching().literal("a", false).equals(_c.na)).isTrue();
+        assertThat(FormulaFactory.caching().literal("a", false).equals(_c.a)).isFalse();
+        assertThat(FormulaFactory.caching().literal("b", true).equals(_c.a)).isFalse();
+        assertThat(FormulaFactory.caching().falsum()).isNotEqualTo(_c.a);
+
+        assertThat(FormulaFactory.nonCaching().literal("a", true).equals(_c.a)).isTrue();
+        assertThat(FormulaFactory.nonCaching().literal("a", false).equals(_c.na)).isTrue();
+        assertThat(FormulaFactory.nonCaching().literal("a", false).equals(_c.a)).isFalse();
+        assertThat(FormulaFactory.nonCaching().literal("b", true).equals(_c.a)).isFalse();
+        assertThat(FormulaFactory.nonCaching().falsum()).isNotEqualTo(_c.a);
     }
 
-    @Test
-    public void testCompareTo() {
-        assertThat(this.A.compareTo(this.A) == 0).isTrue();
-        assertThat(this.NA.compareTo(this.NA) == 0).isTrue();
-        assertThat(this.A.compareTo(this.NA) < 0).isTrue();
-        assertThat(this.A.compareTo(this.NB) < 0).isTrue();
-        assertThat(this.A.compareTo(this.B) < 0).isTrue();
-        assertThat(this.A.compareTo(this.X) < 0).isTrue();
-        assertThat(this.NA.compareTo(this.NX) < 0).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testCompareTo(final FormulaContext _c) {
+        assertThat(_c.a.compareTo(_c.a) == 0).isTrue();
+        assertThat(_c.na.compareTo(_c.na) == 0).isTrue();
+        assertThat(_c.a.compareTo(_c.na) < 0).isTrue();
+        assertThat(_c.a.compareTo(_c.nb) < 0).isTrue();
+        assertThat(_c.a.compareTo(_c.b) < 0).isTrue();
+        assertThat(_c.a.compareTo(_c.x) < 0).isTrue();
+        assertThat(_c.na.compareTo(_c.nx) < 0).isTrue();
     }
 
-    @Test
-    public void testHash() {
-        assertThat(this.f.literal("a", true).hashCode()).isEqualTo(this.A.hashCode());
-        assertThat(this.f.literal("a", false).hashCode()).isEqualTo(this.NA.hashCode());
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testHash(final FormulaContext _c) {
+        assertThat(_c.f.literal("a", true).hashCode()).isEqualTo(_c.a.hashCode());
+        assertThat(_c.f.literal("a", false).hashCode()).isEqualTo(_c.na.hashCode());
     }
 
-    @Test
-    public void testNumberOfAtoms() {
-        assertThat(this.A.numberOfAtoms()).isEqualTo(1);
-        assertThat(this.NA.numberOfAtoms()).isEqualTo(1);
-        assertThat(this.NA.numberOfAtoms()).isEqualTo(1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfAtoms(final FormulaContext _c) {
+        assertThat(_c.a.numberOfAtoms(_c.f)).isEqualTo(1);
+        assertThat(_c.na.numberOfAtoms(_c.f)).isEqualTo(1);
+        assertThat(_c.na.numberOfAtoms(_c.f)).isEqualTo(1);
     }
 
-    @Test
-    public void testNumberOfNodes() {
-        assertThat(this.A.numberOfNodes()).isEqualTo(1);
-        assertThat(this.NA.numberOfNodes()).isEqualTo(1);
-        assertThat(this.NA.numberOfNodes()).isEqualTo(1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfNodes(final FormulaContext _c) {
+        assertThat(_c.a.numberOfNodes(_c.f)).isEqualTo(1);
+        assertThat(_c.na.numberOfNodes(_c.f)).isEqualTo(1);
+        assertThat(_c.na.numberOfNodes(_c.f)).isEqualTo(1);
     }
 
-    @Test
-    public void testNumberOfInternalNodes() {
-        assertThat(this.A.numberOfInternalNodes()).isEqualTo(1);
-        assertThat(this.NA.numberOfInternalNodes()).isEqualTo(1);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfInternalNodes(final FormulaContext _c) {
+        assertThat(_c.a.numberOfInternalNodes()).isEqualTo(1);
+        assertThat(_c.na.numberOfInternalNodes()).isEqualTo(1);
     }
 
-    @Test
-    public void testNumberOfOperands() {
-        assertThat(this.A.numberOfOperands()).isEqualTo(0);
-        assertThat(this.NA.numberOfOperands()).isEqualTo(0);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNumberOfOperands(final FormulaContext _c) {
+        assertThat(_c.a.numberOfOperands()).isEqualTo(0);
+        assertThat(_c.na.numberOfOperands()).isEqualTo(0);
     }
 
-    @Test
-    public void testIsConstantFormula() {
-        assertThat(this.A.isConstantFormula()).isFalse();
-        assertThat(this.NA.isConstantFormula()).isFalse();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsConstantFormula(final FormulaContext _c) {
+        assertThat(_c.a.isConstantFormula()).isFalse();
+        assertThat(_c.na.isConstantFormula()).isFalse();
     }
 
-    @Test
-    public void testAtomicFormula() {
-        assertThat(this.A.isAtomicFormula()).isTrue();
-        assertThat(this.NA.isAtomicFormula()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testAtomicFormula(final FormulaContext _c) {
+        assertThat(_c.a.isAtomicFormula()).isTrue();
+        assertThat(_c.na.isAtomicFormula()).isTrue();
     }
 
-    @Test
-    public void testContains() {
-        assertThat(this.A.containsVariable(this.f.variable("b"))).isFalse();
-        assertThat(this.A.containsVariable(this.f.variable("a"))).isTrue();
-        assertThat(this.NA.containsVariable(this.f.variable("b"))).isFalse();
-        assertThat(this.NA.containsVariable(this.f.variable("a"))).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testContains(final FormulaContext _c) {
+        assertThat(_c.a.containsVariable(_c.f.variable("b"))).isFalse();
+        assertThat(_c.a.containsVariable(_c.f.variable("a"))).isTrue();
+        assertThat(_c.na.containsVariable(_c.f.variable("b"))).isFalse();
+        assertThat(_c.na.containsVariable(_c.f.variable("a"))).isTrue();
     }
 
-    @Test
-    public void testIsNNF() {
-        assertThat(this.A.isNNF()).isTrue();
-        assertThat(this.NA.isNNF()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsNNF(final FormulaContext _c) {
+        assertThat(_c.a.isNNF(_c.f)).isTrue();
+        assertThat(_c.na.isNNF(_c.f)).isTrue();
     }
 
-    @Test
-    public void testIsDNF() {
-        assertThat(this.A.isDNF()).isTrue();
-        assertThat(this.NA.isDNF()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsDNF(final FormulaContext _c) {
+        assertThat(_c.a.isDNF(_c.f)).isTrue();
+        assertThat(_c.na.isDNF(_c.f)).isTrue();
     }
 
-    @Test
-    public void testIsCNF() {
-        assertThat(this.A.isCNF()).isTrue();
-        assertThat(this.NA.isCNF()).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testIsCNF(final FormulaContext _c) {
+        assertThat(_c.a.isCNF(_c.f)).isTrue();
+        assertThat(_c.na.isCNF(_c.f)).isTrue();
     }
 
-    @Test
-    public void testPosNeg() {
-        assertThat(this.A.variable() == this.A).isTrue();
-        assertThat(this.NA.variable() == this.A).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testPosNeg(final FormulaContext _c) {
+        assertThat(_c.a.variable() == _c.a).isTrue();
+        assertThat(_c.na.variable() == _c.a).isTrue();
     }
 }

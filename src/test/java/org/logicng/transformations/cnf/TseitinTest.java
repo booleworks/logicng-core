@@ -1,161 +1,145 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations.cnf;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PropositionalParser;
-import org.logicng.io.parsers.PseudoBooleanParser;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 
 import java.util.List;
 import java.util.SortedSet;
 
-/**
- * Unit Tests for {@link TseitinTransformation}.
- * @version 2.3.0
- * @since 1.0
- */
-public class TseitinTest extends TestWithExampleFormulas {
+public class TseitinTest extends TestWithFormulaContext {
 
-    private final TseitinTransformation ts = new TseitinTransformation(0);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testConstants(final FormulaContext _c) {
+        final TseitinTransformation ts = new TseitinTransformation(_c.f, 0);
 
-    @Test
-    public void testConstants() {
-        assertThat(this.TRUE.transform(this.ts)).isEqualTo(this.TRUE);
-        assertThat(this.FALSE.transform(this.ts)).isEqualTo(this.FALSE);
+        assertThat(_c.verum.transform(ts)).isEqualTo(_c.verum);
+        assertThat(_c.falsum.transform(ts)).isEqualTo(_c.falsum);
     }
 
-    @Test
-    public void testLiterals() {
-        assertThat(this.A.transform(this.ts)).isEqualTo(this.A);
-        assertThat(this.NA.transform(this.ts)).isEqualTo(this.NA);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testLiterals(final FormulaContext _c) {
+        final TseitinTransformation ts = new TseitinTransformation(_c.f, 0);
+
+        assertThat(_c.a.transform(ts)).isEqualTo(_c.a);
+        assertThat(_c.na.transform(ts)).isEqualTo(_c.na);
     }
 
-    @Test
-    public void testBinaryOperators() {
-        assertThat(this.IMP1.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(this.IMP1, this.IMP1.transform(this.ts), this.IMP1.variables())).isTrue();
-        assertThat(this.IMP2.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(this.IMP2, this.IMP2.transform(this.ts), this.IMP2.variables())).isTrue();
-        assertThat(this.IMP3.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(this.IMP3, this.IMP3.transform(this.ts), this.IMP3.variables())).isTrue();
-        assertThat(this.EQ1.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(this.EQ1, this.EQ1.transform(this.ts), this.EQ1.variables())).isTrue();
-        assertThat(this.EQ2.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(this.EQ2, this.EQ2.transform(this.ts), this.EQ2.variables())).isTrue();
-        assertThat(this.EQ3.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(this.EQ3, this.EQ3.transform(this.ts), this.EQ3.variables())).isTrue();
-        assertThat(this.EQ4.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(this.EQ4, this.EQ4.transform(this.ts), this.EQ4.variables())).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testBinaryOperators(final FormulaContext _c) {
+        final TseitinTransformation ts = new TseitinTransformation(_c.f, 0);
+
+        assertThat(_c.imp1.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(_c.imp1, _c.imp1.transform(ts), _c.imp1.variables(_c.f))).isTrue();
+        assertThat(_c.imp2.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(_c.imp2, _c.imp2.transform(ts), _c.imp2.variables(_c.f))).isTrue();
+        assertThat(_c.imp3.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(_c.imp3, _c.imp3.transform(ts), _c.imp3.variables(_c.f))).isTrue();
+        assertThat(_c.eq1.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(_c.eq1, _c.eq1.transform(ts), _c.eq1.variables(_c.f))).isTrue();
+        assertThat(_c.eq2.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(_c.eq2, _c.eq2.transform(ts), _c.eq2.variables(_c.f))).isTrue();
+        assertThat(_c.eq3.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(_c.eq3, _c.eq3.transform(ts), _c.eq3.variables(_c.f))).isTrue();
+        assertThat(_c.eq4.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(_c.eq4, _c.eq4.transform(ts), _c.eq4.variables(_c.f))).isTrue();
     }
 
-    @Test
-    public void testNAryOperators() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(this.AND1.transform(this.ts)).isEqualTo(this.AND1);
-        assertThat(this.OR1.transform(this.ts)).isEqualTo(this.OR1);
-        final Formula f1 = p.parse("~(a | b) & c & ~(x & ~y) & (w => z)");
-        final Formula f2 = p.parse("~(a & b) | c | ~(x | ~y)");
-        final Formula f3 = p.parse("a | b | (~x & ~y)");
-        assertThat(f1.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(f1, f1.transform(this.ts), f1.variables())).isTrue();
-        assertThat(f2.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(f2, f2.transform(this.ts), f2.variables())).isTrue();
-        assertThat(f3.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(f3, f3.transform(this.ts), f3.variables())).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNAryOperators(final FormulaContext _c) throws ParserException {
+        final TseitinTransformation ts = new TseitinTransformation(_c.f, 0);
+
+        assertThat(_c.and1.transform(ts)).isEqualTo(_c.and1);
+        assertThat(_c.or1.transform(ts)).isEqualTo(_c.or1);
+        final Formula f1 = _c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)");
+        final Formula f2 = _c.p.parse("~(a & b) | c | ~(x | ~y)");
+        final Formula f3 = _c.p.parse("a | b | (~x & ~y)");
+        assertThat(f1.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(f1, f1.transform(ts), f1.variables(_c.f))).isTrue();
+        assertThat(f2.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(f2, f2.transform(ts), f2.variables(_c.f))).isTrue();
+        assertThat(f3.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(f3, f3.transform(ts), f3.variables(_c.f))).isTrue();
     }
 
-    @Test
-    public void testNot() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        assertThat(p.parse("~a").transform(this.ts)).isEqualTo(p.parse("~a"));
-        assertThat(p.parse("~~a").transform(this.ts)).isEqualTo(p.parse("a"));
-        assertThat(p.parse("~(a => b)").transform(this.ts)).isEqualTo(p.parse("a & ~b"));
-        final Formula f1 = p.parse("~(~(a | b) => ~(x | y))");
-        final Formula f2 = p.parse("~(a <=> b)");
-        final Formula f3 = p.parse("~(~(a | b) <=> ~(x | y))");
-        final Formula f4 = p.parse("~(a & b & ~x & ~y)");
-        final Formula f5 = p.parse("~(a | b | ~x | ~y)");
-        assertThat(f1.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(f1, f1.transform(this.ts), f1.variables())).isTrue();
-        assertThat(f2.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(f2, f2.transform(this.ts), f2.variables())).isTrue();
-        assertThat(f3.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(f3, f3.transform(this.ts), f3.variables())).isTrue();
-        assertThat(f4.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(f4, f4.transform(this.ts), f4.variables())).isTrue();
-        assertThat(f5.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(f5, f5.transform(this.ts), f5.variables())).isTrue();
-        assertThat(f5.transform(this.ts).isCNF()).isTrue();
-        assertThat(equivalentModels(f5, f5.transform(this.ts), f5.variables())).isTrue();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testNot(final FormulaContext _c) throws ParserException {
+        final TseitinTransformation ts = new TseitinTransformation(_c.f, 0);
+
+        assertThat(_c.p.parse("~a").transform(ts)).isEqualTo(_c.p.parse("~a"));
+        assertThat(_c.p.parse("~~a").transform(ts)).isEqualTo(_c.p.parse("a"));
+        assertThat(_c.p.parse("~(a => b)").transform(ts)).isEqualTo(_c.p.parse("a & ~b"));
+        final Formula f1 = _c.p.parse("~(~(a | b) => ~(x | y))");
+        final Formula f2 = _c.p.parse("~(a <=> b)");
+        final Formula f3 = _c.p.parse("~(~(a | b) <=> ~(x | y))");
+        final Formula f4 = _c.p.parse("~(a & b & ~x & ~y)");
+        final Formula f5 = _c.p.parse("~(a | b | ~x | ~y)");
+        assertThat(f1.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(f1, f1.transform(ts), f1.variables(_c.f))).isTrue();
+        assertThat(f2.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(f2, f2.transform(ts), f2.variables(_c.f))).isTrue();
+        assertThat(f3.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(f3, f3.transform(ts), f3.variables(_c.f))).isTrue();
+        assertThat(f4.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(f4, f4.transform(ts), f4.variables(_c.f))).isTrue();
+        assertThat(f5.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(f5, f5.transform(ts), f5.variables(_c.f))).isTrue();
+        assertThat(f5.transform(ts).isCNF(_c.f)).isTrue();
+        assertThat(equivalentModels(f5, f5.transform(ts), f5.variables(_c.f))).isTrue();
     }
 
-    @Test
-    public void testFactorization() throws ParserException {
-        final PropositionalParser p = new PropositionalParser(this.f);
-        final TseitinTransformation pgf = new TseitinTransformation();
-        final Formula f1 = p.parse("(a | b) => c");
-        final Formula f2 = p.parse("~x & ~y");
-        final Formula f3 = p.parse("d & ((a | b) => c)");
-        final Formula f4 = p.parse("d & ((a | b) => c) | ~x & ~y");
-        assertThat(f1.transform(pgf).isCNF()).isTrue();
-        assertThat(f1.transform(pgf).variables().size()).isEqualTo(f1.variables().size());
-        assertThat(f2.transform(pgf).isCNF()).isTrue();
-        assertThat(f2.transform(pgf).variables().size()).isEqualTo(f2.variables().size());
-        assertThat(f3.transform(pgf).isCNF()).isTrue();
-        assertThat(f3.transform(pgf).variables().size()).isEqualTo(f3.variables().size());
-        assertThat(f4.transform(pgf).isCNF()).isTrue();
-        assertThat(f4.transform(pgf).variables().size()).isEqualTo(f4.variables().size());
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testFactorization(final FormulaContext _c) throws ParserException {
+        final TseitinTransformation pgf = new TseitinTransformation(_c.f);
+        final Formula f1 = _c.p.parse("(a | b) => c");
+        final Formula f2 = _c.p.parse("~x & ~y");
+        final Formula f3 = _c.p.parse("d & ((a | b) => c)");
+        final Formula f4 = _c.p.parse("d & ((a | b) => c) | ~x & ~y");
+        assertThat(f1.transform(pgf).isCNF(_c.f)).isTrue();
+        assertThat(f1.transform(pgf).variables(_c.f).size()).isEqualTo(f1.variables(_c.f).size());
+        assertThat(f2.transform(pgf).isCNF(_c.f)).isTrue();
+        assertThat(f2.transform(pgf).variables(_c.f).size()).isEqualTo(f2.variables(_c.f).size());
+        assertThat(f3.transform(pgf).isCNF(_c.f)).isTrue();
+        assertThat(f3.transform(pgf).variables(_c.f).size()).isEqualTo(f3.variables(_c.f).size());
+        assertThat(f4.transform(pgf).isCNF(_c.f)).isTrue();
+        assertThat(f4.transform(pgf).variables(_c.f).size()).isEqualTo(f4.variables(_c.f).size());
     }
 
-    @Test
-    public void testCC() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
-        final PseudoBooleanParser p = new PseudoBooleanParser(f);
-        assertThat(p.parse("a <=> (1 * b <= 1)").transform(this.ts)).isEqualTo(p.parse("a"));
-        assertThat(p.parse("~(1 * b <= 1)").transform(this.ts)).isEqualTo(p.parse("$false"));
-        assertThat(p.parse("(1 * b + 1 * c + 1 * d <= 1)").transform(this.ts)).isEqualTo(p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
-        assertThat(p.parse("~(1 * b + 1 * c + 1 * d <= 1)").transform(this.ts)).isEqualTo(p.parse("(d | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | d | @RESERVED_CC_4) & (~@RESERVED_CC_4 | @RESERVED_CC_0) & (~@RESERVED_CC_2 | @RESERVED_CC_0) & (~@RESERVED_CC_4 | ~@RESERVED_CC_2) & (c | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | c | @RESERVED_CC_5) & (~@RESERVED_CC_5 | @RESERVED_CC_2) & ~@RESERVED_CC_0"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testCC(final FormulaContext _c) throws ParserException {
+        final TseitinTransformation ts = new TseitinTransformation(_c.f, 0);
+
+        assertThat(_c.p.parse("a <=> (1 * b <= 1)").transform(ts)).isEqualTo(_c.p.parse("a"));
+        assertThat(_c.p.parse("~(1 * b <= 1)").transform(ts)).isEqualTo(_c.p.parse("$false"));
+        assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").transform(ts)).isEqualTo(_c.p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
+        assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").transform(ts)).isEqualTo(_c.p.parse("(d | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | d | @RESERVED_CC_4) & (~@RESERVED_CC_4 | @RESERVED_CC_0) & (~@RESERVED_CC_2 | @RESERVED_CC_0) & (~@RESERVED_CC_4 | ~@RESERVED_CC_2) & (c | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | c | @RESERVED_CC_5) & (~@RESERVED_CC_5 | @RESERVED_CC_2) & ~@RESERVED_CC_0"));
     }
 
     @Test
     public void testToString() {
-        final TseitinTransformation tseitinTransformation = new TseitinTransformation(5);
+        final TseitinTransformation tseitinTransformation = new TseitinTransformation(FormulaFactory.nonCaching(), 5);
         assertThat(tseitinTransformation.toString()).isEqualTo("TseitinTransformation{boundary=5}");
     }
 

@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.predicates.satisfiability;
 
@@ -34,49 +10,52 @@ import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.FormulaPredicate;
+import org.logicng.predicates.CacheableFormulaPredicate;
 import org.logicng.solvers.MiniSat;
-import org.logicng.solvers.SATSolver;
+
+import java.util.Map;
 
 /**
  * A SAT solver based SAT predicate.  Indicates whether a formula is satisfiable or not.
- * @version 1.5.1
+ * @version 3.0.0
  * @since 1.0
  */
-public final class SATPredicate implements FormulaPredicate {
-
-    private final SATSolver solver;
+public final class SATPredicate extends CacheableFormulaPredicate {
 
     /**
-     * Constructs a new SAT predicate with a given formula factory.
-     * @param f the formula factory
+     * Constructs a new predicate.  For a caching formula factory, the cache of the factory will be used,
+     * for a non-caching formula factory no cache will be used.
+     * @param f the formula factory to generate new formulas
      */
     public SATPredicate(final FormulaFactory f) {
-        this.solver = MiniSat.miniSat(f);
+        super(f, IS_SAT);
+    }
+
+    /**
+     * Constructs a new predicate.  For all factory type the provided cache will be used.
+     * If it is null, no cache will be used.
+     * @param f     the formula factory to generate new formulas
+     * @param cache the cache to use for the transformation
+     */
+    public SATPredicate(final FormulaFactory f, final Map<Formula, Boolean> cache) {
+        super(f, cache);
     }
 
     @Override
-    public boolean test(final Formula formula, final boolean cache) {
-        final Tristate cached = formula.predicateCacheEntry(IS_SAT);
-        if (cached != Tristate.UNDEF) {
-            return cached == Tristate.TRUE;
+    public boolean test(final Formula formula) {
+        final Boolean cached = lookupCache(formula);
+        if (cached != null) {
+            return cached;
         }
         final boolean result;
         if (formula.type() == FType.FALSE) {
             result = false;
         } else {
-            this.solver.add(formula);
-            result = this.solver.sat() == Tristate.TRUE;
-            this.solver.reset();
+            final var solver = MiniSat.miniSat(f);
+            solver.add(formula);
+            result = solver.sat() == Tristate.TRUE;
         }
-        if (cache) {
-            formula.setPredicateCacheEntry(IS_SAT, result);
-        }
+        setCache(formula, result);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
     }
 }

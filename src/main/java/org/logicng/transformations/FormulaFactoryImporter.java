@@ -1,30 +1,6 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.transformations;
 
@@ -32,7 +8,6 @@ import org.logicng.formulas.And;
 import org.logicng.formulas.Equivalence;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.FormulaTransformation;
 import org.logicng.formulas.Implication;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.NAryOperator;
@@ -40,65 +15,65 @@ import org.logicng.formulas.Not;
 import org.logicng.formulas.Or;
 import org.logicng.formulas.PBConstraint;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * A formula transformation which imports a given formula into a new formula factory.  If the current factory of the
  * formula and the new formula factory are equal, no action is performed.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.3.1
  */
-public final class FormulaFactoryImporter implements FormulaTransformation {
-
-    private final FormulaFactory newFormulaFactory;
+public final class FormulaFactoryImporter extends StatelessFormulaTransformation {
 
     /**
      * Constructs a new formula factory importer with a given formula factory.  This is the formula factory where the
      * formulas should be imported to.
-     * @param newFormulaFactory the formula factory where the formulas should be imported to
+     * @param f the formula factory where the formulas should be imported to
      */
-    public FormulaFactoryImporter(final FormulaFactory newFormulaFactory) {
-        this.newFormulaFactory = newFormulaFactory;
+    public FormulaFactoryImporter(final FormulaFactory f) {
+        super(f);
     }
 
     @Override
-    public Formula apply(final Formula formula, final boolean cache) {
-        if (formula.factory() == this.newFormulaFactory) {
+    public Formula apply(final Formula formula) {
+        if (formula.factory() == f) {
             return formula;
         }
         switch (formula.type()) {
             case TRUE:
-                return this.newFormulaFactory.verum();
+                return f.verum();
             case FALSE:
-                return this.newFormulaFactory.falsum();
+                return f.falsum();
             case LITERAL:
                 final Literal literal = (Literal) formula;
-                return this.newFormulaFactory.literal(literal.name(), literal.phase());
+                return f.literal(literal.name(), literal.phase());
             case PREDICATE:
                 //TODO how to handle predicates when importing???
                 return null;
             case NOT:
                 final Not not = (Not) formula;
-                return this.newFormulaFactory.not(apply(not.operand(), cache));
+                return f.not(apply(not.operand()));
             case IMPL:
                 final Implication implication = (Implication) formula;
-                return this.newFormulaFactory.implication(apply(implication.left(), cache), apply(implication.right(), cache));
+                return f.implication(apply(implication.left()), apply(implication.right()));
             case EQUIV:
                 final Equivalence equivalence = (Equivalence) formula;
-                return this.newFormulaFactory.equivalence(apply(equivalence.left(), cache), apply(equivalence.right(), cache));
+                return f.equivalence(apply(equivalence.left()), apply(equivalence.right()));
             case OR:
                 final Or or = (Or) formula;
-                return this.newFormulaFactory.or(gatherAppliedOperands(or));
+                return f.or(gatherAppliedOperands(or));
             case AND:
                 final And and = (And) formula;
-                return this.newFormulaFactory.and(gatherAppliedOperands(and));
+                return f.and(gatherAppliedOperands(and));
             case PBC:
                 final PBConstraint pbc = (PBConstraint) formula;
-                final Literal[] literals = new Literal[pbc.operands().length];
-                for (int i = 0; i < pbc.operands().length; i++) {
-                    literals[i] = (Literal) apply(pbc.operands()[i], cache);
+                final List<Literal> literals = new ArrayList<>(pbc.operands().size());
+                for (final Literal op : pbc.operands()) {
+                    literals.add((Literal) apply(op));
                 }
-                return this.newFormulaFactory.pbc(pbc.comparator(), pbc.rhs(), literals, pbc.coefficients());
+                return f.pbc(pbc.comparator(), pbc.rhs(), literals, pbc.coefficients());
             default:
                 throw new IllegalArgumentException("Unknown LogicNG formula type: " + formula.type());
         }
@@ -112,7 +87,7 @@ public final class FormulaFactoryImporter implements FormulaTransformation {
     private LinkedHashSet<Formula> gatherAppliedOperands(final NAryOperator operator) {
         final LinkedHashSet<Formula> applied = new LinkedHashSet<>();
         for (final Formula operand : operator) {
-            applied.add(apply(operand, false));
+            applied.add(apply(operand));
         }
         return applied;
     }

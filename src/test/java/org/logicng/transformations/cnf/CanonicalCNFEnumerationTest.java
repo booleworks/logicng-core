@@ -1,11 +1,18 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
+
 package org.logicng.transformations.cnf;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.RandomTag;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.predicates.CNFPredicate;
 import org.logicng.predicates.satisfiability.TautologyPredicate;
@@ -13,45 +20,40 @@ import org.logicng.util.FormulaCornerCases;
 import org.logicng.util.FormulaRandomizer;
 import org.logicng.util.FormulaRandomizerConfig;
 
-/**
- * Unit tests for {@link CanonicalCNFEnumeration}.
- * @version 2.3.0
- * @since 2.3.0
- */
-public class CanonicalCNFEnumerationTest {
+public class CanonicalCNFEnumerationTest extends TestWithFormulaContext {
 
-    @Test
-    public void testSamples() throws ParserException {
-        final FormulaFactory f = new FormulaFactory();
-        assertThat(f.falsum().transform(CanonicalCNFEnumeration.get())).isEqualTo(f.parse("$false"));
-        assertThat(f.verum().transform(CanonicalCNFEnumeration.get())).isEqualTo(f.parse("$true"));
-        assertThat(f.parse("a").transform(CanonicalCNFEnumeration.get())).isEqualTo(f.parse("a"));
-        assertThat(f.parse("~a").transform(CanonicalCNFEnumeration.get())).isEqualTo(f.parse("~a"));
-        assertThat(f.parse("~a & b").transform(CanonicalCNFEnumeration.get())).isEqualTo(f.parse("(~a | b) & (~a | ~b) & (a | b)"));
-        assertThat(f.parse("~a | b").transform(CanonicalCNFEnumeration.get())).isEqualTo(f.parse("~a | b"));
-        assertThat(f.parse("a => b").transform(CanonicalCNFEnumeration.get())).isEqualTo(f.parse("~a | b"));
-        assertThat(f.parse("a <=> b").transform(CanonicalCNFEnumeration.get())).isEqualTo(f.parse("(~a | b) & (a | ~b)"));
-        assertThat(f.parse("a + b = 1").transform(CanonicalCNFEnumeration.get())).isEqualTo(f.parse("(a | b) & (~a | ~b)"));
-        assertThat(f.parse("a & (b | ~c)").transform(CanonicalCNFEnumeration.get()))
-                .isEqualTo(f.parse("(a | b | c) & (a | b | ~c) & (a | ~b | c) & (a | ~b | ~c) & (~a | b | ~c)"));
-        assertThat(f.parse("a & b & (~a | ~b)").transform(CanonicalCNFEnumeration.get())).isEqualTo(f.parse("(a | b) & (~a | b) & (~a | ~b) & (a | ~b)"));
-        assertThat(f.parse("a | b | ~a & ~b").transform(CanonicalCNFEnumeration.get())).isEqualTo(f.parse("$true"));
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSamples(final FormulaContext _c) throws ParserException {
+        assertThat(_c.f.falsum().transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("$false"));
+        assertThat(_c.f.verum().transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("$true"));
+        assertThat(_c.f.parse("a").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("a"));
+        assertThat(_c.f.parse("~a").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("~a"));
+        assertThat(_c.f.parse("~a & b").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("(~a | b) & (~a | ~b) & (a | b)"));
+        assertThat(_c.f.parse("~a | b").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("~a | b"));
+        assertThat(_c.f.parse("a => b").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("~a | b"));
+        assertThat(_c.f.parse("a <=> b").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("(~a | b) & (a | ~b)"));
+        assertThat(_c.f.parse("a + b = 1").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("(a | b) & (~a | ~b)"));
+        assertThat(_c.f.parse("a & (b | ~c)").transform(new CanonicalCNFEnumeration(_c.f)))
+                .isEqualTo(_c.f.parse("(a | b | c) & (a | b | ~c) & (a | ~b | c) & (a | ~b | ~c) & (~a | b | ~c)"));
+        assertThat(_c.f.parse("a & b & (~a | ~b)").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("(a | b) & (~a | b) & (~a | ~b) & (a | ~b)"));
+        assertThat(_c.f.parse("a | b | ~a & ~b").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("$true"));
     }
 
-    @Test
-    public void testCornerCases() {
-        final FormulaFactory f = new FormulaFactory();
-        final FormulaCornerCases cornerCases = new FormulaCornerCases(f);
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testCornerCases(final FormulaContext _c) {
+        final FormulaCornerCases cornerCases = new FormulaCornerCases(_c.f);
         for (final Formula formula : cornerCases.cornerCases()) {
             test(formula);
         }
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("contexts")
     @RandomTag
-    public void random() {
-        final FormulaFactory f = new FormulaFactory();
-        final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(5).weightPbc(0.5).seed(42).build());
+    public void random(final FormulaContext _c) {
+        final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, FormulaRandomizerConfig.builder().numVars(5).weightPbc(0.5).seed(42).build());
         for (int i = 0; i < 1000; i++) {
             final Formula formula = randomizer.formula(3);
             test(formula);
@@ -60,8 +62,8 @@ public class CanonicalCNFEnumerationTest {
 
     private void test(final Formula formula) {
         final FormulaFactory f = formula.factory();
-        final Formula cnf = CanonicalCNFEnumeration.get().apply(formula, false);
-        assertThat(cnf.holds(CNFPredicate.get())).isTrue();
+        final Formula cnf = new CanonicalCNFEnumeration(f).apply(formula);
+        assertThat(cnf.holds(new CNFPredicate(f))).isTrue();
         assertThat(f.equivalence(formula, cnf).holds(new TautologyPredicate(f))).isTrue();
         if (formula.holds(new TautologyPredicate(f))) {
             assertThat(cnf).isEqualTo(f.verum());
@@ -82,10 +84,5 @@ public class CanonicalCNFEnumerationTest {
             default:
                 throw new IllegalStateException("Unexpected type: " + cnf.type());
         }
-    }
-
-    @Test
-    public void testToString() {
-        assertThat(CanonicalCNFEnumeration.get().toString()).isEqualTo("CanonicalCNFEnumeration");
     }
 }

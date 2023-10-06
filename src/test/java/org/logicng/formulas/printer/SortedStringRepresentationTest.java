@@ -1,121 +1,92 @@
-///////////////////////////////////////////////////////////////////////////
-//                   __                _      _   ________               //
-//                  / /   ____  ____ _(_)____/ | / / ____/               //
-//                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
-//                / /___/ /_/ / /_/ / / /__/ /|  / /_/ /                 //
-//               /_____/\____/\__, /_/\___/_/ |_/\____/                  //
-//                           /____/                                      //
-//                                                                       //
-//               The Next Generation Logic Library                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
-//                                                                       //
-//  Copyright 2015-20xx Christoph Zengler                                //
-//                                                                       //
-//  Licensed under the Apache License, Version 2.0 (the "License");      //
-//  you may not use this file except in compliance with the License.     //
-//  You may obtain a copy of the License at                              //
-//                                                                       //
-//  http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                       //
-//  Unless required by applicable law or agreed to in writing, software  //
-//  distributed under the License is distributed on an "AS IS" BASIS,    //
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or      //
-//  implied.  See the License for the specific language governing        //
-//  permissions and limitations under the License.                       //
-//                                                                       //
-///////////////////////////////////////////////////////////////////////////
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2015-2023 Christoph Zengler
+// Copyright 2023-20xx BooleWorks GmbH
 
 package org.logicng.formulas.printer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-import org.logicng.TestWithExampleFormulas;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.logicng.formulas.CType;
+import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.FormulaFactoryConfig;
-import org.logicng.formulas.Literal;
+import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.formulas.Variable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Unit tests for {@link SortedStringRepresentation}
- * @version 2.0.0
- * @since 1.5
- */
-public class SortedStringRepresentationTest extends TestWithExampleFormulas {
+public class SortedStringRepresentationTest extends TestWithFormulaContext {
 
-    private final List<Variable> varOrder = new ArrayList<>(Arrays.asList(this.Y, this.X, this.B, this.A, this.C));
-
-    private final FormulaStringRepresentation sr = new SortedStringRepresentation(this.varOrder);
-
-    @Test
-    public void testFormulaComparator() {
-        final SortedStringRepresentation.FormulaComparator comparator = new SortedStringRepresentation.FormulaComparator(this.varOrder);
-        assertThat(comparator.compare(this.FALSE, this.TRUE)).isZero();
-        assertThat(comparator.compare(this.A, this.A)).isZero();
-        assertThat(comparator.compare(this.A, this.B)).isPositive();
-        assertThat(comparator.compare(this.A, this.C)).isNegative();
-        assertThat(comparator.compare(this.A, this.AND1)).isPositive();
-        assertThat(comparator.compare(this.B, this.AND1)).isNegative();
-        assertThat(comparator.compare(this.EQ4, this.IMP4)).isPositive();
-        assertThat(comparator.compare(this.AND3, this.IMP4)).isNegative();
-        assertThat(comparator.compare(this.AND3, this.IMP4)).isNegative();
-        assertThat(comparator.compare(this.NOT1, this.NOT2)).isPositive();
-        assertThat(comparator.compare(this.OR1, this.PBC2)).isNegative();
-        assertThat(comparator.compare(this.PBC1, this.PBC2)).isZero();
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testFormulaComparator(final FormulaContext _c) {
+        final List<Variable> varOrder = new ArrayList<>(Arrays.asList(_c.y, _c.x, _c.b, _c.a, _c.c));
+        final SortedStringRepresentation.FormulaComparator comparator = new SortedStringRepresentation.FormulaComparator(_c.f, varOrder);
+        assertThat(comparator.compare(_c.falsum, _c.verum)).isZero();
+        assertThat(comparator.compare(_c.a, _c.a)).isZero();
+        assertThat(comparator.compare(_c.a, _c.b)).isPositive();
+        assertThat(comparator.compare(_c.a, _c.c)).isNegative();
+        assertThat(comparator.compare(_c.a, _c.and1)).isPositive();
+        assertThat(comparator.compare(_c.b, _c.and1)).isNegative();
+        assertThat(comparator.compare(_c.eq4, _c.imp4)).isPositive();
+        assertThat(comparator.compare(_c.and3, _c.imp4)).isNegative();
+        assertThat(comparator.compare(_c.and3, _c.imp4)).isNegative();
+        assertThat(comparator.compare(_c.not1, _c.not2)).isPositive();
+        assertThat(comparator.compare(_c.or1, _c.pbc2)).isNegative();
+        assertThat(comparator.compare(_c.pbc1, _c.pbc2)).isZero();
     }
 
-    @Test
-    public void testSortedPrinter() {
-        assertThat(this.f.string(this.FALSE, this.sr)).isEqualTo("$false");
-        assertThat(this.f.string(this.TRUE, this.sr)).isEqualTo("$true");
-        assertThat(this.f.string(this.X, this.sr)).isEqualTo("x");
-        assertThat(this.f.string(this.NA, this.sr)).isEqualTo("~a");
-        assertThat(this.f.string(this.IMP2, this.sr)).isEqualTo("~a => ~b");
-        assertThat(this.f.string(this.f.not(this.f.equivalence(this.A, this.B)), this.sr)).isEqualTo("~(b <=> a)");
-        assertThat(this.f.string(this.IMP3, this.sr)).isEqualTo("b & a => y | x");
-        assertThat(this.f.string(this.EQ3, this.sr)).isEqualTo("y | x <=> b & a");
-        assertThat(this.f.string(this.EQ4, this.sr)).isEqualTo("a => b <=> ~a => ~b");
-        assertThat(this.f.string(this.AND3, this.sr)).isEqualTo("(y | x) & (~y | ~x)");
-        assertThat(this.f.string(this.f.and(this.A, this.B, this.C, this.X), this.sr)).isEqualTo("x & b & a & c");
-        assertThat(this.f.string(this.f.or(this.A, this.B, this.C, this.X), this.sr)).isEqualTo("x | b | a | c");
-        assertThat(this.f.string(this.PBC2, this.sr)).isEqualTo("3*x + -4*b + 2*a > 2");
-        assertThat(this.f.string(this.f.and(this.NB, this.PBC1), this.sr)).isEqualTo("(3*x + -4*b + 2*a = 2) & ~b");
-        assertThat(this.f.string(this.f.pbc(CType.EQ, 42, new ArrayList<Literal>(Arrays.asList(this.A, this.B)), new ArrayList<>(Arrays.asList(1, 1))), this.sr)).isEqualTo("b + a = 42");
-        assertThat(this.f.string(this.f.pbc(CType.LT, 42, new ArrayList<>(), new ArrayList<>()), this.sr)).isEqualTo("$true");
-        assertThat(this.f.string(this.f.pbc(CType.EQ, 42, new ArrayList<>(), new ArrayList<>()), this.sr)).isEqualTo("$false");
-        assertThat(this.f.string(this.f.implication(this.A, this.f.exo()), this.sr)).isEqualTo("~a");
-        assertThat(this.f.string(this.f.equivalence(this.A, this.f.exo()), this.sr)).isEqualTo("~a");
-        assertThat(this.f.string(this.f.and(this.A, this.f.exo()), this.sr)).isEqualTo("$false");
-        assertThat(this.f.string(this.f.or(this.A, this.f.exo()), this.sr)).isEqualTo("a");
-        assertThat(this.f.string(this.f.implication(this.A, this.f.amo()), this.sr)).isEqualTo("$true");
-        assertThat(this.f.string(this.f.equivalence(this.A, this.f.amo()), this.sr)).isEqualTo("a");
-        assertThat(this.f.string(this.f.and(this.A, this.f.amo()), this.sr)).isEqualTo("a");
-        assertThat(this.f.string(this.f.or(this.A, this.f.amo()), this.sr)).isEqualTo("$true");
-        assertThat(this.f.string(this.f.or(this.A, this.f.amo(), this.f.exo(), this.f.equivalence(this.f.amo(), this.B)), this.sr)).isEqualTo("$true");
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testSortedPrinter(final FormulaContext _c) {
+        final List<Variable> varOrder = new ArrayList<>(Arrays.asList(_c.y, _c.x, _c.b, _c.a, _c.c));
+        final FormulaStringRepresentation sr = new SortedStringRepresentation(_c.f, varOrder);
+        assertThat(_c.f.string(_c.falsum, sr)).isEqualTo("$false");
+        assertThat(_c.f.string(_c.verum, sr)).isEqualTo("$true");
+        assertThat(_c.f.string(_c.x, sr)).isEqualTo("x");
+        assertThat(_c.f.string(_c.na, sr)).isEqualTo("~a");
+        assertThat(_c.f.string(_c.imp2, sr)).isEqualTo("~a => ~b");
+        assertThat(_c.f.string(_c.f.not(_c.f.equivalence(_c.a, _c.b)), sr)).isEqualTo("~(b <=> a)");
+        assertThat(_c.f.string(_c.imp3, sr)).isEqualTo("b & a => y | x");
+        assertThat(_c.f.string(_c.eq3, sr)).isEqualTo("y | x <=> b & a");
+        assertThat(_c.f.string(_c.eq4, sr)).isEqualTo("a => b <=> ~a => ~b");
+        assertThat(_c.f.string(_c.and3, sr)).isEqualTo("(y | x) & (~y | ~x)");
+        assertThat(_c.f.string(_c.f.and(_c.a, _c.b, _c.c, _c.x), sr)).isEqualTo("x & b & a & c");
+        assertThat(_c.f.string(_c.f.or(_c.a, _c.b, _c.c, _c.x), sr)).isEqualTo("x | b | a | c");
+        assertThat(_c.f.string(_c.pbc2, sr)).isEqualTo("3*x + -4*b + 2*a > 2");
+        assertThat(_c.f.string(_c.f.and(_c.nb, _c.pbc1), sr)).isEqualTo("(3*x + -4*b + 2*a = 2) & ~b");
+        assertThat(_c.f.string(_c.f.pbc(CType.EQ, 42, new ArrayList<>(Arrays.asList(_c.a, _c.b)), new ArrayList<>(Arrays.asList(1, 1))), sr)).isEqualTo("b + a = 42");
+        assertThat(_c.f.string(_c.f.pbc(CType.LT, 42, new ArrayList<>(), new ArrayList<>()), sr)).isEqualTo("$true");
+        assertThat(_c.f.string(_c.f.pbc(CType.EQ, 42, new ArrayList<>(), new ArrayList<>()), sr)).isEqualTo("$false");
+        assertThat(_c.f.string(_c.f.implication(_c.a, _c.f.exo()), sr)).isEqualTo("~a");
+        assertThat(_c.f.string(_c.f.equivalence(_c.a, _c.f.exo()), sr)).isEqualTo("~a");
+        assertThat(_c.f.string(_c.f.and(_c.a, _c.f.exo()), sr)).isEqualTo("$false");
+        assertThat(_c.f.string(_c.f.or(_c.a, _c.f.exo()), sr)).isEqualTo("a");
+        assertThat(_c.f.string(_c.f.implication(_c.a, _c.f.amo()), sr)).isEqualTo("$true");
+        assertThat(_c.f.string(_c.f.equivalence(_c.a, _c.f.amo()), sr)).isEqualTo("a");
+        assertThat(_c.f.string(_c.f.and(_c.a, _c.f.amo()), sr)).isEqualTo("a");
+        assertThat(_c.f.string(_c.f.or(_c.a, _c.f.amo()), sr)).isEqualTo("$true");
+        assertThat(_c.f.string(_c.f.or(_c.a, _c.f.amo(), _c.f.exo(), _c.f.equivalence(_c.f.amo(), _c.b)), sr)).isEqualTo("$true");
 
         // some variables not in varOrder
-        this.varOrder.remove(this.X);
-        assertThat(this.f.string(this.f.or(this.f.variable("x"), this.f.variable("a")), this.sr)).isEqualTo("a | x");
-        assertThat(this.f.string(this.PBC2, this.sr)).isEqualTo("-4*b + 2*a + 3*x > 2");
+        varOrder.remove(_c.x);
+        assertThat(_c.f.string(_c.f.or(_c.f.variable("x"), _c.f.variable("a")), sr)).isEqualTo("a | x");
+        assertThat(_c.f.string(_c.pbc2, sr)).isEqualTo("-4*b + 2*a + 3*x > 2");
 
         // empty varOrder
-        assertThat(this.f.string(this.EQ3, new SortedStringRepresentation(new ArrayList<>()))).isEqualTo("a & b <=> x | y");
+        assertThat(_c.f.string(_c.eq3, new SortedStringRepresentation(_c.f, new ArrayList<>()))).isEqualTo("a & b <=> x | y");
     }
 
-    @Test
-    public void testToString() {
-        assertThat(this.sr.toString()).isEqualTo("SortedStringRepresentation");
-    }
-
-    @Test
-    public void testViaFormulaFactoryConfig() {
-        final FormulaFactory f = new FormulaFactory(FormulaFactoryConfig.builder().stringRepresentation(() -> this.sr).build());
-        assertThat(f.importFormula(this.EQ4).toString()).isEqualTo("a => b <=> ~a => ~b");
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testViaFormulaFactoryConfig(final FormulaContext _c) {
+        final List<Variable> varOrder = new ArrayList<>(Arrays.asList(_c.y, _c.x, _c.b, _c.a, _c.c));
+        final FormulaStringRepresentation sr = new SortedStringRepresentation(_c.f, varOrder);
+        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().stringRepresentation(() -> sr).build());
+        assertThat(f.importFormula(_c.eq4).toString()).isEqualTo("a => b <=> ~a => ~b");
     }
 }
