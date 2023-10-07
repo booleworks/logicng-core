@@ -562,9 +562,4 @@ public class WBO extends MaxSAT {
             assumps.push(not(l));
         }
     }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
-    }
 }

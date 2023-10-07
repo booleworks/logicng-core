@@ -294,9 +294,4 @@ public class LinearSU extends MaxSAT {
             coeffs.push(softClause.weight());
         }
     }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
-    }
 }

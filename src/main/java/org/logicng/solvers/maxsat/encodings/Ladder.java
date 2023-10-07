@@ -71,9 +71,4 @@ public class Ladder extends Encoding {
             }
         }
     }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
-    }
 }

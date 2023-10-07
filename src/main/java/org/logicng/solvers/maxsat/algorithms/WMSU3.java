@@ -513,9 +513,4 @@ public class WMSU3 extends MaxSAT {
             softClauses.get(i).setAssumptionVar(l);
         }
     }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
-    }
 }

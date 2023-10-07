@@ -7,15 +7,8 @@ package org.logicng.solvers.maxsat;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.solvers.maxsat.algorithms.IncWBO;
-import org.logicng.solvers.maxsat.algorithms.LinearSU;
-import org.logicng.solvers.maxsat.algorithms.LinearUS;
-import org.logicng.solvers.maxsat.algorithms.MSU3;
 import org.logicng.solvers.maxsat.algorithms.MaxSAT;
 import org.logicng.solvers.maxsat.algorithms.MaxSATConfig;
-import org.logicng.solvers.maxsat.algorithms.OLL;
-import org.logicng.solvers.maxsat.algorithms.WBO;
-import org.logicng.solvers.maxsat.algorithms.WMSU3;
 
 import java.util.Arrays;
 
@@ -36,23 +29,5 @@ public class MaxSATClassTest {
     public void testMaxSATEnum() {
         assertThat(Arrays.asList(MaxSAT.ProblemType.values()).contains(MaxSAT.ProblemType.valueOf("UNWEIGHTED"))).isTrue();
         assertThat(Arrays.asList(MaxSAT.MaxSATResult.values()).contains(MaxSAT.MaxSATResult.valueOf("OPTIMUM"))).isTrue();
-    }
-
-    @Test
-    public void testMaxSATtoString() {
-        final MaxSAT wmsu3 = new WMSU3();
-        assertThat(wmsu3.toString()).isEqualTo("WMSU3");
-        final MaxSAT wbo = new WBO();
-        assertThat(wbo.toString()).isEqualTo("WBO");
-        final MaxSAT incWbo = new IncWBO();
-        assertThat(incWbo.toString()).isEqualTo("IncWBO");
-        final MaxSAT msu3 = new MSU3();
-        assertThat(msu3.toString()).isEqualTo("MSU3");
-        final MaxSAT linearSu = new LinearSU();
-        assertThat(linearSu.toString()).isEqualTo("LinearSU");
-        final MaxSAT linearUs = new LinearUS();
-        assertThat(linearUs.toString()).isEqualTo("LinearUS");
-        final MaxSAT oll = new OLL();
-        assertThat(oll.toString()).isEqualTo("OLL");
     }
 }

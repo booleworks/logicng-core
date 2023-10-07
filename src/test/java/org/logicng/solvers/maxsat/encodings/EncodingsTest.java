@@ -15,23 +15,15 @@ import org.logicng.solvers.sat.MiniSat2Solver;
 public class EncodingsTest {
 
     @Test
-    public void testEncoder() {
-        final Encoder encoder = new Encoder(MaxSATConfig.CardinalityEncoding.TOTALIZER);
-        assertThat(encoder.toString()).isEqualTo("Encoder");
-    }
-
-    @Test
     public void testTotalizer() {
         final Totalizer totalizer = new Totalizer(MaxSATConfig.IncrementalStrategy.ITERATIVE);
         assertThat(totalizer.incremental()).isEqualTo(MaxSATConfig.IncrementalStrategy.ITERATIVE);
-        assertThat(totalizer.toString()).isEqualTo("Totalizer");
     }
 
     @Test
     public void testModularTotalizer() {
         final ModularTotalizer mTotalizer = new ModularTotalizer();
         assertThat(mTotalizer.hasCreatedEncoding()).isEqualTo(false);
-        assertThat(mTotalizer.toString()).isEqualTo("ModularTotalizer");
     }
 
     @Test
@@ -52,12 +44,5 @@ public class EncodingsTest {
     public void testSequentialWeightCounter() {
         final SequentialWeightCounter swc = new SequentialWeightCounter();
         assertThat(swc.hasCreatedEncoding()).isEqualTo(false);
-        assertThat(swc.toString()).isEqualTo("SequentialWeightCounter");
-    }
-
-    @Test
-    public void testLadder() {
-        final Ladder ladder = new Ladder();
-        assertThat(ladder.toString()).isEqualTo("Ladder");
     }
 }
