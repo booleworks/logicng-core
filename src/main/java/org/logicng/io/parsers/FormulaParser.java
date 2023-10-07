@@ -47,6 +47,7 @@ public abstract class FormulaParser {
         this.lexer.removeErrorListeners();
         this.parser.removeErrorListeners();
         this.parser.setErrorHandler(new BailErrorStrategy());
+        this.parser.setBuildParseTree(false);
     }
 
     /**
