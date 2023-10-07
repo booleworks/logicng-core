@@ -86,7 +86,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
         Formula tseitin = state.formula(nnf);
         if (tseitin != null) {
             final Assignment topLevel = new Assignment(state.literal(nnf));
-            return state.formula(nnf).restrict(topLevel, f);
+            return state.formula(nnf).restrict(f, topLevel);
         }
         if (nnf.numberOfAtoms(f) < boundaryForFactorization) {
             tseitin = nnf.transform(factorization);
@@ -95,7 +95,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
                 computeTseitin(formula1);
             }
             final Assignment topLevel = new Assignment(state.literal(nnf));
-            tseitin = state.formula(nnf).restrict(topLevel, f);
+            tseitin = state.formula(nnf).restrict(f, topLevel);
         }
         state.literalMap.put(formula, state.literal(nnf));
         return tseitin;

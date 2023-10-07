@@ -60,7 +60,7 @@ public class CCEXOTest implements LogicNGTest {
         final FormulaFactory f = FormulaFactory.caching();
         final CardinalityConstraint cc = (CardinalityConstraint) f.exo(f.variable("v0"));
         for (final CCConfig config : configs) {
-            assertThat(CCEncoder.encode(cc, f, config)).containsExactly(f.variable("v0"));
+            assertThat(CCEncoder.encode(f, cc, config)).containsExactly(f.variable("v0"));
         }
         assertThat(f.newCCVariable().name()).endsWith("_0");
     }
@@ -72,11 +72,11 @@ public class CCEXOTest implements LogicNGTest {
         for (final CCConfig config : configs) {
             if (config != null) {
                 f.putConfiguration(config);
-                testEXO(2, f);
-                testEXO(10, f);
-                testEXO(100, f);
-                testEXO(250, f);
-                testEXO(500, f);
+                testEXO(f, 2);
+                testEXO(f, 10);
+                testEXO(f, 100);
+                testEXO(f, 250);
+                testEXO(f, 500);
                 assertThat(f.newCCVariable().name()).endsWith("_" + counter++);
             }
         }
@@ -102,7 +102,7 @@ public class CCEXOTest implements LogicNGTest {
         assertThat(configs[7].amoEncoder.toString()).isEqualTo("BIMANDER");
     }
 
-    private void testEXO(final int numLits, final FormulaFactory f) {
+    private void testEXO(final FormulaFactory f, final int numLits) {
         final Variable[] problemLits = new Variable[numLits];
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);

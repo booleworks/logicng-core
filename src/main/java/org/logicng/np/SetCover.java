@@ -41,14 +41,14 @@ public final class SetCover {
      * Computes the minimum set cover for the given collection of sets,
      * i.e. a minimum number of sets s.t. each element is covered at
      * least once by a set in the cover.
-     * @param sets the sets to cover
-     * @param f    the formula factory
      * @param <T>  the type of the elements of the sets.  This type must implement
      *             a meaningful equals/hashCode method since it is internally
      *             used in HashSets
+     * @param f    the formula factory
+     * @param sets the sets to cover
      * @return a minimum cover of the elements in the given sets
      */
-    public static <T> List<Set<T>> compute(final Collection<Set<T>> sets, final FormulaFactory f) {
+    public static <T> List<Set<T>> compute(final FormulaFactory f, final Collection<Set<T>> sets) {
         if (sets.isEmpty()) {
             return Collections.emptyList();
         }

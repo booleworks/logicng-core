@@ -130,12 +130,12 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testRestrict(final FormulaContext _c) {
-        assertThat(_c.tautology.restrict(new Assignment(), _c.f)).isEqualTo(_c.tautology);
-        assertThat(_c.tautology.restrict(new Assignment(_c.a), _c.f)).isEqualTo(_c.f.verum());
-        assertThat(_c.tautology.restrict(new Assignment(_c.na), _c.f)).isEqualTo(_c.f.verum());
-        assertThat(_c.contradiction.restrict(new Assignment(), _c.f)).isEqualTo(_c.contradiction);
-        assertThat(_c.contradiction.restrict(new Assignment(_c.a), _c.f)).isEqualTo(_c.f.falsum());
-        assertThat(_c.contradiction.restrict(new Assignment(_c.na), _c.f)).isEqualTo(_c.f.falsum());
+        assertThat(_c.tautology.restrict(_c.f, new Assignment())).isEqualTo(_c.tautology);
+        assertThat(_c.tautology.restrict(_c.f, new Assignment(_c.a))).isEqualTo(_c.f.verum());
+        assertThat(_c.tautology.restrict(_c.f, new Assignment(_c.na))).isEqualTo(_c.f.verum());
+        assertThat(_c.contradiction.restrict(_c.f, new Assignment())).isEqualTo(_c.contradiction);
+        assertThat(_c.contradiction.restrict(_c.f, new Assignment(_c.a))).isEqualTo(_c.f.falsum());
+        assertThat(_c.contradiction.restrict(_c.f, new Assignment(_c.na))).isEqualTo(_c.f.falsum());
     }
 
     @ParameterizedTest
@@ -202,10 +202,10 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSubstitution(final FormulaContext _c) throws ParserException {
-        assertThat(_c.tautology.substitute(_c.a, _c.na, _c.f)).isEqualTo(_c.tautology);
-        assertThat(_c.contradiction.substitute(_c.a, _c.na, _c.f)).isEqualTo(_c.contradiction);
-        assertThat(_c.tautology.substitute(_c.a, _c.f.variable("B"), _c.f)).isEqualTo(_c.f.parse("B | ~B"));
-        assertThat(_c.contradiction.substitute(_c.a, _c.f.variable("B"), _c.f)).isEqualTo(_c.f.parse("B & ~B"));
+        assertThat(_c.tautology.substitute(_c.f, _c.a, _c.na)).isEqualTo(_c.tautology);
+        assertThat(_c.contradiction.substitute(_c.f, _c.a, _c.na)).isEqualTo(_c.contradiction);
+        assertThat(_c.tautology.substitute(_c.f, _c.a, _c.f.variable("B"))).isEqualTo(_c.f.parse("B | ~B"));
+        assertThat(_c.contradiction.substitute(_c.f, _c.a, _c.f.variable("B"))).isEqualTo(_c.f.parse("B & ~B"));
     }
 
     @ParameterizedTest

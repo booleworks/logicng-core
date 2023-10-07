@@ -39,7 +39,7 @@ public class CNFEncoderTest extends TestWithFormulaContext {
         _c.f.putConfiguration(CNFConfig.builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build());
         assertThat(phi1.cnf(_c.f)).isEqualTo(_c.p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
         final CNFConfig config = CNFConfig.builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build();
-        assertThat(CNFEncoder.encode(phi1, _c.f, config))
+        assertThat(CNFEncoder.encode(_c.f, phi1, config))
                 .isEqualTo(_c.p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
     }
 
@@ -100,10 +100,10 @@ public class CNFEncoderTest extends TestWithFormulaContext {
     public void testTseitinEncoder(final FormulaContext _c) throws ParserException {
         final Formula phi1 = _c.p.parse(p1);
         final CNFConfig config1 = CNFConfig.builder().algorithm(CNFConfig.Algorithm.TSEITIN).build();
-        assertThat(CNFEncoder.encode(phi1, _c.f, config1))
+        assertThat(CNFEncoder.encode(_c.f, phi1, config1))
                 .isEqualTo(_c.p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
         final CNFConfig config2 = CNFConfig.builder().algorithm(CNFConfig.Algorithm.TSEITIN).atomBoundary(8).build();
-        assertThat(CNFEncoder.encode(phi1, _c.f, config2)).isEqualTo(_c.p.parse("(@RESERVED_CNF_0 | ~x1) & (@RESERVED_CNF_0 | ~x2) & (~@RESERVED_CNF_0 | x1 | x2) & " +
+        assertThat(CNFEncoder.encode(_c.f, phi1, config2)).isEqualTo(_c.p.parse("(@RESERVED_CNF_0 | ~x1) & (@RESERVED_CNF_0 | ~x2) & (~@RESERVED_CNF_0 | x1 | x2) & " +
                 "(~@RESERVED_CNF_1 | x1) & (~@RESERVED_CNF_1 | x5) & (~@RESERVED_CNF_1 | ~x6) & (~@RESERVED_CNF_1 | ~x7) & (@RESERVED_CNF_1 | ~x1 | ~x5 | x6 | x7) & (@RESERVED_CNF_2 | ~@RESERVED_CNF_1) & (@RESERVED_CNF_2 | ~x8) & (@RESERVED_CNF_2 | ~x9) & (~@RESERVED_CNF_2 | @RESERVED_CNF_1 | x8 | x9) & @RESERVED_CNF_0 & x3 & x4 & @RESERVED_CNF_2"));
     }
 
@@ -112,10 +112,10 @@ public class CNFEncoderTest extends TestWithFormulaContext {
     public void testPGEncoder(final FormulaContext _c) throws ParserException {
         final Formula phi1 = _c.p.parse(p1);
         final CNFConfig config1 = CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).build();
-        assertThat(CNFEncoder.encode(phi1, _c.f, config1))
+        assertThat(CNFEncoder.encode(_c.f, phi1, config1))
                 .isEqualTo(_c.p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
         final CNFConfig config2 = CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).atomBoundary(8).build();
-        assertThat(CNFEncoder.encode(phi1, _c.f, config2)).isEqualTo(_c.p.parse("@RESERVED_CNF_1 & x3 & x4 & @RESERVED_CNF_2 & (~@RESERVED_CNF_1 | x1 | x2) & " +
+        assertThat(CNFEncoder.encode(_c.f, phi1, config2)).isEqualTo(_c.p.parse("@RESERVED_CNF_1 & x3 & x4 & @RESERVED_CNF_2 & (~@RESERVED_CNF_1 | x1 | x2) & " +
                 "(~@RESERVED_CNF_2 | @RESERVED_CNF_3 | x8 | x9) & (~@RESERVED_CNF_3 | x1) & (~@RESERVED_CNF_3 | x5) & (~@RESERVED_CNF_3 | ~x6) & (~@RESERVED_CNF_3 | ~x7)"));
     }
 
@@ -126,13 +126,13 @@ public class CNFEncoderTest extends TestWithFormulaContext {
         final Formula phi2 = _c.p.parse(p2);
         final Formula phi3 = _c.p.parse(p3);
         final CNFConfig config = CNFConfig.builder().algorithm(CNFConfig.Algorithm.BDD).build();
-        final Formula phi1CNF = CNFEncoder.encode(phi1, _c.f, config);
+        final Formula phi1CNF = CNFEncoder.encode(_c.f, phi1, config);
         assertThat(phi1CNF.isCNF(_c.f)).isTrue();
         assertThat(equivalentModels(phi1, phi1CNF, phi1.variables(_c.f))).isTrue();
-        final Formula phi2CNF = CNFEncoder.encode(phi2, _c.f, config);
+        final Formula phi2CNF = CNFEncoder.encode(_c.f, phi2, config);
         assertThat(phi2CNF.isCNF(_c.f)).isTrue();
         assertThat(equivalentModels(phi2, phi2CNF, phi2.variables(_c.f))).isTrue();
-        final Formula phi3CNF = CNFEncoder.encode(phi3, _c.f, config);
+        final Formula phi3CNF = CNFEncoder.encode(_c.f, phi3, config);
         assertThat(phi3CNF.isCNF(_c.f)).isTrue();
         assertThat(equivalentModels(phi3, phi3CNF, phi3.variables(_c.f))).isTrue();
     }
@@ -143,13 +143,13 @@ public class CNFEncoderTest extends TestWithFormulaContext {
         final Formula phi1 = _c.p.parse(p1);
         final Formula phi2 = _c.p.parse(p2);
         final Formula phi3 = _c.p.parse(p3);
-        assertThat(CNFEncoder.encode(phi1, _c.f)).isEqualTo(_c.p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 |" +
+        assertThat(CNFEncoder.encode(_c.f, phi1)).isEqualTo(_c.p.parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 |" +
                 " x9)"));
         final CNFConfig config1 = CNFConfig.builder().createdClauseBoundary(5).atomBoundary(3).build();
-        assertThat(CNFEncoder.encode(phi2, _c.f, config1)).isEqualTo(_c.p.parse("(y1 | y2) & y3 & y4 & (~@RESERVED_CNF_0 | y1) & (~@RESERVED_CNF_0 | y5) & " +
+        assertThat(CNFEncoder.encode(_c.f, phi2, config1)).isEqualTo(_c.p.parse("(y1 | y2) & y3 & y4 & (~@RESERVED_CNF_0 | y1) & (~@RESERVED_CNF_0 | y5) & " +
                 "(~@RESERVED_CNF_0 | ~y6) & (~@RESERVED_CNF_0 | ~y7) & (@RESERVED_CNF_0 | ~y1 | ~y5 | y6 | y7) & (@RESERVED_CNF_0 | y8 | y9)"));
         final CNFConfig config2 = CNFConfig.builder().createdClauseBoundary(-1).distributionBoundary(5).atomBoundary(3).build();
-        assertThat(CNFEncoder.encode(phi3, _c.f, config2)).isEqualTo(_c.p.parse("(z1 | z2) & z3 & z4 & (~@RESERVED_CNF_2 | z1) & (~@RESERVED_CNF_2 | z5) & " +
+        assertThat(CNFEncoder.encode(_c.f, phi3, config2)).isEqualTo(_c.p.parse("(z1 | z2) & z3 & z4 & (~@RESERVED_CNF_2 | z1) & (~@RESERVED_CNF_2 | z5) & " +
                 "(~@RESERVED_CNF_2 | ~z6) & (~@RESERVED_CNF_2 | ~z7) & (@RESERVED_CNF_2 | ~z1 | ~z5 | z6 | z7) & (@RESERVED_CNF_2 | z8 | z9)"));
     }
 

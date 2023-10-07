@@ -59,29 +59,29 @@ public class MUSGenerationTest {
     @Test
     public void testNoFormulas() {
         final MUSGeneration mus = new MUSGeneration();
-        assertThatThrownBy(() -> mus.computeMUS(Collections.emptyList(), f, MUSConfig.builder().build())).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> mus.computeMUS(f, Collections.emptyList(), MUSConfig.builder().build())).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void testSATFormulaSetDeletionBasedMUS() {
         final MUSGeneration mus = new MUSGeneration();
         final StandardProposition proposition = new StandardProposition(f.variable("a"));
-        assertThatThrownBy(() -> mus.computeMUS(Collections.singletonList(proposition), f,
+        assertThatThrownBy(() -> mus.computeMUS(f, Collections.singletonList(proposition),
                 MUSConfig.builder().algorithm(MUSConfig.Algorithm.DELETION).build())).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void testDeletionBasedMUS() {
         final MUSGeneration mus = new MUSGeneration();
-        final UNSATCore<StandardProposition> mus1 = mus.computeMUS(pg3, f);
-        final UNSATCore<StandardProposition> mus2 = mus.computeMUS(pg4, f);
-        final UNSATCore<StandardProposition> mus3 = mus.computeMUS(pg5, f);
-        final UNSATCore<StandardProposition> mus4 = mus.computeMUS(pg6, f);
-        final UNSATCore<StandardProposition> mus5 = mus.computeMUS(pg7, f);
-        final UNSATCore<StandardProposition> mus6 = mus.computeMUS(file1, f);
-        final UNSATCore<StandardProposition> mus7 = mus.computeMUS(file2, f);
-        final UNSATCore<StandardProposition> mus8 = mus.computeMUS(file3, f);
-        final UNSATCore<StandardProposition> mus9 = mus.computeMUS(file4, f);
+        final UNSATCore<StandardProposition> mus1 = mus.computeMUS(f, pg3);
+        final UNSATCore<StandardProposition> mus2 = mus.computeMUS(f, pg4);
+        final UNSATCore<StandardProposition> mus3 = mus.computeMUS(f, pg5);
+        final UNSATCore<StandardProposition> mus4 = mus.computeMUS(f, pg6);
+        final UNSATCore<StandardProposition> mus5 = mus.computeMUS(f, pg7);
+        final UNSATCore<StandardProposition> mus6 = mus.computeMUS(f, file1);
+        final UNSATCore<StandardProposition> mus7 = mus.computeMUS(f, file2);
+        final UNSATCore<StandardProposition> mus8 = mus.computeMUS(f, file3);
+        final UNSATCore<StandardProposition> mus9 = mus.computeMUS(f, file4);
         testMUS(pg3, mus1);
         testMUS(pg4, mus2);
         testMUS(pg5, mus3);
@@ -97,7 +97,7 @@ public class MUSGenerationTest {
     public void testSATFormulaSetPlainInsertionBasedMUS() {
         final MUSGeneration mus = new MUSGeneration();
         final StandardProposition proposition = new StandardProposition(f.variable("a"));
-        assertThatThrownBy(() -> mus.computeMUS(Collections.singletonList(proposition), f,
+        assertThatThrownBy(() -> mus.computeMUS(f, Collections.singletonList(proposition),
                 MUSConfig.builder().algorithm(MUSConfig.Algorithm.PLAIN_INSERTION).build())).isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -105,11 +105,11 @@ public class MUSGenerationTest {
     public void testPlainInsertionBasedMUS() {
         final MUSGeneration mus = new MUSGeneration();
         final MUSConfig config = MUSConfig.builder().algorithm(MUSConfig.Algorithm.PLAIN_INSERTION).build();
-        final UNSATCore<StandardProposition> mus1 = mus.computeMUS(pg3, f, config);
-        final UNSATCore<StandardProposition> mus2 = mus.computeMUS(pg4, f, config);
-        final UNSATCore<StandardProposition> mus3 = mus.computeMUS(pg5, f, config);
-        final UNSATCore<StandardProposition> mus6 = mus.computeMUS(file1, f, config);
-        final UNSATCore<StandardProposition> mus7 = mus.computeMUS(file2, f, config);
+        final UNSATCore<StandardProposition> mus1 = mus.computeMUS(f, pg3, config);
+        final UNSATCore<StandardProposition> mus2 = mus.computeMUS(f, pg4, config);
+        final UNSATCore<StandardProposition> mus3 = mus.computeMUS(f, pg5, config);
+        final UNSATCore<StandardProposition> mus6 = mus.computeMUS(f, file1, config);
+        final UNSATCore<StandardProposition> mus7 = mus.computeMUS(f, file2, config);
         testMUS(pg3, mus1);
         testMUS(pg4, mus2);
         testMUS(pg5, mus3);
@@ -120,14 +120,14 @@ public class MUSGenerationTest {
     @Test
     public void testDeletionBasedCancellationPoints() throws IOException {
         final MUSGeneration mus = new MUSGeneration();
-        final List<StandardProposition> propositions = DimacsReader.readCNF("src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf", f).stream()
+        final List<StandardProposition> propositions = DimacsReader.readCNF(f, "src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf").stream()
                 .map(StandardProposition::new)
                 .collect(Collectors.toList());
         for (int numStarts = 0; numStarts < 20; numStarts++) {
             final SATHandler handler = new BoundedSatHandler(numStarts);
             final MUSConfig config = MUSConfig.builder().handler(handler).algorithm(MUSConfig.Algorithm.PLAIN_INSERTION).build();
 
-            final UNSATCore<StandardProposition> result = mus.computeMUS(propositions, f, config);
+            final UNSATCore<StandardProposition> result = mus.computeMUS(f, propositions, config);
 
             assertThat(handler.aborted()).isTrue();
             assertThat(result).isNull();
@@ -137,7 +137,7 @@ public class MUSGenerationTest {
     @Test
     public void testCancellationPoints() throws IOException {
         final MUSGeneration mus = new MUSGeneration();
-        final List<StandardProposition> propositions = DimacsReader.readCNF("src/test/resources/sat/unsat/bf0432-007.cnf", f).stream()
+        final List<StandardProposition> propositions = DimacsReader.readCNF(f, "src/test/resources/sat/unsat/bf0432-007.cnf").stream()
                 .map(StandardProposition::new)
                 .collect(Collectors.toList());
         final List<MUSConfig.Algorithm> algorithms = Arrays.asList(MUSConfig.Algorithm.DELETION, MUSConfig.Algorithm.PLAIN_INSERTION);
@@ -146,7 +146,7 @@ public class MUSGenerationTest {
                 final SATHandler handler = new BoundedSatHandler(numStarts);
                 final MUSConfig config = MUSConfig.builder().handler(handler).algorithm(algorithm).build();
 
-                final UNSATCore<StandardProposition> result = mus.computeMUS(propositions, f, config);
+                final UNSATCore<StandardProposition> result = mus.computeMUS(f, propositions, config);
 
                 assertThat(handler.aborted()).isTrue();
                 assertThat(result).isNull();

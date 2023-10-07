@@ -48,11 +48,11 @@ public class DTreeNode extends DTree {
 
     /**
      * Constructs a new DTree node with the given left and right DTree.
+     * @param f     the formula factory to use for caching
      * @param left  the left DTree
      * @param right the right DTree
-     * @param f     the formula factory to use for caching
      **/
-    public DTreeNode(final DTree left, final DTree right, final FormulaFactory f) {
+    public DTreeNode(final FormulaFactory f, final DTree left, final DTree right) {
         this.left = left;
         this.right = right;
         size = left.size() + right.size();

@@ -307,7 +307,7 @@ public class BDDOperationsTest {
     private void compareFormula(final BDD bdd, final Formula compareFormula) {
         final Formula bddFormulaFollowPathsToTrue = bdd.toFormula(true);
         final Formula bddFormulaFollowPathsToFalse = bdd.toFormula(false);
-        assertThat(bddFormulaFollowPathsToTrue.isEquivalentTo(compareFormula, f)).isTrue();
-        assertThat(bddFormulaFollowPathsToFalse.isEquivalentTo(compareFormula, f)).isTrue();
+        assertThat(bddFormulaFollowPathsToTrue.isEquivalentTo(f, compareFormula)).isTrue();
+        assertThat(bddFormulaFollowPathsToFalse.isEquivalentTo(f, compareFormula)).isTrue();
     }
 }

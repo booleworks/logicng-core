@@ -94,7 +94,7 @@ public class MinimumPrimeImplicantTest {
 
     @Test
     public void testMiddleExamples() throws IOException, ParserException {
-        final Formula parsed = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/formula1.txt", f);
+        final Formula parsed = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/formula1.txt");
         for (final Formula formula : parsed) {
             isPrimeImplicant(formula, formula.apply(new MinimumPrimeImplicantFunction(f)));
         }
@@ -102,7 +102,7 @@ public class MinimumPrimeImplicantTest {
 
     @Test
     public void testLargeExamples() throws IOException, ParserException {
-        final Formula parsed = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", f);
+        final Formula parsed = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/small_formulas.txt");
         for (final Formula formula : parsed) {
             isPrimeImplicant(formula, formula.apply(new MinimumPrimeImplicantFunction(f)));
         }

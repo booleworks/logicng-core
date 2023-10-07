@@ -50,8 +50,8 @@ public interface Not extends Formula {
     }
 
     @Override
-    default Formula restrict(final Assignment assignment, final FormulaFactory f) {
-        return f.not(operand().restrict(assignment, f));
+    default Formula restrict(final FormulaFactory f, final Assignment assignment) {
+        return f.not(operand().restrict(f, assignment));
     }
 
     @Override
@@ -60,8 +60,8 @@ public interface Not extends Formula {
     }
 
     @Override
-    default Formula substitute(final Substitution substitution, final FormulaFactory f) {
-        return f.not(operand().substitute(substitution, f));
+    default Formula substitute(final FormulaFactory f, final Substitution substitution) {
+        return f.not(operand().substitute(f, substitution));
     }
 
     @Override
@@ -83,7 +83,7 @@ public interface Not extends Formula {
             public Formula next() {
                 if (!iterated) {
                     iterated = true;
-                    return Not.this.operand();
+                    return operand();
                 }
                 throw new NoSuchElementException();
             }

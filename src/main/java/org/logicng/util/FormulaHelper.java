@@ -159,11 +159,11 @@ public final class FormulaHelper {
      * Returns a sorted variable set from a given collection of strings which will be used as variable names
      * and a formula factory. The given collection is treated in a null-safe manner,
      * i.e. if the collection is {@code null} the collection is considered to be an empty collection.
-     * @param strings the collection of strings (can be empty or {@code null}
      * @param f       the formula factory which is used to generate the variables
+     * @param strings the collection of strings (can be empty or {@code null}
      * @return the sorted set of variables from the collection of variable names
      */
-    public static SortedSet<Variable> strings2vars(final Collection<String> strings, final FormulaFactory f) {
+    public static SortedSet<Variable> strings2vars(final FormulaFactory f, final Collection<String> strings) {
         if (nullOrEmpty(strings)) {
             return Collections.emptySortedSet();
         }
@@ -179,12 +179,12 @@ public final class FormulaHelper {
      * If a string begins with the given {@code negationPrefix} a literal with a negative phase is created,
      * otherwise a literal with a positive phase is created. The given collection is treated in a null-safe manner,
      * i.e. if the collection is {@code null} the collection is considered to be an empty collection.
+     * @param f              the formula factory which is used to generate the variables
      * @param strings        the collection of strings (can be empty or {@code null}
      * @param negationPrefix the negation prefix
-     * @param f              the formula factory which is used to generate the variables
      * @return the sorted set of literals
      */
-    public static SortedSet<Literal> strings2literals(final Collection<String> strings, final String negationPrefix, final FormulaFactory f) {
+    public static SortedSet<Literal> strings2literals(final FormulaFactory f, final Collection<String> strings, final String negationPrefix) {
         if (nullOrEmpty(strings)) {
             return Collections.emptySortedSet();
         }

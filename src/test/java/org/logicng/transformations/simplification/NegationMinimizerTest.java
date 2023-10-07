@@ -83,7 +83,7 @@ public class NegationMinimizerTest extends TestWithFormulaContext {
     private static void computeAndVerify(final Formula formula) {
         final FormulaFactory f = formula.factory();
         final Formula simplified = formula.transform(new NegationSimplifier(f));
-        assertThat(formula.isEquivalentTo(simplified, f)).isTrue();
+        assertThat(formula.isEquivalentTo(f, simplified)).isTrue();
         assertThat(simplified.toString().length()).isLessThanOrEqualTo(formula.toString().length());
     }
 }

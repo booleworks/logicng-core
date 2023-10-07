@@ -41,12 +41,12 @@ public class AssignmentTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testRestrictLit(final FormulaContext _c) {
         final Assignment ass = new Assignment(Arrays.asList(_c.a, _c.nx));
-        assertThat(ass.restrictLit(_c.a, _c.f)).isEqualTo(_c.verum);
-        assertThat(ass.restrictLit(_c.nx, _c.f)).isEqualTo(_c.verum);
-        assertThat(ass.restrictLit(_c.na, _c.f)).isEqualTo(_c.falsum);
-        assertThat(ass.restrictLit(_c.x, _c.f)).isEqualTo(_c.falsum);
-        assertThat(ass.restrictLit(_c.b, _c.f)).isEqualTo(_c.b);
-        assertThat(ass.restrictLit(_c.nb, _c.f)).isEqualTo(_c.nb);
+        assertThat(ass.restrictLit(_c.f, _c.a)).isEqualTo(_c.verum);
+        assertThat(ass.restrictLit(_c.f, _c.nx)).isEqualTo(_c.verum);
+        assertThat(ass.restrictLit(_c.f, _c.na)).isEqualTo(_c.falsum);
+        assertThat(ass.restrictLit(_c.f, _c.x)).isEqualTo(_c.falsum);
+        assertThat(ass.restrictLit(_c.f, _c.b)).isEqualTo(_c.b);
+        assertThat(ass.restrictLit(_c.f, _c.nb)).isEqualTo(_c.nb);
     }
 
     @ParameterizedTest
@@ -75,9 +75,9 @@ public class AssignmentTest extends TestWithFormulaContext {
         assertThat(ass.negativeVariables()).containsExactlyInAnyOrder(_c.x, _c.b);
         assertThat(ass.evaluateLit(_c.y)).isTrue();
         assertThat(ass.evaluateLit(_c.b)).isFalse();
-        assertThat(ass.restrictLit(_c.nb, _c.f)).isEqualTo(_c.verum);
-        assertThat(ass.restrictLit(_c.x, _c.f)).isEqualTo(_c.falsum);
-        assertThat(ass.restrictLit(_c.c, _c.f)).isEqualTo(_c.c);
+        assertThat(ass.restrictLit(_c.f, _c.nb)).isEqualTo(_c.verum);
+        assertThat(ass.restrictLit(_c.f, _c.x)).isEqualTo(_c.falsum);
+        assertThat(ass.restrictLit(_c.f, _c.c)).isEqualTo(_c.c);
         assertThat(ass.formula(_c.f)).isEqualTo(_c.f.and(_c.a, _c.nx, _c.nb, _c.y));
         ass = new Assignment(Arrays.asList(_c.a, _c.nx), true);
         assertThat(ass.fastEvaluable()).isTrue();

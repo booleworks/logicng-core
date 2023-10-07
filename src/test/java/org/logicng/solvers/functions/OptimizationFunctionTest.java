@@ -130,7 +130,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
             final Formula formula = randomizer.formula(2);
             final List<Variable> variables = new ArrayList<>(formula.variables(f));
 
-            final Set<Literal> targetLiterals = randomTargetLiterals(random, randomSubset(random, variables, Math.min(variables.size(), 5)), f);
+            final Set<Literal> targetLiterals = randomTargetLiterals(f, random, randomSubset(random, variables, Math.min(variables.size(), 5)));
             final Set<Variable> additionalVariables = randomSubset(random, variables, Math.min(variables.size(), 3));
 
             final Assignment minimumModel = optimize(Collections.singleton(formula), targetLiterals, additionalVariables, false, solver, null);
@@ -152,7 +152,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
         return subset;
     }
 
-    private static SortedSet<Literal> randomTargetLiterals(final Random random, final Collection<Variable> variables, final FormulaFactory f) {
+    private static SortedSet<Literal> randomTargetLiterals(final FormulaFactory f, final Random random, final Collection<Variable> variables) {
         return variables.stream().map(var -> f.literal(var.name(), random.nextBoolean())).collect(toCollection(TreeSet::new));
     }
 
@@ -247,7 +247,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     @MethodSource("solvers")
     public void testLargeFormulaMinimize(final SATSolver solver) throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
+        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/large_formula.txt");
         final Assignment minimumModel = optimize(Collections.singleton(formula), formula.variables(f), Collections.emptyList(), false, solver, null);
         testMinimumModel(formula, minimumModel, formula.variables(f));
     }
@@ -256,7 +256,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     @MethodSource("solvers")
     public void testLargeFormulaMaximize(final SATSolver solver) throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
+        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/large_formula.txt");
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f), Collections.emptyList(), true, solver, null);
         testMaximumModel(formula, maximumModel, formula.variables(f));
     }
@@ -266,7 +266,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     @LongRunningTag
     public void testLargerFormulaMinimize(final SATSolver solver) throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", f);
+        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/small_formulas.txt");
         final Assignment minimumModel = optimize(Collections.singleton(formula), formula.variables(f), Collections.emptyList(), false, solver, null);
         testMinimumModel(formula, minimumModel, formula.variables(f));
     }
@@ -276,7 +276,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     @LongRunningTag
     public void testLargerFormulaMaximize(final SATSolver solver) throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", f);
+        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/small_formulas.txt");
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f), Collections.emptyList(), true, solver, null);
         testMaximumModel(formula, maximumModel, formula.variables(f));
     }
@@ -308,7 +308,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     @MethodSource("solvers")
     public void testTimeoutOptimizationHandler(final SATSolver solver) throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
+        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/large_formula.txt");
         final TimeoutOptimizationHandler handlerMax = new TimeoutOptimizationHandler(1L);
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f), Collections.emptyList(), true, solver, handlerMax);
         assertThat(maximumModel).isNull();
@@ -333,7 +333,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     public void testCancellationPoints(final SATSolver solver) throws IOException {
         final FormulaFactory f = FormulaFactory.caching();
         final SortedSet<Variable> selVars = new TreeSet<>();
-        final List<Formula> clauses = DimacsReader.readCNF("src/test/resources/sat/c499_gr_rcs_w6.shuffled.cnf", f);
+        final List<Formula> clauses = DimacsReader.readCNF(f, "src/test/resources/sat/c499_gr_rcs_w6.shuffled.cnf");
         final List<Formula> formulas = new ArrayList<>();
         for (final Formula clause : clauses) {
             final Variable selVar = f.variable("@SEL_" + selVars.size());

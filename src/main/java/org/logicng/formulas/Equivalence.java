@@ -19,7 +19,7 @@ public interface Equivalence extends BinaryOperator {
     }
 
     @Override
-    default Formula restrict(final Assignment assignment, final FormulaFactory f) {
-        return f.equivalence(left().restrict(assignment, f), right().restrict(assignment, f));
+    default Formula restrict(final FormulaFactory f, final Assignment assignment) {
+        return f.equivalence(left().restrict(f, assignment), right().restrict(f, assignment));
     }
 }

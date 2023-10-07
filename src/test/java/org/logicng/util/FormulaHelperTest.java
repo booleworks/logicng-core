@@ -99,24 +99,24 @@ public class FormulaHelperTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testStrings2Vars(final FormulaContext _c) {
-        assertThat(FormulaHelper.strings2vars(null, _c.f)).isEmpty();
-        assertThat(FormulaHelper.strings2vars(new TreeSet<>(), _c.f)).isEmpty();
-        assertThat(FormulaHelper.strings2vars(Arrays.asList("a", "b", "c"), _c.f))
+        assertThat(FormulaHelper.strings2vars(_c.f, null)).isEmpty();
+        assertThat(FormulaHelper.strings2vars(_c.f, new TreeSet<>())).isEmpty();
+        assertThat(FormulaHelper.strings2vars(_c.f, Arrays.asList("a", "b", "c")))
                 .containsExactly(_c.a, _c.b, _c.c);
-        assertThat(FormulaHelper.strings2vars(Arrays.asList("a", "b", "c", "a", "a"), _c.f))
+        assertThat(FormulaHelper.strings2vars(_c.f, Arrays.asList("a", "b", "c", "a", "a")))
                 .containsExactly(_c.a, _c.b, _c.c);
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testStrings2Literals(final FormulaContext _c) {
-        assertThat(FormulaHelper.strings2literals(null, "~", _c.f)).isEmpty();
-        assertThat(FormulaHelper.strings2literals(new TreeSet<>(), "~", _c.f)).isEmpty();
-        assertThat(FormulaHelper.strings2literals(Arrays.asList("a", "~b", "c"), "~", _c.f))
+        assertThat(FormulaHelper.strings2literals(_c.f, null, "~")).isEmpty();
+        assertThat(FormulaHelper.strings2literals(_c.f, new TreeSet<>(), "~")).isEmpty();
+        assertThat(FormulaHelper.strings2literals(_c.f, Arrays.asList("a", "~b", "c"), "~"))
                 .containsExactly(_c.a, _c.nb, _c.c);
-        assertThat(FormulaHelper.strings2literals(Arrays.asList("~a", "b", "c", "a", "a"), "~", _c.f))
+        assertThat(FormulaHelper.strings2literals(_c.f, Arrays.asList("~a", "b", "c", "a", "a"), "~"))
                 .containsExactly(_c.a, _c.na, _c.b, _c.c);
-        assertThat(FormulaHelper.strings2literals(Arrays.asList("-a", "b", "c", "a", "a"), "-", _c.f))
+        assertThat(FormulaHelper.strings2literals(_c.f, Arrays.asList("-a", "b", "c", "a", "a"), "-"))
                 .containsExactly(_c.a, _c.na, _c.b, _c.c);
     }
 

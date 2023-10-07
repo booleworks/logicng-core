@@ -20,33 +20,33 @@ public class CCEXKTest implements LogicNGTest {
     private final CCConfig[] configs;
 
     public CCEXKTest() {
-        this.configs = new CCConfig[2];
-        this.configs[0] = CCConfig.builder().exkEncoding(CCConfig.EXK_ENCODER.TOTALIZER).build();
-        this.configs[1] = CCConfig.builder().exkEncoding(CCConfig.EXK_ENCODER.CARDINALITY_NETWORK).build();
+        configs = new CCConfig[2];
+        configs[0] = CCConfig.builder().exkEncoding(CCConfig.EXK_ENCODER.TOTALIZER).build();
+        configs[1] = CCConfig.builder().exkEncoding(CCConfig.EXK_ENCODER.CARDINALITY_NETWORK).build();
     }
 
     @Test
     public void testEXK() {
         final FormulaFactory f = FormulaFactory.caching();
         int counter = 0;
-        for (final CCConfig config : this.configs) {
+        for (final CCConfig config : configs) {
             f.putConfiguration(config);
-            testCC(10, 1, 10, f);
-            testCC(10, 2, 45, f);
-            testCC(10, 3, 120, f);
-            testCC(10, 4, 210, f);
-            testCC(10, 5, 252, f);
-            testCC(10, 6, 210, f);
-            testCC(10, 7, 120, f);
-            testCC(10, 8, 45, f);
-            testCC(10, 9, 10, f);
-            testCC(10, 10, 1, f);
-            testCC(10, 12, 0, f);
+            testCC(f, 10, 1, 10);
+            testCC(f, 10, 2, 45);
+            testCC(f, 10, 3, 120);
+            testCC(f, 10, 4, 210);
+            testCC(f, 10, 5, 252);
+            testCC(f, 10, 6, 210);
+            testCC(f, 10, 7, 120);
+            testCC(f, 10, 8, 45);
+            testCC(f, 10, 9, 10);
+            testCC(f, 10, 10, 1);
+            testCC(f, 10, 12, 0);
             assertThat(f.newCCVariable().name()).endsWith("_" + counter++);
         }
     }
 
-    private void testCC(final int numLits, final int rhs, final int expected, final FormulaFactory f) {
+    private void testCC(final FormulaFactory f, final int numLits, final int rhs, final int expected) {
         final Variable[] problemLits = new Variable[numLits];
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
@@ -75,8 +75,8 @@ public class CCEXKTest implements LogicNGTest {
 
     @Test
     public void testToString() {
-        assertThat(this.configs[0].exkEncoder.toString()).isEqualTo("TOTALIZER");
-        assertThat(this.configs[1].exkEncoder.toString()).isEqualTo("CARDINALITY_NETWORK");
+        assertThat(configs[0].exkEncoder.toString()).isEqualTo("TOTALIZER");
+        assertThat(configs[1].exkEncoder.toString()).isEqualTo("CARDINALITY_NETWORK");
 
         assertThat(CCConfig.EXK_ENCODER.values()).contains(CCConfig.EXK_ENCODER.valueOf("CARDINALITY_NETWORK"));
     }

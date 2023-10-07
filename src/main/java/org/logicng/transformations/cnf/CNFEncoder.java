@@ -29,22 +29,22 @@ public class CNFEncoder {
 
     /**
      * Encodes a formula to CNF.
-     * @param formula formula
      * @param f       the formula factory to generate new formulas
+     * @param formula formula
      * @return the CNF encoding of the formula
      */
-    public static Formula encode(final Formula formula, final FormulaFactory f) {
-        return encode(formula, f, null);
+    public static Formula encode(final FormulaFactory f, final Formula formula) {
+        return encode(f, formula, null);
     }
 
     /**
      * Encodes a formula to CNF.
-     * @param formula    formula
      * @param f          the formula factory to generate new formulas
+     * @param formula    formula
      * @param initConfig the configuration for the encoder
      * @return the CNF encoding of the formula
      */
-    public static Formula encode(final Formula formula, final FormulaFactory f, final CNFConfig initConfig) {
+    public static Formula encode(final FormulaFactory f, final Formula formula, final CNFConfig initConfig) {
         final CNFConfig config = initConfig != null ? initConfig : (CNFConfig) f.configurationFor(ConfigurationType.CNF);
         switch (config.algorithm) {
             case FACTORIZATION:
@@ -56,7 +56,7 @@ public class CNFEncoder {
             case BDD:
                 return formula.transform(new BDDCNFTransformation(f));
             case ADVANCED:
-                return advancedEncoding(formula, f, config);
+                return advancedEncoding(f, formula, config);
             default:
                 throw new IllegalStateException("Unknown CNF encoding algorithm: " + config.algorithm);
         }
@@ -65,12 +65,12 @@ public class CNFEncoder {
     /**
      * Encodes the given formula to CNF by first trying to use Factorization for the single sub-formulas.  When certain
      * user-provided boundaries are met, the method is switched to Tseitin or Plaisted &amp; Greenbaum.
-     * @param formula the formula
      * @param f       the formula factory to generate new formulas
+     * @param formula the formula
      * @param config  the CNF configuration
      * @return the CNF encoding of the formula
      */
-    protected static Formula advancedEncoding(final Formula formula, final FormulaFactory f, final CNFConfig config) {
+    protected static Formula advancedEncoding(final FormulaFactory f, final Formula formula, final CNFConfig config) {
         final var factorizationHandler = new AdvancedFactorizationHandler();
         factorizationHandler.setBounds(config.distributionBoundary, config.createdClauseBoundary);
         final var advancedFactorization = new CNFFactorization(f, factorizationHandler);

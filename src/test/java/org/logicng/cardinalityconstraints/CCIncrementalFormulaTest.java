@@ -49,12 +49,12 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = f.variable("v" + i);
             }
-            final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental((CardinalityConstraint) f.cc(CType.LE, 9, vars), f, config);
+            final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, 9, vars), config);
             final CCIncrementalData incData = cc.second();
 
             final SATSolver solver = MiniSat.miniSat(f);
-            solver.add(CCEncoder.encode((CardinalityConstraint) f.cc(CType.GE, 4, vars), f, config)); // >= 4
-            solver.add(CCEncoder.encode((CardinalityConstraint) f.cc(CType.LE, 7, vars), f, config)); // <= 7
+            solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 4, vars), config)); // >= 4
+            solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.LE, 7, vars), config)); // <= 7
 
             solver.add(cc.first());
             assertSolverSat(solver);
@@ -90,36 +90,36 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = f.variable("v" + i);
             }
-            Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental((CardinalityConstraint) f.cc(CType.LT, 10, vars), f, config);
+            Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LT, 10, vars), config);
             CCIncrementalData incData = cc.second();
             assertThat(incData.toString()).contains("currentRHS=9");
 
-            cc = CCEncoder.encodeIncremental((CardinalityConstraint) f.cc(CType.GT, 1, vars), f, config);
+            cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GT, 1, vars), config);
             incData = cc.second();
             assertThat(incData.toString()).contains("currentRHS=2");
 
-            cc = CCEncoder.encodeIncremental((CardinalityConstraint) f.cc(CType.LT, 1, vars), f, config);
+            cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LT, 1, vars), config);
             incData = cc.second();
             assertThat(incData).isNull();
             assertThat(cc.first()).contains(vars[0].negate(f));
 
-            cc = CCEncoder.encodeIncremental((CardinalityConstraint) f.cc(CType.LE, numLits + 1, vars), f, config);
+            cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, numLits + 1, vars), config);
             incData = cc.second();
             assertThat(incData).isNull();
 
-            cc = CCEncoder.encodeIncremental((CardinalityConstraint) f.cc(CType.GE, numLits + 1, vars), f, config);
+            cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GE, numLits + 1, vars), config);
             incData = cc.second();
             assertThat(incData).isNull();
 
-            cc = CCEncoder.encodeIncremental((CardinalityConstraint) f.cc(CType.GE, numLits, vars), f, config);
+            cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GE, numLits, vars), config);
             incData = cc.second();
             assertThat(incData).isNull();
 
-            cc = CCEncoder.encodeIncremental((CardinalityConstraint) f.cc(CType.GE, 0, vars), f, config);
+            cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GE, 0, vars), config);
             incData = cc.second();
             assertThat(incData).isNull();
 
-            cc = CCEncoder.encodeIncremental((CardinalityConstraint) f.cc(CType.GE, 1, vars), f, config);
+            cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GE, 1, vars), config);
             incData = cc.second();
             assertThat(incData).isNull();
         }
@@ -133,12 +133,12 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = f.variable("v" + i);
             }
-            final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental((CardinalityConstraint) f.cc(CType.GE, 2, vars), f, config);
+            final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GE, 2, vars), config);
             final CCIncrementalData incData = cc.second();
 
             final SATSolver solver = MiniSat.miniSat(f);
-            solver.add(CCEncoder.encode((CardinalityConstraint) f.cc(CType.GE, 4, vars), f, config)); // >= 4
-            solver.add(CCEncoder.encode((CardinalityConstraint) f.cc(CType.LE, 7, vars), f, config)); // <= 7
+            solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 4, vars), config)); // >= 4
+            solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.LE, 7, vars), config)); // <= 7
 
             solver.add(cc.first());
             assertSolverSat(solver); // >=2
@@ -172,12 +172,12 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             vars[i] = f.variable("v" + i);
         }
-        final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental((CardinalityConstraint) f.cc(CType.LE, currentBound, vars), f, config);
+        final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, currentBound, vars), config);
         final CCIncrementalData incData = cc.second();
 
         final SATSolver solver = solvers[3];
         solver.reset();
-        solver.add(CCEncoder.encode((CardinalityConstraint) f.cc(CType.GE, 42, vars), f, config)); // >= 42
+        solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 42, vars), config)); // >= 42
         solver.add(cc.first());
 
         // search the lower bound
@@ -196,12 +196,12 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             vars[i] = f.variable("v" + i);
         }
-        final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental((CardinalityConstraint) f.cc(CType.GE, currentBound, vars), f, config);
+        final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GE, currentBound, vars), config);
         final CCIncrementalData incData = cc.second();
 
         final SATSolver solver = solvers[3];
         solver.reset();
-        solver.add(CCEncoder.encode((CardinalityConstraint) f.cc(CType.LE, 87, vars), f, config)); // <= 42
+        solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.LE, 87, vars), config)); // <= 42
         solver.add(cc.first());
 
         // search the lower bound
@@ -222,12 +222,12 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = f.variable("v" + i);
             }
-            final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental((CardinalityConstraint) f.cc(CType.LE, currentBound, vars), f,
+            final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, currentBound, vars),
                     config);
             final CCIncrementalData incData = cc.second();
 
             solver.reset();
-            solver.add(CCEncoder.encode((CardinalityConstraint) f.cc(CType.GE, 42, vars), f, config)); // >= 42
+            solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 42, vars), config)); // >= 42
             solver.add(cc.first());
 
             // search the lower bound
@@ -264,12 +264,12 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             vars[i] = f.variable("v" + i);
         }
-        final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental((CardinalityConstraint) f.cc(CType.LE, currentBound, vars), f, config);
+        final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, currentBound, vars), config);
         final CCIncrementalData incData = cc.second();
 
         final SATSolver solver = solvers[3];
         solver.reset();
-        solver.add(CCEncoder.encode((CardinalityConstraint) f.cc(CType.GE, 234, vars), f, config));
+        solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 234, vars), config));
         solver.add(cc.first());
 
         // search the lower bound

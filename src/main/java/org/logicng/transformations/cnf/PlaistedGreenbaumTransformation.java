@@ -109,7 +109,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
         } else {
             pg = computeTransformation(nnf);
             final Assignment topLevel = new Assignment(state.literal(nnf));
-            pg = pg.restrict(topLevel, f);
+            pg = pg.restrict(f, topLevel);
         }
         state.literalMap.put(formula, state.literal(nnf));
         return pg;

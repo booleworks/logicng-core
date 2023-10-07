@@ -50,8 +50,7 @@ public final class FormulaFactoryImporter extends StatelessFormulaTransformation
                 final Literal literal = (Literal) formula;
                 return f.literal(literal.name(), literal.phase());
             case PREDICATE:
-                //TODO how to handle predicates when importing???
-                return null;
+                throw new UnsupportedOperationException("Cannot import a predicate in a Boolean formula factory");
             case NOT:
                 final Not not = (Not) formula;
                 return f.not(apply(not.operand()));

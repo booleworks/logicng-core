@@ -50,7 +50,7 @@ public final class UniversalQuantifierElimination extends StatelessFormulaTransf
     public Formula apply(final Formula formula) {
         Formula result = formula;
         for (final Variable var : elimination) {
-            result = f.and(result.restrict(new Assignment(var), f), result.restrict(new Assignment(var.negate(f)), f));
+            result = f.and(result.restrict(f, new Assignment(var)), result.restrict(f, new Assignment(var.negate(f))));
         }
         return result;
     }

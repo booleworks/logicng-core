@@ -31,11 +31,11 @@ public abstract class BDDNormalFormTransformation extends CacheableAndStatefulFo
      * Warning: You can use this object for arbitrarily many transformations, <b>but</b>
      * the number of different variables in all applied formulas <b>must not exceed</b>
      * the number of variables in the kernel.
-     * @param cnf    true when a CNF transformation, false for a DNF transformation
      * @param f      the formula factory to generate new formulas
+     * @param cnf    true when a CNF transformation, false for a DNF transformation
      * @param kernel the optional BDD kernel
      */
-    public BDDNormalFormTransformation(final boolean cnf, final FormulaFactory f, final BDDKernel kernel) {
+    public BDDNormalFormTransformation(final FormulaFactory f, final boolean cnf, final BDDKernel kernel) {
         super(f, cnf ? BDD_CNF : BDD_DNF, kernel);
         this.cnf = cnf;
     }
@@ -46,12 +46,12 @@ public abstract class BDDNormalFormTransformation extends CacheableAndStatefulFo
      * Warning: You can use this object for arbitrarily many transformations, <b>but</b>
      * the number of different variables in all applied formulas <b>must not exceed</b>
      * the number of variables in the kernel.
-     * @param cnf    true when a CNF transformation, false for a DNF transformation
      * @param f      the formula factory to generate new formulas
+     * @param cnf    true when a CNF transformation, false for a DNF transformation
      * @param kernel the optional BDD kernel
      * @param cache  the cache to use for the transformation
      */
-    public BDDNormalFormTransformation(final boolean cnf, final FormulaFactory f, final BDDKernel kernel, final Map<Formula, Formula> cache) {
+    public BDDNormalFormTransformation(final FormulaFactory f, final boolean cnf, final BDDKernel kernel, final Map<Formula, Formula> cache) {
         super(f, cache, kernel);
         this.cnf = cnf;
     }

@@ -142,40 +142,40 @@ public final class FormulaCornerCases {
 
     private List<Formula> pbcCornerCases(final CType comparator, final Variable a, final Variable b, final Variable c) {
         final List<Formula> formulas = new ArrayList<>();
-        formulas.addAll(pbcCornerCases(comparator, new Literal[0], new int[0], f));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[0], new int[0]));
 
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a}, new int[]{-1}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a}, new int[]{0}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a}, new int[]{1}, f));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a}, new int[]{-1}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a}, new int[]{0}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a}, new int[]{1}));
 
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{na}, new int[]{-1}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{na}, new int[]{0}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{na}, new int[]{1}, f));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{na}, new int[]{-1}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{na}, new int[]{0}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{na}, new int[]{1}));
 
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b}, new int[]{-1, -1}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b}, new int[]{0, 0}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b}, new int[]{1, 1}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b}, new int[]{1, -1}, f));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, b}, new int[]{-1, -1}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, b}, new int[]{0, 0}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, b}, new int[]{1, 1}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, b}, new int[]{1, -1}));
 
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, nb}, new int[]{-1, -1}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, nb}, new int[]{0, 0}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, nb}, new int[]{1, 1}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, nb}, new int[]{1, -1}, f));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, nb}, new int[]{-1, -1}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, nb}, new int[]{0, 0}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, nb}, new int[]{1, 1}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, nb}, new int[]{1, -1}));
 
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, na}, new int[]{-1, -1}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, na}, new int[]{0, 0}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, na}, new int[]{1, 1}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, na}, new int[]{1, -1}, f));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, na}, new int[]{-1, -1}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, na}, new int[]{0, 0}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, na}, new int[]{1, 1}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, na}, new int[]{1, -1}));
 
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b, c}, new int[]{-1, -1, -1}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b, c}, new int[]{0, 0, 0}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b, c}, new int[]{1, 1, 1}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{a, b, c}, new int[]{-1, 1, -1}, f));
-        formulas.addAll(pbcCornerCases(comparator, new Literal[]{na, nb, c}, new int[]{-1, 1, -1}, f));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, b, c}, new int[]{-1, -1, -1}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, b, c}, new int[]{0, 0, 0}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, b, c}, new int[]{1, 1, 1}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{a, b, c}, new int[]{-1, 1, -1}));
+        formulas.addAll(pbcCornerCases(f, comparator, new Literal[]{na, nb, c}, new int[]{-1, 1, -1}));
         return formulas;
     }
 
-    private List<Formula> pbcCornerCases(final CType comparator, final Literal[] literals, final int[] coefficients, final FormulaFactory f) {
+    private List<Formula> pbcCornerCases(final FormulaFactory f, final CType comparator, final Literal[] literals, final int[] coefficients) {
         final List<Formula> formulas = new ArrayList<>();
         for (final Integer rhs : Arrays.asList(-1, 0, 1, -3, -4, 3, 4)) {
             formulas.add(f.pbc(comparator, rhs, literals, coefficients));

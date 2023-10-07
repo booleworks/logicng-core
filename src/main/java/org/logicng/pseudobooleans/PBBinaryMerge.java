@@ -68,7 +68,7 @@ public final class PBBinaryMerge implements PBEncoding {
         final LNGIntVector coeffs = new LNGIntVector(cffs);
         final int maxWeight = maxWeight(coeffs);
         if (!config.binaryMergeUseGAC) {
-            binary_merge(lts, new LNGIntVector(cffs), rhs, maxWeight, lits.size(), formula, null, f, config);
+            binary_merge(f, lts, new LNGIntVector(cffs), rhs, maxWeight, lits.size(), formula, null, config);
         } else {
             Literal x;
             boolean encode_complete_constraint = false;
@@ -94,7 +94,7 @@ public final class PBBinaryMerge implements PBEncoding {
                             formula.add(f.clause(x.negate(f), lits.get(j).negate(f)));
                         }
                     } else {
-                        binary_merge(lits, coeffs, rhs - tmpCoeff, mw, lits.size(), formula, x.negate(f), f, config);
+                        binary_merge(f, lits, coeffs, rhs - tmpCoeff, mw, lits.size(), formula, x.negate(f), config);
                     }
                 } else {
                     if (rhs - tmpCoeff <= 0) {
@@ -102,7 +102,7 @@ public final class PBBinaryMerge implements PBEncoding {
                             formula.add(f.clause(x.negate(f), lits.get(j).negate(f)));
                         }
                     }
-                    binary_merge(lits, coeffs, rhs - tmpCoeff, maxWeight, lits.size(), formula, x.negate(f), f, config);
+                    binary_merge(f, lits, coeffs, rhs - tmpCoeff, maxWeight, lits.size(), formula, x.negate(f), config);
                 }
                 if (i < lits.size()) {
                     lits.push(lits.get(i));
@@ -112,7 +112,7 @@ public final class PBBinaryMerge implements PBEncoding {
                 }
             }
             if (config.binaryMergeNoSupportForSingleBit && encode_complete_constraint) {
-                binary_merge(lts, new LNGIntVector(cffs), rhs, maxWeight, lits.size(), formula, null, f, config);
+                binary_merge(f, lts, new LNGIntVector(cffs), rhs, maxWeight, lits.size(), formula, null, config);
             }
         }
         return formula;
@@ -128,8 +128,8 @@ public final class PBBinaryMerge implements PBEncoding {
         return maxweight;
     }
 
-    private static void binary_merge(final LNGVector<Literal> literals, final LNGIntVector coefficients, final int leq, final int maxWeight, final int n,
-                                     final List<Formula> formula, final Literal gac_lit, final FormulaFactory f, final PBConfig config) {
+    private static void binary_merge(final FormulaFactory f, final LNGVector<Literal> literals, final LNGIntVector coefficients, final int leq, final int maxWeight, final int n,
+                                     final List<Formula> formula, final Literal gac_lit, final PBConfig config) {
         final int less_then = leq + 1;
         final int p = (int) Math.floor(Math.log(maxWeight) / Math.log(2));
         final int m = (int) Math.ceil(less_then / Math.pow(2, p));
@@ -168,9 +168,9 @@ public final class PBBinaryMerge implements PBEncoding {
         for (int i = 0; i < buckets.size(); i++) {
             final int k = (int) Math.ceil(new_less_then / Math.pow(2, i));
             if (config.binaryMergeUseWatchDog) {
-                totalizer(buckets.get(i), bucket_card.get(i), formula, f);
+                totalizer(f, buckets.get(i), bucket_card.get(i), formula);
             } else {
-                CCSorting.sort(k, buckets.get(i), tempResul, bucket_card.get(i), INPUT_TO_OUTPUT, f);
+                CCSorting.sort(f, k, buckets.get(i), tempResul, bucket_card.get(i), INPUT_TO_OUTPUT);
                 formula.addAll(tempResul.result());
             }
             if (k <= buckets.get(i).size()) {
@@ -187,9 +187,9 @@ public final class PBBinaryMerge implements PBEncoding {
                         bucket_merge.set(i, carries);
                     } else {
                         if (config.binaryMergeUseWatchDog) {
-                            unary_adder(bucket_card.get(i), carries, bucket_merge.get(i), formula, f);
+                            unary_adder(f, bucket_card.get(i), carries, bucket_merge.get(i), formula);
                         } else {
-                            CCSorting.merge(k, bucket_card.get(i), carries, tempResul, bucket_merge.get(i), INPUT_TO_OUTPUT, f);
+                            CCSorting.merge(f, k, bucket_card.get(i), carries, tempResul, bucket_merge.get(i), INPUT_TO_OUTPUT);
                             formula.addAll(tempResul.result());
                         }
                         if (k == bucket_merge.get(i).size() || (config.binaryMergeUseWatchDog && k <= bucket_merge.get(i).size())) {
@@ -217,7 +217,7 @@ public final class PBBinaryMerge implements PBEncoding {
         }
     }
 
-    private static void totalizer(final LNGVector<Literal> x, final LNGVector<Literal> u_x, final List<Formula> formula, final FormulaFactory f) {
+    private static void totalizer(final FormulaFactory f, final LNGVector<Literal> x, final LNGVector<Literal> u_x, final List<Formula> formula) {
         u_x.clear();
         if (x.size() == 0) {
             return;
@@ -239,14 +239,14 @@ public final class PBBinaryMerge implements PBEncoding {
             }
             final LNGVector<Literal> u_x_1 = new LNGVector<>();
             final LNGVector<Literal> u_x_2 = new LNGVector<>();
-            totalizer(x_1, u_x_1, formula, f);
-            totalizer(x_2, u_x_2, formula, f);
-            unary_adder(u_x_1, u_x_2, u_x, formula, f);
+            totalizer(f, x_1, u_x_1, formula);
+            totalizer(f, x_2, u_x_2, formula);
+            unary_adder(f, u_x_1, u_x_2, u_x, formula);
         }
     }
 
-    private static void unary_adder(final LNGVector<Literal> u, final LNGVector<Literal> v, final LNGVector<Literal> w,
-                                    final List<Formula> formula, final FormulaFactory f) {
+    private static void unary_adder(final FormulaFactory f, final LNGVector<Literal> u, final LNGVector<Literal> v, final LNGVector<Literal> w,
+                                    final List<Formula> formula) {
         w.clear();
         if (u.size() == 0) {
             for (int i = 0; i < v.size(); i++) {

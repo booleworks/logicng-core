@@ -49,12 +49,12 @@ public final class ModelCounter {
      * Computes the model count for a given set of formulas (interpreted as conjunction)
      * and a set of relevant variables.  This set can only be a superset of the original
      * formulas' variables.  No projected model counting is supported.
+     * @param f         the formula factory to generate new formulas
      * @param formulas  the list of formulas
      * @param variables the relevant variables
-     * @param f         the formula factory to generate new formulas
      * @return the model count of the formulas for the variables
      */
-    public static BigInteger count(final Collection<Formula> formulas, final SortedSet<Variable> variables, final FormulaFactory f) {
+    public static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas, final SortedSet<Variable> variables) {
         if (!variables.containsAll(FormulaHelper.variables(f, formulas))) {
             throw new IllegalArgumentException("Expected variables to contain all of the formulas' variables.");
         }
@@ -62,14 +62,14 @@ public final class ModelCounter {
             final List<Formula> remainingConstants = formulas.stream().filter(formula -> formula.type() != FType.TRUE).collect(Collectors.toList());
             return remainingConstants.isEmpty() ? BigInteger.ONE : BigInteger.ZERO;
         }
-        final List<Formula> cnfs = encodeAsCnf(formulas, f);
-        final SimplificationResult simplification = simplify(cnfs, f);
-        final BigInteger count = count(simplification.simplifiedFormulas, f);
+        final List<Formula> cnfs = encodeAsCnf(f, formulas);
+        final SimplificationResult simplification = simplify(f, cnfs);
+        final BigInteger count = count(f, simplification.simplifiedFormulas);
         final SortedSet<Variable> dontCareVariables = simplification.getDontCareVariables(variables);
         return count.multiply(BigInteger.valueOf(2).pow(dontCareVariables.size()));
     }
 
-    private static List<Formula> encodeAsCnf(final Collection<Formula> formulas, final FormulaFactory f) {
+    private static List<Formula> encodeAsCnf(final FormulaFactory f, final Collection<Formula> formulas) {
         final PureExpansionTransformation expander = new PureExpansionTransformation(f);
         final List<Formula> expandedFormulas = formulas.stream().map(formula -> formula.transform(expander)).collect(Collectors.toList());
 
@@ -77,10 +77,10 @@ public final class ModelCounter {
                 .algorithm(CNFConfig.Algorithm.ADVANCED)
                 .fallbackAlgorithmForAdvancedEncoding(CNFConfig.Algorithm.TSEITIN).build();
 
-        return expandedFormulas.stream().map(it -> CNFEncoder.encode(it, f, cnfConfig)).collect(Collectors.toList());
+        return expandedFormulas.stream().map(it -> CNFEncoder.encode(f, it, cnfConfig)).collect(Collectors.toList());
     }
 
-    private static SimplificationResult simplify(final Collection<Formula> formulas, final FormulaFactory f) {
+    private static SimplificationResult simplify(final FormulaFactory f, final Collection<Formula> formulas) {
         final Assignment simpleBackbone = new Assignment();
         final SortedSet<Variable> backboneVariables = new TreeSet<>();
         for (final Formula formula : formulas) {
@@ -92,22 +92,22 @@ public final class ModelCounter {
         }
         final List<Formula> simplified = new ArrayList<>();
         for (final Formula formula : formulas) {
-            final Formula restrict = formula.restrict(simpleBackbone, f);
+            final Formula restrict = formula.restrict(f, simpleBackbone);
             if (restrict.type() != FType.TRUE) {
                 simplified.add(restrict);
             }
         }
-        return new SimplificationResult(simplified, backboneVariables, f);
+        return new SimplificationResult(f, backboneVariables, simplified);
     }
 
-    private static BigInteger count(final Collection<Formula> formulas, final FormulaFactory f) {
+    private static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas) {
         final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(f, formulas);
         final Set<Set<Node<Variable>>> ccs = ConnectedComponentsComputation.compute(constraintGraph);
         final List<List<Formula>> components = ConnectedComponentsComputation.splitFormulasByComponent(f, formulas, ccs);
         final DnnfFactory factory = new DnnfFactory();
         BigInteger count = BigInteger.ONE;
         for (final List<Formula> component : components) {
-            final Dnnf dnnf = factory.compile(f.and(component), f);
+            final Dnnf dnnf = factory.compile(f, f.and(component));
             count = count.multiply(dnnf.execute(new DnnfModelCountFunction(f)));
         }
         return count;
@@ -118,7 +118,7 @@ public final class ModelCounter {
         private final SortedSet<Variable> backboneVariables;
         private final FormulaFactory f;
 
-        public SimplificationResult(final List<Formula> simplifiedFormulas, final SortedSet<Variable> backboneVariables, final FormulaFactory f) {
+        public SimplificationResult(final FormulaFactory f, final SortedSet<Variable> backboneVariables, final List<Formula> simplifiedFormulas) {
             this.simplifiedFormulas = simplifiedFormulas;
             this.backboneVariables = backboneVariables;
             this.f = f;

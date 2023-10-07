@@ -29,39 +29,39 @@ public class PBSolvingTest implements LogicNGTest {
     private final PBConfig[] configs;
 
     public PBSolvingTest() {
-        this.f = FormulaFactory.caching();
-        this.literals100 = new Variable[100];
-        this.literals10 = new Variable[10];
+        f = FormulaFactory.caching();
+        literals100 = new Variable[100];
+        literals10 = new Variable[10];
         for (int i = 0; i < 100; i++) {
-            this.literals100[i] = this.f.variable("v" + i);
+            literals100[i] = f.variable("v" + i);
         }
         for (int i = 0; i < 10; i++) {
-            this.literals10[i] = this.f.variable("v" + i);
+            literals10[i] = f.variable("v" + i);
         }
-        this.solvers = new SATSolver[4];
-        this.solvers[0] = MiniSat.miniSat(this.f);
-        this.solvers[1] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(false).build());
-        this.solvers[2] = MiniSat.miniCard(this.f);
-        this.solvers[3] = MiniSat.glucose(this.f);
-        this.configs = new PBConfig[10];
-        this.configs[0] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.SWC).build();
-        this.configs[1] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true).binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(true).build();
-        this.configs[2] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true).binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(false).build();
-        this.configs[3] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true).binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(true).build();
-        this.configs[4] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true).binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(false).build();
-        this.configs[5] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(true).build();
-        this.configs[6] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(false).build();
-        this.configs[7] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(true).build();
-        this.configs[8] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(false).build();
-        this.configs[9] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.ADDER_NETWORKS).build();
+        solvers = new SATSolver[4];
+        solvers[0] = MiniSat.miniSat(f);
+        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
+        solvers[2] = MiniSat.miniCard(f);
+        solvers[3] = MiniSat.glucose(f);
+        configs = new PBConfig[10];
+        configs[0] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.SWC).build();
+        configs[1] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true).binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(true).build();
+        configs[2] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true).binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(false).build();
+        configs[3] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true).binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(true).build();
+        configs[4] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true).binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(false).build();
+        configs[5] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(true).build();
+        configs[6] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(false).build();
+        configs[7] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(true).build();
+        configs[8] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(false).build();
+        configs[9] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.ADDER_NETWORKS).build();
     }
 
     @Test
     public void testCCAMO() {
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             solver.reset();
-            solver.add(this.f.amo(this.literals100));
-            final List<Assignment> models = solver.enumerateAllModels(this.literals100);
+            solver.add(f.amo(literals100));
+            final List<Assignment> models = solver.enumerateAllModels(literals100);
             assertThat(models.size()).isEqualTo(101);
             for (final Assignment model : models) {
                 assertThat(model.positiveVariables().size() <= 1).isTrue();
@@ -71,10 +71,10 @@ public class PBSolvingTest implements LogicNGTest {
 
     @Test
     public void testCCEXO() {
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             solver.reset();
-            solver.add(this.f.exo(this.literals100));
-            final List<Assignment> models = solver.enumerateAllModels(this.literals100);
+            solver.add(f.exo(literals100));
+            final List<Assignment> models = solver.enumerateAllModels(literals100);
             assertThat(models.size()).isEqualTo(100);
             for (final Assignment model : models) {
                 assertThat(model.positiveVariables().size() == 1).isTrue();
@@ -84,7 +84,7 @@ public class PBSolvingTest implements LogicNGTest {
 
     @Test
     public void testCCAMK() {
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             testCCAMK(solver, 0, 1);
             testCCAMK(solver, 1, 11);
             testCCAMK(solver, 2, 56);
@@ -100,7 +100,7 @@ public class PBSolvingTest implements LogicNGTest {
 
     @Test
     public void testCCLT() {
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             testCCLT(solver, 1, 1);
             testCCLT(solver, 2, 11);
             testCCLT(solver, 3, 56);
@@ -116,7 +116,7 @@ public class PBSolvingTest implements LogicNGTest {
 
     @Test
     public void testCCALK() {
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             testCCALK(solver, 1, 1023);
             testCCALK(solver, 2, 1013);
             testCCALK(solver, 3, 968);
@@ -132,7 +132,7 @@ public class PBSolvingTest implements LogicNGTest {
 
     @Test
     public void testCCGT() {
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             testCCGT(solver, 0, 1023);
             testCCGT(solver, 1, 1013);
             testCCGT(solver, 2, 968);
@@ -148,7 +148,7 @@ public class PBSolvingTest implements LogicNGTest {
 
     @Test
     public void testCCEQ() {
-        for (final SATSolver solver : this.solvers) {
+        for (final SATSolver solver : solvers) {
             testCCEQ(solver, 0, 1);
             testCCEQ(solver, 1, 10);
             testCCEQ(solver, 2, 45);
@@ -165,78 +165,78 @@ public class PBSolvingTest implements LogicNGTest {
 
     private void testCCAMK(final SATSolver solver, final int rhs, final int expected) {
         solver.reset();
-        solver.add(this.f.cc(CType.LE, rhs, this.literals10));
+        solver.add(f.cc(CType.LE, rhs, literals10));
         assertSolverSat(solver);
-        assertThat(solver.enumerateAllModels(this.literals10))
+        assertThat(solver.enumerateAllModels(literals10))
                 .hasSize(expected)
                 .allMatch(model -> model.positiveVariables().size() <= rhs);
     }
 
     private void testCCLT(final SATSolver solver, final int rhs, final int expected) {
         solver.reset();
-        solver.add(this.f.cc(CType.LT, rhs, this.literals10));
+        solver.add(f.cc(CType.LT, rhs, literals10));
         assertSolverSat(solver);
-        assertThat(solver.enumerateAllModels(this.literals10))
+        assertThat(solver.enumerateAllModels(literals10))
                 .hasSize(expected)
                 .allMatch(model -> model.positiveVariables().size() < rhs);
     }
 
     private void testCCALK(final SATSolver solver, final int rhs, final int expected) {
         solver.reset();
-        solver.add(this.f.cc(CType.GE, rhs, this.literals10));
+        solver.add(f.cc(CType.GE, rhs, literals10));
         assertSolverSat(solver);
-        assertThat(solver.enumerateAllModels(this.literals10))
+        assertThat(solver.enumerateAllModels(literals10))
                 .hasSize(expected)
                 .allMatch(model -> model.positiveVariables().size() >= rhs);
     }
 
     private void testCCGT(final SATSolver solver, final int rhs, final int expected) {
         solver.reset();
-        solver.add(this.f.cc(CType.GT, rhs, this.literals10));
+        solver.add(f.cc(CType.GT, rhs, literals10));
         assertSolverSat(solver);
-        assertThat(solver.enumerateAllModels(this.literals10))
+        assertThat(solver.enumerateAllModels(literals10))
                 .hasSize(expected)
                 .allMatch(model -> model.positiveVariables().size() > rhs);
     }
 
     private void testCCEQ(final SATSolver solver, final int rhs, final int expected) {
         solver.reset();
-        solver.add(this.f.cc(CType.EQ, rhs, this.literals10));
+        solver.add(f.cc(CType.EQ, rhs, literals10));
         assertSolverSat(solver);
-        assertThat(solver.enumerateAllModels(this.literals10))
+        assertThat(solver.enumerateAllModels(literals10))
                 .hasSize(expected)
                 .allMatch(model -> model.positiveVariables().size() == rhs);
     }
 
     @Test
     public void testPBEQ() {
-        for (final PBConfig config : this.configs) {
-            for (final SATSolver solver : this.solvers) {
+        for (final PBConfig config : configs) {
+            for (final SATSolver solver : solvers) {
                 solver.reset();
                 final int[] coeffs10 = new int[]{3, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.EQ, 5, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.EQ, 5, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10))
+                assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(9)
                         .allMatch(model -> model.positiveVariables().size() == 2)
-                        .allMatch(model -> model.positiveVariables().contains(this.f.variable("v" + 0)));
+                        .allMatch(model -> model.positiveVariables().contains(f.variable("v" + 0)));
                 solver.reset();
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.EQ, 7, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.EQ, 7, literals10, coeffs10), config));
                 assertSolverSat(solver);
 
-                assertThat(solver.enumerateAllModels(this.literals10))
+                assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(36)
                         .allMatch(model -> model.positiveVariables().size() == 3)
-                        .allMatch(model -> model.positiveVariables().contains(this.f.variable("v" + 0)));
+                        .allMatch(model -> model.positiveVariables().contains(f.variable("v" + 0)));
                 solver.reset();
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.EQ, 0, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.EQ, 0, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10)).hasSize(1);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver.reset();
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.EQ, 1, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.EQ, 1, literals10, coeffs10), config));
                 assertSolverUnsat(solver);
                 solver.reset();
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.EQ, 22, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.EQ, 22, literals10, coeffs10), config));
                 assertSolverUnsat(solver);
             }
         }
@@ -244,68 +244,68 @@ public class PBSolvingTest implements LogicNGTest {
 
     @Test
     public void testPBLess() {
-        for (final PBConfig config : this.configs) {
-            for (final SATSolver solver : this.solvers) {
+        for (final PBConfig config : configs) {
+            for (final SATSolver solver : solvers) {
                 solver.reset();
                 final int[] coeffs10 = new int[]{3, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.LE, 6, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, 6, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10))
+                assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(140)
                         .allMatch(model -> model.positiveVariables().size() <= 3);
                 solver.reset();
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.LT, 7, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LT, 7, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10))
+                assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(140)
                         .allMatch(model -> model.positiveVariables().size() <= 3);
                 solver.reset();
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.LE, 0, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, 0, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10)).hasSize(1);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver.reset();
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.LE, 1, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, 1, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10)).hasSize(1);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver.reset();
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.LT, 2, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LT, 2, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10)).hasSize(1);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver.reset();
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.LT, 1, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LT, 1, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10)).hasSize(1);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
             }
         }
     }
 
     @Test
     public void testPBGreater() {
-        for (final PBConfig config : this.configs) {
-            for (final SATSolver solver : this.solvers) {
+        for (final PBConfig config : configs) {
+            for (final SATSolver solver : solvers) {
                 solver.reset();
                 final int[] coeffs10 = new int[]{3, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.GE, 17, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.GE, 17, literals10, coeffs10), config));
                 assertSolverSat(solver);
 
-                assertThat(solver.enumerateAllModels(this.literals10))
+                assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(47)
                         .allMatch(model -> model.positiveVariables().size() >= 8);
                 solver.reset();
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.GT, 16, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.GT, 16, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10))
+                assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(47)
                         .allMatch(model -> model.positiveVariables().size() >= 8);
                 solver.reset();
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.GE, 21, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.GE, 21, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10)).hasSize(1);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver.reset();
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.GE, 22, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.GE, 22, literals10, coeffs10), config));
                 assertSolverUnsat(solver);
                 solver.reset();
-                solver.add(PBEncoder.encode((PBConstraint) this.f.pbc(CType.GT, 42, this.literals10, coeffs10), f, config));
+                solver.add(PBEncoder.encode(f, (PBConstraint) f.pbc(CType.GT, 42, literals10, coeffs10), config));
                 assertSolverUnsat(solver);
             }
         }
@@ -313,42 +313,42 @@ public class PBSolvingTest implements LogicNGTest {
 
     @Test
     public void testPBNegative() {
-        for (final PBConfig config : this.configs) {
-            for (final SATSolver solver : this.solvers) {
+        for (final PBConfig config : configs) {
+            for (final SATSolver solver : solvers) {
                 solver.reset();
                 int[] coeffs10 = new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, -2};
-                final PBConstraint pbc = (PBConstraint) this.f.pbc(CType.EQ, 2, this.literals10, coeffs10);
-                solver.add(PBEncoder.encode(pbc, f, config));
+                final PBConstraint pbc = (PBConstraint) f.pbc(CType.EQ, 2, literals10, coeffs10);
+                solver.add(PBEncoder.encode(f, pbc, config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10)).hasSize(45).allMatch(pbc::evaluate);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(45).allMatch(pbc::evaluate);
                 solver.reset();
 
                 coeffs10 = new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, -2};
-                final PBConstraint pbc2 = (PBConstraint) this.f.pbc(CType.EQ, 4, this.literals10, coeffs10);
-                solver.add(PBEncoder.encode(pbc2, f, config));
+                final PBConstraint pbc2 = (PBConstraint) f.pbc(CType.EQ, 4, literals10, coeffs10);
+                solver.add(PBEncoder.encode(f, pbc2, config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10)).hasSize(120).allMatch(pbc2::evaluate);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(120).allMatch(pbc2::evaluate);
                 solver.reset();
 
                 coeffs10 = new int[]{2, 2, -3, 2, -7, 2, 2, 2, 2, -2};
-                final PBConstraint pbc3 = (PBConstraint) this.f.pbc(CType.EQ, 4, this.literals10, coeffs10);
-                solver.add(PBEncoder.encode(pbc3, f, config));
+                final PBConstraint pbc3 = (PBConstraint) f.pbc(CType.EQ, 4, literals10, coeffs10);
+                solver.add(PBEncoder.encode(f, pbc3, config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10)).hasSize(57).allMatch(pbc3::evaluate);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(57).allMatch(pbc3::evaluate);
                 solver.reset();
 
                 coeffs10 = new int[]{2, 2, -3, 2, -7, 2, 2, 2, 2, -2};
-                final PBConstraint pbc4 = (PBConstraint) this.f.pbc(CType.EQ, -10, this.literals10, coeffs10);
-                solver.add(PBEncoder.encode(pbc4, f, config));
+                final PBConstraint pbc4 = (PBConstraint) f.pbc(CType.EQ, -10, literals10, coeffs10);
+                solver.add(PBEncoder.encode(f, pbc4, config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10)).hasSize(8).allMatch(pbc4::evaluate);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(8).allMatch(pbc4::evaluate);
                 solver.reset();
 
                 coeffs10 = new int[]{2, 2, -4, 2, -6, 2, 2, 2, 2, -2};
-                final PBConstraint pbc5 = (PBConstraint) this.f.pbc(CType.EQ, -12, this.literals10, coeffs10);
-                solver.add(PBEncoder.encode(pbc5, f, config));
+                final PBConstraint pbc5 = (PBConstraint) f.pbc(CType.EQ, -12, literals10, coeffs10);
+                solver.add(PBEncoder.encode(f, pbc5, config));
                 assertSolverSat(solver);
-                assertThat(solver.enumerateAllModels(this.literals10)).hasSize(1).allMatch(pbc5::evaluate);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(1).allMatch(pbc5::evaluate);
                 solver.reset();
             }
         }
@@ -356,18 +356,18 @@ public class PBSolvingTest implements LogicNGTest {
 
     @Test
     public void testLargePBs() {
-        for (final PBConfig config : this.configs) {
-            final SATSolver solver = this.solvers[0];
+        for (final PBConfig config : configs) {
+            final SATSolver solver = solvers[0];
             solver.reset();
             final int numLits = 100;
             final Variable[] lits = new Variable[numLits];
             final int[] coeffs = new int[numLits];
             for (int i = 0; i < numLits; i++) {
-                lits[i] = this.f.variable("v" + i);
+                lits[i] = f.variable("v" + i);
                 coeffs[i] = i + 1;
             }
-            final PBConstraint pbc = (PBConstraint) this.f.pbc(CType.GE, 5000, lits, coeffs);
-            solver.add(PBEncoder.encode(pbc, f, config));
+            final PBConstraint pbc = (PBConstraint) f.pbc(CType.GE, 5000, lits, coeffs);
+            solver.add(PBEncoder.encode(f, pbc, config));
             assertSolverSat(solver);
             assertThat(pbc.evaluate(solver.model())).isTrue();
         }

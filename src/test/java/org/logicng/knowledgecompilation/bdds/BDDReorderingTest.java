@@ -142,7 +142,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         for (int vars = minVars; vars <= maxVars; vars++) {
             for (int depth = 4; depth <= 6; depth++) {
                 final FormulaFactory f = FormulaFactory.caching();
-                final Formula formula = randomFormula(vars, depth, f);
+                final Formula formula = randomFormula(f, vars, depth);
                 if (verbose) {
                     System.out.printf("vars = %2d, depth = %2d, nodes = %5d%n", vars, depth, formula.numberOfNodes(f));
                 }
@@ -156,7 +156,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         }
     }
 
-    private Formula randomFormula(final int vars, final int depth, final FormulaFactory f) {
+    private Formula randomFormula(final FormulaFactory f, final int vars, final int depth) {
         final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder()
                 .numVars(vars).seed(vars * depth * 42)
                 .weightEquiv(0).weightImpl(0).weightNot(0).build());
@@ -209,7 +209,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         for (int vars = minVars; vars <= maxVars; vars++) {
             for (int depth = 4; depth <= 6; depth++) {
                 final FormulaFactory f = FormulaFactory.caching();
-                final Formula formula = randomFormula(vars, depth, f);
+                final Formula formula = randomFormula(f, vars, depth);
                 if (verbose) {
                     System.out.println(String.format("vars = %2d, depth = %2d, nodes = %5d", vars, depth, formula.numberOfNodes(f)));
                 }

@@ -32,36 +32,36 @@ public class PBEncoder {
 
     /**
      * Encodes a pseudo-Boolean constraint and returns its CNF encoding.
+     * @param f          the formula factory to generate new formulas
      * @param constraint the pseudo-Boolean constraint
      * @param pbConfig   the pseudo-Boolean encoder configuration
-     * @param f          the formula factory to generate new formulas
      * @return the CNF encoding of the pseudo-Boolean constraint
      */
-    public static List<Formula> encode(final PBConstraint constraint, final FormulaFactory f, final PBConfig pbConfig) {
-        return encode(constraint, f, pbConfig, null);
+    public static List<Formula> encode(final FormulaFactory f, final PBConstraint constraint, final PBConfig pbConfig) {
+        return encode(f, constraint, pbConfig, null);
     }
 
     /**
      * Encodes a pseudo-Boolean constraint and returns its CNF encoding.
-     * @param constraint the pseudo-Boolean constraint
      * @param f          the formula factory to generate new formulas
+     * @param constraint the pseudo-Boolean constraint
      * @return the CNF encoding of the pseudo-Boolean constraint
      */
-    public static List<Formula> encode(final PBConstraint constraint, final FormulaFactory f) {
-        return encode(constraint, f, null, null);
+    public static List<Formula> encode(final FormulaFactory f, final PBConstraint constraint) {
+        return encode(f, constraint, null, null);
     }
 
     /**
      * Encodes a pseudo-Boolean constraint and returns its CNF encoding.
-     * @param constraint the pseudo-Boolean constraint
      * @param f          the formula factory to generate new formulas
+     * @param constraint the pseudo-Boolean constraint
      * @param pbConfig   the pseudo-Boolean encoder configuration
      * @param ccConfig   the cardinality constraints encoder configuration
      * @return the CNF encoding of the pseudo-Boolean constraint
      */
-    public static List<Formula> encode(final PBConstraint constraint, final FormulaFactory f, final PBConfig pbConfig, final CCConfig ccConfig) {
+    public static List<Formula> encode(final FormulaFactory f, final PBConstraint constraint, final PBConfig pbConfig, final CCConfig ccConfig) {
         if (constraint.isCC()) {
-            return CCEncoder.encode((CardinalityConstraint) constraint, f, ccConfig != null ? ccConfig :
+            return CCEncoder.encode(f, (CardinalityConstraint) constraint, ccConfig != null ? ccConfig :
                     (CCConfig) f.configurationFor(ConfigurationType.CC_ENCODER));
         }
         final Formula normalized = constraint.normalize(f);
@@ -73,10 +73,10 @@ public class PBEncoder {
             case PBC:
                 final PBConstraint pbc = (PBConstraint) normalized;
                 if (pbc.isCC()) {
-                    return CCEncoder.encode((CardinalityConstraint) pbc, f, ccConfig != null ? ccConfig :
+                    return CCEncoder.encode(f, (CardinalityConstraint) pbc, ccConfig != null ? ccConfig :
                             (CCConfig) f.configurationFor(ConfigurationType.CC_ENCODER));
                 }
-                return encode(pbc.operands(), pbc.coefficients(), pbc.rhs(), f, pbConfig != null ? pbConfig :
+                return encode(f, pbc.operands(), pbc.coefficients(), pbc.rhs(), pbConfig != null ? pbConfig :
                         (PBConfig) f.configurationFor(ConfigurationType.PB_ENCODER));
             case AND:
                 final List<Formula> list = new ArrayList<>();
@@ -85,7 +85,7 @@ public class PBEncoder {
                         case FALSE:
                             return Collections.singletonList(f.falsum());
                         case PBC:
-                            list.addAll(encode((PBConstraint) op, f, pbConfig, ccConfig));
+                            list.addAll(encode(f, (PBConstraint) op, pbConfig, ccConfig));
                             break;
                         default:
                             throw new IllegalArgumentException("Illegal return value of PBConstraint.normalize");
@@ -99,16 +99,16 @@ public class PBEncoder {
 
     /**
      * Builds a pseudo Boolean constraint of the form {@code c_1 * lit_1 + c_2 * lit_2 + ... + c_n * lit_n >= k}.
+     * @param f        the formula factory to generate new formulas
      * @param lits     the literals {@code lit_1 ... lit_n}
      * @param coeffs   the coefficients {@code c_1 ... c_n}
      * @param rhs      the right-hand side {@code k} of the constraint
-     * @param f        the formula factory to generate new formulas
      * @param pbConfig the configuration for the encoding
      * @return the CNF encoding of the pseudo Boolean constraint
      * @throws IllegalArgumentException if the right-hand side of the cardinality constraint is negative or
      *                                  larger than the number of literals
      */
-    protected static List<Formula> encode(final List<Literal> lits, final List<Integer> coeffs, final int rhs, final FormulaFactory f,
+    protected static List<Formula> encode(final FormulaFactory f, final List<Literal> lits, final List<Integer> coeffs, final int rhs,
                                           final PBConfig pbConfig) {
         if (rhs == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Overflow in the Encoding");

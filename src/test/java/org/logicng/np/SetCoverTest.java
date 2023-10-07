@@ -30,26 +30,26 @@ public class SetCoverTest {
         sets.add(new TreeSet<>(Arrays.asList("b", "e", "h", "k")));
         sets.add(new TreeSet<>(Arrays.asList("c", "f", "i", "l")));
         sets.add(new TreeSet<>(Arrays.asList("j", "k", "l")));
-        assertThat(SetCover.compute(sets, f)).containsExactlyInAnyOrder(sets.get(2), sets.get(3), sets.get(4));
+        assertThat(SetCover.compute(f, sets)).containsExactlyInAnyOrder(sets.get(2), sets.get(3), sets.get(4));
     }
 
     @Test
     public void cornerCasesTest() {
         final List<Set<String>> sets = new ArrayList<>();
-        assertThat(SetCover.compute(sets, f)).isEmpty();
+        assertThat(SetCover.compute(f, sets)).isEmpty();
         sets.add(Collections.emptySet());
-        assertThat(SetCover.compute(sets, f)).isEmpty();
+        assertThat(SetCover.compute(f, sets)).isEmpty();
         sets.add(new HashSet<>(Collections.singletonList("A")));
         sets.add(new HashSet<>(Collections.singletonList("A")));
         sets.add(new HashSet<>(Collections.singletonList("A")));
-        assertThat(SetCover.compute(sets, f)).hasSize(1);
+        assertThat(SetCover.compute(f, sets)).hasSize(1);
         sets.add(new HashSet<>(Collections.singletonList("B")));
-        assertThat(SetCover.compute(sets, f)).containsExactlyInAnyOrder(
+        assertThat(SetCover.compute(f, sets)).containsExactlyInAnyOrder(
                 new HashSet<>(Collections.singletonList("A")),
                 new HashSet<>(Collections.singletonList("B"))
         );
         sets.add(new HashSet<>(Arrays.asList("A", "B")));
-        assertThat(SetCover.compute(sets, f)).hasSize(1).containsExactly(
+        assertThat(SetCover.compute(f, sets)).hasSize(1).containsExactly(
                 new HashSet<>(Arrays.asList("A", "B"))
         );
     }

@@ -25,7 +25,7 @@ import java.util.List;
 public final class DeletionBasedMUS extends MUSAlgorithm {
 
     @Override
-    public <T extends Proposition> UNSATCore<T> computeMUS(final List<T> propositions, final FormulaFactory f, final MUSConfig config) {
+    public <T extends Proposition> UNSATCore<T> computeMUS(final FormulaFactory f, final List<T> propositions, final MUSConfig config) {
         start(config.handler);
         final List<T> mus = new ArrayList<>(propositions.size());
         final List<SolverState> solverStates = new ArrayList<>(propositions.size());

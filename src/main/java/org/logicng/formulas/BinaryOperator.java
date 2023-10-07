@@ -55,8 +55,8 @@ public interface BinaryOperator extends Formula {
     }
 
     @Override
-    default Formula substitute(final Substitution substitution, final FormulaFactory f) {
-        return f.binaryOperator(type(), left().substitute(substitution, f), right().substitute(substitution, f));
+    default Formula substitute(final FormulaFactory f, final Substitution substitution) {
+        return f.binaryOperator(type(), left().substitute(f, substitution), right().substitute(f, substitution));
     }
 
     @Override
@@ -78,10 +78,10 @@ public interface BinaryOperator extends Formula {
             public Formula next() {
                 if (count == 0) {
                     count++;
-                    return BinaryOperator.this.left();
+                    return left();
                 } else if (count == 1) {
                     count++;
-                    return BinaryOperator.this.right();
+                    return right();
                 }
                 throw new NoSuchElementException();
             }

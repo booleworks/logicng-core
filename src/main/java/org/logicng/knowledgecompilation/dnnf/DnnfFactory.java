@@ -24,21 +24,21 @@ public class DnnfFactory {
 
     /**
      * Compiles the given formula to a DNNF instance.
-     * @param formula the formula
      * @param f       the formula factory to generate new formulas
+     * @param formula the formula
      * @return the compiled DNNF
      */
-    public Dnnf compile(final Formula formula, final FormulaFactory f) {
+    public Dnnf compile(final FormulaFactory f, final Formula formula) {
         final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables(f));
         final Formula cnf = formula.cnf(f);
         originalVariables.addAll(cnf.variables(f));
-        final Formula simplifedFormula = simplifyFormula(cnf, f);
-        final DnnfCompiler compiler = new DnnfCompiler(simplifedFormula, f);
+        final Formula simplifedFormula = simplifyFormula(f, cnf);
+        final DnnfCompiler compiler = new DnnfCompiler(f, simplifedFormula);
         final Formula dnnf = compiler.compile(new MinFillDTreeGenerator());
         return new Dnnf(originalVariables, dnnf);
     }
 
-    protected Formula simplifyFormula(final Formula formula, final FormulaFactory f) {
+    protected Formula simplifyFormula(final FormulaFactory f, final Formula formula) {
         return formula
                 .transform(new BackboneSimplifier(f))
                 .transform(new CNFSubsumption(f));

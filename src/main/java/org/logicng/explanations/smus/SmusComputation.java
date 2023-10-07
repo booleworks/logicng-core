@@ -53,13 +53,13 @@ public final class SmusComputation {
     /**
      * Computes the SMUS for the given list of propositions modulo some additional constraint.
      * @param <P>                   the subtype of the propositions
+     * @param f                     the formula factory
      * @param propositions          the propositions
      * @param additionalConstraints the additional constraints
-     * @param f                     the formula factory
      * @return the SMUS or {@code null} if the given propositions are satisfiable or the handler aborted the computation
      */
-    public static <P extends Proposition> List<P> computeSmus(final List<P> propositions, final List<Formula> additionalConstraints, final FormulaFactory f) {
-        return computeSmus(propositions, additionalConstraints, f, null);
+    public static <P extends Proposition> List<P> computeSmus(final FormulaFactory f, final List<P> propositions, final List<Formula> additionalConstraints) {
+        return computeSmus(f, propositions, additionalConstraints, null);
     }
 
     /**
@@ -68,13 +68,13 @@ public final class SmusComputation {
      * The SMUS computation can be called with an {@link OptimizationHandler}. The given handler instance will be used for every subsequent
      * * {@link org.logicng.solvers.functions.OptimizationFunction} call and the handler's SAT handler is used for every subsequent SAT call.
      * @param <P>                   the subtype of the propositions
+     * @param f                     the formula factory
      * @param propositions          the propositions
      * @param additionalConstraints the additional constraints
-     * @param f                     the formula factory
      * @param handler               the handler, can be {@code null}
      * @return the SMUS or {@code null} if the given propositions are satisfiable or the handler aborted the computation
      */
-    public static <P extends Proposition> List<P> computeSmus(final List<P> propositions, final List<Formula> additionalConstraints, final FormulaFactory f,
+    public static <P extends Proposition> List<P> computeSmus(final FormulaFactory f, final List<P> propositions, final List<Formula> additionalConstraints,
                                                               final OptimizationHandler handler) {
         start(handler);
         final SATSolver growSolver = MiniSat.miniSat(f);
@@ -108,27 +108,27 @@ public final class SmusComputation {
 
     /**
      * Computes the SMUS for the given list of formulas and some additional constraints.
+     * @param f                     the formula factory
      * @param formulas              the formulas
      * @param additionalConstraints the additional constraints
-     * @param f                     the formula factory
      * @return the SMUS or {@code null} if the given propositions are satisfiable or the handler aborted the computation
      */
-    public static List<Formula> computeSmusForFormulas(final List<Formula> formulas, final List<Formula> additionalConstraints, final FormulaFactory f) {
-        return computeSmusForFormulas(formulas, additionalConstraints, f, null);
+    public static List<Formula> computeSmusForFormulas(final FormulaFactory f, final List<Formula> formulas, final List<Formula> additionalConstraints) {
+        return computeSmusForFormulas(f, formulas, additionalConstraints, null);
     }
 
     /**
      * Computes the SMUS for the given list of formulas and some additional constraints.
+     * @param f                     the formula factory
      * @param formulas              the formulas
      * @param additionalConstraints the additional constraints
-     * @param f                     the formula factory
      * @param handler               the SMUS handler, can be {@code null}
      * @return the SMUS or {@code null} if the given propositions are satisfiable or the handler aborted the computation
      */
-    public static List<Formula> computeSmusForFormulas(final List<Formula> formulas, final List<Formula> additionalConstraints, final FormulaFactory f,
+    public static List<Formula> computeSmusForFormulas(final FormulaFactory f, final List<Formula> formulas, final List<Formula> additionalConstraints,
                                                        final OptimizationHandler handler) {
         final List<Proposition> props = formulas.stream().map(StandardProposition::new).collect(Collectors.toList());
-        final List<Proposition> smus = computeSmus(props, additionalConstraints, f, handler);
+        final List<Proposition> smus = computeSmus(f, props, additionalConstraints, handler);
         return smus == null ? null : smus.stream().map(Proposition::formula).collect(Collectors.toList());
     }
 

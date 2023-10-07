@@ -165,7 +165,7 @@ public interface PBConstraint extends Formula {
                     normCs.push(coefficients().get(i));
                 }
                 normRhs = rhs();
-                final Formula f1 = normalize(normPs, normCs, normRhs, f);
+                final Formula f1 = normalize(f, normPs, normCs, normRhs);
                 normPs.clear();
                 normCs.clear();
                 for (int i = 0; i < operands().size(); i++) {
@@ -173,7 +173,7 @@ public interface PBConstraint extends Formula {
                     normCs.push(-coefficients().get(i));
                 }
                 normRhs = -rhs();
-                final Formula f2 = normalize(normPs, normCs, normRhs, f);
+                final Formula f2 = normalize(f, normPs, normCs, normRhs);
                 return f.and(f1, f2);
             case LT:
             case LE:
@@ -182,7 +182,7 @@ public interface PBConstraint extends Formula {
                     normCs.push(coefficients().get(i));
                 }
                 normRhs = comparator() == CType.LE ? rhs() : rhs() - 1;
-                return normalize(normPs, normCs, normRhs, f);
+                return normalize(f, normPs, normCs, normRhs);
             case GT:
             case GE:
                 for (int i = 0; i < operands().size(); i++) {
@@ -190,7 +190,7 @@ public interface PBConstraint extends Formula {
                     normCs.push(-coefficients().get(i));
                 }
                 normRhs = comparator() == CType.GE ? -rhs() : -rhs() - 1;
-                return normalize(normPs, normCs, normRhs, f);
+                return normalize(f, normPs, normCs, normRhs);
             default:
                 throw new IllegalStateException("Unknown pseudo-Boolean comparator: " + comparator());
         }
@@ -199,13 +199,13 @@ public interface PBConstraint extends Formula {
     /**
      * Internal helper for normalization of a <= constraint. Can also be used for >= constraints by multiplying the right
      * side and the coefficients with -1.
+     * @param f   the formula factory to generate new formulas
      * @param ps  the literals
      * @param cs  the coefficients
      * @param rhs the right-hand side
-     * @param f   the formula factory to generate new formulas
      * @return the normalized constraint
      */
-    private Formula normalize(final LNGVector<Literal> ps, final LNGIntVector cs, final int rhs, final FormulaFactory f) {
+    private Formula normalize(final FormulaFactory f, final LNGVector<Literal> ps, final LNGIntVector cs, final int rhs) {
         int c = rhs;
         int newSize = 0;
         for (int i = 0; i < ps.size(); i++) {
@@ -322,14 +322,14 @@ public interface PBConstraint extends Formula {
     }
 
     @Override
-    default Formula restrict(final Assignment assignment, final FormulaFactory f) {
+    default Formula restrict(final FormulaFactory f, final Assignment assignment) {
         final List<Literal> newLits = new ArrayList<>();
         final List<Integer> newCoeffs = new ArrayList<>();
         int lhsFixed = 0;
         int minValue = 0;
         int maxValue = 0;
         for (int i = 0; i < operands().size(); i++) {
-            final Formula restriction = assignment.restrictLit(operands().get(i), f);
+            final Formula restriction = assignment.restrictLit(f, operands().get(i));
             if (restriction.type() == FType.LITERAL) {
                 newLits.add(operands().get(i));
                 final int coeff = coefficients().get(i);
@@ -377,7 +377,7 @@ public interface PBConstraint extends Formula {
     }
 
     @Override
-    default Formula substitute(final Substitution substitution, final FormulaFactory f) {
+    default Formula substitute(final FormulaFactory f, final Substitution substitution) {
         final List<Literal> newLits = new ArrayList<>();
         final List<Integer> newCoeffs = new ArrayList<>();
         int lhsFixed = 0;

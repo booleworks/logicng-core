@@ -127,11 +127,11 @@ public interface Formula extends Iterable<Formula> {
 
     /**
      * Restricts this formula with a given assignment and a formula factory that generates new formulas.
-     * @param assignment the given assignment
      * @param f          the formula factory to generate new formulas
+     * @param assignment the given assignment
      * @return a new restricted formula
      */
-    Formula restrict(final Assignment assignment, final FormulaFactory f);
+    Formula restrict(final FormulaFactory f, final Assignment assignment);
 
     /**
      * Returns {@code true} if this formula contains a given node, {@code false} otherwise.
@@ -174,24 +174,24 @@ public interface Formula extends Iterable<Formula> {
 
     /**
      * Performs a simultaneous substitution on this formula given a single mapping from variable to formula.
+     * @param f        the formula factory to generate new formulas
      * @param variable the variable
      * @param formula  the formula
-     * @param f        the formula factory to generate new formulas
      * @return a new substituted formula
      */
-    default Formula substitute(final Variable variable, final Formula formula, final FormulaFactory f) {
+    default Formula substitute(final FormulaFactory f, final Variable variable, final Formula formula) {
         final Substitution subst = new Substitution();
         subst.addMapping(variable, formula);
-        return substitute(subst, f);
+        return substitute(f, subst);
     }
 
     /**
      * Performs a given substitution on this formula.
-     * @param substitution the substitution
      * @param f            the formula factory to generate new formulas
+     * @param substitution the substitution
      * @return a new substituted formula
      */
-    Formula substitute(final Substitution substitution, final FormulaFactory f);
+    Formula substitute(final FormulaFactory f, final Substitution substitution);
 
     /**
      * Returns a negated copy of this formula.
@@ -228,7 +228,7 @@ public interface Formula extends Iterable<Formula> {
      * @return a copy of this formula which is in CNF
      */
     default Formula cnf(final FormulaFactory f) {
-        return CNFEncoder.encode(this, f, null);
+        return CNFEncoder.encode(f, this, null);
     }
 
     /**
@@ -275,11 +275,11 @@ public interface Formula extends Iterable<Formula> {
      * A new SAT solver is used to check this tautology. This is a convenience method. If you want to
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
-     * @param other the formula which should be checked if it is implied by this formula
      * @param f     the formula factory to use for caching
+     * @param other the formula which should be checked if it is implied by this formula
      * @return {@code true} when this formula implies the given other formula, {@code false} otherwise
      */
-    default boolean implies(final Formula other, final FormulaFactory f) {
+    default boolean implies(final FormulaFactory f, final Formula other) {
         return f.implication(this, other).holds(new TautologyPredicate(f));
     }
 
@@ -288,11 +288,11 @@ public interface Formula extends Iterable<Formula> {
      * A new SAT solver is used to check this tautology. This is a convenience method. If you want to
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
-     * @param other the formula which should be checked if it implies this formula
      * @param f     the formula factory to use for caching
+     * @param other the formula which should be checked if it implies this formula
      * @return {@code true} when this formula is implied by the given other formula, {@code false} otherwise
      */
-    default boolean isImpliedBy(final Formula other, final FormulaFactory f) {
+    default boolean isImpliedBy(final FormulaFactory f, final Formula other) {
         return f.implication(other, this).holds(new TautologyPredicate(f));
     }
 
@@ -301,11 +301,11 @@ public interface Formula extends Iterable<Formula> {
      * A new SAT solver is used to check this tautology. This is a convenience method. If you want to
      * have more influence on the solver (e.g. which solver type or configuration) you must create and
      * use a {@link org.logicng.solvers.SATSolver} on your own.
-     * @param other the formula which should be checked if it is equivalent with this formula
      * @param f     the formula factory to use for caching
+     * @param other the formula which should be checked if it is equivalent with this formula
      * @return {@code true} when this formula is equivalent to the given other formula, {@code false} otherwise
      */
-    default boolean isEquivalentTo(final Formula other, final FormulaFactory f) {
+    default boolean isEquivalentTo(final FormulaFactory f, final Formula other) {
         return f.equivalence(this, other).holds(new TautologyPredicate(f));
     }
 
