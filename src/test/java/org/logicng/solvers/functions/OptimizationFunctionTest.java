@@ -26,7 +26,7 @@ import org.logicng.handlers.OptimizationHandler;
 import org.logicng.handlers.SATHandler;
 import org.logicng.handlers.TimeoutOptimizationHandler;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PseudoBooleanParser;
+import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.io.readers.DimacsReader;
 import org.logicng.io.readers.FormulaReader;
 import org.logicng.predicates.satisfiability.SATPredicate;
@@ -284,7 +284,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     @Test
     public void compareWithMaxSat() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final PseudoBooleanParser p = new PseudoBooleanParser(f);
+        final PropositionalParser p = new PropositionalParser(f);
         final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/formulas/large_formula.txt"));
         final List<Formula> formulas = new ArrayList<>();
         final SortedSet<Variable> variables = new TreeSet<>();

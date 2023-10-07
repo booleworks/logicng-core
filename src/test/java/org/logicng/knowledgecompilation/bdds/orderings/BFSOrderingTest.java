@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PseudoBooleanParser;
+import org.logicng.io.parsers.PropositionalParser;
 
 public class BFSOrderingTest {
 
@@ -19,7 +19,7 @@ public class BFSOrderingTest {
     @Test
     public void testSimpleCases() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final PseudoBooleanParser p = new PseudoBooleanParser(f);
+        final PropositionalParser p = new PropositionalParser(f);
         assertThat(ordering.getOrder(f, p.parse("$true"))).isEmpty();
         assertThat(ordering.getOrder(f, p.parse("$false"))).isEmpty();
         assertThat(ordering.getOrder(f, p.parse("A"))).containsExactly(f.variable("A"));
@@ -34,7 +34,7 @@ public class BFSOrderingTest {
     @Test
     public void testComplexFormula() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final PseudoBooleanParser p = new PseudoBooleanParser(f);
+        final PropositionalParser p = new PropositionalParser(f);
         final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (W + A + F < 1)))");
 
         assertThat(ordering.getOrder(f, formula)).containsExactly(

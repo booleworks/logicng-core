@@ -26,7 +26,7 @@ import org.logicng.formulas.PBConstraint;
 import org.logicng.formulas.Variable;
 import org.logicng.formulas.cache.CacheEntry;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PseudoBooleanParser;
+import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.util.Pair;
 
 import java.util.HashMap;
@@ -39,7 +39,7 @@ import java.util.Set;
 
 public class CachingFormulaFactory extends FormulaFactory {
 
-    private final PseudoBooleanParser parser;
+    private final PropositionalParser parser;
     Map<String, Variable> posLiterals;
     Map<String, Literal> negLiterals;
     Set<Variable> generatedVariables;
@@ -76,7 +76,7 @@ public class CachingFormulaFactory extends FormulaFactory {
         super(config);
         cFalse = new LngCachedFalse(this);
         cTrue = new LngCachedTrue(this);
-        parser = new PseudoBooleanParser(this);
+        parser = new PropositionalParser(this);
         clear();
     }
 

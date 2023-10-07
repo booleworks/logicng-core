@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PseudoBooleanParser;
+import org.logicng.io.parsers.PropositionalParser;
 
 public class OccurrenceOrderingTest {
 
@@ -20,7 +20,7 @@ public class OccurrenceOrderingTest {
     @Test
     public void testSimpleCasesMin2Max() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final PseudoBooleanParser p = new PseudoBooleanParser(f);
+        final PropositionalParser p = new PropositionalParser(f);
         assertThat(min2max.getOrder(f, p.parse("$true"))).isEmpty();
         assertThat(min2max.getOrder(f, p.parse("$false"))).isEmpty();
         assertThat(min2max.getOrder(f, p.parse("A"))).containsExactly(f.variable("A"));
@@ -35,7 +35,7 @@ public class OccurrenceOrderingTest {
     @Test
     public void testSimpleCasesMax2Min() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final PseudoBooleanParser p = new PseudoBooleanParser(f);
+        final PropositionalParser p = new PropositionalParser(f);
         assertThat(max2min.getOrder(f, p.parse("$true"))).isEmpty();
         assertThat(max2min.getOrder(f, p.parse("$false"))).isEmpty();
         assertThat(max2min.getOrder(f, p.parse("A"))).containsExactly(f.variable("A"));
@@ -50,7 +50,7 @@ public class OccurrenceOrderingTest {
     @Test
     public void testComplexFormulaMin2Max() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final PseudoBooleanParser p = new PseudoBooleanParser(f);
+        final PropositionalParser p = new PropositionalParser(f);
         final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (X + W + A + F < 1)))");
 
         assertThat(min2max.getOrder(f, formula)).containsExactly(
@@ -68,7 +68,7 @@ public class OccurrenceOrderingTest {
     @Test
     public void testComplexFormulaMax2Min() throws ParserException {
         final FormulaFactory f = FormulaFactory.nonCaching();
-        final PseudoBooleanParser p = new PseudoBooleanParser(f);
+        final PropositionalParser p = new PropositionalParser(f);
         final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (X + W + A + F < 1)))");
 
         assertThat(max2min.getOrder(f, formula)).containsExactly(

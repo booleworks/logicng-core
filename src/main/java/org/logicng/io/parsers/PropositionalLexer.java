@@ -8,14 +8,14 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.LexerNoViableAltException;
 
 /**
- * A lexer for propositional formulas.
+ * A lexer for propositional (including pseudo-Boolean) formulas.
  * @version 1.0
  * @since 1.0
  */
 public final class PropositionalLexer extends LogicNGPropositionalLexer {
 
     /**
-     * Constructs a new LogicNG lexer.
+     * Constructs a new pseudo boolean lexer.
      * @param inputStream the input stream
      */
     public PropositionalLexer(final CharStream inputStream) {
@@ -25,10 +25,5 @@ public final class PropositionalLexer extends LogicNGPropositionalLexer {
     @Override
     public void recover(final LexerNoViableAltException exception) {
         throw new LexerException(exception.getMessage());
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
     }
 }

@@ -29,19 +29,19 @@ import org.logicng.io.graphical.GraphicalMermaidWriter;
 import org.logicng.io.graphical.GraphicalNodeStyle;
 import org.logicng.io.graphical.GraphicalRepresentation;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PseudoBooleanParser;
+import org.logicng.io.parsers.PropositionalParser;
 
 import java.io.File;
 import java.io.IOException;
 
 public class FormulaAstGraphicalGeneratorTest {
     private FormulaFactory f;
-    private PseudoBooleanParser p;
+    private PropositionalParser p;
 
     @BeforeEach
     public void init() {
         f = FormulaFactory.caching();
-        p = new PseudoBooleanParser(f);
+        p = new PropositionalParser(f);
     }
 
     @Test

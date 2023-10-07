@@ -15,7 +15,7 @@ import org.logicng.formulas.FormulaFactoryConfig;
 import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PseudoBooleanParser;
+import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.transformations.cnf.TseitinTransformation;
 
 public class FormulaFactoryImporterTest extends TestWithFormulaContext {
@@ -196,7 +196,7 @@ public class FormulaFactoryImporterTest extends TestWithFormulaContext {
     @Test
     public void testAdjustCounters() throws ParserException {
         final CachingFormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().name("Factory").build());
-        final PseudoBooleanParser p = new PseudoBooleanParser(f);
+        final PropositionalParser p = new PropositionalParser(f);
         final Formula cc = p.parse("A + B + C + D + E <= 2").cnf(f);
         final Formula pbc = p.parse("2*A + -2*B + 3*C + D + 2*E <= 3").cnf(f);
         final Formula cnf = p.parse("A & B & C | C & D & ~A").transform(new TseitinTransformation(f, 0));

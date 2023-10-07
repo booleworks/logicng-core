@@ -13,7 +13,6 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
-import org.logicng.io.parsers.PseudoBooleanParser;
 import org.logicng.transformations.cnf.CNFConfig;
 import org.logicng.transformations.cnf.CNFEncoder;
 
@@ -27,7 +26,7 @@ public class FormulaDimacsFileWriterTest extends TestWithFormulaContext {
     private final FormulaFactory f = FormulaFactory.caching();
     private final CNFConfig config = CNFConfig.builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build();
     private final PropositionalParser p = new PropositionalParser(f);
-    private final PseudoBooleanParser pp = new PseudoBooleanParser(f);
+    private final PropositionalParser pp = new PropositionalParser(f);
 
     @Test
     public void testNonCNF() {

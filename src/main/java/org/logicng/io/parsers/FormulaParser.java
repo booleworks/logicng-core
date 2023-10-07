@@ -105,9 +105,4 @@ public abstract class FormulaParser {
     public FormulaFactory factory() {
         return f;
     }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
-    }
 }

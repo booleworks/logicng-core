@@ -9,7 +9,6 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.FormulaParser;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
-import org.logicng.io.parsers.PseudoBooleanParser;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -66,7 +65,7 @@ public final class FormulaReader {
      * @throws ParserException if there was a problem parsing the formula
      */
     public static Formula readPseudoBooleanFormula(final FormulaFactory f, final String fileName) throws IOException, ParserException {
-        return read(new File(fileName), new PseudoBooleanParser(f));
+        return read(new File(fileName), new PropositionalParser(f));
     }
 
     /**
@@ -78,7 +77,7 @@ public final class FormulaReader {
      * @throws ParserException if there was a problem parsing the formula
      */
     public static Formula readPseudoBooleanFormula(final FormulaFactory f, final File file) throws IOException, ParserException {
-        return read(file, new PseudoBooleanParser(f));
+        return read(file, new PropositionalParser(f));
     }
 
     /**

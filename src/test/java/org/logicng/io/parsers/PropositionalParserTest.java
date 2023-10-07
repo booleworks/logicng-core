@@ -9,10 +9,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 import org.logicng.TestWithExampleFormulas;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import org.logicng.formulas.CType;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.Literal;
 
 public class PropositionalParserTest extends TestWithExampleFormulas {
 
@@ -20,8 +20,7 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
     public void testExceptions() throws ParserException {
         final PropositionalParser parser = new PropositionalParser(f);
         assertThat(parser.parse("")).isEqualTo(f.verum());
-        final String s = null;
-        assertThat(parser.parse(s)).isEqualTo(f.verum());
+        assertThat(parser.parse((String) null)).isEqualTo(f.verum());
     }
 
     @Test
@@ -40,9 +39,7 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
         assertThat(parser.parse("aA_Bb_Cc_12_3")).isEqualTo(f.variable("aA_Bb_Cc_12_3"));
         assertThat(parser.parse("~A")).isEqualTo(f.literal("A", false));
         assertThat(parser.parse("~a")).isEqualTo(f.literal("a", false));
-        assertThat(parser.parse("~a1")).isEqualTo(f.literal("a1", false));
         assertThat(parser.parse("~aA_Bb_Cc_12_3")).isEqualTo(f.literal("aA_Bb_Cc_12_3", false));
-        assertThat(parser.parse("~@aA_Bb_Cc_12_3")).isEqualTo(f.literal("@aA_Bb_Cc_12_3", false));
         assertThat(parser.parse("#")).isEqualTo(f.literal("#", true));
         assertThat(parser.parse("~#")).isEqualTo(f.literal("#", false));
         assertThat(parser.parse("~A#B")).isEqualTo(f.literal("A#B", false));
@@ -67,6 +64,42 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
         assertThat(parser.parse("~a => ~b")).isEqualTo(f.implication(f.literal("a", false), f.literal("b", false)));
         assertThat(parser.parse("a <=> b")).isEqualTo(f.equivalence(f.variable("a"), f.variable("b")));
         assertThat(parser.parse("~a <=> ~b")).isEqualTo(f.equivalence(f.literal("a", false), f.literal("b", false)));
+    }
+
+    @Test
+    public void testParseMultiplication() throws ParserException {
+        final PropositionalParser parser = new PropositionalParser(f);
+        assertThat(parser.parse("13 * abc = 4")).isEqualTo(f.pbc(CType.EQ, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
+        assertThat(parser.parse("-13 * a = 4")).isEqualTo(f.pbc(CType.EQ, 4, new Literal[]{f.variable("a")}, new int[]{-13}));
+        assertThat(parser.parse("13 * ~abc = -442")).isEqualTo(f.pbc(CType.EQ, -442, new Literal[]{f.literal("abc", false)}, new int[]{13}));
+        assertThat(parser.parse("-13 * ~a = -442")).isEqualTo(f.pbc(CType.EQ, -442, new Literal[]{f.literal("a", false)}, new int[]{-13}));
+        assertThat(parser.parse("13 * abc = 4")).isEqualTo(f.pbc(CType.EQ, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
+        assertThat(parser.parse("13 * abc > 4")).isEqualTo(f.pbc(CType.GT, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
+        assertThat(parser.parse("13 * abc >= 4")).isEqualTo(f.pbc(CType.GE, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
+        assertThat(parser.parse("13 * abc < 4")).isEqualTo(f.pbc(CType.LT, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
+        assertThat(parser.parse("13 * abc <= 4")).isEqualTo(f.pbc(CType.LE, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
+    }
+
+    @Test
+    public void testParseAddition() throws ParserException {
+        final PropositionalParser parser = new PropositionalParser(f);
+        assertThat(parser.parse("4 * c + -4 * ~d < -4")).isEqualTo(f.pbc(CType.LT, -4, new Literal[]{f.variable("c"), f.literal("d", false)}, new int[]{4, -4}));
+        assertThat(parser.parse("5 * c + -5 * ~c >= -5")).isEqualTo(f.pbc(CType.GE, -5, new Literal[]{f.variable("c"), f.literal("c", false)}, new int[]{5, -5}));
+        assertThat(parser.parse("6 * a + -6 * ~b + 12 * ~c > -6")).isEqualTo(f.pbc(CType.GT, -6, new Literal[]{f.variable("a"), f.literal("b", false), f.literal("c", false)}, new int[]{6, -6, 12}));
+        assertThat(parser.parse("c + -4 * ~d < -4")).isEqualTo(f.pbc(CType.LT, -4, new Literal[]{f.variable("c"), f.literal("d", false)}, new int[]{1, -4}));
+        assertThat(parser.parse("5 * c + ~c >= -5")).isEqualTo(f.pbc(CType.GE, -5, new Literal[]{f.variable("c"), f.literal("c", false)}, new int[]{5, 1}));
+        assertThat(parser.parse("c + d >= -5")).isEqualTo(f.pbc(CType.GE, -5, new Literal[]{f.variable("c"), f.literal("d", true)}, new int[]{1, 1}));
+        assertThat(parser.parse("~c + ~d >= -5")).isEqualTo(f.pbc(CType.GE, -5, new Literal[]{f.literal("c", false), f.literal("d", false)}, new int[]{1, 1}));
+        assertThat(parser.parse("~c = -5")).isEqualTo(f.pbc(CType.EQ, -5, new Literal[]{f.literal("c", false)}, new int[]{1}));
+        assertThat(parser.parse("~(c = -5)")).isEqualTo(f.not(f.pbc(CType.EQ, -5, new Literal[]{f.literal("c", true)}, new int[]{1})));
+    }
+
+    @Test
+    public void testCombination() throws ParserException {
+        final PropositionalParser parser = new PropositionalParser(f);
+        final Formula pbc = f.pbc(CType.GT, -6, new Literal[]{f.variable("a"), f.literal("b", false), f.literal("c", false)}, new int[]{6, -6, 12});
+        assertThat(parser.parse("(x => y & z) & (6 * a + -6 * ~b + 12 * ~c > -6)")).isEqualTo(f.and(f.implication(f.variable("x"), f.and(f.variable("y"), f.variable("z"))), pbc));
+        assertThat(parser.parse("~(6 * a - 6 * ~b - -12 * ~c > -6)")).isEqualTo(f.not(pbc));
     }
 
     @Test
@@ -99,25 +132,9 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
     }
 
     @Test
-    public void parseInputStream() throws ParserException {
-        final PropositionalParser parser = new PropositionalParser(f);
-        final String string = "A & B => D | ~C";
-        final InputStream stream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
-        assertThat(parser.parse(stream)).isEqualTo(parser.parse(string));
-        assertThat(parser.parse((InputStream) null)).isEqualTo(f.verum());
-    }
-
-    @Test
     public void parseEmptyString() throws ParserException {
         final PropositionalParser parser = new PropositionalParser(f);
         assertThat(parser.parse("")).isEqualTo(f.verum());
-        assertThat(parser.parse((String) null)).isEqualTo(f.verum());
-    }
-
-    @Test
-    public void testFormulaFactory() {
-        final PropositionalParser parser = new PropositionalParser(f);
-        assertThat(parser.factory()).isEqualTo(f);
     }
 
     @Test
@@ -130,12 +147,23 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
         assertThat(parser.parse(" \r\n\n  \t")).isEqualTo(f.verum());
         assertThat(parser.parse("a\n&\tb")).isEqualTo(AND1);
         assertThat(parser.parse(" a\r=>\t\tb")).isEqualTo(IMP1);
+        assertThat(parser.parse(" 2\n*a\r+\n\n-4*\tb    +3*x=2")).isEqualTo(PBC1);
     }
 
     @Test
-    public void testNumericalLiteral() throws ParserException {
+    public void testNumberLiterals() throws ParserException {
+        final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser parser = new PropositionalParser(f);
-        assertThat(parser.parse("12")).isEqualTo(f.variable("12"));
+        assertThat(parser.parse("12 & A")).isEqualTo(f.and(f.variable("12"), f.variable("A")));
+        assertThat(parser.parse("~12 & A")).isEqualTo(f.and(f.literal("12", false), f.variable("A")));
+        assertThat(parser.parse("12 * 12 + 13 * A + 10 * B <= 25")).isEqualTo(f.pbc(CType.LE, 25, new Literal[]{f.variable("12"), f.variable("A"), f.variable("B")}, new int[]{12, 13, 10}));
+        assertThat(parser.parse("-12 * ~12 + 13 * A + 10 * B <= 25")).isEqualTo(f.pbc(CType.LE, 25, new Literal[]{f.literal("12", false), f.variable("A"), f.variable("B")}, new int[]{-12, 13, 10}));
+    }
+
+    @Test
+    public void testFormulaFactoryParser() throws ParserException {
+        assertThat(f.parse("a & b")).isEqualTo(f.and(f.variable("a"), f.variable("b")));
+        assertThat(f.parse("2*a + -4*b + 3*x = 2")).isEqualTo(PBC1);
     }
 
     @Test
@@ -219,23 +247,7 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
     }
 
     @Test
-    public void testIllegalFormula8() {
-        final String string = "A & B => D | ~";
-        final InputStream stream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
-        assertThatThrownBy(() -> new PropositionalParser(f).parse(stream)).isInstanceOf(ParserException.class);
-
-    }
-
-    @Test
-    public void testIllegalFormula9() {
-        final String string = "@A@B";
-        final InputStream stream = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
-        assertThatThrownBy(() -> new PropositionalParser(f).parse(stream)).isInstanceOf(ParserException.class);
-    }
-
-    @Test
-    public void testToStrings() {
-        assertThat(new PropositionalLexer(null).toString()).isEqualTo("PropositionalLexer");
-        assertThat(new PropositionalParser(f).toString()).isEqualTo("PropositionalParser");
+    public void testIllegalSkipPosition() {
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("- 1*x <= 3")).isInstanceOf(ParserException.class);
     }
 }

@@ -13,7 +13,7 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaContext;
 import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PseudoBooleanParser;
+import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
 import org.logicng.predicates.DNFPredicate;
 
@@ -152,7 +152,7 @@ public class BDDDNFTest extends TestWithFormulaContext {
         final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
         final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
 
-        final PseudoBooleanParser p = new PseudoBooleanParser(_c.f);
+        final PropositionalParser p = new PropositionalParser(_c.f);
         final Formula f1 = p.parse("a <=> (1 * b <= 1)");
         final Formula f2 = p.parse("~(1 * b <= 1)");
         final Formula f3 = p.parse("(1 * b + 1 * c + 1 * d <= 1)");
