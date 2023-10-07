@@ -11,7 +11,7 @@ import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PseudoBooleanParser;
+import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.knowledgecompilation.bdds.orderings.BFSOrdering;
 import org.logicng.knowledgecompilation.bdds.orderings.DFSOrdering;
 import org.logicng.knowledgecompilation.bdds.orderings.MaxToMinOrdering;
@@ -34,7 +34,7 @@ public class FormulaBDDTest {
     @Test
     public void testBDDGeneration() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final PseudoBooleanParser p = new PseudoBooleanParser(f);
+        final PropositionalParser p = new PropositionalParser(f);
         final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (W + A + F < 1)))");
         final BDD bddNoOrder = formula.bdd(f);
         final BDD bddBfs = formula.bdd(f, new BFSOrdering());

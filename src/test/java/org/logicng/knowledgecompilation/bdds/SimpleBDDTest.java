@@ -15,7 +15,6 @@ import org.logicng.formulas.TestWithFormulaContext;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
-import org.logicng.io.parsers.PseudoBooleanParser;
 import org.logicng.knowledgecompilation.bdds.datastructures.BDDConstant;
 import org.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
 
@@ -190,7 +189,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testCC(final FormulaContext _c) throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final PseudoBooleanParser parser = new PseudoBooleanParser(f);
+        final PropositionalParser parser = new PropositionalParser(f);
         final BDDKernel kernel = new BDDKernel(f, 3, 1000, 1000);
         final BDD bdd = BDDFactory.build(f, parser.parse("A + B + C = 1"), kernel, null);
         assertThat(bdd.isTautology()).isFalse();

@@ -20,7 +20,7 @@ import org.logicng.graphs.datastructures.Node;
 import org.logicng.graphs.generators.ConstraintGraphGenerator;
 import org.logicng.io.parsers.FormulaParser;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PseudoBooleanParser;
+import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.io.readers.DimacsReader;
 import org.logicng.io.readers.FormulaReader;
 import org.logicng.knowledgecompilation.bdds.BDD;
@@ -41,7 +41,7 @@ import java.util.Set;
 public class DnnfCompilerTest {
 
     private final FormulaFactory f = FormulaFactory.caching();
-    private final FormulaParser parser = new PseudoBooleanParser(f);
+    private final FormulaParser parser = new PropositionalParser(f);
 
     @Test
     public void testTrivialFormulas() throws ParserException {

@@ -11,7 +11,7 @@ import org.logicng.formulas.FormulaFactoryConfig;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PseudoBooleanParser;
+import org.logicng.io.parsers.PropositionalParser;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -192,7 +192,7 @@ public class NonCachingFormulaFactory extends FormulaFactory {
         if (readOnly) {
             throwReadOnlyException();
         }
-        return new PseudoBooleanParser(this).parse(string);
+        return new PropositionalParser(this).parse(string);
     }
 
     @Override

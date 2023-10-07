@@ -17,7 +17,6 @@ import org.logicng.graphs.datastructures.Graph;
 import org.logicng.graphs.datastructures.Node;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
-import org.logicng.io.parsers.PseudoBooleanParser;
 import org.logicng.io.readers.FormulaReader;
 import org.logicng.transformations.cnf.CNFFactorization;
 
@@ -57,7 +56,7 @@ public class ConstraintGraphGeneratorTest {
     @Test
     public void testCC() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final PseudoBooleanParser p = new PseudoBooleanParser(f);
+        final PropositionalParser p = new PropositionalParser(f);
         final Graph<Variable> expected = new Graph<>();
         final Node<Variable> a = expected.node(f.variable("a"));
         final Node<Variable> b = expected.node(f.variable("b"));
@@ -71,7 +70,7 @@ public class ConstraintGraphGeneratorTest {
     @Test
     public void testCnf() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final PseudoBooleanParser p = new PseudoBooleanParser(f);
+        final PropositionalParser p = new PropositionalParser(f);
         final Graph<Variable> expected = new Graph<>();
         final Node<Variable> a = expected.node(f.variable("a"));
         final Node<Variable> b = expected.node(f.variable("b"));

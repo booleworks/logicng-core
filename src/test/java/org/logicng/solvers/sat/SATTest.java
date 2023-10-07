@@ -27,7 +27,6 @@ import org.logicng.handlers.TimeoutModelEnumerationHandler;
 import org.logicng.handlers.TimeoutSATHandler;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
-import org.logicng.io.parsers.PseudoBooleanParser;
 import org.logicng.propositions.StandardProposition;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
@@ -816,7 +815,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     public void testFormulaOnSolver() throws ParserException {
         for (final SATSolver solver : solvers) {
             if (solver instanceof MiniSat) {
-                final PseudoBooleanParser p = new PseudoBooleanParser(f);
+                final PropositionalParser p = new PropositionalParser(f);
                 final Set<Formula> formulas = new LinkedHashSet<>();
                 formulas.add(p.parse("A | B | C"));
                 formulas.add(p.parse("~A | ~B | ~C"));

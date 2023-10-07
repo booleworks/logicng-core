@@ -12,7 +12,6 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.printer.UTF8StringRepresentation;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
-import org.logicng.io.parsers.PseudoBooleanParser;
 import org.logicng.io.readers.FormulaReader;
 import org.logicng.io.writers.FormulaWriter;
 
@@ -74,7 +73,7 @@ public class FormulaWriterReaderTest {
         final String fileName = "src/test/resources/writers/temp/simple_formula3.txt";
         final File file = new File(fileName);
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula p1 = new PseudoBooleanParser(f).parse("A & B & ~(C | (D => ~E)) & (2*y + 3*y >= 4) & (x <= 1)");
+        final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E)) & (2*y + 3*y >= 4) & (x <= 1)");
         FormulaWriter.write(fileName, p1, false);
         final Formula p2 = FormulaReader.readPseudoBooleanFormula(f, fileName);
         final Formula p3 = FormulaReader.readPseudoBooleanFormula(f, file);
@@ -96,7 +95,7 @@ public class FormulaWriterReaderTest {
         final String fileName = "src/test/resources/writers/temp/simple_formula4.txt";
         final File file = new File(fileName);
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula p1 = new PseudoBooleanParser(f).parse("A & B & ~(C | (D => ~E)) & (2*y + 3*y >= 4) & (x <= 1)");
+        final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E)) & (2*y + 3*y >= 4) & (x <= 1)");
         FormulaWriter.write(fileName, p1, true);
         final Formula p2 = FormulaReader.readPseudoBooleanFormula(f, fileName);
         assertThat(p2).isEqualTo(p1);

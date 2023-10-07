@@ -6,7 +6,7 @@ package org.logicng.formulas;
 
 import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import org.logicng.io.parsers.FormulaParser;
-import org.logicng.io.parsers.PseudoBooleanParser;
+import org.logicng.io.parsers.PropositionalParser;
 
 import java.util.Arrays;
 import java.util.List;
@@ -70,7 +70,7 @@ public class FormulaContext {
 
     public FormulaContext(final FormulaFactory f) {
         this.f = f;
-        p = new PseudoBooleanParser(f);
+        p = new PropositionalParser(f);
 
         verum = f.verum();
         falsum = f.falsum();
