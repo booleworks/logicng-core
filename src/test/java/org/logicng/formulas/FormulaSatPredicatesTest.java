@@ -52,11 +52,11 @@ public class FormulaSatPredicatesTest extends TestWithFormulaContext {
         final Formula f1 = _c.f.parse("(a | b) & (c | ~d)");
         final Formula f2 = _c.f.parse("(a | b) & (c | ~d) & (e | ~f)");
         final Formula f3 = _c.f.parse("(a | b) & (c | d)");
-        assertThat(f1.implies(f2, _c.f)).isFalse();
-        assertThat(f2.implies(f1, _c.f)).isTrue();
-        assertThat(f1.implies(f3, _c.f)).isFalse();
-        assertThat(f2.implies(f3, _c.f)).isFalse();
-        assertThat(f2.implies(f2, _c.f)).isTrue();
+        assertThat(f1.implies(_c.f, f2)).isFalse();
+        assertThat(f2.implies(_c.f, f1)).isTrue();
+        assertThat(f1.implies(_c.f, f3)).isFalse();
+        assertThat(f2.implies(_c.f, f3)).isFalse();
+        assertThat(f2.implies(_c.f, f2)).isTrue();
     }
 
     @ParameterizedTest
@@ -65,11 +65,11 @@ public class FormulaSatPredicatesTest extends TestWithFormulaContext {
         final Formula f1 = _c.f.parse("(a | b) & (c | ~d)");
         final Formula f2 = _c.f.parse("(a | b) & (c | ~d) & (e | ~f)");
         final Formula f3 = _c.f.parse("(a | b) & (c | d)");
-        assertThat(f1.isImpliedBy(f2, _c.f)).isTrue();
-        assertThat(f2.isImpliedBy(f1, _c.f)).isFalse();
-        assertThat(f1.isImpliedBy(f3, _c.f)).isFalse();
-        assertThat(f2.isImpliedBy(f3, _c.f)).isFalse();
-        assertThat(f2.isImpliedBy(f2, _c.f)).isTrue();
+        assertThat(f1.isImpliedBy(_c.f, f2)).isTrue();
+        assertThat(f2.isImpliedBy(_c.f, f1)).isFalse();
+        assertThat(f1.isImpliedBy(_c.f, f3)).isFalse();
+        assertThat(f2.isImpliedBy(_c.f, f3)).isFalse();
+        assertThat(f2.isImpliedBy(_c.f, f2)).isTrue();
     }
 
     @ParameterizedTest
@@ -78,11 +78,11 @@ public class FormulaSatPredicatesTest extends TestWithFormulaContext {
         final Formula f1 = _c.f.parse("(a | b) & (c | ~d)");
         final Formula f2 = _c.f.parse("(a | b) & (c | ~d) & (e | ~f)");
         final Formula f3 = _c.f.parse("(a & c) | (a & ~d) | (b & c) | (b & ~d)");
-        assertThat(f1.isEquivalentTo(f2, _c.f)).isFalse();
-        assertThat(f2.isEquivalentTo(f1, _c.f)).isFalse();
-        assertThat(f1.isEquivalentTo(f3, _c.f)).isTrue();
-        assertThat(f3.isEquivalentTo(f1, _c.f)).isTrue();
-        assertThat(f2.isEquivalentTo(f3, _c.f)).isFalse();
-        assertThat(f2.isEquivalentTo(f2.transform(new BDDCNFTransformation(_c.f)), _c.f)).isTrue();
+        assertThat(f1.isEquivalentTo(_c.f, f2)).isFalse();
+        assertThat(f2.isEquivalentTo(_c.f, f1)).isFalse();
+        assertThat(f1.isEquivalentTo(_c.f, f3)).isTrue();
+        assertThat(f3.isEquivalentTo(_c.f, f1)).isTrue();
+        assertThat(f2.isEquivalentTo(_c.f, f3)).isFalse();
+        assertThat(f2.isEquivalentTo(_c.f, f2.transform(new BDDCNFTransformation(_c.f)))).isTrue();
     }
 }

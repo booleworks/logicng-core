@@ -198,7 +198,7 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
         for (final Map.Entry<Variable, Boolean> entry : mapping.entrySet()) {
             assignment.addLiteral(f.literal(entry.getKey().name(), entry.getValue()));
         }
-        return formula.restrict(assignment, f);
+        return formula.restrict(f, assignment);
     }
 
     private static FType getConstantType(final boolean constant) {

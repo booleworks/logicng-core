@@ -31,32 +31,32 @@ public final class MUSGeneration {
 
     /**
      * Computes a MUS for the given propositions with the default algorithm and the MUS configuration from the formula factory.
-     * @param propositions the propositions
-     * @param f            the formula factory
      * @param <T>          the type of the MUSes propositions
+     * @param f            the formula factory
+     * @param propositions the propositions
      * @return the MUS
      */
-    public <T extends Proposition> UNSATCore<T> computeMUS(final List<T> propositions, final FormulaFactory f) {
-        return computeMUS(propositions, f, (MUSConfig) f.configurationFor(ConfigurationType.MUS));
+    public <T extends Proposition> UNSATCore<T> computeMUS(final FormulaFactory f, final List<T> propositions) {
+        return computeMUS(f, propositions, (MUSConfig) f.configurationFor(ConfigurationType.MUS));
     }
 
     /**
      * Computes a MUS for the given propositions and the given configuration of the MUS generation.
-     * @param propositions the propositions
-     * @param f            the formula factory
-     * @param config       the MUS configuration
      * @param <T>          the type of the MUSes propositions
+     * @param f            the formula factory
+     * @param propositions the propositions
+     * @param config       the MUS configuration
      * @return the MUS
      */
-    public <T extends Proposition> UNSATCore<T> computeMUS(final List<T> propositions, final FormulaFactory f, final MUSConfig config) {
+    public <T extends Proposition> UNSATCore<T> computeMUS(final FormulaFactory f, final List<T> propositions, final MUSConfig config) {
         if (propositions.isEmpty()) {
             throw new IllegalArgumentException("Cannot generate a MUS for an empty list of propositions");
         }
         switch (config.algorithm) {
             case PLAIN_INSERTION:
-                return insertion.computeMUS(propositions, f, config);
+                return insertion.computeMUS(f, propositions, config);
             case DELETION:
-                return deletion.computeMUS(propositions, f, config);
+                return deletion.computeMUS(f, propositions, config);
             default:
                 throw new IllegalStateException("Unknown MUS algorithm: " + config.algorithm);
         }

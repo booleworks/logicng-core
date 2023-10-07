@@ -70,8 +70,8 @@ public interface Literal extends Formula, Comparable<Literal> {
     }
 
     @Override
-    default Formula restrict(final Assignment assignment, final FormulaFactory f) {
-        return assignment.restrictLit(this, f);
+    default Formula restrict(final FormulaFactory f, final Assignment assignment) {
+        return assignment.restrictLit(f, this);
     }
 
     @Override
@@ -80,7 +80,7 @@ public interface Literal extends Formula, Comparable<Literal> {
     }
 
     @Override
-    default Formula substitute(final Substitution substitution, final FormulaFactory f) {
+    default Formula substitute(final FormulaFactory f, final Substitution substitution) {
         final Formula subst = substitution.getSubstitution(variable());
         return subst == null ? this : (phase() ? subst : subst.negate(f));
     }

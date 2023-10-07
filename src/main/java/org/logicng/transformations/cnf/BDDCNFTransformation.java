@@ -28,7 +28,7 @@ public final class BDDCNFTransformation extends BDDNormalFormTransformation {
      * @param kernel the optional BDD kernel
      */
     public BDDCNFTransformation(final FormulaFactory f, final BDDKernel kernel) {
-        super(true, f, kernel);
+        super(f, true, kernel);
     }
 
     /**
@@ -42,7 +42,7 @@ public final class BDDCNFTransformation extends BDDNormalFormTransformation {
      * @param cache  the cache to use for this transformation
      */
     public BDDCNFTransformation(final FormulaFactory f, final BDDKernel kernel, final Map<Formula, Formula> cache) {
-        super(true, f, kernel, cache);
+        super(f, true, kernel, cache);
     }
 
     /**
@@ -51,7 +51,7 @@ public final class BDDCNFTransformation extends BDDNormalFormTransformation {
      * @param f the formula factory to generate new formulas
      */
     public BDDCNFTransformation(final FormulaFactory f) {
-        super(true, f, null);
+        super(f, true, null);
     }
 
     @Override

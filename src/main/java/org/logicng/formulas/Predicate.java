@@ -26,12 +26,6 @@ interface Predicate extends Formula {
     };
 
     @Override
-    long numberOfNodes();
-
-    @Override
-    long numberOfInternalNodes();
-
-    @Override
     default int numberOfOperands() {
         return 0;
     }
@@ -57,7 +51,7 @@ interface Predicate extends Formula {
     }
 
     @Override
-    default Formula restrict(final Assignment assignment) {
+    default Formula restrict(final FormulaFactory f, final Assignment assignment) {
         return this;
     }
 
@@ -67,12 +61,12 @@ interface Predicate extends Formula {
     }
 
     @Override
-    default Formula substitute(final Substitution substitution) {
+    default Formula substitute(final FormulaFactory f, final Substitution substitution) {
         return this;
     }
 
     @Override
-    default Formula negate() {
+    default Formula negate(final FormulaFactory f) {
         return this.factory().not(this);
     }
 

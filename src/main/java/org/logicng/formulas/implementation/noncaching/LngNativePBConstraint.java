@@ -79,7 +79,7 @@ public class LngNativePBConstraint extends LngNativeFormula implements PBConstra
 
     @Override
     public List<Formula> getEncoding(final FormulaFactory generatingFactory) {
-        return PBEncoder.encode(this, generatingFactory);
+        return PBEncoder.encode(generatingFactory, this);
     }
 
     @Override

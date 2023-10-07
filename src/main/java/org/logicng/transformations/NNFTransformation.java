@@ -72,7 +72,7 @@ public class NNFTransformation extends CacheableFormulaTransformation {
                 break;
             case OR:
             case AND:
-                nnf = applyRec(formula.iterator(), formula.type(), polarity, f);
+                nnf = applyRec(f, formula.iterator(), formula.type(), polarity);
                 break;
             case EQUIV:
                 final Equivalence equiv = (Equivalence) formula;
@@ -96,7 +96,7 @@ public class NNFTransformation extends CacheableFormulaTransformation {
                 final PBConstraint pbc = (PBConstraint) formula;
                 if (polarity) {
                     final List<Formula> encoding = pbc.getEncoding(f);
-                    nnf = applyRec(encoding.iterator(), FType.AND, true, f);
+                    nnf = applyRec(f, encoding.iterator(), FType.AND, true);
                 } else {
                     nnf = applyRec(pbc.negate(f), true);
                 }
@@ -110,7 +110,7 @@ public class NNFTransformation extends CacheableFormulaTransformation {
         return nnf;
     }
 
-    private Formula applyRec(final Iterator<Formula> formulas, final FType type, final boolean polarity, final FormulaFactory f) {
+    private Formula applyRec(final FormulaFactory f, final Iterator<Formula> formulas, final FType type, final boolean polarity) {
         final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
         while (formulas.hasNext()) {
             final Formula formula = formulas.next();

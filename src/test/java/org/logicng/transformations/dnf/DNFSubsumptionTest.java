@@ -56,7 +56,7 @@ public class DNFSubsumptionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testEvenLargerFormulas(final FormulaContext _c) throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", _c.f);
+        final Formula formula = FormulaReader.readPseudoBooleanFormula(_c.f, "src/test/resources/formulas/small_formulas.txt");
         int count = 10; // test only first 10 formulas
         for (final Formula op : formula) {
             if (count == 0) {

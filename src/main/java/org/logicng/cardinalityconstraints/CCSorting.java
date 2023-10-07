@@ -68,15 +68,15 @@ public final class CCSorting {
 
     /**
      * Generates a sorter encoding for the given input.
+     * @param f         the formula factory to generate new formulas
      * @param m         the counter
      * @param input     the input literals
      * @param result    the result of the encoding
      * @param output    the output literals
      * @param direction the sorting direction
-     * @param f         the formula factory to generate new formulas
      */
-    public static void sort(final int m, final LNGVector<Literal> input, final EncodingResult result, final LNGVector<Literal> output,
-                            final ImplicationDirection direction, final FormulaFactory f) {
+    public static void sort(final FormulaFactory f, final int m, final LNGVector<Literal> input, final EncodingResult result, final LNGVector<Literal> output,
+                            final ImplicationDirection direction) {
         assert m >= 0;
         if (m == 0) {
             output.clear();
@@ -111,7 +111,7 @@ public final class CCSorting {
             return;
         }
         if (direction != INPUT_TO_OUTPUT) {
-            recursiveSorter(m2, input, result, output, direction, f);
+            recursiveSorter(f, m2, input, result, output, direction);
             return;
         }
         final int counter = counterSorterValue(m2, n);
@@ -152,8 +152,8 @@ public final class CCSorting {
         }
     }
 
-    private static void recursiveSorter(final int m, final int l, final LNGVector<Literal> input, final EncodingResult result,
-                                        final LNGVector<Literal> output, final ImplicationDirection direction, final FormulaFactory f) {
+    private static void recursiveSorter(final FormulaFactory f, final int m, final int l, final LNGVector<Literal> input, final EncodingResult result,
+                                        final LNGVector<Literal> output, final ImplicationDirection direction) {
         final int n = input.size();
         assert output.size() == 0;
         assert n > 1;
@@ -172,24 +172,24 @@ public final class CCSorting {
 
         assert tmpLitsA.size() + tmpLitsB.size() == n;
 
-        sort(m, tmpLitsA, result, tmpLitsO1, direction, f);
-        sort(m, tmpLitsB, result, tmpLitsO2, direction, f);
-        merge(m, tmpLitsO1, tmpLitsO2, result, output, direction, f);
+        sort(f, m, tmpLitsA, result, tmpLitsO1, direction);
+        sort(f, m, tmpLitsB, result, tmpLitsO2, direction);
+        merge(f, m, tmpLitsO1, tmpLitsO2, result, output, direction);
 
         assert tmpLitsO1.size() == Math.min(l, m);
         assert tmpLitsO2.size() == Math.min(n - l, m);
         assert output.size() == m;
     }
 
-    private static void recursiveSorter(final int m, final LNGVector<Literal> input, final EncodingResult result,
-                                        final LNGVector<Literal> output, final ImplicationDirection direction, final FormulaFactory f) {
+    private static void recursiveSorter(final FormulaFactory f, final int m, final LNGVector<Literal> input, final EncodingResult result,
+                                        final LNGVector<Literal> output, final ImplicationDirection direction) {
         assert m > 0;
         assert input.size() > 0;
         output.clear();
         final int n = input.size();
         assert n > 1;
         final int l = n / 2;
-        recursiveSorter(m, l, input, result, output, direction, f);
+        recursiveSorter(f, m, l, input, result, output, direction);
     }
 
     private static void counterSorter(final int k, final LNGVector<Literal> x, final EncodingResult result,
@@ -263,16 +263,16 @@ public final class CCSorting {
 
     /**
      * Merges to input vectors.
+     * @param f         the formula factory to generate new formulas
      * @param m         parameter m
      * @param inputA    the first input vector
      * @param inputB    the second input vector
      * @param formula   the result formula
      * @param output    the output vector
      * @param direction the sorting direction
-     * @param f         the formula factory to generate new formulas
      */
-    public static void merge(final int m, final LNGVector<Literal> inputA, final LNGVector<Literal> inputB, final EncodingResult formula,
-                             final LNGVector<Literal> output, final ImplicationDirection direction, final FormulaFactory f) {
+    public static void merge(final FormulaFactory f, final int m, final LNGVector<Literal> inputA, final LNGVector<Literal> inputB, final EncodingResult formula,
+                             final LNGVector<Literal> output, final ImplicationDirection direction) {
         assert m >= 0;
         if (m == 0) {
             output.clear();
@@ -294,15 +294,15 @@ public final class CCSorting {
             return;
         }
         if (direction != INPUT_TO_OUTPUT) {
-            recursiveMerger(m2, inputA, inputA.size(), inputB, inputB.size(), formula, output, direction, f);
+            recursiveMerger(f, m2, inputA, inputA.size(), inputB, inputB.size(), formula, output, direction);
             return;
         }
-        directMerger(m2, inputA, inputB, formula, output, direction, f);
+        directMerger(f, m2, inputA, inputB, formula, output, direction);
     }
 
-    private static void recursiveMerger(final int c, final LNGVector<Literal> inputA, final int a, final LNGVector<Literal> inputB, final int b,
+    private static void recursiveMerger(final FormulaFactory f, final int c, final LNGVector<Literal> inputA, final int a, final LNGVector<Literal> inputB, final int b,
                                         final EncodingResult formula, final LNGVector<Literal> output,
-                                        final ImplicationDirection direction, final FormulaFactory f) {
+                                        final ImplicationDirection direction) {
         assert inputA.size() > 0;
         assert inputB.size() > 0;
         assert c > 0;
@@ -350,8 +350,8 @@ public final class CCSorting {
             tmpLitsEvenB.push(inputB.get(i));
         }
 
-        merge(c / 2 + 1, tmpLitsOddA, tmpLitsOddB, formula, oddMerge, direction, f);
-        merge(c / 2, tmpLitsEvenA, tmpLitsEvenB, formula, evenMerge, direction, f);
+        merge(f, c / 2 + 1, tmpLitsOddA, tmpLitsOddB, formula, oddMerge, direction);
+        merge(f, c / 2, tmpLitsEvenA, tmpLitsEvenB, formula, evenMerge, direction);
 
         assert oddMerge.size() > 0;
 
@@ -393,8 +393,8 @@ public final class CCSorting {
         assert output.size() == a2 + b2 || output.size() == c;
     }
 
-    private static void directMerger(final int m, final LNGVector<Literal> inputA, final LNGVector<Literal> inputB, final EncodingResult formula,
-                                     final LNGVector<Literal> output, final ImplicationDirection direction, final FormulaFactory f) {
+    private static void directMerger(final FormulaFactory f, final int m, final LNGVector<Literal> inputA, final LNGVector<Literal> inputB, final EncodingResult formula,
+                                     final LNGVector<Literal> output, final ImplicationDirection direction) {
         assert direction == INPUT_TO_OUTPUT;
         final int a = inputA.size();
         final int b = inputB.size();

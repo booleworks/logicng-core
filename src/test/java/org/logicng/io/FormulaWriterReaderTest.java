@@ -34,8 +34,8 @@ public class FormulaWriterReaderTest {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E))");
         FormulaWriter.write(file, p1, false);
-        final Formula p2 = FormulaReader.readPropositionalFormula(fileName, f);
-        final Formula p3 = FormulaReader.readPropositionalFormula(file, f);
+        final Formula p2 = FormulaReader.readPropositionalFormula(f, fileName);
+        final Formula p3 = FormulaReader.readPropositionalFormula(f, file);
         assertThat(p2).isEqualTo(p1);
         assertThat(p3).isEqualTo(p1);
         try (final BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
@@ -56,7 +56,7 @@ public class FormulaWriterReaderTest {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E))");
         FormulaWriter.write(fileName, p1, true);
-        final Formula p2 = FormulaReader.readPropositionalFormula(fileName, f);
+        final Formula p2 = FormulaReader.readPropositionalFormula(f, fileName);
         assertThat(p2).isEqualTo(p1);
         try (final BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             int count = 0;
@@ -76,8 +76,8 @@ public class FormulaWriterReaderTest {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PseudoBooleanParser(f).parse("A & B & ~(C | (D => ~E)) & (2*y + 3*y >= 4) & (x <= 1)");
         FormulaWriter.write(fileName, p1, false);
-        final Formula p2 = FormulaReader.readPseudoBooleanFormula(fileName, f);
-        final Formula p3 = FormulaReader.readPseudoBooleanFormula(file, f);
+        final Formula p2 = FormulaReader.readPseudoBooleanFormula(f, fileName);
+        final Formula p3 = FormulaReader.readPseudoBooleanFormula(f, file);
         assertThat(p2).isEqualTo(p1);
         assertThat(p3).isEqualTo(p1);
         try (final BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
@@ -98,7 +98,7 @@ public class FormulaWriterReaderTest {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PseudoBooleanParser(f).parse("A & B & ~(C | (D => ~E)) & (2*y + 3*y >= 4) & (x <= 1)");
         FormulaWriter.write(fileName, p1, true);
-        final Formula p2 = FormulaReader.readPseudoBooleanFormula(fileName, f);
+        final Formula p2 = FormulaReader.readPseudoBooleanFormula(f, fileName);
         assertThat(p2).isEqualTo(p1);
         try (final BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             int count = 0;

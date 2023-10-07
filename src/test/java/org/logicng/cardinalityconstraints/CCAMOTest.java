@@ -31,21 +31,21 @@ public class CCAMOTest implements LogicNGTest {
     private final CCConfig[] configs;
 
     public CCAMOTest() {
-        this.configs = new CCConfig[14];
-        this.configs[0] = CCConfig.builder().amoEncoding(PURE).build();
-        this.configs[1] = CCConfig.builder().amoEncoding(LADDER).build();
-        this.configs[2] = CCConfig.builder().amoEncoding(PRODUCT).build();
-        this.configs[3] = CCConfig.builder().amoEncoding(BINARY).build();
-        this.configs[4] = CCConfig.builder().amoEncoding(NESTED).build();
-        this.configs[5] = CCConfig.builder().amoEncoding(COMMANDER).commanderGroupSize(3).build();
-        this.configs[6] = CCConfig.builder().amoEncoding(COMMANDER).commanderGroupSize(7).build();
-        this.configs[7] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(FIXED).build();
-        this.configs[8] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(HALF).build();
-        this.configs[9] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(SQRT).build();
-        this.configs[10] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(FIXED).bimanderFixedGroupSize(2).build();
-        this.configs[11] = CCConfig.builder().amoEncoding(NESTED).nestingGroupSize(5).build();
-        this.configs[12] = CCConfig.builder().amoEncoding(PRODUCT).productRecursiveBound(10).build();
-        this.configs[13] = CCConfig.builder().amoEncoding(BEST).build();
+        configs = new CCConfig[14];
+        configs[0] = CCConfig.builder().amoEncoding(PURE).build();
+        configs[1] = CCConfig.builder().amoEncoding(LADDER).build();
+        configs[2] = CCConfig.builder().amoEncoding(PRODUCT).build();
+        configs[3] = CCConfig.builder().amoEncoding(BINARY).build();
+        configs[4] = CCConfig.builder().amoEncoding(NESTED).build();
+        configs[5] = CCConfig.builder().amoEncoding(COMMANDER).commanderGroupSize(3).build();
+        configs[6] = CCConfig.builder().amoEncoding(COMMANDER).commanderGroupSize(7).build();
+        configs[7] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(FIXED).build();
+        configs[8] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(HALF).build();
+        configs[9] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(SQRT).build();
+        configs[10] = CCConfig.builder().amoEncoding(BIMANDER).bimanderGroupSize(FIXED).bimanderFixedGroupSize(2).build();
+        configs[11] = CCConfig.builder().amoEncoding(NESTED).nestingGroupSize(5).build();
+        configs[12] = CCConfig.builder().amoEncoding(PRODUCT).productRecursiveBound(10).build();
+        configs[13] = CCConfig.builder().amoEncoding(BEST).build();
     }
 
     @Test
@@ -59,8 +59,8 @@ public class CCAMOTest implements LogicNGTest {
     public void testAMO1() {
         final FormulaFactory f = FormulaFactory.caching();
         final CardinalityConstraint cc = (CardinalityConstraint) f.amo(f.variable("v0"));
-        for (final CCConfig config : this.configs) {
-            assertThat(CCEncoder.encode(cc, f, config)).isEmpty();
+        for (final CCConfig config : configs) {
+            assertThat(CCEncoder.encode(f, cc, config)).isEmpty();
         }
         assertThat(f.newCCVariable().name()).endsWith("_0");
     }
@@ -69,14 +69,14 @@ public class CCAMOTest implements LogicNGTest {
     public void testAMOK() {
         final FormulaFactory f = FormulaFactory.caching();
         int counter = 0;
-        for (final CCConfig config : this.configs) {
+        for (final CCConfig config : configs) {
             if (config != null) {
                 f.putConfiguration(config);
-                testAMO(2, f, false);
-                testAMO(10, f, false);
-                testAMO(100, f, false);
-                testAMO(250, f, false);
-                testAMO(500, f, false);
+                testAMO(f, 2, false);
+                testAMO(f, 10, false);
+                testAMO(f, 100, false);
+                testAMO(f, 250, false);
+                testAMO(f, 500, false);
                 assertThat(f.newCCVariable().name()).endsWith("_" + counter++);
             }
         }
@@ -85,15 +85,15 @@ public class CCAMOTest implements LogicNGTest {
     @Test
     public void testAMOKMiniCard() {
         final FormulaFactory f = FormulaFactory.caching();
-        testAMO(2, f, true);
-        testAMO(10, f, true);
-        testAMO(100, f, true);
-        testAMO(250, f, true);
-        testAMO(500, f, true);
+        testAMO(f, 2, true);
+        testAMO(f, 10, true);
+        testAMO(f, 100, true);
+        testAMO(f, 250, true);
+        testAMO(f, 500, true);
         assertThat(f.newCCVariable().name()).endsWith("_0");
     }
 
-    private void testAMO(final int numLits, final FormulaFactory f, final boolean miniCard) {
+    private void testAMO(final FormulaFactory f, final int numLits, final boolean miniCard) {
         final Variable[] problemLits = new Variable[numLits];
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);

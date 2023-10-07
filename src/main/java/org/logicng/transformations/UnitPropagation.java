@@ -105,21 +105,21 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
             }
             final List<Formula> newClauses = new ArrayList<>();
             for (final MSClause clause : clauses) {
-                newClauses.add(clauseToFormula(clause, f));
+                newClauses.add(clauseToFormula(f, clause));
             }
             for (int i = 0; i < trail.size(); i++) {
-                newClauses.add(solverLiteralToFormula(trail.get(i), f));
+                newClauses.add(solverLiteralToFormula(f, trail.get(i)));
             }
             return f.and(newClauses);
         }
 
         /**
          * Transforms a solver literal into the corresponding formula literal.
-         * @param lit the solver literal
          * @param f   the formula factory
+         * @param lit the solver literal
          * @return the formula literal
          */
-        private Literal solverLiteralToFormula(final int lit, final FormulaFactory f) {
+        private Literal solverLiteralToFormula(final FormulaFactory f, final int lit) {
             return f.literal(nameForIdx(var(lit)), !sign(lit));
         }
 
@@ -127,11 +127,11 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
          * Transforms a solver clause into a formula, respecting the current solver state.
          * I.e. all falsified literals are removed from the resulting clause and
          * if any literal of the clause is satisfied, the result is {@link org.logicng.formulas.CTrue}.
-         * @param clause the solver clause to transform
          * @param f      the formula factory
+         * @param clause the solver clause to transform
          * @return the transformed clause
          */
-        private Formula clauseToFormula(final MSClause clause, final FormulaFactory f) {
+        private Formula clauseToFormula(final FormulaFactory f, final MSClause clause) {
             final List<Literal> literals = new ArrayList<>(clause.size());
             for (int i = 0; i < clause.size(); i++) {
                 final int lit = clause.get(i);
@@ -139,7 +139,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
                     case TRUE:
                         return f.verum();
                     case UNDEF:
-                        literals.add(solverLiteralToFormula(lit, f));
+                        literals.add(solverLiteralToFormula(f, lit));
                         break;
                     case FALSE:
                         // ignore this literal

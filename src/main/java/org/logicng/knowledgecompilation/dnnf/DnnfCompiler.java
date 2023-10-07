@@ -54,10 +54,10 @@ public class DnnfCompiler {
 
     /**
      * Constructs a new DNNF compiler for the given formula.
-     * @param formula the formula to compile
      * @param f       the formula factory to generate new formulas
+     * @param formula the formula to compile
      */
-    public DnnfCompiler(final Formula formula, final FormulaFactory f) {
+    public DnnfCompiler(final FormulaFactory f, final Formula formula) {
         this.f = f;
         cnf = formula;
         final Pair<Formula, Formula> pair = initializeClauses();

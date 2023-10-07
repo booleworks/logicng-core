@@ -34,13 +34,13 @@ public abstract class EliminatingOrderDTreeGenerator implements DTreeGenerator {
         if (!cnf.isCNF(f) || cnf.isAtomicFormula()) {
             throw new IllegalArgumentException("Cannot generate DTree from a non-cnf formula or atomic formula");
         } else if (cnf.type() != FType.AND) {
-            return new DTreeLeaf(0, cnf, f);
+            return new DTreeLeaf(f, 0, cnf);
         }
 
         final List<DTree> sigma = new ArrayList<>();
         int id = 0;
         for (final Formula clause : cnf) {
-            sigma.add(new DTreeLeaf(id++, clause, f));
+            sigma.add(new DTreeLeaf(f, id++, clause));
         }
 
         for (final Variable variable : ordering) {
@@ -54,22 +54,22 @@ public abstract class EliminatingOrderDTreeGenerator implements DTreeGenerator {
                 }
             }
             if (!gamma.isEmpty()) {
-                sigma.add(compose(gamma, f));
+                sigma.add(compose(f, gamma));
             }
         }
 
-        return compose(sigma, f);
+        return compose(f, sigma);
     }
 
-    protected DTree compose(final List<DTree> trees, final FormulaFactory f) {
+    protected DTree compose(final FormulaFactory f, final List<DTree> trees) {
         assert !trees.isEmpty();
 
         if (trees.size() == 1) {
             return trees.get(0);
         } else {
-            final DTree left = compose(trees.subList(0, trees.size() / 2), f);
-            final DTree right = compose(trees.subList(trees.size() / 2, trees.size()), f);
-            return new DTreeNode(left, right, f);
+            final DTree left = compose(f, trees.subList(0, trees.size() / 2));
+            final DTree right = compose(f, trees.subList(trees.size() / 2, trees.size()));
+            return new DTreeNode(f, left, right);
         }
     }
 }

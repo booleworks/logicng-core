@@ -53,12 +53,12 @@ public final class PBSWC implements PBEncoding {
     @Override
     public List<Formula> encode(final FormulaFactory f, final LNGVector<Literal> lits, final LNGIntVector coeffs, final int rhs, final List<Formula> result,
                                 final PBConfig config) {
-        generateConstraint(rhs, lits, coeffs, result, f);
+        generateConstraint(f, rhs, lits, coeffs, result);
         return result;
     }
 
-    private static void generateConstraint(final int rhs, final LNGVector<Literal> lits, final LNGIntVector coeffs,
-                                           final List<Formula> result, final FormulaFactory f) {
+    private static void generateConstraint(final FormulaFactory f, final int rhs, final LNGVector<Literal> lits, final LNGIntVector coeffs,
+                                           final List<Formula> result) {
         final int n = lits.size();
         final LNGVector<LNGVector<Literal>> seqAuxiliary = new LNGVector<>(n + 1);
         for (int i = 0; i < n + 1; i++) {

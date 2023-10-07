@@ -98,7 +98,7 @@ public class BDD {
      * @return the formula for this BDD
      */
     public Formula toFormula(final FormulaFactory f) {
-        return operations.toFormula(index, true, f);
+        return operations.toFormula(f, index, true);
     }
 
     /**
@@ -111,7 +111,7 @@ public class BDD {
      * @return the formula for this BDD
      */
     public Formula toFormula(final boolean followPathsToTrue) {
-        return toFormula(followPathsToTrue, kernel.factory());
+        return toFormula(kernel.factory(), followPathsToTrue);
     }
 
     /**
@@ -120,12 +120,12 @@ public class BDD {
      * If {@code followPathsToTrue} is deactivated, the paths leading to the {@code false} terminal are followed to generate the formula and the resulting formula is negated.
      * Depending on the formula and the number of satisfying assignments, the generated formula can be more compact using the {@code true} paths
      * or {@code false} paths, respectively.
-     * @param followPathsToTrue the extraction style
      * @param f                 the formula factory to generate new formulas
+     * @param followPathsToTrue the extraction style
      * @return the formula for this BDD
      */
-    public Formula toFormula(final boolean followPathsToTrue, final FormulaFactory f) {
-        return operations.toFormula(index, followPathsToTrue, f);
+    public Formula toFormula(final FormulaFactory f, final boolean followPathsToTrue) {
+        return operations.toFormula(f, index, followPathsToTrue);
     }
 
     /**
@@ -384,7 +384,7 @@ public class BDD {
      * @return an arbitrary model of this BDD
      */
     public Assignment model() {
-        return createAssignment(operations.satOne(index), kernel.factory());
+        return createAssignment(kernel.factory(), operations.satOne(index));
     }
 
     /**
@@ -393,7 +393,7 @@ public class BDD {
      * @return an arbitrary model of this BDD
      */
     public Assignment model(final FormulaFactory f) {
-        return createAssignment(operations.satOne(index), f);
+        return createAssignment(f, operations.satOne(index));
     }
 
     /**
@@ -419,7 +419,7 @@ public class BDD {
         final int varBDD = BDDFactory.build(variables, kernel).index;
         final int pol = defaultValue ? BDDKernel.BDD_TRUE : BDDKernel.BDD_FALSE;
         final int modelBDD = operations.satOneSet(index, varBDD, pol);
-        return createAssignment(modelBDD, f);
+        return createAssignment(f, modelBDD);
     }
 
     /**
@@ -459,7 +459,7 @@ public class BDD {
      * @return a full model of this BDD
      */
     public Assignment fullModel(final FormulaFactory f) {
-        return createAssignment(operations.fullSatOne(index), f);
+        return createAssignment(f, operations.fullSatOne(index));
     }
 
     /**
@@ -484,7 +484,7 @@ public class BDD {
      */
     public SortedSet<Variable> support() {
         final int supportBDD = operations.support(index);
-        final Assignment assignment = createAssignment(supportBDD, kernel.factory()); // only variables, cannot create new literals
+        final Assignment assignment = createAssignment(kernel.factory(), supportBDD); // only variables, cannot create new literals
         assert assignment == null || assignment.negativeLiterals().isEmpty();
         return assignment == null ? Collections.emptySortedSet() : new TreeSet<>(assignment.positiveVariables());
     }
@@ -558,12 +558,12 @@ public class BDD {
 
     /**
      * Creates an assignment from a BDD.
-     * @param modelBDD the BDD
      * @param f        the formula factory to generate new formulas
+     * @param modelBDD the BDD
      * @return the assignment
      * @throws IllegalStateException if the BDD does not represent a unique model
      */
-    private Assignment createAssignment(final int modelBDD, final FormulaFactory f) {
+    private Assignment createAssignment(final FormulaFactory f, final int modelBDD) {
         if (modelBDD == BDDKernel.BDD_FALSE) {
             return null;
         }

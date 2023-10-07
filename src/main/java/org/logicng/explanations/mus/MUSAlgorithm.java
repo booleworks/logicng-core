@@ -19,11 +19,11 @@ abstract class MUSAlgorithm {
 
     /**
      * Computes a MUS for the given propositions.
-     * @param propositions the propositions
-     * @param f            the formula factory
-     * @param config       the MUS configuration
      * @param <T>          the type of the MUSes propositions
+     * @param f            the formula factory
+     * @param propositions the propositions
+     * @param config       the MUS configuration
      * @return the MUS or null if the MUS computation was configured with a handler and this handler aborted the computation
      */
-    public abstract <T extends Proposition> UNSATCore<T> computeMUS(final List<T> propositions, final FormulaFactory f, final MUSConfig config);
+    public abstract <T extends Proposition> UNSATCore<T> computeMUS(final FormulaFactory f, final List<T> propositions, final MUSConfig config);
 }

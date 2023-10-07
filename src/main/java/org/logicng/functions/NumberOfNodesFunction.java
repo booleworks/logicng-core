@@ -75,7 +75,7 @@ public class NumberOfNodesFunction extends CacheableFormulaFunction<Long> {
                 result = 1L + pbc.operands().size();
                 break;
             case PREDICATE:
-                result = formula.numberOfNodes();
+                result = formula.numberOfNodes(f);
                 break;
             default:
                 throw new IllegalStateException("Unknown formula type " + formula.type());

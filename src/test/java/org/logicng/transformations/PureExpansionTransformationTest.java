@@ -138,7 +138,7 @@ public class PureExpansionTransformationTest extends TestWithFormulaContext {
             if (formula.type() == FType.PBC) {
                 final PBConstraint pbc = (PBConstraint) formula;
                 if (!pbc.isAmo() && !pbc.isExo()) {
-                    assertThatThrownBy(() -> ModelCounter.count(Collections.singletonList(formula), formula.variables(_c.f), _c.f))
+                    assertThatThrownBy(() -> ModelCounter.count(_c.f, Collections.singletonList(formula), formula.variables(_c.f)))
                             .isInstanceOf(UnsupportedOperationException.class);
                     continue;
                 }

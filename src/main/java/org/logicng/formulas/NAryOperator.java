@@ -52,10 +52,10 @@ public interface NAryOperator extends Formula {
     }
 
     @Override
-    default Formula restrict(final Assignment assignment, final FormulaFactory f) {
+    default Formula restrict(final FormulaFactory f, final Assignment assignment) {
         final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
         for (final Formula op : operands()) {
-            nops.add(op.restrict(assignment, f));
+            nops.add(op.restrict(f, assignment));
         }
         return f.naryOperator(type(), nops);
     }
@@ -87,10 +87,10 @@ public interface NAryOperator extends Formula {
     }
 
     @Override
-    default Formula substitute(final Substitution substitution, final FormulaFactory f) {
+    default Formula substitute(final FormulaFactory f, final Substitution substitution) {
         final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
         for (final Formula op : operands()) {
-            nops.add(op.substitute(substitution, f));
+            nops.add(op.substitute(f, substitution));
         }
         return f.naryOperator(type(), nops);
     }
@@ -135,15 +135,15 @@ public interface NAryOperator extends Formula {
 
             @Override
             public boolean hasNext() {
-                return i < NAryOperator.this.operands().size();
+                return i < operands().size();
             }
 
             @Override
             public Formula next() {
-                if (i == NAryOperator.this.operands().size()) {
+                if (i == operands().size()) {
                     throw new NoSuchElementException();
                 }
-                return NAryOperator.this.operands().get(i++);
+                return operands().get(i++);
             }
 
             @Override

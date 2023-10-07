@@ -200,11 +200,11 @@ public final class Assignment {
 
     /**
      * Restricts a given literal to a constant.  Returns the literal itself, if the literal's variable is not known.
-     * @param lit the literal
      * @param f   the formula factory to create the restricted formula
+     * @param lit the literal
      * @return the restriction of the literal or the literal itself, if the literal's variable is not known
      */
-    public Formula restrictLit(final Literal lit, final FormulaFactory f) {
+    public Formula restrictLit(final FormulaFactory f, final Literal lit) {
         final Variable var = lit.variable();
         if (pos.contains(var)) {
             return f.constant(lit.phase());

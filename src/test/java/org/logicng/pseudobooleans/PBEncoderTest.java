@@ -30,28 +30,28 @@ public class PBEncoderTest implements LogicNGTest {
     private final List<Pair<PBConfig, CCConfig>> configs;
 
     public PBEncoderTest() {
-        this.configs = new ArrayList<>();
-        this.configs.add(new Pair<>(PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.SWC).build(), null));
-        this.configs.add(new Pair<>(PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).build(),
+        configs = new ArrayList<>();
+        configs.add(new Pair<>(PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.SWC).build(), null));
+        configs.add(new Pair<>(PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).build(),
                 CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.NESTED).build()));
-        this.configs.add(new Pair<>(null, null));
+        configs.add(new Pair<>(null, null));
     }
 
     @Test
     public void testCC0() {
-        for (final Pair<PBConfig, CCConfig> config : this.configs) {
+        for (final Pair<PBConfig, CCConfig> config : configs) {
             final int numLits = 100;
             final List<Literal> lits = new ArrayList<>();
             final List<Integer> coeffs = new ArrayList<>();
             final Variable[] problemLits = new Variable[numLits];
             for (int i = 0; i < numLits; i++) {
-                final Variable var = this.f.variable("v" + i);
+                final Variable var = f.variable("v" + i);
                 lits.add(var);
                 problemLits[i] = var;
                 coeffs.add(1);
             }
-            final List<Formula> clauses = PBEncoder.encode((PBConstraint) this.f.pbc(CType.LE, 0, lits, coeffs), f, config.first(), config.second());
-            final SATSolver solver = MiniSat.miniSat(this.f);
+            final List<Formula> clauses = PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, 0, lits, coeffs), config.first(), config.second());
+            final SATSolver solver = MiniSat.miniSat(f);
             solver.add(clauses);
             assertSolverSat(solver);
             assertThat(solver.enumerateAllModels(problemLits))
@@ -62,20 +62,20 @@ public class PBEncoderTest implements LogicNGTest {
 
     @Test
     public void testCC1() {
-        for (final Pair<PBConfig, CCConfig> config : this.configs) {
+        for (final Pair<PBConfig, CCConfig> config : configs) {
             final int numLits = 100;
             final int rhs = 1;
             final List<Literal> lits = new ArrayList<>();
             final List<Integer> coeffs = new ArrayList<>();
             final Variable[] problemLits = new Variable[numLits];
             for (int i = 0; i < numLits; i++) {
-                final Variable var = this.f.variable("v" + i);
+                final Variable var = f.variable("v" + i);
                 lits.add(var);
                 problemLits[i] = var;
                 coeffs.add(1);
             }
-            final List<Formula> clauses = PBEncoder.encode((PBConstraint) this.f.pbc(CType.LE, rhs, lits, coeffs), f, config.first(), config.second());
-            final SATSolver solver = MiniSat.miniSat(this.f);
+            final List<Formula> clauses = PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, rhs, lits, coeffs), config.first(), config.second());
+            final SATSolver solver = MiniSat.miniSat(f);
             solver.add(clauses);
             assertSolverSat(solver);
             assertThat(solver.enumerateAllModels(problemLits))
@@ -86,7 +86,7 @@ public class PBEncoderTest implements LogicNGTest {
 
     @Test
     public void testCCs() {
-        for (final Pair<PBConfig, CCConfig> config : this.configs) {
+        for (final Pair<PBConfig, CCConfig> config : configs) {
             testCC(10, 0, 1, config);
             testCC(10, 1, 11, config);
             testCC(10, 2, 56, config);
@@ -104,11 +104,11 @@ public class PBEncoderTest implements LogicNGTest {
         final Variable[] problemLits = new Variable[numLits];
         final int[] coeffs = new int[numLits];
         for (int i = 0; i < numLits; i++) {
-            problemLits[i] = this.f.variable("v" + i);
+            problemLits[i] = f.variable("v" + i);
             coeffs[i] = 1;
         }
-        final List<Formula> clauses = PBEncoder.encode((PBConstraint) this.f.pbc(CType.LE, rhs, problemLits, coeffs), f, config.first(), config.second());
-        final SATSolver solver = MiniSat.miniSat(this.f);
+        final List<Formula> clauses = PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, rhs, problemLits, coeffs), config.first(), config.second());
+        final SATSolver solver = MiniSat.miniSat(f);
         solver.add(clauses);
         assertSolverSat(solver);
         assertThat(solver.enumerateAllModels(problemLits))
@@ -119,32 +119,32 @@ public class PBEncoderTest implements LogicNGTest {
     @Test
     public void testSpecialCases() {
         final List<Literal> lits = new ArrayList<>();
-        lits.add(this.f.literal("m", true));
-        lits.add(this.f.literal("n", true));
+        lits.add(f.literal("m", true));
+        lits.add(f.literal("n", true));
         final List<Integer> coeffs = new ArrayList<>();
         coeffs.add(2);
         coeffs.add(1);
-        final PBConstraint truePBC = (PBConstraint) this.f.pbc(CType.GE, 0, lits, coeffs);
-        for (final Pair<PBConfig, CCConfig> config : this.configs) {
-            assertThat(PBEncoder.encode(truePBC, f, config.first(), config.second())).isEmpty();
+        final PBConstraint truePBC = (PBConstraint) f.pbc(CType.GE, 0, lits, coeffs);
+        for (final Pair<PBConfig, CCConfig> config : configs) {
+            assertThat(PBEncoder.encode(f, truePBC, config.first(), config.second())).isEmpty();
         }
     }
 
     @Test
     public void testCCNormalized() throws ParserException {
         final List<Literal> lits = new ArrayList<>();
-        lits.add(this.f.literal("m", true));
-        lits.add(this.f.literal("n", true));
+        lits.add(f.literal("m", true));
+        lits.add(f.literal("n", true));
         final List<Integer> coeffs2 = new ArrayList<>();
         coeffs2.add(2);
         coeffs2.add(2);
-        final PBConstraint normCC = (PBConstraint) this.f.pbc(CType.LE, 2, lits, coeffs2);
-        assertThat(PBEncoder.encode(normCC, f, configs.get(0).first(), configs.get(0).second())).containsExactly(this.f.parse("~m | ~n"));
+        final PBConstraint normCC = (PBConstraint) f.pbc(CType.LE, 2, lits, coeffs2);
+        assertThat(PBEncoder.encode(f, normCC, configs.get(0).first(), configs.get(0).second())).containsExactly(f.parse("~m | ~n"));
     }
 
     @Test
     public void testConfigToString() {
-        assertThat(this.configs.get(0).first().toString()).isEqualTo(String.format("PBConfig{%n" +
+        assertThat(configs.get(0).first().toString()).isEqualTo(String.format("PBConfig{%n" +
                 "pbEncoder=SWC%n" +
                 "binaryMergeUseGAC=true%n" +
                 "binaryMergeNoSupportForSingleBit=false%n" +

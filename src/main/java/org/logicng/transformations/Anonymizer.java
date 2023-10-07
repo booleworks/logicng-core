@@ -83,6 +83,6 @@ public final class Anonymizer extends StatefulFormulaTransformation<Substitution
                 state.addMapping(variable, f.variable(prefix + counter++));
             }
         }
-        return formula.substitute(state, f);
+        return formula.substitute(f, state);
     }
 }

@@ -109,7 +109,7 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
                 return f.falsum();
             }
             backboneLiterals.addAll(backbone.getCompleteBackbone(f));
-            simplified = formula.restrict(new Assignment(backboneLiterals), f);
+            simplified = formula.restrict(f, new Assignment(backboneLiterals));
         }
         final Formula simplifyMinDnf = computeMinDnf(f, simplified);
         if (simplifyMinDnf == null) {
@@ -137,16 +137,16 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
             return null;
         }
         final List<SortedSet<Literal>> primeImplicants = primeResult.getPrimeImplicants();
-        final List<Formula> minimizedPIs = SmusComputation.computeSmusForFormulas(negateAllLiterals(primeImplicants, f),
-                Collections.singletonList(simplified), f, handler);
+        final List<Formula> minimizedPIs = SmusComputation.computeSmusForFormulas(f, negateAllLiterals(f, primeImplicants),
+                Collections.singletonList(simplified), handler);
         if (minimizedPIs == null || aborted(handler)) {
             return null;
         }
-        simplified = f.or(negateAllLiteralsInFormulas(minimizedPIs, f).stream().map(f::and).collect(Collectors.toList()));
+        simplified = f.or(negateAllLiteralsInFormulas(f, minimizedPIs).stream().map(f::and).collect(Collectors.toList()));
         return simplified;
     }
 
-    private List<Formula> negateAllLiterals(final Collection<SortedSet<Literal>> literalSets, final FormulaFactory f) {
+    private List<Formula> negateAllLiterals(final FormulaFactory f, final Collection<SortedSet<Literal>> literalSets) {
         final List<Formula> result = new ArrayList<>();
         for (final SortedSet<Literal> literals : literalSets) {
             result.add(f.or(FormulaHelper.negateLiterals(f, literals, ArrayList::new)));
@@ -154,7 +154,7 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
         return result;
     }
 
-    private List<Formula> negateAllLiteralsInFormulas(final Collection<Formula> formulas, final FormulaFactory f) {
+    private List<Formula> negateAllLiteralsInFormulas(final FormulaFactory f, final Collection<Formula> formulas) {
         final List<Formula> result = new ArrayList<>();
         for (final Formula formula : formulas) {
             result.add(f.and(FormulaHelper.negateLiterals(f, formula.literals(f), ArrayList::new)));

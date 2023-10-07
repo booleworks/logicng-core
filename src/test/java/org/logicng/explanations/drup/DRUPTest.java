@@ -50,9 +50,9 @@ public class DRUPTest implements LogicNGTest {
     @Test
     public void testUnsatCoresFromDimacs() throws IOException {
         final List<List<Formula>> cnfs = new ArrayList<>(3);
-        cnfs.add(DimacsReader.readCNF("src/test/resources/drup/simple_input.cnf", f));
-        cnfs.add(DimacsReader.readCNF("src/test/resources/drup/pg4_input.cnf", f));
-        cnfs.add(DimacsReader.readCNF("src/test/resources/drup/avg_input.cnf", f, "var"));
+        cnfs.add(DimacsReader.readCNF(f, "src/test/resources/drup/simple_input.cnf"));
+        cnfs.add(DimacsReader.readCNF(f, "src/test/resources/drup/pg4_input.cnf"));
+        cnfs.add(DimacsReader.readCNF(f, "src/test/resources/drup/avg_input.cnf", "var"));
 
         for (final SATSolver solver : solvers) {
             for (final List<Formula> cnf : cnfs) {
@@ -76,7 +76,7 @@ public class DRUPTest implements LogicNGTest {
             for (final File file : files) {
                 final String fileName = file.getName();
                 if (fileName.endsWith(".cnf")) {
-                    final List<Formula> cnf = DimacsReader.readCNF(file, f);
+                    final List<Formula> cnf = DimacsReader.readCNF(f, file);
                     solver.add(cnf);
                     if (solver.sat() == FALSE) {
                         final UNSATCore<Proposition> unsatCore = solver.unsatCore();
@@ -101,7 +101,7 @@ public class DRUPTest implements LogicNGTest {
             for (final File file : files) {
                 final String fileName = file.getName();
                 if (fileName.endsWith(".cnf")) {
-                    final List<Formula> cnf = DimacsReader.readCNF(file, f);
+                    final List<Formula> cnf = DimacsReader.readCNF(f, file);
                     solver.add(cnf);
                     assertSolverUnsat(solver);
                     final UNSATCore<Proposition> unsatCore = solver.unsatCore();

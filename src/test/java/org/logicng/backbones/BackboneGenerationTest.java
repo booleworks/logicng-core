@@ -155,7 +155,7 @@ public class BackboneGenerationTest {
     @Test
     public void testSmallFormulas() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/small_formulas.txt", f);
+        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/small_formulas.txt");
         final MiniSat solver = MiniSat.miniSat(f);
         solver.add(formula);
         final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build());
@@ -165,7 +165,7 @@ public class BackboneGenerationTest {
     @Test
     public void testLargeFormula() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
+        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/large_formula.txt");
         final MiniSat solver = MiniSat.miniSat(f);
         solver.add(formula);
         final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build());
@@ -273,7 +273,7 @@ public class BackboneGenerationTest {
         configs.add(MiniSatConfig.builder().bbInitialUBCheckForRotatableLiterals(false).build());
 
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = FormulaReader.readPseudoBooleanFormula("src/test/resources/formulas/large_formula.txt", f);
+        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/large_formula.txt");
         MiniSat solver = MiniSat.miniSat(f);
         solver.add(formula);
         final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build());
@@ -287,7 +287,7 @@ public class BackboneGenerationTest {
 
     @Test
     public void testCancellationPoints() throws IOException {
-        final List<Formula> formulas = DimacsReader.readCNF("src/test/resources/sat/term1_gr_rcs_w4.shuffled.cnf", f);
+        final List<Formula> formulas = DimacsReader.readCNF(f, "src/test/resources/sat/term1_gr_rcs_w4.shuffled.cnf");
         for (int numStarts = 0; numStarts < 10; numStarts++) {
             final SATHandler handler = new BoundedSatHandler(numStarts);
 

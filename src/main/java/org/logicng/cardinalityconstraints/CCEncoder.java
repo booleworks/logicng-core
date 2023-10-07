@@ -40,22 +40,22 @@ public class CCEncoder {
 
     /**
      * Encodes a cardinality constraint and returns its CNF encoding.
-     * @param cc the cardinality constraint
      * @param f  the formula factory to generate new formulas
+     * @param cc the cardinality constraint
      * @return the CNF encoding of the cardinality constraint
      */
-    public static List<Formula> encode(final CardinalityConstraint cc, final FormulaFactory f) {
-        return encode(cc, f, null);
+    public static List<Formula> encode(final FormulaFactory f, final CardinalityConstraint cc) {
+        return encode(f, cc, null);
     }
 
     /**
      * Encodes a cardinality constraint and returns its CNF encoding.
-     * @param cc     the cardinality constraint
      * @param f      the formula factory to generate new formulas
+     * @param cc     the cardinality constraint
      * @param config the configuration for the encoder
      * @return the CNF encoding of the cardinality constraint
      */
-    public static List<Formula> encode(final CardinalityConstraint cc, final FormulaFactory f, final CCConfig config) {
+    public static List<Formula> encode(final FormulaFactory f, final CardinalityConstraint cc, final CCConfig config) {
         final EncodingResult result = EncodingResult.resultForFormula(f);
         encodeConstraint(cc, result, config);
         return Collections.unmodifiableList(result.result());
@@ -82,11 +82,11 @@ public class CCEncoder {
 
     /**
      * Encodes an incremental cardinality constraint and returns its encoding.
-     * @param cc the cardinality constraint
      * @param f  the formula factory to generate new formulas
+     * @param cc the cardinality constraint
      * @return the encoding of the constraint and the incremental data
      */
-    public static Pair<List<Formula>, CCIncrementalData> encodeIncremental(final CardinalityConstraint cc, final FormulaFactory f) {
+    public static Pair<List<Formula>, CCIncrementalData> encodeIncremental(final FormulaFactory f, final CardinalityConstraint cc) {
         final EncodingResult result = EncodingResult.resultForFormula(f);
         final CCIncrementalData incData = encodeIncremental(cc, result);
         return new Pair<>(Collections.unmodifiableList(result.result()), incData);
@@ -94,12 +94,12 @@ public class CCEncoder {
 
     /**
      * Encodes an incremental cardinality constraint and returns its encoding.
-     * @param cc     the cardinality constraint
      * @param f      the formula factory to generate new formulas
+     * @param cc     the cardinality constraint
      * @param config the configuration for the encoder
      * @return the encoding of the constraint and the incremental data
      */
-    public static Pair<List<Formula>, CCIncrementalData> encodeIncremental(final CardinalityConstraint cc, final FormulaFactory f, final CCConfig config) {
+    public static Pair<List<Formula>, CCIncrementalData> encodeIncremental(final FormulaFactory f, final CardinalityConstraint cc, final CCConfig config) {
         final EncodingResult result = EncodingResult.resultForFormula(f);
         final CCIncrementalData incData = encodeIncremental(cc, result, config);
         return new Pair<>(Collections.unmodifiableList(result.result()), incData);

@@ -56,7 +56,7 @@ public interface Constant extends Formula {
     }
 
     @Override
-    default Formula restrict(final Assignment assignment, final FormulaFactory f) {
+    default Formula restrict(final FormulaFactory f, final Assignment assignment) {
         return this;
     }
 
@@ -66,7 +66,7 @@ public interface Constant extends Formula {
     }
 
     @Override
-    default Formula substitute(final Substitution substitution, final FormulaFactory f) {
+    default Formula substitute(final FormulaFactory f, final Substitution substitution) {
         return this;
     }
 

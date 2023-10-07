@@ -442,18 +442,18 @@ public class BDDOperations {
      * If {@code followPathsToTrue} is deactivated, the paths leading to the {@code false} terminal are followed to generate the formula and the resulting formula is negated.
      * Depending on the formula and the number of satisfying assignments, the generated formula can be more compact using the {@code true} paths
      * or {@code false} paths, respectively.
+     * @param f                 the formula factory to generate new formulas
      * @param r                 the BDD root node
      * @param followPathsToTrue the extraction style
-     * @param f                 the formula factory to generate new formulas
      * @return the formula
      */
-    public Formula toFormula(final int r, final boolean followPathsToTrue, final FormulaFactory f) {
+    public Formula toFormula(final FormulaFactory f, final int r, final boolean followPathsToTrue) {
         k.initRef();
-        final Formula formula = toFormulaRec(r, followPathsToTrue, f);
+        final Formula formula = toFormulaRec(f, r, followPathsToTrue);
         return followPathsToTrue ? formula : formula.negate(f);
     }
 
-    protected Formula toFormulaRec(final int r, final boolean followPathsToTrue, final FormulaFactory f) {
+    protected Formula toFormulaRec(final FormulaFactory f, final int r, final boolean followPathsToTrue) {
         if (k.isOne(r)) {
             return f.constant(followPathsToTrue);
         }
@@ -463,11 +463,11 @@ public class BDDOperations {
         final Variable var = k.idx2var.get(k.level(r));
         final int low = k.low(r);
         final Formula lowFormula = isRelevant(low, followPathsToTrue)
-                ? f.and(var.negate(f), toFormulaRec(low, followPathsToTrue, f))
+                ? f.and(var.negate(f), toFormulaRec(f, low, followPathsToTrue))
                 : f.falsum();
         final int high = k.high(r);
         final Formula rightFormula = isRelevant(high, followPathsToTrue)
-                ? f.and(var, toFormulaRec(high, followPathsToTrue, f))
+                ? f.and(var, toFormulaRec(f, high, followPathsToTrue))
                 : f.falsum();
         return f.or(lowFormula, rightFormula);
     }

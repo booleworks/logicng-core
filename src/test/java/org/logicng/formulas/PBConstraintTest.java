@@ -401,10 +401,10 @@ public class PBConstraintTest extends TestWithFormulaContext {
         a4.addLiteral(_c.f.variable("b"));
         a4.addLiteral(_c.f.literal("c", false));
         final PBConstraint pb1 = (PBConstraint) _c.f.pbc(CType.EQ, 2, lits, coeffs);
-        assertThat(pb1.restrict(a1, _c.f)).isEqualTo(_c.f.pbc(CType.EQ, 0, litsA1, coeffA1));
-        assertThat(pb1.restrict(a2, _c.f)).isEqualTo(_c.f.pbc(CType.EQ, 2, litsA2, coeffA2));
-        assertThat(pb1.restrict(a3, _c.f)).isEqualTo(_c.f.falsum());
-        assertThat(pb1.restrict(a4, _c.f)).isEqualTo(_c.f.falsum());
+        assertThat(pb1.restrict(_c.f, a1)).isEqualTo(_c.f.pbc(CType.EQ, 0, litsA1, coeffA1));
+        assertThat(pb1.restrict(_c.f, a2)).isEqualTo(_c.f.pbc(CType.EQ, 2, litsA2, coeffA2));
+        assertThat(pb1.restrict(_c.f, a3)).isEqualTo(_c.f.falsum());
+        assertThat(pb1.restrict(_c.f, a4)).isEqualTo(_c.f.falsum());
     }
 
     @ParameterizedTest
@@ -427,10 +427,10 @@ public class PBConstraintTest extends TestWithFormulaContext {
         final Assignment a3 = new Assignment();
         a3.addLiteral(_c.f.literal("c", false));
 
-        assertThat(pb1.restrict(a1, _c.f)).isEqualTo(_c.f.verum());
-        assertThat(pb2.restrict(a1, _c.f)).isEqualTo(_c.f.falsum());
-        assertThat(pb1.restrict(a2, _c.f)).isEqualTo(_c.f.falsum());
-        assertThat(pb2.restrict(a3, _c.f)).isEqualTo(_c.f.verum());
+        assertThat(pb1.restrict(_c.f, a1)).isEqualTo(_c.f.verum());
+        assertThat(pb2.restrict(_c.f, a1)).isEqualTo(_c.f.falsum());
+        assertThat(pb1.restrict(_c.f, a2)).isEqualTo(_c.f.falsum());
+        assertThat(pb2.restrict(_c.f, a3)).isEqualTo(_c.f.verum());
     }
 
     @ParameterizedTest
@@ -479,14 +479,14 @@ public class PBConstraintTest extends TestWithFormulaContext {
         s6.addMapping(_c.f.variable("a"), _c.f.variable("a2"));
         s6.addMapping(_c.f.variable("b"), _c.f.falsum());
         final PBConstraint pb = (PBConstraint) _c.f.pbc(CType.EQ, 2, lits, coeffs);
-        assertThat(pb.substitute(s1, _c.f)).isEqualTo(_c.f.pbc(CType.EQ, 0, litsS1, coeffS1));
-        assertThat(pb.substitute(s2, _c.f)).isEqualTo(_c.f.pbc(CType.EQ, 2, litsS2, coeffS2));
-        assertThat(pb.substitute(s3, _c.f)).isEqualTo(_c.f.falsum());
-        assertThat(_c.pb2.substitute(s3, _c.f)).isEqualTo(_c.f.verum());
-        assertThat(pb.substitute(s4, _c.f)).isEqualTo(_c.f.falsum());
-        assertThat(_c.pb2.substitute(s4, _c.f)).isEqualTo(_c.f.verum());
-        assertThat(pb.substitute(s5, _c.f)).isEqualTo(_c.f.pbc(CType.EQ, 2, litsS5, coeffs));
-        assertThat(pb.substitute(s6, _c.f)).isEqualTo(_c.f.pbc(CType.EQ, 4, litsS6, coeffS6));
+        assertThat(pb.substitute(_c.f, s1)).isEqualTo(_c.f.pbc(CType.EQ, 0, litsS1, coeffS1));
+        assertThat(pb.substitute(_c.f, s2)).isEqualTo(_c.f.pbc(CType.EQ, 2, litsS2, coeffS2));
+        assertThat(pb.substitute(_c.f, s3)).isEqualTo(_c.f.falsum());
+        assertThat(_c.pb2.substitute(_c.f, s3)).isEqualTo(_c.f.verum());
+        assertThat(pb.substitute(_c.f, s4)).isEqualTo(_c.f.falsum());
+        assertThat(_c.pb2.substitute(_c.f, s4)).isEqualTo(_c.f.verum());
+        assertThat(pb.substitute(_c.f, s5)).isEqualTo(_c.f.pbc(CType.EQ, 2, litsS5, coeffs));
+        assertThat(pb.substitute(_c.f, s6)).isEqualTo(_c.f.pbc(CType.EQ, 4, litsS6, coeffS6));
     }
 
     @ParameterizedTest

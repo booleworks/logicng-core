@@ -36,24 +36,24 @@ public final class DimacsReader {
 
     /**
      * Reads a given DIMACS CNF file and returns the contained clauses as a list of formulas. The prefix {@code v} is used for the variables names.
-     * @param file the file
      * @param f    the formula factory
+     * @param file the file
      * @return the list of formulas (clauses)
      * @throws IOException if there was a problem reading the file
      */
-    public static List<Formula> readCNF(final File file, final FormulaFactory f) throws IOException {
-        return readCNF(file, f, "v");
+    public static List<Formula> readCNF(final FormulaFactory f, final File file) throws IOException {
+        return readCNF(f, file, "v");
     }
 
     /**
      * Reads a given DIMACS CNF file and returns the contained clauses as a list of formulas.
-     * @param file   the file
      * @param f      the formula factory
+     * @param file   the file
      * @param prefix the prefix for the variable names
      * @return the list of formulas (clauses)
      * @throws IOException if there was a problem reading the file
      */
-    public static List<Formula> readCNF(final File file, final FormulaFactory f, final String prefix) throws IOException {
+    public static List<Formula> readCNF(final FormulaFactory f, final File file, final String prefix) throws IOException {
         final List<Formula> result = new ArrayList<>();
         try (final BufferedReader br = new BufferedReader(new FileReader(file))) {
             while (br.ready()) {
@@ -83,25 +83,25 @@ public final class DimacsReader {
 
     /**
      * Reads a given DIMACS CNF file and returns the contained clauses as a list of formulas. The prefix {@code v} is used for the variables names.
-     * @param fileName the file name
      * @param f        the formula factory
+     * @param fileName the file name
      * @return the list of formulas (clauses)
      * @throws IOException if there was a problem reading the file
      */
-    public static List<Formula> readCNF(final String fileName, final FormulaFactory f) throws IOException {
-        return readCNF(new File(fileName), f, "v");
+    public static List<Formula> readCNF(final FormulaFactory f, final String fileName) throws IOException {
+        return readCNF(f, new File(fileName), "v");
     }
 
     /**
      * Reads a given DIMACS CNF file and returns the contained clauses as a list of formulas.
-     * @param fileName the file name
      * @param f        the formula factory
+     * @param fileName the file name
      * @param prefix   the prefix for the variable names
      * @return the list of formulas (clauses)
      * @throws IOException if there was a problem reading the file
      */
-    public static List<Formula> readCNF(final String fileName, final FormulaFactory f, final String prefix) throws IOException {
-        return readCNF(new File(fileName), f, prefix);
+    public static List<Formula> readCNF(final FormulaFactory f, final String fileName, final String prefix) throws IOException {
+        return readCNF(f, new File(fileName), prefix);
     }
 
 }

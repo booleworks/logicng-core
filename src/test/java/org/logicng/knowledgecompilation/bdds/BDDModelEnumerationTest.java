@@ -79,7 +79,7 @@ public class BDDModelEnumerationTest {
     @Test
     public void testExo() {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula constraint = f.exo(generateVariables(100, f)).cnf(f);
+        final Formula constraint = f.exo(generateVariables(f, 100)).cnf(f);
         final BDDKernel kernel = new BDDKernel(f, constraint.variables(f).size(), 100000, 1000000);
         final BDD bdd = BDDFactory.build(f, constraint, kernel);
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(100));
@@ -89,7 +89,7 @@ public class BDDModelEnumerationTest {
     @Test
     public void testExk() {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula constraint = f.cc(CType.EQ, 8, generateVariables(15, f)).cnf(f);
+        final Formula constraint = f.cc(CType.EQ, 8, generateVariables(f, 15)).cnf(f);
         final BDDKernel kernel = new BDDKernel(f, constraint.variables(f).size(), 100000, 1000000);
         final BDD bdd = BDDFactory.build(f, constraint, kernel);
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(6435));
@@ -99,14 +99,14 @@ public class BDDModelEnumerationTest {
     @Test
     public void testAmo() {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula constraint = f.amo(generateVariables(100, f)).cnf(f);
+        final Formula constraint = f.amo(generateVariables(f, 100)).cnf(f);
         final BDDKernel kernel = new BDDKernel(f, constraint.variables(f).size(), 100000, 1000000);
         final BDD bdd = BDDFactory.build(f, constraint, kernel);
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(221));
-        assertThat(bdd.enumerateAllModels(generateVariables(100, f))).hasSize(101);
+        assertThat(bdd.enumerateAllModels(generateVariables(f, 100))).hasSize(101);
     }
 
-    private List<Variable> generateVariables(final int n, final FormulaFactory f) {
+    private List<Variable> generateVariables(final FormulaFactory f, final int n) {
         final List<Variable> result = new ArrayList<>(n);
         for (int i = 0; i < n; i++) {
             result.add(f.variable("v" + i));

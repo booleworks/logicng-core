@@ -37,11 +37,11 @@ public class DTreeLeaf extends DTree {
 
     /**
      * Constructs a new leaf with the given id and clause.
+     * @param f      the formula factory for caching
      * @param id     the id
      * @param clause the clause
-     * @param f      the formula factory for caching
      */
-    public DTreeLeaf(final int id, final Formula clause, final FormulaFactory f) {
+    public DTreeLeaf(final FormulaFactory f, final int id, final Formula clause) {
         this.id = id;
         this.clause = clause;
         staticClauseIds = new int[]{id};

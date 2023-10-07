@@ -54,8 +54,8 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
             final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
             final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(10).weightPbc(1).seed(i * 42).build());
 
-            final Formula randomFormula01 = randomSATFormula(randomizer, 4, f);
-            final Formula randomFormula02 = randomSATFormula(randomizer, 4, f);
+            final Formula randomFormula01 = randomSATFormula(f, randomizer, 4);
+            final Formula randomFormula02 = randomSATFormula(f, randomizer, 4);
             solver.reset();
             solver.add(randomFormula01);
             if (solver.sat() == Tristate.TRUE) {
@@ -112,7 +112,7 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
         computeAndVerify(_c.p.parse("(A => ~A) <=> (B <=> (~A => B))"));
     }
 
-    private static Formula randomSATFormula(final FormulaRandomizer randomizer, final int maxDepth, final FormulaFactory f) {
+    private static Formula randomSATFormula(final FormulaFactory f, final FormulaRandomizer randomizer, final int maxDepth) {
         return Stream.generate(() -> randomizer.formula(maxDepth))
                 .filter(formula -> formula.holds(new SATPredicate(f)))
                 .findAny().get();
