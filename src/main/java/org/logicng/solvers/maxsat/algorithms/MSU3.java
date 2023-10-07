@@ -300,9 +300,4 @@ public class MSU3 extends MaxSAT {
             objFunction.push(l);
         }
     }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
-    }
 }

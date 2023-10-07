@@ -306,9 +306,4 @@ public class Totalizer extends Encoding {
     public LNGIntVector outputs() {
         return cardinalityOutlits;
     }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
-    }
 }

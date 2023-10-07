@@ -350,9 +350,4 @@ public class Encoder {
         assert cardinalityEncoding == CardinalityEncoding.TOTALIZER && incrementalStrategy == IncrementalStrategy.ITERATIVE;
         return totalizer.outputs();
     }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
-    }
 }

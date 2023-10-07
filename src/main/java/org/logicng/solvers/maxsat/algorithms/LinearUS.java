@@ -234,9 +234,4 @@ public class LinearUS extends MaxSAT {
             objFunction.push(l);
         }
     }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
-    }
 }

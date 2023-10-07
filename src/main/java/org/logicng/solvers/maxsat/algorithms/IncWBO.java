@@ -108,11 +108,6 @@ public class IncWBO extends WBO {
         throw new IllegalArgumentException("Unknown problem type.");
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
-    }
-
     protected void incrementalBuildWeightSolver(final WeightStrategy strategy) {
         assert strategy == WeightStrategy.NORMAL || strategy == WeightStrategy.DIVERSIFY;
         if (firstBuild) {
