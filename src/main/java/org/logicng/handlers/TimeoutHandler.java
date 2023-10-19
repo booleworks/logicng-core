@@ -64,6 +64,14 @@ public abstract class TimeoutHandler extends ComputationHandler {
     }
 
     /**
+     * Returns the designated end of this timeout handler as Linux timestamp.
+     * @return the designated end
+     */
+    public long getDesignatedEnd() {
+        return designatedEnd;
+    }
+
+    /**
      * A timeout type determines how a timeout is interpreted.
      */
     public enum TimerType {

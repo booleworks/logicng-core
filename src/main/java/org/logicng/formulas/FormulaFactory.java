@@ -1080,7 +1080,7 @@ public abstract class FormulaFactory {
     }
 
     /**
-     * Returns a string representation of a formula with this factories string representation
+     * Returns a string representation of a formula with this factories' string representation.
      * @param formula the formula
      * @return the string representation
      */
@@ -1089,7 +1089,7 @@ public abstract class FormulaFactory {
     }
 
     /**
-     * Returns a string representation of a formula with this factories string representation
+     * Returns a string representation of a formula with this the given representation.
      * @param formula              the formula
      * @param stringRepresentation the string representation
      * @return the string representation

@@ -26,6 +26,11 @@ interface Predicate extends Formula {
     };
 
     @Override
+    default FType type() {
+        return FType.PREDICATE;
+    }
+
+    @Override
     default int numberOfOperands() {
         return 0;
     }
