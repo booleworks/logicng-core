@@ -44,30 +44,30 @@ public abstract class FormulaStringRepresentation {
     protected String toInnerString(final Formula formula) {
         switch (formula.type()) {
             case FALSE:
-                return this.falsum();
+                return falsum();
             case TRUE:
-                return this.verum();
+                return verum();
             case LITERAL:
                 final Literal lit = (Literal) formula;
-                return lit.phase() ? lit.name() : this.negation() + lit.name();
+                return lit.phase() ? lit.name() : negation() + lit.name();
             case PREDICATE:
                 return formula.toString();
             case NOT:
                 final Not not = (Not) formula;
-                return this.negation() + this.bracket(not.operand());
+                return negation() + bracket(not.operand());
             case IMPL:
             case EQUIV:
                 final BinaryOperator binary = (BinaryOperator) formula;
-                String op = formula.type() == FType.IMPL ? this.implication() : this.equivalence();
-                return this.binaryOperator(binary, op);
+                final String binOp = formula.type() == FType.IMPL ? implication() : equivalence();
+                return binaryOperator(binary, binOp);
             case AND:
             case OR:
                 final NAryOperator nary = (NAryOperator) formula;
-                op = formula.type() == FType.AND ? this.and() : this.or();
-                return this.naryOperator(nary, String.format("%s", op));
+                final String naryOp = formula.type() == FType.AND ? and() : or();
+                return naryOperator(nary, naryOp);
             case PBC:
                 final PBConstraint pbc = (PBConstraint) formula;
-                return String.format("%s%s%d", this.pbLhs(pbc.operands(), pbc.coefficients()), this.pbComparator(pbc.comparator()), pbc.rhs());
+                return pbLhs(pbc.operands(), pbc.coefficients()) + pbComparator(pbc.comparator()) + pbc.rhs();
             default:
                 throw new IllegalArgumentException("Cannot print the unknown formula type " + formula.type());
         }
@@ -79,7 +79,7 @@ public abstract class FormulaStringRepresentation {
      * @return {@code "(" + formula.toString() + ")"}
      */
     protected String bracket(final Formula formula) {
-        return String.format("%s%s%s", this.lbr(), this.toInnerString(formula), this.rbr());
+        return String.format("%s%s%s", lbr(), toInnerString(formula), rbr());
     }
 
     /**
@@ -90,10 +90,10 @@ public abstract class FormulaStringRepresentation {
      */
     protected String binaryOperator(final BinaryOperator operator, final String opString) {
         final String leftString = operator.type().precedence() < operator.left().type().precedence()
-                ? this.toInnerString(operator.left()) : this.bracket(operator.left());
+                ? toInnerString(operator.left()) : bracket(operator.left());
         final String rightString = operator.type().precedence() < operator.right().type().precedence()
-                ? this.toInnerString(operator.right()) : this.bracket(operator.right());
-        return String.format("%s%s%s", leftString, opString, rightString);
+                ? toInnerString(operator.right()) : bracket(operator.right());
+        return leftString + opString + rightString;
     }
 
     /**
@@ -111,12 +111,12 @@ public abstract class FormulaStringRepresentation {
             if (++count == size) {
                 last = op;
             } else {
-                sb.append(operator.type().precedence() < op.type().precedence() ? this.toInnerString(op) : this.bracket(op));
+                sb.append(operator.type().precedence() < op.type().precedence() ? toInnerString(op) : bracket(op));
                 sb.append(opString);
             }
         }
         if (last != null) {
-            sb.append(operator.type().precedence() < last.type().precedence() ? this.toInnerString(last) : this.bracket(last));
+            sb.append(operator.type().precedence() < last.type().precedence() ? toInnerString(last) : bracket(last));
         }
         return sb.toString();
     }
@@ -130,8 +130,8 @@ public abstract class FormulaStringRepresentation {
     protected String pbLhs(final List<Literal> operands, final List<Integer> coefficients) {
         assert operands.size() == coefficients.size();
         final StringBuilder sb = new StringBuilder();
-        final String mul = this.pbMul();
-        final String add = this.pbAdd();
+        final String mul = pbMul();
+        final String add = pbAdd();
         for (int i = 0; i < operands.size() - 1; i++) {
             if (coefficients.get(i) != 1) {
                 sb.append(coefficients.get(i)).append(mul).append(operands.get(i)).append(add);
