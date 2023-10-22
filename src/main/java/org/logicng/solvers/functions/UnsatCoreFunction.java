@@ -17,7 +17,6 @@ import org.logicng.propositions.Proposition;
 import org.logicng.propositions.StandardProposition;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.sat.GlucoseSyrup;
-import org.logicng.solvers.sat.MiniCard;
 import org.logicng.solvers.sat.MiniSatStyleSolver;
 
 import java.util.ArrayList;
@@ -62,9 +61,6 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
         }
         if (solver.getResult() == Tristate.UNDEF) {
             throw new IllegalStateException("Cannot generate an unsat core before the formula was solved.");
-        }
-        if (solver.underlyingSolver() instanceof MiniCard) {
-            throw new IllegalStateException("Cannot compute an unsat core with MiniCard.");
         }
         if (solver.underlyingSolver() instanceof GlucoseSyrup && solver.getConfig().incremental()) {
             throw new IllegalStateException("Cannot compute an unsat core with Glucose in incremental mode.");

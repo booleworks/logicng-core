@@ -7,14 +7,14 @@ package org.logicng.solvers.datastructures;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.logicng.solvers.sat.MiniCard;
+import org.logicng.solvers.sat.MiniSat2Solver;
 import org.logicng.solvers.sat.MiniSatStyleSolver;
 
 public class LNGHeapTest {
 
     @Test
     public void test() {
-        final MiniSatStyleSolver solver = new MiniCard();
+        final MiniSatStyleSolver solver = new MiniSat2Solver();
         solver.newVar(true, true);
         solver.newVar(true, true);
         solver.newVar(true, true);

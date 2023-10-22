@@ -33,11 +33,7 @@ public class IncDecTest implements LogicNGTest {
         for (final MiniSat s : solvers) {
             s.add(f.variable("a"));
             final SolverState state1 = s.saveState();
-            if (s.underlyingSolver() instanceof MiniCard) {
-                assertThat(state1.toString()).isEqualTo("SolverState{id=0, state=[1, 1, 0, 0, 1]}");
-            } else {
                 assertThat(state1.toString()).isEqualTo("SolverState{id=0, state=[1, 1, 0, 0, 1, 0, 0]}");
-            }
             assertSolverSat(s);
             s.add(pg.generate(5));
             assertSolverUnsat(s);
@@ -49,11 +45,7 @@ public class IncDecTest implements LogicNGTest {
             assertSolverSat(s);
             s.add(pg.generate(5));
             final SolverState state2 = s.saveState();
-            if (s.underlyingSolver() instanceof MiniCard) {
-                assertThat(state2.toString()).isEqualTo("SolverState{id=1, state=[1, 31, 81, 0, 1]}");
-            } else {
                 assertThat(state2.toString()).isEqualTo("SolverState{id=1, state=[1, 31, 81, 0, 1, 0, 0]}");
-            }
             s.add(pg.generate(4));
             assertSolverUnsat(s);
             s.loadState(state2);
