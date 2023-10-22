@@ -24,8 +24,8 @@ public class IncDecTest implements LogicNGTest {
         f = FormulaFactory.caching();
         pg = new PigeonHoleGenerator(f);
         solvers = new MiniSat[2];
-        solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).build());
-        solvers[1] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(true).build());
+        solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(false).build());
+        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(true).build());
     }
 
     @Test

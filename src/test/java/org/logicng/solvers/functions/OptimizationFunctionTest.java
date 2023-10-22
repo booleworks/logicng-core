@@ -59,13 +59,13 @@ public class OptimizationFunctionTest implements LogicNGTest {
     public static Collection<Object[]> solvers() {
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         final List<Object[]> solvers = new ArrayList<>();
-        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(true).build())});
-        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(false).build())});
-        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build())});
-        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).proofGeneration(true).build())});
-        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(false).build())});
-        solvers.add(new Object[]{MiniSat.miniCard(f, MiniSatConfig.builder().initialPhase(true).build())});
-        solvers.add(new Object[]{MiniSat.miniCard(f, MiniSatConfig.builder().initialPhase(false).build())});
+        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(true).useAtMostClauses(false).build())});
+        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(false).useAtMostClauses(false).build())});
+        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(true).useAtMostClauses(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build())});
+        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(true).useAtMostClauses(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).proofGeneration(true).build())});
+        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(false).useAtMostClauses(false).build())});
+        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(true).useAtMostClauses(true).build())});
+        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(false).useAtMostClauses(true).build())});
         solvers.add(new Object[]{MiniSat.glucose(f, MiniSatConfig.builder().initialPhase(true).build(), GlucoseConfig.builder().build())});
         solvers.add(new Object[]{MiniSat.glucose(f, MiniSatConfig.builder().initialPhase(false).build(), GlucoseConfig.builder().build())});
         return solvers;
@@ -299,8 +299,8 @@ public class OptimizationFunctionTest implements LogicNGTest {
         assertThat(solveMaxSat(formulas, variables, MaxSATSolver.linearUS(f))).isEqualTo(expected);
         assertThat(solveMaxSat(formulas, variables, MaxSATSolver.msu3(f))).isEqualTo(expected);
         assertThat(solveMaxSat(formulas, variables, MaxSATSolver.wbo(f))).isEqualTo(expected);
-        assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, MiniSat.miniSat(f), null), variables).size()).isEqualTo(expected);
-        assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, MiniSat.miniCard(f), null), variables).size()).isEqualTo(expected);
+        assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).build()), null), variables).size()).isEqualTo(expected);
+        assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).build()), null), variables).size()).isEqualTo(expected);
         assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, MiniSat.glucose(f), null), variables).size()).isEqualTo(expected);
     }
 

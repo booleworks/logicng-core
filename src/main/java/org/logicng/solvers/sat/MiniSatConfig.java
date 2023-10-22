@@ -64,6 +64,7 @@ public final class MiniSatConfig extends Configuration {
     final boolean incremental;
     final boolean initialPhase;
     final boolean proofGeneration;
+    final boolean useAtMostClauses;
     final CNFMethod cnfMethod;
     final boolean auxiliaryVariablesInModels;
     final boolean bbInitialUBCheckForRotatableLiterals;
@@ -88,6 +89,7 @@ public final class MiniSatConfig extends Configuration {
         incremental = builder.incremental;
         initialPhase = builder.initialPhase;
         proofGeneration = builder.proofGeneration;
+        useAtMostClauses = builder.useAtMostClauses;
         cnfMethod = builder.cnfMethod;
         auxiliaryVariablesInModels = builder.auxiliaryVariablesInModels;
         bbInitialUBCheckForRotatableLiterals = builder.bbInitialUBCheckForRotatableLiterals;
@@ -125,6 +127,14 @@ public final class MiniSatConfig extends Configuration {
      */
     public boolean proofGeneration() {
         return proofGeneration;
+    }
+
+    /**
+     * Returns whether at most clauses should be used to encode cardinality constraints or not.
+     * @return whether at most clauses should be used to encode cardinality constraints or not
+     */
+    public boolean useAtMostClauses() {
+        return useAtMostClauses;
     }
 
     /**
@@ -185,6 +195,7 @@ public final class MiniSatConfig extends Configuration {
         private boolean incremental = true;
         private boolean initialPhase = false;
         private boolean proofGeneration = false;
+        private boolean useAtMostClauses = true;
         private CNFMethod cnfMethod = CNFMethod.PG_ON_SOLVER;
         private boolean auxiliaryVariablesInModels = false;
         private boolean bbInitialUBCheckForRotatableLiterals = true;
@@ -317,6 +328,18 @@ public final class MiniSatConfig extends Configuration {
          */
         public Builder proofGeneration(final boolean proofGeneration) {
             this.proofGeneration = proofGeneration;
+            return this;
+        }
+
+        /**
+         * Sets whether the solver should use special at most clauses for cardinality constraints. At most clauses are not
+         * compatible with {@link #proofGeneration proof generation}, so this option will be ignored if proof generation
+         * is enabled. The default value is {@code true}.
+         * @param useAtMostClauses {@code true} if at most clauses should be used, {@code false} otherwise
+         * @return the builder
+         */
+        public Builder useAtMostClauses(final boolean useAtMostClauses) {
+            this.useAtMostClauses = useAtMostClauses;
             return this;
         }
 

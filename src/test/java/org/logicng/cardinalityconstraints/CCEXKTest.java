@@ -14,6 +14,7 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
+import org.logicng.solvers.sat.MiniSatConfig;
 
 public class CCEXKTest implements LogicNGTest {
 
@@ -51,7 +52,7 @@ public class CCEXKTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).build());
         solver.add(f.cc(CType.EQ, rhs, problemLits));
         if (expected != 0) {
             assertSolverSat(solver);

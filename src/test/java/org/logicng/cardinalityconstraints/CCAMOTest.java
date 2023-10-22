@@ -25,6 +25,7 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
+import org.logicng.solvers.sat.MiniSatConfig;
 
 public class CCAMOTest implements LogicNGTest {
 
@@ -98,7 +99,7 @@ public class CCAMOTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = miniCard ? MiniSat.miniCard(f) : MiniSat.miniSat(f);
+        final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(miniCard).build());
         solver.add(f.amo(problemLits));
         assertSolverSat(solver);
         assertThat(solver.enumerateAllModels(problemLits))

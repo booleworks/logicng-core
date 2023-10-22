@@ -31,9 +31,9 @@ public class CCIncrementalSolverTest implements LogicNGTest {
         this.configs[1] = CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.CARDINALITY_NETWORK).alkEncoding(CCConfig.ALK_ENCODER.CARDINALITY_NETWORK).build();
         this.configs[2] = CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.MODULAR_TOTALIZER).alkEncoding(CCConfig.ALK_ENCODER.MODULAR_TOTALIZER).build();
         this.solvers = new SATSolver[4];
-        this.solvers[0] = MiniSat.miniSat(this.f);
-        this.solvers[1] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(false).build());
-        this.solvers[2] = MiniSat.miniCard(this.f);
+        this.solvers[0] = MiniSat.miniSat(this.f, MiniSatConfig.builder().useAtMostClauses(false).build());
+        this.solvers[1] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(false).useAtMostClauses(false).build());
+        this.solvers[2] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(true).useAtMostClauses(true).build());
         this.solvers[3] = MiniSat.glucose(this.f);
     }
 
@@ -46,7 +46,7 @@ public class CCIncrementalSolverTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = this.f.variable("v" + i);
             }
-            final SATSolver solver = MiniSat.miniSat(this.f);
+            final SATSolver solver = MiniSat.miniSat(this.f, MiniSatConfig.builder().useAtMostClauses(false).build());
             solver.add(this.f.cc(CType.GE, 4, vars)); // >= 4
             solver.add(this.f.cc(CType.LE, 7, vars)); // <= 7
 

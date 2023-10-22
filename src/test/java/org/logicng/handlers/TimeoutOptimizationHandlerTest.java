@@ -38,16 +38,18 @@ class TimeoutOptimizationHandlerTest {
     @BeforeEach
     public void init() {
         f = FormulaFactory.caching();
-        solvers = new SATSolver[8];
-        solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).build());
-        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
-        solvers[2] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(false).build(),
-                GlucoseConfig.builder().build());
-        solvers[3] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(true).build());
-        solvers[4] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(false).build());
-        solvers[5] = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
-        solvers[6] = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
-        solvers[7] = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        solvers = new SATSolver[11];
+        solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(false).build());
+        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(false).build());
+        solvers[2] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(false).build(), GlucoseConfig.builder().build());
+        solvers[3] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(true).build());
+        solvers[4] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(true).build());
+        solvers[5] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        solvers[6] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        solvers[7] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        solvers[8] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        solvers[9] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        solvers[10] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
     }
 
     @Test

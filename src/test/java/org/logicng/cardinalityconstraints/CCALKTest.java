@@ -17,6 +17,7 @@ import org.logicng.handlers.NumberOfModelsHandler;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 import org.logicng.solvers.functions.ModelEnumerationFunction;
+import org.logicng.solvers.sat.MiniSatConfig;
 
 public class CCALKTest implements LogicNGTest {
 
@@ -56,7 +57,7 @@ public class CCALKTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).build());
         solver.add(f.cc(CType.GE, rhs, problemLits));
         if (expected != 0) {
             assertSolverSat(solver);

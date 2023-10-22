@@ -3,6 +3,12 @@
 // Copyright 2023-20xx BooleWorks GmbH
 
 /*
+ * MiniCARD Copyright (c) 2012, Mark Liffiton, Jordyn Maglalang
+ * <p>
+ * MiniCARD is based on MiniSAT, whose original copyright notice is maintained below,
+ * and it is released under the same license.
+ * ---
+ * <p>
  * MiniSat -- Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
  * associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -46,6 +52,7 @@ import org.logicng.solvers.datastructures.MSWatcher;
  */
 public class MiniSat2Solver extends MiniSatStyleSolver {
 
+    protected static final int LIT_ERROR = -2;
     protected LNGIntVector unitClauses;
 
     /**
@@ -292,18 +299,27 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
 
     @Override
     protected void attachClause(final MSClause c) {
-        assert c.size() > 1;
-        watches.get(not(c.get(0))).push(new MSWatcher(c, c.get(1)));
-        watches.get(not(c.get(1))).push(new MSWatcher(c, c.get(0)));
-        if (c.learnt()) {
-            learntsLiterals += c.size();
-        } else {
+        if (c.isAtMost()) {
+            for (int i = 0; i < c.atMostWatchers(); i++) {
+                final int l = c.get(i);
+                watches.get(l).push(new MSWatcher(c, LIT_UNDEF));
+            }
             clausesLiterals += c.size();
+        } else {
+            assert c.size() > 1;
+            watches.get(not(c.get(0))).push(new MSWatcher(c, c.get(1)));
+            watches.get(not(c.get(1))).push(new MSWatcher(c, c.get(0)));
+            if (c.learnt()) {
+                learntsLiterals += c.size();
+            } else {
+                clausesLiterals += c.size();
+            }
         }
     }
 
     @Override
     protected void detachClause(final MSClause c) {
+        assert !c.isAtMost();
         assert c.size() > 1;
         watches.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
         watches.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
@@ -316,18 +332,27 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
 
     @Override
     protected void removeClause(final MSClause c) {
-        if (config.proofGeneration) {
-            final LNGIntVector vec = new LNGIntVector(c.size());
-            vec.push(-1);
-            for (int i = 0; i < c.size(); i++) {
-                vec.push((var(c.get(i)) + 1) * (-2 * (sign(c.get(i)) ? 1 : 0) + 1));
+        if (c.isAtMost()) {
+            detachAtMost(c);
+            for (int i = 0; i < c.atMostWatchers(); i++) {
+                if (value(c.get(i)) == Tristate.FALSE && v(c.get(i)).reason() != null && v(c.get(i)).reason() == c) {
+                    v(c.get(i)).setReason(null);
+                }
             }
-            pgProof.push(vec);
-        }
+        } else {
+            if (config.proofGeneration) {
+                final LNGIntVector vec = new LNGIntVector(c.size());
+                vec.push(-1);
+                for (int i = 0; i < c.size(); i++) {
+                    vec.push((var(c.get(i)) + 1) * (-2 * (sign(c.get(i)) ? 1 : 0) + 1));
+                }
+                pgProof.push(vec);
+            }
 
-        detachClause(c);
-        if (locked(c)) {
-            v(c.get(0)).setReason(null);
+            detachClause(c);
+            if (locked(c)) {
+                v(c.get(0)).setReason(null);
+            }
         }
     }
 
@@ -344,44 +369,70 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             while (iInd < ws.size()) {
                 final MSWatcher i = ws.get(iInd);
                 final int blocker = i.blocker();
-                if (value(blocker) == Tristate.TRUE) {
+                if (blocker != LIT_UNDEF && value(blocker) == Tristate.TRUE) {
                     ws.set(jInd++, i);
                     iInd++;
                     continue;
                 }
                 final MSClause c = i.clause();
-                final int falseLit = not(p);
-                if (c.get(0) == falseLit) {
-                    c.set(0, c.get(1));
-                    c.set(1, falseLit);
-                }
-                assert c.get(1) == falseLit;
-                iInd++;
-                final int first = c.get(0);
-                final MSWatcher w = new MSWatcher(c, first);
-                if (first != blocker && value(first) == Tristate.TRUE) {
-                    ws.set(jInd++, w);
-                    continue;
-                }
-                boolean foundWatch = false;
-                for (int k = 2; k < c.size() && !foundWatch; k++) {
-                    if (value(c.get(k)) != Tristate.FALSE) {
-                        c.set(1, c.get(k));
-                        c.set(k, falseLit);
-                        watches.get(not(c.get(1))).push(w);
-                        foundWatch = true;
-                    }
-                }
-                if (!foundWatch) {
-                    ws.set(jInd++, w);
-                    if (value(first) == Tristate.FALSE) {
+
+                if (c.isAtMost()) {
+                    final int newWatch = findNewWatchForAtMostClause(c, p);
+                    if (newWatch == LIT_UNDEF) {
+                        for (int k = 0; k < c.atMostWatchers(); k++) {
+                            if (c.get(k) != p && value(c.get(k)) != Tristate.FALSE) {
+                                assert value(c.get(k)) == Tristate.UNDEF || value(c.get(k)) == Tristate.FALSE;
+                                uncheckedEnqueue(not(c.get(k)), c);
+                            }
+                        }
+                        ws.set(jInd++, ws.get(iInd++));
+                    } else if (newWatch == LIT_ERROR) {
                         confl = c;
                         qhead = trail.size();
                         while (iInd < ws.size()) {
                             ws.set(jInd++, ws.get(iInd++));
                         }
+                    } else if (newWatch == p) {
+                        ws.set(jInd++, ws.get(iInd++));
                     } else {
-                        uncheckedEnqueue(first, c);
+                        iInd++;
+                        final MSWatcher w = new MSWatcher(c, LIT_UNDEF);
+                        watches.get(newWatch).push(w);
+                    }
+                } else {
+                    final int falseLit = not(p);
+                    if (c.get(0) == falseLit) {
+                        c.set(0, c.get(1));
+                        c.set(1, falseLit);
+                    }
+                    assert c.get(1) == falseLit;
+                    iInd++;
+                    final int first = c.get(0);
+                    final MSWatcher w = new MSWatcher(c, first);
+                    if (first != blocker && value(first) == Tristate.TRUE) {
+                        ws.set(jInd++, w);
+                        continue;
+                    }
+                    boolean foundWatch = false;
+                    for (int k = 2; k < c.size() && !foundWatch; k++) {
+                        if (value(c.get(k)) != Tristate.FALSE) {
+                            c.set(1, c.get(k));
+                            c.set(k, falseLit);
+                            watches.get(not(c.get(1))).push(w);
+                            foundWatch = true;
+                        }
+                    }
+                    if (!foundWatch) {
+                        ws.set(jInd++, w);
+                        if (value(first) == Tristate.FALSE) {
+                            confl = c;
+                            qhead = trail.size();
+                            while (iInd < ws.size()) {
+                                ws.set(jInd++, ws.get(iInd++));
+                            }
+                        } else {
+                            uncheckedEnqueue(first, c);
+                        }
                     }
                 }
             }
@@ -400,19 +451,41 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             assert v(analyzeStack.back()).reason() != null;
             final MSClause c = v(analyzeStack.back()).reason();
             analyzeStack.pop();
-            for (int i = 1; i < c.size(); i++) {
-                final int q = c.get(i);
-                if (!seen.get(var(q)) && v(q).level() > 0) {
-                    if (v(q).reason() != null && (abstractLevel(var(q)) & abstractLevels) != 0) {
-                        seen.set(var(q), true);
-                        analyzeStack.push(q);
-                        analyzeToClear.push(q);
-                    } else {
-                        for (int j = top; j < analyzeToClear.size(); j++) {
-                            seen.set(var(analyzeToClear.get(j)), false);
+            if (c.isAtMost()) {
+                for (int i = 0; i < c.size(); i++) {
+                    if (value(c.get(i)) != Tristate.TRUE) {
+                        continue;
+                    }
+                    final int q = not(c.get(i));
+                    if (!seen.get(var(q)) && v(q).level() > 0) {
+                        if (v(q).reason() != null && (abstractLevel(var(q)) & abstractLevels) != 0) {
+                            seen.set(var(q), true);
+                            analyzeStack.push(q);
+                            analyzeToClear.push(q);
+                        } else {
+                            for (int j = top; j < analyzeToClear.size(); j++) {
+                                seen.set(var(analyzeToClear.get(j)), false);
+                            }
+                            analyzeToClear.removeElements(analyzeToClear.size() - top);
+                            return false;
                         }
-                        analyzeToClear.removeElements(analyzeToClear.size() - top);
-                        return false;
+                    }
+                }
+            } else {
+                for (int i = 1; i < c.size(); i++) {
+                    final int q = c.get(i);
+                    if (!seen.get(var(q)) && v(q).level() > 0) {
+                        if (v(q).reason() != null && (abstractLevel(var(q)) & abstractLevels) != 0) {
+                            seen.set(var(q), true);
+                            analyzeStack.push(q);
+                            analyzeToClear.push(q);
+                        } else {
+                            for (int j = top; j < analyzeToClear.size(); j++) {
+                                seen.set(var(analyzeToClear.get(j)), false);
+                            }
+                            analyzeToClear.removeElements(analyzeToClear.size() - top);
+                            return false;
+                        }
                     }
                 }
             }
@@ -439,9 +512,17 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     outConflict.push(not(trail.get(i)));
                 } else {
                     final MSClause c = v.reason();
-                    for (int j = 1; j < c.size(); j++) {
-                        if (v(c.get(j)).level() > 0) {
-                            seen.set(var(c.get(j)), true);
+                    if (!c.isAtMost()) {
+                        for (int j = 1; j < c.size(); j++) {
+                            if (v(c.get(j)).level() > 0) {
+                                seen.set(var(c.get(j)), true);
+                            }
+                        }
+                    } else {
+                        for (int j = 0; j < c.size(); j++) {
+                            if (value(c.get(j)) == Tristate.TRUE && v(c.get(j)).level() > 0) {
+                                seen.set(var(c.get(j)), true);
+                            }
                         }
                     }
                 }
@@ -459,6 +540,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         learnts.manualSort(MSClause.minisatComparator);
         for (i = j = 0; i < learnts.size(); i++) {
             final MSClause c = learnts.get(i);
+            assert !c.isAtMost();
             if (c.size() > 2 && !locked(c) && (i < learnts.size() / 2 || c.activity() < extraLim)) {
                 removeClause(learnts.get(i));
             } else {
@@ -477,9 +559,10 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             if (satisfied(c)) {
                 removeClause(cs.get(i));
             } else {
-                assert value(c.get(0)) == Tristate.UNDEF && value(c.get(1)) == Tristate.UNDEF;
-                if (!config.proofGeneration) {
+                assert c.isAtMost() || value(c.get(0)) == Tristate.UNDEF && value(c.get(1)) == Tristate.UNDEF;
+                if (!config.proofGeneration && !c.isAtMost()) {
                     // This simplification does not work with proof generation
+                    // TODO this might also work with atMost clauses
                     for (int k = 2; k < c.size(); k++) {
                         if (value(c.get(k)) == Tristate.FALSE) {
                             c.set(k--, c.get(c.size() - 1));
@@ -495,9 +578,21 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
 
     @Override
     protected boolean satisfied(final MSClause c) {
-        for (int i = 0; i < c.size(); i++) {
-            if (value(c.get(i)) == Tristate.TRUE) {
-                return true;
+        if (c.isAtMost()) {
+            int numFalse = 0;
+            for (int i = 0; i < c.size(); i++) {
+                if (value(c.get(i)) == Tristate.FALSE) {
+                    numFalse++;
+                    if (numFalse >= c.atMostWatchers() - 1) {
+                        return true;
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < c.size(); i++) {
+                if (value(c.get(i)) == Tristate.TRUE) {
+                    return true;
+                }
             }
         }
         return false;
@@ -521,6 +616,70 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         simpDBAssigns = nAssigns();
         simpDBProps = clausesLiterals + learntsLiterals;
         return true;
+    }
+
+    /**
+     * Adds an at-most k constraint.
+     * @param ps  the literals of the constraint
+     * @param rhs the right-hand side of the constraint
+     * @return {@code true} if the constraint was added, {@code false} otherwise
+     */
+    public boolean addAtMost(final LNGIntVector ps, final int rhs) {
+        int k = rhs;
+        assert decisionLevel() == 0;
+        if (!ok) {
+            return false;
+        }
+        ps.sort();
+        int p;
+        int i;
+        int j;
+        for (i = j = 0, p = LIT_UNDEF; i < ps.size(); i++) {
+            if (value(ps.get(i)) == Tristate.TRUE) {
+                k--;
+            } else if (ps.get(i) == not(p)) {
+                p = ps.get(i);
+                j--;
+                k--;
+            } else if (value(ps.get(i)) != Tristate.FALSE && ps.get(i) != p) {
+                p = ps.get(i);
+                ps.set(j++, p);
+            }
+        }
+        ps.removeElements(i - j);
+        if (k >= ps.size()) {
+            return true;
+        }
+        if (k < 0) {
+            ok = false;
+            return false;
+        }
+        if (k == 0) {
+            for (i = 0; i < ps.size(); i++) {
+                uncheckedEnqueue(not(ps.get(i)), null);
+                if (incremental) {
+                    unitClauses.push(not(ps.get(i)));
+                }
+            }
+            ok = propagate() == null;
+            return ok;
+        }
+        final MSClause cr = new MSClause(ps, false, true);
+        cr.setAtMostWatchers(ps.size() - k + 1);
+        clauses.push(cr);
+        attachClause(cr);
+        return true;
+    }
+
+    /**
+     * Detaches a given at-most clause.
+     * @param c the at-most clause.
+     */
+    protected void detachAtMost(final MSClause c) {
+        for (int i = 0; i < c.atMostWatchers(); i++) {
+            watches.get(c.get(i)).remove(new MSWatcher(c, c.get(i)));
+        }
+        clausesLiterals -= c.size();
     }
 
     /**
@@ -613,6 +772,49 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         }
     }
 
+    protected int findNewWatchForAtMostClause(final MSClause c, final int p) {
+        assert c.isAtMost();
+        int newWatch = LIT_ERROR;
+        int numFalse = 0;
+        int numTrue = 0;
+        final int maxTrue = c.size() - c.atMostWatchers() + 1;
+        for (int q = 0; q < c.atMostWatchers(); q++) {
+            final Tristate val = value(c.get(q));
+            if (val == Tristate.UNDEF) {
+                continue;
+            } else if (val == Tristate.FALSE) {
+                numFalse++;
+                if (numFalse >= c.atMostWatchers() - 1) {
+                    return p;
+                }
+                continue;
+            }
+            assert val == Tristate.TRUE;
+            numTrue++;
+            if (numTrue > maxTrue) {
+                return LIT_ERROR;
+            }
+            if (c.get(q) == p) {
+                assert newWatch == LIT_ERROR;
+                for (int next = c.atMostWatchers(); next < c.size(); next++) {
+                    if (value(c.get(next)) != Tristate.TRUE) {
+                        newWatch = c.get(next);
+                        c.set(next, c.get(q));
+                        c.set(q, newWatch);
+                        return newWatch;
+                    }
+                }
+                newWatch = LIT_UNDEF;
+            }
+        }
+        assert newWatch == LIT_UNDEF;
+        if (numTrue > 1) {
+            return LIT_ERROR;
+        } else {
+            return LIT_UNDEF;
+        }
+    }
+
     /**
      * Analyzes a given conflict clause wrt. the current solver state.  A 1-UIP clause is created during this procedure
      * and the new backtracking level is stored in the solver state.
@@ -627,18 +829,36 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         int index = trail.size() - 1;
         do {
             assert c != null;
-            if (!incremental && c.learnt()) {
-                claBumpActivity(c);
-            }
-            for (int j = (p == LIT_UNDEF) ? 0 : 1; j < c.size(); j++) {
-                final int q = c.get(j);
-                if (!seen.get(var(q)) && v(q).level() > 0) {
-                    varBumpActivity(var(q));
-                    seen.set(var(q), true);
-                    if (v(q).level() >= decisionLevel()) {
-                        pathC++;
-                    } else {
-                        outLearnt.push(q);
+            if (c.isAtMost()) {
+                for (int j = 0; j < c.size(); j++) {
+                    if (value(c.get(j)) != Tristate.TRUE) {
+                        continue;
+                    }
+                    final int q = not(c.get(j));
+                    if (!seen.get(var(q)) && v(q).level() > 0) {
+                        varBumpActivity(var(q));
+                        seen.set(var(q), true);
+                        if (v(q).level() >= decisionLevel()) {
+                            pathC++;
+                        } else {
+                            outLearnt.push(q);
+                        }
+                    }
+                }
+            } else {
+                if (!incremental && c.learnt()) {
+                    claBumpActivity(c);
+                }
+                for (int j = (p == LIT_UNDEF) ? 0 : 1; j < c.size(); j++) {
+                    final int q = c.get(j);
+                    if (!seen.get(var(q)) && v(q).level() > 0) {
+                        varBumpActivity(var(q));
+                        seen.set(var(q), true);
+                        if (v(q).level() >= decisionLevel()) {
+                            pathC++;
+                        } else {
+                            outLearnt.push(q);
+                        }
                     }
                 }
             }
@@ -729,7 +949,13 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
      * @param c the clause to remove
      */
     protected void simpleRemoveClause(final MSClause c) {
-        watches.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
-        watches.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
+        if (c.isAtMost()) {
+            for (int i = 0; i < c.atMostWatchers(); i++) {
+                watches.get(c.get(i)).remove(new MSWatcher(c, c.get(i)));
+            }
+        } else {
+            watches.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
+            watches.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
+        }
     }
 }

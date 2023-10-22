@@ -28,27 +28,28 @@ import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Supplier;
 
 public class ModelTest {
 
     private static final FormulaFactory f = FormulaFactory.caching();
 
     public static Collection<Object[]> solvers() {
-        final MiniSatConfig configNoPGAux = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).auxiliaryVariablesInModels(true).build();
-        final MiniSatConfig configNoPGNoAux = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).auxiliaryVariablesInModels(false).build();
-        final MiniSatConfig configPGAux = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(true).build();
-        final MiniSatConfig configPGNoAux = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build();
-        final List<Pair<MiniSatConfig, String>> configs = Arrays.asList(
+        final Supplier<MiniSatConfig.Builder> configNoPGAux = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).auxiliaryVariablesInModels(true);
+        final Supplier<MiniSatConfig.Builder> configNoPGNoAux = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).auxiliaryVariablesInModels(false);
+        final Supplier<MiniSatConfig.Builder> configPGAux = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(true);
+        final Supplier<MiniSatConfig.Builder> configPGNoAux = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false);
+        final List<Pair<Supplier<MiniSatConfig.Builder>, String>> configs = Arrays.asList(
                 new Pair<>(configNoPGAux, "FF CNF, +AUX"),
                 new Pair<>(configNoPGNoAux, "FF CNF, -AUX"),
                 new Pair<>(configPGAux, "PG CNF, +AUX"),
                 new Pair<>(configPGNoAux, "PG CNF, -AUX")
         );
         final List<Object[]> solvers = new ArrayList<>();
-        for (final Pair<MiniSatConfig, String> config : configs) {
-            solvers.add(new Object[]{MiniSat.miniSat(f, config.first()), "MiniSat (" + config.second() + ")"});
-            solvers.add(new Object[]{MiniSat.miniCard(f, config.first()), "MiniCard (" + config.second() + ")"});
-            solvers.add(new Object[]{MiniSat.glucose(f, config.first(), GlucoseConfig.builder().build()), "Glucose (" + config.second() + ")"});
+        for (final Pair<Supplier<MiniSatConfig.Builder>, String> config : configs) {
+            solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().useAtMostClauses(false).build()), "MiniSat (" + config.second() + ", -ATMOST)"});
+            solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().useAtMostClauses(true).build()), "MiniSat (" + config.second() + ", +ATMOST)"});
+            solvers.add(new Object[]{MiniSat.glucose(f, config.first().get().build(), GlucoseConfig.builder().build()), "Glucose (" + config.second() + ")"});
         }
         return solvers;
     }

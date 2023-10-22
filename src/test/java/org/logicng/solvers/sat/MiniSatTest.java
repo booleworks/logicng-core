@@ -35,11 +35,6 @@ public class MiniSatTest {
         assertThat(glucose.getStyle()).isEqualTo(MiniSat.SolverStyle.GLUCOSE);
         assertThat(glucose.getConfig()).isEqualTo(miniSatConfig);
         assertThat(glucose.underlyingSolver()).isInstanceOf(GlucoseSyrup.class);
-
-        final MiniSat minicard = MiniSat.mk(f, MiniSat.SolverStyle.MINICARD);
-        assertThat(minicard.getStyle()).isEqualTo(MiniSat.SolverStyle.MINICARD);
-        assertThat(minicard.getConfig()).isEqualTo(miniSatConfig);
-        assertThat(minicard.underlyingSolver()).isInstanceOf(MiniCard.class);
     }
 
     @Test
@@ -57,11 +52,6 @@ public class MiniSatTest {
         assertThat(glucose.getStyle()).isEqualTo(MiniSat.SolverStyle.GLUCOSE);
         assertThat(glucose.getConfig()).isEqualTo(miniSatConfig);
         assertThat(glucose.underlyingSolver()).isInstanceOf(GlucoseSyrup.class);
-
-        final MiniSat minicard = MiniSat.mk(f, MiniSat.SolverStyle.MINICARD, miniSatConfig, null);
-        assertThat(minicard.getStyle()).isEqualTo(MiniSat.SolverStyle.MINICARD);
-        assertThat(minicard.getConfig()).isEqualTo(miniSatConfig);
-        assertThat(minicard.underlyingSolver()).isInstanceOf(MiniCard.class);
     }
 
     @Test

@@ -63,26 +63,31 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     public SATTest() {
         pg = new PigeonHoleGenerator(f);
         parser = new PropositionalParser(f);
-        solvers = new SATSolver[8];
-        solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).build());
-        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
-        solvers[2] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(false).build(),
-                GlucoseConfig.builder().build());
-        solvers[3] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(true).build());
-        solvers[4] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(false).build());
-        solvers[5] = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
-        solvers[6] = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
-        solvers[7] = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        solvers = new SATSolver[11];
+        solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(false).build());
+        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(false).build());
+        solvers[2] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(false).build(), GlucoseConfig.builder().build());
+        solvers[3] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(true).build());
+        solvers[4] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(true).build());
+        solvers[5] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        solvers[6] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        solvers[7] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        solvers[8] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        solvers[9] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        solvers[10] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
 
-        testStrings = new String[8];
+        testStrings = new String[11];
         testStrings[0] = "MiniSat2Solver{result=UNDEF, incremental=true}";
         testStrings[1] = "MiniSat2Solver{result=UNDEF, incremental=false}";
         testStrings[2] = "GlucoseSyrup{result=UNDEF, incremental=false}";
-        testStrings[3] = "MiniCard{result=UNDEF, incremental=true}";
-        testStrings[4] = "MiniCard{result=UNDEF, incremental=false}";
+        testStrings[3] = "MiniSat2Solver{result=UNDEF, incremental=true}";
+        testStrings[4] = "MiniSat2Solver{result=UNDEF, incremental=false}";
         testStrings[5] = "MiniSat2Solver{result=UNDEF, incremental=true}";
         testStrings[6] = "MiniSat2Solver{result=UNDEF, incremental=true}";
         testStrings[7] = "MiniSat2Solver{result=UNDEF, incremental=true}";
+        testStrings[8] = "MiniSat2Solver{result=UNDEF, incremental=true}";
+        testStrings[9] = "MiniSat2Solver{result=UNDEF, incremental=true}";
+        testStrings[10] = "MiniSat2Solver{result=UNDEF, incremental=true}";
     }
 
     @Test
@@ -394,12 +399,12 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     @Test
     public void testDifferentClauseMinimizations() {
         final SATSolver[] moreSolvers = new SATSolver[6];
-        moreSolvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().clMinimization(NONE).build());
-        moreSolvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().clMinimization(BASIC).build());
+        moreSolvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().clMinimization(NONE).useAtMostClauses(false).build());
+        moreSolvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().clMinimization(BASIC).useAtMostClauses(false).build());
         moreSolvers[2] = MiniSat.glucose(f, MiniSatConfig.builder().clMinimization(NONE).build(), GlucoseConfig.builder().build());
         moreSolvers[3] = MiniSat.glucose(f, MiniSatConfig.builder().clMinimization(BASIC).build(), GlucoseConfig.builder().build());
-        moreSolvers[4] = MiniSat.miniCard(f, MiniSatConfig.builder().clMinimization(NONE).build());
-        moreSolvers[5] = MiniSat.miniCard(f, MiniSatConfig.builder().clMinimization(BASIC).build());
+        moreSolvers[4] = MiniSat.miniSat(f, MiniSatConfig.builder().clMinimization(NONE).useAtMostClauses(true).build());
+        moreSolvers[5] = MiniSat.miniSat(f, MiniSatConfig.builder().clMinimization(BASIC).useAtMostClauses(true).build());
         for (final SATSolver s : moreSolvers) {
             s.add(pg.generate(7));
             assertSolverUnsat(s);
@@ -704,8 +709,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     public void testKnownVariables() throws ParserException {
         final PropositionalParser parser = new PropositionalParser(f);
         final Formula phi = parser.parse("x1 & x2 & x3 & (x4 | ~x5)");
-        final SATSolver minisat = MiniSat.miniSat(f);
-        final SATSolver minicard = MiniSat.miniCard(f);
+        final SATSolver minisat = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).build());
+        final SATSolver minicard = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).build());
         minisat.add(phi);
         minicard.add(phi);
         final SortedSet<Variable> expected = new TreeSet<>(Arrays.asList(

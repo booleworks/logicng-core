@@ -28,7 +28,6 @@ import org.logicng.propositions.Proposition;
 import org.logicng.solvers.functions.SolverFunction;
 import org.logicng.solvers.sat.GlucoseConfig;
 import org.logicng.solvers.sat.GlucoseSyrup;
-import org.logicng.solvers.sat.MiniCard;
 import org.logicng.solvers.sat.MiniSat2Solver;
 import org.logicng.solvers.sat.MiniSatConfig;
 import org.logicng.solvers.sat.MiniSatStyleSolver;
@@ -47,7 +46,7 @@ import java.util.TreeSet;
  */
 public class MiniSat extends SATSolver {
 
-    public enum SolverStyle {MINISAT, GLUCOSE, MINICARD}
+    public enum SolverStyle {MINISAT, GLUCOSE}
 
     protected final MiniSatConfig config;
     protected MiniSatStyleSolver solver;
@@ -55,6 +54,7 @@ public class MiniSat extends SATSolver {
     protected LNGIntVector validStates;
     protected final boolean initialPhase;
     protected final boolean incremental;
+    protected final boolean useAtMostClauses;
     protected int nextStateId;
     protected final PlaistedGreenbaumTransformationSolver pgTransformation;
     protected final PlaistedGreenbaumTransformationSolver fullPgTransformation;
@@ -81,14 +81,12 @@ public class MiniSat extends SATSolver {
             case GLUCOSE:
                 solver = new GlucoseSyrup(miniSatConfig, glucoseConfig);
                 break;
-            case MINICARD:
-                solver = new MiniCard(miniSatConfig);
-                break;
             default:
                 throw new IllegalArgumentException("Unknown solver style: " + solverStyle);
         }
         result = UNDEF;
         incremental = miniSatConfig.incremental();
+        useAtMostClauses = solverStyle == SolverStyle.MINISAT && !miniSatConfig.proofGeneration() && miniSatConfig.useAtMostClauses();
         validStates = new LNGIntVector();
         nextStateId = 0;
         pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver(), initialPhase);
@@ -107,8 +105,6 @@ public class MiniSat extends SATSolver {
         config = underlyingSolver.getConfig();
         if (underlyingSolver instanceof MiniSat2Solver) {
             style = SolverStyle.MINISAT;
-        } else if (underlyingSolver instanceof MiniCard) {
-            style = SolverStyle.MINICARD;
         } else if (underlyingSolver instanceof GlucoseSyrup) {
             style = SolverStyle.GLUCOSE;
         } else {
@@ -118,6 +114,7 @@ public class MiniSat extends SATSolver {
         solver = underlyingSolver;
         result = UNDEF;
         incremental = underlyingSolver.getConfig().incremental();
+        useAtMostClauses = !underlyingSolver.getConfig().proofGeneration() && underlyingSolver.getConfig().useAtMostClauses();
         validStates = new LNGIntVector();
         nextStateId = 0;
         pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver, initialPhase);
@@ -165,25 +162,6 @@ public class MiniSat extends SATSolver {
     }
 
     /**
-     * Returns a new MiniCard solver with the MiniSat configuration from the formula factory.
-     * @param f the formula factory
-     * @return the solver
-     */
-    public static MiniSat miniCard(final FormulaFactory f) {
-        return new MiniSat(f, SolverStyle.MINICARD, (MiniSatConfig) f.configurationFor(ConfigurationType.MINISAT), null);
-    }
-
-    /**
-     * Returns a new MiniCard solver with a given configuration.
-     * @param f      the formula factory
-     * @param config the configuration, must not be {@code null}
-     * @return the solver
-     */
-    public static MiniSat miniCard(final FormulaFactory f, final MiniSatConfig config) {
-        return new MiniSat(f, SolverStyle.MINICARD, config, null);
-    }
-
-    /**
      * Returns a new solver depending on the given solver style with the configuration from the formula factory.
      * @param f     the formula factory
      * @param style the solver style, must not be {@code null}
@@ -209,8 +187,6 @@ public class MiniSat extends SATSolver {
                 return miniSat(f, miniSatConfig);
             case GLUCOSE:
                 return glucose(f, miniSatConfig, glucoseConfig);
-            case MINICARD:
-                return miniCard(f, miniSatConfig);
             default:
                 throw new IllegalArgumentException("Unknown solver style: " + solverStyle);
         }
@@ -222,13 +198,13 @@ public class MiniSat extends SATSolver {
         if (formula.type() == FType.PBC) {
             final PBConstraint constraint = (PBConstraint) formula;
             if (constraint.isCC()) {
-                if (style == SolverStyle.MINICARD) {
+                if (useAtMostClauses) {
                     if (constraint.comparator() == CType.LE) {
-                        ((MiniCard) solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
+                        ((MiniSat2Solver) solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
                     } else if (constraint.comparator() == CType.LT && constraint.rhs() > 3) {
-                        ((MiniCard) solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs() - 1);
+                        ((MiniSat2Solver) solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs() - 1);
                     } else if (constraint.comparator() == CType.EQ && constraint.rhs() == 1) {
-                        ((MiniCard) solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
+                        ((MiniSat2Solver) solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
                         solver.addClause(generateClauseVector(constraint.operands()), proposition);
                     } else {
                         addFormulaAsCNF(constraint, proposition);
@@ -489,7 +465,7 @@ public class MiniSat extends SATSolver {
 
     @Override
     public boolean canSaveLoadState() {
-        return (style == SolverStyle.MINISAT || style == SolverStyle.MINICARD) && incremental;
+        return (style == SolverStyle.MINISAT) && incremental;
     }
 
     @Override

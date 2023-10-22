@@ -36,8 +36,8 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
         configs[2] = CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.MODULAR_TOTALIZER).alkEncoding(CCConfig.ALK_ENCODER.MODULAR_TOTALIZER).build();
         solvers = new SATSolver[4];
         solvers[0] = MiniSat.miniSat(f);
-        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
-        solvers[2] = MiniSat.miniCard(f);
+        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(false).build());
+        solvers[2] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(true).build());
         solvers[3] = MiniSat.glucose(f);
     }
 

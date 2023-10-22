@@ -40,8 +40,8 @@ public class PBSolvingTest implements LogicNGTest {
         }
         solvers = new SATSolver[4];
         solvers[0] = MiniSat.miniSat(f);
-        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
-        solvers[2] = MiniSat.miniCard(f);
+        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(false).build());
+        solvers[2] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(true).build());
         solvers[3] = MiniSat.glucose(f);
         configs = new PBConfig[10];
         configs[0] = PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.SWC).build();

@@ -34,23 +34,24 @@ import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Supplier;
 
 public class BackboneFunctionTest {
 
     private static final FormulaFactory f = FormulaFactory.caching();
 
     public static Collection<Object[]> solvers() {
-        final MiniSatConfig configNoPG1 = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(false).build();
-        final MiniSatConfig configNoPG2 = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(true).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(false).build();
-        final MiniSatConfig configNoPG3 = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(true).bbInitialUBCheckForRotatableLiterals(false).build();
-        final MiniSatConfig configNoPG4 = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(true).build();
-        final MiniSatConfig configNoPG5 = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(true).bbCheckForComplementModelLiterals(true).bbInitialUBCheckForRotatableLiterals(true).build();
-        final MiniSatConfig configPG1 = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(false).build();
-        final MiniSatConfig configPG2 = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(true).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(false).build();
-        final MiniSatConfig configPG3 = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(true).bbInitialUBCheckForRotatableLiterals(false).build();
-        final MiniSatConfig configPG4 = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(true).build();
-        final MiniSatConfig configPG5 = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(true).bbCheckForComplementModelLiterals(true).bbInitialUBCheckForRotatableLiterals(true).build();
-        final List<Pair<MiniSatConfig, String>> configs = Arrays.asList(
+        final Supplier<MiniSatConfig.Builder> configNoPG1 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(false);
+        final Supplier<MiniSatConfig.Builder> configNoPG2 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(true).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(false);
+        final Supplier<MiniSatConfig.Builder> configNoPG3 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(true).bbInitialUBCheckForRotatableLiterals(false);
+        final Supplier<MiniSatConfig.Builder> configNoPG4 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(true);
+        final Supplier<MiniSatConfig.Builder> configNoPG5 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(true).bbCheckForComplementModelLiterals(true).bbInitialUBCheckForRotatableLiterals(true);
+        final Supplier<MiniSatConfig.Builder> configPG1 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(false);
+        final Supplier<MiniSatConfig.Builder> configPG2 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(true).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(false);
+        final Supplier<MiniSatConfig.Builder> configPG3 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(true).bbInitialUBCheckForRotatableLiterals(false);
+        final Supplier<MiniSatConfig.Builder> configPG4 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(true);
+        final Supplier<MiniSatConfig.Builder> configPG5 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(true).bbCheckForComplementModelLiterals(true).bbInitialUBCheckForRotatableLiterals(true);
+        final List<Pair<Supplier<MiniSatConfig.Builder>, String>> configs = Arrays.asList(
                 new Pair<>(configNoPG1, "FF CNF -ROT -COMP -UB"),
                 new Pair<>(configNoPG2, "FF CNF +ROT -COMP -UB"),
                 new Pair<>(configNoPG3, "FF CNF -ROT +COMP -UB"),
@@ -63,10 +64,10 @@ public class BackboneFunctionTest {
                 new Pair<>(configPG5, "PG CNF +ROT +COMP +UB")
         );
         final List<Object[]> solvers = new ArrayList<>();
-        for (final Pair<MiniSatConfig, String> config : configs) {
-            solvers.add(new Object[]{MiniSat.miniSat(f, config.first()), "MiniSat (" + config.second() + ")"});
-            solvers.add(new Object[]{MiniSat.miniCard(f, config.first()), "MiniCard (" + config.second() + ")"});
-            solvers.add(new Object[]{MiniSat.glucose(f, config.first(), GlucoseConfig.builder().build()), "Glucose (" + config.second() + ")"});
+        for (final Pair<Supplier<MiniSatConfig.Builder>, String> config : configs) {
+            solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().useAtMostClauses(false).build()), "MiniSat (" + config.second() + " -ATMC)"});
+            solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().useAtMostClauses(true).build()), "MiniSat (" + config.second() + " +ATMC)"});
+            solvers.add(new Object[]{MiniSat.glucose(f, config.first().get().build(), GlucoseConfig.builder().build()), "Glucose (" + config.second() + ")"});
         }
         return solvers;
     }
@@ -344,7 +345,7 @@ public class BackboneFunctionTest {
     @Test
     public void testMiniCardSpecialCase() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SATSolver miniCard = MiniSat.miniCard(f);
+        final SATSolver miniCard = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).build());
         miniCard.add(f.parse("v1 + v2 + v3 + v4 + v5 + v6 = 1"));
         miniCard.add(f.parse("v1234 + v50 + v60 = 1"));
         miniCard.add(f.parse("(v1 => v1234) & (v2 => v1234) & (v3 => v1234) & (v4 => v1234) & (v5 => v50) & (v6 => v60)"));
