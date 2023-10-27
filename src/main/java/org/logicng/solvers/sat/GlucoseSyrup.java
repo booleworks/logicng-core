@@ -779,7 +779,6 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
         assert ok;
         final LNGIntVector learntClause = new LNGIntVector();
         final LNGIntVector selectors = new LNGIntVector();
-        boolean blocked = false;
         selectionOrderIdx = 0;
         while (true) {
             final MSClause confl = propagate();
@@ -799,9 +798,6 @@ public class GlucoseSyrup extends MiniSatStyleSolver {
                 trailQueue.push(trail.size());
                 if (conflictsRestarts > LB_BLOCKING_RESTART && lbdQueue.valid() && trail.size() > factorR * trailQueue.avg()) {
                     lbdQueue.fastClear();
-                    if (!blocked) {
-                        blocked = true;
-                    }
                 }
                 learntClause.clear();
                 selectors.clear();

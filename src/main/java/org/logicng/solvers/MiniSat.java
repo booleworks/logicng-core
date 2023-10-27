@@ -51,7 +51,7 @@ public class MiniSat extends SATSolver {
 
     protected final MiniSatConfig config;
     protected MiniSatStyleSolver solver;
-    protected final SolverStyle style;
+    protected SolverStyle style;
     protected LNGIntVector validStates;
     protected final boolean initialPhase;
     protected final boolean incremental;
@@ -102,7 +102,7 @@ public class MiniSat extends SATSolver {
      * @param f                the formula factory
      * @param underlyingSolver the underlying solver core
      */
-    MiniSat(final FormulaFactory f, final MiniSatStyleSolver underlyingSolver) {
+    public MiniSat(final FormulaFactory f, final MiniSatStyleSolver underlyingSolver) {
         super(f);
         config = underlyingSolver.getConfig();
         if (underlyingSolver instanceof MiniSat2Solver) {
