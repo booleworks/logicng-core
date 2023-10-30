@@ -99,7 +99,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
     protected int myflag;
     protected long analyzeLBD;
     protected int analyzeSzWithoutSelectors;
-    protected int nbclausesbeforereduce;
+    protected int nbClausesBeforeReduce;
     protected int conflicts;
     protected int conflictsRestarts;
     protected double sumLBD;
@@ -184,7 +184,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         analyzeBtLevel = 0;
         analyzeLBD = 0;
         analyzeSzWithoutSelectors = 0;
-        nbclausesbeforereduce = firstReduceDB;
+        nbClausesBeforeReduce = firstReduceDB;
         conflicts = 0;
         conflictsRestarts = 0;
         sumLBD = 0;
@@ -593,23 +593,18 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     }
                     boolean foundWatch = false;
                     if (useGlucoseFeatures && glucoseIncremental) {
-                        int choosenPos = -1;
+                        int chosenPos = -1;
                         for (int k = 2; k < c.size(); k++) {
                             if (value(c.get(k)) != Tristate.FALSE) {
-                                if (decisionLevel() > assumptions.size()) {
-                                    choosenPos = k;
+                                chosenPos = k;
+                                if (decisionLevel() > assumptions.size() || value(c.get(k)) == Tristate.TRUE || !isSelector(var(c.get(k)))) {
                                     break;
-                                } else {
-                                    choosenPos = k;
-                                    if (value(c.get(k)) == Tristate.TRUE || !isSelector(var(c.get(k)))) {
-                                        break;
-                                    }
                                 }
                             }
                         }
-                        if (choosenPos != -1) {
-                            c.set(1, c.get(choosenPos));
-                            c.set(choosenPos, falseLit);
+                        if (chosenPos != -1) {
+                            c.set(1, c.get(chosenPos));
+                            c.set(chosenPos, falseLit);
                             watches.get(not(c.get(1))).push(w);
                             foundWatch = true;
                         }
@@ -752,10 +747,10 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         if (useGlucoseFeatures) {
             learnts.manualSort(MSClause.glucoseComparator);
             if (learnts.get(learnts.size() / RATIO_REMOVE_CLAUSES).lbd() <= 3) {
-                nbclausesbeforereduce += specialIncReduceDB;
+                nbClausesBeforeReduce += specialIncReduceDB;
             }
             if (learnts.back().lbd() <= 5) {
-                nbclausesbeforereduce += specialIncReduceDB;
+                nbClausesBeforeReduce += specialIncReduceDB;
             }
             int limit = learnts.size() / 2;
             for (i = j = 0; i < learnts.size(); i++) {
@@ -928,7 +923,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
      */
     protected long computeLBD(final LNGIntVector lits, final int e) {
         int end = e;
-        long nblevels = 0;
+        long nbLevels = 0;
         myflag++;
         if (glucoseIncremental) {
             if (end == -1) {
@@ -946,7 +941,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                 final int l = v(lits.get(i)).level();
                 if (permDiff.get(l) != myflag) {
                     permDiff.set(l, myflag);
-                    nblevels++;
+                    nbLevels++;
                 }
             }
         } else {
@@ -954,17 +949,17 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                 final int l = v(lits.get(i)).level();
                 if (permDiff.get(l) != myflag) {
                     permDiff.set(l, myflag);
-                    nblevels++;
+                    nbLevels++;
                 }
             }
         }
         if (!reduceOnSize) {
-            return nblevels;
+            return nbLevels;
         }
         if (lits.size() < reduceOnSizeSize) {
             return lits.size();
         }
-        return lits.size() + nblevels;
+        return lits.size() + nbLevels;
     }
 
     /**
@@ -973,7 +968,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
      * @return the LBD
      */
     protected long computeLBD(final MSClause c) {
-        long nblevels = 0;
+        long nbLevels = 0;
         myflag++;
         if (glucoseIncremental) {
             long nbDone = 0;
@@ -988,7 +983,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                 final int l = v(c.get(i)).level();
                 if (permDiff.get(l) != myflag) {
                     permDiff.set(l, myflag);
-                    nblevels++;
+                    nbLevels++;
                 }
             }
         } else {
@@ -996,17 +991,17 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                 final int l = v(c.get(i)).level();
                 if (permDiff.get(l) != myflag) {
                     permDiff.set(l, myflag);
-                    nblevels++;
+                    nbLevels++;
                 }
             }
         }
         if (!reduceOnSize) {
-            return nblevels;
+            return nbLevels;
         }
         if (c.size() < reduceOnSizeSize) {
             return c.size();
         }
-        return c.size() + nblevels;
+        return c.size() + nbLevels;
     }
 
     /**
@@ -1154,10 +1149,10 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     if (decisionLevel() == 0 && !simplify()) {
                         return Tristate.FALSE;
                     }
-                    if (conflicts >= (curRestart * nbclausesbeforereduce) && learnts.size() > 0) {
-                        curRestart = (conflicts / nbclausesbeforereduce) + 1;
+                    if (conflicts >= (curRestart * nbClausesBeforeReduce) && learnts.size() > 0) {
+                        curRestart = (conflicts / nbClausesBeforeReduce) + 1;
                         reduceDB();
-                        nbclausesbeforereduce += incReduceDB;
+                        nbClausesBeforeReduce += incReduceDB;
                     }
                 } else {
                     if (nofConflicts >= 0 && conflictC >= nofConflicts) {

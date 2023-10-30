@@ -671,18 +671,6 @@ public abstract class MiniSatStyleSolver {
      */
     protected abstract boolean simplify();
 
-    protected void decayActivities() {
-        varDecayActivity();
-        if (!incremental) {
-            claDecayActivity();
-        }
-        if (--learntsizeAdjustCnt == 0) {
-            learntsizeAdjustConfl *= learntsizeAdjustInc;
-            learntsizeAdjustCnt = (int) learntsizeAdjustConfl;
-            maxLearnts *= learntsizeInc;
-        }
-    }
-
     /**
      * Returns the original clauses for proof generation.
      * @return the original clauses for proof generation

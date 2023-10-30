@@ -31,7 +31,7 @@ public class CCIncrementalSolverTest implements LogicNGTest {
         this.configs[1] = CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.CARDINALITY_NETWORK).alkEncoding(CCConfig.ALK_ENCODER.CARDINALITY_NETWORK).build();
         this.configs[2] = CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.MODULAR_TOTALIZER).alkEncoding(CCConfig.ALK_ENCODER.MODULAR_TOTALIZER).build();
         this.solvers = new SATSolver[4];
-        this.solvers[0] = MiniSat.miniSat(this.f, MiniSatConfig.builder().useAtMostClauses(false).build());
+        this.solvers[0] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(true).useAtMostClauses(false).build());
         this.solvers[1] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(false).useAtMostClauses(false).build());
         this.solvers[2] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(true).useAtMostClauses(true).build());
         this.solvers[3] = MiniSat.glucose(this.f);
@@ -162,23 +162,21 @@ public class CCIncrementalSolverTest implements LogicNGTest {
     @LongRunningTag
     public void testLargeModularTotalizerAMK() {
         for (final SATSolver solver : this.solvers) {
-            if (solver != null) {
-                this.f.putConfiguration(this.configs[2]);
-                final int numLits = 100;
-                int currentBound = numLits - 1;
-                final Variable[] vars = new Variable[numLits];
-                for (int i = 0; i < numLits; i++) {
-                    vars[i] = this.f.variable("v" + i);
-                }
-                solver.reset();
-                solver.add(this.f.cc(CType.GE, 42, vars)); // >= 42
-                final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) this.f.cc(CType.LE, currentBound, vars));
-                // search the lower bound
-                while (solver.sat() == Tristate.TRUE) {
-                    incData.newUpperBoundForSolver(--currentBound); // <= currentBound - 1
-                }
-                assertThat(currentBound).isEqualTo(41);
+            this.f.putConfiguration(this.configs[2]);
+            final int numLits = 100;
+            int currentBound = numLits - 1;
+            final Variable[] vars = new Variable[numLits];
+            for (int i = 0; i < numLits; i++) {
+                vars[i] = this.f.variable("v" + i);
             }
+            solver.reset();
+            solver.add(this.f.cc(CType.GE, 42, vars)); // >= 42
+            final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) this.f.cc(CType.LE, currentBound, vars));
+            // search the lower bound
+            while (solver.sat() == Tristate.TRUE) {
+                incData.newUpperBoundForSolver(--currentBound); // <= currentBound - 1
+            }
+            assertThat(currentBound).isEqualTo(41);
         }
     }
 
