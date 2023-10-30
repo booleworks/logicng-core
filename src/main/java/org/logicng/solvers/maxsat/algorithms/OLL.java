@@ -144,7 +144,6 @@ public class OLL extends MaxSAT {
                     assert nbSatisfiable > 0;
                     return MaxSATResult.OPTIMUM;
                 }
-
                 sumSizeCores += solver.conflict().size();
                 final LNGIntVector softRelax = new LNGIntVector();
                 final LNGIntVector cardinalityRelax = new LNGIntVector();

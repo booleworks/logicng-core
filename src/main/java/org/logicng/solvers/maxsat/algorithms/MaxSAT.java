@@ -43,7 +43,6 @@ import org.logicng.handlers.SATHandler;
 import org.logicng.solvers.datastructures.MSHardClause;
 import org.logicng.solvers.datastructures.MSSoftClause;
 import org.logicng.solvers.sat.GlucoseConfig;
-import org.logicng.solvers.sat.GlucoseSyrup;
 import org.logicng.solvers.sat.MiniSat2Solver;
 import org.logicng.solvers.sat.MiniSatConfig;
 import org.logicng.solvers.sat.MiniSatStyleSolver;
@@ -291,8 +290,7 @@ public abstract class MaxSAT {
     public MiniSatStyleSolver newSATSolver() {
         switch (solverType) {
             case GLUCOSE:
-                return new GlucoseSyrup(MiniSatConfig.builder().incremental(true).build(),
-                        GlucoseConfig.builder().build());
+                return new MiniSat2Solver(MiniSatConfig.builder().incremental(true).build(), GlucoseConfig.builder().build());
             case MINISAT:
                 return new MiniSat2Solver(MiniSatConfig.builder().incremental(false).build());
             default:

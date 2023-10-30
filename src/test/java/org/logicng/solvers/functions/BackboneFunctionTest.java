@@ -21,7 +21,6 @@ import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 import org.logicng.solvers.SolverState;
 import org.logicng.solvers.sat.GlucoseConfig;
-import org.logicng.solvers.sat.MiniSat2Solver;
 import org.logicng.solvers.sat.MiniSatConfig;
 import org.logicng.util.Pair;
 
@@ -77,14 +76,14 @@ public class BackboneFunctionTest {
     public void testConstants(final MiniSat solver) {
         solver.reset();
         SolverState state = null;
-        if (solver.underlyingSolver() instanceof MiniSat2Solver) {
+        if (solver.canSaveLoadState()) {
             state = solver.saveState();
         }
         solver.add(f.falsum());
         Backbone backbone = solver.backbone(v("a b c"));
         assertThat(backbone.isSat()).isFalse();
         assertThat(backbone.getCompleteBackbone(f)).isEmpty();
-        if (solver.underlyingSolver() instanceof MiniSat2Solver) {
+        if (solver.canSaveLoadState()) {
             solver.loadState(state);
         } else {
             solver.reset();
@@ -100,14 +99,14 @@ public class BackboneFunctionTest {
     public void testSimpleBackbones(final MiniSat solver) throws ParserException {
         solver.reset();
         SolverState state = null;
-        if (solver.underlyingSolver() instanceof MiniSat2Solver) {
+        if (solver.canSaveLoadState()) {
             state = solver.saveState();
         }
         solver.add(f.parse("a & b & ~c"));
         Backbone backbone = solver.backbone(v("a b c"));
         assertThat(backbone.isSat()).isTrue();
         assertThat(backbone.getCompleteBackbone(f)).containsExactly(f.variable("a"), f.variable("b"), f.literal("c", false));
-        if (solver.underlyingSolver() instanceof MiniSat2Solver) {
+        if (solver.canSaveLoadState()) {
             solver.loadState(state);
         } else {
             solver.reset();
@@ -238,7 +237,7 @@ public class BackboneFunctionTest {
     @ParameterizedTest
     @MethodSource("solvers")
     public void testRealFormulaIncrementalDecremental1(final MiniSat solver) throws IOException, ParserException {
-        if (solver.underlyingSolver() instanceof MiniSat2Solver) {
+        if (solver.canSaveLoadState()) {
             solver.reset();
             final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/large_formula.txt");
             solver.add(formula);
@@ -292,7 +291,7 @@ public class BackboneFunctionTest {
     @MethodSource("solvers")
     @LongRunningTag
     public void testRealFormulaIncrementalDecremental2(final MiniSat solver) throws IOException, ParserException {
-        if (solver.underlyingSolver() instanceof MiniSat2Solver) {
+        if (solver.canSaveLoadState()) {
             solver.reset();
             final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/small_formulas.txt");
             solver.add(formula);

@@ -27,7 +27,6 @@ import org.logicng.handlers.SATHandler;
 import org.logicng.propositions.Proposition;
 import org.logicng.solvers.functions.SolverFunction;
 import org.logicng.solvers.sat.GlucoseConfig;
-import org.logicng.solvers.sat.GlucoseSyrup;
 import org.logicng.solvers.sat.MiniSat2Solver;
 import org.logicng.solvers.sat.MiniSatConfig;
 import org.logicng.solvers.sat.MiniSatStyleSolver;
@@ -46,14 +45,13 @@ import java.util.TreeSet;
  */
 public class MiniSat extends SATSolver {
 
-    public enum SolverStyle {MINISAT, GLUCOSE}
-
     protected final MiniSatConfig config;
     protected MiniSatStyleSolver solver;
-    protected final SolverStyle style;
     protected LNGIntVector validStates;
     protected final boolean initialPhase;
+    protected final boolean usesGlucoseFeatures;
     protected final boolean incremental;
+    protected final boolean glucoseIncremental;
     protected final boolean useAtMostClauses;
     protected int nextStateId;
     protected final PlaistedGreenbaumTransformationSolver pgTransformation;
@@ -63,30 +61,20 @@ public class MiniSat extends SATSolver {
     /**
      * Constructs a new SAT solver instance.
      * @param f             the formula factory
-     * @param solverStyle   the solver style
      * @param miniSatConfig the MiniSat configuration, must not be {@code null}
-     * @param glucoseConfig the Glucose configuration, must not be {@code null} for solver type {@link SolverStyle#GLUCOSE}
+     * @param glucoseConfig the Glucose configuration, may be {@code null}
      * @throws IllegalArgumentException if the solver style is unknown
      */
-    protected MiniSat(final FormulaFactory f, final SolverStyle solverStyle, final MiniSatConfig miniSatConfig,
-                      final GlucoseConfig glucoseConfig) {
+    protected MiniSat(final FormulaFactory f, final MiniSatConfig miniSatConfig, final GlucoseConfig glucoseConfig) {
         super(f);
         config = miniSatConfig;
-        style = solverStyle;
         initialPhase = miniSatConfig.initialPhase();
-        switch (solverStyle) {
-            case MINISAT:
-                solver = new MiniSat2Solver(miniSatConfig);
-                break;
-            case GLUCOSE:
-                solver = new GlucoseSyrup(miniSatConfig, glucoseConfig);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown solver style: " + solverStyle);
-        }
+        solver = new MiniSat2Solver(miniSatConfig, glucoseConfig);
         result = UNDEF;
-        incremental = miniSatConfig.incremental();
-        useAtMostClauses = solverStyle == SolverStyle.MINISAT && !miniSatConfig.proofGeneration() && miniSatConfig.useAtMostClauses();
+        usesGlucoseFeatures = glucoseConfig != null;
+        incremental = glucoseConfig == null && miniSatConfig.incremental(); // TODO hack for ambiguous meaning of incremental
+        glucoseIncremental = glucoseConfig != null && miniSatConfig.incremental();
+        useAtMostClauses = glucoseConfig == null && !miniSatConfig.proofGeneration() && miniSatConfig.useAtMostClauses();
         validStates = new LNGIntVector();
         nextStateId = 0;
         pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver(), initialPhase);
@@ -100,20 +88,15 @@ public class MiniSat extends SATSolver {
      * @param f                the formula factory
      * @param underlyingSolver the underlying solver core
      */
-    MiniSat(final FormulaFactory f, final MiniSatStyleSolver underlyingSolver) {
+    public MiniSat(final FormulaFactory f, final MiniSatStyleSolver underlyingSolver) {
         super(f);
         config = underlyingSolver.getConfig();
-        if (underlyingSolver instanceof MiniSat2Solver) {
-            style = SolverStyle.MINISAT;
-        } else if (underlyingSolver instanceof GlucoseSyrup) {
-            style = SolverStyle.GLUCOSE;
-        } else {
-            throw new IllegalArgumentException("Unknown solver type: " + underlyingSolver.getClass());
-        }
         initialPhase = underlyingSolver.getConfig().initialPhase();
         solver = underlyingSolver;
         result = UNDEF;
         incremental = underlyingSolver.getConfig().incremental();
+        usesGlucoseFeatures = false; // TODO
+        glucoseIncremental = false; // TODO
         useAtMostClauses = !underlyingSolver.getConfig().proofGeneration() && underlyingSolver.getConfig().useAtMostClauses();
         validStates = new LNGIntVector();
         nextStateId = 0;
@@ -127,7 +110,7 @@ public class MiniSat extends SATSolver {
      * @return the solver
      */
     public static MiniSat miniSat(final FormulaFactory f) {
-        return new MiniSat(f, SolverStyle.MINISAT, (MiniSatConfig) f.configurationFor(ConfigurationType.MINISAT), null);
+        return new MiniSat(f, (MiniSatConfig) f.configurationFor(ConfigurationType.MINISAT), null);
     }
 
     /**
@@ -137,7 +120,7 @@ public class MiniSat extends SATSolver {
      * @return the solver
      */
     public static MiniSat miniSat(final FormulaFactory f, final MiniSatConfig config) {
-        return new MiniSat(f, SolverStyle.MINISAT, config, null);
+        return new MiniSat(f, config, null);
     }
 
     /**
@@ -146,8 +129,7 @@ public class MiniSat extends SATSolver {
      * @return the solver
      */
     public static MiniSat glucose(final FormulaFactory f) {
-        return new MiniSat(f, SolverStyle.GLUCOSE, (MiniSatConfig) f.configurationFor(ConfigurationType.MINISAT),
-                (GlucoseConfig) f.configurationFor(ConfigurationType.GLUCOSE));
+        return new MiniSat(f, (MiniSatConfig) f.configurationFor(ConfigurationType.MINISAT), (GlucoseConfig) f.configurationFor(ConfigurationType.GLUCOSE));
     }
 
     /**
@@ -158,38 +140,18 @@ public class MiniSat extends SATSolver {
      * @return the solver
      */
     public static MiniSat glucose(final FormulaFactory f, final MiniSatConfig miniSatConfig, final GlucoseConfig glucoseConfig) {
-        return new MiniSat(f, SolverStyle.GLUCOSE, miniSatConfig, glucoseConfig);
-    }
-
-    /**
-     * Returns a new solver depending on the given solver style with the configuration from the formula factory.
-     * @param f     the formula factory
-     * @param style the solver style, must not be {@code null}
-     * @return the solver
-     */
-    public static MiniSat mk(final FormulaFactory f, final SolverStyle style) {
-        final MiniSatConfig miniSatConfig = (MiniSatConfig) f.configurationFor(ConfigurationType.MINISAT);
-        final GlucoseConfig glucoseConfig = style == SolverStyle.GLUCOSE ? (GlucoseConfig) f.configurationFor(ConfigurationType.GLUCOSE) : null;
-        return mk(f, style, miniSatConfig, glucoseConfig);
+        return new MiniSat(f, miniSatConfig, glucoseConfig);
     }
 
     /**
      * Returns a new solver depending on the given solver style with the given configuration.
      * @param f             the formula factory
-     * @param solverStyle   the solver style, must not be {@code null}
      * @param miniSatConfig the configuration, must not be {@code null}
-     * @param glucoseConfig the Glucose configuration, must not be {@code null} for solver type {@link SolverStyle#GLUCOSE}
+     * @param glucoseConfig the Glucose configuration, may be {@code null}
      * @return the solver
      */
-    public static MiniSat mk(final FormulaFactory f, final SolverStyle solverStyle, final MiniSatConfig miniSatConfig, final GlucoseConfig glucoseConfig) {
-        switch (solverStyle) {
-            case MINISAT:
-                return miniSat(f, miniSatConfig);
-            case GLUCOSE:
-                return glucose(f, miniSatConfig, glucoseConfig);
-            default:
-                throw new IllegalArgumentException("Unknown solver style: " + solverStyle);
-        }
+    public static MiniSat mk(final FormulaFactory f, final MiniSatConfig miniSatConfig, final GlucoseConfig glucoseConfig) {
+        return glucoseConfig != null ? glucose(f, miniSatConfig, glucoseConfig) : miniSat(f, miniSatConfig);
     }
 
     @Override
@@ -465,28 +427,36 @@ public class MiniSat extends SATSolver {
 
     @Override
     public boolean canSaveLoadState() {
-        return (style == SolverStyle.MINISAT) && incremental;
+        return incremental;
     }
 
     @Override
     public boolean canGenerateProof() {
-        return config.proofGeneration() && (style == SolverStyle.MINISAT || style == SolverStyle.GLUCOSE && !incremental);
+        return config.proofGeneration() && !glucoseIncremental;
     }
 
     /**
-     * Returns this solver's style.
-     * @return this solver's style
+     * Returns whether this solver uses Glucose features.
+     * @return {@code true} if this solver uses Glucose features, {@code false} otherwise
      */
-    public SolverStyle getStyle() {
-        return style;
+    public boolean usesGlucoseFeatures() {
+        return usesGlucoseFeatures;
     }
 
     /**
-     * Returns whether this solver is incremental
+     * Returns whether this solver is incremental.
      * @return {@code true} if this solver is incremental, {@code false} otherwise
      */
     public boolean isIncremental() {
         return incremental;
+    }
+
+    /**
+     * Returns whether this solver uses Glucose's incremental feature
+     * @return {@code true} if this solver uses Glucose's incremental feature, {@code false} otherwise
+     */
+    public boolean isGlucoseIncremental() {
+        return glucoseIncremental;
     }
 
     /**

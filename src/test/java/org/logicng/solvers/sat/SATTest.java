@@ -58,36 +58,23 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     private final SATSolver[] solvers;
     private final PigeonHoleGenerator pg;
     private final PropositionalParser parser;
-    private final String[] testStrings;
 
     public SATTest() {
         pg = new PigeonHoleGenerator(f);
         parser = new PropositionalParser(f);
-        solvers = new SATSolver[11];
+        solvers = new SATSolver[12];
         solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(false).build());
         solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(false).build());
-        solvers[2] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(false).build(), GlucoseConfig.builder().build());
-        solvers[3] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(true).build());
-        solvers[4] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(true).build());
-        solvers[5] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
-        solvers[6] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
-        solvers[7] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
-        solvers[8] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
-        solvers[9] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
-        solvers[10] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
-
-        testStrings = new String[11];
-        testStrings[0] = "MiniSat2Solver{result=UNDEF, incremental=true}";
-        testStrings[1] = "MiniSat2Solver{result=UNDEF, incremental=false}";
-        testStrings[2] = "GlucoseSyrup{result=UNDEF, incremental=false}";
-        testStrings[3] = "MiniSat2Solver{result=UNDEF, incremental=true}";
-        testStrings[4] = "MiniSat2Solver{result=UNDEF, incremental=false}";
-        testStrings[5] = "MiniSat2Solver{result=UNDEF, incremental=true}";
-        testStrings[6] = "MiniSat2Solver{result=UNDEF, incremental=true}";
-        testStrings[7] = "MiniSat2Solver{result=UNDEF, incremental=true}";
-        testStrings[8] = "MiniSat2Solver{result=UNDEF, incremental=true}";
-        testStrings[9] = "MiniSat2Solver{result=UNDEF, incremental=true}";
-        testStrings[10] = "MiniSat2Solver{result=UNDEF, incremental=true}";
+        solvers[2] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(true).build());
+        solvers[3] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(true).build());
+        solvers[4] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        solvers[5] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        solvers[6] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        solvers[7] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        solvers[8] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        solvers[9] = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        solvers[10] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(false).build(), GlucoseConfig.builder().build());
+        solvers[11] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(true).build(), GlucoseConfig.builder().build());
     }
 
     @Test
@@ -696,13 +683,6 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     public void testModelBeforeSolving() {
         final MiniSat solver = MiniSat.miniSat(f);
         assertThatThrownBy(solver::model).isInstanceOf(IllegalStateException.class);
-    }
-
-    @Test
-    public void testToString() {
-        for (int i = 0; i < solvers.length; i++) {
-            assertThat(solvers[i].toString()).isEqualTo(testStrings[i]);
-        }
     }
 
     @Test

@@ -91,7 +91,7 @@ public abstract class MiniSatStyleSolver {
     protected int restartFirst;
     protected double restartInc;
     protected double clauseDecay;
-    protected boolean shouldRemoveSatsisfied;
+    protected boolean shouldRemoveSatisfied;
     protected double learntsizeFactor;
     protected double learntsizeInc;
     protected boolean incremental;
@@ -246,7 +246,7 @@ public abstract class MiniSatStyleSolver {
         restartFirst = config.restartFirst;
         restartInc = config.restartInc;
         clauseDecay = config.clauseDecay;
-        shouldRemoveSatsisfied = config.removeSatisfied;
+        shouldRemoveSatisfied = config.removeSatisfied;
         learntsizeFactor = config.learntsizeFactor;
         learntsizeInc = config.learntsizeInc;
         incremental = config.incremental;

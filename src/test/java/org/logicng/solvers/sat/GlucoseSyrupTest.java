@@ -13,7 +13,7 @@ import org.logicng.collections.LNGIntVector;
 
 public class GlucoseSyrupTest {
 
-    private final GlucoseSyrup gs = new GlucoseSyrup();
+    private final MiniSat2Solver gs = new MiniSat2Solver(MiniSatConfig.builder().build(), GlucoseConfig.builder().build());
 
     @BeforeEach
     public void prepare() {

@@ -228,7 +228,7 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
     protected void handleConflict(final MSClause conflict) {
         if (decisionLevel() > 0) {
             lastLearnt = new LNGIntVector();
-            analyze(conflict, lastLearnt);
+            analyze(conflict, lastLearnt, new LNGIntVector(0));
             assertionLevel = analyzeBtLevel;
         } else {
             // solver unsat
