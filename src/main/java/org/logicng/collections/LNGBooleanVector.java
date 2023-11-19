@@ -64,6 +64,11 @@ public final class LNGBooleanVector {
         size = elems.length;
     }
 
+    LNGBooleanVector(final boolean[] elements, final int size) {
+        this.elements = elements;
+        this.size = size;
+    }
+
     /**
      * Returns whether the vector is empty or not.
      * @return {@code true} if the vector is empty, {@code false} otherwise

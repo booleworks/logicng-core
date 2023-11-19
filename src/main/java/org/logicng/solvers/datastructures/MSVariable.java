@@ -34,6 +34,15 @@ public final class MSVariable {
         decision = false;
     }
 
+    MSVariable(final Tristate assignment, final int level, final MSClause reason, final double activity, final boolean polarity, final boolean decision) {
+        this.assignment = assignment;
+        this.level = level;
+        this.reason = reason;
+        this.activity = activity;
+        this.polarity = polarity;
+        this.decision = decision;
+    }
+
     /**
      * Sets the decision level of this variable.
      * @param level the decision level
