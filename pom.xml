@@ -101,7 +101,7 @@
         <version>${version.antlr-plugin}</version>
         <configuration>
           <sourceDirectory>src/main/antlr</sourceDirectory>
-          <outputDirectory>target/generated-sources/antlr/org/logicng/io/parsers</outputDirectory>
+          <outputDirectory>target/generated-sources/antlr/com/booleworks/logicng/io/parsers</outputDirectory>
         </configuration>
         <executions>
           <execution>
