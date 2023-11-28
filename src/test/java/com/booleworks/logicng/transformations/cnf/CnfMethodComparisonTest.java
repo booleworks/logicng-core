@@ -80,7 +80,7 @@ public class CnfMethodComparisonTest {
     private Backbone computeBackbone(final String fileName, final CNFConfig cnfConfig, final MiniSatConfig.CNFMethod cnfMethod) throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(cnfConfig);
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, fileName);
+        final Formula formula = FormulaReader.readPropositionalFormula(f, fileName);
         final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(cnfMethod).build());
         solver.add(formula);
         return solver.backbone(formula.variables(f));
@@ -101,7 +101,7 @@ public class CnfMethodComparisonTest {
         final long start = System.currentTimeMillis();
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(cnfConfig);
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, fileName);
+        final Formula formula = FormulaReader.readPropositionalFormula(f, fileName);
         final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(cnfMethod).build());
         solver.add(formula);
         final SolverState solverState = solver.saveState();

@@ -20,7 +20,7 @@ import java.util.LinkedHashSet;
  * A reader for formulas.
  * <p>
  * Reads a formula from an input file.  If the file has more than one line, the lines will be co-joined.
- * @version 1.2
+ * @version 3.0.0
  * @since 1.2
  */
 public final class FormulaReader {
@@ -53,30 +53,6 @@ public final class FormulaReader {
      * @throws ParserException if there was a problem parsing the formula
      */
     public static Formula readPropositionalFormula(final FormulaFactory f, final File file) throws IOException, ParserException {
-        return read(file, new PropositionalParser(f));
-    }
-
-    /**
-     * Reads a given file and returns the contained pseudo-Boolean formula.
-     * @param f        the formula factory
-     * @param fileName the file name
-     * @return the parsed formula
-     * @throws IOException     if there was a problem reading the file
-     * @throws ParserException if there was a problem parsing the formula
-     */
-    public static Formula readPseudoBooleanFormula(final FormulaFactory f, final String fileName) throws IOException, ParserException {
-        return read(new File(fileName), new PropositionalParser(f));
-    }
-
-    /**
-     * Reads a given file and returns the contained pseudo-Boolean formula.
-     * @param f    the formula factory
-     * @param file the file
-     * @return the parsed formula
-     * @throws IOException     if there was a problem reading the file
-     * @throws ParserException if there was a problem parsing the formula
-     */
-    public static Formula readPseudoBooleanFormula(final FormulaFactory f, final File file) throws IOException, ParserException {
         return read(file, new PropositionalParser(f));
     }
 

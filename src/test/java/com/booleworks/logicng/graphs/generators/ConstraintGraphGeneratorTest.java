@@ -96,7 +96,7 @@ public class ConstraintGraphGeneratorTest {
     public void testRealExample() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());
-        final Formula parsed = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/formula1.txt");
+        final Formula parsed = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/formula1.txt");
         final List<Formula> formulas = new ArrayList<>();
         for (final Formula formula : parsed) {
             if (formula instanceof PBConstraint) {

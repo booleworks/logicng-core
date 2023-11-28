@@ -158,7 +158,7 @@ public class BackboneFunctionTest {
     @MethodSource("solvers")
     public void testRealFormulaIncremental1(final MiniSat solver) throws IOException, ParserException {
         solver.reset();
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         solver.add(formula);
         final List<String> expectedBackbones = new ArrayList<>();
         final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/backbones/backbone_large_formula.txt"));
@@ -199,7 +199,7 @@ public class BackboneFunctionTest {
     @LongRunningTag
     public void testRealFormulaIncremental2(final MiniSat solver) throws IOException, ParserException {
         solver.reset();
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/small_formulas.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
         solver.add(formula);
         final List<String> expectedBackbones = new ArrayList<>();
         final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/backbones/backbone_small_formulas.txt"));
@@ -240,7 +240,7 @@ public class BackboneFunctionTest {
     public void testRealFormulaIncrementalDecremental1(final MiniSat solver) throws IOException, ParserException {
         if (solver.underlyingSolver() instanceof MiniSat2Solver) {
             solver.reset();
-            final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/large_formula.txt");
+            final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
             solver.add(formula);
             final SolverState state = solver.saveState();
             final List<String> expectedBackbones = new ArrayList<>();
@@ -294,7 +294,7 @@ public class BackboneFunctionTest {
     public void testRealFormulaIncrementalDecremental2(final MiniSat solver) throws IOException, ParserException {
         if (solver.underlyingSolver() instanceof MiniSat2Solver) {
             solver.reset();
-            final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/small_formulas.txt");
+            final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
             solver.add(formula);
             final SolverState state = solver.saveState();
             final List<String> expectedBackbones = new ArrayList<>();

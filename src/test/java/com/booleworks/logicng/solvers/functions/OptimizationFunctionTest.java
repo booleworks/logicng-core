@@ -248,7 +248,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     @MethodSource("solvers")
     public void testLargeFormulaMinimize(final SATSolver solver) throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         final Assignment minimumModel = optimize(Collections.singleton(formula), formula.variables(f), Collections.emptyList(), false, solver, null);
         testMinimumModel(formula, minimumModel, formula.variables(f));
     }
@@ -257,7 +257,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     @MethodSource("solvers")
     public void testLargeFormulaMaximize(final SATSolver solver) throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f), Collections.emptyList(), true, solver, null);
         testMaximumModel(formula, maximumModel, formula.variables(f));
     }
@@ -267,7 +267,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     @LongRunningTag
     public void testLargerFormulaMinimize(final SATSolver solver) throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/small_formulas.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
         final Assignment minimumModel = optimize(Collections.singleton(formula), formula.variables(f), Collections.emptyList(), false, solver, null);
         testMinimumModel(formula, minimumModel, formula.variables(f));
     }
@@ -277,7 +277,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     @LongRunningTag
     public void testLargerFormulaMaximize(final SATSolver solver) throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/small_formulas.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f), Collections.emptyList(), true, solver, null);
         testMaximumModel(formula, maximumModel, formula.variables(f));
     }
@@ -309,7 +309,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     @MethodSource("solvers")
     public void testTimeoutOptimizationHandler(final SATSolver solver) throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         final TimeoutOptimizationHandler handlerMax = new TimeoutOptimizationHandler(1L);
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f), Collections.emptyList(), true, solver, handlerMax);
         assertThat(maximumModel).isNull();

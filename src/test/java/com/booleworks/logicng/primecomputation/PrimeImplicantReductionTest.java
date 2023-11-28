@@ -64,21 +64,21 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testFormula1(final FormulaContext _c) throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(_c.f, "src/test/resources/formulas/formula1.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/formula1.txt");
         testFormula(formula);
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSimplifyFormulas(final FormulaContext _c) throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(_c.f, "src/test/resources/formulas/simplify_formulas.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/simplify_formulas.txt");
         testFormula(formula);
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLargeFormula(final FormulaContext _c) throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
         testFormula(formula);
     }
 
@@ -111,7 +111,7 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
 
     @Test
     public void testCancellationPoints() throws ParserException, IOException {
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(FormulaFactory.nonCaching(), "src/test/resources/formulas/large_formula.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(FormulaFactory.nonCaching(), "src/test/resources/formulas/large_formula.txt");
         for (int numStarts = 0; numStarts < 20; numStarts++) {
             final SATHandler handler = new BoundedSatHandler(numStarts);
             testFormula(formula, handler, true);

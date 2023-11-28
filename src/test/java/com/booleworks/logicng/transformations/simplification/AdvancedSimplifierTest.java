@@ -81,7 +81,7 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
                 new TimeoutOptimizationHandler(1L, TimeoutHandler.TimerType.RESTARTING_TIMEOUT),
                 new TimeoutOptimizationHandler(System.currentTimeMillis() + 1L, TimeoutHandler.TimerType.FIXED_END)
         );
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
         for (final TimeoutOptimizationHandler handler : handlers) {
             testHandler(handler, formula, true);
         }

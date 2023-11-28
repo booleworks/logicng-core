@@ -88,7 +88,7 @@ public class DnnfCompilerTest {
     @Test
     @LongRunningTag
     public void testAllSmallFormulas() throws IOException, ParserException {
-        final Formula formulas = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/small_formulas.txt");
+        final Formula formulas = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
         formulas.stream().forEach(op -> testFormula(f, op, false));
     }
 
@@ -97,7 +97,7 @@ public class DnnfCompilerTest {
     public void testLargeFormula() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());
-        final Formula parsed = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/formula1.txt");
+        final Formula parsed = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/formula1.txt");
         final DnnfFactory dnnfFactory = new DnnfFactory();
         Dnnf dnnf = dnnfFactory.compile(f, parsed);
         final BigInteger dnnfCount = dnnf.execute(new DnnfModelCountFunction(f));

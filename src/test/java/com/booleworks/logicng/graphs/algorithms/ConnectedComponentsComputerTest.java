@@ -100,7 +100,7 @@ public class ConnectedComponentsComputerTest {
     public void testFormulaSplit() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());
-        final Formula parsed = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/formula1.txt");
+        final Formula parsed = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/formula1.txt");
         final List<Formula> formulas = new ArrayList<>();
         final List<Formula> originalFormulas = new ArrayList<>();
         for (final Formula formula : parsed) {

@@ -699,7 +699,6 @@ public class MiniCard extends MiniSatStyleSolver {
                 return LIT_ERROR;
             }
             if (c.get(q) == p) {
-                assert newWatch == LIT_ERROR;
                 for (int next = c.atMostWatchers(); next < c.size(); next++) {
                     if (value(c.get(next)) != Tristate.TRUE) {
                         newWatch = c.get(next);
@@ -711,7 +710,6 @@ public class MiniCard extends MiniSatStyleSolver {
                 newWatch = LIT_UNDEF;
             }
         }
-        assert newWatch == LIT_UNDEF;
         if (numTrue > 1) {
             return LIT_ERROR;
         } else {

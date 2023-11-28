@@ -156,7 +156,7 @@ public class BackboneGenerationTest {
     @Test
     public void testSmallFormulas() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/small_formulas.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
         final MiniSat solver = MiniSat.miniSat(f);
         solver.add(formula);
         final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build());
@@ -166,7 +166,7 @@ public class BackboneGenerationTest {
     @Test
     public void testLargeFormula() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         final MiniSat solver = MiniSat.miniSat(f);
         solver.add(formula);
         final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build());
@@ -274,7 +274,7 @@ public class BackboneGenerationTest {
         configs.add(MiniSatConfig.builder().bbInitialUBCheckForRotatableLiterals(false).build());
 
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = FormulaReader.readPseudoBooleanFormula(f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         MiniSat solver = MiniSat.miniSat(f);
         solver.add(formula);
         final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build());
