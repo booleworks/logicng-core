@@ -34,11 +34,8 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.EncodingResult;
-import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-
-import java.util.List;
 
 /**
  * The binary merge encoding for pseudo-Boolean constraints to CNF due to Manthey, Philipp, and Steinke.
@@ -58,8 +55,8 @@ public final class PBBinaryMerge implements PBEncoding {
     }
 
     @Override
-    public List<Formula> encode(final FormulaFactory f, final LNGVector<Literal> lts, final LNGIntVector cffs, final int rhs, final List<Formula> formula,
-                                final PBConfig initConfig) {
+    public void encode(final EncodingResult result, final LNGVector<Literal> lts, final LNGIntVector cffs, final int rhs, final PBConfig initConfig) {
+        final FormulaFactory f = result.factory();
         final PBConfig config = initConfig != null ? initConfig : (PBConfig) f.configurationFor(ConfigurationType.PB_ENCODER);
         final LNGVector<Literal> lits = new LNGVector<>(lts.size());
         for (final Literal lit : lts) {
@@ -68,7 +65,7 @@ public final class PBBinaryMerge implements PBEncoding {
         final LNGIntVector coeffs = new LNGIntVector(cffs);
         final int maxWeight = maxWeight(coeffs);
         if (!config.binaryMergeUseGAC) {
-            binary_merge(f, lts, new LNGIntVector(cffs), rhs, maxWeight, lits.size(), formula, null, config);
+            binaryMerge(result, lts, new LNGIntVector(cffs), rhs, maxWeight, lits.size(), null, config);
         } else {
             Literal x;
             boolean encode_complete_constraint = false;
@@ -91,18 +88,18 @@ public final class PBBinaryMerge implements PBEncoding {
                     }
                     if (rhs - tmpCoeff <= 0) {
                         for (int j = 0; j < lits.size(); j++) {
-                            formula.add(f.clause(x.negate(f), lits.get(j).negate(f)));
+                            result.addClause(x.negate(f), lits.get(j).negate(f));
                         }
                     } else {
-                        binary_merge(f, lits, coeffs, rhs - tmpCoeff, mw, lits.size(), formula, x.negate(f), config);
+                        binaryMerge(result, lits, coeffs, rhs - tmpCoeff, mw, lits.size(), x.negate(f), config);
                     }
                 } else {
                     if (rhs - tmpCoeff <= 0) {
                         for (int j = 0; j < lits.size(); j++) {
-                            formula.add(f.clause(x.negate(f), lits.get(j).negate(f)));
+                            result.addClause(x.negate(f), lits.get(j).negate(f));
                         }
                     }
-                    binary_merge(f, lits, coeffs, rhs - tmpCoeff, maxWeight, lits.size(), formula, x.negate(f), config);
+                    binaryMerge(result, lits, coeffs, rhs - tmpCoeff, maxWeight, lits.size(), x.negate(f), config);
                 }
                 if (i < lits.size()) {
                     lits.push(lits.get(i));
@@ -112,10 +109,9 @@ public final class PBBinaryMerge implements PBEncoding {
                 }
             }
             if (config.binaryMergeNoSupportForSingleBit && encode_complete_constraint) {
-                binary_merge(f, lts, new LNGIntVector(cffs), rhs, maxWeight, lits.size(), formula, null, config);
+                binaryMerge(result, lts, new LNGIntVector(cffs), rhs, maxWeight, lits.size(), null, config);
             }
         }
-        return formula;
     }
 
     private static int maxWeight(final LNGIntVector weights) {
@@ -128,27 +124,28 @@ public final class PBBinaryMerge implements PBEncoding {
         return maxweight;
     }
 
-    private static void binary_merge(final FormulaFactory f, final LNGVector<Literal> literals, final LNGIntVector coefficients, final int leq, final int maxWeight, final int n,
-                                     final List<Formula> formula, final Literal gac_lit, final PBConfig config) {
-        final int less_then = leq + 1;
+    private static void binaryMerge(final EncodingResult result, final LNGVector<Literal> literals, final LNGIntVector coefficients, final int leq,
+                                    final int maxWeight, final int n, final Literal gac_lit, final PBConfig config) {
+        final FormulaFactory f = result.factory();
+        final int lessThen = leq + 1;
         final int p = (int) Math.floor(Math.log(maxWeight) / Math.log(2));
-        final int m = (int) Math.ceil(less_then / Math.pow(2, p));
-        final int new_less_then = (int) (m * Math.pow(2, p));
-        final int T = (int) ((m * Math.pow(2, p)) - less_then);
+        final int m = (int) Math.ceil(lessThen / Math.pow(2, p));
+        final int newLessThen = (int) (m * Math.pow(2, p));
+        final int t = (int) ((m * Math.pow(2, p)) - lessThen);
 
         final Literal true_lit = f.newPBVariable();
-        formula.add(true_lit);
+        result.addClause(true_lit);
         final LNGVector<LNGVector<Literal>> buckets = new LNGVector<>();
         int bit = 1;
         for (int i = 0; i <= p; i++) {
             buckets.push(new LNGVector<>());
-            if ((T & bit) != 0) {
+            if ((t & bit) != 0) {
                 buckets.get(i).push(true_lit);
             }
             for (int j = 0; j < n; j++) {
                 if ((coefficients.get(j) & bit) != 0) {
-                    if (gac_lit != null && coefficients.get(j) >= less_then) {
-                        formula.add(f.clause(gac_lit, literals.get(j).negate(f)));
+                    if (gac_lit != null && coefficients.get(j) >= lessThen) {
+                        result.addClause(gac_lit, literals.get(j).negate(f));
                     } else {
                         buckets.get(i).push(literals.get(j));
                     }
@@ -164,21 +161,19 @@ public final class PBBinaryMerge implements PBEncoding {
         }
         assert bucket_card.size() == buckets.size();
         final LNGVector<Literal> carries = new LNGVector<>();
-        final EncodingResult tempResul = EncodingResult.resultForFormula(f);
         for (int i = 0; i < buckets.size(); i++) {
-            final int k = (int) Math.ceil(new_less_then / Math.pow(2, i));
+            final int k = (int) Math.ceil(newLessThen / Math.pow(2, i));
             if (config.binaryMergeUseWatchDog) {
-                totalizer(f, buckets.get(i), bucket_card.get(i), formula);
+                totalizer(result, buckets.get(i), bucket_card.get(i));
             } else {
-                CCSorting.sort(f, k, buckets.get(i), tempResul, bucket_card.get(i), INPUT_TO_OUTPUT);
-                formula.addAll(tempResul.result());
+                CCSorting.sort(f, k, buckets.get(i), result, bucket_card.get(i), INPUT_TO_OUTPUT);
             }
             if (k <= buckets.get(i).size()) {
                 assert k == bucket_card.get(i).size() || config.binaryMergeUseWatchDog;
                 if (gac_lit != null) {
-                    formula.add(f.clause(gac_lit, bucket_card.get(i).get(k - 1).negate(f)));
+                    result.addClause(gac_lit, bucket_card.get(i).get(k - 1).negate(f));
                 } else {
-                    formula.add(f.clause(bucket_card.get(i).get(k - 1).negate(f)));
+                    result.addClause(bucket_card.get(i).get(k - 1).negate(f));
                 }
             }
             if (i > 0) {
@@ -187,16 +182,15 @@ public final class PBBinaryMerge implements PBEncoding {
                         bucket_merge.set(i, carries);
                     } else {
                         if (config.binaryMergeUseWatchDog) {
-                            unary_adder(f, bucket_card.get(i), carries, bucket_merge.get(i), formula);
+                            unary_adder(result, bucket_card.get(i), carries, bucket_merge.get(i));
                         } else {
-                            CCSorting.merge(f, k, bucket_card.get(i), carries, tempResul, bucket_merge.get(i), INPUT_TO_OUTPUT);
-                            formula.addAll(tempResul.result());
+                            CCSorting.merge(f, k, bucket_card.get(i), carries, result, bucket_merge.get(i), INPUT_TO_OUTPUT);
                         }
                         if (k == bucket_merge.get(i).size() || (config.binaryMergeUseWatchDog && k <= bucket_merge.get(i).size())) {
                             if (gac_lit != null) {
-                                formula.add(f.clause(gac_lit, bucket_merge.get(i).get(k - 1).negate(f)));
+                                result.addClause(gac_lit, bucket_merge.get(i).get(k - 1).negate(f));
                             } else {
-                                formula.add(f.clause(bucket_merge.get(i).get(k - 1).negate(f)));
+                                result.addClause(bucket_merge.get(i).get(k - 1).negate(f));
                             }
                         }
                     }
@@ -217,7 +211,7 @@ public final class PBBinaryMerge implements PBEncoding {
         }
     }
 
-    private static void totalizer(final FormulaFactory f, final LNGVector<Literal> x, final LNGVector<Literal> u_x, final List<Formula> formula) {
+    private static void totalizer(final EncodingResult result, final LNGVector<Literal> x, final LNGVector<Literal> u_x) {
         u_x.clear();
         if (x.size() == 0) {
             return;
@@ -226,7 +220,7 @@ public final class PBBinaryMerge implements PBEncoding {
             u_x.push(x.get(0));
         } else {
             for (int i = 0; i < x.size(); i++) {
-                u_x.push(f.newPBVariable());
+                u_x.push(result.factory().newPBVariable());
             }
             final LNGVector<Literal> x_1 = new LNGVector<>();
             final LNGVector<Literal> x_2 = new LNGVector<>();
@@ -239,14 +233,14 @@ public final class PBBinaryMerge implements PBEncoding {
             }
             final LNGVector<Literal> u_x_1 = new LNGVector<>();
             final LNGVector<Literal> u_x_2 = new LNGVector<>();
-            totalizer(f, x_1, u_x_1, formula);
-            totalizer(f, x_2, u_x_2, formula);
-            unary_adder(f, u_x_1, u_x_2, u_x, formula);
+            totalizer(result, x_1, u_x_1);
+            totalizer(result, x_2, u_x_2);
+            unary_adder(result, u_x_1, u_x_2, u_x);
         }
     }
 
-    private static void unary_adder(final FormulaFactory f, final LNGVector<Literal> u, final LNGVector<Literal> v, final LNGVector<Literal> w,
-                                    final List<Formula> formula) {
+    private static void unary_adder(final EncodingResult result, final LNGVector<Literal> u, final LNGVector<Literal> v, final LNGVector<Literal> w) {
+        final FormulaFactory f = result.factory();
         w.clear();
         if (u.size() == 0) {
             for (int i = 0; i < v.size(); i++) {
@@ -262,14 +256,14 @@ public final class PBBinaryMerge implements PBEncoding {
             }
             for (int a = 0; a < u.size(); a++) {
                 for (int b = 0; b < v.size(); b++) {
-                    formula.add(f.clause(u.get(a).negate(f), v.get(b).negate(f), w.get(a + b + 1)));
+                    result.addClause(u.get(a).negate(f), v.get(b).negate(f), w.get(a + b + 1));
                 }
             }
             for (int i = 0; i < v.size(); i++) {
-                formula.add(f.clause(v.get(i).negate(f), w.get(i)));
+                result.addClause(v.get(i).negate(f), w.get(i));
             }
             for (int i = 0; i < u.size(); i++) {
-                formula.add(f.clause(u.get(i).negate(f), w.get(i)));
+                result.addClause(u.get(i).negate(f), w.get(i));
             }
         }
     }

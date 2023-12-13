@@ -51,7 +51,6 @@ public final class CCAMOBinary implements CCAtMostOne {
 
     @Override
     public void build(final EncodingResult result, final CCConfig config, final Variable... vars) {
-        result.reset();
         final FormulaFactory f = result.factory();
         final int numberOfBits = (int) Math.ceil(Math.log(vars.length) / Math.log(2));
         final int twoPowNBits = (int) Math.pow(2, numberOfBits);

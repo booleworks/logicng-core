@@ -25,6 +25,7 @@ import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.propositions.Proposition;
+import com.booleworks.logicng.pseudobooleans.PBEncoder;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
 import com.booleworks.logicng.solvers.sat.GlucoseConfig;
 import com.booleworks.logicng.solvers.sat.GlucoseSyrup;
@@ -231,14 +232,13 @@ public class MiniSat extends SATSolver {
                         ((MiniCard) solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
                         solver.addClause(generateClauseVector(constraint.operands()), proposition);
                     } else {
-                        addFormulaAsCNF(constraint, proposition);
+                        CCEncoder.encode((CardinalityConstraint) constraint, EncodingResult.resultForMiniSat(f, this, proposition));
                     }
                 } else {
-                    final EncodingResult result = EncodingResult.resultForMiniSat(f, this, proposition);
-                    CCEncoder.encode((CardinalityConstraint) constraint, result);
+                    CCEncoder.encode((CardinalityConstraint) constraint, EncodingResult.resultForMiniSat(f, this, proposition));
                 }
             } else {
-                addFormulaAsCNF(constraint, proposition);
+                PBEncoder.encode(constraint, EncodingResult.resultForMiniSat(f, this, proposition));
             }
         } else {
             addFormulaAsCNF(formula, proposition);

@@ -84,7 +84,6 @@ public final class CCModularTotalizer {
     }
 
     private static int initialize(final EncodingResult result, final int rhs, final int n, final State state) {
-        result.reset();
         state.cardinalityLwOutvars = new LNGVector<>();
         final int mod = (int) Math.ceil(Math.sqrt(rhs + 1.0));
         state.cardinalityUpOutvars = new LNGVector<>(n / mod);

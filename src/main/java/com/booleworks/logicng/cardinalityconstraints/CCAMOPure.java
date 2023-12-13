@@ -28,7 +28,6 @@ public final class CCAMOPure implements CCAtMostOne {
 
     @Override
     public void build(final EncodingResult result, final CCConfig config, final Variable... vars) {
-        result.reset();
         final FormulaFactory f = result.factory();
         for (int i = 0; i < vars.length; i++) {
             for (int j = i + 1; j < vars.length; j++) {

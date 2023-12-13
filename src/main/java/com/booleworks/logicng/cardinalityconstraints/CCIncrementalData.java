@@ -124,7 +124,6 @@ public final class CCIncrementalData {
      * @return the incremental encoding of the new upper bound
      */
     public List<Formula> newUpperBound(final int rhs) {
-        result.reset();
         computeUBConstraint(result, rhs);
         return result.result();
     }
@@ -196,7 +195,6 @@ public final class CCIncrementalData {
      * @return the incremental encoding of the new lower bound
      */
     public List<Formula> newLowerBound(final int rhs) {
-        result.reset();
         computeLBConstraint(result, rhs);
         return result.result();
     }

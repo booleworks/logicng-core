@@ -27,11 +27,9 @@ package com.booleworks.logicng.pseudobooleans;
 
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-
-import java.util.List;
 
 /**
  * A sequential weight counter for the encoding of pseudo-Boolean constraints in CNF.
@@ -51,14 +49,12 @@ public final class PBSWC implements PBEncoding {
     }
 
     @Override
-    public List<Formula> encode(final FormulaFactory f, final LNGVector<Literal> lits, final LNGIntVector coeffs, final int rhs, final List<Formula> result,
-                                final PBConfig config) {
-        generateConstraint(f, rhs, lits, coeffs, result);
-        return result;
+    public void encode(final EncodingResult result, final LNGVector<Literal> lits, final LNGIntVector coeffs, final int rhs, final PBConfig config) {
+        generateConstraint(result, rhs, lits, coeffs);
     }
 
-    private static void generateConstraint(final FormulaFactory f, final int rhs, final LNGVector<Literal> lits, final LNGIntVector coeffs,
-                                           final List<Formula> result) {
+    private static void generateConstraint(final EncodingResult result, final int rhs, final LNGVector<Literal> lits, final LNGIntVector coeffs) {
+        final FormulaFactory f = result.factory();
         final int n = lits.size();
         final LNGVector<LNGVector<Literal>> seqAuxiliary = new LNGVector<>(n + 1);
         for (int i = 0; i < n + 1; i++) {
@@ -76,17 +72,17 @@ public final class PBSWC implements PBEncoding {
             assert wi <= rhs;
             for (int j = 1; j <= rhs; j++) {
                 if (i >= 2 && i <= n && j <= rhs) {
-                    result.add(f.clause(seqAuxiliary.get(i - 1).get(j).negate(f), seqAuxiliary.get(i).get(j)));
+                    result.addClause(seqAuxiliary.get(i - 1).get(j).negate(f), seqAuxiliary.get(i).get(j));
                 }
                 if (i <= n && j <= wi) {
-                    result.add(f.clause(lits.get(i - 1).negate(f), seqAuxiliary.get(i).get(j)));
+                    result.addClause(lits.get(i - 1).negate(f), seqAuxiliary.get(i).get(j));
                 }
                 if (i >= 2 && i <= n && j <= rhs - wi) {
-                    result.add(f.clause(seqAuxiliary.get(i - 1).get(j).negate(f), lits.get(i - 1).negate(f), seqAuxiliary.get(i).get(j + wi)));
+                    result.addClause(seqAuxiliary.get(i - 1).get(j).negate(f), lits.get(i - 1).negate(f), seqAuxiliary.get(i).get(j + wi));
                 }
             }
             if (i >= 2) {
-                result.add(f.clause(seqAuxiliary.get(i - 1).get(rhs + 1 - wi).negate(f), lits.get(i - 1).negate(f)));
+                result.addClause(seqAuxiliary.get(i - 1).get(rhs + 1 - wi).negate(f), lits.get(i - 1).negate(f));
             }
         }
     }

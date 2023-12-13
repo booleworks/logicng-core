@@ -98,7 +98,6 @@ public final class CCTotalizer {
     }
 
     private static TotalizerVars initializeConstraint(final EncodingResult result, final Variable[] vars) {
-        result.reset();
         final var tv = new TotalizerVars(vars.length);
         for (final Variable var : vars) {
             tv.invars.push(var);

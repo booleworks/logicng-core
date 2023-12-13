@@ -27,7 +27,6 @@ public final class CCAMOProduct implements CCAtMostOne {
 
     @Override
     public void build(final EncodingResult result, final CCConfig config, final Variable... vars) {
-        result.reset();
         final int recursiveBound = config.productRecursiveBound;
         productRec(result, recursiveBound, vars);
     }

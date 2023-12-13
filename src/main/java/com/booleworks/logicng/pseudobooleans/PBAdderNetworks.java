@@ -30,7 +30,7 @@ package com.booleworks.logicng.pseudobooleans;
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 
@@ -66,28 +66,25 @@ public final class PBAdderNetworks implements PBEncoding {
     }
 
     @Override
-    public List<Formula> encode(final FormulaFactory f, final LNGVector<Literal> lits, final LNGIntVector coeffs, final int rhs, final List<Formula> formula,
-                                final PBConfig config) {
-        final LNGVector<Literal> result = new LNGVector<>();
+    public void encode(final EncodingResult result, final LNGVector<Literal> lits, final LNGIntVector coeffs, final int rhs, final PBConfig config) {
+        final LNGVector<Literal> literals = new LNGVector<>();
         final LNGVector<LinkedList<Literal>> buckets = new LNGVector<>();
         final int nb = ldInt(rhs);
         for (int iBit = 0; iBit < nb; ++iBit) {
             buckets.push(new LinkedList<>());
-            result.push(null);
+            literals.push(null);
             for (int iVar = 0; iVar < lits.size(); iVar++) {
                 if (((1 << iBit) & coeffs.get(iVar)) != 0) {
                     buckets.back().push(lits.get(iVar));
                 }
             }
         }
-        adderTree(f, formula, buckets, result);
+        adderTree(result, buckets, literals);
         final LNGBooleanVector kBits = numToBits(buckets.size(), rhs);
-        lessThanOrEqual(f, result, kBits, formula);
-        return formula;
+        lessThanOrEqual(result, literals, kBits);
     }
 
-    private static void adderTree(final FormulaFactory f, final List<Formula> formula, final LNGVector<LinkedList<Literal>> buckets,
-                                  final LNGVector<Literal> result) {
+    private static void adderTree(final EncodingResult result, final LNGVector<LinkedList<Literal>> buckets, final LNGVector<Literal> literals) {
         Literal x;
         Literal y;
         Literal z;
@@ -98,25 +95,25 @@ public final class PBAdderNetworks implements PBEncoding {
             }
             if (i == buckets.size() - 1 && buckets.get(i).size() >= 2) {
                 buckets.push(new LinkedList<>());
-                result.push(null);
+                literals.push(null);
             }
             while (buckets.get(i).size() >= 3) {
                 x = buckets.get(i).removeFirst();
                 y = buckets.get(i).removeFirst();
                 z = buckets.get(i).removeFirst();
-                final Literal xs = faSum(f, formula, x, y, z);
-                final Literal xc = faCarry(f, formula, x, y, z);
+                final Literal xs = faSum(result, x, y, z);
+                final Literal xc = faCarry(result, x, y, z);
                 buckets.get(i).add(xs);
                 buckets.get(i + 1).add(xc);
-                faExtra(f, formula, xc, xs, x, y, z);
+                faExtra(result, xc, xs, x, y, z);
             }
             if (buckets.get(i).size() == 2) {
                 x = buckets.get(i).removeFirst();
                 y = buckets.get(i).removeFirst();
-                buckets.get(i).add(haSum(f, formula, x, y));
-                buckets.get(i + 1).add(haCarry(f, formula, x, y));
+                buckets.get(i).add(haSum(result, x, y));
+                buckets.get(i + 1).add(haCarry(result, x, y));
             }
-            result.set(i, buckets.get(i).removeFirst());
+            literals.set(i, buckets.get(i).removeFirst());
         }
     }
 
@@ -136,8 +133,9 @@ public final class PBAdderNetworks implements PBEncoding {
         return bits;
     }
 
-    private static void lessThanOrEqual(final FormulaFactory f, final LNGVector<Literal> xs, final LNGBooleanVector ys, final List<Formula> formula) {
+    private static void lessThanOrEqual(final EncodingResult result, final LNGVector<Literal> xs, final LNGBooleanVector ys) {
         assert xs.size() == ys.size();
+        final FormulaFactory f = result.factory();
         final List<Literal> clause = new ArrayList<>();
         boolean skip;
         for (int i = 0; i < xs.size(); ++i) {
@@ -164,58 +162,62 @@ public final class PBAdderNetworks implements PBEncoding {
                 continue;
             }
             clause.add(xs.get(i).negate(f));
-            formula.add(f.clause(clause));
+            result.addClause(clause.toArray(new Literal[]{}));
         }
     }
 
-    private static void faExtra(final FormulaFactory f, final List<Formula> formula, final Literal xc, final Literal xs, final Literal a, final Literal b,
-                                final Literal c) {
-        formula.add(f.clause(xc.negate(f), xs.negate(f), a));
-        formula.add(f.clause(xc.negate(f), xs.negate(f), b));
-        formula.add(f.clause(xc.negate(f), xs.negate(f), c));
-        formula.add(f.clause(xc, xs, a.negate(f)));
-        formula.add(f.clause(xc, xs, b.negate(f)));
-        formula.add(f.clause(xc, xs, c.negate(f)));
+    private static void faExtra(final EncodingResult result, final Literal xc, final Literal xs, final Literal a, final Literal b, final Literal c) {
+        final FormulaFactory f = result.factory();
+        result.addClause(xc.negate(f), xs.negate(f), a);
+        result.addClause(xc.negate(f), xs.negate(f), b);
+        result.addClause(xc.negate(f), xs.negate(f), c);
+        result.addClause(xc, xs, a.negate(f));
+        result.addClause(xc, xs, b.negate(f));
+        result.addClause(xc, xs, c.negate(f));
     }
 
-    private static Literal faCarry(final FormulaFactory f, final List<Formula> formula, final Literal a, final Literal b, final Literal c) {
+    private static Literal faCarry(final EncodingResult result, final Literal a, final Literal b, final Literal c) {
+        final FormulaFactory f = result.factory();
         final Literal x = f.newPBVariable();
-        formula.add(f.clause(b, c, x.negate(f)));
-        formula.add(f.clause(a, c, x.negate(f)));
-        formula.add(f.clause(a, b, x.negate(f)));
-        formula.add(f.clause(b.negate(f), c.negate(f), x));
-        formula.add(f.clause(a.negate(f), c.negate(f), x));
-        formula.add(f.clause(a.negate(f), b.negate(f), x));
+        result.addClause(b, c, x.negate(f));
+        result.addClause(a, c, x.negate(f));
+        result.addClause(a, b, x.negate(f));
+        result.addClause(b.negate(f), c.negate(f), x);
+        result.addClause(a.negate(f), c.negate(f), x);
+        result.addClause(a.negate(f), b.negate(f), x);
         return x;
     }
 
-    private static Literal faSum(final FormulaFactory f, final List<Formula> formula, final Literal a, final Literal b, final Literal c) {
+    private static Literal faSum(final EncodingResult result, final Literal a, final Literal b, final Literal c) {
+        final FormulaFactory f = result.factory();
         final Literal x = f.newPBVariable();
-        formula.add(f.clause(a, b, c, x.negate(f)));
-        formula.add(f.clause(a, b.negate(f), c.negate(f), x.negate(f)));
-        formula.add(f.clause(a.negate(f), b, c.negate(f), x.negate(f)));
-        formula.add(f.clause(a.negate(f), b.negate(f), c, x.negate(f)));
-        formula.add(f.clause(a.negate(f), b.negate(f), c.negate(f), x));
-        formula.add(f.clause(a.negate(f), b, c, x));
-        formula.add(f.clause(a, b.negate(f), c, x));
-        formula.add(f.clause(a, b, c.negate(f), x));
+        result.addClause(a, b, c, x.negate(f));
+        result.addClause(a, b.negate(f), c.negate(f), x.negate(f));
+        result.addClause(a.negate(f), b, c.negate(f), x.negate(f));
+        result.addClause(a.negate(f), b.negate(f), c, x.negate(f));
+        result.addClause(a.negate(f), b.negate(f), c.negate(f), x);
+        result.addClause(a.negate(f), b, c, x);
+        result.addClause(a, b.negate(f), c, x);
+        result.addClause(a, b, c.negate(f), x);
         return x;
     }
 
-    private static Literal haCarry(final FormulaFactory f, final List<Formula> formula, final Literal a, final Literal b) {
+    private static Literal haCarry(final EncodingResult result, final Literal a, final Literal b) {
+        final FormulaFactory f = result.factory();
         final Literal x = f.newPBVariable();
-        formula.add(f.clause(a, x.negate(f)));
-        formula.add(f.clause(b, x.negate(f)));
-        formula.add(f.clause(a.negate(f), b.negate(f), x));
+        result.addClause(a, x.negate(f));
+        result.addClause(b, x.negate(f));
+        result.addClause(a.negate(f), b.negate(f), x);
         return x;
     }
 
-    private static Literal haSum(final FormulaFactory f, final List<Formula> formula, final Literal a, final Literal b) {
+    private static Literal haSum(final EncodingResult result, final Literal a, final Literal b) {
+        final FormulaFactory f = result.factory();
         final Literal x = f.newPBVariable();
-        formula.add(f.clause(a.negate(f), b.negate(f), x.negate(f)));
-        formula.add(f.clause(a, b, x.negate(f)));
-        formula.add(f.clause(a.negate(f), b, x));
-        formula.add(f.clause(a, b.negate(f), x));
+        result.addClause(a.negate(f), b.negate(f), x.negate(f));
+        result.addClause(a, b, x.negate(f));
+        result.addClause(a.negate(f), b, x);
+        result.addClause(a, b.negate(f), x);
         return x;
     }
 }

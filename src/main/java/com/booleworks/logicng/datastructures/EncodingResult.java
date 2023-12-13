@@ -31,7 +31,7 @@ public final class EncodingResult {
     private final FormulaFactory f;
     private final Proposition proposition;
     private final MiniSat miniSat;
-    private List<Formula> result;
+    private final List<Formula> result;
 
     /**
      * Constructs a new CC encoding algorithm.
@@ -43,7 +43,7 @@ public final class EncodingResult {
         this.f = f;
         this.proposition = proposition;
         this.miniSat = miniSat;
-        reset();
+        result = new ArrayList<>();
     }
 
     /**
@@ -141,13 +141,6 @@ public final class EncodingResult {
             miniSat.underlyingSolver().addName(name, index);
             return new EncodingAuxiliaryVariable(name, false);
         }
-    }
-
-    /**
-     * Resets the result.
-     */
-    public void reset() {
-        result = new ArrayList<>();
     }
 
     /**

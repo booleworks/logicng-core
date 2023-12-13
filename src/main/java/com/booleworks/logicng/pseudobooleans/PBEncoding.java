@@ -7,11 +7,8 @@ package com.booleworks.logicng.pseudobooleans;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
-import com.booleworks.logicng.formulas.Formula;
-import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.Literal;
-
-import java.util.List;
 
 /**
  * The interface for pseudo Boolean constraint encodings.
@@ -21,28 +18,23 @@ import java.util.List;
 public interface PBEncoding {
 
     /**
-     * Encodes a pseudo-Boolean constraint and returns its CNF encoding.
-     * @param f      the formula factory to generate new formulas
+     * Encodes a pseudo-Boolean constraint in the given encoding result
+     * @param result the result of the encoding
      * @param lits   the literals of the constraint
      * @param coeffs the coefficients of the constraint
      * @param rhs    the right-hand side of the constraint
-     * @param result the current result CNF
-     * @return the CNF encoding of the constraint
      */
-    default List<Formula> encode(final FormulaFactory f, final LNGVector<Literal> lits, final LNGIntVector coeffs, final int rhs, final List<Formula> result) {
-        return encode(f, lits, coeffs, rhs, result, (PBConfig) f.configurationFor(ConfigurationType.PB_ENCODER));
+    default void encode(final EncodingResult result, final LNGVector<Literal> lits, final LNGIntVector coeffs, final int rhs) {
+        encode(result, lits, coeffs, rhs, (PBConfig) result.factory().configurationFor(ConfigurationType.PB_ENCODER));
     }
 
     /**
-     * Encodes a pseudo-Boolean constraint and returns its CNF encoding.
-     * @param f      the formula factory to generate new formulas
+     * Encodes a pseudo-Boolean constraint in the given encoding result
+     * @param result the result of the encoding
      * @param lits   the literals of the constraint
      * @param coeffs the coefficients of the constraint
      * @param rhs    the right-hand side of the constraint
-     * @param result the current result CNF
      * @param config the configuration for the encoding
-     * @return the CNF encoding of the constraint
      */
-    List<Formula> encode(final FormulaFactory f, final LNGVector<Literal> lits, final LNGIntVector coeffs, int rhs, final List<Formula> result,
-                         final PBConfig config);
+    void encode(final EncodingResult result, final LNGVector<Literal> lits, final LNGIntVector coeffs, int rhs, final PBConfig config);
 }

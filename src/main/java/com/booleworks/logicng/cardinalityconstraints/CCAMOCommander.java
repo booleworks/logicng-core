@@ -52,7 +52,6 @@ public final class CCAMOCommander implements CCAtMostOne {
 
     @Override
     public void build(final EncodingResult result, final CCConfig config, final Variable... vars) {
-        result.reset();
         final LNGVector<Literal> currentLiterals = new LNGVector<>();
         for (final Variable var : vars) {
             currentLiterals.push(var);

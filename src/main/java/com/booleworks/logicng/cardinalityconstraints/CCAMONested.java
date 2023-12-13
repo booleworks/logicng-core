@@ -52,7 +52,6 @@ public final class CCAMONested implements CCAtMostOne {
 
     @Override
     public void build(final EncodingResult result, final CCConfig config, final Variable... vars) {
-        result.reset();
         final int groupSize = config.nestingGroupSize;
         encodeIntern(result, groupSize, new LNGVector<>(vars));
     }

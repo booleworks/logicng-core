@@ -50,7 +50,6 @@ public final class CCCardinalityNetworks {
 
     static void buildAMK(final EncodingResult result, final Variable[] vars, final int rhs) {
         final FormulaFactory f = result.factory();
-        result.reset();
         final LNGVector<Literal> input = new LNGVector<>();
         final LNGVector<Literal> output = new LNGVector<>();
         if (rhs > vars.length / 2) {
@@ -87,7 +86,6 @@ public final class CCCardinalityNetworks {
 
     static void buildALK(final EncodingResult result, final Variable[] vars, final int rhs) {
         final FormulaFactory f = result.factory();
-        result.reset();
         final LNGVector<Literal> input = new LNGVector<>();
         final LNGVector<Literal> output = new LNGVector<>();
         final int newRHS = vars.length - rhs;
@@ -126,7 +124,6 @@ public final class CCCardinalityNetworks {
 
     static void buildEXK(final EncodingResult result, final Variable[] vars, final int rhs) {
         final FormulaFactory f = result.factory();
-        result.reset();
         final LNGVector<Literal> input = new LNGVector<>();
         final LNGVector<Literal> output = new LNGVector<>();
         for (final Variable var : vars) {

@@ -51,7 +51,6 @@ public final class CCAMOBimander implements CCAtMostOne {
 
     @Override
     public void build(final EncodingResult result, final CCConfig config, final Variable... vars) {
-        result.reset();
         final int groupSize = computeGroupSize(config, vars.length);
         encodeIntern(result, groupSize, new LNGVector<>(vars));
     }

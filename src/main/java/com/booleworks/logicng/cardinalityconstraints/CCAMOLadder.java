@@ -49,7 +49,6 @@ public final class CCAMOLadder implements CCAtMostOne {
     @Override
     public void build(final EncodingResult result, final CCConfig config, final Variable... vars) {
         final FormulaFactory f = result.factory();
-        result.reset();
         final Variable[] seqAuxiliary = new Variable[vars.length - 1];
         for (int i = 0; i < vars.length - 1; i++) {
             seqAuxiliary[i] = result.newVariable();
