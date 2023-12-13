@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.modelcounting;
 
+import static com.booleworks.logicng.testutils.TestUtil.modelCount;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -209,19 +210,5 @@ public class ModelCounterTest extends TestWithFormulaContext {
         final SortedSet<Variable> variables = FormulaHelper.variables(f, formulas);
         final List<Assignment> models = solver.enumerateAllModels(variables);
         return modelCount(models, variables);
-    }
-
-    private static BigInteger modelCount(final List<Assignment> models, final SortedSet<Variable> variables) {
-        if (models.isEmpty()) {
-            return BigInteger.ZERO;
-        } else {
-            final Assignment firstModel = models.get(0);
-            final SortedSet<Variable> modelVars = new TreeSet<>(firstModel.positiveVariables());
-            modelVars.addAll(firstModel.negativeVariables());
-            final SortedSet<Variable> dontCareVars = variables.stream()
-                    .filter(var -> !modelVars.contains(var))
-                    .collect(Collectors.toCollection(TreeSet::new));
-            return BigInteger.valueOf(models.size()).multiply(BigInteger.valueOf(2).pow(dontCareVars.size()));
-        }
     }
 }

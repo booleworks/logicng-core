@@ -4,17 +4,12 @@
 
 package com.booleworks.logicng.handlers;
 
-import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.datastructures.Model;
-
 /**
  * A model enumeration handler which cancels the computation process after a given timeout.
  * @version 3.0.0
- * @since 1.0
+ * @since 3.0.0
  */
-public class TimeoutModelEnumerationHandler extends TimeoutHandler implements ModelEnumerationHandler {
-
-    private TimeoutSATHandler satHandler;
+public class TimeoutAdvancedModelEnumerationHandler extends TimeoutModelEnumerationHandler implements AdvancedModelEnumerationHandler {
 
     /**
      * Constructs a new timeout handler with a given timeout and a timeout type.
@@ -32,7 +27,7 @@ public class TimeoutModelEnumerationHandler extends TimeoutHandler implements Mo
      * @param timeout the timeout in milliseconds, its meaning is defined by the timeout type
      * @param type    the type of the timer, must not be {@code null}
      */
-    public TimeoutModelEnumerationHandler(final long timeout, final TimerType type) {
+    public TimeoutAdvancedModelEnumerationHandler(final long timeout, final TimerType type) {
         super(timeout, type);
     }
 
@@ -41,40 +36,22 @@ public class TimeoutModelEnumerationHandler extends TimeoutHandler implements Mo
      * Thus, the timeout is started when {@link Handler#started()} is called and further calls to {@link Handler#started()} have no effect on the timeout.
      * @param timeout the timeout in milliseconds
      */
-    public TimeoutModelEnumerationHandler(final long timeout) {
+    public TimeoutAdvancedModelEnumerationHandler(final long timeout) {
         super(timeout);
     }
 
-    /**
-     * Returns a SAT handler which can be used to cancel internal SAT calls of the model enumeration process.
-     * Note that this handler will only be available after the first call to {@link #started()}.
-     * @return the SAT handler
-     */
     @Override
-    public SATHandler satHandler() {
-        return satHandler;
-    }
-
-    @Override
-    public boolean aborted() {
-        return super.aborted() || Handler.aborted(satHandler);
-    }
-
-    @Override
-    public void started() {
-        super.started();
-        if (satHandler == null || type == TimerType.RESTARTING_TIMEOUT) {
-            satHandler = new TimeoutSATHandler(designatedEnd, TimerType.FIXED_END);
-        }
-    }
-
-    @Override
-    public boolean foundModel(final Assignment assignment) {
+    public boolean foundModels(final int numberOfModel) {
         return !timeLimitExceeded();
     }
 
     @Override
-    public boolean foundModel(final Model model) {
+    public boolean commit() {
+        return !timeLimitExceeded();
+    }
+
+    @Override
+    public boolean rollback() {
         return !timeLimitExceeded();
     }
 }

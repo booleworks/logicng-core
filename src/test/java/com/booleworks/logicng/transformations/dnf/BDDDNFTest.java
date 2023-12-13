@@ -154,7 +154,7 @@ public class BDDDNFTest extends TestWithFormulaContext {
         final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
 
         final PropositionalParser p = new PropositionalParser(_c.f);
-        final Formula f1 = p.parse("a <=> (1 * b <= 1)");
+        final Formula f1 = p.parse("a <=> (1 * b <= 0)");
         final Formula f2 = p.parse("~(1 * b <= 1)");
         final Formula f3 = p.parse("(1 * b + 1 * c + 1 * d <= 1)");
         final Formula f4 = p.parse("~(1 * b + 1 * c + 1 * d <= 1)");

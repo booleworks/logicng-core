@@ -4,28 +4,22 @@
 
 package com.booleworks.logicng.testutils;
 
+import static com.booleworks.logicng.util.CollectionHelper.difference;
+import static com.booleworks.logicng.util.CollectionHelper.union;
+
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 
+import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
-/**
- * Help methods for unit testing.
- * @version 2.3.0
- * @since 2.3.0
- */
 public final class TestUtil {
-
-    /**
-     * Private empty constructor.  Class only contains static utility methods.
-     */
-    private TestUtil() {
-        // Intentionally left empty
-    }
 
     /**
      * Tests if the two given formulas have the same models when projected to the given set of variables.
@@ -50,5 +44,40 @@ public final class TestUtil {
             }
         }
         return true;
+    }
+
+    /**
+     * Returns the number of models when extending the given assignments by all don't care variables.
+     * <p>
+     * Assumption, the given models all contain the same set of variables, e.g. the result of a model enumeration.
+     * @param assignments the assignments
+     * @param variables   the variables, a superset of the variables in the assignments
+     * @return the number of models
+     */
+    public static BigInteger modelCount(final List<Assignment> assignments, final SortedSet<Variable> variables) {
+        if (assignments.isEmpty()) {
+            return BigInteger.ZERO;
+        } else {
+            final SortedSet<Variable> dontCareVars = getDontCareVariables(assignments, variables);
+            return BigInteger.valueOf(assignments.size()).multiply(BigInteger.valueOf(2).pow(dontCareVars.size()));
+        }
+    }
+
+    /**
+     * Returns the don't care variables.
+     * <p>
+     * Assumption, the given models all contain the same set of variables, e.g. the result of a model enumeration.
+     * @param assignments the assignments
+     * @param variables   the variables, a superset of the variables in the assignments
+     * @return the don't care variables
+     */
+    public static SortedSet<Variable> getDontCareVariables(final List<Assignment> assignments, final SortedSet<Variable> variables) {
+        if (assignments.isEmpty()) {
+            return Collections.emptySortedSet();
+        } else {
+            final Assignment firstModel = assignments.get(0);
+            final SortedSet<Variable> assignmentVars = union(firstModel.positiveVariables(), firstModel.negativeVariables(), TreeSet::new);
+            return difference(variables, assignmentVars, TreeSet::new);
+        }
     }
 }

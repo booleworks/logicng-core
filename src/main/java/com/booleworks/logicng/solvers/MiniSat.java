@@ -14,6 +14,7 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
@@ -35,6 +36,7 @@ import com.booleworks.logicng.solvers.sat.MiniSatConfig;
 import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
 import com.booleworks.logicng.transformations.cnf.PlaistedGreenbaumTransformationSolver;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -243,6 +245,18 @@ public class MiniSat extends SATSolver {
         } else {
             addFormulaAsCNF(formula, proposition);
         }
+        addAllOriginalVariables(formula);
+    }
+
+    /**
+     * Adds all variables of the given formula to the solver if not already present.
+     * This method can be used to ensure that the internal solver knows the given variables.
+     * @param originalFormula the original formula
+     */
+    private void addAllOriginalVariables(final Formula originalFormula) {
+        for (final Variable var : originalFormula.variables(f)) {
+            getOrAddIndex(var);
+        }
     }
 
     protected void addFormulaAsCNF(final Formula formula, final Proposition proposition) {
@@ -409,12 +423,20 @@ public class MiniSat extends SATSolver {
      * @return the assignment
      */
     public Assignment createAssignment(final LNGBooleanVector vec, final LNGIntVector relevantIndices, final boolean fastEvaluable) {
-        final Assignment model = new Assignment(fastEvaluable);
+        return new Assignment(createLiterals(vec, relevantIndices), fastEvaluable);
+    }
+
+    public Model createModel(final LNGBooleanVector vec, final LNGIntVector relevantIndices) {
+        return new Model(createLiterals(vec, relevantIndices));
+    }
+
+    private List<Literal> createLiterals(final LNGBooleanVector vec, final LNGIntVector relevantIndices) {
+        final List<Literal> literals = new ArrayList<>(vec.size());
         if (relevantIndices == null) {
             for (int i = 0; i < vec.size(); i++) {
                 final String name = solver.nameForIdx(i);
                 if (isRelevantVariable(name)) {
-                    model.addLiteral(f.literal(name, vec.get(i)));
+                    literals.add(f.literal(name, vec.get(i)));
                 }
             }
         } else {
@@ -423,12 +445,12 @@ public class MiniSat extends SATSolver {
                 if (index != -1) {
                     final String name = solver.nameForIdx(index);
                     if (isRelevantVariable(name)) {
-                        model.addLiteral(f.literal(name, vec.get(index)));
+                        literals.add(f.literal(name, vec.get(index)));
                     }
                 }
             }
         }
-        return model;
+        return literals;
     }
 
     /**

@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.solvers.sat;
 
+import static com.booleworks.logicng.util.FormulaHelper.variables;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -11,9 +12,12 @@ import com.booleworks.logicng.LogicNGTest;
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.TestWithExampleFormulas;
 import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.formulas.FormulaFactoryConfig;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ModelEnumerationHandler;
@@ -31,7 +35,6 @@ import com.booleworks.logicng.solvers.functions.FormulaOnSolverFunction;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.UpZeroLiteralsFunction;
 import com.booleworks.logicng.testutils.PigeonHoleGenerator;
-import com.booleworks.logicng.util.FormulaHelper;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -262,6 +265,28 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     }
 
     @Test
+    public void testVariableRemovedBySimplificationOccursInModel() throws ParserException {
+        final FormulaFactory ff = FormulaFactory.caching(FormulaFactoryConfig.builder().simplifyComplementaryOperands(true).build());
+        final SATSolver solver = MiniSat.miniSat(ff, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        final Variable a = ff.variable("A");
+        final Variable b = ff.variable("B");
+        final Formula formula = ff.parse("A & B => A");
+        solver.add(formula); // during NNF conversion, used by the PG transformation, the formula simplifies to verum when added to the solver
+        assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
+        assertThat(solver.knownVariables()).containsExactlyInAnyOrder(a, b);
+        assertThat(variables(ff, solver.model().literals())).containsExactlyInAnyOrder(a, b);
+    }
+
+    @Test
+    public void testUnknownVariableNotOccurringInModel() {
+        final SATSolver solver = MiniSat.miniSat(f);
+        final Variable a = f.variable("A");
+        solver.add(a);
+        assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
+        assertThat(solver.model(f.variables("A", "X")).literals()).containsExactly(a);
+    }
+
+    @Test
     public void testModelEnumerationHandler() {
         for (final SATSolver s : solvers) {
             s.add(IMP3);
@@ -288,6 +313,11 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                     public boolean foundModel(final Assignment assignment) {
                         aborted = assignment.negativeLiterals().isEmpty();
                         return !aborted;
+                    }
+
+                    @Override
+                    public boolean foundModel(final Model model) {
+                        return false;
                     }
                 };
                 final List<Assignment> models = s.execute(ModelEnumerationFunction.builder().handler(handler).build());
@@ -951,7 +981,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                 if (fileName.endsWith(".cnf")) {
                     readCNF(solver, file);
                     final List<Literal> selectionOrder = new ArrayList<>();
-                    for (final Variable var : FormulaHelper.variables(f, solver.execute(FormulaOnSolverFunction.get()))) {
+                    for (final Variable var : variables(f, solver.execute(FormulaOnSolverFunction.get()))) {
                         if (selectionOrder.size() < 10) {
                             selectionOrder.add(var.negate(f));
                         }

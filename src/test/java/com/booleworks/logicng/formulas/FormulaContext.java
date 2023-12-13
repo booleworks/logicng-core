@@ -26,6 +26,7 @@ public class FormulaContext {
     public final Variable y;
     public final Literal na;
     public final Literal nb;
+    public final Literal nc;
     public final Literal nx;
     public final Literal ny;
 
@@ -83,6 +84,7 @@ public class FormulaContext {
         y = f.variable("y");
         na = f.literal("a", false);
         nb = f.literal("b", false);
+        nc = f.literal("c", false);
         nx = f.literal("x", false);
         ny = f.literal("y", false);
 

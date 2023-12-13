@@ -5,10 +5,11 @@
 package com.booleworks.logicng.handlers;
 
 import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 
 /**
  * Interface for a handler for the enumeration of models.
- * @version 2.1.0
+ * @version 3.0.0
  * @since 1.0
  */
 public interface ModelEnumerationHandler extends Handler {
@@ -30,4 +31,11 @@ public interface ModelEnumerationHandler extends Handler {
      * @return {@code true} if more models should be searched, otherwise {@code false}
      */
     boolean foundModel(Assignment assignment);
+
+    /**
+     * This method is called every time a model is found.
+     * @param model the respective model
+     * @return {@code true} if more models should be searched, otherwise {@code false}
+     */
+    boolean foundModel(Model model);
 }

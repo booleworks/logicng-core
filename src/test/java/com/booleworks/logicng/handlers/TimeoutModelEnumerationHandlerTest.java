@@ -44,8 +44,7 @@ class TimeoutModelEnumerationHandlerTest {
         solvers = new SATSolver[8];
         solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).build());
         solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
-        solvers[2] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(false).build(),
-                GlucoseConfig.builder().build());
+        solvers[2] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(false).build(), GlucoseConfig.builder().build());
         solvers[3] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(true).build());
         solvers[4] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(false).build());
         solvers[5] = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
@@ -89,7 +88,7 @@ class TimeoutModelEnumerationHandlerTest {
                 count.addAndGet(1);
                 return satHandler;
             });
-            when(handler.foundModel(any())).thenReturn(true);
+            when(handler.foundModel(any(Assignment.class))).thenReturn(true);
             when(handler.aborted()).then(invocationOnMock -> count.get() > 5);
             lenient().when(satHandler.detectedConflict()).thenReturn(true);
             final ModelEnumerationFunction me = ModelEnumerationFunction.builder().handler(handler).variables(formula.variables(f)).build();

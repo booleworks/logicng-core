@@ -7,6 +7,8 @@ package com.booleworks.logicng.solvers.functions;
 import static com.booleworks.logicng.datastructures.Tristate.TRUE;
 import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
 import static com.booleworks.logicng.handlers.Handler.start;
+import static com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationCommon.relevantAllIndicesFromSolver;
+import static com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationCommon.relevantIndicesFromSolver;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
@@ -17,23 +19,20 @@ import com.booleworks.logicng.handlers.ModelEnumerationHandler;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SolverState;
+import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationCommon;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.function.Consumer;
 
 /**
  * A solver function for enumerating models on the solver.
  * <p>
  * Model enumeration functions are instantiated via their builder {@link #builder()}.
- * @version 2.3.0
- * @since 2.0.0
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public final class ModelEnumerationFunction implements SolverFunction<List<Assignment>> {
 
@@ -66,50 +65,17 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
         if (solver.canSaveLoadState()) {
             stateBeforeEnumeration = solver.saveState();
         }
+        final LNGIntVector relevantIndices = relevantIndicesFromSolver(variables, solver);
+        final LNGIntVector relevantAllIndices = relevantAllIndicesFromSolver(variables, additionalVariables, relevantIndices, solver);
+
         boolean proceed = true;
-        final LNGIntVector relevantIndices;
-        if (variables == null) {
-            if (!solver.getConfig().isAuxiliaryVariablesInModels()) {
-                relevantIndices = new LNGIntVector();
-                for (final Map.Entry<String, Integer> entry : solver.underlyingSolver().getName2idx().entrySet()) {
-                    if (solver.isRelevantVariable(entry.getKey())) {
-                        relevantIndices.push(entry.getValue());
-                    }
-                }
-            } else {
-                relevantIndices = null;
-            }
-        } else {
-            relevantIndices = new LNGIntVector(variables.size());
-            for (final Variable var : variables) {
-                relevantIndices.push(solver.underlyingSolver().idxForName(var.name()));
-            }
-        }
-        LNGIntVector relevantAllIndices = null;
-        final SortedSet<Variable> uniqueAdditionalVariables = new TreeSet<>(additionalVariables == null ? Collections.emptyList() : additionalVariables);
-        if (variables != null) {
-            uniqueAdditionalVariables.removeAll(variables);
-        }
-        if (relevantIndices != null) {
-            if (uniqueAdditionalVariables.isEmpty()) {
-                relevantAllIndices = relevantIndices;
-            } else {
-                relevantAllIndices = new LNGIntVector(relevantIndices.size() + uniqueAdditionalVariables.size());
-                for (int i = 0; i < relevantIndices.size(); ++i) {
-                    relevantAllIndices.push(relevantIndices.get(i));
-                }
-                for (final Variable var : uniqueAdditionalVariables) {
-                    relevantAllIndices.push(solver.underlyingSolver().idxForName(var.name()));
-                }
-            }
-        }
         while (proceed && modelEnumerationSATCall(solver, handler)) {
             final LNGBooleanVector modelFromSolver = solver.underlyingSolver().model();
             final Assignment model = solver.createAssignment(modelFromSolver, relevantAllIndices, fastEvaluable);
             models.add(model);
             proceed = handler == null || handler.foundModel(model);
             if (model.size() > 0) {
-                final LNGIntVector blockingClause = generateBlockingClause(modelFromSolver, relevantIndices);
+                final LNGIntVector blockingClause = ModelEnumerationCommon.generateBlockingClause(modelFromSolver, relevantIndices);
                 solver.underlyingSolver().addClause(blockingClause, null);
                 resultSetter.accept(UNDEF);
             } else {
@@ -131,33 +97,6 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
     }
 
     /**
-     * Generates a blocking clause from a given model and a set of relevant variables.
-     * @param modelFromSolver the current model for which the blocking clause should be generated
-     * @param relevantVars    the indices of the relevant variables.  If {@code null} all variables are relevant.
-     * @return the blocking clause for the given model and relevant variables
-     */
-    private LNGIntVector generateBlockingClause(final LNGBooleanVector modelFromSolver, final LNGIntVector relevantVars) {
-        final LNGIntVector blockingClause;
-        if (relevantVars != null) {
-            blockingClause = new LNGIntVector(relevantVars.size());
-            for (int i = 0; i < relevantVars.size(); i++) {
-                final int varIndex = relevantVars.get(i);
-                if (varIndex != -1) {
-                    final boolean varAssignment = modelFromSolver.get(varIndex);
-                    blockingClause.push(varAssignment ? (varIndex * 2) ^ 1 : varIndex * 2);
-                }
-            }
-        } else {
-            blockingClause = new LNGIntVector(modelFromSolver.size());
-            for (int i = 0; i < modelFromSolver.size(); i++) {
-                final boolean varAssignment = modelFromSolver.get(i);
-                blockingClause.push(varAssignment ? (i * 2) ^ 1 : i * 2);
-            }
-        }
-        return blockingClause;
-    }
-
-    /**
      * The builder for a model enumeration function.
      */
     public static class Builder {
@@ -172,7 +111,7 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
 
         /**
          * Sets the model enumeration handler for this function
-         * @param handler the handler
+         * @param handler the handler, may be {@code null}
          * @return the current builder
          */
         public Builder handler(final ModelEnumerationHandler handler) {

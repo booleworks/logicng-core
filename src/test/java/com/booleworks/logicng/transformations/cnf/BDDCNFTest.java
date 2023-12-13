@@ -145,7 +145,7 @@ public class BDDCNFTest extends TestWithFormulaContext {
     public void testCC(final FormulaContext _c) throws ParserException {
         final BDDCNFTransformation bddcnf = new BDDCNFTransformation(_c.f);
 
-        final Formula f1 = _c.p.parse("a <=> (1 * b <= 1)");
+        final Formula f1 = _c.p.parse("a <=> (1 * b <= 0)");
         final Formula f2 = _c.p.parse("~(1 * b <= 1)");
         final Formula f3 = _c.p.parse("(1 * b + 1 * c + 1 * d <= 1)");
         final Formula f4 = _c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)");

@@ -45,8 +45,8 @@ public class CCAMKTest implements LogicNGTest {
             testCC(f, 10, 7, 968, false);
             testCC(f, 10, 8, 1013, false);
             testCC(f, 10, 9, 1023, false);
-            testCC(f, 10, 10, 1, false);
-            testCC(f, 10, 15, 1, false);
+            testCC(f, 10, 10, 1024, false);
+            testCC(f, 10, 15, 1024, false);
             assertThat(f.newCCVariable().name()).endsWith("_" + counter++);
         }
     }

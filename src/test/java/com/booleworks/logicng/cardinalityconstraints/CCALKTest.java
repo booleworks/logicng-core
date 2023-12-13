@@ -36,7 +36,7 @@ public class CCALKTest implements LogicNGTest {
         int counter = 0;
         for (final CCConfig config : configs) {
             f.putConfiguration(config);
-            testCC(f, 10, 0, 1);
+            testCC(f, 10, 0, 1024);
             testCC(f, 10, 1, 1023);
             testCC(f, 10, 2, 1013);
             testCC(f, 10, 3, 968);
