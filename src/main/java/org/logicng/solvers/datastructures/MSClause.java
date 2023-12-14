@@ -62,7 +62,6 @@ public final class MSClause {
     private final boolean learnt;
     private final boolean isAtMost;
     private double activity;
-    private int szWithoutSelectors;
     private boolean seen;
     private long lbd;
     private boolean canBeDel;
@@ -90,7 +89,6 @@ public final class MSClause {
             data.unsafePush(ps.get(i));
         }
         this.learnt = learnt;
-        szWithoutSelectors = 0;
         seen = false;
         lbd = 0;
         canBeDel = true;
@@ -99,13 +97,12 @@ public final class MSClause {
         atMostWatchers = -1;
     }
 
-    MSClause(final LNGIntVector data, final boolean learnt, final boolean isAtMost, final double activity, final int szWithoutSelectors, final boolean seen,
+    MSClause(final LNGIntVector data, final boolean learnt, final boolean isAtMost, final double activity, final boolean seen,
              final long lbd, final boolean canBeDel, final boolean oneWatched, final int atMostWatchers) {
         this.data = data;
         this.learnt = learnt;
         this.isAtMost = isAtMost;
         this.activity = activity;
-        this.szWithoutSelectors = szWithoutSelectors;
         this.seen = seen;
         this.lbd = lbd;
         this.canBeDel = canBeDel;
@@ -168,22 +165,6 @@ public final class MSClause {
      */
     public boolean learnt() {
         return learnt;
-    }
-
-    /**
-     * Returns the size of this clause without selector variables.
-     * @return the size of this clause without selector variables
-     */
-    public int sizeWithoutSelectors() {
-        return szWithoutSelectors;
-    }
-
-    /**
-     * Sets the size of this clause without selector variables.
-     * @param szWithoutSelectors the size of this clause without selector variables
-     */
-    public void setSizeWithoutSelectors(final int szWithoutSelectors) {
-        this.szWithoutSelectors = szWithoutSelectors;
     }
 
     /**
@@ -291,7 +272,11 @@ public final class MSClause {
         return data.size() - atMostWatchers + 1;
     }
 
-    LNGIntVector getData() {
+    /**
+     * Returns the literals of this clause.
+     * @return the literals of this clause
+     */
+    public LNGIntVector getData() {
         return data;
     }
 
@@ -310,7 +295,6 @@ public final class MSClause {
         final StringBuilder sb = new StringBuilder("MSClause{");
         sb.append("activity=").append(activity).append(", ");
         sb.append("learnt=").append(learnt).append(", ");
-        sb.append("szWithoutSelectors=").append(szWithoutSelectors).append(", ");
         sb.append("seen=").append(seen).append(", ");
         sb.append("lbd=").append(lbd).append(", ");
         sb.append("canBeDel=").append(canBeDel).append(", ");

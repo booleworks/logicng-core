@@ -244,9 +244,9 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         assertThat(stats.bestSolution()).isEqualTo(26);
         assertThat(stats.unsatCalls()).isEqualTo(26);
         assertThat(stats.satCalls()).isEqualTo(2);
-        assertThat(stats.averageCoreSize()).isEqualTo(31.88, Offset.offset(0.01));
-        assertThat(stats.symmetryClauses()).isEqualTo(31150);
-        assertThat(stats.toString()).isEqualTo("MaxSAT.Stats{best solution=26, #sat calls=2, #unsat calls=26, average core size=31.88, #symmetry clauses=31150}");
+        assertThat(stats.averageCoreSize()).isEqualTo(28.73, Offset.offset(0.01));
+        assertThat(stats.symmetryClauses()).isEqualTo(20359);
+        assertThat(stats.toString()).isEqualTo("MaxSAT.Stats{best solution=26, #sat calls=2, #unsat calls=26, average core size=28.73, #symmetry clauses=20359}");
     }
 
     @Test

@@ -46,7 +46,7 @@ public class SolversDatastructuresTest {
         clause.setCanBeDel(true);
         clause.setLBD(42);
         clause.setSeen(true);
-        final String expected = "MSClause{activity=0.0, learnt=true, szWithoutSelectors=0, seen=true, lbd=42, canBeDel=true, oneWatched=false, isAtMost=false, atMostWatchers=-1, lits=[1, 2, 3]}";
+        final String expected = "MSClause{activity=0.0, learnt=true, seen=true, lbd=42, canBeDel=true, oneWatched=false, isAtMost=false, atMostWatchers=-1, lits=[1, 2, 3]}";
         assertThat(clause.toString()).isEqualTo(expected);
         assertThat(clause.equals(clause)).isTrue();
         assertThat(clause.hashCode()).isEqualTo(clause.hashCode());
@@ -94,7 +94,7 @@ public class SolversDatastructuresTest {
         vec.push(6);
         final MSClause clause = new MSClause(vec, true);
         final MSWatcher watcher = new MSWatcher(clause, 2);
-        final String expected = "MSWatcher{clause=MSClause{activity=0.0, learnt=true, szWithoutSelectors=0, seen=false, lbd=0, canBeDel=true, oneWatched=false, isAtMost=false, atMostWatchers=-1, lits=[1, 2, 3]}, blocker=2}";
+        final String expected = "MSWatcher{clause=MSClause{activity=0.0, learnt=true, seen=false, lbd=0, canBeDel=true, oneWatched=false, isAtMost=false, atMostWatchers=-1, lits=[1, 2, 3]}, blocker=2}";
         assertThat(watcher.toString()).isEqualTo(expected);
         assertThat(watcher.hashCode()).isEqualTo(watcher.hashCode());
     }

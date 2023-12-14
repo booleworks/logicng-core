@@ -89,16 +89,13 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
 
     // internal state for glucose
     protected boolean useGlucoseFeatures;
-    protected boolean glucoseIncremental;
     protected LNGVector<LNGVector<MSWatcher>> watchesBin;
     protected LNGIntVector permDiff;
     protected LNGIntVector lastDecisionLevel;
     protected LNGBoundedLongQueue lbdQueue;
     protected LNGBoundedIntQueue trailQueue;
-    protected LNGBooleanVector assump;
     protected int myflag;
     protected long analyzeLBD;
-    protected int analyzeSzWithoutSelectors;
     protected int nbClausesBeforeReduce;
     protected int conflicts;
     protected int conflictsRestarts;
@@ -146,9 +143,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         initializeMiniSAT();
         if (glucoseConfig != null) {
             useGlucoseFeatures = true;
-            // TODO this must be cleaned up, it's just here to retain the status quo
             incremental = false;
-            glucoseIncremental = config.incremental;
             initializeGlucoseConfig(glucoseConfig);
             initializeGlucose();
         } else {
@@ -177,13 +172,11 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         lastDecisionLevel = new LNGIntVector();
         lbdQueue = new LNGBoundedLongQueue();
         trailQueue = new LNGBoundedIntQueue();
-        assump = new LNGBooleanVector();
         lbdQueue.initSize(sizeLBDQueue);
         trailQueue.initSize(sizeTrailQueue);
         myflag = 0;
         analyzeBtLevel = 0;
         analyzeLBD = 0;
-        analyzeSzWithoutSelectors = 0;
         nbClausesBeforeReduce = firstReduceDB;
         conflicts = 0;
         conflictsRestarts = 0;
@@ -222,7 +215,6 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             watchesBin.push(new LNGVector<>());
             watchesBin.push(new LNGVector<>());
             permDiff.push(0);
-            assump.push(false);
         }
         newVar.setDecision(dvar);
         insertVarOrder(v);
@@ -311,9 +303,6 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
 
     @Override
     public Tristate solve(final SATHandler handler) {
-        if (glucoseIncremental && config.proofGeneration) {
-            throw new IllegalStateException("Cannot use incremental and proof generation at the same time");
-        }
         this.handler = handler;
         start(handler);
         model.clear();
@@ -321,11 +310,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         if (!ok) {
             return Tristate.FALSE;
         }
-        if (useGlucoseFeatures) {
-            for (int i = 0; i < assumptions.size(); i++) {
-                assump.set(var(assumptions.get(i)), !sign(assumptions.get(i)));
-            }
-        } else {
+        if (!useGlucoseFeatures) {
             learntsizeAdjustConfl = learntsizeAdjustStartConfl;
             learntsizeAdjustCnt = (int) learntsizeAdjustConfl;
             maxLearnts = clauses.size() * learntsizeFactor;
@@ -360,11 +345,6 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         cancelUntil(0);
         this.handler = null;
         canceledByHandler = false;
-        if (useGlucoseFeatures) {
-            for (int i = 0; i < assumptions.size(); i++) {
-                assump.set(var(assumptions.get(i)), false);
-            }
-        }
         return status;
     }
 
@@ -592,30 +572,12 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                         continue;
                     }
                     boolean foundWatch = false;
-                    if (useGlucoseFeatures && glucoseIncremental) {
-                        int chosenPos = -1;
-                        for (int k = 2; k < c.size(); k++) {
-                            if (value(c.get(k)) != Tristate.FALSE) {
-                                chosenPos = k;
-                                if (decisionLevel() > assumptions.size() || value(c.get(k)) == Tristate.TRUE || !isSelector(var(c.get(k)))) {
-                                    break;
-                                }
-                            }
-                        }
-                        if (chosenPos != -1) {
-                            c.set(1, c.get(chosenPos));
-                            c.set(chosenPos, falseLit);
+                    for (int k = 2; k < c.size() && !foundWatch; k++) {
+                        if (value(c.get(k)) != Tristate.FALSE) {
+                            c.set(1, c.get(k));
+                            c.set(k, falseLit);
                             watches.get(not(c.get(1))).push(w);
                             foundWatch = true;
-                        }
-                    } else {
-                        for (int k = 2; k < c.size() && !foundWatch; k++) {
-                            if (value(c.get(k)) != Tristate.FALSE) {
-                                c.set(1, c.get(k));
-                                c.set(k, falseLit);
-                                watches.get(not(c.get(1))).push(w);
-                                foundWatch = true;
-                            }
                         }
                     }
                     if (!foundWatch) {
@@ -819,8 +781,6 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     }
                 }
             }
-        } else if (useGlucoseFeatures && glucoseIncremental) {
-            return (value(c.get(0)) == Tristate.TRUE) || (value(c.get(1)) == Tristate.TRUE);
         } else {
             for (int i = 0; i < c.size(); i++) {
                 if (value(c.get(i)) == Tristate.TRUE) {
@@ -918,39 +878,16 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
     /**
      * Computes the LBD for a given vector of literals.
      * @param lits the vector of literals
-     * @param e    parameter for incremental mode
      * @return the LBD
      */
-    protected long computeLBD(final LNGIntVector lits, final int e) {
-        int end = e;
+    protected long computeLBD(final LNGIntVector lits) {
         long nbLevels = 0;
         myflag++;
-        if (glucoseIncremental) {
-            if (end == -1) {
-                end = lits.size();
-            }
-            long nbDone = 0;
-            for (int i = 0; i < lits.size(); i++) {
-                if (nbDone >= end) {
-                    break;
-                }
-                if (isSelector(var(lits.get(i)))) {
-                    continue;
-                }
-                nbDone++;
-                final int l = v(lits.get(i)).level();
-                if (permDiff.get(l) != myflag) {
-                    permDiff.set(l, myflag);
-                    nbLevels++;
-                }
-            }
-        } else {
-            for (int i = 0; i < lits.size(); i++) {
-                final int l = v(lits.get(i)).level();
-                if (permDiff.get(l) != myflag) {
-                    permDiff.set(l, myflag);
-                    nbLevels++;
-                }
+        for (int i = 0; i < lits.size(); i++) {
+            final int l = v(lits.get(i)).level();
+            if (permDiff.get(l) != myflag) {
+                permDiff.set(l, myflag);
+                nbLevels++;
             }
         }
         if (!reduceOnSize) {
@@ -968,49 +905,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
      * @return the LBD
      */
     protected long computeLBD(final MSClause c) {
-        long nbLevels = 0;
-        myflag++;
-        if (glucoseIncremental) {
-            long nbDone = 0;
-            for (int i = 0; i < c.size(); i++) {
-                if (nbDone >= c.sizeWithoutSelectors()) {
-                    break;
-                }
-                if (isSelector(var(c.get(i)))) {
-                    continue;
-                }
-                nbDone++;
-                final int l = v(c.get(i)).level();
-                if (permDiff.get(l) != myflag) {
-                    permDiff.set(l, myflag);
-                    nbLevels++;
-                }
-            }
-        } else {
-            for (int i = 0; i < c.size(); i++) {
-                final int l = v(c.get(i)).level();
-                if (permDiff.get(l) != myflag) {
-                    permDiff.set(l, myflag);
-                    nbLevels++;
-                }
-            }
-        }
-        if (!reduceOnSize) {
-            return nbLevels;
-        }
-        if (c.size() < reduceOnSizeSize) {
-            return c.size();
-        }
-        return c.size() + nbLevels;
-    }
-
-    /**
-     * Returns {@code true} if a given variable is a selector variable, {@code false} otherwise.
-     * @param v the variable
-     * @return {@code true} if the given variable is a selector variable
-     */
-    protected boolean isSelector(final int v) {
-        return glucoseIncremental && assump.get(v);
+        return computeLBD(c.getData());
     }
 
     /**
@@ -1018,7 +913,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
      * @param outLearnt the vector where the new learnt 1-UIP clause is stored
      */
     protected void minimisationWithBinaryResolution(final LNGIntVector outLearnt) {
-        final long lbd = computeLBD(outLearnt, -1);
+        final long lbd = computeLBD(outLearnt);
         int p = not(outLearnt.get(0));
         if (lbd <= lbLBDMinimizingClause) {
             myflag++;
@@ -1117,7 +1012,6 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     if (useGlucoseFeatures) {
                         cr.setLBD(analyzeLBD);
                         cr.setOneWatched(false);
-                        cr.setSizeWithoutSelectors(analyzeSzWithoutSelectors);
                     }
                     learnts.push(cr);
                     attachClause(cr);
@@ -1139,11 +1033,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                 if (useGlucoseFeatures) {
                     if (lbdQueue.valid() && (lbdQueue.avg() * factorK) > (sumLBD / conflictsRestarts)) {
                         lbdQueue.fastClear();
-                        int bt = 0;
-                        if (glucoseIncremental) {
-                            bt = Math.min(decisionLevel(), assumptions.size());
-                        }
-                        cancelUntil(bt);
+                        cancelUntil(0);
                         return Tristate.UNDEF;
                     }
                     if (decisionLevel() == 0 && !simplify()) {
@@ -1278,22 +1168,15 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                 for (int j = (p == LIT_UNDEF) ? 0 : 1; j < c.size(); j++) {
                     final int q = c.get(j);
                     if (!seen.get(var(q)) && v(q).level() != 0) {
-                        if (!isSelector(var(q))) {
-                            varBumpActivity(var(q));
-                        }
+                        varBumpActivity(var(q));
                         seen.set(var(q), true);
                         if (v(q).level() >= decisionLevel()) {
                             pathC++;
-                            if (!isSelector(var(q)) && (v(q).reason() != null) && v(q).reason().learnt()) {
+                            if ((v(q).reason() != null) && v(q).reason().learnt()) {
                                 lastDecisionLevel.push(q);
                             }
                         } else {
-                            if (isSelector(var(q))) {
-                                assert value(q) == Tristate.FALSE;
-                                selectors.push(q);
-                            } else {
-                                outLearnt.push(q);
-                            }
+                            outLearnt.push(q);
                         }
                     }
                 }
@@ -1381,7 +1264,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             i = j = outLearnt.size();
         }
         outLearnt.removeElements(i - j);
-        if (useGlucoseFeatures && !glucoseIncremental && outLearnt.size() <= lbSizeMinimizingClause) {
+        if (useGlucoseFeatures && outLearnt.size() <= lbSizeMinimizingClause) {
             minimisationWithBinaryResolution(outLearnt);
         }
         analyzeBtLevel = 0;
@@ -1398,19 +1281,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             analyzeBtLevel = v(p).level();
         }
         if (useGlucoseFeatures) {
-            analyzeSzWithoutSelectors = 0;
-            if (glucoseIncremental) {
-                for (int k = 0; k < outLearnt.size(); k++) {
-                    if (!isSelector(var(outLearnt.get(k)))) {
-                        analyzeSzWithoutSelectors++;
-                    } else if (k > 0) {
-                        break;
-                    }
-                }
-            } else {
-                analyzeSzWithoutSelectors = outLearnt.size();
-            }
-            analyzeLBD = computeLBD(outLearnt, outLearnt.size() - selectors.size());
+            analyzeLBD = computeLBD(outLearnt);
             if (lastDecisionLevel.size() > 0) {
                 for (int k = 0; k < lastDecisionLevel.size(); k++) {
                     if ((v(lastDecisionLevel.get(k)).reason()).lbd() < analyzeLBD) {
