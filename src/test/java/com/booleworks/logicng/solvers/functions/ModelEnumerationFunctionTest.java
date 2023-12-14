@@ -41,18 +41,6 @@ public class ModelEnumerationFunctionTest {
     }
 
     @Test
-    public void testFastEvaluable() throws ParserException {
-        final SATSolver solver = MiniSat.miniSat(f);
-        solver.add(f.parse("A & (B | C)"));
-        List<Assignment> models = solver.execute(ModelEnumerationFunction.builder().build());
-        assertThat(models).extracting(Assignment::fastEvaluable).containsOnly(false);
-        models = solver.execute(ModelEnumerationFunction.builder().fastEvaluable(false).build());
-        assertThat(models).extracting(Assignment::fastEvaluable).containsOnly(false);
-        models = solver.execute(ModelEnumerationFunction.builder().fastEvaluable(true).build());
-        assertThat(models).extracting(Assignment::fastEvaluable).containsOnly(true);
-    }
-
-    @Test
     public void testVariableRemovedBySimplificationOccursInModels() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().simplifyComplementaryOperands(true).build());
         final SATSolver solver = MiniSat.miniSat(this.f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());

@@ -512,7 +512,8 @@ public class AdvancedModelEnumerationFunctionTest extends TestWithFormulaContext
         for (final Assignment assignment : assignments) {
             final SortedSet<Literal> assignmentLiterals = assignment.literals();
             for (final List<Literal> literals : cartesianProduct) {
-                extendedAssignments.add(new Assignment(union(assignmentLiterals, literals, TreeSet::new)));
+                final Collection<Literal> union = union(assignmentLiterals, literals, TreeSet::new);
+                extendedAssignments.add(new Assignment(union));
             }
         }
         return extendedAssignments;

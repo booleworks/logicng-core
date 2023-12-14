@@ -147,7 +147,7 @@ public final class SmusComputation {
         if (maxModel == null || Handler.aborted(handler)) {
             return null;
         } else {
-            final List<Variable> maximumSatisfiableSet = maxModel.positiveVariables();
+            final SortedSet<Variable> maximumSatisfiableSet = maxModel.positiveVariables();
             growSolver.loadState(solverState);
             final SortedSet<Variable> minimumCorrectionSet = new TreeSet<>(variables);
             maximumSatisfiableSet.forEach(minimumCorrectionSet::remove);

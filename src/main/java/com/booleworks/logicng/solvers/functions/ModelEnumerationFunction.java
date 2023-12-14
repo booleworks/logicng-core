@@ -39,14 +39,12 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
     private final ModelEnumerationHandler handler;
     private final Collection<Variable> variables;
     private final Collection<Variable> additionalVariables;
-    private final boolean fastEvaluable;
 
     private ModelEnumerationFunction(final ModelEnumerationHandler handler, final Collection<Variable> variables,
-                                     final Collection<Variable> additionalVariables, final boolean fastEvaluable) {
+                                     final Collection<Variable> additionalVariables) {
         this.handler = handler;
         this.variables = variables;
         this.additionalVariables = additionalVariables;
-        this.fastEvaluable = fastEvaluable;
     }
 
     /**
@@ -71,7 +69,7 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
         boolean proceed = true;
         while (proceed && modelEnumerationSATCall(solver, handler)) {
             final LNGBooleanVector modelFromSolver = solver.underlyingSolver().model();
-            final Assignment model = solver.createAssignment(modelFromSolver, relevantAllIndices, fastEvaluable);
+            final Assignment model = solver.createAssignment(modelFromSolver, relevantAllIndices);
             models.add(model);
             proceed = handler == null || handler.foundModel(model);
             if (model.size() > 0) {
@@ -103,7 +101,6 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
         private ModelEnumerationHandler handler;
         private Collection<Variable> variables;
         private Collection<Variable> additionalVariables;
-        private boolean fastEvaluable = false;
 
         private Builder() {
             // Initialize only via factory
@@ -160,21 +157,11 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
         }
 
         /**
-         * Sets the flag whether the created assignment should be {@link Assignment#fastEvaluable() fast evaluable} assignments.
-         * @param fastEvaluable {@code true} if the created assignment should be fast evaluable, otherwise {@code false}
-         * @return the builder
-         */
-        public Builder fastEvaluable(final boolean fastEvaluable) {
-            this.fastEvaluable = fastEvaluable;
-            return this;
-        }
-
-        /**
          * Builds the model enumeration function with the current builder's configuration.
          * @return the model enumeration function
          */
         public ModelEnumerationFunction build() {
-            return new ModelEnumerationFunction(handler, variables, additionalVariables, fastEvaluable);
+            return new ModelEnumerationFunction(handler, variables, additionalVariables);
         }
     }
 }

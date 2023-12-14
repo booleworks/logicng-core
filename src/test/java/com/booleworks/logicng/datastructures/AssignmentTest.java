@@ -60,33 +60,6 @@ public class AssignmentTest extends TestWithFormulaContext {
 
     @ParameterizedTest
     @MethodSource("contexts")
-    public void testFastEvaluable(final FormulaContext _c) {
-        Assignment ass = new Assignment(List.of(_c.a, _c.nx), false);
-        assertThat(ass.fastEvaluable()).isFalse();
-        ass.convertToFastEvaluable();
-        assertThat(ass.fastEvaluable()).isTrue();
-        assertThat(ass.positiveVariables()).containsExactly(_c.a);
-        assertThat(ass.negativeLiterals()).containsExactly(_c.nx);
-        assertThat(ass.negativeVariables()).containsExactly(_c.x);
-        ass.addLiteral(_c.nb);
-        ass.addLiteral(_c.y);
-        assertThat(ass.positiveVariables()).containsExactly(_c.a, _c.y);
-        assertThat(ass.negativeLiterals()).containsExactly(_c.nb, _c.nx);
-        assertThat(ass.negativeVariables()).containsExactlyInAnyOrder(_c.x, _c.b);
-        assertThat(ass.evaluateLit(_c.y)).isTrue();
-        assertThat(ass.evaluateLit(_c.b)).isFalse();
-        assertThat(ass.restrictLit(_c.f, _c.nb)).isEqualTo(_c.verum);
-        assertThat(ass.restrictLit(_c.f, _c.x)).isEqualTo(_c.falsum);
-        assertThat(ass.restrictLit(_c.f, _c.c)).isEqualTo(_c.c);
-        assertThat(ass.formula(_c.f)).isEqualTo(_c.f.and(_c.a, _c.nx, _c.nb, _c.y));
-        ass = new Assignment(Arrays.asList(_c.a, _c.nx), true);
-        assertThat(ass.fastEvaluable()).isTrue();
-        ass.convertToFastEvaluable();
-        assertThat(ass.fastEvaluable()).isTrue();
-    }
-
-    @ParameterizedTest
-    @MethodSource("contexts")
     public void testBlockingClause(final FormulaContext _c) throws ParserException {
         final Assignment ass = new Assignment();
         ass.addLiteral(_c.a);
@@ -112,15 +85,14 @@ public class AssignmentTest extends TestWithFormulaContext {
 
     @Test
     public void testSize() {
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.x, c.y), true).size()).isEqualTo(4);
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), false).size()).isEqualTo(4);
-        assertThat(new Assignment(Arrays.asList(c.a, c.nb)).size()).isEqualTo(2);
+        assertThat(new Assignment(c.a, c.b, c.x, c.y).size()).isEqualTo(4);
+        assertThat(new Assignment(c.a, c.nb).size()).isEqualTo(2);
     }
 
     @Test
     public void testPositiveVariables() {
         final Variable[] a = {c.a, c.b, c.x, c.y};
-        Assignment ass1 = new Assignment(Arrays.asList(a), false);
+        Assignment ass1 = new Assignment(a);
         assertThat(ass1.positiveVariables()).containsExactly(a);
         ass1 = new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny));
         assertThat(ass1.positiveVariables()).containsExactly(c.a, c.b);
@@ -169,13 +141,13 @@ public class AssignmentTest extends TestWithFormulaContext {
         ass.addLiteral(c.b);
         ass.addLiteral(c.nx);
         ass.addLiteral(c.ny);
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny)).hashCode()).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true).hashCode());
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny)).hashCode()).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true).hashCode());
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true).hashCode()).isEqualTo(ass.hashCode());
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny)).hashCode()).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny)).hashCode());
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny)).hashCode()).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true).hashCode());
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny)).hashCode()).isEqualTo(ass.hashCode());
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny)).hashCode()).isEqualTo(ass.hashCode());
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode()).isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny).hashCode());
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode()).isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny).hashCode());
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode()).isEqualTo(ass.hashCode());
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode()).isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny).hashCode());
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode()).isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny).hashCode());
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode()).isEqualTo(ass.hashCode());
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode()).isEqualTo(ass.hashCode());
     }
 
     @Test
@@ -185,19 +157,14 @@ public class AssignmentTest extends TestWithFormulaContext {
         ass.addLiteral(c.b);
         ass.addLiteral(c.nx);
         ass.addLiteral(c.ny);
-        final Assignment fastAss = new Assignment(true);
-        fastAss.addLiteral(c.a);
-        fastAss.addLiteral(c.b);
-        fastAss.addLiteral(c.nx);
-        fastAss.addLiteral(c.ny);
         assertThat(ass).isNotEqualTo(null);
         assertThat(ass.equals(null)).isFalse();
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), false)).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), false));
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true)).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), false));
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), false)).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true));
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true)).isEqualTo(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny), true));
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny))).isEqualTo(ass);
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny))).isEqualTo(ass);
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny)).isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny));
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny)).isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny));
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny)).isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny));
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny)).isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny));
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny)).isEqualTo(ass);
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny)).isEqualTo(ass);
         assertThat(ass).isEqualTo(ass);
         assertThat(ass.equals(ass)).isTrue();
         assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx))).isNotEqualTo(ass);

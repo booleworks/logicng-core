@@ -271,7 +271,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         assertThat(handler.getRollbackCalls()).isZero();
 
         collector.commit(handler);
-        assertThat(collector.getResult().enumerateAllModels()).containsExactly(expectedModel1.assignment(false));
+        assertThat(collector.getResult().enumerateAllModels()).containsExactly(expectedModel1.assignment());
         assertThat(handler.getFoundModels()).isEqualTo(1);
         assertThat(handler.getCommitCalls()).isEqualTo(1);
         assertThat(handler.getRollbackCalls()).isZero();
@@ -299,7 +299,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
 
         collector.addModel(modelFromSolver2, solver, null, handler);
         collector.commit(handler);
-        assertThat(collector.getResult().enumerateAllModels()).containsExactlyInAnyOrder(expectedModel1.assignment(false), expectedModel2.assignment(false));
+        assertThat(collector.getResult().enumerateAllModels()).containsExactlyInAnyOrder(expectedModel1.assignment(), expectedModel2.assignment());
         assertThat(handler.getFoundModels()).isEqualTo(4);
         assertThat(handler.getCommitCalls()).isEqualTo(2);
         assertThat(handler.getRollbackCalls()).isEqualTo(2);

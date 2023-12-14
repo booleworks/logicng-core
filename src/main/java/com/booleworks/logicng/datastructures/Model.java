@@ -8,6 +8,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.Objects;
 /**
  * A simple immutable class representing a model of a formula.  In contrast to an {@link Assignment} a model just
  * stores a simple list of literals and cannot be used to evaluate or restrict a formula (because this would
- * be very inefficient).  In this case you want to use the {@link #assignment(boolean)} method to convert
+ * be very inefficient).  In this case you want to use the {@link #assignment()} method to convert
  * the model to an assignment first.
  * <p>
  * The primary use case for models is to use them in the model enumeration function for minimal heap usage of
@@ -47,6 +48,15 @@ public class Model {
     }
 
     /**
+     * Constructs a new model from an assignment.
+     * @param assignment the assignment
+     */
+    public Model(final Assignment assignment) {
+        literals = new ArrayList<>(assignment.positiveVariables());
+        literals.addAll(assignment.negativeLiterals());
+    }
+
+    /**
      * Returns the list of literals of this model.
      * @return the list of literals
      */
@@ -64,11 +74,10 @@ public class Model {
 
     /**
      * Converts this model to an assignment.
-     * @param fastEvaluable whether the assignment should be fast evaluable or not
      * @return the assignment
      */
-    public Assignment assignment(final boolean fastEvaluable) {
-        return new Assignment(literals, fastEvaluable);
+    public Assignment assignment() {
+        return new Assignment(literals);
     }
 
     /**

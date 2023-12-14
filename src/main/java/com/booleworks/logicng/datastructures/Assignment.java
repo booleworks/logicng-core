@@ -12,57 +12,44 @@ import com.booleworks.logicng.formulas.Variable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * A Boolean assignment.
+ * A class representing a Boolean assignment, i.e. a mapping from variables to truth values.
+ * In contrast to an {@link Model} an assignment stores the variables internally in such a
+ * way that it can be efficiently evaluated.
  * <p>
- * Note: the internal data structure is a plain list - no checking of the model is performed e.g. if
- * contradictory literals are added. Since assignments are used e.g. in the model enumeration of the SAT solvers these
- * checks would be too costly.
+ * The primary use case for assignments is their usage in the evaluation and restriction of
+ * formulas. Assignments and models can be converted to each other.
+ * <p>
+ * Two assignments are equal, if their literal are equal - independent of their order.
  * @version 3.0.0
  * @since 1.0
  */
+
 public final class Assignment {
 
-    private Collection<Variable> pos;
-    private Collection<Literal> neg;
-    private boolean fastEvaluable;
-
-    /**
-     * Constructs a new empty assignment (without fast evaluation).
-     */
-    public Assignment() {
-        this(false);
-    }
+    private final SortedSet<Variable> pos = new TreeSet<>();
+    private final SortedSet<Literal> neg = new TreeSet<>();
 
     /**
      * Constructs a new empty assignment.
-     * @param fastEvaluable indicates whether this assignment should be evaluable fast.  If this parameter is set to
-     *                      {@code true} the internal data structures will be optimized for fast evaluation but
-     *                      creation of the object or adding literals can take longer.
      */
-    public Assignment(final boolean fastEvaluable) {
-        this.fastEvaluable = fastEvaluable;
-        if (!fastEvaluable) {
-            pos = new ArrayList<>();
-            neg = new ArrayList<>();
-        } else {
-            pos = new HashSet<>();
-            neg = new HashSet<>();
-        }
+    public Assignment() {
+        // do nothing
     }
 
     /**
-     * Constructs a new assignment for a given collection of literals (without fast evaluation).
-     * @param lits a new assignment for a given collection of literals
+     * Constructs a new assignment for a given collection of literals.
+     * @param lits the set of literals
      */
     public Assignment(final Collection<? extends Literal> lits) {
-        this(lits, false);
+        for (final Literal lit : lits) {
+            addLiteral(lit);
+        }
     }
 
     /**
@@ -70,63 +57,25 @@ public final class Assignment {
      * @param lits a new assignment for a given array of literals
      */
     public Assignment(final Literal... lits) {
-        this(false);
         for (final Literal lit : lits) {
             addLiteral(lit);
         }
-    }
-
-    /**
-     * Constructs a new assignment for a given collection of literals.
-     * @param lits          a new assignment for a given collection of literals
-     * @param fastEvaluable indicates whether this assignment should be evaluable fast.  If this parameter is set to
-     *                      {@code true} the internal data structures will be optimized for fast evaluation but
-     *                      creation of the object or adding literals can take longer.
-     */
-    public Assignment(final Collection<? extends Literal> lits, final boolean fastEvaluable) {
-        this(fastEvaluable);
-        for (final Literal lit : lits) {
-            addLiteral(lit);
-        }
-    }
-
-    /**
-     * Constructs a new assignment with a single literal assignment (without fast evaluation).
-     * @param lit the literal
-     */
-    public Assignment(final Literal lit) {
-        this(lit, false);
     }
 
     /**
      * Constructs a new assignment with a single literal assignment.
-     * @param lit           the literal
-     * @param fastEvaluable indicates whether this assignment should be evaluable fast.  If this parameter is set to
-     *                      {@code true} the internal data structures will be optimized for fast evaluation but
-     *                      creation of the object or adding literals can take longer.
+     * @param lit the literal
      */
-    public Assignment(final Literal lit, final boolean fastEvaluable) {
-        this(fastEvaluable);
+    public Assignment(final Literal lit) {
         addLiteral(lit);
     }
 
     /**
-     * Converts this assignment to a fast evaluable assignment.
+     * Constructs a new assignment from a given model.
+     * @param model the model
      */
-    public void convertToFastEvaluable() {
-        if (!fastEvaluable) {
-            pos = new HashSet<>(pos);
-            neg = new HashSet<>(neg);
-            fastEvaluable = true;
-        }
-    }
-
-    /**
-     * Returns whether this assignment is fast evaluable or not.
-     * @return {@code true} if this assignment is fast evaluable, {@code false} otherwise
-     */
-    public boolean fastEvaluable() {
-        return fastEvaluable;
+    public Assignment(final Model model) {
+        this(model.getLiterals());
     }
 
     /**
@@ -141,24 +90,24 @@ public final class Assignment {
      * Returns the positive literals of this assignment as variables.
      * @return the positive literals of this assignment
      */
-    public List<Variable> positiveVariables() {
-        return fastEvaluable ? Collections.unmodifiableList(new ArrayList<>(pos)) : Collections.unmodifiableList((List<Variable>) pos);
+    public SortedSet<Variable> positiveVariables() {
+        return Collections.unmodifiableSortedSet(pos);
     }
 
     /**
      * Returns the negative literals of this assignment.
      * @return the negative literals of this assignment
      */
-    public List<Literal> negativeLiterals() {
-        return fastEvaluable ? Collections.unmodifiableList(new ArrayList<>(neg)) : Collections.unmodifiableList((List<Literal>) neg);
+    public SortedSet<Literal> negativeLiterals() {
+        return Collections.unmodifiableSortedSet(neg);
     }
 
     /**
      * Returns the negative literals of this assignment as variables.
      * @return the negative literals of this assignment
      */
-    public List<Variable> negativeVariables() {
-        final ArrayList<Variable> negatedVariables = new ArrayList<>();
+    public SortedSet<Variable> negativeVariables() {
+        final SortedSet<Variable> negatedVariables = new TreeSet<>();
         for (final Literal lit : neg) {
             negatedVariables.add(lit.variable());
         }
@@ -225,6 +174,14 @@ public final class Assignment {
     }
 
     /**
+     * Converts this assignment to a model.
+     * @return the model
+     */
+    public Model model() {
+        return new Model(this);
+    }
+
+    /**
      * Creates the blocking clause for this assignment.
      * @param f the formula factory
      * @return the blocking clause for this assignment
@@ -266,7 +223,7 @@ public final class Assignment {
 
     @Override
     public int hashCode() {
-        return Objects.hash(toHashSet(pos), toHashSet(neg));
+        return Objects.hash(pos, neg);
     }
 
     @Override
@@ -279,20 +236,10 @@ public final class Assignment {
         }
         if (getClass() == other.getClass()) {
             final Assignment o = (Assignment) other;
-            return Objects.equals(toHashSet(pos), o.toHashSet(o.pos))
-                    && Objects.equals(toHashSet(neg), o.toHashSet(o.neg));
+            return Objects.equals(pos, o.pos)
+                    && Objects.equals(neg, o.neg);
         }
         return false;
-    }
-
-    /**
-     * Returns a hash set containing the given literals. The given literals must be {@link this#pos} or {@link this#neg}.
-     * @param literals the literal collection, either {@link this#pos} or {@link this#neg}
-     * @return a hash set with the elements of the given literals
-     */
-    private Collection<? extends Literal> toHashSet(final Collection<? extends Literal> literals) {
-        // invariant: if fastEvaluable is active, the pos and neg collections are already hash sets
-        return fastEvaluable ? literals : new HashSet<>(literals);
     }
 
     @Override
