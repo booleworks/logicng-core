@@ -7,7 +7,7 @@ package com.booleworks.logicng.pseudobooleans;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LogicNGTest;
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.PBConstraint;
@@ -62,9 +62,9 @@ public class PBSolvingTest implements LogicNGTest {
         for (final SATSolver solver : solvers) {
             solver.reset();
             solver.add(f.amo(literals100));
-            final List<Assignment> models = solver.enumerateAllModels(literals100);
+            final List<Model> models = solver.enumerateAllModels(literals100);
             assertThat(models.size()).isEqualTo(101);
-            for (final Assignment model : models) {
+            for (final Model model : models) {
                 assertThat(model.positiveVariables().size() <= 1).isTrue();
             }
         }
@@ -75,9 +75,9 @@ public class PBSolvingTest implements LogicNGTest {
         for (final SATSolver solver : solvers) {
             solver.reset();
             solver.add(f.exo(literals100));
-            final List<Assignment> models = solver.enumerateAllModels(literals100);
+            final List<Model> models = solver.enumerateAllModels(literals100);
             assertThat(models.size()).isEqualTo(100);
-            for (final Assignment model : models) {
+            for (final Model model : models) {
                 assertThat(model.positiveVariables().size() == 1).isTrue();
             }
         }
@@ -321,35 +321,35 @@ public class PBSolvingTest implements LogicNGTest {
                 final PBConstraint pbc = (PBConstraint) f.pbc(CType.EQ, 2, literals10, coeffs10);
                 solver.add(PBEncoder.encode(f, pbc, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(45).allMatch(pbc::evaluate);
+                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(45).allMatch(m -> pbc.evaluate(m.assignment()));
                 solver.reset();
 
                 coeffs10 = new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, -2};
                 final PBConstraint pbc2 = (PBConstraint) f.pbc(CType.EQ, 4, literals10, coeffs10);
                 solver.add(PBEncoder.encode(f, pbc2, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(120).allMatch(pbc2::evaluate);
+                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(120).allMatch(m -> pbc2.evaluate(m.assignment()));
                 solver.reset();
 
                 coeffs10 = new int[]{2, 2, -3, 2, -7, 2, 2, 2, 2, -2};
                 final PBConstraint pbc3 = (PBConstraint) f.pbc(CType.EQ, 4, literals10, coeffs10);
                 solver.add(PBEncoder.encode(f, pbc3, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(57).allMatch(pbc3::evaluate);
+                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(57).allMatch(m -> pbc3.evaluate(m.assignment()));
                 solver.reset();
 
                 coeffs10 = new int[]{2, 2, -3, 2, -7, 2, 2, 2, 2, -2};
                 final PBConstraint pbc4 = (PBConstraint) f.pbc(CType.EQ, -10, literals10, coeffs10);
                 solver.add(PBEncoder.encode(f, pbc4, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(8).allMatch(pbc4::evaluate);
+                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(8).allMatch(m -> pbc4.evaluate(m.assignment()));
                 solver.reset();
 
                 coeffs10 = new int[]{2, 2, -4, 2, -6, 2, 2, 2, 2, -2};
                 final PBConstraint pbc5 = (PBConstraint) f.pbc(CType.EQ, -12, literals10, coeffs10);
                 solver.add(PBEncoder.encode(f, pbc5, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(1).allMatch(pbc5::evaluate);
+                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(1).allMatch(m -> pbc5.evaluate(m.assignment()));
                 solver.reset();
             }
         }

@@ -13,8 +13,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.functions.modelenumeration.AdvancedModelEnumerationConfig;
-import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultAdvancedModelEnumerationStrategy;
+import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
+import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
 import com.booleworks.logicng.solvers.functions.modelenumeration.TestVariableProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,13 +38,13 @@ public class AbstractModelEnumerationFunctionTest {
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(formula);
 
-        final AdvancedModelEnumerationConfig config = AdvancedModelEnumerationConfig.builder()
-                .strategy(DefaultAdvancedModelEnumerationStrategy.builder()
+        final ModelEnumerationConfig config = ModelEnumerationConfig.builder()
+                .strategy(DefaultModelEnumerationStrategy.builder()
                         .splitVariableProvider(new TestVariableProvider.EmptyVariableProvider())
                         .maxNumberOfModels(5)
                         .build())
                 .build();
-        final List<Model> models = solver.execute(AdvancedModelEnumerationFunction.builder().configuration(config).build());
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder().configuration(config).build());
         assertThat(models.size()).isEqualTo(31);
     }
 
@@ -56,13 +56,13 @@ public class AbstractModelEnumerationFunctionTest {
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(formula);
 
-        final AdvancedModelEnumerationConfig config = AdvancedModelEnumerationConfig.builder()
-                .strategy(DefaultAdvancedModelEnumerationStrategy.builder()
+        final ModelEnumerationConfig config = ModelEnumerationConfig.builder()
+                .strategy(DefaultModelEnumerationStrategy.builder()
                         .splitVariableProvider(new TestVariableProvider.NullVariableProvider())
                         .maxNumberOfModels(5)
                         .build())
                 .build();
-        final List<Model> models = solver.execute(AdvancedModelEnumerationFunction.builder().configuration(config).build());
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder().configuration(config).build());
         assertThat(models.size()).isEqualTo(31);
     }
 }

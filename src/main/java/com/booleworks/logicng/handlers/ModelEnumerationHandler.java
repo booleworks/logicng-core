@@ -4,13 +4,10 @@
 
 package com.booleworks.logicng.handlers;
 
-import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.datastructures.Model;
-
 /**
  * Interface for a handler for the enumeration of models.
  * @version 3.0.0
- * @since 1.0
+ * @since 3.0.0
  */
 public interface ModelEnumerationHandler extends Handler {
 
@@ -26,16 +23,24 @@ public interface ModelEnumerationHandler extends Handler {
     }
 
     /**
-     * This method is called every time a model is found.
-     * @param assignment the respective model
-     * @return {@code true} if more models should be searched, otherwise {@code false}
+     * This method is called every time new models are found.
+     * <p>
+     * The found models are in an uncommitted state until they are confirmed by calling {@link #commit()}.
+     * It is also possible to roll back the uncommitted models by calling {@link #rollback()}.
+     * @param numberOfModels the number of found models
+     * @return {@code true} if the computation should continue, otherwise {@code false}
      */
-    boolean foundModel(Assignment assignment);
+    boolean foundModels(int numberOfModels);
 
     /**
-     * This method is called every time a model is found.
-     * @param model the respective model
-     * @return {@code true} if more models should be searched, otherwise {@code false}
+     * All founds models since the last commit call are confirmed and cannot be rolled back.
+     * @return {@code true} if the computation should continue, otherwise {@code false}
      */
-    boolean foundModel(Model model);
+    boolean commit();
+
+    /**
+     * All found models since the last commit should be discarded.
+     * @return {@code true} if the computation should continue, otherwise {@code false}
+     */
+    boolean rollback();
 }

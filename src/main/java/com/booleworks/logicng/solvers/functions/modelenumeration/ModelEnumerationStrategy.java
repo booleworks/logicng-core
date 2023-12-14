@@ -11,11 +11,11 @@ import java.util.Collection;
 import java.util.SortedSet;
 
 /**
- * A strategy for fine-tuning the advanced model enumeration.
+ * A strategy for fine-tuning the model enumeration.
  * @version 3.0.0
  * @since 3.0.0
  */
-public interface AdvancedModelEnumerationStrategy {
+public interface ModelEnumerationStrategy {
 
     /**
      * Returns the maximum number of models to be enumerated on the given recursion depth.

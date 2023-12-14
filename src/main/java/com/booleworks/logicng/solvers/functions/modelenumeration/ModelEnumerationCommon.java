@@ -8,7 +8,6 @@ import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.MiniSat;
-import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -17,8 +16,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * Common methods used by model enumeration implementations, e.g. {@link ModelEnumerationFunction}
- * and {@link AbstractModelEnumerationFunction}.
+ * Common methods used by model enumeration implementations.
  * @version 3.0.0
  * @since 3.0.0
  */
@@ -107,7 +105,10 @@ public interface ModelEnumerationCommon {
                     relevantAllIndices.push(relevantIndices.get(i));
                 }
                 for (final Variable var : uniqueAdditionalVariables) {
-                    relevantAllIndices.push(solver.underlyingSolver().idxForName(var.name()));
+                    final int idx = solver.underlyingSolver().idxForName(var.name());
+                    if (idx != -1) {
+                        relevantAllIndices.push(idx);
+                    }
                 }
             }
         }

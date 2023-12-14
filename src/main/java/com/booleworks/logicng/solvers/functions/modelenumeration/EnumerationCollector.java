@@ -7,7 +7,7 @@ package com.booleworks.logicng.solvers.functions.modelenumeration;
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Model;
-import com.booleworks.logicng.handlers.AdvancedModelEnumerationHandler;
+import com.booleworks.logicng.handlers.ModelEnumerationHandler;
 import com.booleworks.logicng.solvers.MiniSat;
 
 import java.util.List;
@@ -15,9 +15,9 @@ import java.util.List;
 /**
  * An interface for enumeration collectors.
  * <p>
- * An enumeration collector gathers the found models given by {@link #addModel(LNGBooleanVector, MiniSat, LNGIntVector, AdvancedModelEnumerationHandler)}.
- * Added Models added can potentially be discarded later via {@link #rollback(AdvancedModelEnumerationHandler)}. To prevent models from being rolled back
- * one can call {@link #commit(AdvancedModelEnumerationHandler)}. With {@link #getResult()} the result, the models committed models, can be retrieved.
+ * An enumeration collector gathers the found models given by {@link #addModel(LNGBooleanVector, MiniSat, LNGIntVector, ModelEnumerationHandler)}.
+ * Added Models added can potentially be discarded later via {@link #rollback(ModelEnumerationHandler)}. To prevent models from being rolled back
+ * one can call {@link #commit(ModelEnumerationHandler)}. With {@link #getResult()} the result, the models committed models, can be retrieved.
  * @param <RESULT> The result type of the model enumeration function.  Can be e.g. a model count, a list of models, or a BDD.
  * @version 2.5.0
  * @since 2.5.0
@@ -29,38 +29,38 @@ public interface EnumerationCollector<RESULT> {
      * @param modelFromSolver    the model from the solver
      * @param solver             the solver
      * @param relevantAllIndices the relevant indices
-     * @param handler            the advanced model enumeration handler, may be {@code null}
+     * @param handler            the model enumeration handler, may be {@code null}
      * @return true if adding the model was successful, false otherwise
      */
-    boolean addModel(LNGBooleanVector modelFromSolver, MiniSat solver, LNGIntVector relevantAllIndices, AdvancedModelEnumerationHandler handler);
+    boolean addModel(LNGBooleanVector modelFromSolver, MiniSat solver, LNGIntVector relevantAllIndices, ModelEnumerationHandler handler);
 
     /**
      * All founds models since the last commit call are confirmed and cannot be rolled back.
      * <p>
      * Calls the {@code commit()} routine of {@code handler}.
-     * @param handler the advanced model enumeration handler, may be {@code null}
+     * @param handler the model enumeration handler, may be {@code null}
      * @return {@code true} if the computation should continue, otherwise {@code false}
      */
-    boolean commit(AdvancedModelEnumerationHandler handler);
+    boolean commit(ModelEnumerationHandler handler);
 
     /**
      * All found models since the last commit should be discarded.
      * <p>
      * Calls the {@code rollback} routine of {@code handler}.
-     * @param handler the advanced model enumeration handler, may be {@code null}
+     * @param handler the model enumeration handler, may be {@code null}
      * @return {@code true} if the computation should continue, otherwise {@code false}
      */
-    boolean rollback(AdvancedModelEnumerationHandler handler);
+    boolean rollback(ModelEnumerationHandler handler);
 
     /**
      * All found models since the last commit will be discarded and returned.
      * <p>
      * Calls the {@code rollback} routine of {@code handler}.
      * @param solver  solver used for the enumeration
-     * @param handler the advanced model enumeration handler, may be {@code null}
+     * @param handler the model enumeration handler, may be {@code null}
      * @return list of all discarded models
      */
-    List<Model> rollbackAndReturnModels(final MiniSat solver, AdvancedModelEnumerationHandler handler);
+    List<Model> rollbackAndReturnModels(final MiniSat solver, ModelEnumerationHandler handler);
 
     /**
      * @return the committed state of the collector

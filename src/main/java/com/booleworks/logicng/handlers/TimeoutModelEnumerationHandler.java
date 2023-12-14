@@ -4,13 +4,10 @@
 
 package com.booleworks.logicng.handlers;
 
-import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.datastructures.Model;
-
 /**
  * A model enumeration handler which cancels the computation process after a given timeout.
  * @version 3.0.0
- * @since 1.0
+ * @since 3.0.0
  */
 public class TimeoutModelEnumerationHandler extends TimeoutHandler implements ModelEnumerationHandler {
 
@@ -69,12 +66,17 @@ public class TimeoutModelEnumerationHandler extends TimeoutHandler implements Mo
     }
 
     @Override
-    public boolean foundModel(final Assignment assignment) {
+    public boolean foundModels(final int numberOfModel) {
         return !timeLimitExceeded();
     }
 
     @Override
-    public boolean foundModel(final Model model) {
+    public boolean commit() {
+        return !timeLimitExceeded();
+    }
+
+    @Override
+    public boolean rollback() {
         return !timeLimitExceeded();
     }
 }

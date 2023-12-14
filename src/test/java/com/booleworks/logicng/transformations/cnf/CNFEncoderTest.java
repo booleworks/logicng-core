@@ -4,23 +4,17 @@
 
 package com.booleworks.logicng.transformations.cnf;
 
+import static com.booleworks.logicng.testutils.TestUtil.equivalentModels;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
-import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.solvers.MiniSat;
-import com.booleworks.logicng.solvers.SATSolver;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import java.util.List;
-import java.util.SortedSet;
 
 public class CNFEncoderTest extends TestWithFormulaContext {
 
@@ -183,21 +177,4 @@ public class CNFEncoderTest extends TestWithFormulaContext {
         assertThatThrownBy(() -> CNFConfig.builder().fallbackAlgorithmForAdvancedEncoding(CNFConfig.Algorithm.FACTORIZATION).build()).isInstanceOf(IllegalArgumentException.class);
     }
 
-    private boolean equivalentModels(final Formula f1, final Formula f2, final SortedSet<Variable> vars) {
-        final SATSolver s = MiniSat.miniSat(f1.factory());
-        s.add(f1);
-        final List<Assignment> models1 = s.enumerateAllModels(vars);
-        s.reset();
-        s.add(f2);
-        final List<Assignment> models2 = s.enumerateAllModels(vars);
-        if (models1.size() != models2.size()) {
-            return false;
-        }
-        for (final Assignment model : models1) {
-            if (!models2.contains(model)) {
-                return false;
-            }
-        }
-        return true;
-    }
 }

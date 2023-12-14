@@ -2,7 +2,7 @@
 // Copyright 2015-2023 Christoph Zengler
 // Copyright 2023-20xx BooleWorks GmbH
 
-package com.booleworks.logicng.solvers.functions.modelenumeration.splitvariablesprovider;
+package com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

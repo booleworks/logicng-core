@@ -4,8 +4,9 @@
 
 package com.booleworks.logicng.knowledgecompilation.bdds.functions;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
@@ -21,11 +22,11 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * Performs model enumeration on a BDD. The models are returned as a list of {@link Assignment assignments}.
+ * Performs model enumeration on a BDD. The models are returned as a list of {@link Model models}.
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class BDDModelEnumerationFunction extends BDDFunction<List<Assignment>> {
+public final class BDDModelEnumerationFunction extends BDDFunction<List<Model>> {
 
     private final Collection<Variable> variables;
 
@@ -40,8 +41,8 @@ public final class BDDModelEnumerationFunction extends BDDFunction<List<Assignme
     }
 
     @Override
-    public List<Assignment> apply(final BDD bdd) {
-        final Set<Assignment> res = new HashSet<>();
+    public List<Model> apply(final BDD bdd) {
+        final Set<Model> res = new HashSet<>();
         final BDDKernel kernel = bdd.underlyingKernel();
         final List<byte[]> models = new BDDOperations(kernel).allSat(bdd.index());
         final SortedSet<Integer> temp;
@@ -61,21 +62,21 @@ public final class BDDModelEnumerationFunction extends BDDFunction<List<Assignme
             relevantIndices[count++] = i;
         }
         for (final byte[] model : models) {
-            final List<Assignment> allAssignments = new ArrayList<>();
-            generateAllModels(kernel, allAssignments, model, relevantIndices, 0);
-            res.addAll(allAssignments);
+            final List<Model> allModels = new ArrayList<>();
+            generateAllModels(kernel, allModels, model, relevantIndices, 0);
+            res.addAll(allModels);
         }
         return new ArrayList<>(res);
     }
 
-    private void generateAllModels(final BDDKernel kernel, final List<Assignment> assignments, final byte[] model, final int[] relevantIndices,
+    private void generateAllModels(final BDDKernel kernel, final List<Model> assignments, final byte[] model, final int[] relevantIndices,
                                    final int position) {
         if (position == relevantIndices.length) {
-            final Assignment assignment = new Assignment();
+            final List<Literal> lits = new ArrayList<>();
             for (final int i : relevantIndices) {
-                assignment.addLiteral(model[i] == 0 ? kernel.getVariableForIndex(i).negate(f) : kernel.getVariableForIndex(i));
+                lits.add(model[i] == 0 ? kernel.getVariableForIndex(i).negate(f) : kernel.getVariableForIndex(i));
             }
-            assignments.add(assignment);
+            assignments.add(new Model(lits));
         } else if (model[relevantIndices[position]] != -1) {
             generateAllModels(kernel, assignments, model, relevantIndices, position + 1);
         } else {

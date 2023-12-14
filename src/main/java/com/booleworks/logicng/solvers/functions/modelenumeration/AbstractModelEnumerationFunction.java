@@ -23,10 +23,12 @@ import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.AdvancedModelEnumerationHandler;
+import com.booleworks.logicng.handlers.ModelEnumerationHandler;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
 
@@ -44,20 +46,17 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractModelEnumerationFunction<RESULT> implements SolverFunction<RESULT> {
 
-    private static final AdvancedModelEnumerationStrategy NO_SPLIT_VARS_STRATEGY =
-            new DefaultAdvancedModelEnumerationStrategy((solver, vars) -> new TreeSet<>(), Integer.MAX_VALUE);
-
     protected final SortedSet<Variable> variables;
     protected final SortedSet<Variable> additionalVariables;
-    protected final AdvancedModelEnumerationHandler handler;
-    protected final AdvancedModelEnumerationStrategy strategy;
+    protected final ModelEnumerationHandler handler;
+    protected final ModelEnumerationStrategy strategy;
 
     protected AbstractModelEnumerationFunction(final SortedSet<Variable> variables, final SortedSet<Variable> additionalVariables,
-                                               final AdvancedModelEnumerationConfig configuration) {
+                                               final ModelEnumerationConfig configuration) {
         this.variables = variables;
         this.additionalVariables = additionalVariables;
         handler = configuration.handler;
-        strategy = configuration.strategy == null ? NO_SPLIT_VARS_STRATEGY : configuration.strategy;
+        strategy = configuration.strategy == null ? NoSplitModelEnumerationStrategy.get() : configuration.strategy;
     }
 
     protected abstract EnumerationCollector<RESULT> newCollector(final FormulaFactory f, final SortedSet<Variable> knownVariables, final SortedSet<Variable> dontCareVariablesNotOnSolver,
@@ -65,7 +64,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
 
     @Override
     public RESULT apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
-        if (!solver.canSaveLoadState()) {
+        if (!(strategy instanceof NoSplitModelEnumerationStrategy) && !solver.canSaveLoadState()) {
             throw new IllegalArgumentException("Recursive model enumeration function can only be applied to solvers with load/save state capability.");
         }
         start(handler);
@@ -79,23 +78,23 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         return collector.getResult();
     }
 
-    private void enumerateRecursive(final EnumerationCollector<RESULT> collector, final MiniSat solver, final Model splitAssignment,
+    private void enumerateRecursive(final EnumerationCollector<RESULT> collector, final MiniSat solver, final Model splitModel,
                                     final Consumer<Tristate> resultSetter, final SortedSet<Variable> enumerationVars,
                                     final SortedSet<Variable> splitVars, final int recursionDepth) {
         final int maxNumberOfModelsForEnumeration = strategy.maxNumberOfModelsForEnumeration(recursionDepth);
-        final SolverState state = solver.saveState();
-        solver.add(splitAssignment.formula(solver.factory()));
+        final SolverState state = saveState(solver);
+        solver.add(splitModel.formula(solver.factory()));
         final boolean enumerationFinished = enumerate(collector, solver, resultSetter, enumerationVars, additionalVariables, maxNumberOfModelsForEnumeration, handler);
         if (!enumerationFinished) {
             if (!collector.rollback(handler)) {
-                solver.loadState(state);
+                loadState(solver, state);
                 return;
             }
             SortedSet<Variable> newSplitVars = new TreeSet<>(splitVars);
             final int maxNumberOfModelsForSplitAssignments = strategy.maxNumberOfModelsForSplitAssignments(recursionDepth);
             while (!enumerate(collector, solver, resultSetter, newSplitVars, null, maxNumberOfModelsForSplitAssignments, handler)) {
                 if (!collector.rollback(handler)) {
-                    solver.loadState(state);
+                    loadState(solver, state);
                     return;
                 }
                 newSplitVars = strategy.reduceSplitVars(newSplitVars, recursionDepth);
@@ -105,28 +104,34 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 return;
             }
 
+            final SortedSet<Variable> remainingVars = new TreeSet<>(enumerationVars);
+            remainingVars.removeAll(newSplitVars);
+            for (final Literal literal : splitModel.getLiterals()) {
+                remainingVars.remove(literal.variable());
+            }
+
             final List<Model> newSplitAssignments = collector.rollbackAndReturnModels(solver, handler);
-            final SortedSet<Variable> recursiveSplitVars = strategy.splitVarsForRecursionDepth(difference(enumerationVars, newSplitVars, TreeSet::new), solver, recursionDepth + 1);
+            final SortedSet<Variable> recursiveSplitVars = strategy.splitVarsForRecursionDepth(remainingVars, solver, recursionDepth + 1);
             for (final Model newSplitAssignment : newSplitAssignments) {
                 enumerateRecursive(collector, solver, newSplitAssignment, resultSetter, enumerationVars, recursiveSplitVars, recursionDepth + 1);
                 if (!collector.commit(handler)) {
-                    solver.loadState(state);
+                    loadState(solver, state);
                     return;
                 }
             }
         } else {
             if (!collector.commit(handler)) {
-                solver.loadState(state);
+                loadState(solver, state);
                 return;
             }
         }
-        solver.loadState(state);
+        loadState(solver, state);
     }
 
     protected static <R> boolean enumerate(final EnumerationCollector<R> collector, final MiniSat solver, final Consumer<Tristate> resultSetter,
                                            final SortedSet<Variable> variables, final SortedSet<Variable> additionalVariables, final int maxModels,
-                                           final AdvancedModelEnumerationHandler handler) {
-        final SolverState stateBeforeEnumeration = solver.saveState();
+                                           final ModelEnumerationHandler handler) {
+        final SolverState stateBeforeEnumeration = saveState(solver);
         final LNGIntVector relevantIndices = relevantIndicesFromSolver(variables, solver);
         final LNGIntVector relevantAllIndices = relevantAllIndicesFromSolver(variables, additionalVariables, relevantIndices, solver);
 
@@ -135,7 +140,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         while (proceed && modelEnumerationSATCall(solver, handler)) {
             final LNGBooleanVector modelFromSolver = solver.underlyingSolver().model();
             if (++foundModels >= maxModels) {
-                solver.loadState(stateBeforeEnumeration);
+                loadState(solver, stateBeforeEnumeration);
                 return false;
             }
             proceed = collector.addModel(modelFromSolver, solver, relevantAllIndices, handler);
@@ -147,7 +152,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 break;
             }
         }
-        solver.loadState(stateBeforeEnumeration);
+        loadState(solver, stateBeforeEnumeration);
         return true;
     }
 
@@ -162,7 +167,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         return !var.name().startsWith(CC_PREFIX) && !var.name().startsWith(PB_PREFIX) && !var.name().startsWith(CNF_PREFIX);
     }
 
-    private static boolean modelEnumerationSATCall(final MiniSat solver, final AdvancedModelEnumerationHandler handler) {
+    private static boolean modelEnumerationSATCall(final MiniSat solver, final ModelEnumerationHandler handler) {
         final SATHandler satHandler = handler == null ? null : handler.satHandler();
         final boolean sat = solver.sat(satHandler) == TRUE;
         return !aborted(handler) && sat;
@@ -172,7 +177,17 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         return variables == null || variables.isEmpty() ? FormulaFactory.caching() : variables.first().factory();
     }
 
-    protected static AdvancedModelEnumerationConfig configuration(final SortedSet<Variable> variables, final AdvancedModelEnumerationConfig config) {
-        return config == null ? (AdvancedModelEnumerationConfig) factory(variables).configurationFor(ConfigurationType.ADVANCED_MODEL_ENUMERATION) : config;
+    protected static ModelEnumerationConfig configuration(final SortedSet<Variable> variables, final ModelEnumerationConfig config) {
+        return config == null ? (ModelEnumerationConfig) factory(variables).configurationFor(ConfigurationType.MODEL_ENUMERATION) : config;
+    }
+
+    private static SolverState saveState(final SATSolver solver) {
+        return solver.canSaveLoadState() ? solver.saveState() : null;
+    }
+
+    private static void loadState(final SATSolver solver, final SolverState state) {
+        if (solver.canSaveLoadState()) {
+            solver.loadState(state);
+        }
     }
 }

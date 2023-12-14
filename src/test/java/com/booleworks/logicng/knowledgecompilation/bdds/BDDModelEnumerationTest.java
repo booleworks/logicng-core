@@ -6,7 +6,7 @@ package com.booleworks.logicng.knowledgecompilation.bdds;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -68,10 +68,10 @@ public class BDDModelEnumerationTest {
         for (int i = 0; i < formulas.size(); i++) {
             final BDDKernel kernel = new BDDKernel(f, variables.get(i).size(), 10000, 10000);
             final BDD bdd = BDDFactory.build(f, formulas.get(i), kernel);
-            final Set<Assignment> models = new HashSet<>(bdd.enumerateAllModels());
+            final Set<Model> models = new HashSet<>(bdd.enumerateAllModels());
             assertThat(models.size()).isEqualTo(expected[i].intValue());
-            for (final Assignment model : models) {
-                assertThat(formulas.get(i).evaluate(model)).isTrue();
+            for (final Model model : models) {
+                assertThat(formulas.get(i).evaluate(model.assignment())).isTrue();
             }
         }
     }

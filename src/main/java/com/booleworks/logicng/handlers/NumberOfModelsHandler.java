@@ -4,18 +4,16 @@
 
 package com.booleworks.logicng.handlers;
 
-import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.datastructures.Model;
-
 /**
  * A model enumeration handler that terminates the solving process after a given number of models.
  * @version 3.0.0
- * @since 1.0
+ * @since 3.0.0
  */
 public class NumberOfModelsHandler extends ComputationHandler implements ModelEnumerationHandler {
 
     private final int bound;
-    private int count;
+    private int countCommitted;
+    private int countUncommitted;
 
     /**
      * Constructs a new model handler with an upper bound for the number of models (inclusive).
@@ -32,7 +30,8 @@ public class NumberOfModelsHandler extends ComputationHandler implements ModelEn
     @Override
     public void started() {
         super.started();
-        count = 0;
+        countCommitted = 0;
+        countUncommitted = 0;
     }
 
     @Override
@@ -41,14 +40,26 @@ public class NumberOfModelsHandler extends ComputationHandler implements ModelEn
     }
 
     @Override
-    public boolean foundModel(final Assignment assignment) {
-        aborted = ++count >= bound;
-        return !aborted;
+    public boolean foundModels(final int numberOfModels) {
+        aborted = countUncommitted + countCommitted + numberOfModels > bound;
+        if (!aborted) {
+            countUncommitted += numberOfModels;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
-    public boolean foundModel(final Model model) {
-        aborted = ++count >= bound;
-        return !aborted;
+    public boolean commit() {
+        countCommitted += countUncommitted;
+        countUncommitted = 0;
+        return true;
+    }
+
+    @Override
+    public boolean rollback() {
+        countUncommitted = 0;
+        return true;
     }
 }

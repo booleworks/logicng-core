@@ -9,24 +9,24 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.collections.LNGBooleanVector;
-import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.AdvancedNumberOfModelsHandler;
+import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
+import com.booleworks.logicng.modelcounting.ModelCounter;
 import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.functions.modelenumeration.AdvancedModelEnumerationConfig;
-import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultAdvancedModelEnumerationStrategy;
+import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
 import com.booleworks.logicng.solvers.functions.modelenumeration.EnumerationCollectorTestHandler;
-import com.booleworks.logicng.solvers.functions.modelenumeration.splitvariablesprovider.FixedVariableProvider;
-import com.booleworks.logicng.solvers.functions.modelenumeration.splitvariablesprovider.LeastCommonVariablesProvider;
-import com.booleworks.logicng.solvers.functions.modelenumeration.splitvariablesprovider.MostCommonVariablesProvider;
-import com.booleworks.logicng.solvers.functions.modelenumeration.splitvariablesprovider.SplitVariableProvider;
+import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
+import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.FixedVariableProvider;
+import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.LeastCommonVariablesProvider;
+import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.MostCommonVariablesProvider;
+import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.SplitVariableProvider;
 import com.booleworks.logicng.solvers.sat.MiniSatConfig;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
@@ -71,8 +71,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("splitProviders")
     public void testTautology(final SplitVariableProvider splitProvider) {
-        final AdvancedModelEnumerationConfig config =
-                AdvancedModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultAdvancedModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+        final ModelEnumerationConfig config =
+                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder().variables().configuration(config).build());
@@ -82,8 +82,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("splitProviders")
     public void testEmptyEnumerationVariables(final SplitVariableProvider splitProvider) throws ParserException {
-        final AdvancedModelEnumerationConfig config =
-                AdvancedModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultAdvancedModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+        final ModelEnumerationConfig config =
+                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         final Formula formula = f.parse("A & (B | C)");
@@ -95,8 +95,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("splitProviders")
     public void testSimple1(final SplitVariableProvider splitProvider) throws ParserException {
-        final AdvancedModelEnumerationConfig config =
-                AdvancedModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultAdvancedModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+        final ModelEnumerationConfig config =
+                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("A & (B | C)"));
@@ -107,8 +107,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("splitProviders")
     public void testSimple2(final SplitVariableProvider splitProvider) throws ParserException {
-        final AdvancedModelEnumerationConfig config =
-                AdvancedModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultAdvancedModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+        final ModelEnumerationConfig config =
+                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
@@ -119,8 +119,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("splitProviders")
     public void testMultipleModelEnumeration(final SplitVariableProvider splitProvider) throws ParserException {
-        final AdvancedModelEnumerationConfig config =
-                AdvancedModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultAdvancedModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+        final ModelEnumerationConfig config =
+                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
@@ -135,8 +135,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("splitProviders")
     public void testDontCareVariables1(final SplitVariableProvider splitProvider) throws ParserException {
-        final AdvancedModelEnumerationConfig config =
-                AdvancedModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultAdvancedModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+        final ModelEnumerationConfig config =
+                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
@@ -152,8 +152,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("splitProviders")
     public void testDontCareVariables2(final SplitVariableProvider splitProvider) throws ParserException {
-        final AdvancedModelEnumerationConfig config =
-                AdvancedModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultAdvancedModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+        final ModelEnumerationConfig config =
+                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
@@ -169,8 +169,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     @Test
     public void testDontCareVariables3() throws ParserException {
         final FixedVariableProvider splitProvider = new FixedVariableProvider(new TreeSet<>(f.variables("X")));
-        final AdvancedModelEnumerationConfig config =
-                AdvancedModelEnumerationConfig.builder().strategy(DefaultAdvancedModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(3).build()).build();
+        final ModelEnumerationConfig config =
+                ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(3).build()).build();
         final SATSolver solver = MiniSat.miniSat(f);
         final Formula formula = f.parse("A | B | (X & ~X)"); // X will be simplified out and become a don't care variable unknown by the solver
         solver.add(formula);
@@ -185,10 +185,10 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("splitProviders")
     public void testHandlerWithNumModelsLimit(final SplitVariableProvider splitProvider) throws ParserException {
-        final AdvancedNumberOfModelsHandler handler = new AdvancedNumberOfModelsHandler(3);
-        final AdvancedModelEnumerationConfig config =
-                AdvancedModelEnumerationConfig.builder().handler(handler)
-                        .strategy(splitProvider == null ? null : DefaultAdvancedModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(3).build()).build();
+        final NumberOfModelsHandler handler = new NumberOfModelsHandler(3);
+        final ModelEnumerationConfig config =
+                ModelEnumerationConfig.builder().handler(handler)
+                        .strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(3).build()).build();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
         final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder().configuration(config).build());
@@ -207,22 +207,19 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
             solver.add(formula);
 
             // no split
-            final List<Assignment> modelsNoSplit = solver.execute(ModelEnumerationFunction.builder().build());
+            final var count = ModelCounter.count(f, List.of(formula), formula.variables(f));
 
             // recursive call: least common vars
-            final AdvancedModelEnumerationConfig configLcv =
-                    AdvancedModelEnumerationConfig.builder().strategy(DefaultAdvancedModelEnumerationStrategy.builder().splitVariableProvider(new LeastCommonVariablesProvider()).maxNumberOfModels(500).build()).build();
-            final BigInteger count1 =
-                    solver.execute(ModelCountingFunction.builder().configuration(configLcv).build());
+            final ModelEnumerationConfig configLcv =
+                    ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder().splitVariableProvider(new LeastCommonVariablesProvider()).maxNumberOfModels(500).build()).build();
+            final BigInteger count1 = solver.execute(ModelCountingFunction.builder().variables(formula.variables(f)).configuration(configLcv).build());
 
             // recursive call: most common vars
-            final AdvancedModelEnumerationConfig configMcv =
-                    AdvancedModelEnumerationConfig.builder().strategy(DefaultAdvancedModelEnumerationStrategy.builder().splitVariableProvider(new MostCommonVariablesProvider()).maxNumberOfModels(500).build()).build();
-            final BigInteger count2 =
-                    solver.execute(ModelCountingFunction.builder().configuration(configMcv).build());
+            final ModelEnumerationConfig configMcv = ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder().splitVariableProvider(new MostCommonVariablesProvider()).maxNumberOfModels(500).build()).build();
+            final BigInteger count2 = solver.execute(ModelCountingFunction.builder().variables(formula.variables(f)).configuration(configMcv).build());
 
-            assertThat(count1).isEqualTo(modelsNoSplit.size());
-            assertThat(count2).isEqualTo(modelsNoSplit.size());
+            assertThat(count1).isEqualTo(count);
+            assertThat(count2).isEqualTo(count);
         }
     }
 

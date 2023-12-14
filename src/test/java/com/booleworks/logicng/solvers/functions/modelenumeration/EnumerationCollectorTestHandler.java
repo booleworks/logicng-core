@@ -4,10 +4,10 @@
 
 package com.booleworks.logicng.solvers.functions.modelenumeration;
 
-import com.booleworks.logicng.handlers.AdvancedModelEnumerationHandler;
+import com.booleworks.logicng.handlers.ModelEnumerationHandler;
 import com.booleworks.logicng.handlers.SATHandler;
 
-public final class EnumerationCollectorTestHandler implements AdvancedModelEnumerationHandler {
+public final class EnumerationCollectorTestHandler implements ModelEnumerationHandler {
 
     private int foundModels;
     private int commitCalls;
@@ -15,7 +15,7 @@ public final class EnumerationCollectorTestHandler implements AdvancedModelEnume
 
     @Override
     public void started() {
-        AdvancedModelEnumerationHandler.super.started();
+        ModelEnumerationHandler.super.started();
         foundModels = 0;
     }
 

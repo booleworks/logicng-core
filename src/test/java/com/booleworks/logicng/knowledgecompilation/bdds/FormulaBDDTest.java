@@ -6,7 +6,7 @@ package com.booleworks.logicng.knowledgecompilation.bdds;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
@@ -29,7 +29,7 @@ public class FormulaBDDTest {
         bdd = f.falsum().bdd(f);
         assertThat(bdd.isContradiction()).isTrue();
         bdd = f.variable("A").bdd(f);
-        Assertions.assertThat(bdd.enumerateAllModels()).containsExactly(new Assignment(f.variable("A")));
+        Assertions.assertThat(bdd.enumerateAllModels()).containsExactly(new Model(f.variable("A")));
     }
 
     @Test

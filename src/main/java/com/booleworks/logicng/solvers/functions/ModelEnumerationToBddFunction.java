@@ -12,14 +12,14 @@ import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.AdvancedModelEnumerationHandler;
+import com.booleworks.logicng.handlers.ModelEnumerationHandler;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDDFactory;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
 import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.functions.modelenumeration.AbstractModelEnumerationFunction;
-import com.booleworks.logicng.solvers.functions.modelenumeration.AdvancedModelEnumerationConfig;
 import com.booleworks.logicng.solvers.functions.modelenumeration.EnumerationCollector;
+import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +39,7 @@ import java.util.TreeSet;
  */
 public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunction<BDD> {
 
-    ModelEnumerationToBddFunction(final SortedSet<Variable> variables, final AdvancedModelEnumerationConfig config) {
+    ModelEnumerationToBddFunction(final SortedSet<Variable> variables, final ModelEnumerationConfig config) {
         super(variables, Collections.emptySortedSet(), configuration(variables, config));
     }
 
@@ -62,7 +62,7 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
      */
     public static class Builder {
         private SortedSet<Variable> variables;
-        private AdvancedModelEnumerationConfig configuration;
+        private ModelEnumerationConfig configuration;
 
         Builder() {
             // Initialize only via factory
@@ -93,7 +93,7 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
          * @param configuration the configuration
          * @return the current builder
          */
-        public Builder configuration(final AdvancedModelEnumerationConfig configuration) {
+        public Builder configuration(final ModelEnumerationConfig configuration) {
             this.configuration = configuration;
             return this;
         }
@@ -126,7 +126,7 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
 
         @Override
         public boolean addModel(final LNGBooleanVector modelFromSolver, final MiniSat solver, final LNGIntVector relevantAllIndices,
-                                final AdvancedModelEnumerationHandler handler) {
+                                final ModelEnumerationHandler handler) {
             if (handler == null || handler.foundModels(dontCareFactor)) {
                 final Model model = solver.createModel(modelFromSolver, relevantAllIndices);
                 uncommittedModels.add(model);
@@ -137,7 +137,7 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         }
 
         @Override
-        public boolean commit(final AdvancedModelEnumerationHandler handler) {
+        public boolean commit(final ModelEnumerationHandler handler) {
             for (final Model uncommittedModel : uncommittedModels) {
                 committedModels = committedModels.or(model2Bdd(uncommittedModel));
             }
@@ -154,13 +154,13 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         }
 
         @Override
-        public boolean rollback(final AdvancedModelEnumerationHandler handler) {
+        public boolean rollback(final ModelEnumerationHandler handler) {
             uncommittedModels.clear();
             return handler == null || handler.rollback();
         }
 
         @Override
-        public List<Model> rollbackAndReturnModels(final MiniSat solver, final AdvancedModelEnumerationHandler handler) {
+        public List<Model> rollbackAndReturnModels(final MiniSat solver, final ModelEnumerationHandler handler) {
             final List<Model> modelsToReturn = new ArrayList<>(uncommittedModels);
             rollback(handler);
             return modelsToReturn;

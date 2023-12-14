@@ -4,47 +4,41 @@
 
 package com.booleworks.logicng.solvers.functions;
 
-import static com.booleworks.logicng.datastructures.Tristate.TRUE;
-import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
-import static com.booleworks.logicng.handlers.Handler.start;
-import static com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationCommon.relevantAllIndicesFromSolver;
-import static com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationCommon.relevantIndicesFromSolver;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.datastructures.Model;
+import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ModelEnumerationHandler;
-import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.MiniSat;
-import com.booleworks.logicng.solvers.SolverState;
-import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationCommon;
+import com.booleworks.logicng.solvers.functions.modelenumeration.AbstractModelEnumerationFunction;
+import com.booleworks.logicng.solvers.functions.modelenumeration.EnumerationCollector;
+import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * A solver function for enumerating models on the solver.
  * <p>
- * Model enumeration functions are instantiated via their builder {@link #builder()}.
+ * Model enumeration functions are instantiated via their builder {@link Builder}.
  * @version 3.0.0
  * @since 3.0.0
  */
-public final class ModelEnumerationFunction implements SolverFunction<List<Assignment>> {
+public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<List<Model>> {
 
-    private final ModelEnumerationHandler handler;
-    private final Collection<Variable> variables;
-    private final Collection<Variable> additionalVariables;
-
-    private ModelEnumerationFunction(final ModelEnumerationHandler handler, final Collection<Variable> variables,
-                                     final Collection<Variable> additionalVariables) {
-        this.handler = handler;
-        this.variables = variables;
-        this.additionalVariables = additionalVariables;
+    ModelEnumerationFunction(final SortedSet<Variable> variables, final SortedSet<Variable> additionalVariables,
+                             final ModelEnumerationConfig config) {
+        super(variables, additionalVariables, configuration(variables, config));
     }
 
     /**
@@ -56,64 +50,21 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
     }
 
     @Override
-    public List<Assignment> apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
-        start(handler);
-        final List<Assignment> models = new ArrayList<>();
-        SolverState stateBeforeEnumeration = null;
-        if (solver.canSaveLoadState()) {
-            stateBeforeEnumeration = solver.saveState();
-        }
-        final LNGIntVector relevantIndices = relevantIndicesFromSolver(variables, solver);
-        final LNGIntVector relevantAllIndices = relevantAllIndicesFromSolver(variables, additionalVariables, relevantIndices, solver);
-
-        boolean proceed = true;
-        while (proceed && modelEnumerationSATCall(solver, handler)) {
-            final LNGBooleanVector modelFromSolver = solver.underlyingSolver().model();
-            final Assignment model = solver.createAssignment(modelFromSolver, relevantAllIndices);
-            models.add(model);
-            proceed = handler == null || handler.foundModel(model);
-            if (model.size() > 0) {
-                final LNGIntVector blockingClause = ModelEnumerationCommon.generateBlockingClause(modelFromSolver, relevantIndices);
-                solver.underlyingSolver().addClause(blockingClause, null);
-                resultSetter.accept(UNDEF);
-            } else {
-                break;
-            }
-        }
-        if (solver.canSaveLoadState()) {
-            solver.loadState(stateBeforeEnumeration);
-        }
-        return models;
-    }
-
-    private boolean modelEnumerationSATCall(final MiniSat solver, final ModelEnumerationHandler handler) {
-        if (handler == null) {
-            return solver.sat((SATHandler) null) == TRUE;
-        }
-        final Tristate tristate = solver.sat(handler.satHandler());
-        return !handler.aborted() && tristate == TRUE;
+    protected EnumerationCollector<List<Model>> newCollector(final FormulaFactory f, final SortedSet<Variable> knownVariables,
+                                                             final SortedSet<Variable> dontCareVariablesNotOnSolver, final SortedSet<Variable> additionalVariablesNotOnSolver) {
+        return new ModelEnumerationCollector(f, dontCareVariablesNotOnSolver, additionalVariablesNotOnSolver);
     }
 
     /**
      * The builder for a model enumeration function.
      */
     public static class Builder {
-        private ModelEnumerationHandler handler;
-        private Collection<Variable> variables;
-        private Collection<Variable> additionalVariables;
+        private SortedSet<Variable> variables;
+        private SortedSet<Variable> additionalVariables;
+        private ModelEnumerationConfig configuration;
 
-        private Builder() {
+        Builder() {
             // Initialize only via factory
-        }
-
-        /**
-         * Sets the model enumeration handler for this function
-         * @param handler the handler, may be {@code null}
-         * @return the current builder
-         */
-        public Builder handler(final ModelEnumerationHandler handler) {
-            this.handler = handler;
-            return this;
         }
 
         /**
@@ -122,7 +73,7 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
          * @return the current builder
          */
         public Builder variables(final Collection<Variable> variables) {
-            this.variables = variables;
+            this.variables = new TreeSet<>(variables);
             return this;
         }
 
@@ -132,27 +83,37 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
          * @return the current builder
          */
         public Builder variables(final Variable... variables) {
-            this.variables = Arrays.asList(variables);
+            this.variables = new TreeSet<>(asList(variables));
             return this;
         }
 
         /**
-         * Sets an additional set of variables which should occur in every model.
+         * Sets an additional set of variables which should occur in every model. Only set this field if 'variables' is non-empty.
          * @param variables the additional variables for each model
          * @return the current builder
          */
         public Builder additionalVariables(final Collection<Variable> variables) {
-            additionalVariables = variables;
+            additionalVariables = new TreeSet<>(variables);
             return this;
         }
 
         /**
-         * Sets an additional set of variables which should occur in every model.
+         * Sets an additional set of variables which should occur in every model. Only set this field if 'variables' is non-empty.
          * @param variables the additional variables for each model
          * @return the current builder
          */
         public Builder additionalVariables(final Variable... variables) {
-            additionalVariables = Arrays.asList(variables);
+            additionalVariables = new TreeSet<>(asList(variables));
+            return this;
+        }
+
+        /**
+         * Sets the configuration for the model enumeration split algorithm.
+         * @param configuration the configuration
+         * @return the current builder
+         */
+        public Builder configuration(final ModelEnumerationConfig configuration) {
+            this.configuration = configuration;
             return this;
         }
 
@@ -161,7 +122,100 @@ public final class ModelEnumerationFunction implements SolverFunction<List<Assig
          * @return the model enumeration function
          */
         public ModelEnumerationFunction build() {
-            return new ModelEnumerationFunction(handler, variables, additionalVariables);
+            return new ModelEnumerationFunction(variables, additionalVariables, configuration);
+        }
+    }
+
+    static class ModelEnumerationCollector implements EnumerationCollector<List<Model>> {
+        private final List<Model> committedModels = new ArrayList<>();
+        private final List<List<Literal>> uncommittedModels = new ArrayList<>();
+        private final List<List<Literal>> baseModels;
+        private final SortedSet<Literal> additionalVariablesNotOnSolver;
+
+        public ModelEnumerationCollector(final FormulaFactory f, final SortedSet<Variable> dontCareVariablesNotOnSolver,
+                                         final SortedSet<Variable> additionalVariablesNotOnSolver) {
+            baseModels = getCartesianProduct(dontCareVariablesNotOnSolver);
+            this.additionalVariablesNotOnSolver = new TreeSet<>();
+            for (final Variable addVar : additionalVariablesNotOnSolver) {
+                this.additionalVariablesNotOnSolver.add(addVar.negate(f));
+            }
+        }
+
+        @Override
+        public boolean addModel(final LNGBooleanVector modelFromSolver, final MiniSat solver, final LNGIntVector relevantAllIndices,
+                                final ModelEnumerationHandler handler) {
+            if (handler == null || handler.foundModels(baseModels.size())) {
+                final Model model = solver.createModel(modelFromSolver, relevantAllIndices);
+                final List<Literal> modelLiterals = new ArrayList<>(additionalVariablesNotOnSolver);
+                modelLiterals.addAll(model.getLiterals());
+                uncommittedModels.add(modelLiterals);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public boolean commit(final ModelEnumerationHandler handler) {
+            committedModels.addAll(expandUncommittedModels());
+            uncommittedModels.clear();
+            return handler == null || handler.commit();
+        }
+
+        @Override
+        public boolean rollback(final ModelEnumerationHandler handler) {
+            uncommittedModels.clear();
+            return handler == null || handler.rollback();
+        }
+
+        @Override
+        public List<Model> rollbackAndReturnModels(final MiniSat solver, final ModelEnumerationHandler handler) {
+            final List<Model> modelsToReturn = uncommittedModels.stream().map(Model::new).collect(Collectors.toList());
+            rollback(handler);
+            return modelsToReturn;
+        }
+
+        @Override
+        public List<Model> getResult() {
+            return committedModels;
+        }
+
+        private List<Model> expandUncommittedModels() {
+            final List<Model> expanded = new ArrayList<>(baseModels.size());
+            for (final List<Literal> baseModel : baseModels) {
+                for (final List<Literal> uncommittedModel : uncommittedModels) {
+                    final List<Literal> completeModel = new ArrayList<>(baseModel.size() + uncommittedModel.size());
+                    completeModel.addAll(baseModel);
+                    completeModel.addAll(uncommittedModel);
+                    expanded.add(new Model(completeModel));
+                }
+            }
+            return expanded;
+        }
+
+        /**
+         * Returns the Cartesian product for the given variables, i.e. all combinations of literals are generated
+         * with each variable occurring positively and negatively.
+         * @param variables the variables, must not be {@code null}
+         * @return the Cartesian product
+         */
+        static List<List<Literal>> getCartesianProduct(final SortedSet<Variable> variables) {
+            List<List<Literal>> result = singletonList(emptyList());
+            for (final Variable var : variables) {
+                final List<List<Literal>> extended = new ArrayList<>(result.size() * 2);
+                for (final List<Literal> literals : result) {
+                    extended.add(extendedByLiteral(literals, var));
+                    extended.add(extendedByLiteral(literals, var.negate(var.factory())));
+                }
+                result = extended;
+            }
+            return result;
+        }
+
+        private static List<Literal> extendedByLiteral(final List<Literal> literals, final Literal lit) {
+            final ArrayList<Literal> extended = new ArrayList<>(literals);
+            extended.add(lit);
+            return extended;
         }
     }
 }

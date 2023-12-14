@@ -8,6 +8,7 @@ import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.cardinalityconstraints.CCIncrementalData;
 import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
@@ -21,6 +22,10 @@ import com.booleworks.logicng.solvers.functions.BackboneFunction;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
 import com.booleworks.logicng.solvers.functions.UnsatCoreFunction;
+import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
+import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
+import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationStrategy;
+import com.booleworks.logicng.solvers.functions.modelenumeration.NoSplitModelEnumerationStrategy;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -332,11 +337,19 @@ public abstract class SATSolver {
     public abstract <RESULT> RESULT execute(final SolverFunction<RESULT> function);
 
     /**
-     * Enumerates all models of the current formula.
+     * Enumerates all models of the current formula wrt. a given set of variables.  If the set is {@code null},
+     * all variables are considered relevant.
+     * @param variables the set of variables
      * @return the list of models
      */
-    public List<Assignment> enumerateAllModels() {
-        return execute(ModelEnumerationFunction.builder().build());
+    public List<Model> enumerateAllModels(final Collection<Variable> variables) {
+        final ModelEnumerationStrategy strategy = canSaveLoadState()
+                ? DefaultModelEnumerationStrategy.builder().build()
+                : NoSplitModelEnumerationStrategy.get();
+        return execute(ModelEnumerationFunction.builder()
+                .variables(variables)
+                .configuration(ModelEnumerationConfig.builder().strategy(strategy).build())
+                .build());
     }
 
     /**
@@ -345,18 +358,14 @@ public abstract class SATSolver {
      * @param variables the set of variables
      * @return the list of models
      */
-    public List<Assignment> enumerateAllModels(final Collection<Variable> variables) {
-        return execute(ModelEnumerationFunction.builder().variables(variables).build());
-    }
-
-    /**
-     * Enumerates all models of the current formula wrt. a given set of variables.  If the set is {@code null},
-     * all variables are considered relevant.
-     * @param variables the set of variables
-     * @return the list of models
-     */
-    public List<Assignment> enumerateAllModels(final Variable... variables) {
-        return execute(ModelEnumerationFunction.builder().variables(variables).build());
+    public List<Model> enumerateAllModels(final Variable[] variables) {
+        final ModelEnumerationStrategy strategy = canSaveLoadState()
+                ? DefaultModelEnumerationStrategy.builder().build()
+                : NoSplitModelEnumerationStrategy.get();
+        return execute(ModelEnumerationFunction.builder()
+                .variables(variables)
+                .configuration(ModelEnumerationConfig.builder().strategy(strategy).build())
+                .build());
     }
 
     /**

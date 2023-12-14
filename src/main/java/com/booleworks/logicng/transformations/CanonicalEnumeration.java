@@ -4,7 +4,7 @@
 
 package com.booleworks.logicng.transformations;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -15,7 +15,6 @@ import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
 
 /**
  * Superclass for canonical normal form enumeration (CNF or DNF) via enumeration of the falsifying/satisfying assignments.
@@ -41,14 +40,14 @@ public abstract class CanonicalEnumeration extends StatelessFormulaTransformatio
     protected Formula compute(final Formula formula, final boolean cnf) {
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(cnf ? formula.negate(f) : formula);
-        final List<Assignment> enumeration = solver.execute(ModelEnumerationFunction.builder().build());
+        final List<Model> enumeration = solver.execute(ModelEnumerationFunction.builder().build());
         if (enumeration.isEmpty()) {
             return f.constant(cnf);
         }
         final List<Formula> ops = new ArrayList<>();
-        for (final Assignment a : enumeration) {
-            final SortedSet<Literal> literals = a.literals();
-            final Formula term = cnf ? f.or(FormulaHelper.negate(f, literals, ArrayList::new)) : f.and(a.literals());
+        for (final Model model : enumeration) {
+            final List<Literal> literals = model.getLiterals();
+            final Formula term = cnf ? f.or(FormulaHelper.negate(f, literals, ArrayList::new)) : f.and(model.getLiterals());
             ops.add(term);
         }
         return cnf ? f.and(ops) : f.or(ops);

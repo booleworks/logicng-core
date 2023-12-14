@@ -16,6 +16,7 @@ import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
+import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -64,7 +65,14 @@ public class CCALKTest implements LogicNGTest {
         } else {
             assertSolverUnsat(solver);
         }
-        Assertions.assertThat(solver.execute(ModelEnumerationFunction.builder().variables(problemLits).handler(new NumberOfModelsHandler(12000)).build()))
+        final ModelEnumerationFunction me = ModelEnumerationFunction.builder()
+                .variables(problemLits)
+                .configuration(ModelEnumerationConfig.builder()
+                        .handler(new NumberOfModelsHandler(12000))
+                        .build())
+                .build();
+
+        Assertions.assertThat(solver.execute(me))
                 .hasSize(expected)
                 .allMatch(m -> m.positiveVariables().size() >= rhs);
     }

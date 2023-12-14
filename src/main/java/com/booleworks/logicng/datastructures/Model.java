@@ -7,12 +7,15 @@ package com.booleworks.logicng.datastructures;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.formulas.Variable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * A simple immutable class representing a model of a formula.  In contrast to an {@link Assignment} a model just
@@ -87,6 +90,48 @@ public class Model {
      */
     public Formula formula(final FormulaFactory f) {
         return f.and(literals);
+    }
+
+    /**
+     * Returns the positive literals of this model as variables.
+     * @return the positive literals of this model
+     */
+    public SortedSet<Variable> positiveVariables() {
+        final var set = new TreeSet<Variable>();
+        for (final Literal literal : literals) {
+            if (literal.phase()) {
+                set.add(literal.variable());
+            }
+        }
+        return set;
+    }
+
+    /**
+     * Returns the negative literals of this model.
+     * @return the negative literals of this model
+     */
+    public SortedSet<Literal> negativeLiterals() {
+        final var set = new TreeSet<Literal>();
+        for (final Literal literal : literals) {
+            if (!literal.phase()) {
+                set.add(literal);
+            }
+        }
+        return set;
+    }
+
+    /**
+     * Returns the negative literals of this model as variables.
+     * @return the negative literals of this model
+     */
+    public SortedSet<Variable> negativeVariables() {
+        final var set = new TreeSet<Variable>();
+        for (final Literal lit : literals) {
+            if (!lit.phase()) {
+                set.add(lit.variable());
+            }
+        }
+        return set;
     }
 
     @Override

@@ -7,7 +7,7 @@ package com.booleworks.logicng.transformations.cnf;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.RandomTag;
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
@@ -59,27 +59,27 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
             solver.reset();
             solver.add(randomFormula01);
             if (solver.sat() == Tristate.TRUE) {
-                final List<Assignment> models = solver.enumerateAllModels();
-                final Formula dnf = f.or(models.stream().map(model -> f.and(model.literals())).collect(Collectors.toList()));
+                final List<Model> models = solver.enumerateAllModels(solver.knownVariables());
+                final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
                 assertThat(f.equivalence(randomFormula01, dnf).holds(new TautologyPredicate(f))).isTrue();
             }
             final SolverState state = solver.saveState();
             solver.add(randomFormula02);
             if (solver.sat() == Tristate.TRUE) {
-                final List<Assignment> models = solver.enumerateAllModels();
-                final Formula dnf = f.or(models.stream().map(model -> f.and(model.literals())).collect(Collectors.toList()));
+                final List<Model> models = solver.enumerateAllModels(solver.knownVariables());
+                final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
                 assertThat(f.equivalence(f.and(randomFormula01, randomFormula02), dnf).holds(new TautologyPredicate(f))).isTrue();
             }
             solver.loadState(state);
             if (solver.sat() == Tristate.TRUE) {
-                final List<Assignment> models = solver.enumerateAllModels();
-                final Formula dnf = f.or(models.stream().map(model -> f.and(model.literals())).collect(Collectors.toList()));
+                final List<Model> models = solver.enumerateAllModels(solver.knownVariables());
+                final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
                 assertThat(f.equivalence(randomFormula01, dnf).holds(new TautologyPredicate(f))).isTrue();
             }
             solver.add(randomFormula02);
             if (solver.sat() == Tristate.TRUE) {
-                final List<Assignment> models = solver.enumerateAllModels();
-                final Formula dnf = f.or(models.stream().map(model -> f.and(model.literals())).collect(Collectors.toList()));
+                final List<Model> models = solver.enumerateAllModels(solver.knownVariables());
+                final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
                 assertThat(f.equivalence(f.and(randomFormula01, randomFormula02), dnf).holds(new TautologyPredicate(f))).isTrue();
             }
         }
@@ -122,8 +122,8 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
         final FormulaFactory f = formula.factory();
         final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
         solver.add(formula);
-        final List<Assignment> models = solver.enumerateAllModels();
-        final Formula dnf = f.or(models.stream().map(model -> f.and(model.literals())).collect(Collectors.toList()));
+        final List<Model> models = solver.enumerateAllModels(formula.variables(f));
+        final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
         assertThat(f.equivalence(formula, dnf).holds(new TautologyPredicate(f))).isTrue();
     }
 }

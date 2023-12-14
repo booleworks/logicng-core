@@ -6,7 +6,7 @@ package com.booleworks.logicng.knowledgecompilation.bdds;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
@@ -35,7 +35,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.dnf()).isEqualTo(_c.f.verum());
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.ONE);
         Assertions.assertThat(bdd.underlyingKernel().factory()).isSameAs(_c.f);
-        assertThat(bdd.enumerateAllModels()).containsExactly(new Assignment());
+        assertThat(bdd.enumerateAllModels()).containsExactly(new Model());
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.ZERO);
         Assertions.assertThat(bdd.toLngBdd()).isEqualTo(BDDConstant.getVerumNode(_c.f));
     }
@@ -67,7 +67,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.dnf()).isEqualTo(_c.f.literal("A", true));
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.ONE);
         Assertions.assertThat(bdd.underlyingKernel().factory()).isSameAs(_c.f);
-        assertThat(bdd.enumerateAllModels()).containsExactly(new Assignment(_c.f.literal("A", true)));
+        assertThat(bdd.enumerateAllModels()).containsExactly(new Model(_c.f.literal("A", true)));
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.ONE);
         Assertions.assertThat(bdd.toLngBdd().toString()).isEqualTo("<A | low=<$false> high=<$true>>");
     }
@@ -82,7 +82,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.dnf()).isEqualTo(_c.f.literal("A", false));
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.ONE);
         Assertions.assertThat(bdd.underlyingKernel().factory()).isSameAs(_c.f);
-        assertThat(bdd.enumerateAllModels()).containsExactly(new Assignment(_c.f.literal("A", false)));
+        assertThat(bdd.enumerateAllModels()).containsExactly(new Model(_c.f.literal("A", false)));
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.ONE);
         Assertions.assertThat(bdd.toLngBdd().toString()).isEqualTo("<A | low=<$true> high=<$false>>");
     }
@@ -98,9 +98,9 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(3));
         Assertions.assertThat(bdd.underlyingKernel().factory()).isSameAs(_c.f);
         assertThat(bdd.enumerateAllModels()).containsExactlyInAnyOrder(
-                new Assignment(_c.f.literal("A", false), _c.f.literal("B", false)),
-                new Assignment(_c.f.literal("A", true), _c.f.literal("B", false)),
-                new Assignment(_c.f.literal("A", false), _c.f.literal("B", true))
+                new Model(_c.f.literal("A", false), _c.f.literal("B", false)),
+                new Model(_c.f.literal("A", true), _c.f.literal("B", false)),
+                new Model(_c.f.literal("A", false), _c.f.literal("B", true))
         );
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.ONE);
         Assertions.assertThat(bdd.toLngBdd().toString()).isEqualTo("<A | low=<$true> high=<B | low=<$true> high=<$false>>>");
@@ -117,8 +117,8 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(2));
         Assertions.assertThat(bdd.underlyingKernel().factory()).isSameAs(_c.f);
         assertThat(bdd.enumerateAllModels()).containsExactlyInAnyOrder(
-                new Assignment(_c.f.literal("A", true), _c.f.literal("B", false)),
-                new Assignment(_c.f.literal("A", false), _c.f.literal("B", true))
+                new Model(_c.f.literal("A", true), _c.f.literal("B", false)),
+                new Model(_c.f.literal("A", false), _c.f.literal("B", true))
         );
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.valueOf(2));
         Assertions.assertThat(bdd.toLngBdd().toString()).isEqualTo("<A | low=<B | low=<$false> high=<$true>> high=<B | low=<$true> high=<$false>>>");
@@ -135,13 +135,13 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(7));
         Assertions.assertThat(bdd.underlyingKernel().factory()).isSameAs(_c.f);
         assertThat(bdd.enumerateAllModels()).containsExactlyInAnyOrder(
-                new Assignment(_c.f.literal("A", false), _c.f.literal("B", false), _c.f.literal("C", false)),
-                new Assignment(_c.f.literal("A", false), _c.f.literal("B", true), _c.f.literal("C", false)),
-                new Assignment(_c.f.literal("A", false), _c.f.literal("B", true), _c.f.literal("C", true)),
-                new Assignment(_c.f.literal("A", true), _c.f.literal("B", false), _c.f.literal("C", false)),
-                new Assignment(_c.f.literal("A", true), _c.f.literal("B", false), _c.f.literal("C", true)),
-                new Assignment(_c.f.literal("A", true), _c.f.literal("B", true), _c.f.literal("C", false)),
-                new Assignment(_c.f.literal("A", true), _c.f.literal("B", true), _c.f.literal("C", true))
+                new Model(_c.f.literal("A", false), _c.f.literal("B", false), _c.f.literal("C", false)),
+                new Model(_c.f.literal("A", false), _c.f.literal("B", true), _c.f.literal("C", false)),
+                new Model(_c.f.literal("A", false), _c.f.literal("B", true), _c.f.literal("C", true)),
+                new Model(_c.f.literal("A", true), _c.f.literal("B", false), _c.f.literal("C", false)),
+                new Model(_c.f.literal("A", true), _c.f.literal("B", false), _c.f.literal("C", true)),
+                new Model(_c.f.literal("A", true), _c.f.literal("B", true), _c.f.literal("C", false)),
+                new Model(_c.f.literal("A", true), _c.f.literal("B", true), _c.f.literal("C", true))
         );
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.ONE);
         Assertions.assertThat(bdd.toLngBdd().toString()).isEqualTo("<A | low=<B | low=<C | low=<$true> high=<$false>> high=<$true>> high=<$true>>");
@@ -162,7 +162,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(1));
         Assertions.assertThat(bdd.underlyingKernel().factory()).isSameAs(f);
         assertThat(bdd.enumerateAllModels()).containsExactlyInAnyOrder(
-                new Assignment(f.literal("A", true), f.literal("B", true), f.literal("C", false))
+                new Model(f.literal("A", true), f.literal("B", true), f.literal("C", false))
         );
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.valueOf(3));
         Assertions.assertThat(bdd.toLngBdd().toString()).isEqualTo("<A | low=<$false> high=<B | low=<$false> high=<C | low=<$true> high=<$false>>>>");
@@ -200,9 +200,9 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(3));
         Assertions.assertThat(bdd.underlyingKernel().factory()).isSameAs(f);
         assertThat(bdd.enumerateAllModels()).containsExactlyInAnyOrder(
-                new Assignment(f.literal("A", true), f.literal("B", false), f.literal("C", false)),
-                new Assignment(f.literal("A", false), f.literal("B", true), f.literal("C", false)),
-                new Assignment(f.literal("A", false), f.literal("B", false), f.literal("C", true))
+                new Model(f.literal("A", true), f.literal("B", false), f.literal("C", false)),
+                new Model(f.literal("A", false), f.literal("B", true), f.literal("C", false)),
+                new Model(f.literal("A", false), f.literal("B", false), f.literal("C", true))
         );
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.valueOf(4));
     }

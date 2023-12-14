@@ -6,7 +6,7 @@ package com.booleworks.logicng.transformations.simplification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
@@ -76,7 +76,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
         final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
         final SATSolver solver = MiniSat.miniSat(_c.f);
         solver.add(formula);
-        final List<Assignment> models = solver.enumerateAllModels(Arrays.asList(
+        final List<Model> models = solver.enumerateAllModels(Arrays.asList(
                 _c.f.variable("v111"),
                 _c.f.variable("v410"),
                 _c.f.variable("v434"),
@@ -88,7 +88,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
                 _c.f.variable("v58"),
                 _c.f.variable("v61")));
         final List<Formula> operands = new ArrayList<>(models.size());
-        for (final Assignment model : models) {
+        for (final Model model : models) {
             operands.add(model.formula(_c.f));
         }
         final Formula canonicalDNF = _c.f.or(operands);
@@ -103,7 +103,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
         final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
         final SATSolver solver = MiniSat.miniSat(_c.f);
         solver.add(formula);
-        final List<Assignment> models = solver.enumerateAllModels(Arrays.asList(
+        final List<Model> models = solver.enumerateAllModels(Arrays.asList(
                 _c.f.variable("v111"),
                 _c.f.variable("v410"),
                 _c.f.variable("v434"),
@@ -119,7 +119,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
                 _c.f.variable("v280"),
                 _c.f.variable("v61")));
         final List<Formula> operands = new ArrayList<>(models.size());
-        for (final Assignment model : models) {
+        for (final Model model : models) {
             operands.add(model.formula(_c.f));
         }
         final Formula canonicalDNF = _c.f.or(operands);
@@ -139,9 +139,9 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
 
             final SATSolver solver = MiniSat.miniSat(_c.f);
             solver.add(formula);
-            final List<Assignment> models = solver.enumerateAllModels(projectedVars);
+            final List<Model> models = solver.enumerateAllModels(projectedVars);
             final List<Formula> operands = new ArrayList<>(models.size());
-            for (final Assignment model : models) {
+            for (final Model model : models) {
                 operands.add(model.formula(_c.f));
             }
             final Formula canonicalDNF = _c.f.or(operands);

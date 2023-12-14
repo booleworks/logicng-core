@@ -7,7 +7,7 @@ package com.booleworks.logicng.testutils;
 import static com.booleworks.logicng.util.CollectionHelper.difference;
 import static com.booleworks.logicng.util.CollectionHelper.union;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.MiniSat;
@@ -31,14 +31,14 @@ public final class TestUtil {
     public static boolean equivalentModels(final Formula f1, final Formula f2, final SortedSet<Variable> vars) {
         final SATSolver s = MiniSat.miniSat(f1.factory());
         s.add(f1);
-        final List<Assignment> models1 = s.enumerateAllModels(vars);
+        final List<Model> models1 = s.enumerateAllModels(vars);
         s.reset();
         s.add(f2);
-        final List<Assignment> models2 = s.enumerateAllModels(vars);
+        final List<Model> models2 = s.enumerateAllModels(vars);
         if (models1.size() != models2.size()) {
             return false;
         }
-        for (final Assignment model : models1) {
+        for (final Model model : models1) {
             if (!models2.contains(model)) {
                 return false;
             }
@@ -47,19 +47,19 @@ public final class TestUtil {
     }
 
     /**
-     * Returns the number of models when extending the given assignments by all don't care variables.
+     * Returns the number of models when extending the given models by all don't care variables.
      * <p>
      * Assumption, the given models all contain the same set of variables, e.g. the result of a model enumeration.
-     * @param assignments the assignments
-     * @param variables   the variables, a superset of the variables in the assignments
+     * @param models    the assignments
+     * @param variables the variables, a superset of the variables in the models
      * @return the number of models
      */
-    public static BigInteger modelCount(final List<Assignment> assignments, final SortedSet<Variable> variables) {
-        if (assignments.isEmpty()) {
+    public static BigInteger modelCount(final List<Model> models, final SortedSet<Variable> variables) {
+        if (models.isEmpty()) {
             return BigInteger.ZERO;
         } else {
-            final SortedSet<Variable> dontCareVars = getDontCareVariables(assignments, variables);
-            return BigInteger.valueOf(assignments.size()).multiply(BigInteger.valueOf(2).pow(dontCareVars.size()));
+            final SortedSet<Variable> dontCareVars = getDontCareVariables(models, variables);
+            return BigInteger.valueOf(models.size()).multiply(BigInteger.valueOf(2).pow(dontCareVars.size()));
         }
     }
 
@@ -67,15 +67,15 @@ public final class TestUtil {
      * Returns the don't care variables.
      * <p>
      * Assumption, the given models all contain the same set of variables, e.g. the result of a model enumeration.
-     * @param assignments the assignments
-     * @param variables   the variables, a superset of the variables in the assignments
+     * @param models    the models
+     * @param variables the variables, a superset of the variables in the models
      * @return the don't care variables
      */
-    public static SortedSet<Variable> getDontCareVariables(final List<Assignment> assignments, final SortedSet<Variable> variables) {
-        if (assignments.isEmpty()) {
+    public static SortedSet<Variable> getDontCareVariables(final List<Model> models, final SortedSet<Variable> variables) {
+        if (models.isEmpty()) {
             return Collections.emptySortedSet();
         } else {
-            final Assignment firstModel = assignments.get(0);
+            final Model firstModel = models.get(0);
             final SortedSet<Variable> assignmentVars = union(firstModel.positiveVariables(), firstModel.negativeVariables(), TreeSet::new);
             return difference(variables, assignmentVars, TreeSet::new);
         }

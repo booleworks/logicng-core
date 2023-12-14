@@ -14,7 +14,7 @@ import com.booleworks.logicng.formulas.printer.FormulaStringRepresentation;
 import com.booleworks.logicng.functions.SubNodeFunction;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.pseudobooleans.PBConfig;
-import com.booleworks.logicng.solvers.functions.modelenumeration.AdvancedModelEnumerationConfig;
+import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
 import com.booleworks.logicng.solvers.sat.GlucoseConfig;
 import com.booleworks.logicng.solvers.sat.MiniSatConfig;
@@ -123,7 +123,7 @@ public abstract class FormulaFactory {
         configMap.put(ConfigurationType.MAXSAT, MaxSATConfig.builder().build());
         configMap.put(ConfigurationType.MUS, MUSConfig.builder().build());
         configMap.put(ConfigurationType.ADVANCED_SIMPLIFIER, AdvancedSimplifierConfig.builder().build());
-        configMap.put(ConfigurationType.ADVANCED_MODEL_ENUMERATION, AdvancedModelEnumerationConfig.builder().build());
+        configMap.put(ConfigurationType.MODEL_ENUMERATION, ModelEnumerationConfig.builder().build());
         configMap.put(ConfigurationType.FORMULA_RANDOMIZER, FormulaRandomizerConfig.builder().build());
         return configMap;
     }

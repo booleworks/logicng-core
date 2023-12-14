@@ -6,26 +6,26 @@ package com.booleworks.logicng.solvers.functions.modelenumeration;
 
 import com.booleworks.logicng.configurations.Configuration;
 import com.booleworks.logicng.configurations.ConfigurationType;
-import com.booleworks.logicng.handlers.AdvancedModelEnumerationHandler;
-import com.booleworks.logicng.solvers.functions.AdvancedModelEnumerationFunction;
-import com.booleworks.logicng.solvers.functions.modelenumeration.splitvariablesprovider.MostCommonVariablesProvider;
+import com.booleworks.logicng.handlers.ModelEnumerationHandler;
+import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
+import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.MostCommonVariablesProvider;
 
 /**
- * The configuration object for the {@link AdvancedModelEnumerationFunction}.
+ * The configuration object for the {@link ModelEnumerationFunction}.
  * @version 3.0.0
  * @since 3.0.0
  */
-public class AdvancedModelEnumerationConfig extends Configuration {
+public class ModelEnumerationConfig extends Configuration {
 
-    final AdvancedModelEnumerationHandler handler;
-    final AdvancedModelEnumerationStrategy strategy;
+    final ModelEnumerationHandler handler;
+    final ModelEnumerationStrategy strategy;
 
     /**
      * Constructs a new configuration with a given type.
      * @param builder the builder
      */
-    private AdvancedModelEnumerationConfig(final Builder builder) {
-        super(ConfigurationType.ADVANCED_MODEL_ENUMERATION);
+    private ModelEnumerationConfig(final Builder builder) {
+        super(ConfigurationType.MODEL_ENUMERATION);
         handler = builder.handler;
         strategy = builder.strategy;
     }
@@ -40,12 +40,12 @@ public class AdvancedModelEnumerationConfig extends Configuration {
 
     /**
      * The builder for a model enumeration configuration.
-     * @version 2.4.0
-     * @since 2.4.0
+     * @version 3.0.0
+     * @since 3.0.0
      */
     public static class Builder {
-        private AdvancedModelEnumerationHandler handler = null;
-        private AdvancedModelEnumerationStrategy strategy = DefaultAdvancedModelEnumerationStrategy.builder().build();
+        private ModelEnumerationHandler handler = null;
+        private ModelEnumerationStrategy strategy = DefaultModelEnumerationStrategy.builder().build();
 
         private Builder() {
             // Initialize only via factory
@@ -56,20 +56,20 @@ public class AdvancedModelEnumerationConfig extends Configuration {
          * @param handler the handler, may be {@code null}
          * @return the current builder
          */
-        public Builder handler(final AdvancedModelEnumerationHandler handler) {
+        public Builder handler(final ModelEnumerationHandler handler) {
             this.handler = handler;
             return this;
         }
 
         /**
-         * Sets the model enumeration strategy for this function. The default is the {@link DefaultAdvancedModelEnumerationStrategy} with the
+         * Sets the model enumeration strategy for this function. The default is the {@link DefaultModelEnumerationStrategy} with the
          * {@link MostCommonVariablesProvider} and a maximum number of models of 500.
          * <p>
          * In case of {@code null} the computation will fall back to the default model enumeration without split assignments
          * @param strategy the strategy
          * @return the current builder
          */
-        public Builder strategy(final AdvancedModelEnumerationStrategy strategy) {
+        public Builder strategy(final ModelEnumerationStrategy strategy) {
             this.strategy = strategy;
             return this;
         }
@@ -78,8 +78,8 @@ public class AdvancedModelEnumerationConfig extends Configuration {
          * Builds the model enumeration configuration with the current builder's configuration.
          * @return the model enumeration configuration
          */
-        public AdvancedModelEnumerationConfig build() {
-            return new AdvancedModelEnumerationConfig(this);
+        public ModelEnumerationConfig build() {
+            return new ModelEnumerationConfig(this);
         }
     }
 }

@@ -13,8 +13,8 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.functions.ModelCountingFunction;
-import com.booleworks.logicng.solvers.functions.modelenumeration.AdvancedModelEnumerationConfig;
-import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultAdvancedModelEnumerationStrategy;
+import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
+import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,7 @@ import java.math.BigInteger;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class AdvancedModelEnumerationHandlerTest {
+public class ModelEnumerationHandlerTest {
 
     FormulaFactory f;
 
@@ -35,8 +35,8 @@ public class AdvancedModelEnumerationHandlerTest {
     public void testTimeoutHandler() throws ParserException, InterruptedException {
         final MiniSat solver = MiniSat.miniSat(f);
         solver.add(f.parse("A | B | C | D | E | F | G | H | I | J | K | L | N | M | O | P | Q | R | S | T | U | V | W"));
-        final TimeoutAdvancedModelEnumerationHandler handler = new TimeoutAdvancedModelEnumerationHandler(100);
-        final ModelCountingFunction enumeration = ModelCountingFunction.builder().configuration(AdvancedModelEnumerationConfig.builder().handler(handler).build()).build();
+        final TimeoutModelEnumerationHandler handler = new TimeoutModelEnumerationHandler(100);
+        final ModelCountingFunction enumeration = ModelCountingFunction.builder().configuration(ModelEnumerationConfig.builder().handler(handler).build()).build();
 
         Thread.sleep(150);
         assertThat(handler.aborted()).isFalse();
@@ -59,10 +59,10 @@ public class AdvancedModelEnumerationHandlerTest {
         for (int i = 1; i <= 1000; i += 7) {
             final MiniSat solver = MiniSat.miniSat(f);
             solver.add(formula);
-            final AdvancedNumberOfModelsHandler handler = new AdvancedNumberOfModelsHandler(i);
+            final NumberOfModelsHandler handler = new NumberOfModelsHandler(i);
             final ModelCountingFunction enumeration = ModelCountingFunction.builder()
-                    .variables(vars).configuration(AdvancedModelEnumerationConfig.builder().handler(handler).strategy(
-                                    DefaultAdvancedModelEnumerationStrategy.builder().maxNumberOfModels(200).build()
+                    .variables(vars).configuration(ModelEnumerationConfig.builder().handler(handler).strategy(
+                                    DefaultModelEnumerationStrategy.builder().maxNumberOfModels(200).build()
                             ).build()
                     ).build();
             final BigInteger numberOfModels = solver.execute(enumeration);

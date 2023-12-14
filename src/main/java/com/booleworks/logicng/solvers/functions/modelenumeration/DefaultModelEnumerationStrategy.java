@@ -6,8 +6,8 @@ package com.booleworks.logicng.solvers.functions.modelenumeration;
 
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.functions.modelenumeration.splitvariablesprovider.MostCommonVariablesProvider;
-import com.booleworks.logicng.solvers.functions.modelenumeration.splitvariablesprovider.SplitVariableProvider;
+import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.MostCommonVariablesProvider;
+import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.SplitVariableProvider;
 
 import java.util.Collection;
 import java.util.SortedSet;
@@ -15,7 +15,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
- * A default strategy for the advanced model enumeration.
+ * A default strategy for the model enumeration.
  * <p>
  * It takes a {@link SplitVariableProvider} and a maximum number of models.
  * <p>
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class DefaultAdvancedModelEnumerationStrategy implements AdvancedModelEnumerationStrategy {
+public class DefaultModelEnumerationStrategy implements ModelEnumerationStrategy {
 
     protected static final int MIN_NUMBER_OF_MODELS = 3;
 
@@ -40,12 +40,12 @@ public class DefaultAdvancedModelEnumerationStrategy implements AdvancedModelEnu
     protected final int maxNumberOfModels;
 
     /**
-     * Constructs a new default advanced model enumeration strategy.
+     * Constructs a new default model enumeration strategy.
      * @param splitVariableProvider the split variables provider
      * @param maxNumberOfModels     the maximum number of models before a model split is performed.  In order to guarantee termination of the enumeration algorithm,
      *                              this number must be &gt; 2.  If a smaller number is provided, it is automatically set to 3.
      */
-    protected DefaultAdvancedModelEnumerationStrategy(final SplitVariableProvider splitVariableProvider, final int maxNumberOfModels) {
+    protected DefaultModelEnumerationStrategy(final SplitVariableProvider splitVariableProvider, final int maxNumberOfModels) {
         this.splitVariableProvider = splitVariableProvider;
         this.maxNumberOfModels = maxNumberOfModels;
     }
@@ -83,7 +83,7 @@ public class DefaultAdvancedModelEnumerationStrategy implements AdvancedModelEnu
     }
 
     /**
-     * The builder for a default advanced model enumeration strategy.
+     * The builder for a default model enumeration strategy.
      * @version 2.4.0
      * @since 2.4.0
      */
@@ -119,8 +119,8 @@ public class DefaultAdvancedModelEnumerationStrategy implements AdvancedModelEnu
          * Returns the strategy.
          * @return the strategy
          */
-        public DefaultAdvancedModelEnumerationStrategy build() {
-            return new DefaultAdvancedModelEnumerationStrategy(splitVariableProvider, maxNumberOfModels);
+        public DefaultModelEnumerationStrategy build() {
+            return new DefaultModelEnumerationStrategy(splitVariableProvider, maxNumberOfModels);
         }
     }
 }

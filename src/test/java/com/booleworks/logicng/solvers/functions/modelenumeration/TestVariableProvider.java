@@ -8,7 +8,7 @@ import static java.util.Collections.emptySortedSet;
 
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.functions.modelenumeration.splitvariablesprovider.SplitVariableProvider;
+import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.SplitVariableProvider;
 
 import java.util.Collection;
 import java.util.SortedSet;

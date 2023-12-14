@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.booleworks.logicng.RandomTag;
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
@@ -208,7 +208,7 @@ public class ModelCounterTest extends TestWithFormulaContext {
         final MiniSat solver = MiniSat.miniSat(f);
         solver.add(formulas);
         final SortedSet<Variable> variables = FormulaHelper.variables(f, formulas);
-        final List<Assignment> models = solver.enumerateAllModels(variables);
+        final List<Model> models = solver.enumerateAllModels(variables);
         return modelCount(models, variables);
     }
 }

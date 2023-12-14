@@ -5,6 +5,7 @@
 package com.booleworks.logicng.knowledgecompilation.bdds;
 
 import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -229,7 +230,7 @@ public class BDD {
      * Enumerates all models of this BDD.
      * @return the list of all models
      */
-    public List<Assignment> enumerateAllModels() {
+    public List<Model> enumerateAllModels() {
         return enumerateAllModels(kernel.factory(), (Collection<Variable>) null);
     }
 
@@ -238,7 +239,7 @@ public class BDD {
      * @param f the formula factory to generate new formulas
      * @return the list of all models
      */
-    public List<Assignment> enumerateAllModels(final FormulaFactory f) {
+    public List<Model> enumerateAllModels(final FormulaFactory f) {
         return enumerateAllModels(f, (Collection<Variable>) null);
     }
 
@@ -247,7 +248,7 @@ public class BDD {
      * @param variables the variables
      * @return the list of all models
      */
-    public List<Assignment> enumerateAllModels(final Variable... variables) {
+    public List<Model> enumerateAllModels(final Variable... variables) {
         return enumerateAllModels(kernel.factory(), Arrays.asList(variables));
     }
 
@@ -257,7 +258,7 @@ public class BDD {
      * @param variables the variables
      * @return the list of all models
      */
-    public List<Assignment> enumerateAllModels(final FormulaFactory f, final Variable... variables) {
+    public List<Model> enumerateAllModels(final FormulaFactory f, final Variable... variables) {
         return enumerateAllModels(f, Arrays.asList(variables));
     }
 
@@ -266,7 +267,7 @@ public class BDD {
      * @param variables the variables
      * @return the list of all models
      */
-    public List<Assignment> enumerateAllModels(final Collection<Variable> variables) {
+    public List<Model> enumerateAllModels(final Collection<Variable> variables) {
         return apply(new BDDModelEnumerationFunction(kernel.factory(), variables));
     }
 
@@ -276,7 +277,7 @@ public class BDD {
      * @param variables the variables
      * @return the list of all models
      */
-    public List<Assignment> enumerateAllModels(final FormulaFactory f, final Collection<Variable> variables) {
+    public List<Model> enumerateAllModels(final FormulaFactory f, final Collection<Variable> variables) {
         return apply(new BDDModelEnumerationFunction(f, variables));
     }
 
