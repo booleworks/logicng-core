@@ -11,7 +11,6 @@ import com.booleworks.logicng.solvers.MiniSat;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -60,23 +59,13 @@ public interface ModelEnumerationCommon {
      * @return a list of the internal indices
      */
     static LNGIntVector relevantIndicesFromSolver(final Collection<Variable> variables, final MiniSat solver) {
-        final LNGIntVector relevantIndices;
         if (variables == null) {
-            if (!solver.getConfig().isAuxiliaryVariablesInModels()) {
-                relevantIndices = new LNGIntVector();
-                for (final Map.Entry<String, Integer> entry : solver.underlyingSolver().getName2idx().entrySet()) {
-                    if (solver.isRelevantVariable(entry.getKey())) {
-                        relevantIndices.push(entry.getValue());
-                    }
-                }
-            } else {
-                relevantIndices = null;
-            }
-        } else {
-            relevantIndices = new LNGIntVector(variables.size());
-            for (final Variable var : variables) {
-                relevantIndices.push(solver.underlyingSolver().idxForName(var.name()));
-            }
+            throw new IllegalArgumentException("Model enumeration must always be calles with a valid set of variables.");
+        }
+        final LNGIntVector relevantIndices;
+        relevantIndices = new LNGIntVector(variables.size());
+        for (final Variable var : variables) {
+            relevantIndices.push(solver.underlyingSolver().idxForName(var.name()));
         }
         return relevantIndices;
     }
@@ -93,9 +82,7 @@ public interface ModelEnumerationCommon {
                                                      final MiniSat solver) {
         LNGIntVector relevantAllIndices = null;
         final SortedSet<Variable> uniqueAdditionalVariables = new TreeSet<>(additionalVariables == null ? Collections.emptyList() : additionalVariables);
-        if (variables != null) {
-            uniqueAdditionalVariables.removeAll(variables);
-        }
+        uniqueAdditionalVariables.removeAll(variables);
         if (relevantIndices != null) {
             if (uniqueAdditionalVariables.isEmpty()) {
                 relevantAllIndices = relevantIndices;

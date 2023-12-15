@@ -42,7 +42,6 @@ public class ConfigurationsTest {
                 "initialPhase=true%n" +
                 "proofGeneration=false%n" +
                 "cnfMethod=PG_ON_SOLVER%n" +
-                "auxiliaryVariablesInModels=false%n" +
                 "bbInitialUBCheckForRotatableLiterals=true%n" +
                 "bbCheckForComplementModelLiterals=true%n" +
                 "bbCheckForRotatableLiterals=true%n" +

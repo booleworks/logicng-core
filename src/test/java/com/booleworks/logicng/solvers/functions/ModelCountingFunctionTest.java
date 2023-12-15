@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.collections.LNGBooleanVector;
+import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
@@ -63,7 +64,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     public void testNonIncrementalSolver() throws ParserException {
         final MiniSat solver = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
         solver.add(f.parse("A | B | C"));
-        assertThatThrownBy(() -> solver.execute(ModelCountingFunction.builder().build()))
+        assertThatThrownBy(() -> solver.execute(ModelCountingFunction.builder(f.variables()).build()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Recursive model enumeration function can only be applied to solvers with load/save state capability.");
     }
@@ -75,7 +76,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
                 ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
-        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder().variables().configuration(config).build());
+        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder(f.variables()).configuration(config).build());
         assertThat(numberOfModels).isEqualTo(1);
     }
 
@@ -88,7 +89,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
         final SATSolver solver = MiniSat.miniSat(f);
         final Formula formula = f.parse("A & (B | C)");
         solver.add(formula);
-        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder().variables().configuration(config).build());
+        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder(f.variables()).configuration(config).build());
         assertThat(numberOfModels).isEqualTo(1);
     }
 
@@ -100,7 +101,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("A & (B | C)"));
-        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder().configuration(config).build());
+        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
         assertThat(numberOfModels).isEqualTo(3);
     }
 
@@ -112,7 +113,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
-        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder().configuration(config).build());
+        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
         assertThat(numberOfModels).isEqualTo(5);
     }
 
@@ -125,7 +126,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
         final SATSolver solver = MiniSat.miniSat(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
         solver.add(formula);
-        final ModelCountingFunction meFunction = ModelCountingFunction.builder().configuration(config).build();
+        final ModelCountingFunction meFunction = ModelCountingFunction.builder(f.variables("A", "B", "C")).configuration(config).build();
         final BigInteger firstRun = solver.execute(meFunction);
         final BigInteger secondRun = solver.execute(meFunction);
         assertThat(firstRun).isEqualTo(5);
@@ -142,8 +143,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
         final Formula formula = f.parse("(~A | C) & (~B | C)");
         final SortedSet<Variable> variables = f.variables("A", "B", "C", "D");
         solver.add(formula);
-        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder()
-                .variables(variables)
+        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder(variables)
                 .configuration(config)
                 .build());
         assertThat(numberOfModels).isEqualTo(10);
@@ -159,8 +159,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
         final Formula formula = f.parse("(~A | C) & (~B | C)");
         final SortedSet<Variable> variables = f.variables("A", "C", "D", "E");
         solver.add(formula);
-        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder()
-                .variables(variables)
+        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder(variables)
                 .configuration(config)
                 .build());
         assertThat(numberOfModels).isEqualTo(12);
@@ -175,8 +174,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
         final Formula formula = f.parse("A | B | (X & ~X)"); // X will be simplified out and become a don't care variable unknown by the solver
         solver.add(formula);
         final SortedSet<Variable> variables = new TreeSet<>(f.variables("A", "B", "X"));
-        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder()
-                .variables(variables)
+        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder(variables)
                 .configuration(config)
                 .build());
         assertThat(numberOfModels).isEqualTo(6);
@@ -190,8 +188,9 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
                 ModelEnumerationConfig.builder().handler(handler)
                         .strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(3).build()).build();
         final SATSolver solver = MiniSat.miniSat(f);
-        solver.add(f.parse("(~A | C) & (~B | C)"));
-        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder().configuration(config).build());
+        final Formula formula = f.parse("(~A | C) & (~B | C)");
+        solver.add(formula);
+        final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder(formula.variables(f)).configuration(config).build());
         assertThat(handler.aborted()).isTrue();
         assertThat(numberOfModels).isEqualTo(3);
     }
@@ -212,11 +211,11 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
             // recursive call: least common vars
             final ModelEnumerationConfig configLcv =
                     ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder().splitVariableProvider(new LeastCommonVariablesProvider()).maxNumberOfModels(500).build()).build();
-            final BigInteger count1 = solver.execute(ModelCountingFunction.builder().variables(formula.variables(f)).configuration(configLcv).build());
+            final BigInteger count1 = solver.execute(ModelCountingFunction.builder(formula.variables(f)).configuration(configLcv).build());
 
             // recursive call: most common vars
             final ModelEnumerationConfig configMcv = ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder().splitVariableProvider(new MostCommonVariablesProvider()).maxNumberOfModels(500).build()).build();
-            final BigInteger count2 = solver.execute(ModelCountingFunction.builder().variables(formula.variables(f)).configuration(configMcv).build());
+            final BigInteger count2 = solver.execute(ModelCountingFunction.builder(formula.variables(f)).configuration(configMcv).build());
 
             assertThat(count1).isEqualTo(count);
             assertThat(count2).isEqualTo(count);
@@ -239,10 +238,11 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
 
         final LNGBooleanVector modelFromSolver1 = new LNGBooleanVector(true, true);
         final LNGBooleanVector modelFromSolver2 = new LNGBooleanVector(false, false);
+        final LNGIntVector relevantIndices = new LNGIntVector(new int[]{0, 1});
 
         final Model expectedModel2 = new Model(_c.na, _c.nb);
 
-        collector.addModel(modelFromSolver1, solver, null, handler);
+        collector.addModel(modelFromSolver1, solver, relevantIndices, handler);
         assertThat(collector.getResult().intValue()).isZero();
         assertThat(handler.getFoundModels()).isEqualTo(1);
         assertThat(handler.getCommitCalls()).isZero();
@@ -255,7 +255,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
         assertThat(handler.getRollbackCalls()).isZero();
         final BigInteger result1 = collector.getResult();
 
-        collector.addModel(modelFromSolver2, solver, null, handler);
+        collector.addModel(modelFromSolver2, solver, relevantIndices, handler);
         assertThat(collector.getResult()).isEqualTo(result1);
         assertThat(handler.getFoundModels()).isEqualTo(2);
         assertThat(handler.getCommitCalls()).isEqualTo(1);
@@ -267,7 +267,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
         assertThat(handler.getCommitCalls()).isEqualTo(1);
         assertThat(handler.getRollbackCalls()).isEqualTo(1);
 
-        collector.addModel(modelFromSolver2, solver, null, handler);
+        collector.addModel(modelFromSolver2, solver, relevantIndices, handler);
         final List<Model> rollbackModels = collector.rollbackAndReturnModels(solver, handler);
         assertThat(rollbackModels).containsExactly(expectedModel2);
         assertThat(collector.getResult()).isEqualTo(result1);
@@ -275,7 +275,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
         assertThat(handler.getCommitCalls()).isEqualTo(1);
         assertThat(handler.getRollbackCalls()).isEqualTo(2);
 
-        collector.addModel(modelFromSolver2, solver, null, handler);
+        collector.addModel(modelFromSolver2, solver, relevantIndices, handler);
         collector.commit(handler);
         assertThat(collector.getResult().intValue()).isEqualTo(2);
         assertThat(handler.getFoundModels()).isEqualTo(4);

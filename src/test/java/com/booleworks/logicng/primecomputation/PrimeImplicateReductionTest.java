@@ -122,7 +122,7 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
         if (!isSAT) {
             return;
         }
-        final SortedSet<Literal> falsifyingAssignment = FormulaHelper.negateLiterals(f, solver.model().literals(), TreeSet::new);
+        final SortedSet<Literal> falsifyingAssignment = FormulaHelper.negateLiterals(f, solver.model(formula.variables(f)).literals(), TreeSet::new);
         final NaivePrimeReduction naive = new NaivePrimeReduction(f, formula);
         final SortedSet<Literal> primeImplicate = naive.reduceImplicate(f, falsifyingAssignment, handler);
         if (expAborted) {

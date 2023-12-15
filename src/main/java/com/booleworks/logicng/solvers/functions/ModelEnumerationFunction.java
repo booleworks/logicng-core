@@ -42,7 +42,7 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
     }
 
     /**
-     * Constructs a new model enumeration function with the given set of variables
+     * Constructs a new model enumeration function with the given set of variables.
      * @param variables the variables for the enumeration
      * @return the builder for the function
      */
@@ -51,7 +51,7 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
     }
 
     /**
-     * Constructs a new model enumeration function with the given set of variables
+     * Constructs a new model enumeration function with the given set of variables.
      * @param variables the variables for the enumeration
      * @return the builder for the function
      */
@@ -74,7 +74,7 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         private ModelEnumerationConfig configuration;
 
         /**
-         * Constructs a new model enumeration function with the given set of variables
+         * Constructs a new model enumeration function with the given set of variables.
          * @param variables the variables for the enumeration
          */
         Builder(final Collection<Variable> variables) {

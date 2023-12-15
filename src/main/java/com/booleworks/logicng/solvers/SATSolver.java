@@ -300,14 +300,6 @@ public abstract class SATSolver {
     public abstract void reset();
 
     /**
-     * Returns a model of the current formula on the solver.  If the formula is UNSAT, {@code null} will be returned.
-     * @return a model of the current formula
-     */
-    public Assignment model() {
-        return model((Collection<Variable>) null);
-    }
-
-    /**
      * Returns a model of the current formula on the solver wrt. a given set of variables. If the set
      * is {@code null}, all variables are considered relevant. If the formula is UNSAT, {@code null} will be returned.
      * The formula in the solver has to be solved first, before a model can be obtained.

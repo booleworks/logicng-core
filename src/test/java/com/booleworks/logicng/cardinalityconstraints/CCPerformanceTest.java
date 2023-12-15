@@ -57,7 +57,7 @@ public class CCPerformanceTest implements LogicNGTest {
             solver.reset();
             solver.add(cc);
             assertSolverSat(solver);
-            final Assignment model = solver.model();
+            final Assignment model = solver.model(problemLits);
             assertThat(cc.evaluate(model)).isTrue();
         }
     }

@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.collections.LNGBooleanVector;
+import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
@@ -64,7 +65,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
     public void testNonIncrementalSolver() throws ParserException {
         final MiniSat solver = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
         solver.add(f.parse("A | B | C"));
-        assertThatThrownBy(() -> solver.execute(ModelEnumerationToBddFunction.builder().build()))
+        assertThatThrownBy(() -> solver.execute(ModelEnumerationToBddFunction.builder(List.of()).build()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Recursive model enumeration function can only be applied to solvers with load/save state capability.");
     }
@@ -78,7 +79,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.literal("A", true));
         solver.add(f.literal("A", false));
-        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder().variables().configuration(config).build());
+        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder(List.of()).configuration(config).build());
         assertThat(bdd.isContradiction()).isTrue();
     }
 
@@ -89,7 +90,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
                 ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
-        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder().variables().configuration(config).build());
+        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder(List.of()).configuration(config).build());
         assertThat(bdd.isTautology()).isTrue();
     }
 
@@ -102,7 +103,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         final SATSolver solver = MiniSat.miniSat(f);
         final Formula formula = f.parse("A & (B | C)");
         solver.add(formula);
-        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder().variables().configuration(config).build());
+        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder(List.of()).configuration(config).build());
         assertThat(bdd.isTautology()).isTrue();
     }
 
@@ -115,7 +116,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         final SATSolver solver = MiniSat.miniSat(f);
         final Formula formula = f.parse("A & (B | C)");
         solver.add(formula);
-        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder().configuration(config).build());
+        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder(formula.variables(f)).configuration(config).build());
         compareModels(formula, formula.variables(f), bdd);
     }
 
@@ -128,7 +129,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         final SATSolver solver = MiniSat.miniSat(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
         solver.add(formula);
-        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder().configuration(config).build());
+        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder(formula.variables(f)).configuration(config).build());
         assertThat(bdd.modelCount()).isEqualTo(5);
         compareModels(formula, formula.variables(f), bdd);
     }
@@ -142,7 +143,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         final SATSolver solver = MiniSat.miniSat(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
         solver.add(formula);
-        final ModelEnumerationToBddFunction meFunction = ModelEnumerationToBddFunction.builder().configuration(config).build();
+        final ModelEnumerationToBddFunction meFunction = ModelEnumerationToBddFunction.builder(formula.variables(f)).configuration(config).build();
         final BDD firstRun = solver.execute(meFunction);
         final BDD secondRun = solver.execute(meFunction);
         assertThat(firstRun.modelCount()).isEqualTo(5);
@@ -161,8 +162,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         final Formula formula = f.parse("(~A | C) & (~B | C)");
         final SortedSet<Variable> variables = f.variables("A", "B", "C", "D");
         solver.add(formula);
-        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder()
-                .variables(variables)
+        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder(variables)
                 .configuration(config)
                 .build());
         assertThat(bdd.modelCount()).isEqualTo(10);
@@ -179,8 +179,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         final Formula formula = f.parse("(~A | C) & (~B | C)");
         final SortedSet<Variable> variables = f.variables("A", "C", "D", "E");
         solver.add(formula);
-        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder()
-                .variables(variables)
+        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder(variables)
                 .configuration(config)
                 .build());
         assertThat(bdd.modelCount()).isEqualTo(12);
@@ -196,8 +195,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         final Formula formula = f.parse("A | B | (X & ~X)"); // X will be simplified out and become a don't care variable unknown by the solver
         solver.add(formula);
         final SortedSet<Variable> variables = new TreeSet<>(f.variables("A", "B", "X"));
-        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder()
-                .variables(variables)
+        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder(variables)
                 .configuration(config)
                 .build());
         assertThat(bdd.modelCount()).isEqualTo(6);
@@ -213,7 +211,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
                         .strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(3).build()).build();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
-        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder().configuration(config).build());
+        final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
         assertThat(handler.aborted()).isTrue();
         assertThat(bdd.modelCount()).isEqualTo(3);
     }
@@ -231,12 +229,12 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
             // recursive call: least common vars
             final ModelEnumerationConfig configLcv =
                     ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder().splitVariableProvider(new LeastCommonVariablesProvider()).maxNumberOfModels(500).build()).build();
-            final BDD bdd1 = solver.execute(ModelEnumerationToBddFunction.builder().variables(formula.variables(f)).configuration(configLcv).build());
+            final BDD bdd1 = solver.execute(ModelEnumerationToBddFunction.builder(formula.variables(f)).configuration(configLcv).build());
 
             // recursive call: most common vars
             final ModelEnumerationConfig configMcv =
                     ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder().splitVariableProvider(new MostCommonVariablesProvider()).maxNumberOfModels(500).build()).build();
-            final BDD bdd2 = solver.execute(ModelEnumerationToBddFunction.builder().variables(formula.variables(f)).configuration(configMcv).build());
+            final BDD bdd2 = solver.execute(ModelEnumerationToBddFunction.builder(formula.variables(f)).configuration(configMcv).build());
 
             compareModels(formula, formula.variables(f), bdd1);
             compareModels(formula, formula.variables(f), bdd2);
@@ -259,11 +257,12 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
 
         final LNGBooleanVector modelFromSolver1 = new LNGBooleanVector(true, true);
         final LNGBooleanVector modelFromSolver2 = new LNGBooleanVector(false, false);
+        final LNGIntVector relevantIndices = new LNGIntVector(new int[]{0, 1});
 
         final Model expectedModel1 = new Model(_c.a, _c.b);
         final Model expectedModel2 = new Model(_c.na, _c.nb);
 
-        collector.addModel(modelFromSolver1, solver, null, handler);
+        collector.addModel(modelFromSolver1, solver, relevantIndices, handler);
         assertThat(collector.getResult().enumerateAllModels()).isEmpty();
         assertThat(handler.getFoundModels()).isEqualTo(1);
         assertThat(handler.getCommitCalls()).isZero();
@@ -276,7 +275,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         assertThat(handler.getRollbackCalls()).isZero();
         final BDD result1 = collector.getResult();
 
-        collector.addModel(modelFromSolver2, solver, null, handler);
+        collector.addModel(modelFromSolver2, solver, relevantIndices, handler);
         assertThat(collector.getResult()).isEqualTo(result1);
         assertThat(handler.getFoundModels()).isEqualTo(2);
         assertThat(handler.getCommitCalls()).isEqualTo(1);
@@ -288,7 +287,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         assertThat(handler.getCommitCalls()).isEqualTo(1);
         assertThat(handler.getRollbackCalls()).isEqualTo(1);
 
-        collector.addModel(modelFromSolver2, solver, null, handler);
+        collector.addModel(modelFromSolver2, solver, relevantIndices, handler);
         final List<Model> rollbackModels = collector.rollbackAndReturnModels(solver, handler);
         assertThat(rollbackModels).containsExactly(expectedModel2);
         assertThat(collector.getResult()).isEqualTo(result1);
@@ -296,7 +295,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         assertThat(handler.getCommitCalls()).isEqualTo(1);
         assertThat(handler.getRollbackCalls()).isEqualTo(2);
 
-        collector.addModel(modelFromSolver2, solver, null, handler);
+        collector.addModel(modelFromSolver2, solver, relevantIndices, handler);
         collector.commit(handler);
         assertThat(collector.getResult().enumerateAllModels()).containsExactlyInAnyOrder(expectedModel1, expectedModel2);
         assertThat(handler.getFoundModels()).isEqualTo(4);

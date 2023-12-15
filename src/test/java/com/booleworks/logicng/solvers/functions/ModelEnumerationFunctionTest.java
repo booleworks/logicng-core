@@ -14,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.collections.LNGBooleanVector;
+import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
@@ -420,8 +421,9 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
 
         final Model expectedModel1 = new Model(_c.a, _c.b);
         final Model expectedModel2 = new Model(_c.na, _c.nb);
+        final LNGIntVector relevantIndices = new LNGIntVector(new int[]{0, 1});
 
-        collector.addModel(modelFromSolver1, solver, null, handler);
+        collector.addModel(modelFromSolver1, solver, relevantIndices, handler);
         assertThat(collector.getResult()).isEmpty();
         assertThat(handler.getFoundModels()).isEqualTo(1);
         assertThat(handler.getCommitCalls()).isZero();
@@ -434,7 +436,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
         assertThat(handler.getRollbackCalls()).isZero();
         final List<Model> result1 = collector.getResult();
 
-        collector.addModel(modelFromSolver2, solver, null, handler);
+        collector.addModel(modelFromSolver2, solver, relevantIndices, handler);
         assertThat(collector.getResult()).isEqualTo(result1);
         assertThat(handler.getFoundModels()).isEqualTo(2);
         assertThat(handler.getCommitCalls()).isEqualTo(1);
@@ -446,7 +448,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
         assertThat(handler.getCommitCalls()).isEqualTo(1);
         assertThat(handler.getRollbackCalls()).isEqualTo(1);
 
-        collector.addModel(modelFromSolver2, solver, null, handler);
+        collector.addModel(modelFromSolver2, solver, relevantIndices, handler);
         final List<Model> rollbackModels = collector.rollbackAndReturnModels(solver, handler);
         assertThat(rollbackModels).containsExactly(expectedModel2);
         assertThat(collector.getResult()).isEqualTo(result1);
@@ -454,7 +456,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
         assertThat(handler.getCommitCalls()).isEqualTo(1);
         assertThat(handler.getRollbackCalls()).isEqualTo(2);
 
-        collector.addModel(modelFromSolver2, solver, null, handler);
+        collector.addModel(modelFromSolver2, solver, relevantIndices, handler);
         collector.commit(handler);
         assertThat(collector.getResult()).containsExactlyInAnyOrder(expectedModel1, expectedModel2);
         assertThat(handler.getFoundModels()).isEqualTo(4);

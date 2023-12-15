@@ -4,6 +4,8 @@
 
 package com.booleworks.logicng.solvers.functions;
 
+import static java.util.Arrays.asList;
+
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Model;
@@ -17,7 +19,6 @@ import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumeratio
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -38,11 +39,21 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
     }
 
     /**
-     * Returns the builder for this function.
-     * @return the builder
+     * Constructs a new model counting function with the given set of variables.
+     * @param variables the variables for the enumeration
+     * @return the builder for the function
      */
-    public static Builder builder() {
-        return new Builder();
+    public static Builder builder(final Collection<Variable> variables) {
+        return new Builder(variables);
+    }
+
+    /**
+     * Constructs a new model counting function with the given set of variables.
+     * @param variables the variables for the enumeration
+     * @return the builder for the function
+     */
+    public static Builder builder(final Variable[] variables) {
+        return new Builder(new TreeSet<>(asList(variables)));
     }
 
     @Override
@@ -55,31 +66,15 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
      * The builder for a model counting function.
      */
     public static class Builder {
-        private SortedSet<Variable> variables;
+        private final SortedSet<Variable> variables;
         private ModelEnumerationConfig configuration;
 
-        Builder() {
-            // Initialize only via factory
-        }
-
         /**
-         * Sets the set of variables over which the models should be counted (projected model counting).
-         * @param variables the set of variables
-         * @return the current builder
+         * Constructs a new model counting function with the given set of variables.
+         * @param variables the variables for the enumeration
          */
-        public Builder variables(final Collection<Variable> variables) {
+        Builder(final Collection<Variable> variables) {
             this.variables = new TreeSet<>(variables);
-            return this;
-        }
-
-        /**
-         * Sets the set of variables over which the models should be counted (projected model counting).
-         * @param variables the set of variables
-         * @return the current builder
-         */
-        public Builder variables(final Variable... variables) {
-            this.variables = new TreeSet<>(Arrays.asList(variables));
-            return this;
         }
 
         /**

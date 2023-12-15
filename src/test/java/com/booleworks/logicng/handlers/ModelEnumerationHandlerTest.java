@@ -34,9 +34,12 @@ public class ModelEnumerationHandlerTest {
     @Test
     public void testTimeoutHandler() throws ParserException, InterruptedException {
         final MiniSat solver = MiniSat.miniSat(f);
-        solver.add(f.parse("A | B | C | D | E | F | G | H | I | J | K | L | N | M | O | P | Q | R | S | T | U | V | W"));
+        final Formula formula = f.parse("A | B | C | D | E | F | G | H | I | J | K | L | N | M | O | P | Q | R | S | T | U | V | W");
+        solver.add(formula);
         final TimeoutModelEnumerationHandler handler = new TimeoutModelEnumerationHandler(100);
-        final ModelCountingFunction enumeration = ModelCountingFunction.builder().configuration(ModelEnumerationConfig.builder().handler(handler).build()).build();
+        final ModelCountingFunction enumeration = ModelCountingFunction.builder(formula.variables(f))
+                .configuration(ModelEnumerationConfig.builder().handler(handler).build())
+                .build();
 
         Thread.sleep(150);
         assertThat(handler.aborted()).isFalse();
@@ -60,8 +63,8 @@ public class ModelEnumerationHandlerTest {
             final MiniSat solver = MiniSat.miniSat(f);
             solver.add(formula);
             final NumberOfModelsHandler handler = new NumberOfModelsHandler(i);
-            final ModelCountingFunction enumeration = ModelCountingFunction.builder()
-                    .variables(vars).configuration(ModelEnumerationConfig.builder().handler(handler).strategy(
+            final ModelCountingFunction enumeration = ModelCountingFunction.builder(vars)
+                    .configuration(ModelEnumerationConfig.builder().handler(handler).strategy(
                                     DefaultModelEnumerationStrategy.builder().maxNumberOfModels(200).build()
                             ).build()
                     ).build();

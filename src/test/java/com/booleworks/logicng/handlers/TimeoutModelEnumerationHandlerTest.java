@@ -28,15 +28,13 @@ class TimeoutModelEnumerationHandlerTest {
     public void init() {
         f = FormulaFactory.caching();
         pg = new PigeonHoleGenerator(f);
-        solvers = new SATSolver[8];
+        solvers = new SATSolver[6];
         solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).build());
         solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
         solvers[2] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(false).build(), GlucoseConfig.builder().build());
         solvers[3] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(true).build());
         solvers[4] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(false).build());
         solvers[5] = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
-        solvers[6] = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
-        solvers[7] = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
     }
 
     @Test
@@ -48,6 +46,7 @@ class TimeoutModelEnumerationHandlerTest {
         assertThat(handler.foundModels(10)).isFalse();
     }
 
+    // TODO
     //@Test
     //public void testThatMethodsAreCalled() throws ParserException {
     //    final Formula formula = f.parse("A & B | C");

@@ -51,7 +51,7 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
     public void randomCaching() {
         for (int i = 0; i < 500; i++) {
             final FormulaFactory f = FormulaFactory.caching();
-            final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+            final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).build());
             final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(10).weightPbc(1).seed(i * 42).build());
 
             final Formula randomFormula01 = randomSATFormula(f, randomizer, 4);
@@ -120,7 +120,7 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
 
     private static void computeAndVerify(final Formula formula) {
         final FormulaFactory f = formula.factory();
-        final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).auxiliaryVariablesInModels(false).build());
+        final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).build());
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(formula.variables(f));
         final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));

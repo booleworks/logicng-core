@@ -8,7 +8,6 @@ import com.booleworks.logicng.configurations.Configuration;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.solvers.SATSolver;
 
 /**
  * The configuration object for a MiniSAT-style SAT solver.
@@ -66,7 +65,6 @@ public final class MiniSatConfig extends Configuration {
     final boolean initialPhase;
     final boolean proofGeneration;
     final CNFMethod cnfMethod;
-    final boolean auxiliaryVariablesInModels;
     final boolean bbInitialUBCheckForRotatableLiterals;
     final boolean bbCheckForComplementModelLiterals;
     final boolean bbCheckForRotatableLiterals;
@@ -90,7 +88,6 @@ public final class MiniSatConfig extends Configuration {
         initialPhase = builder.initialPhase;
         proofGeneration = builder.proofGeneration;
         cnfMethod = builder.cnfMethod;
-        auxiliaryVariablesInModels = builder.auxiliaryVariablesInModels;
         bbInitialUBCheckForRotatableLiterals = builder.bbInitialUBCheckForRotatableLiterals;
         bbCheckForComplementModelLiterals = builder.bbCheckForComplementModelLiterals;
         bbCheckForRotatableLiterals = builder.bbCheckForRotatableLiterals;
@@ -136,14 +133,6 @@ public final class MiniSatConfig extends Configuration {
         return cnfMethod;
     }
 
-    /**
-     * Returns whether auxiliary Variables should be included in the model or not.
-     * @return whether auxiliary Variables should be included in the model or not
-     */
-    public boolean isAuxiliaryVariablesInModels() {
-        return auxiliaryVariablesInModels;
-    }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("MiniSatConfig{").append(System.lineSeparator());
@@ -160,7 +149,6 @@ public final class MiniSatConfig extends Configuration {
         sb.append("initialPhase=").append(initialPhase).append(System.lineSeparator());
         sb.append("proofGeneration=").append(proofGeneration).append(System.lineSeparator());
         sb.append("cnfMethod=").append(cnfMethod).append(System.lineSeparator());
-        sb.append("auxiliaryVariablesInModels=").append(auxiliaryVariablesInModels).append(System.lineSeparator());
         sb.append("bbInitialUBCheckForRotatableLiterals=").append(bbInitialUBCheckForRotatableLiterals).append(System.lineSeparator());
         sb.append("bbCheckForComplementModelLiterals=").append(bbCheckForComplementModelLiterals).append(System.lineSeparator());
         sb.append("bbCheckForRotatableLiterals=").append(bbCheckForRotatableLiterals).append(System.lineSeparator());
@@ -187,7 +175,6 @@ public final class MiniSatConfig extends Configuration {
         private boolean initialPhase = false;
         private boolean proofGeneration = false;
         private CNFMethod cnfMethod = CNFMethod.PG_ON_SOLVER;
-        private boolean auxiliaryVariablesInModels = false;
         private boolean bbInitialUBCheckForRotatableLiterals = true;
         private boolean bbCheckForComplementModelLiterals = true;
         private boolean bbCheckForRotatableLiterals = true;
@@ -329,21 +316,6 @@ public final class MiniSatConfig extends Configuration {
          */
         public Builder cnfMethod(final CNFMethod cnfMethod) {
             this.cnfMethod = cnfMethod;
-            return this;
-        }
-
-        /**
-         * Sets whether auxiliary variables (CNF, cardinality constraints, pseudo-Boolean constraints) should
-         * be included in methods like {@link SATSolver#model()} or SATSolver#enumerateAllModels().  If
-         * set to {@code true}, all variables will be included in these methods,  if set to {@code false}, variables
-         * starting with "@RESERVED_CC_", "@RESERVED_PB_", and "@RESERVED_CNF_" will be excluded from the models.
-         * The default value is {@code false}.
-         * @param auxiliaryVariablesInModels {@code true} if auxiliary variables should be included in the models,
-         *                                   {@code false} otherwise
-         * @return the builder
-         */
-        public Builder auxiliaryVariablesInModels(final boolean auxiliaryVariablesInModels) {
-            this.auxiliaryVariablesInModels = auxiliaryVariablesInModels;
             return this;
         }
 

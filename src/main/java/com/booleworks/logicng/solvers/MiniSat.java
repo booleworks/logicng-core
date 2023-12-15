@@ -405,8 +405,7 @@ public class MiniSat extends SATSolver {
     /**
      * Creates an assignment from a Boolean vector of the solver.
      * @param vec             the vector of the solver
-     * @param relevantIndices the solver's indices of the relevant variables for the model.  If {@code null}, all
-     *                        variables are relevant.
+     * @param relevantIndices the solver's indices of the relevant variables for the model.
      * @return the assignment
      */
     public Assignment createAssignment(final LNGBooleanVector vec, final LNGIntVector relevantIndices) {
@@ -419,35 +418,14 @@ public class MiniSat extends SATSolver {
 
     private List<Literal> createLiterals(final LNGBooleanVector vec, final LNGIntVector relevantIndices) {
         final List<Literal> literals = new ArrayList<>(vec.size());
-        if (relevantIndices == null) {
-            for (int i = 0; i < vec.size(); i++) {
-                final String name = solver.nameForIdx(i);
-                if (isRelevantVariable(name)) {
-                    literals.add(f.literal(name, vec.get(i)));
-                }
-            }
-        } else {
-            for (int i = 0; i < relevantIndices.size(); i++) {
-                final int index = relevantIndices.get(i);
-                if (index != -1) {
-                    final String name = solver.nameForIdx(index);
-                    if (isRelevantVariable(name)) {
-                        literals.add(f.literal(name, vec.get(index)));
-                    }
-                }
+        for (int i = 0; i < relevantIndices.size(); i++) {
+            final int index = relevantIndices.get(i);
+            if (index != -1) {
+                final String name = solver.nameForIdx(index);
+                literals.add(f.literal(name, vec.get(index)));
             }
         }
         return literals;
-    }
-
-    /**
-     * Returns whether a variable on the solver is relevant or an auxiliary variable.
-     * @param name the name of the variable
-     * @return true if it is relevant, false if it is an auxiliary variable
-     */
-    public boolean isRelevantVariable(final String name) {
-        return config.isAuxiliaryVariablesInModels() || (!name.startsWith(FormulaFactory.CNF_PREFIX) &&
-                !name.startsWith(FormulaFactory.CC_PREFIX) && !name.startsWith(FormulaFactory.PB_PREFIX));
     }
 
     /**

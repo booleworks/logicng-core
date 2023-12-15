@@ -37,15 +37,11 @@ public class ModelTest {
     private static final FormulaFactory f = FormulaFactory.caching();
 
     public static Collection<Object[]> solvers() {
-        final MiniSatConfig configNoPGAux = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).auxiliaryVariablesInModels(true).build();
-        final MiniSatConfig configNoPGNoAux = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).auxiliaryVariablesInModels(false).build();
-        final MiniSatConfig configPGAux = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(true).build();
-        final MiniSatConfig configPGNoAux = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).auxiliaryVariablesInModels(false).build();
+        final MiniSatConfig configNoPGAux = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).build();
+        final MiniSatConfig configPGAux = MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build();
         final List<Pair<MiniSatConfig, String>> configs = Arrays.asList(
                 new Pair<>(configNoPGAux, "FF CNF, +AUX"),
-                new Pair<>(configNoPGNoAux, "FF CNF, -AUX"),
-                new Pair<>(configPGAux, "PG CNF, +AUX"),
-                new Pair<>(configPGNoAux, "PG CNF, -AUX")
+                new Pair<>(configPGAux, "PG CNF, +AUX")
         );
         final List<Object[]> solvers = new ArrayList<>();
         for (final Pair<MiniSatConfig, String> config : configs) {
@@ -62,15 +58,15 @@ public class ModelTest {
         solver.reset();
         solver.add(f.falsum());
         solver.sat();
-        Assertions.assertThat(solver.model()).isNull();
+        Assertions.assertThat(solver.model(f.variables())).isNull();
         solver.reset();
         solver.add(f.parse("A & ~A"));
         solver.sat();
-        Assertions.assertThat(solver.model()).isNull();
+        Assertions.assertThat(solver.model(f.variables("A"))).isNull();
         solver.reset();
         solver.add(f.parse("(A => (B & C)) & A & C & (C <=> ~B)"));
         solver.sat();
-        Assertions.assertThat(solver.model()).isNull();
+        Assertions.assertThat(solver.model(f.variables("A", "B", "C"))).isNull();
     }
 
     @ParameterizedTest
@@ -79,7 +75,7 @@ public class ModelTest {
         solver.reset();
         solver.add(f.verum());
         solver.sat();
-        final Assignment model = solver.model();
+        final Assignment model = solver.model(f.variables());
         assertThat(model.literals()).isEmpty();
         assertThat(model.blockingClause(f)).isEqualTo(f.falsum());
         Assertions.assertThat(solver.enumerateAllModels(List.of())).hasSize(1);
@@ -91,13 +87,13 @@ public class ModelTest {
         solver.reset();
         solver.add(f.literal("A", true));
         solver.sat();
-        Assignment model = solver.model();
+        Assignment model = solver.model(f.variables("A"));
         assertThat(model.literals()).containsExactly(f.literal("A", true));
         Assertions.assertThat(solver.enumerateAllModels(f.variables("A"))).hasSize(1);
         solver.reset();
         solver.add(f.literal("A", false));
         solver.sat();
-        model = solver.model();
+        model = solver.model(f.variables("A"));
         assertThat(model.literals()).containsExactly(f.literal("A", false));
         Assertions.assertThat(solver.enumerateAllModels(f.variables("A"))).hasSize(1);
     }
@@ -109,7 +105,7 @@ public class ModelTest {
         final Formula formula = f.parse("(A|B|C) & (~A|~B|~C) & (A|~B|~C) & (~A|~B|C)");
         solver.add(formula);
         solver.sat();
-        final Assignment model = solver.model();
+        final Assignment model = solver.model(f.variables("A", "B", "C"));
         assertThat(formula.evaluate(model)).isTrue();
         Assertions.assertThat(solver.enumerateAllModels(f.variables("A", "B", "C"))).hasSize(4);
         for (final Model m : solver.enumerateAllModels(f.variables("A", "B", "C"))) {
@@ -143,7 +139,7 @@ public class ModelTest {
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solver.add(formula);
         solver.sat();
-        final Assignment model = solver.model();
+        final Assignment model = solver.model(formula.variables(f));
         assertThat(formula.evaluate(model)).isTrue();
         final List<Model> allModels = solver.enumerateAllModels(formula.variables(f));
         assertThat(allModels).hasSize(4);
@@ -226,6 +222,6 @@ public class ModelTest {
         solver.reset();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solver.add(formula);
-        assertThatThrownBy(solver::model).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> solver.model(f.variables("A"))).isInstanceOf(IllegalStateException.class);
     }
 }
