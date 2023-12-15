@@ -1052,7 +1052,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     }
                 }
             } else if (useLbdFeatures) {
-                if (p != LIT_UNDEF && c.size() == 2 && value(c.get(0)) == Tristate.FALSE) {
+                if (useBinaryWatchers && p != LIT_UNDEF && c.size() == 2 && value(c.get(0)) == Tristate.FALSE) {
                     assert value(c.get(1)) == Tristate.TRUE;
                     final int tmp = c.get(0);
                     c.set(0, c.get(1));
@@ -1090,6 +1090,12 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     }
                 }
             } else {
+                if (useBinaryWatchers && p != LIT_UNDEF && c.size() == 2 && value(c.get(0)) == Tristate.FALSE) {
+                    assert value(c.get(1)) == Tristate.TRUE;
+                    final int tmp = c.get(0);
+                    c.set(0, c.get(1));
+                    c.set(1, tmp);
+                }
                 if (!incremental && c.learnt()) {
                     claBumpActivity(c);
                 }
