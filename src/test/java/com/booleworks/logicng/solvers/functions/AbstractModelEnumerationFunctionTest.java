@@ -44,7 +44,7 @@ public class AbstractModelEnumerationFunctionTest {
                         .maxNumberOfModels(5)
                         .build())
                 .build();
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder().configuration(config).build());
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(formula.variables(f)).configuration(config).build());
         assertThat(models.size()).isEqualTo(31);
     }
 
@@ -62,7 +62,7 @@ public class AbstractModelEnumerationFunctionTest {
                         .maxNumberOfModels(5)
                         .build())
                 .build();
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder().configuration(config).build());
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(formula.variables(f)).configuration(config).build());
         assertThat(models.size()).isEqualTo(31);
     }
 }

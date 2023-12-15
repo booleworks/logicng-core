@@ -346,8 +346,7 @@ public abstract class SATSolver {
         final ModelEnumerationStrategy strategy = canSaveLoadState()
                 ? DefaultModelEnumerationStrategy.builder().build()
                 : NoSplitModelEnumerationStrategy.get();
-        return execute(ModelEnumerationFunction.builder()
-                .variables(variables)
+        return execute(ModelEnumerationFunction.builder(variables)
                 .configuration(ModelEnumerationConfig.builder().strategy(strategy).build())
                 .build());
     }
@@ -362,8 +361,7 @@ public abstract class SATSolver {
         final ModelEnumerationStrategy strategy = canSaveLoadState()
                 ? DefaultModelEnumerationStrategy.builder().build()
                 : NoSplitModelEnumerationStrategy.get();
-        return execute(ModelEnumerationFunction.builder()
-                .variables(variables)
+        return execute(ModelEnumerationFunction.builder(variables)
                 .configuration(ModelEnumerationConfig.builder().strategy(strategy).build())
                 .build());
     }

@@ -76,7 +76,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     public void testNonIncrementalSolver() throws ParserException {
         final MiniSat solver = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
         solver.add(f.parse("A | B | C"));
-        assertThatThrownBy(() -> solver.execute(ModelEnumerationFunction.builder().build()))
+        assertThatThrownBy(() -> solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).build()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Recursive model enumeration function can only be applied to solvers with load/save state capability.");
     }
@@ -90,7 +90,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.literal("A", true));
         solver.add(f.literal("A", false));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder().variables().configuration(config).build());
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(List.of()).configuration(config).build());
         assertThat(models).isEmpty();
     }
 
@@ -101,10 +101,10 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                 ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
-        List<Model> models = solver.execute(ModelEnumerationFunction.builder().variables().configuration(config).build());
+        List<Model> models = solver.execute(ModelEnumerationFunction.builder(List.of()).configuration(config).build());
         assertThat(models).containsExactly(new Model());
         final SortedSet<Variable> additionalVars = f.variables("A", "B");
-        models = solver.execute(ModelEnumerationFunction.builder().variables().additionalVariables(additionalVars).configuration(config).build());
+        models = solver.execute(ModelEnumerationFunction.builder(List.of()).additionalVariables(additionalVars).configuration(config).build());
         assertThat(models).hasSize(1);
         assertThat(variables(models.get(0))).containsAll(additionalVars);
     }
@@ -118,9 +118,9 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
         final SATSolver solver = MiniSat.miniSat(f);
         final Formula formula = f.parse("A & (B | C)");
         solver.add(formula);
-        List<Model> models = solver.execute(ModelEnumerationFunction.builder().variables().configuration(config).build());
+        List<Model> models = solver.execute(ModelEnumerationFunction.builder(List.of()).configuration(config).build());
         assertThat(models).containsExactly(new Model());
-        models = solver.execute(ModelEnumerationFunction.builder().variables().additionalVariables(formula.variables(f)).configuration(config).build());
+        models = solver.execute(ModelEnumerationFunction.builder(List.of()).additionalVariables(formula.variables(f)).configuration(config).build());
         assertThat(models).hasSize(1);
         assertThat(variables(models.get(0))).containsAll(formula.variables(f));
     }
@@ -133,7 +133,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("A & (B | C)"));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder().configuration(config).build());
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
         assertThat(modelsToSets(models)).containsExactlyInAnyOrder(
                 set(f.variable("A"), f.variable("B"), f.variable("C")),
                 set(f.variable("A"), f.variable("B"), f.literal("C", false)),
@@ -149,7 +149,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder().configuration(config).build());
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
         assertThat(models).hasSize(5);
     }
 
@@ -161,9 +161,9 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("A & (B | C)"));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder().configuration(config).build());
-        final List<Model> modelsABC = solver.execute(ModelEnumerationFunction.builder().variables(f.variables("A", "B", "C")).configuration(config).build());
-        final List<Model> modelsBCA = solver.execute(ModelEnumerationFunction.builder().variables(f.variables("B", "C", "A")).configuration(config).build());
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
+        final List<Model> modelsABC = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
+        final List<Model> modelsBCA = solver.execute(ModelEnumerationFunction.builder(f.variables("B", "C", "A")).configuration(config).build());
 
         assertThat(modelsToSets(models)).containsExactlyInAnyOrder(
                 set(f.variable("A"), f.variable("B"), f.variable("C")),
@@ -182,8 +182,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("A & (B | C)"));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder()
-                .variables(f.variables("A", "A", "B"))
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "A", "B"))
                 .configuration(config).build());
         assertThat(modelsToSets(models)).containsExactlyInAnyOrder(
                 set(f.variable("A"), f.variable("B")),
@@ -199,8 +198,9 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                 ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
-        solver.add(f.parse("(~A | C) & (~B | C)"));
-        final ModelEnumerationFunction meFunction = ModelEnumerationFunction.builder().configuration(config).build();
+        final Formula formula = f.parse("(~A | C) & (~B | C)");
+        solver.add(formula);
+        final ModelEnumerationFunction meFunction = ModelEnumerationFunction.builder(formula.variables(f)).configuration(config).build();
         final List<Model> firstRun = solver.execute(meFunction);
         final List<Model> secondRun = solver.execute(meFunction);
         assertThat(firstRun).hasSize(5);
@@ -218,8 +218,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
         final Variable a = f.variable("A");
         final Variable b = f.variable("B");
         final Variable c = f.variable("C");
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder()
-                .variables(List.of(a, b))
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(List.of(a, b))
                 .additionalVariables(Collections.singletonList(c))
                 .configuration(config)
                 .build());
@@ -237,8 +236,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("A & (B | C)"));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder()
-                .variables(f.variables("A"))
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A"))
                 .additionalVariables(f.variables("B", "B"))
                 .configuration(config).build());
         assertThat(models).hasSize(1);
@@ -253,8 +251,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder()
-                .variables(f.variables("A", "B", "C", "D"))
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C", "D"))
                 .configuration(config)
                 .build());
         assertThat(modelsToSets(models)).containsExactlyInAnyOrder(
@@ -281,8 +278,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder()
-                .variables(f.variables("A", "C", "D", "E"))
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "C", "D", "E"))
                 .configuration(config)
                 .build());
         assertThat(modelsToSets(models)).containsExactlyInAnyOrder(
@@ -314,8 +310,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
         final Formula formula = f.parse("A | B | (X & ~X)"); // X will be simplified out and become a don't care variable unknown by the solver
         solver.add(formula);
         final SortedSet<Variable> enumerationVars = new TreeSet<>(f.variables("A", "B", "X"));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder()
-                .variables(enumerationVars)
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(enumerationVars)
                 .configuration(config)
                 .build());
         assertThat(models).hasSize(6);
@@ -330,7 +325,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                         .strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(3).build()).build();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder().configuration(config).build());
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
         assertThat(handler.aborted()).isTrue();
         assertThat(models).hasSize(3);
     }
@@ -358,8 +353,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
             final SortedSet<Variable> additionalVars = new TreeSet<>(varsFormula.subList(additionalVarsStart, varsFormula.size()));
 
             // when
-            final List<Model> modelsRecursive = solver.execute(ModelEnumerationFunction.builder()
-                    .variables(pmeVars)
+            final List<Model> modelsRecursive = solver.execute(ModelEnumerationFunction.builder(pmeVars)
                     .additionalVariables(additionalVars)
                     .configuration(config).build());
 
@@ -387,15 +381,15 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
             // no split
             final var count = ModelCounter.count(f, List.of(formula), formula.variables(f));
             final ModelEnumerationConfig configNoSplit = ModelEnumerationConfig.builder().strategy(NoSplitModelEnumerationStrategy.get()).build();
-            final List<Model> models = solver.execute(ModelEnumerationFunction.builder().configuration(configNoSplit).build());
+            final List<Model> models = solver.execute(ModelEnumerationFunction.builder(formula.variables(f)).configuration(configNoSplit).build());
 
             // recursive call: least common vars
             final ModelEnumerationConfig configLcv = ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder().splitVariableProvider(new LeastCommonVariablesProvider()).maxNumberOfModels(500).build()).build();
-            final List<Model> models1 = solver.execute(ModelEnumerationFunction.builder().configuration(configLcv).build());
+            final List<Model> models1 = solver.execute(ModelEnumerationFunction.builder(formula.variables(f)).configuration(configLcv).build());
 
             // recursive call: most common vars
             final ModelEnumerationConfig configMcv = ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder().splitVariableProvider(new MostCommonVariablesProvider()).maxNumberOfModels(500).build()).build();
-            final List<Model> models2 = solver.execute(ModelEnumerationFunction.builder().configuration(configMcv).build());
+            final List<Model> models2 = solver.execute(ModelEnumerationFunction.builder(formula.variables(f)).configuration(configMcv).build());
 
             assertThat(models1.size()).isEqualTo(count.intValue());
             assertThat(models2.size()).isEqualTo(count.intValue());

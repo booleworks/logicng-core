@@ -42,11 +42,21 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
     }
 
     /**
-     * Returns the builder for this function.
-     * @return the builder
+     * Constructs a new model enumeration function with the given set of variables
+     * @param variables the variables for the enumeration
+     * @return the builder for the function
      */
-    public static Builder builder() {
-        return new Builder();
+    public static Builder builder(final Collection<Variable> variables) {
+        return new Builder(variables);
+    }
+
+    /**
+     * Constructs a new model enumeration function with the given set of variables
+     * @param variables the variables for the enumeration
+     * @return the builder for the function
+     */
+    public static Builder builder(final Variable[] variables) {
+        return new Builder(new TreeSet<>(asList(variables)));
     }
 
     @Override
@@ -59,32 +69,16 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
      * The builder for a model enumeration function.
      */
     public static class Builder {
-        private SortedSet<Variable> variables;
+        private final SortedSet<Variable> variables;
         private SortedSet<Variable> additionalVariables;
         private ModelEnumerationConfig configuration;
 
-        Builder() {
-            // Initialize only via factory
-        }
-
         /**
-         * Sets the set of variables over which the model enumeration should iterate.
-         * @param variables the set of variables
-         * @return the current builder
+         * Constructs a new model enumeration function with the given set of variables
+         * @param variables the variables for the enumeration
          */
-        public Builder variables(final Collection<Variable> variables) {
+        Builder(final Collection<Variable> variables) {
             this.variables = new TreeSet<>(variables);
-            return this;
-        }
-
-        /**
-         * Sets the set of variables over which the model enumeration should iterate.
-         * @param variables the set of variables
-         * @return the current builder
-         */
-        public Builder variables(final Variable... variables) {
-            this.variables = new TreeSet<>(asList(variables));
-            return this;
         }
 
         /**

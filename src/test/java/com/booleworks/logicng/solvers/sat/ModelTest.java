@@ -208,8 +208,7 @@ public class ModelTest {
         final Assignment model = solver.model(additionalVariables);
         Assertions.assertThat(miniSat.sat(model.literals())).isEqualTo(Tristate.TRUE);
         assertThat(model.formula(f).variables(f)).containsExactly(f.variable("D"));
-        final ModelEnumerationFunction me = ModelEnumerationFunction.builder()
-                .variables(relevantVariables)
+        final ModelEnumerationFunction me = ModelEnumerationFunction.builder(relevantVariables)
                 .additionalVariables(additionalVariables)
                 .configuration(ModelEnumerationConfig.builder().strategy(strategy(solver)).build())
                 .build();

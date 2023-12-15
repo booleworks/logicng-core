@@ -65,8 +65,7 @@ public class CCALKTest implements LogicNGTest {
         } else {
             assertSolverUnsat(solver);
         }
-        final ModelEnumerationFunction me = ModelEnumerationFunction.builder()
-                .variables(problemLits)
+        final ModelEnumerationFunction me = ModelEnumerationFunction.builder(problemLits)
                 .configuration(ModelEnumerationConfig.builder()
                         .handler(new NumberOfModelsHandler(12000))
                         .build())

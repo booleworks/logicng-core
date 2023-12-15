@@ -208,7 +208,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
         for (int i = 0; i < solvers.length - 1; i++) {
             final SATSolver s = solvers[i];
             s.add(parser.parse("a | b"));
-            final List<Model> models = s.execute(ModelEnumerationFunction.builder()
+            final List<Model> models = s.execute(ModelEnumerationFunction.builder(f.variables("a", "b"))
                     .additionalVariables(f.variable("c"))
                     .configuration(ModelEnumerationConfig.builder().strategy(strategy(s)).build())
                     .build());
@@ -492,9 +492,10 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     @Test
     public void testTimeoutModelEnumerationHandlerWithUNSATInstance() {
         for (final SATSolver solver : solvers) {
-            solver.add(pg.generate(10));
+            final Formula formula = pg.generate(10);
+            solver.add(formula);
             final var handler = new TimeoutModelEnumerationHandler(1000L);
-            final var me = meWithHandler(handler, solver);
+            final var me = meWithHandler(handler, solver, formula.variables(f));
             final List<Model> assignments = solver.execute(me);
             assertThat(assignments).isEmpty();
             assertThat(handler.aborted()).isTrue();
@@ -512,14 +513,14 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
 
             solver.add(f.exo(variables));
             var handler = new TimeoutModelEnumerationHandler(50L);
-            var me = meWithHandler(handler, solver);
+            var me = meWithHandler(handler, solver, variables);
             solver.execute(me);
             assertThat(handler.aborted()).isTrue();
             solver.reset();
 
             solver.add(f.exo(variables.subList(0, 5)));
             handler = new TimeoutModelEnumerationHandler(50L);
-            me = meWithHandler(handler, solver);
+            me = meWithHandler(handler, solver, variables.subList(0, 5));
             final List<Model> assignments = solver.execute(me);
             assertThat(assignments).hasSize(5);
             assertThat(handler.aborted()).isFalse();
@@ -542,8 +543,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             }
             s.add(f.cc(CType.GE, 1, lits));
 
-            final var me = ModelEnumerationFunction.builder()
-                    .variables(firstFive)
+            final var me = ModelEnumerationFunction.builder(firstFive)
                     .additionalVariables(lits)
                     .configuration(ModelEnumerationConfig.builder().strategy(strategy(s)).build())
                     .build();
@@ -574,8 +574,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             s.add(f.cc(CType.GE, 1, lits));
 
             final var handler = new NumberOfModelsHandler(29);
-            final var me = ModelEnumerationFunction.builder()
-                    .variables(firstFive)
+            final var me = ModelEnumerationFunction.builder(firstFive)
                     .additionalVariables(lits)
                     .configuration(ModelEnumerationConfig.builder().strategy(strategy(s)).handler(handler).build())
                     .build();
@@ -607,7 +606,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             s.add(f.cc(CType.GE, 1, lits));
 
             final var handler = new NumberOfModelsHandler(29);
-            final var me = ModelEnumerationFunction.builder()
+            final var me = ModelEnumerationFunction.builder(lits)
                     .additionalVariables(firstFive)
                     .configuration(ModelEnumerationConfig.builder().strategy(strategy(s)).handler(handler).build())
                     .build();
@@ -645,8 +644,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             }
             s.add(f.exo(lits));
             var handler = new NumberOfModelsHandler(101);
-            var me = ModelEnumerationFunction.builder()
-                    .variables(lits)
+            var me = ModelEnumerationFunction.builder(lits)
                     .configuration(ModelEnumerationConfig.builder().strategy(strategy(s)).handler(handler).build())
                     .build();
 
@@ -660,8 +658,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
 
             s.add(f.exo(lits));
             handler = new NumberOfModelsHandler(200);
-            me = ModelEnumerationFunction.builder()
-                    .variables(lits)
+            me = ModelEnumerationFunction.builder(lits)
                     .configuration(ModelEnumerationConfig.builder().strategy(strategy(s)).handler(handler).build())
                     .build();
             models = s.execute(me);
@@ -674,8 +671,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
 
             s.add(f.exo(lits));
             handler = new NumberOfModelsHandler(50);
-            me = ModelEnumerationFunction.builder()
-                    .variables(lits)
+            me = ModelEnumerationFunction.builder(lits)
                     .configuration(ModelEnumerationConfig.builder().strategy(strategy(s)).handler(handler).build())
                     .build();
             models = s.execute(me);
@@ -688,8 +684,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
 
             s.add(f.exo(lits));
             handler = new NumberOfModelsHandler(1);
-            me = ModelEnumerationFunction.builder()
-                    .variables(lits)
+            me = ModelEnumerationFunction.builder(lits)
                     .configuration(ModelEnumerationConfig.builder().strategy(strategy(s)).handler(handler).build())
                     .build();
             models = s.execute(me);
@@ -990,9 +985,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     public void testModelEnumerationWithAdditionalVariables() throws ParserException {
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("A | B | C | D | E"));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder()
-                .variables(Arrays.asList(f.variable("A"), f.variable("B")))
-                .additionalVariables(Arrays.asList(f.variable("B"), f.variable("C"))).build());
+        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B"))
+                .additionalVariables(f.variables("C", "D")).build());
         for (final Model model : models) {
             int countB = 0;
             for (final Variable variable : model.positiveVariables()) {
@@ -1068,9 +1062,14 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
         }
     }
 
-    static ModelEnumerationFunction meWithHandler(final ModelEnumerationHandler handler, final SATSolver solver) {
-        return ModelEnumerationFunction.builder()
-                .configuration(ModelEnumerationConfig.builder().strategy(strategy(solver)).handler(handler).build()).build();
+    static ModelEnumerationFunction meWithHandler(final ModelEnumerationHandler handler, final SATSolver solver,
+                                                  final Collection<Variable> variables) {
+        return ModelEnumerationFunction.builder(variables)
+                .configuration(ModelEnumerationConfig.builder()
+                        .strategy(strategy(solver))
+                        .handler(handler)
+                        .build())
+                .build();
     }
 
     static ModelEnumerationStrategy strategy(final SATSolver solver) {

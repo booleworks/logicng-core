@@ -40,7 +40,7 @@ public abstract class CanonicalEnumeration extends StatelessFormulaTransformatio
     protected Formula compute(final Formula formula, final boolean cnf) {
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(cnf ? formula.negate(f) : formula);
-        final List<Model> enumeration = solver.execute(ModelEnumerationFunction.builder().build());
+        final List<Model> enumeration = solver.execute(ModelEnumerationFunction.builder(formula.variables(f)).build());
         if (enumeration.isEmpty()) {
             return f.constant(cnf);
         }
