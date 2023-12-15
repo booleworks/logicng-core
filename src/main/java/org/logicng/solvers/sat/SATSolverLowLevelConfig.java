@@ -1,19 +1,16 @@
-// SPDX-License-Identifier: Apache-2.0 and MIT
-// Copyright 2015-2023 Christoph Zengler
-// Copyright 2023-20xx BooleWorks GmbH
-
 package org.logicng.solvers.sat;
 
-import org.logicng.configurations.Configuration;
-import org.logicng.configurations.ConfigurationType;
+public final class SATSolverLowLevelConfig {
+    // MiniSat detail configuration
+    final double varDecay;
+    final double varInc;
+    final int restartFirst;
+    final double restartInc;
+    final double clauseDecay;
+    final double learntsizeFactor;
+    final double learntsizeInc;
 
-/**
- * The configuration object for the Glucose SAT solver.
- * @version 2.0.0
- * @since 1.0
- */
-public final class GlucoseConfig extends Configuration {
-
+    // Glucose detail configuration
     final int lbLBDMinimizingClause;
     final int lbLBDFrozenClause;
     final int lbSizeMinimizingClause;
@@ -28,12 +25,14 @@ public final class GlucoseConfig extends Configuration {
     final int reduceOnSizeSize;
     final double maxVarDecay;
 
-    /**
-     * Constructs a new Glucose configuration from a given builder.
-     * @param builder the builder
-     */
-    private GlucoseConfig(final Builder builder) {
-        super(ConfigurationType.GLUCOSE);
+    private SATSolverLowLevelConfig(final Builder builder) {
+        varDecay = builder.varDecay;
+        varInc = builder.varInc;
+        restartFirst = builder.restartFirst;
+        restartInc = builder.restartInc;
+        clauseDecay = builder.clauseDecay;
+        learntsizeFactor = builder.learntsizeFactor;
+        learntsizeInc = builder.learntsizeInc;
         lbLBDMinimizingClause = builder.lbLBDMinimizingClause;
         lbLBDFrozenClause = builder.lbLBDFrozenClause;
         lbSizeMinimizingClause = builder.lbSizeMinimizingClause;
@@ -49,17 +48,20 @@ public final class GlucoseConfig extends Configuration {
         maxVarDecay = builder.maxVarDecay;
     }
 
-    /**
-     * Returns a new builder for the configuration.
-     * @return the builder
-     */
     public static Builder builder() {
         return new Builder();
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("GlucoseConfig{").append(System.lineSeparator());
+        final StringBuilder sb = new StringBuilder("SATSolverLowLevelConfig{").append(System.lineSeparator());
+        sb.append("varDecay=").append(varDecay).append(System.lineSeparator());
+        sb.append("varInc=").append(varInc).append(System.lineSeparator());
+        sb.append("restartFirst=").append(restartFirst).append(System.lineSeparator());
+        sb.append("restartInc=").append(restartInc).append(System.lineSeparator());
+        sb.append("clauseDecay=").append(clauseDecay).append(System.lineSeparator());
+        sb.append("learntsizeFactor=").append(learntsizeFactor).append(System.lineSeparator());
+        sb.append("learntsizeInc=").append(learntsizeInc).append(System.lineSeparator());
         sb.append("lbLBDMinimizingClause=").append(lbLBDMinimizingClause).append(System.lineSeparator());
         sb.append("lbLBDFrozenClause=").append(lbLBDFrozenClause).append(System.lineSeparator());
         sb.append("lbSizeMinimizingClause=").append(lbSizeMinimizingClause).append(System.lineSeparator());
@@ -77,10 +79,14 @@ public final class GlucoseConfig extends Configuration {
         return sb.toString();
     }
 
-    /**
-     * The builder for a Glucose configuration.
-     */
     public static class Builder {
+        private double varDecay = 0.95;
+        private double varInc = 1.0;
+        private int restartFirst = 100;
+        private double restartInc = 2.0;
+        private double clauseDecay = 0.999;
+        private double learntsizeFactor = 1.0 / 3.0;
+        private double learntsizeInc = 1.1;
         private int lbLBDMinimizingClause = 6;
         private int lbLBDFrozenClause = 30;
         private int lbSizeMinimizingClause = 30;
@@ -97,6 +103,79 @@ public final class GlucoseConfig extends Configuration {
 
         private Builder() {
             // Initialize only via factory
+        }
+
+        /**
+         * Sets the variable activity decay factor to a given value. The default value is 0.95.
+         * @param varDecay the value (should be in the range 0..1)
+         * @return the builder
+         */
+        public Builder varDecay(final double varDecay) {
+            this.varDecay = varDecay;
+            return this;
+        }
+
+        /**
+         * Sets the initial value to bump a variable with each time it is used in conflict resolution to a given value.
+         * The default value is 1.0.
+         * @param varInc the value
+         * @return the builder
+         */
+        public Builder varInc(final double varInc) {
+            this.varInc = varInc;
+            return this;
+        }
+
+        /**
+         * Sets the base restart interval to the given value. The default value is 100.
+         * @param restartFirst the value (should be at least 1)
+         * @return the builder
+         */
+        public Builder restartFirst(final int restartFirst) {
+            this.restartFirst = restartFirst;
+            return this;
+        }
+
+        /**
+         * Sets the restart interval increase factor to the given value. The default value is 2.0.
+         * @param restartInc the value (should be at least 1)
+         * @return the builder
+         */
+        public Builder restartInc(final double restartInc) {
+            this.restartInc = restartInc;
+            return this;
+        }
+
+        /**
+         * Sets the clause activity decay factor to a given value. The default value is 0.999.
+         * @param clauseDecay the value (should be in the range 0..1)
+         * @return the builder
+         */
+        public Builder clauseDecay(final double clauseDecay) {
+            this.clauseDecay = clauseDecay;
+            return this;
+        }
+
+        /**
+         * Sets the initial limit for learnt clauses as a factor of the original clauses to the given value.  The default
+         * value is 1/3.
+         * @param learntsizeFactor the value
+         * @return the builder
+         */
+        public Builder lsFactor(final double learntsizeFactor) {
+            this.learntsizeFactor = learntsizeFactor;
+            return this;
+        }
+
+        /**
+         * Sets the factor by which the limit for learnt clauses is multiplied every restart to a given value. The default
+         * value is 1.1.
+         * @param learntsizeInc the value
+         * @return the builder
+         */
+        public Builder lsInc(final double learntsizeInc) {
+            this.learntsizeInc = learntsizeInc;
+            return this;
         }
 
         /**
@@ -233,11 +312,11 @@ public final class GlucoseConfig extends Configuration {
         }
 
         /**
-         * Builds the Glucose configuration.
+         * Builds the MiniSAT configuration.
          * @return the configuration
          */
-        public GlucoseConfig build() {
-            return new GlucoseConfig(this);
+        public SATSolverLowLevelConfig build() {
+            return new SATSolverLowLevelConfig(this);
         }
     }
 }

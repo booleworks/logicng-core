@@ -23,7 +23,6 @@ import org.logicng.functions.SubNodeFunction;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.pseudobooleans.PBConfig;
 import org.logicng.solvers.maxsat.algorithms.MaxSATConfig;
-import org.logicng.solvers.sat.GlucoseConfig;
 import org.logicng.solvers.sat.MiniSatConfig;
 import org.logicng.transformations.FormulaFactoryImporter;
 import org.logicng.transformations.cnf.CNFConfig;
@@ -126,7 +125,6 @@ public abstract class FormulaFactory {
         configMap.put(ConfigurationType.CC_ENCODER, CCConfig.builder().build());
         configMap.put(ConfigurationType.PB_ENCODER, PBConfig.builder().build());
         configMap.put(ConfigurationType.MINISAT, MiniSatConfig.builder().build());
-        configMap.put(ConfigurationType.GLUCOSE, GlucoseConfig.builder().build());
         configMap.put(ConfigurationType.MAXSAT, MaxSATConfig.builder().build());
         configMap.put(ConfigurationType.MUS, MUSConfig.builder().build());
         configMap.put(ConfigurationType.ADVANCED_SIMPLIFIER, AdvancedSimplifierConfig.builder().build());

@@ -20,7 +20,6 @@ import org.logicng.io.readers.FormulaReader;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 import org.logicng.solvers.SolverState;
-import org.logicng.solvers.sat.GlucoseConfig;
 import org.logicng.solvers.sat.MiniSatConfig;
 import org.logicng.util.Pair;
 
@@ -66,7 +65,7 @@ public class BackboneFunctionTest {
         for (final Pair<Supplier<MiniSatConfig.Builder>, String> config : configs) {
             solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().useAtMostClauses(false).build()), "MiniSat (" + config.second() + " -ATMC)"});
             solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().useAtMostClauses(true).build()), "MiniSat (" + config.second() + " +ATMC)"});
-            solvers.add(new Object[]{MiniSat.glucose(f, config.first().get().build(), GlucoseConfig.builder().build()), "Glucose (" + config.second() + ")"});
+            solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build()), "Glucose (" + config.second() + ")"});
         }
         return solvers;
     }

@@ -235,8 +235,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
 
     @Test
     public void testSingle() throws IOException {
-        final MaxSATSolver solver = MaxSATSolver.incWBO(f, MaxSATConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER)
-                .solver(MaxSATConfig.SolverType.GLUCOSE).verbosity(SOME).output(logStream).build());
+        final MaxSATSolver solver = MaxSATSolver.incWBO(f, MaxSATConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER).verbosity(SOME).output(logStream).build());
         readCnfToSolver(solver, "src/test/resources/maxsat/c-fat200-2.clq.cnf");
         assertThat(solver.solve()).isEqualTo(OPTIMUM);
         assertThat(solver.result()).isEqualTo(26);
@@ -251,8 +250,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
 
     @Test
     public void testAssignment() throws ParserException {
-        final MaxSATSolver solver = MaxSATSolver.incWBO(f, MaxSATConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER)
-                .solver(MaxSATConfig.SolverType.GLUCOSE).verbosity(SOME).output(logStream).build());
+        final MaxSATSolver solver = MaxSATSolver.incWBO(f, MaxSATConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER).verbosity(SOME).output(logStream).build());
         final PropositionalParser p = new PropositionalParser(f);
         solver.addHardFormula(p.parse("y"));
         solver.addHardFormula(p.parse("~z"));
@@ -278,8 +276,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
 
     @Test
     public void testIllegalModel() throws ParserException {
-        final MaxSATSolver solver = MaxSATSolver.incWBO(f, MaxSATConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER)
-                .solver(MaxSATConfig.SolverType.GLUCOSE).verbosity(SOME).output(logStream).build());
+        final MaxSATSolver solver = MaxSATSolver.incWBO(f, MaxSATConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER).verbosity(SOME).output(logStream).build());
         final PropositionalParser p = new PropositionalParser(f);
         solver.addSoftFormula(p.parse("a => b"), 1);
         solver.addSoftFormula(p.parse("b => c"), 1);

@@ -61,9 +61,6 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
         if (solver.getResult() == Tristate.UNDEF) {
             throw new IllegalStateException("Cannot generate an unsat core before the formula was solved.");
         }
-        if (solver.isGlucoseIncremental()) {
-            throw new IllegalStateException("Cannot compute an unsat core with Glucose in incremental mode.");
-        }
         if (solver.isLastComputationWithAssumptions()) {
             throw new IllegalStateException("Cannot compute an unsat core for a computation with assumptions.");
         }

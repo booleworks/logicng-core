@@ -28,15 +28,12 @@ public class AssumeTest {
     public AssumeTest() {
         f = FormulaFactory.caching();
         parser = new PropositionalParser(f);
-        solvers = new SATSolver[6];
+        solvers = new SATSolver[5];
         solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(false).build());
         solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(false).build());
-        solvers[2] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(true).build(),
-                GlucoseConfig.builder().build());
-        solvers[3] = MiniSat.glucose(f, MiniSatConfig.builder().incremental(false).build(),
-                GlucoseConfig.builder().build());
-        solvers[4] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(true).build());
-        solvers[5] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(true).build());
+        solvers[2] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build());
+        solvers[3] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(true).build());
+        solvers[4] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(true).build());
     }
 
     @Test

@@ -26,7 +26,6 @@ import org.logicng.formulas.Variable;
 import org.logicng.handlers.SATHandler;
 import org.logicng.propositions.Proposition;
 import org.logicng.solvers.functions.SolverFunction;
-import org.logicng.solvers.sat.GlucoseConfig;
 import org.logicng.solvers.sat.MiniSat2Solver;
 import org.logicng.solvers.sat.MiniSatConfig;
 import org.logicng.solvers.sat.MiniSatStyleSolver;
@@ -49,9 +48,7 @@ public class MiniSat extends SATSolver {
     protected MiniSatStyleSolver solver;
     protected LNGIntVector validStates;
     protected final boolean initialPhase;
-    protected final boolean usesGlucoseFeatures;
     protected final boolean incremental;
-    protected final boolean glucoseIncremental;
     protected final boolean useAtMostClauses;
     protected int nextStateId;
     protected final PlaistedGreenbaumTransformationSolver pgTransformation;
@@ -62,19 +59,16 @@ public class MiniSat extends SATSolver {
      * Constructs a new SAT solver instance.
      * @param f             the formula factory
      * @param miniSatConfig the MiniSat configuration, must not be {@code null}
-     * @param glucoseConfig the Glucose configuration, may be {@code null}
      * @throws IllegalArgumentException if the solver style is unknown
      */
-    protected MiniSat(final FormulaFactory f, final MiniSatConfig miniSatConfig, final GlucoseConfig glucoseConfig) {
+    protected MiniSat(final FormulaFactory f, final MiniSatConfig miniSatConfig) {
         super(f);
         config = miniSatConfig;
         initialPhase = miniSatConfig.initialPhase();
-        solver = new MiniSat2Solver(miniSatConfig, glucoseConfig);
+        solver = new MiniSat2Solver(miniSatConfig);
         result = UNDEF;
-        usesGlucoseFeatures = glucoseConfig != null;
-        incremental = glucoseConfig == null && miniSatConfig.incremental(); // TODO hack for ambiguous meaning of incremental
-        glucoseIncremental = glucoseConfig != null && miniSatConfig.incremental();
-        useAtMostClauses = glucoseConfig == null && !miniSatConfig.proofGeneration() && miniSatConfig.useAtMostClauses();
+        incremental = miniSatConfig.incremental();
+        useAtMostClauses = !miniSatConfig.proofGeneration() && miniSatConfig.useAtMostClauses();
         validStates = new LNGIntVector();
         nextStateId = 0;
         pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver(), initialPhase);
@@ -95,8 +89,6 @@ public class MiniSat extends SATSolver {
         solver = underlyingSolver;
         result = UNDEF;
         incremental = underlyingSolver.getConfig().incremental();
-        usesGlucoseFeatures = false; // TODO
-        glucoseIncremental = false; // TODO
         useAtMostClauses = !underlyingSolver.getConfig().proofGeneration() && underlyingSolver.getConfig().useAtMostClauses();
         validStates = new LNGIntVector();
         nextStateId = 0;
@@ -110,7 +102,7 @@ public class MiniSat extends SATSolver {
      * @return the solver
      */
     public static MiniSat miniSat(final FormulaFactory f) {
-        return new MiniSat(f, (MiniSatConfig) f.configurationFor(ConfigurationType.MINISAT), null);
+        return new MiniSat(f, (MiniSatConfig) f.configurationFor(ConfigurationType.MINISAT));
     }
 
     /**
@@ -120,38 +112,7 @@ public class MiniSat extends SATSolver {
      * @return the solver
      */
     public static MiniSat miniSat(final FormulaFactory f, final MiniSatConfig config) {
-        return new MiniSat(f, config, null);
-    }
-
-    /**
-     * Returns a new Glucose solver with the MiniSat and Glucose configuration from the formula factory.
-     * @param f the formula factory
-     * @return the solver
-     */
-    public static MiniSat glucose(final FormulaFactory f) {
-        return new MiniSat(f, (MiniSatConfig) f.configurationFor(ConfigurationType.MINISAT), (GlucoseConfig) f.configurationFor(ConfigurationType.GLUCOSE));
-    }
-
-    /**
-     * Returns a new Glucose solver with a given configuration.
-     * @param f             the formula factory
-     * @param miniSatConfig the MiniSat configuration, must not be {@code null}
-     * @param glucoseConfig the Glucose configuration, must not be {@code null}
-     * @return the solver
-     */
-    public static MiniSat glucose(final FormulaFactory f, final MiniSatConfig miniSatConfig, final GlucoseConfig glucoseConfig) {
-        return new MiniSat(f, miniSatConfig, glucoseConfig);
-    }
-
-    /**
-     * Returns a new solver depending on the given solver style with the given configuration.
-     * @param f             the formula factory
-     * @param miniSatConfig the configuration, must not be {@code null}
-     * @param glucoseConfig the Glucose configuration, may be {@code null}
-     * @return the solver
-     */
-    public static MiniSat mk(final FormulaFactory f, final MiniSatConfig miniSatConfig, final GlucoseConfig glucoseConfig) {
-        return glucoseConfig != null ? glucose(f, miniSatConfig, glucoseConfig) : miniSat(f, miniSatConfig);
+        return new MiniSat(f, config);
     }
 
     @Override
@@ -432,15 +393,7 @@ public class MiniSat extends SATSolver {
 
     @Override
     public boolean canGenerateProof() {
-        return config.proofGeneration() && !glucoseIncremental;
-    }
-
-    /**
-     * Returns whether this solver uses Glucose features.
-     * @return {@code true} if this solver uses Glucose features, {@code false} otherwise
-     */
-    public boolean usesGlucoseFeatures() {
-        return usesGlucoseFeatures;
+        return config.proofGeneration();
     }
 
     /**
@@ -449,14 +402,6 @@ public class MiniSat extends SATSolver {
      */
     public boolean isIncremental() {
         return incremental;
-    }
-
-    /**
-     * Returns whether this solver uses Glucose's incremental feature
-     * @return {@code true} if this solver uses Glucose's incremental feature, {@code false} otherwise
-     */
-    public boolean isGlucoseIncremental() {
-        return glucoseIncremental;
     }
 
     /**

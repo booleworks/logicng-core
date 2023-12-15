@@ -13,7 +13,6 @@ public class ConfigurationsTest {
     @Test
     public void testValueOf() {
         assertThat(ConfigurationType.valueOf("CNF")).isEqualTo(ConfigurationType.CNF);
-        assertThat(ConfigurationType.valueOf("GLUCOSE")).isEqualTo(ConfigurationType.GLUCOSE);
         assertThat(ConfigurationType.valueOf("MAXSAT")).isEqualTo(ConfigurationType.MAXSAT);
         assertThat(ConfigurationType.valueOf("CC_ENCODER")).isEqualTo(ConfigurationType.CC_ENCODER);
     }

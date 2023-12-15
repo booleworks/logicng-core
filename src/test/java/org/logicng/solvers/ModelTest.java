@@ -17,7 +17,6 @@ import org.logicng.formulas.Variable;
 import org.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.solvers.functions.ModelEnumerationFunction;
-import org.logicng.solvers.sat.GlucoseConfig;
 import org.logicng.solvers.sat.MiniSatConfig;
 import org.logicng.transformations.cnf.TseitinTransformation;
 import org.logicng.util.Pair;
@@ -49,7 +48,7 @@ public class ModelTest {
         for (final Pair<Supplier<MiniSatConfig.Builder>, String> config : configs) {
             solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().useAtMostClauses(false).build()), "MiniSat (" + config.second() + ", -ATMOST)"});
             solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().useAtMostClauses(true).build()), "MiniSat (" + config.second() + ", +ATMOST)"});
-            solvers.add(new Object[]{MiniSat.glucose(f, config.first().get().build(), GlucoseConfig.builder().build()), "Glucose (" + config.second() + ")"});
+            solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build()), "Glucose (" + config.second() + ")"});
         }
         return solvers;
     }

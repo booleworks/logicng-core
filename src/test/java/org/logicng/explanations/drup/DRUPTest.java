@@ -25,7 +25,6 @@ import org.logicng.propositions.StandardProposition;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 import org.logicng.solvers.SolverState;
-import org.logicng.solvers.sat.GlucoseConfig;
 import org.logicng.solvers.sat.MiniSatConfig;
 
 import java.io.File;
@@ -43,8 +42,7 @@ public class DRUPTest implements LogicNGTest {
         solvers = new SATSolver[3];
         solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).incremental(true).build());
         solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).build());
-        solvers[2] = MiniSat.glucose(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).build(),
-                GlucoseConfig.builder().build());
+        solvers[2] = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build());
     }
 
     @Test
@@ -216,7 +214,7 @@ public class DRUPTest implements LogicNGTest {
         final FormulaFactory f = FormulaFactory.caching();
         final SATSolver[] solvers = new SATSolver[]{
                 MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build()),
-                MiniSat.glucose(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build(), GlucoseConfig.builder().build())
+                MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).useBinaryWatchers(true).useLbdFeatures(true).build())
         };
         for (final SATSolver solver : solvers) {
             final StandardProposition p1 = new StandardProposition(f.parse("A => B"));
@@ -246,7 +244,7 @@ public class DRUPTest implements LogicNGTest {
         final FormulaFactory f = FormulaFactory.caching();
         final SATSolver[] solvers = new SATSolver[]{
                 MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build()),
-                MiniSat.glucose(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build(), GlucoseConfig.builder().build())
+                MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).useBinaryWatchers(true).useLbdFeatures(true).build())
         };
         for (final SATSolver solver : solvers) {
             solver.add(f.parse("~C => D"));
@@ -268,7 +266,7 @@ public class DRUPTest implements LogicNGTest {
         final FormulaFactory f = FormulaFactory.caching();
         final SATSolver[] solvers = new SATSolver[]{
                 MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build()),
-                MiniSat.glucose(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build(), GlucoseConfig.builder().build())
+                MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).useBinaryWatchers(true).useLbdFeatures(true).build())
         };
         for (final SATSolver solver : solvers) {
             solver.add(f.parse("X => Y"));
@@ -296,7 +294,7 @@ public class DRUPTest implements LogicNGTest {
     public void testCoreAndAssumptions4() throws ParserException {
         final SATSolver[] solvers = new SATSolver[]{
                 MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build()),
-                MiniSat.glucose(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build(), GlucoseConfig.builder().build())
+                MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).useBinaryWatchers(true).useLbdFeatures(true).build())
         };
         for (final SATSolver solver : solvers) {
             solver.add(f.parse("~X1"));
@@ -355,7 +353,7 @@ public class DRUPTest implements LogicNGTest {
     @Test
     public void testWithSpecialUnitCaseGlucose() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SATSolver solver = MiniSat.glucose(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).build(), GlucoseConfig.builder().build());
+        final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build());
         final StandardProposition p1 = new StandardProposition(f.parse("a => b"));
         final StandardProposition p2 = new StandardProposition(f.parse("a => c | d"));
         final StandardProposition p3 = new StandardProposition(f.parse("b => c | d"));
@@ -386,9 +384,7 @@ public class DRUPTest implements LogicNGTest {
         }
         final SoftAssertions softly = new SoftAssertions();
         softly.assertThat(cnf).as("Core contains only original clauses").containsAll(core);
-        final MiniSat solver = MiniSat.glucose(f,
-                MiniSatConfig.builder().proofGeneration(true).incremental(false).build(),
-                GlucoseConfig.builder().build());
+        final MiniSat solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build());
         solver.add(core);
         softly.assertThat(solver.sat()).as("Core is unsatisfiable").isEqualTo(Tristate.FALSE);
         softly.assertAll();

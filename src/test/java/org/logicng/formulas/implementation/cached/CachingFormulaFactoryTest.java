@@ -20,7 +20,6 @@ import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
 import org.logicng.solvers.maxsat.algorithms.MaxSATConfig;
-import org.logicng.solvers.sat.GlucoseConfig;
 import org.logicng.solvers.sat.MiniSatConfig;
 
 import java.util.ArrayList;
@@ -82,13 +81,10 @@ public class CachingFormulaFactoryTest {
         final FormulaFactory f = FormulaFactory.caching();
         final Configuration configMaxSat = MaxSATConfig.builder().build();
         final Configuration configMiniSat = MiniSatConfig.builder().build();
-        final Configuration configGlucose = GlucoseConfig.builder().build();
         f.putConfiguration(configMaxSat);
         f.putConfiguration(configMiniSat);
-        f.putConfiguration(configGlucose);
         assertThat(f.configurationFor(ConfigurationType.MAXSAT)).isEqualTo(configMaxSat);
         assertThat(f.configurationFor(ConfigurationType.MINISAT)).isEqualTo(configMiniSat);
-        assertThat(f.configurationFor(ConfigurationType.GLUCOSE)).isEqualTo(configGlucose);
     }
 
     @Test

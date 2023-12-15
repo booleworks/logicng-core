@@ -33,6 +33,8 @@ import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 import org.logicng.handlers.SATHandler;
 import org.logicng.propositions.Proposition;
+import org.logicng.solvers.datastructures.LNGBoundedIntQueue;
+import org.logicng.solvers.datastructures.LNGBoundedLongQueue;
 import org.logicng.solvers.datastructures.LNGHeap;
 import org.logicng.solvers.datastructures.MSClause;
 import org.logicng.solvers.datastructures.MSVariable;
@@ -66,6 +68,7 @@ public abstract class MiniSatStyleSolver {
     // internal solver state
     protected boolean ok;
     protected int qhead;
+    protected LNGIntVector unitClauses;
     protected LNGVector<MSClause> clauses;
     protected LNGVector<MSClause> learnts;
     protected LNGVector<LNGVector<MSWatcher>> watches;
@@ -95,6 +98,8 @@ public abstract class MiniSatStyleSolver {
     protected double learntsizeFactor;
     protected double learntsizeInc;
     protected boolean incremental;
+    protected boolean useBinaryWatchers;
+    protected boolean useLbdFeatures;
 
     // mapping of variable names to variable indices
     protected Map<String, Integer> name2idx;
@@ -123,6 +128,35 @@ public abstract class MiniSatStyleSolver {
     protected int learntsizeAdjustStartConfl;
     protected double learntsizeAdjustInc;
     protected double maxLearnts;
+
+    // internal state for glucose
+    protected LNGVector<LNGVector<MSWatcher>> watchesBin;
+    protected LNGIntVector permDiff;
+    protected LNGIntVector lastDecisionLevel;
+    protected LNGBoundedLongQueue lbdQueue;
+    protected LNGBoundedIntQueue trailQueue;
+    protected int myflag;
+    protected long analyzeLBD;
+    protected int nbClausesBeforeReduce;
+    protected int conflicts;
+    protected int conflictsRestarts;
+    protected double sumLBD;
+    protected int curRestart;
+
+    // glucose configuration
+    protected int lbLBDMinimizingClause;
+    protected int lbLBDFrozenClause;
+    protected int lbSizeMinimizingClause;
+    protected int firstReduceDB;
+    protected int specialIncReduceDB;
+    protected int incReduceDB;
+    protected double factorK;
+    protected double factorR;
+    protected int sizeLBDQueue;
+    protected int sizeTrailQueue;
+    protected boolean reduceOnSize;
+    protected int reduceOnSizeSize;
+    protected double maxVarDecay;
 
     /**
      * Constructs a new MiniSAT-style solver with a given configuration.
@@ -234,22 +268,62 @@ public abstract class MiniSatStyleSolver {
         computingBackbone = false;
         selectionOrder = new LNGIntVector();
         selectionOrderIdx = 0;
+        unitClauses = new LNGIntVector();
+        learntsizeAdjustConfl = 0;
+        learntsizeAdjustCnt = 0;
+        learntsizeAdjustStartConfl = 100;
+        learntsizeAdjustInc = 1.5;
+        maxLearnts = 0;
+
+        // glucose
+        watchesBin = new LNGVector<>();
+        permDiff = new LNGIntVector();
+        lastDecisionLevel = new LNGIntVector();
+        lbdQueue = new LNGBoundedLongQueue();
+        trailQueue = new LNGBoundedIntQueue();
+        lbdQueue.initSize(sizeLBDQueue);
+        trailQueue.initSize(sizeTrailQueue);
+        myflag = 0;
+        analyzeBtLevel = 0;
+        analyzeLBD = 0;
+        nbClausesBeforeReduce = firstReduceDB;
+        conflicts = 0;
+        conflictsRestarts = 0;
+        sumLBD = 0;
+        curRestart = 1;
     }
 
     /**
      * Initializes the solver configuration.
      */
     protected void initializeConfig() {
-        varDecay = config.varDecay;
-        varInc = config.varInc;
-        ccminMode = config.clauseMin;
-        restartFirst = config.restartFirst;
-        restartInc = config.restartInc;
-        clauseDecay = config.clauseDecay;
-        shouldRemoveSatisfied = config.removeSatisfied;
-        learntsizeFactor = config.learntsizeFactor;
-        learntsizeInc = config.learntsizeInc;
         incremental = config.incremental;
+        shouldRemoveSatisfied = config.removeSatisfied;
+        useBinaryWatchers = config.useBinaryWatchers;
+        useLbdFeatures = config.useLbdFeatures;
+        ccminMode = config.clauseMin;
+        varDecay = config.lowLevelConfig.varDecay;
+        varInc = config.lowLevelConfig.varInc;
+        restartFirst = config.lowLevelConfig.restartFirst;
+        restartInc = config.lowLevelConfig.restartInc;
+        clauseDecay = config.lowLevelConfig.clauseDecay;
+        learntsizeFactor = config.lowLevelConfig.learntsizeFactor;
+        learntsizeInc = config.lowLevelConfig.learntsizeInc;
+
+        // glucose
+        lbLBDMinimizingClause = config.lowLevelConfig.lbLBDMinimizingClause;
+        lbLBDFrozenClause = config.lowLevelConfig.lbLBDFrozenClause;
+        lbSizeMinimizingClause = config.lowLevelConfig.lbSizeMinimizingClause;
+        firstReduceDB = config.lowLevelConfig.firstReduceDB;
+        specialIncReduceDB = config.lowLevelConfig.specialIncReduceDB;
+        incReduceDB = config.lowLevelConfig.incReduceDB;
+        factorK = config.lowLevelConfig.factorK;
+        factorR = config.lowLevelConfig.factorR;
+        sizeLBDQueue = config.lowLevelConfig.sizeLBDQueue;
+        sizeTrailQueue = config.lowLevelConfig.sizeTrailQueue;
+        reduceOnSize = config.lowLevelConfig.reduceOnSize;
+        reduceOnSizeSize = config.lowLevelConfig.reduceOnSizeSize;
+        maxVarDecay = config.lowLevelConfig.maxVarDecay;
     }
 
     /**
@@ -368,7 +442,9 @@ public abstract class MiniSatStyleSolver {
     /**
      * Resets the solver state.
      */
-    public abstract void reset();
+    public void reset() {
+        this.initialize();
+    }
 
     /**
      * Returns the current model of the solver or an empty vector if there is none.

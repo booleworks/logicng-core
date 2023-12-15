@@ -16,7 +16,6 @@ public class MaxSATClassTest {
 
     @Test
     public void testMaxSATConfig() {
-        assertThat(Arrays.asList(MaxSATConfig.SolverType.values()).contains(MaxSATConfig.SolverType.valueOf("GLUCOSE"))).isTrue();
         assertThat(Arrays.asList(MaxSATConfig.IncrementalStrategy.values()).contains(MaxSATConfig.IncrementalStrategy.valueOf("ITERATIVE"))).isTrue();
         assertThat(Arrays.asList(MaxSATConfig.AMOEncoding.values()).contains(MaxSATConfig.AMOEncoding.valueOf("LADDER"))).isTrue();
         assertThat(Arrays.asList(MaxSATConfig.PBEncoding.values()).contains(MaxSATConfig.PBEncoding.valueOf("SWC"))).isTrue();

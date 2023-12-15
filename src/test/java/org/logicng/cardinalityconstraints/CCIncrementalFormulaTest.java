@@ -38,7 +38,7 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
         solvers[0] = MiniSat.miniSat(f);
         solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(false).build());
         solvers[2] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(true).build());
-        solvers[3] = MiniSat.glucose(f);
+        solvers[3] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build());
     }
 
     @Test

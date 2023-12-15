@@ -14,45 +14,15 @@ import org.logicng.util.FormulaRandomizerConfig;
 public class ConfigurationsTest {
 
     @Test
-    public void testMiniSatConfigToString() {
-        final MiniSatConfig config = MiniSatConfig.builder()
+    public void testSolverConfigToString() {
+        final SATSolverLowLevelConfig config = SATSolverLowLevelConfig.builder()
                 .varDecay(1.2)
                 .varInc(1.3)
-                .clMinimization(MiniSatConfig.ClauseMinimization.BASIC)
                 .restartFirst(200)
                 .restartInc(0.8)
                 .clauseDecay(0.92)
-                .removeSatisfied(true)
                 .lsFactor(1.4)
                 .lsInc(1.5)
-                .incremental(false)
-                .initialPhase(true)
-                .build();
-        final String expected = String.format("MiniSatConfig{%n" +
-                "varDecay=1.2%n" +
-                "varInc=1.3%n" +
-                "clauseMin=BASIC%n" +
-                "restartFirst=200%n" +
-                "restartInc=0.8%n" +
-                "clauseDecay=0.92%n" +
-                "removeSatisfied=true%n" +
-                "learntsizeFactor=1.4%n" +
-                "learntsizeInc=1.5%n" +
-                "incremental=false%n" +
-                "initialPhase=true%n" +
-                "proofGeneration=false%n" +
-                "cnfMethod=PG_ON_SOLVER%n" +
-                "auxiliaryVariablesInModels=false%n" +
-                "bbInitialUBCheckForRotatableLiterals=true%n" +
-                "bbCheckForComplementModelLiterals=true%n" +
-                "bbCheckForRotatableLiterals=true%n" +
-                "}");
-        assertThat(config.toString()).isEqualTo(expected);
-    }
-
-    @Test
-    public void testGlucoseConfigToString() {
-        final GlucoseConfig config = GlucoseConfig.builder()
                 .lbLBDMinimizingClause(3)
                 .lbLBDFrozenClause(25)
                 .lbSizeMinimizingClause(24)
@@ -67,7 +37,14 @@ public class ConfigurationsTest {
                 .reduceOnSizeSize(10)
                 .maxVarDecay(0.99)
                 .build();
-        final String expected = String.format("GlucoseConfig{%n" +
+        final String expected = String.format("SATSolverLowLevelConfig{%n" +
+                "varDecay=1.2%n" +
+                "varInc=1.3%n" +
+                "restartFirst=200%n" +
+                "restartInc=0.8%n" +
+                "clauseDecay=0.92%n" +
+                "learntsizeFactor=1.4%n" +
+                "learntsizeInc=1.5%n" +
                 "lbLBDMinimizingClause=3%n" +
                 "lbLBDFrozenClause=25%n" +
                 "lbSizeMinimizingClause=24%n" +
@@ -91,7 +68,6 @@ public class ConfigurationsTest {
                 .incremental(MaxSATConfig.IncrementalStrategy.ITERATIVE)
                 .cardinality(MaxSATConfig.CardinalityEncoding.MTOTALIZER)
                 .weight(MaxSATConfig.WeightStrategy.DIVERSIFY)
-                .solver(MaxSATConfig.SolverType.MINISAT)
                 .verbosity(MaxSATConfig.Verbosity.SOME)
                 .output(System.out)
                 .symmetry(false)
@@ -104,7 +80,6 @@ public class ConfigurationsTest {
                 "pbEncoding=SWC%n" +
                 "cardinalityEncoding=MTOTALIZER%n" +
                 "weightStrategy=DIVERSIFY%n" +
-                "solverType=MINISAT%n" +
                 "verbosity=SOME%n" +
                 "symmetry=false%n" +
                 "limit=1000%n" +

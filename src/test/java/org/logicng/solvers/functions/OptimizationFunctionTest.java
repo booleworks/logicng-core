@@ -33,7 +33,6 @@ import org.logicng.predicates.satisfiability.SATPredicate;
 import org.logicng.solvers.MaxSATSolver;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
-import org.logicng.solvers.sat.GlucoseConfig;
 import org.logicng.solvers.sat.MiniSatConfig;
 import org.logicng.util.FormulaCornerCases;
 import org.logicng.util.FormulaRandomizer;
@@ -66,8 +65,8 @@ public class OptimizationFunctionTest implements LogicNGTest {
         solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(false).useAtMostClauses(false).build())});
         solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(true).useAtMostClauses(true).build())});
         solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(false).useAtMostClauses(true).build())});
-        solvers.add(new Object[]{MiniSat.glucose(f, MiniSatConfig.builder().initialPhase(true).build(), GlucoseConfig.builder().build())});
-        solvers.add(new Object[]{MiniSat.glucose(f, MiniSatConfig.builder().initialPhase(false).build(), GlucoseConfig.builder().build())});
+        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(true).incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build())});
+        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(false).incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build())});
         return solvers;
     }
 
@@ -301,7 +300,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
         assertThat(solveMaxSat(formulas, variables, MaxSATSolver.wbo(f))).isEqualTo(expected);
         assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).build()), null), variables).size()).isEqualTo(expected);
         assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).build()), null), variables).size()).isEqualTo(expected);
-        assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, MiniSat.glucose(f), null), variables).size()).isEqualTo(expected);
+        assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build()), null), variables).size()).isEqualTo(expected);
     }
 
     @ParameterizedTest

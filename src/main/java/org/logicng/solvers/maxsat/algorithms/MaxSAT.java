@@ -26,7 +26,6 @@
 package org.logicng.solvers.maxsat.algorithms;
 
 import static org.logicng.handlers.Handler.start;
-import static org.logicng.solvers.maxsat.algorithms.MaxSATConfig.SolverType;
 import static org.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity;
 import static org.logicng.solvers.sat.MiniSatStyleSolver.LIT_UNDEF;
 import static org.logicng.solvers.sat.MiniSatStyleSolver.mkLit;
@@ -42,7 +41,6 @@ import org.logicng.handlers.MaxSATHandler;
 import org.logicng.handlers.SATHandler;
 import org.logicng.solvers.datastructures.MSHardClause;
 import org.logicng.solvers.datastructures.MSSoftClause;
-import org.logicng.solvers.sat.GlucoseConfig;
 import org.logicng.solvers.sat.MiniSat2Solver;
 import org.logicng.solvers.sat.MiniSatConfig;
 import org.logicng.solvers.sat.MiniSatStyleSolver;
@@ -78,7 +76,6 @@ public abstract class MaxSAT {
     final LNGVector<MSSoftClause> softClauses;
     final LNGVector<MSHardClause> hardClauses;
     final LNGIntVector orderWeights;
-    final SolverType solverType;
     protected Verbosity verbosity;
     protected MaxSATHandler handler;
     int hardWeight;
@@ -117,7 +114,6 @@ public abstract class MaxSAT {
         nbSatisfiable = 0;
         sumSizeCores = 0;
         orderWeights = new LNGIntVector();
-        solverType = config.solverType;
         handler = null;
     }
 
@@ -288,14 +284,7 @@ public abstract class MaxSAT {
      * @return the empty SAT solver
      */
     public MiniSatStyleSolver newSATSolver() {
-        switch (solverType) {
-            case GLUCOSE:
-                return new MiniSat2Solver(MiniSatConfig.builder().incremental(true).build(), GlucoseConfig.builder().build());
-            case MINISAT:
-                return new MiniSat2Solver(MiniSatConfig.builder().incremental(false).build());
-            default:
-                throw new IllegalStateException("Unknown solver type: " + solverType);
-        }
+        return new MiniSat2Solver(MiniSatConfig.builder().incremental(false).useLbdFeatures(true).useBinaryWatchers(true).build());
     }
 
     /**

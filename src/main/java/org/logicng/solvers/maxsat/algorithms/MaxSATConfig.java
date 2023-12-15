@@ -17,13 +17,6 @@ import java.io.PrintStream;
 public final class MaxSATConfig extends Configuration {
 
     /**
-     * The solver type of the underlying SAT solver.
-     */
-    public enum SolverType {
-        MINISAT, GLUCOSE
-    }
-
-    /**
      * The incremental strategy for cardinality and pseudo-boolean constraints.
      */
     public enum IncrementalStrategy {
@@ -70,7 +63,6 @@ public final class MaxSATConfig extends Configuration {
     final PBEncoding pbEncoding;
     final CardinalityEncoding cardinalityEncoding;
     final WeightStrategy weightStrategy;
-    final SolverType solverType;
     final Verbosity verbosity;
     final PrintStream output;
     final boolean symmetry;
@@ -88,7 +80,6 @@ public final class MaxSATConfig extends Configuration {
         pbEncoding = builder.pbEncoding;
         cardinalityEncoding = builder.cardinalityEncoding;
         weightStrategy = builder.weightStrategy;
-        solverType = builder.solverType;
         verbosity = builder.verbosity;
         output = builder.output;
         symmetry = builder.symmetry;
@@ -108,7 +99,6 @@ public final class MaxSATConfig extends Configuration {
         pbEncoding = config.pbEncoding;
         this.cardinalityEncoding = cardinalityEncoding;
         weightStrategy = config.weightStrategy;
-        solverType = config.solverType;
         verbosity = config.verbosity;
         output = config.output;
         symmetry = config.symmetry;
@@ -128,7 +118,6 @@ public final class MaxSATConfig extends Configuration {
         pbEncoding = config.pbEncoding;
         cardinalityEncoding = config.cardinalityEncoding;
         weightStrategy = config.weightStrategy;
-        solverType = config.solverType;
         verbosity = config.verbosity;
         output = config.output;
         symmetry = config.symmetry;
@@ -152,7 +141,6 @@ public final class MaxSATConfig extends Configuration {
         sb.append("pbEncoding=").append(pbEncoding).append(System.lineSeparator());
         sb.append("cardinalityEncoding=").append(cardinalityEncoding).append(System.lineSeparator());
         sb.append("weightStrategy=").append(weightStrategy).append(System.lineSeparator());
-        sb.append("solverType=").append(solverType).append(System.lineSeparator());
         sb.append("verbosity=").append(verbosity).append(System.lineSeparator());
         sb.append("symmetry=").append(symmetry).append(System.lineSeparator());
         sb.append("limit=").append(limit).append(System.lineSeparator());
@@ -170,7 +158,6 @@ public final class MaxSATConfig extends Configuration {
         private IncrementalStrategy incrementalStrategy = IncrementalStrategy.NONE;
         private CardinalityEncoding cardinalityEncoding = CardinalityEncoding.TOTALIZER;
         private WeightStrategy weightStrategy = WeightStrategy.NONE;
-        private SolverType solverType = SolverType.GLUCOSE;
         private Verbosity verbosity = Verbosity.NONE;
         private PrintStream output = System.out;
         private boolean symmetry = true;
@@ -212,16 +199,6 @@ public final class MaxSATConfig extends Configuration {
          */
         public Builder weight(final WeightStrategy weight) {
             weightStrategy = weight;
-            return this;
-        }
-
-        /**
-         * Sets the underlying solver type. The default value is {@code GLUCOSE}.
-         * @param solver the underlying solver type
-         * @return the builder
-         */
-        public Builder solver(final SolverType solver) {
-            solverType = solver;
             return this;
         }
 

@@ -26,33 +26,33 @@ public class CCIncrementalSolverTest implements LogicNGTest {
     private final CCConfig[] configs;
 
     public CCIncrementalSolverTest() {
-        this.configs = new CCConfig[3];
-        this.configs[0] = CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.TOTALIZER).alkEncoding(CCConfig.ALK_ENCODER.TOTALIZER).build();
-        this.configs[1] = CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.CARDINALITY_NETWORK).alkEncoding(CCConfig.ALK_ENCODER.CARDINALITY_NETWORK).build();
-        this.configs[2] = CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.MODULAR_TOTALIZER).alkEncoding(CCConfig.ALK_ENCODER.MODULAR_TOTALIZER).build();
-        this.solvers = new SATSolver[4];
-        this.solvers[0] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(true).useAtMostClauses(false).build());
-        this.solvers[1] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(false).useAtMostClauses(false).build());
-        this.solvers[2] = MiniSat.miniSat(this.f, MiniSatConfig.builder().incremental(true).useAtMostClauses(true).build());
-        this.solvers[3] = MiniSat.glucose(this.f);
+        configs = new CCConfig[3];
+        configs[0] = CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.TOTALIZER).alkEncoding(CCConfig.ALK_ENCODER.TOTALIZER).build();
+        configs[1] = CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.CARDINALITY_NETWORK).alkEncoding(CCConfig.ALK_ENCODER.CARDINALITY_NETWORK).build();
+        configs[2] = CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.MODULAR_TOTALIZER).alkEncoding(CCConfig.ALK_ENCODER.MODULAR_TOTALIZER).build();
+        solvers = new SATSolver[4];
+        solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(false).build());
+        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(false).build());
+        solvers[2] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(true).build());
+        solvers[3] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build());
     }
 
     @Test
     public void testSimpleIncrementalAMK() {
-        for (final CCConfig config : this.configs) {
-            this.f.putConfiguration(this.configs[2]);
+        for (final CCConfig config : configs) {
+            f.putConfiguration(configs[2]);
             final int numLits = 10;
             final Variable[] vars = new Variable[numLits];
             for (int i = 0; i < numLits; i++) {
-                vars[i] = this.f.variable("v" + i);
+                vars[i] = f.variable("v" + i);
             }
-            final SATSolver solver = MiniSat.miniSat(this.f, MiniSatConfig.builder().useAtMostClauses(false).build());
-            solver.add(this.f.cc(CType.GE, 4, vars)); // >= 4
-            solver.add(this.f.cc(CType.LE, 7, vars)); // <= 7
+            final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).build());
+            solver.add(f.cc(CType.GE, 4, vars)); // >= 4
+            solver.add(f.cc(CType.LE, 7, vars)); // <= 7
 
-            this.f.putConfiguration(config);
+            f.putConfiguration(config);
 
-            final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) this.f.cc(CType.LE, 9, vars));
+            final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.LE, 9, vars));
             assertSolverSat(solver); // <= 9
             incData.newUpperBoundForSolver(8); // <= 8
             assertSolverSat(solver);
@@ -78,21 +78,21 @@ public class CCIncrementalSolverTest implements LogicNGTest {
 
     @Test
     public void testSimpleIncrementalALK() {
-        for (final CCConfig config : this.configs) {
-            this.f.putConfiguration(this.configs[2]);
+        for (final CCConfig config : configs) {
+            f.putConfiguration(configs[2]);
             final int numLits = 10;
             final Variable[] vars = new Variable[numLits];
             for (int i = 0; i < numLits; i++) {
-                vars[i] = this.f.variable("v" + i);
+                vars[i] = f.variable("v" + i);
             }
-            final SATSolver solver = this.solvers[2];
+            final SATSolver solver = solvers[2];
             solver.reset();
-            solver.add(this.f.cc(CType.GE, 4, vars)); // >= 4
-            solver.add(this.f.cc(CType.LE, 7, vars)); // <= 7
+            solver.add(f.cc(CType.GE, 4, vars)); // >= 4
+            solver.add(f.cc(CType.LE, 7, vars)); // <= 7
 
-            this.f.putConfiguration(config);
+            f.putConfiguration(config);
 
-            final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) this.f.cc(CType.GE, 2, vars));
+            final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.GE, 2, vars));
             assertSolverSat(solver); // >=2
             incData.newLowerBoundForSolver(3); // >= 3
             assertSolverSat(solver);
@@ -118,18 +118,18 @@ public class CCIncrementalSolverTest implements LogicNGTest {
 
     @Test
     public void testLargeTotalizerUpperBoundAMK() {
-        this.f.putConfiguration(this.configs[2]);
+        f.putConfiguration(configs[2]);
         final int numLits = 100;
         int currentBound = numLits - 1;
         final Variable[] vars = new Variable[numLits];
         for (int i = 0; i < numLits; i++) {
-            vars[i] = this.f.variable("v" + i);
+            vars[i] = f.variable("v" + i);
         }
-        final SATSolver solver = this.solvers[3];
+        final SATSolver solver = solvers[3];
         solver.reset();
-        solver.add(this.f.cc(CType.GE, 42, vars)); // >= 42
-        this.f.putConfiguration(this.configs[0]);
-        final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) this.f.cc(CType.LE, currentBound, vars));
+        solver.add(f.cc(CType.GE, 42, vars)); // >= 42
+        f.putConfiguration(configs[0]);
+        final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
         // search the lower bound
         while (solver.sat() == Tristate.TRUE) {
             incData.newUpperBoundForSolver(--currentBound); // <= currentBound - 1
@@ -139,18 +139,18 @@ public class CCIncrementalSolverTest implements LogicNGTest {
 
     @Test
     public void testLargeTotalizerLowerBoundALK() {
-        this.f.putConfiguration(this.configs[2]);
+        f.putConfiguration(configs[2]);
         final int numLits = 100;
         int currentBound = 2;
         final Variable[] vars = new Variable[numLits];
         for (int i = 0; i < numLits; i++) {
-            vars[i] = this.f.variable("v" + i);
+            vars[i] = f.variable("v" + i);
         }
-        final SATSolver solver = this.solvers[0];
+        final SATSolver solver = solvers[0];
         solver.reset();
-        solver.add(this.f.cc(CType.LE, 87, vars));
-        this.f.putConfiguration(this.configs[0]);
-        final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) this.f.cc(CType.GE, currentBound, vars));
+        solver.add(f.cc(CType.LE, 87, vars));
+        f.putConfiguration(configs[0]);
+        final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.GE, currentBound, vars));
         // search the lower bound
         while (solver.sat() == Tristate.TRUE) {
             incData.newLowerBoundForSolver(++currentBound); // <= currentBound + 1
@@ -161,17 +161,17 @@ public class CCIncrementalSolverTest implements LogicNGTest {
     @Test
     @LongRunningTag
     public void testLargeModularTotalizerAMK() {
-        for (final SATSolver solver : this.solvers) {
-            this.f.putConfiguration(this.configs[2]);
+        for (final SATSolver solver : solvers) {
+            f.putConfiguration(configs[2]);
             final int numLits = 100;
             int currentBound = numLits - 1;
             final Variable[] vars = new Variable[numLits];
             for (int i = 0; i < numLits; i++) {
-                vars[i] = this.f.variable("v" + i);
+                vars[i] = f.variable("v" + i);
             }
             solver.reset();
-            solver.add(this.f.cc(CType.GE, 42, vars)); // >= 42
-            final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) this.f.cc(CType.LE, currentBound, vars));
+            solver.add(f.cc(CType.GE, 42, vars)); // >= 42
+            final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
             // search the lower bound
             while (solver.sat() == Tristate.TRUE) {
                 incData.newUpperBoundForSolver(--currentBound); // <= currentBound - 1
@@ -183,17 +183,17 @@ public class CCIncrementalSolverTest implements LogicNGTest {
     @Test
     @LongRunningTag
     public void testVeryLargeModularTotalizerAMK() {
-        this.f.putConfiguration(this.configs[2]);
+        f.putConfiguration(configs[2]);
         final int numLits = 300;
         int currentBound = numLits - 1;
         final Variable[] vars = new Variable[numLits];
         for (int i = 0; i < numLits; i++) {
-            vars[i] = this.f.variable("v" + i);
+            vars[i] = f.variable("v" + i);
         }
-        final SATSolver solver = this.solvers[3];
+        final SATSolver solver = solvers[3];
         solver.reset();
-        solver.add(this.f.cc(CType.GE, 234, vars));
-        final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) this.f.cc(CType.LE, currentBound, vars));
+        solver.add(f.cc(CType.GE, 234, vars));
+        final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
         // search the lower bound
         while (solver.sat() == Tristate.TRUE) {
             incData.newUpperBoundForSolver(--currentBound);
