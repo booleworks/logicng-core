@@ -1,76 +1,78 @@
 module logicng {
     requires org.antlr.antlr4.runtime;
 
-    exports org.logicng.backbones;
+    exports com.booleworks.logicng.backbones;
 
-    exports org.logicng.cardinalityconstraints;
+    exports com.booleworks.logicng.cardinalityconstraints;
 
-    exports org.logicng.collections;
+    exports com.booleworks.logicng.collections;
 
-    exports org.logicng.configurations;
+    exports com.booleworks.logicng.configurations;
 
-    exports org.logicng.datastructures;
-    exports org.logicng.datastructures.ubtrees;
+    exports com.booleworks.logicng.datastructures;
+    exports com.booleworks.logicng.datastructures.ubtrees;
 
-    exports org.logicng.explanations;
-    exports org.logicng.explanations.mus;
-    exports org.logicng.explanations.smus;
+    exports com.booleworks.logicng.explanations;
+    exports com.booleworks.logicng.explanations.mus;
+    exports com.booleworks.logicng.explanations.smus;
 
-    exports org.logicng.formulas;
-    exports org.logicng.formulas.implementation.cached;
-    exports org.logicng.formulas.implementation.noncaching;
-    exports org.logicng.formulas.cache;
-    exports org.logicng.formulas.printer;
+    exports com.booleworks.logicng.formulas;
+    exports com.booleworks.logicng.formulas.implementation.cached;
+    exports com.booleworks.logicng.formulas.implementation.noncaching;
+    exports com.booleworks.logicng.formulas.cache;
+    exports com.booleworks.logicng.formulas.printer;
 
-    exports org.logicng.functions;
+    exports com.booleworks.logicng.functions;
 
-    exports org.logicng.graphs.algorithms;
-    exports org.logicng.graphs.datastructures;
-    exports org.logicng.graphs.generators;
-    exports org.logicng.graphs.io;
+    exports com.booleworks.logicng.graphs.algorithms;
+    exports com.booleworks.logicng.graphs.datastructures;
+    exports com.booleworks.logicng.graphs.generators;
+    exports com.booleworks.logicng.graphs.io;
 
-    exports org.logicng.handlers;
+    exports com.booleworks.logicng.handlers;
 
-    exports org.logicng.io.graphical;
-    exports org.logicng.io.parsers;
-    exports org.logicng.io.readers;
-    exports org.logicng.io.writers;
+    exports com.booleworks.logicng.io.graphical;
+    exports com.booleworks.logicng.io.parsers;
+    exports com.booleworks.logicng.io.readers;
+    exports com.booleworks.logicng.io.writers;
 
-    exports org.logicng.knowledgecompilation.bdds;
-    exports org.logicng.knowledgecompilation.bdds.datastructures;
-    exports org.logicng.knowledgecompilation.bdds.functions;
-    exports org.logicng.knowledgecompilation.bdds.jbuddy;
-    exports org.logicng.knowledgecompilation.bdds.orderings;
-    exports org.logicng.knowledgecompilation.dnnf;
-    exports org.logicng.knowledgecompilation.dnnf.datastructures;
-    exports org.logicng.knowledgecompilation.dnnf.datastructures.dtree;
-    exports org.logicng.knowledgecompilation.dnnf.functions;
+    exports com.booleworks.logicng.knowledgecompilation.bdds;
+    exports com.booleworks.logicng.knowledgecompilation.bdds.datastructures;
+    exports com.booleworks.logicng.knowledgecompilation.bdds.functions;
+    exports com.booleworks.logicng.knowledgecompilation.bdds.jbuddy;
+    exports com.booleworks.logicng.knowledgecompilation.bdds.orderings;
+    exports com.booleworks.logicng.knowledgecompilation.dnnf;
+    exports com.booleworks.logicng.knowledgecompilation.dnnf.datastructures;
+    exports com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree;
+    exports com.booleworks.logicng.knowledgecompilation.dnnf.functions;
 
-    exports org.logicng.modelcounting;
+    exports com.booleworks.logicng.modelcounting;
 
-    exports org.logicng.np;
+    exports com.booleworks.logicng.np;
 
-    exports org.logicng.predicates;
-    exports org.logicng.predicates.satisfiability;
+    exports com.booleworks.logicng.predicates;
+    exports com.booleworks.logicng.predicates.satisfiability;
 
-    exports org.logicng.primecomputation;
+    exports com.booleworks.logicng.primecomputation;
 
-    exports org.logicng.propositions;
+    exports com.booleworks.logicng.propositions;
 
-    exports org.logicng.pseudobooleans;
+    exports com.booleworks.logicng.pseudobooleans;
 
-    exports org.logicng.solvers;
-    exports org.logicng.solvers.datastructures;
-    exports org.logicng.solvers.functions;
-    exports org.logicng.solvers.sat;
-    exports org.logicng.solvers.maxsat.algorithms;
-    exports org.logicng.solvers.maxsat.encodings;
+    exports com.booleworks.logicng.solvers;
+    exports com.booleworks.logicng.solvers.datastructures;
+    exports com.booleworks.logicng.solvers.functions;
+    exports com.booleworks.logicng.solvers.functions.modelenumeration;
+    exports com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider;
+    exports com.booleworks.logicng.solvers.sat;
+    exports com.booleworks.logicng.solvers.maxsat.algorithms;
+    exports com.booleworks.logicng.solvers.maxsat.encodings;
 
-    exports org.logicng.transformations;
-    exports org.logicng.transformations.cnf;
-    exports org.logicng.transformations.dnf;
-    exports org.logicng.transformations.qe;
-    exports org.logicng.transformations.simplification;
+    exports com.booleworks.logicng.transformations;
+    exports com.booleworks.logicng.transformations.cnf;
+    exports com.booleworks.logicng.transformations.dnf;
+    exports com.booleworks.logicng.transformations.qe;
+    exports com.booleworks.logicng.transformations.simplification;
 
-    exports org.logicng.util;
+    exports com.booleworks.logicng.util;
 }
