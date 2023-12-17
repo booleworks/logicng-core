@@ -304,6 +304,9 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         }
         learnts.shrinkTo(newLearntsSize);
         watches.shrinkTo(newVarsSize * 2);
+        if (useBinaryWatchers) {
+            watchesBin.shrinkTo(newVarsSize * 2);
+        }
         unitClauses.shrinkTo(state[4]);
         for (i = 0; ok && i < unitClauses.size(); i++) {
             uncheckedEnqueue(unitClauses.get(i), null);
@@ -355,13 +358,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
     @Override
     protected void detachClause(final MSClause c) {
         assert c.size() > 1 && !c.isAtMost();
-        if (useBinaryWatchers && c.size() == 2) {
-            watchesBin.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
-            watchesBin.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
-        } else {
-            watches.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
-            watches.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
-        }
+        simpleRemoveClause(c);
         if (c.learnt()) {
             learntsLiterals -= c.size();
         } else {
@@ -1224,6 +1221,9 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             for (int i = 0; i < c.atMostWatchers(); i++) {
                 watches.get(c.get(i)).remove(new MSWatcher(c, c.get(i)));
             }
+        } else if (useBinaryWatchers && c.size() == 2) {
+            watchesBin.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
+            watchesBin.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
         } else {
             watches.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
             watches.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
