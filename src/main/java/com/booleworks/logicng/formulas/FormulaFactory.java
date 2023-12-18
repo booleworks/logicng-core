@@ -4,16 +4,15 @@
 
 package com.booleworks.logicng.formulas;
 
-import com.booleworks.logicng.cardinalityconstraints.CCConfig;
 import com.booleworks.logicng.configurations.Configuration;
 import com.booleworks.logicng.configurations.ConfigurationType;
+import com.booleworks.logicng.encodings.EncoderConfig;
 import com.booleworks.logicng.explanations.mus.MUSConfig;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import com.booleworks.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
 import com.booleworks.logicng.formulas.printer.FormulaStringRepresentation;
 import com.booleworks.logicng.functions.SubNodeFunction;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.pseudobooleans.PBConfig;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
 import com.booleworks.logicng.solvers.sat.GlucoseConfig;
@@ -120,8 +119,7 @@ public abstract class FormulaFactory {
     private static Map<ConfigurationType, Configuration> initDefaultConfigs() {
         final Map<ConfigurationType, Configuration> configMap = new ConcurrentHashMap<>();
         configMap.put(ConfigurationType.CNF, CNFConfig.builder().build());
-        configMap.put(ConfigurationType.CC_ENCODER, CCConfig.builder().build());
-        configMap.put(ConfigurationType.PB_ENCODER, PBConfig.builder().build());
+        configMap.put(ConfigurationType.ENCODER, EncoderConfig.builder().build());
         configMap.put(ConfigurationType.MINISAT, MiniSatConfig.builder().build());
         configMap.put(ConfigurationType.GLUCOSE, GlucoseConfig.builder().build());
         configMap.put(ConfigurationType.MAXSAT, MaxSATConfig.builder().build());

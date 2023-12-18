@@ -3,7 +3,9 @@ module logicng {
 
     exports com.booleworks.logicng.backbones;
 
-    exports com.booleworks.logicng.cardinalityconstraints;
+    exports com.booleworks.logicng.encodings;
+    exports com.booleworks.logicng.encodings.cc;
+    exports com.booleworks.logicng.encodings.pbc;
 
     exports com.booleworks.logicng.collections;
 
@@ -56,8 +58,6 @@ module logicng {
     exports com.booleworks.logicng.primecomputation;
 
     exports com.booleworks.logicng.propositions;
-
-    exports com.booleworks.logicng.pseudobooleans;
 
     exports com.booleworks.logicng.solvers;
     exports com.booleworks.logicng.solvers.datastructures;

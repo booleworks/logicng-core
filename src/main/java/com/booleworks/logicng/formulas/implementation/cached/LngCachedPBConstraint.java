@@ -4,13 +4,13 @@
 
 package com.booleworks.logicng.formulas.implementation.cached;
 
+import com.booleworks.logicng.encodings.PbEncoder;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.PBConstraint;
-import com.booleworks.logicng.pseudobooleans.PBEncoder;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -86,7 +86,7 @@ public class LngCachedPBConstraint extends LngCachedFormula implements PBConstra
         List<Formula> encoding;
         encoding = f.pbEncodingCache.get(this);
         if (encoding == null) {
-            encoding = PBEncoder.encode(generatingFactory, this);
+            encoding = PbEncoder.encode(generatingFactory, this);
             if (generatingFactory == factory()) {
                 f.pbEncodingCache.put(this, encoding);
             }
@@ -109,7 +109,7 @@ public class LngCachedPBConstraint extends LngCachedFormula implements PBConstra
         }
         if (other instanceof Formula && f == ((Formula) other).factory()) {
             return false; // the same caching formula factory would have
-                          // produced a == object
+            // produced a == object
         }
         if (other instanceof PBConstraint && hashCode() == other.hashCode()) {
             final PBConstraint o = (PBConstraint) other;

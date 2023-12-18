@@ -6,10 +6,10 @@ package com.booleworks.logicng.solvers;
 
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
-import com.booleworks.logicng.cardinalityconstraints.CCIncrementalData;
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.encodings.CcIncrementalData;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
@@ -144,7 +144,7 @@ public abstract class SATSolver {
      * @return the incremental data of this constraint, or null if the
      *         right-hand side of cc is 1
      */
-    public abstract CCIncrementalData addIncrementalCC(final CardinalityConstraint cc);
+    public abstract CcIncrementalData addIncrementalCC(final CardinalityConstraint cc);
 
     /**
      * Adds a formula which is already in CNF to the solver.

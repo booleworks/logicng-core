@@ -72,7 +72,7 @@ public final class DRUPTrim {
      * @param originalProblem the clauses of the original problem
      * @param proof           the clauses of the proof
      * @return the result of the DRUP execution from which the UNSAT core can be
-     * generated
+     *         generated
      */
     public DRUPResult compute(final LNGVector<LNGIntVector> originalProblem, final LNGVector<LNGIntVector> proof) {
         final DRUPResult result = new DRUPResult();
@@ -300,7 +300,7 @@ public final class DRUPTrim {
          * Parses the input and returns {@code true} if further processing is
          * required and {@code false} if the formula is trivially UNSAT.
          * @return {@code true} if further processing is required and
-         * {@code false} if the formula is trivially UNSAT
+         *         {@code false} if the formula is trivially UNSAT
          */
         private boolean parse() {
             nVars = 0;

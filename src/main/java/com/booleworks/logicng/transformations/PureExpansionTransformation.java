@@ -4,8 +4,8 @@
 
 package com.booleworks.logicng.transformations;
 
-import com.booleworks.logicng.cardinalityconstraints.CCAMOPure;
 import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.encodings.cc.CcAmo;
 import com.booleworks.logicng.formulas.BinaryOperator;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -63,7 +63,7 @@ public final class PureExpansionTransformation extends StatelessFormulaTransform
                 if (pbc.isAmo() || pbc.isExo()) {
                     final EncodingResult encodingResult = EncodingResult.resultForFormula(f);
                     final Variable[] vars = FormulaHelper.literalsAsVariables(pbc.operands());
-                    CCAMOPure.get().build(encodingResult, vars);
+                    CcAmo.pure(encodingResult, vars);
                     final List<Formula> encoding = encodingResult.result();
                     if (pbc.isExo()) {
                         encoding.add(f.or(vars));

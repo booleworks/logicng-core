@@ -7,8 +7,6 @@ package com.booleworks.logicng.solvers;
 import static com.booleworks.logicng.datastructures.Tristate.TRUE;
 import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
 
-import com.booleworks.logicng.cardinalityconstraints.CCEncoder;
-import com.booleworks.logicng.cardinalityconstraints.CCIncrementalData;
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
@@ -16,6 +14,9 @@ import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.encodings.CcEncoder;
+import com.booleworks.logicng.encodings.CcIncrementalData;
+import com.booleworks.logicng.encodings.PbEncoder;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.FType;
@@ -26,7 +27,6 @@ import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.propositions.Proposition;
-import com.booleworks.logicng.pseudobooleans.PBEncoder;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
 import com.booleworks.logicng.solvers.sat.GlucoseConfig;
 import com.booleworks.logicng.solvers.sat.GlucoseSyrup;
@@ -250,15 +250,15 @@ public class MiniSat extends SATSolver {
                         ((MiniCard) solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
                         solver.addClause(generateClauseVector(constraint.operands()), proposition);
                     } else {
-                        CCEncoder.encode((CardinalityConstraint) constraint,
+                        CcEncoder.encode((CardinalityConstraint) constraint,
                                 EncodingResult.resultForMiniSat(f, this, proposition));
                     }
                 } else {
-                    CCEncoder.encode((CardinalityConstraint) constraint,
+                    CcEncoder.encode((CardinalityConstraint) constraint,
                             EncodingResult.resultForMiniSat(f, this, proposition));
                 }
             } else {
-                PBEncoder.encode(constraint, EncodingResult.resultForMiniSat(f, this, proposition));
+                PbEncoder.encode(constraint, EncodingResult.resultForMiniSat(f, this, proposition));
             }
         } else {
             addFormulaAsCNF(formula, proposition);
@@ -291,9 +291,9 @@ public class MiniSat extends SATSolver {
     }
 
     @Override
-    public CCIncrementalData addIncrementalCC(final CardinalityConstraint cc) {
+    public CcIncrementalData addIncrementalCC(final CardinalityConstraint cc) {
         final EncodingResult result = EncodingResult.resultForMiniSat(f, this, null);
-        return CCEncoder.encodeIncremental(cc, result);
+        return CcEncoder.encodeIncremental(cc, result);
     }
 
     @Override

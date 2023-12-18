@@ -4,7 +4,7 @@
 
 package com.booleworks.logicng.testutils;
 
-import com.booleworks.logicng.cardinalityconstraints.CCConfig;
+import com.booleworks.logicng.encodings.EncoderConfig;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
@@ -24,7 +24,7 @@ public class NQueensGenerator {
 
     public NQueensGenerator(final FormulaFactory f) {
         this.f = f;
-        this.f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());
+        this.f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
     }
 
     public Formula generate(final int n) {

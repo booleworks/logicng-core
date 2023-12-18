@@ -6,7 +6,7 @@ package com.booleworks.logicng.graphs.generators;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.booleworks.logicng.cardinalityconstraints.CCConfig;
+import com.booleworks.logicng.encodings.EncoderConfig;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.PBConstraint;
@@ -97,7 +97,7 @@ public class ConstraintGraphGeneratorTest {
     @Test
     public void testRealExample() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());
+        f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
         final Formula parsed = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/formula1.txt");
         final List<Formula> formulas = new ArrayList<>();
         for (final Formula formula : parsed) {

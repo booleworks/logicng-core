@@ -16,8 +16,7 @@ public enum ConfigurationType {
     GLUCOSE,
     MAXSAT,
     MUS,
-    CC_ENCODER,
-    PB_ENCODER,
+    ENCODER,
     FORMULA_RANDOMIZER,
     ADVANCED_SIMPLIFIER,
     MODEL_ENUMERATION

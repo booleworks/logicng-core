@@ -15,6 +15,6 @@ public class ConfigurationsTest {
         assertThat(ConfigurationType.valueOf("CNF")).isEqualTo(ConfigurationType.CNF);
         assertThat(ConfigurationType.valueOf("GLUCOSE")).isEqualTo(ConfigurationType.GLUCOSE);
         assertThat(ConfigurationType.valueOf("MAXSAT")).isEqualTo(ConfigurationType.MAXSAT);
-        assertThat(ConfigurationType.valueOf("CC_ENCODER")).isEqualTo(ConfigurationType.CC_ENCODER);
+        assertThat(ConfigurationType.valueOf("ENCODER")).isEqualTo(ConfigurationType.ENCODER);
     }
 }

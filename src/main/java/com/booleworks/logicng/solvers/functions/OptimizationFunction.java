@@ -8,11 +8,11 @@ import static com.booleworks.logicng.handlers.Handler.aborted;
 import static com.booleworks.logicng.handlers.Handler.start;
 import static com.booleworks.logicng.handlers.OptimizationHandler.satHandler;
 
-import com.booleworks.logicng.cardinalityconstraints.CCIncrementalData;
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.encodings.CcIncrementalData;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
@@ -145,7 +145,7 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         }
         final Formula cc = f.cc(CType.GE, currentBound + 1, selectors);
         assert cc instanceof CardinalityConstraint;
-        final CCIncrementalData incrementalData = solver.addIncrementalCC((CardinalityConstraint) cc);
+        final CcIncrementalData incrementalData = solver.addIncrementalCC((CardinalityConstraint) cc);
         sat = solver.sat(satHandler(handler));
         if (aborted(handler)) {
             return null;

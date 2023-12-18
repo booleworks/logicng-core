@@ -6,7 +6,7 @@ package com.booleworks.logicng.functions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.booleworks.logicng.cardinalityconstraints.CCConfig;
+import com.booleworks.logicng.encodings.EncoderConfig;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -24,7 +24,7 @@ public class MinimumPrimeImplicantTest {
     final FormulaFactory f = FormulaFactory.caching();
 
     public MinimumPrimeImplicantTest() {
-        f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());
+        f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
     }
 
     @Test

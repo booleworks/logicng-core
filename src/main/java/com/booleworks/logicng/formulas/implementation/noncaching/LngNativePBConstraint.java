@@ -4,13 +4,13 @@
 
 package com.booleworks.logicng.formulas.implementation.noncaching;
 
+import com.booleworks.logicng.encodings.PbEncoder;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.PBConstraint;
-import com.booleworks.logicng.pseudobooleans.PBEncoder;
 
 import java.util.Collection;
 import java.util.List;
@@ -82,7 +82,7 @@ public class LngNativePBConstraint extends LngNativeFormula implements PBConstra
 
     @Override
     public List<Formula> getEncoding(final FormulaFactory generatingFactory) {
-        return PBEncoder.encode(generatingFactory, this);
+        return PbEncoder.encode(generatingFactory, this);
     }
 
     @Override
