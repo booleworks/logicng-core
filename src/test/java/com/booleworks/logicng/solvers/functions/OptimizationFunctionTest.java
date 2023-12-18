@@ -68,6 +68,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
         solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(false).useAtMostClauses(true).build())});
         solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(true).incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build())});
         solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(false).incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build())});
+        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(true).incremental(true).useBinaryWatchers(true).useLbdFeatures(false).build())});
         return solvers;
     }
 

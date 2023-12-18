@@ -59,7 +59,7 @@ public final class MSClause {
     public static final Comparator<MSClause> minisatComparator = (x, y) -> x.size() > 2 && (y.size() == 2 || x.activity() < y.activity()) ? -1 : 1;
 
     private final LNGIntVector data;
-    private final boolean learnt;
+    private final int learntOnState;
     private final boolean isAtMost;
     private double activity;
     private boolean seen;
@@ -70,25 +70,27 @@ public final class MSClause {
 
     /**
      * Constructs a new clause
-     * @param ps     the vector of literals
-     * @param learnt {@code true} if it is a learnt clause, {@code false} otherwise
+     * @param ps            the vector of literals
+     * @param learntOnState the index of the solver state on which this clause was learnt
+     *                      or -1 if it is not a learnt clause
      */
-    public MSClause(final LNGIntVector ps, final boolean learnt) {
-        this(ps, learnt, false);
+    public MSClause(final LNGIntVector ps, final int learntOnState) {
+        this(ps, learntOnState, false);
     }
 
     /**
      * Constructs a new clause
-     * @param ps       the vector of literals
-     * @param learnt   {@code true} if it is a learnt clause, {@code false} otherwise
-     * @param isAtMost {@code true} if it is an at-most clause, {@code false} otherwise
+     * @param ps            the vector of literals
+     * @param learntOnState the index of the solver state on which this clause was learnt
+     *                      or -1 if it is not a learnt clause
+     * @param isAtMost      {@code true} if it is an at-most clause, {@code false} otherwise
      */
-    public MSClause(final LNGIntVector ps, final boolean learnt, final boolean isAtMost) {
+    public MSClause(final LNGIntVector ps, final int learntOnState, final boolean isAtMost) {
         data = new LNGIntVector(ps.size());
         for (int i = 0; i < ps.size(); i++) {
             data.unsafePush(ps.get(i));
         }
-        this.learnt = learnt;
+        this.learntOnState = learntOnState;
         seen = false;
         lbd = 0;
         canBeDel = true;
@@ -97,10 +99,10 @@ public final class MSClause {
         atMostWatchers = -1;
     }
 
-    MSClause(final LNGIntVector data, final boolean learnt, final boolean isAtMost, final double activity, final boolean seen,
+    MSClause(final LNGIntVector data, final int learntOnState, final boolean isAtMost, final double activity, final boolean seen,
              final long lbd, final boolean canBeDel, final boolean oneWatched, final int atMostWatchers) {
         this.data = data;
-        this.learnt = learnt;
+        this.learntOnState = learntOnState;
         this.isAtMost = isAtMost;
         this.activity = activity;
         this.seen = seen;
@@ -160,11 +162,19 @@ public final class MSClause {
     }
 
     /**
+     * Returns the solver state on which this clause was learnt, or -1 if it is not a learnt clause.
+     * @return the solver state on which this clause was learnt
+     */
+    public int getLearntOnState() {
+        return learntOnState;
+    }
+
+    /**
      * Returns {@code true} if this clause is learnt, {@code false} otherwise.
      * @return {@code true} if this clause is learnt
      */
     public boolean learnt() {
-        return learnt;
+        return learntOnState >= 0;
     }
 
     /**
@@ -294,7 +304,7 @@ public final class MSClause {
     public String toString() {
         final StringBuilder sb = new StringBuilder("MSClause{");
         sb.append("activity=").append(activity).append(", ");
-        sb.append("learnt=").append(learnt).append(", ");
+        sb.append("learntOnState=").append(learntOnState).append(", ");
         sb.append("seen=").append(seen).append(", ");
         sb.append("lbd=").append(lbd).append(", ");
         sb.append("canBeDel=").append(canBeDel).append(", ");

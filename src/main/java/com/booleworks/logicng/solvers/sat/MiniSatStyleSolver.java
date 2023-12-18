@@ -33,6 +33,7 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.propositions.Proposition;
+import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.datastructures.LNGBoundedIntQueue;
 import com.booleworks.logicng.solvers.datastructures.LNGBoundedLongQueue;
 import com.booleworks.logicng.solvers.datastructures.LNGHeap;
@@ -477,7 +478,7 @@ public abstract class MiniSatStyleSolver {
      * @throws UnsupportedOperationException if the solver does not support state saving/loading
      * @throws IllegalStateException         if the solver is not in incremental mode
      */
-    public abstract int[] saveState();
+    public abstract SolverState saveState();
 
     /**
      * Loads a given state in the solver.
@@ -490,7 +491,7 @@ public abstract class MiniSatStyleSolver {
      * @throws UnsupportedOperationException if the solver does not support state saving/loading
      * @throws IllegalStateException         if the solver is not in incremental mode
      */
-    public abstract void loadState(int[] state);
+    public abstract void loadState(SolverState state);
 
     /**
      * Returns the number of variables of the solver.

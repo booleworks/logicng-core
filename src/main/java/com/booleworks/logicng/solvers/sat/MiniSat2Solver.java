@@ -55,6 +55,7 @@ import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.propositions.Proposition;
+import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.datastructures.MSClause;
 import com.booleworks.logicng.solvers.datastructures.MSVariable;
 import com.booleworks.logicng.solvers.datastructures.MSWatcher;
@@ -82,6 +83,16 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
      * the lower bound for blocking restarts
      */
     protected static final int LB_BLOCKING_RESTART = 10000;
+
+    /**
+     * The current state ID.
+     */
+    protected int stateId = 0;
+
+    /**
+     * The stack of currently valid states IDs.
+     */
+    protected LNGIntVector validStates = new LNGIntVector();
 
     /**
      * Constructs a new MiniSAT 2 solver with the default values for solver configuration.  By default, incremental mode
@@ -192,7 +203,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             }
             return ok;
         } else {
-            final MSClause c = new MSClause(ps, false);
+            final MSClause c = new MSClause(ps, -1);
             clauses.push(c);
             attachClause(c);
         }
@@ -248,13 +259,13 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
 
     /**
      * Saves and returns the solver state expressed as an integer array which stores the length of the internal data
-     * structures.  The array has length 5 and has the following layout:
+     * structures.  The array has the following layout:
      * <p>
-     * {@code | current solver state | #vars | #clauses | #learnt clauses | #unit clauses | #pg original | #pg proof}
+     * {@code | current solver state | #vars | #clauses | #unit clauses | #pg original | #pg proof}
      * @return the current solver state
      */
     @Override
-    public int[] saveState() {
+    public SolverState saveState() {
         if (useLbdFeatures) {
             // TODO or can we allow it?
             throw new UnsupportedOperationException("The MiniSat solver with LBD features does not support state loading/saving");
@@ -263,21 +274,22 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             throw new IllegalStateException("Cannot save a state when the incremental mode is deactivated");
         }
         final int[] state;
-        state = new int[7];
+        state = new int[6];
         state[0] = ok ? 1 : 0;
         state[1] = vars.size();
         state[2] = clauses.size();
-        state[3] = learnts.size();
-        state[4] = unitClauses.size();
+        state[3] = unitClauses.size();
         if (config.proofGeneration) {
-            state[5] = pgOriginalClauses.size();
-            state[6] = pgProof.size();
+            state[4] = pgOriginalClauses.size();
+            state[5] = pgProof.size();
         }
-        return state;
+        final int id = stateId++;
+        validStates.push(id);
+        return new SolverState(id, state);
     }
 
     @Override
-    public void loadState(final int[] state) {
+    public void loadState(final SolverState solverState) {
         if (useLbdFeatures) {
             // TODO or can we allow it?
             throw new UnsupportedOperationException("The MiniSat solver with LBD features does not support state loading/saving");
@@ -285,37 +297,57 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         if (!incremental) {
             throw new IllegalStateException("Cannot load a state when the incremental mode is deactivated");
         }
-        int i;
+        int index = -1;
+        for (int i = validStates.size() - 1; i >= 0 && index == -1; i--) {
+            if (validStates.get(i) == solverState.getId()) {
+                index = i;
+            }
+        }
+        if (index == -1) {
+            throw new IllegalArgumentException("The given solver state is not valid anymore.");
+        }
+        final int[] state = solverState.getState();
+        validStates.shrinkTo(index + 1);
         completeBacktrack();
         ok = state[0] == 1;
         final int newVarsSize = Math.min(state[1], vars.size());
-        for (i = vars.size() - 1; i >= newVarsSize; i--) {
+        for (int i = vars.size() - 1; i >= newVarsSize; i--) {
             orderHeap.remove(name2idx.remove(idx2name.remove(i)));
         }
         vars.shrinkTo(newVarsSize);
         final int newClausesSize = Math.min(state[2], clauses.size());
-        for (i = clauses.size() - 1; i >= newClausesSize; i--) {
+        for (int i = clauses.size() - 1; i >= newClausesSize; i--) {
             simpleRemoveClause(clauses.get(i));
         }
         clauses.shrinkTo(newClausesSize);
-        final int newLearntsSize = Math.min(state[3], learnts.size());
-        for (i = learnts.size() - 1; i >= newLearntsSize; i--) {
-            simpleRemoveClause(learnts.get(i));
+//        final int newLearntsSize = Math.min(state[3], learnts.size());
+//        for (int i = learnts.size() - 1; i >= newLearntsSize; i--) {
+//            simpleRemoveClause(learnts.get(i));
+//        }
+//        learnts.shrinkTo(newLearntsSize);
+        int newLearntsLength = 0;
+        for (int i = 0; i < learnts.size(); i++) {
+            final MSClause learnt = learnts.get(i);
+            if (learnt.getLearntOnState() <= solverState.getId()) {
+                learnts.set(newLearntsLength++, learnt);
+            } else {
+                simpleRemoveClause(learnt);
+            }
         }
-        learnts.shrinkTo(newLearntsSize);
+        learnts.shrinkTo(newLearntsLength);
         watches.shrinkTo(newVarsSize * 2);
         if (useBinaryWatchers) {
             watchesBin.shrinkTo(newVarsSize * 2);
         }
-        unitClauses.shrinkTo(state[4]);
-        for (i = 0; ok && i < unitClauses.size(); i++) {
+        unitClauses.shrinkTo(state[3]);
+        for (int i = 0; ok && i < unitClauses.size(); i++) {
             uncheckedEnqueue(unitClauses.get(i), null);
             ok = propagate() == null;
         }
         if (config.proofGeneration) {
-            final int newPgOriginalSize = Math.min(state[5], pgOriginalClauses.size());
+            final int newPgOriginalSize = Math.min(state[4], pgOriginalClauses.size());
             pgOriginalClauses.shrinkTo(newPgOriginalSize);
-            final int newPgProofSize = Math.min(state[6], pgProof.size());
+            final int newPgProofSize = Math.min(state[5], pgProof.size());
             pgProof.shrinkTo(newPgProofSize);
         }
     }
@@ -692,7 +724,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             return true;
         }
         removeSatisfied(learnts);
-        if (shouldRemoveSatisfied) {
+        if (!incremental && shouldRemoveSatisfied) {
             removeSatisfied(clauses);
         }
         rebuildOrderHeap();
@@ -724,7 +756,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                 p = ps.get(i);
                 j--;
                 k--;
-            } else if (value(ps.get(i)) != Tristate.FALSE && ps.get(i) != p) {
+            } else if (value(ps.get(i)) != Tristate.FALSE) {
                 p = ps.get(i);
                 ps.set(j++, p);
             }
@@ -747,7 +779,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             ok = propagate() == null;
             return ok;
         }
-        final MSClause cr = new MSClause(ps, false, true);
+        final MSClause cr = new MSClause(ps, -1, true);
         cr.setAtMostWatchers(ps.size() - k + 1);
         clauses.push(cr);
         attachClause(cr);
@@ -898,22 +930,18 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     uncheckedEnqueue(learntClause.get(0), null);
                     unitClauses.push(learntClause.get(0));
                 } else {
-                    final MSClause cr = new MSClause(learntClause, true);
+                    final MSClause cr = new MSClause(learntClause, stateId);
                     if (useLbdFeatures) {
                         cr.setLBD(analyzeLBD);
                         cr.setOneWatched(false);
                     }
                     learnts.push(cr);
                     attachClause(cr);
-                    if (!incremental) {
-                        claBumpActivity(cr);
-                    }
+                    claBumpActivity(cr);
                     uncheckedEnqueue(learntClause.get(0), cr);
                 }
                 varDecayActivity();
-                if (!incremental) {
-                    claDecayActivity();
-                }
+                claDecayActivity();
                 if (!useLbdFeatures && --learntsizeAdjustCnt == 0) {
                     learntsizeAdjustConfl *= learntsizeAdjustInc;
                     learntsizeAdjustCnt = (int) learntsizeAdjustConfl;
@@ -939,13 +967,11 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                         cancelUntil(0);
                         return Tristate.UNDEF;
                     }
-                    if (!incremental) {
-                        if (decisionLevel() == 0 && !simplify()) {
-                            return Tristate.FALSE;
-                        }
-                        if (learnts.size() - nAssigns() >= maxLearnts) {
-                            reduceDB();
-                        }
+                    if (!incremental && decisionLevel() == 0 && !simplify()) {
+                        return Tristate.FALSE;
+                    }
+                    if (learnts.size() - nAssigns() >= maxLearnts) {
+                        reduceDB();
                     }
                 }
                 int next = LIT_UNDEF;
@@ -1093,9 +1119,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     c.set(0, c.get(1));
                     c.set(1, tmp);
                 }
-                if (!incremental && c.learnt()) {
-                    claBumpActivity(c);
-                }
+                claBumpActivity(c);
                 for (int j = (p == LIT_UNDEF) ? 0 : 1; j < c.size(); j++) {
                     final int q = c.get(j);
                     if (!seen.get(var(q)) && v(q).level() > 0) {

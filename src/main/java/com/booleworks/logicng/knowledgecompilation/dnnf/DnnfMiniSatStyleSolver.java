@@ -157,18 +157,14 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
             uncheckedEnqueue(lastLearnt.get(0), null);
             unitClauses.push(lastLearnt.get(0));
         } else {
-            final MSClause cr = new MSClause(lastLearnt, true);
+            final MSClause cr = new MSClause(lastLearnt, stateId);
             learnts.push(cr);
             attachClause(cr);
-            if (!incremental) {
                 claBumpActivity(cr);
-            }
             uncheckedEnqueue(lastLearnt.get(0), cr);
         }
         varDecayActivity();
-        if (!incremental) {
             claDecayActivity();
-        }
         if (--learntsizeAdjustCnt == 0) {
             learntsizeAdjustConfl *= learntsizeAdjustInc;
             learntsizeAdjustCnt = (int) learntsizeAdjustConfl;

@@ -49,11 +49,9 @@ public class MiniSat extends SATSolver {
 
     protected final MiniSatConfig config;
     protected MiniSatStyleSolver solver;
-    protected LNGIntVector validStates;
     protected final boolean initialPhase;
     protected final boolean incremental;
     protected final boolean useAtMostClauses;
-    protected int nextStateId;
     protected final PlaistedGreenbaumTransformationSolver pgTransformation;
     protected final PlaistedGreenbaumTransformationSolver fullPgTransformation;
     protected boolean lastComputationWithAssumptions;
@@ -72,8 +70,6 @@ public class MiniSat extends SATSolver {
         result = UNDEF;
         incremental = miniSatConfig.incremental();
         useAtMostClauses = !miniSatConfig.proofGeneration() && miniSatConfig.useAtMostClauses();
-        validStates = new LNGIntVector();
-        nextStateId = 0;
         pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver(), initialPhase);
         fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, underlyingSolver(), initialPhase);
     }
@@ -93,8 +89,6 @@ public class MiniSat extends SATSolver {
         result = UNDEF;
         incremental = underlyingSolver.getConfig().incremental();
         useAtMostClauses = !underlyingSolver.getConfig().proofGeneration() && underlyingSolver.getConfig().useAtMostClauses();
-        validStates = new LNGIntVector();
-        nextStateId = 0;
         pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver, initialPhase);
         fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, underlyingSolver, initialPhase);
     }
@@ -242,24 +236,12 @@ public class MiniSat extends SATSolver {
 
     @Override
     public SolverState saveState() {
-        final int id = nextStateId++;
-        validStates.push(id);
-        return new SolverState(id, solver.saveState());
+        return solver.saveState();
     }
 
     @Override
     public void loadState(final SolverState state) {
-        int index = -1;
-        for (int i = validStates.size() - 1; i >= 0 && index == -1; i--) {
-            if (validStates.get(i) == state.id()) {
-                index = i;
-            }
-        }
-        if (index == -1) {
-            throw new IllegalArgumentException("The given solver state is not valid anymore.");
-        }
-        validStates.shrinkTo(index + 1);
-        solver.loadState(state.state());
+        solver.loadState(state);
         result = UNDEF;
         pgTransformation.clearCache();
         fullPgTransformation.clearCache();
