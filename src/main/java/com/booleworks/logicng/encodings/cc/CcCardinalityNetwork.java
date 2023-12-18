@@ -51,7 +51,7 @@ public final class CcCardinalityNetwork {
             for (final Variable v : vars) {
                 input.push(v.negate(f));
             }
-            CCSorting.sort(f, geq, input, result, output, CCSorting.ImplicationDirection.OUTPUT_TO_INPUT);
+            CcSorting.sort(f, geq, input, result, output, CcSorting.ImplicationDirection.OUTPUT_TO_INPUT);
             for (int i = 0; i < geq; i++) {
                 result.addClause(output.get(i));
             }
@@ -59,7 +59,7 @@ public final class CcCardinalityNetwork {
             for (final Variable v : vars) {
                 input.push(v);
             }
-            CCSorting.sort(f, rhs + 1, input, result, output, CCSorting.ImplicationDirection.INPUT_TO_OUTPUT);
+            CcSorting.sort(f, rhs + 1, input, result, output, CcSorting.ImplicationDirection.INPUT_TO_OUTPUT);
             assert output.size() > rhs;
             result.addClause(output.get(rhs).negate(f));
         }
@@ -73,7 +73,7 @@ public final class CcCardinalityNetwork {
         for (final Variable var : vars) {
             input.push(var);
         }
-        CCSorting.sort(f, rhs + 1, input, result, output, CCSorting.ImplicationDirection.INPUT_TO_OUTPUT);
+        CcSorting.sort(f, rhs + 1, input, result, output, CcSorting.ImplicationDirection.INPUT_TO_OUTPUT);
         assert output.size() > rhs;
         result.addClause(output.get(rhs).negate(f));
         return new CcIncrementalData(result, EncoderConfig.AMK_ENCODER.CARDINALITY_NETWORK, rhs, output);
@@ -89,7 +89,7 @@ public final class CcCardinalityNetwork {
             for (final Variable v : vars) {
                 input.push(v);
             }
-            CCSorting.sort(f, geq, input, result, output, CCSorting.ImplicationDirection.OUTPUT_TO_INPUT);
+            CcSorting.sort(f, geq, input, result, output, CcSorting.ImplicationDirection.OUTPUT_TO_INPUT);
             for (int i = 0; i < geq; i++) {
                 result.addClause(output.get(i));
             }
@@ -97,7 +97,7 @@ public final class CcCardinalityNetwork {
             for (final Variable v : vars) {
                 input.push(v.negate(f));
             }
-            CCSorting.sort(f, newRHS + 1, input, result, output, CCSorting.ImplicationDirection.INPUT_TO_OUTPUT);
+            CcSorting.sort(f, newRHS + 1, input, result, output, CcSorting.ImplicationDirection.INPUT_TO_OUTPUT);
             assert output.size() > newRHS;
             result.addClause(output.get(newRHS).negate(f));
         }
@@ -112,7 +112,7 @@ public final class CcCardinalityNetwork {
             input.push(var.negate(f));
         }
         final int newRHS = vars.length - rhs;
-        CCSorting.sort(f, newRHS + 1, input, result, output, CCSorting.ImplicationDirection.INPUT_TO_OUTPUT);
+        CcSorting.sort(f, newRHS + 1, input, result, output, CcSorting.ImplicationDirection.INPUT_TO_OUTPUT);
         assert output.size() > newRHS;
         result.addClause(output.get(newRHS).negate(f));
         return new CcIncrementalData(result, EncoderConfig.ALK_ENCODER.CARDINALITY_NETWORK, rhs, vars.length, output);
@@ -125,7 +125,7 @@ public final class CcCardinalityNetwork {
         for (final Variable var : vars) {
             input.push(var);
         }
-        CCSorting.sort(f, rhs + 1, input, result, output, CCSorting.ImplicationDirection.BOTH);
+        CcSorting.sort(f, rhs + 1, input, result, output, CcSorting.ImplicationDirection.BOTH);
         assert output.size() > rhs;
         result.addClause(output.get(rhs).negate(f));
         result.addClause(output.get(rhs - 1));

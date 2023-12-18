@@ -22,12 +22,12 @@
 
 package com.booleworks.logicng.encodings.pbc;
 
-import static com.booleworks.logicng.encodings.cc.CCSorting.ImplicationDirection.INPUT_TO_OUTPUT;
+import static com.booleworks.logicng.encodings.cc.CcSorting.ImplicationDirection.INPUT_TO_OUTPUT;
 
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.EncodingResult;
-import com.booleworks.logicng.encodings.cc.CCSorting;
+import com.booleworks.logicng.encodings.cc.CcSorting;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 
@@ -156,7 +156,7 @@ public final class PbBinaryMerge {
             if (useWatchDog) {
                 totalizer(result, buckets.get(i), bucket_card.get(i));
             } else {
-                CCSorting.sort(f, k, buckets.get(i), result, bucket_card.get(i), INPUT_TO_OUTPUT);
+                CcSorting.sort(f, k, buckets.get(i), result, bucket_card.get(i), INPUT_TO_OUTPUT);
             }
             if (k <= buckets.get(i).size()) {
                 assert k == bucket_card.get(i).size() || useWatchDog;
@@ -174,7 +174,7 @@ public final class PbBinaryMerge {
                         if (useWatchDog) {
                             unary_adder(result, bucket_card.get(i), carries, bucket_merge.get(i));
                         } else {
-                            CCSorting.merge(f, k, bucket_card.get(i), carries, result, bucket_merge.get(i),
+                            CcSorting.merge(f, k, bucket_card.get(i), carries, result, bucket_merge.get(i),
                                     INPUT_TO_OUTPUT);
                         }
                         if (k == bucket_merge.get(i).size() || (useWatchDog && k <= bucket_merge.get(i).size())) {

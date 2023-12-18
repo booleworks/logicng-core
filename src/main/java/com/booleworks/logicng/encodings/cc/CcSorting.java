@@ -22,9 +22,9 @@
 
 package com.booleworks.logicng.encodings.cc;
 
-import static com.booleworks.logicng.encodings.cc.CCSorting.ImplicationDirection.BOTH;
-import static com.booleworks.logicng.encodings.cc.CCSorting.ImplicationDirection.INPUT_TO_OUTPUT;
-import static com.booleworks.logicng.encodings.cc.CCSorting.ImplicationDirection.OUTPUT_TO_INPUT;
+import static com.booleworks.logicng.encodings.cc.CcSorting.ImplicationDirection.BOTH;
+import static com.booleworks.logicng.encodings.cc.CcSorting.ImplicationDirection.INPUT_TO_OUTPUT;
+import static com.booleworks.logicng.encodings.cc.CcSorting.ImplicationDirection.OUTPUT_TO_INPUT;
 
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.EncodingResult;
@@ -37,9 +37,9 @@ import com.booleworks.logicng.formulas.Variable;
  * @version 3.0.0
  * @since 1.1
  */
-public final class CCSorting {
+public final class CcSorting {
 
-    private CCSorting() {
+    private CcSorting() {
         // Only static methods
     }
 
