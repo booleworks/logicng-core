@@ -69,7 +69,8 @@ public class AdvancedSimplifierConfig extends Configuration {
         }
 
         /**
-         * Sets the flag for whether the formula should be restricted with the backbone. The default is 'true'.
+         * Sets the flag for whether the formula should be restricted with the
+         * backbone. The default is 'true'.
          * @param restrictBackbone flag for the restriction
          * @return the current builder
          */
@@ -79,7 +80,8 @@ public class AdvancedSimplifierConfig extends Configuration {
         }
 
         /**
-         * Sets the flag for whether the formula should be factorized. The default is 'true'.
+         * Sets the flag for whether the formula should be factorized. The
+         * default is 'true'.
          * @param factorOut flag for the factorisation
          * @return the current builder
          */
@@ -89,7 +91,8 @@ public class AdvancedSimplifierConfig extends Configuration {
         }
 
         /**
-         * Sets the flag for whether negations shall be simplified. The default is 'true'.
+         * Sets the flag for whether negations shall be simplified. The default
+         * is 'true'.
          * @param simplifyNegations flag
          * @return the current builder
          */
@@ -99,7 +102,8 @@ public class AdvancedSimplifierConfig extends Configuration {
         }
 
         /**
-         * Sets the flag for whether the rating function should be considered in the main simplification steps.
+         * Sets the flag for whether the rating function should be considered in
+         * the main simplification steps.
          * @param useRatingFunction flag
          * @return the current builder
          */
@@ -109,8 +113,10 @@ public class AdvancedSimplifierConfig extends Configuration {
         }
 
         /**
-         * Sets the rating function. The aim of the simplification is to minimize the formula with respect to this rating function,
-         * e.g. finding a formula with a minimal number of symbols when represented as string. The default is the {@code DefaultRatingFunction}.
+         * Sets the rating function. The aim of the simplification is to
+         * minimize the formula with respect to this rating function, e.g.
+         * finding a formula with a minimal number of symbols when represented
+         * as string. The default is the {@code DefaultRatingFunction}.
          * @param ratingFunction the desired rating function
          * @return the current builder
          */

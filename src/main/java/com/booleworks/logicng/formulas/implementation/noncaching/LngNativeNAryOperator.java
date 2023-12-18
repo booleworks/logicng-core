@@ -22,7 +22,8 @@ public abstract class LngNativeNAryOperator extends LngNativeFormula implements 
      * @param operands the list of operands
      * @param f        the factory which created this instance
      */
-    LngNativeNAryOperator(final FType type, final Collection<? extends Formula> operands, final NonCachingFormulaFactory f) {
+    LngNativeNAryOperator(final FType type, final Collection<? extends Formula> operands,
+                          final NonCachingFormulaFactory f) {
         super(type, f);
         this.operands = List.copyOf(operands);
         hashCode = 0;

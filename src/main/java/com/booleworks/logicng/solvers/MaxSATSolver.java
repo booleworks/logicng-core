@@ -41,7 +41,15 @@ public class MaxSATSolver {
 
     private static final String SEL_PREFIX = "@SEL_SOFT_";
 
-    protected enum Algorithm {WBO, INC_WBO, LINEAR_SU, LINEAR_US, MSU3, WMSU3, OLL}
+    protected enum Algorithm {
+        WBO,
+        INC_WBO,
+        LINEAR_SU,
+        LINEAR_US,
+        MSU3,
+        WMSU3,
+        OLL
+    }
 
     protected final MaxSATConfig configuration;
     protected final Algorithm algorithm;
@@ -67,7 +75,8 @@ public class MaxSATSolver {
     }
 
     /**
-     * Returns a new MaxSAT solver using incremental WBO as algorithm with the MaxSAT configuration from the formula factory.
+     * Returns a new MaxSAT solver using incremental WBO as algorithm with the
+     * MaxSAT configuration from the formula factory.
      * @param f the formula factory
      * @return the MaxSAT solver
      */
@@ -76,7 +85,8 @@ public class MaxSATSolver {
     }
 
     /**
-     * Returns a new MaxSAT solver using incremental WBO as algorithm with the given configuration.
+     * Returns a new MaxSAT solver using incremental WBO as algorithm with the
+     * given configuration.
      * @param f      the formula factory
      * @param config the configuration
      * @return the MaxSAT solver
@@ -86,17 +96,20 @@ public class MaxSATSolver {
     }
 
     /**
-     * Returns a new MaxSAT solver using LinearSU as algorithm with the MaxSAT configuration from the formula factory.
+     * Returns a new MaxSAT solver using LinearSU as algorithm with the MaxSAT
+     * configuration from the formula factory.
      * @param f the formula factory
      * @return the MaxSAT solver
      */
     public static MaxSATSolver linearSU(final FormulaFactory f) {
-        final MaxSATConfig conf = new MaxSATConfig((MaxSATConfig) f.configurationFor(ConfigurationType.MAXSAT), MaxSATConfig.CardinalityEncoding.MTOTALIZER);
+        final MaxSATConfig conf = new MaxSATConfig((MaxSATConfig) f.configurationFor(ConfigurationType.MAXSAT),
+                MaxSATConfig.CardinalityEncoding.MTOTALIZER);
         return new MaxSATSolver(f, conf, Algorithm.LINEAR_SU);
     }
 
     /**
-     * Returns a new MaxSAT solver using LinearSU as algorithm with the given configuration.
+     * Returns a new MaxSAT solver using LinearSU as algorithm with the given
+     * configuration.
      * @param config the configuration
      * @param f      the formula factory
      * @return the MaxSAT solver
@@ -106,7 +119,8 @@ public class MaxSATSolver {
     }
 
     /**
-     * Returns a new MaxSAT solver using LinearUS as algorithm with the MaxSAT configuration from the formula factory.
+     * Returns a new MaxSAT solver using LinearUS as algorithm with the MaxSAT
+     * configuration from the formula factory.
      * @param f the formula factory
      * @return the MaxSAT solver
      */
@@ -115,7 +129,8 @@ public class MaxSATSolver {
     }
 
     /**
-     * Returns a new MaxSAT solver using LinearUS as algorithm with the given configuration.
+     * Returns a new MaxSAT solver using LinearUS as algorithm with the given
+     * configuration.
      * @param config the configuration
      * @param f      the formula factory
      * @return the MaxSAT solver
@@ -125,7 +140,8 @@ public class MaxSATSolver {
     }
 
     /**
-     * Returns a new MaxSAT solver using MSU3 as algorithm with the MaxSAT configuration from the formula factory.
+     * Returns a new MaxSAT solver using MSU3 as algorithm with the MaxSAT
+     * configuration from the formula factory.
      * @param f the formula factory
      * @return the MaxSAT solver
      */
@@ -134,7 +150,8 @@ public class MaxSATSolver {
     }
 
     /**
-     * Returns a new MaxSAT solver using MSU3 as algorithm with the given configuration.
+     * Returns a new MaxSAT solver using MSU3 as algorithm with the given
+     * configuration.
      * @param config the configuration
      * @param f      the formula factory
      * @return the MaxSAT solver
@@ -144,7 +161,8 @@ public class MaxSATSolver {
     }
 
     /**
-     * Returns a new MaxSAT solver using WBO as algorithm with the MaxSAT configuration from the formula factory.
+     * Returns a new MaxSAT solver using WBO as algorithm with the MaxSAT
+     * configuration from the formula factory.
      * @param f the formula factory
      * @return the MaxSAT solver
      */
@@ -153,7 +171,8 @@ public class MaxSATSolver {
     }
 
     /**
-     * Returns a new MaxSAT solver using MSU3 as algorithm with the given configuration.
+     * Returns a new MaxSAT solver using MSU3 as algorithm with the given
+     * configuration.
      * @param config the configuration
      * @param f      the formula factory
      * @return the MaxSAT solver
@@ -163,17 +182,20 @@ public class MaxSATSolver {
     }
 
     /**
-     * Returns a new MaxSAT solver using weighted MSU3 as algorithm with the MaxSAT configuration from the formula factory.
+     * Returns a new MaxSAT solver using weighted MSU3 as algorithm with the
+     * MaxSAT configuration from the formula factory.
      * @param f the formula factory
      * @return the MaxSAT solver
      */
     public static MaxSATSolver wmsu3(final FormulaFactory f) {
-        final MaxSATConfig conf = new MaxSATConfig((MaxSATConfig) f.configurationFor(ConfigurationType.MAXSAT), MaxSATConfig.IncrementalStrategy.ITERATIVE);
+        final MaxSATConfig conf = new MaxSATConfig((MaxSATConfig) f.configurationFor(ConfigurationType.MAXSAT),
+                MaxSATConfig.IncrementalStrategy.ITERATIVE);
         return new MaxSATSolver(f, conf, Algorithm.WMSU3);
     }
 
     /**
-     * Returns a new MaxSAT solver using weighted MSU3 as algorithm with the given configuration.
+     * Returns a new MaxSAT solver using weighted MSU3 as algorithm with the
+     * given configuration.
      * @param config the configuration
      * @param f      the formula factory
      * @return the MaxSAT solver
@@ -183,17 +205,20 @@ public class MaxSATSolver {
     }
 
     /**
-     * Returns a new MaxSAT solver using weighted OLL as algorithm with the MaxSAT configuration from the formula factory.
+     * Returns a new MaxSAT solver using weighted OLL as algorithm with the
+     * MaxSAT configuration from the formula factory.
      * @param f the formula factory
      * @return the MaxSAT solver
      */
     public static MaxSATSolver oll(final FormulaFactory f) {
-        final MaxSATConfig conf = new MaxSATConfig((MaxSATConfig) f.configurationFor(ConfigurationType.MAXSAT), MaxSATConfig.IncrementalStrategy.ITERATIVE);
+        final MaxSATConfig conf = new MaxSATConfig((MaxSATConfig) f.configurationFor(ConfigurationType.MAXSAT),
+                MaxSATConfig.IncrementalStrategy.ITERATIVE);
         return new MaxSATSolver(f, conf, Algorithm.OLL);
     }
 
     /**
-     * Returns a new MaxSAT solver using weighted OLL as algorithm with the given configuration.
+     * Returns a new MaxSAT solver using weighted OLL as algorithm with the
+     * given configuration.
      * @param config the configuration
      * @param f      the formula factory
      * @return the MaxSAT solver
@@ -207,7 +232,8 @@ public class MaxSATSolver {
      * @return whether this solver can handle weighted instances or not
      */
     public boolean isWeighted() {
-        return algorithm == Algorithm.INC_WBO || algorithm == Algorithm.WMSU3 || algorithm == Algorithm.WBO || algorithm == Algorithm.OLL;
+        return algorithm == Algorithm.INC_WBO || algorithm == Algorithm.WMSU3 || algorithm == Algorithm.WBO ||
+                algorithm == Algorithm.OLL;
     }
 
     /**
@@ -247,13 +273,15 @@ public class MaxSATSolver {
     }
 
     /**
-     * Adds a new hard formula to the solver.  Hard formulas must always be true.
+     * Adds a new hard formula to the solver. Hard formulas must always be true.
      * @param formula the formula
-     * @throws IllegalStateException if a formula is added to a solver which is already solved.
+     * @throws IllegalStateException if a formula is added to a solver which is
+     *                               already solved.
      */
     public void addHardFormula(final Formula formula) {
         if (result != UNDEF) {
-            throw new IllegalStateException("The MaxSAT solver does currently not support an incremental interface.  Reset the solver.");
+            throw new IllegalStateException(
+                    "The MaxSAT solver does currently not support an incremental interface.  Reset the solver.");
         }
         addCNF(formula.cnf(f), -1);
     }
@@ -262,12 +290,14 @@ public class MaxSATSolver {
      * Adds a new soft formula to the solver.
      * @param formula the formula
      * @param weight  the weight
-     * @throws IllegalStateException    if a formula is added to a solver which is already solved.
+     * @throws IllegalStateException    if a formula is added to a solver which
+     *                                  is already solved.
      * @throws IllegalArgumentException if the weight is &lt;1
      */
     public void addSoftFormula(final Formula formula, final int weight) {
         if (result != UNDEF) {
-            throw new IllegalStateException("The MaxSAT solver does currently not support an incremental interface.  Reset the solver.");
+            throw new IllegalStateException(
+                    "The MaxSAT solver does currently not support an incremental interface.  Reset the solver.");
         }
         if (weight < 1) {
             throw new IllegalArgumentException("The weight of a formula must be > 0");
@@ -341,7 +371,8 @@ public class MaxSATSolver {
     /**
      * Solves the formula on the solver and returns the result.
      * @param handler a MaxSAT handler
-     * @return the result (SAT, UNSAT, Optimum found, or UNDEF if canceled by the handler)
+     * @return the result (SAT, UNSAT, Optimum found, or UNDEF if canceled by
+     *         the handler)
      */
     public MaxSAT.MaxSATResult solve(final MaxSATHandler handler) {
         if (result != UNDEF) {
@@ -357,14 +388,16 @@ public class MaxSATSolver {
     }
 
     /**
-     * Returns the minimum weight (or number of clauses if unweighted) of clauses which have to be unsatisfied.
-     * Therefore, if the minimum number of weights is 0, the formula is satisfiable.
+     * Returns the minimum weight (or number of clauses if unweighted) of
+     * clauses which have to be unsatisfied. Therefore, if the minimum number of
+     * weights is 0, the formula is satisfiable.
      * @return the minimum weight of clauses which have to be unsatisfied
      * @throws IllegalStateException if the formula is not yet solved
      */
     public int result() {
         if (result == UNDEF) {
-            throw new IllegalStateException("Cannot get a result as long as the formula is not solved.  Call 'solver' first.");
+            throw new IllegalStateException(
+                    "Cannot get a result as long as the formula is not solved.  Call 'solver' first.");
         }
         return result == OPTIMUM ? solver.result() : -1;
     }
@@ -376,7 +409,8 @@ public class MaxSATSolver {
      */
     public Assignment model() {
         if (result == UNDEF) {
-            throw new IllegalStateException("Cannot get a model as long as the formula is not solved.  Call 'solver' first.");
+            throw new IllegalStateException(
+                    "Cannot get a model as long as the formula is not solved.  Call 'solver' first.");
         }
         return result != UNSATISFIABLE ? createAssignment(solver.model()) : null;
     }

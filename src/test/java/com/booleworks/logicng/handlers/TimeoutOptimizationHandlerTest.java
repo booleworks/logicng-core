@@ -45,12 +45,14 @@ class TimeoutOptimizationHandlerTest {
                 GlucoseConfig.builder().build());
         solvers[3] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(true).build());
         solvers[4] = MiniSat.miniCard(f, MiniSatConfig.builder().incremental(false).build());
-        solvers[5] = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        solvers[5] =
+                MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
     }
 
     @Test
     public void testTimeoutFoundBetterBound() throws InterruptedException {
-        final TimeoutOptimizationHandler handler = new TimeoutOptimizationHandler(100, TimeoutHandler.TimerType.SINGLE_TIMEOUT);
+        final TimeoutOptimizationHandler handler =
+                new TimeoutOptimizationHandler(100, TimeoutHandler.TimerType.SINGLE_TIMEOUT);
         handler.started();
         assertThat(handler.foundBetterBound(Assignment::new)).isTrue();
         Thread.sleep(200);
@@ -76,7 +78,8 @@ class TimeoutOptimizationHandlerTest {
 
     @Test
     public void testTimeoutHandlerSingleTimeout() throws IOException {
-        final List<Formula> formulas = DimacsReader.readCNF(f, "src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf");
+        final List<Formula> formulas =
+                DimacsReader.readCNF(f, "src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf");
         for (final SATSolver solver : solvers) {
             solver.add(formulas);
             final TimeoutOptimizationHandler handler = new TimeoutOptimizationHandler(100L);
@@ -92,10 +95,12 @@ class TimeoutOptimizationHandlerTest {
 
     @Test
     public void testTimeoutHandlerFixedEnd() throws IOException {
-        final List<Formula> formulas = DimacsReader.readCNF(f, "src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf");
+        final List<Formula> formulas =
+                DimacsReader.readCNF(f, "src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf");
         for (final SATSolver solver : solvers) {
             solver.add(formulas);
-            final TimeoutOptimizationHandler handler = new TimeoutOptimizationHandler(100L, TimeoutHandler.TimerType.FIXED_END);
+            final TimeoutOptimizationHandler handler =
+                    new TimeoutOptimizationHandler(100L, TimeoutHandler.TimerType.FIXED_END);
 
             final Assignment result = solver.execute(OptimizationFunction.builder()
                     .handler(handler)

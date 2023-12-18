@@ -33,7 +33,8 @@ public class BddGraphicalGeneratorTest {
     public void testFormulas() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
+        final List<Variable> ordering =
+                Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
         testFiles("false", BDDFactory.build(f, p.parse("$false"), kernel), BddGraphicalGenerator.builder().build());
         testFiles("true", BDDFactory.build(f, p.parse("$true"), kernel), BddGraphicalGenerator.builder().build());
@@ -43,24 +44,30 @@ public class BddGraphicalGeneratorTest {
         testFiles("equiv", BDDFactory.build(f, p.parse("A <=> ~C"), kernel), BddGraphicalGenerator.builder().build());
         testFiles("or", BDDFactory.build(f, p.parse("A | B | ~C"), kernel), BddGraphicalGenerator.builder().build());
         testFiles("and", BDDFactory.build(f, p.parse("A & B & ~C"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("not", BDDFactory.build(f, p.parse("~(A & B & ~C)"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("formula", BDDFactory.build(f, p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("not", BDDFactory.build(f, p.parse("~(A & B & ~C)"), kernel),
+                BddGraphicalGenerator.builder().build());
+        testFiles("formula", BDDFactory.build(f, p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel),
+                BddGraphicalGenerator.builder().build());
     }
 
     @Test
     public void testFixedStyle() throws ParserException, IOException {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
+        final List<Variable> ordering =
+                Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
         final BDD bdd = BDDFactory.build(f, p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel);
 
         final BddGraphicalGenerator generator = BddGraphicalGenerator.builder()
-                .falseNodeStyle(GraphicalNodeStyle.rectangle(GraphicalColor.PURPLE, GraphicalColor.WHITE, GraphicalColor.PURPLE))
-                .trueNodeStyle(GraphicalNodeStyle.rectangle(GraphicalColor.CYAN, GraphicalColor.WHITE, GraphicalColor.CYAN))
+                .falseNodeStyle(GraphicalNodeStyle.rectangle(GraphicalColor.PURPLE, GraphicalColor.WHITE,
+                        GraphicalColor.PURPLE))
+                .trueNodeStyle(
+                        GraphicalNodeStyle.rectangle(GraphicalColor.CYAN, GraphicalColor.WHITE, GraphicalColor.CYAN))
                 .negativeEdgeStyle(GraphicalEdgeStyle.dotted(GraphicalColor.PURPLE))
                 .defaultEdgeStyle(GraphicalEdgeStyle.bold(GraphicalColor.CYAN))
-                .defaultNodeStyle(GraphicalNodeStyle.circle(GraphicalColor.ORANGE, GraphicalColor.BLACK, GraphicalColor.ORANGE))
+                .defaultNodeStyle(
+                        GraphicalNodeStyle.circle(GraphicalColor.ORANGE, GraphicalColor.BLACK, GraphicalColor.ORANGE))
                 .backgroundColor(GraphicalColor.GRAY_LIGHT)
                 .alignTerminals(true)
                 .build();
@@ -71,7 +78,8 @@ public class BddGraphicalGeneratorTest {
     public void testDynamic() throws ParserException, IOException {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
+        final List<Variable> ordering =
+                Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
         final BDD bdd = BDDFactory.build(f, p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel);
 
@@ -84,7 +92,8 @@ public class BddGraphicalGeneratorTest {
         testFiles("formula-dynamic", bdd, generator);
     }
 
-    private void testFiles(final String fileName, final BDD bdd, final BddGraphicalGenerator generator) throws IOException {
+    private void testFiles(final String fileName, final BDD bdd, final BddGraphicalGenerator generator)
+            throws IOException {
         final GraphicalRepresentation representation = generator.translate(bdd);
         representation.write("src/test/resources/writers/temp/" + fileName + "_bdd.dot", GraphicalDotWriter.get());
         representation.write("src/test/resources/writers/temp/" + fileName + "_bdd.txt", GraphicalMermaidWriter.get());
@@ -95,10 +104,14 @@ public class BddGraphicalGeneratorTest {
 
     private static class MyStyleMapper extends BddNodeStyleMapper {
 
-        final GraphicalNodeStyle falseStyle = GraphicalNodeStyle.rectangle(GraphicalColor.RED, GraphicalColor.RED, GraphicalColor.WHITE);
-        final GraphicalNodeStyle trueStyle = GraphicalNodeStyle.rectangle(GraphicalColor.GREEN, GraphicalColor.GREEN, GraphicalColor.WHITE);
-        final GraphicalNodeStyle bStyle = GraphicalNodeStyle.circle(GraphicalColor.ORANGE, GraphicalColor.BLACK, GraphicalColor.ORANGE);
-        final GraphicalNodeStyle otherStyle = GraphicalNodeStyle.circle(GraphicalColor.CYAN, GraphicalColor.WHITE, GraphicalColor.CYAN);
+        final GraphicalNodeStyle falseStyle =
+                GraphicalNodeStyle.rectangle(GraphicalColor.RED, GraphicalColor.RED, GraphicalColor.WHITE);
+        final GraphicalNodeStyle trueStyle =
+                GraphicalNodeStyle.rectangle(GraphicalColor.GREEN, GraphicalColor.GREEN, GraphicalColor.WHITE);
+        final GraphicalNodeStyle bStyle =
+                GraphicalNodeStyle.circle(GraphicalColor.ORANGE, GraphicalColor.BLACK, GraphicalColor.ORANGE);
+        final GraphicalNodeStyle otherStyle =
+                GraphicalNodeStyle.circle(GraphicalColor.CYAN, GraphicalColor.WHITE, GraphicalColor.CYAN);
 
         public MyStyleMapper(final BDDKernel kernel) {
             super(kernel);

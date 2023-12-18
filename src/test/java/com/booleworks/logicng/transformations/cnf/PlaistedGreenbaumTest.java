@@ -133,8 +133,10 @@ public class PlaistedGreenbaumTest extends TestWithFormulaContext {
 
         Assertions.assertThat(_c.p.parse("a <=> (1 * b <= 1)").transform(pg)).isEqualTo(_c.p.parse("a"));
         Assertions.assertThat(_c.p.parse("~(1 * b <= 1)").transform(pg)).isEqualTo(_c.p.parse("$false"));
-        Assertions.assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").transform(pg)).isEqualTo(_c.p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
-        Assertions.assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").transform(pg)).isEqualTo(_c.p.parse("(d | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | d | @RESERVED_CC_4) & (~@RESERVED_CC_4 | @RESERVED_CC_0) & (~@RESERVED_CC_2 | @RESERVED_CC_0) & (~@RESERVED_CC_4 | ~@RESERVED_CC_2) & (c | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | c | @RESERVED_CC_5) & (~@RESERVED_CC_5 | @RESERVED_CC_2) & ~@RESERVED_CC_0"));
+        Assertions.assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").transform(pg))
+                .isEqualTo(_c.p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
+        Assertions.assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").transform(pg)).isEqualTo(_c.p.parse(
+                "(d | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | d | @RESERVED_CC_4) & (~@RESERVED_CC_4 | @RESERVED_CC_0) & (~@RESERVED_CC_2 | @RESERVED_CC_0) & (~@RESERVED_CC_4 | ~@RESERVED_CC_2) & (c | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | c | @RESERVED_CC_5) & (~@RESERVED_CC_5 | @RESERVED_CC_2) & ~@RESERVED_CC_0"));
     }
 
     @ParameterizedTest
@@ -146,14 +148,17 @@ public class PlaistedGreenbaumTest extends TestWithFormulaContext {
         final Formula f2 = _c.p.parse("~x & ~y");
         final Formula f3 = _c.p.parse("d & ((a | b) => c)");
         final Formula f4 = _c.p.parse("d & ((a | b) => c) | ~x & ~y");
-        assertThat(f1.transform(pg)).isEqualTo(_c.p.parse("(@RESERVED_CNF_1 | c) & (~@RESERVED_CNF_1 | ~a) & (~@RESERVED_CNF_1 | ~b)"));
+        assertThat(f1.transform(pg))
+                .isEqualTo(_c.p.parse("(@RESERVED_CNF_1 | c) & (~@RESERVED_CNF_1 | ~a) & (~@RESERVED_CNF_1 | ~b)"));
         assertThat(f2.transform(pg)).isEqualTo(_c.p.parse("~x & ~y"));
-        assertThat(f3.transform(pg)).isEqualTo(_c.p.parse("d & @RESERVED_CNF_0 & (~@RESERVED_CNF_0 | @RESERVED_CNF_1 | c) & " +
-                "(~@RESERVED_CNF_1 | ~a) & (~@RESERVED_CNF_1 | ~b)"));
-        assertThat(f4.transform(pg)).isEqualTo(_c.p.parse("(@RESERVED_CNF_2 | @RESERVED_CNF_4) & (~@RESERVED_CNF_2 | d) & " +
-                "(~@RESERVED_CNF_2 | @RESERVED_CNF_0) & (~@RESERVED_CNF_0 | @RESERVED_CNF_1 | c) & " +
-                "(~@RESERVED_CNF_1 | ~a) & (~@RESERVED_CNF_1 | ~b) & (~@RESERVED_CNF_4 | ~x) & " +
-                "(~@RESERVED_CNF_4 | ~y)"));
+        assertThat(f3.transform(pg))
+                .isEqualTo(_c.p.parse("d & @RESERVED_CNF_0 & (~@RESERVED_CNF_0 | @RESERVED_CNF_1 | c) & " +
+                        "(~@RESERVED_CNF_1 | ~a) & (~@RESERVED_CNF_1 | ~b)"));
+        assertThat(f4.transform(pg))
+                .isEqualTo(_c.p.parse("(@RESERVED_CNF_2 | @RESERVED_CNF_4) & (~@RESERVED_CNF_2 | d) & " +
+                        "(~@RESERVED_CNF_2 | @RESERVED_CNF_0) & (~@RESERVED_CNF_0 | @RESERVED_CNF_1 | c) & " +
+                        "(~@RESERVED_CNF_1 | ~a) & (~@RESERVED_CNF_1 | ~b) & (~@RESERVED_CNF_4 | ~x) & " +
+                        "(~@RESERVED_CNF_4 | ~y)"));
         assertThat(f1.transform(pg).isCNF(_c.f)).isTrue();
         assertThat(equivalentModels(f1, f1.transform(pg), f1.variables(_c.f))).isTrue();
         assertThat(f2.transform(pg).isCNF(_c.f)).isTrue();
@@ -187,7 +192,8 @@ public class PlaistedGreenbaumTest extends TestWithFormulaContext {
 
     @Test
     public void testToString() {
-        final PlaistedGreenbaumTransformation pGTransformation = new PlaistedGreenbaumTransformation(FormulaFactory.caching(), 5);
+        final PlaistedGreenbaumTransformation pGTransformation =
+                new PlaistedGreenbaumTransformation(FormulaFactory.caching(), 5);
         assertThat(pGTransformation.toString()).isEqualTo("PlaistedGreenbaumTransformation{boundary=5}");
     }
 }

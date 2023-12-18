@@ -18,10 +18,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Transformation of a formula into CNF due to Tseitin.  Results in this implementation will always be cached.
+ * Transformation of a formula into CNF due to Tseitin. Results in this
+ * implementation will always be cached.
  * <p>
- * ATTENTION: if you mix formulas from different formula factories this can lead to clashes in the naming of newly
- * introduced variables.
+ * ATTENTION: if you mix formulas from different formula factories this can lead
+ * to clashes in the naming of newly introduced variables.
  * @version 3.0.0
  * @since 1.0
  */
@@ -33,7 +34,8 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
     private final CNFFactorization factorization;
 
     /**
-     * Constructor for a Tseitin transformation with the default factorization bound of 12.
+     * Constructor for a Tseitin transformation with the default factorization
+     * bound of 12.
      * @param f the caching formula factory to generate new formulas
      **/
     public TseitinTransformation(final FormulaFactory f) {
@@ -42,8 +44,10 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
 
     /**
      * Constructor for a Tseitin transformation.
-     * @param f                        the caching formula factory to generate new formulas
-     * @param boundaryForFactorization the boundary of number of atoms up to which classical factorization is used
+     * @param f                        the caching formula factory to generate
+     *                                 new formulas
+     * @param boundaryForFactorization the boundary of number of atoms up to
+     *                                 which classical factorization is used
      */
     public TseitinTransformation(final FormulaFactory f, final int boundaryForFactorization) {
         super(f);
@@ -52,7 +56,8 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
     }
 
     /**
-     * Constructor for a Tseitin transformation with the default factorization bound of 12.
+     * Constructor for a Tseitin transformation with the default factorization
+     * bound of 12.
      * @param f     the formula factory to generate new formulas
      * @param state the mutable state for a Tseitin transformation
      */
@@ -62,9 +67,12 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
 
     /**
      * Constructor for a Tseitin transformation.
-     * @param f                        the non-caching formula factory to generate new formulas
-     * @param boundaryForFactorization the boundary of number of atoms up to which classical factorization is used
-     * @param state                    the mutable state for a Tseitin transformation
+     * @param f                        the non-caching formula factory to
+     *                                 generate new formulas
+     * @param boundaryForFactorization the boundary of number of atoms up to
+     *                                 which classical factorization is used
+     * @param state                    the mutable state for a Tseitin
+     *                                 transformation
      */
     public TseitinTransformation(final FormulaFactory f, final int boundaryForFactorization, final TseitinState state) {
         super(f, state);
@@ -102,7 +110,8 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
     }
 
     /**
-     * Computes the Tseitin transformation for a given formula and stores it in the formula cache.
+     * Computes the Tseitin transformation for a given formula and stores it in
+     * the formula cache.
      * @param formula the formula
      */
     private void computeTseitin(final Formula formula) {
@@ -144,7 +153,8 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
         }
     }
 
-    private void handleNary(final Formula formula, final List<Formula> nops, final List<Formula> operands, final List<Formula> negOperands) {
+    private void handleNary(final Formula formula, final List<Formula> nops, final List<Formula> operands,
+                            final List<Formula> negOperands) {
         for (final Formula op : formula) {
             if (op.type() != FType.LITERAL) {
                 computeTseitin(op);

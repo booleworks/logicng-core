@@ -24,7 +24,8 @@ public interface PBEncoding {
      * @param coeffs the coefficients of the constraint
      * @param rhs    the right-hand side of the constraint
      */
-    default void encode(final EncodingResult result, final LNGVector<Literal> lits, final LNGIntVector coeffs, final int rhs) {
+    default void encode(final EncodingResult result, final LNGVector<Literal> lits, final LNGIntVector coeffs,
+                        final int rhs) {
         encode(result, lits, coeffs, rhs, (PBConfig) result.factory().configurationFor(ConfigurationType.PB_ENCODER));
     }
 
@@ -36,5 +37,6 @@ public interface PBEncoding {
      * @param rhs    the right-hand side of the constraint
      * @param config the configuration for the encoding
      */
-    void encode(final EncodingResult result, final LNGVector<Literal> lits, final LNGIntVector coeffs, int rhs, final PBConfig config);
+    void encode(final EncodingResult result, final LNGVector<Literal> lits, final LNGIntVector coeffs, int rhs,
+                final PBConfig config);
 }

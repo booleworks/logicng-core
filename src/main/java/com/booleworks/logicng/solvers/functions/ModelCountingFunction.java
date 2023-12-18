@@ -28,7 +28,8 @@ import java.util.TreeSet;
 /**
  * A solver function for counting models on the solver.
  * <p>
- * Model enumeration functions are instantiated via their builder {@link Builder}.
+ * Model enumeration functions are instantiated via their builder
+ * {@link Builder}.
  * @version 3.0.0
  * @since 3.0.0
  */
@@ -57,7 +58,9 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
     }
 
     @Override
-    protected EnumerationCollector<BigInteger> newCollector(final FormulaFactory f, final SortedSet<Variable> knownVariables, final SortedSet<Variable> dontCareVariablesNotOnSolver,
+    protected EnumerationCollector<BigInteger> newCollector(final FormulaFactory f,
+                                                            final SortedSet<Variable> knownVariables,
+                                                            final SortedSet<Variable> dontCareVariablesNotOnSolver,
                                                             final SortedSet<Variable> additionalVariablesNotOnSolver) {
         return new ModelCountCollector(dontCareVariablesNotOnSolver.size());
     }
@@ -70,7 +73,8 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
         private ModelEnumerationConfig configuration;
 
         /**
-         * Constructs a new model counting function with the given set of variables.
+         * Constructs a new model counting function with the given set of
+         * variables.
          * @param variables the variables for the enumeration
          */
         Builder(final Collection<Variable> variables) {
@@ -78,7 +82,8 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
         }
 
         /**
-         * Sets the configuration for the underlying model enumeration split algorithm.
+         * Sets the configuration for the underlying model enumeration split
+         * algorithm.
          * @param configuration the configuration
          * @return the current builder
          */
@@ -88,7 +93,8 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
         }
 
         /**
-         * Builds the model counting function with the current builder's configuration.
+         * Builds the model counting function with the current builder's
+         * configuration.
          * @return the model counting function
          */
         public ModelCountingFunction build() {
@@ -107,7 +113,8 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
         }
 
         @Override
-        public boolean addModel(final LNGBooleanVector modelFromSolver, final MiniSat solver, final LNGIntVector relevantAllIndices,
+        public boolean addModel(final LNGBooleanVector modelFromSolver, final MiniSat solver,
+                                final LNGIntVector relevantAllIndices,
                                 final ModelEnumerationHandler handler) {
             if (handler == null || handler.foundModels(dontCareFactor.intValue())) {
                 uncommittedModels.add(modelFromSolver);

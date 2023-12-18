@@ -18,14 +18,16 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * A class representing a Boolean assignment, i.e. a mapping from variables to truth values.
- * In contrast to an {@link Model} an assignment stores the variables internally in such a
- * way that it can be efficiently evaluated.
+ * A class representing a Boolean assignment, i.e. a mapping from variables to
+ * truth values. In contrast to an {@link Model} an assignment stores the
+ * variables internally in such a way that it can be efficiently evaluated.
  * <p>
- * The primary use case for assignments is their usage in the evaluation and restriction of
- * formulas. Assignments and models can be converted to each other.
+ * The primary use case for assignments is their usage in the evaluation and
+ * restriction of formulas. Assignments and models can be converted to each
+ * other.
  * <p>
- * Two assignments are equal, if their literal are equal - independent of their order.
+ * Two assignments are equal, if their literal are equal - independent of their
+ * order.
  * @version 3.0.0
  * @since 1.0
  */
@@ -53,7 +55,8 @@ public final class Assignment {
     }
 
     /**
-     * Constructs a new assignment for a given array of literals (without fast evaluation).
+     * Constructs a new assignment for a given array of literals (without fast
+     * evaluation).
      * @param lits a new assignment for a given array of literals
      */
     public Assignment(final Literal... lits) {
@@ -138,8 +141,9 @@ public final class Assignment {
     }
 
     /**
-     * Evaluates a given literal.  A literal not covered by the assignment evaluates
-     * to {@code false} if it is positive, otherwise it evaluates to {@code true}.
+     * Evaluates a given literal. A literal not covered by the assignment
+     * evaluates to {@code false} if it is positive, otherwise it evaluates to
+     * {@code true}.
      * @param lit the literal
      * @return the evaluation of the literal
      */
@@ -148,10 +152,12 @@ public final class Assignment {
     }
 
     /**
-     * Restricts a given literal to a constant.  Returns the literal itself, if the literal's variable is not known.
+     * Restricts a given literal to a constant. Returns the literal itself, if
+     * the literal's variable is not known.
      * @param f   the formula factory to create the restricted formula
      * @param lit the literal
-     * @return the restriction of the literal or the literal itself, if the literal's variable is not known
+     * @return the restriction of the literal or the literal itself, if the
+     *         literal's variable is not known
      */
     public Formula restrictLit(final FormulaFactory f, final Literal lit) {
         final Variable var = lit.variable();
@@ -198,8 +204,9 @@ public final class Assignment {
     }
 
     /**
-     * Creates the blocking clause for this assignment wrt. a given set of literals.  If the set is {@code null},
-     * all literals are considered relevant.
+     * Creates the blocking clause for this assignment wrt. a given set of
+     * literals. If the set is {@code null}, all literals are considered
+     * relevant.
      * @param f        the formula factory
      * @param literals the set of literals
      * @return the blocking clause for this assignment
@@ -236,8 +243,7 @@ public final class Assignment {
         }
         if (getClass() == other.getClass()) {
             final Assignment o = (Assignment) other;
-            return Objects.equals(pos, o.pos)
-                    && Objects.equals(neg, o.neg);
+            return Objects.equals(pos, o.pos) && Objects.equals(neg, o.neg);
         }
         return false;
     }

@@ -8,9 +8,10 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.Handler;
 
 /**
- * An abortable formula transformation is a stateless transformation which can be aborted via a handler.
- * So it does still not mutate any internal state, but *can* change the handler's state.  Therefore, an
- * abortable transformation with a given handler is *NOT* thread-safe.
+ * An abortable formula transformation is a stateless transformation which can
+ * be aborted via a handler. So it does still not mutate any internal state, but
+ * *can* change the handler's state. Therefore, an abortable transformation with
+ * a given handler is *NOT* thread-safe.
  * @version 3.0.0
  * @since 3.0.0
  */

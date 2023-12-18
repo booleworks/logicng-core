@@ -79,12 +79,16 @@ public class AIGTest extends TestWithFormulaContext {
 
         assertThat(_c.and1.transform(aigCaching)).isEqualTo(_c.and1);
         assertThat(_c.or1.transform(aigCaching)).isEqualTo(_c.p.parse("~(~x & ~y)"));
-        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(aigCaching)).isEqualTo(_c.p.parse("(~a & ~b) & c & ~(x & ~y) & ~(w & ~z)"));
-        Assertions.assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(aigCaching)).isEqualTo(_c.p.parse("~(a & b & ~c & ~(~x & y))"));
-        Assertions.assertThat(_c.p.parse("a | b | (~x & ~y)").transform(aigCaching)).isEqualTo(_c.p.parse("~(~a & ~b & ~(~x & ~y))"));
+        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(aigCaching))
+                .isEqualTo(_c.p.parse("(~a & ~b) & c & ~(x & ~y) & ~(w & ~z)"));
+        Assertions.assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(aigCaching))
+                .isEqualTo(_c.p.parse("~(a & b & ~c & ~(~x & y))"));
+        Assertions.assertThat(_c.p.parse("a | b | (~x & ~y)").transform(aigCaching))
+                .isEqualTo(_c.p.parse("~(~a & ~b & ~(~x & ~y))"));
         assertThat(_c.and1.transform(aigCaching).holds(aigPred)).isTrue();
         assertThat(_c.or1.transform(aigCaching).holds(aigPred)).isTrue();
-        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(aigCaching).holds(aigPred)).isTrue();
+        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(aigCaching).holds(aigPred))
+                .isTrue();
         Assertions.assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(aigCaching).holds(aigPred)).isTrue();
         Assertions.assertThat(_c.p.parse("a | b | (~x & ~y)").transform(aigCaching).holds(aigPred)).isTrue();
         assertThat(_c.and1.holds(aigPred)).isTrue();
@@ -108,12 +112,18 @@ public class AIGTest extends TestWithFormulaContext {
         Assertions.assertThat(_c.p.parse("~a").transform(aigCaching)).isEqualTo(_c.p.parse("~a"));
         Assertions.assertThat(_c.p.parse("~~a").transform(aigCaching)).isEqualTo(_c.p.parse("a"));
         Assertions.assertThat(_c.p.parse("~(a => b)").transform(aigCaching)).isEqualTo(_c.p.parse("a & ~b"));
-        Assertions.assertThat(_c.p.parse("~(~(a | b) => ~(x | y))").transform(aigCaching)).isEqualTo(_c.p.parse("(~a & ~b) & ~(~x & ~y)"));
-        Assertions.assertThat(_c.p.parse("~(a <=> b)").transform(aigCaching)).isEqualTo(_c.p.parse("~(~(a & ~b) & ~(~a & b))"));
-        Assertions.assertThat(_c.p.parse("~(~(a | b) <=> ~(x | y))").transform(aigCaching)).isEqualTo(_c.p.parse("~(~(~a & ~b & ~(~x & ~y)) & ~((a | b) & ~(x | y)))"));
-        Assertions.assertThat(_c.p.parse("~(a & b & ~x & ~y)").transform(aigCaching)).isEqualTo(_c.p.parse("~(a & b & ~x & ~y)"));
-        Assertions.assertThat(_c.p.parse("~(a | b | ~x | ~y)").transform(aigCaching)).isEqualTo(_c.p.parse("~a & ~b & x & y"));
-        Assertions.assertThat(_c.p.parse("~(a | b | ~x | ~y)").transform(aigCaching)).isEqualTo(_c.p.parse("~a & ~b & x & y")); // test caching
+        Assertions.assertThat(_c.p.parse("~(~(a | b) => ~(x | y))").transform(aigCaching))
+                .isEqualTo(_c.p.parse("(~a & ~b) & ~(~x & ~y)"));
+        Assertions.assertThat(_c.p.parse("~(a <=> b)").transform(aigCaching))
+                .isEqualTo(_c.p.parse("~(~(a & ~b) & ~(~a & b))"));
+        Assertions.assertThat(_c.p.parse("~(~(a | b) <=> ~(x | y))").transform(aigCaching))
+                .isEqualTo(_c.p.parse("~(~(~a & ~b & ~(~x & ~y)) & ~((a | b) & ~(x | y)))"));
+        Assertions.assertThat(_c.p.parse("~(a & b & ~x & ~y)").transform(aigCaching))
+                .isEqualTo(_c.p.parse("~(a & b & ~x & ~y)"));
+        Assertions.assertThat(_c.p.parse("~(a | b | ~x | ~y)").transform(aigCaching))
+                .isEqualTo(_c.p.parse("~a & ~b & x & y"));
+        Assertions.assertThat(_c.p.parse("~(a | b | ~x | ~y)").transform(aigCaching))
+                .isEqualTo(_c.p.parse("~a & ~b & x & y")); // test caching
         final Formula not = _c.p.parse("~(m | n)");
         not.transform(aigNonCaching);
     }

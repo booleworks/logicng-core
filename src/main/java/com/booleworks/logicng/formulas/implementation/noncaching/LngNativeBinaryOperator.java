@@ -21,7 +21,8 @@ public abstract class LngNativeBinaryOperator extends LngNativeFormula implement
      * @param right the right-hand side operand
      * @param f     the factory which created this instance
      */
-    LngNativeBinaryOperator(final FType type, final Formula left, final Formula right, final NonCachingFormulaFactory f) {
+    LngNativeBinaryOperator(final FType type, final Formula left, final Formula right,
+                            final NonCachingFormulaFactory f) {
         super(type, f);
         this.left = left;
         this.right = right;

@@ -16,10 +16,11 @@ public class LngNativeLiteral extends LngNativeFormula implements Literal {
     private volatile int hashCode;
 
     /**
-     * Constructor.  A literal always has a name and a phase.  A positive literal can also
-     * be constructed directly as a {@link Variable}.
+     * Constructor. A literal always has a name and a phase. A positive literal
+     * can also be constructed directly as a {@link Variable}.
      * @param name  the literal name
-     * @param phase the phase of the literal (also found as sign or polarity in the literature)
+     * @param phase the phase of the literal (also found as sign or polarity in
+     *              the literature)
      * @param f     the factory which created this literal
      */
     LngNativeLiteral(final String name, final boolean phase, final NonCachingFormulaFactory f) {

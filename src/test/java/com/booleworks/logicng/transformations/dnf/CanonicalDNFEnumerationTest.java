@@ -36,9 +36,11 @@ public class CanonicalDNFEnumerationTest extends TestWithFormulaContext {
         assertThat(_c.f.parse("a => b").transform(de)).isEqualTo(_c.f.parse("~a & ~b | ~a & b | a & b"));
         assertThat(_c.f.parse("a <=> b").transform(de)).isEqualTo(_c.f.parse("a & b | ~a & ~b"));
         assertThat(_c.f.parse("a + b = 1").transform(de)).isEqualTo(_c.f.parse("~a & b | a & ~b"));
-        assertThat(_c.f.parse("a & (b | ~c)").transform(de)).isEqualTo(_c.f.parse("a & b & c | a & b & ~c | a & ~b & ~c"));
+        assertThat(_c.f.parse("a & (b | ~c)").transform(de))
+                .isEqualTo(_c.f.parse("a & b & c | a & b & ~c | a & ~b & ~c"));
         assertThat(_c.f.parse("a & b & (~a | ~b)").transform(de)).isEqualTo(_c.f.parse("$false"));
-        assertThat(_c.f.parse("a | b | ~a & ~b").transform(de)).isEqualTo(_c.f.parse("~a & b | a & b | a & ~b | ~a & ~b"));
+        assertThat(_c.f.parse("a | b | ~a & ~b").transform(de))
+                .isEqualTo(_c.f.parse("~a & b | a & b | a & ~b | ~a & ~b"));
     }
 
     @ParameterizedTest
@@ -54,7 +56,8 @@ public class CanonicalDNFEnumerationTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     @RandomTag
     public void random(final FormulaContext _c) {
-        final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, FormulaRandomizerConfig.builder().numVars(5).weightPbc(0.5).seed(42).build());
+        final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f,
+                FormulaRandomizerConfig.builder().numVars(5).weightPbc(0.5).seed(42).build());
         for (int i = 0; i < 1000; i++) {
             final Formula formula = randomizer.formula(3);
             test(formula);

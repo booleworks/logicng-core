@@ -9,7 +9,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaPredicate;
 
 /**
- * Contradiction predicate.  Indicates whether a formula is contradictory or not.
+ * Contradiction predicate. Indicates whether a formula is contradictory or not.
  * @version 3.0.0
  * @since 1.0
  */
@@ -18,7 +18,8 @@ public final class ContradictionPredicate implements FormulaPredicate {
     private final FormulaFactory f;
 
     /**
-     * Constructs a new contradiction predicate with a given formula factory which caches the result.
+     * Constructs a new contradiction predicate with a given formula factory
+     * which caches the result.
      * @param f the formula factory
      */
     public ContradictionPredicate(final FormulaFactory f) {

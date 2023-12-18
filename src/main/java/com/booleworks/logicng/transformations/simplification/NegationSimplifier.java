@@ -19,7 +19,8 @@ import java.util.List;
 /**
  * Negation simplifier.
  * <p>
- * Reduces the number of negations for a formula in a greedy manner. The criterion for the simplification is the length of the resulting formula.
+ * Reduces the number of negations for a formula in a greedy manner. The
+ * criterion for the simplification is the length of the resulting formula.
  * @version 3.0.0
  * @since 2.0.0
  */
@@ -57,8 +58,10 @@ public final class NegationSimplifier extends StatelessFormulaTransformation {
                     positiveOpResults.add(result.positiveResult);
                     negativeOpResults.add(result.negativeResult);
                 }
-                final Formula smallestPositive = findSmallestPositive(formula.type(), positiveOpResults, negativeOpResults, topLevel, f);
-                final Formula smallestNegative = findSmallestNegative(formula.type(), negativeOpResults, smallestPositive, topLevel, f);
+                final Formula smallestPositive =
+                        findSmallestPositive(formula.type(), positiveOpResults, negativeOpResults, topLevel, f);
+                final Formula smallestNegative =
+                        findSmallestNegative(formula.type(), negativeOpResults, smallestPositive, topLevel, f);
                 return new MinimizationResult(smallestPositive, smallestNegative);
             case FALSE:
             case TRUE:
@@ -73,7 +76,8 @@ public final class NegationSimplifier extends StatelessFormulaTransformation {
         }
     }
 
-    private Formula findSmallestPositive(final FType type, final List<Formula> positiveOpResults, final List<Formula> negativeOpResults, final boolean topLevel,
+    private Formula findSmallestPositive(final FType type, final List<Formula> positiveOpResults,
+                                         final List<Formula> negativeOpResults, final boolean topLevel,
                                          final FormulaFactory f) {
         final Formula allPositive = f.naryOperator(type, positiveOpResults);
         final List<Formula> smallerPositiveOps = new ArrayList<>();
@@ -92,7 +96,8 @@ public final class NegationSimplifier extends StatelessFormulaTransformation {
         return getSmallestFormula(topLevel, allPositive, partialNegative);
     }
 
-    private Formula findSmallestNegative(final FType type, final List<Formula> negativeOpResults, final Formula smallestPositive, final boolean topLevel,
+    private Formula findSmallestNegative(final FType type, final List<Formula> negativeOpResults,
+                                         final Formula smallestPositive, final boolean topLevel,
                                          final FormulaFactory f) {
         final Formula negation = f.not(smallestPositive);
         final Formula flipped = f.naryOperator(FType.dual(type), negativeOpResults);
@@ -101,7 +106,8 @@ public final class NegationSimplifier extends StatelessFormulaTransformation {
 
     private Formula getSmallestFormula(final boolean topLevel, final Formula... formulas) {
         assert formulas.length != 0;
-        return Arrays.stream(formulas).min(Comparator.comparingInt(formula -> formattedLength(formula, topLevel))).get();
+        return Arrays.stream(formulas).min(Comparator.comparingInt(formula -> formattedLength(formula, topLevel)))
+                .get();
     }
 
     private int formattedLength(final Formula formula, final boolean topLevel) {

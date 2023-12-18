@@ -44,7 +44,8 @@ public class BDDReorderingTest extends TestWithFormulaContext {
 
     private final SwapStats stats = new SwapStats();
     private static final List<BDDReorderingMethod> REORDER_METHODS =
-            List.of(BDDReorderingMethod.BDD_REORDER_WIN2, BDDReorderingMethod.BDD_REORDER_WIN2ITE, BDDReorderingMethod.BDD_REORDER_WIN3, BDDReorderingMethod.BDD_REORDER_WIN3ITE,
+            List.of(BDDReorderingMethod.BDD_REORDER_WIN2, BDDReorderingMethod.BDD_REORDER_WIN2ITE,
+                    BDDReorderingMethod.BDD_REORDER_WIN3, BDDReorderingMethod.BDD_REORDER_WIN3ITE,
                     BDDReorderingMethod.BDD_REORDER_SIFT,
                     BDDReorderingMethod.BDD_REORDER_SIFTITE, BDDReorderingMethod.BDD_REORDER_RANDOM);
 
@@ -166,7 +167,8 @@ public class BDDReorderingTest extends TestWithFormulaContext {
                 .findAny().get();
     }
 
-    private void performReorder(final FormulaFactory f, final Formula formula, final BDDReorderingMethod reorderMethod, final boolean withBlocks, final boolean verbose) {
+    private void performReorder(final FormulaFactory f, final Formula formula, final BDDReorderingMethod reorderMethod,
+                                final boolean withBlocks, final boolean verbose) {
         final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables(f)), 1000, 10000);
         final BDD bdd = BDDFactory.build(f, formula, kernel);
         final BigInteger count = bdd.modelCount();
@@ -183,7 +185,8 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         }
         final double reduction = (usedBefore - usedAfter) / (double) usedBefore * 100;
         if (verbose) {
-            System.out.println(String.format("%-20s: Reduced %7s blocks in %5dms by %.2f%% from %d to %d", reorderMethod, withBlocks ? "with" : "without", duration, reduction, usedBefore, usedAfter));
+            System.out.println(String.format("%-20s: Reduced %7s blocks in %5dms by %.2f%% from %d to %d",
+                    reorderMethod, withBlocks ? "with" : "without", duration, reduction, usedBefore, usedAfter));
         }
     }
 
@@ -212,7 +215,8 @@ public class BDDReorderingTest extends TestWithFormulaContext {
                 final FormulaFactory f = FormulaFactory.caching();
                 final Formula formula = randomFormula(f, vars, depth);
                 if (verbose) {
-                    System.out.println(String.format("vars = %2d, depth = %2d, nodes = %5d", vars, depth, formula.numberOfNodes(f)));
+                    System.out.println(String.format("vars = %2d, depth = %2d, nodes = %5d", vars, depth,
+                            formula.numberOfNodes(f)));
                 }
                 final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables(f)), 1000, 10000);
                 final BDD bdd = BDDFactory.build(f, formula, kernel);
@@ -228,7 +232,8 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         }
     }
 
-    private void reorderOnBuild(final FormulaFactory f, final Formula formula, final BDDReorderingMethod method, final BigInteger originalCount, final int originalUsedNodes, final boolean withBlocks,
+    private void reorderOnBuild(final FormulaFactory f, final Formula formula, final BDDReorderingMethod method,
+                                final BigInteger originalCount, final int originalUsedNodes, final boolean withBlocks,
                                 final boolean verbose) {
         final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables(f)), 1000, 10000);
         addVariableBlocks(formula.variables(f).size(), withBlocks, kernel);
@@ -241,11 +246,13 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         verifyBddConsistency(f, formula, bdd, originalCount);
         final double reduction = (originalUsedNodes - usedAfter) / (double) originalUsedNodes * 100;
         if (verbose) {
-            System.out.println(String.format("%-20s: Built in %5d ms, reduction by %6.2f%% from %6d to %6d", method, duration, reduction, originalUsedNodes, usedAfter));
+            System.out.println(String.format("%-20s: Built in %5d ms, reduction by %6.2f%% from %6d to %6d", method,
+                    duration, reduction, originalUsedNodes, usedAfter));
         }
     }
 
-    private boolean verifyBddConsistency(final FormulaFactory f, final Formula f1, final BDD bdd, final BigInteger modelCount) {
+    private boolean verifyBddConsistency(final FormulaFactory f, final Formula f1, final BDD bdd,
+                                         final BigInteger modelCount) {
         final BDDVerification verification = new BDDVerification(bdd.underlyingKernel());
         if (!verification.verify(bdd.index())) {
             return false;
@@ -266,17 +273,33 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         return true;
     }
 
-    private void verifyVariableBlocks(final FormulaFactory f, final Formula formula, final boolean withBlocks, final BDD bdd) {
+    private void verifyVariableBlocks(final FormulaFactory f, final Formula formula, final boolean withBlocks,
+                                      final BDD bdd) {
         if (withBlocks) {
-            assertThat(findSequence(bdd, IntStream.range(0, 21).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
-            assertThat(findSequence(bdd, IntStream.range(0, 11).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
-            assertThat(findSequence(bdd, IntStream.range(11, 21).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
-            assertThat(findSequence(bdd, IntStream.range(15, 20).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
-            assertThat(findSequence(bdd, IntStream.range(15, 18).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
-            assertThat(findSequence(bdd, IntStream.range(18, 20).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
-            assertThat(findSequence(bdd, IntStream.range(21, formula.variables(f).size()).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
+            assertThat(findSequence(bdd,
+                    IntStream.range(0, 21).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet())))
+                            .isTrue();
+            assertThat(findSequence(bdd,
+                    IntStream.range(0, 11).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet())))
+                            .isTrue();
+            assertThat(findSequence(bdd,
+                    IntStream.range(11, 21).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet())))
+                            .isTrue();
+            assertThat(findSequence(bdd,
+                    IntStream.range(15, 20).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet())))
+                            .isTrue();
+            assertThat(findSequence(bdd,
+                    IntStream.range(15, 18).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet())))
+                            .isTrue();
+            assertThat(findSequence(bdd,
+                    IntStream.range(18, 20).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet())))
+                            .isTrue();
+            assertThat(findSequence(bdd, IntStream.range(21, formula.variables(f).size())
+                    .mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
             if (formula.variables(f).size() > 33) {
-                assertThat(findSequence(bdd, IntStream.range(30, 34).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
+                assertThat(findSequence(bdd,
+                        IntStream.range(30, 34).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet())))
+                                .isTrue();
             }
             final List<Variable> order = bdd.getVariableOrder();
             assertThat(order.indexOf(f.variable("v00"))).isLessThan(order.indexOf(f.variable("v11")));
@@ -308,7 +331,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         private final int numSwaps = 0;
         private long maxFormulaSize = 0;
         private long maxBddNodes = 0; // physical nodes
-        private long maxBddSize = 0;  // num nodes without caching
+        private long maxBddSize = 0; // num nodes without caching
 
         public void newFormula(final Formula formula) {
             maxFormulaSize = Math.max(maxFormulaSize, formula.numberOfNodes(formula.factory()));

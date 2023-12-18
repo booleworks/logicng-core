@@ -20,16 +20,17 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
- * A formula transformation which imports a given formula into a new formula factory.  If the current factory of the
- * formula and the new formula factory are equal, no action is performed.
+ * A formula transformation which imports a given formula into a new formula
+ * factory. If the current factory of the formula and the new formula factory
+ * are equal, no action is performed.
  * @version 3.0.0
  * @since 1.3.1
  */
 public final class FormulaFactoryImporter extends StatelessFormulaTransformation {
 
     /**
-     * Constructs a new formula factory importer with a given formula factory.  This is the formula factory where the
-     * formulas should be imported to.
+     * Constructs a new formula factory importer with a given formula factory.
+     * This is the formula factory where the formulas should be imported to.
      * @param f the formula factory where the formulas should be imported to
      */
     public FormulaFactoryImporter(final FormulaFactory f) {
@@ -79,7 +80,8 @@ public final class FormulaFactoryImporter extends StatelessFormulaTransformation
     }
 
     /**
-     * Gather the operands of an n-ary operator and returns its applied operands.
+     * Gather the operands of an n-ary operator and returns its applied
+     * operands.
      * @param operator the n-ary operator
      * @return the applied operands of the given operator
      */

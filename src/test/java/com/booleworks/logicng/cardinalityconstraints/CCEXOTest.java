@@ -32,9 +32,12 @@ public class CCEXOTest implements LogicNGTest {
         configs[4] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.NESTED).build();
         configs[5] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.COMMANDER).commanderGroupSize(3).build();
         configs[6] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.COMMANDER).commanderGroupSize(7).build();
-        configs[7] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BIMANDER).bimanderGroupSize(CCConfig.BIMANDER_GROUP_SIZE.FIXED).build();
-        configs[8] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BIMANDER).bimanderGroupSize(CCConfig.BIMANDER_GROUP_SIZE.HALF).build();
-        configs[9] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BIMANDER).bimanderGroupSize(CCConfig.BIMANDER_GROUP_SIZE.SQRT).build();
+        configs[7] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BIMANDER)
+                .bimanderGroupSize(CCConfig.BIMANDER_GROUP_SIZE.FIXED).build();
+        configs[8] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BIMANDER)
+                .bimanderGroupSize(CCConfig.BIMANDER_GROUP_SIZE.HALF).build();
+        configs[9] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BIMANDER)
+                .bimanderGroupSize(CCConfig.BIMANDER_GROUP_SIZE.SQRT).build();
         configs[10] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BEST).build();
     }
 
@@ -76,7 +79,8 @@ public class CCEXOTest implements LogicNGTest {
     public void testEncodingSetting() {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PURE).build());
-        final CardinalityConstraint exo = (CardinalityConstraint) f.exo(IntStream.range(0, 100).mapToObj(i -> f.variable("v" + i)).collect(Collectors.toList()));
+        final CardinalityConstraint exo = (CardinalityConstraint) f
+                .exo(IntStream.range(0, 100).mapToObj(i -> f.variable("v" + i)).collect(Collectors.toList()));
         assertThat(exo.cnf(f).variables(f)).hasSize(100);
         assertThat(exo.cnf(f).numberOfOperands()).isEqualTo(4951);
     }

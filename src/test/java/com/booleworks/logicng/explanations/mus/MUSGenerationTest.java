@@ -60,7 +60,8 @@ public class MUSGenerationTest {
     @Test
     public void testNoFormulas() {
         final MUSGeneration mus = new MUSGeneration();
-        assertThatThrownBy(() -> mus.computeMUS(f, Collections.emptyList(), MUSConfig.builder().build())).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> mus.computeMUS(f, Collections.emptyList(), MUSConfig.builder().build()))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -68,7 +69,8 @@ public class MUSGenerationTest {
         final MUSGeneration mus = new MUSGeneration();
         final StandardProposition proposition = new StandardProposition(f.variable("a"));
         assertThatThrownBy(() -> mus.computeMUS(f, Collections.singletonList(proposition),
-                MUSConfig.builder().algorithm(MUSConfig.Algorithm.DELETION).build())).isInstanceOf(IllegalArgumentException.class);
+                MUSConfig.builder().algorithm(MUSConfig.Algorithm.DELETION).build()))
+                        .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -99,7 +101,8 @@ public class MUSGenerationTest {
         final MUSGeneration mus = new MUSGeneration();
         final StandardProposition proposition = new StandardProposition(f.variable("a"));
         assertThatThrownBy(() -> mus.computeMUS(f, Collections.singletonList(proposition),
-                MUSConfig.builder().algorithm(MUSConfig.Algorithm.PLAIN_INSERTION).build())).isInstanceOf(IllegalArgumentException.class);
+                MUSConfig.builder().algorithm(MUSConfig.Algorithm.PLAIN_INSERTION).build()))
+                        .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -121,12 +124,14 @@ public class MUSGenerationTest {
     @Test
     public void testDeletionBasedCancellationPoints() throws IOException {
         final MUSGeneration mus = new MUSGeneration();
-        final List<StandardProposition> propositions = DimacsReader.readCNF(f, "src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf").stream()
-                .map(StandardProposition::new)
-                .collect(Collectors.toList());
+        final List<StandardProposition> propositions =
+                DimacsReader.readCNF(f, "src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf").stream()
+                        .map(StandardProposition::new)
+                        .collect(Collectors.toList());
         for (int numStarts = 0; numStarts < 20; numStarts++) {
             final SATHandler handler = new BoundedSatHandler(numStarts);
-            final MUSConfig config = MUSConfig.builder().handler(handler).algorithm(MUSConfig.Algorithm.PLAIN_INSERTION).build();
+            final MUSConfig config =
+                    MUSConfig.builder().handler(handler).algorithm(MUSConfig.Algorithm.PLAIN_INSERTION).build();
 
             final UNSATCore<StandardProposition> result = mus.computeMUS(f, propositions, config);
 
@@ -138,10 +143,12 @@ public class MUSGenerationTest {
     @Test
     public void testCancellationPoints() throws IOException {
         final MUSGeneration mus = new MUSGeneration();
-        final List<StandardProposition> propositions = DimacsReader.readCNF(f, "src/test/resources/sat/unsat/bf0432-007.cnf").stream()
-                .map(StandardProposition::new)
-                .collect(Collectors.toList());
-        final List<MUSConfig.Algorithm> algorithms = Arrays.asList(MUSConfig.Algorithm.DELETION, MUSConfig.Algorithm.PLAIN_INSERTION);
+        final List<StandardProposition> propositions =
+                DimacsReader.readCNF(f, "src/test/resources/sat/unsat/bf0432-007.cnf").stream()
+                        .map(StandardProposition::new)
+                        .collect(Collectors.toList());
+        final List<MUSConfig.Algorithm> algorithms =
+                Arrays.asList(MUSConfig.Algorithm.DELETION, MUSConfig.Algorithm.PLAIN_INSERTION);
         for (final MUSConfig.Algorithm algorithm : algorithms) {
             for (int numStarts = 0; numStarts < 10; numStarts++) {
                 final SATHandler handler = new BoundedSatHandler(numStarts);

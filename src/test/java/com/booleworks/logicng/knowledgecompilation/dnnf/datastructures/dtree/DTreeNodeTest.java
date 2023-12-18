@@ -15,7 +15,8 @@ public class DTreeNodeTest {
     @Test
     public void testToString() throws ParserException {
         final FormulaFactory f = FormulaFactory.nonCaching();
-        final DTreeNode node = new DTreeNode(f, new DTreeLeaf(f, 1, f.parse("a | b")), new DTreeLeaf(f, 2, f.parse("c | d")));
+        final DTreeNode node =
+                new DTreeNode(f, new DTreeLeaf(f, 1, f.parse("a | b")), new DTreeLeaf(f, 2, f.parse("c | d")));
         assertThat(node.toString()).isEqualTo("DTreeNode: [DTreeLeaf: 1, a | b, DTreeLeaf: 2, c | d]");
     }
 }

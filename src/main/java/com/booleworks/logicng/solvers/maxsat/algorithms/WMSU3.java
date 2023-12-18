@@ -3,24 +3,21 @@
 // Copyright 2023-20xx BooleWorks GmbH
 
 /*
- * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines Lynce
- * <p>
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- * <p>
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * <p>
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines
+ * Lynce <p> Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including without
+ * limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom
+ * the Software is furnished to do so, subject to the following conditions: <p>
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software. <p> THE SOFTWARE IS
+ * PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+ * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package com.booleworks.logicng.solvers.maxsat.algorithms;
@@ -113,7 +110,8 @@ public class WMSU3 extends MaxSAT {
     @Override
     public MaxSATResult search() {
         if (problemType == ProblemType.UNWEIGHTED) {
-            throw new IllegalStateException("Error: Currently algorithm WMSU3 does not support unweighted MaxSAT instances.");
+            throw new IllegalStateException(
+                    "Error: Currently algorithm WMSU3 does not support unweighted MaxSAT instances.");
         }
         if (bmoStrategy) {
             isBmo = isBMO(true);
@@ -127,7 +125,8 @@ public class WMSU3 extends MaxSAT {
             case ITERATIVE:
                 if (isBmo) {
                     if (encoder.cardEncoding() != MaxSATConfig.CardinalityEncoding.TOTALIZER) {
-                        throw new IllegalStateException("Error: Currently iterative encoding in WMSU3 only supports the Totalizer encoding.");
+                        throw new IllegalStateException(
+                                "Error: Currently iterative encoding in WMSU3 only supports the Totalizer encoding.");
                     }
                     return iterativeBmo();
                 } else {
@@ -444,7 +443,8 @@ public class WMSU3 extends MaxSAT {
                         }
                         assert softClauses.get(coreMapping.get(solver.conflict().get(i))).weight() == currentWeight;
                         activeSoft.set(coreMapping.get(solver.conflict().get(i)), true);
-                        joinObjFunction.push(softClauses.get(coreMapping.get(solver.conflict().get(i))).relaxationVars().get(0));
+                        joinObjFunction.push(
+                                softClauses.get(coreMapping.get(solver.conflict().get(i))).relaxationVars().get(0));
                         joinCoeffs.push(softClauses.get(coreMapping.get(solver.conflict().get(i))).weight());
                     }
                 }
@@ -470,11 +470,13 @@ public class WMSU3 extends MaxSAT {
                     if (weights.get(posWeight) != objFunction.size()) {
                         bmoEncodings.get(posWeight).buildCardinality(solver, objFunction, weights.get(posWeight));
                         joinObjFunction.clear();
-                        bmoEncodings.get(posWeight).incUpdateCardinality(solver, joinObjFunction, objFunction, weights.get(posWeight), encodingAssumptions);
+                        bmoEncodings.get(posWeight).incUpdateCardinality(solver, joinObjFunction, objFunction,
+                                weights.get(posWeight), encodingAssumptions);
                         firstEncoding.set(posWeight, false);
                     }
                 } else {
-                    bmoEncodings.get(posWeight).incUpdateCardinality(solver, joinObjFunction, objFunction, weights.get(posWeight), encodingAssumptions);
+                    bmoEncodings.get(posWeight).incUpdateCardinality(solver, joinObjFunction, objFunction,
+                            weights.get(posWeight), encodingAssumptions);
                 }
                 for (int i = 0; i < encodingAssumptions.size(); i++) {
                     assumptions.push(encodingAssumptions.get(i));

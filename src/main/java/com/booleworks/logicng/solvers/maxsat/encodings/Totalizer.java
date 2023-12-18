@@ -3,24 +3,21 @@
 // Copyright 2023-20xx BooleWorks GmbH
 
 /*
- * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines Lynce
- * <p>
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- * <p>
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * <p>
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines
+ * Lynce <p> Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including without
+ * limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom
+ * the Software is furnished to do so, subject to the following conditions: <p>
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software. <p> THE SOFTWARE IS
+ * PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+ * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package com.booleworks.logicng.solvers.maxsat.encodings;
@@ -32,8 +29,8 @@ import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
 import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
 
 /**
- * Encodes that at most 'rhs' literals can be assigned value true.  Uses the totalizer encoding for
- * translating the cardinality constraint into CNF.
+ * Encodes that at most 'rhs' literals can be assigned value true. Uses the
+ * totalizer encoding for translating the cardinality constraint into CNF.
  * @version 2.4.0
  * @since 1.0
  */
@@ -104,7 +101,7 @@ public class Totalizer extends Encoding {
     }
 
     /**
-     * Joins two constraints.  The given constraint is added to the current one.
+     * Joins two constraints. The given constraint is added to the current one.
      * @param s    the solver
      * @param lits the literals of the constraint
      * @param rhs  the right-hand side of the constraint
@@ -237,7 +234,8 @@ public class Totalizer extends Encoding {
         }
     }
 
-    protected void adder(final MiniSatStyleSolver s, final LNGIntVector left, final LNGIntVector right, final LNGIntVector output) {
+    protected void adder(final MiniSatStyleSolver s, final LNGIntVector left, final LNGIntVector right,
+                         final LNGIntVector output) {
         assert output.size() == left.size() + right.size();
         if (incrementalStrategy == MaxSATConfig.IncrementalStrategy.ITERATIVE) {
             totalizerIterativeLeft.push(new LNGIntVector(left));
@@ -258,7 +256,8 @@ public class Totalizer extends Encoding {
                 } else if (j == 0) {
                     addBinaryClause(s, MiniSatStyleSolver.not(left.get(i - 1)), output.get(i - 1), blocking);
                 } else {
-                    addTernaryClause(s, MiniSatStyleSolver.not(left.get(i - 1)), MiniSatStyleSolver.not(right.get(j - 1)), output.get(i + j - 1), blocking);
+                    addTernaryClause(s, MiniSatStyleSolver.not(left.get(i - 1)),
+                            MiniSatStyleSolver.not(right.get(j - 1)), output.get(i + j - 1), blocking);
                 }
             }
         }
@@ -275,11 +274,15 @@ public class Totalizer extends Encoding {
                         continue;
                     }
                     if (i == 0) {
-                        addBinaryClause(s, MiniSatStyleSolver.not(totalizerIterativeRight.get(z).get(j - 1)), totalizerIterativeOutput.get(z).get(j - 1));
+                        addBinaryClause(s, MiniSatStyleSolver.not(totalizerIterativeRight.get(z).get(j - 1)),
+                                totalizerIterativeOutput.get(z).get(j - 1));
                     } else if (j == 0) {
-                        addBinaryClause(s, MiniSatStyleSolver.not(totalizerIterativeLeft.get(z).get(i - 1)), totalizerIterativeOutput.get(z).get(i - 1));
+                        addBinaryClause(s, MiniSatStyleSolver.not(totalizerIterativeLeft.get(z).get(i - 1)),
+                                totalizerIterativeOutput.get(z).get(i - 1));
                     } else {
-                        addTernaryClause(s, MiniSatStyleSolver.not(totalizerIterativeLeft.get(z).get(i - 1)), MiniSatStyleSolver.not(totalizerIterativeRight.get(z).get(j - 1)), totalizerIterativeOutput.get(z).get(i + j - 1));
+                        addTernaryClause(s, MiniSatStyleSolver.not(totalizerIterativeLeft.get(z).get(i - 1)),
+                                MiniSatStyleSolver.not(totalizerIterativeRight.get(z).get(j - 1)),
+                                totalizerIterativeOutput.get(z).get(i + j - 1));
                     }
                 }
             }

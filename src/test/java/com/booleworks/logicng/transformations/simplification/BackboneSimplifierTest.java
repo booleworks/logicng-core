@@ -20,7 +20,8 @@ public class BackboneSimplifierTest extends TestWithFormulaContext {
 
         Assertions.assertThat(_c.p.parse("$true").transform(backboneSimplifier)).isEqualTo(_c.p.parse("$true"));
         Assertions.assertThat(_c.p.parse("$false").transform(backboneSimplifier)).isEqualTo(_c.p.parse("$false"));
-        Assertions.assertThat(_c.p.parse("A & (A => B) & ~B").transform(backboneSimplifier)).isEqualTo(_c.p.parse("$false"));
+        Assertions.assertThat(_c.p.parse("A & (A => B) & ~B").transform(backboneSimplifier))
+                .isEqualTo(_c.p.parse("$false"));
         Assertions.assertThat(_c.p.parse("A").transform(backboneSimplifier)).isEqualTo(_c.p.parse("A"));
         Assertions.assertThat(_c.p.parse("A & B").transform(backboneSimplifier)).isEqualTo(_c.p.parse("A & B"));
         Assertions.assertThat(_c.p.parse("A | B | C").transform(backboneSimplifier)).isEqualTo(_c.p.parse("A | B | C"));
@@ -31,10 +32,15 @@ public class BackboneSimplifierTest extends TestWithFormulaContext {
     public void testRealBackbones(final FormulaContext _c) throws ParserException {
         final BackboneSimplifier backboneSimplifier = new BackboneSimplifier(_c.f);
 
-        Assertions.assertThat(_c.p.parse("A & B & (B | C)").transform(backboneSimplifier)).isEqualTo(_c.p.parse("A & B"));
-        Assertions.assertThat(_c.p.parse("A & B & (~B | C)").transform(backboneSimplifier)).isEqualTo(_c.p.parse("A & B & C"));
-        Assertions.assertThat(_c.p.parse("A & B & (~B | C) & (B | D) & (A => F)").transform(backboneSimplifier)).isEqualTo(_c.p.parse("A & B & C & F"));
-        Assertions.assertThat(_c.p.parse("X & Y & (~B | C) & (B | D) & (A => F)").transform(backboneSimplifier)).isEqualTo(_c.p.parse("X & Y & (~B | C) & (B | D) & (A => F)"));
-        Assertions.assertThat(_c.p.parse("~A & ~B & (~B | C) & (B | D) & (A => F)").transform(backboneSimplifier)).isEqualTo(_c.p.parse("~A & ~B & D"));
+        Assertions.assertThat(_c.p.parse("A & B & (B | C)").transform(backboneSimplifier))
+                .isEqualTo(_c.p.parse("A & B"));
+        Assertions.assertThat(_c.p.parse("A & B & (~B | C)").transform(backboneSimplifier))
+                .isEqualTo(_c.p.parse("A & B & C"));
+        Assertions.assertThat(_c.p.parse("A & B & (~B | C) & (B | D) & (A => F)").transform(backboneSimplifier))
+                .isEqualTo(_c.p.parse("A & B & C & F"));
+        Assertions.assertThat(_c.p.parse("X & Y & (~B | C) & (B | D) & (A => F)").transform(backboneSimplifier))
+                .isEqualTo(_c.p.parse("X & Y & (~B | C) & (B | D) & (A => F)"));
+        Assertions.assertThat(_c.p.parse("~A & ~B & (~B | C) & (B | D) & (A => F)").transform(backboneSimplifier))
+                .isEqualTo(_c.p.parse("~A & ~B & D"));
     }
 }

@@ -137,8 +137,10 @@ public class FormulaContext {
     }
 
     public List<Formula> allFormulas() {
-        return Arrays.asList(verum, falsum, a, b, c, d, x, y, na, nb, nx, ny, or1, or2, or3, and1, and2, and3, not1, not2, imp1, imp2, imp3, imp4,
-                eq1, eq2, eq3, eq4, pbc1, pbc2, pbc3, pbc4, pbc5, pb1, pb2, cc1, cc2, amo1, amo2, exo1, exo2, tautology, contradiction);
+        return Arrays.asList(verum, falsum, a, b, c, d, x, y, na, nb, nx, ny, or1, or2, or3, and1, and2, and3, not1,
+                not2, imp1, imp2, imp3, imp4,
+                eq1, eq2, eq3, eq4, pbc1, pbc2, pbc3, pbc4, pbc5, pb1, pb2, cc1, cc2, amo1, amo2, exo1, exo2, tautology,
+                contradiction);
     }
 
     @Override

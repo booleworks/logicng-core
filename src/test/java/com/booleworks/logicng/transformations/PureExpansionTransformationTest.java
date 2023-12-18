@@ -57,10 +57,13 @@ public class PureExpansionTransformationTest extends TestWithFormulaContext {
 
         assertThat(_c.f.parse("~a").transform(transformation)).isEqualTo(_c.f.parse("~a"));
         assertThat(_c.f.parse("~(a => b)").transform(transformation)).isEqualTo(_c.f.parse("~(a => b)"));
-        assertThat(_c.f.parse("~(~(a | b) => ~(x | y))").transform(transformation)).isEqualTo(_c.f.parse("~(~(a | b) => ~(x | y))"));
+        assertThat(_c.f.parse("~(~(a | b) => ~(x | y))").transform(transformation))
+                .isEqualTo(_c.f.parse("~(~(a | b) => ~(x | y))"));
         assertThat(_c.f.parse("~(a <=> b)").transform(transformation)).isEqualTo(_c.f.parse("~(a <=> b)"));
-        assertThat(_c.f.parse("~(a & b & ~x & ~y)").transform(transformation)).isEqualTo(_c.f.parse("~(a & b & ~x & ~y)"));
-        assertThat(_c.f.parse("~(a | b | (a + b <= 1) | ~y)").transform(transformation)).isEqualTo(_c.f.parse("~(a | b | (~a | ~b) | ~y)"));
+        assertThat(_c.f.parse("~(a & b & ~x & ~y)").transform(transformation))
+                .isEqualTo(_c.f.parse("~(a & b & ~x & ~y)"));
+        assertThat(_c.f.parse("~(a | b | (a + b <= 1) | ~y)").transform(transformation))
+                .isEqualTo(_c.f.parse("~(a | b | (~a | ~b) | ~y)"));
     }
 
     @ParameterizedTest
@@ -77,7 +80,8 @@ public class PureExpansionTransformationTest extends TestWithFormulaContext {
         assertThat(_c.eq3.transform(transformation)).isEqualTo(_c.eq3);
         assertThat(_c.eq4.transform(transformation)).isEqualTo(_c.eq4);
 
-        assertThat(_c.f.parse("~(a => (a + b = 1))").transform(transformation)).isEqualTo(_c.f.parse("~(a => (a | b) & (~a | ~b))"));
+        assertThat(_c.f.parse("~(a => (a + b = 1))").transform(transformation))
+                .isEqualTo(_c.f.parse("~(a => (a | b) & (~a | ~b))"));
     }
 
     @ParameterizedTest
@@ -92,13 +96,18 @@ public class PureExpansionTransformationTest extends TestWithFormulaContext {
         assertThat(_c.or2.transform(transformation)).isEqualTo(_c.or2);
         assertThat(_c.or3.transform(transformation)).isEqualTo(_c.or3);
 
-        assertThat(_c.f.parse("~(a & b) | c | ~(x | ~y)").transform(transformation)).isEqualTo(_c.f.parse("~(a & b) | c | ~(x | ~y)"));
+        assertThat(_c.f.parse("~(a & b) | c | ~(x | ~y)").transform(transformation))
+                .isEqualTo(_c.f.parse("~(a & b) | c | ~(x | ~y)"));
         assertThat(_c.f.parse("~(a | b) & (a + b = 1) & ~(x & ~(z + x = 1))").transform(transformation))
                 .isEqualTo(_c.f.parse("~(a | b) & ((a | b) & (~a | ~b)) & ~(x & ~((z | x) & (~z | ~x)))"));
-        assertThat(_c.f.parse("a & b & (~x | ~y)").transform(transformation)).isEqualTo(_c.f.parse("a & b & (~x | ~y)"));
-        assertThat(_c.f.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(transformation)).isEqualTo(_c.f.parse("~(a | b) & c & ~(x & ~y) & (w => z)"));
-        assertThat(_c.f.parse("~(a & b) | c | ~(x | ~y)").transform(transformation)).isEqualTo(_c.f.parse("~(a & b) | c | ~(x | ~y)"));
-        assertThat(_c.f.parse("a | b | (~x & ~y)").transform(transformation)).isEqualTo(_c.f.parse("a | b | (~x & ~y)"));
+        assertThat(_c.f.parse("a & b & (~x | ~y)").transform(transformation))
+                .isEqualTo(_c.f.parse("a & b & (~x | ~y)"));
+        assertThat(_c.f.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(transformation))
+                .isEqualTo(_c.f.parse("~(a | b) & c & ~(x & ~y) & (w => z)"));
+        assertThat(_c.f.parse("~(a & b) | c | ~(x | ~y)").transform(transformation))
+                .isEqualTo(_c.f.parse("~(a & b) | c | ~(x | ~y)"));
+        assertThat(_c.f.parse("a | b | (~x & ~y)").transform(transformation))
+                .isEqualTo(_c.f.parse("a | b | (~x & ~y)"));
     }
 
     @ParameterizedTest
@@ -138,8 +147,9 @@ public class PureExpansionTransformationTest extends TestWithFormulaContext {
             if (formula.type() == FType.PBC) {
                 final PBConstraint pbc = (PBConstraint) formula;
                 if (!pbc.isAmo() && !pbc.isExo()) {
-                    assertThatThrownBy(() -> ModelCounter.count(_c.f, Collections.singletonList(formula), formula.variables(_c.f)))
-                            .isInstanceOf(UnsupportedOperationException.class);
+                    assertThatThrownBy(
+                            () -> ModelCounter.count(_c.f, Collections.singletonList(formula), formula.variables(_c.f)))
+                                    .isInstanceOf(UnsupportedOperationException.class);
                     continue;
                 }
             }

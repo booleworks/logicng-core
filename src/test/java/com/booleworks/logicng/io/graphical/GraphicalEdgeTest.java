@@ -68,7 +68,8 @@ public class GraphicalEdgeTest {
         assertThat(grDirected.writeString(mermaidWriter)).contains("id1 --> id2");
         assertThat(grDirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke:#000000");
 
-        assertThat(grUndirected.writeString(dotWriter)).contains("id1 -- id2 [color=\"#000000\", fontcolor=\"#000000\"]");
+        assertThat(grUndirected.writeString(dotWriter))
+                .contains("id1 -- id2 [color=\"#000000\", fontcolor=\"#000000\"]");
         assertThat(grUndirected.writeString(mermaidWriter)).contains("id1 --- id2");
         assertThat(grUndirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke:#000000");
     }
@@ -79,11 +80,13 @@ public class GraphicalEdgeTest {
         grDirected.addEdge(edge);
         grUndirected.addEdge(edge);
 
-        assertThat(grDirected.writeString(dotWriter)).contains("id1 -> id2 [color=\"#000000\", fontcolor=\"#000000\", style=bold]");
+        assertThat(grDirected.writeString(dotWriter))
+                .contains("id1 -> id2 [color=\"#000000\", fontcolor=\"#000000\", style=bold]");
         assertThat(grDirected.writeString(mermaidWriter)).contains("id1 --> id2");
         assertThat(grDirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke:#000000,stroke-width:4");
 
-        assertThat(grUndirected.writeString(dotWriter)).contains("id1 -- id2 [color=\"#000000\", fontcolor=\"#000000\", style=bold]");
+        assertThat(grUndirected.writeString(dotWriter))
+                .contains("id1 -- id2 [color=\"#000000\", fontcolor=\"#000000\", style=bold]");
         assertThat(grUndirected.writeString(mermaidWriter)).contains("id1 --- id2");
         assertThat(grUndirected.writeString(mermaidWriter)).contains("linkStyle 0 stroke:#000000,stroke-width:4");
     }

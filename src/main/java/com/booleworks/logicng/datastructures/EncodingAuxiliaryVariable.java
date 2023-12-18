@@ -11,8 +11,8 @@ import com.booleworks.logicng.formulas.implementation.noncaching.LngNativeVariab
 /**
  * An auxiliary variable for encoding results.
  * <p>
- * This variable is used, if the result is added directly to a solver.  In this case no variable on the factory has
- * to be created.
+ * This variable is used, if the result is added directly to a solver. In this
+ * case no variable on the factory has to be created.
  * @version 3.0.0
  * @since 1.1
  */
@@ -23,7 +23,8 @@ final class EncodingAuxiliaryVariable extends LngNativeVariable {
     /**
      * Constructs a new auxiliary variable
      * @param name    the literal name
-     * @param negated {@code true} if the variables is negated, {@code false} otherwise
+     * @param negated {@code true} if the variables is negated, {@code false}
+     *                otherwise
      */
     EncodingAuxiliaryVariable(final String name, final boolean negated) {
         super(name, null);

@@ -39,8 +39,10 @@ public class NegationMinimizerTest extends TestWithFormulaContext {
         assertThat(_c.f.parse("~A|~B|~C|D|~E|~G").transform(minimizer)).isEqualTo(_c.f.parse("D|~(A&B&C&E&G)"));
         assertThat(_c.f.parse("~A&~B&~C&D&~E&~G").transform(minimizer)).isEqualTo(_c.f.parse("D&~(A|B|C|E|G)"));
 
-        assertThat(_c.f.parse("~A|~B|~E&G|~H&~B&~C|~X").transform(minimizer)).isEqualTo(_c.f.parse("~E&G|~(A&B&(H|B|C)&X)"));
-        assertThat(_c.f.parse("~(A&B&~(~E&G)&(H|B|C)&X)").transform(minimizer)).isEqualTo(_c.f.parse("~E&G|~(A&B&(H|B|C)&X)"));
+        assertThat(_c.f.parse("~A|~B|~E&G|~H&~B&~C|~X").transform(minimizer))
+                .isEqualTo(_c.f.parse("~E&G|~(A&B&(H|B|C)&X)"));
+        assertThat(_c.f.parse("~(A&B&~(~E&G)&(H|B|C)&X)").transform(minimizer))
+                .isEqualTo(_c.f.parse("~E&G|~(A&B&(H|B|C)&X)"));
 
         assertThat(_c.f.parse("~A|B|(~E&~G&~H&~K)").transform(minimizer)).isEqualTo(_c.f.parse("~A|B|~(E|G|H|K)"));
 
@@ -60,7 +62,8 @@ public class NegationMinimizerTest extends TestWithFormulaContext {
         assertThat(_c.f.parse("X|~A&~B&~C").transform(minimizer)).isEqualTo(_c.f.parse("X|~A&~B&~C"));
         assertThat(_c.f.parse("X|~A&~B&~C&~D").transform(minimizer)).isEqualTo(_c.f.parse("X|~(A|B|C|D)"));
 
-        assertThat(_c.f.parse("A&(~B|~C|~D|~E|~G|X|Y|H)").transform(minimizer)).isEqualTo(_c.f.parse("A&(~(B&C&D&E&G)|X|Y|H)"));
+        assertThat(_c.f.parse("A&(~B|~C|~D|~E|~G|X|Y|H)").transform(minimizer))
+                .isEqualTo(_c.f.parse("A&(~(B&C&D&E&G)|X|Y|H)"));
     }
 
     @ParameterizedTest
@@ -75,7 +78,8 @@ public class NegationMinimizerTest extends TestWithFormulaContext {
     @RandomTag
     public void testRandomized(final FormulaContext _c) {
         for (int i = 0; i < 100; i++) {
-            final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, FormulaRandomizerConfig.builder().numVars(5).weightPbc(1).seed(i * 42).build());
+            final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f,
+                    FormulaRandomizerConfig.builder().numVars(5).weightPbc(1).seed(i * 42).build());
             computeAndVerify(randomizer.formula(6));
         }
     }

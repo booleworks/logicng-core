@@ -8,8 +8,8 @@ import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.Variable;
 
 /**
- * Encodes that at most 'rhs' variables can be assigned value true.  Uses the totalizer encoding for
- * translating the cardinality constraint into CNF.
+ * Encodes that at most 'rhs' variables can be assigned value true. Uses the
+ * totalizer encoding for translating the cardinality constraint into CNF.
  * @version 3.0.0
  * @since 1.0
  */

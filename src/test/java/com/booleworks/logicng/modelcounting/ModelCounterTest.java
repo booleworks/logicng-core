@@ -44,8 +44,8 @@ public class ModelCounterTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testWrongArgument(final FormulaContext _c) {
-        assertThrows(IllegalArgumentException.class, () ->
-                ModelCounter.count(_c.f, Collections.singletonList(_c.f.parse("a & b")), new TreeSet<>(Collections.singletonList(_c.a))));
+        assertThrows(IllegalArgumentException.class, () -> ModelCounter.count(_c.f,
+                Collections.singletonList(_c.f.parse("a & b")), new TreeSet<>(Collections.singletonList(_c.a))));
     }
 
     @ParameterizedTest
@@ -66,29 +66,36 @@ public class ModelCounterTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testSimple(final FormulaContext _c) throws ParserException {
         final Formula formula01 = _c.f.parse("(~v1 => ~v0) | ~v1 | v0");
-        assertThat(ModelCounter.count(_c.f, Collections.singletonList(formula01), formula01.variables(_c.f))).isEqualTo(BigInteger.valueOf(4));
+        assertThat(ModelCounter.count(_c.f, Collections.singletonList(formula01), formula01.variables(_c.f)))
+                .isEqualTo(BigInteger.valueOf(4));
 
         final List<Formula> formulas02 = Arrays.asList(_c.f.parse("(a & b) | ~b"), _c.f.parse("a"));
-        assertThat(ModelCounter.count(_c.f, formulas02, FormulaHelper.variables(_c.f, formulas02))).isEqualTo(BigInteger.valueOf(2));
+        assertThat(ModelCounter.count(_c.f, formulas02, FormulaHelper.variables(_c.f, formulas02)))
+                .isEqualTo(BigInteger.valueOf(2));
 
         final List<Formula> formulas03 = Arrays.asList(_c.f.parse("a & b & c"), _c.f.parse("c & d"));
-        assertThat(ModelCounter.count(_c.f, formulas03, FormulaHelper.variables(_c.f, formulas03))).isEqualTo(BigInteger.valueOf(1));
+        assertThat(ModelCounter.count(_c.f, formulas03, FormulaHelper.variables(_c.f, formulas03)))
+                .isEqualTo(BigInteger.valueOf(1));
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testAmoAndExo(final FormulaContext _c) throws ParserException {
         final List<Formula> formulas01 = Arrays.asList(_c.f.parse("a & b"), _c.f.parse("a + b + c + d <= 1"));
-        assertThat(ModelCounter.count(_c.f, formulas01, FormulaHelper.variables(_c.f, formulas01))).isEqualTo(BigInteger.valueOf(0));
+        assertThat(ModelCounter.count(_c.f, formulas01, FormulaHelper.variables(_c.f, formulas01)))
+                .isEqualTo(BigInteger.valueOf(0));
 
         final List<Formula> formulas02 = Arrays.asList(_c.f.parse("a & b & (a + b + c + d <= 1)"), _c.f.parse("a | b"));
-        assertThat(ModelCounter.count(_c.f, formulas02, FormulaHelper.variables(_c.f, formulas02))).isEqualTo(BigInteger.valueOf(0));
+        assertThat(ModelCounter.count(_c.f, formulas02, FormulaHelper.variables(_c.f, formulas02)))
+                .isEqualTo(BigInteger.valueOf(0));
 
         final List<Formula> formulas03 = Arrays.asList(_c.f.parse("a & (a + b + c + d <= 1)"), _c.f.parse("a | b"));
-        assertThat(ModelCounter.count(_c.f, formulas03, FormulaHelper.variables(_c.f, formulas03))).isEqualTo(BigInteger.valueOf(1));
+        assertThat(ModelCounter.count(_c.f, formulas03, FormulaHelper.variables(_c.f, formulas03)))
+                .isEqualTo(BigInteger.valueOf(1));
 
         final List<Formula> formulas04 = Arrays.asList(_c.f.parse("a & (a + b + c + d = 1)"), _c.f.parse("a | b"));
-        assertThat(ModelCounter.count(_c.f, formulas04, FormulaHelper.variables(_c.f, formulas04))).isEqualTo(BigInteger.valueOf(1));
+        assertThat(ModelCounter.count(_c.f, formulas04, FormulaHelper.variables(_c.f, formulas04)))
+                .isEqualTo(BigInteger.valueOf(1));
     }
 
     @ParameterizedTest
@@ -124,8 +131,9 @@ public class ModelCounterTest extends TestWithFormulaContext {
             if (formula.type() == FType.PBC) {
                 final PBConstraint pbc = (PBConstraint) formula;
                 if (!pbc.isAmo() && !pbc.isExo()) {
-                    assertThatThrownBy(() -> ModelCounter.count(_c.f, Collections.singletonList(formula), formula.variables(_c.f)))
-                            .isInstanceOf(UnsupportedOperationException.class);
+                    assertThatThrownBy(
+                            () -> ModelCounter.count(_c.f, Collections.singletonList(formula), formula.variables(_c.f)))
+                                    .isInstanceOf(UnsupportedOperationException.class);
                     continue;
                 }
             }
@@ -168,7 +176,8 @@ public class ModelCounterTest extends TestWithFormulaContext {
                     .seed(i * 42).build();
             final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, config);
 
-            final List<Formula> formulas = IntStream.range(1, 5).mapToObj(j -> randomizer.formula(4)).collect(Collectors.toList());
+            final List<Formula> formulas =
+                    IntStream.range(1, 5).mapToObj(j -> randomizer.formula(4)).collect(Collectors.toList());
             final BigInteger expCount = enumerationBasedModelCount(_c.f, formulas);
             final BigInteger count = ModelCounter.count(_c.f, formulas, FormulaHelper.variables(_c.f, formulas));
             assertThat(count).isEqualTo(expCount);
@@ -187,21 +196,25 @@ public class ModelCounterTest extends TestWithFormulaContext {
                     .seed(i * 42).build();
             final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, config);
 
-            final List<Formula> formulas = IntStream.range(1, 5).mapToObj(j -> randomizer.formula(4)).collect(Collectors.toList());
+            final List<Formula> formulas =
+                    IntStream.range(1, 5).mapToObj(j -> randomizer.formula(4)).collect(Collectors.toList());
             final BigInteger expCount = enumerationBasedModelCount(_c.f, formulas);
             final BigInteger count = ModelCounter.count(_c.f, formulas, FormulaHelper.variables(_c.f, formulas));
             assertThat(count).isEqualTo(expCount);
             final Formula formula = _c.f.and(formulas);
             if (!formula.variables(_c.f).isEmpty()) {
-                // Without PB constraints we can use the BDD model count as reference
+                // Without PB constraints we can use the BDD model count as
+                // reference
                 assertThat(count).isEqualTo(formula.bdd(_c.f, new ForceOrdering()).modelCount());
             }
         }
     }
 
-    private void testQueens(final FormulaFactory f, final NQueensGenerator generator, final int size, final int models) {
+    private void testQueens(final FormulaFactory f, final NQueensGenerator generator, final int size,
+                            final int models) {
         final Formula queens = generator.generate(size);
-        assertThat(ModelCounter.count(queens.factory(), Collections.singletonList(queens), queens.variables(f))).isEqualTo(BigInteger.valueOf(models));
+        assertThat(ModelCounter.count(queens.factory(), Collections.singletonList(queens), queens.variables(f)))
+                .isEqualTo(BigInteger.valueOf(models));
     }
 
     private static BigInteger enumerationBasedModelCount(final FormulaFactory f, final List<Formula> formulas) {

@@ -29,10 +29,14 @@ public class CCAMOTest implements LogicNGTest {
         configs[4] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.NESTED).build();
         configs[5] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.COMMANDER).commanderGroupSize(3).build();
         configs[6] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.COMMANDER).commanderGroupSize(7).build();
-        configs[7] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BIMANDER).bimanderGroupSize(CCConfig.BIMANDER_GROUP_SIZE.FIXED).build();
-        configs[8] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BIMANDER).bimanderGroupSize(CCConfig.BIMANDER_GROUP_SIZE.HALF).build();
-        configs[9] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BIMANDER).bimanderGroupSize(CCConfig.BIMANDER_GROUP_SIZE.SQRT).build();
-        configs[10] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BIMANDER).bimanderGroupSize(CCConfig.BIMANDER_GROUP_SIZE.FIXED).bimanderFixedGroupSize(2).build();
+        configs[7] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BIMANDER)
+                .bimanderGroupSize(CCConfig.BIMANDER_GROUP_SIZE.FIXED).build();
+        configs[8] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BIMANDER)
+                .bimanderGroupSize(CCConfig.BIMANDER_GROUP_SIZE.HALF).build();
+        configs[9] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BIMANDER)
+                .bimanderGroupSize(CCConfig.BIMANDER_GROUP_SIZE.SQRT).build();
+        configs[10] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BIMANDER)
+                .bimanderGroupSize(CCConfig.BIMANDER_GROUP_SIZE.FIXED).bimanderFixedGroupSize(2).build();
         configs[11] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.NESTED).nestingGroupSize(5).build();
         configs[12] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.PRODUCT).productRecursiveBound(10).build();
         configs[13] = CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.BEST).build();

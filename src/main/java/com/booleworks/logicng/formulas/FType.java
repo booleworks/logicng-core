@@ -40,7 +40,8 @@ public enum FType {
     }
 
     /**
-     * Returns the dual operator of the given operator, i.e. AND for OR and vice versa.
+     * Returns the dual operator of the given operator, i.e. AND for OR and vice
+     * versa.
      * @param type the type (AND or OR)
      * @return the dual operator
      */

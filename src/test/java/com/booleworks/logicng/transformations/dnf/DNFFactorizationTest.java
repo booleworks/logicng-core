@@ -61,13 +61,18 @@ public class DNFFactorizationTest extends TestWithFormulaContext {
 
         assertThat(_c.and1.transform(dnfFactorization)).isEqualTo(_c.and1);
         assertThat(_c.or1.transform(dnfFactorization)).isEqualTo(_c.or1);
-        Assertions.assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(dnfFactorization)).isEqualTo(_c.p.parse("~a | ~b | c | (~x & y)"));
-        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y)").transform(dnfFactorization)).isEqualTo(_c.p.parse("(~a & ~b & c & ~x) | (~a & ~b & c & y)"));
-        Assertions.assertThat(_c.p.parse("a & b & (~x | ~y)").transform(dnfFactorization)).isEqualTo(_c.p.parse("(a & b & ~x) | (a & b & ~y)"));
+        Assertions.assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(dnfFactorization))
+                .isEqualTo(_c.p.parse("~a | ~b | c | (~x & y)"));
+        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y)").transform(dnfFactorization))
+                .isEqualTo(_c.p.parse("(~a & ~b & c & ~x) | (~a & ~b & c & y)"));
+        Assertions.assertThat(_c.p.parse("a & b & (~x | ~y)").transform(dnfFactorization))
+                .isEqualTo(_c.p.parse("(a & b & ~x) | (a & b & ~y)"));
         assertThat(_c.and1.transform(dnfFactorization).isDNF(_c.f)).isTrue();
         assertThat(_c.or1.transform(dnfFactorization).isDNF(_c.f)).isTrue();
-        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(dnfFactorization).isDNF(_c.f)).isTrue();
-        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(dnfFactorization).isCNF(_c.f)).isFalse();
+        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(dnfFactorization).isDNF(_c.f))
+                .isTrue();
+        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(dnfFactorization).isCNF(_c.f))
+                .isFalse();
         Assertions.assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(dnfFactorization).isDNF(_c.f)).isTrue();
         Assertions.assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(dnfFactorization).isCNF(_c.f)).isFalse();
         Assertions.assertThat(_c.p.parse("a | b | (~x & ~y)").transform(dnfFactorization).isDNF(_c.f)).isTrue();
@@ -82,18 +87,24 @@ public class DNFFactorizationTest extends TestWithFormulaContext {
         Assertions.assertThat(_c.p.parse("~a").transform(dnfFactorization)).isEqualTo(_c.p.parse("~a"));
         Assertions.assertThat(_c.p.parse("~~a").transform(dnfFactorization)).isEqualTo(_c.p.parse("a"));
         Assertions.assertThat(_c.p.parse("~(a => b)").transform(dnfFactorization)).isEqualTo(_c.p.parse("a & ~b"));
-        Assertions.assertThat(_c.p.parse("~(~(a | b) => ~(x | y))").transform(dnfFactorization)).isEqualTo(_c.p.parse("(~a & ~b & x) | (~a & ~b & y)"));
-        Assertions.assertThat(_c.p.parse("~(a <=> b)").transform(dnfFactorization)).isEqualTo(_c.p.parse("(~a & b) | (a & ~b)"));
-        Assertions.assertThat(_c.p.parse("~(a & b & ~x & ~y)").transform(dnfFactorization)).isEqualTo(_c.p.parse("~a | ~b | x | y"));
-        Assertions.assertThat(_c.p.parse("~(a | b | ~x | ~y)").transform(dnfFactorization)).isEqualTo(_c.p.parse("~a & ~b & x & y"));
-        Assertions.assertThat(_c.p.parse("~(a | b | ~x | ~y)").transform(dnfFactorization)).isEqualTo(_c.p.parse("~a & ~b & x & y"));
+        Assertions.assertThat(_c.p.parse("~(~(a | b) => ~(x | y))").transform(dnfFactorization))
+                .isEqualTo(_c.p.parse("(~a & ~b & x) | (~a & ~b & y)"));
+        Assertions.assertThat(_c.p.parse("~(a <=> b)").transform(dnfFactorization))
+                .isEqualTo(_c.p.parse("(~a & b) | (a & ~b)"));
+        Assertions.assertThat(_c.p.parse("~(a & b & ~x & ~y)").transform(dnfFactorization))
+                .isEqualTo(_c.p.parse("~a | ~b | x | y"));
+        Assertions.assertThat(_c.p.parse("~(a | b | ~x | ~y)").transform(dnfFactorization))
+                .isEqualTo(_c.p.parse("~a & ~b & x & y"));
+        Assertions.assertThat(_c.p.parse("~(a | b | ~x | ~y)").transform(dnfFactorization))
+                .isEqualTo(_c.p.parse("~a & ~b & x & y"));
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testCDNF(final FormulaContext _c) throws ParserException {
         final Formula formula = _c.p.parse("x0 & x1 & x3 | ~x1 & ~x2 | x2 & ~x3");
-        final Formula cdnf = _c.p.parse("x0 & x1 & x2 & x3 | x0 & x1 & x2 & ~x3 | x0 & ~x1 & x2 & ~x3 | ~x0 & ~x1 & x2 & ~x3 | ~x0 & ~x1 & ~x2 & ~x3 | x0 & ~x1 & ~x2 & ~x3 | x0 & ~x1 & ~x2 & x3 | x0 & x1 & ~x2 & x3 | ~x0 & x1 & x2 & ~x3 | ~x0 & ~x1 & ~x2 & x3");
+        final Formula cdnf = _c.p.parse(
+                "x0 & x1 & x2 & x3 | x0 & x1 & x2 & ~x3 | x0 & ~x1 & x2 & ~x3 | ~x0 & ~x1 & x2 & ~x3 | ~x0 & ~x1 & ~x2 & ~x3 | x0 & ~x1 & ~x2 & ~x3 | x0 & ~x1 & ~x2 & x3 | x0 & x1 & ~x2 & x3 | ~x0 & x1 & x2 & ~x3 | ~x0 & ~x1 & ~x2 & x3");
         assertThat(formula.transform(new CanonicalDNFEnumeration(_c.f))).isEqualTo(cdnf);
         assertThat(_c.f.and(_c.a, _c.na).transform(new CanonicalDNFEnumeration(_c.f))).isEqualTo(_c.falsum);
     }

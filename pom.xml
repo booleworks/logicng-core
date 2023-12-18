@@ -65,21 +65,22 @@
 
     <!-- Dependency Versions -->
     <version.antlr>4.13.1</version.antlr>
-    <version.junit>5.10.0</version.junit>
+    <version.junit>5.10.1</version.junit>
     <version.assertj>3.24.2</version.assertj>
     <version.mockito>5.2.0</version.mockito>
 
     <!-- Plugin Versions -->
     <version.antlr-plugin>4.13.1</version.antlr-plugin>
-    <version.jacoco>0.8.10</version.jacoco>
+    <version.jacoco>0.8.11</version.jacoco>
     <version.coveralls>4.3.0</version.coveralls>
-    <version.surefire>3.1.2</version.surefire>
+    <version.surefire>3.2.3</version.surefire>
     <version.nexus-staging>1.6.13</version.nexus-staging>
     <version.maven-gpg>1.6</version.maven-gpg>
     <version.osgi-plugin>5.1.9</version.osgi-plugin>
     <version.maven-source>3.3.0</version.maven-source>
-    <version.maven-javadoc>3.6.0</version.maven-javadoc>
+    <version.maven-javadoc>3.6.3</version.maven-javadoc>
     <version.maven-jar>3.3.0</version.maven-jar>
+    <version.formatter>2.23.0</version.formatter>
   </properties>
 
   <build>
@@ -166,6 +167,15 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>net.revelc.code.formatter</groupId>
+        <artifactId>formatter-maven-plugin</artifactId>
+        <version>${version.formatter}</version>
+        <configuration>
+          <configFile>${basedir}/code-style.xml</configFile>
+        </configuration>
       </plugin>
 
       <!-- JaCoCo (Test Coverage)  -->

@@ -3,24 +3,21 @@
 // Copyright 2023-20xx BooleWorks GmbH
 
 /*
- * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines Lynce
- * <p>
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- * <p>
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * <p>
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines
+ * Lynce <p> Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including without
+ * limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom
+ * the Software is furnished to do so, subject to the following conditions: <p>
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software. <p> THE SOFTWARE IS
+ * PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+ * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package com.booleworks.logicng.cardinalityconstraints;
@@ -114,7 +111,8 @@ public final class CCModularTotalizer {
         }
         if (ulimit != 0 && llimit != 0) {
             for (int i = llimit - 1; i < state.cardinalityLwOutvars.size(); i++) {
-                result.addClause(state.cardinalityUpOutvars.get(ulimit - 1).negate(f), state.cardinalityLwOutvars.get(i).negate(f));
+                result.addClause(state.cardinalityUpOutvars.get(ulimit - 1).negate(f),
+                        state.cardinalityLwOutvars.get(i).negate(f));
             }
         } else {
             if (ulimit == 0) {
@@ -128,7 +126,8 @@ public final class CCModularTotalizer {
         }
     }
 
-    private static void toCNF(final EncodingResult result, final int mod, final LNGVector<Literal> ubvars, final LNGVector<Literal> lwvars, final int rhs,
+    private static void toCNF(final EncodingResult result, final int mod, final LNGVector<Literal> ubvars,
+                              final LNGVector<Literal> lwvars, final int rhs,
                               final State state) {
         final LNGVector<Literal> lupper = new LNGVector<>();
         final LNGVector<Literal> llower = new LNGVector<>();
@@ -191,15 +190,17 @@ public final class CCModularTotalizer {
         }
     }
 
-    private static void adder(final EncodingResult result, final int mod, final LNGVector<Literal> upper, final LNGVector<Literal> lower,
-                              final LNGVector<Literal> lupper, final LNGVector<Literal> llower, final LNGVector<Literal> rupper,
+    private static void adder(final EncodingResult result, final int mod, final LNGVector<Literal> upper,
+                              final LNGVector<Literal> lower,
+                              final LNGVector<Literal> lupper, final LNGVector<Literal> llower,
+                              final LNGVector<Literal> rupper,
                               final LNGVector<Literal> rlower, final State state) {
         assert upper.size() != 0;
         assert lower.size() >= llower.size() && lower.size() >= rlower.size();
         final FormulaFactory f = result.factory();
         Variable carry = state.varUndef;
-        if (upper.get(0) != state.h0) // != is ok here - we are within the same formula factory
-        {
+        // != is ok here - we are within the same formula factory
+        if (upper.get(0) != state.h0) {
             carry = result.newVariable();
         }
         for (int i = 0; i <= llower.size(); i++) {
@@ -222,15 +223,18 @@ public final class CCModularTotalizer {
                         }
                     } else if (i != 0) {
                         if (upper.get(0) != state.h0) {
-                            result.addClause(llower.get(i - 1).negate(f), rlower.get(j - 1).negate(f), lower.get(i + j - 1), carry);
+                            result.addClause(llower.get(i - 1).negate(f), rlower.get(j - 1).negate(f),
+                                    lower.get(i + j - 1), carry);
                         } else {
                             assert i + j - 1 < lower.size();
-                            result.addClause(llower.get(i - 1).negate(f), rlower.get(j - 1).negate(f), lower.get(i + j - 1));
+                            result.addClause(llower.get(i - 1).negate(f), rlower.get(j - 1).negate(f),
+                                    lower.get(i + j - 1));
                         }
                     }
                 } else if (i + j > mod) {
                     assert i + j > 0;
-                    result.addClause(llower.get(i - 1).negate(f), rlower.get(j - 1).negate(f), lower.get((i + j) % mod - 1));
+                    result.addClause(llower.get(i - 1).negate(f), rlower.get(j - 1).negate(f),
+                            lower.get((i + j) % mod - 1));
                 } else {
                     assert i + j == mod;
                     assert carry != state.varUndef;
@@ -243,7 +247,8 @@ public final class CCModularTotalizer {
         }
     }
 
-    private static void finalAdder(final EncodingResult result, final int mod, final LNGVector<Literal> upper, final LNGVector<Literal> lupper,
+    private static void finalAdder(final EncodingResult result, final int mod, final LNGVector<Literal> upper,
+                                   final LNGVector<Literal> lupper,
                                    final LNGVector<Literal> rupper, final Variable carry, final State state) {
         final FormulaFactory f = result.factory();
         for (int i = 0; i <= lupper.size(); i++) {

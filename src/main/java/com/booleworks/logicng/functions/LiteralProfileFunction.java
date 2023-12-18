@@ -16,20 +16,22 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- * A function that computes the literal profile for a given formula, i.e. it counts the number of occurrences for
- * each literal.
+ * A function that computes the literal profile for a given formula, i.e. it
+ * counts the number of occurrences for each literal.
  * <p>
- * For this function, the non-caching version is preferred since it usually performs better.  The non-caching version
- * of this function generates the result mapping only once and fills it recursively whereas the caching version has to
- * construct a new mapping for each sub-formula.
+ * For this function, the non-caching version is preferred since it usually
+ * performs better. The non-caching version of this function generates the
+ * result mapping only once and fills it recursively whereas the caching version
+ * has to construct a new mapping for each sub-formula.
  * @version 3.0.0
  * @since 1.0
  */
 public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<Literal, Integer>> {
 
     /**
-     * Constructs a new function.  For a caching formula factory, the cache of the factory will be used,
-     * for a non-caching formula factory no cache will be used.
+     * Constructs a new function. For a caching formula factory, the cache of
+     * the factory will be used, for a non-caching formula factory no cache will
+     * be used.
      * @param f the formula factory to generate new formulas
      */
     public LiteralProfileFunction(final FormulaFactory f) {
@@ -37,8 +39,8 @@ public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<L
     }
 
     /**
-     * Constructs a new function.  For all factory type the provided cache will be used.
-     * If it is null, no cache will be used.
+     * Constructs a new function. For all factory type the provided cache will
+     * be used. If it is null, no cache will be used.
      * @param f     the formula factory to generate new formulas
      * @param cache the cache to use for the transformation
      */
@@ -52,8 +54,9 @@ public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<L
     }
 
     /**
-     * The non-caching implementation of the literal profile computation.  In this case the result map is only
-     * constructed once and results are just added to it.
+     * The non-caching implementation of the literal profile computation. In
+     * this case the result map is only constructed once and results are just
+     * added to it.
      * @param formula the formula
      * @return the literal profile
      */
@@ -84,8 +87,8 @@ public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<L
     }
 
     /**
-     * The caching implementation of the literal profile computation.  In this case a result map is constructed for
-     * each sub-formula.
+     * The caching implementation of the literal profile computation. In this
+     * case a result map is constructed for each sub-formula.
      * @param formula the formula
      * @return the literal profile
      */

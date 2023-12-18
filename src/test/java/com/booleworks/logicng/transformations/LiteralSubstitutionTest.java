@@ -62,7 +62,8 @@ public class LiteralSubstitutionTest extends TestWithFormulaContext {
         assertThat(_c.f.parse("a | b | ~c | x").transform(s1)).isEqualTo(_c.f.parse("a_t | b | ~y | x"));
         assertThat(_c.f.parse("(a | b) => (~c | x)").transform(s1)).isEqualTo(_c.f.parse("(a_t | b) => (~y | x)"));
         assertThat(_c.f.parse("(a | b) <=> (~c | x)").transform(s1)).isEqualTo(_c.f.parse("(a_t | b) <=> (~y | x)"));
-        assertThat(_c.f.parse("2*a + 3*~b + -4*~c + x <= 5").transform(s1)).isEqualTo(_c.f.parse("2*a_t + 3*x + -4*~y + x <= 5"));
+        assertThat(_c.f.parse("2*a + 3*~b + -4*~c + x <= 5").transform(s1))
+                .isEqualTo(_c.f.parse("2*a_t + 3*x + -4*~y + x <= 5"));
     }
 
     @ParameterizedTest

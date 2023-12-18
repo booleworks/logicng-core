@@ -18,9 +18,10 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
- * Super class for variable providers which always return a subset of the given variables.
- * The number of selected variables is defined by the {@link #takeRate} which is the ration
- * (between 0 and 1) of selected variables.
+ * Super class for variable providers which always return a subset of the given
+ * variables. The number of selected variables is defined by the
+ * {@link #takeRate} which is the ration (between 0 and 1) of selected
+ * variables.
  * @version 3.0.0
  * @since 3.0.0
  */
@@ -31,7 +32,8 @@ public abstract class SplitVariableProviderWithTakeRate implements SplitVariable
     /**
      * Creates a new split variable provider with the given take rate.
      * @param takeRate                 the take rate, must be &gt; 0 and &lt;=1
-     * @param maximumNumberOfVariables the maximum number of variables which should be selected
+     * @param maximumNumberOfVariables the maximum number of variables which
+     *                                 should be selected
      */
     protected SplitVariableProviderWithTakeRate(final double takeRate, final int maximumNumberOfVariables) {
         if (takeRate < 0 || takeRate > 1) {
@@ -42,20 +44,25 @@ public abstract class SplitVariableProviderWithTakeRate implements SplitVariable
     }
 
     /**
-     * Returns a subset of the most or least common variables. The number of returned variables is
-     * defined by the take rate (see {@link #numberOfVariablesToChoose}).
+     * Returns a subset of the most or least common variables. The number of
+     * returned variables is defined by the take rate (see
+     * {@link #numberOfVariablesToChoose}).
      * @param solver     the solver used to count the variable occurrences
-     * @param variables  the variables to choose from, in case of {@code null} all variables from the solver are considered
-     * @param mostCommon {@code true} is the most common variables should be selected, {@code false}
-     *                   if the least common variables should be selected
+     * @param variables  the variables to choose from, in case of {@code null}
+     *                   all variables from the solver are considered
+     * @param mostCommon {@code true} is the most common variables should be
+     *                   selected, {@code false} if the least common variables
+     *                   should be selected
      * @return a subset of the most or least common variables
      */
-    protected SortedSet<Variable> chooseVariablesByOccurrences(final SATSolver solver, final Collection<Variable> variables, final boolean mostCommon) {
-        final Comparator<Map.Entry<Variable, Integer>> comparator = mostCommon
-                ? Map.Entry.comparingByValue(Comparator.reverseOrder())
-                : Map.Entry.comparingByValue();
+    protected SortedSet<Variable> chooseVariablesByOccurrences(final SATSolver solver,
+                                                               final Collection<Variable> variables,
+                                                               final boolean mostCommon) {
+        final Comparator<Map.Entry<Variable, Integer>> comparator =
+                mostCommon ? Map.Entry.comparingByValue(Comparator.reverseOrder()) : Map.Entry.comparingByValue();
         final Set<Variable> vars = variables == null ? null : new HashSet<>(variables);
-        final Map<Variable, Integer> variableOccurrences = solver.execute(new VariableOccurrencesOnSolverFunction(vars));
+        final Map<Variable, Integer> variableOccurrences =
+                solver.execute(new VariableOccurrencesOnSolverFunction(vars));
         return variableOccurrences.entrySet().stream()
                 .sorted(comparator)
                 .limit(numberOfVariablesToChoose(vars != null ? vars : variableOccurrences.keySet()))
@@ -64,8 +71,8 @@ public abstract class SplitVariableProviderWithTakeRate implements SplitVariable
     }
 
     /**
-     * Returns the number of variables which should be chosen. This depends on the number of variables
-     * and the {@link #takeRate}.
+     * Returns the number of variables which should be chosen. This depends on
+     * the number of variables and the {@link #takeRate}.
      * @param variables the variables
      * @return the number of variables which should be chosen
      */

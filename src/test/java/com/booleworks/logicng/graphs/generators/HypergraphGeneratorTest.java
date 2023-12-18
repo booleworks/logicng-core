@@ -40,9 +40,11 @@ public class HypergraphGeneratorTest {
         HypergraphNode<Variable> nodeB = new HypergraphNode<>(hypergraph, f.variable("B"));
         HypergraphNode<Variable> nodeC = new HypergraphNode<>(hypergraph, f.variable("C"));
         assertThat(hypergraph.nodes()).containsExactlyInAnyOrder(nodeA, nodeB, nodeC);
-        assertThat(hypergraph.edges()).containsExactlyInAnyOrder(new HypergraphEdge<>(Arrays.asList(nodeA, nodeB, nodeC)));
+        assertThat(hypergraph.edges())
+                .containsExactlyInAnyOrder(new HypergraphEdge<>(Arrays.asList(nodeA, nodeB, nodeC)));
 
-        hypergraph = HypergraphGenerator.fromCNF(f, p.parse("(A | B | ~C) & (B | ~D) & (C | ~E) & (~B | ~D | E) & X & ~Y"));
+        hypergraph =
+                HypergraphGenerator.fromCNF(f, p.parse("(A | B | ~C) & (B | ~D) & (C | ~E) & (~B | ~D | E) & X & ~Y"));
         nodeA = new HypergraphNode<>(hypergraph, f.variable("A"));
         nodeB = new HypergraphNode<>(hypergraph, f.variable("B"));
         nodeC = new HypergraphNode<>(hypergraph, f.variable("C"));
@@ -65,10 +67,14 @@ public class HypergraphGeneratorTest {
     public void testCNFFromList() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        Assertions.assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$false"))).nodes()).isEmpty();
-        Assertions.assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$false"))).edges()).isEmpty();
-        Assertions.assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$true"))).nodes()).isEmpty();
-        Assertions.assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$true"))).edges()).isEmpty();
+        Assertions.assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$false"))).nodes())
+                .isEmpty();
+        Assertions.assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$false"))).edges())
+                .isEmpty();
+        Assertions.assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$true"))).nodes())
+                .isEmpty();
+        Assertions.assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$true"))).edges())
+                .isEmpty();
 
         Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("A")));
         HypergraphNode<Variable> nodeA = new HypergraphNode<>(hypergraph, f.variable("A"));
@@ -80,7 +86,8 @@ public class HypergraphGeneratorTest {
         HypergraphNode<Variable> nodeB = new HypergraphNode<>(hypergraph, f.variable("B"));
         HypergraphNode<Variable> nodeC = new HypergraphNode<>(hypergraph, f.variable("C"));
         assertThat(hypergraph.nodes()).containsExactlyInAnyOrder(nodeA, nodeB, nodeC);
-        assertThat(hypergraph.edges()).containsExactlyInAnyOrder(new HypergraphEdge<>(Arrays.asList(nodeA, nodeB, nodeC)));
+        assertThat(hypergraph.edges())
+                .containsExactlyInAnyOrder(new HypergraphEdge<>(Arrays.asList(nodeA, nodeB, nodeC)));
 
         hypergraph = HypergraphGenerator.fromCNF(f, Arrays.asList(
                 p.parse("(A | B | ~C)"),

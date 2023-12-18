@@ -39,18 +39,28 @@ public class CNFSubsumptionTest extends TestWithFormulaContext {
         Assertions.assertThat(s.apply(_c.p.parse("a & (a | b) & (a | b | c)"))).isEqualTo(_c.p.parse("a"));
         Assertions.assertThat(s.apply(_c.p.parse("a & (a | b) & b"))).isEqualTo(_c.p.parse("a & b"));
         Assertions.assertThat(s.apply(_c.p.parse("a & (a | b) & c & (c | b)"))).isEqualTo(_c.p.parse("a & c"));
-        Assertions.assertThat(s.apply(_c.p.parse("(a | b) & (a | c) & (a | b | c)"))).isEqualTo(_c.p.parse("(a | b) & (a | c)"));
+        Assertions.assertThat(s.apply(_c.p.parse("(a | b) & (a | c) & (a | b | c)")))
+                .isEqualTo(_c.p.parse("(a | b) & (a | c)"));
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLargeCNFSubsumption(final FormulaContext _c) throws ParserException {
         final CNFSubsumption s = new CNFSubsumption(_c.f);
-        Assertions.assertThat(s.apply(_c.p.parse("(a | b | c | d) & (a | b | c | e) & (a | b | c)"))).isEqualTo(_c.p.parse("(a | b | c)"));
-        Assertions.assertThat(s.apply(_c.p.parse("(a | b) & (a | c) & (a | b | c) & (a | ~b | c) & (a | b | ~c) & (b | c)"))).isEqualTo(_c.p.parse("(a | b) & (a | c) & (b | c)"));
-        Assertions.assertThat(s.apply(_c.p.parse("(a | b) & (a | c) & (a | b | c) & (a | ~b | c) & (a | b | ~c) & (b | c)"))).isEqualTo(_c.p.parse("(a | b) & (a | c) & (b | c)"));
-        Assertions.assertThat(s.apply(_c.p.parse("a & ~b & (c | d) & (~a | ~b | ~c) & (b | c | d) & (a | b | c | d)"))).isEqualTo(_c.p.parse("a & ~b & (c | d)"));
-        Assertions.assertThat(s.apply(_c.p.parse("(a | b | c | d | e | f | g) & (b | d | f) & (a | c | e | g)"))).isEqualTo(_c.p.parse("(b | d | f) & (a | c | e | g)"));
+        Assertions.assertThat(s.apply(_c.p.parse("(a | b | c | d) & (a | b | c | e) & (a | b | c)")))
+                .isEqualTo(_c.p.parse("(a | b | c)"));
+        Assertions
+                .assertThat(
+                        s.apply(_c.p.parse("(a | b) & (a | c) & (a | b | c) & (a | ~b | c) & (a | b | ~c) & (b | c)")))
+                .isEqualTo(_c.p.parse("(a | b) & (a | c) & (b | c)"));
+        Assertions
+                .assertThat(
+                        s.apply(_c.p.parse("(a | b) & (a | c) & (a | b | c) & (a | ~b | c) & (a | b | ~c) & (b | c)")))
+                .isEqualTo(_c.p.parse("(a | b) & (a | c) & (b | c)"));
+        Assertions.assertThat(s.apply(_c.p.parse("a & ~b & (c | d) & (~a | ~b | ~c) & (b | c | d) & (a | b | c | d)")))
+                .isEqualTo(_c.p.parse("a & ~b & (c | d)"));
+        Assertions.assertThat(s.apply(_c.p.parse("(a | b | c | d | e | f | g) & (b | d | f) & (a | c | e | g)")))
+                .isEqualTo(_c.p.parse("(b | d | f) & (a | c | e | g)"));
     }
 
     @Test
@@ -64,7 +74,8 @@ public class CNFSubsumptionTest extends TestWithFormulaContext {
     @LongRunningTag
     public void testEvenLargerFormula() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         final Formula cnf = formula.transform(new CNFFactorization(f));
         final Formula subsumed = cnf.transform(new CNFSubsumption(f));
         assertThat(f.equivalence(cnf, subsumed).holds(new TautologyPredicate(f))).isTrue();

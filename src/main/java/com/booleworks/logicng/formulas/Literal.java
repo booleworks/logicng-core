@@ -14,14 +14,16 @@ import java.util.stream.Stream;
 /**
  * Boolean literals.
  * <p>
- * Literals are besides the constants true and false and pseudo Boolean constraints the
- * atomic formulas in LogicNG.  Each variable is a positive literal.
+ * Literals are besides the constants true and false and pseudo Boolean
+ * constraints the atomic formulas in LogicNG. Each variable is a positive
+ * literal.
  * <p>
- * A literal consists of its name and its phase (also sign or polarity in the literature).
- * A new positive literal can be constructed with {@code f.literal("a", true)} or
- * - as a shortcut - {@code f.variable("a")}.  A new negative literal can be constructed
- * with {@code f.literal("a", false)} or if preferred with {@code f.not(f.variable("a"))}
- * or {@code f.variable("a").negate()}.
+ * A literal consists of its name and its phase (also sign or polarity in the
+ * literature). A new positive literal can be constructed with
+ * {@code f.literal("a", true)} or - as a shortcut - {@code f.variable("a")}. A
+ * new negative literal can be constructed with {@code f.literal("a", false)} or
+ * if preferred with {@code f.not(f.variable("a"))} or
+ * {@code f.variable("a").negate()}.
  * @version 3.0.0
  * @since 1.0
  */

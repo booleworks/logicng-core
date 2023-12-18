@@ -44,10 +44,13 @@ public class FactorOutSimplificationTest extends TestWithFormulaContext {
         assertThat(_c.f.parse("~(A|A&B)").transform(factorOut)).isEqualTo(_c.f.parse("~A"));
         assertThat(_c.f.parse("A&(A|B)&C").transform(factorOut)).isEqualTo(_c.f.parse("A&C"));
 
-        assertThat(_c.f.parse("A&X&Y|A&B&C|B&C&D|A&Z").transform(factorOut)).isEqualTo(_c.f.parse("A&(X&Y|B&C|Z)|B&C&D"));
-        assertThat(_c.f.parse("G&(A&X&Y|A&B&C|B&C&D|A&Z)").transform(factorOut)).isEqualTo(_c.f.parse("G&(A&(X&Y|B&C|Z)|B&C&D)"));
+        assertThat(_c.f.parse("A&X&Y|A&B&C|B&C&D|A&Z").transform(factorOut))
+                .isEqualTo(_c.f.parse("A&(X&Y|B&C|Z)|B&C&D"));
+        assertThat(_c.f.parse("G&(A&X&Y|A&B&C|B&C&D|A&Z)").transform(factorOut))
+                .isEqualTo(_c.f.parse("G&(A&(X&Y|B&C|Z)|B&C&D)"));
 
-        assertThat(_c.f.parse("G&(~(A&X&Y)|~(A&B&C))").transform(factorOut)).isEqualTo(_c.f.parse("G&(~(A&X&Y)|~(A&B&C))"));
+        assertThat(_c.f.parse("G&(~(A&X&Y)|~(A&B&C))").transform(factorOut))
+                .isEqualTo(_c.f.parse("G&(~(A&X&Y)|~(A&B&C))"));
     }
 
     @ParameterizedTest
@@ -62,7 +65,8 @@ public class FactorOutSimplificationTest extends TestWithFormulaContext {
     @RandomTag
     public void testRandomized(final FormulaContext _c) {
         for (int i = 0; i < 100; i++) {
-            final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, FormulaRandomizerConfig.builder().numVars(5).weightPbc(2).seed(i * 42).build());
+            final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f,
+                    FormulaRandomizerConfig.builder().numVars(5).weightPbc(2).seed(i * 42).build());
             final Formula formula = randomizer.formula(6);
             computeAndVerify(_c.f, formula);
             computeAndVerify(_c.f, formula.nnf(_c.f));

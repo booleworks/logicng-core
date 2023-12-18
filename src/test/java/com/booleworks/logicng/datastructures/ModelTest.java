@@ -46,9 +46,11 @@ public class ModelTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testAssignment(final FormulaContext _c) {
         assertThat(new Model(Collections.emptyList()).assignment()).isEqualTo(new Assignment());
-        assertThat(new Model(Arrays.asList(_c.a, _c.nb, _c.x)).assignment()).isEqualTo(new Assignment(_c.a, _c.nb, _c.x));
+        assertThat(new Model(Arrays.asList(_c.a, _c.nb, _c.x)).assignment())
+                .isEqualTo(new Assignment(_c.a, _c.nb, _c.x));
         assertThat(new Model(Collections.emptyList()).assignment()).isEqualTo(new Assignment());
-        assertThat(new Model(Arrays.asList(_c.a, _c.nb, _c.x)).assignment()).isEqualTo(new Assignment(_c.a, _c.nb, _c.x));
+        assertThat(new Model(Arrays.asList(_c.a, _c.nb, _c.x)).assignment())
+                .isEqualTo(new Assignment(_c.a, _c.nb, _c.x));
     }
 
     @ParameterizedTest
@@ -58,7 +60,8 @@ public class ModelTest extends TestWithFormulaContext {
         assertThat(new Model(Collections.singletonList(_c.a)).formula(_c.f)).isEqualTo(p.parse("a"));
         assertThat(new Model(Collections.singletonList(_c.na)).formula(_c.f)).isEqualTo(p.parse("~a"));
         assertThat(new Model(Arrays.asList(_c.a, _c.b)).formula(_c.f)).isEqualTo(p.parse("a & b"));
-        assertThat(new Model(Arrays.asList(_c.a, _c.b, _c.nx, _c.ny)).formula(_c.f)).isEqualTo(p.parse("a & b & ~x & ~y"));
+        assertThat(new Model(Arrays.asList(_c.a, _c.b, _c.nx, _c.ny)).formula(_c.f))
+                .isEqualTo(p.parse("a & b & ~x & ~y"));
     }
 
     @ParameterizedTest
@@ -92,6 +95,7 @@ public class ModelTest extends TestWithFormulaContext {
         assertThat(new Model().toString()).isEqualTo("Model{literals=[]}");
         assertThat(new Model(Collections.singletonList(_c.a)).toString()).isEqualTo("Model{literals=[a]}");
         assertThat(new Model(Collections.singletonList(_c.na)).toString()).isEqualTo("Model{literals=[~a]}");
-        assertThat(new Model(Arrays.asList(_c.a, _c.b, _c.nx, _c.ny, _c.c)).toString()).isEqualTo("Model{literals=[a, b, ~x, ~y, c]}");
+        assertThat(new Model(Arrays.asList(_c.a, _c.b, _c.nx, _c.ny, _c.c)).toString())
+                .isEqualTo("Model{literals=[a, b, ~x, ~y, c]}");
     }
 }

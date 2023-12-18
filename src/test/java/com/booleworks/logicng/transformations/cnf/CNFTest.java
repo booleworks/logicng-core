@@ -65,9 +65,12 @@ public class CNFTest extends TestWithFormulaContext {
 
         assertThat(_c.and1.transform(cnf)).isEqualTo(_c.and1);
         assertThat(_c.or1.transform(cnf)).isEqualTo(_c.or1);
-        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(cnf)).isEqualTo(_c.p.parse("~a & ~b & c & (~x | y) & (~w | z)"));
-        Assertions.assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(cnf)).isEqualTo(_c.p.parse("(~a | ~b | c | ~x) & (~a  | ~b | c | y)"));
-        Assertions.assertThat(_c.p.parse("a | b | (~x & ~y)").transform(cnf)).isEqualTo(_c.p.parse("(a | b | ~x) & (a | b | ~y)"));
+        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(cnf))
+                .isEqualTo(_c.p.parse("~a & ~b & c & (~x | y) & (~w | z)"));
+        Assertions.assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(cnf))
+                .isEqualTo(_c.p.parse("(~a | ~b | c | ~x) & (~a  | ~b | c | y)"));
+        Assertions.assertThat(_c.p.parse("a | b | (~x & ~y)").transform(cnf))
+                .isEqualTo(_c.p.parse("(a | b | ~x) & (a | b | ~y)"));
         assertThat(_c.and1.transform(cnf).isCNF(_c.f)).isTrue();
         assertThat(_c.or1.transform(cnf).isCNF(_c.f)).isTrue();
         Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(cnf).isCNF(_c.f)).isTrue();
@@ -88,12 +91,18 @@ public class CNFTest extends TestWithFormulaContext {
         Assertions.assertThat(_c.p.parse("~a2").transform(cnf)).isEqualTo(_c.p.parse("~a2"));
         Assertions.assertThat(_c.p.parse("~~a2").transform(cnf)).isEqualTo(_c.p.parse("a2"));
         Assertions.assertThat(_c.p.parse("~(a2 => b2)").transform(cnf)).isEqualTo(_c.p.parse("a2 & ~b2"));
-        Assertions.assertThat(_c.p.parse("~(~(a2 | b2) => ~(x2 | y2))").transform(cnf)).isEqualTo(_c.p.parse("~a2 & ~b2 & (x2 | y2)"));
-        Assertions.assertThat(_c.p.parse("~(a2 <=> b2)").transform(cnf)).isEqualTo(_c.p.parse("(~a2 | ~b2) & (a2 | b2)"));
-        Assertions.assertThat(_c.p.parse("~(~(a2 | b2) <=> ~(x2 | y2))").transform(cnf2)).isEqualTo(_c.p.parse("(a2 | b2 | x2 | y2) & (~a2 | ~x2) & (~a2 | ~y2) & (~b2 | ~x2) & (~b2 | ~y2)"));
-        Assertions.assertThat(_c.p.parse("~(a2 & b2 & ~x2 & ~y2)").transform(cnf)).isEqualTo(_c.p.parse("~a2 | ~b2 | x2 | y2"));
-        Assertions.assertThat(_c.p.parse("~(a2 | b2 | ~x2 | ~y2)").transform(cnf)).isEqualTo(_c.p.parse("~a2 & ~b2 & x2 & y2"));
-        Assertions.assertThat(_c.p.parse("~(a2 | b2 | ~x2 | ~y2)").transform(cnf)).isEqualTo(_c.p.parse("~a2 & ~b2 & x2 & y2"));
+        Assertions.assertThat(_c.p.parse("~(~(a2 | b2) => ~(x2 | y2))").transform(cnf))
+                .isEqualTo(_c.p.parse("~a2 & ~b2 & (x2 | y2)"));
+        Assertions.assertThat(_c.p.parse("~(a2 <=> b2)").transform(cnf))
+                .isEqualTo(_c.p.parse("(~a2 | ~b2) & (a2 | b2)"));
+        Assertions.assertThat(_c.p.parse("~(~(a2 | b2) <=> ~(x2 | y2))").transform(cnf2))
+                .isEqualTo(_c.p.parse("(a2 | b2 | x2 | y2) & (~a2 | ~x2) & (~a2 | ~y2) & (~b2 | ~x2) & (~b2 | ~y2)"));
+        Assertions.assertThat(_c.p.parse("~(a2 & b2 & ~x2 & ~y2)").transform(cnf))
+                .isEqualTo(_c.p.parse("~a2 | ~b2 | x2 | y2"));
+        Assertions.assertThat(_c.p.parse("~(a2 | b2 | ~x2 | ~y2)").transform(cnf))
+                .isEqualTo(_c.p.parse("~a2 & ~b2 & x2 & y2"));
+        Assertions.assertThat(_c.p.parse("~(a2 | b2 | ~x2 | ~y2)").transform(cnf))
+                .isEqualTo(_c.p.parse("~a2 & ~b2 & x2 & y2"));
         assertThat(handler2.distCount).isEqualTo(10);
         assertThat(handler2.clauseCount).isEqualTo(7);
         assertThat(handler2.longestClause).isEqualTo(4);
@@ -104,8 +113,10 @@ public class CNFTest extends TestWithFormulaContext {
     public void testCC(final FormulaContext _c) throws ParserException {
         Assertions.assertThat(_c.p.parse("a <=> (1 * b <= 1)").cnf(_c.f)).isEqualTo(_c.p.parse("a"));
         Assertions.assertThat(_c.p.parse("~(1 * b <= 1)").cnf(_c.f)).isEqualTo(_c.p.parse("$false"));
-        Assertions.assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").cnf(_c.f)).isEqualTo(_c.p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
-        Assertions.assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").cnf(_c.f)).isEqualTo(_c.p.parse("(d | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | d | @RESERVED_CC_4) & (~@RESERVED_CC_4 | @RESERVED_CC_0) & (~@RESERVED_CC_2 | @RESERVED_CC_0) & (~@RESERVED_CC_4 | ~@RESERVED_CC_2) & (c | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | c | @RESERVED_CC_5) & (~@RESERVED_CC_5 | @RESERVED_CC_2) & ~@RESERVED_CC_0"));
+        Assertions.assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").cnf(_c.f))
+                .isEqualTo(_c.p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
+        Assertions.assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").cnf(_c.f)).isEqualTo(_c.p.parse(
+                "(d | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | d | @RESERVED_CC_4) & (~@RESERVED_CC_4 | @RESERVED_CC_0) & (~@RESERVED_CC_2 | @RESERVED_CC_0) & (~@RESERVED_CC_4 | ~@RESERVED_CC_2) & (c | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | c | @RESERVED_CC_5) & (~@RESERVED_CC_5 | @RESERVED_CC_2) & ~@RESERVED_CC_0"));
     }
 
     @ParameterizedTest

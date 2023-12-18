@@ -8,10 +8,12 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaTransformation;
 
 /**
- * A stateless formula transformation does not hold an internal mutable state.  It can still hold in internal
- * state which is read-only (e.g. a simplifier function can hold its rating function, or a substitution can
- * hold its substitution map) but this state is never changed by the transformation.  So once created,
- * such a transformation can be re-used or even be used in a multi-threaded context.
+ * A stateless formula transformation does not hold an internal mutable state.
+ * It can still hold in internal state which is read-only (e.g. a simplifier
+ * function can hold its rating function, or a substitution can hold its
+ * substitution map) but this state is never changed by the transformation. So
+ * once created, such a transformation can be re-used or even be used in a
+ * multi-threaded context.
  * @version 3.0.0
  * @since 3.0.0
  */

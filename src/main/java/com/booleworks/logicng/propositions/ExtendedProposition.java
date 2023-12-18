@@ -9,8 +9,9 @@ import com.booleworks.logicng.formulas.Formula;
 import java.util.Objects;
 
 /**
- * An extended proposition in LogicNG.  An extended proposition is a formula with additional information
- * like a user-provided {@link PropositionBackpack} object.
+ * An extended proposition in LogicNG. An extended proposition is a formula with
+ * additional information like a user-provided {@link PropositionBackpack}
+ * object.
  * @param <T> the type of the backpack
  * @version 3.0.0
  * @since 1.0

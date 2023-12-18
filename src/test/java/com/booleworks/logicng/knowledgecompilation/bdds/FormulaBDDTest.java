@@ -36,7 +36,8 @@ public class FormulaBDDTest {
     public void testBDDGeneration() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (W + A + F < 1)))");
+        final Formula formula =
+                p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (W + A + F < 1)))");
         final BDD bddNoOrder = formula.bdd(f);
         final BDD bddBfs = formula.bdd(f, new BFSOrdering());
         final BDD bddDfs = formula.bdd(f, new DFSOrdering());
@@ -67,6 +68,7 @@ public class FormulaBDDTest {
     public void testNonNnfs() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         Assertions.assertThat(f.parse("A + 2*B - C = 1").bdd(f)).isNotNull();
-        Assertions.assertThat(f.parse("(A & B & C | D & E & F) & (A - 2*B -D <= 0) | (C + 3*D - F > 0)").bdd(f)).isNotNull();
+        Assertions.assertThat(f.parse("(A & B & C | D & E & F) & (A - 2*B -D <= 0) | (C + 3*D - F > 0)").bdd(f))
+                .isNotNull();
     }
 }

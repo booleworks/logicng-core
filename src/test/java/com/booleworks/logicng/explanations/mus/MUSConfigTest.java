@@ -18,6 +18,7 @@ public class MUSConfigTest {
     public void testMUSConfiguration() {
         final MUSConfig config = MUSConfig.builder().algorithm(MUSConfig.Algorithm.valueOf("DELETION")).build();
         assertThat(config.toString()).isEqualTo(String.format("MUSConfig{%nalgorithm=DELETION%n}%n"));
-        Assertions.assertThat(Arrays.asList(CNFConfig.Algorithm.values())).contains(CNFConfig.Algorithm.valueOf("TSEITIN"));
+        Assertions.assertThat(Arrays.asList(CNFConfig.Algorithm.values()))
+                .contains(CNFConfig.Algorithm.valueOf("TSEITIN"));
     }
 }

@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * A breadth-first-search BDD variable ordering.  Traverses the formula in a BFS manner
- * and gathers all variables in the occurrence.
+ * A breadth-first-search BDD variable ordering. Traverses the formula in a BFS
+ * manner and gathers all variables in the occurrence.
  * @version 2.0.0
  * @since 1.4.0
  */
@@ -68,7 +68,8 @@ public final class BFSOrdering implements VariableOrderingProvider {
                     }
                     break;
                 case PREDICATE:
-                    throw new IllegalArgumentException("Cannot generate a variable ordering for a formula with predicates in it");
+                    throw new IllegalArgumentException(
+                            "Cannot generate a variable ordering for a formula with predicates in it");
             }
         }
         return variables;

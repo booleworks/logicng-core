@@ -18,9 +18,9 @@ import java.util.Map;
 /**
  * A formula transformation which substitutes literals by other literals.
  * <p>
- * Always the best fit is chosen.  So if there are two mappings for e.g.
- * {@code a -> b} and {@code ~a -> c}.  Then {@code ~a} will be mapped to
- * {@code c} and not to {@code ~b}.  On the other hand if there is only the
+ * Always the best fit is chosen. So if there are two mappings for e.g.
+ * {@code a -> b} and {@code ~a -> c}. Then {@code ~a} will be mapped to
+ * {@code c} and not to {@code ~b}. On the other hand if there is only the
  * mapping {@code a -> b}, the literal {@code ~a} will be mapped to {@code ~b}.
  * @version 3.0.0
  * @since 2.0.0

@@ -138,9 +138,8 @@ public class CachingFormulaFactory extends FormulaFactory {
         if (tempAnd != null) {
             return tempAnd;
         }
-        final LinkedHashSet<? extends Formula> condensedOperands = operands.size() < 2
-                ? operands
-                : condenseOperandsAnd(operands);
+        final LinkedHashSet<? extends Formula> condensedOperands =
+                operands.size() < 2 ? operands : condenseOperandsAnd(operands);
         if (condensedOperands == null) {
             return falsum();
         }
@@ -234,9 +233,8 @@ public class CachingFormulaFactory extends FormulaFactory {
         if (tempOr != null) {
             return tempOr;
         }
-        final LinkedHashSet<? extends Formula> condensedOperands = operands.size() < 2
-                ? operands
-                : condenseOperandsOr(operands);
+        final LinkedHashSet<? extends Formula> condensedOperands =
+                operands.size() < 2 ? operands : condenseOperandsOr(operands);
         if (condensedOperands == null) {
             return verum();
         }
@@ -330,7 +328,8 @@ public class CachingFormulaFactory extends FormulaFactory {
     }
 
     @Override
-    protected Formula internalPbc(final List<? extends Literal> literals, final List<Integer> coefficients, final CType comparator, final int rhs) {
+    protected Formula internalPbc(final List<? extends Literal> literals, final List<Integer> coefficients,
+                                  final CType comparator, final int rhs) {
         final PBOperands operands = new PBOperands(literals, coefficients, comparator, rhs);
         PBConstraint constraint = pbConstraints.get(operands);
         if (constraint == null) {
@@ -398,8 +397,9 @@ public class CachingFormulaFactory extends FormulaFactory {
     /**
      * Returns the complete transformation cache for a given cache entry type.
      * <p>
-     * Attention: this cache should only be modified by formula transformations and not be altered in any other way.
-     * Manipulating this cache manually can lead to a serious malfunction of algorithms.
+     * Attention: this cache should only be modified by formula transformations
+     * and not be altered in any other way. Manipulating this cache manually can
+     * lead to a serious malfunction of algorithms.
      * @param key the cache entry type
      * @return the cache (mapping from formula to formula)
      */
@@ -410,8 +410,9 @@ public class CachingFormulaFactory extends FormulaFactory {
     /**
      * Returns the complete function cache for a given cache entry type.
      * <p>
-     * Attention: this cache should only be modified by formula functions and not be altered in any other way.
-     * Manipulating this cache manually can lead to a serious malfunction of algorithms.
+     * Attention: this cache should only be modified by formula functions and
+     * not be altered in any other way. Manipulating this cache manually can
+     * lead to a serious malfunction of algorithms.
      * @param key the cache entry type
      * @param <T> the type of the cache result
      * @return the cache (mapping from formula to formula)
@@ -424,8 +425,9 @@ public class CachingFormulaFactory extends FormulaFactory {
     /**
      * Returns the complete predicate cache for a given cache entry type.
      * <p>
-     * Attention: this cache should only be modified by formula predicate and not be altered in any other way.
-     * Manipulating this cache manually can lead to a serious malfunction of algorithms.
+     * Attention: this cache should only be modified by formula predicate and
+     * not be altered in any other way. Manipulating this cache manually can
+     * lead to a serious malfunction of algorithms.
      * @param key the cache entry type
      * @return the cache (mapping from formula to formula)
      */
@@ -546,7 +548,8 @@ public class CachingFormulaFactory extends FormulaFactory {
          * @param comparator   the comparator of the constraint
          * @param rhs          the right-hand side of the constraint
          */
-        public PBOperands(final List<? extends Literal> literals, final List<Integer> coefficients, final CType comparator, final int rhs) {
+        public PBOperands(final List<? extends Literal> literals, final List<Integer> coefficients,
+                          final CType comparator, final int rhs) {
             this.literals = literals;
             this.coefficients = coefficients;
             this.comparator = comparator;
@@ -565,9 +568,8 @@ public class CachingFormulaFactory extends FormulaFactory {
             }
             if (other instanceof PBOperands) {
                 final PBOperands o = (PBOperands) other;
-                return rhs == o.rhs && comparator == o.comparator
-                        && coefficients.equals(o.coefficients)
-                        && literals.equals(o.literals);
+                return rhs == o.rhs && comparator == o.comparator && coefficients.equals(o.coefficients) &&
+                        literals.equals(o.literals);
             }
             return false;
         }
@@ -764,8 +766,10 @@ public class CachingFormulaFactory extends FormulaFactory {
         }
 
         /**
-         * Returns the number of generated cardinality constraint auxiliary variables.
-         * @return the number of generated cardinality constraint auxiliary variables
+         * Returns the number of generated cardinality constraint auxiliary
+         * variables.
+         * @return the number of generated cardinality constraint auxiliary
+         *         variables
          */
         public int ccCounter() {
             return ccCounter;
@@ -792,9 +796,9 @@ public class CachingFormulaFactory extends FormulaFactory {
          * @return the number of all formulas in the factory
          */
         public int formulas() {
-            return positiveLiterals + negativeLiterals + negations + implications + equivalences
-                    + conjunctions2 + conjunctions3 + conjunctions4 + conjunctionsN + disjunctions2
-                    + disjunctions3 + disjunctions4 + disjunctionsN + pbcs + ccs;
+            return positiveLiterals + negativeLiterals + negations + implications + equivalences + conjunctions2 +
+                    conjunctions3 + conjunctions4 + conjunctionsN + disjunctions2 + disjunctions3 + disjunctions4 +
+                    disjunctionsN + pbcs + ccs;
         }
 
         @Override
@@ -829,8 +833,10 @@ public class CachingFormulaFactory extends FormulaFactory {
 
         @Override
         public int hashCode() {
-            return Objects.hash(name, positiveLiterals, negativeLiterals, negations, implications, equivalences, conjunctions2,
-                    conjunctions3, conjunctions4, conjunctionsN, disjunctions2, disjunctions3, disjunctions4, disjunctionsN,
+            return Objects.hash(name, positiveLiterals, negativeLiterals, negations, implications, equivalences,
+                    conjunctions2,
+                    conjunctions3, conjunctions4, conjunctionsN, disjunctions2, disjunctions3, disjunctions4,
+                    disjunctionsN,
                     pbcs, ccs, ccCounter, pbCounter, cnfCounter);
         }
 

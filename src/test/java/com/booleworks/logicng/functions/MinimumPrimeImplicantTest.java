@@ -86,7 +86,8 @@ public class MinimumPrimeImplicantTest {
         assertThat(pi).hasSize(1);
         isPrimeImplicant(formula, pi);
 
-        formula = f.parse("v173 + v174 + v451 + v258 + v317 + v259 + v452 + v453 + v175 + v176 + v177 + v178 + v179 + v180 + v181 + v182 + v183 + v102 + v103 + v104 + v105 = 1");
+        formula = f.parse(
+                "v173 + v174 + v451 + v258 + v317 + v259 + v452 + v453 + v175 + v176 + v177 + v178 + v179 + v180 + v181 + v182 + v183 + v102 + v103 + v104 + v105 = 1");
         pi = formula.apply(new MinimumPrimeImplicantFunction(f));
         assertThat(pi).hasSize(21);
         isPrimeImplicant(formula, pi);
@@ -102,7 +103,8 @@ public class MinimumPrimeImplicantTest {
 
     @Test
     public void testLargeExamples() throws IOException, ParserException {
-        final Formula parsed = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
+        final Formula parsed =
+                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
         for (final Formula formula : parsed) {
             isPrimeImplicant(formula, formula.apply(new MinimumPrimeImplicantFunction(f)));
         }

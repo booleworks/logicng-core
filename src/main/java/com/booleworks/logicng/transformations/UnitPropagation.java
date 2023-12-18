@@ -26,8 +26,9 @@ import java.util.Map;
 public final class UnitPropagation extends CacheableFormulaTransformation {
 
     /**
-     * Constructs a new transformation.  For a caching formula factory, the cache of the factory will be used,
-     * for a non-caching formula factory no cache will be used.
+     * Constructs a new transformation. For a caching formula factory, the cache
+     * of the factory will be used, for a non-caching formula factory no cache
+     * will be used.
      * @param f the formula factory to generate new formulas
      */
     public UnitPropagation(final FormulaFactory f) {
@@ -35,8 +36,8 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
     }
 
     /**
-     * Constructs a new transformation.  For all factory type the provided cache will be used.
-     * If it is null, no cache will be used.
+     * Constructs a new transformation. For all factory type the provided cache
+     * will be used. If it is null, no cache will be used.
      * @param f     the formula factory to generate new formulas
      * @param cache the cache for this transformation
      */
@@ -94,7 +95,8 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
         }
 
         /**
-         * Performs unit propagation on level 0 and returns the propagated formula.
+         * Performs unit propagation on level 0 and returns the propagated
+         * formula.
          * @param f the formula factory
          * @return the propagated formula
          */
@@ -124,9 +126,10 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
         }
 
         /**
-         * Transforms a solver clause into a formula, respecting the current solver state.
-         * I.e. all falsified literals are removed from the resulting clause and
-         * if any literal of the clause is satisfied, the result is {@link CTrue}.
+         * Transforms a solver clause into a formula, respecting the current
+         * solver state. I.e. all falsified literals are removed from the
+         * resulting clause and if any literal of the clause is satisfied, the
+         * result is {@link CTrue}.
          * @param f      the formula factory
          * @param clause the solver clause to transform
          * @return the transformed clause

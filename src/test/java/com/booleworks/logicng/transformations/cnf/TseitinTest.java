@@ -128,8 +128,10 @@ public class TseitinTest extends TestWithFormulaContext {
 
         Assertions.assertThat(_c.p.parse("a <=> (1 * b <= 1)").transform(ts)).isEqualTo(_c.p.parse("a"));
         Assertions.assertThat(_c.p.parse("~(1 * b <= 1)").transform(ts)).isEqualTo(_c.p.parse("$false"));
-        Assertions.assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").transform(ts)).isEqualTo(_c.p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
-        Assertions.assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").transform(ts)).isEqualTo(_c.p.parse("(d | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | d | @RESERVED_CC_4) & (~@RESERVED_CC_4 | @RESERVED_CC_0) & (~@RESERVED_CC_2 | @RESERVED_CC_0) & (~@RESERVED_CC_4 | ~@RESERVED_CC_2) & (c | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | c | @RESERVED_CC_5) & (~@RESERVED_CC_5 | @RESERVED_CC_2) & ~@RESERVED_CC_0"));
+        Assertions.assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").transform(ts))
+                .isEqualTo(_c.p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
+        Assertions.assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").transform(ts)).isEqualTo(_c.p.parse(
+                "(d | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | @RESERVED_CC_1 | @RESERVED_CC_4) & (~@RESERVED_CC_3 | d | @RESERVED_CC_4) & (~@RESERVED_CC_4 | @RESERVED_CC_0) & (~@RESERVED_CC_2 | @RESERVED_CC_0) & (~@RESERVED_CC_4 | ~@RESERVED_CC_2) & (c | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | @RESERVED_CC_3 | @RESERVED_CC_5) & (b | c | @RESERVED_CC_5) & (~@RESERVED_CC_5 | @RESERVED_CC_2) & ~@RESERVED_CC_0"));
     }
 
     @Test

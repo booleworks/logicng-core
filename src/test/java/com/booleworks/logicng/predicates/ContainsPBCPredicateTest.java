@@ -64,7 +64,8 @@ public class ContainsPBCPredicateTest extends TestWithFormulaContext {
     @RandomTag
     public void randomWithoutPBCs(final FormulaContext _c) {
         for (int i = 0; i < 500; i++) {
-            final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, FormulaRandomizerConfig.builder().numVars(10).weightPbc(0).seed(i * 42).build());
+            final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f,
+                    FormulaRandomizerConfig.builder().numVars(10).weightPbc(0).seed(i * 42).build());
             final Formula formula = randomizer.formula(5);
             assertThat(formula.holds(predicate)).isFalse();
         }

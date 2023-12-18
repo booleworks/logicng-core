@@ -22,8 +22,9 @@ import java.util.Map;
 public class NumberOfNodesFunction extends CacheableFormulaFunction<Long> {
 
     /**
-     * Constructs a new function.  For a caching formula factory, the cache of the factory will be used,
-     * for a non-caching formula factory no cache will be used.
+     * Constructs a new function. For a caching formula factory, the cache of
+     * the factory will be used, for a non-caching formula factory no cache will
+     * be used.
      * @param f the formula factory to generate new formulas
      */
     public NumberOfNodesFunction(final FormulaFactory f) {
@@ -31,8 +32,8 @@ public class NumberOfNodesFunction extends CacheableFormulaFunction<Long> {
     }
 
     /**
-     * Constructs a new function.  For all factory type the provided cache will be used.
-     * If it is null, no cache will be used.
+     * Constructs a new function. For all factory type the provided cache will
+     * be used. If it is null, no cache will be used.
      * @param f     the formula factory to generate new formulas
      * @param cache the cache to use for the transformation
      */

@@ -23,8 +23,10 @@ public class ForceOrderingTest {
         assertThat(ordering.getOrder(f, p.parse("$true"))).isEmpty();
         assertThat(ordering.getOrder(f, p.parse("$false"))).isEmpty();
         assertThat(ordering.getOrder(f, p.parse("A"))).containsExactly(f.variable("A"));
-        assertThat(ordering.getOrder(f, p.parse("A | ~C | B | D"))).containsExactlyInAnyOrder(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
-        assertThat(ordering.getOrder(f, p.parse("A & ~C & B & D"))).containsExactlyInAnyOrder(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
+        assertThat(ordering.getOrder(f, p.parse("A | ~C | B | D"))).containsExactlyInAnyOrder(f.variable("A"),
+                f.variable("C"), f.variable("B"), f.variable("D"));
+        assertThat(ordering.getOrder(f, p.parse("A & ~C & B & D"))).containsExactlyInAnyOrder(f.variable("A"),
+                f.variable("C"), f.variable("B"), f.variable("D"));
     }
 
     @Test
@@ -40,7 +42,8 @@ public class ForceOrderingTest {
     @Test
     public void testComplexFormula() throws ParserException {
         final PropositionalParser p = new PropositionalParser(f);
-        final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (W + A + F < 1)))").cnf(f);
+        final Formula formula =
+                p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (W + A + F < 1)))").cnf(f);
         assertThat(ordering.getOrder(f, formula)).containsExactly(
                 f.variable("B"),
                 f.variable("D"),

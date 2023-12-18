@@ -53,7 +53,8 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~m|l"),
                 f.parse("~l")
         );
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
+        final List<Formula> result =
+                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
         assertThat(result).containsExactlyInAnyOrder(f.parse("~n"), f.parse("~l"));
     }
 
@@ -67,7 +68,8 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~n"),
                 f.parse("~m|l")
         );
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
+        final List<Formula> result =
+                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
         assertThat(result).isNull();
     }
 
@@ -80,7 +82,8 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~m|n"),
                 f.parse("~n|s")
         );
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Arrays.asList(f.parse("~a&b"), f.parse("a|~b")));
+        final List<Formula> result =
+                SmusComputation.computeSmusForFormulas(f, input, Arrays.asList(f.parse("~a&b"), f.parse("a|~b")));
         assertThat(result).isEmpty();
     }
 
@@ -97,7 +100,8 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~l"),
                 f.parse("a&~a")
         );
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
+        final List<Formula> result =
+                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
         assertThat(result).containsExactly(f.falsum());
     }
 
@@ -114,7 +118,8 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~l"),
                 f.parse("(a<=>b)&(~a<=>b)")
         );
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
+        final List<Formula> result =
+                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
         assertThat(result).containsExactly(f.parse("(a<=>b)&(~a<=>b)"));
     }
 
@@ -218,7 +223,8 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 new TimeoutOptimizationHandler(1L, TimeoutHandler.TimerType.RESTARTING_TIMEOUT),
                 new TimeoutOptimizationHandler(System.currentTimeMillis() + 1L, TimeoutHandler.TimerType.FIXED_END)
         );
-        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         final List<Formula> formulas = formula.stream().collect(Collectors.toList());
         for (final TimeoutOptimizationHandler handler : handlers) {
             testHandler(handler, formulas, true);
@@ -230,7 +236,8 @@ public class SmusComputationTest extends TestWithExampleFormulas {
         final List<Formula> formulas = DimacsReader.readCNF(f, "src/test/resources/sat/unsat/bf0432-007.cnf");
         for (int numOptimizationStarts = 1; numOptimizationStarts < 5; numOptimizationStarts++) {
             for (int numSatHandlerStarts = 1; numSatHandlerStarts < 10; numSatHandlerStarts++) {
-                final OptimizationHandler handler = new BoundedOptimizationHandler(numSatHandlerStarts, numOptimizationStarts);
+                final OptimizationHandler handler =
+                        new BoundedOptimizationHandler(numSatHandlerStarts, numOptimizationStarts);
                 testHandler(handler, formulas, true);
             }
         }
@@ -257,8 +264,10 @@ public class SmusComputationTest extends TestWithExampleFormulas {
         testHandler(handler, formulas, true);
     }
 
-    private void testHandler(final OptimizationHandler handler, final List<Formula> formulas, final boolean expAborted) {
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, formulas, Collections.emptyList(), handler);
+    private void testHandler(final OptimizationHandler handler, final List<Formula> formulas,
+                             final boolean expAborted) {
+        final List<Formula> result =
+                SmusComputation.computeSmusForFormulas(f, formulas, Collections.emptyList(), handler);
         assertThat(handler.aborted()).isEqualTo(expAborted);
         if (expAborted) {
             assertThat(result).isNull();

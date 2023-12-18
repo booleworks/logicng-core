@@ -45,7 +45,8 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
                 .containsAnyOf(_c.a, _c.b).hasSize(1);
 
         final NaivePrimeReduction naive02 = new NaivePrimeReduction(_c.f, _c.f.parse("(a => b) | b | c"));
-        Assertions.assertThat(naive02.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.a.negate(_c.f), _c.b, _c.c))))
+        Assertions
+                .assertThat(naive02.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.a.negate(_c.f), _c.b, _c.c))))
                 .containsExactly(_c.a.negate(_c.f), _c.b, _c.c);
 
         final NaivePrimeReduction naive03 = new NaivePrimeReduction(_c.f, _c.f.parse("(a => b) & b & c"));
@@ -56,21 +57,24 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testFormula1(final FormulaContext _c) throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/formula1.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/formula1.txt");
         testFormula(formula);
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSimplifyFormulas(final FormulaContext _c) throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/simplify_formulas.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/simplify_formulas.txt");
         testFormula(formula);
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLargeFormula(final FormulaContext _c) throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
         testFormula(formula);
     }
 
@@ -95,7 +99,8 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
     public void testRandom() {
         for (int i = 0; i < 500; i++) {
             final FormulaFactory f = FormulaFactory.caching();
-            final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(20).weightPbc(2).seed(i * 42).build());
+            final FormulaRandomizer randomizer = new FormulaRandomizer(f,
+                    FormulaRandomizerConfig.builder().numVars(20).weightPbc(2).seed(i * 42).build());
             final Formula formula = randomizer.formula(4);
             testFormula(formula);
         }
@@ -103,7 +108,8 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
 
     @Test
     public void testCancellationPoints() throws ParserException, IOException {
-        final Formula formula = FormulaReader.readPropositionalFormula(FormulaFactory.nonCaching(), "src/test/resources/formulas/large_formula.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(FormulaFactory.nonCaching(),
+                "src/test/resources/formulas/large_formula.txt");
         for (int numStarts = 0; numStarts < 20; numStarts++) {
             final SATHandler handler = new BoundedSatHandler(numStarts);
             testFormula(formula, handler, true);
@@ -122,7 +128,8 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
         if (!isSAT) {
             return;
         }
-        final SortedSet<Literal> falsifyingAssignment = FormulaHelper.negateLiterals(f, solver.model(formula.variables(f)).literals(), TreeSet::new);
+        final SortedSet<Literal> falsifyingAssignment =
+                FormulaHelper.negateLiterals(f, solver.model(formula.variables(f)).literals(), TreeSet::new);
         final NaivePrimeReduction naive = new NaivePrimeReduction(f, formula);
         final SortedSet<Literal> primeImplicate = naive.reduceImplicate(f, falsifyingAssignment, handler);
         if (expAborted) {

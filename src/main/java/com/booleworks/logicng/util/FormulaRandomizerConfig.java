@@ -12,21 +12,28 @@ import com.booleworks.logicng.formulas.Variable;
 import java.util.Collection;
 
 /**
- * A configuration for randomizing formulas. The following things can be configured:
+ * A configuration for randomizing formulas. The following things can be
+ * configured:
  * <ul>
- *     <li>the seed -- use a value {@code != 0} to get deterministic results</li>
- *     <li>the variables -- if {@link #variables} is not {@code null} this list of variables will be used,
- *     otherwise {@link #numVars} variables will be generated. The probabilities of being chosen are the
- *     same for all variables.</li>
- *     <li>weights for different formula types, defining how often a formula type is generated compared to other types</li>
- *     <li>weights for comparator types in pseudo boolean constraints and cardinality constraints</li>
- *     <li>maximum numbers of operands for conjunctions, disjunctions, PBCs, and CCs</li>
+ * <li>the seed -- use a value {@code != 0} to get deterministic results</li>
+ * <li>the variables -- if {@link #variables} is not {@code null} this list of
+ * variables will be used, otherwise {@link #numVars} variables will be
+ * generated. The probabilities of being chosen are the same for all
+ * variables.</li>
+ * <li>weights for different formula types, defining how often a formula type is
+ * generated compared to other types</li>
+ * <li>weights for comparator types in pseudo boolean constraints and
+ * cardinality constraints</li>
+ * <li>maximum numbers of operands for conjunctions, disjunctions, PBCs, and
+ * CCs</li>
  * </ul>
- * Note that the weights can only be applied for inner nodes of the generated formula,
- * since the 'leaves' of a formula in LogicNG are <b>always</b> literals or PBCs. So the weight of literals and PBCs
- * will effectively be higher and the weights of all other formula types (especially conjunctions and disjunctions)
- * will be lower. Similarly, the weight of constants will usually be lower, because they are always reduced in LogicNG
- * unless they are a single formula.
+ * Note that the weights can only be applied for inner nodes of the generated
+ * formula, since the 'leaves' of a formula in LogicNG are <b>always</b>
+ * literals or PBCs. So the weight of literals and PBCs will effectively be
+ * higher and the weights of all other formula types (especially conjunctions
+ * and disjunctions) will be lower. Similarly, the weight of constants will
+ * usually be lower, because they are always reduced in LogicNG unless they are
+ * a single formula.
  * @version 2.0.0
  * @since 2.0.0
  */
@@ -182,12 +189,13 @@ public final class FormulaRandomizerConfig extends Configuration {
         }
 
         /**
-         * Sets the seed of the randomizer (passed to the constructor of {@link java.util.Random}).
-         * This provides the possibility to get deterministic random formulas. Just choose an arbitrary
-         * number, and you get the same random formulas with every run.
+         * Sets the seed of the randomizer (passed to the constructor of
+         * {@link java.util.Random}). This provides the possibility to get
+         * deterministic random formulas. Just choose an arbitrary number, and
+         * you get the same random formulas with every run.
          * <p>
-         * The default value is 0, meaning that the seed depends on the system time, so determinism
-         * is lost.
+         * The default value is 0, meaning that the seed depends on the system
+         * time, so determinism is lost.
          * @param seed the seed
          * @return the builder
          */
@@ -199,9 +207,11 @@ public final class FormulaRandomizerConfig extends Configuration {
         /**
          * Sets the variables which may occur in the generated formulas.
          * <p>
-         * If this value is set, the {@link #numVars number of variables} will be ignored.
+         * If this value is set, the {@link #numVars number of variables} will
+         * be ignored.
          * <p>
-         * The default value is {@code null} (i.e. {@link #numVars} will be used.).
+         * The default value is {@code null} (i.e. {@link #numVars} will be
+         * used.).
          * @param variables the variables to use
          * @return the builder
          */
@@ -211,7 +221,8 @@ public final class FormulaRandomizerConfig extends Configuration {
         }
 
         /**
-         * Sets the number of different variables which may occur in the generated formulas.
+         * Sets the number of different variables which may occur in the
+         * generated formulas.
          * <p>
          * This value is ignored if also the {@link #variables} are set.
          * <p>
@@ -236,7 +247,8 @@ public final class FormulaRandomizerConfig extends Configuration {
 
         /**
          * Sets the relative weight of a positive literal.
-         * @param weightPositiveLiteral the relative weight of a positive literal
+         * @param weightPositiveLiteral the relative weight of a positive
+         *                              literal
          * @return the builder
          */
         public Builder weightPositiveLiteral(final double weightPositiveLiteral) {
@@ -246,7 +258,8 @@ public final class FormulaRandomizerConfig extends Configuration {
 
         /**
          * Sets the relative weight of a negative literal.
-         * @param weightNegativeLiteral the relative weight of a negative literal
+         * @param weightNegativeLiteral the relative weight of a negative
+         *                              literal
          * @return the builder
          */
         public Builder weightNegativeLiteral(final double weightNegativeLiteral) {
@@ -306,7 +319,8 @@ public final class FormulaRandomizerConfig extends Configuration {
 
         /**
          * Sets the maximum number of operands in a conjunction.
-         * @param maximumOperandsAnd the maximum number of operands in a conjunction
+         * @param maximumOperandsAnd the maximum number of operands in a
+         *                           conjunction
          * @return the builder
          */
         public Builder maximumOperandsAnd(final int maximumOperandsAnd) {
@@ -316,7 +330,8 @@ public final class FormulaRandomizerConfig extends Configuration {
 
         /**
          * Sets the maximum number of operands in a disjunction.
-         * @param maximumOperandsOr the maximum number of operands in a disjunction
+         * @param maximumOperandsOr the maximum number of operands in a
+         *                          disjunction
          * @return the builder
          */
         public Builder maximumOperandsOr(final int maximumOperandsOr) {
@@ -325,9 +340,9 @@ public final class FormulaRandomizerConfig extends Configuration {
         }
 
         /**
-         * Sets the relative weight of a pseudo boolean constraint.
-         * Note that the constraint may by chance also be a cardinality constraint,
-         * or even a literal or a constant.
+         * Sets the relative weight of a pseudo boolean constraint. Note that
+         * the constraint may by chance also be a cardinality constraint, or
+         * even a literal or a constant.
          * @param weightPbc the relative weight of a pseudo boolean constraint
          * @return the builder
          */
@@ -338,7 +353,8 @@ public final class FormulaRandomizerConfig extends Configuration {
 
         /**
          * Sets the relative weight of a positive coefficient.
-         * @param weightPbcCoeffPositive the relative weight of a positive coefficient
+         * @param weightPbcCoeffPositive the relative weight of a positive
+         *                               coefficient
          * @return the builder
          */
         public Builder weightPbcCoeffPositive(final double weightPbcCoeffPositive) {
@@ -348,7 +364,8 @@ public final class FormulaRandomizerConfig extends Configuration {
 
         /**
          * Sets the relative weight of a negative coefficient.
-         * @param weightPbcCoeffNegative the relative weight of a negative coefficient
+         * @param weightPbcCoeffNegative the relative weight of a negative
+         *                               coefficient
          * @return the builder
          */
         public Builder weightPbcCoeffNegative(final double weightPbcCoeffNegative) {
@@ -417,10 +434,12 @@ public final class FormulaRandomizerConfig extends Configuration {
         }
 
         /**
-         * Sets the maximum absolute value of a coefficient in a pseudo boolean constraint.
-         * Whether the coefficient is positive or negative is depends on {@link #weightPbcCoeffPositive}
-         * and {@link #weightPbcCoeffNegative}.
-         * @param maximumCoefficientPbc the maximum absolute value of a coefficient
+         * Sets the maximum absolute value of a coefficient in a pseudo boolean
+         * constraint. Whether the coefficient is positive or negative is
+         * depends on {@link #weightPbcCoeffPositive} and
+         * {@link #weightPbcCoeffNegative}.
+         * @param maximumCoefficientPbc the maximum absolute value of a
+         *                              coefficient
          * @return the builder
          */
         public Builder maximumCoefficientPbc(final int maximumCoefficientPbc) {
@@ -429,9 +448,9 @@ public final class FormulaRandomizerConfig extends Configuration {
         }
 
         /**
-         * Sets the relative weight of a cardinality constraint.
-         * Note that the cardinality constraint may by chance also be an AMO or EXO constraint,
-         * or even a literal or a constant.
+         * Sets the relative weight of a cardinality constraint. Note that the
+         * cardinality constraint may by chance also be an AMO or EXO
+         * constraint, or even a literal or a constant.
          * @param weightCc the relative weight of a cardinality constraint
          * @return the builder
          */
@@ -461,8 +480,10 @@ public final class FormulaRandomizerConfig extends Configuration {
         }
 
         /**
-         * Sets the maximum number of operands in a cardinality, AMO, or EXO constraint.
-         * @param maximumOperandsCc the maximum number of operands in a cardinality, AMO, or EXO constraint
+         * Sets the maximum number of operands in a cardinality, AMO, or EXO
+         * constraint.
+         * @param maximumOperandsCc the maximum number of operands in a
+         *                          cardinality, AMO, or EXO constraint
          * @return the builder
          */
         public Builder maximumOperandsCc(final int maximumOperandsCc) {

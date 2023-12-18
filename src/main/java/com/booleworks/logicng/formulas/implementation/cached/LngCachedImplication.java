@@ -34,7 +34,8 @@ public class LngCachedImplication extends LngCachedBinaryOperator implements Imp
             return true;
         }
         if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false; // the same caching formula factory would have produced a == object
+            return false; // the same caching formula factory would have
+                          // produced a == object
         }
         if (other instanceof Implication && hashCode() == other.hashCode()) {
             final Implication otherImp = (Implication) other;

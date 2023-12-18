@@ -3,19 +3,21 @@
 // Copyright 2023-20xx BooleWorks GmbH
 
 /*
- * MiniSat -- Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
- * OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * MiniSat -- Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson Permission
+ * is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the
+ * Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions: The above copyright notice and this
+ * permission notice shall be included in all copies or substantial portions of
+ * the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+ * EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
+ * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 package com.booleworks.logicng.solvers.datastructures;
@@ -35,8 +37,9 @@ public final class LNGHeap {
     private final LNGIntVector indices;
 
     /**
-     * Constructs a new heap for a given solver.  The solver is required to access its activity information stored
-     * for variables.  The initial size of the heap is 1000 elements.
+     * Constructs a new heap for a given solver. The solver is required to
+     * access its activity information stored for variables. The initial size of
+     * the heap is 1000 elements.
      * @param solver the solver
      */
     public LNGHeap(final MiniSatStyleSolver solver) {
@@ -95,7 +98,8 @@ public final class LNGHeap {
     }
 
     /**
-     * Returns {@code true} if a given element is in the heap, {@code false} otherwise.
+     * Returns {@code true} if a given element is in the heap, {@code false}
+     * otherwise.
      * @param n the element
      * @return {@code true} if a given variable index is in the heap
      */
@@ -222,7 +226,8 @@ public final class LNGHeap {
         int p = pos;
         final int y = heap.get(p);
         while (left(p) < heap.size()) {
-            final int child = right(p) < heap.size() && s.lt(heap.get(right(p)), heap.get(left(p))) ? right(p) : left(p);
+            final int child =
+                    right(p) < heap.size() && s.lt(heap.get(right(p)), heap.get(left(p))) ? right(p) : left(p);
             if (!s.lt(heap.get(child), y)) {
                 break;
             }

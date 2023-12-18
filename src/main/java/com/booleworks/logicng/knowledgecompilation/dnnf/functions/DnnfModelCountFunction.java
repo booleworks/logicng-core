@@ -28,7 +28,9 @@ public final class DnnfModelCountFunction implements DnnfFunction<BigInteger> {
 
     public DnnfModelCountFunction(final FormulaFactory f) {
         this.f = f;
-        cache = f instanceof CachingFormulaFactory ? ((CachingFormulaFactory) f).getFunctionCacheForType(FunctionCacheEntry.DNNF_MODELCOUNT) : new HashMap<>();
+        cache = f instanceof CachingFormulaFactory ?
+                ((CachingFormulaFactory) f).getFunctionCacheForType(FunctionCacheEntry.DNNF_MODELCOUNT) :
+                new HashMap<>();
     }
 
     @Override

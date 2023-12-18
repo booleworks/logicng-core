@@ -51,7 +51,8 @@ public class DefaultStringRepresentationTest extends TestWithFormulaContext {
         assertThat(_c.f.string(_c.f.equivalence(_c.a, _c.f.amo()), sr)).isEqualTo("a");
         assertThat(_c.f.string(_c.f.and(_c.a, _c.f.amo()), sr)).isEqualTo("a");
         assertThat(_c.f.string(_c.f.or(_c.a, _c.f.amo()), sr)).isEqualTo("$true");
-        assertThat(_c.f.string(_c.f.or(_c.a, _c.f.amo(), _c.f.exo(), _c.f.equivalence(_c.f.amo(), _c.b)), sr)).isEqualTo("$true");
+        assertThat(_c.f.string(_c.f.or(_c.a, _c.f.amo(), _c.f.exo(), _c.f.equivalence(_c.f.amo(), _c.b)), sr))
+                .isEqualTo("$true");
     }
 
     @ParameterizedTest

@@ -54,7 +54,8 @@ public class UnitPropagationTest extends TestWithFormulaContext {
         assertThat(_c.f.and(_c.or1, _c.x).transform(unitPropagation)).isEqualTo(_c.x);
         assertThat(_c.f.or(_c.and1, _c.a).transform(unitPropagation)).isEqualTo(_c.a);
         assertThat(_c.f.or(_c.or1, _c.x).transform(unitPropagation)).isEqualTo(_c.or1);
-        Assertions.assertThat(_c.p.parse("(a | b | ~c) & (~a | ~d) & (~c | d) & (~b | e | ~f | g) & (e | f | g | h) & (e | ~f | ~g | h) & f & c")
+        Assertions.assertThat(_c.p.parse(
+                "(a | b | ~c) & (~a | ~d) & (~c | d) & (~b | e | ~f | g) & (e | f | g | h) & (e | ~f | ~g | h) & f & c")
                 .transform(unitPropagation)).isEqualTo(_c.p.parse("(e | g) & (e | ~g | h) & f & c & d & ~a & b"));
     }
 }

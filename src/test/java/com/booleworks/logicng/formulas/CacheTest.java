@@ -19,16 +19,24 @@ public class CacheTest {
 
     @Test
     public void testDescription() {
-        Assertions.assertThat(TransformationCacheEntry.AIG.description()).isEqualTo("TransformationCacheEntry{description=and-inverter graph}");
-        assertThat(TransformationCacheEntry.NNF.description()).isEqualTo("TransformationCacheEntry{description=negation normal form}");
-        assertThat(TransformationCacheEntry.FACTORIZED_CNF.description()).isEqualTo("TransformationCacheEntry{description=factorized conjunctive normal form}");
+        Assertions.assertThat(TransformationCacheEntry.AIG.description())
+                .isEqualTo("TransformationCacheEntry{description=and-inverter graph}");
+        assertThat(TransformationCacheEntry.NNF.description())
+                .isEqualTo("TransformationCacheEntry{description=negation normal form}");
+        assertThat(TransformationCacheEntry.FACTORIZED_CNF.description())
+                .isEqualTo("TransformationCacheEntry{description=factorized conjunctive normal form}");
 
-        Assertions.assertThat(PredicateCacheEntry.IS_AIG.description()).isEqualTo("PredicateCacheEntry{description=and-inverter graph}");
-        assertThat(PredicateCacheEntry.IS_CNF.description()).isEqualTo("PredicateCacheEntry{description=conjunctive normal form}");
+        Assertions.assertThat(PredicateCacheEntry.IS_AIG.description())
+                .isEqualTo("PredicateCacheEntry{description=and-inverter graph}");
+        assertThat(PredicateCacheEntry.IS_CNF.description())
+                .isEqualTo("PredicateCacheEntry{description=conjunctive normal form}");
 
-        Assertions.assertThat(FunctionCacheEntry.LITPROFILE.description()).isEqualTo("FunctionCacheEntry{description=literal profile}");
-        assertThat(FunctionCacheEntry.VARPROFILE.description()).isEqualTo("FunctionCacheEntry{description=variable profile}");
-        assertThat(FunctionCacheEntry.SUBFORMULAS.description()).isEqualTo("FunctionCacheEntry{description=sub-formulas}");
+        Assertions.assertThat(FunctionCacheEntry.LITPROFILE.description())
+                .isEqualTo("FunctionCacheEntry{description=literal profile}");
+        assertThat(FunctionCacheEntry.VARPROFILE.description())
+                .isEqualTo("FunctionCacheEntry{description=variable profile}");
+        assertThat(FunctionCacheEntry.SUBFORMULAS.description())
+                .isEqualTo("FunctionCacheEntry{description=sub-formulas}");
     }
 
     @Test

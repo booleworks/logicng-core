@@ -34,7 +34,8 @@ public class ModelEnumerationHandlerTest {
     @Test
     public void testTimeoutHandler() throws ParserException, InterruptedException {
         final MiniSat solver = MiniSat.miniSat(f);
-        final Formula formula = f.parse("A | B | C | D | E | F | G | H | I | J | K | L | N | M | O | P | Q | R | S | T | U | V | W");
+        final Formula formula =
+                f.parse("A | B | C | D | E | F | G | H | I | J | K | L | N | M | O | P | Q | R | S | T | U | V | W");
         solver.add(formula);
         final TimeoutModelEnumerationHandler handler = new TimeoutModelEnumerationHandler(100);
         final ModelCountingFunction enumeration = ModelCountingFunction.builder(formula.variables(f))
@@ -49,7 +50,8 @@ public class ModelEnumerationHandlerTest {
         final long finish = System.currentTimeMillis();
         final long timeElapsed = finish - start;
 
-        // Should be very unlikely that the formula can be fully enumerated in 100ms.
+        // Should be very unlikely that the formula can be fully enumerated in
+        // 100ms.
         // Thus, we expect the handler to stop the execution.
         assertThat(handler.aborted()).isTrue();
         assertThat(timeElapsed).isGreaterThanOrEqualTo(100L);
@@ -57,7 +59,8 @@ public class ModelEnumerationHandlerTest {
 
     @Test
     public void testNumberOfModelsHandler() throws ParserException {
-        final Formula formula = f.parse("A | B | C | D | E | F | G | H | I | J | K | L | N | M | O | P | Q | R | S | T | U | V | W");
+        final Formula formula =
+                f.parse("A | B | C | D | E | F | G | H | I | J | K | L | N | M | O | P | Q | R | S | T | U | V | W");
         final SortedSet<Variable> vars = union(formula.variables(f), f.variables("X", "Y", "Z"), TreeSet::new);
         for (int i = 1; i <= 1000; i += 7) {
             final MiniSat solver = MiniSat.miniSat(f);
@@ -65,8 +68,8 @@ public class ModelEnumerationHandlerTest {
             final NumberOfModelsHandler handler = new NumberOfModelsHandler(i);
             final ModelCountingFunction enumeration = ModelCountingFunction.builder(vars)
                     .configuration(ModelEnumerationConfig.builder().handler(handler).strategy(
-                                    DefaultModelEnumerationStrategy.builder().maxNumberOfModels(200).build()
-                            ).build()
+                            DefaultModelEnumerationStrategy.builder().maxNumberOfModels(200).build()
+                    ).build()
                     ).build();
             final BigInteger numberOfModels = solver.execute(enumeration);
             assertThat(handler.aborted()).isTrue();

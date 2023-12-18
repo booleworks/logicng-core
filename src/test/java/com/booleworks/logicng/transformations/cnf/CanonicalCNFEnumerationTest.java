@@ -29,15 +29,20 @@ public class CanonicalCNFEnumerationTest extends TestWithFormulaContext {
         assertThat(_c.f.verum().transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("$true"));
         assertThat(_c.f.parse("a").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("a"));
         assertThat(_c.f.parse("~a").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("~a"));
-        assertThat(_c.f.parse("~a & b").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("(~a | b) & (~a | ~b) & (a | b)"));
+        assertThat(_c.f.parse("~a & b").transform(new CanonicalCNFEnumeration(_c.f)))
+                .isEqualTo(_c.f.parse("(~a | b) & (~a | ~b) & (a | b)"));
         assertThat(_c.f.parse("~a | b").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("~a | b"));
         assertThat(_c.f.parse("a => b").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("~a | b"));
-        assertThat(_c.f.parse("a <=> b").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("(~a | b) & (a | ~b)"));
-        assertThat(_c.f.parse("a + b = 1").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("(a | b) & (~a | ~b)"));
+        assertThat(_c.f.parse("a <=> b").transform(new CanonicalCNFEnumeration(_c.f)))
+                .isEqualTo(_c.f.parse("(~a | b) & (a | ~b)"));
+        assertThat(_c.f.parse("a + b = 1").transform(new CanonicalCNFEnumeration(_c.f)))
+                .isEqualTo(_c.f.parse("(a | b) & (~a | ~b)"));
         assertThat(_c.f.parse("a & (b | ~c)").transform(new CanonicalCNFEnumeration(_c.f)))
                 .isEqualTo(_c.f.parse("(a | b | c) & (a | b | ~c) & (a | ~b | c) & (a | ~b | ~c) & (~a | b | ~c)"));
-        assertThat(_c.f.parse("a & b & (~a | ~b)").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("(a | b) & (~a | b) & (~a | ~b) & (a | ~b)"));
-        assertThat(_c.f.parse("a | b | ~a & ~b").transform(new CanonicalCNFEnumeration(_c.f))).isEqualTo(_c.f.parse("$true"));
+        assertThat(_c.f.parse("a & b & (~a | ~b)").transform(new CanonicalCNFEnumeration(_c.f)))
+                .isEqualTo(_c.f.parse("(a | b) & (~a | b) & (~a | ~b) & (a | ~b)"));
+        assertThat(_c.f.parse("a | b | ~a & ~b").transform(new CanonicalCNFEnumeration(_c.f)))
+                .isEqualTo(_c.f.parse("$true"));
     }
 
     @ParameterizedTest
@@ -53,7 +58,8 @@ public class CanonicalCNFEnumerationTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     @RandomTag
     public void random(final FormulaContext _c) {
-        final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, FormulaRandomizerConfig.builder().numVars(5).weightPbc(0.5).seed(42).build());
+        final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f,
+                FormulaRandomizerConfig.builder().numVars(5).weightPbc(0.5).seed(42).build());
         for (int i = 0; i < 1000; i++) {
             final Formula formula = randomizer.formula(3);
             test(formula);

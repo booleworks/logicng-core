@@ -24,15 +24,17 @@ import java.util.Map;
 public interface VariableOrderingProvider {
 
     /**
-     * Generates a variable ordering for a given formula.  Such a variable ordering can then be
-     * used for the initialization of the BDD Kernel in {@link BDDKernel#BDDKernel(FormulaFactory, List, int, int)}.
+     * Generates a variable ordering for a given formula. Such a variable
+     * ordering can then be used for the initialization of the BDD Kernel in
+     * {@link BDDKernel#BDDKernel(FormulaFactory, List, int, int)}.
      * @param f       the factory for caching and generating new formulas
      * @param formula the formula
      * @return the variable ordering
      */
     List<Variable> getOrder(final FormulaFactory f, final Formula formula);
 
-    static List<Variable> sortProfile(final Map<Variable, Integer> profile, final Comparator<Map.Entry<Variable, Integer>> comparator) {
+    static List<Variable> sortProfile(final Map<Variable, Integer> profile,
+                                      final Comparator<Map.Entry<Variable, Integer>> comparator) {
         final Map<Variable, Integer> sortedProfile = sortProfileByOccurrence(profile, comparator);
         final List<Variable> order = new ArrayList<>(sortedProfile.size());
         for (final Map.Entry<Variable, Integer> entry : sortedProfile.entrySet()) {

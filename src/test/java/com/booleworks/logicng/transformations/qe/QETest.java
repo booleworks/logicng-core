@@ -22,10 +22,12 @@ public class QETest extends TestWithFormulaContext {
     public void testConstants(final FormulaContext _c) {
         final ExistentialQuantifierElimination ex1 = new ExistentialQuantifierElimination(_c.f);
         final ExistentialQuantifierElimination ex2 = new ExistentialQuantifierElimination(_c.f, _c.f.variable("x"));
-        final ExistentialQuantifierElimination ex3 = new ExistentialQuantifierElimination(_c.f, Arrays.asList(_c.f.variable("x"), _c.f.variable("y")));
+        final ExistentialQuantifierElimination ex3 =
+                new ExistentialQuantifierElimination(_c.f, Arrays.asList(_c.f.variable("x"), _c.f.variable("y")));
         final UniversalQuantifierElimination uni1 = new UniversalQuantifierElimination(_c.f);
         final UniversalQuantifierElimination uni2 = new UniversalQuantifierElimination(_c.f, _c.f.variable("x"));
-        final UniversalQuantifierElimination uni3 = new UniversalQuantifierElimination(_c.f, Arrays.asList(_c.f.variable("x"), _c.f.variable("y")));
+        final UniversalQuantifierElimination uni3 =
+                new UniversalQuantifierElimination(_c.f, Arrays.asList(_c.f.variable("x"), _c.f.variable("y")));
 
         assertThat(_c.f.verum().transform(ex1)).isEqualTo(_c.f.verum());
         assertThat(_c.f.verum().transform(ex2)).isEqualTo(_c.f.verum());
@@ -46,10 +48,12 @@ public class QETest extends TestWithFormulaContext {
     public void testLiterals(final FormulaContext _c) {
         final ExistentialQuantifierElimination ex1 = new ExistentialQuantifierElimination(_c.f);
         final ExistentialQuantifierElimination ex2 = new ExistentialQuantifierElimination(_c.f, _c.f.variable("x"));
-        final ExistentialQuantifierElimination ex3 = new ExistentialQuantifierElimination(_c.f, Arrays.asList(_c.f.variable("x"), _c.f.variable("y")));
+        final ExistentialQuantifierElimination ex3 =
+                new ExistentialQuantifierElimination(_c.f, Arrays.asList(_c.f.variable("x"), _c.f.variable("y")));
         final UniversalQuantifierElimination uni1 = new UniversalQuantifierElimination(_c.f);
         final UniversalQuantifierElimination uni2 = new UniversalQuantifierElimination(_c.f, _c.f.variable("x"));
-        final UniversalQuantifierElimination uni3 = new UniversalQuantifierElimination(_c.f, Arrays.asList(_c.f.variable("x"), _c.f.variable("y")));
+        final UniversalQuantifierElimination uni3 =
+                new UniversalQuantifierElimination(_c.f, Arrays.asList(_c.f.variable("x"), _c.f.variable("y")));
 
         final Formula x = _c.f.variable("x");
         final Formula y = _c.f.literal("y", false);
@@ -79,10 +83,12 @@ public class QETest extends TestWithFormulaContext {
     public void testFormulas(final FormulaContext _c) throws ParserException {
         final ExistentialQuantifierElimination ex1 = new ExistentialQuantifierElimination(_c.f);
         final ExistentialQuantifierElimination ex2 = new ExistentialQuantifierElimination(_c.f, _c.f.variable("x"));
-        final ExistentialQuantifierElimination ex3 = new ExistentialQuantifierElimination(_c.f, Arrays.asList(_c.f.variable("x"), _c.f.variable("y")));
+        final ExistentialQuantifierElimination ex3 =
+                new ExistentialQuantifierElimination(_c.f, Arrays.asList(_c.f.variable("x"), _c.f.variable("y")));
         final UniversalQuantifierElimination uni1 = new UniversalQuantifierElimination(_c.f);
         final UniversalQuantifierElimination uni2 = new UniversalQuantifierElimination(_c.f, _c.f.variable("x"));
-        final UniversalQuantifierElimination uni3 = new UniversalQuantifierElimination(_c.f, Arrays.asList(_c.f.variable("x"), _c.f.variable("y")));
+        final UniversalQuantifierElimination uni3 =
+                new UniversalQuantifierElimination(_c.f, Arrays.asList(_c.f.variable("x"), _c.f.variable("y")));
 
         final Formula f1 = _c.p.parse("a & (b | ~c)");
         final Formula f2 = _c.p.parse("x & (b | ~c)");

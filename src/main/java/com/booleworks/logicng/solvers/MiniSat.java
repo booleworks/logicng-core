@@ -50,7 +50,11 @@ import java.util.TreeSet;
  */
 public class MiniSat extends SATSolver {
 
-    public enum SolverStyle {MINISAT, GLUCOSE, MINICARD}
+    public enum SolverStyle {
+        MINISAT,
+        GLUCOSE,
+        MINICARD
+    }
 
     protected final MiniSatConfig config;
     protected MiniSatStyleSolver solver;
@@ -68,7 +72,8 @@ public class MiniSat extends SATSolver {
      * @param f             the formula factory
      * @param solverStyle   the solver style
      * @param miniSatConfig the MiniSat configuration, must not be {@code null}
-     * @param glucoseConfig the Glucose configuration, must not be {@code null} for solver type {@link SolverStyle#GLUCOSE}
+     * @param glucoseConfig the Glucose configuration, must not be {@code null}
+     *                      for solver type {@link SolverStyle#GLUCOSE}
      * @throws IllegalArgumentException if the solver style is unknown
      */
     protected MiniSat(final FormulaFactory f, final SolverStyle solverStyle, final MiniSatConfig miniSatConfig,
@@ -99,9 +104,9 @@ public class MiniSat extends SATSolver {
     }
 
     /**
-     * Constructs a new MiniSat solver with a given underlying solver core.
-     * This method is primarily used for serialization purposes and should not be required in any
-     * other application use case.
+     * Constructs a new MiniSat solver with a given underlying solver core. This
+     * method is primarily used for serialization purposes and should not be
+     * required in any other application use case.
      * @param f                the formula factory
      * @param underlyingSolver the underlying solver core
      */
@@ -128,7 +133,8 @@ public class MiniSat extends SATSolver {
     }
 
     /**
-     * Returns a new MiniSat solver with the MiniSat configuration from the formula factory.
+     * Returns a new MiniSat solver with the MiniSat configuration from the
+     * formula factory.
      * @param f the formula factory
      * @return the solver
      */
@@ -147,7 +153,8 @@ public class MiniSat extends SATSolver {
     }
 
     /**
-     * Returns a new Glucose solver with the MiniSat and Glucose configuration from the formula factory.
+     * Returns a new Glucose solver with the MiniSat and Glucose configuration
+     * from the formula factory.
      * @param f the formula factory
      * @return the solver
      */
@@ -163,17 +170,20 @@ public class MiniSat extends SATSolver {
      * @param glucoseConfig the Glucose configuration, must not be {@code null}
      * @return the solver
      */
-    public static MiniSat glucose(final FormulaFactory f, final MiniSatConfig miniSatConfig, final GlucoseConfig glucoseConfig) {
+    public static MiniSat glucose(final FormulaFactory f, final MiniSatConfig miniSatConfig,
+                                  final GlucoseConfig glucoseConfig) {
         return new MiniSat(f, SolverStyle.GLUCOSE, miniSatConfig, glucoseConfig);
     }
 
     /**
-     * Returns a new MiniCard solver with the MiniSat configuration from the formula factory.
+     * Returns a new MiniCard solver with the MiniSat configuration from the
+     * formula factory.
      * @param f the formula factory
      * @return the solver
      */
     public static MiniSat miniCard(final FormulaFactory f) {
-        return new MiniSat(f, SolverStyle.MINICARD, (MiniSatConfig) f.configurationFor(ConfigurationType.MINISAT), null);
+        return new MiniSat(f, SolverStyle.MINICARD, (MiniSatConfig) f.configurationFor(ConfigurationType.MINISAT),
+                null);
     }
 
     /**
@@ -187,26 +197,31 @@ public class MiniSat extends SATSolver {
     }
 
     /**
-     * Returns a new solver depending on the given solver style with the configuration from the formula factory.
+     * Returns a new solver depending on the given solver style with the
+     * configuration from the formula factory.
      * @param f     the formula factory
      * @param style the solver style, must not be {@code null}
      * @return the solver
      */
     public static MiniSat mk(final FormulaFactory f, final SolverStyle style) {
         final MiniSatConfig miniSatConfig = (MiniSatConfig) f.configurationFor(ConfigurationType.MINISAT);
-        final GlucoseConfig glucoseConfig = style == SolverStyle.GLUCOSE ? (GlucoseConfig) f.configurationFor(ConfigurationType.GLUCOSE) : null;
+        final GlucoseConfig glucoseConfig =
+                style == SolverStyle.GLUCOSE ? (GlucoseConfig) f.configurationFor(ConfigurationType.GLUCOSE) : null;
         return mk(f, style, miniSatConfig, glucoseConfig);
     }
 
     /**
-     * Returns a new solver depending on the given solver style with the given configuration.
+     * Returns a new solver depending on the given solver style with the given
+     * configuration.
      * @param f             the formula factory
      * @param solverStyle   the solver style, must not be {@code null}
      * @param miniSatConfig the configuration, must not be {@code null}
-     * @param glucoseConfig the Glucose configuration, must not be {@code null} for solver type {@link SolverStyle#GLUCOSE}
+     * @param glucoseConfig the Glucose configuration, must not be {@code null}
+     *                      for solver type {@link SolverStyle#GLUCOSE}
      * @return the solver
      */
-    public static MiniSat mk(final FormulaFactory f, final SolverStyle solverStyle, final MiniSatConfig miniSatConfig, final GlucoseConfig glucoseConfig) {
+    public static MiniSat mk(final FormulaFactory f, final SolverStyle solverStyle, final MiniSatConfig miniSatConfig,
+                             final GlucoseConfig glucoseConfig) {
         switch (solverStyle) {
             case MINISAT:
                 return miniSat(f, miniSatConfig);
@@ -229,15 +244,18 @@ public class MiniSat extends SATSolver {
                     if (constraint.comparator() == CType.LE) {
                         ((MiniCard) solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
                     } else if (constraint.comparator() == CType.LT && constraint.rhs() > 3) {
-                        ((MiniCard) solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs() - 1);
+                        ((MiniCard) solver).addAtMost(generateClauseVector(constraint.operands()),
+                                constraint.rhs() - 1);
                     } else if (constraint.comparator() == CType.EQ && constraint.rhs() == 1) {
                         ((MiniCard) solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
                         solver.addClause(generateClauseVector(constraint.operands()), proposition);
                     } else {
-                        CCEncoder.encode((CardinalityConstraint) constraint, EncodingResult.resultForMiniSat(f, this, proposition));
+                        CCEncoder.encode((CardinalityConstraint) constraint,
+                                EncodingResult.resultForMiniSat(f, this, proposition));
                     }
                 } else {
-                    CCEncoder.encode((CardinalityConstraint) constraint, EncodingResult.resultForMiniSat(f, this, proposition));
+                    CCEncoder.encode((CardinalityConstraint) constraint,
+                            EncodingResult.resultForMiniSat(f, this, proposition));
                 }
             } else {
                 PBEncoder.encode(constraint, EncodingResult.resultForMiniSat(f, this, proposition));
@@ -249,8 +267,9 @@ public class MiniSat extends SATSolver {
     }
 
     /**
-     * Adds all variables of the given formula to the solver if not already present.
-     * This method can be used to ensure that the internal solver knows the given variables.
+     * Adds all variables of the given formula to the solver if not already
+     * present. This method can be used to ensure that the internal solver knows
+     * the given variables.
      * @param originalFormula the original formula
      */
     private void addAllOriginalVariables(final Formula originalFormula) {
@@ -325,7 +344,8 @@ public class MiniSat extends SATSolver {
     @Override
     public Assignment model(final Collection<Variable> variables) {
         if (result == UNDEF) {
-            throw new IllegalStateException("Cannot get a model as long as the formula is not solved.  Call 'sat' first.");
+            throw new IllegalStateException(
+                    "Cannot get a model as long as the formula is not solved.  Call 'sat' first.");
         }
         final LNGIntVector relevantIndices = variables == null ? null : new LNGIntVector(variables.size());
         if (relevantIndices != null) {
@@ -405,7 +425,8 @@ public class MiniSat extends SATSolver {
     /**
      * Creates an assignment from a Boolean vector of the solver.
      * @param vec             the vector of the solver
-     * @param relevantIndices the solver's indices of the relevant variables for the model.
+     * @param relevantIndices the solver's indices of the relevant variables for
+     *                        the model.
      * @return the assignment
      */
     public Assignment createAssignment(final LNGBooleanVector vec, final LNGIntVector relevantIndices) {
@@ -431,8 +452,8 @@ public class MiniSat extends SATSolver {
     /**
      * Returns the underlying core solver.
      * <p>
-     * ATTENTION: by influencing the underlying solver directly, you can mess things up completely!  You should really
-     * know what you are doing.
+     * ATTENTION: by influencing the underlying solver directly, you can mess
+     * things up completely! You should really know what you are doing.
      * @return the underlying core solver
      */
     public MiniSatStyleSolver underlyingSolver() {
@@ -481,7 +502,8 @@ public class MiniSat extends SATSolver {
 
     @Override
     public boolean canGenerateProof() {
-        return config.proofGeneration() && (style == SolverStyle.MINISAT || style == SolverStyle.GLUCOSE && !incremental);
+        return config.proofGeneration() &&
+                (style == SolverStyle.MINISAT || style == SolverStyle.GLUCOSE && !incremental);
     }
 
     /**
@@ -494,14 +516,16 @@ public class MiniSat extends SATSolver {
 
     /**
      * Returns whether this solver is incremental
-     * @return {@code true} if this solver is incremental, {@code false} otherwise
+     * @return {@code true} if this solver is incremental, {@code false}
+     *         otherwise
      */
     public boolean isIncremental() {
         return incremental;
     }
 
     /**
-     * Returns the current result, e.g. the result of the last {@link #sat()} call.
+     * Returns the current result, e.g. the result of the last {@link #sat()}
+     * call.
      * @return the current result
      */
     public Tristate getResult() {
@@ -514,7 +538,8 @@ public class MiniSat extends SATSolver {
 
     /**
      * Returns whether the last computation was using assumption literals.
-     * @return {@code true} if the last computation used assumption literals, {@code false} otherwise
+     * @return {@code true} if the last computation used assumption literals,
+     *         {@code false} otherwise
      */
     public boolean isLastComputationWithAssumptions() {
         return lastComputationWithAssumptions;

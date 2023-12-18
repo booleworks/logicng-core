@@ -51,7 +51,8 @@ public class ConstraintGraphGeneratorTest {
         expected.connect(a, b);
         expected.connect(a, c);
         expected.connect(b, c);
-        Assertions.assertThat(ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a | ~b | c")).toString()).isEqualTo(expected.toString());
+        Assertions.assertThat(ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a | ~b | c")).toString())
+                .isEqualTo(expected.toString());
     }
 
     @Test
@@ -65,7 +66,8 @@ public class ConstraintGraphGeneratorTest {
         expected.connect(a, b);
         expected.connect(a, c);
         expected.connect(b, c);
-        Assertions.assertThat(ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a + b + c <= 1")).toString()).isEqualTo(expected.toString());
+        Assertions.assertThat(ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a + b + c <= 1")).toString())
+                .isEqualTo(expected.toString());
     }
 
     @Test
@@ -85,10 +87,10 @@ public class ConstraintGraphGeneratorTest {
         expected.connect(d, a);
         expected.connect(d, e);
         Assertions.assertThat(ConstraintGraphGenerator.generateFromFormulas(f,
-                        p.parse("a | ~b | c"),
-                        p.parse("d | ~a"),
-                        p.parse("d + e = 1"),
-                        p.parse("g")).toString())
+                p.parse("a | ~b | c"),
+                p.parse("d | ~a"),
+                p.parse("d + e = 1"),
+                p.parse("g")).toString())
                 .isEqualTo(expected.toString());
     }
 

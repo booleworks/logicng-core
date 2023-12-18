@@ -9,7 +9,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.transformations.CanonicalEnumeration;
 
 /**
- * Canonical CNF generation via enumeration of falsifying assignments by a SAT solver.
+ * Canonical CNF generation via enumeration of falsifying assignments by a SAT
+ * solver.
  * @version 3.0.0
  * @since 2.3.0
  */

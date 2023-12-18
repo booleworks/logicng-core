@@ -96,7 +96,8 @@ class TimeoutBDDHandlerTest {
         final Formula formula = pg.generate(10);
         final VariableOrderingProvider provider = new BFSOrdering();
         final BDDKernel kernel = new BDDKernel(f, provider.getOrder(f, formula), 100, 100);
-        final TimeoutBDDHandler handler = new TimeoutBDDHandler(System.currentTimeMillis() + 100L, TimeoutHandler.TimerType.FIXED_END);
+        final TimeoutBDDHandler handler =
+                new TimeoutBDDHandler(System.currentTimeMillis() + 100L, TimeoutHandler.TimerType.FIXED_END);
 
         final BDD result = BDDFactory.build(f, formula, kernel, handler);
 

@@ -9,7 +9,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaPredicate;
 
 /**
- * Tautology predicate.  Indicates whether a formula is a tautology or not.
+ * Tautology predicate. Indicates whether a formula is a tautology or not.
  * @version 3.0.0
  * @since 1.0
  */
@@ -18,7 +18,8 @@ public final class TautologyPredicate implements FormulaPredicate {
     private final FormulaFactory f;
 
     /**
-     * Constructs a new tautology predicate with a given formula factory which caches the result.
+     * Constructs a new tautology predicate with a given formula factory which
+     * caches the result.
      * @param f the formula factory
      */
     public TautologyPredicate(final FormulaFactory f) {

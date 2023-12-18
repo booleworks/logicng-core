@@ -38,8 +38,10 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
     public void testCornerCases(final FormulaContext _c) {
         final FormulaCornerCases cornerCases = new FormulaCornerCases(_c.f);
         for (final Formula formula : cornerCases.cornerCases()) {
-            final SATSolver solverFactorization = MiniSat.miniSat(_c.f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).build());
-            final SATSolver solverFullPG = MiniSat.miniSat(_c.f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).build());
+            final SATSolver solverFactorization = MiniSat.miniSat(_c.f,
+                    MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).build());
+            final SATSolver solverFullPG = MiniSat.miniSat(_c.f,
+                    MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).build());
             solverFactorization.add(formula);
             solverFullPG.add(formula);
             assertThat(solverFactorization.sat() == solverFullPG.sat()).isTrue();
@@ -51,8 +53,10 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
     public void randomCaching() {
         for (int i = 0; i < 500; i++) {
             final FormulaFactory f = FormulaFactory.caching();
-            final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).build());
-            final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(10).weightPbc(1).seed(i * 42).build());
+            final SATSolver solver = MiniSat.miniSat(f,
+                    MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).build());
+            final FormulaRandomizer randomizer = new FormulaRandomizer(f,
+                    FormulaRandomizerConfig.builder().numVars(10).weightPbc(1).seed(i * 42).build());
 
             final Formula randomFormula01 = randomSATFormula(f, randomizer, 4);
             final Formula randomFormula02 = randomSATFormula(f, randomizer, 4);
@@ -60,27 +64,33 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
             solver.add(randomFormula01);
             if (solver.sat() == Tristate.TRUE) {
                 final List<Model> models = solver.enumerateAllModels(solver.knownVariables());
-                final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
+                final Formula dnf =
+                        f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
                 assertThat(f.equivalence(randomFormula01, dnf).holds(new TautologyPredicate(f))).isTrue();
             }
             final SolverState state = solver.saveState();
             solver.add(randomFormula02);
             if (solver.sat() == Tristate.TRUE) {
                 final List<Model> models = solver.enumerateAllModels(solver.knownVariables());
-                final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
-                assertThat(f.equivalence(f.and(randomFormula01, randomFormula02), dnf).holds(new TautologyPredicate(f))).isTrue();
+                final Formula dnf =
+                        f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
+                assertThat(f.equivalence(f.and(randomFormula01, randomFormula02), dnf).holds(new TautologyPredicate(f)))
+                        .isTrue();
             }
             solver.loadState(state);
             if (solver.sat() == Tristate.TRUE) {
                 final List<Model> models = solver.enumerateAllModels(solver.knownVariables());
-                final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
+                final Formula dnf =
+                        f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
                 assertThat(f.equivalence(randomFormula01, dnf).holds(new TautologyPredicate(f))).isTrue();
             }
             solver.add(randomFormula02);
             if (solver.sat() == Tristate.TRUE) {
                 final List<Model> models = solver.enumerateAllModels(solver.knownVariables());
-                final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
-                assertThat(f.equivalence(f.and(randomFormula01, randomFormula02), dnf).holds(new TautologyPredicate(f))).isTrue();
+                final Formula dnf =
+                        f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
+                assertThat(f.equivalence(f.and(randomFormula01, randomFormula02), dnf).holds(new TautologyPredicate(f)))
+                        .isTrue();
             }
         }
     }
@@ -112,7 +122,8 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
         computeAndVerify(_c.p.parse("(A => ~A) <=> (B <=> (~A => B))"));
     }
 
-    private static Formula randomSATFormula(final FormulaFactory f, final FormulaRandomizer randomizer, final int maxDepth) {
+    private static Formula randomSATFormula(final FormulaFactory f, final FormulaRandomizer randomizer,
+                                            final int maxDepth) {
         return Stream.generate(() -> randomizer.formula(maxDepth))
                 .filter(formula -> formula.holds(new SATPredicate(f)))
                 .findAny().get();
@@ -120,7 +131,8 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
 
     private static void computeAndVerify(final Formula formula) {
         final FormulaFactory f = formula.factory();
-        final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).build());
+        final SATSolver solver = MiniSat.miniSat(f,
+                MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER).build());
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(formula.variables(f));
         final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));

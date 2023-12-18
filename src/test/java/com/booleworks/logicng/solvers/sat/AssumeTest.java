@@ -40,8 +40,10 @@ public class AssumeTest {
     @Test
     public void testAssume() throws ParserException {
         final List<Literal> assumptions1 = Arrays.asList(f.literal("c", true), f.literal("d", true));
-        final List<Literal> assumptions2 = Arrays.asList(f.literal("x", false), f.literal("y", true), f.literal("d", true));
-        final List<Literal> assumptions3 = Arrays.asList(f.literal("a", false), f.literal("c", true), f.literal("a", false));
+        final List<Literal> assumptions2 =
+                Arrays.asList(f.literal("x", false), f.literal("y", true), f.literal("d", true));
+        final List<Literal> assumptions3 =
+                Arrays.asList(f.literal("a", false), f.literal("c", true), f.literal("a", false));
         final List<Literal> assumptions4 = Arrays.asList(f.literal("c", false), f.literal("d", true));
         final List<Literal> assumptions5 = Arrays.asList(f.literal("x", true), f.literal("x", false));
         final List<Literal> assumptions6 = Arrays.asList(f.literal("a", true), f.literal("a", false));

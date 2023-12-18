@@ -26,7 +26,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * A dimacs file writer for a formula.  Writes the internal data structure of the formula to a dimacs file.
+ * A dimacs file writer for a formula. Writes the internal data structure of the
+ * formula to a dimacs file.
  * @version 2.4.0
  * @since 1.2
  */
@@ -43,14 +44,19 @@ public final class FormulaDimacsFileWriter {
     }
 
     /**
-     * Writes a given formula's internal data structure as a dimacs file.  Must only be called with a formula which is in CNF.
-     * @param fileName     the file name of the dimacs file to write, will be extended by suffix {@code .cnf} if not already present
+     * Writes a given formula's internal data structure as a dimacs file. Must
+     * only be called with a formula which is in CNF.
+     * @param fileName     the file name of the dimacs file to write, will be
+     *                     extended by suffix {@code .cnf} if not already
+     *                     present
      * @param formula      the formula in CNF
-     * @param writeMapping indicates whether an additional file for translating the ids to variable names shall be written
+     * @param writeMapping indicates whether an additional file for translating
+     *                     the ids to variable names shall be written
      * @throws IOException              if there was a problem writing the file
      * @throws IllegalArgumentException if the formula was not in CNF
      */
-    public static void write(final String fileName, final Formula formula, final boolean writeMapping) throws IOException {
+    public static void write(final String fileName, final Formula formula, final boolean writeMapping)
+            throws IOException {
         final LiteralsFunction lf = new LiteralsFunction(formula.factory(), null);
         final VariablesFunction vf = new VariablesFunction(formula.factory(), null);
         final File file = new File(fileName.endsWith(CNF_EXTENSION) ? fileName : fileName + CNF_EXTENSION);
@@ -83,22 +89,27 @@ public final class FormulaDimacsFileWriter {
         if (formula.type().equals(FType.FALSE)) {
             sb.append(String.format("0%n"));
         }
-        try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8))) {
+        try (final BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8))) {
             writer.append(sb);
             writer.flush();
         }
         if (writeMapping) {
-            final String mappingFileName = (fileName.endsWith(CNF_EXTENSION) ? fileName.substring(0, fileName.length() - 4) : fileName) + MAP_EXTENSION;
+            final String mappingFileName =
+                    (fileName.endsWith(CNF_EXTENSION) ? fileName.substring(0, fileName.length() - 4) : fileName) +
+                            MAP_EXTENSION;
             writeMapping(new File(mappingFileName), var2id);
         }
     }
 
-    private static void writeMapping(final File mappingFile, final SortedMap<Variable, Long> var2id) throws IOException {
+    private static void writeMapping(final File mappingFile, final SortedMap<Variable, Long> var2id)
+            throws IOException {
         final StringBuilder sb = new StringBuilder();
         for (final Map.Entry<Variable, Long> entry : var2id.entrySet()) {
             sb.append(entry.getKey()).append(";").append(entry.getValue()).append(System.lineSeparator());
         }
-        try (final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(mappingFile.toPath()), StandardCharsets.UTF_8))) {
+        try (final BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(Files.newOutputStream(mappingFile.toPath()), StandardCharsets.UTF_8))) {
             writer.append(sb);
             writer.flush();
         }

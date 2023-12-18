@@ -18,16 +18,17 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * A simple immutable class representing a model of a formula.  In contrast to an {@link Assignment} a model just
- * stores a simple list of literals and cannot be used to evaluate or restrict a formula (because this would
- * be very inefficient).  In this case you want to use the {@link #assignment()} method to convert
- * the model to an assignment first.
+ * A simple immutable class representing a model of a formula. In contrast to an
+ * {@link Assignment} a model just stores a simple list of literals and cannot
+ * be used to evaluate or restrict a formula (because this would be very
+ * inefficient). In this case you want to use the {@link #assignment()} method
+ * to convert the model to an assignment first.
  * <p>
- * The primary use case for models is to use them in the model enumeration function for minimal heap usage of
- * the enumerated models.
+ * The primary use case for models is to use them in the model enumeration
+ * function for minimal heap usage of the enumerated models.
  * <p>
- * For efficiency reasons, two models are only equal, if their literal list has the same order.  During a model
- * enumeration this is always true.
+ * For efficiency reasons, two models are only equal, if their literal list has
+ * the same order. During a model enumeration this is always true.
  * @version 3.0.0
  * @since 3.0.0
  */
@@ -84,7 +85,8 @@ public class Model {
     }
 
     /**
-     * Returns the formula for this model.  This is a conjunction of all literals.
+     * Returns the formula for this model. This is a conjunction of all
+     * literals.
      * @param f the formula factory
      * @return the conjunction of all literals in this model
      */

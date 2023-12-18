@@ -15,10 +15,15 @@ import java.util.List;
 /**
  * An interface for enumeration collectors.
  * <p>
- * An enumeration collector gathers the found models given by {@link #addModel(LNGBooleanVector, MiniSat, LNGIntVector, ModelEnumerationHandler)}.
- * Added Models added can potentially be discarded later via {@link #rollback(ModelEnumerationHandler)}. To prevent models from being rolled back
- * one can call {@link #commit(ModelEnumerationHandler)}. With {@link #getResult()} the result, the models committed models, can be retrieved.
- * @param <RESULT> The result type of the model enumeration function.  Can be e.g. a model count, a list of models, or a BDD.
+ * An enumeration collector gathers the found models given by
+ * {@link #addModel(LNGBooleanVector, MiniSat, LNGIntVector, ModelEnumerationHandler)}.
+ * Added Models added can potentially be discarded later via
+ * {@link #rollback(ModelEnumerationHandler)}. To prevent models from being
+ * rolled back one can call {@link #commit(ModelEnumerationHandler)}. With
+ * {@link #getResult()} the result, the models committed models, can be
+ * retrieved.
+ * @param <RESULT> The result type of the model enumeration function. Can be
+ *                 e.g. a model count, a list of models, or a BDD.
  * @version 2.5.0
  * @since 2.5.0
  */
@@ -29,17 +34,21 @@ public interface EnumerationCollector<RESULT> {
      * @param modelFromSolver    the model from the solver
      * @param solver             the solver
      * @param relevantAllIndices the relevant indices
-     * @param handler            the model enumeration handler, may be {@code null}
+     * @param handler            the model enumeration handler, may be
+     *                           {@code null}
      * @return true if adding the model was successful, false otherwise
      */
-    boolean addModel(LNGBooleanVector modelFromSolver, MiniSat solver, LNGIntVector relevantAllIndices, ModelEnumerationHandler handler);
+    boolean addModel(LNGBooleanVector modelFromSolver, MiniSat solver, LNGIntVector relevantAllIndices,
+                     ModelEnumerationHandler handler);
 
     /**
-     * All founds models since the last commit call are confirmed and cannot be rolled back.
+     * All founds models since the last commit call are confirmed and cannot be
+     * rolled back.
      * <p>
      * Calls the {@code commit()} routine of {@code handler}.
      * @param handler the model enumeration handler, may be {@code null}
-     * @return {@code true} if the computation should continue, otherwise {@code false}
+     * @return {@code true} if the computation should continue, otherwise
+     *         {@code false}
      */
     boolean commit(ModelEnumerationHandler handler);
 
@@ -48,7 +57,8 @@ public interface EnumerationCollector<RESULT> {
      * <p>
      * Calls the {@code rollback} routine of {@code handler}.
      * @param handler the model enumeration handler, may be {@code null}
-     * @return {@code true} if the computation should continue, otherwise {@code false}
+     * @return {@code true} if the computation should continue, otherwise
+     *         {@code false}
      */
     boolean rollback(ModelEnumerationHandler handler);
 

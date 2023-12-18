@@ -86,17 +86,20 @@ public class NotTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testEqualsDifferentFormulaFactory(final FormulaContext _c) {
-        FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         assertThat(g.not(_c.and1)).isEqualTo(_c.not1);
         assertThat(g.not(g.or(g.variable("x"), g.variable("y")))).isEqualTo(_c.not2);
         assertThat(g.not(g.or(g.variable("a"), g.variable("b")))).isNotEqualTo(_c.not2);
 
-        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         assertThat(g.not(_c.and1)).isEqualTo(_c.not1);
         assertThat(g.not(g.or(g.variable("x"), g.variable("y")))).isEqualTo(_c.not2);
         assertThat(g.not(g.or(g.variable("a"), g.variable("b")))).isNotEqualTo(_c.not2);
 
-        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT).build());
+        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT).build());
         assertThat(g.not(_c.and1)).isEqualTo(_c.not1);
         assertThat(g.not(g.or(g.variable("x"), g.variable("y")))).isEqualTo(_c.not2);
         assertThat(g.not(g.or(g.variable("a"), g.variable("b")))).isNotEqualTo(_c.not2);

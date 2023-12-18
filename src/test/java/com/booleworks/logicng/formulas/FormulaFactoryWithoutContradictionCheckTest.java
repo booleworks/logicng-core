@@ -29,7 +29,8 @@ import java.util.List;
 
 public class FormulaFactoryWithoutContradictionCheckTest {
 
-    private static final FormulaFactoryConfig CONFIG = FormulaFactoryConfig.builder().simplifyComplementaryOperands(false).build();
+    private static final FormulaFactoryConfig CONFIG =
+            FormulaFactoryConfig.builder().simplifyComplementaryOperands(false).build();
 
     public static Collection<Object[]> contexts() {
         final List<Object[]> contexts = new ArrayList<>();
@@ -179,11 +180,13 @@ public class FormulaFactoryWithoutContradictionCheckTest {
         solver.add(_c.f.parse("C | ~C"));
         List<Model> models = solver.enumerateAllModels(_c.f.variables("A", "B", "C"));
         assertThat(models).hasSize(2);
-        models.forEach(m -> Assertions.assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true), _c.f.literal("C", false)));
+        models.forEach(m -> Assertions.assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true),
+                _c.f.literal("C", false)));
         solver.add(_c.f.parse("D | ~D"));
         models = solver.enumerateAllModels(_c.f.variables("A", "B", "C", "D"));
         assertThat(models).hasSize(4);
-        models.forEach(m -> Assertions.assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true), _c.f.literal("C", false),
+        models.forEach(m -> Assertions.assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true),
+                _c.f.literal("C", false),
                 _c.f.literal("D", true), _c.f.literal("D", false)));
     }
 
@@ -196,7 +199,8 @@ public class FormulaFactoryWithoutContradictionCheckTest {
         solver.add(_c.f.parse("C | ~C"));
         final List<Model> models = solver.enumerateAllModels(_c.f.variables("A", "B", "C"));
         assertThat(models).hasSize(2);
-        models.forEach(m -> Assertions.assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true), _c.f.literal("C", false)));
+        models.forEach(m -> Assertions.assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true),
+                _c.f.literal("C", false)));
         solver.add(_c.f.parse("D & ~D"));
         Assertions.assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
     }

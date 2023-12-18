@@ -30,7 +30,8 @@ import java.util.stream.Collectors;
 /**
  * A solver function for enumerating models on the solver.
  * <p>
- * Model enumeration functions are instantiated via their builder {@link Builder}.
+ * Model enumeration functions are instantiated via their builder
+ * {@link Builder}.
  * @version 3.0.0
  * @since 3.0.0
  */
@@ -42,7 +43,8 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
     }
 
     /**
-     * Constructs a new model enumeration function with the given set of variables.
+     * Constructs a new model enumeration function with the given set of
+     * variables.
      * @param variables the variables for the enumeration
      * @return the builder for the function
      */
@@ -51,7 +53,8 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
     }
 
     /**
-     * Constructs a new model enumeration function with the given set of variables.
+     * Constructs a new model enumeration function with the given set of
+     * variables.
      * @param variables the variables for the enumeration
      * @return the builder for the function
      */
@@ -60,8 +63,10 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
     }
 
     @Override
-    protected EnumerationCollector<List<Model>> newCollector(final FormulaFactory f, final SortedSet<Variable> knownVariables,
-                                                             final SortedSet<Variable> dontCareVariablesNotOnSolver, final SortedSet<Variable> additionalVariablesNotOnSolver) {
+    protected EnumerationCollector<List<Model>> newCollector(final FormulaFactory f,
+                                                             final SortedSet<Variable> knownVariables,
+                                                             final SortedSet<Variable> dontCareVariablesNotOnSolver,
+                                                             final SortedSet<Variable> additionalVariablesNotOnSolver) {
         return new ModelEnumerationCollector(f, dontCareVariablesNotOnSolver, additionalVariablesNotOnSolver);
     }
 
@@ -74,7 +79,8 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         private ModelEnumerationConfig configuration;
 
         /**
-         * Constructs a new model enumeration function with the given set of variables.
+         * Constructs a new model enumeration function with the given set of
+         * variables.
          * @param variables the variables for the enumeration
          */
         Builder(final Collection<Variable> variables) {
@@ -82,7 +88,8 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         }
 
         /**
-         * Sets an additional set of variables which should occur in every model. Only set this field if 'variables' is non-empty.
+         * Sets an additional set of variables which should occur in every
+         * model. Only set this field if 'variables' is non-empty.
          * @param variables the additional variables for each model
          * @return the current builder
          */
@@ -92,7 +99,8 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         }
 
         /**
-         * Sets an additional set of variables which should occur in every model. Only set this field if 'variables' is non-empty.
+         * Sets an additional set of variables which should occur in every
+         * model. Only set this field if 'variables' is non-empty.
          * @param variables the additional variables for each model
          * @return the current builder
          */
@@ -112,7 +120,8 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         }
 
         /**
-         * Builds the model enumeration function with the current builder's configuration.
+         * Builds the model enumeration function with the current builder's
+         * configuration.
          * @return the model enumeration function
          */
         public ModelEnumerationFunction build() {
@@ -136,7 +145,8 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         }
 
         @Override
-        public boolean addModel(final LNGBooleanVector modelFromSolver, final MiniSat solver, final LNGIntVector relevantAllIndices,
+        public boolean addModel(final LNGBooleanVector modelFromSolver, final MiniSat solver,
+                                final LNGIntVector relevantAllIndices,
                                 final ModelEnumerationHandler handler) {
             if (handler == null || handler.foundModels(baseModels.size())) {
                 final Model model = solver.createModel(modelFromSolver, relevantAllIndices);
@@ -188,8 +198,9 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         }
 
         /**
-         * Returns the Cartesian product for the given variables, i.e. all combinations of literals are generated
-         * with each variable occurring positively and negatively.
+         * Returns the Cartesian product for the given variables, i.e. all
+         * combinations of literals are generated with each variable occurring
+         * positively and negatively.
          * @param variables the variables, must not be {@code null}
          * @return the Cartesian product
          */

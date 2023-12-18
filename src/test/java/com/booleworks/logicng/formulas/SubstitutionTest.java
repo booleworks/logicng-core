@@ -190,9 +190,11 @@ public class SubstitutionTest extends TestWithFormulaContext {
     public void testNArySubstitution(final FormulaContext _c) throws ParserException {
         final Substitution subst = getSubstitution(_c);
         assertThat(_c.and3.substitute(_c.f, subst)).isEqualTo(_c.p.parse("(a & b | y) & (~(a & b) | ~y)"));
-        assertThat(_c.f.and(_c.nb, _c.c, _c.x, _c.ny).substitute(_c.f, subst)).isEqualTo(_c.p.parse("~(x | y) & c & a & b & ~y"));
+        assertThat(_c.f.and(_c.nb, _c.c, _c.x, _c.ny).substitute(_c.f, subst))
+                .isEqualTo(_c.p.parse("~(x | y) & c & a & b & ~y"));
         assertThat(_c.or3.substitute(_c.f, subst)).isEqualTo(_c.p.parse("(~a & (x | y)) | (a & ~(x | y))"));
-        assertThat(_c.f.or(_c.a, _c.nb, _c.c, _c.x, _c.ny).substitute(_c.f, subst)).isEqualTo(_c.p.parse("~a | ~(x | y) | c | a & b | ~y"));
+        assertThat(_c.f.or(_c.a, _c.nb, _c.c, _c.x, _c.ny).substitute(_c.f, subst))
+                .isEqualTo(_c.p.parse("~a | ~(x | y) | c | a & b | ~y"));
     }
 
     @ParameterizedTest
@@ -202,7 +204,9 @@ public class SubstitutionTest extends TestWithFormulaContext {
         assertThat(_c.na.substitute(_c.f, _c.a, _c.or1)).isEqualTo(_c.p.parse("~(x | y)"));
         assertThat(_c.imp1.substitute(_c.f, _c.b, _c.or1)).isEqualTo(_c.p.parse("a => (x | y)"));
         assertThat(_c.eq2.substitute(_c.f, _c.b, _c.or1)).isEqualTo(_c.p.parse("~a <=> ~(x | y)"));
-        assertThat(_c.f.and(_c.a, _c.nb, _c.c, _c.nx, _c.ny).substitute(_c.f, _c.y, _c.x)).isEqualTo(_c.p.parse("a & ~b & c & ~x"));
-        assertThat(_c.f.or(_c.a, _c.nb, _c.c, _c.nx, _c.ny).substitute(_c.f, _c.y, _c.x)).isEqualTo(_c.p.parse("a | ~b | c | ~x"));
+        assertThat(_c.f.and(_c.a, _c.nb, _c.c, _c.nx, _c.ny).substitute(_c.f, _c.y, _c.x))
+                .isEqualTo(_c.p.parse("a & ~b & c & ~x"));
+        assertThat(_c.f.or(_c.a, _c.nb, _c.c, _c.nx, _c.ny).substitute(_c.f, _c.y, _c.x))
+                .isEqualTo(_c.p.parse("a | ~b | c | ~x"));
     }
 }

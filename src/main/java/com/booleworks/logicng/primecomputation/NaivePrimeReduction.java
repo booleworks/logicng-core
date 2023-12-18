@@ -23,8 +23,8 @@ import java.util.TreeSet;
 /**
  * Naive implementation for reducing implicants and implicates to prime ones.
  * <p>
- * The computation is initialized with the formula for which
- * the prime implicants/implicates should be computed.
+ * The computation is initialized with the formula for which the prime
+ * implicants/implicates should be computed.
  * @version 3.0.0
  * @since 2.0.0
  */
@@ -39,15 +39,18 @@ public final class NaivePrimeReduction {
      * @param formula the formula
      */
     public NaivePrimeReduction(final FormulaFactory f, final Formula formula) {
-        implicantSolver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        implicantSolver =
+                MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
         implicantSolver.add(formula.negate(f));
-        implicateSolver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        implicateSolver =
+                MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
         implicateSolver.add(formula);
     }
 
     /**
-     * Computes a prime implicant from the given implicant for the given formula.
-     * Assumption: Given implicant is a satisfying assignment for the formula
+     * Computes a prime implicant from the given implicant for the given
+     * formula. Assumption: Given implicant is a satisfying assignment for the
+     * formula
      * @param implicant the implicant
      * @return a prime implicant
      */
@@ -56,11 +59,13 @@ public final class NaivePrimeReduction {
     }
 
     /**
-     * Computes a prime implicant from the given implicant for the given formula.
-     * Assumption: Given implicant is a satisfying assignment for the formula
+     * Computes a prime implicant from the given implicant for the given
+     * formula. Assumption: Given implicant is a satisfying assignment for the
+     * formula
      * @param implicant the implicant
      * @param handler   a SAT handler for the underlying SAT Solver
-     * @return a prime implicant or null if the computation was aborted by the handler
+     * @return a prime implicant or null if the computation was aborted by the
+     *         handler
      */
     public SortedSet<Literal> reduceImplicant(final SortedSet<Literal> implicant, final SATHandler handler) {
         Handler.start(handler);
@@ -79,9 +84,9 @@ public final class NaivePrimeReduction {
     }
 
     /**
-     * Computes a prime implicate from the given implicate for the given formula.
-     * Assumption: Given implicate is a falsifying assignment for the formula, i.e. a satisfying assignment for the
-     * negated formula
+     * Computes a prime implicate from the given implicate for the given
+     * formula. Assumption: Given implicate is a falsifying assignment for the
+     * formula, i.e. a satisfying assignment for the negated formula
      * @param f         the formula factory to generate new formulas
      * @param implicate the implicate
      * @return a prime implicate
@@ -91,15 +96,17 @@ public final class NaivePrimeReduction {
     }
 
     /**
-     * Computes a prime implicate from the given implicate for the given formula.
-     * Assumption: Given implicate is a falsifying assignment for the formula, i.e. a satisfying assignment for the
-     * negated formula
+     * Computes a prime implicate from the given implicate for the given
+     * formula. Assumption: Given implicate is a falsifying assignment for the
+     * formula, i.e. a satisfying assignment for the negated formula
      * @param f         the formula factory to generate new formulas
      * @param implicate the implicate
      * @param handler   a SAT handler for the underlying SAT Solver
-     * @return a prime implicate of null if the computation was aborted by the handler
+     * @return a prime implicate of null if the computation was aborted by the
+     *         handler
      */
-    public SortedSet<Literal> reduceImplicate(final FormulaFactory f, final SortedSet<Literal> implicate, final SATHandler handler) {
+    public SortedSet<Literal> reduceImplicate(final FormulaFactory f, final SortedSet<Literal> implicate,
+                                              final SATHandler handler) {
         Handler.start(handler);
         final SortedSet<Literal> primeImplicate = new TreeSet<>(implicate);
         for (final Literal lit : implicate) {

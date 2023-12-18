@@ -36,7 +36,8 @@ public class EncodingsTest {
                 .hasMessage("Overflow in the encoding.");
         assertThatThrownBy(() -> {
             final SequentialWeightCounter swc = new SequentialWeightCounter();
-            swc.encode(new MiniSat2Solver(), new LNGIntVector(), new LNGIntVector(), Integer.MAX_VALUE, new LNGIntVector(), 1);
+            swc.encode(new MiniSat2Solver(), new LNGIntVector(), new LNGIntVector(), Integer.MAX_VALUE,
+                    new LNGIntVector(), 1);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Overflow in the encoding.");
     }

@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.SortedSet;
 
 /**
- * Super class for a Decomposition Tree (DTree) for the DNNF Compiler
- * This is either a {@link DTreeNode} or a {@link DTreeLeaf}.
+ * Super class for a Decomposition Tree (DTree) for the DNNF Compiler This is
+ * either a {@link DTreeNode} or a {@link DTreeLeaf}.
  * @version 2.0.0
  * @since 2.0.0
  */
@@ -39,7 +39,8 @@ public abstract class DTree {
     /**
      * Returns all variables of this DTree.
      * <p>
-     * Since this set of variables can be cached, this is a constant time operation.
+     * Since this set of variables can be cached, this is a constant time
+     * operation.
      * @return all variables of this DTree
      */
     int[] staticVarSetArray() {
@@ -49,7 +50,8 @@ public abstract class DTree {
     /**
      * Returns all variables of this DTree.
      * <p>
-     * Since this set of variables can be cached, this is a constant time operation.
+     * Since this set of variables can be cached, this is a constant time
+     * operation.
      * @return all variables of this DTree
      */
     public BitSet staticVarSet() {
@@ -59,14 +61,16 @@ public abstract class DTree {
     /**
      * Returns all variables of this DTree.
      * <p>
-     * Since this set of variables can be cached, this is a constant time operation.
+     * Since this set of variables can be cached, this is a constant time
+     * operation.
      * @param f the formula factory to use for caching
      * @return all variables of this DTree
      */
     abstract SortedSet<Variable> staticVariableSet(final FormulaFactory f);
 
     /**
-     * The dynamic separator of this DTree.  "Dynamic" means that subsumed clauses are ignored during the separator computation.
+     * The dynamic separator of this DTree. "Dynamic" means that subsumed
+     * clauses are ignored during the separator computation.
      * @return The dynamic separator of this DTree
      */
     public abstract BitSet dynamicSeparator();
@@ -78,10 +82,12 @@ public abstract class DTree {
     abstract int[] staticClauseIds();
 
     /**
-     * Counts the number of unsubsumed occurrences for each variable in occurrences.
+     * Counts the number of unsubsumed occurrences for each variable in
+     * occurrences.
      * <p>
      * The parameter occurrences should be modified by the method accordingly.
-     * @param occurrences The current number of occurrences for each variable which should be modified accordingly
+     * @param occurrences The current number of occurrences for each variable
+     *                    which should be modified accordingly
      */
     public abstract void countUnsubsumedOccurrences(final int[] occurrences);
 

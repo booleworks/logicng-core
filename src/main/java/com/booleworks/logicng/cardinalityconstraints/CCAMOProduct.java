@@ -9,7 +9,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 
 /**
- * Encodes that at most one variable is assigned value true.  Uses the 2-product method due to Chen.
+ * Encodes that at most one variable is assigned value true. Uses the 2-product
+ * method due to Chen.
  * @version 3.0.0
  * @since 1.0
  */

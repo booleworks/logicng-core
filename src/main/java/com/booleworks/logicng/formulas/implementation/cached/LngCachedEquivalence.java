@@ -34,7 +34,8 @@ public class LngCachedEquivalence extends LngCachedBinaryOperator implements Equ
             return true;
         }
         if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false; // the same caching formula factory would have produced a == object
+            return false; // the same caching formula factory would have
+                          // produced a == object
         }
         if (other instanceof Equivalence && hashCode() == other.hashCode()) {
             final Equivalence otherEq = (Equivalence) other;
