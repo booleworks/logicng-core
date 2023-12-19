@@ -35,31 +35,32 @@ public class BDDReordering {
 
     protected final BDDKernel k;
 
-    /* Current auto reord. method and number of automatic reorderings left */
+    // Current auto reord. method and number of automatic reorderings left
     protected BDDReorderingMethod reorderMethod;
     protected int bddreorderTimes;
 
-    /* Flag for disabling reordering temporarily */
+    // Flag for disabling reordering temporarily
     protected boolean reorderDisabled;
 
-    /* Store for the variable relationships */
+    // Store for the variable relationships
     protected BDDTree varTree;
     protected int blockId;
 
-    /* Store for the ref.cou. of the external roots */
+    // Store for the ref.cou. of the external roots
     protected int[] extRoots;
     protected int extRootSize;
 
-    protected LevelData[] levels; /* Indexed by variable! */
+    // Indexed by variable!
+    protected LevelData[] levels;
 
-    /* Interaction matrix */
+    // Interaction matrix
     protected InteractionMatrix interactionMatrix;
 
-    /* Number of live nodes before and after a reordering session */
+    // Number of live nodes before and after a reordering session
     protected int usednumBefore;
     protected int usednumAfter;
 
-    /* Flag telling us when a node table resize is done */
+    // Flag telling us when a node table resize is done
     protected boolean resizedInMakenode;
 
     protected int usedNodesNextReorder;
@@ -91,17 +92,17 @@ public class BDDReordering {
      */
     public void swapVariables(int v1, int v2) {
         int l1, l2;
-        /* Do not swap when variable-blocks are used */
+        // Do not swap when variable-blocks are used
         if (varTree != null) {
             throw new IllegalStateException("Swapping variables is not allowed with variable blocks");
         }
 
-        /* Don't bother swapping x with x */
+        // Don't bother swapping x with x
         if (v1 == v2) {
             return;
         }
 
-        /* Make sure the variable exists */
+        // Make sure the variable exists
         if (v1 < 0 || v1 >= k.varnum) {
             throw new IllegalArgumentException("Unknown variable number: " + v1);
         }
@@ -113,7 +114,7 @@ public class BDDReordering {
         l1 = k.var2level[v1];
         l2 = k.var2level[v2];
 
-        /* Make sure v1 is before v2 */
+        // Make sure v1 is before v2
         if (l1 > l2) {
             final int tmp = v1;
             v1 = v2;
@@ -123,12 +124,12 @@ public class BDDReordering {
         }
 
         reorderInit();
-        /* Move v1 to v2's position */
+        // Move v1 to v2's position
         while (k.var2level[v1] < l2) {
             reorderVardown(v1);
         }
 
-        /* Move v2 to v1's position */
+        // Move v2 to v1's position
         while (k.var2level[v2] > l1) {
             reorderVarup(v2);
         }
@@ -365,10 +366,8 @@ public class BDDReordering {
             } else {
                 k.setRefcou(n, 0);
             }
-            /*
-             * This is where we go from .var to .level again! - Do NOT use the
-             * LEVEL macro here.
-             */
+            // This is where we go from .var to .level again! - Do NOT use the
+            // LEVEL macro here.
             k.setLevel(n, k.var2level[k.level(n)]);
         }
         k.gbc();
@@ -466,10 +465,8 @@ public class BDDReordering {
         BDDTree next = thisTree;
         int best = reorderNodenum();
 
-        if (thisTree.getNext().getNext() == null) /*
-                                                   * Only two blocks left ->
-                                                   * win2 swap
-                                                   */ {
+        if (thisTree.getNext().getNext() == null) {
+            // Only two blocks left -> win2 swap
             blockdown(thisTree);
 
             if (best < reorderNodenum()) {
@@ -480,31 +477,17 @@ public class BDDReordering {
                     first = thisTree.getPrev();
                 }
             }
-        } else /* Real win3 swap */ {
+        } else {
+            // Real win3 swap
             int pos = 0;
-            blockdown(thisTree); /* B A* C (4) */
+            blockdown(thisTree); // B A* C (4)
             pos++;
             if (best > reorderNodenum()) {
                 pos = 0;
                 best = reorderNodenum();
             }
 
-            blockdown(thisTree); /* B C A* (3) */
-            pos++;
-            if (best > reorderNodenum()) {
-                pos = 0;
-                best = reorderNodenum();
-            }
-
-            thisTree = thisTree.getPrev().getPrev();
-            blockdown(thisTree); /* C B* A (2) */
-            pos++;
-            if (best > reorderNodenum()) {
-                pos = 0;
-                best = reorderNodenum();
-            }
-
-            blockdown(thisTree); /* C A B* (1) */
+            blockdown(thisTree); // B C A* (3)
             pos++;
             if (best > reorderNodenum()) {
                 pos = 0;
@@ -512,13 +495,29 @@ public class BDDReordering {
             }
 
             thisTree = thisTree.getPrev().getPrev();
-            blockdown(thisTree); /* A C* B (0) */
+            blockdown(thisTree); // C B* A (2)
+            pos++;
+            if (best > reorderNodenum()) {
+                pos = 0;
+                best = reorderNodenum();
+            }
+
+            blockdown(thisTree); // C A B* (1)
+            pos++;
+            if (best > reorderNodenum()) {
+                pos = 0;
+                best = reorderNodenum();
+            }
+
+            thisTree = thisTree.getPrev().getPrev();
+            blockdown(thisTree); // A C* B (0)
             pos++;
             if (best > reorderNodenum()) {
                 pos = 0;
             }
 
-            if (pos >= 1) /* A C B -> C A* B */ {
+            if (pos >= 1) {
+                // A C B -> C A* B
                 thisTree = thisTree.getPrev();
                 blockdown(thisTree);
                 next = thisTree;
@@ -527,7 +526,8 @@ public class BDDReordering {
                 }
             }
 
-            if (pos >= 2) /* C A B -> C B A* */ {
+            if (pos >= 2) {
+                // C A B -> C B A*
                 blockdown(thisTree);
                 next = thisTree.getPrev();
                 if (setfirst) {
@@ -535,7 +535,8 @@ public class BDDReordering {
                 }
             }
 
-            if (pos >= 3) /* C B A -> B C* A */ {
+            if (pos >= 3) {
+                // C B A -> B C* A
                 thisTree = thisTree.getPrev().getPrev();
                 blockdown(thisTree);
                 next = thisTree;
@@ -544,7 +545,8 @@ public class BDDReordering {
                 }
             }
 
-            if (pos >= 4) /* B C A -> B A C* */ {
+            if (pos >= 4) {
+                // B C A -> B A C*
                 blockdown(thisTree);
                 next = thisTree.getPrev();
                 if (setfirst) {
@@ -552,7 +554,8 @@ public class BDDReordering {
                 }
             }
 
-            if (pos >= 5) /* B A C -> A B* C */ {
+            if (pos >= 5) {
+                // B A C -> A B* C
                 thisTree = thisTree.getPrev().getPrev();
                 blockdown(thisTree);
                 next = thisTree;
@@ -609,7 +612,7 @@ public class BDDReordering {
         for (thisTree = t, n = 0; thisTree != null; thisTree = thisTree.getNext(), n++) {
             int v;
 
-            /* Accumulate number of nodes for each block */
+            // Accumulate number of nodes for each block
             p[n].val = 0;
             for (v = thisTree.getFirst(); v <= thisTree.getLast(); v++) {
                 p[n].val = p[n].val - levels[v].nodenum;
@@ -618,15 +621,15 @@ public class BDDReordering {
             p[n].block = thisTree;
         }
 
-        /* Sort according to the number of nodes at each level */
+        // Sort according to the number of nodes at each level
         Arrays.sort(p, 0, num, this::siftTestCmp);
 
-        /* Create sequence */
+        // Create sequence
         for (n = 0; n < num; n++) {
             seq[n] = p[n].block;
         }
 
-        /* Do the sifting on this sequence */
+        // Do the sifting on this sequence
         t = reorderSiftSeq(t, seq, num);
 
         return t;
@@ -652,9 +655,8 @@ public class BDDReordering {
             reorderSiftBestpos(seq[n], num / 2);
         }
 
-        /* Find first block */
+        // Find first block
         for (thisTree = t; thisTree.getPrev() != null; thisTree = thisTree.getPrev()) {
-            /* nil */
         }
 
         return thisTree;
@@ -673,12 +675,12 @@ public class BDDReordering {
         boolean dirIsUp = true;
         int n;
 
-        /* Determine initial direction */
+        // Determine initial direction
         if (blk.getPos() > middlePos) {
             dirIsUp = false;
         }
 
-        /* Move block back and forth */
+        // Move block back and forth
         for (n = 0; n < 2; n++) {
             boolean first = true;
 
@@ -712,7 +714,7 @@ public class BDDReordering {
             dirIsUp = !dirIsUp;
         }
 
-        /* Move to best pos */
+        // Move to best pos
         while (bestpos < 0) {
             blockdown(blk);
             bestpos++;
@@ -727,9 +729,8 @@ public class BDDReordering {
         return Integer.compare(a.val, b.val);
     }
 
-    /*
-     * === Random reordering (mostly for debugging and test ) =============
-     */
+
+    // === Random reordering (mostly for debugging and test ) =============
     protected BDDTree reorderRandom(final BDDTree t) {
         BDDTree thisTree;
         final BDDTree[] seq;
@@ -755,9 +756,8 @@ public class BDDReordering {
             }
         }
 
-        /* Find first block */
+        // Find first block
         for (thisTree = t; thisTree.getPrev() != null; thisTree = thisTree.getPrev()) {
-            /* nil */
         }
 
         return thisTree;
@@ -776,7 +776,7 @@ public class BDDReordering {
         final int[] lseq = left.getSeq();
         final int[] rseq = right.getSeq();
 
-        /* Move left past right */
+        // Move left past right
         while (k.var2level[lseq[0]] < k.var2level[rseq[rightsize]]) {
             for (n = 0; n < leftsize; n++) {
                 if (k.var2level[lseq[n]] + 1 != k.var2level[lseq[n + 1]] &&
@@ -790,7 +790,7 @@ public class BDDReordering {
             }
         }
 
-        /* Move right to where left started */
+        // Move right to where left started
         while (k.var2level[rseq[0]] > leftstart) {
             for (n = rightsize; n > 0; n--) {
                 if (k.var2level[rseq[n]] - 1 != k.var2level[rseq[n - 1]] && k.var2level[rseq[n]] > leftstart) {
@@ -803,7 +803,7 @@ public class BDDReordering {
             }
         }
 
-        /* Swap left and right data in the order */
+        // Swap left and right data in the order
         left.setNext(right.getNext());
         right.setPrev(left.getPrev());
         left.setPrev(right);
@@ -847,14 +847,14 @@ public class BDDReordering {
             reorderLocalGbc(var);
         }
 
-        /* Swap the var<->level tables */
+        // Swap the var<->level tables
         n = k.level2var[level];
         k.level2var[level] = k.level2var[level + 1];
         k.level2var[level + 1] = n;
         n = k.var2level[var];
         k.var2level[var] = k.var2level[k.level2var[level]];
         k.var2level[k.level2var[level]] = n;
-        /* Update all rename pairs */
+        // Update all rename pairs
         // this.pairs.vardown(level);
 
         if (resizedInMakenode) {
@@ -878,15 +878,13 @@ public class BDDReordering {
             while (r != 0) {
                 final int next = k.next(r);
                 if (var(k.low(r)) != var1 && var(k.high(r)) != var1) {
-                    /*
-                     * Node does not depend on next var, let it stay in the
-                     * chain
-                     */
+                    // Node does not depend on next var, let it stay in the
+                    // chain
                     k.setNext(r, k.hash(n + vl0));
                     k.setHash(n + vl0, r);
                     levels[var0].nodenum++;
                 } else {
-                    /* Node depends on next var - save it for later procesing */
+                    // Node depends on next var - save it for later processing
                     k.setNext(r, toBeProcessed);
                     toBeProcessed = r;
                 }
@@ -908,7 +906,7 @@ public class BDDReordering {
             final int f11;
             final int hash;
 
-            /* Find the cofactors for the new nodes */
+            // Find the cofactors for the new nodes
             if (var(f0) == var1) {
                 f00 = k.low(f0);
                 f01 = k.high(f0);
@@ -922,30 +920,25 @@ public class BDDReordering {
                 f10 = f11 = f1;
             }
 
-            /* Note: makenode does refcou. */
+            // Note: makenode does refcou.
             f0 = reorderMakenode(var0, f00, f10);
             f1 = reorderMakenode(var0, f01, f11);
             // assert node == this.nodes[toBeProcessed];
-            // node = this.nodes[toBeProcessed]; /* Might change in makenode
-            // [SHi: why? I don't think so] */
 
-            /*
-             * We know that the refcou of the grandchilds of this node is
-             * greater than one (these are f00...f11), so there is no need to do
-             * a recursive refcou decrease. It is also possible for the
-             * LOWp(node)/high nodes to come alive again, so deref. of the
-             * childs is delayed until the local GBC.
-             */
-
+            // We know that the refcou of the grandchilds of this node is
+            // greater than one (these are f00...f11), so there is no need to do
+            // a recursive refcou decrease. It is also possible for the
+            // LOWp(node)/high nodes to come alive again, so deref. of the
+            // childs is delayed until the local GBC.
             k.decRef(k.low(toBeProcessed));
             k.decRef(k.high(toBeProcessed));
 
-            /* Update in-place */
+            // Update in-place
             k.setLevel(toBeProcessed, var1);
             k.setLow(toBeProcessed, f0);
             k.setHigh(toBeProcessed, f1);
             levels[var1].nodenum++;
-            /* Rehash the node since it got new childs */
+            // Rehash the node since it got new childs
             hash = nodehashReorder(var(toBeProcessed), k.low(toBeProcessed), k.high(toBeProcessed));
             k.setNext(toBeProcessed, k.hash(hash));
             k.setHash(hash, toBeProcessed);
@@ -957,17 +950,16 @@ public class BDDReordering {
         final int hash;
         int res;
 
-        /*
-         * Note: We know that low,high has a refcou greater than zero, so there
-         * is no need to add reference *recursively*
-         */
-        /* check whether childs are equal */
+
+        // Note: We know that low,high has a refcou greater than zero, so there
+        // is no need to add reference *recursively*
+        // Check whether childs are equal
         if (low == high) {
             k.incRef(low);
             return low;
         }
 
-        /* Try to find an existing node of this kind */
+        // Try to find an existing node of this kind
         hash = nodehashReorder(var, low, high);
         res = k.hash(hash);
 
@@ -978,20 +970,18 @@ public class BDDReordering {
             }
             res = k.next(res);
         }
-        /* No existing node -> build one */
-        /* Any free nodes to use ? */
+        // No existing node -> build one
+        // Any free nodes to use ?
         if (k.freepos == 0) {
-            /*
-             * Try to allocate more nodes - call noderesize without enabling
-             * rehashing. Note: if ever rehashing is allowed here, then remember
-             * to update local variable "hash"
-             */
+            // Try to allocate more nodes - call noderesize without enabling
+            // rehashing. Note: if ever rehashing is allowed here, then remember
+            // to update local variable "hash"
             k.nodeResize(false);
             resizedInMakenode = true;
             assert k.freepos > 0;
         }
 
-        /* Build new node */
+        // Build new node
         res = k.freepos;
         k.freepos = k.next(k.freepos);
         levels[var].nodenum++;
@@ -1002,11 +992,11 @@ public class BDDReordering {
         k.setLow(res, low);
         k.setHigh(res, high);
 
-        /* Insert node in hash chain */
+        // Insert node in hash chain
         k.setNext(res, k.hash(hash));
         k.setHash(hash, res);
 
-        /* Make sure it is reference counted */
+        // Make sure it is reference counted
         k.setRefcou(res, 1);
         k.incRef(k.low(res));
         k.incRef(k.high(res));
@@ -1108,16 +1098,14 @@ public class BDDReordering {
             levels[n].size = 0;
             levels[n].nodenum = 0;
         }
-        /*
-         * First mark and recursive refcou. all roots and childs. Also do some
-         * setup here for both setLevellookup and reorder_gbc
-         */
+        // First mark and recursive refcou. all roots and childs. Also do some
+        // setup here for both setLevellookup and reorder_gbc
         if (markRoots() < 0) {
             return -1;
         }
-        /* Initialize the hash tables */
+        // Initialize the hash tables
         reorderSetLevellookup();
-        /* Garbage collect and rehash to new scheme */
+        // Garbage collect and rehash to new scheme
         reorderGbc();
         return 0;
     }
@@ -1126,10 +1114,9 @@ public class BDDReordering {
         final int[] dep = new int[k.varnum];
         extRootSize = 0;
         for (int n = 2; n < k.nodesize; n++) {
-            /*
-             * This is where we go from .level to .var! - Do NOT use the LEVEL
-             * macro here.
-             */
+
+            // This is where we go from .level to .var! - Do NOT use the LEVEL
+            // macro here.
             k.setLevel(n, k.level2var[k.level(n)]);
             if (k.refcou(n) > 0) {
                 extRootSize++;
@@ -1149,10 +1136,8 @@ public class BDDReordering {
                 addrefRec(k.high(n), dep);
                 addDependencies(dep);
             }
-            /*
-             * Make sure the hash field is empty. This saves a loop in the
-             * initial GBC
-             */
+            // Make sure the hash field is empty. This saves a loop in the
+            // initial GBC
             k.setHash(n, 0);
         }
         k.setHash(0, 0);
@@ -1163,7 +1148,7 @@ public class BDDReordering {
     protected void reorderGbc() {
         k.freepos = 0;
         k.freenum = 0;
-        /* No need to zero all hash fields - this is done in mark_roots */
+        // No need to zero all hash fields - this is done in mark_roots
         for (int n = k.nodesize - 1; n >= 2; n--) {
             if (k.refcou(n) > 0) {
                 final int hash = nodehashReorder(var(n), k.low(n), k.high(n));
@@ -1180,12 +1165,10 @@ public class BDDReordering {
 
     protected void checkReorder() {
         reorderAuto();
-        /* Do not reorder before twice as many nodes have been used */
+        // Do not reorder before twice as many nodes have been used
         usedNodesNextReorder = 2 * (k.nodesize - k.freenum);
-        /*
-         * And if very little was gained this time (< 20%) then wait until even
-         * more nodes (upto twice as many again) have been used
-         */
+        // And if very little was gained this time (< 20%) then wait until even
+        // more nodes (upto twice as many again) have been used
         if (reorderGain() < 20) {
             usedNodesNextReorder += (usedNodesNextReorder * (20 - reorderGain())) / 20;
         }
@@ -1198,12 +1181,10 @@ public class BDDReordering {
         if (k.refcou(r) == 0) {
             k.freenum--;
 
-            /* Detect variable dependencies for the interaction matrix */
+            // Detect variable dependencies for the interaction matrix
             dep[var(r) & BDDKernel.MARKHIDE] = 1;
 
-            /*
-             * Make sure the nodenum field is updated. Used in the initial GBC
-             */
+            // Make sure the nodenum field is updated. Used in the initial GBC
             levels[var(r) & BDDKernel.MARKHIDE].nodenum++;
 
             addrefRec(k.low(r), dep);
@@ -1211,10 +1192,8 @@ public class BDDReordering {
         } else {
             int n;
 
-            /*
-             * Update (from previously found) variable dependencies for the
-             * interaction matrix
-             */
+            // Update (from previously found) variable dependencies for the
+            // interaction matrix
             for (n = 0; n < k.varnum; n++) {
                 dep[n] |= interactionMatrix.depends(var(r) & BDDKernel.MARKHIDE, n);
             }
@@ -1240,12 +1219,14 @@ public class BDDReordering {
         return (100 * (usednumBefore - usednumAfter)) / usednumBefore;
     }
 
-    /* Level data */
+    /**
+     * Level data
+     */
     protected static class LevelData {
-        protected int start; /* Start of this sub-table (entry in "bddnodes") */
-        protected int size; /* Size of this sub-table */
-        protected int maxsize; /* Max. allowed size of sub-table */
-        protected int nodenum; /* Number of nodes in this level */
+        protected int start; // Start of this sub-table (entry in "bddnodes")
+        protected int size; // Size of this sub-table
+        protected int maxsize; // Max. allowed size of sub-table
+        protected int nodenum; // Number of nodes in this level
     }
 
     protected static class BDDSizePair {

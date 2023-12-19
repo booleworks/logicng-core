@@ -11,14 +11,12 @@ package com.booleworks.logicng.knowledgecompilation.bdds.jbuddy;
  */
 public class BDDTree {
     protected int first;
-    protected int last; /* First and last variable in this block */
-    protected int pos; /* Sifting position */
-    protected int[] seq; /* Sequence of first...last in the current order */
-    protected boolean fixed; /*
-                              * Are the sub-blocks fixed or may they be
-                              * reordered
-                              */
-    protected final int id; /* A sequential id number given by addblock */
+    protected int last; // First and last variable in this block
+    protected int pos; // Sifting position
+    protected int[] seq; // Sequence of first...last in the current order
+    // Are the sub-blocks fixed or may they be reordered
+    protected boolean fixed;
+    protected final int id; // A sequential id number given by addblock
     protected BDDTree next;
     protected BDDTree prev;
     protected BDDTree nextlevel;
@@ -209,7 +207,7 @@ public class BDDTree {
             return null;
         }
 
-        /* Empty tree -> build one */
+        // Empty tree -> build one
         if (t == null) {
             t = new BDDTree(id);
             t.first = first;
@@ -221,12 +219,12 @@ public class BDDTree {
             return t;
         }
 
-        /* Check for identity */
+        // Check for identity
         if (first == t.first && last == t.last) {
             return t;
         }
 
-        /* Before this section -> insert */
+        // Before this section -> insert
         if (last < t.first) {
             final BDDTree tnew = new BDDTree(id);
             tnew.first = first;
@@ -240,7 +238,7 @@ public class BDDTree {
             return tnew;
         }
 
-        /* After this section -> go to next */
+        // After this section -> go to next
         if (first > t.last) {
             final BDDTree next = addRangeRec(t.next, t, first, last, fixed, id, level2var);
             if (next != null) {
@@ -249,7 +247,7 @@ public class BDDTree {
             return t;
         }
 
-        /* Inside this section -> insert in next level */
+        // Inside this section -> insert in next level
         if (first >= t.first && last <= t.last) {
             final BDDTree nextlevel = addRangeRec(t.nextlevel, null, first, last, fixed, id, level2var);
             if (nextlevel != null) {
@@ -258,13 +256,13 @@ public class BDDTree {
             return t;
         }
 
-        /* Covering this section -> insert above this level */
+        // Covering this section -> insert above this level
         if (first <= t.first) {
             final BDDTree tnew;
             BDDTree thisTree = t;
 
             while (true) {
-                /* Partial cover ->error */
+                // Partial cover ->error
                 if (last >= thisTree.first && last < thisTree.last) {
                     return null;
                 }

@@ -89,8 +89,8 @@ public class BDDKernel {
 
     protected int[] nodes; // All the bdd nodes
     protected int[] vars; // Set of defined BDD variables
-    protected final int minfreenodes; // Minimal % of nodes that has to be left
-                                      // after a garbage collection
+    // Minimal % of nodes that has to be left after a garbage collection
+    protected final int minfreenodes;
     protected int gbcollectnum; // Number of garbage collections
     protected final int cachesize; // Size of the operator caches
     protected int nodesize; // Number of allocated nodes
@@ -298,8 +298,8 @@ public class BDDKernel {
      * @return the current variable ordering
      */
     public int[] getCurrentVarOrder() {
-        return Arrays.copyOf(level2var, level2var.length - 1); // last var is
-                                                               // always 0
+        // last var is always 0
+        return Arrays.copyOf(level2var, level2var.length - 1);
     }
 
     protected int doWithPotentialReordering(final BddOperation operation) {

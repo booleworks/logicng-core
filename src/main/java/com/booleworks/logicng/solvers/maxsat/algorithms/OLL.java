@@ -30,16 +30,12 @@ import java.util.TreeMap;
 public class OLL extends MaxSAT {
     private MiniSatStyleSolver solver;
     private final Encoder encoder;
-    private final SortedMap<Integer, Integer> coreMapping; // Mapping between
-                                                           // the assumption
-                                                           // literal and the
-                                                           // respective soft
-                                                           // clause.
-    private final SortedMap<Integer, IntTriple> boundMapping; // lit -> <ID,
-                                                              // bound, weight>
-    private final LNGBooleanVector activeSoft; // Soft clauses that are
-                                               // currently in the MaxSAT
-                                               // formula.
+    // Mapping between the assumption literal and the respective soft clause.
+    private final SortedMap<Integer, Integer> coreMapping;
+    // lit -> <ID, bound, weight>
+    private final SortedMap<Integer, IntTriple> boundMapping;
+    // Soft clauses that are currently in the MaxSAT formula.
+    private final LNGBooleanVector activeSoft;
     private int minWeight;
 
     /**
@@ -371,10 +367,9 @@ public class OLL extends MaxSAT {
                             softClauses.get(nSoft() - 1).setAssumptionVar(l);
                             assert softClauses.get(nSoft() - 1).assumptionVar() ==
                                     softClauses.get(nSoft() - 1).relaxationVars().get(0);
-                            coreMapping.put(l, nSoft() - 1); // Map the new soft
-                                                             // clause to its
-                                                             // assumption
-                                                             // literal.
+                            // Map the new soft clause to its assumption
+                            // literal.
+                            coreMapping.put(l, nSoft() - 1);
                             softRelax.push(l);
                             assert softClauses.get(coreMapping.get(l)).weight() == minCore;
                             assert activeSoft.size() == nSoft();

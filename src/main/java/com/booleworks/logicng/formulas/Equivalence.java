@@ -8,6 +8,13 @@ import com.booleworks.logicng.datastructures.Assignment;
 
 /**
  * Boolean equivalence.
+ * <p>
+ * Invariants:
+ * <ul>
+ * <li>Neither operand is a constant</li>
+ * <li>The operands are not the same formula</li>
+ * <li>Neither operand is the negation of the other</li>
+ * </ul>
  * @version 3.0.0
  * @since 1.0
  */

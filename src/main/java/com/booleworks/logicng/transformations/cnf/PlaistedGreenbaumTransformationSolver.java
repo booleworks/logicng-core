@@ -138,14 +138,15 @@ public final class PlaistedGreenbaumTransformationSolver {
         }
         final int pgVar = skipPg ? -1 : pgVarResult.second();
         if (polarity) {
-            // pg => (~left | right) = ~pg | ~left | right
+            // pg => (~left | right) ~~> ~pg | ~left | right
             // Speed-Up: Skip pg var
             final LNGIntVector leftPgVarNeg = computeTransformation(formula.left(), false, proposition, false);
             final LNGIntVector rightPgVarPos = computeTransformation(formula.right(), true, proposition, false);
             return vector(leftPgVarNeg, rightPgVarPos);
         } else {
-            // (~left | right) => pg = (left & ~right) | pg = (left | pg) &
-            // (~right | pg)
+            // (~left | right) => pg
+            // ~~> (left & ~right) | pg
+            // ~~> (left | pg) & (~right | pg)
             final LNGIntVector leftPgVarPos = computeTransformation(formula.left(), true, proposition, topLevel);
             final LNGIntVector rightPgVarNeg = computeTransformation(formula.right(), false, proposition, topLevel);
             if (topLevel) {
@@ -177,8 +178,8 @@ public final class PlaistedGreenbaumTransformationSolver {
         final LNGIntVector rightPgVarNeg = computeTransformation(formula.right(), false, proposition, false);
         if (polarity) {
             // pg => (left => right) & (right => left)
-            // = (pg & left => right) & (pg & right => left)
-            // = (~pg | ~left | right) & (~pg | ~right | left)
+            // ~~> (pg & left => right) & (pg & right => left)
+            // ~~> (~pg | ~left | right) & (~pg | ~right | left)
             if (topLevel) {
                 solver.addClause(vector(leftPgVarNeg, rightPgVarPos), proposition);
                 solver.addClause(vector(leftPgVarPos, rightPgVarNeg), proposition);
@@ -189,9 +190,9 @@ public final class PlaistedGreenbaumTransformationSolver {
             }
         } else {
             // (left => right) & (right => left) => pg
-            // = ~(left => right) | ~(right => left) | pg
-            // = left & ~right | right & ~left | pg
-            // = (left | right | pg) & (~right | ~left | pg)
+            // ~~> ~(left => right) | ~(right => left) | pg
+            // ~~> left & ~right | right & ~left | pg
+            // ~~> (left | right | pg) & (~right | ~left | pg)
             if (topLevel) {
                 solver.addClause(vector(leftPgVarPos, rightPgVarPos), proposition);
                 solver.addClause(vector(leftPgVarNeg, rightPgVarNeg), proposition);
@@ -216,7 +217,7 @@ public final class PlaistedGreenbaumTransformationSolver {
         switch (formula.type()) {
             case AND: {
                 if (polarity) {
-                    // pg => (v1 & ... & vk) = (~pg | v1) & ... & (~pg | vk)
+                    // pg => (v1 & ... & vk) ~~> (~pg | v1) & ... & (~pg | vk)
                     for (final Formula op : formula) {
                         final LNGIntVector opPgVars = computeTransformation(op, true, proposition, topLevel);
                         if (topLevel) {
@@ -231,7 +232,7 @@ public final class PlaistedGreenbaumTransformationSolver {
                         return null;
                     }
                 } else {
-                    // (v1 & ... & vk) => pg = ~v1 | ... | ~vk | pg
+                    // (v1 & ... & vk) ~~> pg = ~v1 | ... | ~vk | pg
                     // Speed-Up: Skip pg var
                     final LNGIntVector singleClause = new LNGIntVector();
                     for (final Formula op : formula) {
@@ -246,7 +247,7 @@ public final class PlaistedGreenbaumTransformationSolver {
             }
             case OR: {
                 if (polarity) {
-                    // pg => (v1 | ... | vk) = ~pg | v1 | ... | vk
+                    // pg => (v1 | ... | vk) ~~> ~pg | v1 | ... | vk
                     // Speed-Up: Skip pg var
                     final LNGIntVector singleClause = new LNGIntVector();
                     for (final Formula op : formula) {
@@ -257,7 +258,7 @@ public final class PlaistedGreenbaumTransformationSolver {
                     }
                     return singleClause;
                 } else {
-                    // (v1 | ... | vk) => pg = (~v1 | pg) & ... & (~vk | pg)
+                    // (v1 | ... | vk) => pg ~~> (~v1 | pg) & ... & (~vk | pg)
                     for (final Formula op : formula) {
                         final LNGIntVector opPgVars = computeTransformation(op, false, proposition, topLevel);
                         if (topLevel) {

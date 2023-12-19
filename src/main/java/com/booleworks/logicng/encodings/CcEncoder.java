@@ -109,7 +109,7 @@ public class CcEncoder {
      * @return the encoding of the constraint and the incremental data
      */
     public static Pair<List<Formula>, CcIncrementalData>
-    encodeIncremental(final FormulaFactory f, final CardinalityConstraint cc, final EncoderConfig config) {
+            encodeIncremental(final FormulaFactory f, final CardinalityConstraint cc, final EncoderConfig config) {
         final EncodingResult result = EncodingResult.resultForFormula(f);
         final CcIncrementalData incData = encodeIncremental(cc, result, config);
         return new Pair<>(Collections.unmodifiableList(result.result()), incData);

@@ -72,8 +72,7 @@ public final class BDDModelEnumerationFunction extends BDDFunction<List<Model>> 
     }
 
     private void generateAllModels(final BDDKernel kernel, final List<Model> assignments, final byte[] model,
-                                   final int[] relevantIndices,
-                                   final int position) {
+                                   final int[] relevantIndices, final int position) {
         if (position == relevantIndices.length) {
             final List<Literal> lits = new ArrayList<>();
             for (final int i : relevantIndices) {

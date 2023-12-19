@@ -46,12 +46,11 @@ public class LinearSU extends MaxSAT {
 
     protected final Encoder encoder;
     protected final boolean bmoMode; // Enables BMO mode.
-    protected final LNGIntVector objFunction; // Literals to be used in the
-                                              // constraint that excludes
-                                              // models.
-    protected final LNGIntVector coeffs; // Coefficients of the literals that
-                                         // are used in the constraint that
-                                         // excludes models.
+    // Literals to be used in the constraint that excludes models.
+    protected final LNGIntVector objFunction;
+    // Coefficients of the literals that are used in the constraint that
+    // excludes models.
+    protected final LNGIntVector coeffs;
     protected final PrintStream output;
     protected MiniSatStyleSolver solver;
     protected boolean isBmo; // Stores if the formula is BMO or not.

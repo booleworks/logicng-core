@@ -72,12 +72,9 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
     }
 
     private Map<String, Integer> initResultMap(final MiniSatStyleSolver underlyingSolver) {
-        final Map<String, Integer> counts = new HashMap<>(); // start with
-                                                             // Strings to
-                                                             // prevent repeated
-                                                             // variable lookups
-                                                             // in
-                                                             // FormulaFactory
+        // start with Strings to prevent repeated variable lookups in
+        // FormulaFactory
+        final Map<String, Integer> counts = new HashMap<>();
         final LNGVector<MSVariable> variables = underlyingSolver.variables();
         for (int i = 0; i < variables.size(); i++) {
             final MSVariable var = variables.get(i);

@@ -834,10 +834,8 @@ public class CachingFormulaFactory extends FormulaFactory {
         @Override
         public int hashCode() {
             return Objects.hash(name, positiveLiterals, negativeLiterals, negations, implications, equivalences,
-                    conjunctions2,
-                    conjunctions3, conjunctions4, conjunctionsN, disjunctions2, disjunctions3, disjunctions4,
-                    disjunctionsN,
-                    pbcs, ccs, ccCounter, pbCounter, cnfCounter);
+                    conjunctions2, conjunctions3, conjunctions4, conjunctionsN, disjunctions2, disjunctions3,
+                    disjunctions4, disjunctionsN, pbcs, ccs, ccCounter, pbCounter, cnfCounter);
         }
 
         @Override
@@ -865,5 +863,4 @@ public class CachingFormulaFactory extends FormulaFactory {
                     '}';
         }
     }
-
 }

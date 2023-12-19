@@ -302,10 +302,10 @@ public class WBO extends MaxSAT {
                 addSoftClause(weightCore, clause, vars);
                 final int l = newLiteral(false);
                 softClauses.get(nSoft() - 1).setAssumptionVar(l);
-                coreMapping.put(l, nSoft() - 1); // Map the new soft clause to
-                                                 // its assumption literal.
-                assumps.push(MiniSatStyleSolver.not(l)); // Update the
-                                                         // assumption vector.
+                // Map the new soft clause to its assumption literal
+                coreMapping.put(l, nSoft() - 1);
+                // Update the assumption vector
+                assumps.push(MiniSatStyleSolver.not(l));
                 if (symmetryStrategy) {
                     symmetryLog(nSoft() - 1);
                 }

@@ -146,8 +146,7 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
 
         @Override
         public boolean addModel(final LNGBooleanVector modelFromSolver, final MiniSat solver,
-                                final LNGIntVector relevantAllIndices,
-                                final ModelEnumerationHandler handler) {
+                                final LNGIntVector relevantAllIndices, final ModelEnumerationHandler handler) {
             if (handler == null || handler.foundModels(baseModels.size())) {
                 final Model model = solver.createModel(modelFromSolver, relevantAllIndices);
                 final List<Literal> modelLiterals = new ArrayList<>(additionalVariablesNotOnSolver);

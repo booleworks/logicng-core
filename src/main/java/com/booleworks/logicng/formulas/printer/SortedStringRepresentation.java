@@ -30,15 +30,18 @@ import java.util.TreeSet;
  * Let f1 and f2 be two sub-formulas of a formula to be sorted. It is
  * iteratively checked whether the variables of the given ordering appear in
  * either of the two sub-formulas. We distinguish the following cases for a
- * currently considered variable v: - If v is in f1 and f2, then continue with
- * the next variable. - If v is in f1 but not f2, then f1 is ordered before f2.
- * - If v is in f2 but not f1, then f2 is ordered before f1. - If all variables
- * of the ordering have been in both f1 and f2, the two formulas can be ordered
- * arbitrarily.
+ * currently considered variable v:
+ * <ul>
+ * <li>If v is in f1 and f2, then continue with the next variable</li>
+ * <li>If v is in f1 but not f2, then f1 is ordered before f2</li>
+ * <li>If v is in f2 but not f1, then f2 is ordered before f1</li>
+ * <li>If all variables of the ordering have been in both f1 and f2, the two
+ * formulas can be ordered arbitrarily</li>
+ * </ul>
  * <p>
- * Example 1: Given the variable ordering [a, b, c, d], the sorted string
- * representation for a simple conjunction b &amp; d &amp; ~a &amp; ~c would be
- * ~a &amp; b &amp; ~c &amp; d.
+ * Example 1: Given the variable ordering {@code [a, b, c, d]}, the sorted
+ * string representation for a simple conjunction {@code b & d & ~a & ~c} would
+ * be {@code ~a & b & ~c & d}.
  * <p>
  * It is important to note that the first variable that appear in only one of
  * the compared sub-formulas decides their ordering. Hence, apart from the
@@ -46,23 +49,23 @@ import java.util.TreeSet;
  * different order. The user is urged to keep this in mind and an exemplary
  * situation is therefore illustrated in the following example.
  * <p>
- * Example 2: Given the variable ordering [a, b, c, d, e, f], the sorted string
- * representation for the formula b | c | d &lt;=&gt; a | e | f would be a | e |
- * f &lt;=&gt; b | c | d.
+ * Example 2: Given the variable ordering {@code [a, b, c, d, e, f]}, the sorted
+ * string representation for the formula {@code b | c | d <=> a | e | f} would
+ * be {@code a | e | f <=> b | c | d}.
  * <p>
  * Furthermore, the fact that implications cannot be ordered should also be kept
  * in mind.
  * <p>
- * Example 3: Given the variable ordering [a, b], the sorted string
- * representation for the formula b =&gt; a stays b =&gt; a.
+ * Example 3: Given the variable ordering {@code [a, b]}, the sorted string
+ * representation for the formula {@code b => a} stays {@code b => a}.
  * <p>
  * Finally, the user should be aware that any variables of a formula that do not
  * appear in the given ordering will be sorted after the variables that do
  * appear in the ordering.
  * <p>
- * Example 4: Given the variable ordering [b, c, d], the sorted string
- * representation for the formula a &amp; (c | (d =&gt; b)) would be ((d =&gt;
- * b) | c) &amp; a.
+ * Example 4: Given the variable ordering {@code [b, c, d]}, the sorted string
+ * representation for the formula {@code a & (c | (d => b))} would be
+ * {@code ((d => b) | c) & a}.
  * @version 3.0.0
  * @since 1.5.0
  */

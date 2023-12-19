@@ -87,9 +87,9 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
     }
 
     private void enumerateRecursive(final EnumerationCollector<RESULT> collector, final MiniSat solver,
-                                    final Model splitModel,
-                                    final Consumer<Tristate> resultSetter, final SortedSet<Variable> enumerationVars,
-                                    final SortedSet<Variable> splitVars, final int recursionDepth) {
+                                    final Model splitModel, final Consumer<Tristate> resultSetter,
+                                    final SortedSet<Variable> enumerationVars, final SortedSet<Variable> splitVars,
+                                    final int recursionDepth) {
         final int maxNumberOfModelsForEnumeration = strategy.maxNumberOfModelsForEnumeration(recursionDepth);
         final SolverState state = saveState(solver);
         solver.add(splitModel.formula(solver.factory()));
@@ -143,8 +143,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
     }
 
     protected static <R> boolean enumerate(final EnumerationCollector<R> collector, final MiniSat solver,
-                                           final Consumer<Tristate> resultSetter,
-                                           final SortedSet<Variable> variables,
+                                           final Consumer<Tristate> resultSetter, final SortedSet<Variable> variables,
                                            final SortedSet<Variable> additionalVariables, final int maxModels,
                                            final ModelEnumerationHandler handler) {
         final SolverState stateBeforeEnumeration = saveState(solver);

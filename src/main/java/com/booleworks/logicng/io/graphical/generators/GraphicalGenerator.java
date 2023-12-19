@@ -26,9 +26,8 @@ public abstract class GraphicalGenerator<C> {
     private final EdgeStyleMapper<C> edgeStyleMapper;
 
     protected GraphicalGenerator(final GraphicalColor backgroundColor, final boolean alignTerminals,
-                                 final GraphicalEdgeStyle defaultEdgeStyle,
-                                 final GraphicalNodeStyle defaultNodeStyle, final NodeStyleMapper<C> nodeStyleMapper,
-                                 final LabelMapper<C> labelMapper,
+                                 final GraphicalEdgeStyle defaultEdgeStyle, final GraphicalNodeStyle defaultNodeStyle,
+                                 final NodeStyleMapper<C> nodeStyleMapper, final LabelMapper<C> labelMapper,
                                  final EdgeStyleMapper<C> edgeStyleMapper) {
         this.backgroundColor = backgroundColor;
         this.alignTerminals = alignTerminals;

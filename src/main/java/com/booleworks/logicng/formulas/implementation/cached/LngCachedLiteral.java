@@ -74,8 +74,8 @@ public class LngCachedLiteral extends LngCachedFormula implements Literal {
             return true;
         }
         if (other instanceof Formula && factory() == ((Formula) other).factory()) {
-            return false; // the same cached formula factory would have produced
-                          // a == object
+            // the caching formula factory would have produced the same object
+            return false;
         }
         if (other instanceof Literal && hashCode() == other.hashCode()) {
             final Literal otherLit = (Literal) other;

@@ -76,8 +76,8 @@ public class FormulaDagGraphicalGenerator extends GraphicalGenerator<Formula> {
                         addNode(formula, formula.toString(), true, graphicalRepresentation, nodes);
                 return constPair.first();
             case LITERAL:
-                return nodes.get(formula); // since this is a literal, it has to
-                                           // be already present
+                // since this is a literal, it has to be already present
+                return nodes.get(formula);
             case PBC:
                 return walkPBConstraint((PBConstraint) formula, graphicalRepresentation, nodes);
             case NOT:
@@ -99,14 +99,8 @@ public class FormulaDagGraphicalGenerator extends GraphicalGenerator<Formula> {
         final Pair<GraphicalNode, Boolean> pbPair = addNode(pbc, pbc.toString(), false, graphicalRepresentation, nodes);
         if (!pbPair.second()) {
             for (final Formula operand : pbc.operands()) {
-                final GraphicalNode literalNode = nodes.get(operand); // since
-                                                                      // this is
-                                                                      // a
-                                                                      // literal,
-                                                                      // it has
-                                                                      // to be
-                                                                      // already
-                                                                      // present
+                // since this is a literal, it has to be already present
+                final GraphicalNode literalNode = nodes.get(operand);
                 graphicalRepresentation
                         .addEdge(new GraphicalEdge(pbPair.first(), literalNode, edgeStyle(pbc, operand)));
             }
@@ -155,9 +149,10 @@ public class FormulaDagGraphicalGenerator extends GraphicalGenerator<Formula> {
         return pair.first();
     }
 
-    private Pair<GraphicalNode, Boolean>
-            addNode(final Formula formula, final String defaultLabel, final boolean terminal,
-                    final GraphicalRepresentation graphicalRepresentation, final Map<Formula, GraphicalNode> nodes) {
+    private Pair<GraphicalNode, Boolean> addNode(final Formula formula, final String defaultLabel,
+                                                 final boolean terminal,
+                                                 final GraphicalRepresentation graphicalRepresentation,
+                                                 final Map<Formula, GraphicalNode> nodes) {
         GraphicalNode node = nodes.get(formula);
         if (node == null) {
             node = new GraphicalNode(ID + nodes.size(), labelOrDefault(formula, defaultLabel), terminal,

@@ -60,7 +60,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
          * @param cnf the CNF
          */
         public Graph(final FormulaFactory f, final Formula cnf) {
-            /* build vertices */
+            // build vertices
             numberOfVertices = cnf.variables(f).size();
             vertices = new ArrayList<>(numberOfVertices);
             final Map<Literal, Integer> varToIndex = new HashMap<>();
@@ -70,7 +70,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
                 varToIndex.put(variable, index++);
             }
 
-            /* build edge list and adjacency matrix */
+            // build edge list and adjacency matrix
             adjMatrix = new boolean[numberOfVertices][numberOfVertices];
             edgeList = new ArrayList<>(numberOfVertices);
             for (int i = 0; i < numberOfVertices; i++) {
@@ -152,8 +152,8 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
                     }
                 }
 
-                final int bestVertex = possiblyBestVertices.get(0); // or choose
-                                                                    // randomly
+                // random choice
+                final int bestVertex = possiblyBestVertices.get(0);
 
                 final LNGIntVector neighborList = fillEdgeList.get(bestVertex);
                 for (int i = 0; i < neighborList.size(); i++) {

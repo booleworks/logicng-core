@@ -32,8 +32,8 @@ public class LngCachedAnd extends LngCachedNAryOperator implements And {
             return true;
         }
         if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false; // the same caching formula factory would have
-                          // produced a == object
+            // the caching formula factory would have produced the same object
+            return false;
         }
         if (other instanceof And && hashCode() == other.hashCode()) {
             return compareOperands(((And) other).operands());

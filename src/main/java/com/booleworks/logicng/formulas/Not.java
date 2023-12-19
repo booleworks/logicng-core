@@ -13,6 +13,13 @@ import java.util.stream.Stream;
 
 /**
  * Boolean negation.
+ * <p>
+ * Invariant: {@code operand} is <b>never</b> one of
+ * <ul>
+ * <li>a constant</li>
+ * <li>a literal or variable</li>
+ * <li>another {@link Not}</li>
+ * </ul>
  * @version 3.0.0
  * @since 1.0
  */

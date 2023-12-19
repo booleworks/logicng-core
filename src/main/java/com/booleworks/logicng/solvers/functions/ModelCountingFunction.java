@@ -114,8 +114,7 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
 
         @Override
         public boolean addModel(final LNGBooleanVector modelFromSolver, final MiniSat solver,
-                                final LNGIntVector relevantAllIndices,
-                                final ModelEnumerationHandler handler) {
+                                final LNGIntVector relevantAllIndices, final ModelEnumerationHandler handler) {
             if (handler == null || handler.foundModels(dontCareFactor.intValue())) {
                 uncommittedModels.add(modelFromSolver);
                 uncommittedIndices.add(relevantAllIndices);

@@ -39,10 +39,11 @@ public class DTreeNode extends DTree {
     protected final DTreeLeaf[] leftLeafs;
     protected final DTreeLeaf[] rightLeafs;
 
-    protected int[] clauseContents; // content of all clauses under this node,
-                                    // e.g. clause {1,3} with id 0, {2,6,8} with
-                                    // id 1, {4,6} with id 6 -->
-                                    // [1,3,-1,2,6,-2,4,6,-7]
+    // content of all clauses under this node
+    // example: clause {1,3} with id 0, clause {2,6,8} with id 1,
+    // and clause {4,6} with id 6
+    // --> [1,3,-1,2,6,-2,4,6,-7]
+    protected int[] clauseContents;
     protected int[] leftClauseContents;
     protected int[] rightClauseContents;
 

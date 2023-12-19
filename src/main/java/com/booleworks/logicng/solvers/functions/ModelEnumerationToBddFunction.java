@@ -127,8 +127,7 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
 
         @Override
         public boolean addModel(final LNGBooleanVector modelFromSolver, final MiniSat solver,
-                                final LNGIntVector relevantAllIndices,
-                                final ModelEnumerationHandler handler) {
+                                final LNGIntVector relevantAllIndices, final ModelEnumerationHandler handler) {
             if (handler == null || handler.foundModels(dontCareFactor)) {
                 final Model model = solver.createModel(modelFromSolver, relevantAllIndices);
                 uncommittedModels.add(model);

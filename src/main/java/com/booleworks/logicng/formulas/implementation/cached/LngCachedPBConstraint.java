@@ -108,8 +108,8 @@ public class LngCachedPBConstraint extends LngCachedFormula implements PBConstra
             return true;
         }
         if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false; // the same caching formula factory would have
-            // produced a == object
+            // the caching formula factory would have produced the same object
+            return false;
         }
         if (other instanceof PBConstraint && hashCode() == other.hashCode()) {
             final PBConstraint o = (PBConstraint) other;

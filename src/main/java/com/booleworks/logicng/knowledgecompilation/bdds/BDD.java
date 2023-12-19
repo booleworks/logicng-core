@@ -515,12 +515,8 @@ public class BDD {
      */
     public SortedSet<Variable> support() {
         final int supportBDD = operations.support(index);
-        final Assignment assignment = createAssignment(kernel.factory(), supportBDD); // only
-                                                                                      // variables,
-                                                                                      // cannot
-                                                                                      // create
-                                                                                      // new
-                                                                                      // literals
+        // only variables, cannot create new literals
+        final Assignment assignment = createAssignment(kernel.factory(), supportBDD);
         assert assignment == null || assignment.negativeLiterals().isEmpty();
         return assignment == null ? Collections.emptySortedSet() : new TreeSet<>(assignment.positiveVariables());
     }

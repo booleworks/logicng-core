@@ -43,8 +43,8 @@ public class LngCachedNot extends LngCachedFormula implements Not {
             return true;
         }
         if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false; // the same caching formula factory would have
-                          // produced a == object
+            // the caching formula factory would have produced the same object
+            return false;
         }
         if (other instanceof Not && hashCode() == other.hashCode()) {
             final Not otherNot = (Not) other;
