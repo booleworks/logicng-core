@@ -32,6 +32,10 @@ public class ImplicationTest extends TestWithFormulaContext {
         assertThat(_c.f.implication(_c.verum, _c.a)).isEqualTo(_c.a);
         assertThat(_c.f.implication(_c.a, _c.falsum)).isEqualTo(_c.na);
         assertThat(_c.f.implication(_c.a, _c.a)).isEqualTo(_c.verum);
+        assertThat(_c.f.implication(_c.a, _c.na)).isEqualTo(_c.na);
+        assertThat(_c.f.implication(_c.na, _c.a)).isEqualTo(_c.a);
+        assertThat(_c.f.implication(_c.imp4, _c.imp4.negate(_c.f))).isEqualTo(_c.imp4.negate(_c.f));
+        assertThat(_c.f.implication(_c.imp4.negate(_c.f), _c.imp4)).isEqualTo(_c.imp4);
         assertThat(_c.f.binaryOperator(FType.IMPL, _c.and1, _c.or1)).isEqualTo(_c.imp3);
     }
 

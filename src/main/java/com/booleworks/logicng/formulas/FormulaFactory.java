@@ -288,6 +288,9 @@ public abstract class FormulaFactory {
         if (left.equals(right)) {
             return verum();
         }
+        if (left.equals(negateOrNull(right))) {
+            return right;
+        }
         return internalImplication(left, right);
     }
 
