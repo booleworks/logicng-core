@@ -53,8 +53,8 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
      *                          all variables on the solver are counted
      */
     public VariableOccurrencesOnSolverFunction(final Set<Variable> relevantVariables) {
-        this.relevantVariables = relevantVariables == null ? null :
-                relevantVariables.stream().map(Variable::name).collect(Collectors.toSet());
+        this.relevantVariables = relevantVariables == null ? null
+                : relevantVariables.stream().map(Variable::name).collect(Collectors.toSet());
     }
 
     @Override

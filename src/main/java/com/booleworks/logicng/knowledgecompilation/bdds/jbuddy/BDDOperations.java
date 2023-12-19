@@ -463,8 +463,8 @@ public class BDDOperations {
         }
         final Variable var = k.idx2var.get(k.level(r));
         final int low = k.low(r);
-        final Formula lowFormula = isRelevant(low, followPathsToTrue) ?
-                f.and(var.negate(f), toFormulaRec(f, low, followPathsToTrue)) : f.falsum();
+        final Formula lowFormula = isRelevant(low, followPathsToTrue)
+                ? f.and(var.negate(f), toFormulaRec(f, low, followPathsToTrue)) : f.falsum();
         final int high = k.high(r);
         final Formula rightFormula =
                 isRelevant(high, followPathsToTrue) ? f.and(var, toFormulaRec(f, high, followPathsToTrue)) : f.falsum();

@@ -140,8 +140,8 @@ public class CcEncoder {
     protected static CcIncrementalData encodeIncrementalConstraint(final CardinalityConstraint cc,
                                                                    final EncodingResult result,
                                                                    final EncoderConfig initConfig) {
-        final var config = initConfig != null ? initConfig :
-                (EncoderConfig) result.factory().configurationFor(ConfigurationType.ENCODER);
+        final var config = initConfig != null ? initConfig
+                : (EncoderConfig) result.factory().configurationFor(ConfigurationType.ENCODER);
         final Variable[] ops = FormulaHelper.literalsAsVariables(cc.operands());
         if (cc.isAmo()) {
             throw new IllegalArgumentException("Incremental encodings are not supported for at-most-one constraints");
@@ -163,8 +163,8 @@ public class CcEncoder {
 
     protected static void encodeConstraint(final CardinalityConstraint cc, final EncodingResult result,
                                            final EncoderConfig initConfig) {
-        final var config = initConfig != null ? initConfig :
-                (EncoderConfig) result.factory().configurationFor(ConfigurationType.ENCODER);
+        final var config = initConfig != null ? initConfig
+                : (EncoderConfig) result.factory().configurationFor(ConfigurationType.ENCODER);
         final Variable[] ops = FormulaHelper.literalsAsVariables(cc.operands());
         switch (cc.comparator()) {
             case LE:

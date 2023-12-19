@@ -205,8 +205,8 @@ public class GraphicalRepresentation {
                 ", background=" + background +
                 ", nodes=" + nodes.stream().map(n -> n.getId() + ":" + n.getLabel()).collect(Collectors.joining(", ")) +
                 ", edges=" +
-                edges.stream().map(e -> e.getSource().getLabel() + " -- " + e.getDestination().getLabel())
-                        .collect(Collectors.joining(", ")) +
-                '}';
+                edges.stream().map(e -> e.getSource().getLabel() + " -- "
+                        + e.getDestination().getLabel()).collect(Collectors.joining(", "))
+                + '}';
     }
 }

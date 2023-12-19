@@ -35,8 +35,8 @@ public abstract class CacheableFormulaPredicate implements FormulaPredicate {
      *                   formula factory
      **/
     protected CacheableFormulaPredicate(final FormulaFactory f, final CacheEntry cacheEntry) {
-        this(f, f instanceof CachingFormulaFactory ? ((CachingFormulaFactory) f).getPredicateCacheForType(cacheEntry) :
-                null);
+        this(f, f instanceof CachingFormulaFactory ? ((CachingFormulaFactory) f).getPredicateCacheForType(cacheEntry)
+                : null);
     }
 
     /**

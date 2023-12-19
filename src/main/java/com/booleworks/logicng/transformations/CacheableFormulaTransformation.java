@@ -35,8 +35,8 @@ public abstract class CacheableFormulaTransformation implements FormulaTransform
      *                   caching formula factory
      **/
     protected CacheableFormulaTransformation(final FormulaFactory f, final CacheEntry cacheEntry) {
-        this(f, f instanceof CachingFormulaFactory ?
-                ((CachingFormulaFactory) f).getTransformationCacheForType(cacheEntry) : null);
+        this(f, f instanceof CachingFormulaFactory
+                ? ((CachingFormulaFactory) f).getTransformationCacheForType(cacheEntry) : null);
     }
 
     /**

@@ -194,8 +194,8 @@ public final class BDDFactory {
                 if (right == BDDKernel.BDD_ABORT) {
                     return BDDKernel.BDD_ABORT;
                 }
-                int res = kernel.addRef(binary instanceof Implication ? construction.implication(left, right) :
-                        construction.equivalence(left, right), handler);
+                int res = kernel.addRef(binary instanceof Implication ? construction.implication(left, right)
+                        : construction.equivalence(left, right), handler);
                 kernel.delRef(left);
                 kernel.delRef(right);
                 return res;
@@ -212,8 +212,8 @@ public final class BDDFactory {
                         return BDDKernel.BDD_ABORT;
                     }
                     final int previous = res;
-                    res = formula instanceof And ? kernel.addRef(construction.and(res, operand), handler) :
-                            kernel.addRef(construction.or(res, operand), handler);
+                    res = formula instanceof And ? kernel.addRef(construction.and(res, operand), handler)
+                            : kernel.addRef(construction.or(res, operand), handler);
                     kernel.delRef(previous);
                     kernel.delRef(operand);
                 }

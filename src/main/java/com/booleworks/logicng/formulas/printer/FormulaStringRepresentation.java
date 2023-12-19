@@ -90,10 +90,10 @@ public abstract class FormulaStringRepresentation {
      * @return the string representation
      */
     protected String binaryOperator(final BinaryOperator operator, final String opString) {
-        final String leftString = operator.type().precedence() < operator.left().type().precedence() ?
-                toInnerString(operator.left()) : bracket(operator.left());
-        final String rightString = operator.type().precedence() < operator.right().type().precedence() ?
-                toInnerString(operator.right()) : bracket(operator.right());
+        final String leftString = operator.type().precedence() < operator.left().type().precedence()
+                ? toInnerString(operator.left()) : bracket(operator.left());
+        final String rightString = operator.type().precedence() < operator.right().type().precedence()
+                ? toInnerString(operator.right()) : bracket(operator.right());
         return leftString + opString + rightString;
     }
 

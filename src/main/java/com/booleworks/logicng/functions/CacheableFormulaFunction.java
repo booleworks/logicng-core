@@ -35,8 +35,8 @@ public abstract class CacheableFormulaFunction<T> implements FormulaFunction<T> 
      *                   formula factory
      **/
     protected CacheableFormulaFunction(final FormulaFactory f, final CacheEntry cacheEntry) {
-        this(f, f instanceof CachingFormulaFactory ? ((CachingFormulaFactory) f).getFunctionCacheForType(cacheEntry) :
-                null);
+        this(f, f instanceof CachingFormulaFactory ? ((CachingFormulaFactory) f).getFunctionCacheForType(cacheEntry)
+                : null);
     }
 
     /**

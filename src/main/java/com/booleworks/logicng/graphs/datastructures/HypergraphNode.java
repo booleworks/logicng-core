@@ -88,8 +88,7 @@ public final class HypergraphNode<T> {
             return false;
         }
         final HypergraphNode<?> that = (HypergraphNode<?>) o;
-        return Objects.equals(graph, that.graph) &&
-                Objects.equals(content, that.content);
+        return Objects.equals(graph, that.graph) && Objects.equals(content, that.content);
     }
 
     @Override

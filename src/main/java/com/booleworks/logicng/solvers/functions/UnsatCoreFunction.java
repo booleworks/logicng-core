@@ -113,10 +113,10 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
                     final LinkedHashSet<Proposition> propositions = new LinkedHashSet<>();
                     final Proposition pi = clauses.get(i).proposition();
                     final Proposition pj = clauses.get(j).proposition();
-                    propositions.add(pi != null ? pi :
-                            new StandardProposition(getFormulaForVector(solver, clauses.get(i).clause())));
-                    propositions.add(pj != null ? pj :
-                            new StandardProposition(getFormulaForVector(solver, clauses.get(j).clause())));
+                    propositions.add(pi != null ? pi
+                            : new StandardProposition(getFormulaForVector(solver, clauses.get(i).clause())));
+                    propositions.add(pj != null ? pj
+                            : new StandardProposition(getFormulaForVector(solver, clauses.get(j).clause())));
                     return new UNSATCore<>(new ArrayList<>(propositions), false);
                 }
             }

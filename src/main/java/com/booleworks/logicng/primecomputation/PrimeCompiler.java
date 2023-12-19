@@ -134,10 +134,10 @@ public final class PrimeCompiler {
         final List<SortedSet<Literal>> primeImplicants = new ArrayList<>();
         final List<SortedSet<Literal>> primeImplicates = new ArrayList<>();
         while (true) {
-            final Assignment hModel = hSolver.execute(computeWithMaximization ?
-                    OptimizationFunction.builder().handler(handler).literals(sub.newVar2oldLit.keySet()).maximize()
-                            .build() :
-                    OptimizationFunction.builder().handler(handler).literals(sub.newVar2oldLit.keySet()).minimize()
+            final Assignment hModel = hSolver.execute(computeWithMaximization
+                    ? OptimizationFunction.builder().handler(handler).literals(sub.newVar2oldLit.keySet()).maximize()
+                            .build()
+                    : OptimizationFunction.builder().handler(handler).literals(sub.newVar2oldLit.keySet()).minimize()
                             .build());
             if (Handler.aborted(handler)) {
                 return null;
@@ -151,9 +151,9 @@ public final class PrimeCompiler {
                 return null;
             }
             if (fSat == Tristate.FALSE) {
-                final SortedSet<Literal> primeImplicant = computeWithMaximization ?
-                        primeReduction.reduceImplicant(fModel.literals(), OptimizationHandler.satHandler(handler)) :
-                        fModel.literals();
+                final SortedSet<Literal> primeImplicant = computeWithMaximization
+                        ? primeReduction.reduceImplicant(fModel.literals(), OptimizationHandler.satHandler(handler))
+                        : fModel.literals();
                 if (primeImplicant == null || Handler.aborted(handler)) {
                     return null;
                 }

@@ -75,8 +75,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     public void testTautology(final SplitVariableProvider splitProvider) {
         final ModelEnumerationConfig config =
                 ModelEnumerationConfig.builder()
-                        .strategy(splitProvider == null ? null :
-                                DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
@@ -90,8 +90,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     public void testEmptyEnumerationVariables(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
                 ModelEnumerationConfig.builder()
-                        .strategy(splitProvider == null ? null :
-                                DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
@@ -107,8 +107,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     public void testSimple1(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
                 ModelEnumerationConfig.builder()
-                        .strategy(splitProvider == null ? null :
-                                DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
@@ -123,8 +123,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     public void testSimple2(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
                 ModelEnumerationConfig.builder()
-                        .strategy(splitProvider == null ? null :
-                                DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
@@ -139,8 +139,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     public void testMultipleModelEnumeration(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
                 ModelEnumerationConfig.builder()
-                        .strategy(splitProvider == null ? null :
-                                DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
@@ -159,8 +159,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     public void testDontCareVariables1(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
                 ModelEnumerationConfig.builder()
-                        .strategy(splitProvider == null ? null :
-                                DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);
@@ -178,8 +178,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     public void testDontCareVariables2(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
                 ModelEnumerationConfig.builder()
-                        .strategy(splitProvider == null ? null :
-                                DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = MiniSat.miniSat(f);

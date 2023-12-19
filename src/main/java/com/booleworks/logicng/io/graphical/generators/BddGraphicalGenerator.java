@@ -108,8 +108,8 @@ public class BddGraphicalGenerator extends GraphicalGenerator<Integer> {
     }
 
     private GraphicalEdgeStyle negativeEdgeStyle(final Integer source, final Integer destination) {
-        return negativeEdgeStyleMapper != null ? negativeEdgeStyleMapper.computeStyle(source, destination) :
-                negativeEdgeStyle;
+        return negativeEdgeStyleMapper != null ? negativeEdgeStyleMapper.computeStyle(source, destination)
+                : negativeEdgeStyle;
     }
 
     /**

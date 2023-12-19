@@ -1111,8 +1111,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     }
 
     static ModelEnumerationStrategy strategy(final SATSolver solver) {
-        return solver.canSaveLoadState() ? DefaultModelEnumerationStrategy.builder().build() :
-                NoSplitModelEnumerationStrategy.get();
+        return solver.canSaveLoadState() ? DefaultModelEnumerationStrategy.builder().build()
+                : NoSplitModelEnumerationStrategy.get();
     }
 }
 

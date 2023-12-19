@@ -37,8 +37,8 @@ public abstract class CacheableAndAbortableFormulaTransformation<H extends Handl
      **/
     protected CacheableAndAbortableFormulaTransformation(final FormulaFactory f, final CacheEntry cacheEntry,
                                                          final H handler) {
-        this(f, f instanceof CachingFormulaFactory ?
-                ((CachingFormulaFactory) f).getTransformationCacheForType(cacheEntry) : null, handler);
+        this(f, f instanceof CachingFormulaFactory
+                ? ((CachingFormulaFactory) f).getTransformationCacheForType(cacheEntry) : null, handler);
     }
 
     /**

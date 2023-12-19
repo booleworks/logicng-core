@@ -36,8 +36,8 @@ public abstract class CacheableAndStatefulFormulaTransformation<S> extends Cache
      **/
     protected CacheableAndStatefulFormulaTransformation(final FormulaFactory f, final CacheEntry cacheEntry,
                                                         final S state) {
-        this(f, f instanceof CachingFormulaFactory ?
-                ((CachingFormulaFactory) f).getTransformationCacheForType(cacheEntry) : null, state);
+        this(f, f instanceof CachingFormulaFactory
+                ? ((CachingFormulaFactory) f).getTransformationCacheForType(cacheEntry) : null, state);
     }
 
     /**

@@ -418,8 +418,8 @@ public interface PBConstraint extends Formula {
                 }
             }
         }
-        return newLits.isEmpty() ? evaluateComparator(lhsFixed) ? f.verum() : f.falsum() :
-                f.pbc(comparator(), rhs() - lhsFixed, newLits, newCoeffs);
+        return newLits.isEmpty() ? evaluateComparator(lhsFixed) ? f.verum() : f.falsum()
+                : f.pbc(comparator(), rhs() - lhsFixed, newLits, newCoeffs);
     }
 
     @Override

@@ -70,8 +70,8 @@ public final class PlaistedGreenbaumTransformationSolver {
      */
     public void addCNFtoSolver(final Formula formula, final Proposition proposition) {
         final Formula workingFormula = performNNF ? formula.transform(nnfTransformation) : formula;
-        final Formula withoutPBCs = !performNNF && workingFormula.holds(ContainsPBCPredicate.get()) ?
-                workingFormula.nnf(f) : workingFormula;
+        final Formula withoutPBCs = !performNNF && workingFormula.holds(ContainsPBCPredicate.get())
+                ? workingFormula.nnf(f) : workingFormula;
         if (withoutPBCs.isCNF(f)) {
             addCNF(withoutPBCs, proposition);
         } else {
@@ -113,8 +113,8 @@ public final class PlaistedGreenbaumTransformationSolver {
         switch (formula.type()) {
             case LITERAL:
                 final Literal lit = (Literal) formula;
-                return polarity ? vector(solverLiteral(lit.name(), lit.phase())) :
-                        vector(solverLiteral(lit.name(), lit.phase()) ^ 1);
+                return polarity ? vector(solverLiteral(lit.name(), lit.phase()))
+                        : vector(solverLiteral(lit.name(), lit.phase()) ^ 1);
             case NOT:
                 return computeTransformation(((Not) formula).operand(), !polarity, proposition, topLevel);
             case OR:

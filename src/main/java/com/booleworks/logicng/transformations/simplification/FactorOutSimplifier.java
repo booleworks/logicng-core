@@ -88,8 +88,8 @@ public final class FactorOutSimplifier extends StatelessFormulaTransformation {
     private Formula simplify(final NAryOperator formula) {
         final Formula simplified = factorOut(formula);
         return simplified == null ||
-                ratingFunction.apply(formula).doubleValue() <= ratingFunction.apply(simplified).doubleValue() ?
-                        formula : simplified;
+                ratingFunction.apply(formula).doubleValue() <= ratingFunction.apply(simplified).doubleValue() ? formula
+                        : simplified;
     }
 
     private Formula factorOut(final NAryOperator formula) {

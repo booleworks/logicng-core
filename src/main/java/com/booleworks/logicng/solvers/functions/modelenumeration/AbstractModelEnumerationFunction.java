@@ -176,8 +176,8 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         final SortedSet<Variable> relevantVars = knownVariables.stream()
                 .filter(AbstractModelEnumerationFunction::isNotAuxiliaryVariable)
                 .collect(Collectors.toCollection(TreeSet::new));
-        return variables == null ? relevantVars :
-                relevantVars.stream().filter(variables::contains).collect(Collectors.toCollection(TreeSet::new));
+        return variables == null ? relevantVars
+                : relevantVars.stream().filter(variables::contains).collect(Collectors.toCollection(TreeSet::new));
     }
 
     private static boolean isNotAuxiliaryVariable(final Variable var) {
@@ -197,9 +197,9 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
 
     protected static ModelEnumerationConfig configuration(final SortedSet<Variable> variables,
                                                           final ModelEnumerationConfig config) {
-        return config == null ?
-                (ModelEnumerationConfig) factory(variables).configurationFor(ConfigurationType.MODEL_ENUMERATION) :
-                config;
+        return config == null
+                ? (ModelEnumerationConfig) factory(variables).configurationFor(ConfigurationType.MODEL_ENUMERATION)
+                : config;
     }
 
     private static SolverState saveState(final SATSolver solver) {

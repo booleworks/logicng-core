@@ -55,8 +55,8 @@ public final class FormulaRandomizer {
      */
     public FormulaRandomizer(final FormulaFactory f, final FormulaRandomizerConfig config) {
         this.f = f;
-        this.config = config != null ? config :
-                (FormulaRandomizerConfig) f.configurationFor(ConfigurationType.FORMULA_RANDOMIZER);
+        this.config = config != null ? config
+                : (FormulaRandomizerConfig) f.configurationFor(ConfigurationType.FORMULA_RANDOMIZER);
         random = this.config.seed != 0 ? new Random(this.config.seed) : new Random();
         variables = generateVars(f, this.config);
         formulaTypeProbabilities = new FormulaTypeProbabilities(this.config);
