@@ -405,17 +405,4 @@
       </properties>
     </profile>
   </profiles>
-
-  <distributionManagement>
-    <repository>
-      <id>github</id>
-      <name>BooleWorks GitHub Registry</name>
-      <url>https://maven.pkg.github.com/booleworks/logicng-core</url>
-    </repository>
-    <snapshotRepository>
-      <id>github</id>
-      <name>BooleWorks GitHub Registry</name>
-      <url>https://maven.pkg.github.com/booleworks/logicng-core</url>
-    </snapshotRepository>
-  </distributionManagement>
 </project>
