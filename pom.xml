@@ -375,6 +375,19 @@
           </plugin>
         </plugins>
       </build>
+
+      <distributionManagement>
+        <repository>
+          <id>ossrh</id>
+          <url>https://oss.sonatype.org/</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </distributionManagement>
     </profile>
 
     <profile>
