@@ -45,4 +45,4 @@ Furthermore there are some extensions planned for LogicNG:
 
 LogicNG development is partly funded by the [SofDCar project](https://sofdcar.de/):
 
-<a href="https://www.sofdcar.de"><img src="https://github.com/booleworks/logicng-core/blob/main/doc/logos/bmwk.png?raw=true" alt="logo" width="200"></a>
+<a href="https://www.sofdcar.de"><img src="https://github.com/booleworks/logicng-core/blob/main/doc/logo/bmwk.png" alt="logo" width="200"></a>
