@@ -12,7 +12,14 @@ jobs:
         with:
           java-version: 11
           distribution: zulu
+          server-id: ossrh
+          server-username: OSSRH_USERNAME
+          server-password: OSSRH_PASSWORD
+          gpg-private-key: ${{ secrets.SONATYPE_GPG_PRIVATE_KEY }}
+          gpg-passphrase: SONATYPE_GPG_PRIVATE_KEY_PASSPHRASE
       - name: Build with Maven
-        run: mvn -ntp deploy -DskipTests
+        run: mvn -ntp deploy -DskipTests -P gh-action-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          SONATYPE_GPG_PRIVATE_KEY_PASSPHRASE: ${{ secrets.SONATYPE_GPG_PRIVATE_KEY_PASSPHRASE }}
