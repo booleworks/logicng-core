@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
-interface Predicate extends Formula {
+public interface Predicate extends Formula {
     Iterator<Formula> ITERATOR = new Iterator<>() {
         @Override
         public boolean hasNext() {
@@ -62,7 +62,7 @@ interface Predicate extends Formula {
 
     @Override
     default boolean containsNode(final Formula formula) {
-        return this.equals(formula);
+        return equals(formula);
     }
 
     @Override
@@ -72,7 +72,7 @@ interface Predicate extends Formula {
 
     @Override
     default Formula negate(final FormulaFactory f) {
-        return this.factory().not(this);
+        return f.not(this);
     }
 
     @Override
