@@ -46,6 +46,7 @@ public final class CcModularTotalizer {
      * @param result the result of the encoding
      * @param vars   the variables of the constraint
      * @param rhs    the right-hand side of the constraint
+     * @return the incremental data for this constraint
      */
     public static CcIncrementalData amk(final EncodingResult result, final Variable[] vars, final int rhs) {
         final var state = new State(result.factory());
@@ -67,6 +68,7 @@ public final class CcModularTotalizer {
      * @param result the result of the encoding
      * @param vars   the variables of the constraint
      * @param rhs    the right-hand side of the constraint
+     * @return the incremental data for this constraint
      */
     public static CcIncrementalData alk(final EncodingResult result, final Variable[] vars, final int rhs) {
         final var state = new State(result.factory());

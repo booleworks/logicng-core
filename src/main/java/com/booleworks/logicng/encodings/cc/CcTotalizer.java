@@ -86,8 +86,9 @@ public final class CcTotalizer {
 
     /**
      * Builds an exactly-k constraint.
-     * @param vars the variables
-     * @param rhs  the right-hand side
+     * @param result the encoding result
+     * @param vars   the variables
+     * @param rhs    the right-hand side
      * @throws IllegalArgumentException if the right-hand side of the constraint
      *                                  was negative
      */
