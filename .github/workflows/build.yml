@@ -1,4 +1,4 @@
-name: build
+name: Build and Test LogicNG on different Operating Systems
 
 on: [ push, pull_request ]
 
