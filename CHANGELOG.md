@@ -4,22 +4,7 @@ LogicNG uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [3.0.0]
 
-### Changed
-
-- Switch to Java 11
-- Switch to ANTLR 4.13
-- `FormulaFactory` has no constructor anymore. Use `CachedFormulaFactory` or `NativeFormulaFactory` instead
-- `SetCover.compute()` now needs a `FormulaFactory` as additional parameter
-
-### Removed
-
-- Removed deprecated dot file graph writers (replaced with generic graph writers in version 2.4.0)
-- Removed deprecated public constructors of functions/transformations/predicates - use static `get()` function instead
-- Removed deprecated method `addWithoutUnknown` from SAT Solver
-- Removed deprecated method `addWithRelaxation` from SAT Solver
-- Removed deprecated factory methods without formula factory from `MaxSATSolver`
-- Removed deprecated constructors from `AdvancesSimplifier`
-- Removed `ExtendedFormulaFactory` due to new concept of cached and non-cached formulas
+tbd
 
 ## [2.4.1] - 2022-12-01
 
