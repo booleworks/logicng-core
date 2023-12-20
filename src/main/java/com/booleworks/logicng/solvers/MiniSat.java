@@ -357,7 +357,7 @@ public class MiniSat extends SATSolver {
 
     @Override
     public boolean canSaveLoadState() {
-        return incremental && !config.isUseBinaryWatchers() && !config.isUseLbdFeatures();
+        return incremental;
     }
 
     @Override

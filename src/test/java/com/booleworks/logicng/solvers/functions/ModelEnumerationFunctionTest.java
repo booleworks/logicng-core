@@ -376,7 +376,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
             final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(i).numVars(15).build());
             final Formula formula = randomizer.formula(3);
 
-            final SATSolver solver = MiniSat.miniSat(f);
+            final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().useBinaryWatchers(true).useLbdFeatures(true).build());
             solver.add(formula);
 
             // no split

@@ -266,10 +266,6 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
      */
     @Override
     public SolverState saveState() {
-        if (useLbdFeatures) {
-            // TODO or can we allow it?
-            throw new UnsupportedOperationException("The MiniSat solver with LBD features does not support state loading/saving");
-        }
         if (!incremental) {
             throw new IllegalStateException("Cannot save a state when the incremental mode is deactivated");
         }
@@ -290,10 +286,6 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
 
     @Override
     public void loadState(final SolverState solverState) {
-        if (useLbdFeatures) {
-            // TODO or can we allow it?
-            throw new UnsupportedOperationException("The MiniSat solver with LBD features does not support state loading/saving");
-        }
         if (!incremental) {
             throw new IllegalStateException("Cannot load a state when the incremental mode is deactivated");
         }
@@ -315,16 +307,14 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             orderHeap.remove(name2idx.remove(idx2name.remove(i)));
         }
         vars.shrinkTo(newVarsSize);
+        if (useLbdFeatures) {
+            permDiff.shrinkTo(newVarsSize);
+        }
         final int newClausesSize = Math.min(state[2], clauses.size());
         for (int i = clauses.size() - 1; i >= newClausesSize; i--) {
             simpleRemoveClause(clauses.get(i));
         }
         clauses.shrinkTo(newClausesSize);
-//        final int newLearntsSize = Math.min(state[3], learnts.size());
-//        for (int i = learnts.size() - 1; i >= newLearntsSize; i--) {
-//            simpleRemoveClause(learnts.get(i));
-//        }
-//        learnts.shrinkTo(newLearntsSize);
         int newLearntsLength = 0;
         for (int i = 0; i < learnts.size(); i++) {
             final MSClause learnt = learnts.get(i);
@@ -737,13 +727,12 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
      * Adds an at-most k constraint.
      * @param ps  the literals of the constraint
      * @param rhs the right-hand side of the constraint
-     * @return {@code true} if the constraint was added, {@code false} otherwise
      */
-    public boolean addAtMost(final LNGIntVector ps, final int rhs) {
+    public void addAtMost(final LNGIntVector ps, final int rhs) {
         int k = rhs;
         assert decisionLevel() == 0;
         if (!ok) {
-            return false;
+            return;
         }
         ps.sort();
         int p;
@@ -763,11 +752,11 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         }
         ps.removeElements(i - j);
         if (k >= ps.size()) {
-            return true;
+            return;
         }
         if (k < 0) {
             ok = false;
-            return false;
+            return;
         }
         if (k == 0) {
             for (i = 0; i < ps.size(); i++) {
@@ -777,13 +766,12 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                 }
             }
             ok = propagate() == null;
-            return ok;
+            return;
         }
         final MSClause cr = new MSClause(ps, -1, true);
         cr.setAtMostWatchers(ps.size() - k + 1);
         clauses.push(cr);
         attachClause(cr);
-        return true;
     }
 
     /**
@@ -868,7 +856,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
 
     /**
      * The main search procedure of the CDCL algorithm.
-     * @param nofConflicts the number of conflicts till the next restart
+     * @param nofConflicts the number of conflicts until the next restart (not relevant if LBD features are used)
      * @return a {@link Tristate} representing the result.  {@code FALSE} if the formula is UNSAT, {@code TRUE} if the
      * formula is SAT, and {@code UNDEF} if the state is not known yet (restart) or the handler canceled the computation
      */
@@ -1202,14 +1190,12 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         }
         if (useLbdFeatures) {
             analyzeLBD = computeLBD(outLearnt);
-            if (lastDecisionLevel.size() > 0) {
-                for (int k = 0; k < lastDecisionLevel.size(); k++) {
-                    if ((v(lastDecisionLevel.get(k)).reason()).lbd() < analyzeLBD) {
-                        varBumpActivity(var(lastDecisionLevel.get(k)));
-                    }
+            for (int k = 0; k < lastDecisionLevel.size(); k++) {
+                if ((v(lastDecisionLevel.get(k)).reason()).lbd() < analyzeLBD) {
+                    varBumpActivity(var(lastDecisionLevel.get(k)));
                 }
-                lastDecisionLevel.clear();
             }
+            lastDecisionLevel.clear();
             for (int m = 0; m < selectors.size(); m++) {
                 seen.set(var(selectors.get(m)), false);
             }
