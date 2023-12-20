@@ -1,6 +1,9 @@
 name: Deploy LogicNG to the Maven Package Registry
 
-on: [ push, pull_request ]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
