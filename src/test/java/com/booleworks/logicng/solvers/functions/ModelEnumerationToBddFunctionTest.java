@@ -237,7 +237,6 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
     public void testCollector(final FormulaContext _c) {
         final MiniSat solver = MiniSat.miniSat(_c.f);
         solver.add(_c.eq1);
-        solver.sat();
 
         final EnumerationCollectorTestHandler handler = new EnumerationCollectorTestHandler();
         final BddModelEnumerationCollector collector = new BddModelEnumerationCollector(_c.f, _c.eq1.variables(_c.f), emptySortedSet(), 0);

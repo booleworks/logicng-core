@@ -6,6 +6,7 @@ package com.booleworks.logicng.solvers.datastructures;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.solvers.sat.MiniSat2Solver;
 import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ public class LNGHeapTest {
 
     @Test
     public void test() {
-        final MiniSatStyleSolver solver = new MiniSat2Solver();
+        final MiniSatStyleSolver solver = new MiniSat2Solver(FormulaFactory.caching());
         solver.newVar(true, true);
         solver.newVar(true, true);
         solver.newVar(true, true);

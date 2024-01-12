@@ -7,25 +7,19 @@ package com.booleworks.logicng.solvers;
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.cardinalityconstraints.CCIncrementalData;
-import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
-import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
-import com.booleworks.logicng.solvers.functions.UnsatCoreFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
@@ -169,14 +163,16 @@ public abstract class SATSolver {
      */
     protected abstract void addClause(final Formula formula, final Proposition proposition);
 
+    public abstract SATCall.SATCallBuilder satCall();
+
     /**
      * Returns {@code Tristate.TRUE} if the current formula in the solver is satisfiable, @{code Tristate.FALSE} if it is
      * unsatisfiable, or {@code UNDEF} if the solving process was aborted.
      * @return the satisfiability of the formula in the solver
      */
-    public Tristate sat() {
-        return sat((SATHandler) null);
-    }
+//    public Tristate sat() {
+//        return sat((SATHandler) null);
+//    }
 
     /**
      * Returns {@code Tristate.TRUE} if the current formula in the solver is satisfiable, @{code Tristate.FALSE} if it is
@@ -184,7 +180,7 @@ public abstract class SATSolver {
      * @param handler the SAT handler
      * @return the satisfiability of the formula in the solver
      */
-    public abstract Tristate sat(final SATHandler handler);
+//    public abstract Tristate sat(final SATHandler handler);
 
     /**
      * Returns {@code Tristate.TRUE} if the current formula in the solver and a given literal are satisfiable,
@@ -198,9 +194,9 @@ public abstract class SATSolver {
      * @param literal the assumed literal
      * @return the satisfiability of the formula in the solver
      */
-    public Tristate sat(final Literal literal) {
-        return sat(null, literal);
-    }
+//    public Tristate sat(final Literal literal) {
+//        return sat(null, literal);
+//    }
 
     /**
      * Returns {@code Tristate.TRUE} if the current formula in the solver and a given collection of assumed literals
@@ -216,9 +212,9 @@ public abstract class SATSolver {
      * @param assumptions a collection of literals
      * @return the satisfiability of the formula in the solver
      */
-    public Tristate sat(final Collection<? extends Literal> assumptions) {
-        return sat(null, assumptions);
-    }
+//    public Tristate sat(final Collection<? extends Literal> assumptions) {
+//        return sat(null, assumptions);
+//    }
 
     /**
      * Returns {@code Tristate.TRUE} if the current formula in the solver and a given literal are satisfiable,
@@ -233,7 +229,7 @@ public abstract class SATSolver {
      * @param literal the assumed literal
      * @return the satisfiability of the formula in the solver
      */
-    public abstract Tristate sat(final SATHandler handler, final Literal literal);
+//    public abstract Tristate sat(final SATHandler handler, final Literal literal);
 
     /**
      * Returns {@code Tristate.TRUE} if the current formula in the solver and a given collection of assumed literals
@@ -250,7 +246,7 @@ public abstract class SATSolver {
      * @param assumptions a collection of literals
      * @return the satisfiability of the formula in the solver
      */
-    public abstract Tristate sat(final SATHandler handler, final Collection<? extends Literal> assumptions);
+//    public abstract Tristate sat(final SATHandler handler, final Collection<? extends Literal> assumptions);
 
     /**
      * Solves the formula on the solver with a given selection order.
@@ -264,9 +260,9 @@ public abstract class SATSolver {
      * @param selectionOrder the order of the literals for the selection order
      * @return the satisfiability of the formula in the solver
      */
-    public Tristate satWithSelectionOrder(final List<? extends Literal> selectionOrder) {
-        return satWithSelectionOrder(selectionOrder, null, null);
-    }
+//    public Tristate satWithSelectionOrder(final List<? extends Literal> selectionOrder) {
+//        return satWithSelectionOrder(selectionOrder, null, null);
+//    }
 
     /**
      * Solves the formula on the solver with a given selection order, a given SAT handler and a list of additional
@@ -283,14 +279,14 @@ public abstract class SATSolver {
      * @param assumptions    a collection of literals
      * @return the satisfiability of the formula in the solver
      */
-    public Tristate satWithSelectionOrder(final List<? extends Literal> selectionOrder, final SATHandler handler,
-                                          final Collection<? extends Literal> assumptions) {
-        setSolverToUndef();
-        setSelectionOrder(selectionOrder);
-        final Tristate sat = assumptions != null ? sat(handler, assumptions) : sat(handler);
-        resetSelectionOrder();
-        return sat;
-    }
+//    public Tristate satWithSelectionOrder(final List<? extends Literal> selectionOrder, final SATHandler handler,
+//                                          final Collection<? extends Literal> assumptions) {
+//        setSolverToUndef();
+//        setSelectionOrder(selectionOrder);
+//        final Tristate sat = assumptions != null ? sat(handler, assumptions) : sat(handler);
+//        resetSelectionOrder();
+//        return sat;
+//    }
 
     /**
      * Returns a model of the current formula on the solver wrt. a given set of variables. If the set
@@ -300,9 +296,9 @@ public abstract class SATSolver {
      * @return a model of the current formula
      * @throws IllegalStateException if the formula is not yet solved
      */
-    public Assignment model(final Variable[] variables) {
-        return model(Arrays.asList(variables));
-    }
+//    public Assignment model(final Variable[] variables) {
+//        return model(Arrays.asList(variables));
+//    }
 
     /**
      * Returns a model of the current formula on the solver wrt. a given set of variables. If the set
@@ -311,7 +307,7 @@ public abstract class SATSolver {
      * @param variables the set of variables
      * @return a model of the current formula
      */
-    public abstract Assignment model(final Collection<Variable> variables);
+//    public abstract Assignment model(final Collection<Variable> variables);
 
     /**
      * Executes a solver function on this solver.
@@ -386,9 +382,9 @@ public abstract class SATSolver {
      * In particular, this method returns the unsat core only if the parameter "proofGeneration" in the MiniSatConfig is set to "true".
      * @return the unsat core
      */
-    public UNSATCore<Proposition> unsatCore() {
-        return execute(UnsatCoreFunction.get());
-    }
+//    public UNSATCore<Proposition> unsatCore() {
+//        return execute(UnsatCoreFunction.get());
+//    }
 
     /**
      * Computes a backbone with both positive and negative variables of the current formula on the solver.
@@ -417,17 +413,17 @@ public abstract class SATSolver {
         return f;
     }
 
-    /**
-     * Sets the selection order of the variables and their polarity.
-     * <p>
-     * @param selectionOrder the variable order and their polarity that should be checked first
-     */
-    protected abstract void setSelectionOrder(List<? extends Literal> selectionOrder);
-
-    /**
-     * Resets the selection order on the solver.  The internal activity heuristics for the variable ordering will be used again.
-     */
-    protected abstract void resetSelectionOrder();
+//    /**
+//     * Sets the selection order of the variables and their polarity.
+//     * <p>
+//     * @param selectionOrder the variable order and their polarity that should be checked first
+//     */
+//    protected abstract void setSelectionOrder(List<? extends Literal> selectionOrder);
+//
+//    /**
+//     * Resets the selection order on the solver.  The internal activity heuristics for the variable ordering will be used again.
+//     */
+//    protected abstract void resetSelectionOrder();
 
     /**
      * Returns whether this solver instance can generate proofs.

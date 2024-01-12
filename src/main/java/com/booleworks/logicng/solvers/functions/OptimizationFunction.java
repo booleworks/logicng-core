@@ -21,6 +21,7 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.OptimizationHandler;
 import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATCall;
 import com.booleworks.logicng.solvers.SolverState;
 
 import java.util.Arrays;
@@ -113,24 +114,28 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
             selectorMap.forEach((selVar, lit) -> solver.add(f.or(selVar.negate(f), lit.negate(f))));
             selectorMap.forEach((selVar, lit) -> solver.add(f.or(lit, selVar)));
         }
-        Tristate sat = solver.sat(satHandler(handler));
-        if (sat != Tristate.TRUE || aborted(handler)) {
-            return null;
+        Assignment currentModel;
+        try (final SATCall satCall = solver.satCall().handler(satHandler(handler)).start()) {
+            if (satCall.getSatState() != Tristate.TRUE || aborted(handler)) {
+                return null;
+            }
+            internalModel = solver.underlyingSolver().model();
+            currentModel = satCall.model(selectors);
         }
-        internalModel = solver.underlyingSolver().model();
-        Assignment currentModel = solver.model(selectors);
         int currentBound = currentModel.positiveVariables().size();
         if (currentBound == 0) {
             solver.add(f.cc(CType.GE, 1, selectors));
-            sat = solver.sat(satHandler(handler));
-            if (aborted(handler)) {
-                return null;
-            } else if (sat == Tristate.FALSE) {
-                return mkResultModel(solver, internalModel);
-            } else {
-                internalModel = solver.underlyingSolver().model();
-                currentModel = solver.model(selectors);
-                currentBound = currentModel.positiveVariables().size();
+            try (final SATCall satCall = solver.satCall().handler(satHandler(handler)).start()) {
+                final Tristate sat = satCall.getSatState();
+                if (aborted(handler)) {
+                    return null;
+                } else if (sat == Tristate.FALSE) {
+                    return mkResultModel(solver, internalModel);
+                } else {
+                    internalModel = solver.underlyingSolver().model();
+                    currentModel = satCall.model(selectors);
+                    currentBound = currentModel.positiveVariables().size();
+                }
             }
         } else if (currentBound == selectors.size()) {
             return mkResultModel(solver, internalModel);
@@ -138,25 +143,25 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         final Formula cc = f.cc(CType.GE, currentBound + 1, selectors);
         assert cc instanceof CardinalityConstraint;
         final CCIncrementalData incrementalData = solver.addIncrementalCC((CardinalityConstraint) cc);
-        sat = solver.sat(satHandler(handler));
-        if (aborted(handler)) {
-            return null;
-        }
-        while (sat == Tristate.TRUE) {
-            final LNGBooleanVector modelCopy = new LNGBooleanVector(solver.underlyingSolver().model());
-            if (handler != null && !handler.foundBetterBound(() -> mkResultModel(solver, modelCopy))) {
-                return null;
-            }
-            internalModel = modelCopy;
-            currentModel = solver.model(selectors);
-            currentBound = currentModel.positiveVariables().size();
-            if (currentBound == selectors.size()) {
-                return mkResultModel(solver, internalModel);
-            }
-            incrementalData.newLowerBoundForSolver(currentBound + 1);
-            sat = solver.sat(satHandler(handler));
-            if (aborted(handler)) {
-                return null;
+        while (true) {
+            try (final SATCall satCall = solver.satCall().handler(satHandler(handler)).start()) {
+                if (aborted(handler)) {
+                    return null;
+                }
+                if (satCall.getSatState() == Tristate.FALSE) {
+                    break;
+                }
+                final LNGBooleanVector modelCopy = new LNGBooleanVector(solver.underlyingSolver().model());
+                if (handler != null && !handler.foundBetterBound(() -> mkResultModel(solver, modelCopy))) {
+                    return null;
+                }
+                internalModel = modelCopy;
+                currentModel = satCall.model(selectors);
+                currentBound = currentModel.positiveVariables().size();
+                if (currentBound == selectors.size()) {
+                    return mkResultModel(solver, internalModel);
+                }
+                incrementalData.newLowerBoundForSolver(currentBound + 1);
             }
         }
         return mkResultModel(solver, internalModel);

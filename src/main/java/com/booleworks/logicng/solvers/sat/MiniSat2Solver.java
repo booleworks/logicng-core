@@ -53,7 +53,7 @@ import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.datastructures.MSClause;
@@ -98,16 +98,16 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
      * Constructs a new MiniSAT 2 solver with the default values for solver configuration.  By default, incremental mode
      * is activated.
      */
-    public MiniSat2Solver() {
-        this(MiniSatConfig.builder().build());
+    public MiniSat2Solver(final FormulaFactory f) {
+        this(f, MiniSatConfig.builder().build());
     }
 
     /**
      * Constructs a new MiniSAT 2 solver with a given solver configuration.
      * @param config the solver configuration
      */
-    public MiniSat2Solver(final MiniSatConfig config) {
-        super(config);
+    public MiniSat2Solver(final FormulaFactory f, final MiniSatConfig config) {
+        super(f, config);
     }
 
     @Override
@@ -205,8 +205,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
     }
 
     @Override
-    public Tristate solve(final SATHandler handler) {
-        this.handler = handler;
+    public Tristate internalSolve() {
         start(handler);
         model.clear();
         conflict.clear();
@@ -234,7 +233,6 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         }
         finishSolving(handler);
         cancelUntil(0);
-        this.handler = null;
         canceledByHandler = false;
         return status;
     }

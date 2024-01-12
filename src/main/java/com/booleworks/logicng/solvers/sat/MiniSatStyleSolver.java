@@ -29,10 +29,12 @@ import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.propositions.Proposition;
+import com.booleworks.logicng.solvers.SATCall;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.datastructures.LNGBoundedIntQueue;
 import com.booleworks.logicng.solvers.datastructures.LNGBoundedLongQueue;
@@ -66,6 +68,10 @@ public abstract class MiniSatStyleSolver {
     // external solver configuration
     protected MiniSatConfig config;
     protected SATSolverLowLevelConfig llConfig;
+
+    protected FormulaFactory f;
+
+    protected boolean inSatCall;
 
     // internal solver state
     protected boolean ok;
@@ -133,10 +139,23 @@ public abstract class MiniSatStyleSolver {
 
     /**
      * Constructs a new MiniSAT-style solver with a given configuration.
+     * @param f
      * @param config the configuration
      */
-    protected MiniSatStyleSolver(final MiniSatConfig config) {
+    protected MiniSatStyleSolver(final FormulaFactory f, final MiniSatConfig config) {
+        this.f = f;
         initialize(config);
+    }
+
+    public void startSatCall() {
+        if (inSatCall) {
+            throw new IllegalStateException("There is another SAT call running on this solver!");
+        }
+        inSatCall = true;
+    }
+
+    public void finishSatCall() {
+        inSatCall = false;
     }
 
     /**
@@ -337,8 +356,32 @@ public abstract class MiniSatStyleSolver {
      * @param handler a sat handler
      * @return {@link Tristate#TRUE} if the formula is satisfiable, {@link Tristate#FALSE} if the formula is not satisfiable, or
      * {@link Tristate#UNDEF} if the computation was canceled.
+     *         // TODO remove
      */
-    public abstract Tristate solve(final SATHandler handler);
+    public Tristate internalSolve(final SATHandler handler) {
+        this.handler = handler;
+        final Tristate result = internalSolve();
+        this.handler = null;
+        return result;
+    }
+
+    public abstract Tristate internalSolve();
+
+    /**
+     * Sets (or clears) the SAT handler which should be used for subsequent SAT calls.
+     * @param handler the SAT handler to be used
+     */
+    public void setHandler(final SATHandler handler) {
+        this.handler = handler;
+    }
+
+    /**
+     * Sets (or clears) the assumptions which should be used for subsequent SAT calls.
+     * @param assumptions the assumptions to be used
+     */
+    public void setAssumptions(final LNGIntVector assumptions) {
+        this.assumptions = new LNGIntVector(assumptions);
+    }
 
     /**
      * Solves the formula currently stored in the solver together with the given assumption literals.  Returns
@@ -350,9 +393,9 @@ public abstract class MiniSatStyleSolver {
      * @return {@link Tristate#TRUE} if the formula and the assumptions are satisfiable, {@link Tristate#FALSE} if they are
      * not satisfiable, or {@link Tristate#UNDEF} if the computation was canceled.
      */
-    public Tristate solve(final SATHandler handler, final LNGIntVector assumptions) {
+    public Tristate internalSolve(final SATHandler handler, final LNGIntVector assumptions) {
         this.assumptions = new LNGIntVector(assumptions);
-        final Tristate result = solve(handler);
+        final Tristate result = internalSolve(handler);
         this.assumptions.clear();
         return result;
     }
@@ -762,7 +805,7 @@ public abstract class MiniSatStyleSolver {
      * @return the backbone projected to the relevant variables or {@code null} if the computation was aborted by the handler
      */
     public Backbone computeBackbone(final Collection<Variable> variables, final BackboneType type, final SATHandler handler) {
-        final boolean sat = solve(handler) == Tristate.TRUE;
+        final boolean sat = internalSolve(handler) == Tristate.TRUE;
         if (aborted(handler)) {
             return null;
         }
@@ -882,7 +925,7 @@ public abstract class MiniSatStyleSolver {
      */
     protected boolean solveWithLit(final int lit, final SATHandler handler) {
         backboneAssumptions.push(not(lit));
-        final boolean sat = solve(handler, backboneAssumptions) == Tristate.TRUE;
+        final boolean sat = internalSolve(handler, backboneAssumptions) == Tristate.TRUE;
         backboneAssumptions.pop();
         return sat;
     }
@@ -1043,12 +1086,12 @@ public abstract class MiniSatStyleSolver {
         }
     }
 
-    /**
-     * Resets a previously set selection order.
-     */
-    public void resetSelectionOrder() {
-        selectionOrder.clear();
-    }
+//    /**
+//     * Resets a previously set selection order.
+//     */
+//    public void resetSelectionOrder() {
+//        selectionOrder.clear();
+//    }
 
     public MiniSatConfig getConfig() {
         return config;

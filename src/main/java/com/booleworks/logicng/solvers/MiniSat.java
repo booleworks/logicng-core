@@ -4,7 +4,6 @@
 
 package com.booleworks.logicng.solvers;
 
-import static com.booleworks.logicng.datastructures.Tristate.TRUE;
 import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
 
 import com.booleworks.logicng.cardinalityconstraints.CCEncoder;
@@ -15,7 +14,6 @@ import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.datastructures.Model;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.FType;
@@ -24,7 +22,6 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.pseudobooleans.PBEncoder;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
@@ -62,7 +59,7 @@ public class MiniSat extends SATSolver {
     protected MiniSat(final FormulaFactory f, final MiniSatConfig config) {
         super(f);
         this.config = config;
-        solver = new MiniSat2Solver(config);
+        solver = new MiniSat2Solver(f, config);
         result = UNDEF;
         pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver(), config.initialPhase);
         fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, underlyingSolver(), config.initialPhase);
@@ -169,51 +166,57 @@ public class MiniSat extends SATSolver {
     }
 
     @Override
-    public Tristate sat(final SATHandler handler) {
-        if (lastResultIsUsable()) {
-            return result;
-        }
-        result = solver.solve(handler);
-        lastComputationWithAssumptions = false;
-        return result;
+    public SATCall.SATCallBuilder satCall() {
+        return SATCall.builder(f, this);
     }
 
-    @Override
-    public Tristate sat(final SATHandler handler, final Literal literal) {
-        final LNGIntVector clauseVec = new LNGIntVector(1);
-        final int index = getOrAddIndex(literal);
-        final int litNum = literal.phase() ? index * 2 : (index * 2) ^ 1;
-        clauseVec.push(litNum);
-        result = solver.solve(handler, clauseVec);
-        lastComputationWithAssumptions = true;
-        return result;
-    }
+//    @Override
+//    public Tristate sat(final SATHandler handler) {
+//        if (lastResultIsUsable()) {
+//            return result;
+//        }
+//        result = solver.solve(handler);
+//        lastComputationWithAssumptions = false;
+//        return result;
+//    }
+//
+//    @Override
+//    public Tristate sat(final SATHandler handler, final Literal literal) {
+//        final LNGIntVector clauseVec = new LNGIntVector(1);
+//        final int index = getOrAddIndex(literal);
+//        final int litNum = literal.phase() ? index * 2 : (index * 2) ^ 1;
+//        clauseVec.push(litNum);
+//        result = solver.solve(handler, clauseVec);
+//        lastComputationWithAssumptions = true;
+//        return result;
+//    }
+//
+//    @Override
+//    public Tristate sat(final SATHandler handler, final Collection<? extends Literal> assumptions) {
+//        final LNGIntVector assumptionVec = generateClauseVector(assumptions);
+//        result = solver.solve(handler, assumptionVec);
+//        lastComputationWithAssumptions = true;
+//        return result;
+//    }
 
-    @Override
-    public Tristate sat(final SATHandler handler, final Collection<? extends Literal> assumptions) {
-        final LNGIntVector assumptionVec = generateClauseVector(assumptions);
-        result = solver.solve(handler, assumptionVec);
-        lastComputationWithAssumptions = true;
-        return result;
-    }
-
-    @Override
-    public Assignment model(final Collection<Variable> variables) {
-        if (result == UNDEF) {
-            throw new IllegalStateException("Cannot get a model as long as the formula is not solved.  Call 'sat' first.");
-        }
-        final LNGIntVector relevantIndices = variables == null ? null : new LNGIntVector(variables.size());
-        if (relevantIndices != null) {
-            for (final Variable var : variables) {
-                relevantIndices.push(solver.idxForName(var.name()));
-            }
-        }
-        return result == TRUE ? createAssignment(solver.model(), relevantIndices) : null;
-    }
+//    @Override
+//    public Assignment model(final Collection<Variable> variables) {
+//        if (result == UNDEF) {
+//            throw new IllegalStateException("Cannot get a model as long as the formula is not solved.  Call 'sat' first.");
+//        }
+//        final LNGIntVector relevantIndices = variables == null ? null : new LNGIntVector(variables.size());
+//        if (relevantIndices != null) {
+//            for (final Variable var : variables) {
+//                relevantIndices.push(solver.idxForName(var.name()));
+//            }
+//        }
+//        return result == TRUE ? createAssignment(solver.model(), relevantIndices) : null;
+//    }
 
     @Override
     public <RESULT> RESULT execute(final SolverFunction<RESULT> function) {
-        return function.apply(this, this::setResult);
+        return function.apply(this, i -> {
+        });
     }
 
     @Override
@@ -323,38 +326,38 @@ public class MiniSat extends SATSolver {
         return config;
     }
 
-    @Override
-    public void setSelectionOrder(final List<? extends Literal> selectionOrder) {
-        solver.setSelectionOrder(selectionOrder);
-    }
-
-    @Override
-    public void resetSelectionOrder() {
-        solver.resetSelectionOrder();
-    }
+//    @Override
+//    public void setSelectionOrder(final List<? extends Literal> selectionOrder) {
+//        solver.setSelectionOrder(selectionOrder);
+//    }
+//
+//    @Override
+//    public void resetSelectionOrder() {
+//        solver.setSelectionOrder(List.of());
+//    }
 
     @Override
     public boolean canGenerateProof() {
         return config.proofGeneration();
     }
 
-    /**
-     * Returns the current result, e.g. the result of the last {@link #sat()} call.
-     * @return the current result
-     */
-    public Tristate getResult() {
-        return result;
-    }
+//    /**
+//     * Returns the current result, e.g. the result of the last {@link #sat()} call.
+//     * @return the current result
+//     */
+//    public Tristate getResult() {
+//        return result;
+//    }
+//
+//    protected void setResult(final Tristate tristate) {
+//        result = tristate;
+//    }
 
-    protected void setResult(final Tristate tristate) {
-        result = tristate;
-    }
-
-    /**
-     * Returns whether the last computation was using assumption literals.
-     * @return {@code true} if the last computation used assumption literals, {@code false} otherwise
-     */
-    public boolean isLastComputationWithAssumptions() {
-        return lastComputationWithAssumptions;
-    }
+//    /**
+//     * Returns whether the last computation was using assumption literals.
+//     * @return {@code true} if the last computation used assumption literals, {@code false} otherwise
+//     */
+//    public boolean isLastComputationWithAssumptions() {
+//        return lastComputationWithAssumptions;
+//    }
 }

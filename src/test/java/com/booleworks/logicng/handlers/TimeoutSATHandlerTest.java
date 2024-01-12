@@ -57,7 +57,7 @@ class TimeoutSATHandlerTest {
             solver.add(f.parse("(x => y) & (~x => y) & (y => z) & (z => ~y)"));
             final TimeoutSATHandler handler = Mockito.mock(TimeoutSATHandler.class);
 
-            solver.sat(handler);
+            solver.satCall().handler(handler).start().close();
 
             verify(handler, times(1)).started();
             verify(handler, atLeast(1)).detectedConflict();
@@ -73,7 +73,7 @@ class TimeoutSATHandlerTest {
             final AtomicInteger count = new AtomicInteger(0);
             when(handler.detectedConflict()).then(invocationOnMock -> count.addAndGet(1) < 5);
 
-            final Tristate result = solver.sat(handler);
+            final Tristate result = solver.satCall().handler(handler).sat();
 
             assertThat(result).isEqualTo(Tristate.UNDEF);
 
@@ -89,7 +89,7 @@ class TimeoutSATHandlerTest {
             solver.add(pg.generate(10));
             final TimeoutSATHandler handler = new TimeoutSATHandler(100L);
 
-            final Tristate result = solver.sat(handler);
+            final Tristate result = solver.satCall().handler(handler).sat();
 
             assertThat(handler.aborted).isTrue();
             assertThat(result).isEqualTo(Tristate.UNDEF);
@@ -102,7 +102,7 @@ class TimeoutSATHandlerTest {
             solver.add(pg.generate(10));
             final TimeoutSATHandler handler = new TimeoutSATHandler(System.currentTimeMillis() + 100L, TimeoutHandler.TimerType.FIXED_END);
 
-            final Tristate result = solver.sat(handler);
+            final Tristate result = solver.satCall().handler(handler).sat();
 
             assertThat(handler.aborted).isTrue();
             assertThat(result).isEqualTo(Tristate.UNDEF);

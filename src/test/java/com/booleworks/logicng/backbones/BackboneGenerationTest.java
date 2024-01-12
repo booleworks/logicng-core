@@ -180,21 +180,21 @@ public class BackboneGenerationTest {
         final SATSolver solver = MiniSat.miniSat(formula.factory());
         solver.add(formula);
         for (final Variable bbVar : backbone.getPositiveBackbone()) {
-            if (solver.sat(bbVar.negate(f)) == Tristate.TRUE) {
+            if (solver.satCall().assumptions(bbVar.negate(f)).sat() == Tristate.TRUE) {
                 return false;
             }
         }
         for (final Variable bbVar : backbone.getNegativeBackbone()) {
-            if (solver.sat(bbVar) == Tristate.TRUE) {
+            if (solver.satCall().assumptions(bbVar).sat() == Tristate.TRUE) {
                 return false;
             }
         }
         for (final Variable variable : variables) {
             if (!backbone.getPositiveBackbone().contains(variable) && !backbone.getNegativeBackbone().contains(variable)) {
-                if (solver.sat(variable) == Tristate.FALSE) {
+                if (solver.satCall().assumptions(variable).sat() == Tristate.FALSE) {
                     return false;
                 }
-                if (solver.sat(variable.negate(f)) == Tristate.FALSE) {
+                if (solver.satCall().assumptions(variable.negate(f)).sat() == Tristate.FALSE) {
                     return false;
                 }
             }

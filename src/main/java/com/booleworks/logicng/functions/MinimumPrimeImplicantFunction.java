@@ -58,7 +58,7 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<Sort
             }
         }
 
-        if (solver.sat() != Tristate.TRUE) {
+        if (solver.satCall().sat() != Tristate.TRUE) {
             return null;
         }
         final Assignment minimumModel = solver.execute(OptimizationFunction.minimize(newVar2oldLit.keySet()));

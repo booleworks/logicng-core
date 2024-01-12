@@ -33,6 +33,7 @@ import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.datastructures.MSSoftClause;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
@@ -57,17 +58,19 @@ public class LinearSU extends MaxSAT {
 
     /**
      * Constructs a new solver with default values.
+     * @param f the formula factory
      */
-    public LinearSU() {
-        this(MaxSATConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER).build());
+    public LinearSU(final FormulaFactory f) {
+        this(f, MaxSATConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER).build());
     }
 
     /**
      * Constructs a new solver with a given configuration.
+     * @param f      the formula factory
      * @param config the configuration
      */
-    public LinearSU(final MaxSATConfig config) {
-        super(config);
+    public LinearSU(final FormulaFactory f, final MaxSATConfig config) {
+        super(f, config);
         solver = null;
         encoder = new Encoder(config.cardinalityEncoding);
         encoder.setPBEncoding(config.pbEncoding);

@@ -33,6 +33,7 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.MaxSATHandler;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.datastructures.MSHardClause;
@@ -68,6 +69,7 @@ public abstract class MaxSAT {
         UNSATISFIABLE, OPTIMUM, UNDEF
     }
 
+    protected final FormulaFactory f;
     protected final LNGBooleanVector model;
     final LNGVector<MSSoftClause> softClauses;
     final LNGVector<MSHardClause> hardClauses;
@@ -90,9 +92,11 @@ public abstract class MaxSAT {
 
     /**
      * Constructor.
+     * @param f      the formula factory
      * @param config the solver configuration
      */
-    protected MaxSAT(final MaxSATConfig config) {
+    protected MaxSAT(final FormulaFactory f, final MaxSATConfig config) {
+        this.f = f;
         hardClauses = new LNGVector<>();
         softClauses = new LNGVector<>();
         hardWeight = Integer.MAX_VALUE;
@@ -129,7 +133,7 @@ public abstract class MaxSAT {
      * @return the result of the solving process
      */
     public static Tristate searchSATSolver(final MiniSatStyleSolver s, final SATHandler satHandler, final LNGIntVector assumptions) {
-        return s.solve(satHandler, assumptions);
+        return s.internalSolve(satHandler, assumptions);
     }
 
     /**
@@ -139,7 +143,7 @@ public abstract class MaxSAT {
      * @return the result of the solving process
      */
     public static Tristate searchSATSolver(final MiniSatStyleSolver s, final SATHandler satHandler) {
-        return s.solve(satHandler);
+        return s.internalSolve(satHandler);
     }
 
     /**
@@ -280,7 +284,7 @@ public abstract class MaxSAT {
      * @return the empty SAT solver
      */
     public MiniSatStyleSolver newSATSolver() {
-        return new MiniSat2Solver(MiniSatConfig.builder().build());
+        return new MiniSat2Solver(f, MiniSatConfig.builder().build());
     }
 
     /**

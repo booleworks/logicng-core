@@ -216,7 +216,6 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     public void testCollector(final FormulaContext _c) {
         final MiniSat solver = MiniSat.miniSat(_c.f);
         solver.add(_c.eq1);
-        solver.sat();
 
         final EnumerationCollectorTestHandler handler = new EnumerationCollectorTestHandler();
         final ModelCountingFunction.ModelCountCollector collector = new ModelCountingFunction.ModelCountCollector(0);

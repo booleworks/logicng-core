@@ -166,7 +166,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
 
     private static boolean modelEnumerationSATCall(final MiniSat solver, final ModelEnumerationHandler handler) {
         final SATHandler satHandler = handler == null ? null : handler.satHandler();
-        final boolean sat = solver.sat(satHandler) == TRUE;
+        final boolean sat = solver.satCall().handler(satHandler).sat() == TRUE;
         return !aborted(handler) && sat;
     }
 

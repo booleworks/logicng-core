@@ -50,7 +50,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
         if (cached != null) {
             return cached;
         }
-        final MiniSatPropagator miniSatPropagator = new MiniSatPropagator();
+        final MiniSatPropagator miniSatPropagator = new MiniSatPropagator(f);
         miniSatPropagator.add(formula);
         final Formula result = miniSatPropagator.propagatedFormula(f);
         setCache(formula, result);
@@ -65,8 +65,8 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
         /**
          * Constructs a new MiniSatPropagator.
          */
-        public MiniSatPropagator() {
-            super(MiniSatConfig.builder().build());
+        public MiniSatPropagator(final FormulaFactory f) {
+            super(f, MiniSatConfig.builder().build());
         }
 
         /**

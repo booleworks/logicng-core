@@ -40,6 +40,7 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
      * @param numberOfVariables the number of variables
      */
     public DnnfMiniSatStyleSolver(final FormulaFactory f, final int numberOfVariables) {
+        super(f);
         this.f = f;
         assignment = new Tristate[2 * numberOfVariables];
         Arrays.fill(assignment, Tristate.UNDEF);
@@ -80,7 +81,7 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
      * Returns the phase of the given solver literal.
      * @param lit the solver literal
      * @return {@code true} if the literal has a positive phase,
-     * {@code false} if the literal has a negative phase (literal is negated)
+     *         {@code false} if the literal has a negative phase (literal is negated)
      */
     public static boolean phase(final int lit) {
         return !sign(lit);
@@ -160,11 +161,11 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
             final MSClause cr = new MSClause(lastLearnt, stateId);
             learnts.push(cr);
             attachClause(cr);
-                claBumpActivity(cr);
+            claBumpActivity(cr);
             uncheckedEnqueue(lastLearnt.get(0), cr);
         }
         varDecayActivity();
-            claDecayActivity();
+        claDecayActivity();
         if (--learntsizeAdjustCnt == 0) {
             learntsizeAdjustConfl *= learntsizeAdjustInc;
             learntsizeAdjustCnt = (int) learntsizeAdjustConfl;

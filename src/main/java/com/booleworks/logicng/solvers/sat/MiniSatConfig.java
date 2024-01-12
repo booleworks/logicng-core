@@ -146,6 +146,10 @@ public final class MiniSatConfig extends Configuration {
         return lowLevelConfig;
     }
 
+    public SATSolverLowLevelConfig getLowLevelConfig() {
+        return lowLevelConfig;
+    }
+
     @Override
     public String toString() {
         return "MiniSatConfig{" +

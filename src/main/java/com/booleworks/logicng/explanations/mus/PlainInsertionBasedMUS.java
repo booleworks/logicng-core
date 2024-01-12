@@ -60,7 +60,7 @@ public class PlainInsertionBasedMUS extends MUSAlgorithm {
     }
 
     private static boolean shouldProceed(final SATSolver solver, final SATHandler handler) {
-        final boolean sat = solver.sat(handler) == Tristate.TRUE;
+        final boolean sat = solver.satCall().handler(handler).sat() == Tristate.TRUE;
         return sat && !Handler.aborted(handler);
     }
 }

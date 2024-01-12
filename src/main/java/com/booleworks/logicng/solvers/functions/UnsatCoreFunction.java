@@ -4,8 +4,6 @@
 
 package com.booleworks.logicng.solvers.functions;
 
-import static com.booleworks.logicng.datastructures.Tristate.TRUE;
-
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
@@ -52,18 +50,18 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
 
     @Override
     public UNSATCore<Proposition> apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
-        if (!solver.getConfig().proofGeneration()) {
-            throw new IllegalStateException("Cannot generate an unsat core if proof generation is not turned on");
-        }
-        if (solver.getResult() == TRUE) {
-            throw new IllegalStateException("An unsat core can only be generated if the formula is solved and is UNSAT");
-        }
-        if (solver.getResult() == Tristate.UNDEF) {
-            throw new IllegalStateException("Cannot generate an unsat core before the formula was solved.");
-        }
-        if (solver.isLastComputationWithAssumptions()) {
-            throw new IllegalStateException("Cannot compute an unsat core for a computation with assumptions.");
-        }
+//        if (!solver.getConfig().proofGeneration()) {
+//            throw new IllegalStateException("Cannot generate an unsat core if proof generation is not turned on");
+//        }
+//        if (solver.getResult() == TRUE) {
+//            throw new IllegalStateException("An unsat core can only be generated if the formula is solved and is UNSAT");
+//        }
+//        if (solver.getResult() == Tristate.UNDEF) {
+//            throw new IllegalStateException("Cannot generate an unsat core before the formula was solved.");
+//        }
+//        if (solver.isLastComputationWithAssumptions()) {
+//            throw new IllegalStateException("Cannot compute an unsat core for a computation with assumptions.");
+//        }
 
         final DRUPTrim trimmer = new DRUPTrim();
 

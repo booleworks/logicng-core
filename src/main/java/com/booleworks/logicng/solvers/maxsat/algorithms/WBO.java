@@ -35,6 +35,7 @@ import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Weig
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
 import com.booleworks.logicng.util.Pair;
@@ -69,17 +70,19 @@ public class WBO extends MaxSAT {
 
     /**
      * Constructs a new solver with default values.
+     * @param f the formula factory
      */
-    public WBO() {
-        this(MaxSATConfig.builder().build());
+    public WBO(final FormulaFactory f) {
+        this(f, MaxSATConfig.builder().build());
     }
 
     /**
      * Constructs a new solver with a given configuration.
+     * @param f      the formula factory
      * @param config the configuration
      */
-    public WBO(final MaxSATConfig config) {
-        super(config);
+    public WBO(final FormulaFactory f, final MaxSATConfig config) {
+        super(f, config);
         solver = null;
         verbosity = config.verbosity;
         nbCurrentSoft = 0;

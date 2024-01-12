@@ -52,7 +52,7 @@ public final class SATPredicate extends CacheableFormulaPredicate {
         } else {
             final var solver = MiniSat.miniSat(f);
             solver.add(formula);
-            result = solver.sat() == Tristate.TRUE;
+            result = solver.satCall().sat() == Tristate.TRUE;
         }
         setCache(formula, result);
         return result;

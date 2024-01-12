@@ -22,7 +22,7 @@ public class MiniSatTest {
 
     @Test
     public void testAnalyzeFinal() {
-        final MiniSat2Solver solver = new MiniSat2Solver();
+        final MiniSat2Solver solver = new MiniSat2Solver(FormulaFactory.caching());
         solver.newVar(true, true);
         solver.newVar(true, true);
         solver.newVar(true, true);
@@ -31,8 +31,8 @@ public class MiniSatTest {
         solver.addClause(clause(-1, -2), null);
         solver.addClause(clause(-1, -3), null);
         solver.addClause(clause(-2, -3), null);
-        Assertions.assertThat(solver.solve(null)).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.solve(null, clause(1, 2))).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.internalSolve(null)).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.internalSolve(null, clause(1, 2))).isEqualTo(Tristate.FALSE);
     }
 
     @Test
@@ -46,15 +46,15 @@ public class MiniSatTest {
         final FormulaFactory f = FormulaFactory.caching();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("A & B"));
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.sat(f.literal("A", true))).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.sat(f.literal("B", true))).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.sat(f.literal("A", false))).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(solver.sat(f.literal("B", false))).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(solver.sat(f.literal("A", true))).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.sat(f.literal("B", true))).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.sat(f.literal("A", false))).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.satCall().sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.satCall().assumptions(f.literal("A", true)).sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.satCall().assumptions(f.literal("B", true)).sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.satCall().assumptions(f.literal("A", false)).sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.satCall().assumptions(f.literal("B", false)).sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.satCall().assumptions(f.literal("A", true)).sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.satCall().assumptions(f.literal("B", true)).sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.satCall().assumptions(f.literal("A", false)).sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.satCall().sat()).isEqualTo(Tristate.TRUE);
     }
 
     private LNGIntVector clause(final int... lits) {

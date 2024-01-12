@@ -18,25 +18,24 @@ public class UnsatCoreFunctionTest extends TestWithExampleFormulas {
     public void testExceptionalBehavior() {
         assertThatThrownBy(() -> {
             final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(false).build());
-            solver.execute(UnsatCoreFunction.get());
+            solver.satCall().unsatCore();
         }).isInstanceOf(IllegalStateException.class)
                 .hasMessage("Cannot generate an unsat core if proof generation is not turned on");
         assertThatThrownBy(() -> {
             final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).build());
-            solver.sat();
-            solver.execute(UnsatCoreFunction.get());
+            solver.satCall().unsatCore();
         }).isInstanceOf(IllegalStateException.class)
                 .hasMessage("An unsat core can only be generated if the formula is solved and is UNSAT");
-        assertThatThrownBy(() -> {
-            final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).build());
-            solver.execute(UnsatCoreFunction.get());
-        }).isInstanceOf(IllegalStateException.class)
-                .hasMessage("Cannot generate an unsat core before the formula was solved.");
+//        assertThatThrownBy(() -> {
+//            final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).build());
+//            solver.satCall().unsatCore();
+//        }).isInstanceOf(IllegalStateException.class)
+//                .hasMessage("Cannot generate an unsat core before the formula was solved.");
         assertThatThrownBy(() -> {
             final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).build());
             solver.add(f.variable("A"));
-            solver.sat(f.literal("A", false));
-            solver.execute(UnsatCoreFunction.get());
+            solver.satCall().assumptions(f.literal("A", false)).sat();
+            solver.satCall().assumptions(f.literal("A", false)).unsatCore();
         }).isInstanceOf(IllegalStateException.class)
                 .hasMessage("Cannot compute an unsat core for a computation with assumptions.");
     }

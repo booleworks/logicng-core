@@ -353,7 +353,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
             // check that models are buildable and every model contains all additional variables
             for (final Model model : modelsRecursive) {
                 assertThat(variables(model)).containsAll(additionalVars);
-                assertThat(solver.sat(model.getLiterals())).isEqualTo(Tristate.TRUE);
+                assertThat(solver.satCall().assumptions(model.getLiterals()).sat()).isEqualTo(Tristate.TRUE);
             }
         }
     }
@@ -395,7 +395,6 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     public void testCollector(final FormulaContext _c) {
         final MiniSat solver = MiniSat.miniSat(_c.f);
         solver.add(_c.eq1);
-        solver.sat();
 
         final EnumerationCollectorTestHandler handler = new EnumerationCollectorTestHandler();
         final ModelEnumerationFunction.ModelEnumerationCollector collector =

@@ -10,6 +10,7 @@ import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
@@ -37,17 +38,19 @@ public class OLL extends MaxSAT {
 
     /**
      * Constructs a new solver with default values.
+     * @param f the formula factory
      */
-    public OLL() {
-        this(MaxSATConfig.builder().build());
+    public OLL(final FormulaFactory f) {
+        this(f, MaxSATConfig.builder().build());
     }
 
     /**
      * Constructs a new solver with a given configuration.
+     * @param f      the formula factory
      * @param config the configuration
      */
-    public OLL(final MaxSATConfig config) {
-        super(config);
+    public OLL(final FormulaFactory f, final MaxSATConfig config) {
+        super(f, config);
         solver = null;
         verbosity = config.verbosity;
         encoder = new Encoder(config.cardinalityEncoding);

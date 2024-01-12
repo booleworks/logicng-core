@@ -32,7 +32,7 @@ public final class DeletionBasedMUS extends MUSAlgorithm {
             solverStates.add(solver.saveState());
             solver.add(proposition);
         }
-        boolean sat = solver.sat() == Tristate.TRUE;
+        boolean sat = solver.satCall().handler(config.handler).sat() == Tristate.TRUE;
         if (Handler.aborted(config.handler)) {
             return null;
         }
@@ -44,7 +44,7 @@ public final class DeletionBasedMUS extends MUSAlgorithm {
             for (final Proposition prop : mus) {
                 solver.add(prop);
             }
-            sat = solver.sat(config.handler) == Tristate.TRUE;
+            sat = solver.satCall().handler(config.handler).sat() == Tristate.TRUE;
             if (Handler.aborted(config.handler)) {
                 return null;
             }

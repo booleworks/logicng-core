@@ -221,25 +221,25 @@ public class MaxSATSolver {
         selectorVariables = new TreeSet<>();
         switch (algorithm) {
             case WBO:
-                solver = new WBO(configuration);
+                solver = new WBO(f, configuration);
                 break;
             case INC_WBO:
-                solver = new IncWBO(configuration);
+                solver = new IncWBO(f, configuration);
                 break;
             case LINEAR_SU:
-                solver = new LinearSU(configuration);
+                solver = new LinearSU(f, configuration);
                 break;
             case LINEAR_US:
-                solver = new LinearUS(configuration);
+                solver = new LinearUS(f, configuration);
                 break;
             case MSU3:
-                solver = new MSU3(configuration);
+                solver = new MSU3(f, configuration);
                 break;
             case WMSU3:
-                solver = new WMSU3(configuration);
+                solver = new WMSU3(f, configuration);
                 break;
             case OLL:
-                solver = new OLL(configuration);
+                solver = new OLL(f, configuration);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown MaxSAT algorithm: " + algorithm);
