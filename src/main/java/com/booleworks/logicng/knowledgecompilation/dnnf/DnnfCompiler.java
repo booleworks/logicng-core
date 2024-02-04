@@ -60,8 +60,8 @@ public class DnnfCompiler {
         this.f = f;
         cnf = formula;
         final Pair<Formula, Formula> pair = initializeClauses();
-        unitClauses = f.and(pair.first());
-        nonUnitClauses = f.and(pair.second());
+        unitClauses = pair.first();
+        nonUnitClauses = pair.second();
         solver = new DnnfMiniSatStyleSolver(f, cnf.variables(f).size());
         solver.add(cnf);
         numberOfVariables = cnf.variables(f).size();

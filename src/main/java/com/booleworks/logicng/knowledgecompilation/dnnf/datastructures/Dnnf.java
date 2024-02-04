@@ -8,6 +8,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.knowledgecompilation.dnnf.functions.DnnfFunction;
 
+import java.util.Objects;
 import java.util.SortedSet;
 
 /**
@@ -54,5 +55,22 @@ public final class Dnnf {
      */
     public SortedSet<Variable> getOriginalVariables() {
         return originalVariables;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final Dnnf dnnf = (Dnnf) o;
+        return Objects.equals(originalVariables, dnnf.originalVariables) && Objects.equals(formula, dnnf.formula);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(originalVariables, formula);
     }
 }
