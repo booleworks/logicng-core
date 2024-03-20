@@ -62,7 +62,7 @@ public final class CcAmo {
         final FormulaFactory f = result.factory();
         final Variable[] seqAuxiliary = new Variable[vars.length - 1];
         for (int i = 0; i < vars.length - 1; i++) {
-            seqAuxiliary[i] = result.newVariable();
+            seqAuxiliary[i] = result.newCCVariable();
         }
         for (int i = 0; i < vars.length; i++) {
             if (i == 0) {
@@ -90,11 +90,11 @@ public final class CcAmo {
         final int q = (int) Math.ceil((double) n / (double) p);
         final Variable[] us = new Variable[p];
         for (int i = 0; i < us.length; i++) {
-            us[i] = result.newVariable();
+            us[i] = result.newCCVariable();
         }
         final Variable[] vs = new Variable[q];
         for (int i = 0; i < vs.length; i++) {
-            vs[i] = result.newVariable();
+            vs[i] = result.newCCVariable();
         }
         if (us.length <= recursiveBound) {
             pure(result, us);
@@ -129,7 +129,7 @@ public final class CcAmo {
         final int k = (twoPowNBits - vars.length) * 2;
         final Variable[] bits = new Variable[numberOfBits];
         for (int i = 0; i < numberOfBits; i++) {
-            bits[i] = result.newVariable();
+            bits[i] = result.newCCVariable();
         }
         int grayCode;
         int nextGray;
@@ -186,7 +186,7 @@ public final class CcAmo {
                 literals.push(currentLiterals.get(i));
                 if (i % groupSize == groupSize - 1 || i == currentLiterals.size() - 1) {
                     pure(result, literals);
-                    literals.push(result.newVariable());
+                    literals.push(result.newCCVariable());
                     nextLiterals.push(literals.back().negate(f));
                     if (isExactlyOne && literals.size() > 0) {
                         result.addClause(literals);
@@ -234,7 +234,7 @@ public final class CcAmo {
             for (; i < vars.size(); i++) {
                 l2.push(vars.get(i));
             }
-            final Variable newVariable = result.newVariable();
+            final Variable newVariable = result.newCCVariable();
             l1.push(newVariable);
             l2.push(newVariable.negate(f));
             nestedRec(result, groupSize, l1);
@@ -305,7 +305,7 @@ public final class CcAmo {
 
         int g = (int) Math.ceil((double) n / groupSize);
         int ig = 0;
-        for (int i = 0; i < vars.size();) {
+        for (int i = 0; i < vars.size(); ) {
             while (i < g) {
                 groups.get(ig).push(vars.get(i));
                 i++;
@@ -327,7 +327,7 @@ public final class CcAmo {
         bits.twoPowNBits = (int) Math.pow(2, bits.numberOfBits);
         bits.k = (bits.twoPowNBits - groupSize) * 2;
         for (int i = 0; i < bits.numberOfBits; ++i) {
-            bits.bits.push(result.newVariable());
+            bits.bits.push(result.newCCVariable());
         }
         return bits;
     }

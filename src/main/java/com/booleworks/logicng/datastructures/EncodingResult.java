@@ -6,6 +6,7 @@ package com.booleworks.logicng.datastructures;
 
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
+import com.booleworks.logicng.formulas.AuxVarType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -136,15 +137,39 @@ public final class EncodingResult {
      * Returns a new auxiliary variable.
      * @return a new auxiliary variable
      */
-    public Variable newVariable() {
+    public Variable newVariable(final AuxVarType auxType) {
         if (miniSat == null) {
-            return f.newCCVariable();
+            return f.newAuxVariable(auxType);
         } else {
             final int index = miniSat.underlyingSolver().newVar(!miniSat.initialPhase(), true);
-            final String name = FormulaFactory.CC_PREFIX + "MINISAT_" + index;
+            final String name = auxType.prefix() + "MINISAT_" + index;
             miniSat.underlyingSolver().addName(name, index);
             return new EncodingAuxiliaryVariable(name, false);
         }
+    }
+
+    /**
+     * Returns a new auxiliary variable for cardinality constraint encodings.
+     * @return a new auxiliary variable
+     */
+    public Variable newCCVariable() {
+        return newVariable(AuxVarType.CC);
+    }
+
+    /**
+     * Returns a new auxiliary variable for pseudo-boolean constraint encodings.
+     * @return a new auxiliary variable
+     */
+    public Variable newPBCVariable() {
+        return newVariable(AuxVarType.PBC);
+    }
+
+    /**
+     * Returns a new auxiliary variable for cnf encodings.
+     * @return a new auxiliary variable
+     */
+    public Variable newCNFVariable() {
+        return newVariable(AuxVarType.CNF);
     }
 
     /**

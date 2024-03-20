@@ -90,11 +90,11 @@ public final class CcModularTotalizer {
         final int mod = (int) Math.ceil(Math.sqrt(rhs + 1.0));
         state.cardinalityUpOutvars = new LNGVector<>(n / mod);
         for (int i = 0; i < n / mod; i++) {
-            state.cardinalityUpOutvars.push(result.newVariable());
+            state.cardinalityUpOutvars.push(result.newCCVariable());
         }
         state.cardinalityLwOutvars = new LNGVector<>(mod - 1);
         for (int i = 0; i < mod - 1; i++) {
-            state.cardinalityLwOutvars.push(result.newVariable());
+            state.cardinalityLwOutvars.push(result.newCCVariable());
         }
         state.inlits = new LNGVector<>(n);
         state.currentCardinalityRhs = rhs + 1;
@@ -150,14 +150,14 @@ public final class CcModularTotalizer {
         } else {
             left = split / mod;
             for (int i = 0; i < left; i++) {
-                lupper.push(result.newVariable());
+                lupper.push(result.newCCVariable());
             }
             int limit = mod - 1;
             if (left % mod == 0 && split < mod - 1) {
                 limit = split;
             }
             for (int i = 0; i < limit; i++) {
-                llower.push(result.newVariable());
+                llower.push(result.newCCVariable());
             }
         }
         if (rhs - split == 1) {
@@ -168,14 +168,14 @@ public final class CcModularTotalizer {
         } else {
             right = (rhs - split) / mod;
             for (int i = 0; i < right; i++) {
-                rupper.push(result.newVariable());
+                rupper.push(result.newCCVariable());
             }
             int limit = mod - 1;
             if (right % mod == 0 && rhs - split < mod - 1) {
                 limit = rhs - split;
             }
             for (int i = 0; i < limit; i++) {
-                rlower.push(result.newVariable());
+                rlower.push(result.newCCVariable());
             }
         }
         if (lupper.size() == 0) {
@@ -206,7 +206,7 @@ public final class CcModularTotalizer {
         Variable carry = state.varUndef;
         // != is ok here - we are within the same formula factory
         if (upper.get(0) != state.h0) {
-            carry = result.newVariable();
+            carry = result.newCCVariable();
         }
         for (int i = 0; i <= llower.size(); i++) {
             for (int j = 0; j <= rlower.size(); j++) {
