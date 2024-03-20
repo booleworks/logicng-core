@@ -5,6 +5,7 @@
 package com.booleworks.logicng.transformations.cnf;
 
 import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.formulas.AuxVarType;
 import com.booleworks.logicng.formulas.Equivalence;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
@@ -307,7 +308,7 @@ public final class PlaistedGreenbaumTransformationSolver {
 
     private int newSolverVariable() {
         final int index = solver.newVar(!initialPhase, true);
-        final String name = FormulaFactory.CNF_PREFIX + "MINISAT_" + index;
+        final String name = AuxVarType.CNF.prefix() + "MINISAT_" + index;
         solver.addName(name, index);
         return index * 2;
     }

@@ -6,9 +6,6 @@ package com.booleworks.logicng.solvers.functions.modelenumeration;
 
 import static com.booleworks.logicng.datastructures.Tristate.TRUE;
 import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
-import static com.booleworks.logicng.formulas.FormulaFactory.CC_PREFIX;
-import static com.booleworks.logicng.formulas.FormulaFactory.CNF_PREFIX;
-import static com.booleworks.logicng.formulas.FormulaFactory.PB_PREFIX;
 import static com.booleworks.logicng.handlers.Handler.aborted;
 import static com.booleworks.logicng.handlers.Handler.start;
 import static com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationCommon.generateBlockingClause;
@@ -22,6 +19,7 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.formulas.AuxVarType;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
@@ -181,8 +179,12 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
     }
 
     private static boolean isNotAuxiliaryVariable(final Variable var) {
-        return !var.name().startsWith(CC_PREFIX) && !var.name().startsWith(PB_PREFIX) &&
-                !var.name().startsWith(CNF_PREFIX);
+        for (final AuxVarType auxType : AuxVarType.values()) {
+            if (var.name().startsWith(auxType.prefix())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean modelEnumerationSATCall(final MiniSat solver, final ModelEnumerationHandler handler) {

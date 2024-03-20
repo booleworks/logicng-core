@@ -8,6 +8,7 @@ import static com.booleworks.logicng.formulas.cache.PredicateCacheEntry.IS_CNF;
 import static com.booleworks.logicng.formulas.cache.TransformationCacheEntry.FACTORIZED_CNF;
 
 import com.booleworks.logicng.formulas.And;
+import com.booleworks.logicng.formulas.AuxVarType;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Equivalence;
@@ -351,31 +352,11 @@ public class CachingFormulaFactory extends FormulaFactory {
     }
 
     @Override
-    public Variable newCCVariable() {
+    public Variable newAuxVariable(final AuxVarType type) {
         if (readOnly) {
             throwReadOnlyException();
         }
-        final Variable var = variable(ccPrefix + ccCounter.getAndIncrement());
-        generatedVariables.add(var);
-        return var;
-    }
-
-    @Override
-    public Variable newPBVariable() {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        final Variable var = variable(pbPrefix + pbCounter.getAndIncrement());
-        generatedVariables.add(var);
-        return var;
-    }
-
-    @Override
-    public Variable newCNFVariable() {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        final Variable var = variable(cnfPrefix + cnfCounter.getAndIncrement());
+        final Variable var = variable(auxVarPrefixes.get(type) + auxVarCounters.get(type).getAndIncrement());
         generatedVariables.add(var);
         return var;
     }
@@ -506,9 +487,9 @@ public class CachingFormulaFactory extends FormulaFactory {
         statistics.disjunctionsN = orsN.size();
         statistics.pbcs = pbConstraints.size();
         statistics.ccs = cardinalityConstraints.size();
-        statistics.ccCounter = ccCounter.get();
-        statistics.pbCounter = pbCounter.get();
-        statistics.cnfCounter = cnfCounter.get();
+        statistics.ccCounter = auxVarCounters.get(AuxVarType.CC).get();
+        statistics.pbCounter = auxVarCounters.get(AuxVarType.PBC).get();
+        statistics.cnfCounter = auxVarCounters.get(AuxVarType.CNF).get();
         return statistics;
     }
 
@@ -769,7 +750,7 @@ public class CachingFormulaFactory extends FormulaFactory {
          * Returns the number of generated cardinality constraint auxiliary
          * variables.
          * @return the number of generated cardinality constraint auxiliary
-         *         variables
+         * variables
          */
         public int ccCounter() {
             return ccCounter;

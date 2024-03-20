@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -50,26 +51,18 @@ import java.util.stream.Collectors;
  */
 public abstract class FormulaFactory {
 
-    public static final String CC_PREFIX = "@RESERVED_CC_";
-    public static final String PB_PREFIX = "@RESERVED_PB_";
-    public static final String CNF_PREFIX = "@RESERVED_CNF_";
-
     protected final String name;
     protected final FormulaStringRepresentation stringRepresentation;
     protected final FormulaFactoryConfig.FormulaMergeStrategy formulaMergeStrategy;
     protected final boolean simplifyComplementaryOperands;
     protected final Map<ConfigurationType, Configuration> configurations;
-    protected final String ccPrefix;
-    protected final String pbPrefix;
-    protected final String cnfPrefix;
     protected final SubNodeFunction subformulaFunction;
+    protected final Map<AuxVarType, AtomicInteger> auxVarCounters;
+    protected final Map<AuxVarType, String> auxVarPrefixes;
     protected CFalse cFalse;
     protected CTrue cTrue;
     protected boolean cnfCheck;
     protected FormulaFactoryImporter importer;
-    protected AtomicInteger ccCounter;
-    protected AtomicInteger pbCounter;
-    protected AtomicInteger cnfCounter;
     protected boolean readOnly;
 
     public static CachingFormulaFactory caching(final FormulaFactoryConfig config) {
@@ -99,17 +92,18 @@ public abstract class FormulaFactory {
         }
         simplifyComplementaryOperands = config.simplifyComplementaryOperands;
         configurations = initDefaultConfigs();
+        auxVarCounters = new EnumMap<>(AuxVarType.class);
         clear();
         subformulaFunction = new SubNodeFunction(this);
-        if (!name.isEmpty()) {
-            ccPrefix = CC_PREFIX + name + "_";
-            pbPrefix = PB_PREFIX + name + "_";
-            cnfPrefix = CNF_PREFIX + name + "_";
-        } else {
-            ccPrefix = CC_PREFIX;
-            pbPrefix = PB_PREFIX;
-            cnfPrefix = CNF_PREFIX;
+        final EnumMap<AuxVarType, String> prefixes = new EnumMap<>(AuxVarType.class);
+        for (final AuxVarType auxType : AuxVarType.values()) {
+            if (!this.name.isEmpty()) {
+                prefixes.put(auxType, auxType.prefix() + this.name + "_");
+            } else {
+                prefixes.put(auxType, auxType.prefix());
+            }
         }
+        auxVarPrefixes = Collections.unmodifiableMap(prefixes);
         readOnly = false;
     }
 
@@ -137,9 +131,9 @@ public abstract class FormulaFactory {
         if (readOnly) {
             throwReadOnlyException();
         }
-        ccCounter = new AtomicInteger(0);
-        pbCounter = new AtomicInteger(0);
-        cnfCounter = new AtomicInteger(0);
+        for (final AuxVarType auxType : AuxVarType.values()) {
+            auxVarCounters.put(auxType, new AtomicInteger(0));
+        }
     }
 
     /**
@@ -788,13 +782,24 @@ public abstract class FormulaFactory {
     }
 
     /**
+     * Returns a new auxiliary literal of the given type.
+     * <p>
+     * Remark: currently only the counter is increased - there is no check if
+     * the literal is already present.
+     * @return the new auxiliary literal
+     */
+    public abstract Variable newAuxVariable(AuxVarType type);
+
+    /**
      * Returns a new cardinality constraint auxiliary literal.
      * <p>
      * Remark: currently only the counter is increased - there is no check if
      * the literal is already present.
      * @return the new cardinality constraint auxiliary literal
      */
-    public abstract Variable newCCVariable();
+    public Variable newCCVariable() {
+        return newAuxVariable(AuxVarType.CC);
+    }
 
     /**
      * Returns a new pseudo Boolean auxiliary literal.
@@ -803,7 +808,9 @@ public abstract class FormulaFactory {
      * the literal is already present.
      * @return the new pseudo Boolean auxiliary literal
      */
-    public abstract Variable newPBVariable();
+    public Variable newPBVariable() {
+        return newAuxVariable(AuxVarType.PBC);
+    }
 
     /**
      * Returns a new CNF auxiliary literal.
@@ -812,7 +819,9 @@ public abstract class FormulaFactory {
      * the literal is already present.
      * @return the new CNF auxiliary literal
      */
-    public abstract Variable newCNFVariable();
+    public Variable newCNFVariable() {
+        return newAuxVariable(AuxVarType.CNF);
+    }
 
     /**
      * Returns a condensed array of operands for a given n-ary disjunction.
@@ -992,25 +1001,13 @@ public abstract class FormulaFactory {
 
     private void adjustCounters(final Formula formula) {
         for (final Variable variable : formula.variables(this)) {
-            if (variable.name().startsWith(CC_PREFIX)) {
-                final String[] tokens = variable.name().split("_");
-                final int counter = Integer.parseInt(tokens[tokens.length - 1]);
-                if (ccCounter.get() < counter) {
-                    ccCounter.set(counter + 1);
-                }
-            }
-            if (variable.name().startsWith(CNF_PREFIX)) {
-                final String[] tokens = variable.name().split("_");
-                final int counter = Integer.parseInt(tokens[tokens.length - 1]);
-                if (cnfCounter.get() < counter) {
-                    cnfCounter.set(counter + 1);
-                }
-            }
-            if (variable.name().startsWith(PB_PREFIX)) {
-                final String[] tokens = variable.name().split("_");
-                final int counter = Integer.parseInt(tokens[tokens.length - 1]);
-                if (pbCounter.get() < counter) {
-                    pbCounter.set(counter + 1);
+            for (final AuxVarType auxType : AuxVarType.values()) {
+                if (variable.name().startsWith(auxType.prefix())) {
+                    final String[] tokens = variable.name().split("_");
+                    final int counter = Integer.parseInt(tokens[tokens.length - 1]);
+                    if (auxVarCounters.get(auxType).get() < counter) {
+                        auxVarCounters.get(auxType).set(counter + 1);
+                    }
                 }
             }
         }

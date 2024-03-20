@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.formulas.implementation.noncaching;
 
+import com.booleworks.logicng.formulas.AuxVarType;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -157,33 +158,21 @@ public class NonCachingFormulaFactory extends FormulaFactory {
     }
 
     @Override
-    public Variable newCCVariable() {
+    public Variable newAuxVariable(final AuxVarType type) {
         if (readOnly) {
             throwReadOnlyException();
         }
-        return variable(ccPrefix + ccCounter.getAndIncrement());
-    }
-
-    @Override
-    public Variable newPBVariable() {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        return variable(pbPrefix + pbCounter.getAndIncrement());
-    }
-
-    @Override
-    public Variable newCNFVariable() {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        return variable(cnfPrefix + cnfCounter.getAndIncrement());
+        return variable(auxVarPrefixes.get(type) + auxVarCounters.get(type).getAndIncrement());
     }
 
     @Override
     public boolean isGeneratedVariable(final Variable var) {
-        return var.name().startsWith(CC_PREFIX) || var.name().startsWith(CNF_PREFIX) ||
-                var.name().startsWith(PB_PREFIX);
+        for (final AuxVarType auxType : AuxVarType.values()) {
+            if (var.name().startsWith(auxType.prefix())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
