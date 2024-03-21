@@ -858,7 +858,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
      * The main search procedure of the CDCL algorithm.
      * @param nofConflicts the number of conflicts until the next restart (not relevant if LBD features are used)
      * @return a {@link Tristate} representing the result.  {@code FALSE} if the formula is UNSAT, {@code TRUE} if the
-     * formula is SAT, and {@code UNDEF} if the state is not known yet (restart) or the handler canceled the computation
+     *         formula is SAT, and {@code UNDEF} if the state is not known yet (restart) or the handler canceled the computation
      */
     protected Tristate search(final int nofConflicts) {
         if (!ok) {
@@ -942,7 +942,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                         cancelUntil(0);
                         return Tristate.UNDEF;
                     }
-                    if (decisionLevel() == 0 && !simplify()) {
+                    if (!incremental && decisionLevel() == 0 && !simplify()) {
                         return Tristate.FALSE;
                     }
                     if (conflicts >= (curRestart * nbClausesBeforeReduce) && learnts.size() > 0) {
