@@ -3,6 +3,7 @@ package com.booleworks.logicng.csp.encodings;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.formulas.AuxVarType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -17,23 +18,20 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class OrderEncodingResult {
-    public final static String CSP_VAR_PREFIX = "@CSP_";
     private final EncodingResult encodingResult;
     private final Map<IntegerVariable, Map<Integer, Variable>> variableMap;
-    private int _createdVariables;
 
     private OrderEncodingResult(final FormulaFactory f, final MiniSat miniSat, final Proposition proposition) {
         this.encodingResult = EncodingResult.resultForMiniSat(f, miniSat, proposition);
         this.variableMap = new TreeMap<>();
-        this._createdVariables = 0;
     }
 
-    public static OrderEncodingResult resultForFormula(final FormulaFactory f) {
+    public static OrderEncodingResult forFactory(final FormulaFactory f) {
         return new OrderEncodingResult(f, null, null);
     }
 
-    public static OrderEncodingResult resultForMiniSat(final FormulaFactory f, final MiniSat miniSat, final Proposition proposition) {
-        return new OrderEncodingResult(f, miniSat, proposition);
+    public static OrderEncodingResult forSolver(final MiniSat miniSat, final Proposition proposition) {
+        return new OrderEncodingResult(miniSat.factory(), miniSat, proposition);
     }
 
     public Variable intVariableInstance(final IntegerVariable group, final int index) {
@@ -50,8 +48,7 @@ public class OrderEncodingResult {
     }
 
     private Variable newVariable() {
-        final int index = this._createdVariables++;
-        return factory().variable(CSP_VAR_PREFIX + index);
+        return encodingResult.newVariable(AuxVarType.CSP);
     }
 
     public List<Formula> result() {

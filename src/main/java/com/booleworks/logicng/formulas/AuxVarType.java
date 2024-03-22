@@ -6,7 +6,8 @@ package com.booleworks.logicng.formulas;
 public enum AuxVarType {
     CC("@RESERVED_CC_"),
     PBC("@RESERVED_PB_"),
-    CNF("@RESERVED_CNF_");
+    CNF("@RESERVED_CNF_"),
+    CSP("@RESERVED_CSP_");
 
     private final String prefix;
 
