@@ -1,15 +1,17 @@
 package com.booleworks.logicng.csp.predicates;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.IntegerClause;
 import com.booleworks.logicng.csp.IntegerDomain;
 import com.booleworks.logicng.csp.terms.Term;
-import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class AllDifferentPredicate extends CspPredicate {
@@ -27,13 +29,12 @@ public class AllDifferentPredicate extends CspPredicate {
     }
 
     @Override
-    protected Formula calculateDecomposition() {
+    protected Set<IntegerClause> calculateDecomposition() {
         final FormulaFactory f = this.factory();
-        final List<Formula> operands = new ArrayList<>();
+        final Set<IntegerClause> clauses = new TreeSet<>();
         for (int i = 0; i < this.terms.size(); i++) {
             for (int j = i + 1; j < this.terms.size(); j++) {
-                final Formula decomposition = this.cspFactory.ne(this.terms.get(i), this.terms.get(j)).decompose();
-                operands.add(decomposition);
+                clauses.addAll(this.cspFactory.ne(this.terms.get(i), this.terms.get(j)).decompose());
             }
         }
         int lb = Integer.MAX_VALUE;
@@ -44,15 +45,24 @@ public class AllDifferentPredicate extends CspPredicate {
             lb = Math.min(lb, d.lb());
             ub = Math.max(ub, d.ub());
         }
-        final List<Formula> xs1 = new ArrayList<>(this.terms.size());
-        final List<Formula> xs2 = new ArrayList<>(this.terms.size());
+        Set<IntegerClause> xs1 = new TreeSet<>();
+        Set<IntegerClause> xs2 = new TreeSet<>();
+        boolean first = true;
         for (int i = 0; i < this.terms.size(); i++) {
-            xs1.add(this.cspFactory.lt(this.terms.get(i), this.cspFactory.constant(lb + this.terms.size() - 1)).negate().decompose());
-            xs2.add(this.cspFactory.gt(this.terms.get(i), this.cspFactory.constant(ub - this.terms.size() + 1)).negate().decompose());
+            final Set<IntegerClause> new1 = this.cspFactory.lt(this.terms.get(i), this.cspFactory.constant(lb + this.terms.size() - 1)).negate().decompose();
+            final Set<IntegerClause> new2 = this.cspFactory.gt(this.terms.get(i), this.cspFactory.constant(ub - this.terms.size() + 1)).negate().decompose();
+            if (first) {
+                xs1 = new1;
+                xs2 = new2;
+                first = false;
+            } else {
+                xs1 = IntegerClause.factorize(xs1, new1);
+                xs2 = IntegerClause.factorize(xs2, new2);
+            }
         }
-        operands.add(f.or(xs1));
-        operands.add(f.or(xs2));
-        return f.and(operands);
+        clauses.addAll(xs1);
+        clauses.addAll(xs2);
+        return clauses;
     }
 
     @Override

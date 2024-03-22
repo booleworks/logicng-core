@@ -1,54 +1,51 @@
 package com.booleworks.logicng.csp;
 
-import com.booleworks.logicng.csp.predicates.CspPredicate;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
-import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class Csp {
-    //private int[] bases;
-    private final List<IntegerVariable> integerVariables;
-    private final List<Variable> booleanVariables;
-    private List<IntegerClause> clauses;
-    private final Map<String, IntegerVariable> integerVariableMap;
-    private final Map<String, Variable> booleanVariableMap;
+    private final Set<IntegerVariable> integerVariables;
+    private final Set<Variable> booleanVariables;
+    private Set<IntegerClause> clauses;
     private final CspFactory f;
 
     private Csp(final CspFactory f) {
-        this.integerVariables = new ArrayList<>();
-        this.booleanVariables = new ArrayList<>();
-        this.clauses = new ArrayList<>();
-        this.integerVariableMap = new HashMap<>();
-        this.booleanVariableMap = new HashMap<>();
+        this.integerVariables = new TreeSet<>();
+        this.booleanVariables = new TreeSet<>();
+        this.clauses = new TreeSet<>();
         this.f = f;
     }
 
     private Csp(final Csp other) {
-        this.integerVariableMap = new HashMap<>(other.integerVariableMap);
-        this.booleanVariableMap = new HashMap<>(other.booleanVariableMap);
-        this.integerVariables = new ArrayList<>(other.integerVariables);
-        this.booleanVariables = new ArrayList<>(other.booleanVariables);
-        this.clauses = new ArrayList<>(other.clauses);
+        this.integerVariables = new TreeSet<>(other.integerVariables);
+        this.booleanVariables = new TreeSet<>(other.booleanVariables);
+        this.clauses = new TreeSet<>(other.clauses);
         this.f = other.f;
     }
 
-    public List<IntegerVariable> getIntegerVariables() {
+    public Csp(final CspFactory f, final Set<IntegerVariable> integerVariables, final Set<Variable> booleanVariables, final Set<IntegerClause> clauses) {
+        this.integerVariables = integerVariables;
+        this.booleanVariables = booleanVariables;
+        this.clauses = clauses;
+        this.f = f;
+    }
+
+    public Set<IntegerVariable> getIntegerVariables() {
         return this.integerVariables;
     }
 
-    public List<Variable> getBooleanVariables() {
+    public Set<Variable> getBooleanVariables() {
         return this.booleanVariables;
     }
 
-    public List<IntegerClause> getClauses() {
+    public Set<IntegerClause> getClauses() {
         return this.clauses;
     }
 
@@ -58,80 +55,70 @@ public class Csp {
 
     @Override
     public String toString() {
-        return "IntegerCsp{" +
-                "integerVariables=" + this.integerVariables +
-                ", booleanVariables=" + this.booleanVariables +
-                ", clauses=" + this.clauses +
+        return "Csp{" +
+                "integerVariables=" + integerVariables +
+                ", booleanVariables=" + booleanVariables +
+                ", clauses=" + clauses +
                 '}';
     }
 
-    public static Csp fromFormula(final CspPredicate formula, final CspFactory cf) {
-        final Formula decomposedFormula = formula.decompose();
-        final Csp.Builder converted = CspConversion.convert(Collections.singletonList(decomposedFormula), cf);
-        return converted.build();
+    public static Csp fromClauses(final CspFactory f, final Set<IntegerClause> clauses) {
+        final Set<IntegerVariable> intVars = new TreeSet<>();
+        final Set<Variable> boolVars = new TreeSet<>();
+        for (final IntegerClause clause : clauses) {
+            intVars.addAll(clause.getArithmeticLiterals().stream().flatMap(v -> v.getVariables().stream()).collect(Collectors.toSet()));
+            boolVars.addAll(clause.getBoolLiterals().stream().map(Literal::variable).collect(Collectors.toSet()));
+        }
+        return new Csp(f, intVars, boolVars, clauses);
     }
 
-    public static Csp fromFormulas(final Collection<CspPredicate> formulas, final CspFactory cf) {
-        final var decomposedFormulas = formulas.stream().map(CspPredicate::decompose).collect(Collectors.toList());
-        final Csp.Builder converted = CspConversion.convert(decomposedFormulas, cf);
-        return converted.build();
+    public static Csp merge(final CspFactory f, final Csp... csps) {
+        return merge(f, Arrays.asList(csps));
+    }
+
+    public static Csp merge(final CspFactory f, final Collection<Csp> csps) {
+        if (csps.isEmpty()) {
+            return new Csp(f);
+        } else if (csps.size() == 1) {
+            return csps.iterator().next();
+        } else {
+            final Csp newCsp = new Csp(f);
+            for (final Csp csp : csps) {
+                newCsp.integerVariables.addAll(csp.integerVariables);
+                newCsp.booleanVariables.addAll(csp.booleanVariables);
+                newCsp.clauses.addAll(csp.clauses);
+            }
+            return newCsp;
+        }
     }
 
     public static class Builder {
         private Csp csp;
-        private int auxIntegerVariables = 0;
-        private int auxBoolVariables = 0;
 
         public Builder(final CspFactory f) {
-            this.csp = new Csp(f);
+            csp = new Csp(f);
         }
 
-        public void addClause(final IntegerClause clause) {
+        public Builder(final Csp csp) {
+            this.csp = new Csp(csp);
+        }
+
+        public Builder addClause(final IntegerClause clause) {
             this.csp.clauses.add(clause);
+            return this;
         }
 
-        public void setClauses(final List<IntegerClause> clauses) {
+        public Builder updateClauses(final Set<IntegerClause> clauses) {
             this.csp.clauses = clauses;
+            return this;
         }
 
         public boolean addIntegerVariable(final IntegerVariable v) {
-            final String name = v.getName();
-            if (this.csp.integerVariableMap.containsKey(name)) {
-                return false;
-            } else {
-                this.csp.integerVariableMap.put(name, v);
-                this.csp.integerVariables.add(v);
-                return true;
-            }
+            return this.csp.integerVariables.add(v);
         }
 
         public boolean addBooleanVariable(final Variable v) {
-            final String name = v.name();
-            if (this.csp.booleanVariableMap.containsKey(name)) {
-                return false;
-            } else {
-                this.csp.booleanVariableMap.put(name, v);
-                this.csp.booleanVariables.add(v);
-                return true;
-            }
-        }
-
-        public IntegerVariable addAuxIntVariable(final String prefix, final IntegerDomain domain) {
-            final IntegerVariable v = IntegerVariable.auxVar(prefix + (this.auxIntegerVariables + 1), domain);
-            ++this.auxIntegerVariables;
-            addIntegerVariable(v);
-            return v;
-        }
-
-        public Variable addAuxBoolVariable(final String prefix) {
-            final Variable v = this.csp.getCspFactory().getFormulaFactory().variable(prefix + (this.auxBoolVariables + 1));
-            ++this.auxBoolVariables;
-            addBooleanVariable(v);
-            return v;
-        }
-
-        public Csp buildClone() {
-            return new Csp(this.csp);
+            return this.csp.booleanVariables.add(v);
         }
 
         public Csp build() {
@@ -140,15 +127,15 @@ public class Csp {
             return csp;
         }
 
-        public List<IntegerVariable> getIntegerVariables() {
+        public Set<IntegerVariable> getIntegerVariables() {
             return this.csp.integerVariables;
         }
 
-        public List<Variable> getBooleanVariables() {
+        public Set<Variable> getBooleanVariables() {
             return this.csp.booleanVariables;
         }
 
-        public List<IntegerClause> getClauses() {
+        public Set<IntegerClause> getClauses() {
             return this.csp.clauses;
         }
 

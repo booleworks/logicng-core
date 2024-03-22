@@ -1,14 +1,16 @@
 package com.booleworks.logicng.csp.predicates;
 
 import com.booleworks.logicng.csp.CspFactory;
-import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.csp.IntegerClause;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Predicate;
+
+import java.util.Set;
 
 public abstract class CspPredicate implements Predicate {
     protected final CspFactory cspFactory;
     protected final Type type;
-    protected Formula decomposition;
+    protected Set<IntegerClause> decomposition;
 
     protected CspPredicate(final CspFactory cspFactory, final Type type) {
         this.cspFactory = cspFactory;
@@ -21,9 +23,9 @@ public abstract class CspPredicate implements Predicate {
 
     public abstract CspPredicate negate();
 
-    protected abstract Formula calculateDecomposition();
+    protected abstract Set<IntegerClause> calculateDecomposition();
 
-    public Formula decompose() {
+    public Set<IntegerClause> decompose() {
         if (this.decomposition == null) {
             this.decomposition = calculateDecomposition();
         }

@@ -10,20 +10,18 @@ import com.booleworks.logicng.csp.terms.MultiplicationFunction;
 import com.booleworks.logicng.csp.terms.NegationFunction;
 import com.booleworks.logicng.csp.terms.SubtractionFunction;
 import com.booleworks.logicng.csp.terms.Term;
-import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.transformations.cnf.CNFFactorization;
 import com.booleworks.logicng.util.Pair;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiPredicate;
+import java.util.stream.Collectors;
 
 public class CspFactory {
     private static final String AUX_PREFIX = "@AUX_";
@@ -316,28 +314,13 @@ public class CspFactory {
         return this.formulaFactory;
     }
 
-    public Formula decomposeFormula(final Formula formula) {
-        if (formula instanceof CspPredicate) {
-            return ((CspPredicate) formula).decompose();
-        }
-        return formula;
+    public Csp buildCsp(final Collection<CspPredicate> predicates) {
+        final Set<IntegerClause> clauses = predicates.stream().flatMap(p -> p.decompose().stream()).collect(Collectors.toSet());
+        return Csp.fromClauses(this, clauses);
     }
 
-    public Formula decomposeFormulas(final List<Formula> formulas) {
-        final List<Formula> operands = new ArrayList<>();
-        for (final Formula formula : formulas) {
-            if (formula instanceof CspPredicate) {
-                operands.add(((CspPredicate) formula).decompose());
-            } else {
-                operands.add(formula);
-            }
-        }
-        final Formula formula = this.formulaFactory.and(operands);
-        if (formula.isCNF(this.formulaFactory)) {
-            return formula;
-        } else {
-            return formula.transform(new CNFFactorization(this.formulaFactory));
-        }
+    public Csp buildCsp(final CspPredicate... predicates) {
+        return buildCsp(Arrays.asList(predicates));
     }
 }
 

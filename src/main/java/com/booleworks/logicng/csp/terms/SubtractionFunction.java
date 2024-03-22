@@ -1,11 +1,15 @@
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.IntegerClause;
 import com.booleworks.logicng.csp.LinearExpression;
+import com.booleworks.logicng.csp.literals.LinearLiteral;
 import com.booleworks.logicng.formulas.Formula;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public final class SubtractionFunction extends BinaryFunction {
     public SubtractionFunction(final CspFactory cspFactory, final Term left, final Term right) {
@@ -16,7 +20,7 @@ public final class SubtractionFunction extends BinaryFunction {
     public Decomposition calculateDecomposition() {
         final Decomposition resultLeft = this.left.decompose();
         LinearExpression expression = resultLeft.getLinearExpression();
-        final List<Formula> constraints = new ArrayList<>(resultLeft.getAdditionalConstraints());
+        final Set<IntegerClause> constraints = new TreeSet<>(resultLeft.getAdditionalConstraints());
         final Decomposition resultRight = this.right.decompose();
         expression = LinearExpression.add(expression, LinearExpression.multiply(resultRight.getLinearExpression(), -1));
         constraints.addAll(resultRight.getAdditionalConstraints());

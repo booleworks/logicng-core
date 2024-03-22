@@ -1,14 +1,16 @@
 package com.booleworks.logicng.csp.predicates;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.IntegerClause;
 import com.booleworks.logicng.csp.IntegerDomain;
+import com.booleworks.logicng.csp.LinearExpression;
+import com.booleworks.logicng.csp.literals.LinearLiteral;
 import com.booleworks.logicng.csp.terms.MultiplicationFunction;
 import com.booleworks.logicng.csp.terms.Term;
-import com.booleworks.logicng.formulas.Formula;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class ComparisonPredicate extends BinaryPredicate {
 
@@ -37,7 +39,7 @@ public class ComparisonPredicate extends BinaryPredicate {
     }
 
     @Override
-    protected Formula calculateDecomposition() {
+    protected Set<IntegerClause> calculateDecomposition() {
         switch (this.type) {
             case EQ:
                 return decomposeEq();
@@ -56,55 +58,25 @@ public class ComparisonPredicate extends BinaryPredicate {
         }
     }
 
-    private Formula decomposeEq() {
-        MultiplicationFunction mul = null;
-        // a*b = 0 implies a = 0 or b = 0
-        if (this.left instanceof MultiplicationFunction && this.right.getType() == Term.Type.ZERO) {
-            mul = (MultiplicationFunction) this.left;
+    private Set<IntegerClause> decomposeEq() {
+        if (this.right.getType() == Term.Type.ZERO) {
+            return decomposeEqZero(this.left);
+        } else if (this.left.getType() == Term.Type.ZERO) {
+            return decomposeEqZero(this.right);
         }
-        if (this.right instanceof MultiplicationFunction && this.left.getType() == Term.Type.ZERO) {
-            mul = (MultiplicationFunction) this.right;
-        }
-        if (mul != null) {
-            final Formula leftIsZero = this.cspFactory.eq(mul.getLeft(), this.cspFactory.zero()).decompose();
-            final Formula rightIsZero = this.cspFactory.eq(mul.getRight(), this.cspFactory.zero()).decompose();
-            return this.cspFactory.getFormulaFactory().or(leftIsZero, rightIsZero);
-        }
-
-        //return this.cspFactory.decomposeFormulas(decomposeEqZero(this.cspFactory.sub(this.left, this.right)));
-        return this.factory().and(decomposeEqZero(this.cspFactory.sub(this.left, this.right)));
+        return decomposeEqZero(cspFactory.sub(this.left, this.right));
     }
 
-    private Formula decomposeNe() {
-        MultiplicationFunction mul = null;
-        // a*b != 0 implies a != 0 and b != 0
-        if (this.left instanceof MultiplicationFunction && this.right.getType() == Term.Type.ZERO) {
-            mul = (MultiplicationFunction) this.left;
+    private Set<IntegerClause> decomposeNe() {
+        if (this.right.getType() == Term.Type.ZERO) {
+            return decomposeNeZero(this.left);
+        } else if (this.left.getType() == Term.Type.ZERO) {
+            return decomposeNeZero(this.right);
         }
-        if (this.right instanceof MultiplicationFunction && this.left.getType() == Term.Type.ZERO) {
-            mul = (MultiplicationFunction) this.right;
-        }
-        if (mul != null) {
-            final Formula leftIsNotZero = this.cspFactory.decomposeFormula(this.cspFactory.ne(mul.getLeft(), this.cspFactory.zero()));
-            final Formula rightIsNotZero = this.cspFactory.decomposeFormula(this.cspFactory.ne(mul.getRight(), this.cspFactory.zero()));
-            return this.cspFactory.getFormulaFactory().and(leftIsNotZero, rightIsNotZero);
-        }
-        return this.factory().and(decomposeNeZero(this.cspFactory.sub(this.left, this.right)));
+        return decomposeNeZero(this.cspFactory.sub(this.left, this.right));
     }
 
-    private Formula decomposeLe() {
-        // a1*a2 <= 0
-        if (this.left instanceof MultiplicationFunction && this.right.getType() == Term.Type.ZERO) {
-            final Term a1 = ((MultiplicationFunction) this.left).getLeft();
-            final Term a2 = ((MultiplicationFunction) this.left).getRight();
-            return leZeroFormula(a1, a2);
-        }
-        // a1*a2 >= 0
-        if (this.right instanceof MultiplicationFunction && this.left.getType() == Term.Type.ZERO) {
-            final Term a1 = ((MultiplicationFunction) this.right).getLeft();
-            final Term a2 = ((MultiplicationFunction) this.right).getRight();
-            return geZeroFormula(a1, a2);
-        }
+    private Set<IntegerClause> decomposeLe() {
         // abs(a1) <= x2
         //if (this.left instanceof IntegerAbsoluteFunction) {
         //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) this.left).getOperand();
@@ -121,22 +93,10 @@ public class ComparisonPredicate extends BinaryPredicate {
         //            this.cspFactory.decomposeFormula(this.cspFactory.le(a1, this.cspFactory.minus(this.left)), false)
         //    );
         //}
-        return this.factory().and(decomposeLeZero(this.cspFactory.sub(this.left, this.right)));
+        return decomposeLeZero(this.cspFactory.sub(this.left, this.right));
     }
 
-    private Formula decomposeLt() {
-        // a1*a2 < 0
-        if (this.left instanceof MultiplicationFunction && this.right.getType() == Term.Type.ZERO) {
-            final Term a1 = ((MultiplicationFunction) this.left).getLeft();
-            final Term a2 = ((MultiplicationFunction) this.left).getRight();
-            return ltZeroFormula(a1, a2);
-        }
-        // a1*a2 > 0
-        if (this.right instanceof MultiplicationFunction && this.left.getType() == Term.Type.ZERO) {
-            final Term a1 = ((MultiplicationFunction) this.right).getLeft();
-            final Term a2 = ((MultiplicationFunction) this.right).getRight();
-            return gtZeroFormula(a1, a2);
-        }
+    private Set<IntegerClause> decomposeLt() {
         // abs(a1) < x2
         //if (this.left instanceof IntegerAbsoluteFunction) {
         //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) this.left).getOperand();
@@ -153,22 +113,10 @@ public class ComparisonPredicate extends BinaryPredicate {
         //            this.cspFactory.decomposeFormula(this.cspFactory.lt(a1, this.cspFactory.minus(this.left)), false)
         //    );
         //}
-        return this.factory().and(decomposeLeZero(this.cspFactory.add(this.cspFactory.sub(this.left, this.right), this.cspFactory.one())));
+        return decomposeLeZero(this.cspFactory.add(this.cspFactory.sub(this.left, this.right), this.cspFactory.one()));
     }
 
-    private Formula decomposeGe() {
-        // a1*a2 >= 0
-        if (this.left instanceof MultiplicationFunction && this.right.getType() == Term.Type.ZERO) {
-            final Term a1 = ((MultiplicationFunction) this.left).getLeft();
-            final Term a2 = ((MultiplicationFunction) this.left).getRight();
-            return geZeroFormula(a1, a2);
-        }
-        // a1*a2 <= 0
-        if (this.right instanceof MultiplicationFunction && this.left.getType() == Term.Type.ZERO) {
-            final Term a1 = ((MultiplicationFunction) this.right).getLeft();
-            final Term a2 = ((MultiplicationFunction) this.right).getRight();
-            return leZeroFormula(a1, a2);
-        }
+    private Set<IntegerClause> decomposeGe() {
         // abs(a1) >= x2
         //if (this.left instanceof IntegerAbsoluteFunction) {
         //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) this.left).getOperand();
@@ -185,22 +133,10 @@ public class ComparisonPredicate extends BinaryPredicate {
         //            this.cspFactory.decomposeFormula(this.cspFactory.ge(a1, this.cspFactory.minus(this.left)), false)
         //    );
         //}
-        return this.factory().and(decomposeLeZero(this.cspFactory.sub(this.right, this.left)));
+        return decomposeLeZero(this.cspFactory.sub(this.right, this.left));
     }
 
-    private Formula decomposeGt() {
-        // a1*a2 > 0
-        if (this.left instanceof MultiplicationFunction && this.right.getType() == Term.Type.ZERO) {
-            final Term a1 = ((MultiplicationFunction) this.left).getLeft();
-            final Term a2 = ((MultiplicationFunction) this.left).getRight();
-            return gtZeroFormula(a1, a2);
-        }
-        // a1*a2 < 0
-        if (this.right instanceof MultiplicationFunction && this.left.getType() == Term.Type.ZERO) {
-            final Term a1 = ((MultiplicationFunction) this.right).getLeft();
-            final Term a2 = ((MultiplicationFunction) this.right).getRight();
-            return ltZeroFormula(a1, a2);
-        }
+    private Set<IntegerClause> decomposeGt() {
         // abs(a1) < x2
         //if (this.left instanceof IntegerAbsoluteFunction) {
         //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) this.left).getOperand();
@@ -217,100 +153,95 @@ public class ComparisonPredicate extends BinaryPredicate {
         //            this.cspFactory.decomposeFormula(this.cspFactory.lt(a1, this.cspFactory.minus(this.left)), false)
         //    );
         //}
-        return this.factory().and(decomposeLeZero(this.cspFactory.add(this.cspFactory.sub(this.right, this.left), this.cspFactory.one())));
+        return decomposeLeZero(this.cspFactory.add(this.cspFactory.sub(this.right, this.left), this.cspFactory.one()));
     }
 
-    private Formula leZeroFormula(final Term a1, final Term a2) {
-        return this.factory().or(
-                this.factory().and(
-                        this.cspFactory.decomposeFormula(this.cspFactory.lt(a1, this.cspFactory.zero())),
-                        this.cspFactory.decomposeFormula(this.cspFactory.gt(a2, this.cspFactory.zero()))
-                ),
-                this.factory().and(
-                        this.cspFactory.decomposeFormula(this.cspFactory.gt(a1, this.cspFactory.zero())),
-                        this.cspFactory.decomposeFormula(this.cspFactory.lt(a2, this.cspFactory.zero()))
-                ),
-                this.cspFactory.decomposeFormula(this.cspFactory.eq(a1, this.cspFactory.zero())),
-                this.cspFactory.decomposeFormula(this.cspFactory.eq(a2, this.cspFactory.zero()))
-        );
-    }
+    private Set<IntegerClause> decomposeEqZero(final Term term) {
+        // a*b = 0 implies a = 0 or b = 0
+        if (term instanceof MultiplicationFunction) {
+            final MultiplicationFunction mul = (MultiplicationFunction) term;
+            final Set<IntegerClause> leftIsZero = decomposeEqZero(mul.getLeft());
+            final Set<IntegerClause> rightIsZero = decomposeEqZero(mul.getRight());
 
-    private Formula geZeroFormula(final Term a1, final Term a2) {
-        return this.factory().or(
-                this.factory().and(
-                        this.cspFactory.decomposeFormula(this.cspFactory.lt(a1, this.cspFactory.zero())),
-                        this.cspFactory.decomposeFormula(this.cspFactory.lt(a2, this.cspFactory.zero()))
-                ),
-                this.factory().and(
-                        this.cspFactory.decomposeFormula(this.cspFactory.gt(a1, this.cspFactory.zero())),
-                        this.cspFactory.decomposeFormula(this.cspFactory.gt(a2, this.cspFactory.zero()))
-                ),
-                this.cspFactory.decomposeFormula(this.cspFactory.eq(a1, this.cspFactory.zero())),
-                this.cspFactory.decomposeFormula(this.cspFactory.eq(a2, this.cspFactory.zero()))
-        );
-    }
+            return IntegerClause.factorize(leftIsZero, rightIsZero);
+        }
 
-    private Formula ltZeroFormula(final Term a1, final Term a2) {
-        return this.factory().or(
-                this.factory().and(
-                        this.cspFactory.decomposeFormula(this.cspFactory.lt(a1, this.cspFactory.zero())),
-                        this.cspFactory.decomposeFormula(this.cspFactory.gt(a2, this.cspFactory.zero()))
-                ),
-                this.factory().and(
-                        this.cspFactory.decomposeFormula(this.cspFactory.gt(a1, this.cspFactory.zero())),
-                        this.cspFactory.decomposeFormula(this.cspFactory.lt(a2, this.cspFactory.zero()))
-                )
-        );
-    }
-
-    private Formula gtZeroFormula(final Term a1, final Term a2) {
-        return this.factory().or(
-                this.factory().and(
-                        this.cspFactory.decomposeFormula(this.cspFactory.lt(a1, this.cspFactory.zero())),
-                        this.cspFactory.decomposeFormula(this.cspFactory.lt(a2, this.cspFactory.zero()))
-                ),
-                this.factory().and(
-                        this.cspFactory.decomposeFormula(this.cspFactory.gt(a1, this.cspFactory.zero())),
-                        this.cspFactory.decomposeFormula(this.cspFactory.gt(a2, this.cspFactory.zero()))
-                )
-        );
-    }
-
-    private List<Formula> decomposeEqZero(final Term term) {
         final Term.Decomposition termDecomposition = term.decompose();
         if (!termDecomposition.getLinearExpression().getDomain().contains(0)) {
-            return Collections.singletonList(this.factory().falsum());
+            return Collections.singleton(new IntegerClause()); // false
         }
-        final List<Formula> result = new ArrayList<>(termDecomposition.getAdditionalConstraints());
-        final Term comp_term = termDecomposition.getLinearExpression().toTerm(this.cspFactory);
-        result.add(this.cspFactory.eq(comp_term, this.cspFactory.zero()));
+        final Set<IntegerClause> result = new TreeSet<>(termDecomposition.getAdditionalConstraints());
+        result.add(new IntegerClause(new LinearLiteral(termDecomposition.getLinearExpression(), LinearLiteral.Operator.EQ)));
         return result;
     }
 
-    private List<Formula> decomposeNeZero(final Term term) {
+    private Set<IntegerClause> decomposeNeZero(final Term term) {
+        // a*b != 0 implies a != 0 and b != 0
+        if (term instanceof MultiplicationFunction) {
+            final MultiplicationFunction mul = (MultiplicationFunction) term;
+            final Set<IntegerClause> clauses = new TreeSet<>();
+            clauses.addAll(decomposeNeZero(mul.getLeft()));
+            clauses.addAll(decomposeNeZero(mul.getRight()));
+            return clauses;
+        }
+
         final Term.Decomposition termDecomposition = term.decompose();
         if (!termDecomposition.getLinearExpression().getDomain().contains(0)) {
-            return Collections.singletonList(this.factory().verum());
+            return Collections.emptySet(); // true
         }
-        final List<Formula> result = new ArrayList<>(termDecomposition.getAdditionalConstraints());
-        final Term comp_term = termDecomposition.getLinearExpression().toTerm(this.cspFactory);
-        result.add(this.cspFactory.ne(comp_term, this.cspFactory.zero()));
+        final Set<IntegerClause> result = new TreeSet<>(termDecomposition.getAdditionalConstraints());
+        result.add(new IntegerClause(new LinearLiteral(termDecomposition.getLinearExpression(), LinearLiteral.Operator.NE)));
         return result;
     }
 
-    private List<Formula> decomposeLeZero(final Term term) {
+    private Set<IntegerClause> decomposeLeZero(final Term term) {
+        // a1*a2 <= 0
+        // <=> (a1 <= 0 & a2 >= 0) | (a1 >= 0 & a2 <= 0)
+        // <=> (a1 <= 0 | a2 <= 0) & (a2 >= 0 | a1 >= 0)
+        if (term instanceof MultiplicationFunction) {
+            final Term a1 = ((MultiplicationFunction) term).getLeft();
+            final Term a2 = ((MultiplicationFunction) term).getRight();
+            final Set<IntegerClause> clauses = new TreeSet<>();
+            clauses.addAll(IntegerClause.factorize(decomposeLeZero(a1), decomposeLeZero(a2)));
+            clauses.addAll(IntegerClause.factorize(decomposeGeZero(a1), decomposeGeZero(a2)));
+            return clauses;
+        }
         final Term.Decomposition termDecomposition = term.decompose();
         final IntegerDomain domain = termDecomposition.getLinearExpression().getDomain();
 
         if (domain.ub() <= 0) {
-            return Collections.singletonList(this.factory().verum());
+            return Collections.emptySet(); // true
         }
         if (domain.lb() > 0) {
-            return Collections.singletonList(this.factory().falsum());
+            return Collections.singleton(new IntegerClause()); // false
         }
-        final List<Formula> result = new ArrayList<>(termDecomposition.getAdditionalConstraints());
-        final Term comp_term = termDecomposition.getLinearExpression().toTerm(this.cspFactory);
-        result.add(this.cspFactory.le(comp_term, this.cspFactory.zero()));
+        final Set<IntegerClause> result = new TreeSet<>(termDecomposition.getAdditionalConstraints());
+        result.add(new IntegerClause(new LinearLiteral(termDecomposition.getLinearExpression(), LinearLiteral.Operator.LE)));
+        return result;
+    }
+
+    private Set<IntegerClause> decomposeGeZero(final Term term) {
+        // a1*a2 >= 0
+        // <=> (a1 <= 0 & a2 <= 0) | (a1 >= 0 & a2 >= 0)
+        // <=> (a1 <= 0 | a2 >= 0) & (a2 <= 0 | a1 >= 0)
+        if (term instanceof MultiplicationFunction) {
+            final Term a1 = ((MultiplicationFunction) term).getLeft();
+            final Term a2 = ((MultiplicationFunction) term).getRight();
+            final Set<IntegerClause> clauses = new TreeSet<>();
+            clauses.addAll(IntegerClause.factorize(decomposeLeZero(a1), decomposeGeZero(a2)));
+            clauses.addAll(IntegerClause.factorize(decomposeGeZero(a1), decomposeLeZero(a2)));
+            return clauses;
+        }
+        final Term.Decomposition termDecomposition = term.decompose();
+        final IntegerDomain domain = termDecomposition.getLinearExpression().getDomain();
+        if (domain.lb() >= 0) {
+            return Collections.emptySet(); // true
+        }
+        if (domain.ub() < 0) {
+            return Collections.singleton(new IntegerClause()); // false
+        }
+        final Set<IntegerClause> result = new TreeSet<>(termDecomposition.getAdditionalConstraints());
+        result.add(new IntegerClause(new LinearLiteral(LinearExpression.multiply(termDecomposition.getLinearExpression(), -1), LinearLiteral.Operator.LE)));
         return result;
     }
 }

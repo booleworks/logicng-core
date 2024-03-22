@@ -233,114 +233,157 @@ public class LinearExpression implements Comparable<LinearExpression> {
         return sb.toString();
     }
 
-    public static class Mutable extends LinearExpression {
+    public static class Builder {
+        LinearExpression expression;
 
-        public Mutable(final int b) {
-            super(b);
+        public Builder(final int b) {
+            expression = new LinearExpression(b);
         }
 
-        public Mutable(final int a0, final IntegerVariable v0, final int b) {
-            super(a0, v0, b);
+        public Builder(final int a0, final IntegerVariable v0, final int b) {
+            expression = new LinearExpression(a0, v0, b);
         }
 
-        public Mutable(final IntegerVariable v0) {
-            super(v0);
+        public Builder(final IntegerVariable v0) {
+            expression = new LinearExpression(v0);
         }
 
-        public Mutable(final LinearExpression e) {
-            super(e);
+        public Builder(final LinearExpression e) {
+            expression = new LinearExpression(e);
         }
 
-        public Mutable(final SortedMap<IntegerVariable, Integer> coef, final int b) {
-            super(coef, b);
+        public Builder(final SortedMap<IntegerVariable, Integer> coef, final int b) {
+            expression = new LinearExpression(coef, b);
         }
 
         public LinearExpression build() {
+            final LinearExpression e = expression;
+            expression = null;
+            return e;
+        }
+
+        public Builder setB(final int b) {
+            expression.b = b;
             return this;
         }
 
-        public Mutable setB(final int b) {
-            super.b = b;
-            return this;
-        }
-
-        public Mutable setA(final int a, final IntegerVariable v) {
+        public Builder setA(final int a, final IntegerVariable v) {
             if (a == 0) {
-                super.coef.remove(v);
+                expression.coef.remove(v);
             } else {
-                super.coef.put(v, a);
+                expression.coef.put(v, a);
             }
-            super.domain = null;
+            expression.domain = null;
             return this;
         }
 
-        public Mutable add(final LinearExpression other) {
-            super.b += other.b;
+        public Builder add(final LinearExpression other) {
+            expression.b += other.b;
             for (final IntegerVariable v : other.coef.keySet()) {
-                final int a = super.getA(v) + other.getA(v);
+                final int a = expression.getA(v) + other.getA(v);
                 setA(a, v);
             }
-            super.domain = null;
+            expression.domain = null;
             return this;
         }
 
-        public Mutable subtract(final LinearExpression other) {
-            super.b -= other.b;
+        public Builder subtract(final LinearExpression other) {
+            expression.b -= other.b;
             for (final IntegerVariable v : other.coef.keySet()) {
-                final int a = super.getA(v) - other.getA(v);
+                final int a = expression.getA(v) - other.getA(v);
                 setA(a, v);
             }
-            super.domain = null;
+            expression.domain = null;
             return this;
         }
 
-        public Mutable multiply(final int c) {
-            super.b *= c;
-            for (final IntegerVariable v : super.coef.keySet()) {
-                final int a = c * super.getA(v);
+        public Builder multiply(final int c) {
+            expression.b *= c;
+            for (final IntegerVariable v : expression.coef.keySet()) {
+                final int a = c * expression.getA(v);
                 setA(a, v);
             }
-            super.domain = null;
+            expression.domain = null;
             return this;
         }
 
-        public Mutable divide(final int c) {
-            super.b /= c;
-            for (final IntegerVariable v : super.coef.keySet()) {
-                final int a = super.getA(v) / c;
+        public Builder divide(final int c) {
+            expression.b /= c;
+            for (final IntegerVariable v : expression.coef.keySet()) {
+                final int a = expression.getA(v) / c;
                 setA(a, v);
             }
-            super.domain = null;
+            expression.domain = null;
             return this;
         }
 
-        public Mutable normalize() {
-            final int factor = super.factor();
+        public Builder normalize() {
+            final int factor = expression.factor();
             if (factor > 1) {
                 divide(factor);
             }
             return this;
         }
+
+        public IntegerDomain getDomain() {
+            return expression.getDomain();
+        }
+
+        public boolean isDomainLargerThan(final long limit) {
+            return expression.isDomainLargerThan(limit);
+        }
+
+        public int factor() {
+            return expression.factor();
+        }
+
+        public int size() {
+            return expression.size();
+        }
+
+        public int getB() {
+            return expression.getB();
+        }
+
+        public SortedMap<IntegerVariable, Integer> getCoef() {
+            return expression.getCoef();
+        }
+
+        public Set<IntegerVariable> getVariables() {
+            return expression.getVariables();
+        }
+
+        public IntegerVariable[] getVariablesSorted() {
+            return expression.getVariablesSorted();
+        }
+
+        public boolean isIntegerVariable() {
+            return expression.isIntegerVariable();
+        }
+
+        public Integer getA(final IntegerVariable v) {
+            return expression.getA(v);
+        }
     }
 
     public static LinearExpression add(final LinearExpression a, final LinearExpression b) {
-        return new Mutable(a).add(b).build();
+        return new Builder(a).add(b).build();
     }
 
     public static LinearExpression subtract(final LinearExpression a, final LinearExpression b) {
-        return new Mutable(a).subtract(b).build();
+        return new Builder(a).subtract(b).build();
     }
 
     public static LinearExpression multiply(final LinearExpression a, final int c) {
-        return new Mutable(a).multiply(c).build();
+        return new Builder(a).multiply(c).build();
     }
 
     public static LinearExpression divide(final LinearExpression a, final int c) {
-        return new Mutable(a).divide(c).build();
+        return new Builder(a).divide(c).build();
     }
 
     public static LinearExpression normalized(final LinearExpression a) {
-        return new Mutable(a).normalize().build();
+        return new Builder(a).normalize().build();
     }
 }
 

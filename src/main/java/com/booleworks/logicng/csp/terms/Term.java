@@ -1,11 +1,13 @@
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.IntegerClause;
 import com.booleworks.logicng.csp.LinearExpression;
 import com.booleworks.logicng.formulas.Formula;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 public abstract class Term {
 
@@ -39,23 +41,23 @@ public abstract class Term {
 
     public static final class Decomposition {
         private final LinearExpression linearExpression;
-        private final List<Formula> additionalConstraints;
+        private final Set<IntegerClause> additionalConstraints;
 
-        public Decomposition(final LinearExpression linearExpression, final List<Formula> additionalConstrains) {
+        public Decomposition(final LinearExpression linearExpression, final Set<IntegerClause> additionalConstrains) {
             this.linearExpression = linearExpression;
             this.additionalConstraints = additionalConstrains;
         }
 
         public Decomposition(final LinearExpression linearExpression) {
             this.linearExpression = linearExpression;
-            this.additionalConstraints = Collections.emptyList();
+            this.additionalConstraints = Collections.emptySet();
         }
 
         public LinearExpression getLinearExpression() {
             return this.linearExpression;
         }
 
-        public List<Formula> getAdditionalConstraints() {
+        public Set<IntegerClause> getAdditionalConstraints() {
             return this.additionalConstraints;
         }
 

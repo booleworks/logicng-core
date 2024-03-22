@@ -1,12 +1,12 @@
 package com.booleworks.logicng.csp.terms;
 
 import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.csp.IntegerClause;
 import com.booleworks.logicng.csp.LinearExpression;
-import com.booleworks.logicng.formulas.Formula;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public final class AdditionFunction extends NAryFunction {
     public AdditionFunction(final CspFactory cspFactory, final LinkedHashSet<Term> terms) {
@@ -15,14 +15,14 @@ public final class AdditionFunction extends NAryFunction {
 
     @Override
     public Decomposition calculateDecomposition() {
-        LinearExpression.Mutable expression = new LinearExpression.Mutable(0);
-        final List<Formula> constraints = new ArrayList<>();
+        LinearExpression.Builder expression = new LinearExpression.Builder(0);
+        final Set<IntegerClause> constraints = new TreeSet<>();
         for (final Term operand : this.operands) {
             final Decomposition ei = operand.decompose();
             expression = expression.add(ei.getLinearExpression());
             constraints.addAll(ei.getAdditionalConstraints());
         }
-        return new Decomposition(expression, constraints);
+        return new Decomposition(expression.build(), constraints);
     }
 
 }
