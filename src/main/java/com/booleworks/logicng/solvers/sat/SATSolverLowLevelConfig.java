@@ -12,7 +12,7 @@ public final class SATSolverLowLevelConfig {
     final double restartInc;
     final double clauseDecay;
     final double learntsizeFactor;
-    final double learntsizeInc;
+    public final double learntsizeInc;
 
     // Glucose detail configuration
     final int lbLBDMinimizingClause;
@@ -28,6 +28,11 @@ public final class SATSolverLowLevelConfig {
     final boolean reduceOnSize;
     final int reduceOnSizeSize;
     final double maxVarDecay;
+
+    // backbone related
+    final boolean bbInitialUBCheckForRotatableLiterals;
+    final boolean bbCheckForComplementModelLiterals;
+    final boolean bbCheckForRotatableLiterals;
 
     private SATSolverLowLevelConfig(final Builder builder) {
         varDecay = builder.varDecay;
@@ -50,6 +55,9 @@ public final class SATSolverLowLevelConfig {
         reduceOnSize = builder.reduceOnSize;
         reduceOnSizeSize = builder.reduceOnSizeSize;
         maxVarDecay = builder.maxVarDecay;
+        bbInitialUBCheckForRotatableLiterals = builder.bbInitialUBCheckForRotatableLiterals;
+        bbCheckForComplementModelLiterals = builder.bbCheckForComplementModelLiterals;
+        bbCheckForRotatableLiterals = builder.bbCheckForRotatableLiterals;
     }
 
     public static Builder builder() {
@@ -79,6 +87,9 @@ public final class SATSolverLowLevelConfig {
         sb.append("reduceOnSize=").append(reduceOnSize).append(System.lineSeparator());
         sb.append("reduceOnSizeSize=").append(reduceOnSizeSize).append(System.lineSeparator());
         sb.append("maxVarDecay=").append(maxVarDecay).append(System.lineSeparator());
+        sb.append("bbInitialUBCheckForRotatableLiterals=").append(bbInitialUBCheckForRotatableLiterals).append(System.lineSeparator());
+        sb.append("bbCheckForComplementModelLiterals=").append(bbCheckForComplementModelLiterals).append(System.lineSeparator());
+        sb.append("bbCheckForRotatableLiterals=").append(bbCheckForRotatableLiterals).append(System.lineSeparator());
         sb.append("}");
         return sb.toString();
     }
@@ -104,6 +115,9 @@ public final class SATSolverLowLevelConfig {
         private boolean reduceOnSize = false;
         private int reduceOnSizeSize = 12;
         private double maxVarDecay = 0.95;
+        private boolean bbInitialUBCheckForRotatableLiterals = true;
+        private boolean bbCheckForComplementModelLiterals = true;
+        private boolean bbCheckForRotatableLiterals = true;
 
         private Builder() {
             // Initialize only via factory
@@ -312,6 +326,42 @@ public final class SATSolverLowLevelConfig {
          */
         public Builder maxVarDecay(final double maxVarDecay) {
             this.maxVarDecay = maxVarDecay;
+            return this;
+        }
+
+        /**
+         * Sets whether the backbone algorithm should check for rotatable literals.
+         * The default value is {@code true}.
+         * @param checkForRotatableLiterals the boolean value that is {@code true} if the algorithm should check for
+         *                                  rotatables or {@code false} otherwise.
+         * @return the builder
+         */
+        public Builder bbCheckForRotatableLiterals(final boolean checkForRotatableLiterals) {
+            bbCheckForRotatableLiterals = checkForRotatableLiterals;
+            return this;
+        }
+
+        /**
+         * Sets whether the backbone algorithm should check for rotatable literals during initial unit propagation.
+         * The default value is {@code true}.
+         * @param initialUBCheckForRotatableLiterals the boolean value that is {@code true} if the algorithm should
+         *                                           check for rotatables or {@code false} otherwise.
+         * @return the builder
+         */
+        public Builder bbInitialUBCheckForRotatableLiterals(final boolean initialUBCheckForRotatableLiterals) {
+            bbInitialUBCheckForRotatableLiterals = initialUBCheckForRotatableLiterals;
+            return this;
+        }
+
+        /**
+         * Sets whether the backbone algorithm should check for complement model literals.
+         * The default value is {@code true}.
+         * @param checkForComplementModelLiterals the boolean value that is {@code true} if the algorithm should check for
+         *                                        complement literals or {@code false} otherwise.
+         * @return the builder
+         */
+        public Builder bbCheckForComplementModelLiterals(final boolean checkForComplementModelLiterals) {
+            bbCheckForComplementModelLiterals = checkForComplementModelLiterals;
             return this;
         }
 

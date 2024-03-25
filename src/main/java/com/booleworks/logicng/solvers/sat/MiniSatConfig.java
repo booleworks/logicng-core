@@ -53,17 +53,14 @@ public final class MiniSatConfig extends Configuration {
     }
 
     // Main configuration parameters
-    final boolean incremental;
+    public final boolean incremental;
     final boolean proofGeneration;
-    final boolean useAtMostClauses;
+    public final boolean useAtMostClauses;
     final CNFMethod cnfMethod;
     final boolean useBinaryWatchers;
     final boolean useLbdFeatures;
 
-    final boolean initialPhase;
-    final boolean bbInitialUBCheckForRotatableLiterals;
-    final boolean bbCheckForComplementModelLiterals;
-    final boolean bbCheckForRotatableLiterals;
+    public final boolean initialPhase;
 
     final ClauseMinimization clauseMin;
     final boolean removeSatisfied;
@@ -78,14 +75,11 @@ public final class MiniSatConfig extends Configuration {
         super(ConfigurationType.MINISAT);
         incremental = builder.incremental;
         proofGeneration = builder.proofGeneration;
-        useAtMostClauses = builder.useAtMostClauses;
+        useAtMostClauses = !builder.proofGeneration && builder.useAtMostClauses;
         cnfMethod = builder.cnfMethod;
         useBinaryWatchers = builder.useBinaryWatchers;
         useLbdFeatures = builder.useLbdFeatures;
         initialPhase = builder.initialPhase;
-        bbInitialUBCheckForRotatableLiterals = builder.bbInitialUBCheckForRotatableLiterals;
-        bbCheckForComplementModelLiterals = builder.bbCheckForComplementModelLiterals;
-        bbCheckForRotatableLiterals = builder.bbCheckForRotatableLiterals;
         clauseMin = builder.clauseMin;
         removeSatisfied = builder.removeSatisfied;
         lowLevelConfig = builder.lowLevelConfig;
@@ -157,9 +151,6 @@ public final class MiniSatConfig extends Configuration {
         sb.append("useBinaryWatchers=").append(useBinaryWatchers).append(System.lineSeparator());
         sb.append("useLbdFeatures=").append(useLbdFeatures).append(System.lineSeparator());
         sb.append("initialPhase=").append(initialPhase).append(System.lineSeparator());
-        sb.append("bbInitialUBCheckForRotatableLiterals=").append(bbInitialUBCheckForRotatableLiterals).append(System.lineSeparator());
-        sb.append("bbCheckForComplementModelLiterals=").append(bbCheckForComplementModelLiterals).append(System.lineSeparator());
-        sb.append("bbCheckForRotatableLiterals=").append(bbCheckForRotatableLiterals).append(System.lineSeparator());
         sb.append("clauseMin=").append(clauseMin).append(System.lineSeparator());
         sb.append("removeSatisfied=").append(removeSatisfied).append(System.lineSeparator());
         sb.append("}");
@@ -179,9 +170,6 @@ public final class MiniSatConfig extends Configuration {
         private boolean useBinaryWatchers = false;
         private boolean useLbdFeatures = false;
         private boolean initialPhase = false;
-        private boolean bbInitialUBCheckForRotatableLiterals = true;
-        private boolean bbCheckForComplementModelLiterals = true;
-        private boolean bbCheckForRotatableLiterals = true;
         private ClauseMinimization clauseMin = ClauseMinimization.DEEP;
         private boolean removeSatisfied = true;
         private SATSolverLowLevelConfig lowLevelConfig = SATSolverLowLevelConfig.builder().build();
@@ -202,7 +190,8 @@ public final class MiniSatConfig extends Configuration {
 
         /**
          * Sets whether the information for generating a proof with DRUP should be recorded or not.  The default
-         * value is {@code false}.
+         * value is {@code false}. Activating proof generation will always disable {@link #useAtMostClauses()
+         * at most clauses}.
          * @param proofGeneration {@code true} if proof generating information should be recorded, {@code false} otherwise
          * @return the builder
          */
@@ -261,42 +250,6 @@ public final class MiniSatConfig extends Configuration {
          */
         public Builder initialPhase(final boolean initialPhase) {
             this.initialPhase = initialPhase;
-            return this;
-        }
-
-        /**
-         * Sets whether the backbone algorithm should check for rotatable literals.
-         * The default value is {@code true}.
-         * @param checkForRotatableLiterals the boolean value that is {@code true} if the algorithm should check for
-         *                                  rotatables or {@code false} otherwise.
-         * @return the builder
-         */
-        public Builder bbCheckForRotatableLiterals(final boolean checkForRotatableLiterals) {
-            bbCheckForRotatableLiterals = checkForRotatableLiterals;
-            return this;
-        }
-
-        /**
-         * Sets whether the backbone algorithm should check for rotatable literals during initial unit propagation.
-         * The default value is {@code true}.
-         * @param initialUBCheckForRotatableLiterals the boolean value that is {@code true} if the algorithm should
-         *                                           check for rotatables or {@code false} otherwise.
-         * @return the builder
-         */
-        public Builder bbInitialUBCheckForRotatableLiterals(final boolean initialUBCheckForRotatableLiterals) {
-            bbInitialUBCheckForRotatableLiterals = initialUBCheckForRotatableLiterals;
-            return this;
-        }
-
-        /**
-         * Sets whether the backbone algorithm should check for complement model literals.
-         * The default value is {@code true}.
-         * @param checkForComplementModelLiterals the boolean value that is {@code true} if the algorithm should check for
-         *                                        complement literals or {@code false} otherwise.
-         * @return the builder
-         */
-        public Builder bbCheckForComplementModelLiterals(final boolean checkForComplementModelLiterals) {
-            bbCheckForComplementModelLiterals = checkForComplementModelLiterals;
             return this;
         }
 

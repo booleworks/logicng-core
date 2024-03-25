@@ -65,6 +65,7 @@ public abstract class MiniSatStyleSolver {
 
     // external solver configuration
     protected MiniSatConfig config;
+    protected SATSolverLowLevelConfig llConfig;
 
     // internal solver state
     protected boolean ok;
@@ -88,20 +89,6 @@ public abstract class MiniSatStyleSolver {
     protected int clausesLiterals;
     protected int learntsLiterals;
 
-    // solver configuration
-    protected double varDecay;
-    protected double varInc;
-    protected MiniSatConfig.ClauseMinimization ccminMode;
-    protected int restartFirst;
-    protected double restartInc;
-    protected double clauseDecay;
-    protected boolean shouldRemoveSatisfied;
-    protected double learntsizeFactor;
-    protected double learntsizeInc;
-    protected boolean incremental;
-    protected boolean useBinaryWatchers;
-    protected boolean useLbdFeatures;
-
     // mapping of variable names to variable indices
     protected Map<String, Integer> name2idx;
     protected Map<Integer, String> idx2name;
@@ -124,6 +111,8 @@ public abstract class MiniSatStyleSolver {
     protected LNGIntVector selectionOrder;
     protected int selectionOrderIdx;
 
+    protected double varDecay;
+    protected double varInc;
     protected double learntsizeAdjustConfl;
     protected int learntsizeAdjustCnt;
     protected int learntsizeAdjustStartConfl;
@@ -144,28 +133,12 @@ public abstract class MiniSatStyleSolver {
     protected double sumLBD;
     protected int curRestart;
 
-    // glucose configuration
-    protected int lbLBDMinimizingClause;
-    protected int lbLBDFrozenClause;
-    protected int lbSizeMinimizingClause;
-    protected int firstReduceDB;
-    protected int specialIncReduceDB;
-    protected int incReduceDB;
-    protected double factorK;
-    protected double factorR;
-    protected int sizeLBDQueue;
-    protected int sizeTrailQueue;
-    protected boolean reduceOnSize;
-    protected int reduceOnSizeSize;
-    protected double maxVarDecay;
-
     /**
      * Constructs a new MiniSAT-style solver with a given configuration.
      * @param config the configuration
      */
     protected MiniSatStyleSolver(final MiniSatConfig config) {
-        this.config = config;
-        initialize();
+        initialize(config);
     }
 
     /**
@@ -238,8 +211,9 @@ public abstract class MiniSatStyleSolver {
     /**
      * Initializes the internal solver state.
      */
-    protected void initialize() {
-        initializeConfig();
+    protected void initialize(final MiniSatConfig config) {
+        this.config = config;
+        llConfig = config.lowLevelConfig;
         ok = true;
         qhead = 0;
         clauses = new LNGVector<>();
@@ -262,7 +236,7 @@ public abstract class MiniSatStyleSolver {
         name2idx = new TreeMap<>();
         idx2name = new TreeMap<>();
         canceledByHandler = false;
-        if (config.proofGeneration) {
+        if (this.config.proofGeneration) {
             pgOriginalClauses = new LNGVector<>();
             pgProof = new LNGVector<>();
         }
@@ -270,6 +244,8 @@ public abstract class MiniSatStyleSolver {
         selectionOrder = new LNGIntVector();
         selectionOrderIdx = 0;
         unitClauses = new LNGIntVector();
+        varInc = llConfig.varInc;
+        varDecay = llConfig.varDecay;
         learntsizeAdjustConfl = 0;
         learntsizeAdjustCnt = 0;
         learntsizeAdjustStartConfl = 100;
@@ -282,49 +258,16 @@ public abstract class MiniSatStyleSolver {
         lastDecisionLevel = new LNGIntVector();
         lbdQueue = new LNGBoundedLongQueue();
         trailQueue = new LNGBoundedIntQueue();
-        lbdQueue.initSize(sizeLBDQueue);
-        trailQueue.initSize(sizeTrailQueue);
+        lbdQueue.initSize(llConfig.sizeLBDQueue);
+        trailQueue.initSize(llConfig.sizeTrailQueue);
         myflag = 0;
         analyzeBtLevel = 0;
         analyzeLBD = 0;
-        nbClausesBeforeReduce = firstReduceDB;
+        nbClausesBeforeReduce = llConfig.firstReduceDB;
         conflicts = 0;
         conflictsRestarts = 0;
         sumLBD = 0;
         curRestart = 1;
-    }
-
-    /**
-     * Initializes the solver configuration.
-     */
-    protected void initializeConfig() {
-        incremental = config.incremental;
-        shouldRemoveSatisfied = config.removeSatisfied;
-        useBinaryWatchers = config.useBinaryWatchers;
-        useLbdFeatures = config.useLbdFeatures;
-        ccminMode = config.clauseMin;
-        varDecay = config.lowLevelConfig.varDecay;
-        varInc = config.lowLevelConfig.varInc;
-        restartFirst = config.lowLevelConfig.restartFirst;
-        restartInc = config.lowLevelConfig.restartInc;
-        clauseDecay = config.lowLevelConfig.clauseDecay;
-        learntsizeFactor = config.lowLevelConfig.learntsizeFactor;
-        learntsizeInc = config.lowLevelConfig.learntsizeInc;
-
-        // glucose
-        lbLBDMinimizingClause = config.lowLevelConfig.lbLBDMinimizingClause;
-        lbLBDFrozenClause = config.lowLevelConfig.lbLBDFrozenClause;
-        lbSizeMinimizingClause = config.lowLevelConfig.lbSizeMinimizingClause;
-        firstReduceDB = config.lowLevelConfig.firstReduceDB;
-        specialIncReduceDB = config.lowLevelConfig.specialIncReduceDB;
-        incReduceDB = config.lowLevelConfig.incReduceDB;
-        factorK = config.lowLevelConfig.factorK;
-        factorR = config.lowLevelConfig.factorR;
-        sizeLBDQueue = config.lowLevelConfig.sizeLBDQueue;
-        sizeTrailQueue = config.lowLevelConfig.sizeTrailQueue;
-        reduceOnSize = config.lowLevelConfig.reduceOnSize;
-        reduceOnSizeSize = config.lowLevelConfig.reduceOnSizeSize;
-        maxVarDecay = config.lowLevelConfig.maxVarDecay;
     }
 
     /**
@@ -419,7 +362,7 @@ public abstract class MiniSatStyleSolver {
      * by a {@link SATHandler}.  If {@code null} is passed as handler, the solver will run until the satisfiability is decided.
      * @param handler a sat handler
      * @return {@link Tristate#TRUE} if the formula is satisfiable, {@link Tristate#FALSE} if the formula is not satisfiable, or
-     * {@link Tristate#UNDEF} if the computation was canceled.
+     *         {@link Tristate#UNDEF} if the computation was canceled.
      */
     public abstract Tristate solve(final SATHandler handler);
 
@@ -431,7 +374,7 @@ public abstract class MiniSatStyleSolver {
      * @param handler     a sat handler
      * @param assumptions the assumptions as a given vector of literals
      * @return {@link Tristate#TRUE} if the formula and the assumptions are satisfiable, {@link Tristate#FALSE} if they are
-     * not satisfiable, or {@link Tristate#UNDEF} if the computation was canceled.
+     *         not satisfiable, or {@link Tristate#UNDEF} if the computation was canceled.
      */
     public Tristate solve(final SATHandler handler, final LNGIntVector assumptions) {
         this.assumptions = new LNGIntVector(assumptions);
@@ -444,7 +387,7 @@ public abstract class MiniSatStyleSolver {
      * Resets the solver state.
      */
     public void reset() {
-        this.initialize();
+        this.initialize(config);
     }
 
     /**
@@ -630,7 +573,7 @@ public abstract class MiniSatStyleSolver {
      * Decays the clause activity increment by the clause decay factor.
      */
     protected void claDecayActivity() {
-        claInc *= (1 / clauseDecay);
+        claInc *= (1 / llConfig.clauseDecay);
     }
 
     /**
@@ -744,7 +687,7 @@ public abstract class MiniSatStyleSolver {
      * satisfied on level 0 are removed.  Depending on the configuration of the solver, also original clauses which are
      * satisfied at level 0 are removed.
      * @return {@code true} if simplification was successful and no conflict was found, {@code false} if a conflict was
-     * found during the simplification
+     *         found during the simplification
      */
     protected abstract boolean simplify();
 
@@ -957,7 +900,7 @@ public abstract class MiniSatStyleSolver {
                 final boolean modelPhase = model.get(var);
                 if (isBothOrNegativeType(type) && !modelPhase || isBothOrPositiveType(type) && modelPhase) {
                     final int lit = mkLit(var, !modelPhase);
-                    if (!config.bbInitialUBCheckForRotatableLiterals || !isRotatable(lit)) {
+                    if (!config.lowLevelConfig.bbInitialUBCheckForRotatableLiterals || !isRotatable(lit)) {
                         backboneCandidates.add(lit);
                     }
                 }
@@ -975,9 +918,9 @@ public abstract class MiniSatStyleSolver {
             if (isUPZeroLit(var)) {
                 backboneCandidates.remove(lit);
                 addBackboneLiteral(lit);
-            } else if (config.bbCheckForComplementModelLiterals && model.get(var) == sign(lit)) {
+            } else if (config.lowLevelConfig.bbCheckForComplementModelLiterals && model.get(var) == sign(lit)) {
                 backboneCandidates.remove(lit);
-            } else if (config.bbCheckForRotatableLiterals && isRotatable(lit)) {
+            } else if (config.lowLevelConfig.bbCheckForRotatableLiterals && isRotatable(lit)) {
                 backboneCandidates.remove(lit);
             }
         }

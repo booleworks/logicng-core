@@ -22,6 +22,7 @@ import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
 import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverLowLevelConfig;
 import com.booleworks.logicng.util.FormulaHelper;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -269,9 +270,9 @@ public class BackboneGenerationTest {
     @Test
     public void testDifferentConfigurations() throws IOException, ParserException {
         final List<MiniSatConfig> configs = new ArrayList<>();
-        configs.add(MiniSatConfig.builder().bbCheckForComplementModelLiterals(false).build());
-        configs.add(MiniSatConfig.builder().bbCheckForRotatableLiterals(false).build());
-        configs.add(MiniSatConfig.builder().bbInitialUBCheckForRotatableLiterals(false).build());
+        configs.add(MiniSatConfig.builder().lowLevelConfig(SATSolverLowLevelConfig.builder().bbCheckForComplementModelLiterals(false).build()).build());
+        configs.add(MiniSatConfig.builder().lowLevelConfig(SATSolverLowLevelConfig.builder().bbCheckForRotatableLiterals(false).build()).build());
+        configs.add(MiniSatConfig.builder().lowLevelConfig(SATSolverLowLevelConfig.builder().bbInitialUBCheckForRotatableLiterals(false).build()).build());
 
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");

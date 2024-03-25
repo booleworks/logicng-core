@@ -168,7 +168,7 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
         if (--learntsizeAdjustCnt == 0) {
             learntsizeAdjustConfl *= learntsizeAdjustInc;
             learntsizeAdjustCnt = (int) learntsizeAdjustConfl;
-            maxLearnts *= learntsizeInc;
+            maxLearnts *= llConfig.learntsizeInc;
         }
         return propagateAfterDecide();
     }

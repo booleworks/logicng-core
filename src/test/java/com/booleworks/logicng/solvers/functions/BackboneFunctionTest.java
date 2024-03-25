@@ -18,6 +18,7 @@ import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverLowLevelConfig;
 import com.booleworks.logicng.util.Pair;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -39,17 +40,28 @@ public class BackboneFunctionTest {
 
     private static final FormulaFactory f = FormulaFactory.caching();
 
+    private static MiniSatConfig.Builder config(final MiniSatConfig.CNFMethod cnfMethod, final boolean bbCheckForRotatableLiterals,
+                                                final boolean bbCheckForComplementModelLiterals, final boolean bbInitialUBCheckForRotatableLiterals) {
+        return MiniSatConfig.builder()
+                .cnfMethod(cnfMethod)
+                .lowLevelConfig(SATSolverLowLevelConfig.builder()
+                        .bbCheckForRotatableLiterals(bbCheckForRotatableLiterals)
+                        .bbCheckForComplementModelLiterals(bbCheckForComplementModelLiterals)
+                        .bbInitialUBCheckForRotatableLiterals(bbInitialUBCheckForRotatableLiterals)
+                        .build());
+    }
+
     public static Collection<Object[]> solvers() {
-        final Supplier<MiniSatConfig.Builder> configNoPG1 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(false);
-        final Supplier<MiniSatConfig.Builder> configNoPG2 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(true).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(false);
-        final Supplier<MiniSatConfig.Builder> configNoPG3 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(true).bbInitialUBCheckForRotatableLiterals(false);
-        final Supplier<MiniSatConfig.Builder> configNoPG4 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(true);
-        final Supplier<MiniSatConfig.Builder> configNoPG5 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF).bbCheckForRotatableLiterals(true).bbCheckForComplementModelLiterals(true).bbInitialUBCheckForRotatableLiterals(true);
-        final Supplier<MiniSatConfig.Builder> configPG1 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(false);
-        final Supplier<MiniSatConfig.Builder> configPG2 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(true).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(false);
-        final Supplier<MiniSatConfig.Builder> configPG3 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(true).bbInitialUBCheckForRotatableLiterals(false);
-        final Supplier<MiniSatConfig.Builder> configPG4 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(false).bbCheckForComplementModelLiterals(false).bbInitialUBCheckForRotatableLiterals(true);
-        final Supplier<MiniSatConfig.Builder> configPG5 = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).bbCheckForRotatableLiterals(true).bbCheckForComplementModelLiterals(true).bbInitialUBCheckForRotatableLiterals(true);
+        final Supplier<MiniSatConfig.Builder> configNoPG1 = () -> config(MiniSatConfig.CNFMethod.FACTORY_CNF, false, false, false);
+        final Supplier<MiniSatConfig.Builder> configNoPG2 = () -> config(MiniSatConfig.CNFMethod.FACTORY_CNF, true, false, false);
+        final Supplier<MiniSatConfig.Builder> configNoPG3 = () -> config(MiniSatConfig.CNFMethod.FACTORY_CNF, false, true, false);
+        final Supplier<MiniSatConfig.Builder> configNoPG4 = () -> config(MiniSatConfig.CNFMethod.FACTORY_CNF, false, false, true);
+        final Supplier<MiniSatConfig.Builder> configNoPG5 = () -> config(MiniSatConfig.CNFMethod.FACTORY_CNF, true, true, true);
+        final Supplier<MiniSatConfig.Builder> configPG1 = () -> config(MiniSatConfig.CNFMethod.PG_ON_SOLVER, false, false, false);
+        final Supplier<MiniSatConfig.Builder> configPG2 = () -> config(MiniSatConfig.CNFMethod.PG_ON_SOLVER, true, false, false);
+        final Supplier<MiniSatConfig.Builder> configPG3 = () -> config(MiniSatConfig.CNFMethod.PG_ON_SOLVER, false, true, false);
+        final Supplier<MiniSatConfig.Builder> configPG4 = () -> config(MiniSatConfig.CNFMethod.PG_ON_SOLVER, false, false, true);
+        final Supplier<MiniSatConfig.Builder> configPG5 = () -> config(MiniSatConfig.CNFMethod.PG_ON_SOLVER, true, true, true);
         final List<Pair<Supplier<MiniSatConfig.Builder>, String>> configs = Arrays.asList(
                 new Pair<>(configNoPG1, "FF CNF -ROT -COMP -UB"),
                 new Pair<>(configNoPG2, "FF CNF +ROT -COMP -UB"),

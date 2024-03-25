@@ -49,29 +49,23 @@ public class MiniSat extends SATSolver {
 
     protected final MiniSatConfig config;
     protected MiniSatStyleSolver solver;
-    protected final boolean initialPhase;
-    protected final boolean incremental;
-    protected final boolean useAtMostClauses;
     protected final PlaistedGreenbaumTransformationSolver pgTransformation;
     protected final PlaistedGreenbaumTransformationSolver fullPgTransformation;
     protected boolean lastComputationWithAssumptions;
 
     /**
      * Constructs a new SAT solver instance.
-     * @param f             the formula factory
-     * @param miniSatConfig the MiniSat configuration, must not be {@code null}
+     * @param f      the formula factory
+     * @param config the MiniSat configuration, must not be {@code null}
      * @throws IllegalArgumentException if the solver style is unknown
      */
-    protected MiniSat(final FormulaFactory f, final MiniSatConfig miniSatConfig) {
+    protected MiniSat(final FormulaFactory f, final MiniSatConfig config) {
         super(f);
-        config = miniSatConfig;
-        initialPhase = miniSatConfig.initialPhase();
-        solver = new MiniSat2Solver(miniSatConfig);
+        this.config = config;
+        solver = new MiniSat2Solver(config);
         result = UNDEF;
-        incremental = miniSatConfig.incremental();
-        useAtMostClauses = !miniSatConfig.proofGeneration() && miniSatConfig.useAtMostClauses();
-        pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver(), initialPhase);
-        fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, underlyingSolver(), initialPhase);
+        pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver(), config.initialPhase);
+        fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, underlyingSolver(), config.initialPhase);
     }
 
     /**
@@ -84,13 +78,10 @@ public class MiniSat extends SATSolver {
     public MiniSat(final FormulaFactory f, final MiniSatStyleSolver underlyingSolver) {
         super(f);
         config = underlyingSolver.getConfig();
-        initialPhase = underlyingSolver.getConfig().initialPhase();
         solver = underlyingSolver;
         result = UNDEF;
-        incremental = underlyingSolver.getConfig().incremental();
-        useAtMostClauses = !underlyingSolver.getConfig().proofGeneration() && underlyingSolver.getConfig().useAtMostClauses();
-        pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver, initialPhase);
-        fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, underlyingSolver, initialPhase);
+        pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver, config.initialPhase);
+        fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, underlyingSolver, config.initialPhase);
     }
 
     /**
@@ -118,7 +109,7 @@ public class MiniSat extends SATSolver {
         if (formula.type() == FType.PBC) {
             final PBConstraint constraint = (PBConstraint) formula;
             if (constraint.isCC()) {
-                if (useAtMostClauses) {
+                if (config.useAtMostClauses) {
                     if (constraint.comparator() == CType.LE) {
                         ((MiniSat2Solver) solver).addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
                     } else if (constraint.comparator() == CType.LT && constraint.rhs() > 3) {
@@ -277,7 +268,7 @@ public class MiniSat extends SATSolver {
     protected int getOrAddIndex(final Literal lit) {
         int index = solver.idxForName(lit.name());
         if (index == -1) {
-            index = solver.newVar(!initialPhase, true);
+            index = solver.newVar(!config.initialPhase, true);
             solver.addName(lit.name(), index);
         }
         return index;
@@ -325,12 +316,12 @@ public class MiniSat extends SATSolver {
      * @return the initial phase of literals of this solver
      */
     public boolean initialPhase() {
-        return initialPhase;
+        return config.initialPhase;
     }
 
     @Override
     public String toString() {
-        return String.format("%s{result=%s, incremental=%s}", solver.getClass().getSimpleName(), result, incremental);
+        return String.format("%s{result=%s, incremental=%s}", solver.getClass().getSimpleName(), result, config.incremental);
     }
 
     protected boolean lastResultIsUsable() {
@@ -357,7 +348,7 @@ public class MiniSat extends SATSolver {
 
     @Override
     public boolean canSaveLoadState() {
-        return incremental;
+        return config.incremental;
     }
 
     @Override
@@ -370,7 +361,7 @@ public class MiniSat extends SATSolver {
      * @return {@code true} if this solver is incremental, {@code false} otherwise
      */
     public boolean isIncremental() {
-        return incremental;
+        return config.incremental;
     }
 
     /**
