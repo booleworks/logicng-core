@@ -150,4 +150,13 @@ public class IntegerRangeDomain extends IntegerDomain {
         return d instanceof IntegerRangeDomain ? new IntegerRangeDomain(Math.max(this.lb, d.lb), Math.max(this.ub, d.ub)) : d.max(this);
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {return true;}
+        if (o == null || getClass() != o.getClass()) {return false;}
+
+        final IntegerRangeDomain that = (IntegerRangeDomain) o;
+
+        return ub == that.ub && lb == that.lb;
+    }
 }

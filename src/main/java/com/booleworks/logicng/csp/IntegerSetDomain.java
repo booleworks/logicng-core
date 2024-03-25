@@ -66,6 +66,7 @@ package com.booleworks.logicng.csp;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -318,5 +319,19 @@ public class IntegerSetDomain extends IntegerDomain {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {return true;}
+        if (o == null || getClass() != o.getClass()) {return false;}
+
+        IntegerSetDomain that = (IntegerSetDomain) o;
+
+        return Objects.equals(values, that.values);
+    }
+
+    @Override
+    public int hashCode() {
+        return values != null ? values.hashCode() : 0;
+    }
 }
 
