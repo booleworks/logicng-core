@@ -16,7 +16,7 @@ public class LinearLiteral extends ArithmeticLiteral {
     }
 
     public enum Operator {
-        LE, EQ, NE, GE
+        LE, EQ, NE
     }
 
     public LinearExpression getSum() {
@@ -46,8 +46,6 @@ public class LinearLiteral extends ArithmeticLiteral {
                 return d.contains(0) && d.size() == 1;
             case NE:
                 return !d.contains(0);
-            case GE:
-                return d.lb() >= 0;
             default:
                 throw new RuntimeException("Unreachable code");
         }
@@ -63,8 +61,6 @@ public class LinearLiteral extends ArithmeticLiteral {
                 return !d.contains(0);
             case NE:
                 return d.contains(0) && d.size() == 1;
-            case GE:
-                return d.ub() < 0;
             default:
                 throw new RuntimeException("Unreachable code");
         }

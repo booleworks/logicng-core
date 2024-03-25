@@ -208,7 +208,7 @@ public class OrderEncoding {
     static boolean isSimpleLiteral(final CspLiteral literal) {
         if (literal instanceof LinearLiteral) {
             final LinearLiteral l = (LinearLiteral) literal;
-            return l.getLinearExpression().getCoef().size() <= 1 && (l.getOperator() == LinearLiteral.Operator.LE || l.getOperator() == LinearLiteral.Operator.GE);
+            return l.getLinearExpression().getCoef().size() <= 1 && l.getOperator() == LinearLiteral.Operator.LE;
         }
         return false;
     }
