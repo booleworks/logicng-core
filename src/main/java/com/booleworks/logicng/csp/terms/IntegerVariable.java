@@ -98,18 +98,6 @@ public final class IntegerVariable extends Term implements Comparable<IntegerVar
     }
 
     /**
-     * Bound this variable's domain by a new lower and/or upper bound.
-     * @param lb the new lower bound
-     * @param ub the new upper bound
-     * @return the difference in the old and new domain's size
-     */
-    public int bound(final int lb, final int ub) {
-        final IntegerDomain oldDomain = this.domain;
-        this.domain = this.domain.bound(lb, ub);
-        return oldDomain.size() - this.domain.size();
-    }
-
-    /**
      * Returns whether this variable is unsatisfiable, e.g. has an empty domain.
      * @return whether this variable is unsatisfiable
      */

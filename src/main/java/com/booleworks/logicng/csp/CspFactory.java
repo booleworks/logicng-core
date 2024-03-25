@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 public class CspFactory {
     private static final String AUX_PREFIX = "@AUX_";
+    private static final String BOUND_PREFIX = "@BOUND_";
     private final Constant zero;
     private final Constant one;
     private final FormulaFactory formulaFactory;
@@ -99,6 +100,25 @@ public class CspFactory {
         final IntegerVariable newVariable = new IntegerVariable(this, name, domain);
         this.integerVariables.put(name, newVariable);
         return newVariable;
+    }
+
+    public IntegerVariable boundVariable(final IntegerVariable variable, final int lb, final int ub) {
+        final IntegerDomain d = variable.getDomain().bound(lb, ub);
+        if (d == variable.getDomain()) {
+            return variable;
+        }
+        final String name = getUnboundedVariableOf(variable).getName();
+        return variable(BOUND_PREFIX + "[" + d.lb() + "," + d.ub() + "]_" + name, d);
+    }
+
+    public IntegerVariable getUnboundedVariableOf(final IntegerVariable variable) {
+        if (variable.getName().startsWith(BOUND_PREFIX)) {
+            final String[] parts = variable.getName().split("_");
+            final String name = Arrays.stream(parts).skip(2).collect(Collectors.joining("_"));
+            return integerVariables.get(name);
+        } else {
+            return variable;
+        }
     }
 
     public IntegerVariable auxVariable(final IntegerDomain domain) {
