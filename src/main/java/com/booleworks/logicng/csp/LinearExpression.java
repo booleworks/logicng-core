@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -124,6 +125,17 @@ public class LinearExpression implements Comparable<LinearExpression> {
             }
         }
         return this.domain;
+    }
+
+    public IntegerDomain getDomainExcept(final IntegerVariable v, final Map<IntegerVariable, IntegerVariable> restrictions) {
+        IntegerDomain d = new IntegerRangeDomain(this.b, this.b);
+        for (final IntegerVariable v2 : this.coef.keySet()) {
+            if (!v2.equals(v)) {
+                final int a = getA(v2);
+                d = d.add(restrictions.getOrDefault(v2, v2).getDomain().mul(a));
+            }
+        }
+        return d;
     }
 
     public boolean isDomainLargerThan(final long limit) {

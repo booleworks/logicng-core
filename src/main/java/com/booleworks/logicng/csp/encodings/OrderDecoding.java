@@ -15,7 +15,7 @@ public class OrderDecoding {
         final CspAssignment result = new CspAssignment();
         for (final IntegerVariable v : csp.getIntegerVariables()) {
             final int value = decodeIntVar(v, model, encodingInformation);
-            result.addIntAssignment(v, value);
+            result.addIntAssignment(csp.getCspFactory().getUnboundedVariableOf(v), value);
         }
         for (final Variable v : csp.getBooleanVariables()) {
             if (model.positiveVariables().contains(v)) {

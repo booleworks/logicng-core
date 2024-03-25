@@ -1,10 +1,12 @@
 package com.booleworks.logicng.csp;
 
 import com.booleworks.logicng.csp.literals.ArithmeticLiteral;
+import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.formulas.Literal;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -41,6 +43,22 @@ public class IntegerClause implements Comparable<IntegerClause> {
 
     public SortedSet<ArithmeticLiteral> getArithmeticLiterals() {
         return this.arithLiterals;
+    }
+
+    public Set<IntegerVariable> getCommonVariables() {
+        if(!boolLiterals.isEmpty()) {
+            return Collections.emptySet();
+        }
+        Set<IntegerVariable> commonVars = null;
+        for(ArithmeticLiteral lit : arithLiterals) {
+            Set<IntegerVariable> vs = lit.getVariables();
+            if(commonVars == null) {
+                commonVars = vs;
+            } else {
+                commonVars = commonVars.stream().filter(vs::contains).collect(Collectors.toSet());
+            }
+        }
+        return Objects.requireNonNullElse(commonVars, Collections.emptySet());
     }
 
     public int size() {
