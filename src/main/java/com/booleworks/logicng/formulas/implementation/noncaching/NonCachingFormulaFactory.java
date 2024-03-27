@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NonCachingFormulaFactory extends FormulaFactory {
@@ -159,10 +160,16 @@ public class NonCachingFormulaFactory extends FormulaFactory {
 
     @Override
     public Variable newAuxVariable(final AuxVarType type) {
+        return newAuxVariable(type, null);
+    }
+
+    @Override
+    public Variable newAuxVariable(final AuxVarType type, final String prefix) {
         if (readOnly) {
             throwReadOnlyException();
         }
-        return variable(auxVarPrefixes.get(type) + auxVarCounters.get(type).getAndIncrement());
+        final String name = auxVarPrefixes.get(type) + Objects.requireNonNullElse(prefix, "") + auxVarCounters.get(type).getAndIncrement();
+        return variable(name);
     }
 
     @Override

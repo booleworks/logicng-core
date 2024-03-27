@@ -16,6 +16,7 @@ import com.booleworks.logicng.solvers.MiniSat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The result of an encoding.
@@ -138,11 +139,15 @@ public final class EncodingResult {
      * @return a new auxiliary variable
      */
     public Variable newVariable(final AuxVarType auxType) {
+        return newVariable(auxType, null);
+    }
+
+    public Variable newVariable(final AuxVarType auxType, final String prefix) {
         if (miniSat == null) {
-            return f.newAuxVariable(auxType);
+            return f.newAuxVariable(auxType, prefix);
         } else {
             final int index = miniSat.underlyingSolver().newVar(!miniSat.initialPhase(), true);
-            final String name = auxType.prefix() + "MINISAT_" + index;
+            final String name = auxType.prefix() + "MINISAT_" + Objects.requireNonNullElse(prefix, "") + index;
             miniSat.underlyingSolver().addName(name, index);
             return new EncodingAuxiliaryVariable(name, false);
         }

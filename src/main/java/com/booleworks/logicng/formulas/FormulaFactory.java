@@ -788,7 +788,17 @@ public abstract class FormulaFactory {
      * the literal is already present.
      * @return the new auxiliary literal
      */
-    public abstract Variable newAuxVariable(AuxVarType type);
+    public abstract Variable newAuxVariable(final AuxVarType type);
+
+    /**
+     * Returns a new auxiliary literal of the given type and custom prefix.
+     * The custom prefix is appended to the prefix of the variable type.
+     * <p>
+     * Remark: currently only the counter is increased - there is no check if
+     * the literal is already present.
+     * @return the new auxiliary literal
+     */
+    public abstract Variable newAuxVariable(final AuxVarType type, final String prefix);
 
     /**
      * Returns a new cardinality constraint auxiliary literal.
