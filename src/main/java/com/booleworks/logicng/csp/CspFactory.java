@@ -4,7 +4,7 @@ import com.booleworks.logicng.csp.predicates.AllDifferentPredicate;
 import com.booleworks.logicng.csp.predicates.ComparisonPredicate;
 import com.booleworks.logicng.csp.predicates.CspPredicate;
 import com.booleworks.logicng.csp.terms.AdditionFunction;
-import com.booleworks.logicng.csp.terms.Constant;
+import com.booleworks.logicng.csp.terms.IntegerConstant;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.csp.terms.MultiplicationFunction;
 import com.booleworks.logicng.csp.terms.NegationFunction;
@@ -26,10 +26,10 @@ import java.util.stream.Collectors;
 public class CspFactory {
     private static final String AUX_PREFIX = "@AUX_";
     private static final String BOUND_PREFIX = "@BOUND_";
-    private final Constant zero;
-    private final Constant one;
+    private final IntegerConstant zero;
+    private final IntegerConstant one;
     private final FormulaFactory formulaFactory;
-    private final Map<Integer, Constant> integerConstants;
+    private final Map<Integer, IntegerConstant> integerConstants;
     private final Map<String, IntegerVariable> integerVariables;
     private final Map<Term, NegationFunction> unaryMinusTerms;
     private final Map<LinkedHashSet<Term>, Term> addTerms;
@@ -60,22 +60,28 @@ public class CspFactory {
         this.gtPredicates = new HashMap<>();
         this.allDifferentPredicates = new HashMap<>();
         this.auxCounter = 0;
-        this.zero = new Constant(this, 0);
-        this.one = new Constant(this, 1);
+        this.zero = new IntegerConstant(this, 0);
+        this.one = new IntegerConstant(this, 1);
         this.integerConstants.put(0, this.zero);
         this.integerConstants.put(1, this.one);
     }
 
-    public Constant zero() {
+    public IntegerConstant zero() {
         return zero;
     }
 
-    public Constant one() {
+    public IntegerConstant one() {
         return one;
     }
 
-    public Constant constant(final int value) {
-        return integerConstants.computeIfAbsent(value, c -> new Constant(this, value));
+    public IntegerConstant constant(final int value) {
+        if (value == 0) {
+            return zero();
+        } else if (value == 1) {
+            return one();
+        } else {
+            return integerConstants.computeIfAbsent(value, c -> new IntegerConstant(this, value));
+        }
     }
 
     public IntegerVariable variable(final String name, final int lowerBound, final int upperBound) {
@@ -130,11 +136,11 @@ public class CspFactory {
         if (term instanceof NegationFunction) {
             return ((NegationFunction) term).getOperand();
         }
-        // inline - in constants
-        if (term instanceof Constant) {
-            return constant(-((Constant) term).getValue());
-        }
         return unaryMinusTerms.computeIfAbsent(term, t -> new NegationFunction(this, term));
+    }
+
+    public Term minus(final IntegerConstant constant) {
+        return constant(-constant.getValue());
     }
 
     public Term add(final Term... terms) {
@@ -160,13 +166,17 @@ public class CspFactory {
         return addition;
     }
 
+    public IntegerConstant add(final IntegerConstant left, final IntegerConstant right) {
+        return constant(left.getValue() + right.getValue());
+    }
+
     private LinkedHashSet<Term> compactifyAddOperands(final LinkedHashSet<Term> originalOperands) {
         final LinkedHashSet<Term> compactifiedTerms = new LinkedHashSet<>();
         int constValue = 0;
         for (final Term op : originalOperands) {
             // gather all constant integers including 0
-            if (op instanceof Constant) {
-                constValue += ((Constant) op).getValue();
+            if (op instanceof IntegerConstant) {
+                constValue += ((IntegerConstant) op).getValue();
             }
             // flatten nested additions
             else if (op instanceof AdditionFunction) {
@@ -195,17 +205,21 @@ public class CspFactory {
             return left;
         }
         // inline - in constants
-        if (left instanceof Constant && right instanceof Constant) {
-            return constant(((Constant) left).getValue() - ((Constant) right).getValue());
+        if (left instanceof IntegerConstant && right instanceof IntegerConstant) {
+            return constant(((IntegerConstant) left).getValue() - ((IntegerConstant) right).getValue());
         }
         return subTerms.computeIfAbsent(new Pair<>(left, right), p -> new SubtractionFunction(this, left, right));
+    }
+
+    public IntegerConstant sub(final IntegerConstant left, final IntegerConstant right) {
+        return constant(left.getValue() - right.getValue());
     }
 
     public Term mul(final int value, final Term term) {
         return mul(constant(value), term);
     }
 
-    public Term mul(final Term left, final Term right) {
+    public Term mul(final IntegerConstant left, final Term right) {
         // a*0 or 0*a = 0
         if (left.getType() == Term.Type.ZERO || right.getType() == Term.Type.ZERO) {
             return zero;
@@ -219,8 +233,8 @@ public class CspFactory {
             return left;
         }
         // inline * in constants
-        if (left instanceof Constant && right instanceof Constant) {
-            return constant(((Constant) left).getValue() * ((Constant) right).getValue());
+        if (right instanceof IntegerConstant) {
+            return constant(left.getValue() * ((IntegerConstant) right).getValue());
         }
         final LinkedHashSet<Term> operands = new LinkedHashSet<>(Arrays.asList(left, right));
         return mulTerms.computeIfAbsent(operands, o -> new MultiplicationFunction(this, left, right));
@@ -298,7 +312,7 @@ public class CspFactory {
     }
 
     private ComparisonPredicate processComparison(final Term left, final Term right, final Map<Pair<Term, Term>, ComparisonPredicate> cache,
-                                                  final BiPredicate<Constant, Constant> test, final CspPredicate.Type type) {
+                                                  final BiPredicate<IntegerConstant, IntegerConstant> test, final CspPredicate.Type type) {
         final Pair<Term, Term> operands = new Pair<>(left, right);
         final ComparisonPredicate foundFormula = cache.get(operands);
         if (foundFormula != null) {

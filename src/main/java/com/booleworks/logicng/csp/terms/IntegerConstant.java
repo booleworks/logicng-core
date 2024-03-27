@@ -3,10 +3,10 @@ package com.booleworks.logicng.csp.terms;
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.LinearExpression;
 
-public final class Constant extends Term implements Comparable<Constant> {
+public final class IntegerConstant extends Term implements Comparable<IntegerConstant> {
     private final int value;
 
-    public Constant(final CspFactory cspFactory, final int value) {
+    public IntegerConstant(final CspFactory cspFactory, final int value) {
         super(cspFactory, value == 0 ? Term.Type.ZERO : value == 1 ? Term.Type.ONE : Term.Type.CONST);
         this.value = value;
     }
@@ -33,8 +33,8 @@ public final class Constant extends Term implements Comparable<Constant> {
         if (other instanceof Term && cspFactory == ((Term) other).cspFactory) {
             return false; // the same factory would have produced a == object
         }
-        if (other instanceof Constant) {
-            return value == ((Constant) other).value;
+        if (other instanceof IntegerConstant) {
+            return value == ((IntegerConstant) other).value;
         }
         return false;
     }
@@ -50,7 +50,7 @@ public final class Constant extends Term implements Comparable<Constant> {
     }
 
     @Override
-    public int compareTo(final Constant o) {
+    public int compareTo(final IntegerConstant o) {
         return Integer.compare(value, o.value);
     }
 }
