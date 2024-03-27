@@ -44,7 +44,7 @@ public class SATCallTest {
 
         // Shortcuts (ich glaube das wollen wir wohl ;) ), auch in Kombination mit Assumptions und Co möglich
         // die wrappen praktisch start(), model()/unsatCore() und close()
-        final Tristate sat = solver.satCall().sat();
+        final Tristate sat = solver.sat();
         final Assignment model = solver.satCall().selectionOrder(vars).model(vars);
 //        final UNSATCore<Proposition> mus = solver.satCall().assumptions(vars).unsatCore();
 

@@ -19,6 +19,7 @@ import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -365,7 +366,7 @@ public class PBSolvingTest implements LogicNGTest {
                 final PBConstraint pbc = (PBConstraint) f.pbc(CType.GE, 5000, lits, coeffs);
                 solver.add(PBEncoder.encode(f, pbc, config));
                 assertSolverSat(solver);
-            assertThat(pbc.evaluate(solver.satCall().model(lits))).isTrue();
+            assertThat(pbc.evaluate(solver.model(Arrays.asList(lits)))).isTrue();
             }
         }
     }

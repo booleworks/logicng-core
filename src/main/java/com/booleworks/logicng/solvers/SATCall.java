@@ -1,5 +1,6 @@
 package com.booleworks.logicng.solvers;
 
+import static com.booleworks.logicng.datastructures.Tristate.FALSE;
 import static com.booleworks.logicng.datastructures.Tristate.TRUE;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
@@ -36,7 +37,7 @@ public class SATCall implements AutoCloseable {
     public SATCall(final FormulaFactory f, final MiniSat solverWrapper, final SATHandler handler, final List<? extends Literal> assumptions, final List<? extends Literal> selectionOrder, final List<? extends Formula> additionalFormulas) {
         this.f = f;
         this.solverWrapper = solverWrapper;
-        this.solver = ((MiniSat2Solver) solverWrapper.underlyingSolver());
+        solver = ((MiniSat2Solver) solverWrapper.underlyingSolver());
         this.handler = handler;
         this.assumptions = assumptions;
         this.selectionOrder = selectionOrder;
@@ -60,7 +61,7 @@ public class SATCall implements AutoCloseable {
         if (assumptions != null) {
             solver.setAssumptions(generateClauseVector(assumptions));
         }
-        this.satState = solver.internalSolve();
+        satState = solver.internalSolve();
     }
 
     public Tristate getSatState() {
@@ -83,11 +84,14 @@ public class SATCall implements AutoCloseable {
         if (!solver.getConfig().proofGeneration()) {
             throw new IllegalStateException("Cannot generate an unsat core if proof generation is not turned on");
         }
-        if (satState == TRUE) {
-            throw new IllegalStateException("An unsat core can only be generated if the formula is solved and is UNSAT");
-        }
-        if (satState == Tristate.UNDEF) {
-            throw new IllegalStateException("Cannot generate an unsat core before the formula was solved.");
+//        if (satState == TRUE) {
+//            throw new IllegalStateException("An unsat core can only be generated if the formula is solved and is UNSAT");
+//        }
+//        if (satState == Tristate.UNDEF) {
+//            throw new IllegalStateException("Cannot generate an unsat core before the formula was solved.");
+//        }
+        if (satState != FALSE) {
+            return null;
         }
         if (assumptions != null && !assumptions.isEmpty()) {
             // TODO: We could also add the assumptions here with save/load state and perform another solve call before computing the unsat core

@@ -7,8 +7,10 @@ package com.booleworks.logicng.solvers;
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.cardinalityconstraints.CCIncrementalData;
+import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -168,146 +170,42 @@ public abstract class SATSolver {
     /**
      * Returns {@code Tristate.TRUE} if the current formula in the solver is satisfiable, @{code Tristate.FALSE} if it is
      * unsatisfiable, or {@code UNDEF} if the solving process was aborted.
+     * <p>
+     * This is a shortcut for {@code satCall().sat()}.
      * @return the satisfiability of the formula in the solver
      */
-//    public Tristate sat() {
-//        return sat((SATHandler) null);
-//    }
-
-    /**
-     * Returns {@code Tristate.TRUE} if the current formula in the solver is satisfiable, @{code Tristate.FALSE} if it is
-     * unsatisfiable, or {@code UNDEF} if the solving process was aborted.
-     * @param handler the SAT handler
-     * @return the satisfiability of the formula in the solver
-     */
-//    public abstract Tristate sat(final SATHandler handler);
-
-    /**
-     * Returns {@code Tristate.TRUE} if the current formula in the solver and a given literal are satisfiable,
-     * {@code Tristate.FALSE} if it is unsatisfiable, or {@code UNDEF} if the solving process was aborted.
-     * <p>
-     * Side effect: Solving with assumptions adds the assumption literals as known variables to the solver if not already known.
-     * This change lasts beyond the assumption solving call and can have unintended results for subsequent solver calls.
-     * For example, a subsequent model enumeration call will produce models containing the now known variables.
-     * A reliable workaround for this side effect is to save the state of the solver with {@link #saveState()}
-     * and load the state of the solver after the assumption call(s) with {@link #loadState(SolverState)}.
-     * @param literal the assumed literal
-     * @return the satisfiability of the formula in the solver
-     */
-//    public Tristate sat(final Literal literal) {
-//        return sat(null, literal);
-//    }
-
-    /**
-     * Returns {@code Tristate.TRUE} if the current formula in the solver and a given collection of assumed literals
-     * are satisfiable, {@code Tristate.FALSE} if it is unsatisfiable, or {@code UNDEF} if the solving process was aborted.
-     * The assumptions can be seen as an additional conjunction of literals.
-     * Note: Use ordered collections to ensure determinism in the solving process and thus in the resulting model or conflict.
-     * <p>
-     * Side effect: Solving with assumptions adds the assumption literals as known variables to the solver if not already known.
-     * This change lasts beyond the assumption solving call and can have unintended results for subsequent solver calls.
-     * For example, a subsequent model enumeration call will produce models containing the now known variables.
-     * A reliable workaround for this side effect is to save the state of the solver with {@link #saveState()}
-     * and load the state of the solver after the assumption call(s) with {@link #loadState(SolverState)}.
-     * @param assumptions a collection of literals
-     * @return the satisfiability of the formula in the solver
-     */
-//    public Tristate sat(final Collection<? extends Literal> assumptions) {
-//        return sat(null, assumptions);
-//    }
-
-    /**
-     * Returns {@code Tristate.TRUE} if the current formula in the solver and a given literal are satisfiable,
-     * {@code Tristate.FALSE} if it is unsatisfiable, or {@code UNDEF} if the solving process was aborted.
-     * <p>
-     * Side effect: Solving with assumptions adds the assumption literals as known variables to the solver if not already known.
-     * This change lasts beyond the assumption solving call and can have unintended results for subsequent solver calls.
-     * For example, a subsequent model enumeration call will produce models containing the now known variables.
-     * A reliable workaround for this side effect is to save the state of the solver with {@link #saveState()}
-     * and load the state of the solver after the assumption call(s) with {@link #loadState(SolverState)}.
-     * @param handler the SAT handler
-     * @param literal the assumed literal
-     * @return the satisfiability of the formula in the solver
-     */
-//    public abstract Tristate sat(final SATHandler handler, final Literal literal);
-
-    /**
-     * Returns {@code Tristate.TRUE} if the current formula in the solver and a given collection of assumed literals
-     * are satisfiable, {@code Tristate.FALSE} if it is unsatisfiable, or {@code UNDEF} if the solving process was aborted.
-     * The assumptions can be seen as an additional conjunction of literals.
-     * Note: Use ordered collections to ensure determinism in the solving process and thus in the resulting model or conflict.
-     * <p>
-     * Side effect: Solving with assumptions adds the assumption literals as known variables to the solver if not already known.
-     * This change lasts beyond the assumption solving call and can have unintended results for subsequent solver calls.
-     * For example, a subsequent model enumeration call will produce models containing the now known variables.
-     * A reliable workaround for this side effect is to save the state of the solver with {@link #saveState()}
-     * and load the state of the solver after the assumption call(s) with {@link #loadState(SolverState)}.
-     * @param handler     the SAT handler
-     * @param assumptions a collection of literals
-     * @return the satisfiability of the formula in the solver
-     */
-//    public abstract Tristate sat(final SATHandler handler, final Collection<? extends Literal> assumptions);
-
-    /**
-     * Solves the formula on the solver with a given selection order.
-     * <p>
-     * If a custom selection order is set, the solver will pick a variable from the custom order in order to branch on it during the search.
-     * The given polarity in the selection order is used as assignment for the variable.
-     * If all variables in the custom order are already assigned, the solver falls back to the activity based variable selection.
-     * <p>
-     * Example: Order a, ~b, c. The solver picks variable `a`, if not assigned yet, and checks if setting `a` to true leads to a satisfying assignment.
-     * Next, the solver picks variable b and checks if setting b to false leads to a satisfying assignment.
-     * @param selectionOrder the order of the literals for the selection order
-     * @return the satisfiability of the formula in the solver
-     */
-//    public Tristate satWithSelectionOrder(final List<? extends Literal> selectionOrder) {
-//        return satWithSelectionOrder(selectionOrder, null, null);
-//    }
-
-    /**
-     * Solves the formula on the solver with a given selection order, a given SAT handler and a list of additional
-     * assumptions.
-     * <p>
-     * If a custom selection order is set, the solver will pick a variable from the custom order in order to branch on it during the search.
-     * The given polarity in the selection order is used as assignment for the variable.
-     * If all variables in the custom order are already assigned, the solver falls back to the activity based variable selection.
-     * <p>
-     * Example: Order a, ~b, c. The solver picks variable `a`, if not assigned yet, and checks if setting `a` to true leads to a satisfying assignment.
-     * Next, the solver picks variable b and checks if setting b to false leads to a satisfying assignment.
-     * @param selectionOrder the order of the literals for the selection order
-     * @param handler        the SAT handler
-     * @param assumptions    a collection of literals
-     * @return the satisfiability of the formula in the solver
-     */
-//    public Tristate satWithSelectionOrder(final List<? extends Literal> selectionOrder, final SATHandler handler,
-//                                          final Collection<? extends Literal> assumptions) {
-//        setSolverToUndef();
-//        setSelectionOrder(selectionOrder);
-//        final Tristate sat = assumptions != null ? sat(handler, assumptions) : sat(handler);
-//        resetSelectionOrder();
-//        return sat;
-//    }
-
-    /**
-     * Returns a model of the current formula on the solver wrt. a given set of variables. If the set
-     * is {@code null}, all variables are considered relevant. If the formula is UNSAT, {@code null} will be returned.
-     * The formula in the solver has to be solved first, before a model can be obtained.
-     * @param variables the set of variables
-     * @return a model of the current formula
-     * @throws IllegalStateException if the formula is not yet solved
-     */
-//    public Assignment model(final Variable[] variables) {
-//        return model(Arrays.asList(variables));
-//    }
+    public Tristate sat() {
+        return satCall().sat();
+    }
 
     /**
      * Returns a model of the current formula on the solver wrt. a given set of variables. If the set
      * is {@code null}, all variables are considered relevant.
      * If the formula is UNSAT, {@code null} will be returned.
+     * <p>
+     * This is a shortcut for {@code satCall().model()}.
      * @param variables the set of variables
-     * @return a model of the current formula
+     * @return a model of the current formula or {@code null} if the solver is unsatisfiable
      */
-//    public abstract Assignment model(final Collection<Variable> variables);
+    public Assignment model(final Collection<Variable> variables) {
+        return satCall().model(variables);
+    }
+
+    /**
+     * Returns an unsat core of the current problem. Only works if the SAT solver is configured to record the information
+     * required to generate a proof trace and an unsat core.
+     * <p>
+     * In particular, this method returns the unsat core only if the parameter
+     * {@link com.booleworks.logicng.solvers.sat.MiniSatConfig#proofGeneration()} is set to {@code true}.
+     * <p>
+     * If the formula on the solver is satisfiable, {@code null} is returned.
+     * <p>
+     * This is a shortcut for {@code satCall().unsatCore()}.
+     * @return the unsat core or {@code null} if the solver is satisfiable
+     */
+    public UNSATCore<Proposition> unsatCore() {
+        return satCall().unsatCore();
+    }
 
     /**
      * Executes a solver function on this solver.
@@ -412,18 +310,6 @@ public abstract class SATSolver {
     public FormulaFactory factory() {
         return f;
     }
-
-//    /**
-//     * Sets the selection order of the variables and their polarity.
-//     * <p>
-//     * @param selectionOrder the variable order and their polarity that should be checked first
-//     */
-//    protected abstract void setSelectionOrder(List<? extends Literal> selectionOrder);
-//
-//    /**
-//     * Resets the selection order on the solver.  The internal activity heuristics for the variable ordering will be used again.
-//     */
-//    protected abstract void resetSelectionOrder();
 
     /**
      * Returns whether this solver instance can generate proofs.

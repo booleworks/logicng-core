@@ -133,7 +133,7 @@ public class CCIncrementalSolverTest implements LogicNGTest {
             f.putConfiguration(configs[0]);
             final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
             // search the lower bound
-        while (solver.satCall().sat() == Tristate.TRUE) {
+        while (solver.sat() == Tristate.TRUE) {
                 incData.newUpperBoundForSolver(--currentBound); // <= currentBound - 1
             }
             assertThat(currentBound).isEqualTo(41);
@@ -154,7 +154,7 @@ public class CCIncrementalSolverTest implements LogicNGTest {
         f.putConfiguration(configs[0]);
         final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.GE, currentBound, vars));
         // search the lower bound
-        while (solver.satCall().sat() == Tristate.TRUE) {
+        while (solver.sat() == Tristate.TRUE) {
             incData.newLowerBoundForSolver(++currentBound); // <= currentBound + 1
         }
         assertThat(currentBound).isEqualTo(88);
@@ -173,7 +173,7 @@ public class CCIncrementalSolverTest implements LogicNGTest {
             solver.add(f.cc(CType.GE, 42, vars)); // >= 42
             final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
             // search the lower bound
-            while (solver.satCall().sat() == Tristate.TRUE) {
+            while (solver.sat() == Tristate.TRUE) {
                 incData.newUpperBoundForSolver(--currentBound); // <= currentBound - 1
             }
             assertThat(currentBound).isEqualTo(41);
@@ -194,7 +194,7 @@ public class CCIncrementalSolverTest implements LogicNGTest {
             solver.add(f.cc(CType.GE, 234, vars));
             final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
             // search the lower bound
-        while (solver.satCall().sat() == Tristate.TRUE) {
+        while (solver.sat() == Tristate.TRUE) {
                 incData.newUpperBoundForSolver(--currentBound);
             }
             assertThat(currentBound).isEqualTo(233);

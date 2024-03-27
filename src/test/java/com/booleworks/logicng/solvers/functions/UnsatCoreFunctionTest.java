@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.solvers.functions;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import com.booleworks.logicng.TestWithExampleFormulas;
@@ -18,19 +19,12 @@ public class UnsatCoreFunctionTest extends TestWithExampleFormulas {
     public void testExceptionalBehavior() {
         assertThatThrownBy(() -> {
             final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(false).build());
-            solver.satCall().unsatCore();
+            solver.unsatCore();
         }).isInstanceOf(IllegalStateException.class)
                 .hasMessage("Cannot generate an unsat core if proof generation is not turned on");
-        assertThatThrownBy(() -> {
-            final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).build());
-            solver.satCall().unsatCore();
-        }).isInstanceOf(IllegalStateException.class)
-                .hasMessage("An unsat core can only be generated if the formula is solved and is UNSAT");
-//        assertThatThrownBy(() -> {
-//            final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).build());
-//            solver.satCall().unsatCore();
-//        }).isInstanceOf(IllegalStateException.class)
-//                .hasMessage("Cannot generate an unsat core before the formula was solved.");
+
+        assertThat(MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).build()).unsatCore()).isNull();
+        // TODO test null if solver result is UNDEF because handler aborted
         assertThatThrownBy(() -> {
             final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).build());
             solver.add(f.variable("A"));

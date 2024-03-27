@@ -18,6 +18,8 @@ import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.sat.MiniSatConfig;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 public class CCPerformanceTest implements LogicNGTest {
 
     private final CCConfig[] configs;
@@ -57,7 +59,7 @@ public class CCPerformanceTest implements LogicNGTest {
             final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(miniCard).build());
             solver.add(cc);
             assertSolverSat(solver);
-            final Assignment model = solver.satCall().model(problemLits);
+            final Assignment model = solver.model(Arrays.asList(problemLits));
             assertThat(cc.evaluate(model)).isTrue();
         }
     }

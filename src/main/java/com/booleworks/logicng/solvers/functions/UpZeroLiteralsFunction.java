@@ -48,7 +48,7 @@ public final class UpZeroLiteralsFunction implements SolverFunction<SortedSet<Li
 //        if (solver.getResult() == FALSE) {
 //            return null;
 //        }
-        if (solver.satCall().sat() == Tristate.FALSE) {
+        if (solver.sat() == Tristate.FALSE) {
             return null;
         }
         final LNGIntVector literals = solver.underlyingSolver().upZeroLiterals();

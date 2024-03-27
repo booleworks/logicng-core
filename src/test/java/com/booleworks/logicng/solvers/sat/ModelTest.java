@@ -49,13 +49,13 @@ public class ModelTest {
     public void testNoModel(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
         SATSolver solver = solverSupplier.get();
         solver.add(f.falsum());
-        Assertions.assertThat(solver.satCall().model(f.variables())).isNull();
+        Assertions.assertThat(solver.model(f.variables())).isNull();
         solver = solverSupplier.get();
         solver.add(f.parse("A & ~A"));
-        Assertions.assertThat(solver.satCall().model(f.variables("A"))).isNull();
+        Assertions.assertThat(solver.model(f.variables("A"))).isNull();
         solver = solverSupplier.get();
         solver.add(f.parse("(A => (B & C)) & A & C & (C <=> ~B)"));
-        Assertions.assertThat(solver.satCall().model(f.variables("A", "B", "C"))).isNull();
+        Assertions.assertThat(solver.model(f.variables("A", "B", "C"))).isNull();
     }
 
     @ParameterizedTest(name = "{index} {1}")
@@ -63,7 +63,7 @@ public class ModelTest {
     public void testEmptyModel(final Supplier<SATSolver> solverSupplier, final String solverDescription) {
         final SATSolver solver = solverSupplier.get();
         solver.add(f.verum());
-        final Assignment model = solver.satCall().model(f.variables());
+        final Assignment model = solver.model(f.variables());
         assertThat(model.literals()).isEmpty();
         assertThat(model.blockingClause(f)).isEqualTo(f.falsum());
         Assertions.assertThat(solver.enumerateAllModels(List.of())).hasSize(1);
@@ -74,12 +74,12 @@ public class ModelTest {
     public void testSimpleModel(final Supplier<SATSolver> solverSupplier, final String solverDescription) {
         SATSolver solver = solverSupplier.get();
         solver.add(f.literal("A", true));
-        Assignment model = solver.satCall().model(f.variables("A"));
+        Assignment model = solver.model(f.variables("A"));
         assertThat(model.literals()).containsExactly(f.literal("A", true));
         Assertions.assertThat(solver.enumerateAllModels(f.variables("A"))).hasSize(1);
         solver = solverSupplier.get();
         solver.add(f.literal("A", false));
-        model = solver.satCall().model(f.variables("A"));
+        model = solver.model(f.variables("A"));
         assertThat(model.literals()).containsExactly(f.literal("A", false));
         Assertions.assertThat(solver.enumerateAllModels(f.variables("A"))).hasSize(1);
     }
@@ -90,7 +90,7 @@ public class ModelTest {
         final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A|B|C) & (~A|~B|~C) & (A|~B|~C) & (~A|~B|C)");
         solver.add(formula);
-        final Assignment model = solver.satCall().model(f.variables("A", "B", "C"));
+        final Assignment model = solver.model(f.variables("A", "B", "C"));
         assertThat(formula.evaluate(model)).isTrue();
         Assertions.assertThat(solver.enumerateAllModels(f.variables("A", "B", "C"))).hasSize(4);
         for (final Model m : solver.enumerateAllModels(f.variables("A", "B", "C"))) {
@@ -105,7 +105,7 @@ public class ModelTest {
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         final Formula cnf = formula.transform(new TseitinTransformation(solver.factory(), 0));
         solver.add(cnf);
-        final Assignment model = solver.satCall().model(formula.variables(f));
+        final Assignment model = solver.model(formula.variables(f));
         assertThat(formula.evaluate(model)).isTrue();
         final List<Model> allModels = solver.enumerateAllModels(formula.variables(f));
         assertThat(allModels).hasSize(4);
@@ -122,7 +122,7 @@ public class ModelTest {
         final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solver.add(formula);
-        final Assignment model = solver.satCall().model(formula.variables(f));
+        final Assignment model = solver.model(formula.variables(f));
         assertThat(formula.evaluate(model)).isTrue();
         final List<Model> allModels = solver.enumerateAllModels(formula.variables(f));
         assertThat(allModels).hasSize(4);
@@ -138,7 +138,7 @@ public class ModelTest {
         final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solver.add(formula);
-        final Assignment model = solver.satCall().model(formula.variables(f));
+        final Assignment model = solver.model(formula.variables(f));
         assertThat(formula.evaluate(model)).isTrue();
         assertThat(model.formula(f).variables(f)).isEqualTo(formula.variables(f));
         final List<Model> allModels = solver.enumerateAllModels(formula.variables(f));
@@ -158,7 +158,7 @@ public class ModelTest {
         miniSat.add(formula);
         solver.add(formula);
         final SortedSet<Variable> relevantVariables = new TreeSet<>(Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C")));
-        final Assignment model = solver.satCall().model(relevantVariables);
+        final Assignment model = solver.model(relevantVariables);
         Assertions.assertThat(miniSat.satCall().assumptions(model.literals()).sat()).isEqualTo(Tristate.TRUE);
         assertThat(model.formula(f).variables(f)).isEqualTo(relevantVariables);
         final List<Model> allModels = solver.enumerateAllModels(relevantVariables);
@@ -181,7 +181,7 @@ public class ModelTest {
         final SortedSet<Variable> additionalVariables = new TreeSet<>(Arrays.asList(f.variable("D"), f.variable("X"), f.variable("Y")));
         final SortedSet<Variable> allVariables = new TreeSet<>(relevantVariables);
         allVariables.addAll(additionalVariables);
-        final Assignment model = solver.satCall().model(additionalVariables);
+        final Assignment model = solver.model(additionalVariables);
         Assertions.assertThat(miniSat.satCall().assumptions(model.literals()).sat()).isEqualTo(Tristate.TRUE);
         assertThat(model.formula(f).variables(f)).containsExactly(f.variable("D"));
         final ModelEnumerationFunction me = ModelEnumerationFunction.builder(relevantVariables)

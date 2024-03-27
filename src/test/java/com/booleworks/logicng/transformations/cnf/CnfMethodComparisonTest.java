@@ -110,7 +110,7 @@ public class CnfMethodComparisonTest {
         for (final Variable variable : formula.variables(f)) {
             if (counter-- > 0) {
                 solver.add(variable);
-                if (solver.satCall().sat() == Tristate.TRUE) {
+                if (solver.sat() == Tristate.TRUE) {
                     final Backbone backbone = solver.backbone(formula.variables(f));
                     result.put(variable, backbone);
                 }

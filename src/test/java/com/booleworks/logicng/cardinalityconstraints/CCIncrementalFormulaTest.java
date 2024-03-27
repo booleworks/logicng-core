@@ -178,7 +178,7 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             solver.add(cc.first());
 
             // search the lower bound
-        while (solver.satCall().sat() == Tristate.TRUE) {
+        while (solver.sat() == Tristate.TRUE) {
                 solver.add(incData.newUpperBound(--currentBound)); // <= currentBound - 1
             }
             assertThat(currentBound).isEqualTo(41);
@@ -202,7 +202,7 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             solver.add(cc.first());
 
             // search the lower bound
-        while (solver.satCall().sat() == Tristate.TRUE) {
+        while (solver.sat() == Tristate.TRUE) {
                 solver.add(incData.newLowerBound(++currentBound)); // <= currentBound + 1
             }
             assertThat(currentBound).isEqualTo(88);
@@ -228,7 +228,7 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             solver.add(cc.first());
 
             // search the lower bound
-            while (solver.satCall().sat() == Tristate.TRUE) {
+            while (solver.sat() == Tristate.TRUE) {
                 solver.add(incData.newUpperBound(--currentBound)); // <= currentBound - 1
             }
             assertThat(currentBound).isEqualTo(41);
@@ -269,7 +269,7 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             solver.add(cc.first());
 
             // search the lower bound
-        while (solver.satCall().sat() == Tristate.TRUE) {
+        while (solver.sat() == Tristate.TRUE) {
                 solver.add(incData.newUpperBound(--currentBound));
             }
             assertThat(currentBound).isEqualTo(233);
