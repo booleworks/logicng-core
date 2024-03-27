@@ -11,10 +11,7 @@ public final class NegationFunction extends UnaryFunction {
 
     @Override
     public Decomposition calculateDecomposition() {
-        if (this.decompositionResult == null) {
-            final Decomposition result = this.operand.decompose();
-            this.decompositionResult = new Decomposition(LinearExpression.multiply(result.getLinearExpression(), -1), result.getAdditionalConstraints());
-        }
-        return this.decompositionResult;
+        final Decomposition result = operand.decompose();
+        return new Decomposition(LinearExpression.multiply(result.getLinearExpression(), -1), result.getAdditionalConstraints());
     }
 }
