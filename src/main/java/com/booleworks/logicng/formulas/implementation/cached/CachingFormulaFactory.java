@@ -353,10 +353,16 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     @Override
     public Variable newAuxVariable(final AuxVarType type) {
+        return newAuxVariable(type, null);
+    }
+
+    @Override
+    public Variable newAuxVariable(final AuxVarType type, final String prefix) {
         if (readOnly) {
             throwReadOnlyException();
         }
-        final Variable var = variable(auxVarPrefixes.get(type) + auxVarCounters.get(type).getAndIncrement());
+        final String name = auxVarPrefixes.get(type) + Objects.requireNonNullElse(prefix, "") + auxVarCounters.get(type).getAndIncrement();
+        final Variable var = variable(name);
         generatedVariables.add(var);
         return var;
     }
@@ -750,7 +756,7 @@ public class CachingFormulaFactory extends FormulaFactory {
          * Returns the number of generated cardinality constraint auxiliary
          * variables.
          * @return the number of generated cardinality constraint auxiliary
-         * variables
+         *         variables
          */
         public int ccCounter() {
             return ccCounter;
