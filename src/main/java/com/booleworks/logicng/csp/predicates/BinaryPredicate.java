@@ -17,11 +17,11 @@ public abstract class BinaryPredicate extends CspPredicate {
     }
 
     public Term getLeft() {
-        return this.left;
+        return left;
     }
 
     public Term getRight() {
-        return this.right;
+        return right;
     }
 
     @Override
@@ -30,22 +30,22 @@ public abstract class BinaryPredicate extends CspPredicate {
             return true;
         }
         if (getClass() == other.getClass()) {
-            if (this.factory() == ((BinaryPredicate) other).factory()) {
+            if (factory() == ((BinaryPredicate) other).factory()) {
                 return false; // the same factory would have produced a == object
             }
             final BinaryPredicate that = (BinaryPredicate) other;
-            return this.type == that.type && Objects.equals(this.left, that.left) && Objects.equals(this.right, that.right);
+            return type == that.type && Objects.equals(left, that.left) && Objects.equals(right, that.right);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.type, this.left, this.right);
+        return Objects.hash(type, left, right);
     }
 
     @Override
     public String toString() {
-        return this.type + "(" + this.left + ", " + this.right + ")";
+        return type + "(" + left + ", " + right + ")";
     }
 }

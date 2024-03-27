@@ -20,27 +20,27 @@ public class ComparisonPredicate extends BinaryPredicate {
 
     @Override
     public CspPredicate negate() {
-        switch (this.type) {
+        switch (type) {
             case EQ:
-                return this.cspFactory.ne(this.left, this.right);
+                return cspFactory.ne(left, right);
             case NE:
-                return this.cspFactory.eq(this.left, this.right);
+                return cspFactory.eq(left, right);
             case LT:
-                return this.cspFactory.ge(this.left, this.right);
+                return cspFactory.ge(left, right);
             case LE:
-                return this.cspFactory.gt(this.left, this.right);
+                return cspFactory.gt(left, right);
             case GT:
-                return this.cspFactory.le(this.left, this.right);
+                return cspFactory.le(left, right);
             case GE:
-                return this.cspFactory.lt(this.left, this.right);
+                return cspFactory.lt(left, right);
             default:
-                throw new IllegalArgumentException("Invalid type of ComparisonPredicate: " + this.type);
+                throw new IllegalArgumentException("Invalid type of ComparisonPredicate: " + type);
         }
     }
 
     @Override
     protected Set<IntegerClause> calculateDecomposition() {
-        switch (this.type) {
+        switch (type) {
             case EQ:
                 return decomposeEq();
             case NE:
@@ -59,101 +59,101 @@ public class ComparisonPredicate extends BinaryPredicate {
     }
 
     private Set<IntegerClause> decomposeEq() {
-        if (this.right.getType() == Term.Type.ZERO) {
-            return decomposeEqZero(this.left);
-        } else if (this.left.getType() == Term.Type.ZERO) {
-            return decomposeEqZero(this.right);
+        if (right.getType() == Term.Type.ZERO) {
+            return decomposeEqZero(left);
+        } else if (left.getType() == Term.Type.ZERO) {
+            return decomposeEqZero(right);
         }
-        return decomposeEqZero(cspFactory.sub(this.left, this.right));
+        return decomposeEqZero(cspFactory.sub(left, right));
     }
 
     private Set<IntegerClause> decomposeNe() {
-        if (this.right.getType() == Term.Type.ZERO) {
-            return decomposeNeZero(this.left);
-        } else if (this.left.getType() == Term.Type.ZERO) {
-            return decomposeNeZero(this.right);
+        if (right.getType() == Term.Type.ZERO) {
+            return decomposeNeZero(left);
+        } else if (left.getType() == Term.Type.ZERO) {
+            return decomposeNeZero(right);
         }
-        return decomposeNeZero(this.cspFactory.sub(this.left, this.right));
+        return decomposeNeZero(cspFactory.sub(left, right));
     }
 
     private Set<IntegerClause> decomposeLe() {
         // abs(a1) <= x2
-        //if (this.left instanceof IntegerAbsoluteFunction) {
-        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) this.left).getOperand();
-        //    return this.f.and(
-        //            this.cspFactory.decomposeFormula(this.cspFactory.le(a1, this.right), false),
-        //            this.cspFactory.decomposeFormula(this.cspFactory.ge(a1, this.cspFactory.minus(this.right)), false)
+        //if (left instanceof IntegerAbsoluteFunction) {
+        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) left).getOperand();
+        //    return f.and(
+        //            cspFactory.decomposeFormula(cspFactory.le(a1, right), false),
+        //            cspFactory.decomposeFormula(cspFactory.ge(a1, cspFactory.minus(right)), false)
         //    );
         //}
         // abs(a1) >= x1
-        //if (this.right instanceof IntegerAbsoluteFunction) {
-        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) this.right).getOperand();
-        //    return this.f.or(
-        //            this.cspFactory.decomposeFormula(this.cspFactory.ge(a1, this.left), false),
-        //            this.cspFactory.decomposeFormula(this.cspFactory.le(a1, this.cspFactory.minus(this.left)), false)
+        //if (right instanceof IntegerAbsoluteFunction) {
+        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) right).getOperand();
+        //    return f.or(
+        //            cspFactory.decomposeFormula(cspFactory.ge(a1, left), false),
+        //            cspFactory.decomposeFormula(cspFactory.le(a1, cspFactory.minus(left)), false)
         //    );
         //}
-        return decomposeLeZero(this.cspFactory.sub(this.left, this.right));
+        return decomposeLeZero(cspFactory.sub(left, right));
     }
 
     private Set<IntegerClause> decomposeLt() {
         // abs(a1) < x2
-        //if (this.left instanceof IntegerAbsoluteFunction) {
-        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) this.left).getOperand();
-        //    return this.f.and(
-        //            this.cspFactory.decomposeFormula(this.cspFactory.lt(a1, this.right), false),
-        //            this.cspFactory.decomposeFormula(this.cspFactory.gt(a1, this.cspFactory.minus(this.right)), false)
+        //if (left instanceof IntegerAbsoluteFunction) {
+        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) left).getOperand();
+        //    return f.and(
+        //            cspFactory.decomposeFormula(cspFactory.lt(a1, right), false),
+        //            cspFactory.decomposeFormula(cspFactory.gt(a1, cspFactory.minus(right)), false)
         //    );
         //}
         // abs(a1) > x1
-        //if (this.right instanceof IntegerAbsoluteFunction) {
-        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) this.right).getOperand();
-        //    return this.f.or(
-        //            this.cspFactory.decomposeFormula(this.cspFactory.gt(a1, this.left), false),
-        //            this.cspFactory.decomposeFormula(this.cspFactory.lt(a1, this.cspFactory.minus(this.left)), false)
+        //if (right instanceof IntegerAbsoluteFunction) {
+        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) right).getOperand();
+        //    return f.or(
+        //            cspFactory.decomposeFormula(cspFactory.gt(a1, left), false),
+        //            cspFactory.decomposeFormula(cspFactory.lt(a1, cspFactory.minus(left)), false)
         //    );
         //}
-        return decomposeLeZero(this.cspFactory.add(this.cspFactory.sub(this.left, this.right), this.cspFactory.one()));
+        return decomposeLeZero(cspFactory.add(cspFactory.sub(left, right), cspFactory.one()));
     }
 
     private Set<IntegerClause> decomposeGe() {
         // abs(a1) >= x2
-        //if (this.left instanceof IntegerAbsoluteFunction) {
-        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) this.left).getOperand();
-        //    return this.f.or(
-        //            this.cspFactory.decomposeFormula(this.cspFactory.ge(a1, this.right), false),
-        //            this.cspFactory.decomposeFormula(this.cspFactory.le(a1, this.cspFactory.minus(this.right)), false)
+        //if (left instanceof IntegerAbsoluteFunction) {
+        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) left).getOperand();
+        //    return f.or(
+        //            cspFactory.decomposeFormula(cspFactory.ge(a1, right), false),
+        //            cspFactory.decomposeFormula(cspFactory.le(a1, cspFactory.minus(right)), false)
         //    );
         //}
         // abs(a1) <= x1
-        //if (this.right instanceof IntegerAbsoluteFunction) {
-        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) this.right).getOperand();
-        //    return this.f.and(
-        //            this.cspFactory.decomposeFormula(this.cspFactory.le(a1, this.left), false),
-        //            this.cspFactory.decomposeFormula(this.cspFactory.ge(a1, this.cspFactory.minus(this.left)), false)
+        //if (right instanceof IntegerAbsoluteFunction) {
+        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) right).getOperand();
+        //    return f.and(
+        //            cspFactory.decomposeFormula(cspFactory.le(a1, left), false),
+        //            cspFactory.decomposeFormula(cspFactory.ge(a1, cspFactory.minus(left)), false)
         //    );
         //}
-        return decomposeLeZero(this.cspFactory.sub(this.right, this.left));
+        return decomposeLeZero(cspFactory.sub(right, left));
     }
 
     private Set<IntegerClause> decomposeGt() {
         // abs(a1) < x2
-        //if (this.left instanceof IntegerAbsoluteFunction) {
-        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) this.left).getOperand();
-        //    return this.f.and(
-        //            this.cspFactory.decomposeFormula(this.cspFactory.lt(a1, this.right), false),
-        //            this.cspFactory.decomposeFormula(this.cspFactory.gt(a1, this.cspFactory.minus(this.right)), false)
+        //if (left instanceof IntegerAbsoluteFunction) {
+        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) left).getOperand();
+        //    return f.and(
+        //            cspFactory.decomposeFormula(cspFactory.lt(a1, right), false),
+        //            cspFactory.decomposeFormula(cspFactory.gt(a1, cspFactory.minus(right)), false)
         //    );
         //}
         // abs(a1) > x1
-        //if (this.right instanceof IntegerAbsoluteFunction) {
-        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) this.right).getOperand();
-        //    return this.f.or(
-        //            this.cspFactory.decomposeFormula(this.cspFactory.gt(a1, this.left), false),
-        //            this.cspFactory.decomposeFormula(this.cspFactory.lt(a1, this.cspFactory.minus(this.left)), false)
+        //if (right instanceof IntegerAbsoluteFunction) {
+        //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) right).getOperand();
+        //    return f.or(
+        //            cspFactory.decomposeFormula(cspFactory.gt(a1, left), false),
+        //            cspFactory.decomposeFormula(cspFactory.lt(a1, cspFactory.minus(left)), false)
         //    );
         //}
-        return decomposeLeZero(this.cspFactory.add(this.cspFactory.sub(this.right, this.left), this.cspFactory.one()));
+        return decomposeLeZero(cspFactory.add(cspFactory.sub(right, left), cspFactory.one()));
     }
 
     private Set<IntegerClause> decomposeEqZero(final Term term) {

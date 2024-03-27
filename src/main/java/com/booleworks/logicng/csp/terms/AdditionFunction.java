@@ -17,7 +17,7 @@ public final class AdditionFunction extends NAryFunction {
     public Decomposition calculateDecomposition() {
         LinearExpression.Builder expression = new LinearExpression.Builder(0);
         final Set<IntegerClause> constraints = new TreeSet<>();
-        for (final Term operand : this.operands) {
+        for (final Term operand : operands) {
             final Decomposition ei = operand.decompose();
             expression = expression.add(ei.getLinearExpression());
             constraints.addAll(ei.getAdditionalConstraints());

@@ -93,12 +93,12 @@ public class IntegerSetDomain extends IntegerDomain {
 
     @Override
     public int size() {
-        return this.values.size();
+        return values.size();
     }
 
     @Override
     public boolean contains(final int element) {
-        return this.values.contains(element);
+        return values.contains(element);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class IntegerSetDomain extends IntegerDomain {
         if (lb <= this.lb && this.ub <= ub) {
             return this;
         }
-        return new IntegerSetDomain(this.values.subSet(lb, ub + 1));
+        return new IntegerSetDomain(values.subSet(lb, ub + 1));
     }
 
     @Override
@@ -119,18 +119,18 @@ public class IntegerSetDomain extends IntegerDomain {
         if (lb > ub) {
             return new Iter(lb, ub);
         } else {
-            return this.values.subSet(lb, ub + 1).iterator();
+            return values.subSet(lb, ub + 1).iterator();
         }
     }
 
     @Override
     public IntegerDomain cup(final IntegerDomain d) {
         if (d instanceof IntegerSetDomain) {
-            final SortedSet<Integer> newValues = new TreeSet<>(this.values);
+            final SortedSet<Integer> newValues = new TreeSet<>(values);
             newValues.addAll(((IntegerSetDomain) d).values);
             return create(newValues);
         } else {
-            return new IntegerRangeDomain(Math.min(this.lb, d.lb), Math.max(this.ub, d.ub));
+            return new IntegerRangeDomain(Math.min(lb, d.lb), Math.max(ub, d.ub));
         }
     }
 
@@ -140,7 +140,7 @@ public class IntegerSetDomain extends IntegerDomain {
             return bound(d.lb, d.ub);
         } else {
             final SortedSet<Integer> newValues = new TreeSet<>();
-            for (final int value : this.values) {
+            for (final int value : values) {
                 if (d.contains(value)) {
                     newValues.add(value);
                 }
@@ -152,7 +152,7 @@ public class IntegerSetDomain extends IntegerDomain {
     @Override
     public IntegerDomain neg() {
         final SortedSet<Integer> d = new TreeSet<>();
-        for (final int value : this.values) {
+        for (final int value : values) {
             d.add(-value);
         }
         return create(d);
@@ -161,7 +161,7 @@ public class IntegerSetDomain extends IntegerDomain {
     @Override
     public IntegerDomain abs() {
         final SortedSet<Integer> d = new TreeSet<>();
-        for (final int value : this.values) {
+        for (final int value : values) {
             d.add(Math.abs(value));
         }
         return create(d);
@@ -170,7 +170,7 @@ public class IntegerSetDomain extends IntegerDomain {
     @Override
     public IntegerDomain add(final int a) {
         final SortedSet<Integer> d = new TreeSet<>();
-        for (final int value : this.values) {
+        for (final int value : values) {
             d.add(value + a);
         }
         return create(d);
@@ -181,13 +181,13 @@ public class IntegerSetDomain extends IntegerDomain {
         if (d.size() == 1) {
             return add(d.lb);
         } else if (size() == 1) {
-            return d.add(this.lb);
+            return d.add(lb);
         }
         if (d instanceof IntegerRangeDomain) {
-            return new IntegerRangeDomain(this.lb + d.lb, this.ub + d.ub);
+            return new IntegerRangeDomain(lb + d.lb, ub + d.ub);
         } else {
             final SortedSet<Integer> newValues = new TreeSet<>();
-            for (final int value1 : this.values) {
+            for (final int value1 : values) {
                 for (final int value2 : ((IntegerSetDomain) d).values) {
                     newValues.add(value1 + value2);
                 }
@@ -199,7 +199,7 @@ public class IntegerSetDomain extends IntegerDomain {
     @Override
     public IntegerDomain mul(final int a) {
         final SortedSet<Integer> d = new TreeSet<>();
-        for (final int value : this.values) {
+        for (final int value : values) {
             d.add(value * a);
         }
         return create(d);
@@ -210,13 +210,13 @@ public class IntegerSetDomain extends IntegerDomain {
         if (d.size() == 1) {
             return mul(d.lb);
         } else if (size() == 1) {
-            return d.mul(this.lb);
+            return d.mul(lb);
         }
         if (d instanceof IntegerRangeDomain || size() * d.size() > MAX_SET_SIZE) {
             return mulRanges(this, d);
         } else {
             final SortedSet<Integer> newValues = new TreeSet<>();
-            for (final int value1 : this.values) {
+            for (final int value1 : values) {
                 for (final int value2 : ((IntegerSetDomain) d).values) {
                     newValues.add(value1 * value2);
                 }
@@ -228,7 +228,7 @@ public class IntegerSetDomain extends IntegerDomain {
     @Override
     public IntegerDomain div(final int a) {
         final SortedSet<Integer> d = new TreeSet<>();
-        for (final int value : this.values) {
+        for (final int value : values) {
             d.add(div(value, a));
         }
         return create(d);
@@ -243,7 +243,7 @@ public class IntegerSetDomain extends IntegerDomain {
             return divRanges(this, d);
         } else {
             final SortedSet<Integer> newValues = new TreeSet<>();
-            for (final int value1 : this.values) {
+            for (final int value1 : values) {
                 for (final int value2 : ((IntegerSetDomain) d).values) {
                     newValues.add(div(value1, value2));
                 }
@@ -256,7 +256,7 @@ public class IntegerSetDomain extends IntegerDomain {
     public IntegerDomain mod(int a) {
         a = Math.abs(a);
         final SortedSet<Integer> d = new TreeSet<>();
-        for (final int value : this.values) {
+        for (final int value : values) {
             d.add(value % a);
         }
         return create(d);
@@ -271,7 +271,7 @@ public class IntegerSetDomain extends IntegerDomain {
             return new IntegerRangeDomain(0, Math.max(Math.abs(d.lb), Math.abs(d.ub)) - 1);
         } else {
             final SortedSet<Integer> d0 = new TreeSet<>();
-            for (final int value1 : this.values) {
+            for (final int value1 : values) {
                 for (final int value2 : ((IntegerSetDomain) d).values) {
                     d0.add(value1 % value2);
                 }
@@ -282,37 +282,37 @@ public class IntegerSetDomain extends IntegerDomain {
 
     @Override
     public IntegerDomain min(final IntegerDomain d) {
-        if (this.ub <= d.lb) {
+        if (ub <= d.lb) {
             return this;
-        } else if (d.ub <= this.lb) {
+        } else if (d.ub <= lb) {
             return d;
         }
-        final int lb0 = Math.min(this.lb, d.lb);
-        final int ub0 = Math.min(this.ub, d.ub);
+        final int lb0 = Math.min(lb, d.lb);
+        final int ub0 = Math.min(ub, d.ub);
         return generateMinMaxRange(d, lb0, ub0);
     }
 
     @Override
     public IntegerDomain max(final IntegerDomain d) {
-        if (this.lb >= d.ub) {
+        if (lb >= d.ub) {
             return this;
-        } else if (d.lb >= this.ub) {
+        } else if (d.lb >= ub) {
             return d;
         }
-        final int lb0 = Math.max(this.lb, d.lb);
-        final int ub0 = Math.max(this.ub, d.ub);
+        final int lb0 = Math.max(lb, d.lb);
+        final int ub0 = Math.max(ub, d.ub);
         return generateMinMaxRange(d, lb0, ub0);
     }
 
     public SortedSet<Integer> headSet(final int value) {
-        return this.values.headSet(value);
+        return values.headSet(value);
     }
 
     private IntegerDomain generateMinMaxRange(final IntegerDomain d, final int lb0, final int ub0) {
         if (d instanceof IntegerRangeDomain) {
-            return create(this.values.subSet(lb0, ub0 + 1));
+            return create(values.subSet(lb0, ub0 + 1));
         } else {
-            SortedSet<Integer> newValues = new TreeSet<>(this.values);
+            SortedSet<Integer> newValues = new TreeSet<>(values);
             newValues.addAll(((IntegerSetDomain) d).values);
             newValues = newValues.subSet(lb0, ub0 + 1);
             return create(newValues);
@@ -320,11 +320,11 @@ public class IntegerSetDomain extends IntegerDomain {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {return true;}
         if (o == null || getClass() != o.getClass()) {return false;}
 
-        IntegerSetDomain that = (IntegerSetDomain) o;
+        final IntegerSetDomain that = (IntegerSetDomain) o;
 
         return Objects.equals(values, that.values);
     }

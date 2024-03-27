@@ -4,10 +4,7 @@ import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.IntegerClause;
 import com.booleworks.logicng.csp.IntegerDomain;
 import com.booleworks.logicng.csp.LinearExpression;
-import com.booleworks.logicng.formulas.Formula;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -18,8 +15,8 @@ public final class MultiplicationFunction extends BinaryFunction {
 
     @Override
     public Decomposition calculateDecomposition() {
-        final Decomposition resultLeft = this.left.decompose();
-        final Decomposition resultRight = this.right.decompose();
+        final Decomposition resultLeft = left.decompose();
+        final Decomposition resultRight = right.decompose();
         final Set<IntegerClause> constraints = new TreeSet<>(resultLeft.getAdditionalConstraints());
         constraints.addAll(resultRight.getAdditionalConstraints());
         final IntegerDomain domainLeft = resultLeft.getLinearExpression().getDomain();
@@ -33,25 +30,25 @@ public final class MultiplicationFunction extends BinaryFunction {
         } else if (domainLeft.size() <= domainRight.size()) {
             // left and right cannot be constants otherwise the domain size would have been 1
             final IntegerVariable a1;
-            if (this.left instanceof IntegerVariable) {
-                a1 = (IntegerVariable) this.left;
+            if (left instanceof IntegerVariable) {
+                a1 = (IntegerVariable) left;
             } else {
-                a1 = this.cspFactory.auxVariable(domainLeft);
-                constraints.addAll(cspFactory.eq(a1, this.left).decompose());
+                a1 = cspFactory.auxVariable(domainLeft);
+                constraints.addAll(cspFactory.eq(a1, left).decompose());
             }
             final IntegerVariable a2;
-            if (this.right instanceof IntegerVariable) {
-                a2 = (IntegerVariable) this.right;
+            if (right instanceof IntegerVariable) {
+                a2 = (IntegerVariable) right;
             } else {
-                a2 = this.cspFactory.auxVariable(domainRight);
-                constraints.addAll(cspFactory.eq(a2, this.right).decompose());
+                a2 = cspFactory.auxVariable(domainRight);
+                constraints.addAll(cspFactory.eq(a2, right).decompose());
             }
             final IntegerDomain newDomain = domainLeft.mul(domainRight);
-            final IntegerVariable newVariable = this.cspFactory.auxVariable(newDomain);
-            constraints.addAll(this.cspFactory.eq(newVariable, this.cspFactory.mul(a1, a2)).decompose());
+            final IntegerVariable newVariable = cspFactory.auxVariable(newDomain);
+            constraints.addAll(cspFactory.eq(newVariable, cspFactory.mul(a1, a2)).decompose());
             return new Decomposition(new LinearExpression(newVariable), constraints);
         } else {
-            return cspFactory.mul(this.right, this.left).decompose();
+            return cspFactory.mul(right, left).decompose();
         }
     }
 

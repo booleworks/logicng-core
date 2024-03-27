@@ -23,11 +23,11 @@ public abstract class Function extends Term {
             return false;
         }
         final Function that = (Function) o;
-        return this.type == that.type;
+        return type == that.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.type);
+        return Objects.hash(type);
     }
 }

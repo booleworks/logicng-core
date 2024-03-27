@@ -12,7 +12,7 @@ public final class Constant extends Term implements Comparable<Constant> {
     }
 
     public int getValue() {
-        return this.value;
+        return value;
     }
 
     @Override
@@ -22,7 +22,7 @@ public final class Constant extends Term implements Comparable<Constant> {
 
     @Override
     protected Decomposition calculateDecomposition() {
-        return new Decomposition(new LinearExpression(this.value));
+        return new Decomposition(new LinearExpression(value));
     }
 
     @Override
@@ -30,27 +30,27 @@ public final class Constant extends Term implements Comparable<Constant> {
         if (this == other) {
             return true;
         }
-        if (other instanceof Term && this.cspFactory == ((Term) other).cspFactory) {
+        if (other instanceof Term && cspFactory == ((Term) other).cspFactory) {
             return false; // the same factory would have produced a == object
         }
         if (other instanceof Constant) {
-            return this.value == ((Constant) other).value;
+            return value == ((Constant) other).value;
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return this.value;
+        return value;
     }
 
     @Override
     public String toString() {
-        return String.valueOf(this.value);
+        return String.valueOf(value);
     }
 
     @Override
     public int compareTo(final Constant o) {
-        return Integer.compare(this.value, o.value);
+        return Integer.compare(value, o.value);
     }
 }

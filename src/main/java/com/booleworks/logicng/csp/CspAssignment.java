@@ -18,35 +18,35 @@ public class CspAssignment {
     public CspAssignment() {}
 
     public Map<IntegerVariable, Integer> getIntegerAssignments() {
-        return Collections.unmodifiableMap(this.integerAssignments);
+        return Collections.unmodifiableMap(integerAssignments);
     }
 
     public SortedSet<Variable> positiveBooleans() {
-        return Collections.unmodifiableSortedSet(this.posBooleans);
+        return Collections.unmodifiableSortedSet(posBooleans);
     }
 
     public SortedSet<Literal> negativeBooleans() {
-        return Collections.unmodifiableSortedSet(this.negBooleans);
+        return Collections.unmodifiableSortedSet(negBooleans);
     }
 
     public void addLiteral(final Literal lit) {
         if (lit.phase()) {
-            this.posBooleans.add(lit.variable());
+            posBooleans.add(lit.variable());
         } else {
-            this.negBooleans.add(lit);
+            negBooleans.add(lit);
         }
     }
 
     public void addPos(final Variable var) {
-        this.posBooleans.add(var);
+        posBooleans.add(var);
     }
 
     public void addNeg(final Literal lit) {
-        this.negBooleans.add(lit);
+        negBooleans.add(lit);
     }
 
     public void addIntAssignment(final IntegerVariable var, final int value) {
-        this.integerAssignments.put(var, value);
+        integerAssignments.put(var, value);
     }
 
     @Override
@@ -56,25 +56,25 @@ public class CspAssignment {
 
         final CspAssignment that = (CspAssignment) o;
 
-        if (!this.integerAssignments.equals(that.integerAssignments)) {return false;}
-        if (!this.posBooleans.equals(that.posBooleans)) {return false;}
-        return this.negBooleans.equals(that.negBooleans);
+        if (!integerAssignments.equals(that.integerAssignments)) {return false;}
+        if (!posBooleans.equals(that.posBooleans)) {return false;}
+        return negBooleans.equals(that.negBooleans);
     }
 
     @Override
     public int hashCode() {
-        int result = this.integerAssignments.hashCode();
-        result = 31 * result + this.posBooleans.hashCode();
-        result = 31 * result + this.negBooleans.hashCode();
+        int result = integerAssignments.hashCode();
+        result = 31 * result + posBooleans.hashCode();
+        result = 31 * result + negBooleans.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
         return "CspAssignment{" +
-                "integerAssignments=" + this.integerAssignments +
-                ", posBooleans=" + this.posBooleans +
-                ", negBooleans=" + this.negBooleans +
+                "integerAssignments=" + integerAssignments +
+                ", posBooleans=" + posBooleans +
+                ", negBooleans=" + negBooleans +
                 '}';
     }
 }

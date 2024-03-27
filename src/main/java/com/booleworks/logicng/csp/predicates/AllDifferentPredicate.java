@@ -30,16 +30,16 @@ public class AllDifferentPredicate extends CspPredicate {
 
     @Override
     protected Set<IntegerClause> calculateDecomposition() {
-        final FormulaFactory f = this.factory();
+        final FormulaFactory f = factory();
         final Set<IntegerClause> clauses = new TreeSet<>();
-        for (int i = 0; i < this.terms.size(); i++) {
-            for (int j = i + 1; j < this.terms.size(); j++) {
-                clauses.addAll(this.cspFactory.ne(this.terms.get(i), this.terms.get(j)).decompose());
+        for (int i = 0; i < terms.size(); i++) {
+            for (int j = i + 1; j < terms.size(); j++) {
+                clauses.addAll(cspFactory.ne(terms.get(i), terms.get(j)).decompose());
             }
         }
         int lb = Integer.MAX_VALUE;
         int ub = Integer.MIN_VALUE;
-        for (final Term term : this.terms) {
+        for (final Term term : terms) {
             final Term.Decomposition decompositionResult = term.decompose();
             final IntegerDomain d = decompositionResult.getLinearExpression().getDomain();
             lb = Math.min(lb, d.lb());
@@ -48,9 +48,9 @@ public class AllDifferentPredicate extends CspPredicate {
         Set<IntegerClause> xs1 = new TreeSet<>();
         Set<IntegerClause> xs2 = new TreeSet<>();
         boolean first = true;
-        for (int i = 0; i < this.terms.size(); i++) {
-            final Set<IntegerClause> new1 = this.cspFactory.lt(this.terms.get(i), this.cspFactory.constant(lb + this.terms.size() - 1)).negate().decompose();
-            final Set<IntegerClause> new2 = this.cspFactory.gt(this.terms.get(i), this.cspFactory.constant(ub - this.terms.size() + 1)).negate().decompose();
+        for (int i = 0; i < terms.size(); i++) {
+            final Set<IntegerClause> new1 = cspFactory.lt(terms.get(i), cspFactory.constant(lb + terms.size() - 1)).negate().decompose();
+            final Set<IntegerClause> new2 = cspFactory.gt(terms.get(i), cspFactory.constant(ub - terms.size() + 1)).negate().decompose();
             if (first) {
                 xs1 = new1;
                 xs2 = new2;
@@ -71,21 +71,21 @@ public class AllDifferentPredicate extends CspPredicate {
             return true;
         }
         if (getClass() == other.getClass()) {
-            if (this.factory() == ((AllDifferentPredicate) other).factory()) {
+            if (factory() == ((AllDifferentPredicate) other).factory()) {
                 return false; // the same factory would have produced a == object
             }
-            return Objects.equals(this.terms, ((AllDifferentPredicate) other).terms);
+            return Objects.equals(terms, ((AllDifferentPredicate) other).terms);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.terms);
+        return Objects.hash(terms);
     }
 
     @Override
     public String toString() {
-        return this.type + "(" + this.terms.stream().map(Object::toString).collect(Collectors.joining(", ")) + ")";
+        return type + "(" + terms.stream().map(Object::toString).collect(Collectors.joining(", ")) + ")";
     }
 }

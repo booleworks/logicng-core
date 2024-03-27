@@ -44,25 +44,25 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     public int size() {
-        return this.coef.size();
+        return coef.size();
     }
 
     public int getB() {
-        return this.b;
+        return b;
     }
 
     public SortedMap<IntegerVariable, Integer> getCoef() {
-        return this.coef;
+        return coef;
     }
 
     public Set<IntegerVariable> getVariables() {
-        return this.coef.keySet();
+        return coef.keySet();
     }
 
     public IntegerVariable[] getVariablesSorted() {
-        final int n = this.coef.size();
+        final int n = coef.size();
         IntegerVariable[] vs = new IntegerVariable[n];
-        vs = this.coef.keySet().toArray(vs);
+        vs = coef.keySet().toArray(vs);
         Arrays.sort(vs, (v1, v2) -> {
             final long s1 = v1.getDomain().size();
             final long s2 = v2.getDomain().size();
@@ -80,11 +80,11 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     public boolean isIntegerVariable() {
-        return this.b == 0 && size() == 1 && getA(this.coef.firstKey()) == 1;
+        return b == 0 && size() == 1 && getA(coef.firstKey()) == 1;
     }
 
     public Integer getA(final IntegerVariable v) {
-        Integer a = this.coef.get(v);
+        Integer a = coef.get(v);
         if (a == null) {
             a = 0;
         }
@@ -103,33 +103,33 @@ public class LinearExpression implements Comparable<LinearExpression> {
 
     public int factor() {
         if (size() == 0) {
-            return this.b == 0 ? 1 : Math.abs(this.b);
+            return b == 0 ? 1 : Math.abs(b);
         }
-        int gcd = Math.abs(getA(this.coef.firstKey()));
-        for (final IntegerVariable v : this.coef.keySet()) {
+        int gcd = Math.abs(getA(coef.firstKey()));
+        for (final IntegerVariable v : coef.keySet()) {
             gcd = gcd(gcd, Math.abs(getA(v)));
             if (gcd == 1) {break;}
         }
-        if (this.b != 0) {
-            gcd = gcd(gcd, Math.abs(this.b));
+        if (b != 0) {
+            gcd = gcd(gcd, Math.abs(b));
         }
         return gcd;
     }
 
     public IntegerDomain getDomain() {
-        if (this.domain == null) {
-            this.domain = new IntegerRangeDomain(this.b, this.b);
-            for (final IntegerVariable v : this.coef.keySet()) {
+        if (domain == null) {
+            domain = new IntegerRangeDomain(b, b);
+            for (final IntegerVariable v : coef.keySet()) {
                 final int a = getA(v);
-                this.domain = this.domain.add(v.getDomain().mul(a));
+                domain = domain.add(v.getDomain().mul(a));
             }
         }
-        return this.domain;
+        return domain;
     }
 
     public IntegerDomain getDomainExcept(final IntegerVariable v, final Map<IntegerVariable, IntegerVariable> restrictions) {
-        IntegerDomain d = new IntegerRangeDomain(this.b, this.b);
-        for (final IntegerVariable v2 : this.coef.keySet()) {
+        IntegerDomain d = new IntegerRangeDomain(b, b);
+        for (final IntegerVariable v2 : coef.keySet()) {
             if (!v2.equals(v)) {
                 final int a = getA(v2);
                 d = d.add(restrictions.getOrDefault(v2, v2).getDomain().mul(a));
@@ -140,7 +140,7 @@ public class LinearExpression implements Comparable<LinearExpression> {
 
     public boolean isDomainLargerThan(final long limit) {
         long size = 1;
-        for (final IntegerVariable v : this.coef.keySet()) {
+        for (final IntegerVariable v : coef.keySet()) {
             size *= v.getDomain().size();
             if (size > limit) {return true;}
         }
@@ -148,15 +148,15 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     public Term toTerm(final CspFactory cspFactory) {
-        if (this.isIntegerVariable()) {
-            return this.coef.firstKey();
-        } else if (this.coef.isEmpty()) {
-            return cspFactory.constant(this.b);
+        if (isIntegerVariable()) {
+            return coef.firstKey();
+        } else if (coef.isEmpty()) {
+            return cspFactory.constant(b);
         }
         final List<Term> terms = new ArrayList<>();
-        this.coef.forEach((v, c) -> terms.add(cspFactory.mul(c, v)));
-        if (this.b != 0) {
-            terms.add(cspFactory.constant(this.b));
+        coef.forEach((v, c) -> terms.add(cspFactory.mul(c, v)));
+        if (b != 0) {
+            terms.add(cspFactory.constant(b));
         }
         return cspFactory.add(terms);
     }
@@ -168,7 +168,7 @@ public class LinearExpression implements Comparable<LinearExpression> {
         if (this == linearExpression) {
             return true;
         }
-        return this.b == linearExpression.b && this.coef.equals(linearExpression.coef);
+        return b == linearExpression.b && coef.equals(linearExpression.coef);
     }
 
     @Override
@@ -189,14 +189,14 @@ public class LinearExpression implements Comparable<LinearExpression> {
         if (this.equals(other)) {
             return 0;
         }
-        if (this.coef.size() < other.coef.size()) {
+        if (coef.size() < other.coef.size()) {
             return -1;
         }
-        if (this.coef.size() > other.coef.size()) {
+        if (coef.size() > other.coef.size()) {
             return 1;
         }
-        final Iterator<IntegerVariable> it1 = this.coef.keySet().iterator();
-        final Iterator<IntegerVariable> it2 = this.coef.keySet().iterator();
+        final Iterator<IntegerVariable> it1 = coef.keySet().iterator();
+        final Iterator<IntegerVariable> it2 = coef.keySet().iterator();
         while (it1.hasNext()) {
             assert it2.hasNext();
             final IntegerVariable v1 = it1.next();
@@ -210,15 +210,15 @@ public class LinearExpression implements Comparable<LinearExpression> {
                 return ca;
             }
         }
-        return Integer.compare(this.b, other.b);
+        return Integer.compare(b, other.b);
     }
 
     @Override
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((this.coef == null) ? 0 : this.coef.hashCode());
-        result = PRIME * result + (int) this.b;
+        result = PRIME * result + ((coef == null) ? 0 : coef.hashCode());
+        result = PRIME * result + (int) b;
         return result;
     }
 
@@ -226,7 +226,7 @@ public class LinearExpression implements Comparable<LinearExpression> {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("(add ");
-        for (final IntegerVariable v : this.coef.keySet()) {
+        for (final IntegerVariable v : coef.keySet()) {
             final long c = getA(v);
             if (c == 0) {
             } else if (c == 1) {
@@ -240,7 +240,7 @@ public class LinearExpression implements Comparable<LinearExpression> {
             }
             sb.append(" ");
         }
-        sb.append(this.b);
+        sb.append(b);
         sb.append(")");
         return sb.toString();
     }

@@ -35,16 +35,16 @@ public class OrderEncodingResult {
     }
 
     public Variable intVariableInstance(final IntegerVariable group, final int index) {
-        final Map<Integer, Variable> intMap = this.variableMap.computeIfAbsent(group, k -> new TreeMap<>());
+        final Map<Integer, Variable> intMap = variableMap.computeIfAbsent(group, k -> new TreeMap<>());
         return intMap.computeIfAbsent(index, i -> newVariable());
     }
 
     public void addClause(final Literal... literals) {
-        this.encodingResult.addClause(literals);
+        encodingResult.addClause(literals);
     }
 
     public void addClause(final LNGVector<Literal> literals) {
-        this.encodingResult.addClause(literals);
+        encodingResult.addClause(literals);
     }
 
     private Variable newVariable() {
@@ -52,18 +52,18 @@ public class OrderEncodingResult {
     }
 
     public List<Formula> result() {
-        return this.encodingResult.result();
+        return encodingResult.result();
     }
 
     public FormulaFactory factory() {
-        return this.encodingResult.factory();
+        return encodingResult.factory();
     }
 
     public Map<IntegerVariable, Map<Integer, Variable>> getVariableMap() {
-        return this.variableMap;
+        return variableMap;
     }
 
     public Set<Variable> getRelevantSatVariables() {
-        return this.variableMap.values().stream().flatMap(m -> m.values().stream()).collect(Collectors.toSet());
+        return variableMap.values().stream().flatMap(m -> m.values().stream()).collect(Collectors.toSet());
     }
 }

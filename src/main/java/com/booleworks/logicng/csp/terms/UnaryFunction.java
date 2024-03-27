@@ -13,7 +13,7 @@ public abstract class UnaryFunction extends Function {
     }
 
     public Term getOperand() {
-        return this.operand;
+        return operand;
     }
 
     @Override
@@ -22,25 +22,25 @@ public abstract class UnaryFunction extends Function {
             return true;
         }
         if (getClass() == other.getClass()) {
-            if (this.cspFactory == ((UnaryFunction) other).cspFactory) {
+            if (cspFactory == ((UnaryFunction) other).cspFactory) {
                 return false; // the same factory would have produced a == object
             }
-            return Objects.equals(this.operand, ((UnaryFunction) other).operand);
+            return Objects.equals(operand, ((UnaryFunction) other).operand);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.type, this.operand);
+        return Objects.hash(type, operand);
     }
 
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append(this.type);
+        builder.append(type);
         builder.append('<');
-        builder.append(this.operand);
+        builder.append(operand);
         builder.append('>');
         return builder.toString();
     }

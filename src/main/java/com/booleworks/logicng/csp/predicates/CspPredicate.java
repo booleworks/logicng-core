@@ -18,7 +18,7 @@ public abstract class CspPredicate implements Predicate {
     }
 
     public Type getType() {
-        return this.type;
+        return type;
     }
 
     public abstract CspPredicate negate();
@@ -26,15 +26,15 @@ public abstract class CspPredicate implements Predicate {
     protected abstract Set<IntegerClause> calculateDecomposition();
 
     public Set<IntegerClause> decompose() {
-        if (this.decomposition == null) {
-            this.decomposition = calculateDecomposition();
+        if (decomposition == null) {
+            decomposition = calculateDecomposition();
         }
-        return this.decomposition;
+        return decomposition;
     }
 
     @Override
     public FormulaFactory factory() {
-        return this.cspFactory.getFormulaFactory();
+        return cspFactory.getFormulaFactory();
     }
 
     public enum Type {

@@ -252,7 +252,7 @@ public abstract class IntegerDomain {
      * @return the lower bound
      */
     public int lb() {
-        return this.lb;
+        return lb;
     }
 
     /**
@@ -260,11 +260,11 @@ public abstract class IntegerDomain {
      * @return the upper bound
      */
     public int ub() {
-        return this.ub;
+        return ub;
     }
 
     public Iterator<Integer> iterator() {
-        return values(this.lb, this.ub);
+        return values(lb, ub);
     }
 
     protected static IntegerDomain create(final SortedSet<Integer> domain) {
@@ -339,12 +339,12 @@ public abstract class IntegerDomain {
 
         @Override
         public boolean hasNext() {
-            return this.value <= this.ub;
+            return value <= ub;
         }
 
         @Override
         public Integer next() {
-            return this.value++;
+            return value++;
         }
 
         @Override

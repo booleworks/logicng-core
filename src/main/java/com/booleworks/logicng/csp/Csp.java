@@ -38,19 +38,19 @@ public class Csp {
     }
 
     public Set<IntegerVariable> getIntegerVariables() {
-        return this.integerVariables;
+        return integerVariables;
     }
 
     public Set<Variable> getBooleanVariables() {
-        return this.booleanVariables;
+        return booleanVariables;
     }
 
     public Set<IntegerClause> getClauses() {
-        return this.clauses;
+        return clauses;
     }
 
     public CspFactory getCspFactory() {
-        return this.f;
+        return f;
     }
 
     @Override
@@ -109,16 +109,16 @@ public class Csp {
         }
 
         public Builder updateClauses(final Set<IntegerClause> clauses) {
-            this.csp.clauses = clauses;
+            csp.clauses = clauses;
             return this;
         }
 
         public boolean addIntegerVariable(final IntegerVariable v) {
-            return this.csp.integerVariables.add(v);
+            return csp.integerVariables.add(v);
         }
 
         public boolean addBooleanVariable(final Variable v) {
-            return this.csp.booleanVariables.add(v);
+            return csp.booleanVariables.add(v);
         }
 
         public Csp build() {
@@ -128,24 +128,24 @@ public class Csp {
         }
 
         public Set<IntegerVariable> getIntegerVariables() {
-            return this.csp.integerVariables;
+            return csp.integerVariables;
         }
 
         public Set<Variable> getBooleanVariables() {
-            return this.csp.booleanVariables;
+            return csp.booleanVariables;
         }
 
         public Set<IntegerClause> getClauses() {
-            return this.csp.clauses;
+            return csp.clauses;
         }
 
         public CspFactory getCspFactory() {
-            return this.csp.f;
+            return csp.f;
         }
 
         @Override
         public String toString() {
-            return this.csp.toString();
+            return csp.toString();
         }
     }
 }

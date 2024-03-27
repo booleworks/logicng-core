@@ -15,11 +15,11 @@ public abstract class BinaryFunction extends Function {
     }
 
     public Term getLeft() {
-        return this.left;
+        return left;
     }
 
     public Term getRight() {
-        return this.right;
+        return right;
     }
 
     boolean equals(final Object other, final boolean withOrder) {
@@ -27,32 +27,32 @@ public abstract class BinaryFunction extends Function {
             return true;
         }
         if (getClass() == other.getClass()) {
-            if (this.cspFactory == ((BinaryFunction) other).cspFactory) {
+            if (cspFactory == ((BinaryFunction) other).cspFactory) {
                 return false; // the same factory would have produced a == object
             }
             final BinaryFunction that = (BinaryFunction) other;
             return withOrder
-                    ? Objects.equals(this.left, that.left) && Objects.equals(this.right, that.right) ||
-                    Objects.equals(this.left, that.right) && Objects.equals(this.right, that.left)
-                    : Objects.equals(this.left, that.left) && Objects.equals(this.right, that.right);
+                    ? Objects.equals(left, that.left) && Objects.equals(right, that.right) ||
+                    Objects.equals(left, that.right) && Objects.equals(right, that.left)
+                    : Objects.equals(left, that.left) && Objects.equals(right, that.right);
         }
         return false;
     }
 
     int hashCode(final boolean withOrder) {
-        return this.type.ordinal() + (withOrder
-                ? 11 * this.left.hashCode() - 13 * this.right.hashCode()
-                : 17 * this.left.hashCode() + 19 * this.right.hashCode());
+        return type.ordinal() + (withOrder
+                ? 11 * left.hashCode() - 13 * right.hashCode()
+                : 17 * left.hashCode() + 19 * right.hashCode());
     }
 
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append(this.type);
+        builder.append(type);
         builder.append('<');
-        builder.append(this.left);
+        builder.append(left);
         builder.append(", ");
-        builder.append(this.right);
+        builder.append(right);
         builder.append('>');
         return builder.toString();
     }

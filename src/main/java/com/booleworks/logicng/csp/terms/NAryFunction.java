@@ -17,7 +17,7 @@ public abstract class NAryFunction extends Function {
     }
 
     public Set<Term> getOperands() {
-        return Collections.unmodifiableSet(this.operands);
+        return Collections.unmodifiableSet(operands);
     }
 
     @Override
@@ -26,25 +26,25 @@ public abstract class NAryFunction extends Function {
             return true;
         }
         if (getClass() == other.getClass()) {
-            if (this.cspFactory == ((NAryFunction) other).cspFactory) {
+            if (cspFactory == ((NAryFunction) other).cspFactory) {
                 return false; // the same factory would have produced a == object
             }
-            return Objects.equals(this.operands, ((NAryFunction) other).operands);
+            return Objects.equals(operands, ((NAryFunction) other).operands);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.type, this.operands);
+        return Objects.hash(type, operands);
     }
 
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append(this.type);
+        builder.append(type);
         builder.append('<');
-        builder.append(this.operands.stream().map(Object::toString).collect(Collectors.joining(", ")));
+        builder.append(operands.stream().map(Object::toString).collect(Collectors.joining(", ")));
         builder.append('>');
         return builder.toString();
     }

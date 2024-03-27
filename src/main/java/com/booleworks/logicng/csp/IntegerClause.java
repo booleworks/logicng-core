@@ -38,21 +38,21 @@ public class IntegerClause implements Comparable<IntegerClause> {
     }
 
     public SortedSet<Literal> getBoolLiterals() {
-        return this.boolLiterals;
+        return boolLiterals;
     }
 
     public SortedSet<ArithmeticLiteral> getArithmeticLiterals() {
-        return this.arithLiterals;
+        return arithLiterals;
     }
 
     public Set<IntegerVariable> getCommonVariables() {
-        if(!boolLiterals.isEmpty()) {
+        if (!boolLiterals.isEmpty()) {
             return Collections.emptySet();
         }
         Set<IntegerVariable> commonVars = null;
-        for(ArithmeticLiteral lit : arithLiterals) {
-            Set<IntegerVariable> vs = lit.getVariables();
-            if(commonVars == null) {
+        for (final ArithmeticLiteral lit : arithLiterals) {
+            final Set<IntegerVariable> vs = lit.getVariables();
+            if (commonVars == null) {
                 commonVars = vs;
             } else {
                 commonVars = commonVars.stream().filter(vs::contains).collect(Collectors.toSet());
@@ -62,11 +62,11 @@ public class IntegerClause implements Comparable<IntegerClause> {
     }
 
     public int size() {
-        return this.boolLiterals.size() + this.arithLiterals.size();
+        return boolLiterals.size() + arithLiterals.size();
     }
 
     public boolean isValid() {
-        for (final ArithmeticLiteral lit : this.arithLiterals) {
+        for (final ArithmeticLiteral lit : arithLiterals) {
             if (lit.isValid()) {
                 return true;
             }
@@ -75,7 +75,7 @@ public class IntegerClause implements Comparable<IntegerClause> {
     }
 
     public boolean isUnsat() {
-        for (final ArithmeticLiteral lit : this.arithLiterals) {
+        for (final ArithmeticLiteral lit : arithLiterals) {
             if (!lit.isUnsat()) {
                 return false;
             }
@@ -88,8 +88,8 @@ public class IntegerClause implements Comparable<IntegerClause> {
         final StringBuilder builder = new StringBuilder();
         builder.append("CLAUSE<");
         final String lits = Stream.concat(
-                this.boolLiterals.stream().map(Object::toString),
-                this.arithLiterals.stream().map(Object::toString)
+                boolLiterals.stream().map(Object::toString),
+                arithLiterals.stream().map(Object::toString)
         ).collect(Collectors.joining(", "));
         builder.append(lits);
         builder.append(">");
@@ -103,14 +103,14 @@ public class IntegerClause implements Comparable<IntegerClause> {
 
         final IntegerClause that = (IntegerClause) o;
 
-        if (!this.boolLiterals.equals(that.boolLiterals)) {return false;}
-        return this.arithLiterals.equals(that.arithLiterals);
+        if (!boolLiterals.equals(that.boolLiterals)) {return false;}
+        return arithLiterals.equals(that.arithLiterals);
     }
 
     @Override
     public int hashCode() {
-        int result = this.boolLiterals.hashCode();
-        result = 31 * result + this.arithLiterals.hashCode();
+        int result = boolLiterals.hashCode();
+        result = 31 * result + arithLiterals.hashCode();
         return result;
     }
 
@@ -124,9 +124,9 @@ public class IntegerClause implements Comparable<IntegerClause> {
                 return c;
             }
         }
-        if (this.arithLiterals.size() < other.arithLiterals.size()) {
+        if (arithLiterals.size() < other.arithLiterals.size()) {
             return -1;
-        } else if (other.arithLiterals.size() < this.arithLiterals.size()) {
+        } else if (other.arithLiterals.size() < arithLiterals.size()) {
             return 1;
         }
         final Iterator<Literal> leftBoolIter = boolLiterals.iterator();
@@ -137,7 +137,7 @@ public class IntegerClause implements Comparable<IntegerClause> {
                 return c;
             }
         }
-        return Integer.compare(this.boolLiterals.size(), other.boolLiterals.size());
+        return Integer.compare(boolLiterals.size(), other.boolLiterals.size());
     }
 
     public static Set<IntegerClause> factorize(final Set<IntegerClause> left, final Set<IntegerClause> right) {

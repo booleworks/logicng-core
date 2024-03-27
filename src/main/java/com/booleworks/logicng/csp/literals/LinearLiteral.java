@@ -23,20 +23,20 @@ public class LinearLiteral extends ArithmeticLiteral {
     }
 
     public LinearExpression getSum() {
-        return this.sum;
+        return sum;
     }
 
     public Operator getOperator() {
-        return this.op;
+        return op;
     }
 
     @Override
     public Set<IntegerVariable> getVariables() {
-        return this.sum.getVariables();
+        return sum.getVariables();
     }
 
     @Override
-    public int[] getBound(final IntegerVariable v, Map<IntegerVariable, IntegerVariable> restrictions) {
+    public int[] getBound(final IntegerVariable v, final Map<IntegerVariable, IntegerVariable> restrictions) {
         final int a = sum.getA(v);
         final IntegerDomain d = sum.getDomainExcept(v, restrictions);
         int lb = v.getDomain().lb();
@@ -68,13 +68,13 @@ public class LinearLiteral extends ArithmeticLiteral {
     }
 
     public LinearExpression getLinearExpression() {
-        return this.sum;
+        return sum;
     }
 
     @Override
     public boolean isValid() {
-        final IntegerDomain d = this.sum.getDomain();
-        switch (this.op) {
+        final IntegerDomain d = sum.getDomain();
+        switch (op) {
             case LE:
                 return d.ub() <= 0;
             case EQ:
@@ -88,8 +88,8 @@ public class LinearLiteral extends ArithmeticLiteral {
 
     @Override
     public boolean isUnsat() {
-        final IntegerDomain d = this.sum.getDomain();
-        switch (this.op) {
+        final IntegerDomain d = sum.getDomain();
+        switch (op) {
             case LE:
                 return d.lb() > 0;
             case EQ:
@@ -126,7 +126,7 @@ public class LinearLiteral extends ArithmeticLiteral {
 
     @Override
     public String toString() {
-        return this.op.toString() + "(" + this.sum.toString() + " 0)";
+        return op.toString() + "(" + sum.toString() + " 0)";
     }
 
     @Override

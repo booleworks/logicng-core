@@ -75,7 +75,7 @@ import java.util.Objects;
  */
 public final class IntegerVariable extends Term implements Comparable<IntegerVariable> {
     private final String name;
-    private IntegerDomain domain;
+    private final IntegerDomain domain;
     private final boolean aux;
 
     /**
@@ -102,7 +102,7 @@ public final class IntegerVariable extends Term implements Comparable<IntegerVar
      * @return whether this variable is unsatisfiable
      */
     public boolean isUnsatisfiable() {
-        return this.domain.isEmpty();
+        return domain.isEmpty();
     }
 
     @Override
@@ -116,11 +116,11 @@ public final class IntegerVariable extends Term implements Comparable<IntegerVar
     }
 
     public String getName() {
-        return this.name;
+        return name;
     }
 
     public IntegerDomain getDomain() {
-        return this.domain;
+        return domain;
     }
 
     @Override
@@ -131,7 +131,7 @@ public final class IntegerVariable extends Term implements Comparable<IntegerVar
         if (v == null) {
             return 1;
         }
-        return this.name.compareTo(v.getName());
+        return name.compareTo(v.getName());
     }
 
     @Override
@@ -139,24 +139,24 @@ public final class IntegerVariable extends Term implements Comparable<IntegerVar
         if (other == this) {
             return true;
         }
-        if (other instanceof Term && this.cspFactory == ((Term) other).cspFactory) {
+        if (other instanceof Term && cspFactory == ((Term) other).cspFactory) {
             return false; // the same factory would have produced a == object
         }
         if (other instanceof IntegerVariable) {
-            return Objects.equals(this.name, ((IntegerVariable) other).name);
+            return Objects.equals(name, ((IntegerVariable) other).name);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.name);
+        return Objects.hash(name);
     }
 
     @Override
     public String toString() {
         return "\"" +
-                this.name +
+                name +
                 "\"";
     }
 

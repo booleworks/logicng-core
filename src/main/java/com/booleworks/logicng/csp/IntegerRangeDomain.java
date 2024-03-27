@@ -23,12 +23,12 @@ public class IntegerRangeDomain extends IntegerDomain {
 
     @Override
     public int size() {
-        return this.lb <= this.ub ? this.ub - this.lb + 1 : 0;
+        return lb <= ub ? ub - lb + 1 : 0;
     }
 
     @Override
     public boolean contains(final int element) {
-        return this.lb <= element && element <= this.ub;
+        return lb <= element && element <= ub;
     }
 
     @Override
@@ -48,29 +48,29 @@ public class IntegerRangeDomain extends IntegerDomain {
 
     @Override
     public IntegerDomain cup(final IntegerDomain d) {
-        return new IntegerRangeDomain(Math.min(this.lb, d.lb), Math.max(this.ub, d.ub));
+        return new IntegerRangeDomain(Math.min(lb, d.lb), Math.max(ub, d.ub));
     }
 
     @Override
     public IntegerDomain cap(final IntegerDomain d) {
-        return d instanceof IntegerRangeDomain ? bound(d.lb, d.ub) : d.bound(this.lb, this.ub);
+        return d instanceof IntegerRangeDomain ? bound(d.lb, d.ub) : d.bound(lb, ub);
     }
 
     @Override
     public IntegerDomain neg() {
-        return new IntegerRangeDomain(-this.ub, -this.lb);
+        return new IntegerRangeDomain(-ub, -lb);
     }
 
     @Override
     public IntegerDomain abs() {
-        final int lb0 = Math.min(Math.abs(this.lb), Math.abs(this.ub));
-        final int ub0 = Math.max(Math.abs(this.lb), Math.abs(this.ub));
-        return this.lb <= 0 && 0 <= this.ub ? new IntegerRangeDomain(0, ub0) : new IntegerRangeDomain(lb0, ub0);
+        final int lb0 = Math.min(Math.abs(lb), Math.abs(ub));
+        final int ub0 = Math.max(Math.abs(lb), Math.abs(ub));
+        return lb <= 0 && 0 <= ub ? new IntegerRangeDomain(0, ub0) : new IntegerRangeDomain(lb0, ub0);
     }
 
     @Override
     public IntegerDomain add(final int a) {
-        return new IntegerRangeDomain(this.lb + a, this.ub + a);
+        return new IntegerRangeDomain(lb + a, ub + a);
     }
 
     @Override
@@ -78,21 +78,21 @@ public class IntegerRangeDomain extends IntegerDomain {
         if (d.size() == 1) {
             return add(d.lb);
         } else if (size() == 1) {
-            return d.add(this.lb);
+            return d.add(lb);
         }
-        return new IntegerRangeDomain(this.lb + d.lb, this.ub + d.ub);
+        return new IntegerRangeDomain(lb + d.lb, ub + d.ub);
     }
 
     @Override
     public IntegerDomain mul(final int a) {
         if (size() <= MAX_SET_SIZE) {
             final SortedSet<Integer> d = new TreeSet<>();
-            for (int value = this.lb; value <= this.ub; value++) {
+            for (int value = lb; value <= ub; value++) {
                 d.add(value * a);
             }
             return create(d);
         } else {
-            return a < 0 ? new IntegerRangeDomain(this.ub * a, this.lb * a) : new IntegerRangeDomain(this.lb * a, this.ub * a);
+            return a < 0 ? new IntegerRangeDomain(ub * a, lb * a) : new IntegerRangeDomain(lb * a, ub * a);
         }
     }
 
@@ -101,14 +101,14 @@ public class IntegerRangeDomain extends IntegerDomain {
         if (d.size() == 1) {
             return mul(d.lb);
         } else if (size() == 1) {
-            return d.mul(this.lb);
+            return d.mul(lb);
         }
         return mulRanges(this, d);
     }
 
     @Override
     public IntegerDomain div(final int a) {
-        return a < 0 ? new IntegerRangeDomain(div(this.ub, a), div(this.lb, a)) : new IntegerRangeDomain(div(this.lb, a), div(this.ub, a));
+        return a < 0 ? new IntegerRangeDomain(div(ub, a), div(lb, a)) : new IntegerRangeDomain(div(lb, a), div(ub, a));
     }
 
     @Override
@@ -132,22 +132,22 @@ public class IntegerRangeDomain extends IntegerDomain {
 
     @Override
     public IntegerDomain min(final IntegerDomain d) {
-        if (this.ub <= d.lb) {
+        if (ub <= d.lb) {
             return this;
-        } else if (d.ub <= this.lb) {
+        } else if (d.ub <= lb) {
             return d;
         }
-        return d instanceof IntegerRangeDomain ? new IntegerRangeDomain(Math.min(this.lb, d.lb), Math.min(this.ub, d.ub)) : d.min(this);
+        return d instanceof IntegerRangeDomain ? new IntegerRangeDomain(Math.min(lb, d.lb), Math.min(ub, d.ub)) : d.min(this);
     }
 
     @Override
     public IntegerDomain max(final IntegerDomain d) {
-        if (this.lb >= d.ub) {
+        if (lb >= d.ub) {
             return this;
-        } else if (d.lb >= this.ub) {
+        } else if (d.lb >= ub) {
             return d;
         }
-        return d instanceof IntegerRangeDomain ? new IntegerRangeDomain(Math.max(this.lb, d.lb), Math.max(this.ub, d.ub)) : d.max(this);
+        return d instanceof IntegerRangeDomain ? new IntegerRangeDomain(Math.max(lb, d.lb), Math.max(ub, d.ub)) : d.max(this);
     }
 
     @Override

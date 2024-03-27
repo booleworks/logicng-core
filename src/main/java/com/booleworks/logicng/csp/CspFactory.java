@@ -67,15 +67,15 @@ public class CspFactory {
     }
 
     public Constant zero() {
-        return this.zero;
+        return zero;
     }
 
     public Constant one() {
-        return this.one;
+        return one;
     }
 
     public Constant constant(final int value) {
-        return this.integerConstants.computeIfAbsent(value, c -> new Constant(this, value));
+        return integerConstants.computeIfAbsent(value, c -> new Constant(this, value));
     }
 
     public IntegerVariable variable(final String name, final int lowerBound, final int upperBound) {
@@ -90,7 +90,7 @@ public class CspFactory {
         if (domain.isEmpty()) {
             throw new IllegalArgumentException("Empty domain for variable " + name);
         }
-        final IntegerVariable existingVar = this.integerVariables.get(name);
+        final IntegerVariable existingVar = integerVariables.get(name);
         if (existingVar != null) {
             if (!domain.equals(existingVar.getDomain())) {
                 throw new IllegalArgumentException("Variable " + name + " already exists in the CSP factory with another domain");
@@ -98,7 +98,7 @@ public class CspFactory {
             return existingVar;
         }
         final IntegerVariable newVariable = new IntegerVariable(this, name, domain);
-        this.integerVariables.put(name, newVariable);
+        integerVariables.put(name, newVariable);
         return newVariable;
     }
 
@@ -122,7 +122,7 @@ public class CspFactory {
     }
 
     public IntegerVariable auxVariable(final IntegerDomain domain) {
-        return variable(AUX_PREFIX + this.auxCounter++, domain);
+        return variable(AUX_PREFIX + auxCounter++, domain);
     }
 
     public Term minus(final Term term) {
@@ -134,7 +134,7 @@ public class CspFactory {
         if (term instanceof Constant) {
             return constant(-((Constant) term).getValue());
         }
-        return this.unaryMinusTerms.computeIfAbsent(term, t -> new NegationFunction(this, term));
+        return unaryMinusTerms.computeIfAbsent(term, t -> new NegationFunction(this, term));
     }
 
     public Term add(final Term... terms) {
@@ -143,20 +143,20 @@ public class CspFactory {
 
     public Term add(final Collection<Term> terms) {
         final LinkedHashSet<Term> originalOperands = new LinkedHashSet<>(terms);
-        final Term foundFunction = this.addTerms.get(originalOperands);
+        final Term foundFunction = addTerms.get(originalOperands);
         if (foundFunction != null) {
             return foundFunction;
         }
         final LinkedHashSet<Term> compactedOperands = compactifyAddOperands(originalOperands);
         if (compactedOperands.size() == 1) {
             final Term term = compactedOperands.iterator().next();
-            this.addTerms.put(originalOperands, term);
-            this.addTerms.put(compactedOperands, term);
+            addTerms.put(originalOperands, term);
+            addTerms.put(compactedOperands, term);
             return term;
         }
         final AdditionFunction addition = new AdditionFunction(this, compactedOperands);
-        this.addTerms.put(originalOperands, addition);
-        this.addTerms.put(compactedOperands, addition);
+        addTerms.put(originalOperands, addition);
+        addTerms.put(compactedOperands, addition);
         return addition;
     }
 
@@ -184,7 +184,7 @@ public class CspFactory {
     public Term sub(final Term left, final Term right) {
         // x-x = 0
         if (left.equals(right)) {
-            return this.zero;
+            return zero;
         }
         // 0 - x = -x
         if (left.getType() == Term.Type.ZERO) {
@@ -198,7 +198,7 @@ public class CspFactory {
         if (left instanceof Constant && right instanceof Constant) {
             return constant(((Constant) left).getValue() - ((Constant) right).getValue());
         }
-        return this.subTerms.computeIfAbsent(new Pair<>(left, right), p -> new SubtractionFunction(this, left, right));
+        return subTerms.computeIfAbsent(new Pair<>(left, right), p -> new SubtractionFunction(this, left, right));
     }
 
     public Term mul(final int value, final Term term) {
@@ -208,7 +208,7 @@ public class CspFactory {
     public Term mul(final Term left, final Term right) {
         // a*0 or 0*a = 0
         if (left.getType() == Term.Type.ZERO || right.getType() == Term.Type.ZERO) {
-            return this.zero;
+            return zero;
         }
         // 1*a = a
         if (left.getType() == Term.Type.ONE) {
@@ -223,7 +223,7 @@ public class CspFactory {
             return constant(((Constant) left).getValue() * ((Constant) right).getValue());
         }
         final LinkedHashSet<Term> operands = new LinkedHashSet<>(Arrays.asList(left, right));
-        return this.mulTerms.computeIfAbsent(operands, o -> new MultiplicationFunction(this, left, right));
+        return mulTerms.computeIfAbsent(operands, o -> new MultiplicationFunction(this, left, right));
     }
 
     public ComparisonPredicate comparison(final Term left, final Term right, final CspPredicate.Type type) {
@@ -247,54 +247,54 @@ public class CspFactory {
 
     public ComparisonPredicate eq(final Term left, final Term right) {
         final LinkedHashSet<Term> operands = new LinkedHashSet<>(Arrays.asList(left, right));
-        final ComparisonPredicate foundFormula = this.eqPredicates.get(operands);
+        final ComparisonPredicate foundFormula = eqPredicates.get(operands);
         if (foundFormula != null) {
             return foundFormula;
         }
         //if (left.equals(right)) {
-        //    this.eqPredicates.put(operands, this.formulaFactory.verum());
-        //    return this.formulaFactory.verum();
+        //    eqPredicates.put(operands, formulaFactory.verum());
+        //    return formulaFactory.verum();
         //}
         //if (left instanceof IntegerConstant && right instanceof IntegerConstant) {
-        //    final Constant constant = this.formulaFactory.constant(((IntegerConstant) left).getValue() == ((IntegerConstant) right).getValue());
-        //    this.eqPredicates.put(operands, constant);
+        //    final Constant constant = formulaFactory.constant(((IntegerConstant) left).getValue() == ((IntegerConstant) right).getValue());
+        //    eqPredicates.put(operands, constant);
         //    return constant;
         //}
         final ComparisonPredicate predicate = new ComparisonPredicate(this, CspPredicate.Type.EQ, left, right);
-        this.eqPredicates.put(operands, predicate);
+        eqPredicates.put(operands, predicate);
         return predicate;
     }
 
     public ComparisonPredicate ne(final Term left, final Term right) {
         final LinkedHashSet<Term> operands = new LinkedHashSet<>(Arrays.asList(left, right));
-        final ComparisonPredicate foundFormula = this.nePredicates.get(operands);
+        final ComparisonPredicate foundFormula = nePredicates.get(operands);
         if (foundFormula != null) {
             return foundFormula;
         }
         //if (left instanceof IntegerConstant && right instanceof IntegerConstant) {
-        //    final Constant constant = this.formulaFactory.constant(((IntegerConstant) left).getValue() != ((IntegerConstant) right).getValue());
-        //    this.nePredicates.put(operands, constant);
+        //    final Constant constant = formulaFactory.constant(((IntegerConstant) left).getValue() != ((IntegerConstant) right).getValue());
+        //    nePredicates.put(operands, constant);
         //    return constant;
         //}
         final ComparisonPredicate predicate = new ComparisonPredicate(this, CspPredicate.Type.NE, left, right);
-        this.nePredicates.put(operands, predicate);
+        nePredicates.put(operands, predicate);
         return predicate;
     }
 
     public ComparisonPredicate lt(final Term left, final Term right) {
-        return processComparison(left, right, this.ltPredicates, (l, r) -> l.getValue() < r.getValue(), CspPredicate.Type.LT);
+        return processComparison(left, right, ltPredicates, (l, r) -> l.getValue() < r.getValue(), CspPredicate.Type.LT);
     }
 
     public ComparisonPredicate le(final Term left, final Term right) {
-        return processComparison(left, right, this.lePredicates, (l, r) -> l.getValue() <= r.getValue(), CspPredicate.Type.LE);
+        return processComparison(left, right, lePredicates, (l, r) -> l.getValue() <= r.getValue(), CspPredicate.Type.LE);
     }
 
     public ComparisonPredicate gt(final Term left, final Term right) {
-        return processComparison(left, right, this.gtPredicates, (l, r) -> l.getValue() > r.getValue(), CspPredicate.Type.GT);
+        return processComparison(left, right, gtPredicates, (l, r) -> l.getValue() > r.getValue(), CspPredicate.Type.GT);
     }
 
     public ComparisonPredicate ge(final Term left, final Term right) {
-        return processComparison(left, right, this.gePredicates, (l, r) -> l.getValue() >= r.getValue(), CspPredicate.Type.GE);
+        return processComparison(left, right, gePredicates, (l, r) -> l.getValue() >= r.getValue(), CspPredicate.Type.GE);
     }
 
     private ComparisonPredicate processComparison(final Term left, final Term right, final Map<Pair<Term, Term>, ComparisonPredicate> cache,
@@ -305,7 +305,7 @@ public class CspFactory {
             return foundFormula;
         }
         //if (left instanceof IntegerConstant && right instanceof IntegerConstant) {
-        //    final Constant constant = this.formulaFactory.constant(test.test((IntegerConstant) left, (IntegerConstant) right));
+        //    final Constant constant = formulaFactory.constant(test.test((IntegerConstant) left, (IntegerConstant) right));
         //    cache.put(operands, constant);
         //    return constant;
         //}
@@ -316,22 +316,22 @@ public class CspFactory {
 
     public AllDifferentPredicate allDifferent(final Collection<Term> terms) {
         final LinkedHashSet<Term> operands = new LinkedHashSet<>(terms);
-        final AllDifferentPredicate foundFormula = this.allDifferentPredicates.get(operands);
+        final AllDifferentPredicate foundFormula = allDifferentPredicates.get(operands);
         if (foundFormula != null) {
             return foundFormula;
         }
         // zero or one terms always have different values
         //if (terms.size() <= 1) {
-        //    this.allDifferentPredicates.put(operands, this.formulaFactory.verum());
-        //    return this.formulaFactory.verum();
+        //    allDifferentPredicates.put(operands, formulaFactory.verum());
+        //    return formulaFactory.verum();
         //}
         final AllDifferentPredicate predicate = new AllDifferentPredicate(this, operands);
-        this.allDifferentPredicates.put(operands, predicate);
+        allDifferentPredicates.put(operands, predicate);
         return predicate;
     }
 
     public FormulaFactory getFormulaFactory() {
-        return this.formulaFactory;
+        return formulaFactory;
     }
 
     public Csp buildCsp(final Collection<CspPredicate> predicates) {

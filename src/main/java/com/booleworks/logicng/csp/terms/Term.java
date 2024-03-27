@@ -3,10 +3,8 @@ package com.booleworks.logicng.csp.terms;
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.IntegerClause;
 import com.booleworks.logicng.csp.LinearExpression;
-import com.booleworks.logicng.formulas.Formula;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 public abstract class Term {
@@ -21,7 +19,7 @@ public abstract class Term {
     }
 
     public Type getType() {
-        return this.type;
+        return type;
     }
 
     public abstract boolean isAtom();
@@ -29,10 +27,10 @@ public abstract class Term {
     protected abstract Decomposition calculateDecomposition();
 
     public final Decomposition decompose() {
-        if (this.decompositionResult == null) {
-            this.decompositionResult = calculateDecomposition();
+        if (decompositionResult == null) {
+            decompositionResult = calculateDecomposition();
         }
-        return this.decompositionResult;
+        return decompositionResult;
     }
 
     public enum Type {
@@ -54,18 +52,18 @@ public abstract class Term {
         }
 
         public LinearExpression getLinearExpression() {
-            return this.linearExpression;
+            return linearExpression;
         }
 
         public Set<IntegerClause> getAdditionalConstraints() {
-            return this.additionalConstraints;
+            return additionalConstraints;
         }
 
         @Override
         public String toString() {
             return "IntegerTerm.Decomposition{" +
-                    "linearExpression=" + this.linearExpression.toString() +
-                    ", additionalConstraints=" + this.additionalConstraints.toString() +
+                    "linearExpression=" + linearExpression.toString() +
+                    ", additionalConstraints=" + additionalConstraints.toString() +
                     '}';
         }
     }
