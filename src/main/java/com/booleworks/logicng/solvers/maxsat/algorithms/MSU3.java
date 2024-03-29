@@ -174,7 +174,7 @@ public class MSU3 extends MaxSAT {
     protected MaxSATResult iterative() {
         if (encoder.cardEncoding() != CardinalityEncoding.TOTALIZER) {
             throw new IllegalStateException(
-                    "Error: Currently algorithm MSU3 with iterative encoding only  supports the totalizer encoding.");
+                    "Error: Currently algorithm MSU3 with iterative encoding only supports the totalizer encoding.");
         }
         nbInitialVariables = nVars();
         Tristate res;

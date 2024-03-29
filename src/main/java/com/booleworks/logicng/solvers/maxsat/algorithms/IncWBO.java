@@ -97,8 +97,8 @@ public class IncWBO extends WBO {
             return normalSearch();
         } else if (weightStrategy == MaxSATConfig.WeightStrategy.NORMAL ||
                 weightStrategy == MaxSATConfig.WeightStrategy.DIVERSIFY) {
-                    return weightSearch();
-                }
+            return weightSearch();
+        }
         throw new IllegalArgumentException("Unknown problem type.");
     }
 

@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 /**
  * An advanced simplifier for formulas.
@@ -151,8 +150,7 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
         if (minimizedPIs == null || Handler.aborted(handler)) {
             return null;
         }
-        simplified =
-                f.or(negateAllLiteralsInFormulas(f, minimizedPIs).stream().map(f::and).collect(Collectors.toList()));
+        simplified = f.or(negateAllLiteralsInFormulas(f, minimizedPIs));
         return simplified;
     }
 

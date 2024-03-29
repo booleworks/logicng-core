@@ -729,7 +729,6 @@ public class BDDReordering {
         return Integer.compare(a.val, b.val);
     }
 
-
     // === Random reordering (mostly for debugging and test ) =============
     protected BDDTree reorderRandom(final BDDTree t) {
         BDDTree thisTree;
@@ -872,23 +871,23 @@ public class BDDReordering {
         levels[var0].nodenum = 0;
 
         for (n = 0; n < size0; n++) {
-            int r;
-            r = k.hash(n + vl0);
+            int q;
+            q = k.hash(n + vl0);
             k.setHash(n + vl0, 0);
-            while (r != 0) {
-                final int next = k.next(r);
-                if (var(k.low(r)) != var1 && var(k.high(r)) != var1) {
+            while (q != 0) {
+                final int next = k.next(q);
+                if (var(k.low(q)) != var1 && var(k.high(q)) != var1) {
                     // Node does not depend on next var, let it stay in the
                     // chain
-                    k.setNext(r, k.hash(n + vl0));
-                    k.setHash(n + vl0, r);
+                    k.setNext(q, k.hash(n + vl0));
+                    k.setHash(n + vl0, q);
                     levels[var0].nodenum++;
                 } else {
                     // Node depends on next var - save it for later processing
-                    k.setNext(r, toBeProcessed);
-                    toBeProcessed = r;
+                    k.setNext(q, toBeProcessed);
+                    toBeProcessed = q;
                 }
-                r = next;
+                q = next;
             }
         }
         return toBeProcessed;
@@ -950,7 +949,6 @@ public class BDDReordering {
         final int hash;
         int res;
 
-
         // Note: We know that low,high has a refcou greater than zero, so there
         // is no need to add reference *recursively*
         // Check whether childs are equal
@@ -1011,24 +1009,24 @@ public class BDDReordering {
 
         for (n = 0; n < size1; n++) {
             final int hash = n + vl1;
-            int r = k.hash(hash);
+            int q = k.hash(hash);
             k.setHash(hash, 0);
-            while (r > 0) {
-                final int next = k.next(r);
+            while (q > 0) {
+                final int next = k.next(q);
 
-                if (k.refcou(r) > 0) {
-                    k.setNext(r, k.hash(hash));
-                    k.setHash(hash, r);
+                if (k.refcou(q) > 0) {
+                    k.setNext(q, k.hash(hash));
+                    k.setHash(hash, q);
                 } else {
-                    k.decRef(k.low(r));
-                    k.decRef(k.high(r));
-                    k.setLow(r, -1);
-                    k.setNext(r, k.freepos);
-                    k.freepos = r;
+                    k.decRef(k.low(q));
+                    k.decRef(k.high(q));
+                    k.setLow(q, -1);
+                    k.setNext(q, k.freepos);
+                    k.freepos = q;
                     levels[var1].nodenum--;
                     k.freenum++;
                 }
-                r = next;
+                q = next;
             }
         }
     }

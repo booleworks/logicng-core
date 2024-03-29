@@ -69,7 +69,7 @@ public final class FormulaDimacsFileWriter {
             throw new IllegalArgumentException("Cannot write a non-CNF formula to dimacs.  Convert to CNF first.");
         }
         final List<Formula> parts = new ArrayList<>();
-        if (formula.type().equals(FType.LITERAL) || formula.type().equals(FType.OR)) {
+        if (formula.type() == FType.LITERAL || formula.type() == FType.OR) {
             parts.add(formula);
         } else {
             for (final Formula part : formula) {
@@ -77,7 +77,7 @@ public final class FormulaDimacsFileWriter {
             }
         }
         final StringBuilder sb = new StringBuilder("p cnf ");
-        final int partsSize = formula.type().equals(FType.FALSE) ? 1 : parts.size();
+        final int partsSize = formula.type() == FType.FALSE ? 1 : parts.size();
         sb.append(var2id.size()).append(" ").append(partsSize).append(System.lineSeparator());
 
         for (final Formula part : parts) {

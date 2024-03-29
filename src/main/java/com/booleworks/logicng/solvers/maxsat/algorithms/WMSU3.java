@@ -148,7 +148,6 @@ public class WMSU3 extends MaxSAT {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
         assumptions.clear();
-        final LNGIntVector fullObjFunction = new LNGIntVector();
         final LNGIntVector fullCoeffsFunction = new LNGIntVector();
         while (true) {
             final SATHandler satHandler = satHandler();
@@ -212,7 +211,6 @@ public class WMSU3 extends MaxSAT {
                 }
                 for (int i = 0; i < coeffs.size(); i++) {
                     fullCoeffsFunction.push(coeffs.get(i));
-                    fullObjFunction.push(objFunction.get(i));
                 }
                 if (verbosity != MaxSATConfig.Verbosity.NONE) {
                     output.printf("c Relaxed soft clauses %d / %d%n", fullCoeffsFunction.size(), nSoft());
@@ -326,7 +324,6 @@ public class WMSU3 extends MaxSAT {
         encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
         final LNGIntVector joinObjFunction = new LNGIntVector();
         final LNGIntVector encodingAssumptions = new LNGIntVector();
-        final LNGIntVector joinCoeffs = new LNGIntVector();
         activeSoft.growTo(nSoft(), false);
         for (int i = 0; i < nSoft(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
@@ -435,7 +432,6 @@ public class WMSU3 extends MaxSAT {
                 }
                 sumSizeCores += solver.conflict().size();
                 joinObjFunction.clear();
-                joinCoeffs.clear();
                 for (int i = 0; i < solver.conflict().size(); i++) {
                     if (coreMapping.containsKey(solver.conflict().get(i))) {
                         if (activeSoft.get(coreMapping.get(solver.conflict().get(i)))) {
@@ -445,7 +441,6 @@ public class WMSU3 extends MaxSAT {
                         activeSoft.set(coreMapping.get(solver.conflict().get(i)), true);
                         joinObjFunction.push(
                                 softClauses.get(coreMapping.get(solver.conflict().get(i))).relaxationVars().get(0));
-                        joinCoeffs.push(softClauses.get(coreMapping.get(solver.conflict().get(i))).weight());
                     }
                 }
                 objFunction.clear();

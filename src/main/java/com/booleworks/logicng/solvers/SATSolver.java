@@ -146,7 +146,7 @@ public abstract class SATSolver {
      * </ul>
      * @param cc the cardinality constraint
      * @return the incremental data of this constraint, or null if the
-     *         right-hand side of cc is 1
+     * right-hand side of cc is 1
      */
     public abstract CcIncrementalData addIncrementalCC(final CardinalityConstraint cc);
 

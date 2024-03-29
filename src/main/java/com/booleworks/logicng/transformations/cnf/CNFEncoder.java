@@ -12,7 +12,6 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaTransformation;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
-import com.booleworks.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.FactorizationHandler;
 
@@ -108,19 +107,17 @@ public class CNFEncoder {
 
     private static FormulaTransformation getTseitinTransformation(final FormulaFactory f, final CNFConfig config) {
         if (f instanceof CachingFormulaFactory) {
-            return new TseitinTransformation((CachingFormulaFactory) f, config.atomBoundary);
+            return new TseitinTransformation(f, config.atomBoundary);
         } else {
-            return new TseitinTransformation((NonCachingFormulaFactory) f, config.atomBoundary,
-                    new TseitinTransformation.TseitinState());
+            return new TseitinTransformation(f, config.atomBoundary, new TseitinTransformation.TseitinState());
         }
     }
 
     private static FormulaTransformation getPgTransformation(final FormulaFactory f, final CNFConfig config) {
         if (f instanceof CachingFormulaFactory) {
-            return new PlaistedGreenbaumTransformation((CachingFormulaFactory) f, config.atomBoundary);
+            return new PlaistedGreenbaumTransformation(f, config.atomBoundary);
         } else {
-            return new PlaistedGreenbaumTransformation((NonCachingFormulaFactory) f, config.atomBoundary,
-                    new PGState());
+            return new PlaistedGreenbaumTransformation(f, config.atomBoundary, new PGState());
         }
     }
 

@@ -50,13 +50,13 @@ public final class AIGPredicate extends CacheableFormulaPredicate {
             case FALSE:
             case TRUE:
             case LITERAL:
+            case PREDICATE:
                 result = true;
                 break;
             case IMPL:
             case EQUIV:
             case OR:
             case PBC:
-            case PREDICATE:
                 result = false;
                 break;
             case NOT:

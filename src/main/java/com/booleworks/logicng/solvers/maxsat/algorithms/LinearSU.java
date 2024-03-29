@@ -26,7 +26,6 @@ import static com.booleworks.logicng.handlers.Handler.aborted;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.CardinalityEncoding;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity;
 
-import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
@@ -237,8 +236,6 @@ public class LinearSU extends MaxSAT {
      * @return the rebuilt solver
      */
     protected MiniSatStyleSolver rebuildSolver(final int minWeight) {
-        final LNGBooleanVector seen = new LNGBooleanVector(nVars());
-        seen.growTo(nVars(), false);
         final MiniSatStyleSolver s = newSATSolver();
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);

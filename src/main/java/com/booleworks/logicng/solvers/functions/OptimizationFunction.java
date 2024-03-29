@@ -107,7 +107,6 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
     private Assignment maximize(final MiniSat solver) {
         start(handler);
         final FormulaFactory f = solver.factory();
-        LNGBooleanVector internalModel;
         final Map<Variable, Literal> selectorMap = new TreeMap<>();
         for (final Literal lit : literals) {
             final Variable selVar = f.variable(SEL_PREFIX + selectorMap.size());
@@ -125,7 +124,7 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         if (sat != Tristate.TRUE || aborted(handler)) {
             return null;
         }
-        internalModel = solver.underlyingSolver().model();
+        LNGBooleanVector internalModel = solver.underlyingSolver().model();
         Assignment currentModel = solver.model(selectors);
         int currentBound = currentModel.positiveVariables().size();
         if (currentBound == 0) {

@@ -90,11 +90,10 @@ public class LinearUS extends MaxSAT {
         Tristate res;
         initRelaxation();
         solver = rebuildSolver();
-        final LNGIntVector assumptions = new LNGIntVector();
         encoder.setIncremental(MaxSATConfig.IncrementalStrategy.NONE);
         while (true) {
             final SATHandler satHandler = satHandler();
-            res = searchSATSolver(solver, satHandler, assumptions);
+            res = searchSATSolver(solver, satHandler);
             if (aborted(satHandler)) {
                 return MaxSATResult.UNDEF;
             } else if (res == Tristate.TRUE) {
