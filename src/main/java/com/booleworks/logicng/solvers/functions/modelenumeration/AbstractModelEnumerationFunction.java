@@ -82,17 +82,17 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         final SortedSet<Variable> enumerationVars = getVarsForEnumeration(knownVariables);
         final SortedSet<Variable> initialSplitVars =
                 nullSafe(() -> strategy.splitVarsForRecursionDepth(enumerationVars, solver, 0), TreeSet::new);
-        enumerateRecursive(collector, solver, new Model(), resultSetter, enumerationVars, initialSplitVars, 0);
+        enumerateRecursive(collector, solver, new TreeSet<>(), resultSetter, enumerationVars, initialSplitVars, 0);
         return collector.getResult();
     }
 
     private void enumerateRecursive(final EnumerationCollector<RESULT> collector, final MiniSat solver,
-                                    final Model splitModel, final Consumer<Tristate> resultSetter,
+                                    final SortedSet<Literal> splitModel, final Consumer<Tristate> resultSetter,
                                     final SortedSet<Variable> enumerationVars, final SortedSet<Variable> splitVars,
                                     final int recursionDepth) {
         final int maxNumberOfModelsForEnumeration = strategy.maxNumberOfModelsForEnumeration(recursionDepth);
         final SolverState state = saveState(solver);
-        solver.add(splitModel.formula(solver.factory()));
+        solver.add(splitModel);
         final boolean enumerationFinished = enumerate(collector, solver, resultSetter, enumerationVars,
                 additionalVariables, maxNumberOfModelsForEnumeration, handler);
         if (!enumerationFinished) {
@@ -101,8 +101,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 return;
             }
             SortedSet<Variable> newSplitVars = new TreeSet<>(splitVars);
-            final int maxNumberOfModelsForSplitAssignments =
-                    strategy.maxNumberOfModelsForSplitAssignments(recursionDepth);
+            final int maxNumberOfModelsForSplitAssignments = strategy.maxNumberOfModelsForSplitAssignments(recursionDepth);
             while (!enumerate(collector, solver, resultSetter, newSplitVars, null, maxNumberOfModelsForSplitAssignments,
                     handler)) {
                 if (!collector.rollback(handler)) {
@@ -118,7 +117,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
 
             final SortedSet<Variable> remainingVars = new TreeSet<>(enumerationVars);
             remainingVars.removeAll(newSplitVars);
-            for (final Literal literal : splitModel.getLiterals()) {
+            for (final Literal literal : splitModel) {
                 remainingVars.remove(literal.variable());
             }
 
@@ -126,7 +125,9 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
             final SortedSet<Variable> recursiveSplitVars =
                     strategy.splitVarsForRecursionDepth(remainingVars, solver, recursionDepth + 1);
             for (final Model newSplitAssignment : newSplitAssignments) {
-                enumerateRecursive(collector, solver, newSplitAssignment, resultSetter, enumerationVars,
+                final SortedSet<Literal> recursiveSplitModel = new TreeSet<>(newSplitAssignment.getLiterals());
+                recursiveSplitModel.addAll(splitModel);
+                enumerateRecursive(collector, solver, recursiveSplitModel, resultSetter, enumerationVars,
                         recursiveSplitVars, recursionDepth + 1);
                 if (!collector.commit(handler)) {
                     loadState(solver, state);
