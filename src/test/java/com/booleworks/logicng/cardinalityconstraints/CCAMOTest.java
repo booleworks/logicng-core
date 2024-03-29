@@ -18,6 +18,7 @@ import static com.booleworks.logicng.cardinalityconstraints.CCConfig.BIMANDER_GR
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LogicNGTest;
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -67,6 +68,7 @@ public class CCAMOTest implements LogicNGTest {
     }
 
     @Test
+    @LongRunningTag
     public void testAMOK() {
         final FormulaFactory f = FormulaFactory.caching();
         int counter = 0;

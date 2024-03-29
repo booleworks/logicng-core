@@ -24,8 +24,6 @@ import com.booleworks.logicng.solvers.functions.SolverFunction;
 import com.booleworks.logicng.solvers.functions.UnsatCoreFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
-import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationStrategy;
-import com.booleworks.logicng.solvers.functions.modelenumeration.NoSplitModelEnumerationStrategy;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -295,11 +293,6 @@ public abstract class SATSolver {
     }
 
     /**
-     * Resets the SAT solver.
-     */
-    public abstract void reset();
-
-    /**
      * Returns a model of the current formula on the solver wrt. a given set of variables. If the set
      * is {@code null}, all variables are considered relevant. If the formula is UNSAT, {@code null} will be returned.
      * The formula in the solver has to be solved first, before a model can be obtained.
@@ -335,11 +328,9 @@ public abstract class SATSolver {
      * @return the list of models
      */
     public List<Model> enumerateAllModels(final Collection<Variable> variables) {
-        final ModelEnumerationStrategy strategy = canSaveLoadState()
-                ? DefaultModelEnumerationStrategy.builder().build()
-                : NoSplitModelEnumerationStrategy.get();
         return execute(ModelEnumerationFunction.builder(variables)
-                .configuration(ModelEnumerationConfig.builder().strategy(strategy).build())
+                .configuration(ModelEnumerationConfig.builder()
+                        .strategy(DefaultModelEnumerationStrategy.builder().build()).build())
                 .build());
     }
 
@@ -350,11 +341,9 @@ public abstract class SATSolver {
      * @return the list of models
      */
     public List<Model> enumerateAllModels(final Variable[] variables) {
-        final ModelEnumerationStrategy strategy = canSaveLoadState()
-                ? DefaultModelEnumerationStrategy.builder().build()
-                : NoSplitModelEnumerationStrategy.get();
         return execute(ModelEnumerationFunction.builder(variables)
-                .configuration(ModelEnumerationConfig.builder().strategy(strategy).build())
+                .configuration(ModelEnumerationConfig.builder()
+                        .strategy(DefaultModelEnumerationStrategy.builder().build()).build())
                 .build());
     }
 
@@ -439,12 +428,6 @@ public abstract class SATSolver {
      * Resets the selection order on the solver.  The internal activity heuristics for the variable ordering will be used again.
      */
     protected abstract void resetSelectionOrder();
-
-    /**
-     * Returns whether this solver instance can save and load solver states.
-     * @return true when the solver can save and load states, false otherwise
-     */
-    public abstract boolean canSaveLoadState();
 
     /**
      * Returns whether this solver instance can generate proofs.

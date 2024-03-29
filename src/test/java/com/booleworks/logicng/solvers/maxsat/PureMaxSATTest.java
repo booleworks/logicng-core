@@ -4,12 +4,13 @@
 
 package com.booleworks.logicng.solvers.maxsat;
 
+import static com.booleworks.logicng.solvers.maxsat.MaxSATReader.readCnfToSolver;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT.MaxSATResult.OPTIMUM;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity.SOME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static com.booleworks.logicng.solvers.maxsat.MaxSATReader.readCnfToSolver;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.TestWithExampleFormulas;
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.formulas.Variable;
@@ -117,6 +118,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
     }
 
     @Test
+    @LongRunningTag
     public void testWBO() throws IOException {
         final MaxSATConfig[] configs = new MaxSATConfig[2];
         configs[0] = MaxSATConfig.builder().weight(MaxSATConfig.WeightStrategy.NONE).symmetry(true).verbosity(SOME).output(logStream).build();
@@ -136,6 +138,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
     }
 
     @Test
+    @LongRunningTag
     public void testIncWBO() throws IOException {
         final MaxSATConfig[] configs = new MaxSATConfig[2];
         configs[0] = MaxSATConfig.builder().weight(MaxSATConfig.WeightStrategy.NONE).symmetry(true).verbosity(SOME).output(logStream).build();
@@ -155,6 +158,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
     }
 
     @Test
+    @LongRunningTag
     public void testLinearSU() throws IOException {
         final MaxSATConfig[] configs = new MaxSATConfig[2];
         configs[0] = MaxSATConfig.builder().cardinality(MaxSATConfig.CardinalityEncoding.TOTALIZER).verbosity(SOME).output(logStream).build();
@@ -174,6 +178,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
     }
 
     @Test
+    @LongRunningTag
     public void testLinearUS() throws IOException {
         final MaxSATConfig[] configs = new MaxSATConfig[3];
         configs[0] =
@@ -197,6 +202,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
     }
 
     @Test
+    @LongRunningTag
     public void testMSU3() throws IOException {
         final MaxSATConfig[] configs = new MaxSATConfig[3];
         configs[0] =
@@ -220,6 +226,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
     }
 
     @Test
+    @LongRunningTag
     public void testOLL() throws IOException {
         for (final String file : files) {
             final MaxSATSolver solver = MaxSATSolver.oll(f);

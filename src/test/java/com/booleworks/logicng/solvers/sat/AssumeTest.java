@@ -4,34 +4,33 @@
 
 package com.booleworks.logicng.solvers.sat;
 
+import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.CNF_METHOD;
+import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.PROOF_GENERATION;
+
+import com.booleworks.logicng.LogicNGTest;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
-public class AssumeTest {
+public class AssumeTest implements LogicNGTest {
 
     private final FormulaFactory f;
-    private final SATSolver[] solvers;
+    private final List<SATSolver> solvers;
     private final PropositionalParser parser;
 
     public AssumeTest() {
         f = FormulaFactory.caching();
         parser = new PropositionalParser(f);
-        solvers = new SATSolver[5];
-        solvers[0] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(false).build());
-        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(false).build());
-        solvers[2] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build());
-        solvers[3] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(true).build());
-        solvers[4] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(true).build());
+        solvers = SolverTestSet.solverTestSet(Set.of(SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES, PROOF_GENERATION, CNF_METHOD), f);
     }
 
     @Test
@@ -69,7 +68,6 @@ public class AssumeTest {
             Assertions.assertThat(s.sat(assumptions4)).isEqualTo(Tristate.FALSE);
             Assertions.assertThat(s.sat(assumptions5)).isEqualTo(Tristate.FALSE);
             Assertions.assertThat(s.sat(assumptions6)).isEqualTo(Tristate.FALSE);
-            s.reset();
         }
     }
 }

@@ -7,6 +7,7 @@ package com.booleworks.logicng.explanations.mus;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.Formula;
@@ -72,6 +73,7 @@ public class MUSGenerationTest {
     }
 
     @Test
+    @LongRunningTag
     public void testDeletionBasedMUS() {
         final MUSGeneration mus = new MUSGeneration();
         final UNSATCore<StandardProposition> mus1 = mus.computeMUS(f, pg3);

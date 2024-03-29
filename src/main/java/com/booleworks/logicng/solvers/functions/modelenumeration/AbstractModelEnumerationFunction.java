@@ -64,9 +64,6 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
 
     @Override
     public RESULT apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
-        if (!(strategy instanceof NoSplitModelEnumerationStrategy) && !solver.canSaveLoadState()) {
-            throw new IllegalArgumentException("Recursive model enumeration function can only be applied to solvers with load/save state capability.");
-        }
         start(handler);
         final SortedSet<Variable> knownVariables = solver.knownVariables();
         final SortedSet<Variable> additionalVarsNotOnSolver = difference(additionalVariables, knownVariables, TreeSet::new);
@@ -182,12 +179,10 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
     }
 
     private static SolverState saveState(final SATSolver solver) {
-        return solver.canSaveLoadState() ? solver.saveState() : null;
+        return solver.saveState();
     }
 
     private static void loadState(final SATSolver solver, final SolverState state) {
-        if (solver.canSaveLoadState()) {
-            solver.loadState(state);
-        }
+        solver.loadState(state);
     }
 }

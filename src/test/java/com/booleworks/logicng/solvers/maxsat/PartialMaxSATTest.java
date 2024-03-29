@@ -8,6 +8,7 @@ import static com.booleworks.logicng.solvers.maxsat.MaxSATReader.readCnfToSolver
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.TestWithExampleFormulas;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.handlers.TimeoutMaxSATHandler;
@@ -65,6 +66,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
     }
 
     @Test
+    @LongRunningTag
     public void testWBO() throws IOException {
         final MaxSATConfig[] configs = new MaxSATConfig[1];
         configs[0] = MaxSATConfig.builder().verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();
@@ -89,6 +91,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
     }
 
     @Test
+    @LongRunningTag
     public void testIncWBO() throws IOException {
         final MaxSATConfig[] configs = new MaxSATConfig[1];
         configs[0] = MaxSATConfig.builder().verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();
@@ -120,6 +123,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
     }
 
     @Test
+    @LongRunningTag
     public void testLinearUS() throws IOException {
         final MaxSATConfig[] configs = new MaxSATConfig[3];
         configs[0] = MaxSATConfig.builder().incremental(MaxSATConfig.IncrementalStrategy.NONE).cardinality(MaxSATConfig.CardinalityEncoding.TOTALIZER).verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();
@@ -172,6 +176,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
     }
 
     @Test
+    @LongRunningTag
     public void testTimeoutHandlerLinearSU() {
         final MaxSATConfig[] configs = new MaxSATConfig[4];
         configs[0] = MaxSATConfig.builder().cardinality(MaxSATConfig.CardinalityEncoding.TOTALIZER).bmo(false).verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();
@@ -185,6 +190,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
     }
 
     @Test
+    @LongRunningTag
     public void testTimeoutHandlerLinearUS() {
         final MaxSATConfig[] configs = new MaxSATConfig[3];
         configs[0] = MaxSATConfig.builder().incremental(MaxSATConfig.IncrementalStrategy.NONE).cardinality(MaxSATConfig.CardinalityEncoding.TOTALIZER).verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();
@@ -197,6 +203,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
     }
 
     @Test
+    @LongRunningTag
     public void testTimeoutHandlerMSU3() {
         final MaxSATConfig[] configs = new MaxSATConfig[3];
         configs[0] = MaxSATConfig.builder().incremental(MaxSATConfig.IncrementalStrategy.NONE).cardinality(MaxSATConfig.CardinalityEncoding.TOTALIZER).verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();

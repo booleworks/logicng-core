@@ -53,17 +53,11 @@ public final class MiniSatConfig extends Configuration {
     }
 
     // Main configuration parameters
-    public final boolean incremental;
     final boolean proofGeneration;
     public final boolean useAtMostClauses;
     final CNFMethod cnfMethod;
-    final boolean useBinaryWatchers;
-    final boolean useLbdFeatures;
-
+    final ClauseMinimization clauseMinimization;
     public final boolean initialPhase;
-
-    final ClauseMinimization clauseMin;
-    final boolean removeSatisfied;
 
     final SATSolverLowLevelConfig lowLevelConfig;
 
@@ -73,15 +67,11 @@ public final class MiniSatConfig extends Configuration {
      */
     private MiniSatConfig(final Builder builder) {
         super(ConfigurationType.MINISAT);
-        incremental = builder.incremental;
         proofGeneration = builder.proofGeneration;
         useAtMostClauses = !builder.proofGeneration && builder.useAtMostClauses;
         cnfMethod = builder.cnfMethod;
-        useBinaryWatchers = builder.useBinaryWatchers;
-        useLbdFeatures = builder.useLbdFeatures;
+        clauseMinimization = builder.clauseMinimization;
         initialPhase = builder.initialPhase;
-        clauseMin = builder.clauseMin;
-        removeSatisfied = builder.removeSatisfied;
         lowLevelConfig = builder.lowLevelConfig;
     }
 
@@ -94,19 +84,18 @@ public final class MiniSatConfig extends Configuration {
     }
 
     /**
-     * Returns whether the solver is incremental or not.
-     * @return {@code true} if the solver is incremental, {@code false} otherwise
+     * Returns a new builder which is initialized with the parameters of the given configuration.
+     * @param config the configuration to copy
+     * @return the builder
      */
-    public boolean incremental() {
-        return incremental;
-    }
-
-    /**
-     * Returns the initial phase of the solver.
-     * @return the initial phase of the solver
-     */
-    public boolean initialPhase() {
-        return initialPhase;
+    public static Builder copy(final MiniSatConfig config) {
+        return new Builder()
+                .proofGeneration(config.proofGeneration)
+                .useAtMostClauses(config.useAtMostClauses)
+                .cnfMethod(config.cnfMethod)
+                .clauseMinimization(config.clauseMinimization)
+                .initialPhase(config.initialPhase)
+                .lowLevelConfig(config.lowLevelConfig);
     }
 
     /**
@@ -133,28 +122,40 @@ public final class MiniSatConfig extends Configuration {
         return cnfMethod;
     }
 
-    public boolean isUseBinaryWatchers() {
-        return useBinaryWatchers;
+    /**
+     * Returns the kind of clause minimization to be applied.
+     * @return the kind of clause minimization to be applied
+     */
+    public ClauseMinimization clauseMinimization() {
+        return clauseMinimization;
     }
 
-    public boolean isUseLbdFeatures() {
-        return useLbdFeatures;
+    /**
+     * Returns the initial phase of the solver.
+     * @return the initial phase of the solver
+     */
+    public boolean initialPhase() {
+        return initialPhase;
+    }
+
+    /**
+     * Returns the low level configuration of the solver.
+     * @return the low level configuration of the solver
+     */
+    public SATSolverLowLevelConfig lowLevelConfig() {
+        return lowLevelConfig;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("MiniSatConfig{").append(System.lineSeparator());
-        sb.append("incremental=").append(incremental).append(System.lineSeparator());
-        sb.append("proofGeneration=").append(proofGeneration).append(System.lineSeparator());
-        sb.append("useAtMostClauses=").append(useAtMostClauses).append(System.lineSeparator());
-        sb.append("cnfMethod=").append(cnfMethod).append(System.lineSeparator());
-        sb.append("useBinaryWatchers=").append(useBinaryWatchers).append(System.lineSeparator());
-        sb.append("useLbdFeatures=").append(useLbdFeatures).append(System.lineSeparator());
-        sb.append("initialPhase=").append(initialPhase).append(System.lineSeparator());
-        sb.append("clauseMin=").append(clauseMin).append(System.lineSeparator());
-        sb.append("removeSatisfied=").append(removeSatisfied).append(System.lineSeparator());
-        sb.append("}");
-        return sb.toString();
+        return "MiniSatConfig{" +
+                "proofGeneration=" + proofGeneration +
+                ", useAtMostClauses=" + useAtMostClauses +
+                ", cnfMethod=" + cnfMethod +
+                ", clauseMinimization=" + clauseMinimization +
+                ", initialPhase=" + initialPhase +
+                ", lowLevelConfig=" + lowLevelConfig +
+                '}';
     }
 
     /**
@@ -163,29 +164,15 @@ public final class MiniSatConfig extends Configuration {
      * @since 1.0
      */
     public static class Builder {
-        private boolean incremental = true;
         private boolean proofGeneration = false;
-        private boolean useAtMostClauses = true;
+        private boolean useAtMostClauses = false;
         private CNFMethod cnfMethod = CNFMethod.PG_ON_SOLVER;
-        private boolean useBinaryWatchers = false;
-        private boolean useLbdFeatures = false;
         private boolean initialPhase = false;
-        private ClauseMinimization clauseMin = ClauseMinimization.DEEP;
-        private boolean removeSatisfied = true;
+        private ClauseMinimization clauseMinimization = ClauseMinimization.DEEP;
         private SATSolverLowLevelConfig lowLevelConfig = SATSolverLowLevelConfig.builder().build();
 
         private Builder() {
             // Initialize only via factory
-        }
-
-        /**
-         * Turns the incremental mode of the solver off and on.  The default value is {@code true}.
-         * @param incremental {@code true} if incremental mode is turned on, {@code false} otherwise
-         * @return the builder
-         */
-        public Builder incremental(final boolean incremental) {
-            this.incremental = incremental;
-            return this;
         }
 
         /**
@@ -203,7 +190,7 @@ public final class MiniSatConfig extends Configuration {
         /**
          * Sets whether the solver should use special at most clauses for cardinality constraints. At most clauses are not
          * compatible with {@link #proofGeneration proof generation}, so this option will be ignored if proof generation
-         * is enabled. The default value is {@code true}.
+         * is enabled. The default value is {@code false}.
          * @param useAtMostClauses {@code true} if at most clauses should be used, {@code false} otherwise
          * @return the builder
          */
@@ -224,22 +211,12 @@ public final class MiniSatConfig extends Configuration {
         }
 
         /**
-         * Sets whether binary watchers should be used.
-         * @param useBinaryWatchers whether binary watchers should be used or not
+         * Sets the clause minimization method. The default value is {@code DEEP}.
+         * @param clauseMinimization the value
          * @return the builder
          */
-        public Builder useBinaryWatchers(final boolean useBinaryWatchers) {
-            this.useBinaryWatchers = useBinaryWatchers;
-            return this;
-        }
-
-        /**
-         * Sets whether LBD (Literal Block Distance) features should be used.
-         * @param useLbdFeatures whether LBD features should be used or not
-         * @return the builder
-         */
-        public Builder useLbdFeatures(final boolean useLbdFeatures) {
-            this.useLbdFeatures = useLbdFeatures;
+        public Builder clauseMinimization(final ClauseMinimization clauseMinimization) {
+            this.clauseMinimization = clauseMinimization;
             return this;
         }
 
@@ -250,27 +227,6 @@ public final class MiniSatConfig extends Configuration {
          */
         public Builder initialPhase(final boolean initialPhase) {
             this.initialPhase = initialPhase;
-            return this;
-        }
-
-        /**
-         * Sets the clause minimization method. The default value is {@code DEEP}.
-         * @param ccmin the value
-         * @return the builder
-         */
-        public Builder clMinimization(final ClauseMinimization ccmin) {
-            clauseMin = ccmin;
-            return this;
-        }
-
-        /**
-         * If turned on, the satisfied original clauses will be removed when simplifying on level 0, when turned off,
-         * only the satisfied learnt clauses will be removed.  The default value is {@code true}.
-         * @param removeSatisfied {@code true} if the original clauses should be simplified, {@code false} otherwise
-         * @return the builder
-         */
-        public Builder removeSatisfied(final boolean removeSatisfied) {
-            this.removeSatisfied = removeSatisfied;
             return this;
         }
 

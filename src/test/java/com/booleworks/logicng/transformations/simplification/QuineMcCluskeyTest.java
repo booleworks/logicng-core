@@ -6,6 +6,7 @@ package com.booleworks.logicng.transformations.simplification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
@@ -130,6 +131,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
 
     @ParameterizedTest
     @MethodSource("contexts")
+    @LongRunningTag
     public void testSmallFormulas(final FormulaContext _c) throws IOException, ParserException {
         final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/formulas/small_formulas.txt"));
         while (reader.ready()) {

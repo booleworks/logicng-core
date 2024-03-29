@@ -90,14 +90,9 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
 
     @Override
     public Assignment apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
-        SolverState initialState = null;
-        if (solver.canSaveLoadState()) {
-            initialState = solver.saveState();
-        }
+        final SolverState initialState = solver.saveState();
         final Assignment model = maximize(solver);
-        if (solver.canSaveLoadState()) {
-            solver.loadState(initialState);
-        }
+        solver.loadState(initialState);
         return model;
     }
 

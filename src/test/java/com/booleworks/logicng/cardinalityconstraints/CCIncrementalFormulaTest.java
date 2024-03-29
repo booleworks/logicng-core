@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.cardinalityconstraints;
 
+import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LogicNGTest;
@@ -17,16 +18,17 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import com.booleworks.logicng.util.Pair;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
 public class CCIncrementalFormulaTest implements LogicNGTest {
 
     private final FormulaFactory f = FormulaFactory.caching();
-    private final SATSolver[] solvers;
+    private final List<SATSolver> solvers;
     private final CCConfig[] configs;
 
     public CCIncrementalFormulaTest() {
@@ -34,11 +36,7 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
         configs[0] = CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.TOTALIZER).alkEncoding(CCConfig.ALK_ENCODER.TOTALIZER).build();
         configs[1] = CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.CARDINALITY_NETWORK).alkEncoding(CCConfig.ALK_ENCODER.CARDINALITY_NETWORK).build();
         configs[2] = CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.MODULAR_TOTALIZER).alkEncoding(CCConfig.ALK_ENCODER.MODULAR_TOTALIZER).build();
-        solvers = new SATSolver[4];
-        solvers[0] = MiniSat.miniSat(f);
-        solvers[1] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(false).build());
-        solvers[2] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useAtMostClauses(true).build());
-        solvers[3] = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build());
+        solvers = SolverTestSet.solverTestSet(Set.of(USE_AT_MOST_CLAUSES), f);
     }
 
     @Test
@@ -165,50 +163,50 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
 
     @Test
     public void testLargeTotalizerUpperBoundAMK() {
-        final CCConfig config = configs[0];
-        final int numLits = 100;
-        int currentBound = numLits - 1;
-        final Variable[] vars = new Variable[numLits];
-        for (int i = 0; i < numLits; i++) {
-            vars[i] = f.variable("v" + i);
-        }
-        final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, currentBound, vars), config);
-        final CCIncrementalData incData = cc.second();
+        for (final SATSolver solver : solvers) {
+            final CCConfig config = configs[0];
+            final int numLits = 100;
+            int currentBound = numLits - 1;
+            final Variable[] vars = new Variable[numLits];
+            for (int i = 0; i < numLits; i++) {
+                vars[i] = f.variable("v" + i);
+            }
+            final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, currentBound, vars), config);
+            final CCIncrementalData incData = cc.second();
 
-        final SATSolver solver = solvers[3];
-        solver.reset();
-        solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 42, vars), config)); // >= 42
-        solver.add(cc.first());
+            solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 42, vars), config)); // >= 42
+            solver.add(cc.first());
 
-        // search the lower bound
-        while (solver.sat() == Tristate.TRUE) {
-            solver.add(incData.newUpperBound(--currentBound)); // <= currentBound - 1
+            // search the lower bound
+            while (solver.sat() == Tristate.TRUE) {
+                solver.add(incData.newUpperBound(--currentBound)); // <= currentBound - 1
+            }
+            assertThat(currentBound).isEqualTo(41);
         }
-        assertThat(currentBound).isEqualTo(41);
     }
 
     @Test
     public void testLargeTotalizerLowerBoundALK() {
-        final CCConfig config = configs[0];
-        final int numLits = 100;
-        int currentBound = 2;
-        final Variable[] vars = new Variable[numLits];
-        for (int i = 0; i < numLits; i++) {
-            vars[i] = f.variable("v" + i);
-        }
-        final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GE, currentBound, vars), config);
-        final CCIncrementalData incData = cc.second();
+        for (final SATSolver solver : solvers) {
+            final CCConfig config = configs[0];
+            final int numLits = 100;
+            int currentBound = 2;
+            final Variable[] vars = new Variable[numLits];
+            for (int i = 0; i < numLits; i++) {
+                vars[i] = f.variable("v" + i);
+            }
+            final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GE, currentBound, vars), config);
+            final CCIncrementalData incData = cc.second();
 
-        final SATSolver solver = solvers[3];
-        solver.reset();
-        solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.LE, 87, vars), config)); // <= 42
-        solver.add(cc.first());
+            solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.LE, 87, vars), config)); // <= 42
+            solver.add(cc.first());
 
-        // search the lower bound
-        while (solver.sat() == Tristate.TRUE) {
-            solver.add(incData.newLowerBound(++currentBound)); // <= currentBound + 1
+            // search the lower bound
+            while (solver.sat() == Tristate.TRUE) {
+                solver.add(incData.newLowerBound(++currentBound)); // <= currentBound + 1
+            }
+            assertThat(currentBound).isEqualTo(88);
         }
-        assertThat(currentBound).isEqualTo(88);
     }
 
     @Test
@@ -226,7 +224,6 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
                     config);
             final CCIncrementalData incData = cc.second();
 
-            solver.reset();
             solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 42, vars), config)); // >= 42
             solver.add(cc.first());
 
@@ -257,25 +254,25 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
     @Test
     @LongRunningTag
     public void testVeryLargeModularTotalizerAMK() {
-        final CCConfig config = configs[2];
-        final int numLits = 300;
-        int currentBound = numLits - 1;
-        final Variable[] vars = new Variable[numLits];
-        for (int i = 0; i < numLits; i++) {
-            vars[i] = f.variable("v" + i);
-        }
-        final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, currentBound, vars), config);
-        final CCIncrementalData incData = cc.second();
+        for (final SATSolver solver : solvers) {
+            final CCConfig config = configs[2];
+            final int numLits = 300;
+            int currentBound = numLits - 1;
+            final Variable[] vars = new Variable[numLits];
+            for (int i = 0; i < numLits; i++) {
+                vars[i] = f.variable("v" + i);
+            }
+            final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, currentBound, vars), config);
+            final CCIncrementalData incData = cc.second();
 
-        final SATSolver solver = solvers[3];
-        solver.reset();
-        solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 234, vars), config));
-        solver.add(cc.first());
+            solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 234, vars), config));
+            solver.add(cc.first());
 
-        // search the lower bound
-        while (solver.sat() == Tristate.TRUE) {
-            solver.add(incData.newUpperBound(--currentBound));
+            // search the lower bound
+            while (solver.sat() == Tristate.TRUE) {
+                solver.add(incData.newUpperBound(--currentBound));
+            }
+            assertThat(currentBound).isEqualTo(233);
         }
-        assertThat(currentBound).isEqualTo(233);
     }
 }

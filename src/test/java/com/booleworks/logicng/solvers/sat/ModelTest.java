@@ -4,7 +4,10 @@
 
 package com.booleworks.logicng.solvers.sat;
 
-import static com.booleworks.logicng.solvers.sat.SATTest.strategy;
+import static com.booleworks.logicng.solvers.sat.SATTest.defaultMeStrategy;
+import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.CNF_METHOD;
+import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES;
+import static com.booleworks.logicng.solvers.sat.SolverTestSet.solverSupplierTestSetForParameterizedTests;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -20,60 +23,49 @@ import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
 import com.booleworks.logicng.transformations.cnf.TseitinTransformation;
-import com.booleworks.logicng.util.Pair;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Supplier;
 
+@SuppressWarnings("unused")
 public class ModelTest {
 
     private static final FormulaFactory f = FormulaFactory.caching();
 
-    public static Collection<Object[]> solvers() {
-        final Supplier<MiniSatConfig.Builder> configNoPGAux = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.FACTORY_CNF);
-        final Supplier<MiniSatConfig.Builder> configPGAux = () -> MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER);
-        final List<Pair<Supplier<MiniSatConfig.Builder>, String>> configs = Arrays.asList(
-                new Pair<>(configNoPGAux, "FF CNF, +AUX"),
-                new Pair<>(configPGAux, "PG CNF, +AUX")
-        );
-        final List<Object[]> solvers = new ArrayList<>();
-        for (final Pair<Supplier<MiniSatConfig.Builder>, String> config : configs) {
-            solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().useAtMostClauses(false).build()), "MiniSat (" + config.second() + ", -ATMOST)"});
-            solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().useAtMostClauses(true).build()), "MiniSat (" + config.second() + ", +ATMOST)"});
-            solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build()), "Glucose (" + config.second() + ")"});
-        }
-        return solvers;
+    public static Collection<Arguments> solverSuppliers() {
+        return solverSupplierTestSetForParameterizedTests(Set.of(USE_AT_MOST_CLAUSES, CNF_METHOD), f);
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testNoModel(final SATSolver solver) throws ParserException {
-        solver.reset();
+    @ParameterizedTest(name = "{index} {1}")
+    @MethodSource("solverSuppliers")
+    public void testNoModel(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+        SATSolver solver = solverSupplier.get();
         solver.add(f.falsum());
         solver.sat();
         Assertions.assertThat(solver.model(f.variables())).isNull();
-        solver.reset();
+        solver = solverSupplier.get();
         solver.add(f.parse("A & ~A"));
         solver.sat();
         Assertions.assertThat(solver.model(f.variables("A"))).isNull();
-        solver.reset();
+        solver = solverSupplier.get();
         solver.add(f.parse("(A => (B & C)) & A & C & (C <=> ~B)"));
         solver.sat();
         Assertions.assertThat(solver.model(f.variables("A", "B", "C"))).isNull();
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testEmptyModel(final SATSolver solver) {
-        solver.reset();
+    @ParameterizedTest(name = "{index} {1}")
+    @MethodSource("solverSuppliers")
+    public void testEmptyModel(final Supplier<SATSolver> solverSupplier, final String solverDescription) {
+        final SATSolver solver = solverSupplier.get();
         solver.add(f.verum());
         solver.sat();
         final Assignment model = solver.model(f.variables());
@@ -82,16 +74,16 @@ public class ModelTest {
         Assertions.assertThat(solver.enumerateAllModels(List.of())).hasSize(1);
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testSimpleModel(final SATSolver solver) {
-        solver.reset();
+    @ParameterizedTest(name = "{index} {1}")
+    @MethodSource("solverSuppliers")
+    public void testSimpleModel(final Supplier<SATSolver> solverSupplier, final String solverDescription) {
+        SATSolver solver = solverSupplier.get();
         solver.add(f.literal("A", true));
         solver.sat();
         Assignment model = solver.model(f.variables("A"));
         assertThat(model.literals()).containsExactly(f.literal("A", true));
         Assertions.assertThat(solver.enumerateAllModels(f.variables("A"))).hasSize(1);
-        solver.reset();
+        solver = solverSupplier.get();
         solver.add(f.literal("A", false));
         solver.sat();
         model = solver.model(f.variables("A"));
@@ -99,10 +91,10 @@ public class ModelTest {
         Assertions.assertThat(solver.enumerateAllModels(f.variables("A"))).hasSize(1);
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testCNFFormula(final SATSolver solver) throws ParserException {
-        solver.reset();
+    @ParameterizedTest(name = "{index} {1}")
+    @MethodSource("solverSuppliers")
+    public void testCNFFormula(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+        final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A|B|C) & (~A|~B|~C) & (A|~B|~C) & (~A|~B|C)");
         solver.add(formula);
         solver.sat();
@@ -114,10 +106,10 @@ public class ModelTest {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testCNFWithAuxiliaryVarsRestrictedToOriginal(final SATSolver solver) throws ParserException {
-        solver.reset();
+    @ParameterizedTest(name = "{index} {1}")
+    @MethodSource("solverSuppliers")
+    public void testCNFWithAuxiliaryVarsRestrictedToOriginal(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+        final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         final Formula cnf = formula.transform(new TseitinTransformation(solver.factory(), 0));
         solver.add(cnf);
@@ -133,10 +125,10 @@ public class ModelTest {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testNonCNFAllVars(final MiniSat solver) throws ParserException {
-        solver.reset();
+    @ParameterizedTest(name = "{index} {1}")
+    @MethodSource("solverSuppliers")
+    public void testNonCNFAllVars(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+        final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solver.add(formula);
         solver.sat();
@@ -150,10 +142,10 @@ public class ModelTest {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testNonCNFOnlyFormulaVars(final SATSolver solver) throws ParserException {
-        solver.reset();
+    @ParameterizedTest(name = "{index} {1}")
+    @MethodSource("solverSuppliers")
+    public void testNonCNFOnlyFormulaVars(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+        final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solver.add(formula);
         solver.sat();
@@ -168,10 +160,10 @@ public class ModelTest {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testNonCNFRestrictedVars(final SATSolver solver) throws ParserException {
-        solver.reset();
+    @ParameterizedTest(name = "{index} {1}")
+    @MethodSource("solverSuppliers")
+    public void testNonCNFRestrictedVars(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+        final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         final MiniSat miniSat = MiniSat.miniSat(f);
         miniSat.add(formula);
@@ -189,10 +181,10 @@ public class ModelTest {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testNonCNFRestrictedAndAdditionalVars(final SATSolver solver) throws ParserException {
-        solver.reset();
+    @ParameterizedTest(name = "{index} {1}")
+    @MethodSource("solverSuppliers")
+    public void testNonCNFRestrictedAndAdditionalVars(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+        final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         final MiniSat miniSat = MiniSat.miniSat(f);
         miniSat.add(formula);
@@ -207,7 +199,7 @@ public class ModelTest {
         assertThat(model.formula(f).variables(f)).containsExactly(f.variable("D"));
         final ModelEnumerationFunction me = ModelEnumerationFunction.builder(relevantVariables)
                 .additionalVariables(additionalVariables)
-                .configuration(ModelEnumerationConfig.builder().strategy(strategy(solver)).build())
+                .configuration(ModelEnumerationConfig.builder().strategy(defaultMeStrategy).build())
                 .build();
         final List<Model> allModels = solver.execute(me);
         assertThat(allModels).hasSize(2);
@@ -217,10 +209,10 @@ public class ModelTest {
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testUnsolvedFormula(final SATSolver solver) throws ParserException {
-        solver.reset();
+    @ParameterizedTest(name = "{index} {1}")
+    @MethodSource("solverSuppliers")
+    public void testUnsolvedFormula(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+        final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solver.add(formula);
         assertThatThrownBy(() -> solver.model(f.variables("A"))).isInstanceOf(IllegalStateException.class);

@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.LongRunningTag;
+import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -118,6 +119,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
     }
 
     @Test
+    @RandomTag
     public void testRandomReorderingQuick() {
         testRandomReordering(25, 30, false);
     }

@@ -280,7 +280,7 @@ public abstract class MaxSAT {
      * @return the empty SAT solver
      */
     public MiniSatStyleSolver newSATSolver() {
-        return new MiniSat2Solver(MiniSatConfig.builder().incremental(false).useLbdFeatures(true).useBinaryWatchers(true).build());
+        return new MiniSat2Solver(MiniSatConfig.builder().build());
     }
 
     /**

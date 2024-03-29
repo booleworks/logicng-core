@@ -670,28 +670,6 @@ public abstract class MiniSatStyleSolver {
     protected abstract void reduceDB();
 
     /**
-     * Removes all clauses which are satisfied under the current assignment of a set of clauses.
-     * @param cs the set of clauses
-     */
-    protected abstract void removeSatisfied(final LNGVector<MSClause> cs);
-
-    /**
-     * Returns {@code true} if a given clause is satisfied under the current assignment, {@code false} otherwise.
-     * @param c the clause
-     * @return {@code true} if a given clause is satisfied under the current assignment
-     */
-    protected abstract boolean satisfied(final MSClause c);
-
-    /**
-     * Simplifies the database of clauses.  This method is only executed on level 0.  All learnt clauses which are
-     * satisfied on level 0 are removed.  Depending on the configuration of the solver, also original clauses which are
-     * satisfied at level 0 are removed.
-     * @return {@code true} if simplification was successful and no conflict was found, {@code false} if a conflict was
-     *         found during the simplification
-     */
-    protected abstract boolean simplify();
-
-    /**
      * Returns the original clauses for proof generation.
      * @return the original clauses for proof generation
      */

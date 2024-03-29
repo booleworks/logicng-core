@@ -65,6 +65,7 @@ public class DnnfCompilerTest {
     }
 
     @Test
+    @LongRunningTag
     public void testLargeFormulas() throws IOException {
         final FormulaFactory f = FormulaFactory.caching();
         List<Formula> dimacs = DimacsReader.readCNF(f, "src/test/resources/dnnf/both_bdd_dnnf_1.cnf");

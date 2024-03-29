@@ -29,11 +29,10 @@ public class PlainInsertionBasedMUS extends MUSAlgorithm {
         final List<T> currentFormula = new ArrayList<>(propositions.size());
         currentFormula.addAll(propositions);
         final List<T> mus = new ArrayList<>(propositions.size());
-        final MiniSat solver = MiniSat.miniSat(f);
         while (!currentFormula.isEmpty()) {
             final List<T> currentSubset = new ArrayList<>(propositions.size());
             T transitionProposition = null;
-            solver.reset();
+            final MiniSat solver = MiniSat.miniSat(f);
             for (final Proposition p : mus) {
                 solver.add(p);
             }

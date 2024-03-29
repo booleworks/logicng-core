@@ -7,6 +7,7 @@ package com.booleworks.logicng.transformations.dnf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -55,6 +56,7 @@ public class DNFSubsumptionTest extends TestWithFormulaContext {
 
     @ParameterizedTest
     @MethodSource("contexts")
+    @LongRunningTag
     public void testEvenLargerFormulas(final FormulaContext _c) throws IOException, ParserException {
         final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/small_formulas.txt");
         int count = 10; // test only first 10 formulas

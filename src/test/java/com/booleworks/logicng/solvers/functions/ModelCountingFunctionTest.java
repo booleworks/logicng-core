@@ -5,7 +5,6 @@
 package com.booleworks.logicng.solvers.functions;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.collections.LNGBooleanVector;
@@ -28,7 +27,6 @@ import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.F
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.LeastCommonVariablesProvider;
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.MostCommonVariablesProvider;
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.SplitVariableProvider;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,15 +56,6 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     @BeforeEach
     public void init() {
         f = FormulaFactory.caching();
-    }
-
-    @Test
-    public void testNonIncrementalSolver() throws ParserException {
-        final MiniSat solver = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
-        solver.add(f.parse("A | B | C"));
-        assertThatThrownBy(() -> solver.execute(ModelCountingFunction.builder(f.variables()).build()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Recursive model enumeration function can only be applied to solvers with load/save state capability.");
     }
 
     @ParameterizedTest

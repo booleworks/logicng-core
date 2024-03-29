@@ -9,31 +9,26 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.LogicNGTest;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.testutils.PigeonHoleGenerator;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
+@SuppressWarnings("unused")
 public class IncDecTest implements LogicNGTest {
 
-    public static Collection<Object[]> solvers() {
-        final var f = FormulaFactory.caching();
-        final var solvers = new ArrayList<Object[]>();
-        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(false).build())});
-        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useAtMostClauses(true).build())});
-        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useBinaryWatchers(true).build())});
-        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().incremental(true).useBinaryWatchers(true).useAtMostClauses(true).build())});
-        return solvers;
+    public static List<Arguments> solvers() {
+        return SolverTestSet.solverTestSetForParameterizedTests(Set.of(SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES), FormulaFactory.caching());
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testIncDec(final SATSolver s) {
+    public void testIncDec(final SATSolver s, final String solverDescription) {
         final var f = s.factory();
         final PigeonHoleGenerator pg = new PigeonHoleGenerator(f);
         s.add(f.variable("a"));
@@ -59,9 +54,9 @@ public class IncDecTest implements LogicNGTest {
         assertSolverSat(s);
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testIncDecDeep(final SATSolver s) {
+    public void testIncDecDeep(final SATSolver s, final String solverDescription) {
         final var f = s.factory();
         s.add(f.variable("a"));
         final SolverState state1 = s.saveState();

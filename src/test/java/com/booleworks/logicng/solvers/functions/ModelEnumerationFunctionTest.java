@@ -10,8 +10,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySortedSet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
@@ -71,15 +71,6 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @BeforeEach
     public void init() {
         f = FormulaFactory.caching();
-    }
-
-    @Test
-    public void testNonIncrementalSolver() throws ParserException {
-        final MiniSat solver = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
-        solver.add(f.parse("A | B | C"));
-        assertThatThrownBy(() -> solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).build()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Recursive model enumeration function can only be applied to solvers with load/save state capability.");
     }
 
     @ParameterizedTest
@@ -246,6 +237,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
 
     @ParameterizedTest
     @MethodSource("splitProviders")
+    @LongRunningTag
     public void testDontCareVariables1(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
                 ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
@@ -334,13 +326,13 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @RandomTag
     @Test
     public void testAdditionalVariables() {
-        final SATSolver solver = MiniSat.miniSat(f);
         final ModelEnumerationConfig config = ModelEnumerationConfig.builder()
                 .strategy(DefaultModelEnumerationStrategy.builder().splitVariableProvider(new LeastCommonVariablesProvider()).maxNumberOfModels(10).build())
                 .build();
 
         for (int i = 1; i <= 1000; i++) {
             // given
+            final SATSolver solver = MiniSat.miniSat(f);
             final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(i).numVars(20).build());
             final Formula formula = randomizer.formula(4);
             solver.add(formula);
@@ -361,11 +353,8 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
             // check that models are buildable and every model contains all additional variables
             for (final Model model : modelsRecursive) {
                 assertThat(variables(model)).containsAll(additionalVars);
-                solver.add(model.getLiterals());
-                assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
-                solver.reset();
+                assertThat(solver.sat(model.getLiterals())).isEqualTo(Tristate.TRUE);
             }
-            solver.reset();
         }
     }
 
@@ -376,7 +365,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
             final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(i).numVars(15).build());
             final Formula formula = randomizer.formula(3);
 
-            final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().useBinaryWatchers(true).useLbdFeatures(true).build());
+            final SATSolver solver = MiniSat.miniSat(f);
             solver.add(formula);
 
             // no split

@@ -66,7 +66,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
          * Constructs a new MiniSatPropagator.
          */
         public MiniSatPropagator() {
-            super(MiniSatConfig.builder().incremental(false).build());
+            super(MiniSatConfig.builder().build());
         }
 
         /**

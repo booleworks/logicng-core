@@ -105,6 +105,7 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
 
     @ParameterizedTest
     @MethodSource("contexts")
+    @LongRunningTag
     public void testAdvancedSimplifierConfig(final FormulaContext _c) {
         final List<AdvancedSimplifierConfig> configs = Arrays.asList(
                 AdvancedSimplifierConfig.builder().build(),

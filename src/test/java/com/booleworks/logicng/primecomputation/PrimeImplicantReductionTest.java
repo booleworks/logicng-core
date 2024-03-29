@@ -6,6 +6,7 @@ package com.booleworks.logicng.primecomputation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
@@ -77,6 +78,7 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
 
     @ParameterizedTest
     @MethodSource("contexts")
+    @LongRunningTag
     public void testLargeFormula(final FormulaContext _c) throws IOException, ParserException {
         final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
         testFormula(formula);
@@ -84,6 +86,7 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
 
     @ParameterizedTest
     @MethodSource("contexts")
+    @LongRunningTag
     public void testSmallFormulas(final FormulaContext _c) throws IOException, ParserException {
         final List<String> lines = Files.readAllLines(Paths.get("src/test/resources/formulas/small_formulas.txt"));
         for (final String line : lines) {

@@ -118,13 +118,9 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         watches.push(new LNGVector<>());
         watches.push(new LNGVector<>());
         seen.push(false);
-        if (config.useBinaryWatchers) {
-            watchesBin.push(new LNGVector<>());
-            watchesBin.push(new LNGVector<>());
-        }
-        if (config.useLbdFeatures) {
-            permDiff.push(0);
-        }
+        watchesBin.push(new LNGVector<>());
+        watchesBin.push(new LNGVector<>());
+        permDiff.push(0);
         newVar.setDecision(dvar);
         insertVarOrder(v);
         return v;
@@ -195,9 +191,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         } else if (ps.size() == 1) {
             uncheckedEnqueue(ps.get(0), null);
             ok = propagate() == null;
-            if (config.incremental) {
-                unitClauses.push(ps.get(0));
-            }
+            unitClauses.push(ps.get(0));
             if (!ok && config.proofGeneration) {
                 pgProof.push(new LNGIntVector(1, 0));
             }
@@ -219,21 +213,9 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         if (!ok) {
             return Tristate.FALSE;
         }
-        if (!config.useLbdFeatures) {
-            learntsizeAdjustConfl = learntsizeAdjustStartConfl;
-            learntsizeAdjustCnt = (int) learntsizeAdjustConfl;
-            maxLearnts = clauses.size() * llConfig.learntsizeFactor;
-        }
         Tristate status = Tristate.UNDEF;
-        int currRestarts = 0;
         while (status == Tristate.UNDEF && !canceledByHandler) {
-            if (config.useLbdFeatures) {
-                status = search(-1);
-            } else {
-                final double restBase = luby(llConfig.restartInc, currRestarts);
-                status = search((int) (restBase * llConfig.restartFirst));
-                currRestarts++;
-            }
+            status = search();
         }
 
         if (config.proofGeneration && assumptions.empty()) {
@@ -266,9 +248,6 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
      */
     @Override
     public SolverState saveState() {
-        if (!config.incremental) {
-            throw new IllegalStateException("Cannot save a state when the incremental mode is deactivated");
-        }
         final int[] state;
         state = new int[6];
         state[0] = ok ? 1 : 0;
@@ -286,9 +265,6 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
 
     @Override
     public void loadState(final SolverState solverState) {
-        if (!config.incremental) {
-            throw new IllegalStateException("Cannot load a state when the incremental mode is deactivated");
-        }
         int index = -1;
         for (int i = validStates.size() - 1; i >= 0 && index == -1; i--) {
             if (validStates.get(i) == solverState.getId()) {
@@ -307,9 +283,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             orderHeap.remove(name2idx.remove(idx2name.remove(i)));
         }
         vars.shrinkTo(newVarsSize);
-        if (config.useLbdFeatures) {
-            permDiff.shrinkTo(newVarsSize);
-        }
+        permDiff.shrinkTo(newVarsSize);
         final int newClausesSize = Math.min(state[2], clauses.size());
         for (int i = clauses.size() - 1; i >= newClausesSize; i--) {
             simpleRemoveClause(clauses.get(i));
@@ -326,9 +300,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         }
         learnts.shrinkTo(newLearntsLength);
         watches.shrinkTo(newVarsSize * 2);
-        if (config.useBinaryWatchers) {
-            watchesBin.shrinkTo(newVarsSize * 2);
-        }
+        watchesBin.shrinkTo(newVarsSize * 2);
         unitClauses.shrinkTo(state[3]);
         for (int i = 0; ok && i < unitClauses.size(); i++) {
             uncheckedEnqueue(unitClauses.get(i), null);
@@ -362,7 +334,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             clausesLiterals += c.size();
         } else {
             assert c.size() > 1;
-            if (config.useBinaryWatchers && c.size() == 2) {
+            if (c.size() == 2) {
                 watchesBin.get(not(c.get(0))).push(new MSWatcher(c, c.get(1)));
                 watchesBin.get(not(c.get(1))).push(new MSWatcher(c, c.get(0)));
             } else {
@@ -424,16 +396,14 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             int iInd = 0;
             int jInd = 0;
             numProps++;
-            if (config.useBinaryWatchers) {
-                final LNGVector<MSWatcher> wbin = watchesBin.get(p);
-                for (int k = 0; k < wbin.size(); k++) {
-                    final int imp = wbin.get(k).blocker();
-                    if (value(imp) == Tristate.FALSE) {
-                        return wbin.get(k).clause();
-                    }
-                    if (value(imp) == Tristate.UNDEF) {
-                        uncheckedEnqueue(imp, wbin.get(k).clause());
-                    }
+            final LNGVector<MSWatcher> wbin = watchesBin.get(p);
+            for (int k = 0; k < wbin.size(); k++) {
+                final int imp = wbin.get(k).blocker();
+                if (value(imp) == Tristate.FALSE) {
+                    return wbin.get(k).clause();
+                }
+                if (value(imp) == Tristate.UNDEF) {
+                    uncheckedEnqueue(imp, wbin.get(k).clause());
                 }
             }
             while (iInd < ws.size()) {
@@ -542,7 +512,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     }
                 }
             } else {
-                if (config.useBinaryWatchers && c.size() == 2 && value(c.get(0)) == Tristate.FALSE) {
+                if (c.size() == 2 && value(c.get(0)) == Tristate.FALSE) {
                     assert value(c.get(1)) == Tristate.TRUE;
                     final int tmp = c.get(0);
                     c.set(0, c.get(1));
@@ -588,13 +558,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     outConflict.push(not(trail.get(i)));
                 } else {
                     final MSClause c = v.reason();
-                    if (!config.useBinaryWatchers && !c.isAtMost()) {
-                        for (int j = 1; j < c.size(); j++) {
-                            if (v(c.get(j)).level() > 0) {
-                                seen.set(var(c.get(j)), true);
-                            }
-                        }
-                    } else if (config.useBinaryWatchers) {
+                    if (!c.isAtMost()) {
                         for (int j = c.size() == 2 ? 0 : 1; j < c.size(); j++) {
                             if (v(c.get(j)).level() > 0) {
                                 seen.set(var(c.get(j)), true);
@@ -618,109 +582,27 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
     protected void reduceDB() {
         int i;
         int j;
-        if (config.useLbdFeatures) {
-            learnts.manualSort(MSClause.glucoseComparator);
-            if (learnts.get(learnts.size() / RATIO_REMOVE_CLAUSES).lbd() <= 3) {
-                nbClausesBeforeReduce += llConfig.specialIncReduceDB;
-            }
-            if (learnts.back().lbd() <= 5) {
-                nbClausesBeforeReduce += llConfig.specialIncReduceDB;
-            }
-            int limit = learnts.size() / 2;
-            for (i = j = 0; i < learnts.size(); i++) {
-                final MSClause c = learnts.get(i);
-                if (c.lbd() > 2 && c.size() > 2 && c.canBeDel() && !locked(c) && (i < limit)) {
-                    removeClause(learnts.get(i));
-                } else {
-                    if (!c.canBeDel()) {
-                        limit++;
-                    }
-                    c.setCanBeDel(true);
-                    learnts.set(j++, learnts.get(i));
+        learnts.manualSort(MSClause.glucoseComparator);
+        if (learnts.get(learnts.size() / RATIO_REMOVE_CLAUSES).lbd() <= 3) {
+            nbClausesBeforeReduce += llConfig.specialIncReduceDB;
+        }
+        if (learnts.back().lbd() <= 5) {
+            nbClausesBeforeReduce += llConfig.specialIncReduceDB;
+        }
+        int limit = learnts.size() / 2;
+        for (i = j = 0; i < learnts.size(); i++) {
+            final MSClause c = learnts.get(i);
+            if (c.lbd() > 2 && c.size() > 2 && c.canBeDel() && !locked(c) && i < limit) {
+                removeClause(learnts.get(i));
+            } else {
+                if (!c.canBeDel()) {
+                    limit++;
                 }
-            }
-        } else {
-            final double extraLim = claInc / learnts.size();
-            learnts.manualSort(MSClause.minisatComparator);
-            for (i = j = 0; i < learnts.size(); i++) {
-                final MSClause c = learnts.get(i);
-                assert !c.isAtMost();
-                if (c.size() > 2 && !locked(c) && (i < learnts.size() / 2 || c.activity() < extraLim)) {
-                    removeClause(learnts.get(i));
-                } else {
-                    learnts.set(j++, learnts.get(i));
-                }
+                c.setCanBeDel(true);
+                learnts.set(j++, learnts.get(i));
             }
         }
         learnts.removeElements(i - j);
-    }
-
-    @Override
-    protected void removeSatisfied(final LNGVector<MSClause> cs) {
-        int i;
-        int j;
-        for (i = j = 0; i < cs.size(); i++) {
-            final MSClause c = cs.get(i);
-            if (satisfied(c)) {
-                removeClause(cs.get(i));
-            } else {
-                assert c.isAtMost() || config.useBinaryWatchers || value(c.get(0)) == Tristate.UNDEF && value(c.get(1)) == Tristate.UNDEF;
-                if (!config.proofGeneration && !config.useBinaryWatchers && !c.isAtMost()) {
-                    // This simplification does not work with proof generation
-                    // TODO this might also work with atMost clauses
-                    for (int k = 2; k < c.size(); k++) {
-                        if (value(c.get(k)) == Tristate.FALSE) {
-                            c.set(k--, c.get(c.size() - 1));
-                            c.pop();
-                        }
-                    }
-                }
-                cs.set(j++, cs.get(i));
-            }
-        }
-        cs.removeElements(i - j);
-    }
-
-    @Override
-    protected boolean satisfied(final MSClause c) {
-        if (c.isAtMost()) {
-            int numFalse = 0;
-            for (int i = 0; i < c.size(); i++) {
-                if (value(c.get(i)) == Tristate.FALSE) {
-                    numFalse++;
-                    if (numFalse >= c.atMostWatchers() - 1) {
-                        return true;
-                    }
-                }
-            }
-        } else {
-            for (int i = 0; i < c.size(); i++) {
-                if (value(c.get(i)) == Tristate.TRUE) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    @Override
-    protected boolean simplify() {
-        assert decisionLevel() == 0;
-        if (!ok || propagate() != null) {
-            ok = false;
-            return false;
-        }
-        if (nAssigns() == simpDBAssigns || (simpDBProps > 0)) {
-            return true;
-        }
-        removeSatisfied(learnts);
-        if (!config.incremental && config.removeSatisfied) {
-            removeSatisfied(clauses);
-        }
-        rebuildOrderHeap();
-        simpDBAssigns = nAssigns();
-        simpDBProps = clausesLiterals + learntsLiterals;
-        return true;
     }
 
     /**
@@ -761,9 +643,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         if (k == 0) {
             for (i = 0; i < ps.size(); i++) {
                 uncheckedEnqueue(not(ps.get(i)), null);
-                if (config.incremental) {
-                    unitClauses.push(not(ps.get(i)));
-                }
+                unitClauses.push(not(ps.get(i)));
             }
             ok = propagate() == null;
             return;
@@ -856,15 +736,13 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
 
     /**
      * The main search procedure of the CDCL algorithm.
-     * @param nofConflicts the number of conflicts until the next restart (not relevant if LBD features are used)
      * @return a {@link Tristate} representing the result.  {@code FALSE} if the formula is UNSAT, {@code TRUE} if the
      *         formula is SAT, and {@code UNDEF} if the state is not known yet (restart) or the handler canceled the computation
      */
-    protected Tristate search(final int nofConflicts) {
+    protected Tristate search() {
         if (!ok) {
             return Tristate.FALSE;
         }
-        int conflictC = 0;
         final LNGIntVector learntClause = new LNGIntVector();
         final LNGIntVector selectors = new LNGIntVector();
         selectionOrderIdx = 0;
@@ -875,31 +753,23 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     canceledByHandler = true;
                     return Tristate.UNDEF;
                 }
-                if (config.useLbdFeatures) {
-                    conflicts++;
-                    conflictsRestarts++;
-                    if (conflicts % 5000 == 0 && varDecay < llConfig.maxVarDecay) {
-                        varDecay += 0.01;
-                    }
-                } else {
-                    conflictC++;
+                conflicts++;
+                conflictsRestarts++;
+                if (conflicts % 5000 == 0 && varDecay < llConfig.maxVarDecay) {
+                    varDecay += 0.01;
                 }
                 if (decisionLevel() == 0) {
                     return Tristate.FALSE;
                 }
-                if (config.useLbdFeatures) {
-                    trailQueue.push(trail.size());
-                    if (conflictsRestarts > LB_BLOCKING_RESTART && lbdQueue.valid() && trail.size() > llConfig.factorR * trailQueue.avg()) {
-                        lbdQueue.fastClear();
-                    }
+                trailQueue.push(trail.size());
+                if (conflictsRestarts > LB_BLOCKING_RESTART && lbdQueue.valid() && trail.size() > llConfig.factorR * trailQueue.avg()) {
+                    lbdQueue.fastClear();
                 }
                 learntClause.clear();
                 selectors.clear();
                 analyze(confl, learntClause, selectors);
-                if (config.useLbdFeatures) {
-                    lbdQueue.push(analyzeLBD);
-                    sumLBD += analyzeLBD;
-                }
+                lbdQueue.push(analyzeLBD);
+                sumLBD += analyzeLBD;
                 cancelUntil(analyzeBtLevel);
                 if (analyzeBtLevel < selectionOrder.size()) {
                     selectionOrderIdx = analyzeBtLevel;
@@ -919,10 +789,8 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     unitClauses.push(learntClause.get(0));
                 } else {
                     final MSClause cr = new MSClause(learntClause, stateId);
-                    if (config.useLbdFeatures) {
-                        cr.setLBD(analyzeLBD);
-                        cr.setOneWatched(false);
-                    }
+                    cr.setLBD(analyzeLBD);
+                    cr.setOneWatched(false);
                     learnts.push(cr);
                     attachClause(cr);
                     claBumpActivity(cr);
@@ -930,37 +798,16 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                 }
                 varDecayActivity();
                 claDecayActivity();
-                if (!config.useLbdFeatures && --learntsizeAdjustCnt == 0) {
-                    learntsizeAdjustConfl *= learntsizeAdjustInc;
-                    learntsizeAdjustCnt = (int) learntsizeAdjustConfl;
-                    maxLearnts *= llConfig.learntsizeInc;
-                }
             } else {
-                if (config.useLbdFeatures) {
-                    if (lbdQueue.valid() && (lbdQueue.avg() * llConfig.factorK) > (sumLBD / conflictsRestarts)) {
-                        lbdQueue.fastClear();
-                        cancelUntil(0);
-                        return Tristate.UNDEF;
-                    }
-                    if (!config.incremental && decisionLevel() == 0 && !simplify()) {
-                        return Tristate.FALSE;
-                    }
-                    if (conflicts >= (curRestart * nbClausesBeforeReduce) && learnts.size() > 0) {
-                        curRestart = (conflicts / nbClausesBeforeReduce) + 1;
-                        reduceDB();
-                        nbClausesBeforeReduce += llConfig.incReduceDB;
-                    }
-                } else {
-                    if (nofConflicts >= 0 && conflictC >= nofConflicts) {
-                        cancelUntil(0);
-                        return Tristate.UNDEF;
-                    }
-                    if (!config.incremental && decisionLevel() == 0 && !simplify()) {
-                        return Tristate.FALSE;
-                    }
-                    if (learnts.size() - nAssigns() >= maxLearnts) {
-                        reduceDB();
-                    }
+                if (lbdQueue.valid() && (lbdQueue.avg() * llConfig.factorK) > (sumLBD / conflictsRestarts)) {
+                    lbdQueue.fastClear();
+                    cancelUntil(0);
+                    return Tristate.UNDEF;
+                }
+                if (conflicts >= (curRestart * nbClausesBeforeReduce) && learnts.size() > 0) {
+                    curRestart = (conflicts / nbClausesBeforeReduce) + 1;
+                    reduceDB();
+                    nbClausesBeforeReduce += llConfig.incReduceDB;
                 }
                 int next = LIT_UNDEF;
                 while (decisionLevel() < assumptions.size()) {
@@ -1062,8 +909,8 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                         }
                     }
                 }
-            } else if (config.useLbdFeatures) {
-                if (config.useBinaryWatchers && p != LIT_UNDEF && c.size() == 2 && value(c.get(0)) == Tristate.FALSE) {
+            } else {
+                if (p != LIT_UNDEF && c.size() == 2 && value(c.get(0)) == Tristate.FALSE) {
                     assert value(c.get(1)) == Tristate.TRUE;
                     final int tmp = c.get(0);
                     c.set(0, c.get(1));
@@ -1100,26 +947,6 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                         }
                     }
                 }
-            } else {
-                if (config.useBinaryWatchers && p != LIT_UNDEF && c.size() == 2 && value(c.get(0)) == Tristate.FALSE) {
-                    assert value(c.get(1)) == Tristate.TRUE;
-                    final int tmp = c.get(0);
-                    c.set(0, c.get(1));
-                    c.set(1, tmp);
-                }
-                claBumpActivity(c);
-                for (int j = (p == LIT_UNDEF) ? 0 : 1; j < c.size(); j++) {
-                    final int q = c.get(j);
-                    if (!seen.get(var(q)) && v(q).level() > 0) {
-                        varBumpActivity(var(q));
-                        seen.set(var(q), true);
-                        if (v(q).level() >= decisionLevel()) {
-                            pathC++;
-                        } else {
-                            outLearnt.push(q);
-                        }
-                    }
-                }
             }
             while (!seen.get(var(trail.get(index--)))) {
             }
@@ -1144,7 +971,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             outLearnt.push(selectors.get(i));
         }
         final LNGIntVector analyzeToClear = new LNGIntVector(outLearnt);
-        if (config.clauseMin == MiniSatConfig.ClauseMinimization.DEEP) {
+        if (config.clauseMinimization == MiniSatConfig.ClauseMinimization.DEEP) {
             int abstractLevel = 0;
             for (i = 1; i < outLearnt.size(); i++) {
                 abstractLevel |= abstractLevel(var(outLearnt.get(i)));
@@ -1154,13 +981,13 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     outLearnt.set(j++, outLearnt.get(i));
                 }
             }
-        } else if (config.clauseMin == MiniSatConfig.ClauseMinimization.BASIC) {
+        } else if (config.clauseMinimization == MiniSatConfig.ClauseMinimization.BASIC) {
             for (i = j = 1; i < outLearnt.size(); i++) {
                 final MSClause c = v(outLearnt.get(i)).reason();
                 if (c == null) {
                     outLearnt.set(j++, outLearnt.get(i));
                 } else {
-                    for (int k = config.useBinaryWatchers && c.size() == 2 ? 0 : 1; k < c.size(); k++) {
+                    for (int k = c.size() == 2 ? 0 : 1; k < c.size(); k++) {
                         if (!seen.get(var(c.get(k))) && v(c.get(k)).level() > 0) {
                             outLearnt.set(j++, outLearnt.get(i));
                             break;
@@ -1172,7 +999,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             i = j = outLearnt.size();
         }
         outLearnt.removeElements(i - j);
-        if (config.useBinaryWatchers && config.useLbdFeatures && outLearnt.size() <= llConfig.lbSizeMinimizingClause) {
+        if (outLearnt.size() <= llConfig.lbSizeMinimizingClause) {
             minimisationWithBinaryResolution(outLearnt);
         }
         analyzeBtLevel = 0;
@@ -1188,17 +1015,15 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             outLearnt.set(1, p);
             analyzeBtLevel = v(p).level();
         }
-        if (config.useLbdFeatures) {
-            analyzeLBD = computeLBD(outLearnt);
-            for (int k = 0; k < lastDecisionLevel.size(); k++) {
-                if ((v(lastDecisionLevel.get(k)).reason()).lbd() < analyzeLBD) {
-                    varBumpActivity(var(lastDecisionLevel.get(k)));
-                }
+        analyzeLBD = computeLBD(outLearnt);
+        for (int k = 0; k < lastDecisionLevel.size(); k++) {
+            if ((v(lastDecisionLevel.get(k)).reason()).lbd() < analyzeLBD) {
+                varBumpActivity(var(lastDecisionLevel.get(k)));
             }
-            lastDecisionLevel.clear();
-            for (int m = 0; m < selectors.size(); m++) {
-                seen.set(var(selectors.get(m)), false);
-            }
+        }
+        lastDecisionLevel.clear();
+        for (int m = 0; m < selectors.size(); m++) {
+            seen.set(var(selectors.get(m)), false);
         }
         for (int l = 0; l < analyzeToClear.size(); l++) {
             seen.set(var(analyzeToClear.get(l)), false);
@@ -1231,7 +1056,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             for (int i = 0; i < c.atMostWatchers(); i++) {
                 watches.get(c.get(i)).remove(new MSWatcher(c, c.get(i)));
             }
-        } else if (config.useBinaryWatchers && c.size() == 2) {
+        } else if (c.size() == 2) {
             watchesBin.get(not(c.get(0))).remove(new MSWatcher(c, c.get(1)));
             watchesBin.get(not(c.get(1))).remove(new MSWatcher(c, c.get(0)));
         } else {
@@ -1245,11 +1070,9 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
         if (!super.isRotatable(lit)) {
             return false;
         }
-        if (config.useBinaryWatchers) {
-            for (final MSWatcher watcher : watchesBin.get(not(lit))) {
-                if (isUnit(lit, watcher.clause())) {
-                    return false;
-                }
+        for (final MSWatcher watcher : watchesBin.get(not(lit))) {
+            if (isUnit(lit, watcher.clause())) {
+                return false;
             }
         }
         return true;

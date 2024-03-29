@@ -198,15 +198,6 @@ public class MiniSat extends SATSolver {
     }
 
     @Override
-    public void reset() {
-        solver.reset();
-        lastComputationWithAssumptions = false;
-        pgTransformation.clearCache();
-        fullPgTransformation.clearCache();
-        result = UNDEF;
-    }
-
-    @Override
     public Assignment model(final Collection<Variable> variables) {
         if (result == UNDEF) {
             throw new IllegalStateException("Cannot get a model as long as the formula is not solved.  Call 'sat' first.");
@@ -315,13 +306,9 @@ public class MiniSat extends SATSolver {
      * Returns the initial phase of literals of this solver.
      * @return the initial phase of literals of this solver
      */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean initialPhase() {
         return config.initialPhase;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s{result=%s, incremental=%s}", solver.getClass().getSimpleName(), result, config.incremental);
     }
 
     protected boolean lastResultIsUsable() {
@@ -347,21 +334,8 @@ public class MiniSat extends SATSolver {
     }
 
     @Override
-    public boolean canSaveLoadState() {
-        return config.incremental;
-    }
-
-    @Override
     public boolean canGenerateProof() {
         return config.proofGeneration();
-    }
-
-    /**
-     * Returns whether this solver is incremental.
-     * @return {@code true} if this solver is incremental, {@code false} otherwise
-     */
-    public boolean isIncremental() {
-        return config.incremental;
     }
 
     /**

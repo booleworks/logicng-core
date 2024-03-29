@@ -61,15 +61,6 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         f = FormulaFactory.caching();
     }
 
-    @Test
-    public void testNonIncrementalSolver() throws ParserException {
-        final MiniSat solver = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
-        solver.add(f.parse("A | B | C"));
-        assertThatThrownBy(() -> solver.execute(ModelEnumerationToBddFunction.builder(List.of()).build()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Recursive model enumeration function can only be applied to solvers with load/save state capability.");
-    }
-
     @ParameterizedTest
     @MethodSource("splitProviders")
     public void testContradiction(final SplitVariableProvider splitProvider) {

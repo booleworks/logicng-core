@@ -7,6 +7,7 @@ package com.booleworks.logicng.primecomputation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
@@ -88,6 +89,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
 
     @ParameterizedTest
     @MethodSource("contexts")
+    @LongRunningTag
     public void testOriginalFormulas(final FormulaContext _c) throws IOException {
         Files.lines(Paths.get("src/test/resources/formulas/simplify_formulas.txt"))
                 .filter(s -> !s.isEmpty())

@@ -7,6 +7,7 @@ package com.booleworks.logicng.backbones;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -155,6 +156,7 @@ public class BackboneGenerationTest {
     }
 
     @Test
+    @LongRunningTag
     public void testSmallFormulas() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");

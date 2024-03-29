@@ -56,7 +56,6 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
 
             final Formula randomFormula01 = randomSATFormula(f, randomizer, 4);
             final Formula randomFormula02 = randomSATFormula(f, randomizer, 4);
-            solver.reset();
             solver.add(randomFormula01);
             if (solver.sat() == Tristate.TRUE) {
                 final List<Model> models = solver.enumerateAllModels(solver.knownVariables());

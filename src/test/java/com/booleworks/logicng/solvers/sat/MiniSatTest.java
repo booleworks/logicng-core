@@ -21,40 +21,6 @@ import java.util.Arrays;
 public class MiniSatTest {
 
     @Test
-    public void testMkWithoutConfiguration() {
-//        final FormulaFactory f = FormulaFactory.caching();
-//        final MiniSatConfig miniSatConfig = MiniSatConfig.builder().build();
-//        f.putConfiguration(miniSatConfig);
-//
-//        final MiniSat miniSat = MiniSat.mk(f, MiniSat.SolverStyle.MINISAT);
-//        assertThat(miniSat.getStyle()).isEqualTo(MiniSat.SolverStyle.MINISAT);
-//        assertThat(miniSat.getConfig()).isEqualTo(miniSatConfig);
-//        assertThat(miniSat.underlyingSolver()).isInstanceOf(MiniSat2Solver.class);
-//
-//        final MiniSat glucose = MiniSat.mk(f, MiniSat.SolverStyle.GLUCOSE);
-//        assertThat(glucose.getStyle()).isEqualTo(MiniSat.SolverStyle.GLUCOSE);
-//        assertThat(glucose.getConfig()).isEqualTo(miniSatConfig);
-//        assertThat(glucose.underlyingSolver()).isInstanceOf(GlucoseSyrup.class);
-    }
-
-    @Test
-    public void testMkWithConfiguration() {
-//        final FormulaFactory f = FormulaFactory.caching();
-//        final MiniSatConfig miniSatConfig = MiniSatConfig.builder().build();
-//        final GlucoseConfig glucoseConfig = GlucoseConfig.builder().build();
-//
-//        final MiniSat miniSat = MiniSat.mk(f, MiniSat.SolverStyle.MINISAT, miniSatConfig, null);
-//        assertThat(miniSat.getStyle()).isEqualTo(MiniSat.SolverStyle.MINISAT);
-//        assertThat(miniSat.getConfig()).isEqualTo(miniSatConfig);
-//        assertThat(miniSat.underlyingSolver()).isInstanceOf(MiniSat2Solver.class);
-//
-//        final MiniSat glucose = MiniSat.mk(f, MiniSat.SolverStyle.GLUCOSE, miniSatConfig, glucoseConfig);
-//        assertThat(glucose.getStyle()).isEqualTo(MiniSat.SolverStyle.GLUCOSE);
-//        assertThat(glucose.getConfig()).isEqualTo(miniSatConfig);
-//        assertThat(glucose.underlyingSolver()).isInstanceOf(GlucoseSyrup.class);
-    }
-
-    @Test
     public void testAnalyzeFinal() {
         final MiniSat2Solver solver = new MiniSat2Solver();
         solver.newVar(true, true);
@@ -67,18 +33,6 @@ public class MiniSatTest {
         solver.addClause(clause(-2, -3), null);
         Assertions.assertThat(solver.solve(null)).isEqualTo(Tristate.TRUE);
         Assertions.assertThat(solver.solve(null, clause(1, 2))).isEqualTo(Tristate.FALSE);
-    }
-
-    @Test
-    public void testInvalidSaveState() {
-        final MiniSat2Solver solver = new MiniSat2Solver(MiniSatConfig.builder().incremental(false).build());
-        assertThatThrownBy(solver::saveState).isInstanceOf(IllegalStateException.class);
-    }
-
-    @Test
-    public void testInvalidLoadState() {
-        final MiniSat2Solver solver = new MiniSat2Solver(MiniSatConfig.builder().incremental(false).build());
-        assertThatThrownBy(() -> solver.loadState(null)).isInstanceOf(IllegalStateException.class);
     }
 
     @Test

@@ -4,6 +4,8 @@
 
 package com.booleworks.logicng.solvers.functions;
 
+import static com.booleworks.logicng.solvers.sat.MiniSatConfig.CNFMethod.FACTORY_CNF;
+import static com.booleworks.logicng.solvers.sat.MiniSatConfig.CNFMethod.PG_ON_SOLVER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LongRunningTag;
@@ -23,6 +25,7 @@ import com.booleworks.logicng.util.Pair;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.BufferedReader;
@@ -30,19 +33,22 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public class BackboneFunctionTest {
 
     private static final FormulaFactory f = FormulaFactory.caching();
 
-    private static MiniSatConfig.Builder config(final MiniSatConfig.CNFMethod cnfMethod, final boolean bbCheckForRotatableLiterals,
-                                                final boolean bbCheckForComplementModelLiterals, final boolean bbInitialUBCheckForRotatableLiterals) {
+    private static MiniSatConfig.Builder config(final boolean useAtMostClauses, final MiniSatConfig.CNFMethod cnfMethod,
+                                                final boolean bbCheckForRotatableLiterals, final boolean bbCheckForComplementModelLiterals,
+                                                final boolean bbInitialUBCheckForRotatableLiterals) {
         return MiniSatConfig.builder()
+                .useAtMostClauses(useAtMostClauses)
                 .cnfMethod(cnfMethod)
                 .lowLevelConfig(SATSolverLowLevelConfig.builder()
                         .bbCheckForRotatableLiterals(bbCheckForRotatableLiterals)
@@ -51,88 +57,87 @@ public class BackboneFunctionTest {
                         .build());
     }
 
-    public static Collection<Object[]> solvers() {
-        final Supplier<MiniSatConfig.Builder> configNoPG1 = () -> config(MiniSatConfig.CNFMethod.FACTORY_CNF, false, false, false);
-        final Supplier<MiniSatConfig.Builder> configNoPG2 = () -> config(MiniSatConfig.CNFMethod.FACTORY_CNF, true, false, false);
-        final Supplier<MiniSatConfig.Builder> configNoPG3 = () -> config(MiniSatConfig.CNFMethod.FACTORY_CNF, false, true, false);
-        final Supplier<MiniSatConfig.Builder> configNoPG4 = () -> config(MiniSatConfig.CNFMethod.FACTORY_CNF, false, false, true);
-        final Supplier<MiniSatConfig.Builder> configNoPG5 = () -> config(MiniSatConfig.CNFMethod.FACTORY_CNF, true, true, true);
-        final Supplier<MiniSatConfig.Builder> configPG1 = () -> config(MiniSatConfig.CNFMethod.PG_ON_SOLVER, false, false, false);
-        final Supplier<MiniSatConfig.Builder> configPG2 = () -> config(MiniSatConfig.CNFMethod.PG_ON_SOLVER, true, false, false);
-        final Supplier<MiniSatConfig.Builder> configPG3 = () -> config(MiniSatConfig.CNFMethod.PG_ON_SOLVER, false, true, false);
-        final Supplier<MiniSatConfig.Builder> configPG4 = () -> config(MiniSatConfig.CNFMethod.PG_ON_SOLVER, false, false, true);
-        final Supplier<MiniSatConfig.Builder> configPG5 = () -> config(MiniSatConfig.CNFMethod.PG_ON_SOLVER, true, true, true);
+    public static List<Arguments> solvers() {
+        final Supplier<MiniSatConfig.Builder> configNoAmNoPG1 = () -> config(false, FACTORY_CNF, false, false, false);
+        final Supplier<MiniSatConfig.Builder> configNoAmNoPG2 = () -> config(false, FACTORY_CNF, true, false, false);
+        final Supplier<MiniSatConfig.Builder> configNoAmNoPG3 = () -> config(false, FACTORY_CNF, false, true, false);
+        final Supplier<MiniSatConfig.Builder> configNoAmNoPG4 = () -> config(false, FACTORY_CNF, false, false, true);
+        final Supplier<MiniSatConfig.Builder> configNoAmNoPG5 = () -> config(false, FACTORY_CNF, true, true, true);
+        final Supplier<MiniSatConfig.Builder> configNoAmPG1 = () -> config(false, PG_ON_SOLVER, false, false, false);
+        final Supplier<MiniSatConfig.Builder> configNoAmPG2 = () -> config(false, PG_ON_SOLVER, true, false, false);
+        final Supplier<MiniSatConfig.Builder> configNoAmPG3 = () -> config(false, PG_ON_SOLVER, false, true, false);
+        final Supplier<MiniSatConfig.Builder> configNoAmPG4 = () -> config(false, PG_ON_SOLVER, false, false, true);
+        final Supplier<MiniSatConfig.Builder> configNoAmPG5 = () -> config(false, PG_ON_SOLVER, true, true, true);
+        final Supplier<MiniSatConfig.Builder> configNoPG1 = () -> config(true, FACTORY_CNF, false, false, false);
+        final Supplier<MiniSatConfig.Builder> configNoPG2 = () -> config(true, FACTORY_CNF, true, false, false);
+        final Supplier<MiniSatConfig.Builder> configNoPG3 = () -> config(true, FACTORY_CNF, false, true, false);
+        final Supplier<MiniSatConfig.Builder> configNoPG4 = () -> config(true, FACTORY_CNF, false, false, true);
+        final Supplier<MiniSatConfig.Builder> configNoPG5 = () -> config(true, FACTORY_CNF, true, true, true);
+        final Supplier<MiniSatConfig.Builder> configPG1 = () -> config(true, PG_ON_SOLVER, false, false, false);
+        final Supplier<MiniSatConfig.Builder> configPG2 = () -> config(true, PG_ON_SOLVER, true, false, false);
+        final Supplier<MiniSatConfig.Builder> configPG3 = () -> config(true, PG_ON_SOLVER, false, true, false);
+        final Supplier<MiniSatConfig.Builder> configPG4 = () -> config(true, PG_ON_SOLVER, false, false, true);
+        final Supplier<MiniSatConfig.Builder> configPG5 = () -> config(true, PG_ON_SOLVER, true, true, true);
         final List<Pair<Supplier<MiniSatConfig.Builder>, String>> configs = Arrays.asList(
-                new Pair<>(configNoPG1, "FF CNF -ROT -COMP -UB"),
-                new Pair<>(configNoPG2, "FF CNF +ROT -COMP -UB"),
-                new Pair<>(configNoPG3, "FF CNF -ROT +COMP -UB"),
-                new Pair<>(configNoPG4, "FF CNF -ROT -COMP +UB"),
-                new Pair<>(configNoPG5, "FF CNF +ROT +COMP +UB"),
-                new Pair<>(configPG1, "PG CNF -ROT -COMP -UB"),
-                new Pair<>(configPG2, "PG CNF +ROT -COMP -UB"),
-                new Pair<>(configPG3, "PG CNF -ROT +COMP -UB"),
-                new Pair<>(configPG4, "PG CNF -ROT -COMP +UB"),
-                new Pair<>(configPG5, "PG CNF +ROT +COMP +UB")
+                new Pair<>(configNoAmNoPG1, "FF CNF -ATM -ROT -COMP -UB"),
+                new Pair<>(configNoAmNoPG2, "FF CNF -ATM +ROT -COMP -UB"),
+                new Pair<>(configNoAmNoPG3, "FF CNF -ATM -ROT +COMP -UB"),
+                new Pair<>(configNoAmNoPG4, "FF CNF -ATM -ROT -COMP +UB"),
+                new Pair<>(configNoAmNoPG5, "FF CNF -ATM +ROT +COMP +UB"),
+                new Pair<>(configNoAmPG1, "PG CNF -ATM -ROT -COMP -UB"),
+                new Pair<>(configNoAmPG2, "PG CNF -ATM +ROT -COMP -UB"),
+                new Pair<>(configNoAmPG3, "PG CNF -ATM -ROT +COMP -UB"),
+                new Pair<>(configNoAmPG4, "PG CNF -ATM -ROT -COMP +UB"),
+                new Pair<>(configNoAmPG5, "PG CNF -ATM +ROT +COMP +UB"),
+                new Pair<>(configNoPG1, "FF CNF +ATM -ROT -COMP -UB"),
+                new Pair<>(configNoPG2, "FF CNF +ATM +ROT -COMP -UB"),
+                new Pair<>(configNoPG3, "FF CNF +ATM -ROT +COMP -UB"),
+                new Pair<>(configNoPG4, "FF CNF +ATM -ROT -COMP +UB"),
+                new Pair<>(configNoPG5, "FF CNF +ATM +ROT +COMP +UB"),
+                new Pair<>(configPG1, "PG CNF +ATM -ROT -COMP -UB"),
+                new Pair<>(configPG2, "PG CNF +ATM +ROT -COMP -UB"),
+                new Pair<>(configPG3, "PG CNF +ATM -ROT +COMP -UB"),
+                new Pair<>(configPG4, "PG CNF +ATM -ROT -COMP +UB"),
+                new Pair<>(configPG5, "PG CNF +ATM +ROT +COMP +UB")
         );
-        final List<Object[]> solvers = new ArrayList<>();
-        for (final Pair<Supplier<MiniSatConfig.Builder>, String> config : configs) {
-            solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().useAtMostClauses(false).build()), "MiniSat (" + config.second() + " -ATMC)"});
-            solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().useAtMostClauses(true).build()), "MiniSat (" + config.second() + " +ATMC)"});
-            solvers.add(new Object[]{MiniSat.miniSat(f, config.first().get().incremental(false).useBinaryWatchers(true).useLbdFeatures(true).build()), "Glucose (" + config.second() + ")"});
-        }
-        return solvers;
+        return configs.stream()
+                .map(config -> Arguments.of(MiniSat.miniSat(f, config.first().get().build()), config.second()))
+                .collect(Collectors.toList());
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testConstants(final MiniSat solver) {
-        solver.reset();
-        SolverState state = null;
-        if (solver.canSaveLoadState()) {
-            state = solver.saveState();
-        }
+    public void testConstants(final SATSolver solver, final String solverDescription) {
+        final SolverState state = solver.saveState();
         solver.add(f.falsum());
         Backbone backbone = solver.backbone(v("a b c"));
         assertThat(backbone.isSat()).isFalse();
         assertThat(backbone.getCompleteBackbone(f)).isEmpty();
-        if (solver.canSaveLoadState()) {
-            solver.loadState(state);
-        } else {
-            solver.reset();
-        }
+        solver.loadState(state);
         solver.add(f.verum());
         backbone = solver.backbone(v("a b c"));
         assertThat(backbone.isSat()).isTrue();
         Assertions.assertThat(backbone.getCompleteBackbone(f)).isEmpty();
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testSimpleBackbones(final MiniSat solver) throws ParserException {
-        solver.reset();
-        SolverState state = null;
-        if (solver.canSaveLoadState()) {
-            state = solver.saveState();
-        }
+    public void testSimpleBackbones(final SATSolver solver, final String solverDescription) throws ParserException {
+        final SolverState state = solver.saveState();
         solver.add(f.parse("a & b & ~c"));
         Backbone backbone = solver.backbone(v("a b c"));
         assertThat(backbone.isSat()).isTrue();
         assertThat(backbone.getCompleteBackbone(f)).containsExactly(f.variable("a"), f.variable("b"), f.literal("c", false));
-        if (solver.canSaveLoadState()) {
-            solver.loadState(state);
-        } else {
-            solver.reset();
-        }
+        solver.loadState(state);
         solver.add(f.parse("~a & ~b & c"));
         backbone = solver.backbone(v("a c"));
         assertThat(backbone.isSat()).isTrue();
         Assertions.assertThat(backbone.getCompleteBackbone(f)).containsExactly(f.literal("a", false), f.variable("c"));
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testSimpleFormulas(final MiniSat solver) throws ParserException {
-        solver.reset();
+    public void testSimpleFormulas(final SATSolver solver, final String solverDescription) throws ParserException {
         solver.add(f.parse("(a => c | d) & (b => d | ~e) & (a | b)"));
         Backbone backbone = solver.backbone(v("a b c d e f"));
         assertThat(backbone.isSat()).isTrue();
@@ -146,10 +151,9 @@ public class BackboneFunctionTest {
                 f.literal("d", false), f.literal("e", false));
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testSimpleFormulasWithBuilderUsage(final MiniSat solver) throws ParserException {
-        solver.reset();
+    public void testSimpleFormulasWithBuilderUsage(final SATSolver solver, final String solverDescription) throws ParserException {
         solver.add(f.parse("(a => c | d) & (b => d | ~e) & (a | b)"));
         Backbone backbone = solver.execute(BackboneFunction.builder().variables(
                         f.variable("a"), f.variable("b"), f.variable("c"), f.variable("d"), f.variable("e"), f.variable("f"))
@@ -165,10 +169,10 @@ public class BackboneFunctionTest {
                 f.literal("d", false), f.literal("e", false));
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testRealFormulaIncremental1(final MiniSat solver) throws IOException, ParserException {
-        solver.reset();
+    @LongRunningTag
+    public void testRealFormulaIncremental1(final SATSolver solver, final String solverDescription) throws IOException, ParserException {
         final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         solver.add(formula);
         final List<String> expectedBackbones = new ArrayList<>();
@@ -205,11 +209,10 @@ public class BackboneFunctionTest {
         assertThat(backbone.isSat()).isFalse();
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     @LongRunningTag
-    public void testRealFormulaIncremental2(final MiniSat solver) throws IOException, ParserException {
-        solver.reset();
+    public void testRealFormulaIncremental2(final SATSolver solver, final String solverDescription) throws IOException, ParserException {
         final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
         solver.add(formula);
         final List<String> expectedBackbones = new ArrayList<>();
@@ -246,111 +249,106 @@ public class BackboneFunctionTest {
         assertThat(backbone.isSat()).isFalse();
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testRealFormulaIncrementalDecremental1(final MiniSat solver) throws IOException, ParserException {
-        if (solver.canSaveLoadState()) {
-            solver.reset();
-            final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
-            solver.add(formula);
-            final SolverState state = solver.saveState();
-            final List<String> expectedBackbones = new ArrayList<>();
-            final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/backbones/backbone_large_formula.txt"));
-            while (reader.ready()) {
-                expectedBackbones.add(reader.readLine());
-            }
-            reader.close();
-            Backbone backbone = solver.backbone(formula.variables(f));
-            Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(0)));
-            solver.add(f.variable("v411"));
-            backbone = solver.backbone(formula.variables(f));
-            Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(1)));
-            assertThat(backbone.isSat()).isTrue();
-
-            solver.loadState(state);
-            solver.add(f.parse("v411 & v385"));
-            backbone = solver.backbone(formula.variables(f));
-            Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(2)));
-            assertThat(backbone.isSat()).isTrue();
-
-            solver.loadState(state);
-            solver.add(f.parse("v411 & v385 & v275"));
-            backbone = solver.backbone(formula.variables(f));
-            Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(3)));
-            assertThat(backbone.isSat()).isTrue();
-
-            solver.loadState(state);
-            solver.add(f.parse("v411 & v385 & v275 & v188"));
-            backbone = solver.backbone(formula.variables(f));
-            Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(4)));
-            assertThat(backbone.isSat()).isTrue();
-
-            solver.loadState(state);
-            solver.add(f.parse("v411 & v385 & v275 & v188 & v103"));
-            backbone = solver.backbone(formula.variables(f));
-            Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(5)));
-            assertThat(backbone.isSat()).isTrue();
-
-            solver.loadState(state);
-            solver.add(f.parse("v411 & v385 & v275 & v188 & v103 & v404"));
-            backbone = solver.backbone(formula.variables(f));
-            Assertions.assertThat(backbone.getCompleteBackbone(f)).isEmpty();
-            assertThat(backbone.isSat()).isFalse();
-        }
-    }
-
-    @ParameterizedTest
+    @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     @LongRunningTag
-    public void testRealFormulaIncrementalDecremental2(final MiniSat solver) throws IOException, ParserException {
-        if (solver.canSaveLoadState()) {
-            solver.reset();
-            final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
-            solver.add(formula);
-            final SolverState state = solver.saveState();
-            final List<String> expectedBackbones = new ArrayList<>();
-            final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/backbones/backbone_small_formulas.txt"));
-            while (reader.ready()) {
-                expectedBackbones.add(reader.readLine());
-            }
-            reader.close();
-            Backbone backbone = solver.backbone(formula.variables(f));
-            Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(0)));
-            solver.add(f.variable("v2609"));
-            backbone = solver.backbone(formula.variables(f));
-            Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(1)));
-            assertThat(backbone.isSat()).isTrue();
-
-            solver.loadState(state);
-            solver.add(f.parse("v2609 & v2416"));
-            backbone = solver.backbone(formula.variables(f));
-            Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(2)));
-            assertThat(backbone.isSat()).isTrue();
-
-            solver.loadState(state);
-            solver.add(f.parse("v2609 & v2416 & v2048"));
-            backbone = solver.backbone(formula.variables(f));
-            Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(3)));
-            assertThat(backbone.isSat()).isTrue();
-
-            solver.loadState(state);
-            solver.add(f.parse("v2609 & v2416 & v2048 & v39"));
-            backbone = solver.backbone(formula.variables(f));
-            Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(4)));
-            assertThat(backbone.isSat()).isTrue();
-
-            solver.loadState(state);
-            solver.add(f.parse("v2609 & v2416 & v2048 & v39 & v1663"));
-            backbone = solver.backbone(formula.variables(f));
-            Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(5)));
-            assertThat(backbone.isSat()).isTrue();
-
-            solver.loadState(state);
-            solver.add(f.parse("v2609 & v2416 & v2048 & v39 & v1663 & v2238"));
-            backbone = solver.backbone(formula.variables(f));
-            Assertions.assertThat(backbone.getCompleteBackbone(f)).isEmpty();
-            assertThat(backbone.isSat()).isFalse();
+    public void testRealFormulaIncrementalDecremental1(final SATSolver solver, final String solverDescription) throws IOException, ParserException {
+        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+        solver.add(formula);
+        final SolverState state = solver.saveState();
+        final List<String> expectedBackbones = new ArrayList<>();
+        final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/backbones/backbone_large_formula.txt"));
+        while (reader.ready()) {
+            expectedBackbones.add(reader.readLine());
         }
+        reader.close();
+        Backbone backbone = solver.backbone(formula.variables(f));
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(0)));
+        solver.add(f.variable("v411"));
+        backbone = solver.backbone(formula.variables(f));
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(1)));
+        assertThat(backbone.isSat()).isTrue();
+
+        solver.loadState(state);
+        solver.add(f.parse("v411 & v385"));
+        backbone = solver.backbone(formula.variables(f));
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(2)));
+        assertThat(backbone.isSat()).isTrue();
+
+        solver.loadState(state);
+        solver.add(f.parse("v411 & v385 & v275"));
+        backbone = solver.backbone(formula.variables(f));
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(3)));
+        assertThat(backbone.isSat()).isTrue();
+
+        solver.loadState(state);
+        solver.add(f.parse("v411 & v385 & v275 & v188"));
+        backbone = solver.backbone(formula.variables(f));
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(4)));
+        assertThat(backbone.isSat()).isTrue();
+
+        solver.loadState(state);
+        solver.add(f.parse("v411 & v385 & v275 & v188 & v103"));
+        backbone = solver.backbone(formula.variables(f));
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(5)));
+        assertThat(backbone.isSat()).isTrue();
+
+        solver.loadState(state);
+        solver.add(f.parse("v411 & v385 & v275 & v188 & v103 & v404"));
+        backbone = solver.backbone(formula.variables(f));
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEmpty();
+        assertThat(backbone.isSat()).isFalse();
+    }
+
+    @ParameterizedTest(name = "{index} {1}")
+    @MethodSource("solvers")
+    @LongRunningTag
+    public void testRealFormulaIncrementalDecremental2(final SATSolver solver, final String solverDescription) throws IOException, ParserException {
+        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
+        solver.add(formula);
+        final SolverState state = solver.saveState();
+        final List<String> expectedBackbones = new ArrayList<>();
+        final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/backbones/backbone_small_formulas.txt"));
+        while (reader.ready()) {
+            expectedBackbones.add(reader.readLine());
+        }
+        reader.close();
+        Backbone backbone = solver.backbone(formula.variables(f));
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(0)));
+        solver.add(f.variable("v2609"));
+        backbone = solver.backbone(formula.variables(f));
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(1)));
+        assertThat(backbone.isSat()).isTrue();
+
+        solver.loadState(state);
+        solver.add(f.parse("v2609 & v2416"));
+        backbone = solver.backbone(formula.variables(f));
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(2)));
+        assertThat(backbone.isSat()).isTrue();
+
+        solver.loadState(state);
+        solver.add(f.parse("v2609 & v2416 & v2048"));
+        backbone = solver.backbone(formula.variables(f));
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(3)));
+        assertThat(backbone.isSat()).isTrue();
+
+        solver.loadState(state);
+        solver.add(f.parse("v2609 & v2416 & v2048 & v39"));
+        backbone = solver.backbone(formula.variables(f));
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(4)));
+        assertThat(backbone.isSat()).isTrue();
+
+        solver.loadState(state);
+        solver.add(f.parse("v2609 & v2416 & v2048 & v39 & v1663"));
+        backbone = solver.backbone(formula.variables(f));
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(5)));
+        assertThat(backbone.isSat()).isTrue();
+
+        solver.loadState(state);
+        solver.add(f.parse("v2609 & v2416 & v2048 & v39 & v1663 & v2238"));
+        backbone = solver.backbone(formula.variables(f));
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEmpty();
+        assertThat(backbone.isSat()).isFalse();
     }
 
     @Test
