@@ -25,12 +25,5 @@ public class UnsatCoreFunctionTest extends TestWithExampleFormulas {
 
         assertThat(MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).build()).unsatCore()).isNull();
         // TODO test null if solver result is UNDEF because handler aborted
-        assertThatThrownBy(() -> {
-            final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).build());
-            solver.add(f.variable("A"));
-            solver.satCall().assumptions(f.literal("A", false)).sat();
-            solver.satCall().assumptions(f.literal("A", false)).unsatCore();
-        }).isInstanceOf(IllegalStateException.class)
-                .hasMessage("Cannot compute an unsat core for a computation with assumptions.");
     }
 }

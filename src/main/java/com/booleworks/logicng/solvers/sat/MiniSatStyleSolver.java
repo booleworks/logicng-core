@@ -34,7 +34,6 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.propositions.Proposition;
-import com.booleworks.logicng.solvers.SATCall;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.datastructures.LNGBoundedIntQueue;
 import com.booleworks.logicng.solvers.datastructures.LNGBoundedLongQueue;
@@ -87,6 +86,7 @@ public abstract class MiniSatStyleSolver {
     protected LNGBooleanVector model;
     protected LNGIntVector conflict;
     protected LNGIntVector assumptions;
+    protected LNGVector<Proposition> assumptionPropositions;
     protected LNGBooleanVector seen;
     protected int analyzeBtLevel;
     protected double claInc;
@@ -221,6 +221,7 @@ public abstract class MiniSatStyleSolver {
         model = new LNGBooleanVector();
         conflict = new LNGIntVector();
         assumptions = new LNGIntVector();
+        assumptionPropositions = new LNGVector<>();
         seen = new LNGBooleanVector();
         analyzeBtLevel = 0;
         claInc = 1;
@@ -376,14 +377,6 @@ public abstract class MiniSatStyleSolver {
     }
 
     /**
-     * Sets (or clears) the assumptions which should be used for subsequent SAT calls.
-     * @param assumptions the assumptions to be used
-     */
-    public void setAssumptions(final LNGIntVector assumptions) {
-        this.assumptions = new LNGIntVector(assumptions);
-    }
-
-    /**
      * Solves the formula currently stored in the solver together with the given assumption literals.  Returns
      * {@link Tristate#TRUE} if the formula and the assumptions are satisfiable (SAT), {@link Tristate#FALSE} if the formula and the
      * assumptions are not satisfiable together (UNSAT), or {@link Tristate#UNDEF} if the computation was canceled by a
@@ -398,13 +391,6 @@ public abstract class MiniSatStyleSolver {
         final Tristate result = internalSolve(handler);
         this.assumptions.clear();
         return result;
-    }
-
-    /**
-     * Resets the solver state.
-     */
-    public void reset() {
-        initialize(config);
     }
 
     /**

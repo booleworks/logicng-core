@@ -28,6 +28,8 @@ import com.booleworks.logicng.solvers.functions.SolverFunction;
 import com.booleworks.logicng.solvers.sat.MiniSat2Solver;
 import com.booleworks.logicng.solvers.sat.MiniSatConfig;
 import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.SATCall;
+import com.booleworks.logicng.solvers.sat.SATCallBuilder;
 import com.booleworks.logicng.transformations.cnf.PlaistedGreenbaumTransformationSolver;
 
 import java.util.ArrayList;
@@ -48,7 +50,6 @@ public class MiniSat extends SATSolver {
     protected MiniSatStyleSolver solver;
     protected final PlaistedGreenbaumTransformationSolver pgTransformation;
     protected final PlaistedGreenbaumTransformationSolver fullPgTransformation;
-    protected boolean lastComputationWithAssumptions;
 
     /**
      * Constructs a new SAT solver instance.
@@ -166,52 +167,9 @@ public class MiniSat extends SATSolver {
     }
 
     @Override
-    public SATCall.SATCallBuilder satCall() {
+    public SATCallBuilder satCall() {
         return SATCall.builder(f, this);
     }
-
-//    @Override
-//    public Tristate sat(final SATHandler handler) {
-//        if (lastResultIsUsable()) {
-//            return result;
-//        }
-//        result = solver.solve(handler);
-//        lastComputationWithAssumptions = false;
-//        return result;
-//    }
-//
-//    @Override
-//    public Tristate sat(final SATHandler handler, final Literal literal) {
-//        final LNGIntVector clauseVec = new LNGIntVector(1);
-//        final int index = getOrAddIndex(literal);
-//        final int litNum = literal.phase() ? index * 2 : (index * 2) ^ 1;
-//        clauseVec.push(litNum);
-//        result = solver.solve(handler, clauseVec);
-//        lastComputationWithAssumptions = true;
-//        return result;
-//    }
-//
-//    @Override
-//    public Tristate sat(final SATHandler handler, final Collection<? extends Literal> assumptions) {
-//        final LNGIntVector assumptionVec = generateClauseVector(assumptions);
-//        result = solver.solve(handler, assumptionVec);
-//        lastComputationWithAssumptions = true;
-//        return result;
-//    }
-
-//    @Override
-//    public Assignment model(final Collection<Variable> variables) {
-//        if (result == UNDEF) {
-//            throw new IllegalStateException("Cannot get a model as long as the formula is not solved.  Call 'sat' first.");
-//        }
-//        final LNGIntVector relevantIndices = variables == null ? null : new LNGIntVector(variables.size());
-//        if (relevantIndices != null) {
-//            for (final Variable var : variables) {
-//                relevantIndices.push(solver.idxForName(var.name()));
-//            }
-//        }
-//        return result == TRUE ? createAssignment(solver.model(), relevantIndices) : null;
-//    }
 
     @Override
     public <RESULT> RESULT execute(final SolverFunction<RESULT> function) {
@@ -314,10 +272,6 @@ public class MiniSat extends SATSolver {
         return config.initialPhase;
     }
 
-    protected boolean lastResultIsUsable() {
-        return result != UNDEF && !lastComputationWithAssumptions;
-    }
-
     /**
      * Returns this solver's configuration.
      * @return this solver's configuration
@@ -325,39 +279,4 @@ public class MiniSat extends SATSolver {
     public MiniSatConfig getConfig() {
         return config;
     }
-
-//    @Override
-//    public void setSelectionOrder(final List<? extends Literal> selectionOrder) {
-//        solver.setSelectionOrder(selectionOrder);
-//    }
-//
-//    @Override
-//    public void resetSelectionOrder() {
-//        solver.setSelectionOrder(List.of());
-//    }
-
-    @Override
-    public boolean canGenerateProof() {
-        return config.proofGeneration();
-    }
-
-//    /**
-//     * Returns the current result, e.g. the result of the last {@link #sat()} call.
-//     * @return the current result
-//     */
-//    public Tristate getResult() {
-//        return result;
-//    }
-//
-//    protected void setResult(final Tristate tristate) {
-//        result = tristate;
-//    }
-
-//    /**
-//     * Returns whether the last computation was using assumption literals.
-//     * @return {@code true} if the last computation used assumption literals, {@code false} otherwise
-//     */
-//    public boolean isLastComputationWithAssumptions() {
-//        return lastComputationWithAssumptions;
-//    }
 }

@@ -21,8 +21,8 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.OptimizationHandler;
 import com.booleworks.logicng.solvers.MiniSat;
-import com.booleworks.logicng.solvers.SATCall;
 import com.booleworks.logicng.solvers.SolverState;
+import com.booleworks.logicng.solvers.sat.SATCall;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -115,8 +115,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
             selectorMap.forEach((selVar, lit) -> solver.add(f.or(lit, selVar)));
         }
         Assignment currentModel;
-        try (final SATCall satCall = solver.satCall().handler(satHandler(handler)).start()) {
-            if (satCall.getSatState() != Tristate.TRUE || aborted(handler)) {
+        try (final SATCall satCall = solver.satCall().handler(satHandler(handler)).solve()) {
+            if (satCall.getSatResult() != Tristate.TRUE || aborted(handler)) {
                 return null;
             }
             internalModel = solver.underlyingSolver().model();
@@ -125,8 +125,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         int currentBound = currentModel.positiveVariables().size();
         if (currentBound == 0) {
             solver.add(f.cc(CType.GE, 1, selectors));
-            try (final SATCall satCall = solver.satCall().handler(satHandler(handler)).start()) {
-                final Tristate sat = satCall.getSatState();
+            try (final SATCall satCall = solver.satCall().handler(satHandler(handler)).solve()) {
+                final Tristate sat = satCall.getSatResult();
                 if (aborted(handler)) {
                     return null;
                 } else if (sat == Tristate.FALSE) {
@@ -144,11 +144,11 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         assert cc instanceof CardinalityConstraint;
         final CCIncrementalData incrementalData = solver.addIncrementalCC((CardinalityConstraint) cc);
         while (true) {
-            try (final SATCall satCall = solver.satCall().handler(satHandler(handler)).start()) {
+            try (final SATCall satCall = solver.satCall().handler(satHandler(handler)).solve()) {
                 if (aborted(handler)) {
                     return null;
                 }
-                if (satCall.getSatState() == Tristate.FALSE) {
+                if (satCall.getSatResult() == Tristate.FALSE) {
                     break;
                 }
                 final LNGBooleanVector modelCopy = new LNGBooleanVector(solver.underlyingSolver().model());

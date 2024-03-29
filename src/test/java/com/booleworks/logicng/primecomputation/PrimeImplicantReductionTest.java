@@ -19,7 +19,7 @@ import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.solvers.MiniSat;
-import com.booleworks.logicng.solvers.SATCall;
+import com.booleworks.logicng.solvers.sat.SATCall;
 import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
@@ -130,8 +130,8 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
         final FormulaFactory f = formula.factory();
         final MiniSat solver = MiniSat.miniSat(f);
         solver.add(formula);
-        try (SATCall call = solver.satCall().start()) {
-            final boolean isSAT = call.getSatState() == Tristate.TRUE;
+        try (final SATCall call = solver.satCall().solve()) {
+            final boolean isSAT = call.getSatResult() == Tristate.TRUE;
             if (!isSAT) {
                 return;
             }

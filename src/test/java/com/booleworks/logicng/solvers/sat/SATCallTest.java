@@ -10,7 +10,6 @@ import com.booleworks.logicng.handlers.TimeoutSATHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.MiniSat;
-import com.booleworks.logicng.solvers.SATCall;
 import com.booleworks.logicng.solvers.SATSolver;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +27,7 @@ public class SATCallTest {
 
         // Aufbau Builder (tut noch nichts)
         final SATCall.SATCallBuilder satBuilder = solver.satCall()
-                .additionalFormulas(List.of(f.parse("A | D")))
+                .addFormulas(List.of(f.parse("A | D")))
                 .selectionOrder(List.of(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D")))
                 .assumptions(List.of(f.literal("A", false)))
                 .handler(new TimeoutSATHandler(1000, TimeoutHandler.TimerType.RESTARTING_TIMEOUT));

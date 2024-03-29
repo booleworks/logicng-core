@@ -21,6 +21,8 @@ import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
+import com.booleworks.logicng.solvers.sat.SATCall;
+import com.booleworks.logicng.solvers.sat.SATCallBuilder;
 
 import java.util.Collection;
 import java.util.List;
@@ -165,7 +167,7 @@ public abstract class SATSolver {
      */
     protected abstract void addClause(final Formula formula, final Proposition proposition);
 
-    public abstract SATCall.SATCallBuilder satCall();
+    public abstract SATCallBuilder satCall();
 
     /**
      * Returns {@code Tristate.TRUE} if the current formula in the solver is satisfiable, @{code Tristate.FALSE} if it is
@@ -175,7 +177,9 @@ public abstract class SATSolver {
      * @return the satisfiability of the formula in the solver
      */
     public Tristate sat() {
-        return satCall().sat();
+        try (final SATCall call = satCall().solve()) {
+            return call.getSatResult();
+        }
     }
 
     /**
@@ -188,7 +192,9 @@ public abstract class SATSolver {
      * @return a model of the current formula or {@code null} if the solver is unsatisfiable
      */
     public Assignment model(final Collection<Variable> variables) {
-        return satCall().model(variables);
+        try (final SATCall call = satCall().solve()) {
+            return call.model(variables);
+        }
     }
 
     /**
@@ -204,7 +210,9 @@ public abstract class SATSolver {
      * @return the unsat core or {@code null} if the solver is satisfiable
      */
     public UNSATCore<Proposition> unsatCore() {
-        return satCall().unsatCore();
+        try (final SATCall call = satCall().solve()) {
+            return call.unsatCore();
+        }
     }
 
     /**
@@ -275,16 +283,6 @@ public abstract class SATSolver {
     public abstract SortedSet<Variable> knownVariables();
 
     /**
-     * Returns an unsat core of the current problem. Only works if the SAT solver is configured to record the information
-     * required to generate a proof trace and an unsat core.
-     * In particular, this method returns the unsat core only if the parameter "proofGeneration" in the MiniSatConfig is set to "true".
-     * @return the unsat core
-     */
-//    public UNSATCore<Proposition> unsatCore() {
-//        return execute(UnsatCoreFunction.get());
-//    }
-
-    /**
      * Computes a backbone with both positive and negative variables of the current formula on the solver.
      * @param relevantVariables the variables which should be considered for the backbone
      * @return the backbone
@@ -310,10 +308,4 @@ public abstract class SATSolver {
     public FormulaFactory factory() {
         return f;
     }
-
-    /**
-     * Returns whether this solver instance can generate proofs.
-     * @return true when the solver can generate proofs, false otherwise
-     */
-    public abstract boolean canGenerateProof();
 }

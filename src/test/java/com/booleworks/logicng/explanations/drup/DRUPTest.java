@@ -22,6 +22,7 @@ import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATCall;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
@@ -50,7 +51,7 @@ public class DRUPTest implements LogicNGTest {
             final SATSolver solver = solverSupplier.get();
             solver.add(cnf);
             assertSolverUnsat(solver);
-                final UNSATCore<Proposition> unsatCore = solver.unsatCore();
+            final UNSATCore<Proposition> unsatCore = solver.unsatCore();
             verifyCore(unsatCore, cnf);
         }
     }
@@ -68,8 +69,8 @@ public class DRUPTest implements LogicNGTest {
                 final List<Formula> cnf = DimacsReader.readCNF(f, file);
                 final SATSolver solver = solverSupplier.get();
                 solver.add(cnf);
-                    if (solver.sat() == Tristate.FALSE) {
-                        final UNSATCore<Proposition> unsatCore = solver.unsatCore();
+                if (solver.sat() == Tristate.FALSE) {
+                    final UNSATCore<Proposition> unsatCore = solver.unsatCore();
                     verifyCore(unsatCore, cnf);
                     count++;
                 }
@@ -91,7 +92,7 @@ public class DRUPTest implements LogicNGTest {
                 final SATSolver solver = solverSupplier.get();
                 solver.add(cnf);
                 assertSolverUnsat(solver);
-                    final UNSATCore<Proposition> unsatCore = solver.unsatCore();
+                final UNSATCore<Proposition> unsatCore = solver.unsatCore();
                 verifyCore(unsatCore, cnf);
                 count++;
             }
@@ -113,8 +114,8 @@ public class DRUPTest implements LogicNGTest {
 
         final SATSolver solver = solverSupplier.get();
         solver.addPropositions(propositions);
-            Assertions.assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
-            final UNSATCore<Proposition> unsatCore = solver.unsatCore();
+        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
+        final UNSATCore<Proposition> unsatCore = solver.unsatCore();
         assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(propositions.get(0), propositions.get(1),
                 propositions.get(2), propositions.get(3), propositions.get(4), propositions.get(5));
     }
@@ -208,12 +209,12 @@ public class DRUPTest implements LogicNGTest {
         solver.add(p4);
 
         // Assumption call
-            solver.satCall().assumptions(f.variable("X")).sat();
+        solver.satCall().assumptions(f.variable("X")).sat();
 
         solver.add(p5);
         solver.add(p6);
-            solver.sat();
-            final UNSATCore<Proposition> unsatCore = solver.unsatCore();
+        solver.sat();
+        final UNSATCore<Proposition> unsatCore = solver.unsatCore();
         assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1, p2, p5, p6);
     }
 
@@ -226,11 +227,11 @@ public class DRUPTest implements LogicNGTest {
         solver.add(f.parse("D => B | A"));
         solver.add(f.parse("B => X"));
         solver.add(f.parse("B => ~X"));
-            solver.satCall().assumptions(f.literal("A", false)).sat();
+        solver.satCall().assumptions(f.literal("A", false)).sat();
 
         solver.add(f.parse("~A"));
-            solver.sat();
-            Assertions.assertThat(solver.unsatCore()).isNotNull();
+        solver.sat();
+        Assertions.assertThat(solver.unsatCore()).isNotNull();
     }
 
     @Test
@@ -249,20 +250,20 @@ public class DRUPTest implements LogicNGTest {
         solver.add(f.parse("T1 <=> A & K & ~B & ~C"));
         solver.add(f.parse("T2 <=> A & B & C & K"));
         solver.add(f.parse("T1 + T2 = 1"));
-            solver.sat(); // required for DRUP issue
+        solver.sat(); // required for DRUP issue
 
         solver.add(f.parse("Y => ~X & D"));
         solver.add(f.parse("X"));
 
-            solver.sat();
-            Assertions.assertThat(solver.unsatCore()).isNotNull();
+        solver.sat();
+        Assertions.assertThat(solver.unsatCore()).isNotNull();
     }
 
     @Test
     public void testCoreAndAssumptions4() throws ParserException {
         final SATSolver solver = solverSupplier.get();
         solver.add(f.parse("~X1"));
-            solver.satCall().assumptions(f.variable("X1")).sat(); // caused the bug
+        solver.satCall().assumptions(f.variable("X1")).sat(); // caused the bug
         solver.add(f.variable("A1"));
         solver.add(f.parse("A1 => A2"));
         solver.add(f.parse("R & A2 => A3"));
@@ -271,7 +272,24 @@ public class DRUPTest implements LogicNGTest {
         solver.add(f.parse("L & A3 => A4"));
         solver.add(f.parse("~A4"));
         solver.add(f.parse("L | R"));
-            Assertions.assertThat(solver.unsatCore()).isNotNull();
+        Assertions.assertThat(solver.unsatCore()).isNotNull();
+    }
+
+    @Test
+    public void testWithAssumptionSolving() throws ParserException {
+        final SATSolver solver = solverSupplier.get();
+        solver.add(f.parse("A1 => A2"));
+        solver.add(f.parse("A2 => ~A1 | ~A3"));
+//        solver.add(f.parse("L | R"));
+//        solver.add(f.parse("A1 => A2"));
+//        solver.add(f.parse("R & A2 => A3"));
+//        solver.add(f.parse("L & A2 => A3"));
+//        solver.add(f.parse("R & A3 => A4"));
+//        solver.add(f.parse("L & A3 => A4"));
+        try (final SATCall satCall = solver.satCall().assumptions(f.variable("A3"), f.variable("A1")).solve()) {
+            assertThat(satCall.getSatResult()).isEqualTo(Tristate.FALSE);
+            System.out.println(satCall.unsatCore());
+        }
     }
 
     @Test

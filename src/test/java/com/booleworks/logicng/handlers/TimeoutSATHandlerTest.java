@@ -57,7 +57,7 @@ class TimeoutSATHandlerTest {
             solver.add(f.parse("(x => y) & (~x => y) & (y => z) & (z => ~y)"));
             final TimeoutSATHandler handler = Mockito.mock(TimeoutSATHandler.class);
 
-            solver.satCall().handler(handler).start().close();
+            solver.satCall().handler(handler).solve().close();
 
             verify(handler, times(1)).started();
             verify(handler, atLeast(1)).detectedConflict();

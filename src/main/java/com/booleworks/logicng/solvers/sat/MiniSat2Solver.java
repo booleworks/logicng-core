@@ -810,9 +810,17 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     if (value(p) == Tristate.TRUE) {
                         trailLim.push(trail.size());
                     } else if (value(p) == Tristate.FALSE) {
+                        if (config.proofGeneration) {
+                            final int drupLit = (var(p) + 1) * (-2 * (sign(p) ? 1 : 0) + 1);
+                            pgOriginalClauses.push(new ProofInformation(new LNGIntVector(1, drupLit), assumptionPropositions.get(decisionLevel())));
+                        }
                         analyzeFinal(not(p), conflict);
                         return Tristate.FALSE;
                     } else {
+                        if (config.proofGeneration) {
+                            final int drupLit = (var(p) + 1) * (-2 * (sign(p) ? 1 : 0) + 1);
+                            pgOriginalClauses.push(new ProofInformation(new LNGIntVector(1, drupLit), assumptionPropositions.get(decisionLevel())));
+                        }
                         next = p;
                         break;
                     }

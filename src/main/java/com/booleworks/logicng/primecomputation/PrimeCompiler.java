@@ -13,10 +13,10 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.Handler;
 import com.booleworks.logicng.handlers.OptimizationHandler;
 import com.booleworks.logicng.solvers.MiniSat;
-import com.booleworks.logicng.solvers.SATCall;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
 import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATCall;
 import com.booleworks.logicng.transformations.LiteralSubstitution;
 import com.booleworks.logicng.util.FormulaHelper;
 import com.booleworks.logicng.util.Pair;
@@ -138,11 +138,11 @@ public final class PrimeCompiler {
                 return new Pair<>(primeImplicants, primeImplicates);
             }
             final Assignment fModel = transformModel(hModel, sub.newVar2oldLit);
-            try (final SATCall fCall = fSolver.satCall().handler(OptimizationHandler.satHandler(handler)).assumptions(fModel.literals()).start()) {
+            try (final SATCall fCall = fSolver.satCall().handler(OptimizationHandler.satHandler(handler)).assumptions(fModel.literals()).solve()) {
                 if (Handler.aborted(handler)) {
                     return null;
                 }
-                if (fCall.getSatState() == Tristate.FALSE) {
+                if (fCall.getSatResult() == Tristate.FALSE) {
                     final SortedSet<Literal> primeImplicant = computeWithMaximization ? primeReduction.reduceImplicant(fModel.literals(), OptimizationHandler.satHandler(handler)) : fModel.literals();
                     if (primeImplicant == null || Handler.aborted(handler)) {
                         return null;
