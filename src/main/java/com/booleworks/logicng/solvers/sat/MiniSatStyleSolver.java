@@ -84,8 +84,6 @@ public abstract class MiniSatStyleSolver {
     protected LNGBooleanVector seen;
     protected int analyzeBtLevel;
     protected double claInc;
-    protected int simpDBAssigns;
-    protected int simpDBProps;
     protected int clausesLiterals;
     protected int learntsLiterals;
 
@@ -187,28 +185,6 @@ public abstract class MiniSatStyleSolver {
     }
 
     /**
-     * Computes the next number in the Luby sequence.
-     * @param y the restart increment
-     * @param x the current number of restarts
-     * @return the next number in the Luby sequence
-     */
-    protected static double luby(final double y, final int x) {
-        int intX = x;
-        int size = 1;
-        int seq = 0;
-        while (size < intX + 1) {
-            seq++;
-            size = 2 * size + 1;
-        }
-        while (size - 1 != intX) {
-            size = (size - 1) >> 1;
-            seq--;
-            intX = intX % size;
-        }
-        return Math.pow(y, seq);
-    }
-
-    /**
      * Initializes the internal solver state.
      */
     protected void initialize(final MiniSatConfig config) {
@@ -229,8 +205,6 @@ public abstract class MiniSatStyleSolver {
         seen = new LNGBooleanVector();
         analyzeBtLevel = 0;
         claInc = 1;
-        simpDBAssigns = -1;
-        simpDBProps = 0;
         clausesLiterals = 0;
         learntsLiterals = 0;
         name2idx = new TreeMap<>();
@@ -362,7 +336,7 @@ public abstract class MiniSatStyleSolver {
      * by a {@link SATHandler}.  If {@code null} is passed as handler, the solver will run until the satisfiability is decided.
      * @param handler a sat handler
      * @return {@link Tristate#TRUE} if the formula is satisfiable, {@link Tristate#FALSE} if the formula is not satisfiable, or
-     *         {@link Tristate#UNDEF} if the computation was canceled.
+     * {@link Tristate#UNDEF} if the computation was canceled.
      */
     public abstract Tristate solve(final SATHandler handler);
 
@@ -374,7 +348,7 @@ public abstract class MiniSatStyleSolver {
      * @param handler     a sat handler
      * @param assumptions the assumptions as a given vector of literals
      * @return {@link Tristate#TRUE} if the formula and the assumptions are satisfiable, {@link Tristate#FALSE} if they are
-     *         not satisfiable, or {@link Tristate#UNDEF} if the computation was canceled.
+     * not satisfiable, or {@link Tristate#UNDEF} if the computation was canceled.
      */
     public Tristate solve(final SATHandler handler, final LNGIntVector assumptions) {
         this.assumptions = new LNGIntVector(assumptions);
@@ -387,7 +361,7 @@ public abstract class MiniSatStyleSolver {
      * Resets the solver state.
      */
     public void reset() {
-        this.initialize(config);
+        initialize(config);
     }
 
     /**
@@ -704,8 +678,6 @@ public abstract class MiniSatStyleSolver {
         sb.append("#seen         ").append(seen.size()).append(System.lineSeparator());
 
         sb.append("claInc        ").append(claInc).append(System.lineSeparator());
-        sb.append("simpDBAssigns ").append(simpDBAssigns).append(System.lineSeparator());
-        sb.append("simpDBProps   ").append(simpDBProps).append(System.lineSeparator());
         sb.append("#clause lits  ").append(clausesLiterals).append(System.lineSeparator());
         sb.append("#learnts lits ").append(learntsLiterals).append(System.lineSeparator());
         return sb.toString();
@@ -848,9 +820,9 @@ public abstract class MiniSatStyleSolver {
      * @param handler   the handler
      */
     protected void computeBackbone(final List<Integer> variables, final BackboneType type, final SATHandler handler) {
-        final Stack<Integer> candidates = createInitialCandidates(variables, type);
-        while (candidates.size() > 0) {
-            final int lit = candidates.pop();
+        createInitialCandidates(variables, type);
+        while (!backboneCandidates.isEmpty()) {
+            final int lit = backboneCandidates.pop();
             final boolean sat = solveWithLit(lit, handler);
             if (aborted(handler)) {
                 return;
@@ -867,9 +839,8 @@ public abstract class MiniSatStyleSolver {
      * Creates the initial candidate literals for the backbone computation.
      * @param variables variables to test
      * @param type      the type of the backbone
-     * @return initial candidates
      */
-    protected Stack<Integer> createInitialCandidates(final List<Integer> variables, final BackboneType type) {
+    protected void createInitialCandidates(final List<Integer> variables, final BackboneType type) {
         for (final Integer var : variables) {
             if (isUPZeroLit(var)) {
                 final int backboneLit = mkLit(var, !model.get(var));
@@ -884,7 +855,6 @@ public abstract class MiniSatStyleSolver {
                 }
             }
         }
-        return backboneCandidates;
     }
 
     /**

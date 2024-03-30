@@ -389,13 +389,11 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
     @Override
     protected MSClause propagate() {
         MSClause confl = null;
-        int numProps = 0;
         while (qhead < trail.size()) {
             final int p = trail.get(qhead++);
             final LNGVector<MSWatcher> ws = watches.get(p);
             int iInd = 0;
             int jInd = 0;
-            numProps++;
             final LNGVector<MSWatcher> wbin = watchesBin.get(p);
             for (int k = 0; k < wbin.size(); k++) {
                 final int imp = wbin.get(k).blocker();
@@ -478,7 +476,6 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             }
             ws.removeElements(iInd - jInd);
         }
-        simpDBProps -= numProps;
         return confl;
     }
 
@@ -737,7 +734,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
     /**
      * The main search procedure of the CDCL algorithm.
      * @return a {@link Tristate} representing the result.  {@code FALSE} if the formula is UNSAT, {@code TRUE} if the
-     *         formula is SAT, and {@code UNDEF} if the state is not known yet (restart) or the handler canceled the computation
+     * formula is SAT, and {@code UNDEF} if the state is not known yet (restart) or the handler canceled the computation
      */
     protected Tristate search() {
         if (!ok) {
