@@ -31,9 +31,8 @@ import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.predicates.satisfiability.SATPredicate;
 import com.booleworks.logicng.solvers.MaxSATSolver;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaRandomizer;
@@ -288,8 +287,8 @@ public class OptimizationFunctionTest implements LogicNGTest {
         assertThat(solveMaxSat(formulas, variables, MaxSATSolver.linearUS(f))).isEqualTo(expected);
         assertThat(solveMaxSat(formulas, variables, MaxSATSolver.msu3(f))).isEqualTo(expected);
         assertThat(solveMaxSat(formulas, variables, MaxSATSolver.wbo(f))).isEqualTo(expected);
-        assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).build()), null), variables).size()).isEqualTo(expected);
-        assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).build()), null), variables).size()).isEqualTo(expected);
+        assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(false).build()), null), variables).size()).isEqualTo(expected);
+        assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(true).build()), null), variables).size()).isEqualTo(expected);
     }
 
     @ParameterizedTest(name = "{index} {2}")

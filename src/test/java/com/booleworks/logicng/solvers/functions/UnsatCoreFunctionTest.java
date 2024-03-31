@@ -8,9 +8,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 import com.booleworks.logicng.TestWithExampleFormulas;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import org.junit.jupiter.api.Test;
 
 public class UnsatCoreFunctionTest extends TestWithExampleFormulas {
@@ -18,12 +17,12 @@ public class UnsatCoreFunctionTest extends TestWithExampleFormulas {
     @Test
     public void testExceptionalBehavior() {
         assertThatThrownBy(() -> {
-            final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(false).build());
+            final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().proofGeneration(false).build());
             solver.unsatCore();
         }).isInstanceOf(IllegalStateException.class)
                 .hasMessage("Cannot generate an unsat core if proof generation is not turned on");
 
-        assertThat(MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).build()).unsatCore()).isNull();
+        assertThat(SATSolver.miniSat(f, SATSolverConfig.builder().proofGeneration(true).build()).unsatCore()).isNull();
         // TODO test null if solver result is UNDEF because handler aborted
     }
 }

@@ -13,11 +13,10 @@ import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -59,7 +58,7 @@ public class CCALKTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).build());
+        final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(false).build());
         solver.add(f.cc(CType.GE, rhs, problemLits));
         if (expected != 0) {
             assertSolverSat(solver);

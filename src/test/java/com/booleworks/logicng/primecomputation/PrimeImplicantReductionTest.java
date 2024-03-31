@@ -18,7 +18,7 @@ import com.booleworks.logicng.handlers.BoundedSatHandler;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.sat.SATCall;
 import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaRandomizer;
@@ -128,7 +128,7 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
 
     private void testFormula(final Formula formula, final SATHandler handler, final boolean expAborted) {
         final FormulaFactory f = formula.factory();
-        final MiniSat solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.miniSat(f);
         solver.add(formula);
         try (final SATCall call = solver.satCall().solve()) {
             final boolean isSAT = call.getSatResult() == Tristate.TRUE;
@@ -150,7 +150,7 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
 
     public static void testPrimeImplicantProperty(final Formula formula, final SortedSet<Literal> primeImplicant) {
         final FormulaFactory f = formula.factory();
-        final MiniSat solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.miniSat(f);
         solver.add(formula.negate(f));
         Assertions.assertThat(solver.satCall().assumptions(primeImplicant).sat()).isEqualTo(Tristate.FALSE);
         for (final Literal lit : primeImplicant) {

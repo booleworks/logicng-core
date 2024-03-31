@@ -8,7 +8,7 @@ import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.handlers.ModelEnumerationHandler;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public interface EnumerationCollector<RESULT> {
      * @param handler            the model enumeration handler, may be {@code null}
      * @return true if adding the model was successful, false otherwise
      */
-    boolean addModel(LNGBooleanVector modelFromSolver, MiniSat solver, LNGIntVector relevantAllIndices, ModelEnumerationHandler handler);
+    boolean addModel(LNGBooleanVector modelFromSolver, SATSolver solver, LNGIntVector relevantAllIndices, ModelEnumerationHandler handler);
 
     /**
      * All founds models since the last commit call are confirmed and cannot be rolled back.
@@ -60,7 +60,7 @@ public interface EnumerationCollector<RESULT> {
      * @param handler the model enumeration handler, may be {@code null}
      * @return list of all discarded models
      */
-    List<Model> rollbackAndReturnModels(final MiniSat solver, ModelEnumerationHandler handler);
+    List<Model> rollbackAndReturnModels(final SATSolver solver, ModelEnumerationHandler handler);
 
     /**
      * @return the committed state of the collector

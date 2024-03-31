@@ -11,7 +11,6 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -29,14 +28,14 @@ public class SplitVariableProviderTest extends TestWithFormulaContext {
         assertThat(new FixedVariableProvider(varSet(_c.f, "A B C D E F")).getSplitVars(null, null)).containsExactlyElementsOf(varSet(_c.f, "A B C D E F"));
         assertThat(new FixedVariableProvider(varSet(_c.f, "A B C D E F")).getSplitVars(null, new TreeSet<>())).containsExactlyElementsOf(varSet(_c.f, "A B C D E F"));
         assertThat(new FixedVariableProvider(varSet(_c.f, "A B C D E F")).getSplitVars(null, varSet(_c.f, "A B X U"))).containsExactlyElementsOf(varSet(_c.f, "A B C D E F"));
-        assertThat(new FixedVariableProvider(varSet(_c.f, "A B C D E F")).getSplitVars(MiniSat.miniSat(_c.f), varSet(_c.f, "A B X U"))).containsExactlyElementsOf(varSet(_c.f, "A B C D E F"));
+        assertThat(new FixedVariableProvider(varSet(_c.f, "A B C D E F")).getSplitVars(SATSolver.miniSat(_c.f), varSet(_c.f, "A B X U"))).containsExactlyElementsOf(varSet(_c.f, "A B C D E F"));
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLeastCommonVariablesProvider(final FormulaContext _c) throws ParserException {
         final SortedSet<Variable> varSet = varSet(_c.f, "a b c d e f g h i j");
-        final SATSolver solver = MiniSat.miniSat(_c.f);
+        final SATSolver solver = SATSolver.miniSat(_c.f);
         solver.add(_c.f.parse("(a | b | c) & (~b | c) & (d | ~e) & (~a | e) & (a | d | b | g | h) & (~h | i) & (f | g | j) & (f | b | j | ~g) & (g | c)"));
         assertThat(new LeastCommonVariablesProvider(.1, 100).getSplitVars(solver, null)).containsExactly(_c.f.variable("i"));
         assertThat(new LeastCommonVariablesProvider(.1, 100).getSplitVars(solver, varSet)).containsExactly(_c.f.variable("i"));
@@ -58,7 +57,7 @@ public class SplitVariableProviderTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testMostCommonVariablesProvider(final FormulaContext _c) throws ParserException {
         final SortedSet<Variable> varSet = varSet(_c.f, "a b c d e f g h i j");
-        final SATSolver solver = MiniSat.miniSat(_c.f);
+        final SATSolver solver = SATSolver.miniSat(_c.f);
         solver.add(_c.f.parse("(a | b | c) & (~b | c) & (d | ~e) & (~a | e) & (a | d | b | g | h) & (~h | i) & (f | g | j) & (f | b | j | ~g) & (g | c)"));
         assertThat(new MostCommonVariablesProvider(.2, 100).getSplitVars(solver, null)).containsExactlyElementsOf(varSet(_c.f, "b g"));
         assertThat(new MostCommonVariablesProvider(.2, 100).getSplitVars(solver, varSet)).containsExactlyElementsOf(varSet(_c.f, "b g"));

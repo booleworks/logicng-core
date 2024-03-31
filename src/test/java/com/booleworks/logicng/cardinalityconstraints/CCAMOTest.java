@@ -23,9 +23,8 @@ import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import org.junit.jupiter.api.Test;
 
 public class CCAMOTest implements LogicNGTest {
@@ -101,7 +100,7 @@ public class CCAMOTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(miniCard).build());
+        final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(miniCard).build());
         solver.add(f.amo(problemLits));
         assertSolverSat(solver);
         assertThat(solver.enumerateAllModels(problemLits))

@@ -11,7 +11,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.propositions.Proposition;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.List;
 public final class EncodingResult {
     private final FormulaFactory f;
     private final Proposition proposition;
-    private final MiniSat miniSat;
+    private final SATSolver miniSat;
     private final List<Formula> result;
 
     /**
@@ -39,7 +39,7 @@ public final class EncodingResult {
      * @param miniSat     the MiniSat instance
      * @param proposition the original proposition of the cardinality constraint
      */
-    private EncodingResult(final FormulaFactory f, final MiniSat miniSat, final Proposition proposition) {
+    private EncodingResult(final FormulaFactory f, final SATSolver miniSat, final Proposition proposition) {
         this.f = f;
         this.proposition = proposition;
         this.miniSat = miniSat;
@@ -62,7 +62,7 @@ public final class EncodingResult {
      * @param proposition the original proposition of the cardinality constraint
      * @return the result
      */
-    public static EncodingResult resultForMiniSat(final FormulaFactory f, final MiniSat miniSat, final Proposition proposition) {
+    public static EncodingResult resultForMiniSat(final FormulaFactory f, final SATSolver miniSat, final Proposition proposition) {
         return new EncodingResult(f, miniSat, proposition);
     }
 
@@ -79,7 +79,6 @@ public final class EncodingResult {
                 addLiteral(clauseVec, literal);
             }
             miniSat.underlyingSolver().addClause(clauseVec, proposition);
-            miniSat.setSolverToUndef();
         }
     }
 
@@ -96,14 +95,13 @@ public final class EncodingResult {
                 addLiteral(clauseVec, l);
             }
             miniSat.underlyingSolver().addClause(clauseVec, proposition);
-            miniSat.setSolverToUndef();
         }
     }
 
     private void addLiteral(final LNGIntVector clauseVec, final Literal lit) {
         int index = miniSat.underlyingSolver().idxForName(lit.name());
         if (index == -1) {
-            index = miniSat.underlyingSolver().newVar(!miniSat.initialPhase(), true);
+            index = miniSat.underlyingSolver().newVar(!miniSat.config().initialPhase(), true);
             miniSat.underlyingSolver().addName(lit.name(), index);
         }
         final int litNum;
@@ -136,7 +134,7 @@ public final class EncodingResult {
         if (miniSat == null) {
             return f.newCCVariable();
         } else {
-            final int index = miniSat.underlyingSolver().newVar(!miniSat.initialPhase(), true);
+            final int index = miniSat.underlyingSolver().newVar(!miniSat.config().initialPhase(), true);
             final String name = FormulaFactory.CC_PREFIX + "MINISAT_" + index;
             miniSat.underlyingSolver().addName(name, index);
             return new EncodingAuxiliaryVariable(name, false);

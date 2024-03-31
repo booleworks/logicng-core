@@ -10,9 +10,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.Handler;
 import com.booleworks.logicng.handlers.SATHandler;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.ArrayList;
@@ -39,9 +38,9 @@ public final class NaivePrimeReduction {
      * @param formula the formula
      */
     public NaivePrimeReduction(final FormulaFactory f, final Formula formula) {
-        implicantSolver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        implicantSolver = SATSolver.miniSat(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         implicantSolver.add(formula.negate(f));
-        implicateSolver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        implicateSolver = SATSolver.miniSat(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         implicateSolver.add(formula);
     }
 

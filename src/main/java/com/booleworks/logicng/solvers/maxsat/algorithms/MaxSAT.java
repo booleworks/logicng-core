@@ -39,8 +39,8 @@ import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.datastructures.MSHardClause;
 import com.booleworks.logicng.solvers.datastructures.MSSoftClause;
 import com.booleworks.logicng.solvers.sat.MiniSat2Solver;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
 import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 
 import java.util.Locale;
 import java.util.SortedMap;
@@ -284,7 +284,7 @@ public abstract class MaxSAT {
      * @return the empty SAT solver
      */
     public MiniSatStyleSolver newSATSolver() {
-        return new MiniSat2Solver(f, MiniSatConfig.builder().build());
+        return new MiniSat2Solver(f, SATSolverConfig.builder().build());
     }
 
     /**

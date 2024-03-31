@@ -4,8 +4,8 @@
 
 package com.booleworks.logicng.solvers.functions;
 
-import static com.booleworks.logicng.solvers.sat.MiniSatConfig.CNFMethod.FACTORY_CNF;
-import static com.booleworks.logicng.solvers.sat.MiniSatConfig.CNFMethod.PG_ON_SOLVER;
+import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.FACTORY_CNF;
+import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.PG_ON_SOLVER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LongRunningTag;
@@ -16,10 +16,9 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.solvers.sat.SATSolverLowLevelConfig;
 import com.booleworks.logicng.util.Pair;
 import org.assertj.core.api.Assertions;
@@ -44,10 +43,10 @@ public class BackboneFunctionTest {
 
     private static final FormulaFactory f = FormulaFactory.caching();
 
-    private static MiniSatConfig.Builder config(final boolean useAtMostClauses, final MiniSatConfig.CNFMethod cnfMethod,
-                                                final boolean bbCheckForRotatableLiterals, final boolean bbCheckForComplementModelLiterals,
-                                                final boolean bbInitialUBCheckForRotatableLiterals) {
-        return MiniSatConfig.builder()
+    private static SATSolverConfig.Builder config(final boolean useAtMostClauses, final SATSolverConfig.CNFMethod cnfMethod,
+                                                  final boolean bbCheckForRotatableLiterals, final boolean bbCheckForComplementModelLiterals,
+                                                  final boolean bbInitialUBCheckForRotatableLiterals) {
+        return SATSolverConfig.builder()
                 .useAtMostClauses(useAtMostClauses)
                 .cnfMethod(cnfMethod)
                 .lowLevelConfig(SATSolverLowLevelConfig.builder()
@@ -58,27 +57,27 @@ public class BackboneFunctionTest {
     }
 
     public static List<Arguments> solvers() {
-        final Supplier<MiniSatConfig.Builder> configNoAmNoPG1 = () -> config(false, FACTORY_CNF, false, false, false);
-        final Supplier<MiniSatConfig.Builder> configNoAmNoPG2 = () -> config(false, FACTORY_CNF, true, false, false);
-        final Supplier<MiniSatConfig.Builder> configNoAmNoPG3 = () -> config(false, FACTORY_CNF, false, true, false);
-        final Supplier<MiniSatConfig.Builder> configNoAmNoPG4 = () -> config(false, FACTORY_CNF, false, false, true);
-        final Supplier<MiniSatConfig.Builder> configNoAmNoPG5 = () -> config(false, FACTORY_CNF, true, true, true);
-        final Supplier<MiniSatConfig.Builder> configNoAmPG1 = () -> config(false, PG_ON_SOLVER, false, false, false);
-        final Supplier<MiniSatConfig.Builder> configNoAmPG2 = () -> config(false, PG_ON_SOLVER, true, false, false);
-        final Supplier<MiniSatConfig.Builder> configNoAmPG3 = () -> config(false, PG_ON_SOLVER, false, true, false);
-        final Supplier<MiniSatConfig.Builder> configNoAmPG4 = () -> config(false, PG_ON_SOLVER, false, false, true);
-        final Supplier<MiniSatConfig.Builder> configNoAmPG5 = () -> config(false, PG_ON_SOLVER, true, true, true);
-        final Supplier<MiniSatConfig.Builder> configNoPG1 = () -> config(true, FACTORY_CNF, false, false, false);
-        final Supplier<MiniSatConfig.Builder> configNoPG2 = () -> config(true, FACTORY_CNF, true, false, false);
-        final Supplier<MiniSatConfig.Builder> configNoPG3 = () -> config(true, FACTORY_CNF, false, true, false);
-        final Supplier<MiniSatConfig.Builder> configNoPG4 = () -> config(true, FACTORY_CNF, false, false, true);
-        final Supplier<MiniSatConfig.Builder> configNoPG5 = () -> config(true, FACTORY_CNF, true, true, true);
-        final Supplier<MiniSatConfig.Builder> configPG1 = () -> config(true, PG_ON_SOLVER, false, false, false);
-        final Supplier<MiniSatConfig.Builder> configPG2 = () -> config(true, PG_ON_SOLVER, true, false, false);
-        final Supplier<MiniSatConfig.Builder> configPG3 = () -> config(true, PG_ON_SOLVER, false, true, false);
-        final Supplier<MiniSatConfig.Builder> configPG4 = () -> config(true, PG_ON_SOLVER, false, false, true);
-        final Supplier<MiniSatConfig.Builder> configPG5 = () -> config(true, PG_ON_SOLVER, true, true, true);
-        final List<Pair<Supplier<MiniSatConfig.Builder>, String>> configs = Arrays.asList(
+        final Supplier<SATSolverConfig.Builder> configNoAmNoPG1 = () -> config(false, FACTORY_CNF, false, false, false);
+        final Supplier<SATSolverConfig.Builder> configNoAmNoPG2 = () -> config(false, FACTORY_CNF, true, false, false);
+        final Supplier<SATSolverConfig.Builder> configNoAmNoPG3 = () -> config(false, FACTORY_CNF, false, true, false);
+        final Supplier<SATSolverConfig.Builder> configNoAmNoPG4 = () -> config(false, FACTORY_CNF, false, false, true);
+        final Supplier<SATSolverConfig.Builder> configNoAmNoPG5 = () -> config(false, FACTORY_CNF, true, true, true);
+        final Supplier<SATSolverConfig.Builder> configNoAmPG1 = () -> config(false, PG_ON_SOLVER, false, false, false);
+        final Supplier<SATSolverConfig.Builder> configNoAmPG2 = () -> config(false, PG_ON_SOLVER, true, false, false);
+        final Supplier<SATSolverConfig.Builder> configNoAmPG3 = () -> config(false, PG_ON_SOLVER, false, true, false);
+        final Supplier<SATSolverConfig.Builder> configNoAmPG4 = () -> config(false, PG_ON_SOLVER, false, false, true);
+        final Supplier<SATSolverConfig.Builder> configNoAmPG5 = () -> config(false, PG_ON_SOLVER, true, true, true);
+        final Supplier<SATSolverConfig.Builder> configNoPG1 = () -> config(true, FACTORY_CNF, false, false, false);
+        final Supplier<SATSolverConfig.Builder> configNoPG2 = () -> config(true, FACTORY_CNF, true, false, false);
+        final Supplier<SATSolverConfig.Builder> configNoPG3 = () -> config(true, FACTORY_CNF, false, true, false);
+        final Supplier<SATSolverConfig.Builder> configNoPG4 = () -> config(true, FACTORY_CNF, false, false, true);
+        final Supplier<SATSolverConfig.Builder> configNoPG5 = () -> config(true, FACTORY_CNF, true, true, true);
+        final Supplier<SATSolverConfig.Builder> configPG1 = () -> config(true, PG_ON_SOLVER, false, false, false);
+        final Supplier<SATSolverConfig.Builder> configPG2 = () -> config(true, PG_ON_SOLVER, true, false, false);
+        final Supplier<SATSolverConfig.Builder> configPG3 = () -> config(true, PG_ON_SOLVER, false, true, false);
+        final Supplier<SATSolverConfig.Builder> configPG4 = () -> config(true, PG_ON_SOLVER, false, false, true);
+        final Supplier<SATSolverConfig.Builder> configPG5 = () -> config(true, PG_ON_SOLVER, true, true, true);
+        final List<Pair<Supplier<SATSolverConfig.Builder>, String>> configs = Arrays.asList(
                 new Pair<>(configNoAmNoPG1, "FF CNF -ATM -ROT -COMP -UB"),
                 new Pair<>(configNoAmNoPG2, "FF CNF -ATM +ROT -COMP -UB"),
                 new Pair<>(configNoAmNoPG3, "FF CNF -ATM -ROT +COMP -UB"),
@@ -101,7 +100,7 @@ public class BackboneFunctionTest {
                 new Pair<>(configPG5, "PG CNF +ATM +ROT +COMP +UB")
         );
         return configs.stream()
-                .map(config -> Arguments.of(MiniSat.miniSat(f, config.first().get().build()), config.second()))
+                .map(config -> Arguments.of(SATSolver.miniSat(f, config.first().get().build()), config.second()))
                 .collect(Collectors.toList());
     }
 
@@ -354,7 +353,7 @@ public class BackboneFunctionTest {
     @Test
     public void testMiniCardSpecialCase() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SATSolver miniCard = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(true).build());
+        final SATSolver miniCard = SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(true).build());
         miniCard.add(f.parse("v1 + v2 + v3 + v4 + v5 + v6 = 1"));
         miniCard.add(f.parse("v1234 + v50 + v60 = 1"));
         miniCard.add(f.parse("(v1 => v1234) & (v2 => v1234) & (v3 => v1234) & (v4 => v1234) & (v5 => v50) & (v6 => v60)"));

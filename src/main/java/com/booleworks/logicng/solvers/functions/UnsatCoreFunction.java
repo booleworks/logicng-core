@@ -13,7 +13,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.StandardProposition;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
 
 import java.util.ArrayList;
@@ -49,20 +49,10 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
     }
 
     @Override
-    public UNSATCore<Proposition> apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
-//        if (!solver.getConfig().proofGeneration()) {
-//            throw new IllegalStateException("Cannot generate an unsat core if proof generation is not turned on");
-//        }
-//        if (solver.getResult() == TRUE) {
-//            throw new IllegalStateException("An unsat core can only be generated if the formula is solved and is UNSAT");
-//        }
-//        if (solver.getResult() == Tristate.UNDEF) {
-//            throw new IllegalStateException("Cannot generate an unsat core before the formula was solved.");
-//        }
-//        if (solver.isLastComputationWithAssumptions()) {
-//            throw new IllegalStateException("Cannot compute an unsat core for a computation with assumptions.");
-//        }
-
+    public UNSATCore<Proposition> apply(final SATSolver solver, final Consumer<Tristate> resultSetter) {
+        if (!solver.config().proofGeneration()) {
+            throw new IllegalStateException("Cannot generate an unsat core if proof generation is not turned on");
+        }
         final DRUPTrim trimmer = new DRUPTrim();
 
         final Map<Formula, Proposition> clause2proposition = new HashMap<>();
@@ -93,7 +83,7 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
         return new UNSATCore<>(new ArrayList<>(propositions), false);
     }
 
-    private UNSATCore<Proposition> handleTrivialCase(final MiniSat solver) {
+    private UNSATCore<Proposition> handleTrivialCase(final SATSolver solver) {
         final LNGVector<MiniSatStyleSolver.ProofInformation> clauses = solver.underlyingSolver().pgOriginalClauses();
         for (int i = 0; i < clauses.size(); i++) {
             for (int j = i + 1; j < clauses.size(); j++) {
@@ -120,7 +110,7 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
         return false;
     }
 
-    private Formula getFormulaForVector(final MiniSat solver, final LNGIntVector vector) {
+    private Formula getFormulaForVector(final SATSolver solver, final LNGIntVector vector) {
         final List<Literal> literals = new ArrayList<>(vector.size());
         for (int i = 0; i < vector.size(); i++) {
             final int lit = vector.get(i);

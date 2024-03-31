@@ -12,11 +12,10 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.Handler;
 import com.booleworks.logicng.handlers.OptimizationHandler;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
 import com.booleworks.logicng.solvers.sat.SATCall;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.transformations.LiteralSubstitution;
 import com.booleworks.logicng.util.FormulaHelper;
 import com.booleworks.logicng.util.Pair;
@@ -120,9 +119,9 @@ public final class PrimeCompiler {
     private Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>> computeGeneric(final FormulaFactory f, final Formula formula,
                                                                                     final OptimizationHandler handler) {
         final SubstitutionResult sub = createSubstitution(f, formula);
-        final SATSolver hSolver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SATSolver hSolver = SATSolver.miniSat(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         hSolver.add(sub.constraintFormula);
-        final SATSolver fSolver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SATSolver fSolver = SATSolver.miniSat(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         fSolver.add(formula.negate(f));
         final NaivePrimeReduction primeReduction = new NaivePrimeReduction(f, formula);
         final List<SortedSet<Literal>> primeImplicants = new ArrayList<>();

@@ -9,7 +9,6 @@ import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.handlers.TimeoutSATHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.propositions.Proposition;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +21,7 @@ public class SATCallTest {
         // wie bisher
         final FormulaFactory f = FormulaFactory.caching();
         final List<Variable> vars = List.of(f.variable("B"), f.variable("C"));
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.miniSat(f);
         solver.add(f.parse("(A | B) & (C | ~B) & (B | D)"));
 
         // Aufbau Builder (tut noch nichts)

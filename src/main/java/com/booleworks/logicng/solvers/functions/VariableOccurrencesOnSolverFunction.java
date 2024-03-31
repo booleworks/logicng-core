@@ -11,7 +11,7 @@ import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.datastructures.MSClause;
 import com.booleworks.logicng.solvers.datastructures.MSVariable;
 import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
@@ -52,7 +52,7 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
     }
 
     @Override
-    public Map<Variable, Integer> apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
+    public Map<Variable, Integer> apply(final SATSolver solver, final Consumer<Tristate> resultSetter) {
         final FormulaFactory f = solver.factory();
         final MiniSatStyleSolver underlyingSolver = solver.underlyingSolver();
         final Map<String, Integer> counts = initResultMap(underlyingSolver);

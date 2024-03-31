@@ -15,7 +15,6 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.util.Pair;
 import org.assertj.core.api.Assertions;
@@ -52,7 +51,7 @@ public class PBEncoderTest implements LogicNGTest {
                 coeffs.add(1);
             }
             final List<Formula> clauses = PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, 0, lits, coeffs), config.first(), config.second());
-            final SATSolver solver = MiniSat.miniSat(f);
+            final SATSolver solver = SATSolver.miniSat(f);
             solver.add(clauses);
             assertSolverSat(solver);
             Assertions.assertThat(solver.enumerateAllModels(problemLits))
@@ -76,7 +75,7 @@ public class PBEncoderTest implements LogicNGTest {
                 coeffs.add(1);
             }
             final List<Formula> clauses = PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, rhs, lits, coeffs), config.first(), config.second());
-            final SATSolver solver = MiniSat.miniSat(f);
+            final SATSolver solver = SATSolver.miniSat(f);
             solver.add(clauses);
             assertSolverSat(solver);
             Assertions.assertThat(solver.enumerateAllModels(problemLits))
@@ -109,7 +108,7 @@ public class PBEncoderTest implements LogicNGTest {
             coeffs[i] = 1;
         }
         final List<Formula> clauses = PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, rhs, problemLits, coeffs), config.first(), config.second());
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.miniSat(f);
         solver.add(clauses);
         assertSolverSat(solver);
         Assertions.assertThat(solver.enumerateAllModels(problemLits))

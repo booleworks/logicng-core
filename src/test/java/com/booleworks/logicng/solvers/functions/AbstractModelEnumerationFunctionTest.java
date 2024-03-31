@@ -11,7 +11,6 @@ import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
@@ -35,7 +34,7 @@ public class AbstractModelEnumerationFunctionTest {
     public void testEmptySplitVariables() throws ParserException {
         final Formula formula = f.parse("A | B | C | D | E");
 
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.miniSat(f);
         solver.add(formula);
 
         final ModelEnumerationConfig config = ModelEnumerationConfig.builder()
@@ -53,7 +52,7 @@ public class AbstractModelEnumerationFunctionTest {
     public void testNullSplitVariables() throws ParserException {
         final Formula formula = f.parse("A | B | C | D | E");
 
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.miniSat(f);
         solver.add(formula);
 
         final ModelEnumerationConfig config = ModelEnumerationConfig.builder()

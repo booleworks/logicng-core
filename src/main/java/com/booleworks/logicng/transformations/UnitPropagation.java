@@ -12,7 +12,7 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.cache.TransformationCacheEntry;
 import com.booleworks.logicng.solvers.datastructures.MSClause;
 import com.booleworks.logicng.solvers.sat.MiniSat2Solver;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +66,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
          * Constructs a new MiniSatPropagator.
          */
         public MiniSatPropagator(final FormulaFactory f) {
-            super(f, MiniSatConfig.builder().build());
+            super(f, SATSolverConfig.builder().build());
         }
 
         /**

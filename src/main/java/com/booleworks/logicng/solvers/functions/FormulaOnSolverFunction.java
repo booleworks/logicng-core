@@ -14,7 +14,6 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.datastructures.MSClause;
 import com.booleworks.logicng.solvers.datastructures.MSVariable;
@@ -65,7 +64,7 @@ public final class FormulaOnSolverFunction implements SolverFunction<Set<Formula
     }
 
     @Override
-    public Set<Formula> apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
+    public Set<Formula> apply(final SATSolver solver, final Consumer<Tristate> resultSetter) {
         final FormulaFactory f = solver.factory();
         final Set<Formula> formulas = new LinkedHashSet<>();
         for (final MSClause clause : solver.underlyingSolver().clauses()) {

@@ -27,7 +27,6 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ModelEnumerationHandler;
 import com.booleworks.logicng.handlers.SATHandler;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
@@ -63,7 +62,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                                                                  SortedSet<Variable> additionalVariablesNotOnSolver);
 
     @Override
-    public RESULT apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
+    public RESULT apply(final SATSolver solver, final Consumer<Tristate> resultSetter) {
         start(handler);
         final SortedSet<Variable> knownVariables = solver.knownVariables();
         final SortedSet<Variable> additionalVarsNotOnSolver = difference(additionalVariables, knownVariables, TreeSet::new);
@@ -75,7 +74,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         return collector.getResult();
     }
 
-    private void enumerateRecursive(final EnumerationCollector<RESULT> collector, final MiniSat solver, final Model splitModel,
+    private void enumerateRecursive(final EnumerationCollector<RESULT> collector, final SATSolver solver, final Model splitModel,
                                     final Consumer<Tristate> resultSetter, final SortedSet<Variable> enumerationVars,
                                     final SortedSet<Variable> splitVars, final int recursionDepth) {
         final int maxNumberOfModelsForEnumeration = strategy.maxNumberOfModelsForEnumeration(recursionDepth);
@@ -125,7 +124,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         loadState(solver, state);
     }
 
-    protected static <R> boolean enumerate(final EnumerationCollector<R> collector, final MiniSat solver, final Consumer<Tristate> resultSetter,
+    protected static <R> boolean enumerate(final EnumerationCollector<R> collector, final SATSolver solver, final Consumer<Tristate> resultSetter,
                                            final SortedSet<Variable> variables, final SortedSet<Variable> additionalVariables, final int maxModels,
                                            final ModelEnumerationHandler handler) {
         final SolverState stateBeforeEnumeration = saveState(solver);
@@ -164,7 +163,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         return !var.name().startsWith(CC_PREFIX) && !var.name().startsWith(PB_PREFIX) && !var.name().startsWith(CNF_PREFIX);
     }
 
-    private static boolean modelEnumerationSATCall(final MiniSat solver, final ModelEnumerationHandler handler) {
+    private static boolean modelEnumerationSATCall(final SATSolver solver, final ModelEnumerationHandler handler) {
         final SATHandler satHandler = handler == null ? null : handler.satHandler();
         final boolean sat = solver.satCall().handler(satHandler).sat() == TRUE;
         return !aborted(handler) && sat;

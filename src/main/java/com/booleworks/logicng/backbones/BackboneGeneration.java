@@ -8,9 +8,9 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.SATHandler;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.Collection;
@@ -46,7 +46,7 @@ public final class BackboneGeneration {
         if (formulas == null || formulas.isEmpty()) {
             throw new IllegalArgumentException("Provide at least one formula for backbone computation");
         }
-        final MiniSat miniSat = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SATSolver miniSat = SATSolver.miniSat(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         miniSat.add(formulas);
         return miniSat.execute(BackboneFunction.builder().handler(handler).variables(variables).type(type).build());
     }

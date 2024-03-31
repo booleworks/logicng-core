@@ -9,7 +9,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.cache.PredicateCacheEntry;
 import com.booleworks.logicng.predicates.CacheableFormulaPredicate;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 
 import java.util.Map;
 
@@ -49,7 +49,7 @@ public final class SATPredicate extends CacheableFormulaPredicate {
         if (formula.type() == FType.FALSE) {
             result = false;
         } else {
-            final var solver = MiniSat.miniSat(f);
+            final var solver = SATSolver.miniSat(f);
             solver.add(formula);
             result = solver.sat();
         }

@@ -5,13 +5,11 @@
 package com.booleworks.logicng.solvers.sat;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -37,14 +35,14 @@ public class MiniSatTest {
 
     @Test
     public void testConfig() {
-        Assertions.assertThat(MiniSatConfig.builder().build().type().toString()).isEqualTo("MINISAT");
-        assertThat(Arrays.asList(MiniSatConfig.ClauseMinimization.values()).contains(MiniSatConfig.ClauseMinimization.valueOf("DEEP"))).isTrue();
+        Assertions.assertThat(SATSolverConfig.builder().build().type().toString()).isEqualTo("MINISAT");
+        assertThat(Arrays.asList(SATSolverConfig.ClauseMinimization.values()).contains(SATSolverConfig.ClauseMinimization.valueOf("DEEP"))).isTrue();
     }
 
     @Test
     public void testAssumptionChecking() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.miniSat(f);
         solver.add(f.parse("A & B"));
         Assertions.assertThat(solver.sat()).isTrue();
         Assertions.assertThat(solver.satCall().assumptions(f.literal("A", true)).sat()).isEqualTo(Tristate.TRUE);

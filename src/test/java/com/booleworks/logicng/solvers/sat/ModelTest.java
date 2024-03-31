@@ -17,7 +17,6 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
@@ -154,7 +153,7 @@ public class ModelTest {
     public void testNonCNFRestrictedVars(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
         final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
-        final MiniSat miniSat = MiniSat.miniSat(f);
+        final SATSolver miniSat = SATSolver.miniSat(f);
         miniSat.add(formula);
         solver.add(formula);
         final SortedSet<Variable> relevantVariables = new TreeSet<>(Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C")));
@@ -174,7 +173,7 @@ public class ModelTest {
     public void testNonCNFRestrictedAndAdditionalVars(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
         final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
-        final MiniSat miniSat = MiniSat.miniSat(f);
+        final SATSolver miniSat = SATSolver.miniSat(f);
         miniSat.add(formula);
         solver.add(formula);
         final SortedSet<Variable> relevantVariables = new TreeSet<>(Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C")));
@@ -195,13 +194,4 @@ public class ModelTest {
             assertThat(m.formula(f).variables(f)).isEqualTo(allVariables);
         }
     }
-
-//    @ParameterizedTest(name = "{index} {1}")
-//    @MethodSource("solverSuppliers")
-//    public void testUnsolvedFormula(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
-//        final SATSolver solver = solverSupplier.get();
-//        final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
-//        solver.add(formula);
-//        assertThatThrownBy(() -> solver.model(f.variables("A"))).isInstanceOf(IllegalStateException.class);
-//    }
 }

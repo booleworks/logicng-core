@@ -19,7 +19,7 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ public class CachingFormulaFactoryTest {
     public void testConfigurations() {
         final FormulaFactory f = FormulaFactory.caching();
         final Configuration configMaxSat = MaxSATConfig.builder().build();
-        final Configuration configMiniSat = MiniSatConfig.builder().build();
+        final Configuration configMiniSat = SATSolverConfig.builder().build();
         f.putConfiguration(configMaxSat);
         f.putConfiguration(configMiniSat);
         assertThat(f.configurationFor(ConfigurationType.MAXSAT)).isEqualTo(configMaxSat);

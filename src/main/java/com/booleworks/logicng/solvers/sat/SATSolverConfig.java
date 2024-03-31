@@ -14,7 +14,112 @@ import com.booleworks.logicng.formulas.FormulaFactory;
  * @version 2.0.0
  * @since 1.0
  */
-public final class MiniSatConfig extends Configuration {
+public final class SATSolverConfig extends Configuration {
+
+    final boolean proofGeneration;
+    final boolean useAtMostClauses;
+    final CNFMethod cnfMethod;
+    final ClauseMinimization clauseMinimization;
+    final boolean initialPhase;
+
+    final SATSolverLowLevelConfig lowLevelConfig;
+
+    /**
+     * Constructs a new MiniSAT configuration from a given builder.
+     * @param builder the builder
+     */
+    private SATSolverConfig(final Builder builder) {
+        super(ConfigurationType.MINISAT);
+        proofGeneration = builder.proofGeneration;
+        useAtMostClauses = !builder.proofGeneration && builder.useAtMostClauses;
+        cnfMethod = builder.cnfMethod;
+        clauseMinimization = builder.clauseMinimization;
+        initialPhase = builder.initialPhase;
+        lowLevelConfig = builder.lowLevelConfig;
+    }
+
+    /**
+     * Returns a new builder for the configuration.
+     * @return the builder
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Returns a new builder which is initialized with the parameters of the given configuration.
+     * @param config the configuration to copy
+     * @return the builder
+     */
+    public static Builder copy(final SATSolverConfig config) {
+        return new Builder()
+                .proofGeneration(config.proofGeneration)
+                .useAtMostClauses(config.useAtMostClauses)
+                .cnfMethod(config.cnfMethod)
+                .clauseMinimization(config.clauseMinimization)
+                .initialPhase(config.initialPhase)
+                .lowLevelConfig(config.lowLevelConfig);
+    }
+
+    /**
+     * Returns whether proof generation should be performed or not.
+     * @return whether proof generation should be performed or not
+     */
+    public boolean proofGeneration() {
+        return proofGeneration;
+    }
+
+    /**
+     * Returns whether at most clauses should be used to encode cardinality constraints or not.
+     * @return whether at most clauses should be used to encode cardinality constraints or not
+     */
+    public boolean useAtMostClauses() {
+        return useAtMostClauses;
+    }
+
+    /**
+     * Returns the CNF method which should be used.
+     * @return the CNF method
+     */
+    public CNFMethod cnfMethod() {
+        return cnfMethod;
+    }
+
+    /**
+     * Returns the kind of clause minimization to be applied.
+     * @return the kind of clause minimization to be applied
+     */
+    public ClauseMinimization clauseMinimization() {
+        return clauseMinimization;
+    }
+
+    /**
+     * Returns the initial phase of the solver.
+     * @return the initial phase of the solver
+     */
+    public boolean initialPhase() {
+        return initialPhase;
+    }
+
+    /**
+     * Returns the low level configuration of the solver.
+     * @return the low level configuration of the solver
+     */
+    public SATSolverLowLevelConfig lowLevelConfig() {
+        return lowLevelConfig;
+    }
+
+    @Override
+    public String toString() {
+        return "MiniSatConfig{" +
+                "proofGeneration=" + proofGeneration +
+                ", useAtMostClauses=" + useAtMostClauses +
+                ", cnfMethod=" + cnfMethod +
+                ", clauseMinimization=" + clauseMinimization +
+                ", initialPhase=" + initialPhase +
+                ", lowLevelConfig=" + lowLevelConfig +
+                '}';
+    }
 
     /**
      * The different methods for clause minimization.
@@ -50,116 +155,6 @@ public final class MiniSatConfig extends Configuration {
      */
     public enum CNFMethod {
         FACTORY_CNF, PG_ON_SOLVER, FULL_PG_ON_SOLVER
-    }
-
-    // Main configuration parameters
-    final boolean proofGeneration;
-    public final boolean useAtMostClauses;
-    final CNFMethod cnfMethod;
-    final ClauseMinimization clauseMinimization;
-    public final boolean initialPhase;
-
-    final SATSolverLowLevelConfig lowLevelConfig;
-
-    /**
-     * Constructs a new MiniSAT configuration from a given builder.
-     * @param builder the builder
-     */
-    private MiniSatConfig(final Builder builder) {
-        super(ConfigurationType.MINISAT);
-        proofGeneration = builder.proofGeneration;
-        useAtMostClauses = !builder.proofGeneration && builder.useAtMostClauses;
-        cnfMethod = builder.cnfMethod;
-        clauseMinimization = builder.clauseMinimization;
-        initialPhase = builder.initialPhase;
-        lowLevelConfig = builder.lowLevelConfig;
-    }
-
-    /**
-     * Returns a new builder for the configuration.
-     * @return the builder
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /**
-     * Returns a new builder which is initialized with the parameters of the given configuration.
-     * @param config the configuration to copy
-     * @return the builder
-     */
-    public static Builder copy(final MiniSatConfig config) {
-        return new Builder()
-                .proofGeneration(config.proofGeneration)
-                .useAtMostClauses(config.useAtMostClauses)
-                .cnfMethod(config.cnfMethod)
-                .clauseMinimization(config.clauseMinimization)
-                .initialPhase(config.initialPhase)
-                .lowLevelConfig(config.lowLevelConfig);
-    }
-
-    /**
-     * Returns whether proof generation should be performed or not.
-     * @return whether proof generation should be performed or not
-     */
-    public boolean proofGeneration() {
-        return proofGeneration;
-    }
-
-    /**
-     * Returns whether at most clauses should be used to encode cardinality constraints or not.
-     * @return whether at most clauses should be used to encode cardinality constraints or not
-     */
-    public boolean useAtMostClauses() {
-        return useAtMostClauses;
-    }
-
-    /**
-     * Returns the CNF method which should be used.
-     * @return the CNF method
-     */
-    public CNFMethod getCnfMethod() {
-        return cnfMethod;
-    }
-
-    /**
-     * Returns the kind of clause minimization to be applied.
-     * @return the kind of clause minimization to be applied
-     */
-    public ClauseMinimization clauseMinimization() {
-        return clauseMinimization;
-    }
-
-    /**
-     * Returns the initial phase of the solver.
-     * @return the initial phase of the solver
-     */
-    public boolean initialPhase() {
-        return initialPhase;
-    }
-
-    /**
-     * Returns the low level configuration of the solver.
-     * @return the low level configuration of the solver
-     */
-    public SATSolverLowLevelConfig lowLevelConfig() {
-        return lowLevelConfig;
-    }
-
-    public SATSolverLowLevelConfig getLowLevelConfig() {
-        return lowLevelConfig;
-    }
-
-    @Override
-    public String toString() {
-        return "MiniSatConfig{" +
-                "proofGeneration=" + proofGeneration +
-                ", useAtMostClauses=" + useAtMostClauses +
-                ", cnfMethod=" + cnfMethod +
-                ", clauseMinimization=" + clauseMinimization +
-                ", initialPhase=" + initialPhase +
-                ", lowLevelConfig=" + lowLevelConfig +
-                '}';
     }
 
     /**
@@ -248,8 +243,8 @@ public final class MiniSatConfig extends Configuration {
          * Builds the MiniSAT configuration.
          * @return the configuration
          */
-        public MiniSatConfig build() {
-            return new MiniSatConfig(this);
+        public SATSolverConfig build() {
+            return new SATSolverConfig(this);
         }
     }
 }

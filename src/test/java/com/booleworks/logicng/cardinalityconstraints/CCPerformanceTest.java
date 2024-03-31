@@ -13,9 +13,8 @@ import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -56,7 +55,7 @@ public class CCPerformanceTest implements LogicNGTest {
         }
         for (int i = 10; i < 100; i = i + 10) {
             final CardinalityConstraint cc = (CardinalityConstraint) f.cc(CType.LE, i, problemLits);
-            final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(miniCard).build());
+            final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(miniCard).build());
             solver.add(cc);
             assertSolverSat(solver);
             final Assignment model = solver.model(Arrays.asList(problemLits));

@@ -11,7 +11,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.ModelCountingFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
@@ -33,7 +33,7 @@ public class ModelEnumerationHandlerTest {
 
     @Test
     public void testTimeoutHandler() throws ParserException, InterruptedException {
-        final MiniSat solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.miniSat(f);
         final Formula formula = f.parse("A | B | C | D | E | F | G | H | I | J | K | L | N | M | O | P | Q | R | S | T | U | V | W");
         solver.add(formula);
         final TimeoutModelEnumerationHandler handler = new TimeoutModelEnumerationHandler(100);
@@ -60,7 +60,7 @@ public class ModelEnumerationHandlerTest {
         final Formula formula = f.parse("A | B | C | D | E | F | G | H | I | J | K | L | N | M | O | P | Q | R | S | T | U | V | W");
         final SortedSet<Variable> vars = union(formula.variables(f), f.variables("X", "Y", "Z"), TreeSet::new);
         for (int i = 1; i <= 1000; i += 7) {
-            final MiniSat solver = MiniSat.miniSat(f);
+            final SATSolver solver = SATSolver.miniSat(f);
             solver.add(formula);
             final NumberOfModelsHandler handler = new NumberOfModelsHandler(i);
             final ModelCountingFunction enumeration = ModelCountingFunction.builder(vars)

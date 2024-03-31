@@ -9,7 +9,7 @@ import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.Handler;
 import com.booleworks.logicng.propositions.Proposition;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public final class DeletionBasedMUS extends MUSAlgorithm {
         Handler.start(config.handler);
         final List<T> mus = new ArrayList<>(propositions.size());
         final List<SolverState> solverStates = new ArrayList<>(propositions.size());
-        final MiniSat solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.miniSat(f);
         for (final Proposition proposition : propositions) {
             solverStates.add(solver.saveState());
             solver.add(proposition);

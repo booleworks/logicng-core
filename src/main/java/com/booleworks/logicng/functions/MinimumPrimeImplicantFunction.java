@@ -10,10 +10,9 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaFunction;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.transformations.LiteralSubstitution;
 
 import java.util.HashMap;
@@ -49,7 +48,7 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<Sort
         }
         final LiteralSubstitution substTransformation = new LiteralSubstitution(f, substitution);
         final Formula substituted = nnf.transform(substTransformation);
-        final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         solver.add(substituted);
         for (final Literal literal : newVar2oldLit.values()) {
             if (literal.phase() && newVar2oldLit.containsValue(literal.negate(f))) {

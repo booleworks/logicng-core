@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.LongRunningTag;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -17,7 +16,7 @@ import com.booleworks.logicng.handlers.BoundedSatHandler;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.propositions.StandardProposition;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.testutils.PigeonHoleGenerator;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -187,7 +186,7 @@ public class MUSGenerationTest {
     private void testMUS(final List<StandardProposition> original, final UNSATCore<StandardProposition> mus) {
         assertThat(mus.isMUS()).isTrue();
         assertThat(mus.propositions().size() <= original.size()).isTrue();
-        final MiniSat miniSat = MiniSat.miniSat(f);
+        final SATSolver miniSat = SATSolver.miniSat(f);
         for (final StandardProposition p : mus.propositions()) {
             assertThat(original.contains(p)).isTrue();
             Assertions.assertThat(miniSat.sat()).isTrue();

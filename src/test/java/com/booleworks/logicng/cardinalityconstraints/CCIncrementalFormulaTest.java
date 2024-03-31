@@ -14,7 +14,6 @@ import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
@@ -49,7 +48,7 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, 9, vars), config);
             final CCIncrementalData incData = cc.second();
 
-            final SATSolver solver = MiniSat.miniSat(f);
+            final SATSolver solver = SATSolver.miniSat(f);
             solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 4, vars), config)); // >= 4
             solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.LE, 7, vars), config)); // <= 7
 
@@ -133,7 +132,7 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GE, 2, vars), config);
             final CCIncrementalData incData = cc.second();
 
-            final SATSolver solver = MiniSat.miniSat(f);
+            final SATSolver solver = SATSolver.miniSat(f);
             solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 4, vars), config)); // >= 4
             solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.LE, 7, vars), config)); // <= 7
 

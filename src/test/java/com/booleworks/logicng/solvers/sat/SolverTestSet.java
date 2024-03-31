@@ -1,14 +1,13 @@
 package com.booleworks.logicng.solvers.sat;
 
-import static com.booleworks.logicng.solvers.sat.MiniSatConfig.CNFMethod.FACTORY_CNF;
-import static com.booleworks.logicng.solvers.sat.MiniSatConfig.CNFMethod.FULL_PG_ON_SOLVER;
-import static com.booleworks.logicng.solvers.sat.MiniSatConfig.CNFMethod.PG_ON_SOLVER;
-import static com.booleworks.logicng.solvers.sat.MiniSatConfig.ClauseMinimization.BASIC;
-import static com.booleworks.logicng.solvers.sat.MiniSatConfig.ClauseMinimization.DEEP;
-import static com.booleworks.logicng.solvers.sat.MiniSatConfig.ClauseMinimization.NONE;
+import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.FACTORY_CNF;
+import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.FULL_PG_ON_SOLVER;
+import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.PG_ON_SOLVER;
+import static com.booleworks.logicng.solvers.sat.SATSolverConfig.ClauseMinimization.BASIC;
+import static com.booleworks.logicng.solvers.sat.SATSolverConfig.ClauseMinimization.DEEP;
+import static com.booleworks.logicng.solvers.sat.SATSolverConfig.ClauseMinimization.NONE;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import org.junit.jupiter.params.provider.Arguments;
 
@@ -33,44 +32,44 @@ public interface SolverTestSet {
     }
 
     static List<Supplier<SATSolver>> solverSupplierTestSet(final Collection<SATSolverConfigParam> variance, final FormulaFactory f) {
-        List<MiniSatConfig> currentList = List.of(MiniSatConfig.builder().build());
+        List<SATSolverConfig> currentList = List.of(SATSolverConfig.builder().build());
         if (variance.contains(SATSolverConfigParam.PROOF_GENERATION)) {
             currentList = currentList.stream().flatMap(config -> Stream.of(
-                    MiniSatConfig.copy(config).proofGeneration(false).build(),
-                    MiniSatConfig.copy(config).proofGeneration(true).build()
+                    SATSolverConfig.copy(config).proofGeneration(false).build(),
+                    SATSolverConfig.copy(config).proofGeneration(true).build()
             )).collect(Collectors.toList());
         }
         if (variance.contains(SATSolverConfigParam.USE_AT_MOST_CLAUSES)) {
             currentList = currentList.stream().flatMap(config -> Stream.of(
-                    MiniSatConfig.copy(config).useAtMostClauses(false).build(),
-                    MiniSatConfig.copy(config).useAtMostClauses(true).build()
+                    SATSolverConfig.copy(config).useAtMostClauses(false).build(),
+                    SATSolverConfig.copy(config).useAtMostClauses(true).build()
             )).collect(Collectors.toList());
         }
         if (variance.contains(SATSolverConfigParam.CNF_METHOD)) {
             currentList = currentList.stream().flatMap(config -> Stream.of(
-                    MiniSatConfig.copy(config).cnfMethod(FACTORY_CNF).build(),
-                    MiniSatConfig.copy(config).cnfMethod(PG_ON_SOLVER).build(),
-                    MiniSatConfig.copy(config).cnfMethod(FULL_PG_ON_SOLVER).build()
+                    SATSolverConfig.copy(config).cnfMethod(FACTORY_CNF).build(),
+                    SATSolverConfig.copy(config).cnfMethod(PG_ON_SOLVER).build(),
+                    SATSolverConfig.copy(config).cnfMethod(FULL_PG_ON_SOLVER).build()
             )).collect(Collectors.toList());
         }
         if (variance.contains(SATSolverConfigParam.INITIAL_PHASE)) {
             currentList = currentList.stream().flatMap(config -> Stream.of(
-                    MiniSatConfig.copy(config).initialPhase(false).build(),
-                    MiniSatConfig.copy(config).initialPhase(true).build()
+                    SATSolverConfig.copy(config).initialPhase(false).build(),
+                    SATSolverConfig.copy(config).initialPhase(true).build()
             )).collect(Collectors.toList());
         }
         if (variance.contains(SATSolverConfigParam.CLAUSE_MINIMIZATION)) {
             currentList = currentList.stream().flatMap(config -> Stream.of(
-                    MiniSatConfig.copy(config).clauseMinimization(NONE).build(),
-                    MiniSatConfig.copy(config).clauseMinimization(BASIC).build(),
-                    MiniSatConfig.copy(config).clauseMinimization(DEEP).build()
+                    SATSolverConfig.copy(config).clauseMinimization(NONE).build(),
+                    SATSolverConfig.copy(config).clauseMinimization(BASIC).build(),
+                    SATSolverConfig.copy(config).clauseMinimization(DEEP).build()
             )).collect(Collectors.toList());
         }
-        return currentList.stream().map(config -> (Supplier<SATSolver>) () -> MiniSat.miniSat(f, config)).collect(Collectors.toList());
+        return currentList.stream().map(config -> (Supplier<SATSolver>) () -> SATSolver.miniSat(f, config)).collect(Collectors.toList());
     }
 
     static String solverDescription(final SATSolver s, final Collection<SATSolverConfigParam> variance) {
-        final MiniSatConfig config = ((MiniSat) s).getConfig();
+        final SATSolverConfig config = s.config();
         final List<String> elements = new ArrayList<>();
         if (variance.contains(SATSolverConfigParam.PROOF_GENERATION)) {
             elements.add((config.proofGeneration() ? "+" : "-") + "PROOF");
@@ -79,7 +78,7 @@ public interface SolverTestSet {
             elements.add((config.useAtMostClauses() ? "+" : "-") + "AT_MOST");
         }
         if (variance.contains(SATSolverConfigParam.CNF_METHOD)) {
-            elements.add(config.getCnfMethod().name());
+            elements.add(config.cnfMethod().name());
         }
         if (variance.contains(SATSolverConfigParam.INITIAL_PHASE)) {
             elements.add((config.initialPhase() ? "+" : "-") + "INITIAL_PHASE");

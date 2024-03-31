@@ -65,7 +65,7 @@ public abstract class MiniSatStyleSolver {
     public static final int LIT_UNDEF = -1;
 
     // external solver configuration
-    protected MiniSatConfig config;
+    protected SATSolverConfig config;
     protected SATSolverLowLevelConfig llConfig;
 
     protected FormulaFactory f;
@@ -142,7 +142,7 @@ public abstract class MiniSatStyleSolver {
      * @param f
      * @param config the configuration
      */
-    protected MiniSatStyleSolver(final FormulaFactory f, final MiniSatConfig config) {
+    protected MiniSatStyleSolver(final FormulaFactory f, final SATSolverConfig config) {
         this.f = f;
         initialize(config);
     }
@@ -206,7 +206,7 @@ public abstract class MiniSatStyleSolver {
     /**
      * Initializes the internal solver state.
      */
-    protected void initialize(final MiniSatConfig config) {
+    protected void initialize(final SATSolverConfig config) {
         this.config = config;
         llConfig = config.lowLevelConfig;
         ok = true;
@@ -356,8 +356,7 @@ public abstract class MiniSatStyleSolver {
      * by a {@link SATHandler}.  If {@code null} is passed as handler, the solver will run until the satisfiability is decided.
      * @param handler a sat handler
      * @return {@link Tristate#TRUE} if the formula is satisfiable, {@link Tristate#FALSE} if the formula is not satisfiable, or
-     * {@link Tristate#UNDEF} if the computation was canceled.
-     *         // TODO remove
+     *         {@link Tristate#UNDEF} if the computation was canceled.
      */
     public Tristate internalSolve(final SATHandler handler) {
         this.handler = handler;
@@ -384,7 +383,7 @@ public abstract class MiniSatStyleSolver {
      * @param handler     a sat handler
      * @param assumptions the assumptions as a given vector of literals
      * @return {@link Tristate#TRUE} if the formula and the assumptions are satisfiable, {@link Tristate#FALSE} if they are
-     * not satisfiable, or {@link Tristate#UNDEF} if the computation was canceled.
+     *         not satisfiable, or {@link Tristate#UNDEF} if the computation was canceled.
      */
     public Tristate internalSolve(final SATHandler handler, final LNGIntVector assumptions) {
         this.assumptions = new LNGIntVector(assumptions);
@@ -1079,7 +1078,7 @@ public abstract class MiniSatStyleSolver {
 //        selectionOrder.clear();
 //    }
 
-    public MiniSatConfig getConfig() {
+    public SATSolverConfig getConfig() {
         return config;
     }
 }

@@ -6,45 +6,103 @@ package com.booleworks.logicng.solvers;
 
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
+import com.booleworks.logicng.cardinalityconstraints.CCEncoder;
 import com.booleworks.logicng.cardinalityconstraints.CCIncrementalData;
+import com.booleworks.logicng.collections.LNGBooleanVector;
+import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.explanations.UNSATCore;
+import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
+import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.propositions.Proposition;
+import com.booleworks.logicng.pseudobooleans.PBEncoder;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.MiniSat2Solver;
+import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
 import com.booleworks.logicng.solvers.sat.SATCall;
 import com.booleworks.logicng.solvers.sat.SATCallBuilder;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.transformations.cnf.PlaistedGreenbaumTransformationSolver;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * A generic interface for LogicNG's SAT solvers.
  * @version 3.0.0
  * @since 1.0
  */
-public abstract class SATSolver {
+public class SATSolver {
 
     protected final FormulaFactory f;
-    protected Tristate result;
+    protected final SATSolverConfig config;
+    protected final MiniSat2Solver solver;
+    protected final PlaistedGreenbaumTransformationSolver pgTransformation;
+    protected final PlaistedGreenbaumTransformationSolver fullPgTransformation;
 
     /**
-     * Constructor.
-     * @param f the formula factory
+     * Constructs a new SAT solver instance.
+     * @param f      the formula factory
+     * @param config the MiniSat configuration, must not be {@code null}
      */
-    protected SATSolver(final FormulaFactory f) {
+    protected SATSolver(final FormulaFactory f, final SATSolverConfig config) {
         this.f = f;
+        this.config = config;
+        solver = new MiniSat2Solver(f, config);
+        pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, solver, config.initialPhase());
+        fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, solver, config.initialPhase());
+    }
+
+    /**
+     * Constructs a new SAT solver with a given underlying solver core.
+     * This method is primarily used for serialization purposes and should not be required in any
+     * other application use case.
+     * @param f                the formula factory
+     * @param underlyingSolver the underlying solver core
+     */
+    public SATSolver(final FormulaFactory f, final MiniSat2Solver underlyingSolver) {
+        this.f = f;
+        config = underlyingSolver.getConfig();
+        solver = underlyingSolver;
+        pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver, config.initialPhase());
+        fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, underlyingSolver, config.initialPhase());
+    }
+
+    /**
+     * Returns a new MiniSat solver with the MiniSat configuration from the formula factory.
+     * @param f the formula factory
+     * @return the solver
+     */
+    public static SATSolver miniSat(final FormulaFactory f) {
+        return new SATSolver(f, (SATSolverConfig) f.configurationFor(ConfigurationType.MINISAT));
+    }
+
+    /**
+     * Returns a new MiniSat solver with a given configuration.
+     * @param f      the formula factory
+     * @param config the configuration, must not be {@code null}
+     * @return the solver
+     */
+    public static SATSolver miniSat(final FormulaFactory f, final SATSolverConfig config) {
+        return new SATSolver(f, config);
     }
 
     /**
@@ -60,7 +118,32 @@ public abstract class SATSolver {
      * @param formula     the formula
      * @param proposition the proposition of this formula
      */
-    public abstract void add(final Formula formula, Proposition proposition);
+    public void add(final Formula formula, final Proposition proposition) {
+        if (formula.type() == FType.PBC) {
+            final PBConstraint constraint = (PBConstraint) formula;
+            if (constraint.isCC()) {
+                if (config.useAtMostClauses()) {
+                    if (constraint.comparator() == CType.LE) {
+                        solver.addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
+                    } else if (constraint.comparator() == CType.LT && constraint.rhs() > 3) {
+                        solver.addAtMost(generateClauseVector(constraint.operands()), constraint.rhs() - 1);
+                    } else if (constraint.comparator() == CType.EQ && constraint.rhs() == 1) {
+                        solver.addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
+                        solver.addClause(generateClauseVector(constraint.operands()), proposition);
+                    } else {
+                        CCEncoder.encode((CardinalityConstraint) constraint, EncodingResult.resultForMiniSat(f, this, proposition));
+                    }
+                } else {
+                    CCEncoder.encode((CardinalityConstraint) constraint, EncodingResult.resultForMiniSat(f, this, proposition));
+                }
+            } else {
+                PBEncoder.encode(constraint, EncodingResult.resultForMiniSat(f, this, proposition));
+            }
+        } else {
+            addFormulaAsCNF(formula, proposition);
+        }
+        addAllOriginalVariables(formula);
+    }
 
     /**
      * Adds a given set of propositions to the solver.
@@ -137,7 +220,10 @@ public abstract class SATSolver {
      * @param cc the cardinality constraint
      * @return the incremental data of this constraint, or null if the right-hand side of cc is 1
      */
-    public abstract CCIncrementalData addIncrementalCC(final CardinalityConstraint cc);
+    public CCIncrementalData addIncrementalCC(final CardinalityConstraint cc) {
+        final EncodingResult result = EncodingResult.resultForMiniSat(f, this, null);
+        return CCEncoder.encodeIncremental(cc, result);
+    }
 
     /**
      * Adds a formula which is already in CNF to the solver.
@@ -168,7 +254,10 @@ public abstract class SATSolver {
      * @param formula     the clause
      * @param proposition a proposition (if required for proof tracing)
      */
-    protected abstract void addClause(final Formula formula, final Proposition proposition);
+    protected void addClause(final Formula formula, final Proposition proposition) {
+        final LNGIntVector ps = generateClauseVector(formula.literals(f));
+        solver.addClause(ps, proposition);
+    }
 
     /**
      * Central method for building a SAT call. This method returns a {@link SATCallBuilder} which can be enriched
@@ -186,7 +275,9 @@ public abstract class SATSolver {
      * @return a new SATCall builder
      * @see SATCallBuilder
      */
-    public abstract SATCallBuilder satCall();
+    public SATCallBuilder satCall() {
+        return SATCall.builder(f, this);
+    }
 
     /**
      * Returns {@code true} if the current formula in the solver is satisfiable, @{code false} if it is unsatisfiable.
@@ -221,7 +312,7 @@ public abstract class SATSolver {
     /**
      * Returns an unsat core of the current problem.
      * <p>
-     * {@link MiniSatConfig#proofGeneration() Proof generation} must be enabled in order to use this method,
+     * {@link SATSolverConfig#proofGeneration() Proof generation} must be enabled in order to use this method,
      * otherwise an {@link IllegalStateException} is thrown.
      * <p>
      * If the formula on the solver is satisfiable, {@code null} is returned.
@@ -241,7 +332,10 @@ public abstract class SATSolver {
      * @param <RESULT> the result type of the function
      * @return the result of executing the solver function on the current solver
      */
-    public abstract <RESULT> RESULT execute(final SolverFunction<RESULT> function);
+    public <RESULT> RESULT execute(final SolverFunction<RESULT> function) {
+        return function.apply(this, i -> {
+        });
+    }
 
     /**
      * Enumerates all models of the current formula wrt. a given set of variables.  If the set is {@code null},
@@ -272,25 +366,20 @@ public abstract class SATSolver {
     /**
      * Saves the current solver state.
      * @return the current solver state
-     * @throws UnsupportedOperationException if the solver does not support state saving/loading
-     * @throws IllegalStateException         if the solver is not in incremental mode
      */
-    public abstract SolverState saveState();
+    public SolverState saveState() {
+        return solver.saveState();
+    }
 
     /**
      * Loads a given solver state.
      * @param state the solver state
-     * @throws UnsupportedOperationException if the solver does not support state saving/loading
-     * @throws IllegalStateException         if the solver is not in incremental mode
-     * @throws IllegalArgumentException      if the given state has become invalid
+     * @throws IllegalArgumentException if the given state has become invalid
      */
-    public abstract void loadState(final SolverState state);
-
-    /**
-     * Sets the solver state to UNDEF (required if you fiddle e.g. with the underlying solver).
-     */
-    public void setSolverToUndef() {
-        result = Tristate.UNDEF;
+    public void loadState(final SolverState state) {
+        solver.loadState(state);
+        pgTransformation.clearCache();
+        fullPgTransformation.clearCache();
     }
 
     /**
@@ -300,7 +389,16 @@ public abstract class SATSolver {
      * this is recommended.
      * @return the set of variables currently known by the solver
      */
-    public abstract SortedSet<Variable> knownVariables();
+    public SortedSet<Variable> knownVariables() {
+        final SortedSet<Variable> result = new TreeSet<>();
+        final int nVars = solver.nVars();
+        for (final Map.Entry<String, Integer> entry : solver.name2idx().entrySet()) {
+            if (entry.getValue() < nVars) {
+                result.add(f.variable(entry.getKey()));
+            }
+        }
+        return result;
+    }
 
     /**
      * Computes a backbone with both positive and negative variables of the current formula on the solver.
@@ -327,5 +425,87 @@ public abstract class SATSolver {
      */
     public FormulaFactory factory() {
         return f;
+    }
+
+    /**
+     * Returns the initial phase of literals of this solver.
+     * @return the initial phase of literals of this solver
+     */
+    public SATSolverConfig config() {
+        return config;
+    }
+
+    /**
+     * Returns the underlying core solver.
+     * <p>
+     * ATTENTION: by influencing the underlying solver directly, you can mess things up completely!  You should really
+     * know what you are doing.
+     * @return the underlying core solver
+     */
+    public MiniSatStyleSolver underlyingSolver() {
+        return solver;
+    }
+
+    /**
+     * Generates a clause vector of a collection of literals.
+     * @param literals the literals
+     * @return the clause vector
+     */
+    protected LNGIntVector generateClauseVector(final Collection<? extends Literal> literals) {
+        final LNGIntVector clauseVec = new LNGIntVector(literals.size());
+        for (final Literal lit : literals) {
+            final int index = getOrAddIndex(lit);
+            final int litNum = lit.phase() ? index * 2 : (index * 2) ^ 1;
+            clauseVec.push(litNum);
+        }
+        return clauseVec;
+    }
+
+    protected int getOrAddIndex(final Literal lit) {
+        int index = solver.idxForName(lit.name());
+        if (index == -1) {
+            index = solver.newVar(!config.initialPhase(), true);
+            solver.addName(lit.name(), index);
+        }
+        return index;
+    }
+
+    public Model createModel(final LNGBooleanVector vec, final LNGIntVector relevantIndices) {
+        return new Model(createLiterals(vec, relevantIndices));
+    }
+
+    private List<Literal> createLiterals(final LNGBooleanVector vec, final LNGIntVector relevantIndices) {
+        final List<Literal> literals = new ArrayList<>(vec.size());
+        for (int i = 0; i < relevantIndices.size(); i++) {
+            final int index = relevantIndices.get(i);
+            if (index != -1) {
+                final String name = solver.nameForIdx(index);
+                literals.add(f.literal(name, vec.get(index)));
+            }
+        }
+        return literals;
+    }
+
+    /**
+     * Adds all variables of the given formula to the solver if not already present.
+     * This method can be used to ensure that the internal solver knows the given variables.
+     * @param originalFormula the original formula
+     */
+    private void addAllOriginalVariables(final Formula originalFormula) {
+        for (final Variable var : originalFormula.variables(f)) {
+            getOrAddIndex(var);
+        }
+    }
+
+    protected void addFormulaAsCNF(final Formula formula, final Proposition proposition) {
+        if (config.cnfMethod() == SATSolverConfig.CNFMethod.FACTORY_CNF) {
+            addClauseSet(formula.cnf(f), proposition);
+        } else if (config.cnfMethod() == SATSolverConfig.CNFMethod.PG_ON_SOLVER) {
+            pgTransformation.addCNFtoSolver(formula, proposition);
+        } else if (config.cnfMethod() == SATSolverConfig.CNFMethod.FULL_PG_ON_SOLVER) {
+            fullPgTransformation.addCNFtoSolver(formula, proposition);
+        } else {
+            throw new IllegalStateException("Unknown Solver CNF method: " + config.cnfMethod());
+        }
     }
 }

@@ -10,7 +10,6 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.Handler;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.propositions.Proposition;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 
 import java.util.ArrayList;
@@ -32,7 +31,7 @@ public class PlainInsertionBasedMUS extends MUSAlgorithm {
         while (!currentFormula.isEmpty()) {
             final List<T> currentSubset = new ArrayList<>(propositions.size());
             T transitionProposition = null;
-            final MiniSat solver = MiniSat.miniSat(f);
+            final SATSolver solver = SATSolver.miniSat(f);
             for (final Proposition p : mus) {
                 solver.add(p);
             }

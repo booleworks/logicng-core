@@ -16,7 +16,7 @@ import com.booleworks.logicng.handlers.ModelEnumerationHandler;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDDFactory;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.modelenumeration.AbstractModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.EnumerationCollector;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
@@ -119,7 +119,7 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         }
 
         @Override
-        public boolean addModel(final LNGBooleanVector modelFromSolver, final MiniSat solver, final LNGIntVector relevantAllIndices,
+        public boolean addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver, final LNGIntVector relevantAllIndices,
                                 final ModelEnumerationHandler handler) {
             if (handler == null || handler.foundModels(dontCareFactor)) {
                 final Model model = solver.createModel(modelFromSolver, relevantAllIndices);
@@ -154,7 +154,7 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         }
 
         @Override
-        public List<Model> rollbackAndReturnModels(final MiniSat solver, final ModelEnumerationHandler handler) {
+        public List<Model> rollbackAndReturnModels(final SATSolver solver, final ModelEnumerationHandler handler) {
             final List<Model> modelsToReturn = new ArrayList<>(uncommittedModels);
             rollback(handler);
             return modelsToReturn;

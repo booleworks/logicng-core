@@ -10,7 +10,6 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.StandardProposition;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 
 import java.util.ArrayList;
@@ -25,12 +24,12 @@ import java.util.List;
  */
 public class SATCallBuilder {
     private final FormulaFactory f;
-    private final MiniSat solver;
+    private final SATSolver solver;
     private SATHandler handler;
     private final List<Proposition> additionalPropositions;
     private List<? extends Literal> selectionOrder;
 
-    SATCallBuilder(final FormulaFactory f, final MiniSat solver) {
+    SATCallBuilder(final FormulaFactory f, final SATSolver solver) {
         this.f = f;
         this.solver = solver;
         additionalPropositions = new ArrayList<>();
@@ -177,7 +176,7 @@ public class SATCallBuilder {
     /**
      * Directly computes an unsat core of the current problem.
      * <p>
-     * {@link MiniSatConfig#proofGeneration() Proof generation} must be enabled in order to use this method,
+     * {@link SATSolverConfig#proofGeneration() Proof generation} must be enabled in order to use this method,
      * otherwise an {@link IllegalStateException} is thrown.
      * <p>
      * If the formula on the solver is satisfiable, {@code null} is returned.

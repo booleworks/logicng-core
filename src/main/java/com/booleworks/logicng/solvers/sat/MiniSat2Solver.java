@@ -99,14 +99,14 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
      * is activated.
      */
     public MiniSat2Solver(final FormulaFactory f) {
-        this(f, MiniSatConfig.builder().build());
+        this(f, SATSolverConfig.builder().build());
     }
 
     /**
      * Constructs a new MiniSAT 2 solver with a given solver configuration.
      * @param config the solver configuration
      */
-    public MiniSat2Solver(final FormulaFactory f, final MiniSatConfig config) {
+    public MiniSat2Solver(final FormulaFactory f, final SATSolverConfig config) {
         super(f, config);
     }
 
@@ -977,7 +977,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
             outLearnt.push(selectors.get(i));
         }
         final LNGIntVector analyzeToClear = new LNGIntVector(outLearnt);
-        if (config.clauseMinimization == MiniSatConfig.ClauseMinimization.DEEP) {
+        if (config.clauseMinimization == SATSolverConfig.ClauseMinimization.DEEP) {
             int abstractLevel = 0;
             for (i = 1; i < outLearnt.size(); i++) {
                 abstractLevel |= abstractLevel(var(outLearnt.get(i)));
@@ -987,7 +987,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
                     outLearnt.set(j++, outLearnt.get(i));
                 }
             }
-        } else if (config.clauseMinimization == MiniSatConfig.ClauseMinimization.BASIC) {
+        } else if (config.clauseMinimization == SATSolverConfig.ClauseMinimization.BASIC) {
             for (i = j = 1; i < outLearnt.size(); i++) {
                 final MSClause c = v(outLearnt.get(i)).reason();
                 if (c == null) {

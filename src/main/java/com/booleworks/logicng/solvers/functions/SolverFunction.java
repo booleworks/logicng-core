@@ -5,7 +5,7 @@
 package com.booleworks.logicng.solvers.functions;
 
 import com.booleworks.logicng.datastructures.Tristate;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 
 import java.util.function.Consumer;
 
@@ -27,5 +27,5 @@ public interface SolverFunction<RESULT> {
      * @return the result of the function application
      */
     // TODO result setter should be removed, since MiniSat should not provide the result field anymore
-    RESULT apply(MiniSat solver, Consumer<Tristate> resultSetter);
+    RESULT apply(SATSolver solver, Consumer<Tristate> resultSetter);
 }

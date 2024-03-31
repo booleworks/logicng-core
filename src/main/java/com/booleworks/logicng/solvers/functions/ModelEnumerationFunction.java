@@ -15,7 +15,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ModelEnumerationHandler;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.modelenumeration.AbstractModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.EnumerationCollector;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
@@ -136,7 +136,7 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         }
 
         @Override
-        public boolean addModel(final LNGBooleanVector modelFromSolver, final MiniSat solver, final LNGIntVector relevantAllIndices,
+        public boolean addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver, final LNGIntVector relevantAllIndices,
                                 final ModelEnumerationHandler handler) {
             if (handler == null || handler.foundModels(baseModels.size())) {
                 final Model model = solver.createModel(modelFromSolver, relevantAllIndices);
@@ -163,7 +163,7 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         }
 
         @Override
-        public List<Model> rollbackAndReturnModels(final MiniSat solver, final ModelEnumerationHandler handler) {
+        public List<Model> rollbackAndReturnModels(final SATSolver solver, final ModelEnumerationHandler handler) {
             final List<Model> modelsToReturn = uncommittedModels.stream().map(Model::new).collect(Collectors.toList());
             rollback(handler);
             return modelsToReturn;

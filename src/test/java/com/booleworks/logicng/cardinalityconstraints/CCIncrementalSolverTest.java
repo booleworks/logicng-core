@@ -12,10 +12,9 @@ import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import org.junit.jupiter.api.Test;
 
@@ -46,7 +45,7 @@ public class CCIncrementalSolverTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = f.variable("v" + i);
             }
-            final SATSolver solver = MiniSat.miniSat(f, MiniSatConfig.builder().useAtMostClauses(false).build());
+            final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(false).build());
             solver.add(f.cc(CType.GE, 4, vars)); // >= 4
             solver.add(f.cc(CType.LE, 7, vars)); // <= 7
 
@@ -141,7 +140,7 @@ public class CCIncrementalSolverTest implements LogicNGTest {
 
     @Test
     public void testLargeTotalizerLowerBoundALK() {
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.miniSat(f);
         f.putConfiguration(configs[2]);
         final int numLits = 100;
         int currentBound = 2;

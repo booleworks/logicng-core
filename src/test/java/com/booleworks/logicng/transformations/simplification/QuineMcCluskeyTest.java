@@ -15,7 +15,6 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -75,7 +74,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testLarge2(final FormulaContext _c) throws ParserException, IOException {
         final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
-        final SATSolver solver = MiniSat.miniSat(_c.f);
+        final SATSolver solver = SATSolver.miniSat(_c.f);
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(Arrays.asList(
                 _c.f.variable("v111"),
@@ -102,7 +101,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testLarge3(final FormulaContext _c) throws ParserException, IOException {
         final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
-        final SATSolver solver = MiniSat.miniSat(_c.f);
+        final SATSolver solver = SATSolver.miniSat(_c.f);
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(Arrays.asList(
                 _c.f.variable("v111"),
@@ -139,7 +138,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
             final List<Variable> variables = new ArrayList<>(formula.variables(_c.f));
             final List<Variable> projectedVars = variables.subList(0, Math.min(6, variables.size()));
 
-            final SATSolver solver = MiniSat.miniSat(_c.f);
+            final SATSolver solver = SATSolver.miniSat(_c.f);
             solver.add(formula);
             final List<Model> models = solver.enumerateAllModels(projectedVars);
             final List<Formula> operands = new ArrayList<>(models.size());

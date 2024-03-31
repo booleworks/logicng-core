@@ -9,8 +9,6 @@ import static com.booleworks.logicng.handlers.Handler.start;
 import static com.booleworks.logicng.handlers.OptimizationHandler.satHandler;
 
 import com.booleworks.logicng.cardinalityconstraints.CCIncrementalData;
-import com.booleworks.logicng.collections.LNGBooleanVector;
-import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.CType;
@@ -20,7 +18,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.OptimizationHandler;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.sat.SATCall;
 
@@ -90,14 +88,14 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
     }
 
     @Override
-    public Assignment apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
+    public Assignment apply(final SATSolver solver, final Consumer<Tristate> resultSetter) {
         final SolverState initialState = solver.saveState();
         final Assignment model = maximize(solver);
         solver.loadState(initialState);
         return model;
     }
 
-    private Assignment maximize(final MiniSat solver) {
+    private Assignment maximize(final SATSolver solver) {
         start(handler);
         final FormulaFactory f = solver.factory();
         final Map<Variable, Literal> selectorMap = new TreeMap<>();

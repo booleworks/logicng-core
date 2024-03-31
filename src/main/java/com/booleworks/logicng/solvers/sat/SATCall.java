@@ -15,7 +15,6 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.propositions.Proposition;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.functions.UnsatCoreFunction;
@@ -45,14 +44,14 @@ import java.util.List;
  *     was satisfiable or not</li>
  *     <li>{@link #model} returns a model of the solver if it is satisfiable</li>
  *     <li>{@link #unsatCore()} returns an UNSAT core if the formula in
- *     unsatisfiable (and {@link MiniSatConfig#proofGeneration proof generation}
+ *     unsatisfiable (and {@link SATSolverConfig#proofGeneration proof generation}
  *     is enabled)</li>
  * </ul>
  */
 public class SATCall implements AutoCloseable {
 
     private final FormulaFactory f;
-    private final MiniSat solverWrapper;
+    private final SATSolver solverWrapper;
     private final MiniSat2Solver solver;
     private final SATHandler handler;
     private final List<? extends Proposition> additionalPropositions;
@@ -61,7 +60,7 @@ public class SATCall implements AutoCloseable {
     private int pgOriginalClausesLength = -1;
     private Tristate satState;
 
-    SATCall(final FormulaFactory f, final MiniSat solverWrapper, final SATHandler handler,
+    SATCall(final FormulaFactory f, final SATSolver solverWrapper, final SATHandler handler,
             final List<? extends Proposition> additionalPropositions,
             final List<? extends Literal> selectionOrder) {
         this.f = f;
@@ -73,7 +72,7 @@ public class SATCall implements AutoCloseable {
         initAndSolve();
     }
 
-    public static SATCallBuilder builder(final FormulaFactory f, final MiniSat solver) {
+    public static SATCallBuilder builder(final FormulaFactory f, final SATSolver solver) {
         return new SATCallBuilder(f, solver);
     }
 
@@ -148,7 +147,7 @@ public class SATCall implements AutoCloseable {
     /**
      * Returns an unsat core of the current problem.
      * <p>
-     * {@link MiniSatConfig#proofGeneration() Proof generation} must be enabled in order to use this method,
+     * {@link SATSolverConfig#proofGeneration() Proof generation} must be enabled in order to use this method,
      * otherwise an {@link IllegalStateException} is thrown.
      * <p>
      * If the formula on the solver is satisfiable, {@code null} is returned.

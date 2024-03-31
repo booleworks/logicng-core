@@ -7,7 +7,7 @@ package com.booleworks.logicng.solvers.functions;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
 
 import java.util.SortedSet;
@@ -40,7 +40,7 @@ public final class UpZeroLiteralsFunction implements SolverFunction<SortedSet<Li
     }
 
     @Override
-    public SortedSet<Literal> apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
+    public SortedSet<Literal> apply(final SATSolver solver, final Consumer<Tristate> resultSetter) {
         if (!solver.sat()) {
             return null;
         }
