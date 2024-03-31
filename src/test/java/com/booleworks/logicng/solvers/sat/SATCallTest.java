@@ -26,15 +26,15 @@ public class SATCallTest {
         solver.add(f.parse("(A | B) & (C | ~B) & (B | D)"));
 
         // Aufbau Builder (tut noch nichts)
-        final SATCall.SATCallBuilder satBuilder = solver.satCall()
+        final SATCallBuilder satBuilder = solver.satCall()
                 .addFormulas(List.of(f.parse("A | D")))
                 .selectionOrder(List.of(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D")))
                 .assumptions(List.of(f.literal("A", false)))
                 .handler(new TimeoutSATHandler(1000, TimeoutHandler.TimerType.RESTARTING_TIMEOUT));
 
         // start() ruft dann u.a. solve() auf
-        try (final SATCall satCall = satBuilder.start()) {
-            if (satCall.getSatState() == Tristate.TRUE) {
+        try (final SATCall satCall = satBuilder.solve()) {
+            if (satCall.getSatResult() == Tristate.TRUE) {
                 final Assignment model = satCall.model(vars);
             } else {
                 final UNSATCore<Proposition> mus = satCall.unsatCore();
@@ -43,13 +43,13 @@ public class SATCallTest {
 
         // Shortcuts (ich glaube das wollen wir wohl ;) ), auch in Kombination mit Assumptions und Co möglich
         // die wrappen praktisch start(), model()/unsatCore() und close()
-        final Tristate sat = solver.sat();
+        final boolean sat = solver.sat();
         final Assignment model = solver.satCall().selectionOrder(vars).model(vars);
 //        final UNSATCore<Proposition> mus = solver.satCall().assumptions(vars).unsatCore();
 
         // böse, weil der SATCall ein AutoClosable ist, das geschlossen werden muss (entsprechend meckert IntelliJ auch)
-        final Assignment model2 = solver.satCall().start().model(vars);
+        final Assignment model2 = solver.satCall().solve().model(vars);
         // Exception, weil obiger Call noch offen ist
-//        solver.satCall().start();
+//        solver.satCall().solve();
     }
 }

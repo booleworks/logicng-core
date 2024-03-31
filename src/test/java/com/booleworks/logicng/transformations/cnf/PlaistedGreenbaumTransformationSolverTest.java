@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.datastructures.Model;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -57,26 +56,26 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
             final Formula randomFormula01 = randomSATFormula(f, randomizer, 4);
             final Formula randomFormula02 = randomSATFormula(f, randomizer, 4);
             solver.add(randomFormula01);
-            if (solver.sat() == Tristate.TRUE) {
+            if (solver.sat()) {
                 final List<Model> models = solver.enumerateAllModels(solver.knownVariables());
                 final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
                 assertThat(f.equivalence(randomFormula01, dnf).holds(new TautologyPredicate(f))).isTrue();
             }
             final SolverState state = solver.saveState();
             solver.add(randomFormula02);
-            if (solver.sat() == Tristate.TRUE) {
+            if (solver.sat()) {
                 final List<Model> models = solver.enumerateAllModels(solver.knownVariables());
                 final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
                 assertThat(f.equivalence(f.and(randomFormula01, randomFormula02), dnf).holds(new TautologyPredicate(f))).isTrue();
             }
             solver.loadState(state);
-            if (solver.sat() == Tristate.TRUE) {
+            if (solver.sat()) {
                 final List<Model> models = solver.enumerateAllModels(solver.knownVariables());
                 final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
                 assertThat(f.equivalence(randomFormula01, dnf).holds(new TautologyPredicate(f))).isTrue();
             }
             solver.add(randomFormula02);
-            if (solver.sat() == Tristate.TRUE) {
+            if (solver.sat()) {
                 final List<Model> models = solver.enumerateAllModels(solver.knownVariables());
                 final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
                 assertThat(f.equivalence(f.and(randomFormula01, randomFormula02), dnf).holds(new TautologyPredicate(f))).isTrue();

@@ -128,6 +128,9 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
 
     @Override
     public boolean addClause(final LNGIntVector ps, final Proposition proposition) {
+        if (inSatCall) {
+            throw new IllegalStateException("Adding new formulas to a solver is not allowed while a SAT call is running on this solver!");
+        }
         assert decisionLevel() == 0;
         int p;
         int i;
@@ -732,7 +735,7 @@ public class MiniSat2Solver extends MiniSatStyleSolver {
     /**
      * The main search procedure of the CDCL algorithm.
      * @return a {@link Tristate} representing the result.  {@code FALSE} if the formula is UNSAT, {@code TRUE} if the
-     * formula is SAT, and {@code UNDEF} if the state is not known yet (restart) or the handler canceled the computation
+     *         formula is SAT, and {@code UNDEF} if the state is not known yet (restart) or the handler canceled the computation
      */
     protected Tristate search() {
         if (!ok) {

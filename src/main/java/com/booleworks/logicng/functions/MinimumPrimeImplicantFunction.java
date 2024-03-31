@@ -5,7 +5,6 @@
 package com.booleworks.logicng.functions;
 
 import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaFunction;
@@ -58,7 +57,7 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<Sort
             }
         }
 
-        if (solver.sat() != Tristate.TRUE) {
+        if (!solver.sat()) {
             return null;
         }
         final Assignment minimumModel = solver.execute(OptimizationFunction.minimize(newVar2oldLit.keySet()));

@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LogicNGTest;
 import com.booleworks.logicng.LongRunningTag;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
@@ -178,7 +177,7 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             solver.add(cc.first());
 
             // search the lower bound
-        while (solver.sat() == Tristate.TRUE) {
+            while (solver.sat()) {
                 solver.add(incData.newUpperBound(--currentBound)); // <= currentBound - 1
             }
             assertThat(currentBound).isEqualTo(41);
@@ -202,7 +201,7 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             solver.add(cc.first());
 
             // search the lower bound
-        while (solver.sat() == Tristate.TRUE) {
+            while (solver.sat()) {
                 solver.add(incData.newLowerBound(++currentBound)); // <= currentBound + 1
             }
             assertThat(currentBound).isEqualTo(88);
@@ -228,7 +227,7 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             solver.add(cc.first());
 
             // search the lower bound
-            while (solver.sat() == Tristate.TRUE) {
+            while (solver.sat()) {
                 solver.add(incData.newUpperBound(--currentBound)); // <= currentBound - 1
             }
             assertThat(currentBound).isEqualTo(41);
@@ -269,7 +268,7 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             solver.add(cc.first());
 
             // search the lower bound
-        while (solver.sat() == Tristate.TRUE) {
+            while (solver.sat()) {
                 solver.add(incData.newUpperBound(--currentBound));
             }
             assertThat(currentBound).isEqualTo(233);

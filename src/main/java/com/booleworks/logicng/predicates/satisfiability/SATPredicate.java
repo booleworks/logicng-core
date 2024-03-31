@@ -4,7 +4,6 @@
 
 package com.booleworks.logicng.predicates.satisfiability;
 
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -52,7 +51,7 @@ public final class SATPredicate extends CacheableFormulaPredicate {
         } else {
             final var solver = MiniSat.miniSat(f);
             solver.add(formula);
-            result = solver.sat() == Tristate.TRUE;
+            result = solver.sat();
         }
         setCache(formula, result);
         return result;

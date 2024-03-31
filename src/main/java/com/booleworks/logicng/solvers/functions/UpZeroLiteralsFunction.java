@@ -41,14 +41,7 @@ public final class UpZeroLiteralsFunction implements SolverFunction<SortedSet<Li
 
     @Override
     public SortedSet<Literal> apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
-        // TODO how to reenable these checks?
-//        if (solver.getResult() == UNDEF) {
-//            throw new IllegalStateException("Cannot get unit propagated literals on level 0 as long as the formula is not solved.  Call 'sat' first.");
-//        }
-//        if (solver.getResult() == FALSE) {
-//            return null;
-//        }
-        if (solver.sat() == Tristate.FALSE) {
+        if (!solver.sat()) {
             return null;
         }
         final LNGIntVector literals = solver.underlyingSolver().upZeroLiterals();

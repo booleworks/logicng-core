@@ -69,7 +69,7 @@ public class DRUPTest implements LogicNGTest {
                 final List<Formula> cnf = DimacsReader.readCNF(f, file);
                 final SATSolver solver = solverSupplier.get();
                 solver.add(cnf);
-                if (solver.sat() == Tristate.FALSE) {
+                if (!solver.sat()) {
                     final UNSATCore<Proposition> unsatCore = solver.unsatCore();
                     verifyCore(unsatCore, cnf);
                     count++;
@@ -114,7 +114,7 @@ public class DRUPTest implements LogicNGTest {
 
         final SATSolver solver = solverSupplier.get();
         solver.addPropositions(propositions);
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.sat()).isFalse();
         final UNSATCore<Proposition> unsatCore = solver.unsatCore();
         assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(propositions.get(0), propositions.get(1),
                 propositions.get(2), propositions.get(3), propositions.get(4), propositions.get(5));
@@ -141,32 +141,32 @@ public class DRUPTest implements LogicNGTest {
         final SolverState state2 = solver.saveState();
         solver.addPropositions(p7, p8);
 
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.sat()).isFalse();
         UNSATCore<Proposition> unsatCore = solver.unsatCore();
         assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p5, p6);
 
         solver.loadState(state2);
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.sat()).isFalse();
         unsatCore = solver.unsatCore();
         assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p5, p6);
 
         solver.loadState(state1);
         solver.add(p9);
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.sat()).isFalse();
         unsatCore = solver.unsatCore();
         assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p9);
 
         solver.loadState(state1);
         solver.add(p5);
         solver.add(p6);
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.sat()).isFalse();
         unsatCore = solver.unsatCore();
         assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p5, p6);
 
         solver.loadState(state1);
         solver.add(p10);
         solver.add(p11);
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.sat()).isFalse();
         unsatCore = solver.unsatCore();
         assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p4, p11);
     }
@@ -304,7 +304,7 @@ public class DRUPTest implements LogicNGTest {
         solver.add(p2);
         solver.add(p3);
         solver.add(p4);
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.sat()).isFalse();
         Assertions.assertThat(solver.unsatCore().propositions()).containsExactlyInAnyOrder(p1, p2, p3);
     }
 
@@ -324,9 +324,9 @@ public class DRUPTest implements LogicNGTest {
         final StandardProposition p10 = new StandardProposition(f.parse("d => (l + m + e + f = 1)"));
         final StandardProposition p11 = new StandardProposition(f.parse("~k"));
         solver.addPropositions(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.sat()).isTrue();
         solver.add(f.variable("a"));
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.sat()).isFalse();
         Assertions.assertThat(solver.unsatCore().propositions()).contains(p1, p2, p4, p5, p6, p7, p8, p9, p10, p11);
     }
 
@@ -344,7 +344,7 @@ public class DRUPTest implements LogicNGTest {
         softly.assertThat(cnf).as("Core contains only original clauses").containsAll(core);
         final MiniSat verifier = MiniSat.miniSat(f, MiniSatConfig.builder().proofGeneration(true).build());
         verifier.add(core);
-        softly.assertThat(verifier.sat()).as("Core is unsatisfiable").isEqualTo(Tristate.FALSE);
+        softly.assertThat(verifier.sat()).as("Core is unsatisfiable").isFalse();
         softly.assertAll();
     }
 

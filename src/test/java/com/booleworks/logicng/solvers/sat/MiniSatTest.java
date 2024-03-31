@@ -31,7 +31,7 @@ public class MiniSatTest {
         solver.addClause(clause(-1, -2), null);
         solver.addClause(clause(-1, -3), null);
         solver.addClause(clause(-2, -3), null);
-        Assertions.assertThat(solver.internalSolve(null)).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.internalSolve()).isEqualTo(Tristate.TRUE);
         Assertions.assertThat(solver.internalSolve(null, clause(1, 2))).isEqualTo(Tristate.FALSE);
     }
 
@@ -46,7 +46,7 @@ public class MiniSatTest {
         final FormulaFactory f = FormulaFactory.caching();
         final SATSolver solver = MiniSat.miniSat(f);
         solver.add(f.parse("A & B"));
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.sat()).isTrue();
         Assertions.assertThat(solver.satCall().assumptions(f.literal("A", true)).sat()).isEqualTo(Tristate.TRUE);
         Assertions.assertThat(solver.satCall().assumptions(f.literal("B", true)).sat()).isEqualTo(Tristate.TRUE);
         Assertions.assertThat(solver.satCall().assumptions(f.literal("A", false)).sat()).isEqualTo(Tristate.FALSE);
@@ -54,7 +54,7 @@ public class MiniSatTest {
         Assertions.assertThat(solver.satCall().assumptions(f.literal("A", true)).sat()).isEqualTo(Tristate.TRUE);
         Assertions.assertThat(solver.satCall().assumptions(f.literal("B", true)).sat()).isEqualTo(Tristate.TRUE);
         Assertions.assertThat(solver.satCall().assumptions(f.literal("A", false)).sat()).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.sat()).isTrue();
     }
 
     private LNGIntVector clause(final int... lits) {

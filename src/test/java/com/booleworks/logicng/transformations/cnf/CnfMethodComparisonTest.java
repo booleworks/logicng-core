@@ -8,7 +8,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.backbones.Backbone;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
@@ -110,7 +109,7 @@ public class CnfMethodComparisonTest {
         for (final Variable variable : formula.variables(f)) {
             if (counter-- > 0) {
                 solver.add(variable);
-                if (solver.sat() == Tristate.TRUE) {
+                if (solver.sat()) {
                     final Backbone backbone = solver.backbone(formula.variables(f));
                     result.put(variable, backbone);
                 }

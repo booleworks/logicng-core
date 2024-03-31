@@ -198,7 +198,7 @@ public class FormulaFactoryWithoutContradictionCheckTest {
         assertThat(models).hasSize(2);
         models.forEach(m -> Assertions.assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true), _c.f.literal("C", false)));
         solver.add(_c.f.parse("D & ~D"));
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.sat()).isFalse();
     }
 
     @ParameterizedTest

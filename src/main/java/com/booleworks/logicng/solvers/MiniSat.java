@@ -226,16 +226,6 @@ public class MiniSat extends SATSolver {
         return index;
     }
 
-    /**
-     * Creates an assignment from a Boolean vector of the solver.
-     * @param vec             the vector of the solver
-     * @param relevantIndices the solver's indices of the relevant variables for the model.
-     * @return the assignment
-     */
-    public Assignment createAssignment(final LNGBooleanVector vec, final LNGIntVector relevantIndices) {
-        return new Assignment(createLiterals(vec, relevantIndices));
-    }
-
     public Model createModel(final LNGBooleanVector vec, final LNGIntVector relevantIndices) {
         return new Model(createLiterals(vec, relevantIndices));
     }

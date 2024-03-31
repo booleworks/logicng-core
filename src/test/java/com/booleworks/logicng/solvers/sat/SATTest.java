@@ -251,7 +251,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
         final Variable b = ff.variable("B");
         final Formula formula = ff.parse("A & B => A");
         solver.add(formula); // during NNF conversion, used by the PG transformation, the formula simplifies to verum when added to the solver
-        assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
+        assertThat(solver.sat()).isTrue();
         assertThat(solver.knownVariables()).containsExactlyInAnyOrder(a, b);
         assertThat(variables(ff, solver.model(formula.variables(f)).literals())).containsExactlyInAnyOrder(a, b);
     }
@@ -408,7 +408,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                 final String fileName = file.getName();
                 if (fileName.endsWith(".cnf")) {
                     readCNF(solver, file);
-                    final boolean res = solver.sat() == Tristate.TRUE;
+                    final boolean res = solver.sat();
                     assertThat(res).isEqualTo(expectedResults.get(fileName));
                 }
             }
@@ -732,7 +732,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             for (final Formula formula : expectedSubsets.keySet()) {
                 final SATSolver solver = solverSupplier.get();
                 solver.add(formula);
-                final boolean res = solver.sat() == Tristate.TRUE;
+                final boolean res = solver.sat();
                 assertThat(res).isTrue();
                 final SortedSet<Literal> upLiterals = solver.execute(UpZeroLiteralsFunction.get());
                 assertThat(upLiterals).containsAll(expectedSubsets.get(formula));
@@ -752,8 +752,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                 if (fileName.endsWith(".cnf")) {
                     final SATSolver solver = solverSupplier.get();
                     readCNF(solver, file);
-                    final boolean res = solver.sat() == Tristate.TRUE;
-                    if (res) {
+                    if (solver.sat()) {
                         final SortedSet<Literal> upZeroLiterals = solver.execute(UpZeroLiteralsFunction.get());
                         final List<Literal> negations = new ArrayList<>(upZeroLiterals.size());
                         for (final Literal lit : upZeroLiterals) {
@@ -761,7 +760,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                         }
                         solver.add(f.or(negations));
                         // Test if CNF implies identified unit propagated literals on level zero, i.e., each literal is a backbone literal
-                        assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
+                        assertThat(solver.sat()).isFalse();
                     }
                 }
             }

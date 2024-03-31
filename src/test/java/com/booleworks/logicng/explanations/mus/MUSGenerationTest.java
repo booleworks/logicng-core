@@ -190,9 +190,9 @@ public class MUSGenerationTest {
         final MiniSat miniSat = MiniSat.miniSat(f);
         for (final StandardProposition p : mus.propositions()) {
             assertThat(original.contains(p)).isTrue();
-            Assertions.assertThat(miniSat.sat()).isEqualTo(Tristate.TRUE);
+            Assertions.assertThat(miniSat.sat()).isTrue();
             miniSat.add(p);
         }
-        Assertions.assertThat(miniSat.sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(miniSat.sat()).isFalse();
     }
 }

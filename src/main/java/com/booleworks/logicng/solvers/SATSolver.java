@@ -21,6 +21,7 @@ import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
+import com.booleworks.logicng.solvers.sat.MiniSatConfig;
 import com.booleworks.logicng.solvers.sat.SATCall;
 import com.booleworks.logicng.solvers.sat.SATCallBuilder;
 
@@ -125,11 +126,13 @@ public abstract class SATSolver {
      * Adds a cardinality constraint and returns its incremental data in order to refine the constraint on the solver.
      * <p>
      * Usage constraints:
-     * - "&lt;": Cannot be used with right-hand side 2, returns null for right-hand side 1, but constraint is added to solver.
-     * - "&lt;=": Cannot be used with right-hand side 1, returns null for right-hand side 0, but constraint is added to solver.
-     * - "&gt;": Returns null for right-hand side 0 or number of variables -1, but constraint is added to solver. Adds false to solver for right-hand side
-     * &gt;= number of variables.
-     * - "&gt;=": Returns null for right-hand side 1 or number of variables, but constraint is added to solver. Adds false to solver for right-hand side &gt;
+     * <ul>
+     * <li>"&lt;": Cannot be used with right-hand side 2, returns null for right-hand side 1, but constraint is added to solver.</li>
+     * <li>"&lt;=": Cannot be used with right-hand side 1, returns null for right-hand side 0, but constraint is added to solver.</li>
+     * <li>"&gt;": Returns null for right-hand side 0 or number of variables -1, but constraint is added to solver. Adds false to solver for right-hand side
+     * &gt;= number of variables.</li>
+     * <li>"&gt;=": Returns null for right-hand side 1 or number of variables, but constraint is added to solver. Adds false to solver for right-hand side &gt;</li>
+     * </ul>
      * number of variables.
      * @param cc the cardinality constraint
      * @return the incremental data of this constraint, or null if the right-hand side of cc is 1
@@ -167,29 +170,47 @@ public abstract class SATSolver {
      */
     protected abstract void addClause(final Formula formula, final Proposition proposition);
 
+    /**
+     * Central method for building a SAT call. This method returns a {@link SATCallBuilder} which can be enriched
+     * with assumptions, additional formulas, handlers, etc. {@link SATCallBuilder#solve()} then performs the actual
+     * SAT call and returns a {@link SATCall} object from which a {@link SATCall#model model} or
+     * {@link SATCall#unsatCore() UNSAT core} can be generated.
+     * <p>
+     * There are also useful shortcuts: If you only require a quick SAT check, you can just use {@link #sat()}.
+     * If you already know that the solver is satisfiable/unsatisfiable, you can directly call {@link #model} /
+     * {@link #unsatCore()}.
+     * <p>
+     * <b>A SAT solver may only have one &quot;open&quot; SATCall at a time. So a an existing SAT call must
+     * always be {@link SATCall#close() closed} (ideally using a try-with construct) before the next call
+     * to this method.</b>
+     * @return a new SATCall builder
+     * @see SATCallBuilder
+     */
     public abstract SATCallBuilder satCall();
 
     /**
-     * Returns {@code Tristate.TRUE} if the current formula in the solver is satisfiable, @{code Tristate.FALSE} if it is
-     * unsatisfiable, or {@code UNDEF} if the solving process was aborted.
+     * Returns {@code true} if the current formula in the solver is satisfiable, @{code false} if it is unsatisfiable.
      * <p>
-     * This is a shortcut for {@code satCall().sat()}.
-     * @return the satisfiability of the formula in the solver
+     * This is a shortcut for {@code satCall().sat()} (since no handler is used, the result is directly transformed
+     * to a {@code boolean}).
+     * @return the satisfiability of the formula on the solver
      */
-    public Tristate sat() {
+    public boolean sat() {
         try (final SATCall call = satCall().solve()) {
-            return call.getSatResult();
+            return call.getSatResult() == Tristate.TRUE;
         }
     }
 
     /**
-     * Returns a model of the current formula on the solver wrt. a given set of variables. If the set
-     * is {@code null}, all variables are considered relevant.
+     * Returns a model of the current formula on the solver wrt. a given set of variables.
+     * The variables must not be {@code null}. If you just want to get all variables, you
+     * can use {@link SATSolver#knownVariables() all variables known by the solver}.
+     * <p>
      * If the formula is UNSAT, {@code null} will be returned.
      * <p>
      * This is a shortcut for {@code satCall().model()}.
      * @param variables the set of variables
-     * @return a model of the current formula or {@code null} if the solver is unsatisfiable
+     * @return a model of the current formula or {@code null} if the SAT call was unsatisfiable
      */
     public Assignment model(final Collection<Variable> variables) {
         try (final SATCall call = satCall().solve()) {
@@ -198,16 +219,15 @@ public abstract class SATSolver {
     }
 
     /**
-     * Returns an unsat core of the current problem. Only works if the SAT solver is configured to record the information
-     * required to generate a proof trace and an unsat core.
+     * Returns an unsat core of the current problem.
      * <p>
-     * In particular, this method returns the unsat core only if the parameter
-     * {@link com.booleworks.logicng.solvers.sat.MiniSatConfig#proofGeneration()} is set to {@code true}.
+     * {@link MiniSatConfig#proofGeneration() Proof generation} must be enabled in order to use this method,
+     * otherwise an {@link IllegalStateException} is thrown.
      * <p>
      * If the formula on the solver is satisfiable, {@code null} is returned.
      * <p>
      * This is a shortcut for {@code satCall().unsatCore()}.
-     * @return the unsat core or {@code null} if the solver is satisfiable
+     * @return the unsat core or {@code null} if the SAT call was satisfiable
      */
     public UNSATCore<Proposition> unsatCore() {
         try (final SATCall call = satCall().solve()) {

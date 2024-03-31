@@ -10,10 +10,10 @@ import org.assertj.core.api.Assertions;
 
 public interface LogicNGTest {
     default void assertSolverSat(final SATSolver solver) {
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.sat()).isTrue();
     }
 
     default void assertSolverUnsat(final SATSolver solver) {
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.sat()).isFalse();
     }
 }

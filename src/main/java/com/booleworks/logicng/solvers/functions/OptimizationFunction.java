@@ -100,7 +100,6 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
     private Assignment maximize(final MiniSat solver) {
         start(handler);
         final FormulaFactory f = solver.factory();
-        LNGBooleanVector internalModel;
         final Map<Variable, Literal> selectorMap = new TreeMap<>();
         for (final Literal lit : literals) {
             final Variable selVar = f.variable(SEL_PREFIX + selectorMap.size());
@@ -114,15 +113,20 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
             selectorMap.forEach((selVar, lit) -> solver.add(f.or(selVar.negate(f), lit.negate(f))));
             selectorMap.forEach((selVar, lit) -> solver.add(f.or(lit, selVar)));
         }
-        Assignment currentModel;
+        Assignment lastResultModel;
+        Assignment currentSelectorModel;
         try (final SATCall satCall = solver.satCall().handler(satHandler(handler)).solve()) {
             if (satCall.getSatResult() != Tristate.TRUE || aborted(handler)) {
                 return null;
             }
-            internalModel = solver.underlyingSolver().model();
-            currentModel = satCall.model(selectors);
+            lastResultModel = satCall.model(resultModelVariables);
+            currentSelectorModel = satCall.model(selectors);
+            if (currentSelectorModel.positiveVariables().size() == selectors.size()) {
+                // all optimization literals satisfied -- no need for further optimization
+                return satCall.model(resultModelVariables);
+            }
         }
-        int currentBound = currentModel.positiveVariables().size();
+        int currentBound = currentSelectorModel.positiveVariables().size();
         if (currentBound == 0) {
             solver.add(f.cc(CType.GE, 1, selectors));
             try (final SATCall satCall = solver.satCall().handler(satHandler(handler)).solve()) {
@@ -130,15 +134,13 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
                 if (aborted(handler)) {
                     return null;
                 } else if (sat == Tristate.FALSE) {
-                    return mkResultModel(solver, internalModel);
+                    return lastResultModel;
                 } else {
-                    internalModel = solver.underlyingSolver().model();
-                    currentModel = satCall.model(selectors);
-                    currentBound = currentModel.positiveVariables().size();
+                    lastResultModel = satCall.model(resultModelVariables);
+                    currentSelectorModel = satCall.model(selectors);
+                    currentBound = currentSelectorModel.positiveVariables().size();
                 }
             }
-        } else if (currentBound == selectors.size()) {
-            return mkResultModel(solver, internalModel);
         }
         final Formula cc = f.cc(CType.GE, currentBound + 1, selectors);
         assert cc instanceof CardinalityConstraint;
@@ -149,30 +151,20 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
                     return null;
                 }
                 if (satCall.getSatResult() == Tristate.FALSE) {
-                    break;
+                    return lastResultModel;
                 }
-                final LNGBooleanVector modelCopy = new LNGBooleanVector(solver.underlyingSolver().model());
-                if (handler != null && !handler.foundBetterBound(() -> mkResultModel(solver, modelCopy))) {
+                if (handler != null && !handler.foundBetterBound(() -> satCall.model(resultModelVariables))) {
                     return null;
                 }
-                internalModel = modelCopy;
-                currentModel = satCall.model(selectors);
-                currentBound = currentModel.positiveVariables().size();
+                lastResultModel = satCall.model(resultModelVariables);
+                currentSelectorModel = satCall.model(selectors);
+                currentBound = currentSelectorModel.positiveVariables().size();
                 if (currentBound == selectors.size()) {
-                    return mkResultModel(solver, internalModel);
+                    return lastResultModel;
                 }
-                incrementalData.newLowerBoundForSolver(currentBound + 1);
             }
+            incrementalData.newLowerBoundForSolver(currentBound + 1);
         }
-        return mkResultModel(solver, internalModel);
-    }
-
-    private Assignment mkResultModel(final MiniSat solver, final LNGBooleanVector internalModel) {
-        final LNGIntVector relevantIndices = new LNGIntVector(resultModelVariables.size());
-        for (final Variable var : resultModelVariables) {
-            relevantIndices.push(solver.underlyingSolver().idxForName(var.name()));
-        }
-        return solver.createAssignment(internalModel, relevantIndices);
     }
 
     /**
