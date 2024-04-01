@@ -2,8 +2,8 @@ package com.booleworks.logicng.solvers.sat;
 
 import static com.booleworks.logicng.datastructures.Tristate.FALSE;
 import static com.booleworks.logicng.datastructures.Tristate.TRUE;
+import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.generateClauseVector;
 
-import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Assignment;
@@ -52,7 +52,7 @@ public class SATCall implements AutoCloseable {
 
     private final FormulaFactory f;
     private final SATSolver solverWrapper;
-    private final MiniSat2Solver solver;
+    private final LNGCoreSolver solver;
     private final SATHandler handler;
     private final List<? extends Proposition> additionalPropositions;
     private final List<? extends Literal> selectionOrder;
@@ -65,7 +65,7 @@ public class SATCall implements AutoCloseable {
             final List<? extends Literal> selectionOrder) {
         this.f = f;
         this.solverWrapper = solverWrapper;
-        solver = ((MiniSat2Solver) solverWrapper.underlyingSolver());
+        solver = solverWrapper.underlyingSolver();
         this.handler = handler;
         this.additionalPropositions = additionalPropositions;
         this.selectionOrder = selectionOrder;
@@ -82,7 +82,7 @@ public class SATCall implements AutoCloseable {
         }
         final Additionals additionals = splitPropsIntoLiteralsAndFormulas(additionalPropositions);
         if (!additionals.additionalLiterals.isEmpty()) {
-            solver.assumptions = generateClauseVector(additionals.additionalLiterals);
+            solver.assumptions = generateClauseVector(additionals.additionalLiterals, solver);
             solver.assumptionPropositions = new LNGVector<>(additionals.propositionsForLiterals);
         }
         if (!additionals.additionalFormulas.isEmpty()) {
@@ -140,7 +140,7 @@ public class SATCall implements AutoCloseable {
             for (final Variable var : variables) {
                 relevantIndices.push(solver.idxForName(var.name()));
             }
-            return createAssignment(solver.model(), relevantIndices);
+            return new Assignment(solver.convertInternalModel(solver.model(), relevantIndices));
         }
     }
 
@@ -155,30 +155,13 @@ public class SATCall implements AutoCloseable {
      * @return the unsat core or {@code null} if the SAT call was satisfiable
      */
     public UNSATCore<Proposition> unsatCore() {
-        if (!solver.getConfig().proofGeneration()) {
+        if (!solver.config().proofGeneration()) {
             throw new IllegalStateException("Cannot generate an unsat core if proof generation is not turned on");
         }
         if (satState != FALSE) {
             return null;
         }
         return solverWrapper.execute(UnsatCoreFunction.get());
-    }
-
-    // TODO use/merge with method from MiniSat
-    private Assignment createAssignment(final LNGBooleanVector vec, final LNGIntVector relevantIndices) {
-        return new Assignment(createLiterals(vec, relevantIndices));
-    }
-
-    private List<Literal> createLiterals(final LNGBooleanVector vec, final LNGIntVector relevantIndices) {
-        final List<Literal> literals = new ArrayList<>(vec.size());
-        for (int i = 0; i < relevantIndices.size(); i++) {
-            final int index = relevantIndices.get(i);
-            if (index != -1) {
-                final String name = solver.nameForIdx(index);
-                literals.add(f.literal(name, vec.get(index)));
-            }
-        }
-        return literals;
     }
 
     @Override
@@ -196,31 +179,6 @@ public class SATCall implements AutoCloseable {
         }
         solver.setHandler(null);
         solver.finishSatCall();
-    }
-
-    /**
-     * Generates a clause vector of a collection of literals.
-     * @param literals the literals
-     * @return the clause vector
-     */
-    // TODO remove and replace call with minisat method
-    protected LNGIntVector generateClauseVector(final Collection<? extends Literal> literals) {
-        final LNGIntVector clauseVec = new LNGIntVector(literals.size());
-        for (final Literal lit : literals) {
-            final int index = getOrAddIndex(lit);
-            final int litNum = lit.phase() ? index * 2 : (index * 2) ^ 1;
-            clauseVec.push(litNum);
-        }
-        return clauseVec;
-    }
-
-    protected int getOrAddIndex(final Literal lit) {
-        int index = solver.idxForName(lit.name());
-        if (index == -1) {
-            index = solver.newVar(!solver.getConfig().initialPhase(), true);
-            solver.addName(lit.name(), index);
-        }
-        return index;
     }
 
     private static class Additionals {

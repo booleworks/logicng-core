@@ -10,7 +10,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfSatSolver;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -63,7 +63,7 @@ public class DTreeLeaf extends DTree {
             final int var = solver.variableIndex(literal);
             staticVarSet.set(var);
             staticVariables[i] = var;
-            literals[i] = MiniSatStyleSolver.mkLit(var, !literal.phase());
+            literals[i] = LNGCoreSolver.mkLit(var, !literal.phase());
             i++;
         }
     }

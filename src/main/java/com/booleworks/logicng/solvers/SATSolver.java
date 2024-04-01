@@ -8,7 +8,6 @@ import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.cardinalityconstraints.CCEncoder;
 import com.booleworks.logicng.cardinalityconstraints.CCIncrementalData;
-import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.Assignment;
@@ -21,7 +20,6 @@ import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.propositions.Proposition;
@@ -31,14 +29,12 @@ import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
-import com.booleworks.logicng.solvers.sat.MiniSat2Solver;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import com.booleworks.logicng.solvers.sat.SATCall;
 import com.booleworks.logicng.solvers.sat.SATCallBuilder;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.transformations.cnf.PlaistedGreenbaumTransformationSolver;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -50,25 +46,26 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 1.0
  */
+// TODO sort and cleanup methods
 public class SATSolver {
 
     protected final FormulaFactory f;
     protected final SATSolverConfig config;
-    protected final MiniSat2Solver solver;
+    protected final LNGCoreSolver solver;
     protected final PlaistedGreenbaumTransformationSolver pgTransformation;
     protected final PlaistedGreenbaumTransformationSolver fullPgTransformation;
 
     /**
      * Constructs a new SAT solver instance.
      * @param f      the formula factory
-     * @param config the MiniSat configuration, must not be {@code null}
+     * @param config the solver configuration, must not be {@code null}
      */
     protected SATSolver(final FormulaFactory f, final SATSolverConfig config) {
         this.f = f;
         this.config = config;
-        solver = new MiniSat2Solver(f, config);
-        pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, solver, config.initialPhase());
-        fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, solver, config.initialPhase());
+        solver = new LNGCoreSolver(f, config);
+        pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, solver);
+        fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, solver);
     }
 
     /**
@@ -78,30 +75,30 @@ public class SATSolver {
      * @param f                the formula factory
      * @param underlyingSolver the underlying solver core
      */
-    public SATSolver(final FormulaFactory f, final MiniSat2Solver underlyingSolver) {
+    public SATSolver(final FormulaFactory f, final LNGCoreSolver underlyingSolver) {
         this.f = f;
-        config = underlyingSolver.getConfig();
+        config = underlyingSolver.config();
         solver = underlyingSolver;
-        pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver, config.initialPhase());
-        fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, underlyingSolver, config.initialPhase());
+        pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver);
+        fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, underlyingSolver);
     }
 
     /**
-     * Returns a new MiniSat solver with the MiniSat configuration from the formula factory.
+     * Returns a new SAT solver with the solver configuration from the formula factory.
      * @param f the formula factory
      * @return the solver
      */
-    public static SATSolver miniSat(final FormulaFactory f) {
-        return new SATSolver(f, (SATSolverConfig) f.configurationFor(ConfigurationType.MINISAT));
+    public static SATSolver newSolver(final FormulaFactory f) {
+        return new SATSolver(f, (SATSolverConfig) f.configurationFor(ConfigurationType.SAT));
     }
 
     /**
-     * Returns a new MiniSat solver with a given configuration.
+     * Returns a new SAT solver with a given configuration.
      * @param f      the formula factory
      * @param config the configuration, must not be {@code null}
      * @return the solver
      */
-    public static SATSolver miniSat(final FormulaFactory f, final SATSolverConfig config) {
+    public static SATSolver newSolver(final FormulaFactory f, final SATSolverConfig config) {
         return new SATSolver(f, config);
     }
 
@@ -124,20 +121,20 @@ public class SATSolver {
             if (constraint.isCC()) {
                 if (config.useAtMostClauses()) {
                     if (constraint.comparator() == CType.LE) {
-                        solver.addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
+                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver), constraint.rhs());
                     } else if (constraint.comparator() == CType.LT && constraint.rhs() > 3) {
-                        solver.addAtMost(generateClauseVector(constraint.operands()), constraint.rhs() - 1);
+                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver), constraint.rhs() - 1);
                     } else if (constraint.comparator() == CType.EQ && constraint.rhs() == 1) {
-                        solver.addAtMost(generateClauseVector(constraint.operands()), constraint.rhs());
-                        solver.addClause(generateClauseVector(constraint.operands()), proposition);
+                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver), constraint.rhs());
+                        solver.addClause(LNGCoreSolver.generateClauseVector(constraint.operands(), solver), proposition);
                     } else {
-                        CCEncoder.encode((CardinalityConstraint) constraint, EncodingResult.resultForMiniSat(f, this, proposition));
+                        CCEncoder.encode((CardinalityConstraint) constraint, EncodingResult.resultForSATSolver(f, solver, proposition));
                     }
                 } else {
-                    CCEncoder.encode((CardinalityConstraint) constraint, EncodingResult.resultForMiniSat(f, this, proposition));
+                    CCEncoder.encode((CardinalityConstraint) constraint, EncodingResult.resultForSATSolver(f, solver, proposition));
                 }
             } else {
-                PBEncoder.encode(constraint, EncodingResult.resultForMiniSat(f, this, proposition));
+                PBEncoder.encode(constraint, EncodingResult.resultForSATSolver(f, solver, proposition));
             }
         } else {
             addFormulaAsCNF(formula, proposition);
@@ -221,7 +218,7 @@ public class SATSolver {
      * @return the incremental data of this constraint, or null if the right-hand side of cc is 1
      */
     public CCIncrementalData addIncrementalCC(final CardinalityConstraint cc) {
-        final EncodingResult result = EncodingResult.resultForMiniSat(f, this, null);
+        final EncodingResult result = EncodingResult.resultForSATSolver(f, solver, null);
         return CCEncoder.encodeIncremental(cc, result);
     }
 
@@ -255,7 +252,7 @@ public class SATSolver {
      * @param proposition a proposition (if required for proof tracing)
      */
     protected void addClause(final Formula formula, final Proposition proposition) {
-        final LNGIntVector ps = generateClauseVector(formula.literals(f));
+        final LNGIntVector ps = LNGCoreSolver.generateClauseVector(formula.literals(f), solver);
         solver.addClause(ps, proposition);
     }
 
@@ -343,6 +340,7 @@ public class SATSolver {
      * @param variables the set of variables
      * @return the list of models
      */
+    // TODO remove enumeration methods?
     public List<Model> enumerateAllModels(final Collection<Variable> variables) {
         return execute(ModelEnumerationFunction.builder(variables)
                 .configuration(ModelEnumerationConfig.builder()
@@ -442,48 +440,8 @@ public class SATSolver {
      * know what you are doing.
      * @return the underlying core solver
      */
-    public MiniSatStyleSolver underlyingSolver() {
+    public LNGCoreSolver underlyingSolver() {
         return solver;
-    }
-
-    /**
-     * Generates a clause vector of a collection of literals.
-     * @param literals the literals
-     * @return the clause vector
-     */
-    protected LNGIntVector generateClauseVector(final Collection<? extends Literal> literals) {
-        final LNGIntVector clauseVec = new LNGIntVector(literals.size());
-        for (final Literal lit : literals) {
-            final int index = getOrAddIndex(lit);
-            final int litNum = lit.phase() ? index * 2 : (index * 2) ^ 1;
-            clauseVec.push(litNum);
-        }
-        return clauseVec;
-    }
-
-    protected int getOrAddIndex(final Literal lit) {
-        int index = solver.idxForName(lit.name());
-        if (index == -1) {
-            index = solver.newVar(!config.initialPhase(), true);
-            solver.addName(lit.name(), index);
-        }
-        return index;
-    }
-
-    public Model createModel(final LNGBooleanVector vec, final LNGIntVector relevantIndices) {
-        return new Model(createLiterals(vec, relevantIndices));
-    }
-
-    private List<Literal> createLiterals(final LNGBooleanVector vec, final LNGIntVector relevantIndices) {
-        final List<Literal> literals = new ArrayList<>(vec.size());
-        for (int i = 0; i < relevantIndices.size(); i++) {
-            final int index = relevantIndices.get(i);
-            if (index != -1) {
-                final String name = solver.nameForIdx(index);
-                literals.add(f.literal(name, vec.get(index)));
-            }
-        }
-        return literals;
     }
 
     /**
@@ -493,7 +451,7 @@ public class SATSolver {
      */
     private void addAllOriginalVariables(final Formula originalFormula) {
         for (final Variable var : originalFormula.variables(f)) {
-            getOrAddIndex(var);
+            LNGCoreSolver.solverLiteral(var, solver, config.initialPhase(), true);
         }
     }
 

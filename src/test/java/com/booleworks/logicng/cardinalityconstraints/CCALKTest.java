@@ -58,7 +58,7 @@ public class CCALKTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(false).build());
+        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(false).build());
         solver.add(f.cc(CType.GE, rhs, problemLits));
         if (expected != 0) {
             assertSolverSat(solver);

@@ -48,7 +48,7 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<Sort
         }
         final LiteralSubstitution substTransformation = new LiteralSubstitution(f, substitution);
         final Formula substituted = nnf.transform(substTransformation);
-        final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         solver.add(substituted);
         for (final Literal literal : newVar2oldLit.values()) {
             if (literal.phase() && newVar2oldLit.containsValue(literal.negate(f))) {

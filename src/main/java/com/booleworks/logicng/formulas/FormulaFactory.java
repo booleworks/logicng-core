@@ -117,7 +117,7 @@ public abstract class FormulaFactory {
         configMap.put(ConfigurationType.CNF, CNFConfig.builder().build());
         configMap.put(ConfigurationType.CC_ENCODER, CCConfig.builder().build());
         configMap.put(ConfigurationType.PB_ENCODER, PBConfig.builder().build());
-        configMap.put(ConfigurationType.MINISAT, SATSolverConfig.builder().build());
+        configMap.put(ConfigurationType.SAT, SATSolverConfig.builder().build());
         configMap.put(ConfigurationType.MAXSAT, MaxSATConfig.builder().build());
         configMap.put(ConfigurationType.MUS, MUSConfig.builder().build());
         configMap.put(ConfigurationType.ADVANCED_SIMPLIFIER, AdvancedSimplifierConfig.builder().build());

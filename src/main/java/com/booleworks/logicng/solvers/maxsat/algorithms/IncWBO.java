@@ -36,7 +36,7 @@ import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import com.booleworks.logicng.util.Pair;
 
 import java.io.PrintStream;
@@ -252,25 +252,25 @@ public class IncWBO extends WBO {
                         coreList.push(core);
                     }
                     assert j < relaxationMapping.get(p).size();
-                    assert MiniSatStyleSolver.var(relaxationMapping.get(p).get(j)) > nbInitialVariables;
+                    assert LNGCoreSolver.var(relaxationMapping.get(p).get(j)) > nbInitialVariables;
                     coreIntersection[core].push(relaxationMapping.get(p).get(j));
                 }
                 for (int j = 0; j < addCores.size(); j++) {
                     final int core = addCores.get(j);
                     final int b = softMapping.get(p).size() - 1;
                     assert b < relaxationMapping.get(p).size();
-                    assert MiniSatStyleSolver.var(relaxationMapping.get(p).get(b)) > nbInitialVariables;
+                    assert LNGCoreSolver.var(relaxationMapping.get(p).get(b)) > nbInitialVariables;
                     coreIntersectionCurrent[core].push(relaxationMapping.get(p).get(b));
                 }
                 for (int k = 0; k < coreList.size(); k++) {
                     for (int m = 0; m < coreIntersection[coreList.get(k)].size(); m++) {
                         for (int j = m + 1; j < coreIntersectionCurrent[coreList.get(k)].size(); j++) {
                             final LNGIntVector clause = new LNGIntVector();
-                            clause.push(MiniSatStyleSolver.not(coreIntersection[coreList.get(k)].get(m)));
-                            clause.push(MiniSatStyleSolver.not(coreIntersectionCurrent[coreList.get(k)].get(j)));
-                            Pair<Integer, Integer> symClause = new Pair<>(MiniSatStyleSolver.var(coreIntersection[coreList.get(k)].get(m)), MiniSatStyleSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j)));
-                            if (MiniSatStyleSolver.var(coreIntersection[coreList.get(k)].get(m)) > MiniSatStyleSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j))) {
-                                symClause = new Pair<>(MiniSatStyleSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j)), MiniSatStyleSolver.var(coreIntersection[coreList.get(k)].get(m)));
+                            clause.push(LNGCoreSolver.not(coreIntersection[coreList.get(k)].get(m)));
+                            clause.push(LNGCoreSolver.not(coreIntersectionCurrent[coreList.get(k)].get(j)));
+                            Pair<Integer, Integer> symClause = new Pair<>(LNGCoreSolver.var(coreIntersection[coreList.get(k)].get(m)), LNGCoreSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j)));
+                            if (LNGCoreSolver.var(coreIntersection[coreList.get(k)].get(m)) > LNGCoreSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j))) {
+                                symClause = new Pair<>(LNGCoreSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j)), LNGCoreSolver.var(coreIntersection[coreList.get(k)].get(m)));
                             }
                             if (!duplicatedSymmetryClauses.contains(symClause)) {
                                 duplicatedSymmetryClauses.add(symClause);
@@ -314,7 +314,7 @@ public class IncWBO extends WBO {
             assumptions.clear();
             for (int i = 0; i < incSoft.size(); i++) {
                 if (!incSoft.get(i)) {
-                    assumptions.push(MiniSatStyleSolver.not(softClauses.get(i).assumptionVar()));
+                    assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                 }
             }
             final SATHandler satHandler = satHandler();
@@ -383,9 +383,9 @@ public class IncWBO extends WBO {
                     unsatisfied = false;
                     continue;
                 }
-                assert MiniSatStyleSolver.var(softClauses.get(i).clause().get(j)) < currentModel.size();
-                if ((MiniSatStyleSolver.sign(softClauses.get(i).clause().get(j)) && !currentModel.get(MiniSatStyleSolver.var(softClauses.get(i).clause().get(j)))) ||
-                        (!MiniSatStyleSolver.sign(softClauses.get(i).clause().get(j)) && currentModel.get(MiniSatStyleSolver.var(softClauses.get(i).clause().get(j))))) {
+                assert LNGCoreSolver.var(softClauses.get(i).clause().get(j)) < currentModel.size();
+                if ((LNGCoreSolver.sign(softClauses.get(i).clause().get(j)) && !currentModel.get(LNGCoreSolver.var(softClauses.get(i).clause().get(j)))) ||
+                        (!LNGCoreSolver.sign(softClauses.get(i).clause().get(j)) && currentModel.get(LNGCoreSolver.var(softClauses.get(i).clause().get(j))))) {
                     unsatisfied = false;
                     break;
                 }
@@ -412,7 +412,7 @@ public class IncWBO extends WBO {
             assumptions.clear();
             for (int i = 0; i < incSoft.size(); i++) {
                 if (!incSoft.get(i)) {
-                    assumptions.push(MiniSatStyleSolver.not(softClauses.get(i).assumptionVar()));
+                    assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                 }
             }
             final SATHandler satHandler = satHandler();

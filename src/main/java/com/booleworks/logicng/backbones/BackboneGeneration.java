@@ -46,9 +46,9 @@ public final class BackboneGeneration {
         if (formulas == null || formulas.isEmpty()) {
             throw new IllegalArgumentException("Provide at least one formula for backbone computation");
         }
-        final SATSolver miniSat = SATSolver.miniSat(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
-        miniSat.add(formulas);
-        return miniSat.execute(BackboneFunction.builder().handler(handler).variables(variables).type(type).build());
+        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        solver.add(formulas);
+        return solver.execute(BackboneFunction.builder().handler(handler).variables(variables).type(type).build());
     }
 
     /**

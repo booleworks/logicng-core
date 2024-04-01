@@ -34,7 +34,7 @@ public class AbstractModelEnumerationFunctionTest {
     public void testEmptySplitVariables() throws ParserException {
         final Formula formula = f.parse("A | B | C | D | E");
 
-        final SATSolver solver = SATSolver.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula);
 
         final ModelEnumerationConfig config = ModelEnumerationConfig.builder()
@@ -52,7 +52,7 @@ public class AbstractModelEnumerationFunctionTest {
     public void testNullSplitVariables() throws ParserException {
         final Formula formula = f.parse("A | B | C | D | E");
 
-        final SATSolver solver = SATSolver.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula);
 
         final ModelEnumerationConfig config = ModelEnumerationConfig.builder()

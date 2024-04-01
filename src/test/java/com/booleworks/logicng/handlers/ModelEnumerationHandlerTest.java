@@ -33,7 +33,7 @@ public class ModelEnumerationHandlerTest {
 
     @Test
     public void testTimeoutHandler() throws ParserException, InterruptedException {
-        final SATSolver solver = SATSolver.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("A | B | C | D | E | F | G | H | I | J | K | L | N | M | O | P | Q | R | S | T | U | V | W");
         solver.add(formula);
         final TimeoutModelEnumerationHandler handler = new TimeoutModelEnumerationHandler(100);
@@ -60,7 +60,7 @@ public class ModelEnumerationHandlerTest {
         final Formula formula = f.parse("A | B | C | D | E | F | G | H | I | J | K | L | N | M | O | P | Q | R | S | T | U | V | W");
         final SortedSet<Variable> vars = union(formula.variables(f), f.variables("X", "Y", "Z"), TreeSet::new);
         for (int i = 1; i <= 1000; i += 7) {
-            final SATSolver solver = SATSolver.miniSat(f);
+            final SATSolver solver = SATSolver.newSolver(f);
             solver.add(formula);
             final NumberOfModelsHandler handler = new NumberOfModelsHandler(i);
             final ModelCountingFunction enumeration = ModelCountingFunction.builder(vars)

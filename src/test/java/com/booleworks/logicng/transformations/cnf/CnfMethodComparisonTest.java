@@ -79,7 +79,7 @@ public class CnfMethodComparisonTest {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(cnfConfig);
         final Formula formula = FormulaReader.readPropositionalFormula(f, fileName);
-        final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().cnfMethod(cnfMethod).build());
+        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().cnfMethod(cnfMethod).build());
         solver.add(formula);
         return solver.backbone(formula.variables(f));
     }
@@ -100,7 +100,7 @@ public class CnfMethodComparisonTest {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(cnfConfig);
         final Formula formula = FormulaReader.readPropositionalFormula(f, fileName);
-        final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().cnfMethod(cnfMethod).build());
+        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().cnfMethod(cnfMethod).build());
         solver.add(formula);
         final SolverState solverState = solver.saveState();
         final Map<Variable, Backbone> result = new TreeMap<>();

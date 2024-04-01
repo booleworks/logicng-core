@@ -25,16 +25,16 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import java.util.Comparator;
 
 /**
- * A clause of the SAT solver for MiniSAT-style solvers.
+ * A clause of the SAT solver.
  * @version 2.0.0
  * @since 1.0
  */
-public final class MSClause {
+public final class LNGClause {
 
     /**
      * A comparator for clauses based on LBD and activity (used for the Glucose solver).
      */
-    public static final Comparator<MSClause> glucoseComparator = (x, y) -> {
+    public static final Comparator<LNGClause> glucoseComparator = (x, y) -> {
         if (x.size() > 2 && y.size() == 2) {
             return -1;
         }
@@ -53,11 +53,6 @@ public final class MSClause {
         return x.activity() < y.activity() ? -1 : 1;
     };
 
-    /**
-     * A comparator for clauses based on activity (used for the MiniSAT solver).
-     */
-    public static final Comparator<MSClause> minisatComparator = (x, y) -> x.size() > 2 && (y.size() == 2 || x.activity() < y.activity()) ? -1 : 1;
-
     private final LNGIntVector data;
     private final int learntOnState;
     private final boolean isAtMost;
@@ -74,7 +69,7 @@ public final class MSClause {
      * @param learntOnState the index of the solver state on which this clause was learnt
      *                      or -1 if it is not a learnt clause
      */
-    public MSClause(final LNGIntVector ps, final int learntOnState) {
+    public LNGClause(final LNGIntVector ps, final int learntOnState) {
         this(ps, learntOnState, false);
     }
 
@@ -85,7 +80,7 @@ public final class MSClause {
      *                      or -1 if it is not a learnt clause
      * @param isAtMost      {@code true} if it is an at-most clause, {@code false} otherwise
      */
-    public MSClause(final LNGIntVector ps, final int learntOnState, final boolean isAtMost) {
+    public LNGClause(final LNGIntVector ps, final int learntOnState, final boolean isAtMost) {
         data = new LNGIntVector(ps.size());
         for (int i = 0; i < ps.size(); i++) {
             data.unsafePush(ps.get(i));
@@ -99,8 +94,8 @@ public final class MSClause {
         atMostWatchers = -1;
     }
 
-    MSClause(final LNGIntVector data, final int learntOnState, final boolean isAtMost, final double activity, final boolean seen,
-             final long lbd, final boolean canBeDel, final boolean oneWatched, final int atMostWatchers) {
+    LNGClause(final LNGIntVector data, final int learntOnState, final boolean isAtMost, final double activity, final boolean seen,
+              final long lbd, final boolean canBeDel, final boolean oneWatched, final int atMostWatchers) {
         this.data = data;
         this.learntOnState = learntOnState;
         this.isAtMost = isAtMost;

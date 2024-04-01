@@ -48,7 +48,7 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, 9, vars), config);
             final CCIncrementalData incData = cc.second();
 
-            final SATSolver solver = SATSolver.miniSat(f);
+            final SATSolver solver = SATSolver.newSolver(f);
             solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 4, vars), config)); // >= 4
             solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.LE, 7, vars), config)); // <= 7
 
@@ -132,7 +132,7 @@ public class CCIncrementalFormulaTest implements LogicNGTest {
             final Pair<List<Formula>, CCIncrementalData> cc = CCEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GE, 2, vars), config);
             final CCIncrementalData incData = cc.second();
 
-            final SATSolver solver = SATSolver.miniSat(f);
+            final SATSolver solver = SATSolver.newSolver(f);
             solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 4, vars), config)); // >= 4
             solver.add(CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.LE, 7, vars), config)); // <= 7
 

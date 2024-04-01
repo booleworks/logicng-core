@@ -287,8 +287,8 @@ public class OptimizationFunctionTest implements LogicNGTest {
         assertThat(solveMaxSat(formulas, variables, MaxSATSolver.linearUS(f))).isEqualTo(expected);
         assertThat(solveMaxSat(formulas, variables, MaxSATSolver.msu3(f))).isEqualTo(expected);
         assertThat(solveMaxSat(formulas, variables, MaxSATSolver.wbo(f))).isEqualTo(expected);
-        assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(false).build()), null), variables).size()).isEqualTo(expected);
-        assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(true).build()), null), variables).size()).isEqualTo(expected);
+        assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(false).build()), null), variables).size()).isEqualTo(expected);
+        assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false, SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(true).build()), null), variables).size()).isEqualTo(expected);
     }
 
     @ParameterizedTest(name = "{index} {2}")

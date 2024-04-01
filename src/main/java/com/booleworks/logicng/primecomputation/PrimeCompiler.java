@@ -119,9 +119,9 @@ public final class PrimeCompiler {
     private Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>> computeGeneric(final FormulaFactory f, final Formula formula,
                                                                                     final OptimizationHandler handler) {
         final SubstitutionResult sub = createSubstitution(f, formula);
-        final SATSolver hSolver = SATSolver.miniSat(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SATSolver hSolver = SATSolver.newSolver(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         hSolver.add(sub.constraintFormula);
-        final SATSolver fSolver = SATSolver.miniSat(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SATSolver fSolver = SATSolver.newSolver(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         fSolver.add(formula.negate(f));
         final NaivePrimeReduction primeReduction = new NaivePrimeReduction(f, formula);
         final List<SortedSet<Literal>> primeImplicants = new ArrayList<>();

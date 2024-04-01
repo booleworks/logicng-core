@@ -245,7 +245,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     @Test
     public void testVariableRemovedBySimplificationOccursInModel() throws ParserException {
         final FormulaFactory ff = FormulaFactory.caching(FormulaFactoryConfig.builder().simplifyComplementaryOperands(true).build());
-        final SATSolver solver = SATSolver.miniSat(ff, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SATSolver solver = SATSolver.newSolver(ff, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         final Variable a = ff.variable("A");
         final Variable b = ff.variable("B");
         final Formula formula = ff.parse("A & B => A");
@@ -257,7 +257,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
 
     @Test
     public void testUnknownVariableNotOccurringInModel() {
-        final SATSolver solver = SATSolver.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         final Variable a = f.variable("A");
         solver.add(a);
         assertThat(solver.model(f.variables("A", "X")).literals()).containsExactly(a);
@@ -352,12 +352,12 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     @Test
     public void testDifferentClauseMinimizations() {
         final SATSolver[] moreSolvers = new SATSolver[6];
-        moreSolvers[0] = SATSolver.miniSat(f, SATSolverConfig.builder().clauseMinimization(NONE).useAtMostClauses(false).build());
-        moreSolvers[1] = SATSolver.miniSat(f, SATSolverConfig.builder().clauseMinimization(BASIC).useAtMostClauses(false).build());
-        moreSolvers[2] = SATSolver.miniSat(f, SATSolverConfig.builder().clauseMinimization(DEEP).useAtMostClauses(false).build());
-        moreSolvers[3] = SATSolver.miniSat(f, SATSolverConfig.builder().clauseMinimization(NONE).useAtMostClauses(true).build());
-        moreSolvers[4] = SATSolver.miniSat(f, SATSolverConfig.builder().clauseMinimization(BASIC).useAtMostClauses(true).build());
-        moreSolvers[5] = SATSolver.miniSat(f, SATSolverConfig.builder().clauseMinimization(DEEP).useAtMostClauses(true).build());
+        moreSolvers[0] = SATSolver.newSolver(f, SATSolverConfig.builder().clauseMinimization(NONE).useAtMostClauses(false).build());
+        moreSolvers[1] = SATSolver.newSolver(f, SATSolverConfig.builder().clauseMinimization(BASIC).useAtMostClauses(false).build());
+        moreSolvers[2] = SATSolver.newSolver(f, SATSolverConfig.builder().clauseMinimization(DEEP).useAtMostClauses(false).build());
+        moreSolvers[3] = SATSolver.newSolver(f, SATSolverConfig.builder().clauseMinimization(NONE).useAtMostClauses(true).build());
+        moreSolvers[4] = SATSolver.newSolver(f, SATSolverConfig.builder().clauseMinimization(BASIC).useAtMostClauses(true).build());
+        moreSolvers[5] = SATSolver.newSolver(f, SATSolverConfig.builder().clauseMinimization(DEEP).useAtMostClauses(true).build());
         for (final SATSolver s : moreSolvers) {
             final Formula formula = pg.generate(7);
             s.add(formula);
@@ -661,8 +661,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     public void testKnownVariables() throws ParserException {
         final PropositionalParser parser = new PropositionalParser(f);
         final Formula phi = parser.parse("x1 & x2 & x3 & (x4 | ~x5)");
-        final SATSolver minisat = SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(false).build());
-        final SATSolver minicard = SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(true).build());
+        final SATSolver minisat = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(false).build());
+        final SATSolver minicard = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(true).build());
         minisat.add(phi);
         minicard.add(phi);
         final SortedSet<Variable> expected = new TreeSet<>(Arrays.asList(
@@ -938,7 +938,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
 
     @Test
     public void testModelEnumerationWithAdditionalVariables() throws ParserException {
-        final SATSolver solver = SATSolver.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A | B | C | D | E"));
         final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B"))
                 .additionalVariables(f.variables("C", "D")).build());
@@ -966,10 +966,10 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
         for (final Formula formula : original) {
             vars.addAll(formula.variables(f));
         }
-        final SATSolver solver1 = SATSolver.miniSat(f);
+        final SATSolver solver1 = SATSolver.newSolver(f);
         solver1.add(original);
         final List<Model> models1 = solver1.enumerateAllModels(vars);
-        final SATSolver solver2 = SATSolver.miniSat(f);
+        final SATSolver solver2 = SATSolver.newSolver(f);
         solver2.add(fromSolver);
         final List<Model> models2 = solver2.enumerateAllModels(vars);
         assertThat(models1).hasSameElementsAs(models2);

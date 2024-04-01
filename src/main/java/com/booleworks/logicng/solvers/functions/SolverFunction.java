@@ -26,6 +26,6 @@ public interface SolverFunction<RESULT> {
      * @param resultSetter a setter for the result of the solver
      * @return the result of the function application
      */
-    // TODO result setter should be removed, since MiniSat should not provide the result field anymore
+    // TODO result setter should be removed, since the solver should not provide the result field anymore
     RESULT apply(SATSolver solver, Consumer<Tristate> resultSetter);
 }

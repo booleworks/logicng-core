@@ -37,7 +37,7 @@ import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.SATHandler;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import com.booleworks.logicng.util.Pair;
 
 import java.io.PrintStream;
@@ -56,7 +56,7 @@ import java.util.TreeSet;
 public class WBO extends MaxSAT {
 
     protected final PrintStream output;
-    protected MiniSatStyleSolver solver;
+    protected LNGCoreSolver solver;
     protected int nbCurrentSoft;
     protected WeightStrategy weightStrategy;
     protected SortedMap<Integer, Integer> coreMapping;
@@ -116,9 +116,9 @@ public class WBO extends MaxSAT {
         throw new IllegalArgumentException("Unknown problem type.");
     }
 
-    protected MiniSatStyleSolver rebuildWeightSolver(final WeightStrategy strategy) {
+    protected LNGCoreSolver rebuildWeightSolver(final WeightStrategy strategy) {
         assert strategy == WeightStrategy.NORMAL || strategy == WeightStrategy.DIVERSIFY;
-        final MiniSatStyleSolver s = newSATSolver();
+        final LNGCoreSolver s = newSATSolver();
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }
@@ -146,9 +146,9 @@ public class WBO extends MaxSAT {
         return s;
     }
 
-    MiniSatStyleSolver rebuildSolver() {
+    LNGCoreSolver rebuildSolver() {
         assert weightStrategy == WeightStrategy.NONE;
-        final MiniSatStyleSolver s = newSATSolver();
+        final LNGCoreSolver s = newSATSolver();
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }
@@ -170,8 +170,8 @@ public class WBO extends MaxSAT {
         return s;
     }
 
-    protected MiniSatStyleSolver rebuildHardSolver() {
-        final MiniSatStyleSolver s = newSATSolver();
+    protected LNGCoreSolver rebuildHardSolver() {
+        final LNGCoreSolver s = newSATSolver();
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }
@@ -245,10 +245,10 @@ public class WBO extends MaxSAT {
                 if (i == 0) {
                     clause.clear();
                     clause.push(lits.get(i));
-                    clause.push(MiniSatStyleSolver.not(auxVariables.get(i)));
+                    clause.push(LNGCoreSolver.not(auxVariables.get(i)));
                     addHardClause(clause);
                     clause.clear();
-                    clause.push(MiniSatStyleSolver.not(lits.get(i)));
+                    clause.push(LNGCoreSolver.not(lits.get(i)));
                     clause.push(auxVariables.get(i));
                     addHardClause(clause);
                 } else if (i == lits.size() - 1) {
@@ -257,26 +257,26 @@ public class WBO extends MaxSAT {
                     clause.push(auxVariables.get(i - 1));
                     addHardClause(clause);
                     clause.clear();
-                    clause.push(MiniSatStyleSolver.not(lits.get(i)));
-                    clause.push(MiniSatStyleSolver.not(auxVariables.get(i - 1)));
+                    clause.push(LNGCoreSolver.not(lits.get(i)));
+                    clause.push(LNGCoreSolver.not(auxVariables.get(i - 1)));
                     addHardClause(clause);
                 } else {
                     clause.clear();
-                    clause.push(MiniSatStyleSolver.not(auxVariables.get(i - 1)));
+                    clause.push(LNGCoreSolver.not(auxVariables.get(i - 1)));
                     clause.push(auxVariables.get(i));
                     addHardClause(clause);
                     clause.clear();
                     clause.push(lits.get(i));
-                    clause.push(MiniSatStyleSolver.not(auxVariables.get(i)));
+                    clause.push(LNGCoreSolver.not(auxVariables.get(i)));
                     clause.push(auxVariables.get(i - 1));
                     addHardClause(clause);
                     clause.clear();
-                    clause.push(MiniSatStyleSolver.not(lits.get(i)));
+                    clause.push(LNGCoreSolver.not(lits.get(i)));
                     clause.push(auxVariables.get(i));
                     addHardClause(clause);
                     clause.clear();
-                    clause.push(MiniSatStyleSolver.not(lits.get(i)));
-                    clause.push(MiniSatStyleSolver.not(auxVariables.get(i - 1)));
+                    clause.push(LNGCoreSolver.not(lits.get(i)));
+                    clause.push(LNGCoreSolver.not(auxVariables.get(i - 1)));
                     addHardClause(clause);
                 }
             }
@@ -309,7 +309,7 @@ public class WBO extends MaxSAT {
                 final int l = newLiteral(false);
                 softClauses.get(nSoft() - 1).setAssumptionVar(l);
                 coreMapping.put(l, nSoft() - 1);  // Map the new soft clause to its assumption literal.
-                assumps.push(MiniSatStyleSolver.not(l)); // Update the assumption vector.
+                assumps.push(LNGCoreSolver.not(l)); // Update the assumption vector.
                 if (symmetryStrategy) {
                     symmetryLog(nSoft() - 1);
                 }
@@ -374,25 +374,25 @@ public class WBO extends MaxSAT {
                         coreList.push(core);
                     }
                     assert j < relaxationMapping.get(p).size();
-                    assert MiniSatStyleSolver.var(relaxationMapping.get(p).get(j)) > nbInitialVariables;
+                    assert LNGCoreSolver.var(relaxationMapping.get(p).get(j)) > nbInitialVariables;
                     coreIntersection[core].push(relaxationMapping.get(p).get(j));
                 }
                 for (int j = 0; j < addCores.size(); j++) {
                     final int core = addCores.get(j);
                     final int b = softMapping.get(p).size() - 1;
                     assert b < relaxationMapping.get(p).size();
-                    assert MiniSatStyleSolver.var(relaxationMapping.get(p).get(b)) > nbInitialVariables;
+                    assert LNGCoreSolver.var(relaxationMapping.get(p).get(b)) > nbInitialVariables;
                     coreIntersectionCurrent[core].push(relaxationMapping.get(p).get(b));
                 }
                 for (int k = 0; k < coreList.size(); k++) {
                     for (int m = 0; m < coreIntersection[coreList.get(k)].size(); m++) {
                         for (int j = m + 1; j < coreIntersectionCurrent[coreList.get(k)].size(); j++) {
                             final LNGIntVector clause = new LNGIntVector();
-                            clause.push(MiniSatStyleSolver.not(coreIntersection[coreList.get(k)].get(m)));
-                            clause.push(MiniSatStyleSolver.not(coreIntersectionCurrent[coreList.get(k)].get(j)));
-                            Pair<Integer, Integer> symClause = new Pair<>(MiniSatStyleSolver.var(coreIntersection[coreList.get(k)].get(m)), MiniSatStyleSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j)));
-                            if (MiniSatStyleSolver.var(coreIntersection[coreList.get(k)].get(m)) > MiniSatStyleSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j))) {
-                                symClause = new Pair<>(MiniSatStyleSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j)), MiniSatStyleSolver.var(coreIntersection[coreList.get(k)].get(m)));
+                            clause.push(LNGCoreSolver.not(coreIntersection[coreList.get(k)].get(m)));
+                            clause.push(LNGCoreSolver.not(coreIntersectionCurrent[coreList.get(k)].get(j)));
+                            Pair<Integer, Integer> symClause = new Pair<>(LNGCoreSolver.var(coreIntersection[coreList.get(k)].get(m)), LNGCoreSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j)));
+                            if (LNGCoreSolver.var(coreIntersection[coreList.get(k)].get(m)) > LNGCoreSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j))) {
+                                symClause = new Pair<>(LNGCoreSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j)), LNGCoreSolver.var(coreIntersection[coreList.get(k)].get(m)));
                             }
                             if (!duplicatedSymmetryClauses.contains(symClause)) {
                                 duplicatedSymmetryClauses.add(symClause);
@@ -560,7 +560,7 @@ public class WBO extends MaxSAT {
             final int l = newLiteral(false);
             softClauses.get(i).setAssumptionVar(l);
             coreMapping.put(l, i);
-            assumps.push(MiniSatStyleSolver.not(l));
+            assumps.push(LNGCoreSolver.not(l));
         }
     }
 }

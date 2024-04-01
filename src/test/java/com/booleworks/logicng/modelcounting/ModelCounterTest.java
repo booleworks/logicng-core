@@ -205,7 +205,7 @@ public class ModelCounterTest extends TestWithFormulaContext {
     }
 
     private static BigInteger enumerationBasedModelCount(final FormulaFactory f, final List<Formula> formulas) {
-        final SATSolver solver = SATSolver.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formulas);
         final SortedSet<Variable> variables = FormulaHelper.variables(f, formulas);
         final List<Model> models = solver.enumerateAllModels(variables);

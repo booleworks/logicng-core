@@ -135,7 +135,7 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
         public List<Model> rollbackAndReturnModels(final SATSolver solver, final ModelEnumerationHandler handler) {
             final List<Model> modelsToReturn = new ArrayList<>(uncommittedModels.size());
             for (int i = 0; i < uncommittedModels.size(); i++) {
-                modelsToReturn.add(solver.createModel(uncommittedModels.get(i), uncommittedIndices.get(i)));
+                modelsToReturn.add(new Model(solver.underlyingSolver().convertInternalModel(uncommittedModels.get(i), uncommittedIndices.get(i))));
             }
             rollback(handler);
             return modelsToReturn;

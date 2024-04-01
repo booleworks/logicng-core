@@ -8,7 +8,7 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -48,7 +48,7 @@ public final class UpZeroLiteralsFunction implements SolverFunction<SortedSet<Li
         final SortedSet<Literal> upZeroLiterals = new TreeSet<>();
         for (int i = 0; i < literals.size(); ++i) {
             final int lit = literals.get(i);
-            upZeroLiterals.add(solver.factory().literal(solver.underlyingSolver().nameForIdx(MiniSatStyleSolver.var(lit)), !MiniSatStyleSolver.sign(lit)));
+            upZeroLiterals.add(solver.factory().literal(solver.underlyingSolver().nameForIdx(LNGCoreSolver.var(lit)), !LNGCoreSolver.sign(lit)));
         }
         return upZeroLiterals;
     }

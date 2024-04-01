@@ -55,7 +55,7 @@ public class CCPerformanceTest implements LogicNGTest {
         }
         for (int i = 10; i < 100; i = i + 10) {
             final CardinalityConstraint cc = (CardinalityConstraint) f.cc(CType.LE, i, problemLits);
-            final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(miniCard).build());
+            final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(miniCard).build());
             solver.add(cc);
             assertSolverSat(solver);
             final Assignment model = solver.model(Arrays.asList(problemLits));

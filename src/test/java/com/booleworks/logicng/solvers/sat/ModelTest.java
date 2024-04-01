@@ -153,7 +153,7 @@ public class ModelTest {
     public void testNonCNFRestrictedVars(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
         final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
-        final SATSolver miniSat = SATSolver.miniSat(f);
+        final SATSolver miniSat = SATSolver.newSolver(f);
         miniSat.add(formula);
         solver.add(formula);
         final SortedSet<Variable> relevantVariables = new TreeSet<>(Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C")));
@@ -173,7 +173,7 @@ public class ModelTest {
     public void testNonCNFRestrictedAndAdditionalVars(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
         final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
-        final SATSolver miniSat = SATSolver.miniSat(f);
+        final SATSolver miniSat = SATSolver.newSolver(f);
         miniSat.add(formula);
         solver.add(formula);
         final SortedSet<Variable> relevantVariables = new TreeSet<>(Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C")));

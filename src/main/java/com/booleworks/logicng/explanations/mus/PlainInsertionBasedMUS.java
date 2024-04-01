@@ -31,7 +31,7 @@ public class PlainInsertionBasedMUS extends MUSAlgorithm {
         while (!currentFormula.isEmpty()) {
             final List<T> currentSubset = new ArrayList<>(propositions.size());
             T transitionProposition = null;
-            final SATSolver solver = SATSolver.miniSat(f);
+            final SATSolver solver = SATSolver.newSolver(f);
             for (final Proposition p : mus) {
                 solver.add(p);
             }

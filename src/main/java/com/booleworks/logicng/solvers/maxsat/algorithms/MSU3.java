@@ -36,7 +36,7 @@ import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 import java.io.PrintStream;
 import java.util.SortedMap;
@@ -55,7 +55,7 @@ public class MSU3 extends MaxSAT {
     protected final SortedMap<Integer, Integer> coreMapping;
     protected final LNGBooleanVector activeSoft;
     protected final PrintStream output;
-    protected MiniSatStyleSolver solver;
+    protected LNGCoreSolver solver;
 
     /**
      * Constructs a new solver with default values.
@@ -130,7 +130,7 @@ public class MSU3 extends MaxSAT {
                         return MaxSATResult.UNDEF;
                     }
                     for (int i = 0; i < objFunction.size(); i++) {
-                        assumptions.push(MiniSatStyleSolver.not(objFunction.get(i)));
+                        assumptions.push(LNGCoreSolver.not(objFunction.get(i)));
                     }
                 } else {
                     return MaxSATResult.OPTIMUM;
@@ -163,7 +163,7 @@ public class MSU3 extends MaxSAT {
                     if (activeSoft.get(i)) {
                         currentObjFunction.push(softClauses.get(i).relaxationVars().get(0));
                     } else {
-                        assumptions.push(MiniSatStyleSolver.not(softClauses.get(i).assumptionVar()));
+                        assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
                 }
                 if (verbosity != Verbosity.NONE) {
@@ -210,7 +210,7 @@ public class MSU3 extends MaxSAT {
                         return MaxSATResult.UNDEF;
                     }
                     for (int i = 0; i < objFunction.size(); i++) {
-                        assumptions.push(MiniSatStyleSolver.not(objFunction.get(i)));
+                        assumptions.push(LNGCoreSolver.not(objFunction.get(i)));
                     }
                 } else {
                     assert lbCost == newCost;
@@ -253,7 +253,7 @@ public class MSU3 extends MaxSAT {
                     if (activeSoft.get(i)) {
                         currentObjFunction.push(softClauses.get(i).relaxationVars().get(0));
                     } else {
-                        assumptions.push(MiniSatStyleSolver.not(softClauses.get(i).assumptionVar()));
+                        assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
                 }
                 if (verbosity != Verbosity.NONE) {
@@ -275,8 +275,8 @@ public class MSU3 extends MaxSAT {
         }
     }
 
-    protected MiniSatStyleSolver rebuildSolver() {
-        final MiniSatStyleSolver s = newSATSolver();
+    protected LNGCoreSolver rebuildSolver() {
+        final LNGCoreSolver s = newSATSolver();
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }

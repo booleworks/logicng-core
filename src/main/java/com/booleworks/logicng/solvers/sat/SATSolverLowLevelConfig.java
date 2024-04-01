@@ -5,7 +5,7 @@
 package com.booleworks.logicng.solvers.sat;
 
 public final class SATSolverLowLevelConfig {
-    // MiniSat detail configuration
+    // MiniSat-related configuration
     final double varDecay;
     final double varInc;
     final int restartFirst;
@@ -14,7 +14,7 @@ public final class SATSolverLowLevelConfig {
     final double learntsizeFactor;
     public final double learntsizeInc;
 
-    // Glucose detail configuration
+    // Glucose-related configuration
     final int lbLBDMinimizingClause;
     final int lbLBDFrozenClause;
     final int lbSizeMinimizingClause;
@@ -366,7 +366,7 @@ public final class SATSolverLowLevelConfig {
         }
 
         /**
-         * Builds the MiniSAT configuration.
+         * Builds the SAT solver configuration.
          * @return the configuration
          */
         public SATSolverLowLevelConfig build() {

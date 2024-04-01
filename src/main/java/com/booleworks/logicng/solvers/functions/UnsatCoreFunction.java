@@ -14,7 +14,7 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.StandardProposition;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,7 +57,7 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
 
         final Map<Formula, Proposition> clause2proposition = new HashMap<>();
         final LNGVector<LNGIntVector> clauses = new LNGVector<>(solver.underlyingSolver().pgOriginalClauses().size());
-        for (final MiniSatStyleSolver.ProofInformation pi : solver.underlyingSolver().pgOriginalClauses()) {
+        for (final LNGCoreSolver.ProofInformation pi : solver.underlyingSolver().pgOriginalClauses()) {
             clauses.push(pi.clause());
             final Formula clause = getFormulaForVector(solver, pi.clause());
             Proposition proposition = pi.proposition();
@@ -84,7 +84,7 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
     }
 
     private UNSATCore<Proposition> handleTrivialCase(final SATSolver solver) {
-        final LNGVector<MiniSatStyleSolver.ProofInformation> clauses = solver.underlyingSolver().pgOriginalClauses();
+        final LNGVector<LNGCoreSolver.ProofInformation> clauses = solver.underlyingSolver().pgOriginalClauses();
         for (int i = 0; i < clauses.size(); i++) {
             for (int j = i + 1; j < clauses.size(); j++) {
                 if (clauses.get(i).clause().size() == 1 && clauses.get(j).clause().size() == 1

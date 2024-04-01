@@ -9,7 +9,7 @@ import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfSatSolver;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 import java.util.BitSet;
 import java.util.List;
@@ -165,7 +165,7 @@ public class DTreeNode extends DTree {
             if (!subsumed) {
                 for (int n = i; n < j; n++) {
                     if (solver.valueOf(clausesContents[n]) == Tristate.UNDEF) {
-                        localVarSet.set(MiniSatStyleSolver.var(clausesContents[n]));
+                        localVarSet.set(LNGCoreSolver.var(clausesContents[n]));
                     }
                 }
             }
@@ -198,7 +198,7 @@ public class DTreeNode extends DTree {
                 key.set(-clauseContents[j] + 1 + numberOfVariables);
                 for (int n = i; n < j; n++) {
                     if (solver.valueOf(clauseContents[n]) == Tristate.UNDEF) {
-                        key.set(MiniSatStyleSolver.var(clauseContents[n]));
+                        key.set(LNGCoreSolver.var(clauseContents[n]));
                     }
                 }
             }

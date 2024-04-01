@@ -73,7 +73,7 @@ public final class SmusComputation {
     public static <P extends Proposition> List<P> computeSmus(final FormulaFactory f, final List<P> propositions, final List<Formula> additionalConstraints,
                                                               final OptimizationHandler handler) {
         Handler.start(handler);
-        final SATSolver growSolver = SATSolver.miniSat(f);
+        final SATSolver growSolver = SATSolver.newSolver(f);
         growSolver.add(additionalConstraints == null ? Collections.singletonList(f.verum()) : additionalConstraints);
         final Map<Variable, P> propositionMapping = new TreeMap<>();
         for (final P proposition : propositions) {
@@ -85,7 +85,7 @@ public final class SmusComputation {
         if (sat || Handler.aborted(handler)) {
             return null;
         }
-        final SATSolver hSolver = SATSolver.miniSat(f);
+        final SATSolver hSolver = SATSolver.newSolver(f);
         while (true) {
             final SortedSet<Variable> h = minimumHs(hSolver, propositionMapping.keySet(), handler);
             if (h == null || Handler.aborted(handler)) {

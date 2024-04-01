@@ -27,7 +27,7 @@ public final class DeletionBasedMUS extends MUSAlgorithm {
         Handler.start(config.handler);
         final List<T> mus = new ArrayList<>(propositions.size());
         final List<SolverState> solverStates = new ArrayList<>(propositions.size());
-        final SATSolver solver = SATSolver.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         for (final Proposition proposition : propositions) {
             solverStates.add(solver.saveState());
             solver.add(proposition);

@@ -20,7 +20,7 @@ public class MiniSatTest {
 
     @Test
     public void testAnalyzeFinal() {
-        final MiniSat2Solver solver = new MiniSat2Solver(FormulaFactory.caching());
+        final LNGCoreSolver solver = new LNGCoreSolver(FormulaFactory.caching(), SATSolverConfig.builder().build());
         solver.newVar(true, true);
         solver.newVar(true, true);
         solver.newVar(true, true);
@@ -35,14 +35,14 @@ public class MiniSatTest {
 
     @Test
     public void testConfig() {
-        Assertions.assertThat(SATSolverConfig.builder().build().type().toString()).isEqualTo("MINISAT");
+        Assertions.assertThat(SATSolverConfig.builder().build().type().toString()).isEqualTo("SAT");
         assertThat(Arrays.asList(SATSolverConfig.ClauseMinimization.values()).contains(SATSolverConfig.ClauseMinimization.valueOf("DEEP"))).isTrue();
     }
 
     @Test
     public void testAssumptionChecking() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SATSolver solver = SATSolver.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & B"));
         Assertions.assertThat(solver.sat()).isTrue();
         Assertions.assertThat(solver.satCall().assumptions(f.literal("A", true)).sat()).isEqualTo(Tristate.TRUE);

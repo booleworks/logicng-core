@@ -12,7 +12,7 @@ package com.booleworks.logicng.configurations;
 public enum ConfigurationType {
     FORMULA_FACTORY,
     CNF,
-    MINISAT,
+    SAT,
     MAXSAT,
     MUS,
     CC_ENCODER,

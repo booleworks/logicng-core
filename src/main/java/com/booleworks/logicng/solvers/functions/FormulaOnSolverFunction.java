@@ -15,8 +15,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.datastructures.MSClause;
-import com.booleworks.logicng.solvers.datastructures.MSVariable;
+import com.booleworks.logicng.solvers.datastructures.LNGClause;
+import com.booleworks.logicng.solvers.datastructures.LNGVariable;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -67,7 +67,7 @@ public final class FormulaOnSolverFunction implements SolverFunction<Set<Formula
     public Set<Formula> apply(final SATSolver solver, final Consumer<Tristate> resultSetter) {
         final FormulaFactory f = solver.factory();
         final Set<Formula> formulas = new LinkedHashSet<>();
-        for (final MSClause clause : solver.underlyingSolver().clauses()) {
+        for (final LNGClause clause : solver.underlyingSolver().clauses()) {
             final List<Literal> lits = new ArrayList<>();
             for (int i = 0; i < clause.size(); i++) {
                 final int litInt = clause.get(i);
@@ -84,9 +84,9 @@ public final class FormulaOnSolverFunction implements SolverFunction<Set<Formula
                 formulas.add(f.cc(CType.LE, rhs, vars));
             }
         }
-        final LNGVector<MSVariable> variables = solver.underlyingSolver().variables();
+        final LNGVector<LNGVariable> variables = solver.underlyingSolver().variables();
         for (int i = 0; i < variables.size(); i++) {
-            final MSVariable var = variables.get(i);
+            final LNGVariable var = variables.get(i);
             if (var.level() == 0) {
                 formulas.add(f.literal(solver.underlyingSolver().nameForIdx(i), var.assignment() == TRUE));
             }

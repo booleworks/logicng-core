@@ -122,7 +122,7 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         public boolean addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver, final LNGIntVector relevantAllIndices,
                                 final ModelEnumerationHandler handler) {
             if (handler == null || handler.foundModels(dontCareFactor)) {
-                final Model model = solver.createModel(modelFromSolver, relevantAllIndices);
+                final Model model = new Model(solver.underlyingSolver().convertInternalModel(modelFromSolver, relevantAllIndices));
                 uncommittedModels.add(model);
                 return true;
             } else {

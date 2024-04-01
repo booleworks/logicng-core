@@ -96,7 +96,7 @@ public class CCEXOTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = SATSolver.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.exo(problemLits));
         assertSolverSat(solver);
         Assertions.assertThat(solver.enumerateAllModels(problemLits))

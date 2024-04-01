@@ -4,6 +4,9 @@
 
 package com.booleworks.logicng.transformations.cnf;
 
+import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.generateClauseVector;
+import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.solverLiteral;
+
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.formulas.Equivalence;
 import com.booleworks.logicng.formulas.FType;
@@ -15,11 +18,10 @@ import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import com.booleworks.logicng.predicates.ContainsPBCPredicate;
 import com.booleworks.logicng.propositions.Proposition;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import com.booleworks.logicng.transformations.NNFTransformation;
 import com.booleworks.logicng.util.Pair;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,18 +37,15 @@ public final class PlaistedGreenbaumTransformationSolver {
     private final boolean performNNF;
     private final Map<Formula, VarCacheEntry> variableCache;
     private final NNFTransformation nnfTransformation;
-    private final MiniSatStyleSolver solver;
-    private final boolean initialPhase;
+    private final LNGCoreSolver solver;
 
     /**
      * Constructs a new transformation for a given SAT solver.
-     * @param f            the formula factory to generate new formulas
-     * @param performNNF   flag whether an NNF transformation should be performed on the input formula
-     * @param solver       the solver
-     * @param initialPhase the initial phase for new variables
+     * @param f          the formula factory to generate new formulas
+     * @param performNNF flag whether an NNF transformation should be performed on the input formula
+     * @param solver     the solver
      */
-    public PlaistedGreenbaumTransformationSolver(final FormulaFactory f, final boolean performNNF, final MiniSatStyleSolver solver,
-                                                 final boolean initialPhase) {
+    public PlaistedGreenbaumTransformationSolver(final FormulaFactory f, final boolean performNNF, final LNGCoreSolver solver) {
         this.f = f;
         this.performNNF = performNNF;
         variableCache = new HashMap<>();
@@ -57,7 +56,6 @@ public final class PlaistedGreenbaumTransformationSolver {
             nnfTransformation = new NNFTransformation(f, nnfCache);
         }
         this.solver = solver;
-        this.initialPhase = initialPhase;
     }
 
     /**
@@ -92,11 +90,11 @@ public final class PlaistedGreenbaumTransformationSolver {
             case FALSE:
             case LITERAL:
             case OR:
-                solver.addClause(generateClauseVector(cnf.literals(f)), proposition);
+                solver.addClause(generateClauseVector(cnf.literals(f), solver), proposition);
                 break;
             case AND:
                 for (final Formula clause : cnf) {
-                    solver.addClause(generateClauseVector(clause.literals(f)), proposition);
+                    solver.addClause(generateClauseVector(clause.literals(f), solver), proposition);
                 }
                 break;
             default:
@@ -108,7 +106,7 @@ public final class PlaistedGreenbaumTransformationSolver {
         switch (formula.type()) {
             case LITERAL:
                 final Literal lit = (Literal) formula;
-                return polarity ? vector(solverLiteral(lit.name(), lit.phase())) : vector(solverLiteral(lit.name(), lit.phase()) ^ 1);
+                return polarity ? vector(solverLiteral(lit, solver)) : vector(solverLiteral(lit, solver) ^ 1);
             case NOT:
                 return computeTransformation(((Not) formula).operand(), !polarity, proposition, topLevel);
             case OR:
@@ -276,25 +274,8 @@ public final class PlaistedGreenbaumTransformationSolver {
         return new Pair<>(wasCached, pgVar);
     }
 
-    private LNGIntVector generateClauseVector(final Collection<Literal> literals) {
-        final LNGIntVector clauseVec = new LNGIntVector(literals.size());
-        for (final Literal lit : literals) {
-            clauseVec.unsafePush(solverLiteral(lit.name(), lit.phase()));
-        }
-        return clauseVec;
-    }
-
-    private int solverLiteral(final String name, final boolean phase) {
-        int index = solver.idxForName(name);
-        if (index == -1) {
-            index = solver.newVar(!initialPhase, true);
-            solver.addName(name, index);
-        }
-        return phase ? index * 2 : (index * 2) ^ 1;
-    }
-
     private int newSolverVariable() {
-        final int index = solver.newVar(!initialPhase, true);
+        final int index = solver.newVar(!solver.config().initialPhase(), true);
         final String name = FormulaFactory.CNF_PREFIX + "MINISAT_" + index;
         solver.addName(name, index);
         return index * 2;

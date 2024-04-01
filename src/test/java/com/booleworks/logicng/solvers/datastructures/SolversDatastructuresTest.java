@@ -42,7 +42,7 @@ public class SolversDatastructuresTest {
         vec.push(2);
         vec.push(4);
         vec.push(6);
-        final MSClause clause = new MSClause(vec, 0);
+        final LNGClause clause = new LNGClause(vec, 0);
         clause.setCanBeDel(true);
         clause.setLBD(42);
         clause.setSeen(true);
@@ -59,7 +59,7 @@ public class SolversDatastructuresTest {
         vec.push(2);
         vec.push(4);
         vec.push(6);
-        final MSHardClause clause = new MSHardClause(vec);
+        final LNGHardClause clause = new LNGHardClause(vec);
         final String expected = "MSHardClause{lits=[1, 2, 3]}";
         assertThat(clause.toString()).isEqualTo(expected);
     }
@@ -70,14 +70,14 @@ public class SolversDatastructuresTest {
         vec.push(2);
         vec.push(4);
         vec.push(6);
-        final MSSoftClause clause = new MSSoftClause(vec, 2, 4, vec);
+        final LNGSoftClause clause = new LNGSoftClause(vec, 2, 4, vec);
         final String expected = "MSSoftClause{weight=2, assumption=4 lits=[1, 2, 3] relax[1, 2, 3]}";
         assertThat(clause.toString()).isEqualTo(expected);
     }
 
     @Test
     public void testMSVariable() {
-        final MSVariable var = new MSVariable(true);
+        final LNGVariable var = new LNGVariable(true);
         var.setDecision(true);
         var.setLevel(12);
         var.setReason(null);
@@ -92,8 +92,8 @@ public class SolversDatastructuresTest {
         vec.push(2);
         vec.push(4);
         vec.push(6);
-        final MSClause clause = new MSClause(vec, 1);
-        final MSWatcher watcher = new MSWatcher(clause, 2);
+        final LNGClause clause = new LNGClause(vec, 1);
+        final LNGWatcher watcher = new LNGWatcher(clause, 2);
         final String expected = "MSWatcher{clause=MSClause{activity=0.0, learntOnState=1, seen=false, lbd=0, canBeDel=true, oneWatched=false, isAtMost=false, atMostWatchers=-1, lits=[1, 2, 3]}, blocker=2}";
         assertThat(watcher.toString()).isEqualTo(expected);
         assertThat(watcher.hashCode()).isEqualTo(watcher.hashCode());

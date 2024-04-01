@@ -93,7 +93,7 @@ public class CCAMKTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(miniCard).build());
+        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(miniCard).build());
         solver.add(f.cc(CType.LE, rhs, problemLits));
         assertSolverSat(solver);
         Assertions.assertThat(solver.enumerateAllModels(problemLits))

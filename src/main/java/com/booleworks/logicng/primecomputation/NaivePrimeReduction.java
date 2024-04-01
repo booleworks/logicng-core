@@ -38,9 +38,9 @@ public final class NaivePrimeReduction {
      * @param formula the formula
      */
     public NaivePrimeReduction(final FormulaFactory f, final Formula formula) {
-        implicantSolver = SATSolver.miniSat(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        implicantSolver = SATSolver.newSolver(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         implicantSolver.add(formula.negate(f));
-        implicateSolver = SATSolver.miniSat(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        implicateSolver = SATSolver.newSolver(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         implicateSolver.add(formula);
     }
 

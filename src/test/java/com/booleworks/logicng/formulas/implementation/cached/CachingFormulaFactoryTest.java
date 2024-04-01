@@ -84,7 +84,7 @@ public class CachingFormulaFactoryTest {
         f.putConfiguration(configMaxSat);
         f.putConfiguration(configMiniSat);
         assertThat(f.configurationFor(ConfigurationType.MAXSAT)).isEqualTo(configMaxSat);
-        assertThat(f.configurationFor(ConfigurationType.MINISAT)).isEqualTo(configMiniSat);
+        assertThat(f.configurationFor(ConfigurationType.SAT)).isEqualTo(configMiniSat);
     }
 
     @Test

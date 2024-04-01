@@ -17,12 +17,12 @@ public class UnsatCoreFunctionTest extends TestWithExampleFormulas {
     @Test
     public void testExceptionalBehavior() {
         assertThatThrownBy(() -> {
-            final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().proofGeneration(false).build());
+            final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(false).build());
             solver.unsatCore();
         }).isInstanceOf(IllegalStateException.class)
                 .hasMessage("Cannot generate an unsat core if proof generation is not turned on");
 
-        assertThat(SATSolver.miniSat(f, SATSolverConfig.builder().proofGeneration(true).build()).unsatCore()).isNull();
+        assertThat(SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).build()).unsatCore()).isNull();
         // TODO test null if solver result is UNDEF because handler aborted
     }
 }

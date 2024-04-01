@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * An interface for enumeration collectors.
  * <p>
- * An enumeration collector gathers the found models given by {@link #addModel(LNGBooleanVector, MiniSat, LNGIntVector, ModelEnumerationHandler)}.
+ * An enumeration collector gathers the found models given by {@link #addModel(LNGBooleanVector, SATSolver, LNGIntVector, ModelEnumerationHandler)}.
  * Added Models added can potentially be discarded later via {@link #rollback(ModelEnumerationHandler)}. To prevent models from being rolled back
  * one can call {@link #commit(ModelEnumerationHandler)}. With {@link #getResult()} the result, the models committed models, can be retrieved.
  * @param <RESULT> The result type of the model enumeration function.  Can be e.g. a model count, a list of models, or a BDD.

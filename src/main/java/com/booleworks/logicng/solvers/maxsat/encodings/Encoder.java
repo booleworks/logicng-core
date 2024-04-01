@@ -31,7 +31,7 @@ import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Incr
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.PBEncoding;
 
 import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 /**
  * Encoders for cardinality constraints, pseudo Booleans and AMO constraints.
@@ -123,7 +123,7 @@ public class Encoder {
      * @param lits the literals for the constraint
      * @throws IllegalStateException if the AMO encoding is unknown
      */
-    public void encodeAMO(final MiniSatStyleSolver s, final LNGIntVector lits) {
+    public void encodeAMO(final LNGCoreSolver s, final LNGIntVector lits) {
         switch (amoEncoding) {
             case LADDER:
                 ladder.encode(s, lits);
@@ -140,7 +140,7 @@ public class Encoder {
      * @param rhs  the right-hand side of the constraint
      * @throws IllegalStateException if the cardinality encoding is unknown
      */
-    public void encodeCardinality(final MiniSatStyleSolver s, final LNGIntVector lits, final int rhs) {
+    public void encodeCardinality(final LNGCoreSolver s, final LNGIntVector lits, final int rhs) {
         switch (cardinalityEncoding) {
             case TOTALIZER:
                 totalizer.build(s, lits, rhs);
@@ -162,7 +162,7 @@ public class Encoder {
      * @param rhs the new right-hand side
      * @throws IllegalStateException if the cardinality encoding is unknown
      */
-    public void updateCardinality(final MiniSatStyleSolver s, final int rhs) {
+    public void updateCardinality(final LNGCoreSolver s, final int rhs) {
         switch (cardinalityEncoding) {
             case TOTALIZER:
                 totalizer.update(s, rhs);
@@ -182,7 +182,7 @@ public class Encoder {
      * @param rhs  the right-hand side of the constraint
      * @throws IllegalStateException if the cardinality encoding does not support incrementality
      */
-    public void buildCardinality(final MiniSatStyleSolver s, final LNGIntVector lits, final int rhs) {
+    public void buildCardinality(final LNGCoreSolver s, final LNGIntVector lits, final int rhs) {
         assert incrementalStrategy != IncrementalStrategy.NONE;
         switch (cardinalityEncoding) {
             case TOTALIZER:
@@ -202,7 +202,7 @@ public class Encoder {
      * @param assumptions the assumptions
      * @throws IllegalStateException if the cardinality encoding does not support incrementality
      */
-    public void incUpdateCardinality(final MiniSatStyleSolver s, final LNGIntVector join, final LNGIntVector lits,
+    public void incUpdateCardinality(final LNGCoreSolver s, final LNGIntVector join, final LNGIntVector lits,
                                      final int rhs, final LNGIntVector assumptions) {
         assert incrementalStrategy == IncrementalStrategy.ITERATIVE;
         switch (cardinalityEncoding) {
@@ -226,7 +226,7 @@ public class Encoder {
      * @param rhs    the right-hand side of the constraint
      * @throws IllegalStateException if the pseudo-Boolean encoding is unknown
      */
-    public void encodePB(final MiniSatStyleSolver s, final LNGIntVector lits, final LNGIntVector coeffs, final int rhs) {
+    public void encodePB(final LNGCoreSolver s, final LNGIntVector lits, final LNGIntVector coeffs, final int rhs) {
         switch (pbEncoding) {
             case SWC:
                 swc.encode(s, lits, coeffs, rhs);
@@ -242,7 +242,7 @@ public class Encoder {
      * @param rhs the new right-hand side
      * @throws IllegalStateException if the pseudo-Boolean encoding is unknown
      */
-    public void updatePB(final MiniSatStyleSolver s, final int rhs) {
+    public void updatePB(final LNGCoreSolver s, final int rhs) {
         switch (pbEncoding) {
             case SWC:
                 swc.update(s, rhs);
@@ -262,7 +262,7 @@ public class Encoder {
      * @param size        the size
      * @throws IllegalStateException if the pseudo-Boolean encoding is unknown
      */
-    public void incEncodePB(final MiniSatStyleSolver s, final LNGIntVector lits, final LNGIntVector coeffs,
+    public void incEncodePB(final LNGCoreSolver s, final LNGIntVector lits, final LNGIntVector coeffs,
                             final int rhs, final LNGIntVector assumptions, final int size) {
         assert incrementalStrategy == IncrementalStrategy.ITERATIVE;
         switch (pbEncoding) {
@@ -282,7 +282,7 @@ public class Encoder {
      * @param rhs    the new right-hand side of the constraint
      * @throws IllegalStateException if the pseudo-Boolean encoding is unknown
      */
-    public void incUpdatePB(final MiniSatStyleSolver s, final LNGIntVector lits, final LNGIntVector coeffs, final int rhs) {
+    public void incUpdatePB(final LNGCoreSolver s, final LNGIntVector lits, final LNGIntVector coeffs, final int rhs) {
         assert incrementalStrategy == IncrementalStrategy.ITERATIVE;
         switch (pbEncoding) {
             case SWC:

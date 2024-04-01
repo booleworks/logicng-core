@@ -139,7 +139,7 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         public boolean addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver, final LNGIntVector relevantAllIndices,
                                 final ModelEnumerationHandler handler) {
             if (handler == null || handler.foundModels(baseModels.size())) {
-                final Model model = solver.createModel(modelFromSolver, relevantAllIndices);
+                final Model model = new Model(solver.underlyingSolver().convertInternalModel(modelFromSolver, relevantAllIndices));
                 final List<Literal> modelLiterals = new ArrayList<>(additionalVariablesNotOnSolver);
                 modelLiterals.addAll(model.getLiterals());
                 uncommittedModels.add(modelLiterals);

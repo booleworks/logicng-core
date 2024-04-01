@@ -186,7 +186,7 @@ public class MUSGenerationTest {
     private void testMUS(final List<StandardProposition> original, final UNSATCore<StandardProposition> mus) {
         assertThat(mus.isMUS()).isTrue();
         assertThat(mus.propositions().size() <= original.size()).isTrue();
-        final SATSolver miniSat = SATSolver.miniSat(f);
+        final SATSolver miniSat = SATSolver.newSolver(f);
         for (final StandardProposition p : mus.propositions()) {
             assertThat(original.contains(p)).isTrue();
             Assertions.assertThat(miniSat.sat()).isTrue();

@@ -37,7 +37,7 @@ public abstract class CanonicalEnumeration extends StatelessFormulaTransformatio
      * @return the canonical normal form (CNF or DNF) of the formula
      */
     protected Formula compute(final Formula formula, final boolean cnf) {
-        final SATSolver solver = SATSolver.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(cnf ? formula.negate(f) : formula);
         final List<Model> enumeration = solver.execute(ModelEnumerationFunction.builder(formula.variables(f)).build());
         if (enumeration.isEmpty()) {

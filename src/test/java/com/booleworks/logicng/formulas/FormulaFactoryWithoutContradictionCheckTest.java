@@ -171,7 +171,7 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSatSolverWithTautologies(final FormulaContext _c) throws ParserException {
-        final SATSolver solver = SATSolver.miniSat(_c.f);
+        final SATSolver solver = SATSolver.newSolver(_c.f);
         solver.add(_c.f.parse("A"));
         solver.add(_c.f.parse("A => B"));
         solver.add(_c.f.parse("C | ~C"));
@@ -188,7 +188,7 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSatSolverWithContradictions(final FormulaContext _c) throws ParserException {
-        final SATSolver solver = SATSolver.miniSat(_c.f);
+        final SATSolver solver = SATSolver.newSolver(_c.f);
         solver.add(_c.f.parse("A"));
         solver.add(_c.f.parse("A => B"));
         solver.add(_c.f.parse("C | ~C"));

@@ -65,7 +65,7 @@ public interface SolverTestSet {
                     SATSolverConfig.copy(config).clauseMinimization(DEEP).build()
             )).collect(Collectors.toList());
         }
-        return currentList.stream().map(config -> (Supplier<SATSolver>) () -> SATSolver.miniSat(f, config)).collect(Collectors.toList());
+        return currentList.stream().map(config -> (Supplier<SATSolver>) () -> SATSolver.newSolver(f, config)).collect(Collectors.toList());
     }
 
     static String solverDescription(final SATSolver s, final Collection<SATSolverConfigParam> variance) {

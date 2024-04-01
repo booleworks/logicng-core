@@ -49,7 +49,7 @@ public final class SATPredicate extends CacheableFormulaPredicate {
         if (formula.type() == FType.FALSE) {
             result = false;
         } else {
-            final var solver = SATSolver.miniSat(f);
+            final var solver = SATSolver.newSolver(f);
             solver.add(formula);
             result = solver.sat();
         }

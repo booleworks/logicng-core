@@ -36,7 +36,7 @@ public class DRUPTest implements LogicNGTest {
 
     private final FormulaFactory f = FormulaFactory.caching();
 
-    private final Supplier<SATSolver> solverSupplier = () -> SATSolver.miniSat(f, SATSolverConfig.builder().proofGeneration(true).build());
+    private final Supplier<SATSolver> solverSupplier = () -> SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).build());
 
     @Test
     @LongRunningTag
@@ -294,7 +294,7 @@ public class DRUPTest implements LogicNGTest {
     @Test
     public void testWithCcPropositions() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().proofGeneration(true).cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         final ExtendedProposition<StringBackpack> p1 = new ExtendedProposition<>(new StringBackpack("CC"), f.parse("A + B + C <= 1"));
         final StandardProposition p2 = new StandardProposition(f.parse("A"));
         final StandardProposition p3 = new StandardProposition(f.parse("B"));
@@ -310,7 +310,7 @@ public class DRUPTest implements LogicNGTest {
     @Test
     public void testWithSpecialUnitCaseMiniSat() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().proofGeneration(true).build());
+        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).build());
         final StandardProposition p1 = new StandardProposition(f.parse("a => b"));
         final StandardProposition p2 = new StandardProposition(f.parse("a => c | d"));
         final StandardProposition p3 = new StandardProposition(f.parse("b => c | d"));
@@ -341,7 +341,7 @@ public class DRUPTest implements LogicNGTest {
         }
         final SoftAssertions softly = new SoftAssertions();
         softly.assertThat(cnf).as("Core contains only original clauses").containsAll(core);
-        final SATSolver verifier = SATSolver.miniSat(f, SATSolverConfig.builder().proofGeneration(true).build());
+        final SATSolver verifier = SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).build());
         verifier.add(core);
         softly.assertThat(verifier.sat()).as("Core is unsatisfiable").isFalse();
         softly.assertAll();

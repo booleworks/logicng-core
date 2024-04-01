@@ -10,7 +10,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 
 /**
- * The configuration object for a MiniSAT-style SAT solver.
+ * The configuration object for a SAT solver.
  * @version 2.0.0
  * @since 1.0
  */
@@ -25,11 +25,11 @@ public final class SATSolverConfig extends Configuration {
     final SATSolverLowLevelConfig lowLevelConfig;
 
     /**
-     * Constructs a new MiniSAT configuration from a given builder.
+     * Constructs a new SAT solver configuration from a given builder.
      * @param builder the builder
      */
     private SATSolverConfig(final Builder builder) {
-        super(ConfigurationType.MINISAT);
+        super(ConfigurationType.SAT);
         proofGeneration = builder.proofGeneration;
         useAtMostClauses = !builder.proofGeneration && builder.useAtMostClauses;
         cnfMethod = builder.cnfMethod;
@@ -158,7 +158,7 @@ public final class SATSolverConfig extends Configuration {
     }
 
     /**
-     * The builder for a MiniSAT configuration.
+     * The builder for a SAT solver configuration.
      * @version 2.0.0
      * @since 1.0
      */
@@ -240,7 +240,7 @@ public final class SATSolverConfig extends Configuration {
         }
 
         /**
-         * Builds the MiniSAT configuration.
+         * Builds the SAT solver configuration.
          * @return the configuration
          */
         public SATSolverConfig build() {

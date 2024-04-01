@@ -100,7 +100,7 @@ public class BackboneFunctionTest {
                 new Pair<>(configPG5, "PG CNF +ATM +ROT +COMP +UB")
         );
         return configs.stream()
-                .map(config -> Arguments.of(SATSolver.miniSat(f, config.first().get().build()), config.second()))
+                .map(config -> Arguments.of(SATSolver.newSolver(f, config.first().get().build()), config.second()))
                 .collect(Collectors.toList());
     }
 
@@ -353,7 +353,7 @@ public class BackboneFunctionTest {
     @Test
     public void testMiniCardSpecialCase() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SATSolver miniCard = SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(true).build());
+        final SATSolver miniCard = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(true).build());
         miniCard.add(f.parse("v1 + v2 + v3 + v4 + v5 + v6 = 1"));
         miniCard.add(f.parse("v1234 + v50 + v60 = 1"));
         miniCard.add(f.parse("(v1 => v1234) & (v2 => v1234) & (v3 => v1234) & (v4 => v1234) & (v5 => v50) & (v6 => v60)"));

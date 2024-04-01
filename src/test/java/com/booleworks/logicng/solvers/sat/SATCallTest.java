@@ -21,7 +21,7 @@ public class SATCallTest {
         // wie bisher
         final FormulaFactory f = FormulaFactory.caching();
         final List<Variable> vars = List.of(f.variable("B"), f.variable("C"));
-        final SATSolver solver = SATSolver.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("(A | B) & (C | ~B) & (B | D)"));
 
         // Aufbau Builder (tut noch nichts)

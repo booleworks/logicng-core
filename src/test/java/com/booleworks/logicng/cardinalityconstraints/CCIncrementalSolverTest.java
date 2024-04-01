@@ -45,7 +45,7 @@ public class CCIncrementalSolverTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = f.variable("v" + i);
             }
-            final SATSolver solver = SATSolver.miniSat(f, SATSolverConfig.builder().useAtMostClauses(false).build());
+            final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(false).build());
             solver.add(f.cc(CType.GE, 4, vars)); // >= 4
             solver.add(f.cc(CType.LE, 7, vars)); // <= 7
 
@@ -140,7 +140,7 @@ public class CCIncrementalSolverTest implements LogicNGTest {
 
     @Test
     public void testLargeTotalizerLowerBoundALK() {
-        final SATSolver solver = SATSolver.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         f.putConfiguration(configs[2]);
         final int numLits = 100;
         int currentBound = 2;

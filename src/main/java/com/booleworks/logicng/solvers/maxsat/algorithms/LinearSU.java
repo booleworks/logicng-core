@@ -35,9 +35,9 @@ import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.SATHandler;
-import com.booleworks.logicng.solvers.datastructures.MSSoftClause;
+import com.booleworks.logicng.solvers.datastructures.LNGSoftClause;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 import java.io.PrintStream;
 
@@ -53,7 +53,7 @@ public class LinearSU extends MaxSAT {
     protected final LNGIntVector objFunction; // Literals to be used in the constraint that excludes models.
     protected final LNGIntVector coeffs; // Coefficients of the literals that are used in the constraint that excludes models.
     protected final PrintStream output;
-    protected MiniSatStyleSolver solver;
+    protected LNGCoreSolver solver;
     protected boolean isBmo; // Stores if the formula is BMO or not.
 
     /**
@@ -239,10 +239,10 @@ public class LinearSU extends MaxSAT {
      * @param minWeight the minimal weight
      * @return the rebuilt solver
      */
-    protected MiniSatStyleSolver rebuildSolver(final int minWeight) {
+    protected LNGCoreSolver rebuildSolver(final int minWeight) {
         final LNGBooleanVector seen = new LNGBooleanVector(nVars());
         seen.growTo(nVars(), false);
-        final MiniSatStyleSolver s = newSATSolver();
+        final LNGCoreSolver s = newSATSolver();
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }
@@ -269,9 +269,9 @@ public class LinearSU extends MaxSAT {
      * @param currentWeight the current weight
      * @return the rebuilt solver
      */
-    protected MiniSatStyleSolver rebuildBMO(final LNGVector<LNGIntVector> functions, final LNGIntVector rhs, final int currentWeight) {
+    protected LNGCoreSolver rebuildBMO(final LNGVector<LNGIntVector> functions, final LNGIntVector rhs, final int currentWeight) {
         assert functions.size() == rhs.size();
-        final MiniSatStyleSolver s = rebuildSolver(currentWeight);
+        final LNGCoreSolver s = rebuildSolver(currentWeight);
         objFunction.clear();
         coeffs.clear();
         for (int i = 0; i < nSoft(); i++) {
@@ -290,7 +290,7 @@ public class LinearSU extends MaxSAT {
      * Initializes the relaxation variables by adding a fresh variable to the 'relaxationVars' of each soft clause.
      */
     protected void initRelaxation() {
-        for (final MSSoftClause softClause : softClauses) {
+        for (final LNGSoftClause softClause : softClauses) {
             final int l = newLiteral(false);
             softClause.relaxationVars().push(l);
             objFunction.push(l);
