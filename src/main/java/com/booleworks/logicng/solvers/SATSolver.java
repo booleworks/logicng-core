@@ -273,7 +273,7 @@ public class SATSolver {
      * @see SATCallBuilder
      */
     public SATCallBuilder satCall() {
-        return SATCall.builder(f, this);
+        return SATCall.builder(this);
     }
 
     /**
@@ -328,10 +328,11 @@ public class SATSolver {
      * @param function the solver function
      * @param <RESULT> the result type of the function
      * @return the result of executing the solver function on the current solver
+     * @throws IllegalStateException if this solver is currently used in a {@link SATCall}
      */
     public <RESULT> RESULT execute(final SolverFunction<RESULT> function) {
-        return function.apply(this, i -> {
-        });
+        solver.assertNotInSatCall();
+        return function.apply(this);
     }
 
     /**
@@ -340,7 +341,6 @@ public class SATSolver {
      * @param variables the set of variables
      * @return the list of models
      */
-    // TODO remove enumeration methods?
     public List<Model> enumerateAllModels(final Collection<Variable> variables) {
         return execute(ModelEnumerationFunction.builder(variables)
                 .configuration(ModelEnumerationConfig.builder()
@@ -366,6 +366,7 @@ public class SATSolver {
      * @return the current solver state
      */
     public SolverState saveState() {
+        solver.assertNotInSatCall();
         return solver.saveState();
     }
 
@@ -375,6 +376,7 @@ public class SATSolver {
      * @throws IllegalArgumentException if the given state has become invalid
      */
     public void loadState(final SolverState state) {
+        solver.assertNotInSatCall();
         solver.loadState(state);
         pgTransformation.clearCache();
         fullPgTransformation.clearCache();

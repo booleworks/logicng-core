@@ -81,7 +81,7 @@ public final class SmusComputation {
             propositionMapping.put(selector, proposition);
             growSolver.add(f.equivalence(selector, proposition.formula()));
         }
-        final boolean sat = growSolver.satCall().handler(OptimizationHandler.satHandler(handler)).assumptions(propositionMapping.keySet()).sat() == Tristate.TRUE;
+        final boolean sat = growSolver.satCall().handler(OptimizationHandler.satHandler(handler)).addFormulas(propositionMapping.keySet()).sat() == Tristate.TRUE;
         if (sat || Handler.aborted(handler)) {
             return null;
         }

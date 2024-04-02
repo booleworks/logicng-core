@@ -6,7 +6,6 @@ package com.booleworks.logicng.solvers.functions;
 
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.explanations.drup.DRUPTrim;
 import com.booleworks.logicng.formulas.Formula;
@@ -22,7 +21,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * A solver function for computing the unsatisfiable core on the current solver.
@@ -49,7 +47,7 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
     }
 
     @Override
-    public UNSATCore<Proposition> apply(final SATSolver solver, final Consumer<Tristate> resultSetter) {
+    public UNSATCore<Proposition> apply(final SATSolver solver) {
         if (!solver.config().proofGeneration()) {
             throw new IllegalStateException("Cannot generate an unsat core if proof generation is not turned on");
         }

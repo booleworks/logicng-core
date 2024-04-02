@@ -10,7 +10,6 @@ import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.FType;
-import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.SATHandler;
@@ -50,7 +49,6 @@ import java.util.List;
  */
 public class SATCall implements AutoCloseable {
 
-    private final FormulaFactory f;
     private final SATSolver solverWrapper;
     private final LNGCoreSolver solver;
     private final SATHandler handler;
@@ -60,10 +58,8 @@ public class SATCall implements AutoCloseable {
     private int pgOriginalClausesLength = -1;
     private Tristate satState;
 
-    SATCall(final FormulaFactory f, final SATSolver solverWrapper, final SATHandler handler,
-            final List<? extends Proposition> additionalPropositions,
-            final List<? extends Literal> selectionOrder) {
-        this.f = f;
+    SATCall(final SATSolver solverWrapper, final SATHandler handler,
+            final List<? extends Proposition> additionalPropositions, final List<? extends Literal> selectionOrder) {
         this.solverWrapper = solverWrapper;
         solver = solverWrapper.underlyingSolver();
         this.handler = handler;
@@ -72,11 +68,12 @@ public class SATCall implements AutoCloseable {
         initAndSolve();
     }
 
-    public static SATCallBuilder builder(final FormulaFactory f, final SATSolver solver) {
-        return new SATCallBuilder(f, solver);
+    public static SATCallBuilder builder(final SATSolver solver) {
+        return new SATCallBuilder(solver);
     }
 
     private void initAndSolve() {
+        solver.assertNotInSatCall();
         if (solver.config.proofGeneration) {
             pgOriginalClausesLength = solver.pgOriginalClauses.size();
         }
@@ -161,7 +158,7 @@ public class SATCall implements AutoCloseable {
         if (satState != FALSE) {
             return null;
         }
-        return solverWrapper.execute(UnsatCoreFunction.get());
+        return UnsatCoreFunction.get().apply(solverWrapper);
     }
 
     @Override

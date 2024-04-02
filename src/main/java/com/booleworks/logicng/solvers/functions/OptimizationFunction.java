@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.Consumer;
 
 /**
  * A solver function for computing a model for the formula on the solver
@@ -88,7 +87,7 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
     }
 
     @Override
-    public Assignment apply(final SATSolver solver, final Consumer<Tristate> resultSetter) {
+    public Assignment apply(final SATSolver solver) {
         final SolverState initialState = solver.saveState();
         final Assignment model = maximize(solver);
         solver.loadState(initialState);

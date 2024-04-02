@@ -982,7 +982,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                 final SortedSet<Literal> literalsWithFlip = new TreeSet<>(literals);
                 literalsWithFlip.remove(lit.negate(f));
                 literalsWithFlip.add(lit);
-                assertThat(solver.satCall().assumptions(literalsWithFlip).sat()).isEqualTo(Tristate.FALSE);
+                assertThat(solver.satCall().addFormulas(literalsWithFlip).sat()).isEqualTo(Tristate.FALSE);
             }
         }
     }
@@ -1003,7 +1003,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                 final SortedSet<Literal> orderSubsetWithFlip = new TreeSet<>(orderSublist);
                 orderSubsetWithFlip.remove(lit.negate(f));
                 orderSubsetWithFlip.add(lit);
-                assertThat(solver.satCall().assumptions(orderSubsetWithFlip).sat()).isEqualTo(Tristate.FALSE);
+                assertThat(solver.satCall().addFormulas(orderSubsetWithFlip).sat()).isEqualTo(Tristate.FALSE);
             }
             orderSublist.add(containsLit ? lit : lit.negate(f));
         }

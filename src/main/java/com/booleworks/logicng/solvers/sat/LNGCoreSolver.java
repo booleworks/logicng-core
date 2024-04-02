@@ -231,13 +231,20 @@ public class LNGCoreSolver {
         return solverLiteral(lit, solver, solver.config.initialPhase, true);
     }
 
+    /**
+     * Marks this solver to be used in a {@link SATCall}.
+     * Until {@link #finishSatCall()} is called, additional calls to this method or
+     * other operations on the SAT solver like adding new formulas, executing solver
+     * functions, or saving/loading state, will fail with an {@link IllegalStateException}.
+     */
     protected void startSatCall() {
-        if (inSatCall) {
-            throw new IllegalStateException("There is another SAT call running on this solver!");
-        }
+        assertNotInSatCall();
         inSatCall = true;
     }
 
+    /**
+     * Declares that the solver is not used anymore in a {@link SATCall}.
+     */
     protected void finishSatCall() {
         inSatCall = false;
     }
@@ -436,11 +443,10 @@ public class LNGCoreSolver {
      * @param ps          the literals of the clause
      * @param proposition a proposition (if required for proof tracing)
      * @return {@code true} if the clause was added successfully, {@code false} otherwise
+     * @throws IllegalStateException if a {@link SATCall} is currently running on this solver
      */
     public boolean addClause(final LNGIntVector ps, final Proposition proposition) {
-        if (inSatCall) {
-            throw new IllegalStateException("Adding new formulas to a solver is not allowed while a SAT call is running on this solver!");
-        }
+        assertNotInSatCall();
         assert decisionLevel() == 0;
         int p;
         int i;
@@ -1663,6 +1669,25 @@ public class LNGCoreSolver {
             }
         }
         return literals;
+    }
+
+    /**
+     * Returns {@code true} if a {@link SATCall} is currently using this solver, otherwise {@code false}.
+     * @return {@code true} if a {@link SATCall} is currently using this solver, otherwise {@code false}
+     */
+    public boolean inSatCall() {
+        return inSatCall;
+    }
+
+    /**
+     * Checks if this solver is currently used in a {@link SATCall} and throws an {@link IllegalStateException}
+     * in this case. Otherwise, nothing happens.
+     * @throws IllegalStateException if this solver is currently used in a SAT call
+     */
+    public void assertNotInSatCall() {
+        if (inSatCall) {
+            throw new IllegalStateException("This operation is not allowed because a SAT call is running on this solver!");
+        }
     }
 
     @Override

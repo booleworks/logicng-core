@@ -5,14 +5,12 @@
 package com.booleworks.logicng.solvers.functions;
 
 import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.function.Consumer;
 
 /**
  * A solver function which returns all unit propagated literals on level 0 of the current
@@ -40,7 +38,7 @@ public final class UpZeroLiteralsFunction implements SolverFunction<SortedSet<Li
     }
 
     @Override
-    public SortedSet<Literal> apply(final SATSolver solver, final Consumer<Tristate> resultSetter) {
+    public SortedSet<Literal> apply(final SATSolver solver) {
         if (!solver.sat()) {
             return null;
         }

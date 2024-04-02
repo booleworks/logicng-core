@@ -179,21 +179,21 @@ public class BackboneGenerationTest {
         final SATSolver solver = SATSolver.newSolver(formula.factory());
         solver.add(formula);
         for (final Variable bbVar : backbone.getPositiveBackbone()) {
-            if (solver.satCall().assumptions(bbVar.negate(f)).sat() == Tristate.TRUE) {
+            if (solver.satCall().addFormulas(bbVar.negate(f)).sat() == Tristate.TRUE) {
                 return false;
             }
         }
         for (final Variable bbVar : backbone.getNegativeBackbone()) {
-            if (solver.satCall().assumptions(bbVar).sat() == Tristate.TRUE) {
+            if (solver.satCall().addFormulas(bbVar).sat() == Tristate.TRUE) {
                 return false;
             }
         }
         for (final Variable variable : variables) {
             if (!backbone.getPositiveBackbone().contains(variable) && !backbone.getNegativeBackbone().contains(variable)) {
-                if (solver.satCall().assumptions(variable).sat() == Tristate.FALSE) {
+                if (solver.satCall().addFormulas(variable).sat() == Tristate.FALSE) {
                     return false;
                 }
-                if (solver.satCall().assumptions(variable.negate(f)).sat() == Tristate.FALSE) {
+                if (solver.satCall().addFormulas(variable.negate(f)).sat() == Tristate.FALSE) {
                     return false;
                 }
             }

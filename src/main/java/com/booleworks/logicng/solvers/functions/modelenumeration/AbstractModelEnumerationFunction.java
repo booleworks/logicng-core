@@ -5,7 +5,6 @@
 package com.booleworks.logicng.solvers.functions.modelenumeration;
 
 import static com.booleworks.logicng.datastructures.Tristate.TRUE;
-import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
 import static com.booleworks.logicng.formulas.FormulaFactory.CC_PREFIX;
 import static com.booleworks.logicng.formulas.FormulaFactory.CNF_PREFIX;
 import static com.booleworks.logicng.formulas.FormulaFactory.PB_PREFIX;
@@ -21,7 +20,6 @@ import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.Model;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
@@ -34,7 +32,6 @@ import com.booleworks.logicng.solvers.functions.SolverFunction;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -62,7 +59,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                                                                  SortedSet<Variable> additionalVariablesNotOnSolver);
 
     @Override
-    public RESULT apply(final SATSolver solver, final Consumer<Tristate> resultSetter) {
+    public RESULT apply(final SATSolver solver) {
         start(handler);
         final SortedSet<Variable> knownVariables = solver.knownVariables();
         final SortedSet<Variable> additionalVarsNotOnSolver = difference(additionalVariables, knownVariables, TreeSet::new);
@@ -70,17 +67,16 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         final EnumerationCollector<RESULT> collector = newCollector(solver.factory(), knownVariables, dontCareVariablesNotOnSolver, additionalVarsNotOnSolver);
         final SortedSet<Variable> enumerationVars = getVarsForEnumeration(knownVariables);
         final SortedSet<Variable> initialSplitVars = nullSafe(() -> strategy.splitVarsForRecursionDepth(enumerationVars, solver, 0), TreeSet::new);
-        enumerateRecursive(collector, solver, new Model(), resultSetter, enumerationVars, initialSplitVars, 0);
+        enumerateRecursive(collector, solver, new Model(), enumerationVars, initialSplitVars, 0);
         return collector.getResult();
     }
 
     private void enumerateRecursive(final EnumerationCollector<RESULT> collector, final SATSolver solver, final Model splitModel,
-                                    final Consumer<Tristate> resultSetter, final SortedSet<Variable> enumerationVars,
-                                    final SortedSet<Variable> splitVars, final int recursionDepth) {
+                                    final SortedSet<Variable> enumerationVars, final SortedSet<Variable> splitVars, final int recursionDepth) {
         final int maxNumberOfModelsForEnumeration = strategy.maxNumberOfModelsForEnumeration(recursionDepth);
         final SolverState state = saveState(solver);
         solver.add(splitModel.formula(solver.factory()));
-        final boolean enumerationFinished = enumerate(collector, solver, resultSetter, enumerationVars, additionalVariables, maxNumberOfModelsForEnumeration, handler);
+        final boolean enumerationFinished = enumerate(collector, solver, enumerationVars, additionalVariables, maxNumberOfModelsForEnumeration, handler);
         if (!enumerationFinished) {
             if (!collector.rollback(handler)) {
                 loadState(solver, state);
@@ -88,7 +84,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
             }
             SortedSet<Variable> newSplitVars = new TreeSet<>(splitVars);
             final int maxNumberOfModelsForSplitAssignments = strategy.maxNumberOfModelsForSplitAssignments(recursionDepth);
-            while (!enumerate(collector, solver, resultSetter, newSplitVars, null, maxNumberOfModelsForSplitAssignments, handler)) {
+            while (!enumerate(collector, solver, newSplitVars, null, maxNumberOfModelsForSplitAssignments, handler)) {
                 if (!collector.rollback(handler)) {
                     loadState(solver, state);
                     return;
@@ -109,7 +105,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
             final List<Model> newSplitAssignments = collector.rollbackAndReturnModels(solver, handler);
             final SortedSet<Variable> recursiveSplitVars = strategy.splitVarsForRecursionDepth(remainingVars, solver, recursionDepth + 1);
             for (final Model newSplitAssignment : newSplitAssignments) {
-                enumerateRecursive(collector, solver, newSplitAssignment, resultSetter, enumerationVars, recursiveSplitVars, recursionDepth + 1);
+                enumerateRecursive(collector, solver, newSplitAssignment, enumerationVars, recursiveSplitVars, recursionDepth + 1);
                 if (!collector.commit(handler)) {
                     loadState(solver, state);
                     return;
@@ -124,8 +120,8 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         loadState(solver, state);
     }
 
-    protected static <R> boolean enumerate(final EnumerationCollector<R> collector, final SATSolver solver, final Consumer<Tristate> resultSetter,
-                                           final SortedSet<Variable> variables, final SortedSet<Variable> additionalVariables, final int maxModels,
+    protected static <R> boolean enumerate(final EnumerationCollector<R> collector, final SATSolver solver, final SortedSet<Variable> variables,
+                                           final SortedSet<Variable> additionalVariables, final int maxModels,
                                            final ModelEnumerationHandler handler) {
         final SolverState stateBeforeEnumeration = saveState(solver);
         final LNGIntVector relevantIndices = relevantIndicesFromSolver(variables, solver);
@@ -143,7 +139,6 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
             if (modelFromSolver.size() > 0) {
                 final LNGIntVector blockingClause = generateBlockingClause(modelFromSolver, relevantIndices);
                 solver.underlyingSolver().addClause(blockingClause, null);
-                resultSetter.accept(UNDEF);
             } else {
                 break;
             }

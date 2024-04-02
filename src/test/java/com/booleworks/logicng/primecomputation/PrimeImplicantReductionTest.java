@@ -152,11 +152,11 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
         final FormulaFactory f = formula.factory();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula.negate(f));
-        Assertions.assertThat(solver.satCall().assumptions(primeImplicant).sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.satCall().addFormulas(primeImplicant).sat()).isEqualTo(Tristate.FALSE);
         for (final Literal lit : primeImplicant) {
             final SortedSet<Literal> reducedPrimeImplicant = new TreeSet<>(primeImplicant);
             reducedPrimeImplicant.remove(lit);
-            Assertions.assertThat(solver.satCall().assumptions(reducedPrimeImplicant).sat()).isEqualTo(Tristate.TRUE);
+            Assertions.assertThat(solver.satCall().addFormulas(reducedPrimeImplicant).sat()).isEqualTo(Tristate.TRUE);
         }
     }
 }

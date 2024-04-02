@@ -23,14 +23,12 @@ import java.util.List;
  * @see SATSolver#satCall()
  */
 public class SATCallBuilder {
-    private final FormulaFactory f;
     private final SATSolver solver;
     private SATHandler handler;
     private final List<Proposition> additionalPropositions;
     private List<? extends Literal> selectionOrder;
 
-    SATCallBuilder(final FormulaFactory f, final SATSolver solver) {
-        this.f = f;
+    SATCallBuilder(final SATSolver solver) {
         this.solver = solver;
         additionalPropositions = new ArrayList<>();
     }
@@ -41,7 +39,7 @@ public class SATCallBuilder {
      * @return the SAT call
      */
     public SATCall solve() {
-        return new SATCall(f, solver, handler, additionalPropositions, selectionOrder);
+        return new SATCall(solver, handler, additionalPropositions, selectionOrder);
     }
 
     /**
@@ -61,6 +59,7 @@ public class SATCallBuilder {
      * @return this builder
      */
     // TODO could be removed (when we're sure about the API)
+    @Deprecated
     public SATCallBuilder assumptions(final Collection<? extends Literal> assumptions) {
         return addFormulas(assumptions);
     }
@@ -71,6 +70,8 @@ public class SATCallBuilder {
      * @param assumptions the assumptions
      * @return this builder
      */
+    // TODO could be removed (when we're sure about the API)
+    @Deprecated
     public SATCallBuilder assumptions(final Literal... assumptions) {
         return addFormulas(assumptions);
     }
@@ -94,6 +95,7 @@ public class SATCallBuilder {
      * @param formulas the additional formulas
      * @return this builder
      */
+    // TODO do we need the varargs variants?
     public SATCallBuilder addFormulas(final Formula... formulas) {
         return addFormulas(Arrays.asList(formulas));
     }
@@ -158,19 +160,6 @@ public class SATCallBuilder {
         try (final SATCall call = solve()) {
             return call.model(variables);
         }
-    }
-
-    /**
-     * Directly computes a model of the current formula on the solver wrt. a given set of variables.
-     * The variables must not be {@code null}. If you just want to get all variables, you
-     * can use {@link SATSolver#knownVariables() all variables known by the solver}.
-     * <p>
-     * If the formula is UNSAT, {@code null} will be returned.
-     * @param variables the set of variables
-     * @return a model of the current formula or {@code null} if the SAT call was unsatisfiable
-     */
-    public Assignment model(final Variable... variables) {
-        return model(Arrays.asList(variables));
     }
 
     /**

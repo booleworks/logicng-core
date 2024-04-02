@@ -7,7 +7,6 @@ package com.booleworks.logicng.solvers.functions;
 import static com.booleworks.logicng.datastructures.Tristate.TRUE;
 
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.CFalse;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.Formula;
@@ -22,7 +21,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * A solver function for getting the current formula on the solver.
@@ -64,7 +62,7 @@ public final class FormulaOnSolverFunction implements SolverFunction<Set<Formula
     }
 
     @Override
-    public Set<Formula> apply(final SATSolver solver, final Consumer<Tristate> resultSetter) {
+    public Set<Formula> apply(final SATSolver solver) {
         final FormulaFactory f = solver.factory();
         final Set<Formula> formulas = new LinkedHashSet<>();
         for (final LNGClause clause : solver.underlyingSolver().clauses()) {

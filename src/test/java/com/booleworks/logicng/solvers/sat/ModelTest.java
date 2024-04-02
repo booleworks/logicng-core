@@ -158,12 +158,12 @@ public class ModelTest {
         solver.add(formula);
         final SortedSet<Variable> relevantVariables = new TreeSet<>(Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C")));
         final Assignment model = solver.model(relevantVariables);
-        Assertions.assertThat(miniSat.satCall().assumptions(model.literals()).sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(miniSat.satCall().addFormulas(model.literals()).sat()).isEqualTo(Tristate.TRUE);
         assertThat(model.formula(f).variables(f)).isEqualTo(relevantVariables);
         final List<Model> allModels = solver.enumerateAllModels(relevantVariables);
         assertThat(allModels).hasSize(2);
         for (final Model m : allModels) {
-            Assertions.assertThat(miniSat.satCall().assumptions(m.getLiterals()).sat()).isEqualTo(Tristate.TRUE);
+            Assertions.assertThat(miniSat.satCall().addFormulas(m.getLiterals()).sat()).isEqualTo(Tristate.TRUE);
             assertThat(m.formula(f).variables(f)).isEqualTo(relevantVariables);
         }
     }
@@ -181,7 +181,7 @@ public class ModelTest {
         final SortedSet<Variable> allVariables = new TreeSet<>(relevantVariables);
         allVariables.addAll(additionalVariables);
         final Assignment model = solver.model(additionalVariables);
-        Assertions.assertThat(miniSat.satCall().assumptions(model.literals()).sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(miniSat.satCall().addFormulas(model.literals()).sat()).isEqualTo(Tristate.TRUE);
         assertThat(model.formula(f).variables(f)).containsExactly(f.variable("D"));
         final ModelEnumerationFunction me = ModelEnumerationFunction.builder(relevantVariables)
                 .additionalVariables(additionalVariables)
@@ -190,7 +190,7 @@ public class ModelTest {
         final List<Model> allModels = solver.execute(me);
         assertThat(allModels).hasSize(2);
         for (final Model m : allModels) {
-            Assertions.assertThat(miniSat.satCall().assumptions(m.getLiterals()).sat()).isEqualTo(Tristate.TRUE);
+            Assertions.assertThat(miniSat.satCall().addFormulas(m.getLiterals()).sat()).isEqualTo(Tristate.TRUE);
             assertThat(m.formula(f).variables(f)).isEqualTo(allVariables);
         }
     }

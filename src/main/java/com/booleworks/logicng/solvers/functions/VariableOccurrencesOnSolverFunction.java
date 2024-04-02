@@ -8,7 +8,6 @@ import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.var;
 import static com.booleworks.logicng.util.CollectionHelper.nullSafe;
 
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.SATSolver;
@@ -19,7 +18,6 @@ import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -52,7 +50,7 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
     }
 
     @Override
-    public Map<Variable, Integer> apply(final SATSolver solver, final Consumer<Tristate> resultSetter) {
+    public Map<Variable, Integer> apply(final SATSolver solver) {
         final FormulaFactory f = solver.factory();
         final LNGCoreSolver underlyingSolver = solver.underlyingSolver();
         final Map<String, Integer> counts = initResultMap(underlyingSolver);

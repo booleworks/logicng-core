@@ -137,7 +137,7 @@ public final class PrimeCompiler {
                 return new Pair<>(primeImplicants, primeImplicates);
             }
             final Assignment fModel = transformModel(hModel, sub.newVar2oldLit);
-            try (final SATCall fCall = fSolver.satCall().handler(OptimizationHandler.satHandler(handler)).assumptions(fModel.literals()).solve()) {
+            try (final SATCall fCall = fSolver.satCall().handler(OptimizationHandler.satHandler(handler)).addFormulas(fModel.literals()).solve()) {
                 if (Handler.aborted(handler)) {
                     return null;
                 }

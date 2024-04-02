@@ -45,13 +45,13 @@ public class MiniSatTest {
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & B"));
         Assertions.assertThat(solver.sat()).isTrue();
-        Assertions.assertThat(solver.satCall().assumptions(f.literal("A", true)).sat()).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.satCall().assumptions(f.literal("B", true)).sat()).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.satCall().assumptions(f.literal("A", false)).sat()).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(solver.satCall().assumptions(f.literal("B", false)).sat()).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(solver.satCall().assumptions(f.literal("A", true)).sat()).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.satCall().assumptions(f.literal("B", true)).sat()).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.satCall().assumptions(f.literal("A", false)).sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.satCall().addFormulas(f.literal("A", true)).sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.satCall().addFormulas(f.literal("B", true)).sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.satCall().addFormulas(f.literal("A", false)).sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.satCall().addFormulas(f.literal("B", false)).sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.satCall().addFormulas(f.literal("A", true)).sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.satCall().addFormulas(f.literal("B", true)).sat()).isEqualTo(Tristate.TRUE);
+        Assertions.assertThat(solver.satCall().addFormulas(f.literal("A", false)).sat()).isEqualTo(Tristate.FALSE);
         Assertions.assertThat(solver.sat()).isTrue();
     }
 

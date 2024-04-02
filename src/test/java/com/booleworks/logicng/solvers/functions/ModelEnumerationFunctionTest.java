@@ -352,7 +352,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
             // check that models are buildable and every model contains all additional variables
             for (final Model model : modelsRecursive) {
                 assertThat(variables(model)).containsAll(additionalVars);
-                assertThat(solver.satCall().assumptions(model.getLiterals()).sat()).isEqualTo(Tristate.TRUE);
+                assertThat(solver.satCall().addFormulas(model.getLiterals()).sat()).isEqualTo(Tristate.TRUE);
             }
         }
     }

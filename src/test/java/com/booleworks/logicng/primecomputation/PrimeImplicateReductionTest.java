@@ -142,11 +142,11 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula);
         final SortedSet<Literal> negatedLiterals = FormulaHelper.negateLiterals(f, primeImplicate, TreeSet::new);
-        Assertions.assertThat(solver.satCall().assumptions(negatedLiterals).sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.satCall().addFormulas(negatedLiterals).sat()).isEqualTo(Tristate.FALSE);
         for (final Literal lit : negatedLiterals) {
             final SortedSet<Literal> reducedNegatedLiterals = new TreeSet<>(negatedLiterals);
             reducedNegatedLiterals.remove(lit);
-            Assertions.assertThat(solver.satCall().assumptions(reducedNegatedLiterals).sat()).isEqualTo(Tristate.TRUE);
+            Assertions.assertThat(solver.satCall().addFormulas(reducedNegatedLiterals).sat()).isEqualTo(Tristate.TRUE);
         }
     }
 }

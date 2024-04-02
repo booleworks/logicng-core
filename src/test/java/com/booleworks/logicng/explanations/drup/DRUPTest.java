@@ -208,7 +208,7 @@ public class DRUPTest implements LogicNGTest {
         solver.add(p4);
 
         // Assumption call
-        solver.satCall().assumptions(f.variable("X")).sat();
+        solver.satCall().addFormulas(f.variable("X")).sat();
 
         solver.add(p5);
         solver.add(p6);
@@ -226,7 +226,7 @@ public class DRUPTest implements LogicNGTest {
         solver.add(f.parse("D => B | A"));
         solver.add(f.parse("B => X"));
         solver.add(f.parse("B => ~X"));
-        solver.satCall().assumptions(f.literal("A", false)).sat();
+        solver.satCall().addFormulas(f.literal("A", false)).sat();
 
         solver.add(f.parse("~A"));
         solver.sat();
@@ -262,7 +262,7 @@ public class DRUPTest implements LogicNGTest {
     public void testCoreAndAssumptions4() throws ParserException {
         final SATSolver solver = solverSupplier.get();
         solver.add(f.parse("~X1"));
-        solver.satCall().assumptions(f.variable("X1")).sat(); // caused the bug
+        solver.satCall().addFormulas(f.variable("X1")).sat(); // caused the bug
         solver.add(f.variable("A1"));
         solver.add(f.parse("A1 => A2"));
         solver.add(f.parse("R & A2 => A3"));
@@ -279,13 +279,7 @@ public class DRUPTest implements LogicNGTest {
         final SATSolver solver = solverSupplier.get();
         solver.add(f.parse("A1 => A2"));
         solver.add(f.parse("A2 => ~A1 | ~A3"));
-//        solver.add(f.parse("L | R"));
-//        solver.add(f.parse("A1 => A2"));
-//        solver.add(f.parse("R & A2 => A3"));
-//        solver.add(f.parse("L & A2 => A3"));
-//        solver.add(f.parse("R & A3 => A4"));
-//        solver.add(f.parse("L & A3 => A4"));
-        try (final SATCall satCall = solver.satCall().assumptions(f.variable("A3"), f.variable("A1")).solve()) {
+        try (final SATCall satCall = solver.satCall().addFormulas(f.variable("A3"), f.variable("A1")).solve()) {
             assertThat(satCall.getSatResult()).isEqualTo(Tristate.FALSE);
             System.out.println(satCall.unsatCore());
         }

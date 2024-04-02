@@ -4,10 +4,7 @@
 
 package com.booleworks.logicng.solvers.functions;
 
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.solvers.SATSolver;
-
-import java.util.function.Consumer;
 
 /**
  * An interface for a function which works on a given SAT solver and its state.
@@ -22,10 +19,8 @@ public interface SolverFunction<RESULT> {
 
     /**
      * Applies this function to the given solver.
-     * @param solver       the solver on which the function should work on
-     * @param resultSetter a setter for the result of the solver
+     * @param solver the solver on which the function should work on
      * @return the result of the function application
      */
-    // TODO result setter should be removed, since the solver should not provide the result field anymore
-    RESULT apply(SATSolver solver, Consumer<Tristate> resultSetter);
+    RESULT apply(SATSolver solver);
 }
