@@ -122,22 +122,33 @@ public class SATCall implements AutoCloseable {
 
     /**
      * Returns a model of the current formula on the solver wrt. a given set of variables.
-     * The variables must not be {@code null}. If you just want to get all variables, you
-     * can use {@link SATSolver#knownVariables() all variables known by the solver}.
+     * The variables must not be {@code null}.
      * <p>
      * If the formula is UNSAT, {@code null} will be returned.
      * @param variables the set of variables
      * @return a model of the current formula or {@code null} if the SAT call was unsatisfiable
+     * @throws IllegalArgumentException if the given variables are {@code null}
      */
     public Assignment model(final Collection<Variable> variables) {
+        if (variables == null) {
+            throw new IllegalArgumentException("The given variables must not be null.");
+        }
         if (satState != TRUE) {
             return null;
         } else {
+            final List<Literal> unknowns = new ArrayList<>();
             final LNGIntVector relevantIndices = new LNGIntVector(variables.size());
             for (final Variable var : variables) {
-                relevantIndices.push(solver.idxForName(var.name()));
+                final int element = solver.idxForName(var.name());
+                if (element != -1) {
+                    relevantIndices.push(element);
+                } else {
+                    unknowns.add(var.negate(solver.f));
+                }
             }
-            return new Assignment(solver.convertInternalModel(solver.model(), relevantIndices));
+            final List<Literal> finalModel = solver.convertInternalModel(solver.model(), relevantIndices);
+            finalModel.addAll(unknowns);
+            return new Assignment(finalModel);
         }
     }
 

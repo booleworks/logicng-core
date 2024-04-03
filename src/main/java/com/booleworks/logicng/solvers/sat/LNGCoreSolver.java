@@ -717,6 +717,18 @@ public class LNGCoreSolver {
     }
 
     /**
+     * Returns the set of variables currently known by the solver.
+     * @return the set of variables currently known by the solver
+     */
+    public SortedSet<Variable> knownVariables() {
+        final SortedSet<Variable> result = new TreeSet<>();
+        for (final String name : name2idx.keySet()) {
+            result.add(f.variable(name));
+        }
+        return result;
+    }
+
+    /**
      * Returns the current decision level of the solver.
      * @return the current decision level of the solver
      */
@@ -1660,12 +1672,18 @@ public class LNGCoreSolver {
         }
     }
 
-    public List<Literal> convertInternalModel(final LNGBooleanVector vec, final LNGIntVector relevantIndices) {
-        final List<Literal> literals = new ArrayList<>(vec.size());
+    /**
+     * Converts the internal model into a list of literals, considering only the variables with the relevant indices.
+     * @param internalModel   the internal model (e.g. from {@link #model()}
+     * @param relevantIndices the indices of the relevant variables
+     * @return the external model
+     */
+    public List<Literal> convertInternalModel(final LNGBooleanVector internalModel, final LNGIntVector relevantIndices) {
+        final List<Literal> literals = new ArrayList<>(internalModel.size());
         for (int i = 0; i < relevantIndices.size(); i++) {
             final int index = relevantIndices.get(i);
             if (index != -1) {
-                literals.add(f.literal(nameForIdx(index), vec.get(index)));
+                literals.add(f.literal(nameForIdx(index), internalModel.get(index)));
             }
         }
         return literals;

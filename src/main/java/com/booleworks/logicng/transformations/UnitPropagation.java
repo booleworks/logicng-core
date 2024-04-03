@@ -57,12 +57,12 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
     }
 
     /**
-     * An extension of Minisat to propagate units on formulas.
+     * An extension of the Core Solver to propagate units on formulas.
      */
     private static class Propagator extends LNGCoreSolver {
 
         /**
-         * Constructs a new MiniSatPropagator.
+         * Constructs a new Propagator.
          */
         public Propagator(final FormulaFactory f) {
             super(f, SATSolverConfig.builder().build());

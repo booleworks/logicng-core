@@ -61,7 +61,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
     @Override
     public RESULT apply(final SATSolver solver) {
         start(handler);
-        final SortedSet<Variable> knownVariables = solver.knownVariables();
+        final SortedSet<Variable> knownVariables = solver.underlyingSolver().knownVariables();
         final SortedSet<Variable> additionalVarsNotOnSolver = difference(additionalVariables, knownVariables, TreeSet::new);
         final SortedSet<Variable> dontCareVariablesNotOnSolver = difference(variables, knownVariables, TreeSet::new);
         final EnumerationCollector<RESULT> collector = newCollector(solver.factory(), knownVariables, dontCareVariablesNotOnSolver, additionalVarsNotOnSolver);

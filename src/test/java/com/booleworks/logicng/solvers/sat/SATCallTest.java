@@ -109,23 +109,29 @@ public class SATCallTest {
     }
 
     @Test
+    public void testDisallowNullVariablesInModel() {
+        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().build());
+        assertThatThrownBy(() -> solver.model(null)).isInstanceOf(IllegalArgumentException.class).hasMessage("The given variables must not be null.");
+    }
+
+    @Test
     public void testHandler() throws IOException, ParserException {
         final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).build());
         solver.add(FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt"));
 
         try (final SATCall satCall = solver.satCall().handler(new MaxConflictsHandler(0)).solve()) {
             assertThat(satCall.getSatResult()).isEqualTo(Tristate.UNDEF);
-            assertThat(satCall.model(solver.knownVariables())).isNull();
+            assertThat(satCall.model(solver.underlyingSolver().knownVariables())).isNull();
             assertThat(satCall.unsatCore()).isNull();
         }
 
         assertThat(solver.satCall().handler(new MaxConflictsHandler(0)).sat()).isEqualTo(Tristate.UNDEF);
-        assertThat(solver.satCall().handler(new MaxConflictsHandler(0)).model(solver.knownVariables())).isNull();
+        assertThat(solver.satCall().handler(new MaxConflictsHandler(0)).model(solver.underlyingSolver().knownVariables())).isNull();
         assertThat(solver.satCall().handler(new MaxConflictsHandler(0)).unsatCore()).isNull();
 
         try (final SATCall satCall = solver.satCall().handler(new MaxConflictsHandler(100)).solve()) {
             assertThat(satCall.getSatResult()).isEqualTo(Tristate.TRUE);
-            assertThat(satCall.model(solver.knownVariables())).isNotNull();
+            assertThat(satCall.model(solver.underlyingSolver().knownVariables())).isNotNull();
             assertThat(satCall.unsatCore()).isNull();
         }
     }
@@ -185,14 +191,14 @@ public class SATCallTest {
                         new StandardProposition(f.parse("e"))
                 );
 
-        assertThat(solver.satCall().addFormulas(f.parse("e <=> f")).addPropositions(new StandardProposition(f.parse("~e"))).model(solver.knownVariables())).isIn(
+        assertThat(solver.satCall().addFormulas(f.parse("e <=> f")).addPropositions(new StandardProposition(f.parse("~e"))).model(solver.underlyingSolver().knownVariables())).isIn(
                 new Assignment(f.literal("a", true), f.literal("b", true), f.literal("c", false), f.literal("d", false), f.literal("e", false), f.literal("f", false)),
                 new Assignment(f.literal("a", false), f.literal("b", true), f.literal("c", false), f.literal("d", false), f.literal("e", false), f.literal("f", false)),
                 new Assignment(f.literal("a", true), f.literal("b", false), f.literal("c", false), f.literal("d", false), f.literal("e", false), f.literal("f", false))
         );
 
         assertThat(solver.satCall().addPropositions(new StandardProposition(f.parse("e <=> f"))).addPropositions(new StandardProposition(f.parse("~e")))
-                .model(solver.knownVariables())).isIn(
+                .model(solver.underlyingSolver().knownVariables())).isIn(
                 new Assignment(f.literal("a", true), f.literal("b", true), f.literal("c", false), f.literal("d", false), f.literal("e", false), f.literal("f", false)),
                 new Assignment(f.literal("a", false), f.literal("b", true), f.literal("c", false), f.literal("d", false), f.literal("e", false), f.literal("f", false)),
                 new Assignment(f.literal("a", true), f.literal("b", false), f.literal("c", false), f.literal("d", false), f.literal("e", false), f.literal("f", false))

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-public class MiniSatTest {
+public class LNGCoreSolverTest {
 
     @Test
     public void testAnalyzeFinal() {

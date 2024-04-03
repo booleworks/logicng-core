@@ -302,7 +302,7 @@ public class DRUPTest implements LogicNGTest {
     }
 
     @Test
-    public void testWithSpecialUnitCaseMiniSat() throws ParserException {
+    public void testWithSpecialUnitCase() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).build());
         final StandardProposition p1 = new StandardProposition(f.parse("a => b"));

@@ -111,7 +111,7 @@ public final class SATSolverConfig extends Configuration {
 
     @Override
     public String toString() {
-        return "MiniSatConfig{" +
+        return "SATSolverConfig{" +
                 "proofGeneration=" + proofGeneration +
                 ", useAtMostClauses=" + useAtMostClauses +
                 ", cnfMethod=" + cnfMethod +
@@ -220,7 +220,7 @@ public final class SATSolverConfig extends Configuration {
         }
 
         /**
-         * Sets the initial phase of the solver.  The default value is {@code true}.
+         * Sets the initial phase of the solver.  The default value is {@code false}.
          * @param initialPhase the initial phase
          * @return the builder
          */

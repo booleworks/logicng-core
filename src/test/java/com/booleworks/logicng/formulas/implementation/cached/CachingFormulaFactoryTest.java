@@ -80,11 +80,11 @@ public class CachingFormulaFactoryTest {
     public void testConfigurations() {
         final FormulaFactory f = FormulaFactory.caching();
         final Configuration configMaxSat = MaxSATConfig.builder().build();
-        final Configuration configMiniSat = SATSolverConfig.builder().build();
+        final Configuration configSat = SATSolverConfig.builder().build();
         f.putConfiguration(configMaxSat);
-        f.putConfiguration(configMiniSat);
+        f.putConfiguration(configSat);
         assertThat(f.configurationFor(ConfigurationType.MAXSAT)).isEqualTo(configMaxSat);
-        assertThat(f.configurationFor(ConfigurationType.SAT)).isEqualTo(configMiniSat);
+        assertThat(f.configurationFor(ConfigurationType.SAT)).isEqualTo(configSat);
     }
 
     @Test

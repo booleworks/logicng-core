@@ -244,15 +244,15 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
 
     @Test
     public void testVariableRemovedBySimplificationOccursInModel() throws ParserException {
-        final FormulaFactory ff = FormulaFactory.caching(FormulaFactoryConfig.builder().simplifyComplementaryOperands(true).build());
-        final SATSolver solver = SATSolver.newSolver(ff, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
-        final Variable a = ff.variable("A");
-        final Variable b = ff.variable("B");
-        final Formula formula = ff.parse("A & B => A");
+        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().simplifyComplementaryOperands(true).build());
+        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        final Variable a = f.variable("A");
+        final Variable b = f.variable("B");
+        final Formula formula = f.parse("A & B => A");
         solver.add(formula); // during NNF conversion, used by the PG transformation, the formula simplifies to verum when added to the solver
         assertThat(solver.sat()).isTrue();
-        assertThat(solver.knownVariables()).containsExactlyInAnyOrder(a, b);
-        assertThat(variables(ff, solver.model(formula.variables(f)).literals())).containsExactlyInAnyOrder(a, b);
+        assertThat(solver.underlyingSolver().knownVariables()).isEmpty();
+        assertThat(variables(f, solver.model(List.of(a, b)).literals())).containsExactlyInAnyOrder(a, b);
     }
 
     @Test
@@ -260,7 +260,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
         final SATSolver solver = SATSolver.newSolver(f);
         final Variable a = f.variable("A");
         solver.add(a);
-        assertThat(solver.model(f.variables("A", "X")).literals()).containsExactly(a);
+        assertThat(solver.model(f.variables("A", "X")).literals()).containsExactlyInAnyOrder(a, f.literal("X", false));
     }
 
     @Test
@@ -651,33 +651,27 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
         }
     }
 
-//    @Test
-//    public void testModelBeforeSolving() {
-//        final MiniSat solver = MiniSat.miniSat(f);
-//        assertThatThrownBy(() -> solver.model(List.of())).isInstanceOf(IllegalStateException.class);
-//    }
-
     @Test
     public void testKnownVariables() throws ParserException {
         final PropositionalParser parser = new PropositionalParser(f);
         final Formula phi = parser.parse("x1 & x2 & x3 & (x4 | ~x5)");
-        final SATSolver minisat = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(false).build());
-        final SATSolver minicard = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(true).build());
-        minisat.add(phi);
-        minicard.add(phi);
+        final SATSolver solverWithoutAtMost = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(false).build());
+        final SATSolver solverWithAtMost = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(true).build());
+        solverWithoutAtMost.add(phi);
+        solverWithAtMost.add(phi);
         final SortedSet<Variable> expected = new TreeSet<>(Arrays.asList(
                 f.variable("x1"),
                 f.variable("x2"),
                 f.variable("x3"),
                 f.variable("x4"),
                 f.variable("x5")));
-        assertThat(minisat.knownVariables()).isEqualTo(expected);
-        assertThat(minicard.knownVariables()).isEqualTo(expected);
+        assertThat(solverWithoutAtMost.underlyingSolver().knownVariables()).isEqualTo(expected);
+        assertThat(solverWithAtMost.underlyingSolver().knownVariables()).isEqualTo(expected);
 
-        final SolverState state = minisat.saveState();
-        final SolverState stateCard = minicard.saveState();
-        minisat.add(f.variable("x6"));
-        minicard.add(f.variable("x6"));
+        final SolverState state = solverWithoutAtMost.saveState();
+        final SolverState stateCard = solverWithAtMost.saveState();
+        solverWithoutAtMost.add(f.variable("x6"));
+        solverWithAtMost.add(f.variable("x6"));
         final SortedSet<Variable> expected2 = new TreeSet<>(Arrays.asList(
                 f.variable("x1"),
                 f.variable("x2"),
@@ -685,25 +679,15 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                 f.variable("x4"),
                 f.variable("x5"),
                 f.variable("x6")));
-        assertThat(minisat.knownVariables()).isEqualTo(expected2);
-        assertThat(minicard.knownVariables()).isEqualTo(expected2);
+        assertThat(solverWithoutAtMost.underlyingSolver().knownVariables()).isEqualTo(expected2);
+        assertThat(solverWithAtMost.underlyingSolver().knownVariables()).isEqualTo(expected2);
 
-        // load state for minisat
-        minisat.loadState(state);
-        minicard.loadState(stateCard);
-        assertThat(minisat.knownVariables()).isEqualTo(expected);
-        assertThat(minicard.knownVariables()).isEqualTo(expected);
+        // load state
+        solverWithoutAtMost.loadState(state);
+        solverWithAtMost.loadState(stateCard);
+        assertThat(solverWithoutAtMost.underlyingSolver().knownVariables()).isEqualTo(expected);
+        assertThat(solverWithAtMost.underlyingSolver().knownVariables()).isEqualTo(expected);
     }
-
-//    @Test
-//    public void testUPZeroLiteralsForUndefState() {
-//        assertThatThrownBy(() -> {
-//            final SATSolver solver = MiniSat.miniSat(f);
-//            solver.add(f.parse("a & b"));
-//            solver.execute(UpZeroLiteralsFunction.get());
-//        }).isInstanceOf(IllegalStateException.class)
-//                .hasMessage("Cannot get unit propagated literals on level 0 as long as the formula is not solved.  Call 'sat' first.");
-//    }
 
     @Test
     public void testUPZeroLiteralsUNSAT() throws ParserException {
@@ -927,7 +911,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                     final boolean res = solver.satCall().selectionOrder(selectionOrder).sat() == Tristate.TRUE;
                     assertThat(res).isEqualTo(expectedResults.get(fileName));
                     if (expectedResults.get(fileName)) {
-                        final Assignment assignment = solver.model(solver.knownVariables());
+                        final Assignment assignment = solver.model(solver.underlyingSolver().knownVariables());
                         testLocalMinimum(solver, assignment, selectionOrder);
                         testHighestLexicographicalAssignment(solver, assignment, selectionOrder);
                     }

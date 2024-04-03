@@ -139,7 +139,6 @@ public class SATSolver {
         } else {
             addFormulaAsCNF(formula, proposition);
         }
-        addAllOriginalVariables(formula);
     }
 
     /**
@@ -383,24 +382,6 @@ public class SATSolver {
     }
 
     /**
-     * Returns the set of variables currently known by the solver.
-     * NOTE: Due to the incremental/decremental interface of some solvers, this set is generated each time,
-     * the method is called.  So if you can maintain a list of relevant/known variables in your own application,
-     * this is recommended.
-     * @return the set of variables currently known by the solver
-     */
-    public SortedSet<Variable> knownVariables() {
-        final SortedSet<Variable> result = new TreeSet<>();
-        final int nVars = solver.nVars();
-        for (final Map.Entry<String, Integer> entry : solver.name2idx().entrySet()) {
-            if (entry.getValue() < nVars) {
-                result.add(f.variable(entry.getKey()));
-            }
-        }
-        return result;
-    }
-
-    /**
      * Computes a backbone with both positive and negative variables of the current formula on the solver.
      * @param relevantVariables the variables which should be considered for the backbone
      * @return the backbone
@@ -444,17 +425,6 @@ public class SATSolver {
      */
     public LNGCoreSolver underlyingSolver() {
         return solver;
-    }
-
-    /**
-     * Adds all variables of the given formula to the solver if not already present.
-     * This method can be used to ensure that the internal solver knows the given variables.
-     * @param originalFormula the original formula
-     */
-    private void addAllOriginalVariables(final Formula originalFormula) {
-        for (final Variable var : originalFormula.variables(f)) {
-            LNGCoreSolver.solverLiteral(var, solver, config.initialPhase(), true);
-        }
     }
 
     protected void addFormulaAsCNF(final Formula formula, final Proposition proposition) {
