@@ -96,78 +96,84 @@ public class LNGCoreSolver {
     protected int stateId = 0;
 
     // mapping of variable names to variable indices
-    protected Map<String, Integer> name2idx;
-    protected Map<Integer, String> idx2name;
+    protected Map<String, Integer> name2idx = new TreeMap<>();
+    protected Map<Integer, String> idx2name = new TreeMap<>();
 
     // internal solver state
-    protected boolean ok;
-    protected int qhead;
-    protected LNGIntVector unitClauses;
-    protected LNGVector<LNGClause> clauses;
-    protected LNGVector<LNGClause> learnts;
-    protected LNGVector<LNGVector<LNGWatcher>> watches;
-    protected LNGVector<LNGVariable> vars;
-    protected LNGHeap orderHeap;
-    protected LNGIntVector trail;
-    protected LNGIntVector trailLim;
-    protected LNGBooleanVector model;
-    protected LNGIntVector conflict;
-    protected LNGIntVector assumptions;
-    protected LNGVector<Proposition> assumptionPropositions;
-    protected LNGBooleanVector seen;
-    protected int analyzeBtLevel;
-    protected double claInc;
-    protected int clausesLiterals;
-    protected int learntsLiterals;
+    protected boolean ok = true;
+    protected int qhead = 0;
+    protected LNGIntVector unitClauses = new LNGIntVector();
+    protected LNGVector<LNGClause> clauses = new LNGVector<>();
+    protected LNGVector<LNGClause> learnts = new LNGVector<>();
+    protected LNGVector<LNGVector<LNGWatcher>> watches = new LNGVector<>();
+    protected LNGVector<LNGVariable> vars = new LNGVector<>();
+    protected LNGHeap orderHeap = new LNGHeap(this);
+    protected LNGIntVector trail = new LNGIntVector();
+    protected LNGIntVector trailLim = new LNGIntVector();
+    protected LNGBooleanVector model = new LNGBooleanVector();
+    protected LNGIntVector conflict = new LNGIntVector();
+    protected LNGIntVector assumptions = new LNGIntVector();
+    protected LNGVector<Proposition> assumptionPropositions = new LNGVector<>();
+    protected LNGBooleanVector seen = new LNGBooleanVector();
+    protected int analyzeBtLevel = 0;
+    protected double claInc = 1;
+    protected int clausesLiterals = 0;
+    protected int learntsLiterals = 0;
 
     // SAT handler
     protected SATHandler handler;
-    protected boolean canceledByHandler;
+    protected boolean canceledByHandler = false;
 
     // Proof generating information
-    protected LNGVector<ProofInformation> pgOriginalClauses;
-    protected LNGVector<LNGIntVector> pgProof;
+    protected LNGVector<ProofInformation> pgOriginalClauses = new LNGVector<>();
+    protected LNGVector<LNGIntVector> pgProof = new LNGVector<>();
 
     // backbone computation
     protected Stack<Integer> backboneCandidates;
     protected LNGIntVector backboneAssumptions;
     protected HashMap<Integer, Tristate> backboneMap;
-    protected boolean computingBackbone;
+    protected boolean computingBackbone = false;
 
     // Selection order
-    protected LNGIntVector selectionOrder;
-    protected int selectionOrderIdx;
+    protected LNGIntVector selectionOrder = new LNGIntVector();
+    protected int selectionOrderIdx = 0;
 
     protected double varDecay;
     protected double varInc;
-    protected double learntsizeAdjustConfl;
-    protected int learntsizeAdjustCnt;
-    protected int learntsizeAdjustStartConfl;
-    protected double learntsizeAdjustInc;
-    protected double maxLearnts;
+    protected double learntsizeAdjustConfl = 0;
+    protected int learntsizeAdjustCnt = 0;
+    protected int learntsizeAdjustStartConfl = 100;
+    protected double learntsizeAdjustInc = 1.5;
+    protected double maxLearnts = 0;
 
     // internal glucose-related state
-    protected LNGVector<LNGVector<LNGWatcher>> watchesBin;
-    protected LNGIntVector permDiff;
-    protected LNGIntVector lastDecisionLevel;
-    protected LNGBoundedLongQueue lbdQueue;
-    protected LNGBoundedIntQueue trailQueue;
-    protected int myflag;
-    protected long analyzeLBD;
+    protected LNGVector<LNGVector<LNGWatcher>> watchesBin = new LNGVector<>();
+    protected LNGIntVector permDiff = new LNGIntVector();
+    protected LNGIntVector lastDecisionLevel = new LNGIntVector();
+    protected LNGBoundedLongQueue lbdQueue = new LNGBoundedLongQueue();
+    protected LNGBoundedIntQueue trailQueue = new LNGBoundedIntQueue();
+    protected int myflag = 0;
+    protected long analyzeLBD = 0;
     protected int nbClausesBeforeReduce;
-    protected int conflicts;
-    protected int conflictsRestarts;
-    protected double sumLBD;
-    protected int curRestart;
+    protected int conflicts = 0;
+    protected int conflictsRestarts = 0;
+    protected double sumLBD = 0;
+    protected int curRestart = 1;
 
     /**
-     * Constructs a new core solver with a given configuration.
-     * @param f
+     * Constructs a new core solver with a given configuration and formula factory.
+     * @param f      the formula factory
      * @param config the configuration
      */
     public LNGCoreSolver(final FormulaFactory f, final SATSolverConfig config) {
         this.f = f;
-        initialize(config);
+        this.config = config;
+        llConfig = config.lowLevelConfig;
+        varInc = llConfig.varInc;
+        varDecay = llConfig.varDecay;
+        lbdQueue.initSize(llConfig.sizeLBDQueue);
+        trailQueue.initSize(llConfig.sizeTrailQueue);
+        nbClausesBeforeReduce = llConfig.firstReduceDB;
     }
 
     /**
@@ -177,6 +183,7 @@ public class LNGCoreSolver {
      * @param literals     the literals
      * @param solver       the internal solver
      * @param initialPhase the initial phase of new literals
+     * @param decisionVar  whether the variable should be handled as decision variable
      * @return the clause vector
      */
     public static LNGIntVector generateClauseVector(final Collection<? extends Literal> literals,
@@ -284,67 +291,6 @@ public class LNGCoreSolver {
      */
     public static int var(final int lit) {
         return lit >> 1;
-    }
-
-    /**
-     * Initializes the internal solver state.
-     */
-    protected void initialize(final SATSolverConfig config) {
-        this.config = config;
-        llConfig = config.lowLevelConfig;
-        ok = true;
-        qhead = 0;
-        clauses = new LNGVector<>();
-        learnts = new LNGVector<>();
-        watches = new LNGVector<>();
-        vars = new LNGVector<>();
-        orderHeap = new LNGHeap(this);
-        trail = new LNGIntVector();
-        trailLim = new LNGIntVector();
-        model = new LNGBooleanVector();
-        conflict = new LNGIntVector();
-        assumptions = new LNGIntVector();
-        assumptionPropositions = new LNGVector<>();
-        seen = new LNGBooleanVector();
-        analyzeBtLevel = 0;
-        claInc = 1;
-        clausesLiterals = 0;
-        learntsLiterals = 0;
-        name2idx = new TreeMap<>();
-        idx2name = new TreeMap<>();
-        canceledByHandler = false;
-        if (this.config.proofGeneration) {
-            pgOriginalClauses = new LNGVector<>();
-            pgProof = new LNGVector<>();
-        }
-        computingBackbone = false;
-        selectionOrder = new LNGIntVector();
-        selectionOrderIdx = 0;
-        unitClauses = new LNGIntVector();
-        varInc = llConfig.varInc;
-        varDecay = llConfig.varDecay;
-        learntsizeAdjustConfl = 0;
-        learntsizeAdjustCnt = 0;
-        learntsizeAdjustStartConfl = 100;
-        learntsizeAdjustInc = 1.5;
-        maxLearnts = 0;
-
-        // glucose
-        watchesBin = new LNGVector<>();
-        permDiff = new LNGIntVector();
-        lastDecisionLevel = new LNGIntVector();
-        lbdQueue = new LNGBoundedLongQueue();
-        trailQueue = new LNGBoundedIntQueue();
-        lbdQueue.initSize(llConfig.sizeLBDQueue);
-        trailQueue.initSize(llConfig.sizeTrailQueue);
-        myflag = 0;
-        analyzeBtLevel = 0;
-        analyzeLBD = 0;
-        nbClausesBeforeReduce = llConfig.firstReduceDB;
-        conflicts = 0;
-        conflictsRestarts = 0;
-        sumLBD = 0;
-        curRestart = 1;
     }
 
     /**

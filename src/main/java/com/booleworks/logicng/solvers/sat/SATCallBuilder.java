@@ -4,7 +4,6 @@ import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.Formula;
-import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.SATHandler;
@@ -149,12 +148,12 @@ public class SATCallBuilder {
 
     /**
      * Directly computes a model of the current formula on the solver wrt. a given set of variables.
-     * The variables must not be {@code null}. If you just want to get all variables, you
-     * can use {@link SATSolver#knownVariables() all variables known by the solver}.
+     * The variables must not be {@code null}.
      * <p>
      * If the formula is UNSAT, {@code null} will be returned.
      * @param variables the set of variables
      * @return a model of the current formula or {@code null} if the SAT call was unsatisfiable
+     * @throws IllegalArgumentException if the given variables are {@code null}
      */
     public Assignment model(final Collection<Variable> variables) {
         try (final SATCall call = solve()) {

@@ -37,9 +37,6 @@ import com.booleworks.logicng.transformations.cnf.PlaistedGreenbaumTransformatio
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * A generic interface for LogicNG's SAT solvers.
@@ -290,8 +287,7 @@ public class SATSolver {
 
     /**
      * Returns a model of the current formula on the solver wrt. a given set of variables.
-     * The variables must not be {@code null}. If you just want to get all variables, you
-     * can use {@link SATSolver#knownVariables() all variables known by the solver}.
+     * The variables must not be {@code null}.
      * <p>
      * If the formula is UNSAT, {@code null} will be returned.
      * <p>
