@@ -6,9 +6,6 @@ package com.booleworks.logicng.solvers.functions.modelenumeration;
 
 import static com.booleworks.logicng.datastructures.Tristate.TRUE;
 import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
-import static com.booleworks.logicng.formulas.FormulaFactory.CC_PREFIX;
-import static com.booleworks.logicng.formulas.FormulaFactory.CNF_PREFIX;
-import static com.booleworks.logicng.formulas.FormulaFactory.PB_PREFIX;
 import static com.booleworks.logicng.handlers.Handler.aborted;
 import static com.booleworks.logicng.handlers.Handler.start;
 import static com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationCommon.generateBlockingClause;
@@ -79,7 +76,8 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         final SortedSet<Variable> dontCareVariablesNotOnSolver = difference(variables, knownVariables, TreeSet::new);
         final EnumerationCollector<RESULT> collector =
                 newCollector(solver.factory(), knownVariables, dontCareVariablesNotOnSolver, additionalVarsNotOnSolver);
-        final SortedSet<Variable> enumerationVars = getVarsForEnumeration(knownVariables);
+        final SortedSet<Variable> enumerationVars =
+                knownVariables.stream().filter(variables::contains).collect(Collectors.toCollection(TreeSet::new));
         final SortedSet<Variable> initialSplitVars =
                 nullSafe(() -> strategy.splitVarsForRecursionDepth(enumerationVars, solver, 0), TreeSet::new);
         enumerateRecursive(collector, solver, new TreeSet<>(), resultSetter, enumerationVars, initialSplitVars, 0);
@@ -171,19 +169,6 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         }
         loadState(solver, stateBeforeEnumeration);
         return true;
-    }
-
-    protected SortedSet<Variable> getVarsForEnumeration(final SortedSet<Variable> knownVariables) {
-        final SortedSet<Variable> relevantVars = knownVariables.stream()
-                .filter(AbstractModelEnumerationFunction::isNotAuxiliaryVariable)
-                .collect(Collectors.toCollection(TreeSet::new));
-        return variables == null ? relevantVars
-                : relevantVars.stream().filter(variables::contains).collect(Collectors.toCollection(TreeSet::new));
-    }
-
-    private static boolean isNotAuxiliaryVariable(final Variable var) {
-        return !var.name().startsWith(CC_PREFIX) && !var.name().startsWith(PB_PREFIX) &&
-                !var.name().startsWith(CNF_PREFIX);
     }
 
     private static boolean modelEnumerationSATCall(final MiniSat solver, final ModelEnumerationHandler handler) {
