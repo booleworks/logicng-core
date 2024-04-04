@@ -58,9 +58,6 @@ public class ConfigurationsTest {
                 "reduceOnSize=true%n" +
                 "reduceOnSizeSize=10%n" +
                 "maxVarDecay=0.99%n" +
-                "bbInitialUBCheckForRotatableLiterals=true%n" +
-                "bbCheckForComplementModelLiterals=true%n" +
-                "bbCheckForRotatableLiterals=true%n" +
                 "}");
         assertThat(config.toString()).isEqualTo(expected);
     }

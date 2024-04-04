@@ -21,8 +21,6 @@ import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
-import com.booleworks.logicng.solvers.sat.SATSolverLowLevelConfig;
 import com.booleworks.logicng.util.FormulaHelper;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -266,26 +264,6 @@ public class BackboneGenerationTest {
         combinedPosNegBackbone.addAll(backboneNegative.getCompleteBackbone(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(combinedPosNegBackbone);
         solver.loadState(before);
-    }
-
-    @Test
-    public void testDifferentConfigurations() throws IOException, ParserException {
-        final List<SATSolverConfig> configs = new ArrayList<>();
-        configs.add(SATSolverConfig.builder().lowLevelConfig(SATSolverLowLevelConfig.builder().bbCheckForComplementModelLiterals(false).build()).build());
-        configs.add(SATSolverConfig.builder().lowLevelConfig(SATSolverLowLevelConfig.builder().bbCheckForRotatableLiterals(false).build()).build());
-        configs.add(SATSolverConfig.builder().lowLevelConfig(SATSolverLowLevelConfig.builder().bbInitialUBCheckForRotatableLiterals(false).build()).build());
-
-        final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
-        SATSolver solver = SATSolver.newSolver(f);
-        solver.add(formula);
-        final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build());
-
-        for (final SATSolverConfig config : configs) {
-            solver = SATSolver.newSolver(f, config);
-            solver.add(formula);
-            Assertions.assertThat(solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build())).isEqualTo(backbone);
-        }
     }
 
     @Test

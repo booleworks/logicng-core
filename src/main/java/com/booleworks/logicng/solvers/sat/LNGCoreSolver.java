@@ -1844,7 +1844,7 @@ public class LNGCoreSolver {
                 final boolean modelPhase = model.get(var);
                 if (isBothOrNegativeType(type) && !modelPhase || isBothOrPositiveType(type) && modelPhase) {
                     final int lit = mkLit(var, !modelPhase);
-                    if (!config.lowLevelConfig.bbInitialUBCheckForRotatableLiterals || !isRotatable(lit)) {
+                    if (!isRotatable(lit)) {
                         backboneCandidates.add(lit);
                     }
                 }
@@ -1861,9 +1861,9 @@ public class LNGCoreSolver {
             if (isUPZeroLit(var)) {
                 backboneCandidates.remove(lit);
                 addBackboneLiteral(lit);
-            } else if (config.lowLevelConfig.bbCheckForComplementModelLiterals && model.get(var) == sign(lit)) {
+            } else if (model.get(var) == sign(lit)) {
                 backboneCandidates.remove(lit);
-            } else if (config.lowLevelConfig.bbCheckForRotatableLiterals && isRotatable(lit)) {
+            } else if (isRotatable(lit)) {
                 backboneCandidates.remove(lit);
             }
         }
