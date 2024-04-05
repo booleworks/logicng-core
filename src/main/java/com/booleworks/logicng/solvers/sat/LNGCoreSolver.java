@@ -491,10 +491,8 @@ public class LNGCoreSolver {
             status = search();
         }
 
-        if (config.proofGeneration && assumptions.empty()) {
-            if (status == Tristate.FALSE) {
-                pgProof.push(new LNGIntVector(1, 0));
-            }
+        if (config.proofGeneration && assumptions.empty() && status == Tristate.FALSE) {
+            pgProof.push(new LNGIntVector(1, 0));
         }
 
         if (status == Tristate.TRUE) {
@@ -1154,7 +1152,6 @@ public class LNGCoreSolver {
             return Tristate.FALSE;
         }
         final LNGIntVector learntClause = new LNGIntVector();
-        final LNGIntVector selectors = new LNGIntVector();
         selectionOrderIdx = 0;
         while (true) {
             final LNGClause confl = propagate();
@@ -1176,8 +1173,7 @@ public class LNGCoreSolver {
                     lbdQueue.fastClear();
                 }
                 learntClause.clear();
-                selectors.clear();
-                analyze(confl, learntClause, selectors);
+                analyze(confl, learntClause);
                 lbdQueue.push(analyzeLBD);
                 sumLBD += analyzeLBD;
                 cancelUntil(analyzeBtLevel);
@@ -1257,10 +1253,8 @@ public class LNGCoreSolver {
      * and the new backtracking level is stored in the solver state.
      * @param conflictClause the conflict clause to start the resolution analysis with
      * @param outLearnt      the vector where the new learnt 1-UIP clause is stored
-     * @param selectors      a vector of selector variables
      */
-    protected void analyze(final LNGClause conflictClause, final LNGIntVector outLearnt,
-                           final LNGIntVector selectors) {
+    protected void analyze(final LNGClause conflictClause, final LNGIntVector outLearnt) {
         LNGClause c = conflictClause;
         int pathC = 0;
         int p = LIT_UNDEF;
@@ -1331,20 +1325,16 @@ public class LNGCoreSolver {
             pathC--;
         } while (pathC > 0);
         outLearnt.set(0, not(p));
-        simplifyClause(outLearnt, selectors);
+        simplifyClause(outLearnt);
     }
 
     /**
      * Minimizes a given learnt clause depending on the minimization method of the solver configuration.
      * @param outLearnt the learnt clause which should be minimized
-     * @param selectors a vector of selector variables
      */
-    protected void simplifyClause(final LNGIntVector outLearnt, final LNGIntVector selectors) {
+    protected void simplifyClause(final LNGIntVector outLearnt) {
         int i;
         int j;
-        for (i = 0; i < selectors.size(); i++) {
-            outLearnt.push(selectors.get(i));
-        }
         final LNGIntVector analyzeToClear = new LNGIntVector(outLearnt);
         if (config.clauseMinimization == SATSolverConfig.ClauseMinimization.DEEP) {
             int abstractLevel = 0;
@@ -1397,9 +1387,6 @@ public class LNGCoreSolver {
             }
         }
         lastDecisionLevel.clear();
-        for (int m = 0; m < selectors.size(); m++) {
-            seen.set(var(selectors.get(m)), false);
-        }
         for (int l = 0; l < analyzeToClear.size(); l++) {
             seen.set(var(analyzeToClear.get(l)), false);
         }

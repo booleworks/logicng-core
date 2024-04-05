@@ -207,7 +207,7 @@ public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
     protected void handleConflict(final LNGClause conflict) {
         if (decisionLevel() > 0) {
             lastLearnt = new LNGIntVector();
-            analyze(conflict, lastLearnt, new LNGIntVector(0));
+            analyze(conflict, lastLearnt);
             assertionLevel = analyzeBtLevel;
         } else {
             // solver unsat
