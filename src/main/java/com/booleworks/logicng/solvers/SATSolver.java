@@ -10,11 +10,9 @@ import com.booleworks.logicng.cardinalityconstraints.CCEncoder;
 import com.booleworks.logicng.cardinalityconstraints.CCIncrementalData;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
-import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
-import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.FType;
@@ -282,39 +280,6 @@ public class SATSolver {
     public boolean sat() {
         try (final SATCall call = satCall().solve()) {
             return call.getSatResult() == Tristate.TRUE;
-        }
-    }
-
-    /**
-     * Returns a model of the current formula on the solver wrt. a given set of variables.
-     * The variables must not be {@code null}.
-     * <p>
-     * If the formula is UNSAT, {@code null} will be returned.
-     * <p>
-     * This is a shortcut for {@code satCall().model()}.
-     * @param variables the set of variables
-     * @return a model of the current formula or {@code null} if the SAT call was unsatisfiable
-     */
-    public Assignment model(final Collection<Variable> variables) {
-        try (final SATCall call = satCall().solve()) {
-            return call.model(variables);
-        }
-    }
-
-    /**
-     * Returns an unsat core of the current problem.
-     * <p>
-     * {@link SATSolverConfig#proofGeneration() Proof generation} must be enabled in order to use this method,
-     * otherwise an {@link IllegalStateException} is thrown.
-     * <p>
-     * If the formula on the solver is satisfiable, {@code null} is returned.
-     * <p>
-     * This is a shortcut for {@code satCall().unsatCore()}.
-     * @return the unsat core or {@code null} if the SAT call was satisfiable
-     */
-    public UNSATCore<Proposition> unsatCore() {
-        try (final SATCall call = satCall().solve()) {
-            return call.unsatCore();
         }
     }
 

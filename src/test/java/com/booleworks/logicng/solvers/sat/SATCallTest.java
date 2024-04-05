@@ -37,8 +37,8 @@ public class SATCallTest {
         final String expectedMessage = "This operation is not allowed because a SAT call is running on this solver!";
         assertThatThrownBy(newCallBuilder::solve).isInstanceOf(IllegalStateException.class).hasMessage(expectedMessage);
         assertThatThrownBy(solver::sat).isInstanceOf(IllegalStateException.class).hasMessage(expectedMessage);
-        assertThatThrownBy(() -> solver.model(List.of(f.variable("a")))).isInstanceOf(IllegalStateException.class).hasMessage(expectedMessage);
-        assertThatThrownBy(solver::unsatCore).isInstanceOf(IllegalStateException.class).hasMessage(expectedMessage);
+        assertThatThrownBy(() -> solver.satCall().model(List.of(f.variable("a")))).isInstanceOf(IllegalStateException.class).hasMessage(expectedMessage);
+        assertThatThrownBy(() -> solver.satCall().unsatCore()).isInstanceOf(IllegalStateException.class).hasMessage(expectedMessage);
         assertThatThrownBy(() -> solver.execute(FormulaOnSolverFunction.get())).isInstanceOf(IllegalStateException.class).hasMessage(expectedMessage);
         assertThatThrownBy(solver::saveState).isInstanceOf(IllegalStateException.class).hasMessage(expectedMessage);
         assertThatThrownBy(() -> solver.loadState(new SolverState(1, new int[0]))).isInstanceOf(IllegalStateException.class).hasMessage(expectedMessage);
@@ -53,7 +53,7 @@ public class SATCallTest {
         solver.loadState(newState);
         solver.add(f.variable("a"));
         assertThat(solver.sat()).isTrue();
-        assertThat(solver.model(List.of(f.variable("a")))).isEqualTo(new Assignment(f.variable("a")));
+        assertThat(solver.satCall().model(List.of(f.variable("a")))).isEqualTo(new Assignment(f.variable("a")));
     }
 
     @Test
@@ -78,7 +78,7 @@ public class SATCallTest {
                 new Assignment(f.literal("a", false), f.variable("b"), f.variable("c"), f.literal("d", false)),
                 new Assignment(f.literal("a", false), f.variable("b"), f.variable("c"), f.literal("d", true))
         );
-        assertThat(solver.model(abc)).isEqualTo(new Assignment(f.literal("a", false), f.variable("b"), f.variable("c")));
+        assertThat(solver.satCall().model(abc)).isEqualTo(new Assignment(f.literal("a", false), f.variable("b"), f.variable("c")));
     }
 
     @Test
@@ -100,7 +100,7 @@ public class SATCallTest {
         );
         assertThat(solver.sat()).isTrue();
         solver.add(f.parse("~b"));
-        assertThat(solver.unsatCore().propositions()).containsExactlyInAnyOrder(
+        assertThat(solver.satCall().unsatCore().propositions()).containsExactlyInAnyOrder(
                 new StandardProposition(f.parse("a | b")),
                 new StandardProposition(f.parse("c")),
                 new StandardProposition(f.parse("~c | ~a")),
@@ -111,7 +111,7 @@ public class SATCallTest {
     @Test
     public void testDisallowNullVariablesInModel() {
         final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().build());
-        assertThatThrownBy(() -> solver.model(null)).isInstanceOf(IllegalArgumentException.class).hasMessage("The given variables must not be null.");
+        assertThatThrownBy(() -> solver.satCall().model(null)).isInstanceOf(IllegalArgumentException.class).hasMessage("The given variables must not be null.");
     }
 
     @Test

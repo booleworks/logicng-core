@@ -58,7 +58,7 @@ public class CCPerformanceTest implements LogicNGTest {
             final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(miniCard).build());
             solver.add(cc);
             assertSolverSat(solver);
-            final Assignment model = solver.model(Arrays.asList(problemLits));
+            final Assignment model = solver.satCall().model(Arrays.asList(problemLits));
             assertThat(cc.evaluate(model)).isTrue();
         }
     }
