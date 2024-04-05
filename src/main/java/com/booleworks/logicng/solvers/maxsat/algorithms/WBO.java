@@ -460,16 +460,16 @@ public class WBO extends MaxSAT {
                 return MaxSATResult.UNDEF;
             } else if (res == FALSE) {
                 nbCores++;
-                assert solver.conflict().size() > 0;
-                final int coreCost = computeCostCore(solver.conflict());
+                assert solver.assumptionsConflict().size() > 0;
+                final int coreCost = computeCostCore(solver.assumptionsConflict());
                 lbCost += coreCost;
                 if (verbosity != Verbosity.NONE) {
-                    output.printf("c LB : %d CS : %d W : %d%n", lbCost, solver.conflict().size(), coreCost);
+                    output.printf("c LB : %d CS : %d W : %d%n", lbCost, solver.assumptionsConflict().size(), coreCost);
                 }
                 if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                relaxCore(solver.conflict(), coreCost, assumptions);
+                relaxCore(solver.assumptionsConflict(), coreCost, assumptions);
                 solver = rebuildWeightSolver(weightStrategy);
             } else {
                 nbSatisfiable++;
@@ -526,11 +526,11 @@ public class WBO extends MaxSAT {
                 return MaxSATResult.UNDEF;
             } else if (res == FALSE) {
                 nbCores++;
-                assert solver.conflict().size() > 0;
-                final int coreCost = computeCostCore(solver.conflict());
+                assert solver.assumptionsConflict().size() > 0;
+                final int coreCost = computeCostCore(solver.assumptionsConflict());
                 lbCost += coreCost;
                 if (verbosity != Verbosity.NONE) {
-                    output.printf("c LB : %d CS : %d W : %d%n", lbCost, solver.conflict().size(), coreCost);
+                    output.printf("c LB : %d CS : %d W : %d%n", lbCost, solver.assumptionsConflict().size(), coreCost);
                 }
                 if (lbCost == ubCost) {
                     if (verbosity != Verbosity.NONE) {
@@ -540,7 +540,7 @@ public class WBO extends MaxSAT {
                 } else if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                relaxCore(solver.conflict(), coreCost, assumptions);
+                relaxCore(solver.assumptionsConflict(), coreCost, assumptions);
                 solver = rebuildSolver();
             } else {
                 nbSatisfiable++;

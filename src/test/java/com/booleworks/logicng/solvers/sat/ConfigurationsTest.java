@@ -21,8 +21,6 @@ public class ConfigurationsTest {
                 .restartFirst(200)
                 .restartInc(0.8)
                 .clauseDecay(0.92)
-                .lsFactor(1.4)
-                .lsInc(1.5)
                 .lbLBDMinimizingClause(3)
                 .lbLBDFrozenClause(25)
                 .lbSizeMinimizingClause(24)
@@ -43,8 +41,6 @@ public class ConfigurationsTest {
                 "restartFirst=200%n" +
                 "restartInc=0.8%n" +
                 "clauseDecay=0.92%n" +
-                "learntsizeFactor=1.4%n" +
-                "learntsizeInc=1.5%n" +
                 "lbLBDMinimizingClause=3%n" +
                 "lbLBDFrozenClause=25%n" +
                 "lbSizeMinimizingClause=24%n" +

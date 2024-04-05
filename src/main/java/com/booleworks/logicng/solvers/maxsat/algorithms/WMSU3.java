@@ -194,15 +194,15 @@ public class WMSU3 extends MaxSAT {
                 } else if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                sumSizeCores += solver.conflict().size();
+                sumSizeCores += solver.assumptionsConflict().size();
                 objFunction.clear();
                 coeffs.clear();
                 assumptions.clear();
-                for (int i = 0; i < solver.conflict().size(); i++) {
-                    if (!coreMapping.containsKey(solver.conflict().get(i))) {
+                for (int i = 0; i < solver.assumptionsConflict().size(); i++) {
+                    if (!coreMapping.containsKey(solver.assumptionsConflict().get(i))) {
                         continue;
                     }
-                    final int indexSoft = coreMapping.get(solver.conflict().get(i));
+                    final int indexSoft = coreMapping.get(solver.assumptionsConflict().get(i));
                     if (!activeSoft.get(indexSoft)) {
                         activeSoft.set(indexSoft, true);
                         objFunction.push(softClauses.get(indexSoft).relaxationVars().get(0));
@@ -288,9 +288,9 @@ public class WMSU3 extends MaxSAT {
                 } else if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                sumSizeCores += solver.conflict().size();
-                for (int i = 0; i < solver.conflict().size(); i++) {
-                    final int indexSoft = coreMapping.get(solver.conflict().get(i));
+                sumSizeCores += solver.assumptionsConflict().size();
+                for (int i = 0; i < solver.assumptionsConflict().size(); i++) {
+                    final int indexSoft = coreMapping.get(solver.assumptionsConflict().get(i));
                     assert !activeSoft.get(indexSoft);
                     activeSoft.set(indexSoft, true);
                 }
@@ -437,18 +437,18 @@ public class WMSU3 extends MaxSAT {
                 } else if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                sumSizeCores += solver.conflict().size();
+                sumSizeCores += solver.assumptionsConflict().size();
                 joinObjFunction.clear();
                 joinCoeffs.clear();
-                for (int i = 0; i < solver.conflict().size(); i++) {
-                    if (coreMapping.containsKey(solver.conflict().get(i))) {
-                        if (activeSoft.get(coreMapping.get(solver.conflict().get(i)))) {
+                for (int i = 0; i < solver.assumptionsConflict().size(); i++) {
+                    if (coreMapping.containsKey(solver.assumptionsConflict().get(i))) {
+                        if (activeSoft.get(coreMapping.get(solver.assumptionsConflict().get(i)))) {
                             continue;
                         }
-                        assert softClauses.get(coreMapping.get(solver.conflict().get(i))).weight() == currentWeight;
-                        activeSoft.set(coreMapping.get(solver.conflict().get(i)), true);
-                        joinObjFunction.push(softClauses.get(coreMapping.get(solver.conflict().get(i))).relaxationVars().get(0));
-                        joinCoeffs.push(softClauses.get(coreMapping.get(solver.conflict().get(i))).weight());
+                        assert softClauses.get(coreMapping.get(solver.assumptionsConflict().get(i))).weight() == currentWeight;
+                        activeSoft.set(coreMapping.get(solver.assumptionsConflict().get(i)), true);
+                        joinObjFunction.push(softClauses.get(coreMapping.get(solver.assumptionsConflict().get(i))).relaxationVars().get(0));
+                        joinCoeffs.push(softClauses.get(coreMapping.get(solver.assumptionsConflict().get(i))).weight());
                     }
                 }
                 objFunction.clear();

@@ -92,12 +92,13 @@ public class LNGCoreSolver {
     protected SATSolverLowLevelConfig llConfig;
     protected boolean inSatCall;
 
-    protected LNGIntVector validStates = new LNGIntVector();
-    protected int stateId = 0;
-
     // mapping of variable names to variable indices
     protected Map<String, Integer> name2idx = new TreeMap<>();
     protected Map<Integer, String> idx2name = new TreeMap<>();
+
+    // bookkeeping of solver states
+    protected LNGIntVector validStates = new LNGIntVector();
+    protected int nextStateId = 0;
 
     // internal solver state
     protected boolean ok = true;
@@ -111,12 +112,14 @@ public class LNGCoreSolver {
     protected LNGIntVector trail = new LNGIntVector();
     protected LNGIntVector trailLim = new LNGIntVector();
     protected LNGBooleanVector model = new LNGBooleanVector();
-    protected LNGIntVector conflict = new LNGIntVector();
+    protected LNGIntVector assumptionsConflict = new LNGIntVector();
     protected LNGIntVector assumptions = new LNGIntVector();
     protected LNGVector<Proposition> assumptionPropositions = new LNGVector<>();
     protected LNGBooleanVector seen = new LNGBooleanVector();
     protected int analyzeBtLevel = 0;
     protected double claInc = 1;
+    protected double varInc;
+    protected double varDecay;
     protected int clausesLiterals = 0;
     protected int learntsLiterals = 0;
 
@@ -129,22 +132,14 @@ public class LNGCoreSolver {
     protected LNGVector<LNGIntVector> pgProof = new LNGVector<>();
 
     // backbone computation
+    protected boolean computingBackbone = false;
     protected Stack<Integer> backboneCandidates;
     protected LNGIntVector backboneAssumptions;
     protected HashMap<Integer, Tristate> backboneMap;
-    protected boolean computingBackbone = false;
 
     // Selection order
     protected LNGIntVector selectionOrder = new LNGIntVector();
     protected int selectionOrderIdx = 0;
-
-    protected double varDecay;
-    protected double varInc;
-    protected double learntsizeAdjustConfl = 0;
-    protected int learntsizeAdjustCnt = 0;
-    protected int learntsizeAdjustStartConfl = 100;
-    protected double learntsizeAdjustInc = 1.5;
-    protected double maxLearnts = 0;
 
     // internal glucose-related state
     protected LNGVector<LNGVector<LNGWatcher>> watchesBin = new LNGVector<>();
@@ -487,7 +482,7 @@ public class LNGCoreSolver {
     public Tristate internalSolve() {
         start(handler);
         model.clear();
-        conflict.clear();
+        assumptionsConflict.clear();
         if (!ok) {
             return Tristate.FALSE;
         }
@@ -507,7 +502,7 @@ public class LNGCoreSolver {
             for (final LNGVariable v : vars) {
                 model.push(v.assignment() == Tristate.TRUE);
             }
-        } else if (status == Tristate.FALSE && conflict.empty()) {
+        } else if (status == Tristate.FALSE && assumptionsConflict.empty()) {
             ok = false;
         }
         finishSolving(handler);
@@ -558,11 +553,11 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Returns the current conflict of the solver or an empty vector if there is none.
-     * @return the current conflict of the solver
+     * Returns the conflict of the solver or an empty vector if there is none.
+     * @return the conflict of the solver
      */
-    public LNGIntVector conflict() {
-        return conflict;
+    public LNGIntVector assumptionsConflict() {
+        return assumptionsConflict;
     }
 
     /**
@@ -581,7 +576,7 @@ public class LNGCoreSolver {
             state[4] = pgOriginalClauses.size();
             state[5] = pgProof.size();
         }
-        final int id = stateId++;
+        final int id = nextStateId++;
         validStates.push(id);
         return new SolverState(id, state);
     }
@@ -1036,13 +1031,12 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Analysis the final conflict if there were assumptions.
-     * @param p           the conflicting literal
-     * @param outConflict the vector to store the final conflict
+     * Analyses the final conflict if there were assumptions.
+     * @param p the conflicting literal
      */
-    protected void analyzeFinal(final int p, final LNGIntVector outConflict) {
-        outConflict.clear();
-        outConflict.push(p);
+    protected void analyzeAssumptionConflict(final int p) {
+        assumptionsConflict.clear();
+        assumptionsConflict.push(p);
         if (decisionLevel() == 0) {
             return;
         }
@@ -1055,7 +1049,7 @@ public class LNGCoreSolver {
                 v = vars.get(x);
                 if (v.reason() == null) {
                     assert v.level() > 0;
-                    outConflict.push(not(trail.get(i)));
+                    assumptionsConflict.push(not(trail.get(i)));
                 } else {
                     final LNGClause c = v.reason();
                     if (!c.isAtMost()) {
@@ -1204,7 +1198,7 @@ public class LNGCoreSolver {
                     uncheckedEnqueue(learntClause.get(0), null);
                     unitClauses.push(learntClause.get(0));
                 } else {
-                    final LNGClause cr = new LNGClause(learntClause, stateId);
+                    final LNGClause cr = new LNGClause(learntClause, nextStateId);
                     cr.setLBD(analyzeLBD);
                     cr.setOneWatched(false);
                     learnts.push(cr);
@@ -1235,7 +1229,7 @@ public class LNGCoreSolver {
                             final int drupLit = (var(p) + 1) * (-2 * (sign(p) ? 1 : 0) + 1);
                             pgOriginalClauses.push(new ProofInformation(new LNGIntVector(1, drupLit), assumptionPropositions.get(decisionLevel())));
                         }
-                        analyzeFinal(not(p), conflict);
+                        analyzeAssumptionConflict(not(p));
                         return Tristate.FALSE;
                     } else {
                         if (config.proofGeneration) {
@@ -1668,7 +1662,7 @@ public class LNGCoreSolver {
         sb.append("#trailLim     ").append(trailLim.size()).append(System.lineSeparator());
 
         sb.append("model         ").append(model).append(System.lineSeparator());
-        sb.append("conflict      ").append(conflict).append(System.lineSeparator());
+        sb.append("conflict      ").append(assumptionsConflict).append(System.lineSeparator());
         sb.append("assumptions   ").append(assumptions).append(System.lineSeparator());
         sb.append("#seen         ").append(seen.size()).append(System.lineSeparator());
 

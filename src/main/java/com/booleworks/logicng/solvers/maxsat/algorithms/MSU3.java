@@ -152,10 +152,10 @@ public class MSU3 extends MaxSAT {
                 } else if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                sumSizeCores += solver.conflict().size();
-                for (int i = 0; i < solver.conflict().size(); i++) {
-                    assert !activeSoft.get(coreMapping.get(solver.conflict().get(i)));
-                    activeSoft.set(coreMapping.get(solver.conflict().get(i)), true);
+                sumSizeCores += solver.assumptionsConflict().size();
+                for (int i = 0; i < solver.assumptionsConflict().size(); i++) {
+                    assert !activeSoft.get(coreMapping.get(solver.assumptionsConflict().get(i)));
+                    activeSoft.set(coreMapping.get(solver.assumptionsConflict().get(i)), true);
                 }
                 currentObjFunction.clear();
                 assumptions.clear();
@@ -232,19 +232,19 @@ public class MSU3 extends MaxSAT {
                     }
                     return MaxSATResult.OPTIMUM;
                 }
-                sumSizeCores += solver.conflict().size();
-                if (solver.conflict().size() == 0) {
+                sumSizeCores += solver.assumptionsConflict().size();
+                if (solver.assumptionsConflict().size() == 0) {
                     return MaxSATResult.UNSATISFIABLE;
                 }
                 if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
                 joinObjFunction.clear();
-                for (int i = 0; i < solver.conflict().size(); i++) {
-                    if (coreMapping.containsKey(solver.conflict().get(i))) {
-                        assert !activeSoft.get(coreMapping.get(solver.conflict().get(i)));
-                        activeSoft.set(coreMapping.get(solver.conflict().get(i)), true);
-                        joinObjFunction.push(softClauses.get(coreMapping.get(solver.conflict().get(i))).relaxationVars().get(0));
+                for (int i = 0; i < solver.assumptionsConflict().size(); i++) {
+                    if (coreMapping.containsKey(solver.assumptionsConflict().get(i))) {
+                        assert !activeSoft.get(coreMapping.get(solver.assumptionsConflict().get(i)));
+                        activeSoft.set(coreMapping.get(solver.assumptionsConflict().get(i)), true);
+                        joinObjFunction.push(softClauses.get(coreMapping.get(solver.assumptionsConflict().get(i))).relaxationVars().get(0));
                     }
                 }
                 currentObjFunction.clear();

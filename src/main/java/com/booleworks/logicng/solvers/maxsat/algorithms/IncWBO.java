@@ -323,16 +323,16 @@ public class IncWBO extends WBO {
                 return MaxSATResult.UNDEF;
             } else if (res == FALSE) {
                 nbCores++;
-                assert solver.conflict().size() > 0;
-                final int coreCost = computeCostCore(solver.conflict());
+                assert solver.assumptionsConflict().size() > 0;
+                final int coreCost = computeCostCore(solver.assumptionsConflict());
                 lbCost += coreCost;
                 if (verbosity != MaxSATConfig.Verbosity.NONE) {
-                    output.printf("c LB : %d CS : %d W : %d%n", lbCost, solver.conflict().size(), coreCost);
+                    output.printf("c LB : %d CS : %d W : %d%n", lbCost, solver.assumptionsConflict().size(), coreCost);
                 }
                 if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                relaxCore(solver.conflict(), coreCost);
+                relaxCore(solver.assumptionsConflict(), coreCost);
                 incrementalBuildWeightSolver(weightStrategy);
             } else {
                 nbSatisfiable++;
@@ -421,11 +421,11 @@ public class IncWBO extends WBO {
                 return MaxSATResult.UNDEF;
             } else if (res == FALSE) {
                 nbCores++;
-                assert solver.conflict().size() > 0;
-                final int coreCost = computeCostCore(solver.conflict());
+                assert solver.assumptionsConflict().size() > 0;
+                final int coreCost = computeCostCore(solver.assumptionsConflict());
                 lbCost += coreCost;
                 if (verbosity != MaxSATConfig.Verbosity.NONE) {
-                    output.printf("c LB : %d CS : %d W : %d%n", lbCost, solver.conflict().size(), coreCost);
+                    output.printf("c LB : %d CS : %d W : %d%n", lbCost, solver.assumptionsConflict().size(), coreCost);
                 }
                 if (lbCost == ubCost) {
                     if (verbosity != MaxSATConfig.Verbosity.NONE) {
@@ -436,7 +436,7 @@ public class IncWBO extends WBO {
                 if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                relaxCore(solver.conflict(), coreCost);
+                relaxCore(solver.assumptionsConflict(), coreCost);
             } else {
                 nbSatisfiable++;
                 ubCost = incComputeCostModel(solver.model());

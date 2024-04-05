@@ -146,16 +146,16 @@ public class OLL extends MaxSAT {
                     assert nbSatisfiable > 0;
                     return MaxSATResult.OPTIMUM;
                 }
-                sumSizeCores += solver.conflict().size();
+                sumSizeCores += solver.assumptionsConflict().size();
                 final LNGIntVector softRelax = new LNGIntVector();
                 final LNGIntVector cardinalityRelax = new LNGIntVector();
 
-                for (int i = 0; i < solver.conflict().size(); i++) {
-                    final int p = solver.conflict().get(i);
+                for (int i = 0; i < solver.assumptionsConflict().size(); i++) {
+                    final int p = solver.assumptionsConflict().get(i);
                     if (coreMapping.containsKey(p)) {
                         assert !activeSoft.get(coreMapping.get(p));
-                        activeSoft.set(coreMapping.get(solver.conflict().get(i)), true);
-                        assert p == softClauses.get(coreMapping.get(solver.conflict().get(i))).relaxationVars().get(0);
+                        activeSoft.set(coreMapping.get(solver.assumptionsConflict().get(i)), true);
+                        assert p == softClauses.get(coreMapping.get(solver.assumptionsConflict().get(i))).relaxationVars().get(0);
                         softRelax.push(p);
                     }
 
@@ -165,7 +165,7 @@ public class OLL extends MaxSAT {
                         cardinalityRelax.push(p);
 
                         // this is a soft cardinality -- bound must be increased
-                        final IntTriple softId = boundMapping.get(solver.conflict().get(i));
+                        final IntTriple softId = boundMapping.get(solver.assumptionsConflict().get(i));
                         // // increase the bound
                         assert softId.id < softCardinality.size();
                         assert softCardinality.get(softId.id).hasCardEncoding();
@@ -298,16 +298,16 @@ public class OLL extends MaxSAT {
             } else if (res == Tristate.FALSE) {
                 // reduce the weighted to the unweighted case
                 int minCore = Integer.MAX_VALUE;
-                for (int i = 0; i < solver.conflict().size(); i++) {
-                    final int p = solver.conflict().get(i);
+                for (int i = 0; i < solver.assumptionsConflict().size(); i++) {
+                    final int p = solver.assumptionsConflict().get(i);
                     if (coreMapping.containsKey(p)) {
                         assert !activeSoft.get(coreMapping.get(p));
-                        if (softClauses.get(coreMapping.get(solver.conflict().get(i))).weight() < minCore) {
-                            minCore = softClauses.get(coreMapping.get(solver.conflict().get(i))).weight();
+                        if (softClauses.get(coreMapping.get(solver.assumptionsConflict().get(i))).weight() < minCore) {
+                            minCore = softClauses.get(coreMapping.get(solver.assumptionsConflict().get(i))).weight();
                         }
                     }
                     if (boundMapping.containsKey(p)) {
-                        final IntTriple softId = boundMapping.get(solver.conflict().get(i));
+                        final IntTriple softId = boundMapping.get(solver.assumptionsConflict().get(i));
                         if (softId.weight < minCore) {
                             minCore = softId.weight;
                         }
@@ -322,12 +322,12 @@ public class OLL extends MaxSAT {
                     assert nbSatisfiable > 0;
                     return MaxSATResult.OPTIMUM;
                 }
-                sumSizeCores += solver.conflict().size();
+                sumSizeCores += solver.assumptionsConflict().size();
                 final LNGIntVector softRelax = new LNGIntVector();
                 final LNGIntVector cardinalityRelax = new LNGIntVector();
 
-                for (int i = 0; i < solver.conflict().size(); i++) {
-                    final int p = solver.conflict().get(i);
+                for (int i = 0; i < solver.assumptionsConflict().size(); i++) {
+                    final int p = solver.assumptionsConflict().get(i);
                     if (coreMapping.containsKey(p)) {
                         if (softClauses.get(coreMapping.get(p)).weight() > minCore) {
                             assert !activeSoft.get(coreMapping.get(p));
@@ -366,7 +366,7 @@ public class OLL extends MaxSAT {
                             assert softClauses.get(coreMapping.get(l)).weight() == minCore;
                             assert activeSoft.size() == nSoft();
                         } else {
-                            assert softClauses.get(coreMapping.get(solver.conflict().get(i))).weight() == minCore;
+                            assert softClauses.get(coreMapping.get(solver.assumptionsConflict().get(i))).weight() == minCore;
                             softRelax.push(p);
                             assert !activeSoft.get(coreMapping.get(p));
                             activeSoft.set(coreMapping.get(p), true);
@@ -375,7 +375,7 @@ public class OLL extends MaxSAT {
                     if (boundMapping.containsKey(p)) {
                         assert cardinalityAssumptions.contains(p);
                         // this is a soft cardinality -- bound must be increased
-                        final IntTriple softId = boundMapping.get(solver.conflict().get(i));
+                        final IntTriple softId = boundMapping.get(solver.assumptionsConflict().get(i));
 
                         // increase the bound
                         assert softId.id < softCardinality.size();

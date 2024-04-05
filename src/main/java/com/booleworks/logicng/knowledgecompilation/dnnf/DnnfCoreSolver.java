@@ -10,7 +10,6 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.solvers.datastructures.LNGClause;
-import com.booleworks.logicng.solvers.datastructures.LNGVariable;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 
@@ -143,7 +142,9 @@ public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
             uncheckedEnqueue(lastLearnt.get(0), null);
             unitClauses.push(lastLearnt.get(0));
         } else {
-            final LNGClause cr = new LNGClause(lastLearnt, stateId);
+            final LNGClause cr = new LNGClause(lastLearnt, nextStateId);
+            cr.setLBD(analyzeLBD);
+            cr.setOneWatched(false);
             learnts.push(cr);
             attachClause(cr);
             claBumpActivity(cr);
@@ -151,11 +152,6 @@ public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
         }
         varDecayActivity();
         claDecayActivity();
-        if (--learntsizeAdjustCnt == 0) {
-            learntsizeAdjustConfl *= learntsizeAdjustInc;
-            learntsizeAdjustCnt = (int) learntsizeAdjustConfl;
-            maxLearnts *= llConfig.learntsizeInc;
-        }
         return propagateAfterDecide();
     }
 
@@ -203,15 +199,8 @@ public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
                 final int l = trail.get(c);
                 assignment[l] = Tristate.UNDEF;
                 assignment[l ^ 1] = Tristate.UNDEF;
-                final int x = var(l);
-                final LNGVariable v = vars.get(x);
-                v.assign(Tristate.UNDEF);
-                v.setPolarity(sign(trail.get(c)));
-                insertVarOrder(x);
             }
-            qhead = trailLim.get(level);
-            trail.removeElements(trail.size() - trailLim.get(level));
-            trailLim.removeElements(trailLim.size() - level);
+            super.cancelUntil(level);
         }
     }
 

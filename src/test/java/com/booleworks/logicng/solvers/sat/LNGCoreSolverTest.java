@@ -19,7 +19,7 @@ import java.util.Arrays;
 public class LNGCoreSolverTest {
 
     @Test
-    public void testAnalyzeFinal() {
+    public void testAnalyzeAssumptionConflict() {
         final LNGCoreSolver solver = new LNGCoreSolver(FormulaFactory.caching(), SATSolverConfig.builder().build());
         solver.newVar(true, true);
         solver.newVar(true, true);

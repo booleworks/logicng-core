@@ -11,8 +11,6 @@ public final class SATSolverLowLevelConfig {
     final int restartFirst;
     final double restartInc;
     final double clauseDecay;
-    final double learntsizeFactor;
-    public final double learntsizeInc;
 
     // Glucose-related configuration
     final int lbLBDMinimizingClause;
@@ -35,8 +33,6 @@ public final class SATSolverLowLevelConfig {
         restartFirst = builder.restartFirst;
         restartInc = builder.restartInc;
         clauseDecay = builder.clauseDecay;
-        learntsizeFactor = builder.learntsizeFactor;
-        learntsizeInc = builder.learntsizeInc;
         lbLBDMinimizingClause = builder.lbLBDMinimizingClause;
         lbLBDFrozenClause = builder.lbLBDFrozenClause;
         lbSizeMinimizingClause = builder.lbSizeMinimizingClause;
@@ -64,8 +60,6 @@ public final class SATSolverLowLevelConfig {
         sb.append("restartFirst=").append(restartFirst).append(System.lineSeparator());
         sb.append("restartInc=").append(restartInc).append(System.lineSeparator());
         sb.append("clauseDecay=").append(clauseDecay).append(System.lineSeparator());
-        sb.append("learntsizeFactor=").append(learntsizeFactor).append(System.lineSeparator());
-        sb.append("learntsizeInc=").append(learntsizeInc).append(System.lineSeparator());
         sb.append("lbLBDMinimizingClause=").append(lbLBDMinimizingClause).append(System.lineSeparator());
         sb.append("lbLBDFrozenClause=").append(lbLBDFrozenClause).append(System.lineSeparator());
         sb.append("lbSizeMinimizingClause=").append(lbSizeMinimizingClause).append(System.lineSeparator());
@@ -89,8 +83,6 @@ public final class SATSolverLowLevelConfig {
         private int restartFirst = 100;
         private double restartInc = 2.0;
         private double clauseDecay = 0.999;
-        private double learntsizeFactor = 1.0 / 3.0;
-        private double learntsizeInc = 1.1;
         private int lbLBDMinimizingClause = 6;
         private int lbLBDFrozenClause = 30;
         private int lbSizeMinimizingClause = 30;
@@ -157,28 +149,6 @@ public final class SATSolverLowLevelConfig {
          */
         public Builder clauseDecay(final double clauseDecay) {
             this.clauseDecay = clauseDecay;
-            return this;
-        }
-
-        /**
-         * Sets the initial limit for learnt clauses as a factor of the original clauses to the given value.  The default
-         * value is 1/3.
-         * @param learntsizeFactor the value
-         * @return the builder
-         */
-        public Builder lsFactor(final double learntsizeFactor) {
-            this.learntsizeFactor = learntsizeFactor;
-            return this;
-        }
-
-        /**
-         * Sets the factor by which the limit for learnt clauses is multiplied every restart to a given value. The default
-         * value is 1.1.
-         * @param learntsizeInc the value
-         * @return the builder
-         */
-        public Builder lsInc(final double learntsizeInc) {
-            this.learntsizeInc = learntsizeInc;
             return this;
         }
 
@@ -314,7 +284,7 @@ public final class SATSolverLowLevelConfig {
             this.maxVarDecay = maxVarDecay;
             return this;
         }
-        
+
         /**
          * Builds the SAT solver configuration.
          * @return the configuration
