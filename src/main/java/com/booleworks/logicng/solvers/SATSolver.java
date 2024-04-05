@@ -256,10 +256,6 @@ public class SATSolver {
      * SAT call and returns a {@link SATCall} object from which a {@link SATCall#model model} or
      * {@link SATCall#unsatCore() UNSAT core} can be generated.
      * <p>
-     * There are also useful shortcuts: If you only require a quick SAT check, you can just use {@link #sat()}.
-     * If you already know that the solver is satisfiable/unsatisfiable, you can directly call {@link #model} /
-     * {@link #unsatCore()}.
-     * <p>
      * <b>A SAT solver may only have one &quot;open&quot; SATCall at a time. So a an existing SAT call must
      * always be {@link SATCall#close() closed} (ideally using a try-with construct) before the next call
      * to this method.</b>
