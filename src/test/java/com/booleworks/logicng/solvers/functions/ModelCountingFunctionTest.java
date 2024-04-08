@@ -225,7 +225,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
 
         final LNGBooleanVector modelFromSolver1 = new LNGBooleanVector(true, true);
         final LNGBooleanVector modelFromSolver2 = new LNGBooleanVector(false, false);
-        final LNGIntVector relevantIndices = new LNGIntVector(new int[]{0, 1});
+        final LNGIntVector relevantIndices = LNGIntVector.of(0, 1);
 
         final Model expectedModel2 = new Model(_c.na, _c.nb);
 

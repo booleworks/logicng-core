@@ -317,11 +317,11 @@ public final class DRUPTrim {
             int clauseNr = 0;
             while (true) {
                 fileSwitchFlag = nZeros <= 0;
-                final LNGIntVector clause = currentFile.get(clauseNr++);
-                if (clause == null) {
+                if (clauseNr >= currentFile.size()) {
                     lemmas = DB.size() + 1;
                     break;
                 }
+                final LNGIntVector clause = currentFile.get(clauseNr++);
                 final List<Integer> toks = new ArrayList<>(clause.size() - 1);
                 if (fileSwitchFlag && clause.get(0) == -1) {
                     del = true;
@@ -615,4 +615,3 @@ public final class DRUPTrim {
         }
     }
 }
-

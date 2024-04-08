@@ -408,7 +408,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
 
         final Model expectedModel1 = new Model(_c.a, _c.b);
         final Model expectedModel2 = new Model(_c.na, _c.nb);
-        final LNGIntVector relevantIndices = new LNGIntVector(new int[]{0, 1});
+        final LNGIntVector relevantIndices =  LNGIntVector.of(0, 1);
 
         collector.addModel(modelFromSolver1, solver, relevantIndices, handler);
         assertThat(collector.getResult()).isEmpty();

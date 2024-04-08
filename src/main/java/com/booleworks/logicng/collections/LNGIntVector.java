@@ -36,17 +36,6 @@ public final class LNGIntVector {
     }
 
     /**
-     * Creates a vector with a given capacity and a given initial element.
-     * @param size the capacity of the vector
-     * @param pad  the initial element
-     */
-    public LNGIntVector(final int size, final int pad) {
-        elements = new int[size];
-        Arrays.fill(elements, pad);
-        this.size = size;
-    }
-
-    /**
      * Copy constructor.
      * @param other the other byte vector.
      */
@@ -56,17 +45,15 @@ public final class LNGIntVector {
     }
 
     /**
-     * Creates a vector with the given elements.
-     * @param elems the elements
+     * Returns a new vector with the given elements.
+     * @param elements the elements
+     * @return the new vector
      */
-    public LNGIntVector(final int... elems) {
-        elements = Arrays.copyOf(elems, elems.length);
-        size = elems.length;
-    }
-
-    LNGIntVector(final int[] elements, final int size) {
-        this.elements = elements;
-        this.size = size;
+    public static LNGIntVector of(final int... elements) {
+        final LNGIntVector result = new LNGIntVector(elements.length);
+        result.elements = Arrays.copyOf(elements, elements.length);
+        result.size = elements.length;
+        return result;
     }
 
     /**

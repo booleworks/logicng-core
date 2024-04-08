@@ -282,7 +282,7 @@ public final class PlaistedGreenbaumTransformationSolver {
     }
 
     private static LNGIntVector vector(final int... elts) {
-        return new LNGIntVector(elts);
+        return LNGIntVector.of(elts);
     }
 
     private static LNGIntVector vector(final LNGIntVector a, final LNGIntVector b) {

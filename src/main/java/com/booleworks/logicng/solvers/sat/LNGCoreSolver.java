@@ -445,7 +445,7 @@ public class LNGCoreSolver {
         if (ps.empty()) {
             ok = false;
             if (config.proofGeneration) {
-                pgProof.push(new LNGIntVector(1, 0));
+                pgProof.push(LNGIntVector.of(0));
             }
             return false;
         } else if (ps.size() == 1) {
@@ -453,7 +453,7 @@ public class LNGCoreSolver {
             ok = propagate() == null;
             unitClauses.push(ps.get(0));
             if (!ok && config.proofGeneration) {
-                pgProof.push(new LNGIntVector(1, 0));
+                pgProof.push(LNGIntVector.of(0));
             }
             return ok;
         } else {
@@ -492,7 +492,7 @@ public class LNGCoreSolver {
         }
 
         if (config.proofGeneration && assumptions.empty() && status == Tristate.FALSE) {
-            pgProof.push(new LNGIntVector(1, 0));
+            pgProof.push(LNGIntVector.of(0));
         }
 
         if (status == Tristate.TRUE) {
@@ -1223,14 +1223,14 @@ public class LNGCoreSolver {
                     } else if (value(p) == Tristate.FALSE) {
                         if (config.proofGeneration) {
                             final int drupLit = (var(p) + 1) * (-2 * (sign(p) ? 1 : 0) + 1);
-                            pgOriginalClauses.push(new ProofInformation(new LNGIntVector(1, drupLit), assumptionPropositions.get(decisionLevel())));
+                            pgOriginalClauses.push(new ProofInformation(LNGIntVector.of(drupLit), assumptionPropositions.get(decisionLevel())));
                         }
                         analyzeAssumptionConflict(not(p));
                         return Tristate.FALSE;
                     } else {
                         if (config.proofGeneration) {
                             final int drupLit = (var(p) + 1) * (-2 * (sign(p) ? 1 : 0) + 1);
-                            pgOriginalClauses.push(new ProofInformation(new LNGIntVector(1, drupLit), assumptionPropositions.get(decisionLevel())));
+                            pgOriginalClauses.push(new ProofInformation(LNGIntVector.of(drupLit), assumptionPropositions.get(decisionLevel())));
                         }
                         next = p;
                         break;
