@@ -19,8 +19,8 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
-import com.booleworks.logicng.formulas.AuxVarType;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.formulas.InternalAuxVarType;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ModelEnumerationHandler;
@@ -179,7 +179,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
     }
 
     private static boolean isNotAuxiliaryVariable(final Variable var) {
-        for (final AuxVarType auxType : AuxVarType.values()) {
+        for (final InternalAuxVarType auxType : InternalAuxVarType.values()) {
             if (var.name().startsWith(auxType.prefix())) {
                 return false;
             }

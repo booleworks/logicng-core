@@ -4,7 +4,6 @@
 
 package com.booleworks.logicng.formulas.implementation.noncaching;
 
-import com.booleworks.logicng.formulas.AuxVarType;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -18,7 +17,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NonCachingFormulaFactory extends FormulaFactory {
@@ -156,30 +154,6 @@ public class NonCachingFormulaFactory extends FormulaFactory {
     @Override
     protected Formula internalCc(final List<? extends Literal> literals, final CType comparator, final int rhs) {
         return new LngNativeCardinalityConstraint(importOrPanic(literals), comparator, rhs, this);
-    }
-
-    @Override
-    public Variable newAuxVariable(final AuxVarType type) {
-        return newAuxVariable(type, null);
-    }
-
-    @Override
-    public Variable newAuxVariable(final AuxVarType type, final String prefix) {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        final String name = auxVarPrefixes.get(type) + Objects.requireNonNullElse(prefix, "") + auxVarCounters.get(type).getAndIncrement();
-        return variable(name);
-    }
-
-    @Override
-    public boolean isGeneratedVariable(final Variable var) {
-        for (final AuxVarType auxType : AuxVarType.values()) {
-            if (var.name().startsWith(auxType.prefix())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
