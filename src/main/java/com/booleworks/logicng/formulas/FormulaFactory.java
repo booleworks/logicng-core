@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,8 +56,8 @@ public abstract class FormulaFactory {
     protected final boolean simplifyComplementaryOperands;
     protected final Map<ConfigurationType, Configuration> configurations;
     protected final SubNodeFunction subformulaFunction;
-    protected final Map<AuxVarType, AtomicInteger> auxVarCounters;
-    protected final Map<AuxVarType, String> auxVarPrefixes;
+    protected final Map<String, AtomicInteger> auxVarCounters;
+    protected final String auxVarPrefix;
     protected CFalse cFalse;
     protected CTrue cTrue;
     protected boolean cnfCheck;
@@ -92,18 +91,10 @@ public abstract class FormulaFactory {
         }
         simplifyComplementaryOperands = config.simplifyComplementaryOperands;
         configurations = initDefaultConfigs();
-        auxVarCounters = new EnumMap<>(AuxVarType.class);
+        auxVarCounters = new ConcurrentHashMap<>();
         clear();
         subformulaFunction = new SubNodeFunction(this);
-        final EnumMap<AuxVarType, String> prefixes = new EnumMap<>(AuxVarType.class);
-        for (final AuxVarType auxType : AuxVarType.values()) {
-            if (!this.name.isEmpty()) {
-                prefixes.put(auxType, auxType.prefix() + this.name + "_");
-            } else {
-                prefixes.put(auxType, auxType.prefix());
-            }
-        }
-        auxVarPrefixes = Collections.unmodifiableMap(prefixes);
+        auxVarPrefix = "@AUX_" + this.name + "_";
         readOnly = false;
     }
 
@@ -131,8 +122,9 @@ public abstract class FormulaFactory {
         if (readOnly) {
             throwReadOnlyException();
         }
-        for (final AuxVarType auxType : AuxVarType.values()) {
-            auxVarCounters.put(auxType, new AtomicInteger(0));
+        auxVarCounters.clear();
+        for (final InternalAuxVarType auxType : InternalAuxVarType.values()) {
+            auxVarCounters.put(auxType.prefix(), new AtomicInteger(0));
         }
     }
 
@@ -532,7 +524,7 @@ public abstract class FormulaFactory {
     /**
      * Creates a new literal instance with a given name and phase.
      * <p>
-     * Literal names should not start with {@code @RESERVED} - these are
+     * Literal names should not start with {@code @AUX} - these are
      * reserved for internal literals.
      * @param name  the literal name
      * @param phase the literal phase
@@ -788,17 +780,30 @@ public abstract class FormulaFactory {
      * the literal is already present.
      * @return the new auxiliary literal
      */
-    public abstract Variable newAuxVariable(final AuxVarType type);
+    public Variable newAuxVariable(final String type) {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
+        final AtomicInteger auxVarCounter = auxVarCounters.computeIfAbsent(type, t -> {
+            if (t.contains("_") || t.contains("@")) {
+                throw new IllegalArgumentException("Auxiliary variable types must not contain '_' or '@' characters");
+            }
+            for (final String existingType : auxVarCounters.keySet()) {
+                if ((t.length() <= existingType.length() && existingType.startsWith(t))
+                        || (t.length() > existingType.length() && t.startsWith(existingType))
+                ) {
+                    throw new IllegalArgumentException(String.format("Can not add new auxiliary variable type \"%s\" collides with existing type \"%s\"", type, existingType));
+                }
+            }
+            return new AtomicInteger(0);
+        });
+        final String name = auxVarPrefix + type + '_' + auxVarCounter.getAndIncrement();
+        return variable(name);
+    }
 
-    /**
-     * Returns a new auxiliary literal of the given type and custom prefix.
-     * The custom prefix is appended to the prefix of the variable type.
-     * <p>
-     * Remark: currently only the counter is increased - there is no check if
-     * the literal is already present.
-     * @return the new auxiliary literal
-     */
-    public abstract Variable newAuxVariable(final AuxVarType type, final String prefix);
+    public Variable newAuxVariable(final InternalAuxVarType type) {
+        return newAuxVariable(type.prefix());
+    }
 
     /**
      * Returns a new cardinality constraint auxiliary literal.
@@ -808,7 +813,7 @@ public abstract class FormulaFactory {
      * @return the new cardinality constraint auxiliary literal
      */
     public Variable newCCVariable() {
-        return newAuxVariable(AuxVarType.CC);
+        return newAuxVariable(InternalAuxVarType.CC);
     }
 
     /**
@@ -819,7 +824,7 @@ public abstract class FormulaFactory {
      * @return the new pseudo Boolean auxiliary literal
      */
     public Variable newPBVariable() {
-        return newAuxVariable(AuxVarType.PBC);
+        return newAuxVariable(InternalAuxVarType.PBC);
     }
 
     /**
@@ -830,7 +835,7 @@ public abstract class FormulaFactory {
      * @return the new CNF auxiliary literal
      */
     public Variable newCNFVariable() {
-        return newAuxVariable(AuxVarType.CNF);
+        return newAuxVariable(InternalAuxVarType.CNF);
     }
 
     /**
@@ -896,14 +901,6 @@ public abstract class FormulaFactory {
         }
         return ops;
     }
-
-    /**
-     * Returns {@code true} if the given variable was generated, {@code false}
-     * otherwise.
-     * @param var the variable to check
-     * @return {@code true} if the given variable was generated
-     */
-    public abstract boolean isGeneratedVariable(final Variable var);
 
     /**
      * Returns the number of internal nodes of a given formula.
@@ -1004,23 +1001,7 @@ public abstract class FormulaFactory {
         if (importer == null) {
             importer = new FormulaFactoryImporter(this);
         }
-        final Formula imported = formula.transform(importer);
-        adjustCounters(imported);
-        return imported;
-    }
-
-    private void adjustCounters(final Formula formula) {
-        for (final Variable variable : formula.variables(this)) {
-            for (final AuxVarType auxType : AuxVarType.values()) {
-                if (variable.name().startsWith(auxType.prefix())) {
-                    final String[] tokens = variable.name().split("_");
-                    final int counter = Integer.parseInt(tokens[tokens.length - 1]);
-                    if (auxVarCounters.get(auxType).get() < counter) {
-                        auxVarCounters.get(auxType).set(counter + 1);
-                    }
-                }
-            }
-        }
+        return formula.transform(importer);
     }
 
     /**

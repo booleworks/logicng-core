@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.formulas.FormulaFactoryConfig;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
@@ -23,7 +24,7 @@ import java.io.IOException;
 
 public class FormulaDimacsFileWriterTest extends TestWithFormulaContext {
 
-    private final FormulaFactory f = FormulaFactory.caching();
+    private final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().name("F").build());
     private final CNFConfig config = CNFConfig.builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build();
     private final PropositionalParser p = new PropositionalParser(f);
     private final PropositionalParser pp = new PropositionalParser(f);
@@ -32,7 +33,7 @@ public class FormulaDimacsFileWriterTest extends TestWithFormulaContext {
     public void testNonCNF() {
         assertThatThrownBy(
                 () -> FormulaDimacsFileWriter.write("non-cnf", FormulaFactory.nonCaching().parse("a => b"), false))
-                        .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

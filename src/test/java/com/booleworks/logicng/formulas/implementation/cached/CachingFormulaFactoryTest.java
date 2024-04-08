@@ -75,7 +75,15 @@ public class CachingFormulaFactoryTest {
     @Test
     public void testDefaultName() {
         final FormulaFactory f = FormulaFactory.caching();
-        assertThat(f.name()).isEqualTo("");
+        assertThat(f.name().length()).isEqualTo(4);
+        assertThat(f.name().chars()).allMatch(c -> c >= 65 && c <= 90);
+    }
+
+    @Test
+    public void testRandomName() {
+        final FormulaFactory f1 = FormulaFactory.caching();
+        final FormulaFactory f2 = FormulaFactory.caching();
+        assertThat(f1.name()).isNotEqualTo(f2.name());
     }
 
     @Test
@@ -99,26 +107,26 @@ public class CachingFormulaFactoryTest {
         Variable cnfVar = f.newCNFVariable();
         Variable pbVar = f.newPBVariable();
         Variable var = f.variable("x");
-        assertThat(f.isGeneratedVariable(ccVar)).isTrue();
-        assertThat(f.isGeneratedVariable(cnfVar)).isTrue();
-        assertThat(f.isGeneratedVariable(pbVar)).isTrue();
-        assertThat(f.isGeneratedVariable(var)).isFalse();
-        assertThat(ccVar.name()).isEqualTo("@RESERVED_CC_0");
-        assertThat(pbVar.name()).isEqualTo("@RESERVED_PB_0");
-        assertThat(cnfVar.name()).isEqualTo("@RESERVED_CNF_0");
+        assertThat(ccVar.name().startsWith("@AUX_")).isTrue();
+        assertThat(cnfVar.name().startsWith("@AUX_")).isTrue();
+        assertThat(pbVar.name().startsWith("@AUX_")).isTrue();
+        assertThat(var.name().startsWith("@AUX_")).isFalse();
+        assertThat(ccVar.name()).isEqualTo("@AUX_" + f.name() + "_CC_0");
+        assertThat(pbVar.name()).isEqualTo("@AUX_" + f.name() + "_PB_0");
+        assertThat(cnfVar.name()).isEqualTo("@AUX_" + f.name() + "_CNF_0");
 
         f = FormulaFactory.caching(FormulaFactoryConfig.builder().name("f").build());
         ccVar = f.newCCVariable();
         cnfVar = f.newCNFVariable();
         pbVar = f.newPBVariable();
         var = f.variable("x");
-        assertThat(f.isGeneratedVariable(ccVar)).isTrue();
-        assertThat(f.isGeneratedVariable(cnfVar)).isTrue();
-        assertThat(f.isGeneratedVariable(pbVar)).isTrue();
-        assertThat(f.isGeneratedVariable(var)).isFalse();
-        assertThat(ccVar.name()).isEqualTo("@RESERVED_CC_f_0");
-        assertThat(pbVar.name()).isEqualTo("@RESERVED_PB_f_0");
-        assertThat(cnfVar.name()).isEqualTo("@RESERVED_CNF_f_0");
+        assertThat(ccVar.name().startsWith("@AUX_")).isTrue();
+        assertThat(cnfVar.name().startsWith("@AUX_")).isTrue();
+        assertThat(pbVar.name().startsWith("@AUX_")).isTrue();
+        assertThat(var.name().startsWith("@AUX_")).isFalse();
+        assertThat(ccVar.name()).isEqualTo("@AUX_f_CC_0");
+        assertThat(pbVar.name()).isEqualTo("@AUX_f_PB_0");
+        assertThat(cnfVar.name()).isEqualTo("@AUX_f_CNF_0");
     }
 
     @Test

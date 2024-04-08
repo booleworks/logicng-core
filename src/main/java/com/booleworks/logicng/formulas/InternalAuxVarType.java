@@ -3,18 +3,18 @@ package com.booleworks.logicng.formulas;
 /**
  * Auxiliary variable types
  */
-public enum AuxVarType {
-    CC("@RESERVED_CC_"),
-    PBC("@RESERVED_PB_"),
-    CNF("@RESERVED_CNF_"),
-    CSP("@RESERVED_CSP_");
+public enum InternalAuxVarType {
+    CC("CC"),
+    PBC("PB"),
+    CNF("CNF"),
+    CSP("CSP");
 
     private final String prefix;
 
     /**
      * Constructs a new auxiliary variable type with a given string prefix
      */
-    AuxVarType(final String prefix) {
+    InternalAuxVarType(final String prefix) {
         this.prefix = prefix;
     }
 
