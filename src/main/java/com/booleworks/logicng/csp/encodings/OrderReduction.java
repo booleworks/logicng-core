@@ -21,24 +21,23 @@ public class OrderReduction {
     public static final int MAX_LINEAR_EXPRESSION_SIZE = 1024;
     public static final int SPLITS = 2;
     public static final String AUX_PREFIX1 = "RS";
-    public static final String AUX_PREFIX2 = "R";
 
-    static Csp reduce(final Csp csp, final OrderEncoder.AuxGenerator auxGenerator) {
+    static Csp reduce(final Csp csp, final CspEncodingContext context) {
         final Csp.Builder newCsp = new Csp.Builder(csp);
 
-        split(newCsp, auxGenerator);
-        simplify(newCsp, auxGenerator);
-        toLinearLe(newCsp, auxGenerator);
+        split(newCsp, context);
+        simplify(newCsp, context);
+        toLinearLe(newCsp, context);
         return newCsp.build();
     }
 
-    private static void split(final Csp.Builder csp, final OrderEncoder.AuxGenerator auxGenerator) {
+    private static void split(final Csp.Builder csp, final CspEncodingContext context) {
         final TreeSet<IntegerClause> newClauses = new TreeSet<>();
         for (final IntegerClause c : csp.getClauses()) {
             final SortedSet<ArithmeticLiteral> newArithLits = c.getArithmeticLiterals().stream().map(al -> {
                 if (al instanceof LinearLiteral) {
                     final LinearLiteral ll = (LinearLiteral) al;
-                    final LinearExpression sum = simplifyLinearExpression(new LinearExpression.Builder(ll.getLinearExpression()), true, newClauses, auxGenerator, csp).build();
+                    final LinearExpression sum = simplifyLinearExpression(new LinearExpression.Builder(ll.getLinearExpression()), true, newClauses, context, csp).build();
                     return new LinearLiteral(sum, ll.getOperator());
                 } else {
                     return al;
@@ -52,20 +51,20 @@ public class OrderReduction {
         csp.updateClauses(newClauses);
     }
 
-    private static void simplify(final Csp.Builder csp, final OrderEncoder.AuxGenerator auxGenerator) {
+    private static void simplify(final Csp.Builder csp, final CspEncodingContext context) {
         final Set<IntegerClause> newClauses = csp.getClauses().stream().flatMap(clause -> {
             if (clause.isValid()) {
                 return null;
             } else if (OrderEncoding.isSimpleClause(clause)) {
                 return Stream.of(clause);
             } else {
-                return simplifyClause(clause, Collections.emptySortedSet(), auxGenerator, csp).stream();
+                return simplifyClause(clause, Collections.emptySortedSet(), context, csp).stream();
             }
         }).collect(Collectors.toSet());
         csp.updateClauses(newClauses);
     }
 
-    private static void toLinearLe(final Csp.Builder csp, final OrderEncoder.AuxGenerator auxGenerator) {
+    private static void toLinearLe(final Csp.Builder csp, final CspEncodingContext context) {
         final Set<IntegerClause> newClauses = csp.getClauses().stream().flatMap(c -> {
             if (c.size() == OrderEncoding.simpleClauseSize(c)) {
                 return Stream.of(c);
@@ -73,7 +72,7 @@ public class OrderReduction {
                 assert c.size() == OrderEncoding.simpleClauseSize(c) + 1;
                 final ArithmeticLiteral al = c.getArithmeticLiterals().first();
                 if (al instanceof LinearLiteral) {
-                    return reduceLinearLiteralToLinearLE((LinearLiteral) al, c.getBoolLiterals(), auxGenerator, csp).stream();
+                    return reduceLinearLiteralToLinearLE((LinearLiteral) al, c.getBoolLiterals(), context, csp).stream();
                 } else {
                     throw new IllegalArgumentException("Invalid literal for order encoding reduction: " + al.getClass());
                 }
@@ -83,7 +82,7 @@ public class OrderReduction {
     }
 
     private static Set<IntegerClause> reduceLinearLiteralToLinearLE(final LinearLiteral literal, final SortedSet<Literal> boolLiterals,
-                                                                    final OrderEncoder.AuxGenerator auxGenerator, final Csp.Builder csp) {
+                                                                    final CspEncodingContext context, final Csp.Builder csp) {
         switch (literal.getOperator()) {
             case LE:
                 final TreeSet<ArithmeticLiteral> lits = new TreeSet<>();
@@ -109,14 +108,14 @@ public class OrderReduction {
                 litsNe.add(new LinearLiteral(ls1.build(), LinearLiteral.Operator.LE));
                 litsNe.add(new LinearLiteral(ls2.build(), LinearLiteral.Operator.LE));
                 final IntegerClause newClause = new IntegerClause(Collections.emptySortedSet(), litsNe);
-                return simplifyClause(newClause, boolLiterals, auxGenerator, csp);
+                return simplifyClause(newClause, boolLiterals, context, csp);
             default:
                 throw new IllegalArgumentException("Invalid operator of linear expression for order encoding reduction: " + literal.getOperator());
 
         }
     }
 
-    private static Set<IntegerClause> simplifyClause(final IntegerClause clause, final SortedSet<Literal> initBoolLiterals, final OrderEncoder.AuxGenerator auxGenerator,
+    private static Set<IntegerClause> simplifyClause(final IntegerClause clause, final SortedSet<Literal> initBoolLiterals, final CspEncodingContext context,
                                                      final Csp.Builder csp) {
         final TreeSet<IntegerClause> newClauses = new TreeSet<>();
         final TreeSet<ArithmeticLiteral> newArithLiterals = new TreeSet<>();
@@ -125,9 +124,9 @@ public class OrderReduction {
             if (OrderEncoding.isSimpleLiteral(literal)) {
                 newArithLiterals.add(literal);
             } else {
-                final Variable p = auxGenerator.newAuxBoolVariable(AUX_PREFIX2);
+                final Variable p = context.newAuxBoolVariable();
                 csp.addBooleanVariable(p);
-                final Literal notP = auxGenerator.negate(p);
+                final Literal notP = context.negate(p);
                 final TreeSet<Literal> boolLiterals = new TreeSet<>();
                 final TreeSet<ArithmeticLiteral> arithLiterals = new TreeSet<>();
                 boolLiterals.add(notP);
@@ -143,7 +142,7 @@ public class OrderReduction {
     }
 
     private static LinearExpression.Builder simplifyLinearExpression(final LinearExpression.Builder exp, final boolean first, final SortedSet<IntegerClause> clauses,
-                                                                     final OrderEncoder.AuxGenerator auxGenerator, final Csp.Builder csp) {
+                                                                     final CspEncodingContext context, final Csp.Builder csp) {
         if (exp.size() <= 1 || !exp.isDomainLargerThan(MAX_LINEAR_EXPRESSION_SIZE)) {
             return exp;
         }
@@ -155,9 +154,9 @@ public class OrderReduction {
             if (factor > 1) {
                 eMut.divide(factor);
             }
-            LinearExpression.Builder simplified = simplifyLinearExpression(eMut, false, clauses, auxGenerator, csp);
+            LinearExpression.Builder simplified = simplifyLinearExpression(eMut, false, clauses, context, csp);
             if (simplified.size() > 1) {
-                final IntegerVariable v = auxGenerator.newAuxIntVariable(AUX_PREFIX1, simplified.getDomain());
+                final IntegerVariable v = context.newAuxIntVariable(AUX_PREFIX1, simplified.getDomain());
                 csp.addIntegerVariable(v);
                 simplified.subtract(new LinearExpression(v));
                 final IntegerClause aux = new IntegerClause(new LinearLiteral(simplified.build(), LinearLiteral.Operator.EQ));

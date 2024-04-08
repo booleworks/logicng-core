@@ -38,12 +38,12 @@ public class OrderDecoding {
         return result;
     }
 
-    static int decodeIntVar(final IntegerVariable var, final Assignment model, final OrderEncodingResult encodingInformation) {
+    static int decodeIntVar(final IntegerVariable var, final Assignment model, final CspEncodingContext context) {
         final IntegerDomain domain = var.getDomain();
         final int lb = domain.lb();
         final int ub = domain.ub();
         int value = ub;
-        final Map<Integer, Variable> varMap = encodingInformation.getVariableMap().get(var);
+        final Map<Integer, Variable> varMap = context.getVariableMap().get(var);
         int index = 0;
         for (int c = lb; c < ub; c++) {
             if (domain.contains(c)) {

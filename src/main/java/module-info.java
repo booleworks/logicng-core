@@ -3,6 +3,12 @@ module logicng {
 
     exports com.booleworks.logicng.backbones;
 
+    exports com.booleworks.logicng.csp;
+    exports com.booleworks.logicng.csp.encodings;
+    exports com.booleworks.logicng.csp.terms;
+    exports com.booleworks.logicng.csp.literals;
+    exports com.booleworks.logicng.csp.predicates;
+
     exports com.booleworks.logicng.encodings;
     exports com.booleworks.logicng.encodings.cc;
     exports com.booleworks.logicng.encodings.pbc;
