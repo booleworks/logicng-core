@@ -11,10 +11,19 @@ import com.booleworks.logicng.formulas.Variable;
 import java.util.Map;
 
 public class OrderDecoding {
-    static CspAssignment decode(final Assignment model, final Csp csp, final OrderEncodingResult encodingInformation) {
+    public static CspAssignment decode(final Assignment model, final CspEncodingContext context) {
+        final CspAssignment result = new CspAssignment();
+        for(final IntegerVariable v : context.getIntegerVariables()) {
+            final int value = decodeIntVar(v, model, context);
+            result.addIntAssignment(context.factory().getUnboundedVariableOf(v), value);
+        }
+        return result;
+    }
+
+    public static CspAssignment decode(final Assignment model, final Csp csp, final CspEncodingContext context) {
         final CspAssignment result = new CspAssignment();
         for (final IntegerVariable v : csp.getIntegerVariables()) {
-            final int value = decodeIntVar(v, model, encodingInformation);
+            final int value = decodeIntVar(v, model, context);
             result.addIntAssignment(csp.getCspFactory().getUnboundedVariableOf(v), value);
         }
         for (final Variable v : csp.getBooleanVariables()) {
@@ -35,13 +44,15 @@ public class OrderDecoding {
         final int ub = domain.ub();
         int value = ub;
         final Map<Integer, Variable> varMap = encodingInformation.getVariableMap().get(var);
+        int index = 0;
         for (int c = lb; c < ub; c++) {
             if (domain.contains(c)) {
-                final Variable satVar = varMap.get(c - lb);
-                if (model.positiveVariables().contains(satVar)) {
+                final Variable satVar = varMap.get(index);
+                if (satVar != null && model.positiveVariables().contains(satVar)) {
                     value = c;
                     break;
                 }
+                ++index;
             }
         }
         return value;
