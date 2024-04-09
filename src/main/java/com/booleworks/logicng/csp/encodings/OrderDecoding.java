@@ -8,12 +8,13 @@ import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class OrderDecoding {
-    public static CspAssignment decode(final Assignment model, final CspEncodingContext context) {
+    public static CspAssignment decode(final Assignment model, final Collection<IntegerVariable> variables, final CspEncodingContext context) {
         final CspAssignment result = new CspAssignment();
-        for(final IntegerVariable v : context.getIntegerVariables()) {
+        for(final IntegerVariable v : variables) {
             final int value = decodeIntVar(v, model, context);
             result.addIntAssignment(context.factory().getUnboundedVariableOf(v), value);
         }
