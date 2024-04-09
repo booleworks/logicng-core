@@ -1,5 +1,9 @@
 package com.booleworks.logicng.csp;
 
+import com.booleworks.logicng.csp.encodings.CspEncoder;
+import com.booleworks.logicng.csp.encodings.CspEncodingContext;
+import com.booleworks.logicng.csp.encodings.OrderEncoding;
+import com.booleworks.logicng.csp.encodings.OrderReduction;
 import com.booleworks.logicng.csp.predicates.AllDifferentPredicate;
 import com.booleworks.logicng.csp.predicates.ComparisonPredicate;
 import com.booleworks.logicng.csp.predicates.CspPredicate;
@@ -10,6 +14,8 @@ import com.booleworks.logicng.csp.terms.MultiplicationFunction;
 import com.booleworks.logicng.csp.terms.NegationFunction;
 import com.booleworks.logicng.csp.terms.SubtractionFunction;
 import com.booleworks.logicng.csp.terms.Term;
+import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.util.Pair;
 
@@ -17,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -355,6 +362,37 @@ public class CspFactory {
 
     public Csp buildCsp(final CspPredicate... predicates) {
         return buildCsp(Arrays.asList(predicates));
+    }
+
+    public List<Formula> encodeCsp(final Csp csp, final CspEncodingContext context, final CspEncoder.Algorithm algorithm) {
+        CspEncoder encoder = new CspEncoder(csp, algorithm);
+        EncodingResult result = EncodingResult.resultForFormula(context.factory().getFormulaFactory());
+        encoder.encode(context, result);
+        return result.result();
+    }
+
+    public List<Formula> encodeVariable(final IntegerVariable variable, final CspEncodingContext context, final CspEncoder.Algorithm algorithm) {
+        final EncodingResult result = EncodingResult.resultForFormula(context.factory().getFormulaFactory());
+        switch (algorithm) {
+            case Order:
+                OrderEncoding.encodeVariable(variable, context, result);
+                return result.result();
+            default:
+                throw new UnsupportedOperationException("Unsupported csp encoding algorithm: " + algorithm);
+        }
+    }
+
+    public List<Formula> encodeConstraint(final CspPredicate predicate, final CspEncodingContext context, final CspEncoder.Algorithm algorithm) {
+        Set<IntegerClause> clauses = predicate.decompose();
+        EncodingResult result = EncodingResult.resultForFormula(context.factory().getFormulaFactory());
+        switch (algorithm) {
+            case Order:
+                clauses = OrderReduction.reduce(clauses, context);
+                OrderEncoding.encodeClauses(clauses, context, result);
+                return result.result();
+            default:
+                throw new UnsupportedOperationException("Unsupported csp encoding algorithm: " + algorithm);
+        }
     }
 }
 
