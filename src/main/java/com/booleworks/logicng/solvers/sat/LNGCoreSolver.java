@@ -611,7 +611,7 @@ public class LNGCoreSolver {
         permDiff.shrinkTo(newVarsSize);
         final int newClausesSize = Math.min(state[2], clauses.size());
         for (int i = clauses.size() - 1; i >= newClausesSize; i--) {
-            simpleRemoveClause(clauses.get(i));
+            detachClause(clauses.get(i));
         }
         clauses.shrinkTo(newClausesSize);
         int newLearntsLength = 0;
@@ -620,7 +620,7 @@ public class LNGCoreSolver {
             if (learnt.getLearntOnState() <= solverState.getId()) {
                 learnts.set(newLearntsLength++, learnt);
             } else {
-                simpleRemoveClause(learnt);
+                detachClause(learnt);
             }
         }
         learnts.shrinkTo(newLearntsLength);
@@ -845,27 +845,18 @@ public class LNGCoreSolver {
      * @param c the clause to remove
      */
     protected void removeClause(final LNGClause c) {
-        if (c.isAtMost()) {
-            detachAtMost(c);
-            for (int i = 0; i < c.atMostWatchers(); i++) {
-                if (value(c.get(i)) == Tristate.FALSE && v(c.get(i)).reason() != null && v(c.get(i)).reason() == c) {
-                    v(c.get(i)).setReason(null);
-                }
+        assert !c.isAtMost();
+        if (config.proofGeneration) {
+            final LNGIntVector vec = new LNGIntVector(c.size());
+            vec.push(-1);
+            for (int i = 0; i < c.size(); i++) {
+                vec.push((var(c.get(i)) + 1) * (-2 * (sign(c.get(i)) ? 1 : 0) + 1));
             }
-        } else {
-            if (config.proofGeneration) {
-                final LNGIntVector vec = new LNGIntVector(c.size());
-                vec.push(-1);
-                for (int i = 0; i < c.size(); i++) {
-                    vec.push((var(c.get(i)) + 1) * (-2 * (sign(c.get(i)) ? 1 : 0) + 1));
-                }
-                pgProof.push(vec);
-            }
-
-            detachClause(c);
-            if (locked(c)) {
-                v(c.get(0)).setReason(null);
-            }
+            pgProof.push(vec);
+        }
+        detachClause(c);
+        if (locked(c)) {
+            v(c.get(0)).setReason(null);
         }
     }
 
@@ -1072,22 +1063,12 @@ public class LNGCoreSolver {
 
     protected void cancelUntil(final int level) {
         if (decisionLevel() > level) {
-            if (!computingBackbone) {
-                for (int c = trail.size() - 1; c >= trailLim.get(level); c--) {
-                    final int x = var(trail.get(c));
-                    final LNGVariable v = vars.get(x);
-                    v.assign(Tristate.UNDEF);
-                    v.setPolarity(sign(trail.get(c)));
-                    insertVarOrder(x);
-                }
-            } else {
-                for (int c = trail.size() - 1; c >= trailLim.get(level); c--) {
-                    final int x = var(trail.get(c));
-                    final LNGVariable v = vars.get(x);
-                    v.assign(Tristate.UNDEF);
-                    v.setPolarity(!computingBackbone && sign(trail.get(c)));
-                    insertVarOrder(x);
-                }
+            for (int c = trail.size() - 1; c >= trailLim.get(level); c--) {
+                final int x = var(trail.get(c));
+                final LNGVariable v = vars.get(x);
+                v.assign(Tristate.UNDEF);
+                v.setPolarity(!computingBackbone && sign(trail.get(c)));
+                insertVarOrder(x);
             }
             qhead = trailLim.get(level);
             trail.removeElements(trail.size() - trailLim.get(level));
@@ -1545,58 +1526,39 @@ public class LNGCoreSolver {
         attachClause(cr);
     }
 
-    /**
-     * Detaches a given at-most clause.
-     * @param c the at-most clause.
-     */
-    protected void detachAtMost(final LNGClause c) {
-        for (int i = 0; i < c.atMostWatchers(); i++) {
-            watches.get(c.get(i)).remove(new LNGWatcher(c, c.get(i)));
-        }
-        clausesLiterals -= c.size();
-    }
-
     protected int findNewWatchForAtMostClause(final LNGClause c, final int p) {
         assert c.isAtMost();
-        int newWatch = LIT_ERROR;
         int numFalse = 0;
         int numTrue = 0;
         final int maxTrue = c.size() - c.atMostWatchers() + 1;
         for (int q = 0; q < c.atMostWatchers(); q++) {
-            final Tristate val = value(c.get(q));
-            if (val == Tristate.UNDEF) {
-                continue;
-            } else if (val == Tristate.FALSE) {
-                numFalse++;
-                if (numFalse >= c.atMostWatchers() - 1) {
-                    return p;
-                }
-                continue;
-            }
-            assert val == Tristate.TRUE;
-            numTrue++;
-            if (numTrue > maxTrue) {
-                return LIT_ERROR;
-            }
-            if (c.get(q) == p) {
-                assert newWatch == LIT_ERROR;
-                for (int next = c.atMostWatchers(); next < c.size(); next++) {
-                    if (value(c.get(next)) != Tristate.TRUE) {
-                        newWatch = c.get(next);
-                        c.set(next, c.get(q));
-                        c.set(q, newWatch);
-                        return newWatch;
+            switch (value(c.get(q))) {
+                case UNDEF:
+                    continue;
+                case FALSE:
+                    numFalse++;
+                    if (numFalse >= c.atMostWatchers() - 1) {
+                        return p;
                     }
-                }
-                newWatch = LIT_UNDEF;
+                    continue;
+                case TRUE:
+                    numTrue++;
+                    if (numTrue > maxTrue) {
+                        return LIT_ERROR;
+                    }
+                    if (c.get(q) == p) {
+                        for (int next = c.atMostWatchers(); next < c.size(); next++) {
+                            if (value(c.get(next)) != Tristate.TRUE) {
+                                final int newWatch = c.get(next);
+                                c.set(next, c.get(q));
+                                c.set(q, newWatch);
+                                return newWatch;
+                            }
+                        }
+                    }
             }
         }
-        assert newWatch == LIT_UNDEF;
-        if (numTrue > 1) {
-            return LIT_ERROR;
-        } else {
-            return LIT_UNDEF;
-        }
+        return numTrue > 1 ? LIT_ERROR : LIT_UNDEF;
     }
 
     /**
