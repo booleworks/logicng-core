@@ -99,7 +99,8 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 return;
             }
             SortedSet<Variable> newSplitVars = new TreeSet<>(splitVars);
-            final int maxNumberOfModelsForSplitAssignments = strategy.maxNumberOfModelsForSplitAssignments(recursionDepth);
+            final int maxNumberOfModelsForSplitAssignments =
+                    strategy.maxNumberOfModelsForSplitAssignments(recursionDepth);
             while (!enumerate(collector, solver, resultSetter, newSplitVars, null, maxNumberOfModelsForSplitAssignments,
                     handler)) {
                 if (!collector.rollback(handler)) {

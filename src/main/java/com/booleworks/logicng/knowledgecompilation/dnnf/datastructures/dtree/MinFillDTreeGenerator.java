@@ -40,7 +40,8 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
         protected final int numberOfVertices;
 
         /**
-         * The adjacency matrix (which is symmetric since the graph is undirected)
+         * The adjacency matrix (which is symmetric since the graph is
+         * undirected)
          */
         protected final boolean[][] adjMatrix;
 
@@ -50,7 +51,8 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
         protected final List<Variable> vertices;
 
         /**
-         * The edges of the graph as a list of edges per node ({{2,3},{1},{1}} means that there are the edges 1-2 and 1-3)
+         * The edges of the graph as a list of edges per node ({{2,3},{1},{1}}
+         * means that there are the edges 1-2 and 1-3)
          */
         protected final List<Set<Integer>> edgeList;
 
@@ -152,7 +154,8 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
                     }
                 }
 
-                final int bestVertex = possiblyBestVertices.get(0); // or choose randomly
+                final int bestVertex = possiblyBestVertices.get(0); // or choose
+                                                                    // randomly
 
                 final LNGIntVector neighborList = fillEdgeList.get(bestVertex);
                 for (int i = 0; i < neighborList.size(); i++) {
