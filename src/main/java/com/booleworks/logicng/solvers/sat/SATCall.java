@@ -52,9 +52,6 @@ public class SATCall implements AutoCloseable {
 
     private final SATSolver solverWrapper;
     private final LNGCoreSolver solver;
-    private final SATHandler handler;
-    private final List<? extends Proposition> additionalPropositions;
-    private final List<? extends Literal> selectionOrder;
     private SolverState initialState;
     private int pgOriginalClausesLength = -1;
     private Tristate satState;
@@ -63,17 +60,14 @@ public class SATCall implements AutoCloseable {
             final List<? extends Proposition> additionalPropositions, final List<? extends Literal> selectionOrder) {
         this.solverWrapper = solverWrapper;
         solver = solverWrapper.underlyingSolver();
-        this.handler = handler;
-        this.additionalPropositions = additionalPropositions;
-        this.selectionOrder = selectionOrder;
-        initAndSolve();
+        initAndSolve(handler, additionalPropositions, selectionOrder);
     }
 
     public static SATCallBuilder builder(final SATSolver solver) {
         return new SATCallBuilder(solver);
     }
 
-    private void initAndSolve() {
+    private void initAndSolve(final SATHandler handler, final List<? extends Proposition> additionalPropositions, final List<? extends Literal> selectionOrder) {
         solver.assertNotInSatCall();
         if (solver.config.proofGeneration) {
             pgOriginalClausesLength = solver.pgOriginalClauses.size();
@@ -183,9 +177,7 @@ public class SATCall implements AutoCloseable {
         if (solver.config.proofGeneration) {
             solver.pgOriginalClauses.shrinkTo(pgOriginalClausesLength);
         }
-        if (selectionOrder != null) {
-            solver.setSelectionOrder(List.of());
-        }
+        solver.setSelectionOrder(List.of());
         if (initialState != null) {
             solver.loadState(initialState);
         }
