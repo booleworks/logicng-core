@@ -12,8 +12,8 @@ import com.booleworks.logicng.graphs.datastructures.Graph;
 import java.util.Collection;
 
 /**
- * A graph generator which generates a constraint graph for a
- * given list of formulas.
+ * A graph generator which generates a constraint graph for a given list of
+ * formulas.
  * @version 3.0.0
  * @since 2.0.0
  */

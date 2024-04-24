@@ -21,7 +21,8 @@ import java.util.TreeMap;
 import java.util.stream.Stream;
 
 /**
- * A pseudo-Boolean constraint of the form {@code c_1 * l_1 + ... + c_n * l_n R k} where {@code R} is one of
+ * A pseudo-Boolean constraint of the form
+ * {@code c_1 * l_1 + ... + c_n * l_n R k} where {@code R} is one of
  * {@code =, >, >=, <, <=}.
  * @version 3.0.0
  * @since 1.0
@@ -55,14 +56,16 @@ public interface PBConstraint extends Formula {
     }
 
     /**
-     * Internal helper for checking if a given coefficient-sum min- and max-value can comply with a given right-hand-side
-     * according to this PBConstraint's comparator.
+     * Internal helper for checking if a given coefficient-sum min- and
+     * max-value can comply with a given right-hand-side according to this
+     * PBConstraint's comparator.
      * @param minValue   the minimum coefficient sum
      * @param maxValue   the maximum coefficient sum
      * @param rhs        the right-hand-side
      * @param comparator the comparator
-     * @return {@link Tristate#TRUE} if the constraint is true, {@link Tristate#FALSE} if it is false and
-     * {@link Tristate#UNDEF} if both are still possible
+     * @return {@link Tristate#TRUE} if the constraint is true,
+     *         {@link Tristate#FALSE} if it is false and {@link Tristate#UNDEF}
+     *         if both are still possible
      */
     static Tristate evaluateCoeffs(final int minValue, final int maxValue, final int rhs, final CType comparator) {
         int status = 0;
@@ -120,7 +123,8 @@ public interface PBConstraint extends Formula {
     int rhs();
 
     /**
-     * Returns {@code true} if this constraint is a cardinality constraint, {@code false} otherwise.
+     * Returns {@code true} if this constraint is a cardinality constraint,
+     * {@code false} otherwise.
      * @return {@code true} if this constraint is a cardinality constraint
      */
     default boolean isCC() {
@@ -128,16 +132,20 @@ public interface PBConstraint extends Formula {
     }
 
     /**
-     * Returns {@code true} if this constraint is an at-most-one cardinality constraint, {@code false} otherwise.
-     * @return {@code true} if this constraint is an at-most-one cardinality constraint
+     * Returns {@code true} if this constraint is an at-most-one cardinality
+     * constraint, {@code false} otherwise.
+     * @return {@code true} if this constraint is an at-most-one cardinality
+     *         constraint
      */
     default boolean isAmo() {
         return false;
     }
 
     /**
-     * Returns {@code true} if this constraint is an exactly-one cardinality constraint, {@code false} otherwise.
-     * @return {@code true} if this constraint is an exactly-one cardinality constraint
+     * Returns {@code true} if this constraint is an exactly-one cardinality
+     * constraint, {@code false} otherwise.
+     * @return {@code true} if this constraint is an exactly-one cardinality
+     *         constraint
      */
     default boolean isExo() {
         return false;
@@ -197,15 +205,17 @@ public interface PBConstraint extends Formula {
     }
 
     /**
-     * Internal helper for normalization of a <= constraint. Can also be used for >= constraints by multiplying the right
-     * side and the coefficients with -1.
+     * Internal helper for normalization of a <= constraint. Can also be used
+     * for >= constraints by multiplying the right side and the coefficients
+     * with -1.
      * @param f   the formula factory to generate new formulas
      * @param ps  the literals
      * @param cs  the coefficients
      * @param rhs the right-hand side
      * @return the normalized constraint
      */
-    private Formula normalize(final FormulaFactory f, final LNGVector<Literal> ps, final LNGIntVector cs, final int rhs) {
+    private Formula normalize(final FormulaFactory f, final LNGVector<Literal> ps, final LNGIntVector cs,
+                              final int rhs) {
         int c = rhs;
         int newSize = 0;
         for (int i = 0; i < ps.size(); i++) {
@@ -403,12 +413,12 @@ public interface PBConstraint extends Formula {
                         newCoeffs.add(coefficients().get(i));
                         break;
                     default:
-                        throw new IllegalArgumentException("Cannot substitute a formula for a literal in a pseudo-Boolean constraint");
+                        throw new IllegalArgumentException(
+                                "Cannot substitute a formula for a literal in a pseudo-Boolean constraint");
                 }
             }
         }
-        return newLits.isEmpty()
-                ? evaluateComparator(lhsFixed) ? f.verum() : f.falsum()
+        return newLits.isEmpty() ? evaluateComparator(lhsFixed) ? f.verum() : f.falsum()
                 : f.pbc(comparator(), rhs() - lhsFixed, newLits, newCoeffs);
     }
 
@@ -416,7 +426,8 @@ public interface PBConstraint extends Formula {
     default Formula negate(final FormulaFactory f) {
         switch (comparator()) {
             case EQ:
-                return f.or(f.pbc(CType.LT, rhs(), operands(), coefficients()), f.pbc(CType.GT, rhs(), operands(), coefficients()));
+                return f.or(f.pbc(CType.LT, rhs(), operands(), coefficients()),
+                        f.pbc(CType.GT, rhs(), operands(), coefficients()));
             case LE:
                 return f.pbc(CType.GT, rhs(), operands(), coefficients());
             case LT:
@@ -446,9 +457,11 @@ public interface PBConstraint extends Formula {
     }
 
     /**
-     * Computes the result of evaluating the comparator with a given left-hand side.
+     * Computes the result of evaluating the comparator with a given left-hand
+     * side.
      * @param lhs the left-hand side
-     * @return {@code true} if the comparator evaluates to true, {@code false} otherwise
+     * @return {@code true} if the comparator evaluates to true, {@code false}
+     *         otherwise
      */
     private boolean evaluateComparator(final int lhs) {
         switch (comparator()) {
@@ -477,7 +490,8 @@ public interface PBConstraint extends Formula {
     }
 
     /**
-     * Encodes this constraint as CNF and stores the result, if the encoding does not already exist.
+     * Encodes this constraint as CNF and stores the result, if the encoding
+     * does not already exist.
      * @param f the formula factory to generate new formulas
      * @return the encoding
      */

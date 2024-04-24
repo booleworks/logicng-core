@@ -20,7 +20,8 @@ public final class MaxSATConfig extends Configuration {
      * The incremental strategy for cardinality and pseudo-boolean constraints.
      */
     public enum IncrementalStrategy {
-        NONE, ITERATIVE
+        NONE,
+        ITERATIVE
     }
 
     /**
@@ -41,21 +42,25 @@ public final class MaxSATConfig extends Configuration {
      * The cardinality constraint encoding.
      */
     public enum CardinalityEncoding {
-        TOTALIZER, MTOTALIZER
+        TOTALIZER,
+        MTOTALIZER
     }
 
     /**
      * The weight strategy.
      */
     public enum WeightStrategy {
-        NONE, NORMAL, DIVERSIFY
+        NONE,
+        NORMAL,
+        DIVERSIFY
     }
 
     /**
      * The verbosity of the solver.
      */
     public enum Verbosity {
-        NONE, SOME
+        NONE,
+        SOME
     }
 
     final IncrementalStrategy incrementalStrategy;
@@ -183,7 +188,8 @@ public final class MaxSATConfig extends Configuration {
         }
 
         /**
-         * Sets the cardinality encoding. The default value is {@code TOTALIZER}.
+         * Sets the cardinality encoding. The default value is
+         * {@code TOTALIZER}.
          * @param card the cardinality encoding
          * @return the builder
          */
@@ -204,7 +210,8 @@ public final class MaxSATConfig extends Configuration {
 
         /**
          * Enables symmetry handling. The default value is {@code true}.
-         * @param symm {code true} if symmetry handling should be activated, {@code false} otherwise
+         * @param symm {code true} if symmetry handling should be activated,
+         *             {@code false} otherwise
          * @return the builder
          */
         public Builder symmetry(final boolean symm) {
@@ -213,7 +220,8 @@ public final class MaxSATConfig extends Configuration {
         }
 
         /**
-         * Sets the symmetry limit. The default value is {@code Integer.MAX_VALUE}.
+         * Sets the symmetry limit. The default value is
+         * {@code Integer.MAX_VALUE}.
          * @param lim the symmetry limit
          * @return the builder
          */
@@ -223,8 +231,10 @@ public final class MaxSATConfig extends Configuration {
         }
 
         /**
-         * Enables BMO (Boolean Multilevel Optimization). The default value is {@code true}.
-         * @param bmo {code true} if BMO should be activated, {@code false} otherwise
+         * Enables BMO (Boolean Multilevel Optimization). The default value is
+         * {@code true}.
+         * @param bmo {code true} if BMO should be activated, {@code false}
+         *            otherwise
          * @return the builder
          */
         public Builder bmo(final boolean bmo) {
@@ -233,8 +243,8 @@ public final class MaxSATConfig extends Configuration {
         }
 
         /**
-         * Sets the verbosity. The default value is {@code NONE}.  If you set the verbosity to {@code SOME} you have also to
-         * set an output stream.
+         * Sets the verbosity. The default value is {@code NONE}. If you set the
+         * verbosity to {@code SOME} you have also to set an output stream.
          * @param verb the verbosity level
          * @return the builder
          */
@@ -244,7 +254,8 @@ public final class MaxSATConfig extends Configuration {
         }
 
         /**
-         * Sets the output stream for logging information.  The default ist {@code System.out}.
+         * Sets the output stream for logging information. The default ist
+         * {@code System.out}.
          * @param output the output stream for logging information
          * @return the builder
          */

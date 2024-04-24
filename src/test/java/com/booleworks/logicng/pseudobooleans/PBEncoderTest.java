@@ -32,7 +32,8 @@ public class PBEncoderTest implements LogicNGTest {
     public PBEncoderTest() {
         configs = new ArrayList<>();
         configs.add(new Pair<>(PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.SWC).build(), null));
-        configs.add(new Pair<>(PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).build(),
+        configs.add(new Pair<>(
+                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).build(),
                 CCConfig.builder().amoEncoding(CCConfig.AMO_ENCODER.NESTED).build()));
         configs.add(new Pair<>(null, null));
     }
@@ -50,7 +51,8 @@ public class PBEncoderTest implements LogicNGTest {
                 problemLits[i] = var;
                 coeffs.add(1);
             }
-            final List<Formula> clauses = PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, 0, lits, coeffs), config.first(), config.second());
+            final List<Formula> clauses = PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, 0, lits, coeffs),
+                    config.first(), config.second());
             final SATSolver solver = SATSolver.newSolver(f);
             solver.add(clauses);
             assertSolverSat(solver);
@@ -74,7 +76,8 @@ public class PBEncoderTest implements LogicNGTest {
                 problemLits[i] = var;
                 coeffs.add(1);
             }
-            final List<Formula> clauses = PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, rhs, lits, coeffs), config.first(), config.second());
+            final List<Formula> clauses = PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, rhs, lits, coeffs),
+                    config.first(), config.second());
             final SATSolver solver = SATSolver.newSolver(f);
             solver.add(clauses);
             assertSolverSat(solver);
@@ -107,7 +110,8 @@ public class PBEncoderTest implements LogicNGTest {
             problemLits[i] = f.variable("v" + i);
             coeffs[i] = 1;
         }
-        final List<Formula> clauses = PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, rhs, problemLits, coeffs), config.first(), config.second());
+        final List<Formula> clauses = PBEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, rhs, problemLits, coeffs),
+                config.first(), config.second());
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(clauses);
         assertSolverSat(solver);
@@ -139,7 +143,8 @@ public class PBEncoderTest implements LogicNGTest {
         coeffs2.add(2);
         coeffs2.add(2);
         final PBConstraint normCC = (PBConstraint) f.pbc(CType.LE, 2, lits, coeffs2);
-        Assertions.assertThat(PBEncoder.encode(f, normCC, configs.get(0).first(), configs.get(0).second())).containsExactly(f.parse("~m | ~n"));
+        Assertions.assertThat(PBEncoder.encode(f, normCC, configs.get(0).first(), configs.get(0).second()))
+                .containsExactly(f.parse("~m | ~n"));
     }
 
     @Test
@@ -150,6 +155,7 @@ public class PBEncoderTest implements LogicNGTest {
                 "binaryMergeNoSupportForSingleBit=false%n" +
                 "binaryMergeUseWatchDog=true%n" +
                 "}%n"));
-        assertThat(Arrays.asList(PBConfig.PB_ENCODER.values()).contains(PBConfig.PB_ENCODER.valueOf("ADDER_NETWORKS"))).isTrue();
+        assertThat(Arrays.asList(PBConfig.PB_ENCODER.values()).contains(PBConfig.PB_ENCODER.valueOf("ADDER_NETWORKS")))
+                .isTrue();
     }
 }

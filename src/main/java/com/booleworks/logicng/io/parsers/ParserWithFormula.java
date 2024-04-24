@@ -10,7 +10,8 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.TokenStream;
 
 /**
- * Abstract super class for parsers which have a formula factory and return a formula.
+ * Abstract super class for parsers which have a formula factory and return a
+ * formula.
  * @version 1.4.0
  * @since 1.4.0
  */

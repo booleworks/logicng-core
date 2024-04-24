@@ -36,7 +36,8 @@ public class LNGCoreSolverTest {
     @Test
     public void testConfig() {
         Assertions.assertThat(SATSolverConfig.builder().build().type().toString()).isEqualTo("SAT");
-        assertThat(Arrays.asList(SATSolverConfig.ClauseMinimization.values()).contains(SATSolverConfig.ClauseMinimization.valueOf("DEEP"))).isTrue();
+        assertThat(Arrays.asList(SATSolverConfig.ClauseMinimization.values())
+                .contains(SATSolverConfig.ClauseMinimization.valueOf("DEEP"))).isTrue();
     }
 
     @Test

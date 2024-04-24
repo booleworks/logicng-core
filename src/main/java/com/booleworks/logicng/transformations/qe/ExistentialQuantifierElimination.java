@@ -14,11 +14,12 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- * This transformation eliminates a number of existentially quantified variables by replacing them with the Shannon
- * expansion.  If {@code x} is eliminated from a formula {@code f}, the resulting formula is
- * {@code f[true/x] | f[false/x]}.
+ * This transformation eliminates a number of existentially quantified variables
+ * by replacing them with the Shannon expansion. If {@code x} is eliminated from
+ * a formula {@code f}, the resulting formula is {@code f[true/x] | f[false/x]}.
  * <p>
- * This transformation cannot be cached since it is dependent on the set of literals to eliminate.
+ * This transformation cannot be cached since it is dependent on the set of
+ * literals to eliminate.
  * @version 3.0.0
  * @since 1.0
  */
@@ -27,7 +28,8 @@ public final class ExistentialQuantifierElimination extends StatelessFormulaTran
     private final Variable[] elimination;
 
     /**
-     * Constructs a new existential quantifier elimination for the given variables.
+     * Constructs a new existential quantifier elimination for the given
+     * variables.
      * @param f         the formula factory to generate new formulas
      * @param variables the variables
      */
@@ -37,7 +39,8 @@ public final class ExistentialQuantifierElimination extends StatelessFormulaTran
     }
 
     /**
-     * Constructs a new existential quantifier elimination for a given collection of variables.
+     * Constructs a new existential quantifier elimination for a given
+     * collection of variables.
      * @param f         the formula factory to generate new formulas
      * @param variables the collection of variables
      */

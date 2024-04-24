@@ -72,8 +72,10 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     public SATTest() {
         pg = new PigeonHoleGenerator(f);
         parser = new PropositionalParser(f);
-        solvers = SolverTestSet.solverTestSet(Set.of(USE_AT_MOST_CLAUSES, CNF_METHOD, CLAUSE_MINIMIZATION, PROOF_GENERATION, INITIAL_PHASE), f);
-        solverSuppliers = SolverTestSet.solverSupplierTestSet(Set.of(USE_AT_MOST_CLAUSES, CNF_METHOD, CLAUSE_MINIMIZATION, PROOF_GENERATION, INITIAL_PHASE), f);
+        solvers = SolverTestSet.solverTestSet(
+                Set.of(USE_AT_MOST_CLAUSES, CNF_METHOD, CLAUSE_MINIMIZATION, PROOF_GENERATION, INITIAL_PHASE), f);
+        solverSuppliers = SolverTestSet.solverSupplierTestSet(
+                Set.of(USE_AT_MOST_CLAUSES, CNF_METHOD, CLAUSE_MINIMIZATION, PROOF_GENERATION, INITIAL_PHASE), f);
     }
 
     @Test
@@ -128,7 +130,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     @Test
     public void testAnd2() {
         for (final SATSolver s : solvers) {
-            final StandardProposition prop = new StandardProposition(f.and(f.literal("a", true), f.literal("b", false), f.literal("c", true), f.literal("d", false)));
+            final StandardProposition prop = new StandardProposition(
+                    f.and(f.literal("a", true), f.literal("b", false), f.literal("c", true), f.literal("d", false)));
             s.add(prop);
             assertThat(s.satCall().model(prop.formula().variables(f)).size()).isEqualTo(4);
             assertThat(s.satCall().model(prop.formula().variables(f)).evaluateLit(f.variable("a"))).isTrue();
@@ -244,12 +247,16 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
 
     @Test
     public void testVariableRemovedBySimplificationOccursInModel() throws ParserException {
-        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().simplifyComplementaryOperands(true).build());
-        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        final FormulaFactory f =
+                FormulaFactory.caching(FormulaFactoryConfig.builder().simplifyComplementaryOperands(true).build());
+        final SATSolver solver = SATSolver.newSolver(f,
+                SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         final Variable a = f.variable("A");
         final Variable b = f.variable("B");
         final Formula formula = f.parse("A & B => A");
-        solver.add(formula); // during NNF conversion, used by the PG transformation, the formula simplifies to verum when added to the solver
+        solver.add(formula); // during NNF conversion, used by the PG
+                             // transformation, the formula simplifies to verum
+                             // when added to the solver
         assertThat(solver.sat()).isTrue();
         assertThat(solver.underlyingSolver().knownVariables()).isEmpty();
         assertThat(variables(f, solver.satCall().model(List.of(a, b)).literals())).containsExactlyInAnyOrder(a, b);
@@ -260,7 +267,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
         final SATSolver solver = SATSolver.newSolver(f);
         final Variable a = f.variable("A");
         solver.add(a);
-        assertThat(solver.satCall().model(f.variables("A", "X")).literals()).containsExactlyInAnyOrder(a, f.literal("X", false));
+        assertThat(solver.satCall().model(f.variables("A", "X")).literals()).containsExactlyInAnyOrder(a,
+                f.literal("X", false));
     }
 
     @Test
@@ -271,7 +279,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             assertSolverSat(s);
             s.addWithRelaxation(f.variable("x"), f.parse("~a & ~b"));
             assertSolverSat(s);
-            assertThat(s.satCall().model(f.variables("a", "b", "c", "x")).positiveVariables()).contains(f.variable("x"));
+            assertThat(s.satCall().model(f.variables("a", "b", "c", "x")).positiveVariables())
+                    .contains(f.variable("x"));
             s.add(f.variable("x").negate(f));
             assertSolverUnsat(s);
         }
@@ -352,12 +361,18 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     @Test
     public void testDifferentClauseMinimizations() {
         final SATSolver[] moreSolvers = new SATSolver[6];
-        moreSolvers[0] = SATSolver.newSolver(f, SATSolverConfig.builder().clauseMinimization(NONE).useAtMostClauses(false).build());
-        moreSolvers[1] = SATSolver.newSolver(f, SATSolverConfig.builder().clauseMinimization(BASIC).useAtMostClauses(false).build());
-        moreSolvers[2] = SATSolver.newSolver(f, SATSolverConfig.builder().clauseMinimization(DEEP).useAtMostClauses(false).build());
-        moreSolvers[3] = SATSolver.newSolver(f, SATSolverConfig.builder().clauseMinimization(NONE).useAtMostClauses(true).build());
-        moreSolvers[4] = SATSolver.newSolver(f, SATSolverConfig.builder().clauseMinimization(BASIC).useAtMostClauses(true).build());
-        moreSolvers[5] = SATSolver.newSolver(f, SATSolverConfig.builder().clauseMinimization(DEEP).useAtMostClauses(true).build());
+        moreSolvers[0] = SATSolver.newSolver(f,
+                SATSolverConfig.builder().clauseMinimization(NONE).useAtMostClauses(false).build());
+        moreSolvers[1] = SATSolver.newSolver(f,
+                SATSolverConfig.builder().clauseMinimization(BASIC).useAtMostClauses(false).build());
+        moreSolvers[2] = SATSolver.newSolver(f,
+                SATSolverConfig.builder().clauseMinimization(DEEP).useAtMostClauses(false).build());
+        moreSolvers[3] = SATSolver.newSolver(f,
+                SATSolverConfig.builder().clauseMinimization(NONE).useAtMostClauses(true).build());
+        moreSolvers[4] = SATSolver.newSolver(f,
+                SATSolverConfig.builder().clauseMinimization(BASIC).useAtMostClauses(true).build());
+        moreSolvers[5] = SATSolver.newSolver(f,
+                SATSolverConfig.builder().clauseMinimization(DEEP).useAtMostClauses(true).build());
         for (final SATSolver s : moreSolvers) {
             final Formula formula = pg.generate(7);
             s.add(formula);
@@ -513,7 +528,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             assertThat(models.size()).isEqualTo(32);
             for (final Model model : models) {
                 for (final Variable lit : lits) {
-                    assertThat(model.positiveVariables().contains(lit) || model.negativeVariables().contains(lit)).isTrue();
+                    assertThat(model.positiveVariables().contains(lit) || model.negativeVariables().contains(lit))
+                            .isTrue();
                 }
             }
         }
@@ -536,14 +552,16 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             final var handler = new NumberOfModelsHandler(29);
             final var me = ModelEnumerationFunction.builder(firstFive)
                     .additionalVariables(lits)
-                    .configuration(ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
+                    .configuration(
+                            ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
                     .build();
             final List<Model> modelsWithHandler = s.execute(me);
             assertThat(handler.aborted()).isTrue();
             assertThat(modelsWithHandler.size()).isEqualTo(29);
             for (final Model model : modelsWithHandler) {
                 for (final Variable lit : lits) {
-                    assertThat(model.positiveVariables().contains(lit) || model.negativeVariables().contains(lit)).isTrue();
+                    assertThat(model.positiveVariables().contains(lit) || model.negativeVariables().contains(lit))
+                            .isTrue();
                 }
             }
         }
@@ -566,14 +584,16 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             final var handler = new NumberOfModelsHandler(29);
             final var me = ModelEnumerationFunction.builder(lits)
                     .additionalVariables(firstFive)
-                    .configuration(ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
+                    .configuration(
+                            ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
                     .build();
             final List<Model> modelsWithHandler = s.execute(me);
             assertThat(handler.aborted()).isTrue();
             assertThat(modelsWithHandler.size()).isEqualTo(29);
             for (final Model model : modelsWithHandler) {
                 for (final Variable lit : lits) {
-                    assertThat(model.positiveVariables().contains(lit) || model.negativeVariables().contains(lit)).isTrue();
+                    assertThat(model.positiveVariables().contains(lit) || model.negativeVariables().contains(lit))
+                            .isTrue();
                 }
             }
         }
@@ -600,7 +620,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             s.add(f.exo(lits));
             var handler = new NumberOfModelsHandler(101);
             var me = ModelEnumerationFunction.builder(lits)
-                    .configuration(ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
+                    .configuration(
+                            ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
                     .build();
 
             List<Model> models = s.execute(me);
@@ -614,7 +635,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             s.add(f.exo(lits));
             handler = new NumberOfModelsHandler(200);
             me = ModelEnumerationFunction.builder(lits)
-                    .configuration(ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
+                    .configuration(
+                            ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
                     .build();
             models = s.execute(me);
             assertThat(handler.aborted()).isFalse();
@@ -627,7 +649,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             s.add(f.exo(lits));
             handler = new NumberOfModelsHandler(50);
             me = ModelEnumerationFunction.builder(lits)
-                    .configuration(ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
+                    .configuration(
+                            ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
                     .build();
             models = s.execute(me);
             assertThat(handler.aborted()).isTrue();
@@ -640,7 +663,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             s.add(f.exo(lits));
             handler = new NumberOfModelsHandler(1);
             me = ModelEnumerationFunction.builder(lits)
-                    .configuration(ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
+                    .configuration(
+                            ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
                     .build();
             models = s.execute(me);
             assertThat(handler.aborted()).isTrue();
@@ -655,8 +679,10 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     public void testKnownVariables() throws ParserException {
         final PropositionalParser parser = new PropositionalParser(f);
         final Formula phi = parser.parse("x1 & x2 & x3 & (x4 | ~x5)");
-        final SATSolver solverWithoutAtMost = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(false).build());
-        final SATSolver solverWithAtMost = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(true).build());
+        final SATSolver solverWithoutAtMost =
+                SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(false).build());
+        final SATSolver solverWithAtMost =
+                SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(true).build());
         solverWithoutAtMost.add(phi);
         solverWithAtMost.add(phi);
         final SortedSet<Variable> expected = new TreeSet<>(Arrays.asList(
@@ -701,14 +727,18 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
 
     @Test
     public void testUPZeroLiterals() throws ParserException {
-        // Note: The complete unit propagated set of literals on level 0 depends on each solver's added learned clauses during the solving process
+        // Note: The complete unit propagated set of literals on level 0 depends
+        // on each solver's added learned clauses during the solving process
         final Map<Formula, SortedSet<Literal>> expectedSubsets = new HashMap<>();
         expectedSubsets.put(f.verum(), new TreeSet<>());
         expectedSubsets.put(parser.parse("a"), new TreeSet<>(Collections.singletonList(f.literal("a", true))));
         expectedSubsets.put(parser.parse("a | b"), new TreeSet<>());
-        expectedSubsets.put(parser.parse("a & b"), new TreeSet<>(Arrays.asList(f.literal("a", true), f.literal("b", true))));
-        expectedSubsets.put(parser.parse("a & ~b"), new TreeSet<>(Arrays.asList(f.literal("a", true), f.literal("b", false))));
-        expectedSubsets.put(parser.parse("(a | c) & ~b"), new TreeSet<>(Collections.singletonList(f.literal("b", false))));
+        expectedSubsets.put(parser.parse("a & b"),
+                new TreeSet<>(Arrays.asList(f.literal("a", true), f.literal("b", true))));
+        expectedSubsets.put(parser.parse("a & ~b"),
+                new TreeSet<>(Arrays.asList(f.literal("a", true), f.literal("b", false))));
+        expectedSubsets.put(parser.parse("(a | c) & ~b"),
+                new TreeSet<>(Collections.singletonList(f.literal("b", false))));
         expectedSubsets.put(parser.parse("(b | c) & ~b & (~c | d)"), new TreeSet<>(Arrays.asList(
                 f.literal("b", false), f.literal("c", true), f.literal("d", true))));
         for (final Supplier<SATSolver> solverSupplier : solverSuppliers) {
@@ -742,7 +772,9 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                             negations.add(lit.negate(f));
                         }
                         solver.add(f.or(negations));
-                        // Test if CNF implies identified unit propagated literals on level zero, i.e., each literal is a backbone literal
+                        // Test if CNF implies identified unit propagated
+                        // literals on level zero, i.e., each literal is a
+                        // backbone literal
                         assertThat(solver.sat()).isFalse();
                     }
                 }
@@ -800,11 +832,15 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             solver.add(f.parse("A <=> B"));
             solver.add(f.parse("B <=> ~A"));
             assertThat(solver.execute(FormulaOnSolverFunction.get()))
-                    .containsExactlyInAnyOrder(f.parse("A | ~B"), f.parse("~A | B"), f.parse("~B | ~A"), f.parse("B | A"));
-            solver.sat(); // adds learnt clauses s.t. the formula on the solver changes
+                    .containsExactlyInAnyOrder(f.parse("A | ~B"), f.parse("~A | B"), f.parse("~B | ~A"),
+                            f.parse("B | A"));
+            solver.sat(); // adds learnt clauses s.t. the formula on the solver
+                          // changes
             assertThat(solver.execute(FormulaOnSolverFunction.get()))
-                    .containsExactlyInAnyOrder(f.parse("A | ~B"), f.parse("~A | B"), f.parse("~B | ~A"), f.parse("B | A"),
-                            f.literal("A", !solver.config().initialPhase()), f.literal("B", !solver.config().initialPhase()), f.falsum());
+                    .containsExactlyInAnyOrder(f.parse("A | ~B"), f.parse("~A | B"), f.parse("~B | ~A"),
+                            f.parse("B | A"),
+                            f.literal("A", !solver.config().initialPhase()),
+                            f.literal("B", !solver.config().initialPhase()), f.falsum());
         }
     }
 
@@ -911,7 +947,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                     final boolean res = solver.satCall().selectionOrder(selectionOrder).sat() == Tristate.TRUE;
                     assertThat(res).isEqualTo(expectedResults.get(fileName));
                     if (expectedResults.get(fileName)) {
-                        final Assignment assignment = solver.satCall().model(solver.underlyingSolver().knownVariables());
+                        final Assignment assignment =
+                                solver.satCall().model(solver.underlyingSolver().knownVariables());
                         testLocalMinimum(solver, assignment, selectionOrder);
                         testHighestLexicographicalAssignment(solver, assignment, selectionOrder);
                     }
@@ -959,7 +996,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
         assertThat(models1).hasSameElementsAs(models2);
     }
 
-    private void testLocalMinimum(final SATSolver solver, final Assignment assignment, final Collection<? extends Literal> relevantLiterals) {
+    private void testLocalMinimum(final SATSolver solver, final Assignment assignment,
+                                  final Collection<? extends Literal> relevantLiterals) {
         final SortedSet<Literal> literals = assignment.literals();
         for (final Literal lit : relevantLiterals) {
             if (!literals.contains(lit)) {
@@ -972,13 +1010,14 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     }
 
     /**
-     * Tests if the given satisfying assignment is the highest assignment in the lexicographical order based on the given
-     * literals order.
+     * Tests if the given satisfying assignment is the highest assignment in the
+     * lexicographical order based on the given literals order.
      * @param solver     the solver with the loaded formulas
      * @param assignment the satisfying assignment
      * @param order      the literals order
      */
-    private void testHighestLexicographicalAssignment(final SATSolver solver, final Assignment assignment, final List<? extends Literal> order) {
+    private void testHighestLexicographicalAssignment(final SATSolver solver, final Assignment assignment,
+                                                      final List<? extends Literal> order) {
         final SortedSet<Literal> literals = assignment.literals();
         final List<Literal> orderSublist = new ArrayList<>();
         for (final Literal lit : order) {

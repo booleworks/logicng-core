@@ -78,7 +78,8 @@ public class PrimeResultTest extends TestWithFormulaContext {
         primeImplicants.add(new TreeSet<>(Arrays.asList(c.a, c.c)));
         final List<SortedSet<Literal>> primeImplicates = new ArrayList<>();
         primeImplicates.add(new TreeSet<>(Arrays.asList(c.a, c.nb)));
-        final PrimeResult otherResult = new PrimeResult(primeImplicants, primeImplicates, PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
+        final PrimeResult otherResult =
+                new PrimeResult(primeImplicants, primeImplicates, PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
         assertThat(otherResult.hashCode()).isEqualTo(result1.hashCode());
     }
 
@@ -90,7 +91,8 @@ public class PrimeResultTest extends TestWithFormulaContext {
         primeImplicants.add(new TreeSet<>(Arrays.asList(c.a, c.c)));
         final List<SortedSet<Literal>> primeImplicates = new ArrayList<>();
         primeImplicates.add(new TreeSet<>(Arrays.asList(c.a, c.nb)));
-        final PrimeResult otherResult = new PrimeResult(primeImplicants, primeImplicates, PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
+        final PrimeResult otherResult =
+                new PrimeResult(primeImplicants, primeImplicates, PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
         assertThat(result1.equals(result1)).isTrue();
         assertThat(result1.equals(otherResult)).isTrue();
         assertThat(result1.equals(result2)).isFalse();

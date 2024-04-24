@@ -19,7 +19,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A formula transformation which performs simplifications by applying the distributive laws.
+ * A formula transformation which performs simplifications by applying the
+ * distributive laws.
  * @version 3.0.0
  * @since 1.3
  */

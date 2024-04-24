@@ -23,8 +23,9 @@ import java.util.stream.Collectors;
 /**
  * A solver function for counting variable occurrences on a SAT solver.
  * <p>
- * Note that these are usually not the same occurrences as in the original formula, since the
- * formula might have been converted to CNF and/or variables in clauses might have been subsumed.
+ * Note that these are usually not the same occurrences as in the original
+ * formula, since the formula might have been converted to CNF and/or variables
+ * in clauses might have been subsumed.
  * @version 3.0.0
  * @since 3.0.0
  */
@@ -33,20 +34,25 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
     private final Set<String> relevantVariables;
 
     /**
-     * Creates a new function which counts all variables which are present on the solver.
+     * Creates a new function which counts all variables which are present on
+     * the solver.
      */
     public VariableOccurrencesOnSolverFunction() {
         this(null);
     }
 
     /**
-     * Creates a new function which counts the occurrences of all the given relevant variables.
+     * Creates a new function which counts the occurrences of all the given
+     * relevant variables.
      * <p>
-     * If a variable is not present on the solver, the respective count will be 0.
-     * @param relevantVariables the relevant variables, in case of {@code null} all variables on the solver are counted
+     * If a variable is not present on the solver, the respective count will be
+     * 0.
+     * @param relevantVariables the relevant variables, in case of {@code null}
+     *                          all variables on the solver are counted
      */
     public VariableOccurrencesOnSolverFunction(final Set<Variable> relevantVariables) {
-        this.relevantVariables = relevantVariables == null ? null : relevantVariables.stream().map(Variable::name).collect(Collectors.toSet());
+        this.relevantVariables = relevantVariables == null ? null
+                : relevantVariables.stream().map(Variable::name).collect(Collectors.toSet());
     }
 
     @Override
@@ -64,7 +70,12 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
     }
 
     private Map<String, Integer> initResultMap(final LNGCoreSolver underlyingSolver) {
-        final Map<String, Integer> counts = new HashMap<>(); // start with Strings to prevent repeated variable lookups in FormulaFactory
+        final Map<String, Integer> counts = new HashMap<>(); // start with
+                                                             // Strings to
+                                                             // prevent repeated
+                                                             // variable lookups
+                                                             // in
+                                                             // FormulaFactory
         final LNGVector<LNGVariable> variables = underlyingSolver.variables();
         for (int i = 0; i < variables.size(); i++) {
             final LNGVariable var = variables.get(i);

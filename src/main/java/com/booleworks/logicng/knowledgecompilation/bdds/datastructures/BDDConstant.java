@@ -80,8 +80,7 @@ public final class BDDConstant implements BDDNode {
 
     @Override
     public boolean equals(final Object other) {
-        return this == other || other instanceof BDDConstant
-                && Objects.equals(value, ((BDDConstant) other).value);
+        return this == other || other instanceof BDDConstant && Objects.equals(value, ((BDDConstant) other).value);
     }
 
     @Override

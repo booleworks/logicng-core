@@ -34,7 +34,8 @@ public final class LNGVariable {
         decision = false;
     }
 
-    LNGVariable(final Tristate assignment, final int level, final LNGClause reason, final double activity, final boolean polarity, final boolean decision) {
+    LNGVariable(final Tristate assignment, final int level, final LNGClause reason, final double activity,
+                final boolean polarity, final boolean decision) {
         this.assignment = assignment;
         this.level = level;
         this.reason = reason;
@@ -131,17 +132,20 @@ public final class LNGVariable {
     }
 
     /**
-     * Returns {@code true} if this variable should be used as a decision variable during solving, {@code false}
-     * otherwise.
-     * @return {@code true} if this variable should be used as a decision variable
+     * Returns {@code true} if this variable should be used as a decision
+     * variable during solving, {@code false} otherwise.
+     * @return {@code true} if this variable should be used as a decision
+     *         variable
      */
     public boolean decision() {
         return decision;
     }
 
     /**
-     * Sets whether this variable can be used as a decision variable during solving or not.
-     * @param decision {@code true} if it can be used as decision variable, {@code false} otherwise
+     * Sets whether this variable can be used as a decision variable during
+     * solving or not.
+     * @param decision {@code true} if it can be used as decision variable,
+     *                 {@code false} otherwise
      */
     public void setDecision(final boolean decision) {
         this.decision = decision;
@@ -149,7 +153,8 @@ public final class LNGVariable {
 
     @Override
     public String toString() {
-        return String.format(Locale.ENGLISH, "MSVariable{assignment=%s, level=%d, reason=%s, activity=%f, polarity=%s, decision=%s}",
+        return String.format(Locale.ENGLISH,
+                "MSVariable{assignment=%s, level=%d, reason=%s, activity=%f, polarity=%s, decision=%s}",
                 assignment, level, reason, activity, polarity, decision);
     }
 }

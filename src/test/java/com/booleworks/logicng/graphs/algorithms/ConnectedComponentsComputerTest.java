@@ -113,7 +113,8 @@ public class ConnectedComponentsComputerTest {
         }
         final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(f, formulas);
         final Set<Set<Node<Variable>>> ccs = ConnectedComponentsComputation.compute(constraintGraph);
-        final List<List<Formula>> split = ConnectedComponentsComputation.splitFormulasByComponent(f, originalFormulas, ccs);
+        final List<List<Formula>> split =
+                ConnectedComponentsComputation.splitFormulasByComponent(f, originalFormulas, ccs);
         assertThat(split).hasSize(4);
         assertThat(split.get(0)).hasSize(1899);
         assertThat(split.get(1)).hasSize(3);

@@ -31,7 +31,8 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSimple1(final FormulaContext _c) throws ParserException {
-        final Formula formula = _c.p.parse("(~a & ~b & ~c) | (~a & ~b & c) | (~a & b & ~c) | (a & ~b & c) | (a & b & ~c) | (a & b & c)");
+        final Formula formula = _c.p
+                .parse("(~a & ~b & ~c) | (~a & ~b & c) | (~a & b & ~c) | (a & ~b & c) | (a & b & ~c) | (a & b & c)");
         final Formula dnf = formula.transform(new QuineMcCluskeySimplifier(_c.f));
         assertThat(dnf.isDNF(_c.f)).isTrue();
         assertThat(_c.f.equivalence(formula, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
@@ -47,14 +48,17 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     }
 
     /**
-     * Example from <a href="https://github.com/logic-ng/LogicNG/issues/15">issue 15</a>.
-     * Ensure only original formula variables are returned, i.e., no auxiliary variables are returned.
+     * Example from
+     * <a href="https://github.com/logic-ng/LogicNG/issues/15">issue 15</a>.
+     * Ensure only original formula variables are returned, i.e., no auxiliary
+     * variables are returned.
      * @throws ParserException if any malformed formula is encountered
      */
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSimple3(final FormulaContext _c) throws ParserException {
-        final Formula formula = _c.p.parse("~5 & ~4 & 3 & 2 & 1 | ~3 & ~7 & ~2 & 1 | ~6 & 1 & ~3 & 2 | ~9 & 6 & 8 & ~1 | 3 & 4 & 2 & 1 | ~2 & 7 & 1 | ~10 & ~8 & ~1");
+        final Formula formula = _c.p.parse(
+                "~5 & ~4 & 3 & 2 & 1 | ~3 & ~7 & ~2 & 1 | ~6 & 1 & ~3 & 2 | ~9 & 6 & 8 & ~1 | 3 & 4 & 2 & 1 | ~2 & 7 & 1 | ~10 & ~8 & ~1");
         final Formula dnf = formula.transform(new QuineMcCluskeySimplifier(_c.f));
         assertThat(dnf.isDNF(_c.f)).isTrue();
         assertThat(_c.f.equivalence(formula, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
@@ -73,7 +77,8 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLarge2(final FormulaContext _c) throws ParserException, IOException {
-        final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
         final SATSolver solver = SATSolver.newSolver(_c.f);
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(Arrays.asList(
@@ -100,7 +105,8 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLarge3(final FormulaContext _c) throws ParserException, IOException {
-        final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
         final SATSolver solver = SATSolver.newSolver(_c.f);
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(Arrays.asList(
@@ -132,7 +138,8 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     @LongRunningTag
     public void testSmallFormulas(final FormulaContext _c) throws IOException, ParserException {
-        final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/formulas/small_formulas.txt"));
+        final BufferedReader reader =
+                new BufferedReader(new FileReader("src/test/resources/formulas/small_formulas.txt"));
         while (reader.ready()) {
             final Formula formula = _c.p.parse(reader.readLine());
             final List<Variable> variables = new ArrayList<>(formula.variables(_c.f));

@@ -76,12 +76,16 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @MethodSource("splitProviders")
     public void testContradiction(final SplitVariableProvider splitProvider) {
         final ModelEnumerationConfig config =
-                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+                ModelEnumerationConfig.builder()
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                                        .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.literal("A", true));
         solver.add(f.literal("A", false));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(List.of()).configuration(config).build());
+        final List<Model> models =
+                solver.execute(ModelEnumerationFunction.builder(List.of()).configuration(config).build());
         assertThat(models).isEmpty();
     }
 
@@ -89,13 +93,17 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @MethodSource("splitProviders")
     public void testTautology(final SplitVariableProvider splitProvider) {
         final ModelEnumerationConfig config =
-                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+                ModelEnumerationConfig.builder()
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                                        .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         List<Model> models = solver.execute(ModelEnumerationFunction.builder(List.of()).configuration(config).build());
         assertThat(models).containsExactly(new Model());
         final SortedSet<Variable> additionalVars = f.variables("A", "B");
-        models = solver.execute(ModelEnumerationFunction.builder(List.of()).additionalVariables(additionalVars).configuration(config).build());
+        models = solver.execute(ModelEnumerationFunction.builder(List.of()).additionalVariables(additionalVars)
+                .configuration(config).build());
         assertThat(models).hasSize(1);
         assertThat(variables(models.get(0))).containsAll(additionalVars);
     }
@@ -104,14 +112,18 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @MethodSource("splitProviders")
     public void testEmptyEnumerationVariables(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
-                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+                ModelEnumerationConfig.builder()
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                                        .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("A & (B | C)");
         solver.add(formula);
         List<Model> models = solver.execute(ModelEnumerationFunction.builder(List.of()).configuration(config).build());
         assertThat(models).containsExactly(new Model());
-        models = solver.execute(ModelEnumerationFunction.builder(List.of()).additionalVariables(formula.variables(f)).configuration(config).build());
+        models = solver.execute(ModelEnumerationFunction.builder(List.of()).additionalVariables(formula.variables(f))
+                .configuration(config).build());
         assertThat(models).hasSize(1);
         assertThat(variables(models.get(0))).containsAll(formula.variables(f));
     }
@@ -120,11 +132,15 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @MethodSource("splitProviders")
     public void testSimple1(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
-                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+                ModelEnumerationConfig.builder()
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                                        .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & (B | C)"));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
+        final List<Model> models = solver
+                .execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
         assertThat(modelsToSets(models)).containsExactlyInAnyOrder(
                 set(f.variable("A"), f.variable("B"), f.variable("C")),
                 set(f.variable("A"), f.variable("B"), f.literal("C", false)),
@@ -136,25 +152,36 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @MethodSource("splitProviders")
     public void testSimple2(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
-                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+                ModelEnumerationConfig.builder()
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                                        .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
+        final List<Model> models = solver
+                .execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
         assertThat(models).hasSize(5);
     }
 
     @ParameterizedTest
     @MethodSource("splitProviders")
-    public void testResultLiteralOrderIndependentFromInputOrder(final SplitVariableProvider splitProvider) throws ParserException {
+    public void testResultLiteralOrderIndependentFromInputOrder(final SplitVariableProvider splitProvider)
+            throws ParserException {
         final ModelEnumerationConfig config =
-                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+                ModelEnumerationConfig.builder()
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                                        .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & (B | C)"));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
-        final List<Model> modelsABC = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
-        final List<Model> modelsBCA = solver.execute(ModelEnumerationFunction.builder(f.variables("B", "C", "A")).configuration(config).build());
+        final List<Model> models = solver
+                .execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
+        final List<Model> modelsABC = solver
+                .execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
+        final List<Model> modelsBCA = solver
+                .execute(ModelEnumerationFunction.builder(f.variables("B", "C", "A")).configuration(config).build());
 
         assertThat(modelsToSets(models)).containsExactlyInAnyOrder(
                 set(f.variable("A"), f.variable("B"), f.variable("C")),
@@ -169,7 +196,10 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @MethodSource("splitProviders")
     public void testDuplicateEnumerationVariables(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
-                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+                ModelEnumerationConfig.builder()
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                                        .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & (B | C)"));
@@ -186,12 +216,16 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @MethodSource("splitProviders")
     public void testMultipleModelEnumeration(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
-                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+                ModelEnumerationConfig.builder()
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                                        .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
         solver.add(formula);
-        final ModelEnumerationFunction meFunction = ModelEnumerationFunction.builder(formula.variables(f)).configuration(config).build();
+        final ModelEnumerationFunction meFunction =
+                ModelEnumerationFunction.builder(formula.variables(f)).configuration(config).build();
         final List<Model> firstRun = solver.execute(meFunction);
         final List<Model> secondRun = solver.execute(meFunction);
         assertThat(firstRun).hasSize(5);
@@ -202,7 +236,10 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @MethodSource("splitProviders")
     public void testAdditionalVariablesSimple(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
-                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+                ModelEnumerationConfig.builder()
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                                        .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & C | B & ~C"));
@@ -223,7 +260,10 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @MethodSource("splitProviders")
     public void testDuplicateAdditionalVariables(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
-                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+                ModelEnumerationConfig.builder()
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                                        .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & (B | C)"));
@@ -239,7 +279,10 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @LongRunningTag
     public void testDontCareVariables1(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
-                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+                ModelEnumerationConfig.builder()
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                                        .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
@@ -266,7 +309,10 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @MethodSource("splitProviders")
     public void testDontCareVariables2(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
-                ModelEnumerationConfig.builder().strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(2).build())
+                ModelEnumerationConfig.builder()
+                        .strategy(splitProvider == null ? null
+                                : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
+                                        .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
@@ -297,9 +343,15 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     public void testDontCareVariables3() throws ParserException {
         final FixedVariableProvider splitProvider = new FixedVariableProvider(new TreeSet<>(f.variables("X")));
         final ModelEnumerationConfig config =
-                ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(3).build()).build();
+                ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder()
+                        .splitVariableProvider(splitProvider).maxNumberOfModels(3).build()).build();
         final SATSolver solver = SATSolver.newSolver(f);
-        final Formula formula = f.parse("A | B | (X & ~X)"); // X will be simplified out and become a don't care variable unknown by the solver
+        final Formula formula = f.parse("A | B | (X & ~X)"); // X will be
+                                                             // simplified out
+                                                             // and become a
+                                                             // don't care
+                                                             // variable unknown
+                                                             // by the solver
         solver.add(formula);
         final SortedSet<Variable> enumerationVars = new TreeSet<>(f.variables("A", "B", "X"));
         final List<Model> models = solver.execute(ModelEnumerationFunction.builder(enumerationVars)
@@ -314,10 +366,13 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
         final NumberOfModelsHandler handler = new NumberOfModelsHandler(3);
         final ModelEnumerationConfig config =
                 ModelEnumerationConfig.builder().handler(handler)
-                        .strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider).maxNumberOfModels(3).build()).build();
+                        .strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder()
+                                .splitVariableProvider(splitProvider).maxNumberOfModels(3).build())
+                        .build();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
-        final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
+        final List<Model> models = solver
+                .execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
         assertThat(handler.aborted()).isTrue();
         assertThat(models).hasSize(3);
     }
@@ -326,13 +381,15 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @Test
     public void testAdditionalVariables() {
         final ModelEnumerationConfig config = ModelEnumerationConfig.builder()
-                .strategy(DefaultModelEnumerationStrategy.builder().splitVariableProvider(new LeastCommonVariablesProvider()).maxNumberOfModels(10).build())
+                .strategy(DefaultModelEnumerationStrategy.builder()
+                        .splitVariableProvider(new LeastCommonVariablesProvider()).maxNumberOfModels(10).build())
                 .build();
 
         for (int i = 1; i <= 1000; i++) {
             // given
             final SATSolver solver = SATSolver.newSolver(f);
-            final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(i).numVars(20).build());
+            final FormulaRandomizer randomizer =
+                    new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(i).numVars(20).build());
             final Formula formula = randomizer.formula(4);
             solver.add(formula);
 
@@ -342,14 +399,16 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
             final SortedSet<Variable> pmeVars = new TreeSet<>(varsFormula.subList(0, minNumberOfVars));
 
             final int additionalVarsStart = Math.min(4 * minNumberOfVars, numberOfVars);
-            final SortedSet<Variable> additionalVars = new TreeSet<>(varsFormula.subList(additionalVarsStart, varsFormula.size()));
+            final SortedSet<Variable> additionalVars =
+                    new TreeSet<>(varsFormula.subList(additionalVarsStart, varsFormula.size()));
 
             // when
             final List<Model> modelsRecursive = solver.execute(ModelEnumerationFunction.builder(pmeVars)
                     .additionalVariables(additionalVars)
                     .configuration(config).build());
 
-            // check that models are buildable and every model contains all additional variables
+            // check that models are buildable and every model contains all
+            // additional variables
             for (final Model model : modelsRecursive) {
                 assertThat(variables(model)).containsAll(additionalVars);
                 assertThat(solver.satCall().addFormulas(model.getLiterals()).sat()).isEqualTo(Tristate.TRUE);
@@ -361,7 +420,8 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @RandomTag
     public void testRandomFormulas() {
         for (int i = 1; i <= 100; i++) {
-            final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(i).numVars(15).build());
+            final FormulaRandomizer randomizer =
+                    new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(i).numVars(15).build());
             final Formula formula = randomizer.formula(3);
 
             final SATSolver solver = SATSolver.newSolver(f);
@@ -369,16 +429,26 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
 
             // no split
             final var count = ModelCounter.count(f, List.of(formula), formula.variables(f));
-            final ModelEnumerationConfig configNoSplit = ModelEnumerationConfig.builder().strategy(NoSplitModelEnumerationStrategy.get()).build();
-            final List<Model> models = solver.execute(ModelEnumerationFunction.builder(formula.variables(f)).configuration(configNoSplit).build());
+            final ModelEnumerationConfig configNoSplit =
+                    ModelEnumerationConfig.builder().strategy(NoSplitModelEnumerationStrategy.get()).build();
+            final List<Model> models = solver.execute(
+                    ModelEnumerationFunction.builder(formula.variables(f)).configuration(configNoSplit).build());
 
             // recursive call: least common vars
-            final ModelEnumerationConfig configLcv = ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder().splitVariableProvider(new LeastCommonVariablesProvider()).maxNumberOfModels(500).build()).build();
-            final List<Model> models1 = solver.execute(ModelEnumerationFunction.builder(formula.variables(f)).configuration(configLcv).build());
+            final ModelEnumerationConfig configLcv = ModelEnumerationConfig.builder()
+                    .strategy(DefaultModelEnumerationStrategy.builder()
+                            .splitVariableProvider(new LeastCommonVariablesProvider()).maxNumberOfModels(500).build())
+                    .build();
+            final List<Model> models1 = solver
+                    .execute(ModelEnumerationFunction.builder(formula.variables(f)).configuration(configLcv).build());
 
             // recursive call: most common vars
-            final ModelEnumerationConfig configMcv = ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder().splitVariableProvider(new MostCommonVariablesProvider()).maxNumberOfModels(500).build()).build();
-            final List<Model> models2 = solver.execute(ModelEnumerationFunction.builder(formula.variables(f)).configuration(configMcv).build());
+            final ModelEnumerationConfig configMcv = ModelEnumerationConfig.builder()
+                    .strategy(DefaultModelEnumerationStrategy.builder()
+                            .splitVariableProvider(new MostCommonVariablesProvider()).maxNumberOfModels(500).build())
+                    .build();
+            final List<Model> models2 = solver
+                    .execute(ModelEnumerationFunction.builder(formula.variables(f)).configuration(configMcv).build());
 
             assertThat(models1.size()).isEqualTo(count.intValue());
             assertThat(models2.size()).isEqualTo(count.intValue());
@@ -408,7 +478,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
 
         final Model expectedModel1 = new Model(_c.a, _c.b);
         final Model expectedModel2 = new Model(_c.na, _c.nb);
-        final LNGIntVector relevantIndices =  LNGIntVector.of(0, 1);
+        final LNGIntVector relevantIndices = LNGIntVector.of(0, 1);
 
         collector.addModel(modelFromSolver1, solver, relevantIndices, handler);
         assertThat(collector.getResult()).isEmpty();
@@ -468,15 +538,15 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                 singletonList(_c.na));
         assertThat(getCartesianProduct(new TreeSet<>(
                 List.of(_c.a, _c.b, _c.c)))).containsExactly(
-                List.of(_c.a, _c.b, _c.c),
-                List.of(_c.a, _c.b, _c.nc),
-                List.of(_c.a, _c.nb, _c.c),
-                List.of(_c.a, _c.nb, _c.nc),
-                List.of(_c.na, _c.b, _c.c),
-                List.of(_c.na, _c.b, _c.nc),
-                List.of(_c.na, _c.nb, _c.c),
-                List.of(_c.na, _c.nb, _c.nc)
-        );
+                        List.of(_c.a, _c.b, _c.c),
+                        List.of(_c.a, _c.b, _c.nc),
+                        List.of(_c.a, _c.nb, _c.c),
+                        List.of(_c.a, _c.nb, _c.nc),
+                        List.of(_c.na, _c.b, _c.c),
+                        List.of(_c.na, _c.b, _c.nc),
+                        List.of(_c.na, _c.nb, _c.c),
+                        List.of(_c.na, _c.nb, _c.nc)
+                );
     }
 
     @Test
@@ -493,12 +563,16 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
 
     @Test
     public void testVariableRemovedBySimplificationOccursInModels() throws ParserException {
-        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().simplifyComplementaryOperands(true).build());
-        final SATSolver solver = SATSolver.newSolver(this.f, SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        final FormulaFactory f =
+                FormulaFactory.caching(FormulaFactoryConfig.builder().simplifyComplementaryOperands(true).build());
+        final SATSolver solver = SATSolver.newSolver(this.f,
+                SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         final Variable a = f.variable("A");
         final Variable b = f.variable("B");
         final Formula formula = this.f.parse("A & B => A");
-        solver.add(formula); // during NNF conversion, used by the PG transformation, the formula simplifies to verum when added to the solver
+        solver.add(formula); // during NNF conversion, used by the PG
+                             // transformation, the formula simplifies to verum
+                             // when added to the solver
         final List<Model> models = solver.enumerateAllModels(formula.variables(f));
         assertThat(models).hasSize(4);
         for (final Model model : models) {

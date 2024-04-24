@@ -36,7 +36,8 @@ import java.util.stream.Collectors;
 
 /**
  * A solver function for enumerating models on the solver.
- * @param <RESULT> The result type of the model enumeration function.  Can be e.g. a model count, a list of models, or a BDD.
+ * @param <RESULT> The result type of the model enumeration function. Can be
+ *                 e.g. a model count, a list of models, or a BDD.
  * @version 3.0.0
  * @since 3.0.0
  */
@@ -47,7 +48,8 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
     protected final ModelEnumerationHandler handler;
     protected final ModelEnumerationStrategy strategy;
 
-    protected AbstractModelEnumerationFunction(final SortedSet<Variable> variables, final SortedSet<Variable> additionalVariables,
+    protected AbstractModelEnumerationFunction(final SortedSet<Variable> variables,
+                                               final SortedSet<Variable> additionalVariables,
                                                final ModelEnumerationConfig configuration) {
         this.variables = variables;
         this.additionalVariables = additionalVariables;
@@ -55,35 +57,44 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         strategy = configuration.strategy == null ? NoSplitModelEnumerationStrategy.get() : configuration.strategy;
     }
 
-    protected abstract EnumerationCollector<RESULT> newCollector(final FormulaFactory f, final SortedSet<Variable> knownVariables, final SortedSet<Variable> dontCareVariablesNotOnSolver,
+    protected abstract EnumerationCollector<RESULT> newCollector(final FormulaFactory f,
+                                                                 final SortedSet<Variable> knownVariables,
+                                                                 final SortedSet<Variable> dontCareVariablesNotOnSolver,
                                                                  SortedSet<Variable> additionalVariablesNotOnSolver);
 
     @Override
     public RESULT apply(final SATSolver solver) {
         start(handler);
         final SortedSet<Variable> knownVariables = solver.underlyingSolver().knownVariables();
-        final SortedSet<Variable> additionalVarsNotOnSolver = difference(additionalVariables, knownVariables, TreeSet::new);
+        final SortedSet<Variable> additionalVarsNotOnSolver =
+                difference(additionalVariables, knownVariables, TreeSet::new);
         final SortedSet<Variable> dontCareVariablesNotOnSolver = difference(variables, knownVariables, TreeSet::new);
-        final EnumerationCollector<RESULT> collector = newCollector(solver.factory(), knownVariables, dontCareVariablesNotOnSolver, additionalVarsNotOnSolver);
+        final EnumerationCollector<RESULT> collector =
+                newCollector(solver.factory(), knownVariables, dontCareVariablesNotOnSolver, additionalVarsNotOnSolver);
         final SortedSet<Variable> enumerationVars = getVarsForEnumeration(knownVariables);
-        final SortedSet<Variable> initialSplitVars = nullSafe(() -> strategy.splitVarsForRecursionDepth(enumerationVars, solver, 0), TreeSet::new);
+        final SortedSet<Variable> initialSplitVars =
+                nullSafe(() -> strategy.splitVarsForRecursionDepth(enumerationVars, solver, 0), TreeSet::new);
         enumerateRecursive(collector, solver, new Model(), enumerationVars, initialSplitVars, 0);
         return collector.getResult();
     }
 
-    private void enumerateRecursive(final EnumerationCollector<RESULT> collector, final SATSolver solver, final Model splitModel,
-                                    final SortedSet<Variable> enumerationVars, final SortedSet<Variable> splitVars, final int recursionDepth) {
+    private void enumerateRecursive(final EnumerationCollector<RESULT> collector, final SATSolver solver,
+                                    final Model splitModel,
+                                    final SortedSet<Variable> enumerationVars, final SortedSet<Variable> splitVars,
+                                    final int recursionDepth) {
         final int maxNumberOfModelsForEnumeration = strategy.maxNumberOfModelsForEnumeration(recursionDepth);
         final SolverState state = saveState(solver);
         solver.add(splitModel.formula(solver.factory()));
-        final boolean enumerationFinished = enumerate(collector, solver, enumerationVars, additionalVariables, maxNumberOfModelsForEnumeration, handler);
+        final boolean enumerationFinished = enumerate(collector, solver, enumerationVars, additionalVariables,
+                maxNumberOfModelsForEnumeration, handler);
         if (!enumerationFinished) {
             if (!collector.rollback(handler)) {
                 loadState(solver, state);
                 return;
             }
             SortedSet<Variable> newSplitVars = new TreeSet<>(splitVars);
-            final int maxNumberOfModelsForSplitAssignments = strategy.maxNumberOfModelsForSplitAssignments(recursionDepth);
+            final int maxNumberOfModelsForSplitAssignments =
+                    strategy.maxNumberOfModelsForSplitAssignments(recursionDepth);
             while (!enumerate(collector, solver, newSplitVars, null, maxNumberOfModelsForSplitAssignments, handler)) {
                 if (!collector.rollback(handler)) {
                     loadState(solver, state);
@@ -103,9 +114,11 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
             }
 
             final List<Model> newSplitAssignments = collector.rollbackAndReturnModels(solver, handler);
-            final SortedSet<Variable> recursiveSplitVars = strategy.splitVarsForRecursionDepth(remainingVars, solver, recursionDepth + 1);
+            final SortedSet<Variable> recursiveSplitVars =
+                    strategy.splitVarsForRecursionDepth(remainingVars, solver, recursionDepth + 1);
             for (final Model newSplitAssignment : newSplitAssignments) {
-                enumerateRecursive(collector, solver, newSplitAssignment, enumerationVars, recursiveSplitVars, recursionDepth + 1);
+                enumerateRecursive(collector, solver, newSplitAssignment, enumerationVars, recursiveSplitVars,
+                        recursionDepth + 1);
                 if (!collector.commit(handler)) {
                     loadState(solver, state);
                     return;
@@ -120,12 +133,14 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         loadState(solver, state);
     }
 
-    protected static <R> boolean enumerate(final EnumerationCollector<R> collector, final SATSolver solver, final SortedSet<Variable> variables,
+    protected static <R> boolean enumerate(final EnumerationCollector<R> collector, final SATSolver solver,
+                                           final SortedSet<Variable> variables,
                                            final SortedSet<Variable> additionalVariables, final int maxModels,
                                            final ModelEnumerationHandler handler) {
         final SolverState stateBeforeEnumeration = saveState(solver);
         final LNGIntVector relevantIndices = relevantIndicesFromSolver(variables, solver);
-        final LNGIntVector relevantAllIndices = relevantAllIndicesFromSolver(variables, additionalVariables, relevantIndices, solver);
+        final LNGIntVector relevantAllIndices =
+                relevantAllIndicesFromSolver(variables, additionalVariables, relevantIndices, solver);
 
         int foundModels = 0;
         boolean proceed = true;
@@ -151,11 +166,13 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         final SortedSet<Variable> relevantVars = knownVariables.stream()
                 .filter(AbstractModelEnumerationFunction::isNotAuxiliaryVariable)
                 .collect(Collectors.toCollection(TreeSet::new));
-        return variables == null ? relevantVars : relevantVars.stream().filter(variables::contains).collect(Collectors.toCollection(TreeSet::new));
+        return variables == null ? relevantVars
+                : relevantVars.stream().filter(variables::contains).collect(Collectors.toCollection(TreeSet::new));
     }
 
     private static boolean isNotAuxiliaryVariable(final Variable var) {
-        return !var.name().startsWith(CC_PREFIX) && !var.name().startsWith(PB_PREFIX) && !var.name().startsWith(CNF_PREFIX);
+        return !var.name().startsWith(CC_PREFIX) && !var.name().startsWith(PB_PREFIX) &&
+                !var.name().startsWith(CNF_PREFIX);
     }
 
     private static boolean modelEnumerationSATCall(final SATSolver solver, final ModelEnumerationHandler handler) {
@@ -168,8 +185,11 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         return variables == null || variables.isEmpty() ? FormulaFactory.caching() : variables.first().factory();
     }
 
-    protected static ModelEnumerationConfig configuration(final SortedSet<Variable> variables, final ModelEnumerationConfig config) {
-        return config == null ? (ModelEnumerationConfig) factory(variables).configurationFor(ConfigurationType.MODEL_ENUMERATION) : config;
+    protected static ModelEnumerationConfig configuration(final SortedSet<Variable> variables,
+                                                          final ModelEnumerationConfig config) {
+        return config == null
+                ? (ModelEnumerationConfig) factory(variables).configurationFor(ConfigurationType.MODEL_ENUMERATION)
+                : config;
     }
 
     private static SolverState saveState(final SATSolver solver) {

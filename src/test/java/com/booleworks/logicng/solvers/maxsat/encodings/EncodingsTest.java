@@ -33,12 +33,14 @@ public class EncodingsTest {
     public void testSequentialWeightCounterExceptionalBehavior() {
         assertThatThrownBy(() -> {
             final SequentialWeightCounter swc = new SequentialWeightCounter();
-            swc.encode(new LNGCoreSolver(FormulaFactory.caching(), SATSolverConfig.builder().build()), new LNGIntVector(), new LNGIntVector(), Integer.MAX_VALUE);
+            swc.encode(new LNGCoreSolver(FormulaFactory.caching(), SATSolverConfig.builder().build()),
+                    new LNGIntVector(), new LNGIntVector(), Integer.MAX_VALUE);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Overflow in the encoding.");
         assertThatThrownBy(() -> {
             final SequentialWeightCounter swc = new SequentialWeightCounter();
-            swc.encode(new LNGCoreSolver(FormulaFactory.caching(), SATSolverConfig.builder().build()), new LNGIntVector(), new LNGIntVector(), Integer.MAX_VALUE, new LNGIntVector(), 1);
+            swc.encode(new LNGCoreSolver(FormulaFactory.caching(), SATSolverConfig.builder().build()),
+                    new LNGIntVector(), new LNGIntVector(), Integer.MAX_VALUE, new LNGIntVector(), 1);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Overflow in the encoding.");
     }

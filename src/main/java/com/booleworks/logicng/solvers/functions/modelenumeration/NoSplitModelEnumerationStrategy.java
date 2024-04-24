@@ -43,7 +43,8 @@ public class NoSplitModelEnumerationStrategy implements ModelEnumerationStrategy
     }
 
     @Override
-    public SortedSet<Variable> splitVarsForRecursionDepth(final Collection<Variable> variables, final SATSolver solver, final int recursionDepth) {
+    public SortedSet<Variable> splitVarsForRecursionDepth(final Collection<Variable> variables, final SATSolver solver,
+                                                          final int recursionDepth) {
         return Collections.emptySortedSet();
     }
 

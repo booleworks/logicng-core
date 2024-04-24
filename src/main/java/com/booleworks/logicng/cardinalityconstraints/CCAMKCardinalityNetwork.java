@@ -8,8 +8,9 @@ import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.Variable;
 
 /**
- * Encodes that at most 'rhs' variables are assigned value true.  Uses the cardinality network
- * encoding due to Asín, Nieuwenhuis, Oliveras, and Rodríguez-Carbonell .
+ * Encodes that at most 'rhs' variables are assigned value true. Uses the
+ * cardinality network encoding due to Asín, Nieuwenhuis, Oliveras, and
+ * Rodríguez-Carbonell .
  * @version 3.0.0
  * @since 1.1
  */

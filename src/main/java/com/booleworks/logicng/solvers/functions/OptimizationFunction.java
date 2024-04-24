@@ -31,10 +31,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * A solver function for computing a model for the formula on the solver
- * which has a global minimum or maximum of satisfied literals. If the formula
- * is UNSAT or the optimization handler aborted the computation, {@code null}
- * will be returned.
+ * A solver function for computing a model for the formula on the solver which
+ * has a global minimum or maximum of satisfied literals. If the formula is
+ * UNSAT or the optimization handler aborted the computation, {@code null} will
+ * be returned.
  * <p>
  * Optimization functions are instantiated via their builder {@link #builder()}.
  * @version 2.1.0
@@ -49,7 +49,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
     private final boolean maximize;
     private final OptimizationHandler handler;
 
-    private OptimizationFunction(final Collection<? extends Literal> literals, final Collection<Variable> additionalVariables, final boolean maximize,
+    private OptimizationFunction(final Collection<? extends Literal> literals,
+                                 final Collection<Variable> additionalVariables, final boolean maximize,
                                  final OptimizationHandler handler) {
         this.literals = literals;
         resultModelVariables = new TreeSet<>(additionalVariables);
@@ -69,7 +70,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
     }
 
     /**
-     * Returns an optimization function which maximizes the given set of literals.
+     * Returns an optimization function which maximizes the given set of
+     * literals.
      * @param literals the literals to maximize
      * @return the solver function
      */
@@ -78,7 +80,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
     }
 
     /**
-     * Returns an optimization function which minimizes the given set of literals.
+     * Returns an optimization function which minimizes the given set of
+     * literals.
      * @param literals the literals to minimize
      * @return the solver function
      */
@@ -119,7 +122,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
             lastResultModel = satCall.model(resultModelVariables);
             currentSelectorModel = satCall.model(selectors);
             if (currentSelectorModel.positiveVariables().size() == selectors.size()) {
-                // all optimization literals satisfied -- no need for further optimization
+                // all optimization literals satisfied -- no need for further
+                // optimization
                 return satCall.model(resultModelVariables);
             }
         }
@@ -178,7 +182,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         }
 
         /**
-         * Sets the set of literals that should be optimized s.t. the number of satisfied literals is maximized or minimized.
+         * Sets the set of literals that should be optimized s.t. the number of
+         * satisfied literals is maximized or minimized.
          * @param literals the set of literals
          * @return the current builder
          */
@@ -188,7 +193,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         }
 
         /**
-         * Sets the set of literals that should be optimized s.t. the number of satisfied literals is maximized or minimized.
+         * Sets the set of literals that should be optimized s.t. the number of
+         * satisfied literals is maximized or minimized.
          * @param literals the set of literals
          * @return the current builder
          */
@@ -198,7 +204,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         }
 
         /**
-         * Sets an additional set of variables which should occur in the resulting model.
+         * Sets an additional set of variables which should occur in the
+         * resulting model.
          * @param variables the additional variables for the resulting model
          * @return the current builder
          */
@@ -208,7 +215,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         }
 
         /**
-         * Sets an additional set of variables which should occur in every model.
+         * Sets an additional set of variables which should occur in every
+         * model.
          * @param variables the additional variables for each model
          * @return the current builder
          */
@@ -246,7 +254,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         }
 
         /**
-         * Builds the optimization function with the current builder's configuration.
+         * Builds the optimization function with the current builder's
+         * configuration.
          * @return the optimization function
          */
         public OptimizationFunction build() {

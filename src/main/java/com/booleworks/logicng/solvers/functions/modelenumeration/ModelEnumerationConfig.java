@@ -52,7 +52,8 @@ public class ModelEnumerationConfig extends Configuration {
         }
 
         /**
-         * Sets the model enumeration handler for this function.  The default is no handler.
+         * Sets the model enumeration handler for this function. The default is
+         * no handler.
          * @param handler the handler, may be {@code null}
          * @return the current builder
          */
@@ -62,10 +63,13 @@ public class ModelEnumerationConfig extends Configuration {
         }
 
         /**
-         * Sets the model enumeration strategy for this function. The default is the {@link DefaultModelEnumerationStrategy} with the
-         * {@link MostCommonVariablesProvider} and a maximum number of models of 500.
+         * Sets the model enumeration strategy for this function. The default is
+         * the {@link DefaultModelEnumerationStrategy} with the
+         * {@link MostCommonVariablesProvider} and a maximum number of models of
+         * 500.
          * <p>
-         * In case of {@code null} the computation will fall back to the default model enumeration without split assignments
+         * In case of {@code null} the computation will fall back to the default
+         * model enumeration without split assignments
          * @param strategy the strategy
          * @return the current builder
          */
@@ -75,7 +79,8 @@ public class ModelEnumerationConfig extends Configuration {
         }
 
         /**
-         * Builds the model enumeration configuration with the current builder's configuration.
+         * Builds the model enumeration configuration with the current builder's
+         * configuration.
          * @return the model enumeration configuration
          */
         public ModelEnumerationConfig build() {

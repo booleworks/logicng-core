@@ -17,11 +17,14 @@ public class LngNativeCardinalityConstraint extends LngNativePBConstraint implem
      * Constructs a new cardinality constraint.
      * @param literals   the literals
      * @param comparator the comparator
-     * @param rhs        the right-hand side, has to follow the restrictions in the class description
+     * @param rhs        the right-hand side, has to follow the restrictions in
+     *                   the class description
      * @param f          the formula factory
-     * @throws IllegalArgumentException if the number of literals and coefficients do not correspond
+     * @throws IllegalArgumentException if the number of literals and
+     *                                  coefficients do not correspond
      */
-    LngNativeCardinalityConstraint(final List<? extends Literal> literals, final CType comparator, final int rhs, final NonCachingFormulaFactory f) {
+    LngNativeCardinalityConstraint(final List<? extends Literal> literals, final CType comparator, final int rhs,
+                                   final NonCachingFormulaFactory f) {
         super(literals, Collections.nCopies(literals.size(), 1), comparator, rhs, f);
     }
 }

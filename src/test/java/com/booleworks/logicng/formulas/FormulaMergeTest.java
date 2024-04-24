@@ -18,7 +18,8 @@ import java.util.List;
 public class FormulaMergeTest {
 
     public static Collection<Object[]> panics() {
-        final FormulaFactoryConfig config = FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.PANIC).build();
+        final FormulaFactoryConfig config = FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.PANIC).build();
         final List<Object[]> contexts = new ArrayList<>();
         contexts.add(new Object[]{new FormulaContext(FormulaFactory.caching(config))});
         contexts.add(new Object[]{new FormulaContext(FormulaFactory.nonCaching(config))});
@@ -26,7 +27,8 @@ public class FormulaMergeTest {
     }
 
     public static Collection<Object[]> imports() {
-        final FormulaFactoryConfig config = FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build();
+        final FormulaFactoryConfig config = FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build();
         final List<Object[]> contexts = new ArrayList<>();
         contexts.add(new Object[]{new FormulaContext(FormulaFactory.caching(config))});
         contexts.add(new Object[]{new FormulaContext(FormulaFactory.nonCaching(config))});
@@ -36,7 +38,8 @@ public class FormulaMergeTest {
     @ParameterizedTest
     @MethodSource("panics")
     public void testPanic(final FormulaContext _c) {
-        final FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        final FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
 
         final Variable a1 = _c.f.variable("A");
         final Variable b1 = _c.f.variable("B");
@@ -54,10 +57,14 @@ public class FormulaMergeTest {
         assertThatThrownBy(() -> _c.f.clause(a2, b1)).isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> _c.f.clause(a2, b2)).isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> _c.f.clause(a1, b1, c2)).isInstanceOf(UnsupportedOperationException.class);
-        assertThatThrownBy(() -> _c.f.cnf(_c.f.clause(a1, b1), _c.f.clause(a1, c1), c2)).isInstanceOf(UnsupportedOperationException.class);
-        assertThatThrownBy(() -> _c.f.cnf(_c.f.clause(a1, b1), g.clause(a2, c2), c1)).isInstanceOf(UnsupportedOperationException.class);
-        assertThatThrownBy(() -> _c.f.pbc(CType.GE, 1, new Literal[]{a1, b2.negate(g), c1}, new int[]{1, 2, 3})).isInstanceOf(UnsupportedOperationException.class);
-        assertThatThrownBy(() -> _c.f.pbc(CType.GE, 1, new Literal[]{a2, b2, c2.negate(g)}, new int[]{1, 2, 3})).isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> _c.f.cnf(_c.f.clause(a1, b1), _c.f.clause(a1, c1), c2))
+                .isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> _c.f.cnf(_c.f.clause(a1, b1), g.clause(a2, c2), c1))
+                .isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> _c.f.pbc(CType.GE, 1, new Literal[]{a1, b2.negate(g), c1}, new int[]{1, 2, 3}))
+                .isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> _c.f.pbc(CType.GE, 1, new Literal[]{a2, b2, c2.negate(g)}, new int[]{1, 2, 3}))
+                .isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> _c.f.cc(CType.GE, 1, a1, b2, c1)).isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> _c.f.cc(CType.GE, 1, a2, b2, c2)).isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> _c.f.amo(a1, b2, c1)).isInstanceOf(UnsupportedOperationException.class);
@@ -69,7 +76,8 @@ public class FormulaMergeTest {
     @ParameterizedTest
     @MethodSource("imports")
     public void testImport(final FormulaContext _c) {
-        final FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.PANIC).build());
+        final FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.PANIC).build());
 
         final Variable a1 = _c.f.variable("A");
         final Variable b1 = _c.f.variable("B");
@@ -87,12 +95,18 @@ public class FormulaMergeTest {
         assertThat(_c.f.clause(a2, b1)).isEqualTo(g.clause(a2, b2)).allMatch(it -> it.factory() == _c.f);
         assertThat(_c.f.clause(a2, b2)).isEqualTo(g.clause(a2, b2)).allMatch(it -> it.factory() == _c.f);
         assertThat(_c.f.clause(a1, b1, c2)).isEqualTo(g.clause(a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.cnf(_c.f.clause(a1, b1), _c.f.clause(a1, c1), c2)).isNotNull().allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.cnf(_c.f.clause(a1, b1), g.clause(a2, c2), c1)).isNotNull().allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.pbc(CType.GE, 1, new Literal[]{a1, b2.negate(g), c1}, new int[]{1, 2, 3})).isNotNull().allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.pbc(CType.GE, 1, new Literal[]{a2, b2, c2.negate(g)}, new int[]{1, 2, 3})).isNotNull().allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.cc(CType.GE, 1, a1, b2, c1)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.cc(CType.GE, 1, a2, b2, c2)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
+        assertThat(_c.f.cnf(_c.f.clause(a1, b1), _c.f.clause(a1, c1), c2)).isNotNull()
+                .allMatch(it -> it.factory() == _c.f);
+        assertThat(_c.f.cnf(_c.f.clause(a1, b1), g.clause(a2, c2), c1)).isNotNull()
+                .allMatch(it -> it.factory() == _c.f);
+        assertThat(_c.f.pbc(CType.GE, 1, new Literal[]{a1, b2.negate(g), c1}, new int[]{1, 2, 3})).isNotNull()
+                .allMatch(it -> it.factory() == _c.f);
+        assertThat(_c.f.pbc(CType.GE, 1, new Literal[]{a2, b2, c2.negate(g)}, new int[]{1, 2, 3})).isNotNull()
+                .allMatch(it -> it.factory() == _c.f);
+        assertThat(_c.f.cc(CType.GE, 1, a1, b2, c1)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2))
+                .allMatch(it -> it.factory() == _c.f);
+        assertThat(_c.f.cc(CType.GE, 1, a2, b2, c2)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2))
+                .allMatch(it -> it.factory() == _c.f);
         assertThat(_c.f.amo(a1, b2, c1)).isEqualTo(g.amo(a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
         assertThat(_c.f.amo(a2, b2, c2)).isEqualTo(g.amo(a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
         assertThat(_c.f.exo(a1, b2, c1)).isEqualTo(g.exo(a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
@@ -101,8 +115,10 @@ public class FormulaMergeTest {
 
     @Test
     public void testUsage() {
-        final FormulaFactory f = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT).build());
-        final FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.PANIC).build());
+        final FormulaFactory f = FormulaFactory.nonCaching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT).build());
+        final FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.PANIC).build());
 
         final Variable a1 = f.variable("A");
         final Variable b1 = f.variable("B");
@@ -137,10 +153,14 @@ public class FormulaMergeTest {
         assertThat(f.cnf(g.clause(a2, b2), g.clause(a2, c2), c2)).isNotNull().allMatch(it -> it.factory() == g);
         assertThat(f.cnf(g.clause(a2, b2), g.clause(a2, c2), c2).factory()).isEqualTo(f);
         assertThat(f.cnf(f.clause(a1, b1), g.clause(a2, c2), c1)).isNotNull();
-        assertThat(f.pbc(CType.GE, 1, new Literal[]{a1, b2.negate(g), c1}, new int[]{1, 2, 3})).isNotNull().allMatch(it -> it.factory() == g);
-        assertThat(f.pbc(CType.GE, 1, new Literal[]{a2, b2, c2.negate(g)}, new int[]{1, 2, 3})).isNotNull().allMatch(it -> it.factory() == g);
-        assertThat(f.cc(CType.GE, 1, a1, b2, c1)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2)).allMatch(it -> it.factory() == g);
-        assertThat(f.cc(CType.GE, 1, a2, b2, c2)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2)).allMatch(it -> it.factory() == g);
+        assertThat(f.pbc(CType.GE, 1, new Literal[]{a1, b2.negate(g), c1}, new int[]{1, 2, 3})).isNotNull()
+                .allMatch(it -> it.factory() == g);
+        assertThat(f.pbc(CType.GE, 1, new Literal[]{a2, b2, c2.negate(g)}, new int[]{1, 2, 3})).isNotNull()
+                .allMatch(it -> it.factory() == g);
+        assertThat(f.cc(CType.GE, 1, a1, b2, c1)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2))
+                .allMatch(it -> it.factory() == g);
+        assertThat(f.cc(CType.GE, 1, a2, b2, c2)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2))
+                .allMatch(it -> it.factory() == g);
         assertThat(f.amo(a1, b2, c1)).isEqualTo(g.amo(a2, b2, c2)).allMatch(it -> it.factory() == g);
         assertThat(f.amo(a2, b2, c2)).isEqualTo(g.amo(a2, b2, c2)).allMatch(it -> it.factory() == g);
         assertThat(f.exo(a1, b2, c1)).isEqualTo(g.exo(a2, b2, c2)).allMatch(it -> it.factory() == g);

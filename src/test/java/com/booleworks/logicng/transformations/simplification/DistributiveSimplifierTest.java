@@ -57,8 +57,11 @@ public class DistributiveSimplifierTest extends TestWithFormulaContext {
         assertThat(_c.f.or(_c.and1, _c.a).transform(distributiveSimplifier)).isEqualTo(_c.f.or(_c.and1, _c.a));
         assertThat(_c.f.or(_c.and2, _c.a).transform(distributiveSimplifier)).isEqualTo(_c.f.or(_c.and2, _c.a));
         assertThat(_c.f.or(_c.or1, _c.x).transform(distributiveSimplifier)).isEqualTo(_c.or1);
-        Assertions.assertThat(_c.p.parse("(a | b | ~c) & (~a | ~d) & (~c | d) & (~b | e | ~f | g) & (e | f | g | h) & (e | ~f | ~g | h) & f & c").transform(distributiveSimplifier))
-                .isEqualTo(_c.p.parse("(a | b | ~c) & (~a | ~d) & (~c | d) & f & c & (e | (~b | ~f | g) & (f | g | h) & (~f | ~g | h))"));
+        Assertions.assertThat(_c.p.parse(
+                "(a | b | ~c) & (~a | ~d) & (~c | d) & (~b | e | ~f | g) & (e | f | g | h) & (e | ~f | ~g | h) & f & c")
+                .transform(distributiveSimplifier))
+                .isEqualTo(_c.p.parse(
+                        "(a | b | ~c) & (~a | ~d) & (~c | d) & f & c & (e | (~b | ~f | g) & (f | g | h) & (~f | ~g | h))"));
     }
 
     @ParameterizedTest
@@ -79,7 +82,8 @@ public class DistributiveSimplifierTest extends TestWithFormulaContext {
         final Formula cAnd = _c.p.parse("(a | b | ~c) & (~a | ~d) & (~c | d | b) & (~c | ~b)");
         final Formula cAndD1 = cAnd.transform(distributiveSimplifier);
         assertThat(cAndD1).isEqualTo(_c.p.parse("(~a | ~d) & (~c | (a | b) & (d | b) & ~b)"));
-        assertThat(cAndD1.transform(distributiveSimplifier)).isEqualTo(_c.p.parse("(~a | ~d) & (~c | ~b & (b | a & d))"));
+        assertThat(cAndD1.transform(distributiveSimplifier))
+                .isEqualTo(_c.p.parse("(~a | ~d) & (~c | ~b & (b | a & d))"));
 
         assertThat(_c.f.not(cAnd).transform(distributiveSimplifier)).isEqualTo(_c.f.not(cAndD1));
 
@@ -88,7 +92,9 @@ public class DistributiveSimplifierTest extends TestWithFormulaContext {
         assertThat(cOrD1).isEqualTo(_c.p.parse("x & (y & z | y & ~z | ~y & z)"));
         assertThat(cOrD1.transform(distributiveSimplifier)).isEqualTo(_c.p.parse("x & (~y & z | y)"));
 
-        assertThat(_c.f.equivalence(cOr, cAnd).transform(distributiveSimplifier)).isEqualTo(_c.f.equivalence(cOrD1, cAndD1));
-        assertThat(_c.f.implication(cOr, cAnd).transform(distributiveSimplifier)).isEqualTo(_c.f.implication(cOrD1, cAndD1));
+        assertThat(_c.f.equivalence(cOr, cAnd).transform(distributiveSimplifier))
+                .isEqualTo(_c.f.equivalence(cOrD1, cAndD1));
+        assertThat(_c.f.implication(cOr, cAnd).transform(distributiveSimplifier))
+                .isEqualTo(_c.f.implication(cOrD1, cAndD1));
     }
 }

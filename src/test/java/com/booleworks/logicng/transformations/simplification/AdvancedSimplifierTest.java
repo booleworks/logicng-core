@@ -53,7 +53,8 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
     @RandomTag
     public void testRandomized(final FormulaContext _c) {
         for (int i = 0; i < 100; i++) {
-            final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, FormulaRandomizerConfig.builder().numVars(8).weightPbc(2).seed(i * 42).build());
+            final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f,
+                    FormulaRandomizerConfig.builder().numVars(8).weightPbc(2).seed(i * 42).build());
             final Formula formula = randomizer.formula(5);
             computeAndVerify(formula);
         }
@@ -81,7 +82,8 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
                 new TimeoutOptimizationHandler(1L, TimeoutHandler.TimerType.RESTARTING_TIMEOUT),
                 new TimeoutOptimizationHandler(System.currentTimeMillis() + 1L, TimeoutHandler.TimerType.FIXED_END)
         );
-        final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
         for (final TimeoutOptimizationHandler handler : handlers) {
             testHandler(handler, formula, true);
         }
@@ -109,7 +111,8 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
     public void testAdvancedSimplifierConfig(final FormulaContext _c) {
         final List<AdvancedSimplifierConfig> configs = Arrays.asList(
                 AdvancedSimplifierConfig.builder().build(),
-                AdvancedSimplifierConfig.builder().restrictBackbone(false).factorOut(false).simplifyNegations(false).build(),
+                AdvancedSimplifierConfig.builder().restrictBackbone(false).factorOut(false).simplifyNegations(false)
+                        .build(),
                 AdvancedSimplifierConfig.builder().factorOut(false).simplifyNegations(false).build(),
                 AdvancedSimplifierConfig.builder().restrictBackbone(false).simplifyNegations(false).build(),
                 AdvancedSimplifierConfig.builder().restrictBackbone(false).factorOut(false).build(),
@@ -120,7 +123,8 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
         for (final AdvancedSimplifierConfig config : configs) {
             final AdvancedSimplifier advancedSimplifier = new AdvancedSimplifier(_c.f, config);
             for (int i = 1; i < 10; i++) {
-                final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f, FormulaRandomizerConfig.builder().seed(i).build());
+                final FormulaRandomizer randomizer =
+                        new FormulaRandomizer(_c.f, FormulaRandomizerConfig.builder().seed(i).build());
                 final Formula formula = randomizer.formula(3);
                 final Formula simplified = formula.transform(advancedSimplifier);
                 if (simplified != null) {
@@ -135,11 +139,13 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
     @Test
     public void testCancellationPoints() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = f.parse("~v16 & ~v22 & ~v12 & (~v4 | ~v14) & (~v4 | ~v15) & (v3 | v4) & (v3 | ~v14) & (v3 | ~v15) " +
-                "& (~v20 | ~v8) & (v9 | ~v20) & (~v21 | ~v8) & (v9 | ~v21) & (~v21 | ~v10) & (~v21 | ~v11) & v19");
+        final Formula formula =
+                f.parse("~v16 & ~v22 & ~v12 & (~v4 | ~v14) & (~v4 | ~v15) & (v3 | v4) & (v3 | ~v14) & (v3 | ~v15) " +
+                        "& (~v20 | ~v8) & (v9 | ~v20) & (~v21 | ~v8) & (v9 | ~v21) & (~v21 | ~v10) & (~v21 | ~v11) & v19");
         for (int numOptimizationStarts = 1; numOptimizationStarts < 30; numOptimizationStarts++) {
             for (int numSatHandlerStarts = 1; numSatHandlerStarts < 500; numSatHandlerStarts++) {
-                final OptimizationHandler handler = new BoundedOptimizationHandler(numSatHandlerStarts, numOptimizationStarts);
+                final OptimizationHandler handler =
+                        new BoundedOptimizationHandler(numSatHandlerStarts, numOptimizationStarts);
                 testHandler(handler, formula, true);
             }
         }
@@ -153,7 +159,8 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
     }
 
     private void testHandler(final OptimizationHandler handler, final Formula formula, final boolean expAborted) {
-        final AdvancedSimplifier simplifierWithHandler = new AdvancedSimplifier(formula.factory(), AdvancedSimplifierConfig.builder().build(), handler);
+        final AdvancedSimplifier simplifierWithHandler =
+                new AdvancedSimplifier(formula.factory(), AdvancedSimplifierConfig.builder().build(), handler);
         final Formula simplified = formula.transform(simplifierWithHandler);
         assertThat(handler.aborted()).isEqualTo(expAborted);
         if (expAborted) {

@@ -29,9 +29,12 @@ public class CCIncrementalSolverTest implements LogicNGTest {
 
     public CCIncrementalSolverTest() {
         configs = new CCConfig[]{
-                CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.TOTALIZER).alkEncoding(CCConfig.ALK_ENCODER.TOTALIZER).build(),
-                CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.CARDINALITY_NETWORK).alkEncoding(CCConfig.ALK_ENCODER.CARDINALITY_NETWORK).build(),
-                CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.MODULAR_TOTALIZER).alkEncoding(CCConfig.ALK_ENCODER.MODULAR_TOTALIZER).build(),
+                CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.TOTALIZER)
+                        .alkEncoding(CCConfig.ALK_ENCODER.TOTALIZER).build(),
+                CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.CARDINALITY_NETWORK)
+                        .alkEncoding(CCConfig.ALK_ENCODER.CARDINALITY_NETWORK).build(),
+                CCConfig.builder().amkEncoding(CCConfig.AMK_ENCODER.MODULAR_TOTALIZER)
+                        .alkEncoding(CCConfig.ALK_ENCODER.MODULAR_TOTALIZER).build(),
         };
         solvers = SolverTestSet.solverTestSet(Set.of(SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES), f);
     }
@@ -92,7 +95,8 @@ public class CCIncrementalSolverTest implements LogicNGTest {
 
                 f.putConfiguration(config);
 
-                final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.GE, 2, vars));
+                final CCIncrementalData incData =
+                        solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.GE, 2, vars));
                 assertSolverSat(solver); // >=2
                 incData.newLowerBoundForSolver(3); // >= 3
                 assertSolverSat(solver);
@@ -129,10 +133,13 @@ public class CCIncrementalSolverTest implements LogicNGTest {
         for (final SATSolver solver : solvers) {
             solver.add(f.cc(CType.GE, 42, vars)); // >= 42
             f.putConfiguration(configs[0]);
-            final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
+            final CCIncrementalData incData =
+                    solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
             // search the lower bound
             while (solver.sat()) {
-                incData.newUpperBoundForSolver(--currentBound); // <= currentBound - 1
+                incData.newUpperBoundForSolver(--currentBound); // <=
+                                                                // currentBound
+                                                                // - 1
             }
             assertThat(currentBound).isEqualTo(41);
         }
@@ -150,10 +157,12 @@ public class CCIncrementalSolverTest implements LogicNGTest {
         }
         solver.add(f.cc(CType.LE, 87, vars));
         f.putConfiguration(configs[0]);
-        final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.GE, currentBound, vars));
+        final CCIncrementalData incData =
+                solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.GE, currentBound, vars));
         // search the lower bound
         while (solver.sat()) {
-            incData.newLowerBoundForSolver(++currentBound); // <= currentBound + 1
+            incData.newLowerBoundForSolver(++currentBound); // <= currentBound +
+                                                            // 1
         }
         assertThat(currentBound).isEqualTo(88);
     }
@@ -169,10 +178,13 @@ public class CCIncrementalSolverTest implements LogicNGTest {
                 vars[i] = f.variable("v" + i);
             }
             solver.add(f.cc(CType.GE, 42, vars)); // >= 42
-            final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
+            final CCIncrementalData incData =
+                    solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
             // search the lower bound
             while (solver.sat()) {
-                incData.newUpperBoundForSolver(--currentBound); // <= currentBound - 1
+                incData.newUpperBoundForSolver(--currentBound); // <=
+                                                                // currentBound
+                                                                // - 1
             }
             assertThat(currentBound).isEqualTo(41);
         }
@@ -190,7 +202,8 @@ public class CCIncrementalSolverTest implements LogicNGTest {
                 vars[i] = f.variable("v" + i);
             }
             solver.add(f.cc(CType.GE, 234, vars));
-            final CCIncrementalData incData = solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
+            final CCIncrementalData incData =
+                    solver.addIncrementalCC((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
             // search the lower bound
             while (solver.sat()) {
                 incData.newUpperBoundForSolver(--currentBound);

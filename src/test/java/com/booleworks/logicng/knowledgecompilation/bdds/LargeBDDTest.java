@@ -54,7 +54,8 @@ public class LargeBDDTest {
         testQueens(f, generator, 8, 92);
     }
 
-    private void testQueens(final FormulaFactory f, final NQueensGenerator generator, final int size, final int models) {
+    private void testQueens(final FormulaFactory f, final NQueensGenerator generator, final int size,
+                            final int models) {
         final Formula queens = generator.generate(size);
         final BDDKernel kernel = new BDDKernel(f, queens.variables(f).size(), 10000, 10000);
         final BDD bdd = BDDFactory.build(f, queens, kernel);

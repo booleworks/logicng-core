@@ -29,11 +29,13 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * A solver function for enumerating models on the solver and storing the result in a BDD.
- * If used with a subset of the original formula's variables this performs an existential
- * quantifier elimination (or projection) of the original formula into a BDD.
+ * A solver function for enumerating models on the solver and storing the result
+ * in a BDD. If used with a subset of the original formula's variables this
+ * performs an existential quantifier elimination (or projection) of the
+ * original formula into a BDD.
  * <p>
- * Model enumeration functions are instantiated via their builder {@link Builder}.
+ * Model enumeration functions are instantiated via their builder
+ * {@link Builder}.
  * @version 3.0.0
  * @since 3.0.0
  */
@@ -44,7 +46,8 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
     }
 
     /**
-     * Constructs a new BDD model enumeration function with the given set of variables.
+     * Constructs a new BDD model enumeration function with the given set of
+     * variables.
      * @param variables the variables for the enumeration
      * @return the builder for the function
      */
@@ -53,7 +56,8 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
     }
 
     /**
-     * Constructs a new BDD model enumeration function with the given set of variables.
+     * Constructs a new BDD model enumeration function with the given set of
+     * variables.
      * @param variables the variables for the enumeration
      * @return the builder for the function
      */
@@ -62,7 +66,8 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
     }
 
     @Override
-    protected EnumerationCollector<BDD> newCollector(final FormulaFactory f, final SortedSet<Variable> knownVariables, final SortedSet<Variable> dontCareVariablesNotOnSolver,
+    protected EnumerationCollector<BDD> newCollector(final FormulaFactory f, final SortedSet<Variable> knownVariables,
+                                                     final SortedSet<Variable> dontCareVariablesNotOnSolver,
                                                      final SortedSet<Variable> additionalVariablesNotOnSolver) {
         return new BddModelEnumerationCollector(f, variables, knownVariables, dontCareVariablesNotOnSolver.size());
     }
@@ -75,7 +80,8 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         private ModelEnumerationConfig configuration;
 
         /**
-         * Constructs a new BDD model enumeration function with the given set of variables.
+         * Constructs a new BDD model enumeration function with the given set of
+         * variables.
          * @param variables the variables for the enumeration
          */
         Builder(final Collection<Variable> variables) {
@@ -93,7 +99,8 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         }
 
         /**
-         * Builds the model enumeration function with the current builder's configuration.
+         * Builds the model enumeration function with the current builder's
+         * configuration.
          * @return the model enumeration function
          */
         public ModelEnumerationToBddFunction build() {
@@ -107,11 +114,11 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         private final List<Model> uncommittedModels = new ArrayList<>();
         private final int dontCareFactor;
 
-        public BddModelEnumerationCollector(final FormulaFactory f, final SortedSet<Variable> variables, final SortedSet<Variable> knownVariables,
+        public BddModelEnumerationCollector(final FormulaFactory f, final SortedSet<Variable> variables,
+                                            final SortedSet<Variable> knownVariables,
                                             final int numberDontCareVariablesNotOnSolver) {
-            final List<Variable> sortedVariables = variables != null
-                    ? new ArrayList<>(variables)
-                    : new ArrayList<>(knownVariables);
+            final List<Variable> sortedVariables =
+                    variables != null ? new ArrayList<>(variables) : new ArrayList<>(knownVariables);
             final int numVars = sortedVariables.size();
             kernel = new BDDKernel(f, sortedVariables, numVars * 30, numVars * 50);
             committedModels = BDDFactory.build(f, f.falsum(), kernel);
@@ -119,10 +126,12 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         }
 
         @Override
-        public boolean addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver, final LNGIntVector relevantAllIndices,
+        public boolean addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver,
+                                final LNGIntVector relevantAllIndices,
                                 final ModelEnumerationHandler handler) {
             if (handler == null || handler.foundModels(dontCareFactor)) {
-                final Model model = new Model(solver.underlyingSolver().convertInternalModel(modelFromSolver, relevantAllIndices));
+                final Model model =
+                        new Model(solver.underlyingSolver().convertInternalModel(modelFromSolver, relevantAllIndices));
                 uncommittedModels.add(model);
                 return true;
             } else {

@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A Plaisted-Greenbaum CNF conversion which is performed directly on the internal SAT solver,
- * not on a formula factory.
+ * A Plaisted-Greenbaum CNF conversion which is performed directly on the
+ * internal SAT solver, not on a formula factory.
  * @version 2.0.0
  * @since 1.6.0
  */
@@ -42,10 +42,12 @@ public final class PlaistedGreenbaumTransformationSolver {
     /**
      * Constructs a new transformation for a given SAT solver.
      * @param f          the formula factory to generate new formulas
-     * @param performNNF flag whether an NNF transformation should be performed on the input formula
+     * @param performNNF flag whether an NNF transformation should be performed
+     *                   on the input formula
      * @param solver     the solver
      */
-    public PlaistedGreenbaumTransformationSolver(final FormulaFactory f, final boolean performNNF, final LNGCoreSolver solver) {
+    public PlaistedGreenbaumTransformationSolver(final FormulaFactory f, final boolean performNNF,
+                                                 final LNGCoreSolver solver) {
         this.f = f;
         this.performNNF = performNNF;
         variableCache = new HashMap<>();
@@ -59,13 +61,15 @@ public final class PlaistedGreenbaumTransformationSolver {
     }
 
     /**
-     * Adds the CNF of the given formula (and its optional proposition) to the solver,
+     * Adds the CNF of the given formula (and its optional proposition) to the
+     * solver,
      * @param formula     the formula to add to the solver
      * @param proposition the optional proposition of the formula
      */
     public void addCNFtoSolver(final Formula formula, final Proposition proposition) {
         final Formula workingFormula = performNNF ? formula.transform(nnfTransformation) : formula;
-        final Formula withoutPBCs = !performNNF && workingFormula.holds(ContainsPBCPredicate.get()) ? workingFormula.nnf(f) : workingFormula;
+        final Formula withoutPBCs = !performNNF && workingFormula.holds(ContainsPBCPredicate.get())
+                ? workingFormula.nnf(f) : workingFormula;
         if (withoutPBCs.isCNF(f)) {
             addCNF(withoutPBCs, proposition);
         } else {
@@ -102,7 +106,8 @@ public final class PlaistedGreenbaumTransformationSolver {
         }
     }
 
-    private LNGIntVector computeTransformation(final Formula formula, final boolean polarity, final Proposition proposition, final boolean topLevel) {
+    private LNGIntVector computeTransformation(final Formula formula, final boolean polarity,
+                                               final Proposition proposition, final boolean topLevel) {
         switch (formula.type()) {
             case LITERAL:
                 final Literal lit = (Literal) formula;
@@ -121,7 +126,8 @@ public final class PlaistedGreenbaumTransformationSolver {
         }
     }
 
-    private LNGIntVector handleImplication(final Implication formula, final boolean polarity, final Proposition proposition, final boolean topLevel) {
+    private LNGIntVector handleImplication(final Implication formula, final boolean polarity,
+                                           final Proposition proposition, final boolean topLevel) {
         final boolean skipPg = polarity || topLevel;
         final Pair<Boolean, Integer> pgVarResult = skipPg ? new Pair<>(false, null) : getPgVar(formula, polarity);
         if (pgVarResult.first()) {
@@ -135,7 +141,8 @@ public final class PlaistedGreenbaumTransformationSolver {
             final LNGIntVector rightPgVarPos = computeTransformation(formula.right(), true, proposition, false);
             return vector(leftPgVarNeg, rightPgVarPos);
         } else {
-            // (~left | right) => pg = (left & ~right) | pg = (left | pg) & (~right | pg)
+            // (~left | right) => pg = (left & ~right) | pg = (left | pg) &
+            // (~right | pg)
             final LNGIntVector leftPgVarPos = computeTransformation(formula.left(), true, proposition, topLevel);
             final LNGIntVector rightPgVarNeg = computeTransformation(formula.right(), false, proposition, topLevel);
             if (topLevel) {
@@ -154,7 +161,8 @@ public final class PlaistedGreenbaumTransformationSolver {
         }
     }
 
-    private LNGIntVector handleEquivalence(final Equivalence formula, final boolean polarity, final Proposition proposition, final boolean topLevel) {
+    private LNGIntVector handleEquivalence(final Equivalence formula, final boolean polarity,
+                                           final Proposition proposition, final boolean topLevel) {
         final Pair<Boolean, Integer> pgVarResult = topLevel ? new Pair<>(false, null) : getPgVar(formula, polarity);
         if (pgVarResult.first()) {
             return polarity ? vector(pgVarResult.second()) : vector(pgVarResult.second() ^ 1);
@@ -193,8 +201,10 @@ public final class PlaistedGreenbaumTransformationSolver {
         return polarity ? vector(pgVar) : vector(pgVar ^ 1);
     }
 
-    private LNGIntVector handleNary(final Formula formula, final boolean polarity, final Proposition proposition, final boolean topLevel) {
-        final boolean skipPg = topLevel || formula.type() == FType.AND && !polarity || formula.type() == FType.OR && polarity;
+    private LNGIntVector handleNary(final Formula formula, final boolean polarity, final Proposition proposition,
+                                    final boolean topLevel) {
+        final boolean skipPg =
+                topLevel || formula.type() == FType.AND && !polarity || formula.type() == FType.OR && polarity;
         final Pair<Boolean, Integer> pgVarResult = skipPg ? new Pair<>(false, null) : getPgVar(formula, polarity);
         if (pgVarResult.first()) {
             return polarity ? vector(pgVarResult.second()) : vector(pgVarResult.second() ^ 1);

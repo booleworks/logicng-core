@@ -20,8 +20,10 @@ public class FixedVariableProvider implements SplitVariableProvider {
     private final SortedSet<Variable> splitVariables;
 
     /**
-     * Creates a new split variables provider returning always the given split variables.
-     * @param splitVariables the variables to be returned in {@link #splitVariables}
+     * Creates a new split variables provider returning always the given split
+     * variables.
+     * @param splitVariables the variables to be returned in
+     *                       {@link #splitVariables}
      */
     public FixedVariableProvider(final SortedSet<Variable> splitVariables) {
         this.splitVariables = splitVariables;

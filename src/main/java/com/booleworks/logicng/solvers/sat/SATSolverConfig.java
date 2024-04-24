@@ -47,7 +47,8 @@ public final class SATSolverConfig extends Configuration {
     }
 
     /**
-     * Returns a new builder which is initialized with the parameters of the given configuration.
+     * Returns a new builder which is initialized with the parameters of the
+     * given configuration.
      * @param config the configuration to copy
      * @return the builder
      */
@@ -70,8 +71,10 @@ public final class SATSolverConfig extends Configuration {
     }
 
     /**
-     * Returns whether at most clauses should be used to encode cardinality constraints or not.
-     * @return whether at most clauses should be used to encode cardinality constraints or not
+     * Returns whether at most clauses should be used to encode cardinality
+     * constraints or not.
+     * @return whether at most clauses should be used to encode cardinality
+     *         constraints or not
      */
     public boolean useAtMostClauses() {
         return useAtMostClauses;
@@ -124,37 +127,43 @@ public final class SATSolverConfig extends Configuration {
     /**
      * The different methods for clause minimization.
      * <ul>
-     * <li> {@code NONE} - no minimization is performed
-     * <li> {@code BASIC} - local minimization is performed
-     * <li> {@code DEEP} - recursive minimization is performed
+     * <li>{@code NONE} - no minimization is performed
+     * <li>{@code BASIC} - local minimization is performed
+     * <li>{@code DEEP} - recursive minimization is performed
      * </ul>
      */
     public enum ClauseMinimization {
-        NONE, BASIC, DEEP
+        NONE,
+        BASIC,
+        DEEP
     }
 
     /**
-     * The different methods for generating a CNF for a formula to put on the solver.
+     * The different methods for generating a CNF for a formula to put on the
+     * solver.
      * <ul>
-     * <li> {@code FACTORY_CNF} calls the {@link Formula#cnf(FormulaFactory)}
-     * method on the formula to convert it to CNF.  Therefore the CNF including all its auxiliary
-     * variables will be added to the formula factory.
-     * <li> {@code PG_ON_SOLVER} uses a solver-internal implementation of Plaisted-Greenbaum.
-     * Auxiliary variables are only added on the solver, not on the factory.  This usually
-     * leads to a reduced heap usage and often faster performance.
-     * Before applying Plaisted-Greenbaum, this method performs an NNF transformation on the
-     * input formula first.
-     * <li> {@code FULL_PG_ON_SOLVER} uses a solver-internal implementation of Plaisted-Greenbaum.
-     * Auxiliary variables are only added on the solver, not on the factory.  This usually
-     * leads to a reduced heap usage and often faster performance.
-     * In contrast to {@code PG_ON_SOLVER}, this method does not transform the input formula to
-     * NNF first. The Plaisted-Greenbaum transformation is applied directly to all operators of
-     * the formula, hence prefix {@code FULL}. Without the NNF transformation the formula factory
+     * <li>{@code FACTORY_CNF} calls the {@link Formula#cnf(FormulaFactory)}
+     * method on the formula to convert it to CNF. Therefore the CNF including
+     * all its auxiliary variables will be added to the formula factory.
+     * <li>{@code PG_ON_SOLVER} uses a solver-internal implementation of
+     * Plaisted-Greenbaum. Auxiliary variables are only added on the solver, not
+     * on the factory. This usually leads to a reduced heap usage and often
+     * faster performance. Before applying Plaisted-Greenbaum, this method
+     * performs an NNF transformation on the input formula first.
+     * <li>{@code FULL_PG_ON_SOLVER} uses a solver-internal implementation of
+     * Plaisted-Greenbaum. Auxiliary variables are only added on the solver, not
+     * on the factory. This usually leads to a reduced heap usage and often
+     * faster performance. In contrast to {@code PG_ON_SOLVER}, this method does
+     * not transform the input formula to NNF first. The Plaisted-Greenbaum
+     * transformation is applied directly to all operators of the formula, hence
+     * prefix {@code FULL}. Without the NNF transformation the formula factory
      * and the heap will not be polluted with intermediate formulas.
      * </ul>
      */
     public enum CNFMethod {
-        FACTORY_CNF, PG_ON_SOLVER, FULL_PG_ON_SOLVER
+        FACTORY_CNF,
+        PG_ON_SOLVER,
+        FULL_PG_ON_SOLVER
     }
 
     /**
@@ -175,10 +184,12 @@ public final class SATSolverConfig extends Configuration {
         }
 
         /**
-         * Sets whether the information for generating a proof with DRUP should be recorded or not.  The default
-         * value is {@code false}. Activating proof generation will always disable {@link #useAtMostClauses()
-         * at most clauses}.
-         * @param proofGeneration {@code true} if proof generating information should be recorded, {@code false} otherwise
+         * Sets whether the information for generating a proof with DRUP should
+         * be recorded or not. The default value is {@code false}. Activating
+         * proof generation will always disable {@link #useAtMostClauses() at
+         * most clauses}.
+         * @param proofGeneration {@code true} if proof generating information
+         *                        should be recorded, {@code false} otherwise
          * @return the builder
          */
         public Builder proofGeneration(final boolean proofGeneration) {
@@ -187,10 +198,13 @@ public final class SATSolverConfig extends Configuration {
         }
 
         /**
-         * Sets whether the solver should use special at most clauses for cardinality constraints. At most clauses are not
-         * compatible with {@link #proofGeneration proof generation}, so this option will be ignored if proof generation
-         * is enabled. The default value is {@code false}.
-         * @param useAtMostClauses {@code true} if at most clauses should be used, {@code false} otherwise
+         * Sets whether the solver should use special at most clauses for
+         * cardinality constraints. At most clauses are not compatible with
+         * {@link #proofGeneration proof generation}, so this option will be
+         * ignored if proof generation is enabled. The default value is
+         * {@code false}.
+         * @param useAtMostClauses {@code true} if at most clauses should be
+         *                         used, {@code false} otherwise
          * @return the builder
          */
         public Builder useAtMostClauses(final boolean useAtMostClauses) {
@@ -199,8 +213,8 @@ public final class SATSolverConfig extends Configuration {
         }
 
         /**
-         * Sets the CNF method for converting formula which are not in CNF for the solver.  The default value
-         * is {@code FACTORY_CNF}.
+         * Sets the CNF method for converting formula which are not in CNF for
+         * the solver. The default value is {@code FACTORY_CNF}.
          * @param cnfMethod the CNF method
          * @return the builder
          */
@@ -210,7 +224,8 @@ public final class SATSolverConfig extends Configuration {
         }
 
         /**
-         * Sets the clause minimization method. The default value is {@code DEEP}.
+         * Sets the clause minimization method. The default value is
+         * {@code DEEP}.
          * @param clauseMinimization the value
          * @return the builder
          */
@@ -220,7 +235,8 @@ public final class SATSolverConfig extends Configuration {
         }
 
         /**
-         * Sets the initial phase of the solver.  The default value is {@code false}.
+         * Sets the initial phase of the solver. The default value is
+         * {@code false}.
          * @param initialPhase the initial phase
          * @return the builder
          */

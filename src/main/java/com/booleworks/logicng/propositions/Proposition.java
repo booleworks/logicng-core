@@ -7,8 +7,8 @@ package com.booleworks.logicng.propositions;
 import com.booleworks.logicng.formulas.Formula;
 
 /**
- * An interface for a proposition in LogicNG.  A proposition is a formula with an additional information
- * like a textual description or a user-provided object.
+ * An interface for a proposition in LogicNG. A proposition is a formula with an
+ * additional information like a textual description or a user-provided object.
  * @version 2.0.0
  * @since 1.0
  */

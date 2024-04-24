@@ -22,6 +22,8 @@ public class UnsatCoreFunctionTest extends TestWithExampleFormulas {
         }).isInstanceOf(IllegalStateException.class)
                 .hasMessage("Cannot generate an unsat core if proof generation is not turned on");
 
-        assertThat(SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).build()).satCall().unsatCore()).isNull();
+        assertThat(
+                SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).build()).satCall().unsatCore())
+                        .isNull();
     }
 }

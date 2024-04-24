@@ -44,7 +44,8 @@ public class ModelTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solverSuppliers")
-    public void testNoModel(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+    public void testNoModel(final Supplier<SATSolver> solverSupplier, final String solverDescription)
+            throws ParserException {
         SATSolver solver = solverSupplier.get();
         solver.add(f.falsum());
         assertThat(solver.satCall().model(f.variables())).isNull();
@@ -84,7 +85,8 @@ public class ModelTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solverSuppliers")
-    public void testCNFFormula(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+    public void testCNFFormula(final Supplier<SATSolver> solverSupplier, final String solverDescription)
+            throws ParserException {
         final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A|B|C) & (~A|~B|~C) & (A|~B|~C) & (~A|~B|C)");
         solver.add(formula);
@@ -98,7 +100,9 @@ public class ModelTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solverSuppliers")
-    public void testCNFWithAuxiliaryVarsRestrictedToOriginal(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+    public void testCNFWithAuxiliaryVarsRestrictedToOriginal(final Supplier<SATSolver> solverSupplier,
+                                                             final String solverDescription)
+            throws ParserException {
         final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         final Formula cnf = formula.transform(new TseitinTransformation(solver.factory(), 0));
@@ -116,7 +120,8 @@ public class ModelTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solverSuppliers")
-    public void testNonCNFAllVars(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+    public void testNonCNFAllVars(final Supplier<SATSolver> solverSupplier, final String solverDescription)
+            throws ParserException {
         final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solver.add(formula);
@@ -132,7 +137,8 @@ public class ModelTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solverSuppliers")
-    public void testNonCNFOnlyFormulaVars(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+    public void testNonCNFOnlyFormulaVars(final Supplier<SATSolver> solverSupplier, final String solverDescription)
+            throws ParserException {
         final SATSolver solver = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solver.add(formula);
@@ -149,13 +155,15 @@ public class ModelTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solverSuppliers")
-    public void testNonCNFRestrictedVars(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+    public void testNonCNFRestrictedVars(final Supplier<SATSolver> solverSupplier, final String solverDescription)
+            throws ParserException {
         final SATSolver solverForMe = solverSupplier.get();
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         final SATSolver verificationSolver = SATSolver.newSolver(f);
         verificationSolver.add(formula);
         solverForMe.add(formula);
-        final SortedSet<Variable> relevantVariables = new TreeSet<>(Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C")));
+        final SortedSet<Variable> relevantVariables =
+                new TreeSet<>(Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C")));
         final Assignment model = solverForMe.satCall().model(relevantVariables);
         assertThat(verificationSolver.satCall().addFormulas(model.literals()).sat()).isEqualTo(Tristate.TRUE);
         assertThat(model.formula(f).variables(f)).isEqualTo(relevantVariables);
@@ -169,19 +177,24 @@ public class ModelTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solverSuppliers")
-    public void testNonCNFRestrictedAndAdditionalVars(final Supplier<SATSolver> solverSupplier, final String solverDescription) throws ParserException {
+    public void testNonCNFRestrictedAndAdditionalVars(final Supplier<SATSolver> solverSupplier,
+                                                      final String solverDescription)
+            throws ParserException {
         final SATSolver solverForMe = solverSupplier.get();
         final SATSolver verificationSolver = SATSolver.newSolver(f);
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solverForMe.add(formula);
         verificationSolver.add(formula);
-        final SortedSet<Variable> relevantVariables = new TreeSet<>(Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C")));
-        final SortedSet<Variable> additionalVariables = new TreeSet<>(Arrays.asList(f.variable("D"), f.variable("X"), f.variable("Y")));
+        final SortedSet<Variable> relevantVariables =
+                new TreeSet<>(Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C")));
+        final SortedSet<Variable> additionalVariables =
+                new TreeSet<>(Arrays.asList(f.variable("D"), f.variable("X"), f.variable("Y")));
         final SortedSet<Variable> allVariables = new TreeSet<>(relevantVariables);
         allVariables.addAll(additionalVariables);
         final Assignment model = solverForMe.satCall().model(additionalVariables);
         assertThat(verificationSolver.satCall().addFormulas(model.literals()).sat()).isEqualTo(Tristate.TRUE);
-        assertThat(model.formula(f).variables(f)).containsExactlyInAnyOrder(f.variable("D"), f.variable("X"), f.variable("Y"));
+        assertThat(model.formula(f).variables(f)).containsExactlyInAnyOrder(f.variable("D"), f.variable("X"),
+                f.variable("Y"));
         final ModelEnumerationFunction me = ModelEnumerationFunction.builder(relevantVariables)
                 .additionalVariables(additionalVariables)
                 .configuration(ModelEnumerationConfig.builder().strategy(defaultMeStrategy).build())

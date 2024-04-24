@@ -72,7 +72,8 @@ public class PBEncoder {
      * @param ccConfig   the cardinality constraints encoder configuration
      * @return the CNF encoding of the pseudo-Boolean constraint
      */
-    public static List<Formula> encode(final FormulaFactory f, final PBConstraint constraint, final PBConfig pbConfig, final CCConfig ccConfig) {
+    public static List<Formula> encode(final FormulaFactory f, final PBConstraint constraint, final PBConfig pbConfig,
+                                       final CCConfig ccConfig) {
         final EncodingResult result = EncodingResult.resultForFormula(f);
         encode(constraint, result, pbConfig, ccConfig);
         return Collections.unmodifiableList(result.result());
@@ -85,7 +86,8 @@ public class PBEncoder {
      * @param pbConfig   the pseudo-Boolean encoder configuration
      * @param ccConfig   the cardinality constraints encoder configuration
      */
-    public static void encode(final PBConstraint constraint, final EncodingResult result, final PBConfig pbConfig, final CCConfig ccConfig) {
+    public static void encode(final PBConstraint constraint, final EncodingResult result, final PBConfig pbConfig,
+                              final CCConfig ccConfig) {
         final FormulaFactory f = result.factory();
         if (constraint.isCC()) {
             CCEncoder.encode((CardinalityConstraint) constraint, result, ccConfig);
@@ -102,12 +104,12 @@ public class PBEncoder {
             case PBC:
                 final PBConstraint pbc = (PBConstraint) normalized;
                 if (pbc.isCC()) {
-                    CCEncoder.encode((CardinalityConstraint) pbc, result, ccConfig != null ? ccConfig :
-                            (CCConfig) f.configurationFor(ConfigurationType.CC_ENCODER));
+                    CCEncoder.encode((CardinalityConstraint) pbc, result,
+                            ccConfig != null ? ccConfig : (CCConfig) f.configurationFor(ConfigurationType.CC_ENCODER));
                     return;
                 }
-                encode(result, pbc.operands(), pbc.coefficients(), pbc.rhs(), pbConfig != null ? pbConfig :
-                        (PBConfig) f.configurationFor(ConfigurationType.PB_ENCODER));
+                encode(result, pbc.operands(), pbc.coefficients(), pbc.rhs(),
+                        pbConfig != null ? pbConfig : (PBConfig) f.configurationFor(ConfigurationType.PB_ENCODER));
                 return;
             case AND:
                 for (final Formula op : normalized) {
@@ -129,16 +131,19 @@ public class PBEncoder {
     }
 
     /**
-     * Builds a pseudo Boolean constraint of the form {@code c_1 * lit_1 + c_2 * lit_2 + ... + c_n * lit_n >= k}.
+     * Builds a pseudo Boolean constraint of the form
+     * {@code c_1 * lit_1 + c_2 * lit_2 + ... + c_n * lit_n >= k}.
      * @param result   the result of the encoding
      * @param lits     the literals {@code lit_1 ... lit_n}
      * @param coeffs   the coefficients {@code c_1 ... c_n}
      * @param rhs      the right-hand side {@code k} of the constraint
      * @param pbConfig the configuration for the encoding
-     * @throws IllegalArgumentException if the right-hand side of the cardinality constraint is negative or
+     * @throws IllegalArgumentException if the right-hand side of the
+     *                                  cardinality constraint is negative or
      *                                  larger than the number of literals
      */
-    protected static void encode(final EncodingResult result, final List<Literal> lits, final List<Integer> coeffs, final int rhs,
+    protected static void encode(final EncodingResult result, final List<Literal> lits, final List<Integer> coeffs,
+                                 final int rhs,
                                  final PBConfig pbConfig) {
         final FormulaFactory f = result.factory();
         if (rhs == Integer.MAX_VALUE) {

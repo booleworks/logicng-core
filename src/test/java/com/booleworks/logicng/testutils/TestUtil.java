@@ -21,11 +21,13 @@ import java.util.TreeSet;
 public final class TestUtil {
 
     /**
-     * Tests if the two given formulas have the same models when projected to the given set of variables.
+     * Tests if the two given formulas have the same models when projected to
+     * the given set of variables.
      * @param f1   first formula
      * @param f2   second formula
      * @param vars the set of variables to which the models should be projected
-     * @return {@code true} if the two formulas have the same models when projected to the given set of variables, otherwise {@code false}
+     * @return {@code true} if the two formulas have the same models when
+     *         projected to the given set of variables, otherwise {@code false}
      */
     public static boolean equivalentModels(final Formula f1, final Formula f2, final SortedSet<Variable> vars) {
         final SATSolver s1 = SATSolver.newSolver(f1.factory());
@@ -46,9 +48,11 @@ public final class TestUtil {
     }
 
     /**
-     * Returns the number of models when extending the given models by all don't care variables.
+     * Returns the number of models when extending the given models by all don't
+     * care variables.
      * <p>
-     * Assumption, the given models all contain the same set of variables, e.g. the result of a model enumeration.
+     * Assumption, the given models all contain the same set of variables, e.g.
+     * the result of a model enumeration.
      * @param models    the assignments
      * @param variables the variables, a superset of the variables in the models
      * @return the number of models
@@ -65,17 +69,20 @@ public final class TestUtil {
     /**
      * Returns the don't care variables.
      * <p>
-     * Assumption, the given models all contain the same set of variables, e.g. the result of a model enumeration.
+     * Assumption, the given models all contain the same set of variables, e.g.
+     * the result of a model enumeration.
      * @param models    the models
      * @param variables the variables, a superset of the variables in the models
      * @return the don't care variables
      */
-    public static SortedSet<Variable> getDontCareVariables(final List<Model> models, final SortedSet<Variable> variables) {
+    public static SortedSet<Variable> getDontCareVariables(final List<Model> models,
+                                                           final SortedSet<Variable> variables) {
         if (models.isEmpty()) {
             return Collections.emptySortedSet();
         } else {
             final Model firstModel = models.get(0);
-            final SortedSet<Variable> assignmentVars = union(firstModel.positiveVariables(), firstModel.negativeVariables(), TreeSet::new);
+            final SortedSet<Variable> assignmentVars =
+                    union(firstModel.positiveVariables(), firstModel.negativeVariables(), TreeSet::new);
             return difference(variables, assignmentVars, TreeSet::new);
         }
     }

@@ -23,7 +23,8 @@ import java.util.Set;
 public class IncDecTest implements LogicNGTest {
 
     public static List<Arguments> solvers() {
-        return SolverTestSet.solverTestSetForParameterizedTests(Set.of(SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES), FormulaFactory.caching());
+        return SolverTestSet.solverTestSetForParameterizedTests(
+                Set.of(SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES), FormulaFactory.caching());
     }
 
     @ParameterizedTest(name = "{index} {1}")

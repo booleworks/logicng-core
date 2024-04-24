@@ -9,11 +9,8 @@ import com.booleworks.logicng.datastructures.Assignment;
 /**
  * Boolean disjunction.
  * <p>
- * Invariants:
- * - has at least two elements
- * - does not contain duplicates
- * - does not contain complementary literals
- * - does not contain constants
+ * Invariants: - has at least two elements - does not contain duplicates - does
+ * not contain complementary literals - does not contain constants
  * @version 3.0.0
  * @since 1.0
  */

@@ -44,8 +44,10 @@ public class NNFTest extends TestWithFormulaContext {
     public void testNAryOperators(final FormulaContext _c) throws ParserException {
         assertThat(_c.and1.nnf(_c.f)).isEqualTo(_c.and1);
         assertThat(_c.or1.nnf(_c.f)).isEqualTo(_c.or1);
-        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").nnf(_c.f)).isEqualTo(_c.p.parse("~a & ~b & c & (~x | y) & (~w | z)"));
-        Assertions.assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y) | (w => z)").nnf(_c.f)).isEqualTo(_c.p.parse("~a  | ~b | c | (~x & y) | (~w | z)"));
+        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").nnf(_c.f))
+                .isEqualTo(_c.p.parse("~a & ~b & c & (~x | y) & (~w | z)"));
+        Assertions.assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y) | (w => z)").nnf(_c.f))
+                .isEqualTo(_c.p.parse("~a  | ~b | c | (~x & y) | (~w | z)"));
     }
 
     @ParameterizedTest
@@ -54,10 +56,12 @@ public class NNFTest extends TestWithFormulaContext {
         Assertions.assertThat(_c.p.parse("~a").nnf(_c.f)).isEqualTo(_c.p.parse("~a"));
         Assertions.assertThat(_c.p.parse("~~a").nnf(_c.f)).isEqualTo(_c.p.parse("a"));
         Assertions.assertThat(_c.p.parse("~(a => b)").nnf(_c.f)).isEqualTo(_c.p.parse("a & ~b"));
-        Assertions.assertThat(_c.p.parse("~(~(a | b) => ~(x | y))").nnf(_c.f)).isEqualTo(_c.p.parse("~a & ~b & (x | y)"));
+        Assertions.assertThat(_c.p.parse("~(~(a | b) => ~(x | y))").nnf(_c.f))
+                .isEqualTo(_c.p.parse("~a & ~b & (x | y)"));
         Assertions.assertThat(_c.p.parse("a <=> b").nnf(_c.f)).isEqualTo(_c.p.parse("(~a | b) & (~b | a)"));
         Assertions.assertThat(_c.p.parse("~(a <=> b)").nnf(_c.f)).isEqualTo(_c.p.parse("(~a | ~b) & (a | b)"));
-        Assertions.assertThat(_c.p.parse("~(~(a | b) <=> ~(x | y))").nnf(_c.f)).isEqualTo(_c.p.parse("((a | b) | (x | y)) & ((~a & ~b) | (~x & ~y))"));
+        Assertions.assertThat(_c.p.parse("~(~(a | b) <=> ~(x | y))").nnf(_c.f))
+                .isEqualTo(_c.p.parse("((a | b) | (x | y)) & ((~a & ~b) | (~x & ~y))"));
         Assertions.assertThat(_c.p.parse("~(a & b & ~x & ~y)").nnf(_c.f)).isEqualTo(_c.p.parse("~a | ~b | x | y"));
         Assertions.assertThat(_c.p.parse("~(a | b | ~x | ~y)").nnf(_c.f)).isEqualTo(_c.p.parse("~a & ~b & x & y"));
         Assertions.assertThat(_c.p.parse("~(a | b | ~x | ~y)").nnf(_c.f)).isEqualTo(_c.p.parse("~a & ~b & x & y"));

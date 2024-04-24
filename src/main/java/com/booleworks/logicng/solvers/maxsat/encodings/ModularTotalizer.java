@@ -3,24 +3,21 @@
 // Copyright 2023-20xx BooleWorks GmbH
 
 /*
- * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines Lynce
- * <p>
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- * <p>
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * <p>
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * Open-WBO -- Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines
+ * Lynce <p> Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including without
+ * limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom
+ * the Software is furnished to do so, subject to the following conditions: <p>
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software. <p> THE SOFTWARE IS
+ * PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+ * BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 package com.booleworks.logicng.solvers.maxsat.encodings;
@@ -30,8 +27,9 @@ import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 /**
- * Encodes that at most 'rhs' literals can be assigned value true.  Uses the modular totalizer encoding for
- * translating the cardinality constraint into CNF.
+ * Encodes that at most 'rhs' literals can be assigned value true. Uses the
+ * modular totalizer encoding for translating the cardinality constraint into
+ * CNF.
  * @version 2.0.0
  * @since 1.0
  */
@@ -147,7 +145,8 @@ public class ModularTotalizer extends Encoding {
         }
         if (ulimit != 0 && llimit != 0) {
             for (int i = llimit - 1; i < cardinalityLwoutlits.size(); i++) {
-                addBinaryClause(s, LNGCoreSolver.not(cardinalityUpoutlits.get(ulimit - 1)), LNGCoreSolver.not(cardinalityLwoutlits.get(i)));
+                addBinaryClause(s, LNGCoreSolver.not(cardinalityUpoutlits.get(ulimit - 1)),
+                        LNGCoreSolver.not(cardinalityLwoutlits.get(i)));
             }
         } else {
             if (ulimit == 0) {
@@ -161,7 +160,8 @@ public class ModularTotalizer extends Encoding {
         }
     }
 
-    protected void toCNF(final LNGCoreSolver s, final int mod, final LNGIntVector ublits, final LNGIntVector lwlits, final int rhs) {
+    protected void toCNF(final LNGCoreSolver s, final int mod, final LNGIntVector ublits, final LNGIntVector lwlits,
+                         final int rhs) {
         final LNGIntVector lupper = new LNGIntVector();
         final LNGIntVector llower = new LNGIntVector();
         final LNGIntVector rupper = new LNGIntVector();
@@ -259,19 +259,23 @@ public class ModularTotalizer extends Encoding {
                         }
                     } else if (i != 0) {
                         if (upper.get(0) != h0) {
-                            addQuaternaryClause(s, LNGCoreSolver.not(llower.get(i - 1)), LNGCoreSolver.not(rlower.get(j - 1)), lower.get(i + j - 1), carry);
+                            addQuaternaryClause(s, LNGCoreSolver.not(llower.get(i - 1)),
+                                    LNGCoreSolver.not(rlower.get(j - 1)), lower.get(i + j - 1), carry);
                         } else {
                             assert i + j - 1 < lower.size();
-                            addTernaryClause(s, LNGCoreSolver.not(llower.get(i - 1)), LNGCoreSolver.not(rlower.get(j - 1)), lower.get(i + j - 1));
+                            addTernaryClause(s, LNGCoreSolver.not(llower.get(i - 1)),
+                                    LNGCoreSolver.not(rlower.get(j - 1)), lower.get(i + j - 1));
                         }
                     }
                 } else if (i + j > mod) {
                     assert i + j > 0;
-                    addTernaryClause(s, LNGCoreSolver.not(llower.get(i - 1)), LNGCoreSolver.not(rlower.get(j - 1)), lower.get((i + j) % mod - 1));
+                    addTernaryClause(s, LNGCoreSolver.not(llower.get(i - 1)), LNGCoreSolver.not(rlower.get(j - 1)),
+                            lower.get((i + j) % mod - 1));
                 } else {
                     assert i + j == mod;
                     assert carry != LNGCoreSolver.LIT_UNDEF;
-                    addTernaryClause(s, LNGCoreSolver.not(llower.get(i - 1)), LNGCoreSolver.not(rlower.get(j - 1)), carry);
+                    addTernaryClause(s, LNGCoreSolver.not(llower.get(i - 1)), LNGCoreSolver.not(rlower.get(j - 1)),
+                            carry);
                 }
             }
         }

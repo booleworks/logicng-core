@@ -38,7 +38,8 @@ public class ImplicationTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIllegalCreation(final FormulaContext _c) {
-        assertThatThrownBy(() -> _c.f.binaryOperator(FType.NOT, _c.and1, _c.or1)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> _c.f.binaryOperator(FType.NOT, _c.and1, _c.or1))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @ParameterizedTest
@@ -110,21 +111,24 @@ public class ImplicationTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testEqualsDifferentFormulaFactory(final FormulaContext _c) {
-        FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         assertThat(g.implication(g.variable("a"), g.variable("b"))).isEqualTo(_c.imp1);
         assertThat(g.implication(_c.and1, _c.or1)).isEqualTo(_c.imp3);
         assertThat(g.implication(g.variable("b"), g.variable("a"))).isNotEqualTo(_c.imp1);
         assertThat(g.implication(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.imp1);
         assertThat(g.implication(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.imp1);
 
-        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         assertThat(g.implication(g.variable("a"), g.variable("b"))).isEqualTo(_c.imp1);
         assertThat(g.implication(_c.and1, _c.or1)).isEqualTo(_c.imp3);
         assertThat(g.implication(g.variable("b"), g.variable("a"))).isNotEqualTo(_c.imp1);
         assertThat(g.implication(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.imp1);
         assertThat(g.implication(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.imp1);
 
-        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT).build());
+        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT).build());
         assertThat(g.implication(g.variable("a"), g.variable("b"))).isEqualTo(_c.imp1);
         assertThat(g.implication(_c.and1, _c.or1)).isEqualTo(_c.imp3);
         assertThat(g.implication(g.variable("b"), g.variable("a"))).isNotEqualTo(_c.imp1);

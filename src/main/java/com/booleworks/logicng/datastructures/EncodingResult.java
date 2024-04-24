@@ -19,11 +19,13 @@ import java.util.List;
 /**
  * The result of an encoding.
  * <p>
- * Encodings (normal forms, cardinality constraints, pseudo-Boolean constraint) are often used only when adding
- * formulas to the SAT solver.  Therefore, it is not necessary to generate all the formulas required for the encoding
- * in the formula factory and therefore polluting the factory and the heap.  This class can be used to connect an
- * encoding directly with a SAT solver and therefore introducing the variables only on the solver - not in the factory.
- * When working with many encodings, this can be a large performance gain.
+ * Encodings (normal forms, cardinality constraints, pseudo-Boolean constraint)
+ * are often used only when adding formulas to the SAT solver. Therefore, it is
+ * not necessary to generate all the formulas required for the encoding in the
+ * formula factory and therefore polluting the factory and the heap. This class
+ * can be used to connect an encoding directly with a SAT solver and therefore
+ * introducing the variables only on the solver - not in the factory. When
+ * working with many encodings, this can be a large performance gain.
  * @version 2.0.0
  * @since 1.1
  */
@@ -62,7 +64,8 @@ public final class EncodingResult {
      * @param proposition the original proposition of the cardinality constraint
      * @return the result
      */
-    public static EncodingResult resultForSATSolver(final FormulaFactory f, final LNGCoreSolver solver, final Proposition proposition) {
+    public static EncodingResult resultForSATSolver(final FormulaFactory f, final LNGCoreSolver solver,
+                                                    final Proposition proposition) {
         return new EncodingResult(f, solver, proposition);
     }
 

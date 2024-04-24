@@ -23,7 +23,8 @@ public class LngCachedOr extends LngCachedNAryOperator implements Or {
     }
 
     /**
-     * Returns {@code true} if this formula is a CNF clause, {@code false} otherwise.
+     * Returns {@code true} if this formula is a CNF clause, {@code false}
+     * otherwise.
      * @return {@code true} if this formula is a CNF clause
      */
     @Override
@@ -42,7 +43,8 @@ public class LngCachedOr extends LngCachedNAryOperator implements Or {
             return true;
         }
         if (other instanceof Formula && f == ((Formula) other).factory()) {
-            return false; // the same caching formula factory would have produced a == object
+            return false; // the same caching formula factory would have
+                          // produced a == object
         }
         if (other instanceof Or && hashCode() == other.hashCode()) {
             return compareOperands(((Or) other).operands());

@@ -19,10 +19,11 @@ public class LngCachedLiteral extends LngCachedFormula implements Literal {
     private volatile int hashCode;
 
     /**
-     * Constructor.  A literal always has a name and a phase.  A positive literal can also
-     * be constructed directly as a {@link Variable}.
+     * Constructor. A literal always has a name and a phase. A positive literal
+     * can also be constructed directly as a {@link Variable}.
      * @param name  the literal name
-     * @param phase the phase of the literal (also found as sign or polarity in the literature)
+     * @param phase the phase of the literal (also found as sign or polarity in
+     *              the literature)
      * @param f     the factory which created this literal
      */
     LngCachedLiteral(final String name, final boolean phase, final CachingFormulaFactory f) {
@@ -73,7 +74,8 @@ public class LngCachedLiteral extends LngCachedFormula implements Literal {
             return true;
         }
         if (other instanceof Formula && factory() == ((Formula) other).factory()) {
-            return false; // the same cached formula factory would have produced a == object
+            return false; // the same cached formula factory would have produced
+                          // a == object
         }
         if (other instanceof Literal && hashCode() == other.hashCode()) {
             final Literal otherLit = (Literal) other;

@@ -75,7 +75,8 @@ public class FormulaDagGraphicalGeneratorTest {
         final FormulaDagGraphicalGenerator generator = FormulaDagGraphicalGenerator.builder()
                 .backgroundColor("#020202")
                 .defaultEdgeStyle(GraphicalEdgeStyle.bold(GraphicalColor.CYAN))
-                .defaultNodeStyle(GraphicalNodeStyle.circle(GraphicalColor.BLUE, GraphicalColor.WHITE, GraphicalColor.BLUE))
+                .defaultNodeStyle(
+                        GraphicalNodeStyle.circle(GraphicalColor.BLUE, GraphicalColor.WHITE, GraphicalColor.BLUE))
                 .alignTerminals(true)
                 .build();
         testFiles("f8", f8, generator);
@@ -85,10 +86,14 @@ public class FormulaDagGraphicalGeneratorTest {
     public void testDynamicStyle() throws ParserException, IOException {
         final Formula f9 = p.parse("(A <=> B & (~A | C | X)) => a + b + c <= 2 & (~a | d => X & ~B)");
 
-        final GraphicalNodeStyle style1 = GraphicalNodeStyle.rectangle(GraphicalColor.GRAY_DARK, GraphicalColor.GRAY_DARK, GraphicalColor.GRAY_LIGHT);
-        final GraphicalNodeStyle style2 = GraphicalNodeStyle.circle(GraphicalColor.YELLOW, GraphicalColor.BLACK, GraphicalColor.YELLOW);
-        final GraphicalNodeStyle style3 = GraphicalNodeStyle.circle(GraphicalColor.TURQUOISE, GraphicalColor.WHITE, GraphicalColor.TURQUOISE);
-        final GraphicalNodeStyle style4 = GraphicalNodeStyle.ellipse(GraphicalColor.BLACK, GraphicalColor.BLACK, GraphicalColor.WHITE);
+        final GraphicalNodeStyle style1 = GraphicalNodeStyle.rectangle(GraphicalColor.GRAY_DARK,
+                GraphicalColor.GRAY_DARK, GraphicalColor.GRAY_LIGHT);
+        final GraphicalNodeStyle style2 =
+                GraphicalNodeStyle.circle(GraphicalColor.YELLOW, GraphicalColor.BLACK, GraphicalColor.YELLOW);
+        final GraphicalNodeStyle style3 =
+                GraphicalNodeStyle.circle(GraphicalColor.TURQUOISE, GraphicalColor.WHITE, GraphicalColor.TURQUOISE);
+        final GraphicalNodeStyle style4 =
+                GraphicalNodeStyle.ellipse(GraphicalColor.BLACK, GraphicalColor.BLACK, GraphicalColor.WHITE);
 
         final NodeStyleMapper<Formula> mapper = (formula) -> {
             if (formula.type() == FType.PBC) {
@@ -132,7 +137,8 @@ public class FormulaDagGraphicalGeneratorTest {
         testFiles("f10", f10, generator);
     }
 
-    private void testFiles(final String fileName, final Formula formula, final FormulaDagGraphicalGenerator generator) throws IOException {
+    private void testFiles(final String fileName, final Formula formula, final FormulaDagGraphicalGenerator generator)
+            throws IOException {
         final GraphicalRepresentation representation = generator.translate(formula);
         representation.write("src/test/resources/writers/temp/" + fileName + ".dot", GraphicalDotWriter.get());
         representation.write("src/test/resources/writers/temp/" + fileName + ".txt", GraphicalMermaidWriter.get());

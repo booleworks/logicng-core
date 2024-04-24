@@ -39,27 +39,30 @@ import java.util.stream.Collectors;
 public final class ModelCounter {
 
     /**
-     * Private empty constructor.  Class only contains static utility methods.
+     * Private empty constructor. Class only contains static utility methods.
      */
     private ModelCounter() {
         // Intentionally left empty
     }
 
     /**
-     * Computes the model count for a given set of formulas (interpreted as conjunction)
-     * and a set of relevant variables.  This set can only be a superset of the original
-     * formulas' variables.  No projected model counting is supported.
+     * Computes the model count for a given set of formulas (interpreted as
+     * conjunction) and a set of relevant variables. This set can only be a
+     * superset of the original formulas' variables. No projected model counting
+     * is supported.
      * @param f         the formula factory to generate new formulas
      * @param formulas  the list of formulas
      * @param variables the relevant variables
      * @return the model count of the formulas for the variables
      */
-    public static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas, final SortedSet<Variable> variables) {
+    public static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas,
+                                   final SortedSet<Variable> variables) {
         if (!variables.containsAll(FormulaHelper.variables(f, formulas))) {
             throw new IllegalArgumentException("Expected variables to contain all of the formulas' variables.");
         }
         if (variables.isEmpty()) {
-            final List<Formula> remainingConstants = formulas.stream().filter(formula -> formula.type() != FType.TRUE).collect(Collectors.toList());
+            final List<Formula> remainingConstants =
+                    formulas.stream().filter(formula -> formula.type() != FType.TRUE).collect(Collectors.toList());
             return remainingConstants.isEmpty() ? BigInteger.ONE : BigInteger.ZERO;
         }
         final List<Formula> cnfs = encodeAsCnf(f, formulas);
@@ -71,7 +74,8 @@ public final class ModelCounter {
 
     private static List<Formula> encodeAsCnf(final FormulaFactory f, final Collection<Formula> formulas) {
         final PureExpansionTransformation expander = new PureExpansionTransformation(f);
-        final List<Formula> expandedFormulas = formulas.stream().map(formula -> formula.transform(expander)).collect(Collectors.toList());
+        final List<Formula> expandedFormulas =
+                formulas.stream().map(formula -> formula.transform(expander)).collect(Collectors.toList());
 
         final CNFConfig cnfConfig = CNFConfig.builder()
                 .algorithm(CNFConfig.Algorithm.ADVANCED)
@@ -103,7 +107,8 @@ public final class ModelCounter {
     private static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas) {
         final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(f, formulas);
         final Set<Set<Node<Variable>>> ccs = ConnectedComponentsComputation.compute(constraintGraph);
-        final List<List<Formula>> components = ConnectedComponentsComputation.splitFormulasByComponent(f, formulas, ccs);
+        final List<List<Formula>> components =
+                ConnectedComponentsComputation.splitFormulasByComponent(f, formulas, ccs);
         final DnnfFactory factory = new DnnfFactory();
         BigInteger count = BigInteger.ONE;
         for (final List<Formula> component : components) {
@@ -118,7 +123,8 @@ public final class ModelCounter {
         private final SortedSet<Variable> backboneVariables;
         private final FormulaFactory f;
 
-        public SimplificationResult(final FormulaFactory f, final SortedSet<Variable> backboneVariables, final List<Formula> simplifiedFormulas) {
+        public SimplificationResult(final FormulaFactory f, final SortedSet<Variable> backboneVariables,
+                                    final List<Formula> simplifiedFormulas) {
             this.simplifiedFormulas = simplifiedFormulas;
             this.backboneVariables = backboneVariables;
             this.f = f;

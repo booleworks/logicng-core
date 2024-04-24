@@ -67,7 +67,8 @@ public class NonCachingFormulaFactory extends FormulaFactory {
     @Override
     protected Formula internalAnd(final LinkedHashSet<? extends Formula> operandsIn) {
         final LinkedHashSet<? extends Formula> operands = importOrPanicLHS(operandsIn);
-        final LinkedHashSet<? extends Formula> condensedOperands = operands.size() < 2 ? operands : condenseOperandsAnd(operands);
+        final LinkedHashSet<? extends Formula> condensedOperands =
+                operands.size() < 2 ? operands : condenseOperandsAnd(operands);
         if (condensedOperands == null) {
             return falsum();
         }
@@ -95,7 +96,8 @@ public class NonCachingFormulaFactory extends FormulaFactory {
     @Override
     protected Formula internalOr(final LinkedHashSet<? extends Formula> operandsIn) {
         final LinkedHashSet<? extends Formula> operands = importOrPanicLHS(operandsIn);
-        final LinkedHashSet<? extends Formula> condensedOperands = operands.size() < 2 ? operands : condenseOperandsOr(operands);
+        final LinkedHashSet<? extends Formula> condensedOperands =
+                operands.size() < 2 ? operands : condenseOperandsOr(operands);
         if (condensedOperands == null) {
             return verum();
         }
@@ -144,7 +146,8 @@ public class NonCachingFormulaFactory extends FormulaFactory {
     }
 
     @Override
-    protected Formula internalPbc(final List<? extends Literal> literals, final List<Integer> coefficients, final CType comparator, final int rhs) {
+    protected Formula internalPbc(final List<? extends Literal> literals, final List<Integer> coefficients,
+                                  final CType comparator, final int rhs) {
         return new LngNativePBConstraint(literals, coefficients, comparator, rhs, this);
     }
 
@@ -179,7 +182,8 @@ public class NonCachingFormulaFactory extends FormulaFactory {
 
     @Override
     public boolean isGeneratedVariable(final Variable var) {
-        return var.name().startsWith(CC_PREFIX) || var.name().startsWith(CNF_PREFIX) || var.name().startsWith(PB_PREFIX);
+        return var.name().startsWith(CC_PREFIX) || var.name().startsWith(CNF_PREFIX) ||
+                var.name().startsWith(PB_PREFIX);
     }
 
     @Override

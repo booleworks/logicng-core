@@ -10,13 +10,15 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 
 /**
- * An anonymizer replaces all variables in a formula with new variables generated from a given prefix and a counter.
+ * An anonymizer replaces all variables in a formula with new variables
+ * generated from a given prefix and a counter.
  * <p>
- * An instance can be used to anonymize multiple formulas. In this case, variables with the same name will be replaced
- * with the same anonymized variable.
+ * An instance can be used to anonymize multiple formulas. In this case,
+ * variables with the same name will be replaced with the same anonymized
+ * variable.
  * <p>
- * After anonymizing one or more formulas, the mapping from original variable to anonymized variable can be accessed
- * via {@link #getSubstitution()}.
+ * After anonymizing one or more formulas, the mapping from original variable to
+ * anonymized variable can be accessed via {@link #getSubstitution()}.
  * @version 3.0.0
  * @since 1.4.0
  */
@@ -34,7 +36,8 @@ public final class Anonymizer extends StatefulFormulaTransformation<Substitution
     }
 
     /**
-     * Constructs a new anonymizer with a given prefix for the newly introduced variables.
+     * Constructs a new anonymizer with a given prefix for the newly introduced
+     * variables.
      * @param f      the formula factory to generate new formulas
      * @param prefix the prefix for the new variables
      */
@@ -43,7 +46,8 @@ public final class Anonymizer extends StatefulFormulaTransformation<Substitution
     }
 
     /**
-     * Constructs a new anonymizer with a given prefix for the newly introduced variables.
+     * Constructs a new anonymizer with a given prefix for the newly introduced
+     * variables.
      * @param f            the formula factory to generate new formulas
      * @param prefix       the prefix for the new variables
      * @param startCounter where should the counter start
@@ -62,9 +66,9 @@ public final class Anonymizer extends StatefulFormulaTransformation<Substitution
     /**
      * Returns the substitution which was used to anonymize the formula(s).
      * <p>
-     * Although a substitution maps from variables to formulas, it is guaranteed that
-     * the substitution always maps to variables. So the following cast will always be
-     * safe:
+     * Although a substitution maps from variables to formulas, it is guaranteed
+     * that the substitution always maps to variables. So the following cast
+     * will always be safe:
      * <p>
      * {@code (Variable) getSubstitution().getSubstitution(x)}
      * @return the substitution which was used to anonymize the formula(s)

@@ -43,7 +43,9 @@ public class OrTest extends TestWithFormulaContext {
         assertThat(_c.f.or(lits)).isEqualTo(_c.or1);
         assertThat(_c.f.or(_c.a, _c.b, _c.x, _c.verum)).isEqualTo(_c.verum);
         assertThat(_c.f.or(_c.f.or(_c.a, _c.b), _c.f.or(_c.x, _c.y))).isEqualTo(_c.f.or(_c.a, _c.b, _c.x, _c.y));
-        assertThat(_c.f.or(_c.f.and(_c.a, _c.b), _c.f.or(_c.f.and(_c.f.and(_c.na, _c.nb)), _c.f.and(_c.f.or(_c.na, _c.falsum), _c.nb)))).isEqualTo(_c.or3);
+        assertThat(_c.f.or(_c.f.and(_c.a, _c.b),
+                _c.f.or(_c.f.and(_c.f.and(_c.na, _c.nb)), _c.f.and(_c.f.or(_c.na, _c.falsum), _c.nb))))
+                        .isEqualTo(_c.or3);
         assertThat(_c.f.naryOperator(FType.OR, Arrays.asList(_c.x, _c.y, _c.x, _c.y, _c.x))).isEqualTo(_c.or1);
     }
 
@@ -86,7 +88,8 @@ public class OrTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testToString(final FormulaContext _c) {
         final FormulaFactory f =
-                FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+                FormulaFactory.caching(FormulaFactoryConfig.builder()
+                        .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         assertThat(_c.or1.toString()).isEqualTo("x | y");
         assertThat(_c.or2.toString()).isEqualTo("~x | ~y");
         assertThat(_c.or3.toString()).isEqualTo("a & b | ~a & ~b");
@@ -109,29 +112,41 @@ public class OrTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testEqualsDifferentFormulaFactory(final FormulaContext _c) {
-        FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         assertThat(g.or(g.variable("x"), g.variable("y"))).isEqualTo(_c.or1);
         assertThat(g.or(_c.and1, _c.and2)).isEqualTo(_c.or3);
-        assertThat(g.or(g.and(g.literal("y", false), g.variable("x")), g.and(g.variable("b"), g.variable("a")))).isEqualTo(_c.f.or(_c.f.and(_c.f.variable("a"), _c.f.variable("b")), _c.f.and(_c.f.variable("x"), _c.f.literal("y", false))));
-        assertThat(g.or(g.literal("x", false), g.variable("a"), g.literal("b", false), g.and(g.variable("a"), g.variable("b")))).isEqualTo(_c.f.or(_c.a, _c.nb, _c.and1, _c.nx));
+        assertThat(g.or(g.and(g.literal("y", false), g.variable("x")), g.and(g.variable("b"), g.variable("a"))))
+                .isEqualTo(_c.f.or(_c.f.and(_c.f.variable("a"), _c.f.variable("b")),
+                        _c.f.and(_c.f.variable("x"), _c.f.literal("y", false))));
+        assertThat(g.or(g.literal("x", false), g.variable("a"), g.literal("b", false),
+                g.and(g.variable("a"), g.variable("b")))).isEqualTo(_c.f.or(_c.a, _c.nb, _c.and1, _c.nx));
         assertThat(g.or(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.or1);
         assertThat(g.or(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.or1);
         assertThat(_c.f.or(_c.a, _c.b, _c.f.variable("c"))).isNotEqualTo(_c.or1);
 
-        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         assertThat(g.or(g.variable("x"), g.variable("y"))).isEqualTo(_c.or1);
         assertThat(g.or(_c.and1, _c.and2)).isEqualTo(_c.or3);
-        assertThat(g.or(g.and(g.literal("y", false), g.variable("x")), g.and(g.variable("b"), g.variable("a")))).isEqualTo(_c.f.or(_c.f.and(_c.f.variable("a"), _c.f.variable("b")), _c.f.and(_c.f.variable("x"), _c.f.literal("y", false))));
-        assertThat(g.or(g.literal("x", false), g.variable("a"), g.literal("b", false), g.and(g.variable("a"), g.variable("b")))).isEqualTo(_c.f.or(_c.a, _c.nb, _c.and1, _c.nx));
+        assertThat(g.or(g.and(g.literal("y", false), g.variable("x")), g.and(g.variable("b"), g.variable("a"))))
+                .isEqualTo(_c.f.or(_c.f.and(_c.f.variable("a"), _c.f.variable("b")),
+                        _c.f.and(_c.f.variable("x"), _c.f.literal("y", false))));
+        assertThat(g.or(g.literal("x", false), g.variable("a"), g.literal("b", false),
+                g.and(g.variable("a"), g.variable("b")))).isEqualTo(_c.f.or(_c.a, _c.nb, _c.and1, _c.nx));
         assertThat(g.or(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.or1);
         assertThat(g.or(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.or1);
         assertThat(_c.f.or(_c.a, _c.b, _c.f.variable("c"))).isNotEqualTo(_c.or1);
 
-        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT).build());
+        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT).build());
         assertThat(g.or(g.variable("x"), g.variable("y"))).isEqualTo(_c.or1);
         assertThat(g.or(_c.and1, _c.and2)).isEqualTo(_c.or3);
-        assertThat(g.or(g.and(g.literal("y", false), g.variable("x")), g.and(g.variable("b"), g.variable("a")))).isEqualTo(_c.f.or(_c.f.and(_c.f.variable("a"), _c.f.variable("b")), _c.f.and(_c.f.variable("x"), _c.f.literal("y", false))));
-        assertThat(g.or(g.literal("x", false), g.variable("a"), g.literal("b", false), g.and(g.variable("a"), g.variable("b")))).isEqualTo(_c.f.or(_c.a, _c.nb, _c.and1, _c.nx));
+        assertThat(g.or(g.and(g.literal("y", false), g.variable("x")), g.and(g.variable("b"), g.variable("a"))))
+                .isEqualTo(_c.f.or(_c.f.and(_c.f.variable("a"), _c.f.variable("b")),
+                        _c.f.and(_c.f.variable("x"), _c.f.literal("y", false))));
+        assertThat(g.or(g.literal("x", false), g.variable("a"), g.literal("b", false),
+                g.and(g.variable("a"), g.variable("b")))).isEqualTo(_c.f.or(_c.a, _c.nb, _c.and1, _c.nx));
         assertThat(g.or(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.or1);
         assertThat(g.or(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.or1);
         assertThat(_c.f.or(_c.a, _c.b, _c.f.variable("c"))).isNotEqualTo(_c.or1);

@@ -110,7 +110,8 @@ public class BackboneTest {
     @Test
     public void testToString() {
         final Backbone backbone = Backbone.satBackbone(set(a1, a2, a3), set(b1, b2, b3), set(x1, x2, x3));
-        assertThat(backbone.toString()).isEqualTo("Backbone{sat=true, positiveBackbone=[a1, a2, a3], negativeBackbone=[b1, b2, b3], optionalVariables=[x1, x2, x3]}");
+        assertThat(backbone.toString()).isEqualTo(
+                "Backbone{sat=true, positiveBackbone=[a1, a2, a3], negativeBackbone=[b1, b2, b3], optionalVariables=[x1, x2, x3]}");
     }
 
     @Test
@@ -119,7 +120,8 @@ public class BackboneTest {
         final Backbone backbone1b = Backbone.satBackbone(set(a1, a2, a3), null, null);
         final Backbone backbone3 = Backbone.satBackbone(set(a1, a2, a3), set(b1), null);
         final Backbone backbone5 = Backbone.satBackbone(null, set(b1, b2, b3), set(x1, x2, x3));
-        final Backbone satBB = Backbone.satBackbone(Collections.emptySortedSet(), Collections.emptySortedSet(), Collections.emptySortedSet());
+        final Backbone satBB = Backbone.satBackbone(Collections.emptySortedSet(), Collections.emptySortedSet(),
+                Collections.emptySortedSet());
         final Backbone unsatBB = Backbone.unsatBackbone();
 
         assertThat(backbone1a.hashCode()).isEqualTo(backbone1b.hashCode());

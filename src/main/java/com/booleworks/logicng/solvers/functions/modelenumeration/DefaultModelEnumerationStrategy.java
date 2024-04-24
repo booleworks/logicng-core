@@ -19,16 +19,18 @@ import java.util.stream.Collectors;
  * <p>
  * It takes a {@link SplitVariableProvider} and a maximum number of models.
  * <p>
- * The split variable provider is used to compute the initial split variables on recursion depth 0.
- * Afterward (including the {@link #reduceSplitVars the reduction of split variables}), always the
- * first half of the variables is returned.
+ * The split variable provider is used to compute the initial split variables on
+ * recursion depth 0. Afterward (including the {@link #reduceSplitVars the
+ * reduction of split variables}), always the first half of the variables is
+ * returned.
  * <p>
- * {@link #maxNumberOfModels} is always returned for both {@link #maxNumberOfModelsForEnumeration}
- * and {@link #maxNumberOfModelsForSplitAssignments}, ignoring the recursion depth.
+ * {@link #maxNumberOfModels} is always returned for both
+ * {@link #maxNumberOfModelsForEnumeration} and
+ * {@link #maxNumberOfModelsForSplitAssignments}, ignoring the recursion depth.
  * <p>
- * This class can potentially be extended if you want to fine-tune some methods, e.g. to change the
- * maximum number of models depending on the recursion depth or whether the models are required for
- * enumeration or for split assignments.
+ * This class can potentially be extended if you want to fine-tune some methods,
+ * e.g. to change the maximum number of models depending on the recursion depth
+ * or whether the models are required for enumeration or for split assignments.
  * @version 3.0.0
  * @since 3.0.0
  */
@@ -42,10 +44,15 @@ public class DefaultModelEnumerationStrategy implements ModelEnumerationStrategy
     /**
      * Constructs a new default model enumeration strategy.
      * @param splitVariableProvider the split variables provider
-     * @param maxNumberOfModels     the maximum number of models before a model split is performed.  In order to guarantee termination of the enumeration algorithm,
-     *                              this number must be &gt; 2.  If a smaller number is provided, it is automatically set to 3.
+     * @param maxNumberOfModels     the maximum number of models before a model
+     *                              split is performed. In order to guarantee
+     *                              termination of the enumeration algorithm,
+     *                              this number must be &gt; 2. If a smaller
+     *                              number is provided, it is automatically set
+     *                              to 3.
      */
-    protected DefaultModelEnumerationStrategy(final SplitVariableProvider splitVariableProvider, final int maxNumberOfModels) {
+    protected DefaultModelEnumerationStrategy(final SplitVariableProvider splitVariableProvider,
+                                              final int maxNumberOfModels) {
         this.splitVariableProvider = splitVariableProvider;
         this.maxNumberOfModels = maxNumberOfModels;
     }
@@ -69,7 +76,8 @@ public class DefaultModelEnumerationStrategy implements ModelEnumerationStrategy
     }
 
     @Override
-    public SortedSet<Variable> splitVarsForRecursionDepth(final Collection<Variable> variables, final SATSolver solver, final int recursionDepth) {
+    public SortedSet<Variable> splitVarsForRecursionDepth(final Collection<Variable> variables, final SATSolver solver,
+                                                          final int recursionDepth) {
         if (recursionDepth == 0) {
             return splitVariableProvider.getSplitVars(solver, variables);
         } else {
@@ -95,7 +103,8 @@ public class DefaultModelEnumerationStrategy implements ModelEnumerationStrategy
         }
 
         /**
-         * Sets the split variable provider for this strategy. The default is {@link MostCommonVariablesProvider}.
+         * Sets the split variable provider for this strategy. The default is
+         * {@link MostCommonVariablesProvider}.
          * @param splitVariableProvider the split variable provider
          * @return the builder
          */
@@ -105,9 +114,11 @@ public class DefaultModelEnumerationStrategy implements ModelEnumerationStrategy
         }
 
         /**
-         * Sets the maximum number of models to be enumerated in a single step (either final enumeration or enumeration of split assignments).
-         * The default is 500.
-         * @param maxNumberOfModels the maximum number of models to be enumerated in a single step
+         * Sets the maximum number of models to be enumerated in a single step
+         * (either final enumeration or enumeration of split assignments). The
+         * default is 500.
+         * @param maxNumberOfModels the maximum number of models to be
+         *                          enumerated in a single step
          * @return the builder
          */
         public Builder maxNumberOfModels(final int maxNumberOfModels) {

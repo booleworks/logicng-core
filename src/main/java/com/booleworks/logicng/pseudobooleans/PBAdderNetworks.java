@@ -3,26 +3,21 @@
 // Copyright 2023-20xx BooleWorks GmbH
 
 /*
- * PBLib       -- Copyright (c) 2012-2013  Peter Steinke
- * <p>
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- * <p>
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- * <p>
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * PBLib -- Copyright (c) 2012-2013 Peter Steinke <p> Permission is hereby
+ * granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions: <p> The above copyright notice and this
+ * permission notice shall be included in all copies or substantial portions of
+ * the Software. <p> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+ * KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+ * EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
+ * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 package com.booleworks.logicng.pseudobooleans;
@@ -66,7 +61,8 @@ public final class PBAdderNetworks implements PBEncoding {
     }
 
     @Override
-    public void encode(final EncodingResult result, final LNGVector<Literal> lits, final LNGIntVector coeffs, final int rhs, final PBConfig config) {
+    public void encode(final EncodingResult result, final LNGVector<Literal> lits, final LNGIntVector coeffs,
+                       final int rhs, final PBConfig config) {
         final LNGVector<Literal> literals = new LNGVector<>();
         final LNGVector<LinkedList<Literal>> buckets = new LNGVector<>();
         final int nb = ldInt(rhs);
@@ -84,7 +80,8 @@ public final class PBAdderNetworks implements PBEncoding {
         lessThanOrEqual(result, literals, kBits);
     }
 
-    private static void adderTree(final EncodingResult result, final LNGVector<LinkedList<Literal>> buckets, final LNGVector<Literal> literals) {
+    private static void adderTree(final EncodingResult result, final LNGVector<LinkedList<Literal>> buckets,
+                                  final LNGVector<Literal> literals) {
         Literal x;
         Literal y;
         Literal z;
@@ -133,7 +130,8 @@ public final class PBAdderNetworks implements PBEncoding {
         return bits;
     }
 
-    private static void lessThanOrEqual(final EncodingResult result, final LNGVector<Literal> xs, final LNGBooleanVector ys) {
+    private static void lessThanOrEqual(final EncodingResult result, final LNGVector<Literal> xs,
+                                        final LNGBooleanVector ys) {
         assert xs.size() == ys.size();
         final FormulaFactory f = result.factory();
         final List<Literal> clause = new ArrayList<>();
@@ -166,7 +164,8 @@ public final class PBAdderNetworks implements PBEncoding {
         }
     }
 
-    private static void faExtra(final EncodingResult result, final Literal xc, final Literal xs, final Literal a, final Literal b, final Literal c) {
+    private static void faExtra(final EncodingResult result, final Literal xc, final Literal xs, final Literal a,
+                                final Literal b, final Literal c) {
         final FormulaFactory f = result.factory();
         result.addClause(xc.negate(f), xs.negate(f), a);
         result.addClause(xc.negate(f), xs.negate(f), b);

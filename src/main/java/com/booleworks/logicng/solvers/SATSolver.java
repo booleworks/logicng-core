@@ -64,9 +64,9 @@ public class SATSolver {
     }
 
     /**
-     * Constructs a new SAT solver with a given underlying solver core.
-     * This method is primarily used for serialization purposes and should not be required in any
-     * other application use case.
+     * Constructs a new SAT solver with a given underlying solver core. This
+     * method is primarily used for serialization purposes and should not be
+     * required in any other application use case.
      * @param f                the formula factory
      * @param underlyingSolver the underlying solver core
      */
@@ -79,7 +79,8 @@ public class SATSolver {
     }
 
     /**
-     * Returns a new SAT solver with the solver configuration from the formula factory.
+     * Returns a new SAT solver with the solver configuration from the formula
+     * factory.
      * @param f the formula factory
      * @return the solver
      */
@@ -98,7 +99,7 @@ public class SATSolver {
     }
 
     /**
-     * Adds a formula to the solver.  The formula is first converted to CNF.
+     * Adds a formula to the solver. The formula is first converted to CNF.
      * @param formula the formula
      */
     public void add(final Formula formula) {
@@ -106,7 +107,7 @@ public class SATSolver {
     }
 
     /**
-     * Adds a formula to the solver.  The formula is first converted to CNF.
+     * Adds a formula to the solver. The formula is first converted to CNF.
      * @param formula     the formula
      * @param proposition the proposition of this formula
      */
@@ -116,17 +117,23 @@ public class SATSolver {
             if (constraint.isCC()) {
                 if (config.useAtMostClauses()) {
                     if (constraint.comparator() == CType.LE) {
-                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver), constraint.rhs());
+                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver),
+                                constraint.rhs());
                     } else if (constraint.comparator() == CType.LT && constraint.rhs() > 3) {
-                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver), constraint.rhs() - 1);
+                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver),
+                                constraint.rhs() - 1);
                     } else if (constraint.comparator() == CType.EQ && constraint.rhs() == 1) {
-                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver), constraint.rhs());
-                        solver.addClause(LNGCoreSolver.generateClauseVector(constraint.operands(), solver), proposition);
+                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver),
+                                constraint.rhs());
+                        solver.addClause(LNGCoreSolver.generateClauseVector(constraint.operands(), solver),
+                                proposition);
                     } else {
-                        CCEncoder.encode((CardinalityConstraint) constraint, EncodingResult.resultForSATSolver(f, solver, proposition));
+                        CCEncoder.encode((CardinalityConstraint) constraint,
+                                EncodingResult.resultForSATSolver(f, solver, proposition));
                     }
                 } else {
-                    CCEncoder.encode((CardinalityConstraint) constraint, EncodingResult.resultForSATSolver(f, solver, proposition));
+                    CCEncoder.encode((CardinalityConstraint) constraint,
+                            EncodingResult.resultForSATSolver(f, solver, proposition));
                 }
             } else {
                 PBEncoder.encode(constraint, EncodingResult.resultForSATSolver(f, solver, proposition));
@@ -157,7 +164,8 @@ public class SATSolver {
     }
 
     /**
-     * Adds a proposition to the solver.  The formulas of the proposition are first converted to CNF.
+     * Adds a proposition to the solver. The formulas of the proposition are
+     * first converted to CNF.
      * @param proposition the proposition
      */
     public void add(final Proposition proposition) {
@@ -175,8 +183,8 @@ public class SATSolver {
     }
 
     /**
-     * Adds a formula to the solver by using the given relaxation variable,
-     * i.e. by adding the disjunction of the relaxation variable and the formula.
+     * Adds a formula to the solver by using the given relaxation variable, i.e.
+     * by adding the disjunction of the relaxation variable and the formula.
      * @param relaxationVar the relaxation variable
      * @param formula       the formula
      */
@@ -185,8 +193,9 @@ public class SATSolver {
     }
 
     /**
-     * Adds a collection of formulas to the solver by using the given relaxation variable,
-     * i.e. for each formula adding the disjunction of the relaxation variable and the formula.
+     * Adds a collection of formulas to the solver by using the given relaxation
+     * variable, i.e. for each formula adding the disjunction of the relaxation
+     * variable and the formula.
      * @param relaxationVar the relaxation variable
      * @param formulas      the collection of formulas
      */
@@ -197,19 +206,26 @@ public class SATSolver {
     }
 
     /**
-     * Adds a cardinality constraint and returns its incremental data in order to refine the constraint on the solver.
+     * Adds a cardinality constraint and returns its incremental data in order
+     * to refine the constraint on the solver.
      * <p>
      * Usage constraints:
      * <ul>
-     * <li>"&lt;": Cannot be used with right-hand side 2, returns null for right-hand side 1, but constraint is added to solver.</li>
-     * <li>"&lt;=": Cannot be used with right-hand side 1, returns null for right-hand side 0, but constraint is added to solver.</li>
-     * <li>"&gt;": Returns null for right-hand side 0 or number of variables -1, but constraint is added to solver. Adds false to solver for right-hand side
-     * &gt;= number of variables.</li>
-     * <li>"&gt;=": Returns null for right-hand side 1 or number of variables, but constraint is added to solver. Adds false to solver for right-hand side &gt;</li>
+     * <li>"&lt;": Cannot be used with right-hand side 2, returns null for
+     * right-hand side 1, but constraint is added to solver.</li>
+     * <li>"&lt;=": Cannot be used with right-hand side 1, returns null for
+     * right-hand side 0, but constraint is added to solver.</li>
+     * <li>"&gt;": Returns null for right-hand side 0 or number of variables -1,
+     * but constraint is added to solver. Adds false to solver for right-hand
+     * side &gt;= number of variables.</li>
+     * <li>"&gt;=": Returns null for right-hand side 1 or number of variables,
+     * but constraint is added to solver. Adds false to solver for right-hand
+     * side &gt;</li>
      * </ul>
      * number of variables.
      * @param cc the cardinality constraint
-     * @return the incremental data of this constraint, or null if the right-hand side of cc is 1
+     * @return the incremental data of this constraint, or null if the
+     *         right-hand side of cc is 1
      */
     public CCIncrementalData addIncrementalCC(final CardinalityConstraint cc) {
         final EncodingResult result = EncodingResult.resultForSATSolver(f, solver, null);
@@ -251,14 +267,17 @@ public class SATSolver {
     }
 
     /**
-     * Central method for building a SAT call. This method returns a {@link SATCallBuilder} which can be enriched
-     * with assumptions, additional formulas, handlers, etc. {@link SATCallBuilder#solve()} then performs the actual
-     * SAT call and returns a {@link SATCall} object from which a {@link SATCall#model model} or
-     * {@link SATCall#unsatCore() UNSAT core} can be generated.
+     * Central method for building a SAT call. This method returns a
+     * {@link SATCallBuilder} which can be enriched with assumptions, additional
+     * formulas, handlers, etc. {@link SATCallBuilder#solve()} then performs the
+     * actual SAT call and returns a {@link SATCall} object from which a
+     * {@link SATCall#model model} or {@link SATCall#unsatCore() UNSAT core} can
+     * be generated.
      * <p>
-     * <b>A SAT solver may only have one &quot;open&quot; SATCall at a time. So a an existing SAT call must
-     * always be {@link SATCall#close() closed} (ideally using a try-with construct) before the next call
-     * to this method.</b>
+     * <b>A SAT solver may only have one &quot;open&quot; SATCall at a time. So
+     * a an existing SAT call must always be {@link SATCall#close() closed}
+     * (ideally using a try-with construct) before the next call to this
+     * method.</b>
      * @return a new SATCall builder
      * @see SATCallBuilder
      */
@@ -267,10 +286,11 @@ public class SATSolver {
     }
 
     /**
-     * Returns {@code true} if the current formula in the solver is satisfiable, @{code false} if it is unsatisfiable.
+     * Returns {@code true} if the current formula in the solver is
+     * satisfiable, @{code false} if it is unsatisfiable.
      * <p>
-     * This is a shortcut for {@code satCall().sat()} (since no handler is used, the result is directly transformed
-     * to a {@code boolean}).
+     * This is a shortcut for {@code satCall().sat()} (since no handler is used,
+     * the result is directly transformed to a {@code boolean}).
      * @return the satisfiability of the formula on the solver
      */
     public boolean sat() {
@@ -284,7 +304,8 @@ public class SATSolver {
      * @param function the solver function
      * @param <RESULT> the result type of the function
      * @return the result of executing the solver function on the current solver
-     * @throws IllegalStateException if this solver is currently used in a {@link SATCall}
+     * @throws IllegalStateException if this solver is currently used in a
+     *                               {@link SATCall}
      */
     public <RESULT> RESULT execute(final SolverFunction<RESULT> function) {
         solver.assertNotInSatCall();
@@ -292,8 +313,9 @@ public class SATSolver {
     }
 
     /**
-     * Enumerates all models of the current formula wrt. a given set of variables.  If the set is {@code null},
-     * all variables are considered relevant.
+     * Enumerates all models of the current formula wrt. a given set of
+     * variables. If the set is {@code null}, all variables are considered
+     * relevant.
      * @param variables the set of variables
      * @return the list of models
      */
@@ -305,8 +327,9 @@ public class SATSolver {
     }
 
     /**
-     * Enumerates all models of the current formula wrt. a given set of variables.  If the set is {@code null},
-     * all variables are considered relevant.
+     * Enumerates all models of the current formula wrt. a given set of
+     * variables. If the set is {@code null}, all variables are considered
+     * relevant.
      * @param variables the set of variables
      * @return the list of models
      */
@@ -339,8 +362,10 @@ public class SATSolver {
     }
 
     /**
-     * Computes a backbone with both positive and negative variables of the current formula on the solver.
-     * @param relevantVariables the variables which should be considered for the backbone
+     * Computes a backbone with both positive and negative variables of the
+     * current formula on the solver.
+     * @param relevantVariables the variables which should be considered for the
+     *                          backbone
      * @return the backbone
      */
     public Backbone backbone(final Collection<Variable> relevantVariables) {
@@ -349,7 +374,8 @@ public class SATSolver {
 
     /**
      * Computes a backbone of the current formula on the solver.
-     * @param relevantVariables the variables which should be considered for the backbone
+     * @param relevantVariables the variables which should be considered for the
+     *                          backbone
      * @param type              the type of backbone which should be computed
      * @return the backbone
      */
@@ -376,8 +402,8 @@ public class SATSolver {
     /**
      * Returns the underlying core solver.
      * <p>
-     * ATTENTION: by influencing the underlying solver directly, you can mess things up completely!  You should really
-     * know what you are doing.
+     * ATTENTION: by influencing the underlying solver directly, you can mess
+     * things up completely! You should really know what you are doing.
      * @return the underlying core solver
      */
     public LNGCoreSolver underlyingSolver() {

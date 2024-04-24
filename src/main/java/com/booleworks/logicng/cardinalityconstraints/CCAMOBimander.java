@@ -3,26 +3,21 @@
 // Copyright 2023-20xx BooleWorks GmbH
 
 /*
- * PBLib       -- Copyright (c) 2012-2013  Peter Steinke
- * <p>
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- * <p>
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- * <p>
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * PBLib -- Copyright (c) 2012-2013 Peter Steinke <p> Permission is hereby
+ * granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions: <p> The above copyright notice and this
+ * permission notice shall be included in all copies or substantial portions of
+ * the Software. <p> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+ * KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+ * EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
+ * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 package com.booleworks.logicng.cardinalityconstraints;
@@ -33,7 +28,8 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 
 /**
- * Encodes that at most one variable is assigned value true.  Uses the bimander encoding due to Hölldobler and Nguyen.
+ * Encodes that at most one variable is assigned value true. Uses the bimander
+ * encoding due to Hölldobler and Nguyen.
  * @version 3.0.0
  * @since 1.1
  */
@@ -82,7 +78,8 @@ public final class CCAMOBimander implements CCAtMostOne {
         }
     }
 
-    private static void handleGrayCode(final EncodingResult result, final LNGVector<LNGVector<Literal>> groups, final BimanderBits bits,
+    private static void handleGrayCode(final EncodingResult result, final LNGVector<LNGVector<Literal>> groups,
+                                       final BimanderBits bits,
                                        final int grayCode, final int index, final int j) {
         if ((grayCode & (1 << j)) != 0) {
             for (int p = 0; p < groups.get(index).size(); ++p) {
@@ -90,12 +87,14 @@ public final class CCAMOBimander implements CCAtMostOne {
             }
         } else {
             for (int p = 0; p < groups.get(index).size(); ++p) {
-                result.addClause(groups.get(index).get(p).negate(result.factory()), bits.bits.get(j).negate(result.factory()));
+                result.addClause(groups.get(index).get(p).negate(result.factory()),
+                        bits.bits.get(j).negate(result.factory()));
             }
         }
     }
 
-    private static LNGVector<LNGVector<Literal>> initializeGroups(final EncodingResult result, final int groupSize, final LNGVector<Literal> vars) {
+    private static LNGVector<LNGVector<Literal>> initializeGroups(final EncodingResult result, final int groupSize,
+                                                                  final LNGVector<Literal> vars) {
         final LNGVector<LNGVector<Literal>> groups = new LNGVector<>();
         final int n = vars.size();
         for (int i = 0; i < groupSize; i++) {
@@ -104,7 +103,7 @@ public final class CCAMOBimander implements CCAtMostOne {
 
         int g = (int) Math.ceil((double) n / groupSize);
         int ig = 0;
-        for (int i = 0; i < vars.size(); ) {
+        for (int i = 0; i < vars.size();) {
             while (i < g) {
                 groups.get(ig).push(vars.get(i));
                 i++;

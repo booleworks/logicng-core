@@ -143,7 +143,8 @@ public class SubformulaTest extends TestWithFormulaContext {
         assertThat(_c.and3.containsNode(_c.y)).isTrue();
         assertThat(_c.f.and(_c.a, _c.b, _c.nx, _c.ny, _c.c).containsNode(_c.f.and(_c.a, _c.nx, _c.c))).isTrue();
         assertThat(_c.f.and(_c.x, _c.y, _c.or1, _c.c, _c.and1).containsNode(_c.f.and(_c.a, _c.b, _c.c))).isTrue();
-        assertThat(_c.f.and(_c.a, _c.b, _c.nx, _c.or1, _c.c, _c.and1).containsNode(_c.f.and(_c.a, _c.or1, _c.nx))).isTrue();
+        assertThat(_c.f.and(_c.a, _c.b, _c.nx, _c.or1, _c.c, _c.and1).containsNode(_c.f.and(_c.a, _c.or1, _c.nx)))
+                .isTrue();
         assertThat(_c.f.and(_c.a, _c.b, _c.nx, _c.imp1, _c.c).containsNode(_c.imp1)).isTrue();
 
         assertThat(_c.f.and(_c.nx, _c.or1, _c.c, _c.and1).containsNode(_c.f.or(_c.a, _c.b))).isFalse();

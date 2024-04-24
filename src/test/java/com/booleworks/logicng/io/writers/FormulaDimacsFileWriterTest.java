@@ -30,7 +30,9 @@ public class FormulaDimacsFileWriterTest extends TestWithFormulaContext {
 
     @Test
     public void testNonCNF() {
-        assertThatThrownBy(() -> FormulaDimacsFileWriter.write("non-cnf", FormulaFactory.nonCaching().parse("a => b"), false)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(
+                () -> FormulaDimacsFileWriter.write("non-cnf", FormulaFactory.nonCaching().parse("a => b"), false))
+                        .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -86,7 +88,8 @@ public class FormulaDimacsFileWriterTest extends TestWithFormulaContext {
         final BufferedReader expReader = new BufferedReader(new FileReader(expected));
         final BufferedReader actReader = new BufferedReader(new FileReader(actual));
         for (int lineNumber = 1; expReader.ready() && actReader.ready(); lineNumber++) {
-            softly.assertThat(actReader.readLine()).as("Line " + lineNumber + " not equal").isEqualTo(expReader.readLine());
+            softly.assertThat(actReader.readLine()).as("Line " + lineNumber + " not equal")
+                    .isEqualTo(expReader.readLine());
         }
         if (expReader.ready()) {
             softly.fail("Missing line(s) found, starting with \"" + expReader.readLine() + "\"");

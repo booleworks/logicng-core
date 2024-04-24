@@ -26,8 +26,9 @@ import java.util.Map;
 public class NNFTransformation extends CacheableFormulaTransformation {
 
     /**
-     * Constructs a new transformation.  For a caching formula factory, the cache of the factory will be used,
-     * for a non-caching formula factory no cache will be used.
+     * Constructs a new transformation. For a caching formula factory, the cache
+     * of the factory will be used, for a non-caching formula factory no cache
+     * will be used.
      * @param f the formula factory to generate new formulas
      */
     public NNFTransformation(final FormulaFactory f) {
@@ -35,8 +36,8 @@ public class NNFTransformation extends CacheableFormulaTransformation {
     }
 
     /**
-     * Constructs a new transformation.  For all factory type the provided cache will be used.
-     * If it is null, no cache will be used.
+     * Constructs a new transformation. For all factory type the provided cache
+     * will be used. If it is null, no cache will be used.
      * @param f     the formula factory to generate new formulas
      * @param cache the cache for this transformation
      */
@@ -108,7 +109,8 @@ public class NNFTransformation extends CacheableFormulaTransformation {
         return nnf;
     }
 
-    private Formula applyRec(final FormulaFactory f, final Iterator<Formula> formulas, final FType type, final boolean polarity) {
+    private Formula applyRec(final FormulaFactory f, final Iterator<Formula> formulas, final FType type,
+                             final boolean polarity) {
         final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
         while (formulas.hasNext()) {
             final Formula formula = formulas.next();

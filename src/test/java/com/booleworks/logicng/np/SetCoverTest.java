@@ -29,7 +29,8 @@ public class SetCoverTest {
         sets.add(new TreeSet<>(Arrays.asList("b", "e", "h", "k")));
         sets.add(new TreeSet<>(Arrays.asList("c", "f", "i", "l")));
         sets.add(new TreeSet<>(Arrays.asList("j", "k", "l")));
-        Assertions.assertThat(SetCover.compute(f, sets)).containsExactlyInAnyOrder(sets.get(2), sets.get(3), sets.get(4));
+        Assertions.assertThat(SetCover.compute(f, sets)).containsExactlyInAnyOrder(sets.get(2), sets.get(3),
+                sets.get(4));
     }
 
     @Test

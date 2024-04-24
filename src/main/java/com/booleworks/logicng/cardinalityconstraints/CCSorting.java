@@ -3,26 +3,21 @@
 // Copyright 2023-20xx BooleWorks GmbH
 
 /*
- * PBLib       -- Copyright (c) 2012-2013  Peter Steinke
- * <p>
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- * <p>
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- * <p>
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * PBLib -- Copyright (c) 2012-2013 Peter Steinke <p> Permission is hereby
+ * granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies of the
+ * Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions: <p> The above copyright notice and this
+ * permission notice shall be included in all copies or substantial portions of
+ * the Software. <p> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+ * KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+ * EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
+ * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 package com.booleworks.logicng.cardinalityconstraints;
@@ -52,7 +47,9 @@ public final class CCSorting {
      * The implication direction.
      */
     public enum ImplicationDirection {
-        INPUT_TO_OUTPUT, OUTPUT_TO_INPUT, BOTH
+        INPUT_TO_OUTPUT,
+        OUTPUT_TO_INPUT,
+        BOTH
     }
 
     private static int counterSorterValue(final int m, final int n) {
@@ -75,7 +72,8 @@ public final class CCSorting {
      * @param output    the output literals
      * @param direction the sorting direction
      */
-    public static void sort(final FormulaFactory f, final int m, final LNGVector<Literal> input, final EncodingResult result, final LNGVector<Literal> output,
+    public static void sort(final FormulaFactory f, final int m, final LNGVector<Literal> input,
+                            final EncodingResult result, final LNGVector<Literal> output,
                             final ImplicationDirection direction) {
         assert m >= 0;
         if (m == 0) {
@@ -124,7 +122,8 @@ public final class CCSorting {
         }
     }
 
-    private static void comparator(final FormulaFactory f, final Literal x1, final Literal x2, final Literal y, final EncodingResult result,
+    private static void comparator(final FormulaFactory f, final Literal x1, final Literal x2, final Literal y,
+                                   final EncodingResult result,
                                    final ImplicationDirection direction) {
         assert !x1.equals(x2);
         if (direction == INPUT_TO_OUTPUT || direction == BOTH) {
@@ -136,7 +135,8 @@ public final class CCSorting {
         }
     }
 
-    private static void comparator(final FormulaFactory f, final Literal x1, final Literal x2, final Literal y1, final Literal y2, final EncodingResult result,
+    private static void comparator(final FormulaFactory f, final Literal x1, final Literal x2, final Literal y1,
+                                   final Literal y2, final EncodingResult result,
                                    final ImplicationDirection direction) {
         assert !x1.equals(x2);
         assert !y1.equals(y2);
@@ -152,7 +152,8 @@ public final class CCSorting {
         }
     }
 
-    private static void recursiveSorter(final FormulaFactory f, final int m, final int l, final LNGVector<Literal> input, final EncodingResult result,
+    private static void recursiveSorter(final FormulaFactory f, final int m, final int l,
+                                        final LNGVector<Literal> input, final EncodingResult result,
                                         final LNGVector<Literal> output, final ImplicationDirection direction) {
         final int n = input.size();
         assert output.size() == 0;
@@ -181,7 +182,8 @@ public final class CCSorting {
         assert output.size() == m;
     }
 
-    private static void recursiveSorter(final FormulaFactory f, final int m, final LNGVector<Literal> input, final EncodingResult result,
+    private static void recursiveSorter(final FormulaFactory f, final int m, final LNGVector<Literal> input,
+                                        final EncodingResult result,
                                         final LNGVector<Literal> output, final ImplicationDirection direction) {
         assert m > 0;
         assert input.size() > 0;
@@ -215,7 +217,8 @@ public final class CCSorting {
             }
             for (int j = 1; j < k; j++) {
                 for (int i = j; i < n; i++) {
-                    result.addClause(x.get(i).negate(f), auxVars.get(i - 1).get(j - 1).negate(f), auxVars.get(i).get(j));
+                    result.addClause(x.get(i).negate(f), auxVars.get(i - 1).get(j - 1).negate(f),
+                            auxVars.get(i).get(j));
                     if (i > j) {
                         result.addClause(auxVars.get(i - 1).get(j).negate(f), auxVars.get(i).get(j));
                     }
@@ -271,7 +274,8 @@ public final class CCSorting {
      * @param output    the output vector
      * @param direction the sorting direction
      */
-    public static void merge(final FormulaFactory f, final int m, final LNGVector<Literal> inputA, final LNGVector<Literal> inputB, final EncodingResult formula,
+    public static void merge(final FormulaFactory f, final int m, final LNGVector<Literal> inputA,
+                             final LNGVector<Literal> inputB, final EncodingResult formula,
                              final LNGVector<Literal> output, final ImplicationDirection direction) {
         assert m >= 0;
         if (m == 0) {
@@ -300,7 +304,8 @@ public final class CCSorting {
         directMerger(f, m2, inputA, inputB, formula, output, direction);
     }
 
-    private static void recursiveMerger(final FormulaFactory f, final int c, final LNGVector<Literal> inputA, final int a, final LNGVector<Literal> inputB, final int b,
+    private static void recursiveMerger(final FormulaFactory f, final int c, final LNGVector<Literal> inputA,
+                                        final int a, final LNGVector<Literal> inputB, final int b,
                                         final EncodingResult formula, final LNGVector<Literal> output,
                                         final ImplicationDirection direction) {
         assert inputA.size() > 0;
@@ -393,7 +398,8 @@ public final class CCSorting {
         assert output.size() == a2 + b2 || output.size() == c;
     }
 
-    private static void directMerger(final FormulaFactory f, final int m, final LNGVector<Literal> inputA, final LNGVector<Literal> inputB, final EncodingResult formula,
+    private static void directMerger(final FormulaFactory f, final int m, final LNGVector<Literal> inputA,
+                                     final LNGVector<Literal> inputB, final EncodingResult formula,
                                      final LNGVector<Literal> output, final ImplicationDirection direction) {
         assert direction == INPUT_TO_OUTPUT;
         final int a = inputA.size();

@@ -19,11 +19,12 @@ import java.util.Map;
 public final class BDDDNFTransformation extends BDDNormalFormTransformation {
 
     /**
-     * Constructs a new BDD-based CNF transformation with an optional BDD kernel.
+     * Constructs a new BDD-based CNF transformation with an optional BDD
+     * kernel.
      * <p>
-     * Warning: You can use this object for arbitrarily many transformations, <b>but</b>
-     * the number of different variables in all applied formulas <b>must not exceed</b>
-     * the number of variables in the kernel.
+     * Warning: You can use this object for arbitrarily many transformations,
+     * <b>but</b> the number of different variables in all applied formulas
+     * <b>must not exceed</b> the number of variables in the kernel.
      * @param f      the formula factory to generate new formulas
      * @param kernel the optional BDD kernel
      */
@@ -32,11 +33,12 @@ public final class BDDDNFTransformation extends BDDNormalFormTransformation {
     }
 
     /**
-     * Constructs a new BDD-based CNF transformation with an optional BDD kernel.
+     * Constructs a new BDD-based CNF transformation with an optional BDD
+     * kernel.
      * <p>
-     * Warning: You can use this object for arbitrarily many transformations, <b>but</b>
-     * the number of different variables in all applied formulas <b>must not exceed</b>
-     * the number of variables in the kernel.
+     * Warning: You can use this object for arbitrarily many transformations,
+     * <b>but</b> the number of different variables in all applied formulas
+     * <b>must not exceed</b> the number of variables in the kernel.
      * @param f      the formula factory to generate new formulas
      * @param kernel the optional BDD kernel
      * @param cache  the cache to use for this transformation
@@ -46,8 +48,8 @@ public final class BDDDNFTransformation extends BDDNormalFormTransformation {
     }
 
     /**
-     * Constructs a new BDD-based CNF transformation and constructs a new BDD kernel
-     * for every formula application.
+     * Constructs a new BDD-based CNF transformation and constructs a new BDD
+     * kernel for every formula application.
      * @param f the formula factory to generate new formulas
      */
     public BDDDNFTransformation(final FormulaFactory f) {

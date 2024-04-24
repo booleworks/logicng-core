@@ -46,7 +46,8 @@ public class ExtendedPropositionTest {
     @Test
     public void testEquals() throws ParserException {
         final ExtendedProposition<Backpack> prop11 = new ExtendedProposition<>(new Backpack("prop1"), p.parse("a & b"));
-        final ExtendedProposition<Backpack> prop21 = new ExtendedProposition<>(new Backpack("prop2"), p.parse("a & b & ~c"));
+        final ExtendedProposition<Backpack> prop21 =
+                new ExtendedProposition<>(new Backpack("prop2"), p.parse("a & b & ~c"));
         assertThat(prop1.equals(prop1)).isTrue();
         assertThat(prop1.equals(prop11)).isTrue();
         assertThat(prop2.equals(prop21)).isTrue();

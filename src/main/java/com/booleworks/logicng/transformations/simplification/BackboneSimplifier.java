@@ -14,10 +14,10 @@ import com.booleworks.logicng.solvers.functions.BackboneFunction;
 import com.booleworks.logicng.transformations.StatelessFormulaTransformation;
 
 /**
- * This class simplifies a formula by computing its backbone and propagating
- * it through the formula. E.g. in the formula {@code A & B & (A | B | C) & (~B | D)}
- * the backbone {@code A, B} is computed and propagated, yielding the simplified formula
- * {@code A & B & D}.
+ * This class simplifies a formula by computing its backbone and propagating it
+ * through the formula. E.g. in the formula
+ * {@code A & B & (A | B | C) & (~B | D)} the backbone {@code A, B} is computed
+ * and propagated, yielding the simplified formula {@code A & B & D}.
  * @version 3.0.0
  * @since 1.5.0
  */
@@ -31,7 +31,8 @@ public final class BackboneSimplifier extends StatelessFormulaTransformation {
     public Formula apply(final Formula formula) {
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula);
-        final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).type(BackboneType.POSITIVE_AND_NEGATIVE).build());
+        final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f))
+                .type(BackboneType.POSITIVE_AND_NEGATIVE).build());
         if (!backbone.isSat()) {
             return f.falsum();
         }

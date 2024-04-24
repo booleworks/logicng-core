@@ -17,11 +17,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Transformation of a formula into CNF due to Plaisted &amp; Greenbaum.  Results in this implementation will always be
- * cached.
+ * Transformation of a formula into CNF due to Plaisted &amp; Greenbaum. Results
+ * in this implementation will always be cached.
  * <p>
- * ATTENTION: if you mix formulas from different formula factories this can lead to clashes in the naming of newly
- * introduced variables.
+ * ATTENTION: if you mix formulas from different formula factories this can lead
+ * to clashes in the naming of newly introduced variables.
  * @version 3.0.0
  * @since 1.0
  */
@@ -33,8 +33,8 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
     private final CNFFactorization factorization;
 
     /**
-     * Constructor for a Plaisted &amp; Greenbaum transformation with conversion to nnf and the default
-     * factorization  bound of 12.
+     * Constructor for a Plaisted &amp; Greenbaum transformation with conversion
+     * to nnf and the default factorization bound of 12.
      * @param f the formula factory to generate new formulas
      */
     public PlaistedGreenbaumTransformation(final FormulaFactory f) {
@@ -43,8 +43,10 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
 
     /**
      * Constructor for a Plaisted &amp; Greenbaum transformation.
-     * @param f                        the formula factory to generate new formulas
-     * @param boundaryForFactorization the boundary of number of atoms up to which classical factorization is used
+     * @param f                        the formula factory to generate new
+     *                                 formulas
+     * @param boundaryForFactorization the boundary of number of atoms up to
+     *                                 which classical factorization is used
      */
     public PlaistedGreenbaumTransformation(final FormulaFactory f, final int boundaryForFactorization) {
         super(f);
@@ -53,8 +55,8 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
     }
 
     /**
-     * Constructor for a Plaisted &amp; Greenbaum transformation with conversion to nnf and the default
-     * factorization  bound of 12.
+     * Constructor for a Plaisted &amp; Greenbaum transformation with conversion
+     * to nnf and the default factorization bound of 12.
      * @param f     the formula factory to generate new formulas
      * @param state the mutable state for a PG transformation
      */
@@ -64,11 +66,14 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
 
     /**
      * Constructor for a Plaisted &amp; Greenbaum transformation.
-     * @param f                        the formula factory to generate new formulas
-     * @param boundaryForFactorization the boundary of number of atoms up to which classical factorization is used
+     * @param f                        the formula factory to generate new
+     *                                 formulas
+     * @param boundaryForFactorization the boundary of number of atoms up to
+     *                                 which classical factorization is used
      * @param state                    the mutable state for a PG transformation
      */
-    public PlaistedGreenbaumTransformation(final FormulaFactory f, final int boundaryForFactorization, final PGState state) {
+    public PlaistedGreenbaumTransformation(final FormulaFactory f, final int boundaryForFactorization,
+                                           final PGState state) {
         super(f, state);
         this.boundaryForFactorization = boundaryForFactorization;
         factorization = new CNFFactorization(f);
@@ -80,8 +85,9 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
     }
 
     /**
-     * Returns the auxiliary variable for a given formula.  Either the formula is already a variable, has already an
-     * auxiliary variable or a new one is generated.
+     * Returns the auxiliary variable for a given formula. Either the formula is
+     * already a variable, has already an auxiliary variable or a new one is
+     * generated.
      * @param formula the formula
      * @return the old or new auxiliary variable
      */
@@ -159,7 +165,8 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
                 return result;
             }
             default:
-                throw new IllegalArgumentException("Unknown or unexpected formula type. Expected AND or OR formula type only.");
+                throw new IllegalArgumentException(
+                        "Unknown or unexpected formula type. Expected AND or OR formula type only.");
         }
     }
 

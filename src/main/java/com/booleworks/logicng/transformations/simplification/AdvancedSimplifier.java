@@ -31,20 +31,25 @@ import java.util.stream.Collectors;
 /**
  * An advanced simplifier for formulas.
  * <p>
- * The aim of the simplification is to minimize the formula with respect to a given rating function,
- * e.g. finding a formula with a minimal number of symbols when represented as string.
+ * The aim of the simplification is to minimize the formula with respect to a
+ * given rating function, e.g. finding a formula with a minimal number of
+ * symbols when represented as string.
  * <p>
  * The simplification performs the following steps:
  * <ul>
- *     <li>Restricting the formula to its backbone</li>
- *     <li>Computation of all prime implicants</li>
- *     <li>Finding a minimal coverage (by finding a smallest MUS)</li>
- *     <li>Building a DNF from the minimal prime implicant coverage</li>
- *     <li>Factoring out: Applying the Distributive Law heuristically for a smaller formula</li>
- *     <li>Minimizing negations: Applying De Morgan's Law heuristically for a smaller formula</li>
+ * <li>Restricting the formula to its backbone</li>
+ * <li>Computation of all prime implicants</li>
+ * <li>Finding a minimal coverage (by finding a smallest MUS)</li>
+ * <li>Building a DNF from the minimal prime implicant coverage</li>
+ * <li>Factoring out: Applying the Distributive Law heuristically for a smaller
+ * formula</li>
+ * <li>Minimizing negations: Applying De Morgan's Law heuristically for a
+ * smaller formula</li>
  * </ul>
- * The first and the last two steps can be configured using the {@link AdvancedSimplifierConfig}. Also, the handler and the rating
- * function can be configured. If no rating function is specified, the {@link DefaultRatingFunction} is chosen.
+ * The first and the last two steps can be configured using the
+ * {@link AdvancedSimplifierConfig}. Also, the handler and the rating function
+ * can be configured. If no rating function is specified, the
+ * {@link DefaultRatingFunction} is chosen.
  * @version 3.0.0
  * @since 2.0.0
  */
@@ -53,7 +58,8 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
     private final AdvancedSimplifierConfig config;
 
     /**
-     * Constructs a new simplifier with the advanced simplifier configuration from the formula factory.
+     * Constructs a new simplifier with the advanced simplifier configuration
+     * from the formula factory.
      * @param f the formula factory to generate new formulas
      */
     public AdvancedSimplifier(final FormulaFactory f) {
@@ -61,7 +67,8 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
     }
 
     /**
-     * Constructs a new simplifier with the advanced simplifier configuration from the formula factory.
+     * Constructs a new simplifier with the advanced simplifier configuration
+     * from the formula factory.
      * @param f       the formula factory to generate new formulas
      * @param handler the optimization handler to abort the simplification
      */
@@ -72,8 +79,9 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
     /**
      * Constructs a new simplifier with the given configuration.
      * @param f      the formula factory to generate new formulas
-     * @param config The configuration for the advanced simplifier, including a handler, a rating function and flags
-     *               for which steps should pe performed during the computation.
+     * @param config The configuration for the advanced simplifier, including a
+     *               handler, a rating function and flags for which steps should
+     *               pe performed during the computation.
      */
     public AdvancedSimplifier(final FormulaFactory f, final AdvancedSimplifierConfig config) {
         this(f, config, null);
@@ -83,10 +91,12 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
      * Constructs a new simplifier with the given configuration.
      * @param f       the formula factory to generate new formulas
      * @param handler the optimization handler to abort the simplification
-     * @param config  The configuration for the advanced simplifier, including a handler, a rating function and flags
-     *                for which steps should pe performed during the computation.
+     * @param config  The configuration for the advanced simplifier, including a
+     *                handler, a rating function and flags for which steps
+     *                should pe performed during the computation.
      */
-    public AdvancedSimplifier(final FormulaFactory f, final AdvancedSimplifierConfig config, final OptimizationHandler handler) {
+    public AdvancedSimplifier(final FormulaFactory f, final AdvancedSimplifierConfig config,
+                              final OptimizationHandler handler) {
         super(f, handler);
         this.config = config;
     }
@@ -129,17 +139,20 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
 
     private Formula computeMinDnf(final FormulaFactory f, Formula simplified) {
         final PrimeResult primeResult =
-                PrimeCompiler.getWithMinimization().compute(f, simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE, handler);
+                PrimeCompiler.getWithMinimization().compute(f, simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE,
+                        handler);
         if (primeResult == null || Handler.aborted(handler)) {
             return null;
         }
         final List<SortedSet<Literal>> primeImplicants = primeResult.getPrimeImplicants();
-        final List<Formula> minimizedPIs = SmusComputation.computeSmusForFormulas(f, negateAllLiterals(f, primeImplicants),
-                Collections.singletonList(simplified), handler);
+        final List<Formula> minimizedPIs =
+                SmusComputation.computeSmusForFormulas(f, negateAllLiterals(f, primeImplicants),
+                        Collections.singletonList(simplified), handler);
         if (minimizedPIs == null || Handler.aborted(handler)) {
             return null;
         }
-        simplified = f.or(negateAllLiteralsInFormulas(f, minimizedPIs).stream().map(f::and).collect(Collectors.toList()));
+        simplified =
+                f.or(negateAllLiteralsInFormulas(f, minimizedPIs).stream().map(f::and).collect(Collectors.toList()));
         return simplified;
     }
 
@@ -159,7 +172,8 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
         return result;
     }
 
-    private Formula simplifyWithRating(final Formula formula, final Formula simplifiedOneStep, final AdvancedSimplifierConfig config) {
+    private Formula simplifyWithRating(final Formula formula, final Formula simplifiedOneStep,
+                                       final AdvancedSimplifierConfig config) {
         if (!config.useRatingFunction) {
             return simplifiedOneStep;
         }

@@ -117,7 +117,8 @@ public class FormulaWriterReaderTest {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E))");
         FormulaWriter.write(fileName, p1, false, new UTF8StringRepresentation());
-        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
+        try (final BufferedReader reader =
+                new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
             assertThat(reader.readLine()).isEqualTo("A ∧ B ∧ ¬(C ∨ (D ⇒ ¬E))");
         }
         Files.deleteIfExists(file.toPath());
@@ -130,7 +131,8 @@ public class FormulaWriterReaderTest {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E))");
         FormulaWriter.write(fileName, p1, true, new UTF8StringRepresentation());
-        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
+        try (final BufferedReader reader =
+                new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
             assertThat(reader.readLine()).isEqualTo("A");
             assertThat(reader.readLine()).isEqualTo("B");
             assertThat(reader.readLine()).isEqualTo("¬(C ∨ (D ⇒ ¬E))");

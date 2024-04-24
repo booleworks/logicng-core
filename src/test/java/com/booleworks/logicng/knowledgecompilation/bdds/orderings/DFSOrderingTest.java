@@ -24,19 +24,26 @@ public class DFSOrderingTest {
         Assertions.assertThat(ordering.getOrder(f, p.parse("$true"))).isEmpty();
         Assertions.assertThat(ordering.getOrder(f, p.parse("$false"))).isEmpty();
         Assertions.assertThat(ordering.getOrder(f, p.parse("A"))).containsExactly(f.variable("A"));
-        Assertions.assertThat(ordering.getOrder(f, p.parse("A => ~B"))).containsExactly(f.variable("A"), f.variable("B"));
-        Assertions.assertThat(ordering.getOrder(f, p.parse("A <=> ~B"))).containsExactly(f.variable("A"), f.variable("B"));
-        Assertions.assertThat(ordering.getOrder(f, p.parse("~(A <=> ~B)"))).containsExactly(f.variable("A"), f.variable("B"));
-        Assertions.assertThat(ordering.getOrder(f, p.parse("A | ~C | B | D"))).containsExactly(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
-        Assertions.assertThat(ordering.getOrder(f, p.parse("A & ~C & B & D"))).containsExactly(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
-        Assertions.assertThat(ordering.getOrder(f, p.parse("A + C + B + D < 2"))).containsExactly(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
+        Assertions.assertThat(ordering.getOrder(f, p.parse("A => ~B"))).containsExactly(f.variable("A"),
+                f.variable("B"));
+        Assertions.assertThat(ordering.getOrder(f, p.parse("A <=> ~B"))).containsExactly(f.variable("A"),
+                f.variable("B"));
+        Assertions.assertThat(ordering.getOrder(f, p.parse("~(A <=> ~B)"))).containsExactly(f.variable("A"),
+                f.variable("B"));
+        Assertions.assertThat(ordering.getOrder(f, p.parse("A | ~C | B | D"))).containsExactly(f.variable("A"),
+                f.variable("C"), f.variable("B"), f.variable("D"));
+        Assertions.assertThat(ordering.getOrder(f, p.parse("A & ~C & B & D"))).containsExactly(f.variable("A"),
+                f.variable("C"), f.variable("B"), f.variable("D"));
+        Assertions.assertThat(ordering.getOrder(f, p.parse("A + C + B + D < 2"))).containsExactly(f.variable("A"),
+                f.variable("C"), f.variable("B"), f.variable("D"));
     }
 
     @Test
     public void testComplexFormula() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (W + A + F < 1)))");
+        final Formula formula =
+                p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (W + A + F < 1)))");
         assertThat(ordering.getOrder(f, formula)).containsExactly(
                 f.variable("A"),
                 f.variable("B"),

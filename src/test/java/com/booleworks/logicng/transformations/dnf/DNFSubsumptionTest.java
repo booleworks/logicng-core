@@ -47,18 +47,24 @@ public class DNFSubsumptionTest extends TestWithFormulaContext {
     public void testLargeDNFSubsumption(final FormulaContext _c) throws ParserException {
         final DNFSubsumption s = new DNFSubsumption(_c.f);
 
-        assertThat(s.apply(_c.p.parse("(a & b & c & d) | (a & b & c & e) | (a & b & c)"))).isEqualTo(_c.p.parse("(a & b & c)"));
-        assertThat(s.apply(_c.p.parse("(a & b) | (a & c) | (a & b & c) | (a & ~b & c) | (a & b & ~c) | (b & c)"))).isEqualTo(_c.p.parse("(a & b) | (a & c) | (b & c)"));
-        assertThat(s.apply(_c.p.parse("(a & b) | (a & c) | (a & b & c) | (a & ~b & c) | (a & b & ~c) | (b & c)"))).isEqualTo(_c.p.parse("(a & b) | (a & c) | (b & c)"));
-        assertThat(s.apply(_c.p.parse("a | ~b | (c & d) | (~a & ~b & ~c) | (b & c & d) | (a & b & c & d)"))).isEqualTo(_c.p.parse("a | ~b | (c & d)"));
-        assertThat(s.apply(_c.p.parse("(a & b & c & d & e & f & g) | (b & d & f) | (a & c & e & g)"))).isEqualTo(_c.p.parse("(b & d & f) | (a & c & e & g)"));
+        assertThat(s.apply(_c.p.parse("(a & b & c & d) | (a & b & c & e) | (a & b & c)")))
+                .isEqualTo(_c.p.parse("(a & b & c)"));
+        assertThat(s.apply(_c.p.parse("(a & b) | (a & c) | (a & b & c) | (a & ~b & c) | (a & b & ~c) | (b & c)")))
+                .isEqualTo(_c.p.parse("(a & b) | (a & c) | (b & c)"));
+        assertThat(s.apply(_c.p.parse("(a & b) | (a & c) | (a & b & c) | (a & ~b & c) | (a & b & ~c) | (b & c)")))
+                .isEqualTo(_c.p.parse("(a & b) | (a & c) | (b & c)"));
+        assertThat(s.apply(_c.p.parse("a | ~b | (c & d) | (~a & ~b & ~c) | (b & c & d) | (a & b & c & d)")))
+                .isEqualTo(_c.p.parse("a | ~b | (c & d)"));
+        assertThat(s.apply(_c.p.parse("(a & b & c & d & e & f & g) | (b & d & f) | (a & c & e & g)")))
+                .isEqualTo(_c.p.parse("(b & d & f) | (a & c & e & g)"));
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     @LongRunningTag
     public void testEvenLargerFormulas(final FormulaContext _c) throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/small_formulas.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/small_formulas.txt");
         int count = 10; // test only first 10 formulas
         for (final Formula op : formula) {
             if (count == 0) {

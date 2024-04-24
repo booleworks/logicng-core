@@ -84,6 +84,7 @@ public class CCALKTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        assertThatThrownBy(() -> CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, -1, problemLits))).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> CCEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, -1, problemLits)))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

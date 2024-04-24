@@ -28,8 +28,9 @@ import java.util.SortedSet;
 public final class HypergraphGenerator {
 
     /**
-     * Generates a hyper-graph from a CNF given as a list of clauses.  Each variable is represented by a node in the
-     * hyper-graph, each clause is represented by a hyper-edge between all variables of the clause.
+     * Generates a hyper-graph from a CNF given as a list of clauses. Each
+     * variable is represented by a node in the hyper-graph, each clause is
+     * represented by a hyper-edge between all variables of the clause.
      * @param f   the formula factory to use for caching
      * @param cnf the list of clauses of the CNF for the hyper-graph
      * @return the hyper-graph for the CNF formula
@@ -39,8 +40,9 @@ public final class HypergraphGenerator {
     }
 
     /**
-     * Generates a hyper-graph from a CNF given as a list of clauses.  Each variable is represented by a node in the
-     * hyper-graph, each clause is represented by a hyper-edge between all variables of the clause.
+     * Generates a hyper-graph from a CNF given as a list of clauses. Each
+     * variable is represented by a node in the hyper-graph, each clause is
+     * represented by a hyper-edge between all variables of the clause.
      * @param f   the formula factory to use for caching
      * @param cnf the list of clauses of the CNF for the hyper-graph
      * @return the hyper-graph for the CNF formula
@@ -67,8 +69,9 @@ public final class HypergraphGenerator {
     }
 
     /**
-     * Generates a hyper-graph from a CNF.  Each variable is represented by a node in the hyper-graph, each clause
-     * is represented by a hyper-edge between all variables of the clause.
+     * Generates a hyper-graph from a CNF. Each variable is represented by a
+     * node in the hyper-graph, each clause is represented by a hyper-edge
+     * between all variables of the clause.
      * @param f   the formula factory to use for caching
      * @param cnf the CNF formula for the hyper-graph
      * @return the hyper-graph for the CNF formula
@@ -99,8 +102,8 @@ public final class HypergraphGenerator {
         return hypergraph;
     }
 
-    private static void addClause(final FormulaFactory f, final Formula formula, final Hypergraph<Variable> hypergraph, final Map<Variable,
-            HypergraphNode<Variable>> nodes) {
+    private static void addClause(final FormulaFactory f, final Formula formula, final Hypergraph<Variable> hypergraph,
+                                  final Map<Variable, HypergraphNode<Variable>> nodes) {
         assert formula.type() == FType.LITERAL || formula.type() == FType.OR;
         final SortedSet<Variable> variables = formula.variables(f);
         final Set<HypergraphNode<Variable>> clause = new LinkedHashSet<>();

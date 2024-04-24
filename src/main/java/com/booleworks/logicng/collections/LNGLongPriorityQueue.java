@@ -5,7 +5,8 @@
 package com.booleworks.logicng.collections;
 
 /**
- * A simple priority queue implementation for elements with long priorities taken from CleaneLing.
+ * A simple priority queue implementation for elements with long priorities
+ * taken from CleaneLing.
  * @version 1.3
  * @since 1.0
  */
@@ -69,9 +70,11 @@ public final class LNGLongPriorityQueue {
     }
 
     /**
-     * Returns whether a given element is already imported and present in the queue or not.
+     * Returns whether a given element is already imported and present in the
+     * queue or not.
      * @param element the element
-     * @return {@code true} if the element is already imported and present in the queue, {@code false otherwise}.
+     * @return {@code true} if the element is already imported and present in
+     *         the queue, {@code false otherwise}.
      */
     public boolean contains(final int element) {
         return element >= 0 && imported(element) && pos.get(Math.abs(element)) >= 0;
@@ -88,7 +91,8 @@ public final class LNGLongPriorityQueue {
     }
 
     /**
-     * Returns the top element of the priority queue (= the element with the largest priority).
+     * Returns the top element of the priority queue (= the element with the
+     * largest priority).
      * @return the top element of the priority queue
      */
     public int top() {
@@ -136,7 +140,8 @@ public final class LNGLongPriorityQueue {
     }
 
     /**
-     * Removes a given element from the priority queue.  Its priority is kept as is.
+     * Removes a given element from the priority queue. Its priority is kept as
+     * is.
      * @param element the element
      */
     public void pop(final int element) {
@@ -164,11 +169,12 @@ public final class LNGLongPriorityQueue {
     }
 
     /**
-     * Compares two elements by their priority and returns whether the first element's priority is less than the second
-     * element's priority.
+     * Compares two elements by their priority and returns whether the first
+     * element's priority is less than the second element's priority.
      * @param e1 the first element
      * @param e2 the second element
-     * @return {@code true} if the priority of the first element is less than the priority of the second element
+     * @return {@code true} if the priority of the first element is less than
+     *         the priority of the second element
      */
     private boolean less(final int e1, final int e2) {
         return prior.get(e1) < prior.get(e2);

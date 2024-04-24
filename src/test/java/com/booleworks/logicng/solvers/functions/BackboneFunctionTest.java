@@ -69,7 +69,8 @@ public class BackboneFunctionTest {
         solver.add(f.parse("a & b & ~c"));
         Backbone backbone = solver.backbone(v("a b c", f));
         assertThat(backbone.isSat()).isTrue();
-        assertThat(backbone.getCompleteBackbone(f)).containsExactly(f.variable("a"), f.variable("b"), f.literal("c", false));
+        assertThat(backbone.getCompleteBackbone(f)).containsExactly(f.variable("a"), f.variable("b"),
+                f.literal("c", false));
         solver.loadState(state);
         solver.add(f.parse("~a & ~b & c"));
         backbone = solver.backbone(v("a c", f));
@@ -90,17 +91,19 @@ public class BackboneFunctionTest {
         solver.add(f.parse("~d"));
         backbone = solver.backbone(v("a b c d e f g h", f));
         assertThat(backbone.isSat()).isTrue();
-        Assertions.assertThat(backbone.getCompleteBackbone(f)).containsExactly(f.variable("a"), f.variable("b"), f.variable("c"),
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).containsExactly(f.variable("a"), f.variable("b"),
+                f.variable("c"),
                 f.literal("d", false), f.literal("e", false));
     }
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testSimpleFormulasWithBuilderUsage(final SATSolver solver, final String solverDescription) throws ParserException {
+    public void testSimpleFormulasWithBuilderUsage(final SATSolver solver, final String solverDescription)
+            throws ParserException {
         final FormulaFactory f = solver.factory();
         solver.add(f.parse("(a => c | d) & (b => d | ~e) & (a | b)"));
         Backbone backbone = solver.execute(BackboneFunction.builder().variables(
-                        f.variable("a"), f.variable("b"), f.variable("c"), f.variable("d"), f.variable("e"), f.variable("f"))
+                f.variable("a"), f.variable("b"), f.variable("c"), f.variable("d"), f.variable("e"), f.variable("f"))
                 .build());
         assertThat(backbone.isSat()).isTrue();
         Assertions.assertThat(backbone.getCompleteBackbone(f)).isEmpty();
@@ -109,19 +112,23 @@ public class BackboneFunctionTest {
         solver.add(f.parse("~d"));
         backbone = solver.backbone(v("a b c d e f g h", f));
         assertThat(backbone.isSat()).isTrue();
-        Assertions.assertThat(backbone.getCompleteBackbone(f)).containsExactly(f.variable("a"), f.variable("b"), f.variable("c"),
+        Assertions.assertThat(backbone.getCompleteBackbone(f)).containsExactly(f.variable("a"), f.variable("b"),
+                f.variable("c"),
                 f.literal("d", false), f.literal("e", false));
     }
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     @LongRunningTag
-    public void testRealFormulaIncremental1(final SATSolver solver, final String solverDescription) throws IOException, ParserException {
+    public void testRealFormulaIncremental1(final SATSolver solver, final String solverDescription)
+            throws IOException, ParserException {
         final FormulaFactory f = solver.factory();
-        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         solver.add(formula);
         final List<String> expectedBackbones = new ArrayList<>();
-        final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/backbones/backbone_large_formula.txt"));
+        final BufferedReader reader =
+                new BufferedReader(new FileReader("src/test/resources/backbones/backbone_large_formula.txt"));
         while (reader.ready()) {
             expectedBackbones.add(reader.readLine());
         }
@@ -157,12 +164,15 @@ public class BackboneFunctionTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     @LongRunningTag
-    public void testRealFormulaIncremental2(final SATSolver solver, final String solverDescription) throws IOException, ParserException {
+    public void testRealFormulaIncremental2(final SATSolver solver, final String solverDescription)
+            throws IOException, ParserException {
         final FormulaFactory f = solver.factory();
-        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
         solver.add(formula);
         final List<String> expectedBackbones = new ArrayList<>();
-        final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/backbones/backbone_small_formulas.txt"));
+        final BufferedReader reader =
+                new BufferedReader(new FileReader("src/test/resources/backbones/backbone_small_formulas.txt"));
         while (reader.ready()) {
             expectedBackbones.add(reader.readLine());
         }
@@ -198,13 +208,16 @@ public class BackboneFunctionTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     @LongRunningTag
-    public void testRealFormulaIncrementalDecremental1(final SATSolver solver, final String solverDescription) throws IOException, ParserException {
+    public void testRealFormulaIncrementalDecremental1(final SATSolver solver, final String solverDescription)
+            throws IOException, ParserException {
         final FormulaFactory f = solver.factory();
-        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         solver.add(formula);
         final SolverState state = solver.saveState();
         final List<String> expectedBackbones = new ArrayList<>();
-        final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/backbones/backbone_large_formula.txt"));
+        final BufferedReader reader =
+                new BufferedReader(new FileReader("src/test/resources/backbones/backbone_large_formula.txt"));
         while (reader.ready()) {
             expectedBackbones.add(reader.readLine());
         }
@@ -250,13 +263,16 @@ public class BackboneFunctionTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     @LongRunningTag
-    public void testRealFormulaIncrementalDecremental2(final SATSolver solver, final String solverDescription) throws IOException, ParserException {
+    public void testRealFormulaIncrementalDecremental2(final SATSolver solver, final String solverDescription)
+            throws IOException, ParserException {
         final FormulaFactory f = solver.factory();
-        final Formula formula = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
         solver.add(formula);
         final SolverState state = solver.saveState();
         final List<String> expectedBackbones = new ArrayList<>();
-        final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/backbones/backbone_small_formulas.txt"));
+        final BufferedReader reader =
+                new BufferedReader(new FileReader("src/test/resources/backbones/backbone_small_formulas.txt"));
         while (reader.ready()) {
             expectedBackbones.add(reader.readLine());
         }
@@ -305,10 +321,12 @@ public class BackboneFunctionTest {
         final SATSolver miniCard = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(true).build());
         miniCard.add(f.parse("v1 + v2 + v3 + v4 + v5 + v6 = 1"));
         miniCard.add(f.parse("v1234 + v50 + v60 = 1"));
-        miniCard.add(f.parse("(v1 => v1234) & (v2 => v1234) & (v3 => v1234) & (v4 => v1234) & (v5 => v50) & (v6 => v60)"));
+        miniCard.add(
+                f.parse("(v1 => v1234) & (v2 => v1234) & (v3 => v1234) & (v4 => v1234) & (v5 => v50) & (v6 => v60)"));
         miniCard.add(f.parse("~v6"));
         final Backbone backboneMC = miniCard.backbone(Arrays.asList(f.variable("v6"), f.variable("v60")));
-        Assertions.assertThat(backboneMC.getNegativeBackbone()).extracting(Variable::name).containsExactlyInAnyOrder("v6", "v60");
+        Assertions.assertThat(backboneMC.getNegativeBackbone()).extracting(Variable::name)
+                .containsExactlyInAnyOrder("v6", "v60");
     }
 
     private SortedSet<Variable> v(final String s, final FormulaFactory f) {

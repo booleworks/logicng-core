@@ -66,14 +66,16 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testFormula1(final FormulaContext _c) throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/formula1.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/formula1.txt");
         testFormula(formula);
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSimplifyFormulas(final FormulaContext _c) throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/simplify_formulas.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/simplify_formulas.txt");
         testFormula(formula);
     }
 
@@ -81,7 +83,8 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     @LongRunningTag
     public void testLargeFormula(final FormulaContext _c) throws IOException, ParserException {
-        final Formula formula = FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
+        final Formula formula =
+                FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
         testFormula(formula);
     }
 
@@ -107,7 +110,8 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
     public void testRandom() {
         for (int i = 0; i < 500; i++) {
             final FormulaFactory f = FormulaFactory.caching();
-            final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(20).weightPbc(2).seed(i * 42).build());
+            final FormulaRandomizer randomizer = new FormulaRandomizer(f,
+                    FormulaRandomizerConfig.builder().numVars(20).weightPbc(2).seed(i * 42).build());
             final Formula formula = randomizer.formula(4);
             testFormula(formula);
         }
@@ -115,7 +119,8 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
 
     @Test
     public void testCancellationPoints() throws ParserException, IOException {
-        final Formula formula = FormulaReader.readPropositionalFormula(FormulaFactory.nonCaching(), "src/test/resources/formulas/large_formula.txt");
+        final Formula formula = FormulaReader.readPropositionalFormula(FormulaFactory.nonCaching(),
+                "src/test/resources/formulas/large_formula.txt");
         for (int numStarts = 0; numStarts < 20; numStarts++) {
             final SATHandler handler = new BoundedSatHandler(numStarts);
             testFormula(formula, handler, true);

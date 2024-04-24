@@ -103,7 +103,8 @@ public class SimpleBDDTest extends TestWithFormulaContext {
                 new Model(_c.f.literal("A", false), _c.f.literal("B", true))
         );
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.ONE);
-        Assertions.assertThat(bdd.toLngBdd().toString()).isEqualTo("<A | low=<$true> high=<B | low=<$true> high=<$false>>>");
+        Assertions.assertThat(bdd.toLngBdd().toString())
+                .isEqualTo("<A | low=<$true> high=<B | low=<$true> high=<$false>>>");
     }
 
     @ParameterizedTest
@@ -121,7 +122,8 @@ public class SimpleBDDTest extends TestWithFormulaContext {
                 new Model(_c.f.literal("A", false), _c.f.literal("B", true))
         );
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.valueOf(2));
-        Assertions.assertThat(bdd.toLngBdd().toString()).isEqualTo("<A | low=<B | low=<$false> high=<$true>> high=<B | low=<$true> high=<$false>>>");
+        Assertions.assertThat(bdd.toLngBdd().toString())
+                .isEqualTo("<A | low=<B | low=<$false> high=<$true>> high=<B | low=<$true> high=<$false>>>");
     }
 
     @ParameterizedTest
@@ -144,7 +146,8 @@ public class SimpleBDDTest extends TestWithFormulaContext {
                 new Model(_c.f.literal("A", true), _c.f.literal("B", true), _c.f.literal("C", true))
         );
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.ONE);
-        Assertions.assertThat(bdd.toLngBdd().toString()).isEqualTo("<A | low=<B | low=<C | low=<$true> high=<$false>> high=<$true>> high=<$true>>");
+        Assertions.assertThat(bdd.toLngBdd().toString())
+                .isEqualTo("<A | low=<B | low=<C | low=<$true> high=<$false>> high=<$true>> high=<$true>>");
     }
 
     @ParameterizedTest
@@ -165,7 +168,8 @@ public class SimpleBDDTest extends TestWithFormulaContext {
                 new Model(f.literal("A", true), f.literal("B", true), f.literal("C", false))
         );
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.valueOf(3));
-        Assertions.assertThat(bdd.toLngBdd().toString()).isEqualTo("<A | low=<$false> high=<B | low=<$false> high=<C | low=<$true> high=<$false>>>>");
+        Assertions.assertThat(bdd.toLngBdd().toString())
+                .isEqualTo("<A | low=<$false> high=<B | low=<$false> high=<C | low=<$true> high=<$false>>>>");
     }
 
     @ParameterizedTest
@@ -182,7 +186,8 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         Assertions.assertThat(bdd.underlyingKernel().factory()).isSameAs(f);
         assertThat(bdd.enumerateAllModels()).hasSize(6);
         assertThat(bdd.enumerateAllModels(f.variable("A"))).hasSize(2);
-        assertThat(bdd.hashCode()).isEqualTo(BDDFactory.build(f, parser.parse("(A => ~C) | (B & ~C)"), kernel, null).hashCode());
+        assertThat(bdd.hashCode())
+                .isEqualTo(BDDFactory.build(f, parser.parse("(A => ~C) | (B & ~C)"), kernel, null).hashCode());
         assertThat(bdd.toString()).isEqualTo("BDD{8}");
     }
 

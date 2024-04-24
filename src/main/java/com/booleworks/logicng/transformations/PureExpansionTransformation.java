@@ -19,9 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Transformation of a formula to a formula with expanded at-most-one and exactly-one cardinality constraints.
- * Each sub-formula of the formula that is a pseudo-Boolean constraint of type AMO or EXO gets replaced by a pure encoding such that
- * the resulting formula is equivalent and free of pseudo-Boolean constraints.
+ * Transformation of a formula to a formula with expanded at-most-one and
+ * exactly-one cardinality constraints. Each sub-formula of the formula that is
+ * a pseudo-Boolean constraint of type AMO or EXO gets replaced by a pure
+ * encoding such that the resulting formula is equivalent and free of
+ * pseudo-Boolean constraints.
  * @version 3.0.0
  * @since 2.0.0
  */
@@ -68,7 +70,8 @@ public final class PureExpansionTransformation extends StatelessFormulaTransform
                     }
                     return f.and(encoding);
                 } else {
-                    throw new UnsupportedOperationException("Pure encoding for a PBC of type other than AMO or EXO is currently not supported.");
+                    throw new UnsupportedOperationException(
+                            "Pure encoding for a PBC of type other than AMO or EXO is currently not supported.");
                 }
             default:
                 throw new IllegalStateException("Unknown formula type: " + formula.type());

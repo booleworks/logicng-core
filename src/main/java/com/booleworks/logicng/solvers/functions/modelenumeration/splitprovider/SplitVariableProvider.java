@@ -21,9 +21,11 @@ public interface SplitVariableProvider {
     /**
      * Generates a set of split variables for a given formula.
      * <p>
-     * Such a set of split variables can then be used for the {@link ModelEnumerationFunction}.
+     * Such a set of split variables can then be used for the
+     * {@link ModelEnumerationFunction}.
      * @param solver    the solver
-     * @param variables the variables from which the split variables should be chosen
+     * @param variables the variables from which the split variables should be
+     *                  chosen
      * @return the split variables
      */
     SortedSet<Variable> getSplitVars(final SATSolver solver, final Collection<Variable> variables);

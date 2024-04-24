@@ -55,7 +55,8 @@ public class AssignmentTest extends TestWithFormulaContext {
         assertThat(new Assignment(List.of(_c.a)).formula(_c.f)).isEqualTo(_c.p.parse("a"));
         assertThat(new Assignment(List.of(_c.na)).formula(_c.f)).isEqualTo(_c.p.parse("~a"));
         assertThat(new Assignment(Arrays.asList(_c.a, _c.b)).formula(_c.f)).isEqualTo(_c.p.parse("a & b"));
-        assertThat(new Assignment(Arrays.asList(_c.a, _c.b, _c.nx, _c.ny)).formula(_c.f)).isEqualTo(_c.p.parse("a & b & ~x & ~y"));
+        assertThat(new Assignment(Arrays.asList(_c.a, _c.b, _c.nx, _c.ny)).formula(_c.f))
+                .isEqualTo(_c.p.parse("a & b & ~x & ~y"));
     }
 
     @ParameterizedTest
@@ -141,11 +142,15 @@ public class AssignmentTest extends TestWithFormulaContext {
         ass.addLiteral(c.b);
         ass.addLiteral(c.nx);
         ass.addLiteral(c.ny);
-        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode()).isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny).hashCode());
-        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode()).isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny).hashCode());
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode())
+                .isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny).hashCode());
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode())
+                .isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny).hashCode());
         assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode()).isEqualTo(ass.hashCode());
-        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode()).isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny).hashCode());
-        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode()).isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny).hashCode());
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode())
+                .isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny).hashCode());
+        assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode())
+                .isEqualTo(new Assignment(c.a, c.b, c.nx, c.ny).hashCode());
         assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode()).isEqualTo(ass.hashCode());
         assertThat(new Assignment(c.a, c.b, c.nx, c.ny).hashCode()).isEqualTo(ass.hashCode());
     }
@@ -176,7 +181,9 @@ public class AssignmentTest extends TestWithFormulaContext {
     public void testToString() {
         assertThat(new Assignment().toString()).isEqualTo("Assignment{pos=[], neg=[]}");
         assertThat(new Assignment(Collections.singletonList(c.a)).toString()).isEqualTo("Assignment{pos=[a], neg=[]}");
-        assertThat(new Assignment(Collections.singletonList(c.na)).toString()).isEqualTo("Assignment{pos=[], neg=[~a]}");
-        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny, c.c)).toString()).isEqualTo("Assignment{pos=[a, b, c], neg=[~x, ~y]}");
+        assertThat(new Assignment(Collections.singletonList(c.na)).toString())
+                .isEqualTo("Assignment{pos=[], neg=[~a]}");
+        assertThat(new Assignment(Arrays.asList(c.a, c.b, c.nx, c.ny, c.c)).toString())
+                .isEqualTo("Assignment{pos=[a, b, c], neg=[~x, ~y]}");
     }
 }

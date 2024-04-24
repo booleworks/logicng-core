@@ -36,7 +36,8 @@ public class DRUPTest implements LogicNGTest {
 
     private final FormulaFactory f = FormulaFactory.caching();
 
-    private final Supplier<SATSolver> solverSupplier = () -> SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).build());
+    private final Supplier<SATSolver> solverSupplier =
+            () -> SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).build());
 
     @Test
     @LongRunningTag
@@ -235,7 +236,8 @@ public class DRUPTest implements LogicNGTest {
 
     @Test
     public void testCoreAndAssumptions3() throws ParserException {
-        // Unit test for DRUP issue which led to java.lang.ArrayIndexOutOfBoundsException: -1
+        // Unit test for DRUP issue which led to
+        // java.lang.ArrayIndexOutOfBoundsException: -1
         final SATSolver solver = solverSupplier.get();
         final FormulaFactory f = solver.factory();
         solver.add(f.parse("X => Y"));
@@ -288,8 +290,10 @@ public class DRUPTest implements LogicNGTest {
     @Test
     public void testWithCcPropositions() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
-        final ExtendedProposition<StringBackpack> p1 = new ExtendedProposition<>(new StringBackpack("CC"), f.parse("A + B + C <= 1"));
+        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true)
+                .cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        final ExtendedProposition<StringBackpack> p1 =
+                new ExtendedProposition<>(new StringBackpack("CC"), f.parse("A + B + C <= 1"));
         final StandardProposition p2 = new StandardProposition(f.parse("A"));
         final StandardProposition p3 = new StandardProposition(f.parse("B"));
         final StandardProposition p4 = new StandardProposition(f.parse("X & Y"));
@@ -320,11 +324,13 @@ public class DRUPTest implements LogicNGTest {
         Assertions.assertThat(solver.sat()).isTrue();
         solver.add(f.variable("a"));
         Assertions.assertThat(solver.sat()).isFalse();
-        Assertions.assertThat(solver.satCall().unsatCore().propositions()).contains(p1, p2, p4, p5, p6, p7, p8, p9, p10, p11);
+        Assertions.assertThat(solver.satCall().unsatCore().propositions()).contains(p1, p2, p4, p5, p6, p7, p8, p9, p10,
+                p11);
     }
 
     /**
-     * Checks that each formula of the core is part of the original problem and that the core is really unsat.
+     * Checks that each formula of the core is part of the original problem and
+     * that the core is really unsat.
      * @param originalCore the original core
      * @param cnf          the original problem
      */

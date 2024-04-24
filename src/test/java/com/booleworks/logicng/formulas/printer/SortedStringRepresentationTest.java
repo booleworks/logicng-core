@@ -25,7 +25,8 @@ public class SortedStringRepresentationTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testFormulaComparator(final FormulaContext _c) {
         final List<Variable> varOrder = new ArrayList<>(Arrays.asList(_c.y, _c.x, _c.b, _c.a, _c.c));
-        final SortedStringRepresentation.FormulaComparator comparator = new SortedStringRepresentation.FormulaComparator(_c.f, varOrder);
+        final SortedStringRepresentation.FormulaComparator comparator =
+                new SortedStringRepresentation.FormulaComparator(_c.f, varOrder);
         assertThat(comparator.compare(_c.falsum, _c.verum)).isZero();
         assertThat(comparator.compare(_c.a, _c.a)).isZero();
         assertThat(comparator.compare(_c.a, _c.b)).isPositive();
@@ -59,7 +60,8 @@ public class SortedStringRepresentationTest extends TestWithFormulaContext {
         assertThat(_c.f.string(_c.f.or(_c.a, _c.b, _c.c, _c.x), sr)).isEqualTo("x | b | a | c");
         assertThat(_c.f.string(_c.pbc2, sr)).isEqualTo("3*x + -4*b + 2*a > 2");
         assertThat(_c.f.string(_c.f.and(_c.nb, _c.pbc1), sr)).isEqualTo("(3*x + -4*b + 2*a = 2) & ~b");
-        assertThat(_c.f.string(_c.f.pbc(CType.EQ, 42, new ArrayList<>(Arrays.asList(_c.a, _c.b)), new ArrayList<>(Arrays.asList(1, 1))), sr)).isEqualTo("b + a = 42");
+        assertThat(_c.f.string(_c.f.pbc(CType.EQ, 42, new ArrayList<>(Arrays.asList(_c.a, _c.b)),
+                new ArrayList<>(Arrays.asList(1, 1))), sr)).isEqualTo("b + a = 42");
         assertThat(_c.f.string(_c.f.pbc(CType.LT, 42, new ArrayList<>(), new ArrayList<>()), sr)).isEqualTo("$true");
         assertThat(_c.f.string(_c.f.pbc(CType.EQ, 42, new ArrayList<>(), new ArrayList<>()), sr)).isEqualTo("$false");
         assertThat(_c.f.string(_c.f.implication(_c.a, _c.f.exo()), sr)).isEqualTo("~a");
@@ -70,7 +72,8 @@ public class SortedStringRepresentationTest extends TestWithFormulaContext {
         assertThat(_c.f.string(_c.f.equivalence(_c.a, _c.f.amo()), sr)).isEqualTo("a");
         assertThat(_c.f.string(_c.f.and(_c.a, _c.f.amo()), sr)).isEqualTo("a");
         assertThat(_c.f.string(_c.f.or(_c.a, _c.f.amo()), sr)).isEqualTo("$true");
-        assertThat(_c.f.string(_c.f.or(_c.a, _c.f.amo(), _c.f.exo(), _c.f.equivalence(_c.f.amo(), _c.b)), sr)).isEqualTo("$true");
+        assertThat(_c.f.string(_c.f.or(_c.a, _c.f.amo(), _c.f.exo(), _c.f.equivalence(_c.f.amo(), _c.b)), sr))
+                .isEqualTo("$true");
 
         // some variables not in varOrder
         varOrder.remove(_c.x);
@@ -78,7 +81,8 @@ public class SortedStringRepresentationTest extends TestWithFormulaContext {
         assertThat(_c.f.string(_c.pbc2, sr)).isEqualTo("-4*b + 2*a + 3*x > 2");
 
         // empty varOrder
-        assertThat(_c.f.string(_c.eq3, new SortedStringRepresentation(_c.f, new ArrayList<>()))).isEqualTo("a & b <=> x | y");
+        assertThat(_c.f.string(_c.eq3, new SortedStringRepresentation(_c.f, new ArrayList<>())))
+                .isEqualTo("a & b <=> x | y");
     }
 
     @ParameterizedTest
@@ -86,7 +90,8 @@ public class SortedStringRepresentationTest extends TestWithFormulaContext {
     public void testViaFormulaFactoryConfig(final FormulaContext _c) {
         final List<Variable> varOrder = new ArrayList<>(Arrays.asList(_c.y, _c.x, _c.b, _c.a, _c.c));
         final FormulaStringRepresentation sr = new SortedStringRepresentation(_c.f, varOrder);
-        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().stringRepresentation(() -> sr).build());
+        final FormulaFactory f =
+                FormulaFactory.caching(FormulaFactoryConfig.builder().stringRepresentation(() -> sr).build());
         assertThat(f.importFormula(_c.eq4).toString()).isEqualTo("a => b <=> ~a => ~b");
     }
 }

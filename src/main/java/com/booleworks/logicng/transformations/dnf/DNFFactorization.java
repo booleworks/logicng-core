@@ -52,14 +52,15 @@ public final class DNFFactorization extends CacheableAndAbortableFormulaTransfor
     }
 
     /**
-     * Constructs a new transformation.  For all factory type the provided cache will be used.
-     * If it is null, no cache will be used.  The handler - if not null - is used for aborting
-     * the computation.
+     * Constructs a new transformation. For all factory type the provided cache
+     * will be used. If it is null, no cache will be used. The handler - if not
+     * null - is used for aborting the computation.
      * @param f       the formula factory to generate new formulas
      * @param cache   the cache to use for the transformation
      * @param handler the handler for the transformation
      */
-    public DNFFactorization(final FormulaFactory f, final FactorizationHandler handler, final Map<Formula, Formula> cache) {
+    public DNFFactorization(final FormulaFactory f, final FactorizationHandler handler,
+                            final Map<Formula, Formula> cache) {
         super(f, cache, handler);
     }
 

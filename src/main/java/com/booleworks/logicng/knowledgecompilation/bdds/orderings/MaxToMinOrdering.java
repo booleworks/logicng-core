@@ -14,9 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A BDD variable ordering sorting the variables from maximal to minimal occurrence
- * in the input formula.  If two variables have the same number of occurrences, their
- * ordering according to their DFS ordering will be considered.
+ * A BDD variable ordering sorting the variables from maximal to minimal
+ * occurrence in the input formula. If two variables have the same number of
+ * occurrences, their ordering according to their DFS ordering will be
+ * considered.
  * @version 3.0.0
  * @since 1.4.0
  */

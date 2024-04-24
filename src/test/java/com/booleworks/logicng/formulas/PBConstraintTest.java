@@ -290,7 +290,8 @@ public class PBConstraintTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testVariables(final FormulaContext _c) {
         final SortedSet<Variable> lits1 = new TreeSet<>(Collections.singletonList(_c.f.variable("a")));
-        final SortedSet<Variable> lits2 = new TreeSet<>(Arrays.asList(_c.f.variable("a"), _c.f.variable("b"), _c.f.variable("c")));
+        final SortedSet<Variable> lits2 =
+                new TreeSet<>(Arrays.asList(_c.f.variable("a"), _c.f.variable("b"), _c.f.variable("c")));
         assertThat(_c.pb1.variables(_c.f)).isEqualTo(lits1);
         assertThat(_c.pb1.variables(_c.f)).isEqualTo(lits1);
         assertThat(_c.pb2.variables(_c.f)).isEqualTo(lits2);
@@ -306,8 +307,10 @@ public class PBConstraintTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testLiterals(final FormulaContext _c) {
         final SortedSet<Variable> lits1 = new TreeSet<>(Collections.singletonList(_c.f.variable("a")));
-        final SortedSet<Literal> lits2 = new TreeSet<>(Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c")));
-        final SortedSet<Variable> litsCC2 = new TreeSet<>(Arrays.asList(_c.f.variable("a"), _c.f.variable("b"), _c.f.variable("c")));
+        final SortedSet<Literal> lits2 =
+                new TreeSet<>(Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c")));
+        final SortedSet<Variable> litsCC2 =
+                new TreeSet<>(Arrays.asList(_c.f.variable("a"), _c.f.variable("b"), _c.f.variable("c")));
         assertThat(_c.pb1.literals(_c.f)).isEqualTo(lits1);
         assertThat(_c.pb2.literals(_c.f)).isEqualTo(lits2);
         assertThat(_c.cc1.literals(_c.f)).isEqualTo(lits1);
@@ -411,7 +414,8 @@ public class PBConstraintTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testRestrictInequality(final FormulaContext _c) {
-        final List<Literal> lits = Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"), _c.f.variable("d"), _c.f.variable("e"),
+        final List<Literal> lits = Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"),
+                _c.f.variable("d"), _c.f.variable("e"),
                 _c.f.literal("f", false));
         final List<Integer> coeffs = Arrays.asList(75, 50, 201, -3, -24, 1);
         final PBConstraint pb1 = (PBConstraint) _c.f.pbc(CType.GE, -24, lits, coeffs);
@@ -501,12 +505,14 @@ public class PBConstraintTest extends TestWithFormulaContext {
         final PBConstraint pb5 = (PBConstraint) _c.f.pbc(CType.LE, 1, lits, coeffs);
         final PBConstraint pb6 = (PBConstraint) _c.f.pbc(CType.LT, 2, lits, coeffs);
         final PBConstraint pb7 = (PBConstraint) _c.f.pbc(CType.EQ, -2, lits, coeffs);
-        assertThat(pb1.negate(_c.f)).isEqualTo(_c.f.or(_c.f.pbc(CType.LT, 2, lits, coeffs), _c.f.pbc(CType.GT, 2, lits, coeffs)));
+        assertThat(pb1.negate(_c.f))
+                .isEqualTo(_c.f.or(_c.f.pbc(CType.LT, 2, lits, coeffs), _c.f.pbc(CType.GT, 2, lits, coeffs)));
         assertThat(pb3.negate(_c.f)).isEqualTo(_c.f.pbc(CType.LT, 1, lits, coeffs));
         assertThat(pb4.negate(_c.f)).isEqualTo(_c.f.pbc(CType.LE, 0, lits, coeffs));
         assertThat(pb5.negate(_c.f)).isEqualTo(_c.f.pbc(CType.GT, 1, lits, coeffs));
         assertThat(pb6.negate(_c.f)).isEqualTo(_c.f.pbc(CType.GE, 2, lits, coeffs));
-        assertThat(pb7.negate(_c.f)).isEqualTo(_c.f.or(_c.f.pbc(CType.LT, -2, lits, coeffs), _c.f.pbc(CType.GT, -2, lits, coeffs)));
+        assertThat(pb7.negate(_c.f))
+                .isEqualTo(_c.f.or(_c.f.pbc(CType.LT, -2, lits, coeffs), _c.f.pbc(CType.GT, -2, lits, coeffs)));
     }
 
     @ParameterizedTest
@@ -521,8 +527,9 @@ public class PBConstraintTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNormalization(final FormulaContext _c) {
-        final List<Literal> lits = Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"), _c.f.variable("d"),
-                _c.f.literal("b", false));
+        final List<Literal> lits =
+                Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"), _c.f.variable("d"),
+                        _c.f.literal("b", false));
         final List<Integer> coeffs = Arrays.asList(2, -3, 3, 0, 1);
         final PBConstraint pb1 = (PBConstraint) _c.f.pbc(CType.EQ, 2, lits, coeffs);
         final PBConstraint pb2 = (PBConstraint) _c.f.pbc(CType.GE, 1, lits, coeffs);
@@ -539,7 +546,8 @@ public class PBConstraintTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNormalizationTrivial(final FormulaContext _c) {
-        final List<Literal> lits = Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"), _c.f.variable("d"));
+        final List<Literal> lits =
+                Arrays.asList(_c.f.variable("a"), _c.f.literal("b", false), _c.f.variable("c"), _c.f.variable("d"));
         final List<Integer> coeffs = Arrays.asList(2, -2, 3, 0);
         final PBConstraint pb1 = (PBConstraint) _c.f.pbc(CType.LE, 4, lits, coeffs);
         final PBConstraint pb2 = (PBConstraint) _c.f.pbc(CType.LE, 5, lits, coeffs);
@@ -556,7 +564,8 @@ public class PBConstraintTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNormalizationSimplifications(final FormulaContext _c) {
-        List<? extends Literal> lits = Arrays.asList(_c.f.variable("a"), _c.f.variable("a"), _c.f.variable("c"), _c.f.variable("d"));
+        List<? extends Literal> lits =
+                Arrays.asList(_c.f.variable("a"), _c.f.variable("a"), _c.f.variable("c"), _c.f.variable("d"));
         List<Integer> coeffs = Arrays.asList(2, -2, 4, 4);
         final PBConstraint pb1 = (PBConstraint) _c.f.pbc(CType.LE, 4, lits, coeffs);
         assertThat(pb1.normalize(_c.f).toString()).isEqualTo("c + d <= 1");

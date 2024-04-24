@@ -58,9 +58,12 @@ public class GraphGraphicalGeneratorTest {
         for (long i = 0; i < 30; i++) {
             g.node(i);
         }
-        final GraphicalNodeStyle style1 = GraphicalNodeStyle.rectangle(GraphicalColor.GREEN, GraphicalColor.BLACK, GraphicalColor.GREEN);
-        final GraphicalNodeStyle style2 = GraphicalNodeStyle.ellipse(GraphicalColor.ORANGE, GraphicalColor.BLACK, GraphicalColor.ORANGE);
-        final GraphicalNodeStyle style3 = GraphicalNodeStyle.circle(GraphicalColor.RED, GraphicalColor.WHITE, GraphicalColor.RED);
+        final GraphicalNodeStyle style1 =
+                GraphicalNodeStyle.rectangle(GraphicalColor.GREEN, GraphicalColor.BLACK, GraphicalColor.GREEN);
+        final GraphicalNodeStyle style2 =
+                GraphicalNodeStyle.ellipse(GraphicalColor.ORANGE, GraphicalColor.BLACK, GraphicalColor.ORANGE);
+        final GraphicalNodeStyle style3 =
+                GraphicalNodeStyle.circle(GraphicalColor.RED, GraphicalColor.WHITE, GraphicalColor.RED);
 
         final NodeStyleMapper<Long> mapper = (l) -> {
             if (l <= 10) {
@@ -101,7 +104,8 @@ public class GraphGraphicalGeneratorTest {
         testFiles("50p1", g, GraphGraphicalGenerator.<Long>builder().build());
     }
 
-    private <T> void testFiles(final String fileName, final Graph<T> g, final GraphGraphicalGenerator<T> generator) throws IOException {
+    private <T> void testFiles(final String fileName, final Graph<T> g, final GraphGraphicalGenerator<T> generator)
+            throws IOException {
         final GraphicalRepresentation representation = generator.translate(g);
         representation.write("src/test/resources/writers/temp/" + fileName + ".dot", GraphicalDotWriter.get());
         representation.write("src/test/resources/writers/temp/" + fileName + ".txt", GraphicalMermaidWriter.get());

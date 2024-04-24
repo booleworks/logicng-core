@@ -48,8 +48,8 @@ public interface Formula extends Iterable<Formula> {
     FormulaFactory factory();
 
     /**
-     * Returns the number of atomic formulas of this formula.  An atomic formula is a predicate (constants and literals)
-     * or a pseudo-Boolean constraint.
+     * Returns the number of atomic formulas of this formula. An atomic formula
+     * is a predicate (constants and literals) or a pseudo-Boolean constraint.
      * @param f the formula factory to use for caching
      * @return the number of atomic formulas of this formula.
      */
@@ -82,19 +82,22 @@ public interface Formula extends Iterable<Formula> {
 
     /**
      * Returns whether this formula is a constant formula ("True" or "False").
-     * @return {@code true} if this formula is a constant formula, {@code false} otherwise
+     * @return {@code true} if this formula is a constant formula, {@code false}
+     *         otherwise
      */
     boolean isConstantFormula();
 
     /**
-     * Returns whether this formula is an atomic formula (constant, literal, pseudo Boolean constraint), or not.
-     * @return {@code true} if this formula is an atomic formula, {@code false} otherwise
+     * Returns whether this formula is an atomic formula (constant, literal,
+     * pseudo Boolean constraint), or not.
+     * @return {@code true} if this formula is an atomic formula, {@code false}
+     *         otherwise
      */
     boolean isAtomicFormula();
 
     /**
-     * Returns all variables occurring in this formula.  Returns an unmodifiable set, so do not try to change the variable
-     * set manually.
+     * Returns all variables occurring in this formula. Returns an unmodifiable
+     * set, so do not try to change the variable set manually.
      * @param f the formula factory to use for caching
      * @return all variables occurring in this formula
      */
@@ -103,8 +106,8 @@ public interface Formula extends Iterable<Formula> {
     }
 
     /**
-     * Returns all literals occurring in this formula.  Returns an unmodifiable set, so do not try to change the literal
-     * set manually.
+     * Returns all literals occurring in this formula. Returns an unmodifiable
+     * set, so do not try to change the literal set manually.
      * @param f the formula factory to use for caching
      * @return all literals occurring in this formula
      */
@@ -113,22 +116,25 @@ public interface Formula extends Iterable<Formula> {
     }
 
     /**
-     * Returns {@code true} if a given variable name is found in this formula, {@code false} otherwise.
+     * Returns {@code true} if a given variable name is found in this formula,
+     * {@code false} otherwise.
      * @param variable the variable to search for
      * @return {@code true} if a given variable is found in this formula
      */
     boolean containsVariable(final Variable variable);
 
     /**
-     * Evaluates this formula with a given assignment.  A literal not covered by the assignment evaluates
-     * to {@code false} if it is positive, otherwise it evaluates to {@code true}.
+     * Evaluates this formula with a given assignment. A literal not covered by
+     * the assignment evaluates to {@code false} if it is positive, otherwise it
+     * evaluates to {@code true}.
      * @param assignment the given assignment
      * @return the result of the evaluation, {@code true} or {@code false}
      */
     boolean evaluate(final Assignment assignment);
 
     /**
-     * Restricts this formula with a given assignment and a formula factory that generates new formulas.
+     * Restricts this formula with a given assignment and a formula factory that
+     * generates new formulas.
      * @param f          the formula factory to generate new formulas
      * @param assignment the given assignment
      * @return a new restricted formula
@@ -136,9 +142,11 @@ public interface Formula extends Iterable<Formula> {
     Formula restrict(final FormulaFactory f, final Assignment assignment);
 
     /**
-     * Returns {@code true} if this formula contains a given node, {@code false} otherwise.
+     * Returns {@code true} if this formula contains a given node, {@code false}
+     * otherwise.
      * <p>
-     * In particular, a {@code Literal} node {@code ~a} does NOT contain the node {@code a}.
+     * In particular, a {@code Literal} node {@code ~a} does NOT contain the
+     * node {@code a}.
      * @param formula the node
      * @return {@code true} if this formula contains a given node
      */
@@ -175,7 +183,8 @@ public interface Formula extends Iterable<Formula> {
     }
 
     /**
-     * Performs a simultaneous substitution on this formula given a single mapping from variable to formula.
+     * Performs a simultaneous substitution on this formula given a single
+     * mapping from variable to formula.
      * @param f        the formula factory to generate new formulas
      * @param variable the variable
      * @param formula  the formula
@@ -212,20 +221,24 @@ public interface Formula extends Iterable<Formula> {
     }
 
     /**
-     * Returns a copy of this formula which is in CNF.  The algorithm which is used for the default CNF transformation
-     * can be configured in the {@link FormulaFactory}.
+     * Returns a copy of this formula which is in CNF. The algorithm which is
+     * used for the default CNF transformation can be configured in the
+     * {@link FormulaFactory}.
      * <p>
-     * Be aware that the default algorithm for the CNF transformation may result in a CNF containing additional auxiliary
-     * variables with prefix {@value FormulaFactory#CNF_PREFIX}.  Also, the result may not be a semantically equivalent CNF
-     * but an equisatisfiable CNF.
+     * Be aware that the default algorithm for the CNF transformation may result
+     * in a CNF containing additional auxiliary variables with prefix
+     * {@value FormulaFactory#CNF_PREFIX}. Also, the result may not be a
+     * semantically equivalent CNF but an equisatisfiable CNF.
      * <p>
-     * If the introduction of auxiliary variables is unwanted, you can choose one of the algorithms
-     * {@link CNFConfig.Algorithm#FACTORIZATION} and
-     * {@link CNFConfig.Algorithm#BDD}.  Both algorithms provide CNF conversions without
-     * the introduction of auxiliary variables and the result is a semantically equivalent CNF.
+     * If the introduction of auxiliary variables is unwanted, you can choose
+     * one of the algorithms {@link CNFConfig.Algorithm#FACTORIZATION} and
+     * {@link CNFConfig.Algorithm#BDD}. Both algorithms provide CNF conversions
+     * without the introduction of auxiliary variables and the result is a
+     * semantically equivalent CNF.
      * <p>
-     * Since CNF is the input for the SAT or MaxSAT solvers, it has a special treatment here.  For other conversions, use
-     * the according formula functions.
+     * Since CNF is the input for the SAT or MaxSAT solvers, it has a special
+     * treatment here. For other conversions, use the according formula
+     * functions.
      * @param f the formula factory to generate new formulas
      * @return a copy of this formula which is in CNF
      */
@@ -234,88 +247,102 @@ public interface Formula extends Iterable<Formula> {
     }
 
     /**
-     * Returns whether this formula is satisfiable.
-     * A new SAT solver is used to check the satisfiability. This is a convenience method for the
-     * predicate {@link SATPredicate}. If you want to
-     * have more influence on the solver (e.g. which solver type or configuration) you must create and
-     * use a {@link SATSolver} on your own.
+     * Returns whether this formula is satisfiable. A new SAT solver is used to
+     * check the satisfiability. This is a convenience method for the predicate
+     * {@link SATPredicate}. If you want to have more influence on the solver
+     * (e.g. which solver type or configuration) you must create and use a
+     * {@link SATSolver} on your own.
      * @param f the formula factory to use for caching
-     * @return {@code true} when this formula is satisfiable, {@code false} otherwise
+     * @return {@code true} when this formula is satisfiable, {@code false}
+     *         otherwise
      */
     default boolean isSatisfiable(final FormulaFactory f) {
         return holds(new SATPredicate(f));
     }
 
     /**
-     * Returns whether this formula is a tautology, hence always true.
-     * A new SAT solver is used to check the tautology. This is a convenience method for the
-     * predicate {@link TautologyPredicate}. If you want to
-     * have more influence on the solver (e.g. which solver type or configuration) you must create and
-     * use a {@link SATSolver} on your own.
+     * Returns whether this formula is a tautology, hence always true. A new SAT
+     * solver is used to check the tautology. This is a convenience method for
+     * the predicate {@link TautologyPredicate}. If you want to have more
+     * influence on the solver (e.g. which solver type or configuration) you
+     * must create and use a {@link SATSolver} on your own.
      * @param f the formula factory to use for caching
-     * @return {@code true} when this formula is a tautology, {@code false} otherwise
+     * @return {@code true} when this formula is a tautology, {@code false}
+     *         otherwise
      */
     default boolean isTautology(final FormulaFactory f) {
         return holds(new TautologyPredicate(f));
     }
 
     /**
-     * Returns whether this formula is a contradiction, hence always false.
-     * A new SAT solver is used to check the contradiction. This is a convenience method for the
-     * predicate {@link ContradictionPredicate}. If you want to
-     * have more influence on the solver (e.g. which solver type or configuration) you must create and
-     * use a {@link SATSolver} on your own.
+     * Returns whether this formula is a contradiction, hence always false. A
+     * new SAT solver is used to check the contradiction. This is a convenience
+     * method for the predicate {@link ContradictionPredicate}. If you want to
+     * have more influence on the solver (e.g. which solver type or
+     * configuration) you must create and use a {@link SATSolver} on your own.
      * @param f the formula factory to use for caching
-     * @return {@code true} when this formula is a contradiction, {@code false} otherwise
+     * @return {@code true} when this formula is a contradiction, {@code false}
+     *         otherwise
      */
     default boolean isContradiction(final FormulaFactory f) {
         return holds(new ContradictionPredicate(f));
     }
 
     /**
-     * Returns whether this formula implies the given other formula, i.e. `this =&gt; other` is a tautology.
-     * A new SAT solver is used to check this tautology. This is a convenience method. If you want to
-     * have more influence on the solver (e.g. which solver type or configuration) you must create and
-     * use a {@link SATSolver} on your own.
+     * Returns whether this formula implies the given other formula, i.e. `this
+     * =&gt; other` is a tautology. A new SAT solver is used to check this
+     * tautology. This is a convenience method. If you want to have more
+     * influence on the solver (e.g. which solver type or configuration) you
+     * must create and use a {@link SATSolver} on your own.
      * @param f     the formula factory to use for caching
-     * @param other the formula which should be checked if it is implied by this formula
-     * @return {@code true} when this formula implies the given other formula, {@code false} otherwise
+     * @param other the formula which should be checked if it is implied by this
+     *              formula
+     * @return {@code true} when this formula implies the given other formula,
+     *         {@code false} otherwise
      */
     default boolean implies(final FormulaFactory f, final Formula other) {
         return f.implication(this, other).holds(new TautologyPredicate(f));
     }
 
     /**
-     * Returns whether this formula is implied by the given other formula, i.e. `other =&gt; this` is a tautology.
-     * A new SAT solver is used to check this tautology. This is a convenience method. If you want to
-     * have more influence on the solver (e.g. which solver type or configuration) you must create and
-     * use a {@link SATSolver} on your own.
+     * Returns whether this formula is implied by the given other formula, i.e.
+     * `other =&gt; this` is a tautology. A new SAT solver is used to check this
+     * tautology. This is a convenience method. If you want to have more
+     * influence on the solver (e.g. which solver type or configuration) you
+     * must create and use a {@link SATSolver} on your own.
      * @param f     the formula factory to use for caching
-     * @param other the formula which should be checked if it implies this formula
-     * @return {@code true} when this formula is implied by the given other formula, {@code false} otherwise
+     * @param other the formula which should be checked if it implies this
+     *              formula
+     * @return {@code true} when this formula is implied by the given other
+     *         formula, {@code false} otherwise
      */
     default boolean isImpliedBy(final FormulaFactory f, final Formula other) {
         return f.implication(other, this).holds(new TautologyPredicate(f));
     }
 
     /**
-     * Returns whether this formula is equivalent to the given other formula, i.e. `other &lt;=&gt; this` is a tautology.
-     * A new SAT solver is used to check this tautology. This is a convenience method. If you want to
-     * have more influence on the solver (e.g. which solver type or configuration) you must create and
-     * use a {@link SATSolver} on your own.
+     * Returns whether this formula is equivalent to the given other formula,
+     * i.e. `other &lt;=&gt; this` is a tautology. A new SAT solver is used to
+     * check this tautology. This is a convenience method. If you want to have
+     * more influence on the solver (e.g. which solver type or configuration)
+     * you must create and use a {@link SATSolver} on your own.
      * @param f     the formula factory to use for caching
-     * @param other the formula which should be checked if it is equivalent with this formula
-     * @return {@code true} when this formula is equivalent to the given other formula, {@code false} otherwise
+     * @param other the formula which should be checked if it is equivalent with
+     *              this formula
+     * @return {@code true} when this formula is equivalent to the given other
+     *         formula, {@code false} otherwise
      */
     default boolean isEquivalentTo(final FormulaFactory f, final Formula other) {
         return f.equivalence(this, other).holds(new TautologyPredicate(f));
     }
 
     /**
-     * Generates a BDD from this formula with a given variable ordering.  This is done by generating a new BDD factory,
-     * generating the variable order for this formula, and building a new BDD.  If more sophisticated operations should
-     * be performed on the BDD or more than one formula should be constructed on the BDD, an own instance of
-     * {@link BDDFactory} should be created and used.
+     * Generates a BDD from this formula with a given variable ordering. This is
+     * done by generating a new BDD factory, generating the variable order for
+     * this formula, and building a new BDD. If more sophisticated operations
+     * should be performed on the BDD or more than one formula should be
+     * constructed on the BDD, an own instance of {@link BDDFactory} should be
+     * created and used.
      * @param f        the formula factory to generate new formulas
      * @param provider the variable ordering provider
      * @return the BDD for this formula with the given ordering
@@ -333,9 +360,11 @@ public interface Formula extends Iterable<Formula> {
     }
 
     /**
-     * Generates a BDD from this formula with no given variable ordering.  This is done by generating a new BDD factory
-     * and building a new BDD.  If more sophisticated operations should be performed on the BDD or more than one
-     * formula should be constructed on the BDD, an own instance of * {@link BDDFactory} should be created and used.
+     * Generates a BDD from this formula with no given variable ordering. This
+     * is done by generating a new BDD factory and building a new BDD. If more
+     * sophisticated operations should be performed on the BDD or more than one
+     * formula should be constructed on the BDD, an own instance of *
+     * {@link BDDFactory} should be created and used.
      * @param f the formula factory to generate new formulas
      * @return the BDD for this formula
      */
@@ -353,8 +382,8 @@ public interface Formula extends Iterable<Formula> {
     }
 
     /**
-     * Evaluates a given predicate on this formula, caches the result, and returns {@code true} if the predicate holds,
-     * {@code false} otherwise.
+     * Evaluates a given predicate on this formula, caches the result, and
+     * returns {@code true} if the predicate holds, {@code false} otherwise.
      * @param predicate the predicate
      * @return {@code true} if the predicate holds, {@code false} otherwise
      */
@@ -375,9 +404,10 @@ public interface Formula extends Iterable<Formula> {
     /**
      * Returns a stream of this formula's operands.
      * <p>
-     * Most times streams have worse performance then iterating over the formula per iterator.
-     * Since internally formulas store their operands, a costly call to {@code Arrays.stream()}
-     * is necessary.  So if performance matters - avoid using streams.
+     * Most times streams have worse performance then iterating over the formula
+     * per iterator. Since internally formulas store their operands, a costly
+     * call to {@code Arrays.stream()} is necessary. So if performance matters -
+     * avoid using streams.
      * @return the stream
      */
     Stream<Formula> stream();

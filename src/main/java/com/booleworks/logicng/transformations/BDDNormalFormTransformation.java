@@ -15,7 +15,8 @@ import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
 import java.util.Map;
 
 /**
- * Transformation of a formula in a normal form (DNF or CNF) by converting it to a BDD.
+ * Transformation of a formula in a normal form (DNF or CNF) by converting it to
+ * a BDD.
  * @version 3.0.0
  * @since 2.3.0
  */
@@ -24,13 +25,15 @@ public abstract class BDDNormalFormTransformation extends CacheableAndStatefulFo
     private final boolean cnf;
 
     /**
-     * Constructs a new BDD-based normal form transformation with an optional BDD kernel.
+     * Constructs a new BDD-based normal form transformation with an optional
+     * BDD kernel.
      * <p>
-     * Warning: You can use this object for arbitrarily many transformations, <b>but</b>
-     * the number of different variables in all applied formulas <b>must not exceed</b>
-     * the number of variables in the kernel.
+     * Warning: You can use this object for arbitrarily many transformations,
+     * <b>but</b> the number of different variables in all applied formulas
+     * <b>must not exceed</b> the number of variables in the kernel.
      * @param f      the formula factory to generate new formulas
-     * @param cnf    true when a CNF transformation, false for a DNF transformation
+     * @param cnf    true when a CNF transformation, false for a DNF
+     *               transformation
      * @param kernel the optional BDD kernel
      */
     public BDDNormalFormTransformation(final FormulaFactory f, final boolean cnf, final BDDKernel kernel) {
@@ -39,17 +42,20 @@ public abstract class BDDNormalFormTransformation extends CacheableAndStatefulFo
     }
 
     /**
-     * Constructs a new BDD-based normal form transformation with an optional BDD kernel.
+     * Constructs a new BDD-based normal form transformation with an optional
+     * BDD kernel.
      * <p>
-     * Warning: You can use this object for arbitrarily many transformations, <b>but</b>
-     * the number of different variables in all applied formulas <b>must not exceed</b>
-     * the number of variables in the kernel.
+     * Warning: You can use this object for arbitrarily many transformations,
+     * <b>but</b> the number of different variables in all applied formulas
+     * <b>must not exceed</b> the number of variables in the kernel.
      * @param f      the formula factory to generate new formulas
-     * @param cnf    true when a CNF transformation, false for a DNF transformation
+     * @param cnf    true when a CNF transformation, false for a DNF
+     *               transformation
      * @param kernel the optional BDD kernel
      * @param cache  the cache to use for the transformation
      */
-    public BDDNormalFormTransformation(final FormulaFactory f, final boolean cnf, final BDDKernel kernel, final Map<Formula, Formula> cache) {
+    public BDDNormalFormTransformation(final FormulaFactory f, final boolean cnf, final BDDKernel kernel,
+                                       final Map<Formula, Formula> cache) {
         super(f, cache, kernel);
         this.cnf = cnf;
     }
@@ -77,7 +83,8 @@ public abstract class BDDNormalFormTransformation extends CacheableAndStatefulFo
         if (cnf) {
             simplifiedNormalForm = normalForm.transform(up);
         } else {
-            // unit propagation simplification creates a CNF, so we use the negated DNF to negate the result back to DNF again
+            // unit propagation simplification creates a CNF, so we use the
+            // negated DNF to negate the result back to DNF again
             simplifiedNormalForm = normalForm.negate(f).nnf(f).transform(up).negate(f).nnf(f);
         }
         setCache(formula, simplifiedNormalForm);

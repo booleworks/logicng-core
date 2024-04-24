@@ -12,16 +12,18 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 /**
- * A function that computes all sub-nodes of a given formula.  The order of the sub-nodes is bottom-up, i.e. a
- * sub-node only appears in the result when all of its sub-nodes are already listed.
+ * A function that computes all sub-nodes of a given formula. The order of the
+ * sub-nodes is bottom-up, i.e. a sub-node only appears in the result when all
+ * of its sub-nodes are already listed.
  * @version 3.0.0
  * @since 1.0
  */
 public final class SubNodeFunction extends CacheableFormulaFunction<LinkedHashSet<Formula>> {
 
     /**
-     * Constructs a new function.  For a caching formula factory, the cache of the factory will be used,
-     * for a non-caching formula factory no cache will be used.
+     * Constructs a new function. For a caching formula factory, the cache of
+     * the factory will be used, for a non-caching formula factory no cache will
+     * be used.
      * @param f the formula factory to generate new formulas
      */
     public SubNodeFunction(final FormulaFactory f) {
@@ -29,8 +31,8 @@ public final class SubNodeFunction extends CacheableFormulaFunction<LinkedHashSe
     }
 
     /**
-     * Constructs a new function.  For all factory type the provided cache will be used.
-     * If it is null, no cache will be used.
+     * Constructs a new function. For all factory type the provided cache will
+     * be used. If it is null, no cache will be used.
      * @param f     the formula factory to generate new formulas
      * @param cache the cache to use for the transformation
      */

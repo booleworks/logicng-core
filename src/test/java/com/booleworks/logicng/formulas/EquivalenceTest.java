@@ -107,21 +107,24 @@ public class EquivalenceTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testEqualsDifferentFormulaFactory(final FormulaContext _c) {
-        FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        FormulaFactory g = FormulaFactory.caching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         assertThat(g.equivalence(g.variable("a"), g.variable("b"))).isEqualTo(_c.eq1);
         assertThat(g.equivalence(_c.b, _c.a)).isEqualTo(_c.eq1);
         assertThat(g.equivalence(_c.and1, _c.or1)).isEqualTo(_c.eq3);
         assertThat(g.equivalence(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.eq1);
         assertThat(g.equivalence(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.eq1);
 
-        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         assertThat(g.equivalence(g.variable("a"), g.variable("b"))).isEqualTo(_c.eq1);
         assertThat(g.equivalence(_c.b, _c.a)).isEqualTo(_c.eq1);
         assertThat(g.equivalence(_c.and1, _c.or1)).isEqualTo(_c.eq3);
         assertThat(g.equivalence(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.eq1);
         assertThat(g.equivalence(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.eq1);
 
-        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder().formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT).build());
+        g = FormulaFactory.nonCaching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT).build());
         assertThat(g.equivalence(g.variable("a"), g.variable("b"))).isEqualTo(_c.eq1);
         assertThat(g.equivalence(_c.b, _c.a)).isEqualTo(_c.eq1);
         assertThat(g.equivalence(_c.and1, _c.or1)).isEqualTo(_c.eq3);

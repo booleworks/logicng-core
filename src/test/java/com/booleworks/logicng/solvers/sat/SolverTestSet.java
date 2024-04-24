@@ -19,19 +19,24 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public interface SolverTestSet {
-    static List<Arguments> solverTestSetForParameterizedTests(final Collection<SATSolverConfigParam> variance, final FormulaFactory f) {
-        return solverTestSet(variance, f).stream().map(s -> Arguments.of(s, solverDescription(s, variance))).collect(Collectors.toList());
+    static List<Arguments> solverTestSetForParameterizedTests(final Collection<SATSolverConfigParam> variance,
+                                                              final FormulaFactory f) {
+        return solverTestSet(variance, f).stream().map(s -> Arguments.of(s, solverDescription(s, variance)))
+                .collect(Collectors.toList());
     }
 
-    static List<Arguments> solverSupplierTestSetForParameterizedTests(final Collection<SATSolverConfigParam> variance, final FormulaFactory f) {
-        return solverSupplierTestSet(variance, f).stream().map(s -> Arguments.of(s, solverDescription(s.get(), variance))).collect(Collectors.toList());
+    static List<Arguments> solverSupplierTestSetForParameterizedTests(final Collection<SATSolverConfigParam> variance,
+                                                                      final FormulaFactory f) {
+        return solverSupplierTestSet(variance, f).stream()
+                .map(s -> Arguments.of(s, solverDescription(s.get(), variance))).collect(Collectors.toList());
     }
 
     static List<SATSolver> solverTestSet(final Collection<SATSolverConfigParam> variance, final FormulaFactory f) {
         return solverSupplierTestSet(variance, f).stream().map(Supplier::get).collect(Collectors.toList());
     }
 
-    static List<Supplier<SATSolver>> solverSupplierTestSet(final Collection<SATSolverConfigParam> variance, final FormulaFactory f) {
+    static List<Supplier<SATSolver>> solverSupplierTestSet(final Collection<SATSolverConfigParam> variance,
+                                                           final FormulaFactory f) {
         List<SATSolverConfig> currentList = List.of(SATSolverConfig.builder().build());
         if (variance.contains(SATSolverConfigParam.PROOF_GENERATION)) {
             currentList = currentList.stream().flatMap(config -> Stream.of(
@@ -65,7 +70,8 @@ public interface SolverTestSet {
                     SATSolverConfig.copy(config).clauseMinimization(DEEP).build()
             )).collect(Collectors.toList());
         }
-        return currentList.stream().map(config -> (Supplier<SATSolver>) () -> SATSolver.newSolver(f, config)).collect(Collectors.toList());
+        return currentList.stream().map(config -> (Supplier<SATSolver>) () -> SATSolver.newSolver(f, config))
+                .collect(Collectors.toList());
     }
 
     static String solverDescription(final SATSolver s, final Collection<SATSolverConfigParam> variance) {

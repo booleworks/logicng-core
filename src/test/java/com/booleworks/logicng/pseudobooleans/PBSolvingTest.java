@@ -48,14 +48,22 @@ public class PBSolvingTest implements LogicNGTest {
         solverSuppliers = SolverTestSet.solverSupplierTestSet(Set.of(USE_AT_MOST_CLAUSES), f);
         configs = new PBConfig[]{
                 PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.SWC).build(),
-                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true).binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(true).build(),
-                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true).binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(false).build(),
-                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true).binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(true).build(),
-                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true).binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(false).build(),
-                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(true).build(),
-                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(false).build(),
-                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(true).build(),
-                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false).binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(false).build(),
+                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true)
+                        .binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(true).build(),
+                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true)
+                        .binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(false).build(),
+                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true)
+                        .binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(true).build(),
+                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true)
+                        .binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(false).build(),
+                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false)
+                        .binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(true).build(),
+                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false)
+                        .binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(false).build(),
+                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false)
+                        .binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(true).build(),
+                PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false)
+                        .binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(false).build(),
                 PBConfig.builder().pbEncoding(PBConfig.PB_ENCODER.ADDER_NETWORKS).build(),
         };
     }
@@ -317,35 +325,40 @@ public class PBSolvingTest implements LogicNGTest {
                 final PBConstraint pbc = (PBConstraint) f.pbc(CType.EQ, 2, literals10, coeffs10);
                 solver.add(PBEncoder.encode(f, pbc, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(45).allMatch(m -> pbc.evaluate(m.assignment()));
+                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(45)
+                        .allMatch(m -> pbc.evaluate(m.assignment()));
                 solver = solverSupplier.get();
 
                 coeffs10 = new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, -2};
                 final PBConstraint pbc2 = (PBConstraint) f.pbc(CType.EQ, 4, literals10, coeffs10);
                 solver.add(PBEncoder.encode(f, pbc2, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(120).allMatch(m -> pbc2.evaluate(m.assignment()));
+                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(120)
+                        .allMatch(m -> pbc2.evaluate(m.assignment()));
                 solver = solverSupplier.get();
 
                 coeffs10 = new int[]{2, 2, -3, 2, -7, 2, 2, 2, 2, -2};
                 final PBConstraint pbc3 = (PBConstraint) f.pbc(CType.EQ, 4, literals10, coeffs10);
                 solver.add(PBEncoder.encode(f, pbc3, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(57).allMatch(m -> pbc3.evaluate(m.assignment()));
+                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(57)
+                        .allMatch(m -> pbc3.evaluate(m.assignment()));
                 solver = solverSupplier.get();
 
                 coeffs10 = new int[]{2, 2, -3, 2, -7, 2, 2, 2, 2, -2};
                 final PBConstraint pbc4 = (PBConstraint) f.pbc(CType.EQ, -10, literals10, coeffs10);
                 solver.add(PBEncoder.encode(f, pbc4, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(8).allMatch(m -> pbc4.evaluate(m.assignment()));
+                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(8)
+                        .allMatch(m -> pbc4.evaluate(m.assignment()));
                 solver = solverSupplier.get();
 
                 coeffs10 = new int[]{2, 2, -4, 2, -6, 2, 2, 2, 2, -2};
                 final PBConstraint pbc5 = (PBConstraint) f.pbc(CType.EQ, -12, literals10, coeffs10);
                 solver.add(PBEncoder.encode(f, pbc5, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(1).allMatch(m -> pbc5.evaluate(m.assignment()));
+                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(1)
+                        .allMatch(m -> pbc5.evaluate(m.assignment()));
             }
         }
     }
@@ -366,7 +379,7 @@ public class PBSolvingTest implements LogicNGTest {
                 final PBConstraint pbc = (PBConstraint) f.pbc(CType.GE, 5000, lits, coeffs);
                 solver.add(PBEncoder.encode(f, pbc, config));
                 assertSolverSat(solver);
-            assertThat(pbc.evaluate(solver.satCall().model(Arrays.asList(lits)))).isTrue();
+                assertThat(pbc.evaluate(solver.satCall().model(Arrays.asList(lits)))).isTrue();
             }
         }
     }

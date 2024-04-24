@@ -60,7 +60,8 @@ public class BDD {
     /**
      * Returns the index of this BDD.
      * <p>
-     * The index marks the entry point of this BDD in the {@link #underlyingKernel() underlying kernel}.
+     * The index marks the entry point of this BDD in the
+     * {@link #underlyingKernel() underlying kernel}.
      * @return the index of this BDD
      */
     public int index() {
@@ -68,7 +69,8 @@ public class BDD {
     }
 
     /**
-     * Returns the BDD Kernel of this factory.  The Kernel should only be accessed when you know, what you are doing.
+     * Returns the BDD Kernel of this factory. The Kernel should only be
+     * accessed when you know, what you are doing.
      * @return the BDD Kernel
      */
     public BDDKernel underlyingKernel() {
@@ -86,7 +88,8 @@ public class BDD {
     }
 
     /**
-     * Returns a formula representation of this BDD.  This is done by using the Shannon expansion.
+     * Returns a formula representation of this BDD. This is done by using the
+     * Shannon expansion.
      * @return the formula for this BDD
      */
     public Formula toFormula() {
@@ -94,7 +97,8 @@ public class BDD {
     }
 
     /**
-     * Returns a formula representation of this BDD.  This is done by using the Shannon expansion.
+     * Returns a formula representation of this BDD. This is done by using the
+     * Shannon expansion.
      * @param f the formula factory to generate new formulas
      * @return the formula for this BDD
      */
@@ -103,11 +107,14 @@ public class BDD {
     }
 
     /**
-     * Returns a formula representation of this BDD.  This is done by using the Shannon expansion.
-     * If {@code followPathsToTrue} is activated, the paths leading to the {@code true} terminal are followed to generate the formula.
-     * If {@code followPathsToTrue} is deactivated, the paths leading to the {@code false} terminal are followed to generate the formula and the resulting formula is negated.
-     * Depending on the formula and the number of satisfying assignments, the generated formula can be more compact using the {@code true} paths
-     * or {@code false} paths, respectively.
+     * Returns a formula representation of this BDD. This is done by using the
+     * Shannon expansion. If {@code followPathsToTrue} is activated, the paths
+     * leading to the {@code true} terminal are followed to generate the
+     * formula. If {@code followPathsToTrue} is deactivated, the paths leading
+     * to the {@code false} terminal are followed to generate the formula and
+     * the resulting formula is negated. Depending on the formula and the number
+     * of satisfying assignments, the generated formula can be more compact
+     * using the {@code true} paths or {@code false} paths, respectively.
      * @param followPathsToTrue the extraction style
      * @return the formula for this BDD
      */
@@ -116,11 +123,14 @@ public class BDD {
     }
 
     /**
-     * Returns a formula representation of this BDD.  This is done by using the Shannon expansion.
-     * If {@code followPathsToTrue} is activated, the paths leading to the {@code true} terminal are followed to generate the formula.
-     * If {@code followPathsToTrue} is deactivated, the paths leading to the {@code false} terminal are followed to generate the formula and the resulting formula is negated.
-     * Depending on the formula and the number of satisfying assignments, the generated formula can be more compact using the {@code true} paths
-     * or {@code false} paths, respectively.
+     * Returns a formula representation of this BDD. This is done by using the
+     * Shannon expansion. If {@code followPathsToTrue} is activated, the paths
+     * leading to the {@code true} terminal are followed to generate the
+     * formula. If {@code followPathsToTrue} is deactivated, the paths leading
+     * to the {@code false} terminal are followed to generate the formula and
+     * the resulting formula is negated. Depending on the formula and the number
+     * of satisfying assignments, the generated formula can be more compact
+     * using the {@code true} paths or {@code false} paths, respectively.
      * @param f                 the formula factory to generate new formulas
      * @param followPathsToTrue the extraction style
      * @return the formula for this BDD
@@ -138,10 +148,12 @@ public class BDD {
     }
 
     /**
-     * Returns a new BDD which is the implication of this BDD to the given other BDD.  Both BDDs must use the same kernel.
+     * Returns a new BDD which is the implication of this BDD to the given other
+     * BDD. Both BDDs must use the same kernel.
      * @param other the other BDD
      * @return the implication from this BDD to the other BDD
-     * @throws IllegalArgumentException if the two BDDs don't have the same kernel
+     * @throws IllegalArgumentException if the two BDDs don't have the same
+     *                                  kernel
      */
     public BDD implies(final BDD other) {
         if (other.kernel != kernel) {
@@ -151,10 +163,12 @@ public class BDD {
     }
 
     /**
-     * Returns a new BDD which is the implication of the other given BDD to this BDD.  Both BDDs must use the same kernel.
+     * Returns a new BDD which is the implication of the other given BDD to this
+     * BDD. Both BDDs must use the same kernel.
      * @param other the other BDD
      * @return the implication from the other BDD to this BDD
-     * @throws IllegalArgumentException if the two BDDs don't have the same kernel
+     * @throws IllegalArgumentException if the two BDDs don't have the same
+     *                                  kernel
      */
     public BDD impliedBy(final BDD other) {
         if (other.kernel != kernel) {
@@ -164,10 +178,12 @@ public class BDD {
     }
 
     /**
-     * Returns a new BDD which is the equivalence of this BDD and the other given BDD.  Both BDDs must use the same kernel.
+     * Returns a new BDD which is the equivalence of this BDD and the other
+     * given BDD. Both BDDs must use the same kernel.
      * @param other the other BDD
      * @return the equivalence of this and the other BDD
-     * @throws IllegalArgumentException if the two BDDs don't have the same kernel
+     * @throws IllegalArgumentException if the two BDDs don't have the same
+     *                                  kernel
      */
     public BDD equivalence(final BDD other) {
         if (other.kernel != kernel) {
@@ -177,10 +193,12 @@ public class BDD {
     }
 
     /**
-     * Returns a new BDD which is the conjunction of this BDD and the given other BDD.  Both BDDs must use the same kernel.
+     * Returns a new BDD which is the conjunction of this BDD and the given
+     * other BDD. Both BDDs must use the same kernel.
      * @param other the other BDD
      * @return the conjunction of the two BDDs
-     * @throws IllegalArgumentException if the two BDDs don't have the same kernel
+     * @throws IllegalArgumentException if the two BDDs don't have the same
+     *                                  kernel
      */
     public BDD and(final BDD other) {
         if (other.kernel != kernel) {
@@ -190,10 +208,12 @@ public class BDD {
     }
 
     /**
-     * Returns a new BDD which is the disjunction of this BDD and the given other BDD.  Both BDDs must use the same kernel.
+     * Returns a new BDD which is the disjunction of this BDD and the given
+     * other BDD. Both BDDs must use the same kernel.
      * @param other the other BDD
      * @return the disjunction of the two BDDs
-     * @throws IllegalArgumentException if the two BDDs don't have the same kernel
+     * @throws IllegalArgumentException if the two BDDs don't have the same
+     *                                  kernel
      */
     public BDD or(final BDD other) {
         if (other.kernel != kernel) {
@@ -211,8 +231,10 @@ public class BDD {
     }
 
     /**
-     * Returns {@code true} if this BDD is a contradiction, {@code false} otherwise.
-     * @return {@code true} if this BDD is a contradiction, {@code false} otherwise
+     * Returns {@code true} if this BDD is a contradiction, {@code false}
+     * otherwise.
+     * @return {@code true} if this BDD is a contradiction, {@code false}
+     *         otherwise
      */
     public boolean isContradiction() {
         return index == BDDKernel.BDD_FALSE;
@@ -398,10 +420,12 @@ public class BDD {
     }
 
     /**
-     * Returns an arbitrary model of this BDD which contains at least the given variables or {@code null} if there is
-     * none.  If a variable is a don't care variable, it will be assigned with the given default value.
+     * Returns an arbitrary model of this BDD which contains at least the given
+     * variables or {@code null} if there is none. If a variable is a don't care
+     * variable, it will be assigned with the given default value.
      * @param defaultValue the default value for don't care variables
-     * @param variables    the set of variable which has to be contained in the model
+     * @param variables    the set of variable which has to be contained in the
+     *                     model
      * @return an arbitrary model of this BDD
      */
     public Assignment model(final boolean defaultValue, final Collection<Variable> variables) {
@@ -409,11 +433,13 @@ public class BDD {
     }
 
     /**
-     * Returns an arbitrary model of this BDD which contains at least the given variables or {@code null} if there is
-     * none.  If a variable is a don't care variable, it will be assigned with the given default value.
+     * Returns an arbitrary model of this BDD which contains at least the given
+     * variables or {@code null} if there is none. If a variable is a don't care
+     * variable, it will be assigned with the given default value.
      * @param f            the formula factory to generate new formulas
      * @param defaultValue the default value for don't care variables
-     * @param variables    the set of variable which has to be contained in the model
+     * @param variables    the set of variable which has to be contained in the
+     *                     model
      * @return an arbitrary model of this BDD
      */
     public Assignment model(final FormulaFactory f, final boolean defaultValue, final Collection<Variable> variables) {
@@ -424,10 +450,12 @@ public class BDD {
     }
 
     /**
-     * Returns an arbitrary model of this BDD which contains at least the given variables or {@code null} if there is
-     * none.  If a variable is a don't care variable, it will be assigned with the given default value.
+     * Returns an arbitrary model of this BDD which contains at least the given
+     * variables or {@code null} if there is none. If a variable is a don't care
+     * variable, it will be assigned with the given default value.
      * @param defaultValue the default value for don't care variables
-     * @param variables    the set of variable which has to be contained in the model
+     * @param variables    the set of variable which has to be contained in the
+     *                     model
      * @return an arbitrary model of this BDD
      */
     public Assignment model(final boolean defaultValue, final Variable... variables) {
@@ -435,11 +463,13 @@ public class BDD {
     }
 
     /**
-     * Returns an arbitrary model of this BDD which contains at least the given variables or {@code null} if there is
-     * none.  If a variable is a don't care variable, it will be assigned with the given default value.
+     * Returns an arbitrary model of this BDD which contains at least the given
+     * variables or {@code null} if there is none. If a variable is a don't care
+     * variable, it will be assigned with the given default value.
      * @param f            the formula factory to generate new formulas
      * @param defaultValue the default value for don't care variables
-     * @param variables    the set of variable which has to be contained in the model
+     * @param variables    the set of variable which has to be contained in the
+     *                     model
      * @return an arbitrary model of this BDD
      */
     public Assignment model(final FormulaFactory f, final boolean defaultValue, final Variable... variables) {
@@ -485,7 +515,12 @@ public class BDD {
      */
     public SortedSet<Variable> support() {
         final int supportBDD = operations.support(index);
-        final Assignment assignment = createAssignment(kernel.factory(), supportBDD); // only variables, cannot create new literals
+        final Assignment assignment = createAssignment(kernel.factory(), supportBDD); // only
+                                                                                      // variables,
+                                                                                      // cannot
+                                                                                      // create
+                                                                                      // new
+                                                                                      // literals
         assert assignment == null || assignment.negativeLiterals().isEmpty();
         return assignment == null ? Collections.emptySortedSet() : new TreeSet<>(assignment.positiveVariables());
     }
@@ -524,9 +559,9 @@ public class BDD {
     }
 
     /**
-     * Swaps two variables in a BDD.
-     * Beware that if the {@link #kernel BDDKernel} of this BDD was used for multiple
-     * BDDs, the variables are swapped in <b>all</b> of these BDDs.
+     * Swaps two variables in a BDD. Beware that if the {@link #kernel
+     * BDDKernel} of this BDD was used for multiple BDDs, the variables are
+     * swapped in <b>all</b> of these BDDs.
      * @param first  the first variable to swap
      * @param second the second variable to swap
      */
@@ -562,7 +597,8 @@ public class BDD {
      * @param f        the formula factory to generate new formulas
      * @param modelBDD the BDD
      * @return the assignment
-     * @throws IllegalStateException if the BDD does not represent a unique model
+     * @throws IllegalStateException if the BDD does not represent a unique
+     *                               model
      */
     private Assignment createAssignment(final FormulaFactory f, final int modelBDD) {
         if (modelBDD == BDDKernel.BDD_FALSE) {
@@ -593,9 +629,8 @@ public class BDD {
 
     @Override
     public boolean equals(final Object other) {
-        return this == other || other instanceof BDD
-                && index == ((BDD) other).index
-                && Objects.equals(kernel, ((BDD) other).kernel);
+        return this == other ||
+                other instanceof BDD && index == ((BDD) other).index && Objects.equals(kernel, ((BDD) other).kernel);
     }
 
     @Override

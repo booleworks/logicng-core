@@ -23,12 +23,18 @@ public class OccurrenceOrderingTest {
         Assertions.assertThat(min2max.getOrder(f, p.parse("$true"))).isEmpty();
         Assertions.assertThat(min2max.getOrder(f, p.parse("$false"))).isEmpty();
         Assertions.assertThat(min2max.getOrder(f, p.parse("A"))).containsExactly(f.variable("A"));
-        Assertions.assertThat(min2max.getOrder(f, p.parse("A => ~B"))).containsExactly(f.variable("A"), f.variable("B"));
-        Assertions.assertThat(min2max.getOrder(f, p.parse("A <=> ~B"))).containsExactly(f.variable("A"), f.variable("B"));
-        Assertions.assertThat(min2max.getOrder(f, p.parse("~(A <=> ~B)"))).containsExactly(f.variable("A"), f.variable("B"));
-        Assertions.assertThat(min2max.getOrder(f, p.parse("A | ~C | B | D"))).containsExactly(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
-        Assertions.assertThat(min2max.getOrder(f, p.parse("A & ~C & B & D"))).containsExactly(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
-        Assertions.assertThat(min2max.getOrder(f, p.parse("A + C + B + D < 2"))).containsExactly(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
+        Assertions.assertThat(min2max.getOrder(f, p.parse("A => ~B"))).containsExactly(f.variable("A"),
+                f.variable("B"));
+        Assertions.assertThat(min2max.getOrder(f, p.parse("A <=> ~B"))).containsExactly(f.variable("A"),
+                f.variable("B"));
+        Assertions.assertThat(min2max.getOrder(f, p.parse("~(A <=> ~B)"))).containsExactly(f.variable("A"),
+                f.variable("B"));
+        Assertions.assertThat(min2max.getOrder(f, p.parse("A | ~C | B | D"))).containsExactly(f.variable("A"),
+                f.variable("C"), f.variable("B"), f.variable("D"));
+        Assertions.assertThat(min2max.getOrder(f, p.parse("A & ~C & B & D"))).containsExactly(f.variable("A"),
+                f.variable("C"), f.variable("B"), f.variable("D"));
+        Assertions.assertThat(min2max.getOrder(f, p.parse("A + C + B + D < 2"))).containsExactly(f.variable("A"),
+                f.variable("C"), f.variable("B"), f.variable("D"));
     }
 
     @Test
@@ -38,19 +44,26 @@ public class OccurrenceOrderingTest {
         Assertions.assertThat(max2min.getOrder(f, p.parse("$true"))).isEmpty();
         Assertions.assertThat(max2min.getOrder(f, p.parse("$false"))).isEmpty();
         Assertions.assertThat(max2min.getOrder(f, p.parse("A"))).containsExactly(f.variable("A"));
-        Assertions.assertThat(max2min.getOrder(f, p.parse("A => ~B"))).containsExactly(f.variable("A"), f.variable("B"));
-        Assertions.assertThat(max2min.getOrder(f, p.parse("A <=> ~B"))).containsExactly(f.variable("A"), f.variable("B"));
-        Assertions.assertThat(max2min.getOrder(f, p.parse("~(A <=> ~B)"))).containsExactly(f.variable("A"), f.variable("B"));
-        Assertions.assertThat(max2min.getOrder(f, p.parse("A | ~C | B | D"))).containsExactly(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
-        Assertions.assertThat(max2min.getOrder(f, p.parse("A & ~C & B & D"))).containsExactly(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
-        Assertions.assertThat(max2min.getOrder(f, p.parse("A + C + B + D < 2"))).containsExactly(f.variable("A"), f.variable("C"), f.variable("B"), f.variable("D"));
+        Assertions.assertThat(max2min.getOrder(f, p.parse("A => ~B"))).containsExactly(f.variable("A"),
+                f.variable("B"));
+        Assertions.assertThat(max2min.getOrder(f, p.parse("A <=> ~B"))).containsExactly(f.variable("A"),
+                f.variable("B"));
+        Assertions.assertThat(max2min.getOrder(f, p.parse("~(A <=> ~B)"))).containsExactly(f.variable("A"),
+                f.variable("B"));
+        Assertions.assertThat(max2min.getOrder(f, p.parse("A | ~C | B | D"))).containsExactly(f.variable("A"),
+                f.variable("C"), f.variable("B"), f.variable("D"));
+        Assertions.assertThat(max2min.getOrder(f, p.parse("A & ~C & B & D"))).containsExactly(f.variable("A"),
+                f.variable("C"), f.variable("B"), f.variable("D"));
+        Assertions.assertThat(max2min.getOrder(f, p.parse("A + C + B + D < 2"))).containsExactly(f.variable("A"),
+                f.variable("C"), f.variable("B"), f.variable("D"));
     }
 
     @Test
     public void testComplexFormulaMin2Max() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (X + W + A + F < 1)))");
+        final Formula formula =
+                p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (X + W + A + F < 1)))");
 
         Assertions.assertThat(min2max.getOrder(f, formula)).containsExactly(
                 f.variable("A"),
@@ -68,7 +81,8 @@ public class OccurrenceOrderingTest {
     public void testComplexFormulaMax2Min() throws ParserException {
         final FormulaFactory f = FormulaFactory.nonCaching();
         final PropositionalParser p = new PropositionalParser(f);
-        final Formula formula = p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (X + W + A + F < 1)))");
+        final Formula formula =
+                p.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X) & (Y <=> (X | (X + W + A + F < 1)))");
 
         Assertions.assertThat(max2min.getOrder(f, formula)).containsExactly(
                 f.variable("B"),

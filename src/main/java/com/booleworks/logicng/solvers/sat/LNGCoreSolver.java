@@ -3,19 +3,21 @@
 // Copyright 2023-20xx BooleWorks GmbH
 
 /*
- * MiniSat -- Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
- * OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * MiniSat -- Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson Permission
+ * is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the
+ * Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions: The above copyright notice and this
+ * permission notice shall be included in all copies or substantial portions of
+ * the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+ * EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
+ * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 package com.booleworks.logicng.solvers.sat;
@@ -56,15 +58,18 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * The core SAT Solver of LogicNG. Heavily inspired by MiniSat, Glucose, and MiniCard.
+ * The core SAT Solver of LogicNG. Heavily inspired by MiniSat, Glucose, and
+ * MiniCard.
  * <p>
- * <b>This core solver should usually not be used directly. It exposes a lot of methods
- * which should only be called if you really require to tweak with the internals of
- * the SAT Solver. Using {@link SATSolver} will be sufficient in almost all cases.</b>
+ * <b>This core solver should usually not be used directly. It exposes a lot of
+ * methods which should only be called if you really require to tweak with the
+ * internals of the SAT Solver. Using {@link SATSolver} will be sufficient in
+ * almost all cases.</b>
  * @version 3.0.0
  * @since 3.0.0
  */
-// TODO: cleanup and sort methods, add links (and licences?) to MiniSat, Glucose, and MiniCard
+// TODO: cleanup and sort methods, add links (and licences?) to MiniSat,
+// Glucose, and MiniCard
 public class LNGCoreSolver {
 
     /**
@@ -156,7 +161,8 @@ public class LNGCoreSolver {
     protected int curRestart = 1;
 
     /**
-     * Constructs a new core solver with a given configuration and formula factory.
+     * Constructs a new core solver with a given configuration and formula
+     * factory.
      * @param f      the formula factory
      * @param config the configuration
      */
@@ -172,13 +178,15 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Generates a clause vector of a collection of literals for a given SAT Solver and configuration.
-     * If variables are unknown, they will be added with {@link LNGCoreSolver#newVar} and the given
-     * initial phase and the decision variable flag.
+     * Generates a clause vector of a collection of literals for a given SAT
+     * Solver and configuration. If variables are unknown, they will be added
+     * with {@link LNGCoreSolver#newVar} and the given initial phase and the
+     * decision variable flag.
      * @param literals     the literals
      * @param solver       the internal solver
      * @param initialPhase the initial phase of new literals
-     * @param decisionVar  whether the variable should be handled as decision variable
+     * @param decisionVar  whether the variable should be handled as decision
+     *                     variable
      * @return the clause vector
      */
     public static LNGIntVector generateClauseVector(final Collection<? extends Literal> literals,
@@ -192,7 +200,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Generates a clause vector of a collection of literals for a given SAT Solver and configuration.
+     * Generates a clause vector of a collection of literals for a given SAT
+     * Solver and configuration.
      * @param literals the literals
      * @param solver   the internal solver
      * @return the clause vector
@@ -203,15 +212,18 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Returns or creates the internal index for the given literal on the given solver.
-     * If it is unknown, it will be created with the given initial phase.
+     * Returns or creates the internal index for the given literal on the given
+     * solver. If it is unknown, it will be created with the given initial
+     * phase.
      * @param lit          the literal
      * @param solver       the solver
      * @param initialPhase the initial phase if the variable is unknown
-     * @param decisionVar  whether the variable should be handled as decision variable
+     * @param decisionVar  whether the variable should be handled as decision
+     *                     variable
      * @return the internal index of the literal
      */
-    public static int solverLiteral(final Literal lit, final LNGCoreSolver solver, final boolean initialPhase, final boolean decisionVar) {
+    public static int solverLiteral(final Literal lit, final LNGCoreSolver solver, final boolean initialPhase,
+                                    final boolean decisionVar) {
         int index = solver.idxForName(lit.name());
         if (index == -1) {
             index = solver.newVar(!initialPhase, decisionVar);
@@ -221,10 +233,10 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Returns or creates the internal index for the given literal on the given solver.
-     * If it is unknown, it will be created with the given initial phase specified by the
-     * {@link SATSolverConfig#initialPhase() configuration of the solver} and with
-     * {@code decisionVar == true}.
+     * Returns or creates the internal index for the given literal on the given
+     * solver. If it is unknown, it will be created with the given initial phase
+     * specified by the {@link SATSolverConfig#initialPhase() configuration of
+     * the solver} and with {@code decisionVar == true}.
      * @param lit    the literal
      * @param solver the solver
      * @return the internal index of the literal
@@ -234,10 +246,11 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Marks this solver to be used in a {@link SATCall}.
-     * Until {@link #finishSatCall()} is called, additional calls to this method or
-     * other operations on the SAT solver like adding new formulas, executing solver
-     * functions, or saving/loading state, will fail with an {@link IllegalStateException}.
+     * Marks this solver to be used in a {@link SATCall}. Until
+     * {@link #finishSatCall()} is called, additional calls to this method or
+     * other operations on the SAT solver like adding new formulas, executing
+     * solver functions, or saving/loading state, will fail with an
+     * {@link IllegalStateException}.
      */
     protected void startSatCall() {
         assertNotInSatCall();
@@ -254,7 +267,8 @@ public class LNGCoreSolver {
     /**
      * Creates a literal for a given variable number and literal.
      * @param var  the variable number
-     * @param sign {@code true} if the literal is negative, {@code false} otherwise
+     * @param sign {@code true} if the literal is negative, {@code false}
+     *             otherwise
      * @return the literal (as integer value)
      */
     public static int mkLit(final int var, final boolean sign) {
@@ -271,7 +285,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Returns {@code true} if a given literal is negated, {@code false} otherwise.
+     * Returns {@code true} if a given literal is negated, {@code false}
+     * otherwise.
      * @param lit the literal
      * @return {@code true} if the literal is negated
      */
@@ -310,7 +325,8 @@ public class LNGCoreSolver {
      * Compares two variables by their activity.
      * @param x the first variable
      * @param y the second variable
-     * @return {@code true} if the first variable's activity is larger than the second one's
+     * @return {@code true} if the first variable's activity is larger than the
+     *         second one's
      */
     public boolean lt(final int x, final int y) {
         return vars.get(x).activity() > vars.get(y).activity();
@@ -347,9 +363,11 @@ public class LNGCoreSolver {
 
     /**
      * Adds a new variable to the solver.
-     * @param sign the initial polarity of the new variable, {@code true} if negative, {@code false} if positive
-     * @param dvar {@code true} if this variable can be used as a decision variable, {@code false} if it should not be
-     *             used as a decision variable
+     * @param sign the initial polarity of the new variable, {@code true} if
+     *             negative, {@code false} if positive
+     * @param dvar {@code true} if this variable can be used as a decision
+     *             variable, {@code false} if it should not be used as a
+     *             decision variable
      * @return the index of the new variable
      */
     public int newVar(final boolean sign, final boolean dvar) {
@@ -371,7 +389,8 @@ public class LNGCoreSolver {
      * Adds a unit clause to the solver.
      * @param lit         the unit clause's literal
      * @param proposition a proposition (if required for proof tracing)
-     * @return {@code true} if the clause was added successfully, {@code false} otherwise
+     * @return {@code true} if the clause was added successfully, {@code false}
+     *         otherwise
      */
     public boolean addClause(final int lit, final Proposition proposition) {
         final LNGIntVector unit = new LNGIntVector(1);
@@ -383,8 +402,10 @@ public class LNGCoreSolver {
      * Adds a clause to the solver.
      * @param ps          the literals of the clause
      * @param proposition a proposition (if required for proof tracing)
-     * @return {@code true} if the clause was added successfully, {@code false} otherwise
-     * @throws IllegalStateException if a {@link SATCall} is currently running on this solver
+     * @return {@code true} if the clause was added successfully, {@code false}
+     *         otherwise
+     * @throws IllegalStateException if a {@link SATCall} is currently running
+     *                               on this solver
      */
     public boolean addClause(final LNGIntVector ps, final Proposition proposition) {
         assertNotInSatCall();
@@ -465,11 +486,15 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Solves the formula currently stored in the solver.  Returns {@link Tristate#TRUE} if the formula is satisfiable (SAT),
-     * {@link Tristate#FALSE} if the formula is unsatisfiable (UNSAT), or {@link Tristate#UNDEF} if the computation was canceled
-     * by a {@link SATHandler}.  If {@code null} is passed as handler, the solver will run until the satisfiability is decided.
+     * Solves the formula currently stored in the solver. Returns
+     * {@link Tristate#TRUE} if the formula is satisfiable (SAT),
+     * {@link Tristate#FALSE} if the formula is unsatisfiable (UNSAT), or
+     * {@link Tristate#UNDEF} if the computation was canceled by a
+     * {@link SATHandler}. If {@code null} is passed as handler, the solver will
+     * run until the satisfiability is decided.
      * @param handler a sat handler
-     * @return {@link Tristate#TRUE} if the formula is satisfiable, {@link Tristate#FALSE} if the formula is not satisfiable, or
+     * @return {@link Tristate#TRUE} if the formula is satisfiable,
+     *         {@link Tristate#FALSE} if the formula is not satisfiable, or
      *         {@link Tristate#UNDEF} if the computation was canceled.
      */
     public Tristate internalSolve(final SATHandler handler) {
@@ -510,7 +535,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Sets (or clears) the SAT handler which should be used for subsequent SAT calls.
+     * Sets (or clears) the SAT handler which should be used for subsequent SAT
+     * calls.
      * @param handler the SAT handler to be used
      */
     public void setHandler(final SATHandler handler) {
@@ -518,14 +544,18 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Solves the formula currently stored in the solver together with the given assumption literals.  Returns
-     * {@link Tristate#TRUE} if the formula and the assumptions are satisfiable (SAT), {@link Tristate#FALSE} if the formula and the
-     * assumptions are not satisfiable together (UNSAT), or {@link Tristate#UNDEF} if the computation was canceled by a
-     * {@link SATHandler}. If {@code null} is passed as handler, the solver will run until the satisfiability is decided.
+     * Solves the formula currently stored in the solver together with the given
+     * assumption literals. Returns {@link Tristate#TRUE} if the formula and the
+     * assumptions are satisfiable (SAT), {@link Tristate#FALSE} if the formula
+     * and the assumptions are not satisfiable together (UNSAT), or
+     * {@link Tristate#UNDEF} if the computation was canceled by a
+     * {@link SATHandler}. If {@code null} is passed as handler, the solver will
+     * run until the satisfiability is decided.
      * @param handler     a sat handler
      * @param assumptions the assumptions as a given vector of literals
-     * @return {@link Tristate#TRUE} if the formula and the assumptions are satisfiable, {@link Tristate#FALSE} if they are
-     *         not satisfiable, or {@link Tristate#UNDEF} if the computation was canceled.
+     * @return {@link Tristate#TRUE} if the formula and the assumptions are
+     *         satisfiable, {@link Tristate#FALSE} if they are not satisfiable,
+     *         or {@link Tristate#UNDEF} if the computation was canceled.
      */
     public Tristate internalSolve(final SATHandler handler, final LNGIntVector assumptions) {
         this.assumptions = new LNGIntVector(assumptions);
@@ -535,7 +565,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Returns the current model of the solver or an empty vector if there is none.
+     * Returns the current model of the solver or an empty vector if there is
+     * none.
      * @return the current model of the solver
      */
     public LNGBooleanVector model() {
@@ -543,8 +574,10 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Returns {@code false} if this solver is known to be in a conflicting state, otherwise {@code true}.
-     * @return {@code false} if this solver is known to be in a conflicting state, otherwise {@code true}
+     * Returns {@code false} if this solver is known to be in a conflicting
+     * state, otherwise {@code true}.
+     * @return {@code false} if this solver is known to be in a conflicting
+     *         state, otherwise {@code true}
      */
     public boolean ok() {
         return ok;
@@ -559,8 +592,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Saves and returns the solver state expressed as an integer array which stores the length of the internal data
-     * structures.
+     * Saves and returns the solver state expressed as an integer array which
+     * stores the length of the internal data structures.
      * @return the current solver state
      */
     public SolverState saveState() {
@@ -582,10 +615,12 @@ public class LNGCoreSolver {
     /**
      * Loads a given state in the solver.
      * <p>
-     * ATTENTION: You can only load a state which was created by this instance of the solver before the current state.
-     * Only the sizes of the internal data structures are stored, meaning you can track back in time and restore a solver
-     * state with fewer variables and/or fewer clauses.  It is not possible to import a solver state from another solver
-     * or another solving execution.
+     * ATTENTION: You can only load a state which was created by this instance
+     * of the solver before the current state. Only the sizes of the internal
+     * data structures are stored, meaning you can track back in time and
+     * restore a solver state with fewer variables and/or fewer clauses. It is
+     * not possible to import a solver state from another solver or another
+     * solving execution.
      * @param solverState the solver state to load
      * @throws IllegalArgumentException if the solver state is not valid anymore
      */
@@ -676,7 +711,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Helper function used to maintain an abstraction of levels involved during conflict analysis.
+     * Helper function used to maintain an abstraction of levels involved during
+     * conflict analysis.
      * @param x a variable index
      * @return the abstraction of levels
      */
@@ -685,7 +721,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Inserts a variable (given by its index) into the heap of decision variables.
+     * Inserts a variable (given by its index) into the heap of decision
+     * variables.
      * @param x the variable index
      */
     protected void insertVarOrder(final int x) {
@@ -755,7 +792,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Returns {@code true} if the given clause is locked and therefore cannot be removed, {@code false} otherwise.
+     * Returns {@code true} if the given clause is locked and therefore cannot
+     * be removed, {@code false} otherwise.
      * @param c the clause
      * @return {@code true} if the given clause is locked
      */
@@ -787,7 +825,8 @@ public class LNGCoreSolver {
     /**
      * Assigns a literal (= a variable to the respective value).
      * @param lit    the literal
-     * @param reason the reason clause of the assignment (conflict resolution) or {@code null} if it was a decision
+     * @param reason the reason clause of the assignment (conflict resolution)
+     *               or {@code null} if it was a decision
      */
     protected void uncheckedEnqueue(final int lit, final LNGClause reason) {
         assert value(lit) == Tristate.UNDEF;
@@ -799,7 +838,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Attaches a given clause to the solver (i.e. the watchers for this clause are initialized).
+     * Attaches a given clause to the solver (i.e. the watchers for this clause
+     * are initialized).
      * @param c the clause
      */
     protected void attachClause(final LNGClause c) {
@@ -827,7 +867,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Detaches a given clause (e.g. removes all watchers pointing to this clause).
+     * Detaches a given clause (e.g. removes all watchers pointing to this
+     * clause).
      * @param c the clause
      */
     protected void detachClause(final LNGClause c) {
@@ -862,7 +903,8 @@ public class LNGCoreSolver {
 
     /**
      * Performs unit propagation.
-     * @return the conflicting clause if a conflict arose during unit propagation or {@code null} if there was none
+     * @return the conflicting clause if a conflict arose during unit
+     *         propagation or {@code null} if there was none
      */
     protected LNGClause propagate() {
         LNGClause confl = null;
@@ -957,11 +999,13 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Returns {@code true} if a given literal is redundant in the current conflict analysis, {@code false} otherwise.
+     * Returns {@code true} if a given literal is redundant in the current
+     * conflict analysis, {@code false} otherwise.
      * @param p              the literal
      * @param abstractLevels an abstraction of levels
      * @param analyzeToClear helper vector
-     * @return {@code true} if a given literal is redundant in the current conflict analysis
+     * @return {@code true} if a given literal is redundant in the current
+     *         conflict analysis
      */
     protected boolean litRedundant(final int p, final int abstractLevels, final LNGIntVector analyzeToClear) {
         final LNGIntVector analyzeStack = new LNGIntVector();
@@ -1077,8 +1121,9 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Reduces the database of learnt clauses.  Only clauses of the first half of the clauses with the most activity
-     * are possibly removed.  A clause is only removed if it is not locked, i.e. is the reason of an assignment for a
+     * Reduces the database of learnt clauses. Only clauses of the first half of
+     * the clauses with the most activity are possibly removed. A clause is only
+     * removed if it is not locked, i.e. is the reason of an assignment for a
      * variable.
      */
     protected void reduceDB() {
@@ -1125,8 +1170,10 @@ public class LNGCoreSolver {
 
     /**
      * The main search procedure of the CDCL algorithm.
-     * @return a {@link Tristate} representing the result.  {@code FALSE} if the formula is UNSAT, {@code TRUE} if the
-     *         formula is SAT, and {@code UNDEF} if the state is not known yet (restart) or the handler canceled the computation
+     * @return a {@link Tristate} representing the result. {@code FALSE} if the
+     *         formula is UNSAT, {@code TRUE} if the formula is SAT, and
+     *         {@code UNDEF} if the state is not known yet (restart) or the
+     *         handler canceled the computation
      */
     protected Tristate search() {
         if (!ok) {
@@ -1150,7 +1197,8 @@ public class LNGCoreSolver {
                     return Tristate.FALSE;
                 }
                 trailQueue.push(trail.size());
-                if (conflictsRestarts > LB_BLOCKING_RESTART && lbdQueue.valid() && trail.size() > llConfig.factorR * trailQueue.avg()) {
+                if (conflictsRestarts > LB_BLOCKING_RESTART && lbdQueue.valid() &&
+                        trail.size() > llConfig.factorR * trailQueue.avg()) {
                     lbdQueue.fastClear();
                 }
                 learntClause.clear();
@@ -1204,14 +1252,16 @@ public class LNGCoreSolver {
                     } else if (value(p) == Tristate.FALSE) {
                         if (config.proofGeneration) {
                             final int drupLit = (var(p) + 1) * (-2 * (sign(p) ? 1 : 0) + 1);
-                            pgOriginalClauses.push(new ProofInformation(LNGIntVector.of(drupLit), assumptionPropositions.get(decisionLevel())));
+                            pgOriginalClauses.push(new ProofInformation(LNGIntVector.of(drupLit),
+                                    assumptionPropositions.get(decisionLevel())));
                         }
                         analyzeAssumptionConflict(not(p));
                         return Tristate.FALSE;
                     } else {
                         if (config.proofGeneration) {
                             final int drupLit = (var(p) + 1) * (-2 * (sign(p) ? 1 : 0) + 1);
-                            pgOriginalClauses.push(new ProofInformation(LNGIntVector.of(drupLit), assumptionPropositions.get(decisionLevel())));
+                            pgOriginalClauses.push(new ProofInformation(LNGIntVector.of(drupLit),
+                                    assumptionPropositions.get(decisionLevel())));
                         }
                         next = p;
                         break;
@@ -1230,10 +1280,13 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Analyzes a given conflict clause wrt. the current solver state.  A 1-UIP clause is created during this procedure
-     * and the new backtracking level is stored in the solver state.
-     * @param conflictClause the conflict clause to start the resolution analysis with
-     * @param outLearnt      the vector where the new learnt 1-UIP clause is stored
+     * Analyzes a given conflict clause wrt. the current solver state. A 1-UIP
+     * clause is created during this procedure and the new backtracking level is
+     * stored in the solver state.
+     * @param conflictClause the conflict clause to start the resolution
+     *                       analysis with
+     * @param outLearnt      the vector where the new learnt 1-UIP clause is
+     *                       stored
      */
     protected void analyze(final LNGClause conflictClause, final LNGIntVector outLearnt) {
         LNGClause c = conflictClause;
@@ -1310,7 +1363,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Minimizes a given learnt clause depending on the minimization method of the solver configuration.
+     * Minimizes a given learnt clause depending on the minimization method of
+     * the solver configuration.
      * @param outLearnt the learnt clause which should be minimized
      */
     protected void simplifyClause(final LNGIntVector outLearnt) {
@@ -1323,7 +1377,8 @@ public class LNGCoreSolver {
                 abstractLevel |= abstractLevel(var(outLearnt.get(i)));
             }
             for (i = j = 1; i < outLearnt.size(); i++) {
-                if (v(outLearnt.get(i)).reason() == null || !litRedundant(outLearnt.get(i), abstractLevel, analyzeToClear)) {
+                if (v(outLearnt.get(i)).reason() == null ||
+                        !litRedundant(outLearnt.get(i), abstractLevel, analyzeToClear)) {
                     outLearnt.set(j++, outLearnt.get(i));
                 }
             }
@@ -1460,7 +1515,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Performs a simple removal of clauses used during the loading of an older state.
+     * Performs a simple removal of clauses used during the loading of an older
+     * state.
      * @param c the clause to remove
      */
     protected void simpleRemoveClause(final LNGClause c) {
@@ -1562,12 +1618,14 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Converts the internal model into a list of literals, considering only the variables with the relevant indices.
+     * Converts the internal model into a list of literals, considering only the
+     * variables with the relevant indices.
      * @param internalModel   the internal model (e.g. from {@link #model()}
      * @param relevantIndices the indices of the relevant variables
      * @return the external model
      */
-    public List<Literal> convertInternalModel(final LNGBooleanVector internalModel, final LNGIntVector relevantIndices) {
+    public List<Literal> convertInternalModel(final LNGBooleanVector internalModel,
+                                              final LNGIntVector relevantIndices) {
         final List<Literal> literals = new ArrayList<>(internalModel.size());
         for (int i = 0; i < relevantIndices.size(); i++) {
             final int index = relevantIndices.get(i);
@@ -1579,21 +1637,26 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Returns {@code true} if a {@link SATCall} is currently using this solver, otherwise {@code false}.
-     * @return {@code true} if a {@link SATCall} is currently using this solver, otherwise {@code false}
+     * Returns {@code true} if a {@link SATCall} is currently using this solver,
+     * otherwise {@code false}.
+     * @return {@code true} if a {@link SATCall} is currently using this solver,
+     *         otherwise {@code false}
      */
     public boolean inSatCall() {
         return inSatCall;
     }
 
     /**
-     * Checks if this solver is currently used in a {@link SATCall} and throws an {@link IllegalStateException}
-     * in this case. Otherwise, nothing happens.
-     * @throws IllegalStateException if this solver is currently used in a SAT call
+     * Checks if this solver is currently used in a {@link SATCall} and throws
+     * an {@link IllegalStateException} in this case. Otherwise, nothing
+     * happens.
+     * @throws IllegalStateException if this solver is currently used in a SAT
+     *                               call
      */
     public void assertNotInSatCall() {
         if (inSatCall) {
-            throw new IllegalStateException("This operation is not allowed because a SAT call is running on this solver!");
+            throw new IllegalStateException(
+                    "This operation is not allowed because a SAT call is running on this solver!");
         }
     }
 
@@ -1683,7 +1746,8 @@ public class LNGCoreSolver {
     ///// Backbone Stuff /////
 
     /**
-     * Computes the backbone of the given variables with respect to the formulas added to the solver.
+     * Computes the backbone of the given variables with respect to the formulas
+     * added to the solver.
      * @param variables variables to test
      * @param type      backbone type
      * @return the backbone projected to the relevant variables
@@ -1693,13 +1757,16 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Computes the backbone of the given variables with respect to the formulas added to the solver.
+     * Computes the backbone of the given variables with respect to the formulas
+     * added to the solver.
      * @param variables variables to test
      * @param type      backbone type
      * @param handler   the handler
-     * @return the backbone projected to the relevant variables or {@code null} if the computation was aborted by the handler
+     * @return the backbone projected to the relevant variables or {@code null}
+     *         if the computation was aborted by the handler
      */
-    public Backbone computeBackbone(final Collection<Variable> variables, final BackboneType type, final SATHandler handler) {
+    public Backbone computeBackbone(final Collection<Variable> variables, final BackboneType type,
+                                    final SATHandler handler) {
         final boolean sat = internalSolve(handler) == Tristate.TRUE;
         if (aborted(handler)) {
             return null;
@@ -1721,7 +1788,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Returns a list of relevant variable indices. A relevant variable is known by the solver.
+     * Returns a list of relevant variable indices. A relevant variable is known
+     * by the solver.
      * @param variables variables to convert and filter
      * @return list of relevant variable indices
      */
@@ -1729,7 +1797,8 @@ public class LNGCoreSolver {
         final List<Integer> relevantVarIndices = new ArrayList<>(variables.size());
         for (final Variable var : variables) {
             final Integer idx = name2idx.get(var.name());
-            // Note: Unknown variables are variables added to the solver yet. Thus, these are optional variables and can
+            // Note: Unknown variables are variables added to the solver yet.
+            // Thus, these are optional variables and can
             // be left out for the backbone computation.
             if (idx != null) {
                 relevantVarIndices.add(idx);
@@ -1796,7 +1865,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Refines the upper bound by optional checks (UP zero literal, complement model literal, rotatable literal).
+     * Refines the upper bound by optional checks (UP zero literal, complement
+     * model literal, rotatable literal).
      */
     protected void refineUpperBound() {
         for (final Integer lit : new ArrayList<>(backboneCandidates)) {
@@ -1813,7 +1883,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Tests the given literal with the formula on the solver for satisfiability.
+     * Tests the given literal with the formula on the solver for
+     * satisfiability.
      * @param lit     literal to test
      * @param handler the handler
      * @return {@code true} if satisfiable, otherwise {@code false}
@@ -1867,11 +1938,14 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Tests the given variable whether it is a unit propagated literal on level 0.
+     * Tests the given variable whether it is a unit propagated literal on level
+     * 0.
      * <p>
-     * Assumption: The formula on the solver has successfully been tested to be satisfiable before.
+     * Assumption: The formula on the solver has successfully been tested to be
+     * satisfiable before.
      * @param var variable index to test
-     * @return {@code true} if the variable is a unit propagated literal on level 0, otherwise {@code false}
+     * @return {@code true} if the variable is a unit propagated literal on
+     *         level 0, otherwise {@code false}
      */
     protected boolean isUPZeroLit(final int var) {
         return vars.get(var).level() == 0;
@@ -1932,7 +2006,8 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Adds the given literal to the backbone result and optionally adds the literal to the solver.
+     * Adds the given literal to the backbone result and optionally adds the
+     * literal to the solver.
      * @param lit literal to add
      */
     protected void addBackboneLiteral(final int lit) {
@@ -1969,11 +2044,14 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Sets the variable's selection order that is used to solve the formula on the solver.
+     * Sets the variable's selection order that is used to solve the formula on
+     * the solver.
      * <p>
-     * If a custom selection order is set, the solver will pick a variable from the custom order in order to branch on it during the search.
-     * The given polarity in the selection order is used as assignment for the variable.
-     * If all variables in the custom order are already assigned, the solver falls back to the activity based variable selection.
+     * If a custom selection order is set, the solver will pick a variable from
+     * the custom order in order to branch on it during the search. The given
+     * polarity in the selection order is used as assignment for the variable.
+     * If all variables in the custom order are already assigned, the solver
+     * falls back to the activity based variable selection.
      * @param selectionOrder the custom selection order
      */
     public void setSelectionOrder(final List<? extends Literal> selectionOrder) {

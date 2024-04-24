@@ -12,15 +12,17 @@ import com.booleworks.logicng.formulas.cache.PredicateCacheEntry;
 import java.util.Map;
 
 /**
- * And-inverter-graph (AIG) predicate.  Returns {@code true} if the given formula is an AIG, {@code false} otherwise.
+ * And-inverter-graph (AIG) predicate. Returns {@code true} if the given formula
+ * is an AIG, {@code false} otherwise.
  * @version 3.0.0
  * @since 1.0
  */
 public final class AIGPredicate extends CacheableFormulaPredicate {
 
     /**
-     * Constructs a new predicate.  For a caching formula factory, the cache of the factory will be used,
-     * for a non-caching formula factory no cache will be used.
+     * Constructs a new predicate. For a caching formula factory, the cache of
+     * the factory will be used, for a non-caching formula factory no cache will
+     * be used.
      * @param f the formula factory to generate new formulas
      */
     public AIGPredicate(final FormulaFactory f) {
@@ -28,8 +30,8 @@ public final class AIGPredicate extends CacheableFormulaPredicate {
     }
 
     /**
-     * Constructs a new predicate.  For all factory type the provided cache will be used.
-     * If it is null, no cache will be used.
+     * Constructs a new predicate. For all factory type the provided cache will
+     * be used. If it is null, no cache will be used.
      * @param f     the formula factory to generate new formulas
      * @param cache the cache to use for the transformation
      */

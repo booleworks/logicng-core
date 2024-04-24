@@ -17,8 +17,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Builder for a {@link SATCall}.
- * New instances should be created with {@link SATSolver#satCall()}.
+ * Builder for a {@link SATCall}. New instances should be created with
+ * {@link SATSolver#satCall()}.
  * @see SATSolver#satCall()
  */
 public class SATCallBuilder {
@@ -33,8 +33,8 @@ public class SATCallBuilder {
     }
 
     /**
-     * Starts the actual solving process with the information passed to this builder
-     * and returns a respective SAT call.
+     * Starts the actual solving process with the information passed to this
+     * builder and returns a respective SAT call.
      * @return the SAT call
      */
     public SATCall solve() {
@@ -52,8 +52,8 @@ public class SATCallBuilder {
     }
 
     /**
-     * Adds assumptions (i.e. additional formulas) to the SAT call.
-     * The assumptions are removed again after the SAT call.
+     * Adds assumptions (i.e. additional formulas) to the SAT call. The
+     * assumptions are removed again after the SAT call.
      * @param assumptions the assumptions
      * @return this builder
      */
@@ -64,8 +64,8 @@ public class SATCallBuilder {
     }
 
     /**
-     * Adds assumptions (i.e. additional formulas) to the SAT call.
-     * The assumptions are removed again after the SAT call.
+     * Adds assumptions (i.e. additional formulas) to the SAT call. The
+     * assumptions are removed again after the SAT call.
      * @param assumptions the assumptions
      * @return this builder
      */
@@ -76,8 +76,8 @@ public class SATCallBuilder {
     }
 
     /**
-     * Adds additional formulas to the SAT call.
-     * The formulas are removed again after the SAT call.
+     * Adds additional formulas to the SAT call. The formulas are removed again
+     * after the SAT call.
      * @param formulas the additional formulas
      * @return this builder
      */
@@ -89,8 +89,8 @@ public class SATCallBuilder {
     }
 
     /**
-     * Adds additional formulas to the SAT call.
-     * The formulas are removed again after the SAT call.
+     * Adds additional formulas to the SAT call. The formulas are removed again
+     * after the SAT call.
      * @param formulas the additional formulas
      * @return this builder
      */
@@ -100,8 +100,8 @@ public class SATCallBuilder {
     }
 
     /**
-     * Adds additional propositions to the SAT call.
-     * The propositions are removed again after the SAT call.
+     * Adds additional propositions to the SAT call. The propositions are
+     * removed again after the SAT call.
      * @param propositions the additional propositions
      * @return this builder
      */
@@ -111,8 +111,8 @@ public class SATCallBuilder {
     }
 
     /**
-     * Adds additional propositions to the SAT call.
-     * The propositions are removed again after the SAT call.
+     * Adds additional propositions to the SAT call. The propositions are
+     * removed again after the SAT call.
      * @param propositions the additional propositions
      * @return this builder
      */
@@ -134,10 +134,11 @@ public class SATCallBuilder {
     // Utility methods, s.t. the user does not need to use the try-with resource
 
     /**
-     * Directly computes the satisfiability result with the current state of the builder.
-     * Returns {@link Tristate#TRUE} if the formula is satisfiable, {@link Tristate#FALSE}
-     * if the formula is not satisfiable, and {@link Tristate#UNDEF} if the SAT call was
-     * aborted by the {@link SATHandler handler}.
+     * Directly computes the satisfiability result with the current state of the
+     * builder. Returns {@link Tristate#TRUE} if the formula is satisfiable,
+     * {@link Tristate#FALSE} if the formula is not satisfiable, and
+     * {@link Tristate#UNDEF} if the SAT call was aborted by the
+     * {@link SATHandler handler}.
      * @return the satisfiability result
      */
     public Tristate sat() {
@@ -147,12 +148,13 @@ public class SATCallBuilder {
     }
 
     /**
-     * Directly computes a model of the current formula on the solver wrt. a given set of variables.
-     * The variables must not be {@code null}.
+     * Directly computes a model of the current formula on the solver wrt. a
+     * given set of variables. The variables must not be {@code null}.
      * <p>
      * If the formula is UNSAT, {@code null} will be returned.
      * @param variables the set of variables
-     * @return a model of the current formula or {@code null} if the SAT call was unsatisfiable
+     * @return a model of the current formula or {@code null} if the SAT call
+     *         was unsatisfiable
      * @throws IllegalArgumentException if the given variables are {@code null}
      */
     public Assignment model(final Collection<Variable> variables) {
@@ -164,8 +166,9 @@ public class SATCallBuilder {
     /**
      * Directly computes an unsat core of the current problem.
      * <p>
-     * {@link SATSolverConfig#proofGeneration() Proof generation} must be enabled in order to use this method,
-     * otherwise an {@link IllegalStateException} is thrown.
+     * {@link SATSolverConfig#proofGeneration() Proof generation} must be
+     * enabled in order to use this method, otherwise an
+     * {@link IllegalStateException} is thrown.
      * <p>
      * If the formula on the solver is satisfiable, {@code null} is returned.
      * <p>

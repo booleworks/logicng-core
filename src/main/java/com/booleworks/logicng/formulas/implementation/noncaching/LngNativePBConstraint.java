@@ -31,13 +31,16 @@ public class LngNativePBConstraint extends LngNativeFormula implements PBConstra
      * @param comparator   the comparator
      * @param rhs          the right-hand side
      * @param f            the formula factory
-     * @throws IllegalArgumentException if the number of literals and coefficients do not correspond
+     * @throws IllegalArgumentException if the number of literals and
+     *                                  coefficients do not correspond
      */
-    LngNativePBConstraint(final Collection<? extends Literal> literals, final Collection<Integer> coefficients, final CType comparator, final int rhs,
+    LngNativePBConstraint(final Collection<? extends Literal> literals, final Collection<Integer> coefficients,
+                          final CType comparator, final int rhs,
                           final NonCachingFormulaFactory f) {
         super(FType.PBC, f);
         if (literals.size() != coefficients.size()) {
-            throw new IllegalArgumentException("Cannot generate a pseudo-Boolean constraint with literals.length != coefficients.length");
+            throw new IllegalArgumentException(
+                    "Cannot generate a pseudo-Boolean constraint with literals.length != coefficients.length");
         }
         this.literals = List.copyOf(literals);
         this.coefficients = List.copyOf(coefficients);
@@ -97,9 +100,8 @@ public class LngNativePBConstraint extends LngNativeFormula implements PBConstra
         }
         if (other instanceof PBConstraint && hashCode() == other.hashCode()) {
             final PBConstraint o = (PBConstraint) other;
-            return rhs == o.rhs() && comparator == o.comparator()
-                    && coefficients.equals(o.coefficients())
-                    && literals.equals(o.operands());
+            return rhs == o.rhs() && comparator == o.comparator() && coefficients.equals(o.coefficients()) &&
+                    literals.equals(o.operands());
         }
         return false;
     }

@@ -3,19 +3,21 @@
 // Copyright 2023-20xx BooleWorks GmbH
 
 /*
- * MiniSat -- Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
- * OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * MiniSat -- Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson Permission
+ * is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the
+ * Software without restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions: The above copyright notice and this
+ * permission notice shall be included in all copies or substantial portions of
+ * the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+ * EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
+ * OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
  */
 
 package com.booleworks.logicng.solvers.datastructures;
@@ -32,7 +34,8 @@ import java.util.Comparator;
 public final class LNGClause {
 
     /**
-     * A comparator for clauses based on LBD and activity (used for the Glucose solver).
+     * A comparator for clauses based on LBD and activity (used for the Glucose
+     * solver).
      */
     public static final Comparator<LNGClause> glucoseComparator = (x, y) -> {
         if (x.size() > 2 && y.size() == 2) {
@@ -66,8 +69,8 @@ public final class LNGClause {
     /**
      * Constructs a new clause
      * @param ps            the vector of literals
-     * @param learntOnState the index of the solver state on which this clause was learnt
-     *                      or -1 if it is not a learnt clause
+     * @param learntOnState the index of the solver state on which this clause
+     *                      was learnt or -1 if it is not a learnt clause
      */
     public LNGClause(final LNGIntVector ps, final int learntOnState) {
         this(ps, learntOnState, false);
@@ -76,9 +79,10 @@ public final class LNGClause {
     /**
      * Constructs a new clause
      * @param ps            the vector of literals
-     * @param learntOnState the index of the solver state on which this clause was learnt
-     *                      or -1 if it is not a learnt clause
-     * @param isAtMost      {@code true} if it is an at-most clause, {@code false} otherwise
+     * @param learntOnState the index of the solver state on which this clause
+     *                      was learnt or -1 if it is not a learnt clause
+     * @param isAtMost      {@code true} if it is an at-most clause,
+     *                      {@code false} otherwise
      */
     public LNGClause(final LNGIntVector ps, final int learntOnState, final boolean isAtMost) {
         data = new LNGIntVector(ps.size());
@@ -94,7 +98,8 @@ public final class LNGClause {
         atMostWatchers = -1;
     }
 
-    LNGClause(final LNGIntVector data, final int learntOnState, final boolean isAtMost, final double activity, final boolean seen,
+    LNGClause(final LNGIntVector data, final int learntOnState, final boolean isAtMost, final double activity,
+              final boolean seen,
               final long lbd, final boolean canBeDel, final boolean oneWatched, final int atMostWatchers) {
         this.data = data;
         this.learntOnState = learntOnState;
@@ -157,7 +162,8 @@ public final class LNGClause {
     }
 
     /**
-     * Returns the solver state on which this clause was learnt, or -1 if it is not a learnt clause.
+     * Returns the solver state on which this clause was learnt, or -1 if it is
+     * not a learnt clause.
      * @return the solver state on which this clause was learnt
      */
     public int getLearntOnState() {
@@ -173,7 +179,8 @@ public final class LNGClause {
     }
 
     /**
-     * Returns {@code true} if this clause is marked 'seen', {@code false} otherwise.
+     * Returns {@code true} if this clause is marked 'seen', {@code false}
+     * otherwise.
      * @return {@code true} if this clause is marked 'seen'
      */
     public boolean seen() {
@@ -205,7 +212,8 @@ public final class LNGClause {
     }
 
     /**
-     * Returns {@code true} if this clause can be deleted, {@code false} otherwise.
+     * Returns {@code true} if this clause can be deleted, {@code false}
+     * otherwise.
      * @return {@code true} if this clause can be deleted
      */
     public boolean canBeDel() {
@@ -214,14 +222,16 @@ public final class LNGClause {
 
     /**
      * Sets whether this clause can be deleted or not.
-     * @param canBeDel {@code true} if it can be deleted, {@code false} otherwise
+     * @param canBeDel {@code true} if it can be deleted, {@code false}
+     *                 otherwise
      */
     public void setCanBeDel(final boolean canBeDel) {
         this.canBeDel = canBeDel;
     }
 
     /**
-     * Returns {@code true} if this clause is a one literal watched clause, {@code false} otherwise
+     * Returns {@code true} if this clause is a one literal watched clause,
+     * {@code false} otherwise
      * @return {@code true} if this clause is a one literal watched clause
      */
     public boolean oneWatched() {
@@ -230,14 +240,16 @@ public final class LNGClause {
 
     /**
      * Sets whether this clause is a one literal watched clause or not.
-     * @param oneWatched {@code true} if it is a one literal watched clause, {@code false} otherwise
+     * @param oneWatched {@code true} if it is a one literal watched clause,
+     *                   {@code false} otherwise
      */
     public void setOneWatched(final boolean oneWatched) {
         this.oneWatched = oneWatched;
     }
 
     /**
-     * Returns {@code true} if this is an at-most clause, {@code false} otherwise.
+     * Returns {@code true} if this is an at-most clause, {@code false}
+     * otherwise.
      * @return {@code true} if this is an at-most clause
      */
     public boolean isAtMost() {

@@ -22,7 +22,8 @@ public class LngNativeOr extends LngNativeNAryOperator implements Or {
     }
 
     /**
-     * Returns {@code true} if this formula is a CNF clause, {@code false} otherwise.
+     * Returns {@code true} if this formula is a CNF clause, {@code false}
+     * otherwise.
      * @return {@code true} if this formula is a CNF clause
      */
     @Override

@@ -44,7 +44,8 @@ public class CNFEncoder {
      * @return the CNF encoding of the formula
      */
     public static Formula encode(final FormulaFactory f, final Formula formula, final CNFConfig initConfig) {
-        final CNFConfig config = initConfig != null ? initConfig : (CNFConfig) f.configurationFor(ConfigurationType.CNF);
+        final CNFConfig config =
+                initConfig != null ? initConfig : (CNFConfig) f.configurationFor(ConfigurationType.CNF);
         switch (config.algorithm) {
             case FACTORIZATION:
                 return formula.transform(new CNFFactorization(f));
@@ -62,8 +63,9 @@ public class CNFEncoder {
     }
 
     /**
-     * Encodes the given formula to CNF by first trying to use Factorization for the single sub-formulas.  When certain
-     * user-provided boundaries are met, the method is switched to Tseitin or Plaisted &amp; Greenbaum.
+     * Encodes the given formula to CNF by first trying to use Factorization for
+     * the single sub-formulas. When certain user-provided boundaries are met,
+     * the method is switched to Tseitin or Plaisted &amp; Greenbaum.
      * @param f       the formula factory to generate new formulas
      * @param formula the formula
      * @param config  the CNF configuration
@@ -82,7 +84,8 @@ public class CNFEncoder {
                 fallbackTransformation = getPgTransformation(f, config);
                 break;
             default:
-                throw new IllegalStateException("Invalid fallback CNF encoding algorithm: " + config.fallbackAlgorithmForAdvancedEncoding);
+                throw new IllegalStateException(
+                        "Invalid fallback CNF encoding algorithm: " + config.fallbackAlgorithmForAdvancedEncoding);
         }
         if (formula.type() == FType.AND) {
             final List<Formula> operands = new ArrayList<>(formula.numberOfOperands());
@@ -94,7 +97,8 @@ public class CNFEncoder {
         return singleAdvancedEncoding(formula, advancedFactorization, fallbackTransformation);
     }
 
-    protected static Formula singleAdvancedEncoding(final Formula formula, final CNFFactorization advancedFactorization, final FormulaTransformation fallback) {
+    protected static Formula singleAdvancedEncoding(final Formula formula, final CNFFactorization advancedFactorization,
+                                                    final FormulaTransformation fallback) {
         Formula result = formula.transform(advancedFactorization);
         if (result == null) {
             result = formula.transform(fallback);
