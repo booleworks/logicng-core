@@ -29,7 +29,7 @@ import com.booleworks.logicng.collections.LNGIntVector;
  * @version 1.0
  * @since 1.0
  */
-public final class MSSoftClause {
+public final class LNGSoftClause {
 
     private final LNGIntVector clause;
     private final LNGIntVector relaxationVars;
@@ -43,8 +43,8 @@ public final class MSSoftClause {
      * @param assumptionVar  the assumption variables of this clause
      * @param relaxationVars the relaxation variables
      */
-    public MSSoftClause(final LNGIntVector clause, final int weight, final int assumptionVar,
-                        final LNGIntVector relaxationVars) {
+    public LNGSoftClause(final LNGIntVector clause, final int weight, final int assumptionVar,
+                         final LNGIntVector relaxationVars) {
         this.clause = new LNGIntVector(clause);
         this.weight = weight;
         this.assumptionVar = assumptionVar;

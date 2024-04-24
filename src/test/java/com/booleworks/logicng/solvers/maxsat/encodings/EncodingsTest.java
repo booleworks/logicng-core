@@ -8,8 +8,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
-import com.booleworks.logicng.solvers.sat.MiniSat2Solver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -31,13 +33,14 @@ public class EncodingsTest {
     public void testSequentialWeightCounterExceptionalBehavior() {
         assertThatThrownBy(() -> {
             final SequentialWeightCounter swc = new SequentialWeightCounter();
-            swc.encode(new MiniSat2Solver(), new LNGIntVector(), new LNGIntVector(), Integer.MAX_VALUE);
+            swc.encode(new LNGCoreSolver(FormulaFactory.caching(), SATSolverConfig.builder().build()),
+                    new LNGIntVector(), new LNGIntVector(), Integer.MAX_VALUE);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Overflow in the encoding.");
         assertThatThrownBy(() -> {
             final SequentialWeightCounter swc = new SequentialWeightCounter();
-            swc.encode(new MiniSat2Solver(), new LNGIntVector(), new LNGIntVector(), Integer.MAX_VALUE,
-                    new LNGIntVector(), 1);
+            swc.encode(new LNGCoreSolver(FormulaFactory.caching(), SATSolverConfig.builder().build()),
+                    new LNGIntVector(), new LNGIntVector(), Integer.MAX_VALUE, new LNGIntVector(), 1);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Overflow in the encoding.");
     }

@@ -9,7 +9,6 @@ import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
 import com.booleworks.logicng.transformations.StatelessFormulaTransformation;
@@ -30,7 +29,7 @@ public final class BackboneSimplifier extends StatelessFormulaTransformation {
 
     @Override
     public Formula apply(final Formula formula) {
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula);
         final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f))
                 .type(BackboneType.POSITIVE_AND_NEGATIVE).build());

@@ -23,8 +23,8 @@ import java.util.Objects;
 
 public class MaxSatLongRunningTest {
 
-    @LongRunningTag
     @Test
+    @LongRunningTag
     public void testWeightedMaxSat() throws IOException {
         final FormulaFactory f = FormulaFactory.caching();
         final File folder = new File("src/test/resources/longrunning/wms");

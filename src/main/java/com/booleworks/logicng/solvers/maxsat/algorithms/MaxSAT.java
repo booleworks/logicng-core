@@ -23,7 +23,6 @@
 package com.booleworks.logicng.solvers.maxsat.algorithms;
 
 import static com.booleworks.logicng.handlers.Handler.start;
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.SolverType;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
@@ -31,15 +30,13 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.MaxSATHandler;
 import com.booleworks.logicng.handlers.SATHandler;
-import com.booleworks.logicng.solvers.datastructures.MSHardClause;
-import com.booleworks.logicng.solvers.datastructures.MSSoftClause;
-import com.booleworks.logicng.solvers.sat.GlucoseConfig;
-import com.booleworks.logicng.solvers.sat.GlucoseSyrup;
-import com.booleworks.logicng.solvers.sat.MiniSat2Solver;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.datastructures.LNGHardClause;
+import com.booleworks.logicng.solvers.datastructures.LNGSoftClause;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 
 import java.util.Locale;
 import java.util.SortedMap;
@@ -72,11 +69,11 @@ public abstract class MaxSAT {
         UNDEF
     }
 
+    protected final FormulaFactory f;
     protected final LNGBooleanVector model;
-    final LNGVector<MSSoftClause> softClauses;
-    final LNGVector<MSHardClause> hardClauses;
+    final LNGVector<LNGSoftClause> softClauses;
+    final LNGVector<LNGHardClause> hardClauses;
     final LNGIntVector orderWeights;
-    final SolverType solverType;
     protected Verbosity verbosity;
     protected MaxSATHandler handler;
     int hardWeight;
@@ -95,9 +92,11 @@ public abstract class MaxSAT {
 
     /**
      * Constructor.
+     * @param f      the formula factory
      * @param config the solver configuration
      */
-    protected MaxSAT(final MaxSATConfig config) {
+    protected MaxSAT(final FormulaFactory f, final MaxSATConfig config) {
+        this.f = f;
         hardClauses = new LNGVector<>();
         softClauses = new LNGVector<>();
         hardWeight = Integer.MAX_VALUE;
@@ -115,7 +114,6 @@ public abstract class MaxSAT {
         nbSatisfiable = 0;
         sumSizeCores = 0;
         orderWeights = new LNGIntVector();
-        solverType = config.solverType;
         handler = null;
     }
 
@@ -123,7 +121,7 @@ public abstract class MaxSAT {
      * Creates a new variable in the SAT solver.
      * @param s the SAT solver
      */
-    public static void newSATVariable(final MiniSatStyleSolver s) {
+    public static void newSATVariable(final LNGCoreSolver s) {
         s.newVar(true, true);
     }
 
@@ -135,9 +133,9 @@ public abstract class MaxSAT {
      * @param assumptions the assumptions
      * @return the result of the solving process
      */
-    public static Tristate searchSATSolver(final MiniSatStyleSolver s, final SATHandler satHandler,
+    public static Tristate searchSATSolver(final LNGCoreSolver s, final SATHandler satHandler,
                                            final LNGIntVector assumptions) {
-        return s.solve(satHandler, assumptions);
+        return s.internalSolve(satHandler, assumptions);
     }
 
     /**
@@ -146,8 +144,8 @@ public abstract class MaxSAT {
      * @param satHandler a SAT handler
      * @return the result of the solving process
      */
-    public static Tristate searchSATSolver(final MiniSatStyleSolver s, final SATHandler satHandler) {
-        return s.solve(satHandler);
+    public static Tristate searchSATSolver(final LNGCoreSolver s, final SATHandler satHandler) {
+        return s.internalSolve(satHandler);
     }
 
     /**
@@ -210,7 +208,7 @@ public abstract class MaxSAT {
      * @param lits the literals of the hard clause
      */
     public void addHardClause(final LNGIntVector lits) {
-        hardClauses.push(new MSHardClause(lits));
+        hardClauses.push(new LNGHardClause(lits));
         nbHard++;
     }
 
@@ -221,7 +219,7 @@ public abstract class MaxSAT {
      */
     public void addSoftClause(final int weight, final LNGIntVector lits) {
         final LNGIntVector rVars = new LNGIntVector();
-        softClauses.push(new MSSoftClause(lits, weight, MiniSatStyleSolver.LIT_UNDEF, rVars));
+        softClauses.push(new LNGSoftClause(lits, weight, LNGCoreSolver.LIT_UNDEF, rVars));
         nbSoft++;
     }
 
@@ -233,7 +231,7 @@ public abstract class MaxSAT {
      * @param vars   the relaxation variables of the soft clause
      */
     public void addSoftClause(final int weight, final LNGIntVector lits, final LNGIntVector vars) {
-        softClauses.push(new MSSoftClause(lits, weight, MiniSatStyleSolver.LIT_UNDEF, vars));
+        softClauses.push(new LNGSoftClause(lits, weight, LNGCoreSolver.LIT_UNDEF, vars));
         nbSoft++;
     }
 
@@ -243,7 +241,7 @@ public abstract class MaxSAT {
      * @return the new literal
      */
     public int newLiteral(final boolean sign) {
-        final int p = MiniSatStyleSolver.mkLit(nVars(), sign);
+        final int p = LNGCoreSolver.mkLit(nVars(), sign);
         newVar();
         return p;
     }
@@ -288,16 +286,8 @@ public abstract class MaxSAT {
      * Creates an empty SAT Solver.
      * @return the empty SAT solver
      */
-    public MiniSatStyleSolver newSATSolver() {
-        switch (solverType) {
-            case GLUCOSE:
-                return new GlucoseSyrup(MiniSatConfig.builder().incremental(true).build(),
-                        GlucoseConfig.builder().build());
-            case MINISAT:
-                return new MiniSat2Solver(MiniSatConfig.builder().incremental(false).build());
-            default:
-                throw new IllegalStateException("Unknown solver type: " + solverType);
-        }
+    public LNGCoreSolver newSATSolver() {
+        return new LNGCoreSolver(f, SATSolverConfig.builder().build());
     }
 
     /**
@@ -332,11 +322,11 @@ public abstract class MaxSAT {
                     unsatisfied = false;
                     continue;
                 }
-                assert MiniSatStyleSolver.var(softClauses.get(i).clause().get(j)) < currentModel.size();
-                if ((MiniSatStyleSolver.sign(softClauses.get(i).clause().get(j)) &&
-                        !currentModel.get(MiniSatStyleSolver.var(softClauses.get(i).clause().get(j)))) ||
-                        (!MiniSatStyleSolver.sign(softClauses.get(i).clause().get(j)) &&
-                                currentModel.get(MiniSatStyleSolver.var(softClauses.get(i).clause().get(j))))) {
+                assert LNGCoreSolver.var(softClauses.get(i).clause().get(j)) < currentModel.size();
+                if ((LNGCoreSolver.sign(softClauses.get(i).clause().get(j)) &&
+                        !currentModel.get(LNGCoreSolver.var(softClauses.get(i).clause().get(j)))) ||
+                        (!LNGCoreSolver.sign(softClauses.get(i).clause().get(j)) &&
+                                currentModel.get(LNGCoreSolver.var(softClauses.get(i).clause().get(j))))) {
                     unsatisfied = false;
                     break;
                 }

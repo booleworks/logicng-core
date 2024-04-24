@@ -4,18 +4,13 @@
 
 package com.booleworks.logicng.solvers.functions;
 
-import static com.booleworks.logicng.datastructures.Tristate.FALSE;
-import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
-
 import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.solvers.MiniSat;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.function.Consumer;
 
 /**
  * A solver function which returns all unit propagated literals on level 0 of
@@ -44,20 +39,16 @@ public final class UpZeroLiteralsFunction implements SolverFunction<SortedSet<Li
     }
 
     @Override
-    public SortedSet<Literal> apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
-        if (solver.getResult() == UNDEF) {
-            throw new IllegalStateException(
-                    "Cannot get unit propagated literals on level 0 as long as the formula is not solved.  Call 'sat' first.");
-        }
-        if (solver.getResult() == FALSE) {
+    public SortedSet<Literal> apply(final SATSolver solver) {
+        if (!solver.sat()) {
             return null;
         }
         final LNGIntVector literals = solver.underlyingSolver().upZeroLiterals();
         final SortedSet<Literal> upZeroLiterals = new TreeSet<>();
         for (int i = 0; i < literals.size(); ++i) {
             final int lit = literals.get(i);
-            upZeroLiterals.add(solver.factory().literal(
-                    solver.underlyingSolver().nameForIdx(MiniSatStyleSolver.var(lit)), !MiniSatStyleSolver.sign(lit)));
+            upZeroLiterals.add(solver.factory().literal(solver.underlyingSolver().nameForIdx(LNGCoreSolver.var(lit)),
+                    !LNGCoreSolver.sign(lit)));
         }
         return upZeroLiterals;
     }

@@ -4,22 +4,20 @@
 
 package com.booleworks.logicng.solvers.functions;
 
-import static com.booleworks.logicng.solvers.sat.MiniSatStyleSolver.var;
+import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.var;
 import static com.booleworks.logicng.util.CollectionHelper.nullSafe;
 
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.MiniSat;
-import com.booleworks.logicng.solvers.datastructures.MSClause;
-import com.booleworks.logicng.solvers.datastructures.MSVariable;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.datastructures.LNGClause;
+import com.booleworks.logicng.solvers.datastructures.LNGVariable;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -58,11 +56,11 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
     }
 
     @Override
-    public Map<Variable, Integer> apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
+    public Map<Variable, Integer> apply(final SATSolver solver) {
         final FormulaFactory f = solver.factory();
-        final MiniSatStyleSolver underlyingSolver = solver.underlyingSolver();
+        final LNGCoreSolver underlyingSolver = solver.underlyingSolver();
         final Map<String, Integer> counts = initResultMap(underlyingSolver);
-        for (final MSClause clause : underlyingSolver.clauses()) {
+        for (final LNGClause clause : underlyingSolver.clauses()) {
             for (int i = 0; i < clause.size(); i++) {
                 final String key = underlyingSolver.nameForIdx(var(clause.get(i)));
                 counts.computeIfPresent(key, (u, old) -> old + 1);
@@ -71,13 +69,13 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
         return counts.entrySet().stream().collect(Collectors.toMap(v -> f.variable(v.getKey()), Map.Entry::getValue));
     }
 
-    private Map<String, Integer> initResultMap(final MiniSatStyleSolver underlyingSolver) {
+    private Map<String, Integer> initResultMap(final LNGCoreSolver underlyingSolver) {
         // start with Strings to prevent repeated variable lookups in
         // FormulaFactory
         final Map<String, Integer> counts = new HashMap<>();
-        final LNGVector<MSVariable> variables = underlyingSolver.variables();
+        final LNGVector<LNGVariable> variables = underlyingSolver.variables();
         for (int i = 0; i < variables.size(); i++) {
-            final MSVariable var = variables.get(i);
+            final LNGVariable var = variables.get(i);
             final String name = underlyingSolver.nameForIdx(i);
             if (relevantVariables == null || relevantVariables.contains(name)) {
                 counts.put(name, var.level() == 0 ? 1 : 0);

@@ -8,7 +8,6 @@ import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.util.FormulaHelper;
@@ -41,7 +40,7 @@ public abstract class CanonicalEnumeration extends StatelessFormulaTransformatio
      * @return the canonical normal form (CNF or DNF) of the formula
      */
     protected Formula compute(final Formula formula, final boolean cnf) {
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(cnf ? formula.negate(f) : formula);
         final List<Model> enumeration = solver.execute(ModelEnumerationFunction.builder(formula.variables(f)).build());
         if (enumeration.isEmpty()) {

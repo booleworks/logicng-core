@@ -10,9 +10,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.Handler;
 import com.booleworks.logicng.handlers.SATHandler;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.ArrayList;
@@ -39,11 +38,11 @@ public final class NaivePrimeReduction {
      * @param formula the formula
      */
     public NaivePrimeReduction(final FormulaFactory f, final Formula formula) {
-        implicantSolver =
-                MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        implicantSolver = SATSolver.newSolver(f,
+                SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         implicantSolver.add(formula.negate(f));
-        implicateSolver =
-                MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        implicateSolver = SATSolver.newSolver(f,
+                SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         implicateSolver.add(formula);
     }
 
@@ -72,7 +71,8 @@ public final class NaivePrimeReduction {
         final SortedSet<Literal> primeImplicant = new TreeSet<>(implicant);
         for (final Literal lit : implicant) {
             primeImplicant.remove(lit);
-            final boolean sat = implicantSolver.sat(handler, primeImplicant) == Tristate.TRUE;
+            final boolean sat =
+                    implicantSolver.satCall().handler(handler).addFormulas(primeImplicant).sat() == Tristate.TRUE;
             if (Handler.aborted(handler)) {
                 return null;
             }
@@ -112,7 +112,8 @@ public final class NaivePrimeReduction {
         for (final Literal lit : implicate) {
             primeImplicate.remove(lit);
             final List<Literal> assumptions = FormulaHelper.negateLiterals(f, primeImplicate, ArrayList::new);
-            final boolean sat = implicateSolver.sat(handler, assumptions) == Tristate.TRUE;
+            final boolean sat =
+                    implicateSolver.satCall().handler(handler).addFormulas(assumptions).sat() == Tristate.TRUE;
             if (Handler.aborted(handler)) {
                 return null;
             }

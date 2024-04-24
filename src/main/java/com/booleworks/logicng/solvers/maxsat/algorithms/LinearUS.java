@@ -26,9 +26,10 @@ import static com.booleworks.logicng.handlers.Handler.aborted;
 
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 import java.io.PrintStream;
 
@@ -43,21 +44,23 @@ public class LinearUS extends MaxSAT {
     protected final MaxSATConfig.IncrementalStrategy incrementalStrategy;
     protected final LNGIntVector objFunction;
     protected final PrintStream output;
-    protected MiniSatStyleSolver solver;
+    protected LNGCoreSolver solver;
 
     /**
      * Constructs a new solver with default values.
+     * @param f the formula factory
      */
-    public LinearUS() {
-        this(MaxSATConfig.builder().build());
+    public LinearUS(final FormulaFactory f) {
+        this(f, MaxSATConfig.builder().build());
     }
 
     /**
      * Constructs a new solver with a given configuration.
+     * @param f      the formula factory
      * @param config the configuration
      */
-    public LinearUS(final MaxSATConfig config) {
-        super(config);
+    public LinearUS(final FormulaFactory f, final MaxSATConfig config) {
+        super(f, config);
         solver = null;
         verbosity = config.verbosity;
         incrementalStrategy = config.incrementalStrategy;
@@ -167,7 +170,7 @@ public class LinearUS extends MaxSAT {
                         return MaxSATResult.UNDEF;
                     }
                     for (int i = 0; i < objFunction.size(); i++) {
-                        assumptions.push(MiniSatStyleSolver.not(objFunction.get(i)));
+                        assumptions.push(LNGCoreSolver.not(objFunction.get(i)));
                     }
                 } else {
                     assert lbCost == ubCost;
@@ -204,8 +207,8 @@ public class LinearUS extends MaxSAT {
         }
     }
 
-    protected MiniSatStyleSolver rebuildSolver() {
-        final MiniSatStyleSolver s = newSATSolver();
+    protected LNGCoreSolver rebuildSolver() {
+        final LNGCoreSolver s = newSATSolver();
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }

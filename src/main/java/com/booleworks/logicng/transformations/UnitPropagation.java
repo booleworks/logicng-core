@@ -4,15 +4,14 @@
 
 package com.booleworks.logicng.transformations;
 
-import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.formulas.CTrue;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.cache.TransformationCacheEntry;
-import com.booleworks.logicng.solvers.datastructures.MSClause;
-import com.booleworks.logicng.solvers.sat.MiniSat2Solver;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.datastructures.LNGClause;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,23 +50,23 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
         if (cached != null) {
             return cached;
         }
-        final MiniSatPropagator miniSatPropagator = new MiniSatPropagator();
-        miniSatPropagator.add(formula);
-        final Formula result = miniSatPropagator.propagatedFormula(f);
+        final Propagator propagator = new Propagator(f);
+        propagator.add(formula);
+        final Formula result = propagator.propagatedFormula(f);
         setCache(formula, result);
         return result;
     }
 
     /**
-     * An extension of Minisat to propagate units on formulas.
+     * An extension of the Core Solver to propagate units on formulas.
      */
-    private class MiniSatPropagator extends MiniSat2Solver {
+    private static class Propagator extends LNGCoreSolver {
 
         /**
-         * Constructs a new MiniSatPropagator.
+         * Constructs a new Propagator.
          */
-        public MiniSatPropagator() {
-            super(MiniSatConfig.builder().incremental(false).build());
+        public Propagator(final FormulaFactory f) {
+            super(f, SATSolverConfig.builder().build());
         }
 
         /**
@@ -82,11 +81,11 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
                 case FALSE:
                 case LITERAL:
                 case OR:
-                    addClause(generateClauseVector(cnf), null);
+                    addClause(generateClauseVector(cnf.literals(f), this, false, false), null);
                     break;
                 case AND:
                     for (final Formula op : cnf) {
-                        addClause(generateClauseVector(op), null);
+                        addClause(generateClauseVector(op.literals(f), this, false, false), null);
                     }
                     break;
                 default:
@@ -106,7 +105,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
                 return f.falsum();
             }
             final List<Formula> newClauses = new ArrayList<>();
-            for (final MSClause clause : clauses) {
+            for (final LNGClause clause : clauses) {
                 newClauses.add(clauseToFormula(f, clause));
             }
             for (int i = 0; i < trail.size(); i++) {
@@ -134,7 +133,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
          * @param clause the solver clause to transform
          * @return the transformed clause
          */
-        private Formula clauseToFormula(final FormulaFactory f, final MSClause clause) {
+        private Formula clauseToFormula(final FormulaFactory f, final LNGClause clause) {
             final List<Literal> literals = new ArrayList<>(clause.size());
             for (int i = 0; i < clause.size(); i++) {
                 final int lit = clause.get(i);
@@ -149,25 +148,6 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
                 }
             }
             return f.or(literals);
-        }
-
-        /**
-         * Generates a solver vector of a clause.
-         * @param clause the clause
-         * @return the solver vector
-         */
-        private LNGIntVector generateClauseVector(final Formula clause) {
-            final LNGIntVector clauseVec = new LNGIntVector(clause.numberOfOperands());
-            for (final Literal lit : clause.literals(f)) {
-                int index = idxForName(lit.name());
-                if (index == -1) {
-                    index = newVar(false, false);
-                    addName(lit.name(), index);
-                }
-                final int litNum = lit.phase() ? index * 2 : (index * 2) ^ 1;
-                clauseVec.push(litNum);
-            }
-            return clauseVec;
         }
     }
 }

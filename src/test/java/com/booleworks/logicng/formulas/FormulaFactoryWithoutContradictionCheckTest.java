@@ -8,14 +8,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Model;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.predicates.NNFPredicate;
 import com.booleworks.logicng.predicates.satisfiability.ContingencyPredicate;
 import com.booleworks.logicng.predicates.satisfiability.ContradictionPredicate;
 import com.booleworks.logicng.predicates.satisfiability.SATPredicate;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.transformations.dnf.DNFFactorization;
 import org.assertj.core.api.Assertions;
@@ -174,7 +172,7 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSatSolverWithTautologies(final FormulaContext _c) throws ParserException {
-        final SATSolver solver = MiniSat.miniSat(_c.f);
+        final SATSolver solver = SATSolver.newSolver(_c.f);
         solver.add(_c.f.parse("A"));
         solver.add(_c.f.parse("A => B"));
         solver.add(_c.f.parse("C | ~C"));
@@ -193,7 +191,7 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSatSolverWithContradictions(final FormulaContext _c) throws ParserException {
-        final SATSolver solver = MiniSat.miniSat(_c.f);
+        final SATSolver solver = SATSolver.newSolver(_c.f);
         solver.add(_c.f.parse("A"));
         solver.add(_c.f.parse("A => B"));
         solver.add(_c.f.parse("C | ~C"));
@@ -202,7 +200,7 @@ public class FormulaFactoryWithoutContradictionCheckTest {
         models.forEach(m -> Assertions.assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true),
                 _c.f.literal("C", false)));
         solver.add(_c.f.parse("D & ~D"));
-        Assertions.assertThat(solver.sat()).isEqualTo(Tristate.FALSE);
+        Assertions.assertThat(solver.sat()).isFalse();
     }
 
     @ParameterizedTest

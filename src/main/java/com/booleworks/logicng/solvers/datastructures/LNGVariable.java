@@ -9,14 +9,14 @@ import com.booleworks.logicng.datastructures.Tristate;
 import java.util.Locale;
 
 /**
- * A variable of the SAT solver for MiniSAT-style solvers.
+ * A variable of the SAT solver.
  * @version 2.0.0
  * @since 1.0
  */
-public final class MSVariable {
+public final class LNGVariable {
     private Tristate assignment;
     private int level;
-    private MSClause reason;
+    private LNGClause reason;
     private double activity;
     private boolean polarity;
     private boolean decision;
@@ -25,7 +25,7 @@ public final class MSVariable {
      * Constructs a new variable with a given initial polarity.
      * @param polarity the initial polarity
      */
-    public MSVariable(final boolean polarity) {
+    public LNGVariable(final boolean polarity) {
         assignment = Tristate.UNDEF;
         level = -1;
         reason = null;
@@ -34,8 +34,8 @@ public final class MSVariable {
         decision = false;
     }
 
-    MSVariable(final Tristate assignment, final int level, final MSClause reason, final double activity,
-               final boolean polarity, final boolean decision) {
+    LNGVariable(final Tristate assignment, final int level, final LNGClause reason, final double activity,
+                final boolean polarity, final boolean decision) {
         this.assignment = assignment;
         this.level = level;
         this.reason = reason;
@@ -64,7 +64,7 @@ public final class MSVariable {
      * Sets the reason for this variable.
      * @param reason the reason for this variable
      */
-    public void setReason(final MSClause reason) {
+    public void setReason(final LNGClause reason) {
         this.reason = reason;
     }
 
@@ -72,7 +72,7 @@ public final class MSVariable {
      * Returns the reason for this variable.
      * @return the reason for this variable
      */
-    public MSClause reason() {
+    public LNGClause reason() {
         return reason;
     }
 

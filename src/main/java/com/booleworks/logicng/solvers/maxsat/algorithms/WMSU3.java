@@ -29,9 +29,10 @@ import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 import java.io.PrintStream;
 import java.util.SortedMap;
@@ -54,21 +55,23 @@ public class WMSU3 extends MaxSAT {
     final protected LNGBooleanVector activeSoft;
     final protected PrintStream output;
     boolean isBmo;
-    protected MiniSatStyleSolver solver;
+    protected LNGCoreSolver solver;
 
     /**
      * Constructs a new solver with default values.
+     * @param f the formula factory
      */
-    public WMSU3() {
-        this(MaxSATConfig.builder().incremental(MaxSATConfig.IncrementalStrategy.ITERATIVE).build());
+    public WMSU3(final FormulaFactory f) {
+        this(f, MaxSATConfig.builder().incremental(MaxSATConfig.IncrementalStrategy.ITERATIVE).build());
     }
 
     /**
      * Constructs a new solver with a given configuration.
+     * @param f      the formula factory
      * @param config the configuration
      */
-    public WMSU3(final MaxSATConfig config) {
-        super(config);
+    public WMSU3(final FormulaFactory f, final MaxSATConfig config) {
+        super(f, config);
         solver = null;
         verbosity = config.verbosity;
         incrementalStrategy = config.incrementalStrategy;
@@ -174,7 +177,7 @@ public class WMSU3 extends MaxSAT {
                 }
                 for (int i = 0; i < nSoft(); i++) {
                     if (softClauses.get(i).weight() >= currentWeight && !activeSoft.get(i)) {
-                        assumptions.push(MiniSatStyleSolver.not(softClauses.get(i).assumptionVar()));
+                        assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
                 }
             } else {
@@ -190,15 +193,15 @@ public class WMSU3 extends MaxSAT {
                 } else if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                sumSizeCores += solver.conflict().size();
+                sumSizeCores += solver.assumptionsConflict().size();
                 objFunction.clear();
                 coeffs.clear();
                 assumptions.clear();
-                for (int i = 0; i < solver.conflict().size(); i++) {
-                    if (!coreMapping.containsKey(solver.conflict().get(i))) {
+                for (int i = 0; i < solver.assumptionsConflict().size(); i++) {
+                    if (!coreMapping.containsKey(solver.assumptionsConflict().get(i))) {
                         continue;
                     }
-                    final int indexSoft = coreMapping.get(solver.conflict().get(i));
+                    final int indexSoft = coreMapping.get(solver.assumptionsConflict().get(i));
                     if (!activeSoft.get(indexSoft)) {
                         activeSoft.set(indexSoft, true);
                         objFunction.push(softClauses.get(indexSoft).relaxationVars().get(0));
@@ -207,7 +210,7 @@ public class WMSU3 extends MaxSAT {
                 }
                 for (int i = 0; i < nSoft(); i++) {
                     if (!activeSoft.get(i) && softClauses.get(i).weight() >= currentWeight) {
-                        assumptions.push(MiniSatStyleSolver.not(softClauses.get(i).assumptionVar()));
+                        assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
                 }
                 for (int i = 0; i < coeffs.size(); i++) {
@@ -268,7 +271,7 @@ public class WMSU3 extends MaxSAT {
                 }
                 for (int i = 0; i < nSoft(); i++) {
                     if (softClauses.get(i).weight() >= currentWeight && !activeSoft.get(i)) {
-                        assumptions.push(MiniSatStyleSolver.not(softClauses.get(i).assumptionVar()));
+                        assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
                 }
             } else {
@@ -284,9 +287,9 @@ public class WMSU3 extends MaxSAT {
                 } else if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                sumSizeCores += solver.conflict().size();
-                for (int i = 0; i < solver.conflict().size(); i++) {
-                    final int indexSoft = coreMapping.get(solver.conflict().get(i));
+                sumSizeCores += solver.assumptionsConflict().size();
+                for (int i = 0; i < solver.assumptionsConflict().size(); i++) {
+                    final int indexSoft = coreMapping.get(solver.assumptionsConflict().get(i));
                     assert !activeSoft.get(indexSoft);
                     activeSoft.set(indexSoft, true);
                 }
@@ -298,7 +301,7 @@ public class WMSU3 extends MaxSAT {
                         objFunction.push(softClauses.get(i).relaxationVars().get(0));
                         coeffs.push(softClauses.get(i).weight());
                     } else if (softClauses.get(i).weight() >= currentWeight) {
-                        assumptions.push(MiniSatStyleSolver.not(softClauses.get(i).assumptionVar()));
+                        assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
                 }
                 if (verbosity != MaxSATConfig.Verbosity.NONE) {
@@ -372,7 +375,7 @@ public class WMSU3 extends MaxSAT {
                     currentWeight = orderWeights.get(0);
                     for (int i = 0; i < nSoft(); i++) {
                         if (softClauses.get(i).weight() >= currentWeight) {
-                            assumptions.push(MiniSatStyleSolver.not(softClauses.get(i).assumptionVar()));
+                            assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                         }
                     }
                 } else {
@@ -403,10 +406,10 @@ public class WMSU3 extends MaxSAT {
                         encodingAssumptions.clear();
                         for (int i = 0; i < nSoft(); i++) {
                             if (!activeSoft.get(i) && previousWeight == softClauses.get(i).weight()) {
-                                solver.addClause(MiniSatStyleSolver.not(softClauses.get(i).assumptionVar()), null);
+                                solver.addClause(LNGCoreSolver.not(softClauses.get(i).assumptionVar()), null);
                             }
                             if (currentWeight == softClauses.get(i).weight()) {
-                                assumptions.push(MiniSatStyleSolver.not(softClauses.get(i).assumptionVar()));
+                                assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                             }
                             if (activeSoft.get(i)) {
                                 assert softClauses.get(i).weight() == previousWeight;
@@ -433,19 +436,20 @@ public class WMSU3 extends MaxSAT {
                 } else if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                sumSizeCores += solver.conflict().size();
+                sumSizeCores += solver.assumptionsConflict().size();
                 joinObjFunction.clear();
                 joinCoeffs.clear();
-                for (int i = 0; i < solver.conflict().size(); i++) {
-                    if (coreMapping.containsKey(solver.conflict().get(i))) {
-                        if (activeSoft.get(coreMapping.get(solver.conflict().get(i)))) {
+                for (int i = 0; i < solver.assumptionsConflict().size(); i++) {
+                    if (coreMapping.containsKey(solver.assumptionsConflict().get(i))) {
+                        if (activeSoft.get(coreMapping.get(solver.assumptionsConflict().get(i)))) {
                             continue;
                         }
-                        assert softClauses.get(coreMapping.get(solver.conflict().get(i))).weight() == currentWeight;
-                        activeSoft.set(coreMapping.get(solver.conflict().get(i)), true);
-                        joinObjFunction.push(
-                                softClauses.get(coreMapping.get(solver.conflict().get(i))).relaxationVars().get(0));
-                        joinCoeffs.push(softClauses.get(coreMapping.get(solver.conflict().get(i))).weight());
+                        assert softClauses.get(coreMapping.get(solver.assumptionsConflict().get(i))).weight() ==
+                                currentWeight;
+                        activeSoft.set(coreMapping.get(solver.assumptionsConflict().get(i)), true);
+                        joinObjFunction.push(softClauses.get(coreMapping.get(solver.assumptionsConflict().get(i)))
+                                .relaxationVars().get(0));
+                        joinCoeffs.push(softClauses.get(coreMapping.get(solver.assumptionsConflict().get(i))).weight());
                     }
                 }
                 objFunction.clear();
@@ -457,7 +461,7 @@ public class WMSU3 extends MaxSAT {
                         objFunction.push(softClauses.get(i).relaxationVars().get(0));
                         coeffs.push(softClauses.get(i).weight());
                     } else if (currentWeight == softClauses.get(i).weight()) {
-                        assumptions.push(MiniSatStyleSolver.not(softClauses.get(i).assumptionVar()));
+                        assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
                 }
                 if (verbosity != MaxSATConfig.Verbosity.NONE) {
@@ -485,8 +489,8 @@ public class WMSU3 extends MaxSAT {
         }
     }
 
-    protected MiniSatStyleSolver rebuildSolver() {
-        final MiniSatStyleSolver s = newSATSolver();
+    protected LNGCoreSolver rebuildSolver() {
+        final LNGCoreSolver s = newSATSolver();
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }

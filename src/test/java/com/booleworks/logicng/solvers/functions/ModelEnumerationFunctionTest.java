@@ -10,8 +10,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySortedSet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
@@ -27,7 +27,6 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.modelcounting.ModelCounter;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
 import com.booleworks.logicng.solvers.functions.modelenumeration.EnumerationCollectorTestHandler;
@@ -37,7 +36,7 @@ import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.F
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.LeastCommonVariablesProvider;
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.MostCommonVariablesProvider;
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.SplitVariableProvider;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.util.FormulaHelper;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
@@ -73,16 +72,6 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
         f = FormulaFactory.caching();
     }
 
-    @Test
-    public void testNonIncrementalSolver() throws ParserException {
-        final MiniSat solver = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
-        solver.add(f.parse("A | B | C"));
-        assertThatThrownBy(() -> solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).build()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage(
-                        "Recursive model enumeration function can only be applied to solvers with load/save state capability.");
-    }
-
     @ParameterizedTest
     @MethodSource("splitProviders")
     public void testContradiction(final SplitVariableProvider splitProvider) {
@@ -92,7 +81,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.literal("A", true));
         solver.add(f.literal("A", false));
         final List<Model> models =
@@ -109,7 +98,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         List<Model> models = solver.execute(ModelEnumerationFunction.builder(List.of()).configuration(config).build());
         assertThat(models).containsExactly(new Model());
         final SortedSet<Variable> additionalVars = f.variables("A", "B");
@@ -128,7 +117,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("A & (B | C)");
         solver.add(formula);
         List<Model> models = solver.execute(ModelEnumerationFunction.builder(List.of()).configuration(config).build());
@@ -148,7 +137,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & (B | C)"));
         final List<Model> models = solver
                 .execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
@@ -168,7 +157,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
         final List<Model> models = solver
                 .execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
@@ -185,7 +174,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & (B | C)"));
         final List<Model> models = solver
                 .execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
@@ -212,7 +201,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & (B | C)"));
         final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "A", "B"))
                 .configuration(config).build());
@@ -232,7 +221,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
         solver.add(formula);
         final ModelEnumerationFunction meFunction =
@@ -252,7 +241,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & C | B & ~C"));
         final Variable a = f.variable("A");
         final Variable b = f.variable("B");
@@ -276,7 +265,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & (B | C)"));
         final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A"))
                 .additionalVariables(f.variables("B", "B"))
@@ -287,6 +276,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
 
     @ParameterizedTest
     @MethodSource("splitProviders")
+    @LongRunningTag
     public void testDontCareVariables1(final SplitVariableProvider splitProvider) throws ParserException {
         final ModelEnumerationConfig config =
                 ModelEnumerationConfig.builder()
@@ -294,7 +284,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
         final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C", "D"))
                 .configuration(config)
@@ -324,7 +314,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
         final List<Model> models = solver.execute(ModelEnumerationFunction.builder(f.variables("A", "C", "D", "E"))
                 .configuration(config)
@@ -355,7 +345,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
         final ModelEnumerationConfig config =
                 ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder()
                         .splitVariableProvider(splitProvider).maxNumberOfModels(3).build()).build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("A | B | (X & ~X)"); // X will be
                                                              // simplified out
                                                              // and become a
@@ -379,7 +369,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                         .strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder()
                                 .splitVariableProvider(splitProvider).maxNumberOfModels(3).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
         final List<Model> models = solver
                 .execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
@@ -390,7 +380,6 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @RandomTag
     @Test
     public void testAdditionalVariables() {
-        final SATSolver solver = MiniSat.miniSat(f);
         final ModelEnumerationConfig config = ModelEnumerationConfig.builder()
                 .strategy(DefaultModelEnumerationStrategy.builder()
                         .splitVariableProvider(new LeastCommonVariablesProvider()).maxNumberOfModels(10).build())
@@ -398,6 +387,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
 
         for (int i = 1; i <= 1000; i++) {
             // given
+            final SATSolver solver = SATSolver.newSolver(f);
             final FormulaRandomizer randomizer =
                     new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(i).numVars(20).build());
             final Formula formula = randomizer.formula(4);
@@ -421,11 +411,8 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
             // additional variables
             for (final Model model : modelsRecursive) {
                 assertThat(variables(model)).containsAll(additionalVars);
-                solver.add(model.getLiterals());
-                assertThat(solver.sat()).isEqualTo(Tristate.TRUE);
-                solver.reset();
+                assertThat(solver.satCall().addFormulas(model.getLiterals()).sat()).isEqualTo(Tristate.TRUE);
             }
-            solver.reset();
         }
     }
 
@@ -437,7 +424,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
                     new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(i).numVars(15).build());
             final Formula formula = randomizer.formula(3);
 
-            final SATSolver solver = MiniSat.miniSat(f);
+            final SATSolver solver = SATSolver.newSolver(f);
             solver.add(formula);
 
             // no split
@@ -475,9 +462,8 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testCollector(final FormulaContext _c) {
-        final MiniSat solver = MiniSat.miniSat(_c.f);
+        final SATSolver solver = SATSolver.newSolver(_c.f);
         solver.add(_c.eq1);
-        solver.sat();
 
         final EnumerationCollectorTestHandler handler = new EnumerationCollectorTestHandler();
         final ModelEnumerationFunction.ModelEnumerationCollector collector =
@@ -492,7 +478,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
 
         final Model expectedModel1 = new Model(_c.a, _c.b);
         final Model expectedModel2 = new Model(_c.na, _c.nb);
-        final LNGIntVector relevantIndices = new LNGIntVector(new int[]{0, 1});
+        final LNGIntVector relevantIndices = LNGIntVector.of(0, 1);
 
         collector.addModel(modelFromSolver1, solver, relevantIndices, handler);
         assertThat(collector.getResult()).isEmpty();
@@ -565,7 +551,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
 
     @Test
     public void testModelEnumerationSimple() throws ParserException {
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & (B | C)"));
         final List<Model> models = solver.enumerateAllModels(f.variables("A", "B", "C"));
         assertThat(models).containsExactlyInAnyOrder(
@@ -579,8 +565,8 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
     public void testVariableRemovedBySimplificationOccursInModels() throws ParserException {
         final FormulaFactory f =
                 FormulaFactory.caching(FormulaFactoryConfig.builder().simplifyComplementaryOperands(true).build());
-        final SATSolver solver = MiniSat.miniSat(this.f,
-                MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SATSolver solver = SATSolver.newSolver(this.f,
+                SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         final Variable a = f.variable("A");
         final Variable b = f.variable("B");
         final Formula formula = this.f.parse("A & B => A");
@@ -596,7 +582,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
 
     @Test
     public void testUnknownVariableNotOccurringInModel() {
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         final Variable a = f.variable("A");
         solver.add(a);
         final List<Model> models = solver.enumerateAllModels(f.variables("A", "X"));

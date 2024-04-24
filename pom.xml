@@ -57,6 +57,7 @@
     <version.antlr-plugin>4.13.1</version.antlr-plugin>
     <version.jacoco>0.8.11</version.jacoco>
     <version.coveralls>4.3.0</version.coveralls>
+    <version.maven-compiler>3.13.0</version.maven-compiler>
     <version.surefire>3.2.3</version.surefire>
     <version.nexus-staging>1.6.13</version.nexus-staging>
     <version.maven-gpg>1.6</version.maven-gpg>
@@ -95,6 +96,13 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+
+      <!-- Store POM version in application manifest and set Jigsaw module name-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${version.maven-compiler}</version>
       </plugin>
 
       <!-- Store POM version in application manifest and set Jigsaw module name-->

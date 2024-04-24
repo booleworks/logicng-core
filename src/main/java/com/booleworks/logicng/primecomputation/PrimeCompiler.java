@@ -12,10 +12,10 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.Handler;
 import com.booleworks.logicng.handlers.OptimizationHandler;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATCall;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.transformations.LiteralSubstitution;
 import com.booleworks.logicng.util.FormulaHelper;
 import com.booleworks.logicng.util.Pair;
@@ -124,11 +124,11 @@ public final class PrimeCompiler {
                                                                                     final Formula formula,
                                                                                     final OptimizationHandler handler) {
         final SubstitutionResult sub = createSubstitution(f, formula);
-        final SATSolver hSolver =
-                MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SATSolver hSolver = SATSolver.newSolver(f,
+                SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         hSolver.add(sub.constraintFormula);
-        final SATSolver fSolver =
-                MiniSat.miniSat(f, MiniSatConfig.builder().cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SATSolver fSolver = SATSolver.newSolver(f,
+                SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         fSolver.add(formula.negate(f));
         final NaivePrimeReduction primeReduction = new NaivePrimeReduction(f, formula);
         final List<SortedSet<Literal>> primeImplicants = new ArrayList<>();
@@ -146,36 +146,38 @@ public final class PrimeCompiler {
                 return new Pair<>(primeImplicants, primeImplicates);
             }
             final Assignment fModel = transformModel(hModel, sub.newVar2oldLit);
-            final Tristate fSat = fSolver.sat(OptimizationHandler.satHandler(handler), fModel.literals());
-            if (Handler.aborted(handler)) {
-                return null;
-            }
-            if (fSat == Tristate.FALSE) {
-                final SortedSet<Literal> primeImplicant = computeWithMaximization
-                        ? primeReduction.reduceImplicant(fModel.literals(), OptimizationHandler.satHandler(handler))
-                        : fModel.literals();
-                if (primeImplicant == null || Handler.aborted(handler)) {
+            try (final SATCall fCall = fSolver.satCall().handler(OptimizationHandler.satHandler(handler))
+                    .addFormulas(fModel.literals()).solve()) {
+                if (Handler.aborted(handler)) {
                     return null;
                 }
-                primeImplicants.add(primeImplicant);
-                final List<Literal> blockingClause = new ArrayList<>();
-                for (final Literal lit : primeImplicant) {
-                    blockingClause.add(((Literal) lit.transform(sub.substitution)).negate(f));
+                if (fCall.getSatResult() == Tristate.FALSE) {
+                    final SortedSet<Literal> primeImplicant = computeWithMaximization
+                            ? primeReduction.reduceImplicant(fModel.literals(), OptimizationHandler.satHandler(handler))
+                            : fModel.literals();
+                    if (primeImplicant == null || Handler.aborted(handler)) {
+                        return null;
+                    }
+                    primeImplicants.add(primeImplicant);
+                    final List<Literal> blockingClause = new ArrayList<>();
+                    for (final Literal lit : primeImplicant) {
+                        blockingClause.add(((Literal) lit.transform(sub.substitution)).negate(f));
+                    }
+                    hSolver.add(f.or(blockingClause));
+                } else {
+                    final SortedSet<Literal> implicate = new TreeSet<>();
+                    for (final Literal lit : (computeWithMaximization ? fModel : fCall.model(formula.variables(f)))
+                            .literals()) {
+                        implicate.add(lit.negate(f));
+                    }
+                    final SortedSet<Literal> primeImplicate =
+                            primeReduction.reduceImplicate(f, implicate, OptimizationHandler.satHandler(handler));
+                    if (primeImplicate == null || Handler.aborted(handler)) {
+                        return null;
+                    }
+                    primeImplicates.add(primeImplicate);
+                    hSolver.add(f.or(primeImplicate).transform(sub.substitution));
                 }
-                hSolver.add(f.or(blockingClause));
-            } else {
-                final SortedSet<Literal> implicate = new TreeSet<>();
-                for (final Literal lit : (computeWithMaximization ? fModel : fSolver.model(formula.variables(f)))
-                        .literals()) {
-                    implicate.add(lit.negate(f));
-                }
-                final SortedSet<Literal> primeImplicate =
-                        primeReduction.reduceImplicate(f, implicate, OptimizationHandler.satHandler(handler));
-                if (primeImplicate == null || Handler.aborted(handler)) {
-                    return null;
-                }
-                primeImplicates.add(primeImplicate);
-                hSolver.add(f.or(primeImplicate).transform(sub.substitution));
             }
         }
     }

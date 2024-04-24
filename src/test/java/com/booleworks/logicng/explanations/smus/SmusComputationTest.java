@@ -6,6 +6,7 @@ package com.booleworks.logicng.explanations.smus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.TestWithExampleFormulas;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.handlers.BoundedOptimizationHandler;
@@ -232,6 +233,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
     }
 
     @Test
+    @LongRunningTag
     public void testCancellationPoints() throws IOException {
         final List<Formula> formulas = DimacsReader.readCNF(f, "src/test/resources/sat/unsat/bf0432-007.cnf");
         for (int numOptimizationStarts = 1; numOptimizationStarts < 5; numOptimizationStarts++) {

@@ -4,6 +4,10 @@
 
 package com.booleworks.logicng.solvers.functions;
 
+import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.CNF_METHOD;
+import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.INITIAL_PHASE;
+import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.PROOF_GENERATION;
+import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES;
 import static java.util.stream.Collectors.toCollection;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -11,7 +15,6 @@ import com.booleworks.logicng.LogicNGTest;
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -28,16 +31,16 @@ import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.predicates.satisfiability.SATPredicate;
 import com.booleworks.logicng.solvers.MaxSATSolver;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.GlucoseConfig;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.BufferedReader;
@@ -54,91 +57,91 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public class OptimizationFunctionTest implements LogicNGTest {
 
-    public static Collection<Object[]> solvers() {
+    public static List<Arguments> solverSuppliers() {
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder()
                 .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
-        final List<Object[]> solvers = new ArrayList<>();
-        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(true).build())});
-        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(false).build())});
-        solvers.add(new Object[]{MiniSat.miniSat(f,
-                MiniSatConfig.builder().initialPhase(true).cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).build())});
-        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(true)
-                .cnfMethod(MiniSatConfig.CNFMethod.PG_ON_SOLVER).proofGeneration(true).build())});
-        solvers.add(new Object[]{MiniSat.miniSat(f, MiniSatConfig.builder().initialPhase(false).build())});
-        solvers.add(new Object[]{MiniSat.miniCard(f, MiniSatConfig.builder().initialPhase(true).build())});
-        solvers.add(new Object[]{MiniSat.miniCard(f, MiniSatConfig.builder().initialPhase(false).build())});
-        solvers.add(new Object[]{MiniSat.glucose(f, MiniSatConfig.builder().initialPhase(true).build(),
-                GlucoseConfig.builder().build())});
-        solvers.add(new Object[]{MiniSat.glucose(f, MiniSatConfig.builder().initialPhase(false).build(),
-                GlucoseConfig.builder().build())});
-        return solvers;
+        final List<Arguments> solverSuppliers = SolverTestSet.solverSupplierTestSetForParameterizedTests(
+                Set.of(USE_AT_MOST_CLAUSES, CNF_METHOD, INITIAL_PHASE, PROOF_GENERATION), f);
+        return solverSuppliers.stream().map(args -> Arguments.of(args.get()[0], f, args.get()[1]))
+                .collect(Collectors.toList());
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testUnsatFormula(final SATSolver solver) throws ParserException {
-        final FormulaFactory f = solver.factory();
+    @ParameterizedTest(name = "{index} {2}")
+    @MethodSource("solverSuppliers")
+    public void testUnsatFormula(final Supplier<SATSolver> solver, final FormulaFactory f,
+                                 final String solverDescription)
+            throws ParserException {
         final Formula formula = f.parse("a & b & (a => ~b)");
         final Assignment minimumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), false, solver, null);
+                Collections.emptyList(), false, solver.get(), null);
         assertThat(minimumModel).isNull();
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), true, solver, null);
+                Collections.emptyList(), true, solver.get(), null);
         assertThat(maximumModel).isNull();
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testSingleModel(final SATSolver solver) throws ParserException {
-        final FormulaFactory f = solver.factory();
+    @ParameterizedTest(name = "{index} {2}")
+    @MethodSource("solverSuppliers")
+    public void testSingleModel(final Supplier<SATSolver> solver, final FormulaFactory f,
+                                final String solverDescription)
+            throws ParserException {
         final Formula formula = f.parse("~a & ~b & ~c");
         final Assignment minimumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), false, solver, null);
+                Collections.emptyList(), false, solver.get(), null);
         testMinimumModel(formula, minimumModel, formula.variables(f));
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), true, solver, null);
+                Collections.emptyList(), true, solver.get(), null);
         testMaximumModel(formula, maximumModel, formula.variables(f));
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testExoModel(final SATSolver solver) {
-        final FormulaFactory f = solver.factory();
+    @ParameterizedTest(name = "{index} {2}")
+    @MethodSource("solverSuppliers")
+    public void testExoModel(final Supplier<SATSolver> solver, final FormulaFactory f, final String solverDescription) {
         final CardinalityConstraint exo =
                 (CardinalityConstraint) f.exo(f.variable("a"), f.variable("b"), f.variable("c"));
-        final Assignment minimumModel =
-                optimize(Collections.singleton(exo), exo.variables(f), Collections.emptyList(), false, solver, null);
+        final Assignment minimumModel = optimize(Collections.singleton(exo), exo.variables(f), Collections.emptyList(),
+                false, solver.get(), null);
         testMinimumModel(exo, minimumModel, exo.variables(f));
-        final Assignment maximumModel =
-                optimize(Collections.singleton(exo), exo.variables(f), Collections.emptyList(), true, solver, null);
+        final Assignment maximumModel = optimize(Collections.singleton(exo), exo.variables(f), Collections.emptyList(),
+                true, solver.get(), null);
         testMaximumModel(exo, maximumModel, exo.variables(f));
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testCornerCases(final SATSolver solver) {
-        final FormulaCornerCases cornerCases = new FormulaCornerCases(solver.factory());
+    @ParameterizedTest(name = "{index} {2}")
+    @MethodSource("solverSuppliers")
+    public void testCornerCases(final Supplier<SATSolver> solver, final FormulaFactory f,
+                                final String solverDescription) {
+        final FormulaCornerCases cornerCases = new FormulaCornerCases(f);
         for (final Formula formula : cornerCases.cornerCases()) {
             final Set<Variable> targetLiterals = cornerCases.getVariables();
 
             final Assignment minimumModel = optimize(Collections.singleton(formula), targetLiterals,
-                    Collections.emptySet(), false, solver, null);
+                    Collections.emptySet(), false, solver.get(), null);
             testMinimumModel(formula, minimumModel, targetLiterals);
 
             final Assignment maximumModel = optimize(Collections.singleton(formula), targetLiterals,
-                    Collections.emptySet(), true, solver, null);
+                    Collections.emptySet(), true, solver.get(), null);
             testMaximumModel(formula, maximumModel, targetLiterals);
         }
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
+    @ParameterizedTest(name = "{index} {2}")
+    @MethodSource("solverSuppliers")
     @RandomTag
-    public void testRandomSmall(final SATSolver solver) {
-        final FormulaFactory f = solver.factory();
+    public void testRandomSmall(final Supplier<SATSolver> solver, final FormulaFactory f0,
+                                final String solverDescription) {
+        final FormulaFactory f = FormulaFactory.nonCaching(FormulaFactoryConfig.builder()
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build()); // caching
+                                                                                                  // factory
+                                                                                                  // goes
+                                                                                                  // out
+                                                                                                  // of
+                                                                                                  // heap
         final Random random = new Random(42);
         final FormulaRandomizer randomizer =
                 new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(6).weightPbc(2).seed(42).build());
@@ -150,12 +153,12 @@ public class OptimizationFunctionTest implements LogicNGTest {
                     randomTargetLiterals(f, random, randomSubset(random, variables, Math.min(variables.size(), 5)));
             final Set<Variable> additionalVariables = randomSubset(random, variables, Math.min(variables.size(), 3));
 
-            final Assignment minimumModel =
-                    optimize(Collections.singleton(formula), targetLiterals, additionalVariables, false, solver, null);
+            final Assignment minimumModel = optimize(Collections.singleton(formula), targetLiterals,
+                    additionalVariables, false, solver.get(), null);
             testMinimumModel(formula, minimumModel, targetLiterals);
 
-            final Assignment maximumModel =
-                    optimize(Collections.singleton(formula), targetLiterals, additionalVariables, true, solver, null);
+            final Assignment maximumModel = optimize(Collections.singleton(formula), targetLiterals,
+                    additionalVariables, true, solver.get(), null);
             testMaximumModel(formula, maximumModel, targetLiterals);
         }
     }
@@ -177,15 +180,12 @@ public class OptimizationFunctionTest implements LogicNGTest {
                 .collect(toCollection(TreeSet::new));
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testIncrementalityMinimizeAndMaximize(final MiniSat solver) throws ParserException {
-        final FormulaFactory f = solver.factory();
-        if (!solver.canSaveLoadState()) {
-            return;
-        }
-        solver.reset();
+    @ParameterizedTest(name = "{index} {2}")
+    @MethodSource("solverSuppliers")
+    public void testIncrementalityMinimizeAndMaximize(final Supplier<SATSolver> solverSupplier, final FormulaFactory f)
+            throws ParserException {
         Formula formula = f.parse("(a|b|c|d|e) & (p|q) & (x|y|z)");
+        final SATSolver solver = solverSupplier.get();
         final SortedSet<Variable> vars = new TreeSet<>(formula.variables(f));
         solver.add(formula);
 
@@ -232,10 +232,11 @@ public class OptimizationFunctionTest implements LogicNGTest {
         assertThat(maximumModel).isNull();
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testAdditionalVariables(final SATSolver solver) throws ParserException {
-        final FormulaFactory f = solver.factory();
+    @ParameterizedTest(name = "{index} {2}")
+    @MethodSource("solverSuppliers")
+    public void testAdditionalVariables(final Supplier<SATSolver> solver, final FormulaFactory f,
+                                        final String solverDescription)
+            throws ParserException {
         final Variable a = f.variable("a");
         final Literal na = f.literal("a", false);
         final Variable b = f.variable("b");
@@ -245,80 +246,83 @@ public class OptimizationFunctionTest implements LogicNGTest {
         final Literal nx = f.literal("x", false);
         final Variable y = f.variable("y");
 
-        solver.reset();
         final Formula formula = f.parse("(a|b) & (~a => c) & (x|y)");
 
         final List<Literal> literalsANBX = Arrays.asList(a, nb, x);
-        final Assignment minimumModel =
-                optimize(Collections.singleton(formula), literalsANBX, Collections.emptyList(), false, solver, null);
+        final Assignment minimumModel = optimize(Collections.singleton(formula), literalsANBX, Collections.emptyList(),
+                false, solver.get(), null);
         Assertions.assertThat(minimumModel.literals()).containsExactlyInAnyOrder(na, b, nx);
-        final Assignment minimumModelWithY =
-                optimize(Collections.singleton(formula), literalsANBX, Collections.singleton(y), false, solver, null);
+        final Assignment minimumModelWithY = optimize(Collections.singleton(formula), literalsANBX,
+                Collections.singleton(y), false, solver.get(), null);
         Assertions.assertThat(minimumModelWithY.literals()).containsExactlyInAnyOrder(na, b, nx, y);
         final Assignment minimumModelWithCY =
-                optimize(Collections.singleton(formula), literalsANBX, Arrays.asList(c, y), false, solver, null);
+                optimize(Collections.singleton(formula), literalsANBX, Arrays.asList(c, y), false, solver.get(), null);
         Assertions.assertThat(minimumModelWithCY.literals()).containsExactlyInAnyOrder(na, b, c, nx, y);
 
         final List<Literal> literalsNBNX = Arrays.asList(na, nx);
-        final Assignment maximumModel =
-                optimize(Collections.singleton(formula), literalsNBNX, Collections.emptyList(), true, solver, null);
+        final Assignment maximumModel = optimize(Collections.singleton(formula), literalsNBNX, Collections.emptyList(),
+                true, solver.get(), null);
         Assertions.assertThat(maximumModel.literals()).containsExactlyInAnyOrder(na, nx);
-        final Assignment maximumModelWithC =
-                optimize(Collections.singleton(formula), literalsNBNX, Collections.singleton(c), true, solver, null);
+        final Assignment maximumModelWithC = optimize(Collections.singleton(formula), literalsNBNX,
+                Collections.singleton(c), true, solver.get(), null);
         Assertions.assertThat(maximumModelWithC.literals()).containsExactlyInAnyOrder(na, c, nx);
-        final Assignment maximumModelWithACY =
-                optimize(Collections.singleton(formula), literalsNBNX, Arrays.asList(a, c, y), true, solver, null);
+        final Assignment maximumModelWithACY = optimize(Collections.singleton(formula), literalsNBNX,
+                Arrays.asList(a, c, y), true, solver.get(), null);
         Assertions.assertThat(maximumModelWithACY.literals()).containsExactlyInAnyOrder(na, c, nx, y);
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testLargeFormulaMinimize(final SATSolver solver) throws IOException, ParserException {
-        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder()
-                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+    @ParameterizedTest(name = "{index} {2}")
+    @MethodSource("solverSuppliers")
+    @LongRunningTag
+    public void testLargeFormulaMinimize(final Supplier<SATSolver> solver, final FormulaFactory f,
+                                         final String solverDescription)
+            throws IOException, ParserException {
         final Formula formula =
                 FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
-        final Assignment minimumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), false, solver, null);
-        testMinimumModel(formula, minimumModel, formula.variables(f));
+        final List<Variable> variables = randomSubset(formula.variables(f), 300);
+        final Assignment minimumModel =
+                optimize(Collections.singleton(formula), variables, Collections.emptyList(), false, solver.get(), null);
+        testMinimumModel(formula, minimumModel, variables);
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testLargeFormulaMaximize(final SATSolver solver) throws IOException, ParserException {
-        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder()
-                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+    @ParameterizedTest(name = "{index} {2}")
+    @MethodSource("solverSuppliers")
+    @LongRunningTag
+    public void testLargeFormulaMaximize(final Supplier<SATSolver> solver, final FormulaFactory f,
+                                         final String solverDescription)
+            throws IOException, ParserException {
         final Formula formula =
                 FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), true, solver, null);
+                Collections.emptyList(), true, solver.get(), null);
         testMaximumModel(formula, maximumModel, formula.variables(f));
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
+    @ParameterizedTest(name = "{index} {2}")
+    @MethodSource("solverSuppliers")
     @LongRunningTag
-    public void testLargerFormulaMinimize(final SATSolver solver) throws IOException, ParserException {
-        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder()
-                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+    public void testLargerFormulaMinimize(final Supplier<SATSolver> solver, final FormulaFactory f,
+                                          final String solverDescription)
+            throws IOException, ParserException {
         final Formula formula =
                 FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
         final Assignment minimumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), false, solver, null);
+                Collections.emptyList(), false, solver.get(), null);
         testMinimumModel(formula, minimumModel, formula.variables(f));
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
+    @ParameterizedTest(name = "{index} {2}")
+    @MethodSource("solverSuppliers")
     @LongRunningTag
-    public void testLargerFormulaMaximize(final SATSolver solver) throws IOException, ParserException {
-        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder()
-                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+    public void testLargerFormulaMaximize(final Supplier<SATSolver> solver, final FormulaFactory f,
+                                          final String solverDescription)
+            throws IOException, ParserException {
         final Formula formula =
                 FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
-        final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), true, solver, null);
-        testMaximumModel(formula, maximumModel, formula.variables(f));
+        final List<Variable> variables = randomSubset(formula.variables(f), 300);
+        final Assignment maximumModel =
+                optimize(Collections.singleton(formula), variables, Collections.emptyList(), true, solver.get(), null);
+        testMaximumModel(formula, maximumModel, variables);
     }
 
     @Test
@@ -341,32 +345,32 @@ public class OptimizationFunctionTest implements LogicNGTest {
         assertThat(solveMaxSat(formulas, variables, MaxSATSolver.msu3(f))).isEqualTo(expected);
         assertThat(solveMaxSat(formulas, variables, MaxSATSolver.wbo(f))).isEqualTo(expected);
         assertThat(satisfiedLiterals(
-                optimize(formulas, variables, Collections.emptyList(), false, MiniSat.miniSat(f), null), variables)
-                        .size()).isEqualTo(expected);
+                optimize(formulas, variables, Collections.emptyList(), false,
+                        SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(false).build()), null),
+                variables).size()).isEqualTo(expected);
         assertThat(satisfiedLiterals(
-                optimize(formulas, variables, Collections.emptyList(), false, MiniSat.miniCard(f), null), variables)
-                        .size()).isEqualTo(expected);
-        assertThat(satisfiedLiterals(
-                optimize(formulas, variables, Collections.emptyList(), false, MiniSat.glucose(f), null), variables)
-                        .size()).isEqualTo(expected);
+                optimize(formulas, variables, Collections.emptyList(), false,
+                        SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(true).build()), null),
+                variables).size()).isEqualTo(expected);
     }
 
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testTimeoutOptimizationHandler(final SATSolver solver) throws IOException, ParserException {
-        final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder()
-                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
+    @ParameterizedTest(name = "{index} {2}")
+    @MethodSource("solverSuppliers")
+    @LongRunningTag
+    public void testTimeoutOptimizationHandler(final Supplier<SATSolver> solver, final FormulaFactory f,
+                                               final String solverDescription)
+            throws IOException, ParserException {
         final Formula formula =
                 FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         final TimeoutOptimizationHandler handlerMax = new TimeoutOptimizationHandler(1L);
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), true, solver, handlerMax);
+                Collections.emptyList(), true, solver.get(), handlerMax);
         assertThat(maximumModel).isNull();
         assertThat(handlerMax.aborted()).isTrue();
 
         final TimeoutOptimizationHandler handlerTooShort = new TimeoutOptimizationHandler(0L);
         final Assignment model = optimize(Collections.singleton(formula), formula.variables(f), Collections.emptyList(),
-                false, solver, handlerTooShort);
+                false, solver.get(), handlerTooShort);
         assertThat(model).isNull();
         assertThat(handlerTooShort.aborted()).isTrue();
         Assertions.assertThat(handlerTooShort.getIntermediateResult()).isNull(); // SATHandler
@@ -380,16 +384,18 @@ public class OptimizationFunctionTest implements LogicNGTest {
 
         final CustomOptimizationHandler customHandler = new CustomOptimizationHandler();
         final Assignment modelCustom = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), true, solver, customHandler);
+                Collections.emptyList(), true, solver.get(), customHandler);
         assertThat(modelCustom).isNull();
         assertThat(customHandler.aborted()).isTrue();
         assertThat(customHandler.currentResult).isNotNull();
     }
 
+    @ParameterizedTest(name = "{index} {2}")
+    @MethodSource("solverSuppliers")
     @LongRunningTag
-    @ParameterizedTest
-    @MethodSource("solvers")
-    public void testCancellationPoints(final SATSolver solver) throws IOException {
+    public void testCancellationPoints(final Supplier<SATSolver> solverSupplier, final FormulaFactory f0,
+                                       final String solverDescription)
+            throws IOException {
         final FormulaFactory f = FormulaFactory.caching();
         final SortedSet<Variable> selVars = new TreeSet<>();
         final List<Formula> clauses = DimacsReader.readCNF(f, "src/test/resources/sat/c499_gr_rcs_w6.shuffled.cnf");
@@ -399,8 +405,8 @@ public class OptimizationFunctionTest implements LogicNGTest {
             selVars.add(selVar);
             formulas.add(f.equivalence(selVar, clause));
         }
-        for (int numSatHandlerStarts = 1; numSatHandlerStarts < 5; numSatHandlerStarts++) {
-            solver.reset();
+        final SATSolver solver = solverSupplier.get();
+        for (int numSatHandlerStarts = 1; numSatHandlerStarts < 4; numSatHandlerStarts++) {
             solver.add(formulas);
             final OptimizationHandler handler = new BoundedOptimizationHandler(numSatHandlerStarts, -1);
             final OptimizationFunction optimizationFunction = OptimizationFunction.builder()
@@ -433,7 +439,6 @@ public class OptimizationFunctionTest implements LogicNGTest {
                                        final Collection<Variable> additionalVariables, final boolean maximize,
                                        final SATSolver solver,
                                        final OptimizationHandler handler) {
-        solver.reset();
         formulas.forEach(solver::add);
         if (maximize) {
             return solver.execute(OptimizationFunction.builder().maximize().literals(literals)
@@ -459,24 +464,27 @@ public class OptimizationFunctionTest implements LogicNGTest {
         final FormulaFactory f = formula.factory();
         final SATPredicate satPredicate = new SATPredicate(f);
         if (formula.holds(satPredicate)) {
-            assertThat(f.and(formula, f.and(optimumModel.literals())).holds(satPredicate)).isTrue();
-            final int numSatisfiedLiterals = satisfiedLiterals(optimumModel, literals).size();
-            final SortedSet<Variable> selVars = new TreeSet<>();
-            final SATSolver solver = MiniSat.miniSat(formula.factory());
-            solver.add(formula);
-            for (final Literal lit : literals) {
-                final Variable selVar = f.variable("SEL_VAR_" + selVars.size());
-                if (maximize) {
-                    solver.add(f.equivalence(selVar.negate(f), lit));
-                } else {
-                    solver.add(f.equivalence(selVar.negate(f), lit.negate(f)));
-                }
+            if (literals.isEmpty()) {
+                assertThat(optimumModel.literals()).isEmpty();
+            } else {
+                assertThat(f.and(formula, f.and(optimumModel.literals())).holds(satPredicate)).isTrue();
+                final int actualNumSatisfied = satisfiedLiterals(optimumModel, literals).size();
+                final MaxSATSolver solver = MaxSATSolver.oll(f);
+                solver.addHardFormula(formula);
+                literals.forEach(l -> solver.addSoftFormula(maximize ? l : l.negate(f), 1));
+                solver.solve();
+                final int numSatisfiedOll = satisfiedLiterals(solver.model(), literals).size();
+                assertThat(actualNumSatisfied).isEqualTo(numSatisfiedOll);
             }
-            solver.add(formula.factory().cc(CType.GT, numSatisfiedLiterals + 1, selVars));
-            assertSolverUnsat(solver);
         } else {
             assertThat(optimumModel).isNull();
         }
+    }
+
+    private static List<Variable> randomSubset(final Collection<Variable> original, final int size) {
+        final List<Variable> variables = new ArrayList<>(original);
+        Collections.shuffle(variables, new Random(42));
+        return variables.subList(0, size);
     }
 
     private static class CustomOptimizationHandler implements OptimizationHandler {

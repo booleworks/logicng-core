@@ -19,8 +19,7 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
-import com.booleworks.logicng.solvers.sat.GlucoseConfig;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -82,14 +81,11 @@ public class CachingFormulaFactoryTest {
     public void testConfigurations() {
         final FormulaFactory f = FormulaFactory.caching();
         final Configuration configMaxSat = MaxSATConfig.builder().build();
-        final Configuration configMiniSat = MiniSatConfig.builder().build();
-        final Configuration configGlucose = GlucoseConfig.builder().build();
+        final Configuration configSat = SATSolverConfig.builder().build();
         f.putConfiguration(configMaxSat);
-        f.putConfiguration(configMiniSat);
-        f.putConfiguration(configGlucose);
+        f.putConfiguration(configSat);
         assertThat(f.configurationFor(ConfigurationType.MAXSAT)).isEqualTo(configMaxSat);
-        assertThat(f.configurationFor(ConfigurationType.MINISAT)).isEqualTo(configMiniSat);
-        assertThat(f.configurationFor(ConfigurationType.GLUCOSE)).isEqualTo(configGlucose);
+        assertThat(f.configurationFor(ConfigurationType.SAT)).isEqualTo(configSat);
     }
 
     @Test
@@ -161,9 +157,10 @@ public class CachingFormulaFactoryTest {
         assertThat(fg).isEqualTo(ff);
         assertThat(ff.factory()).isSameAs(f);
         assertThat(fg.factory()).isSameAs(g);
-        assertThat(f.statistics()).isEqualToComparingOnlyGivenFields(g.statistics(), "positiveLiterals",
+        assertThat(f.statistics()).usingRecursiveComparison().comparingOnlyFields("positiveLiterals",
                 "negativeLiterals", "negations", "implications", "equivalences", "conjunctions2", "conjunctions3",
-                "conjunctions4", "conjunctionsN", "disjunctions2", "disjunctions3", "disjunctions4");
+                "conjunctions4", "conjunctionsN", "disjunctions2", "disjunctions3", "disjunctions4")
+                .isEqualTo(g.statistics());
         for (final Literal litF : ff.literals(f)) {
             assertThat(litF.factory()).isSameAs(f);
         }

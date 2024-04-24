@@ -30,7 +30,7 @@ public final class SolverState {
      * Returns the id of this state.
      * @return the id of this state
      */
-    int id() {
+    public int getId() {
         return id;
     }
 
@@ -38,7 +38,7 @@ public final class SolverState {
      * Returns the internal solver state.
      * @return the internal solver state
      */
-    int[] state() {
+    public int[] getState() {
         return state;
     }
 

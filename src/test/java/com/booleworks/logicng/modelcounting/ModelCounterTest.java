@@ -20,7 +20,7 @@ import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.knowledgecompilation.bdds.orderings.ForceOrdering;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.testutils.NQueensGenerator;
 import com.booleworks.logicng.transformations.cnf.CNFConfig;
 import com.booleworks.logicng.util.FormulaCornerCases;
@@ -218,7 +218,7 @@ public class ModelCounterTest extends TestWithFormulaContext {
     }
 
     private static BigInteger enumerationBasedModelCount(final FormulaFactory f, final List<Formula> formulas) {
-        final MiniSat solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formulas);
         final SortedSet<Variable> variables = FormulaHelper.variables(f, formulas);
         final List<Model> models = solver.enumerateAllModels(variables);

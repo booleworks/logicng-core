@@ -13,8 +13,8 @@ import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -94,7 +94,7 @@ public class CcAmkTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = miniCard ? MiniSat.miniCard(f) : MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(miniCard).build());
         solver.add(f.cc(CType.LE, rhs, problemLits));
         assertSolverSat(solver);
         Assertions.assertThat(solver.enumerateAllModels(problemLits))

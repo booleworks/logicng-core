@@ -8,7 +8,7 @@ import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.handlers.ModelEnumerationHandler;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
  * An interface for enumeration collectors.
  * <p>
  * An enumeration collector gathers the found models given by
- * {@link #addModel(LNGBooleanVector, MiniSat, LNGIntVector, ModelEnumerationHandler)}.
+ * {@link #addModel(LNGBooleanVector, SATSolver, LNGIntVector, ModelEnumerationHandler)}.
  * Added Models added can potentially be discarded later via
  * {@link #rollback(ModelEnumerationHandler)}. To prevent models from being
  * rolled back one can call {@link #commit(ModelEnumerationHandler)}. With
@@ -38,7 +38,7 @@ public interface EnumerationCollector<RESULT> {
      *                           {@code null}
      * @return true if adding the model was successful, false otherwise
      */
-    boolean addModel(LNGBooleanVector modelFromSolver, MiniSat solver, LNGIntVector relevantAllIndices,
+    boolean addModel(LNGBooleanVector modelFromSolver, SATSolver solver, LNGIntVector relevantAllIndices,
                      ModelEnumerationHandler handler);
 
     /**
@@ -70,7 +70,7 @@ public interface EnumerationCollector<RESULT> {
      * @param handler the model enumeration handler, may be {@code null}
      * @return list of all discarded models
      */
-    List<Model> rollbackAndReturnModels(final MiniSat solver, ModelEnumerationHandler handler);
+    List<Model> rollbackAndReturnModels(final SATSolver solver, ModelEnumerationHandler handler);
 
     /**
      * @return the committed state of the collector

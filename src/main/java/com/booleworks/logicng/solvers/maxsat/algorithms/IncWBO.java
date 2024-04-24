@@ -30,9 +30,10 @@ import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import com.booleworks.logicng.util.Pair;
 
 import java.io.PrintStream;
@@ -53,17 +54,19 @@ public class IncWBO extends WBO {
 
     /**
      * Constructs a new solver with default values.
+     * @param f the formula factory
      */
-    public IncWBO() {
-        this(MaxSATConfig.builder().build());
+    public IncWBO(final FormulaFactory f) {
+        this(f, MaxSATConfig.builder().build());
     }
 
     /**
      * Constructs a new solver with a given configuration.
+     * @param f      the formula factory
      * @param config the configuration
      */
-    public IncWBO(final MaxSATConfig config) {
-        super(config);
+    public IncWBO(final FormulaFactory f, final MaxSATConfig config) {
+        super(f, config);
         solver = null;
         verbosity = config.verbosity;
         nbCurrentSoft = 0;
@@ -247,30 +250,30 @@ public class IncWBO extends WBO {
                         coreList.push(core);
                     }
                     assert j < relaxationMapping.get(p).size();
-                    assert MiniSatStyleSolver.var(relaxationMapping.get(p).get(j)) > nbInitialVariables;
+                    assert LNGCoreSolver.var(relaxationMapping.get(p).get(j)) > nbInitialVariables;
                     coreIntersection[core].push(relaxationMapping.get(p).get(j));
                 }
                 for (int j = 0; j < addCores.size(); j++) {
                     final int core = addCores.get(j);
                     final int b = softMapping.get(p).size() - 1;
                     assert b < relaxationMapping.get(p).size();
-                    assert MiniSatStyleSolver.var(relaxationMapping.get(p).get(b)) > nbInitialVariables;
+                    assert LNGCoreSolver.var(relaxationMapping.get(p).get(b)) > nbInitialVariables;
                     coreIntersectionCurrent[core].push(relaxationMapping.get(p).get(b));
                 }
                 for (int k = 0; k < coreList.size(); k++) {
                     for (int m = 0; m < coreIntersection[coreList.get(k)].size(); m++) {
                         for (int j = m + 1; j < coreIntersectionCurrent[coreList.get(k)].size(); j++) {
                             final LNGIntVector clause = new LNGIntVector();
-                            clause.push(MiniSatStyleSolver.not(coreIntersection[coreList.get(k)].get(m)));
-                            clause.push(MiniSatStyleSolver.not(coreIntersectionCurrent[coreList.get(k)].get(j)));
+                            clause.push(LNGCoreSolver.not(coreIntersection[coreList.get(k)].get(m)));
+                            clause.push(LNGCoreSolver.not(coreIntersectionCurrent[coreList.get(k)].get(j)));
                             Pair<Integer, Integer> symClause =
-                                    new Pair<>(MiniSatStyleSolver.var(coreIntersection[coreList.get(k)].get(m)),
-                                            MiniSatStyleSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j)));
-                            if (MiniSatStyleSolver.var(coreIntersection[coreList.get(k)].get(m)) >
-                                    MiniSatStyleSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j))) {
-                                symClause = new Pair<>(
-                                        MiniSatStyleSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j)),
-                                        MiniSatStyleSolver.var(coreIntersection[coreList.get(k)].get(m)));
+                                    new Pair<>(LNGCoreSolver.var(coreIntersection[coreList.get(k)].get(m)),
+                                            LNGCoreSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j)));
+                            if (LNGCoreSolver.var(coreIntersection[coreList.get(k)].get(m)) >
+                                    LNGCoreSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j))) {
+                                symClause =
+                                        new Pair<>(LNGCoreSolver.var(coreIntersectionCurrent[coreList.get(k)].get(j)),
+                                                LNGCoreSolver.var(coreIntersection[coreList.get(k)].get(m)));
                             }
                             if (!duplicatedSymmetryClauses.contains(symClause)) {
                                 duplicatedSymmetryClauses.add(symClause);
@@ -315,7 +318,7 @@ public class IncWBO extends WBO {
             assumptions.clear();
             for (int i = 0; i < incSoft.size(); i++) {
                 if (!incSoft.get(i)) {
-                    assumptions.push(MiniSatStyleSolver.not(softClauses.get(i).assumptionVar()));
+                    assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                 }
             }
             final SATHandler satHandler = satHandler();
@@ -324,16 +327,16 @@ public class IncWBO extends WBO {
                 return MaxSATResult.UNDEF;
             } else if (res == FALSE) {
                 nbCores++;
-                assert solver.conflict().size() > 0;
-                final int coreCost = computeCostCore(solver.conflict());
+                assert solver.assumptionsConflict().size() > 0;
+                final int coreCost = computeCostCore(solver.assumptionsConflict());
                 lbCost += coreCost;
                 if (verbosity != MaxSATConfig.Verbosity.NONE) {
-                    output.printf("c LB : %d CS : %d W : %d%n", lbCost, solver.conflict().size(), coreCost);
+                    output.printf("c LB : %d CS : %d W : %d%n", lbCost, solver.assumptionsConflict().size(), coreCost);
                 }
                 if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                relaxCore(solver.conflict(), coreCost);
+                relaxCore(solver.assumptionsConflict(), coreCost);
                 incrementalBuildWeightSolver(weightStrategy);
             } else {
                 nbSatisfiable++;
@@ -384,11 +387,11 @@ public class IncWBO extends WBO {
                     unsatisfied = false;
                     continue;
                 }
-                assert MiniSatStyleSolver.var(softClauses.get(i).clause().get(j)) < currentModel.size();
-                if ((MiniSatStyleSolver.sign(softClauses.get(i).clause().get(j)) &&
-                        !currentModel.get(MiniSatStyleSolver.var(softClauses.get(i).clause().get(j)))) ||
-                        (!MiniSatStyleSolver.sign(softClauses.get(i).clause().get(j)) &&
-                                currentModel.get(MiniSatStyleSolver.var(softClauses.get(i).clause().get(j))))) {
+                assert LNGCoreSolver.var(softClauses.get(i).clause().get(j)) < currentModel.size();
+                if ((LNGCoreSolver.sign(softClauses.get(i).clause().get(j)) &&
+                        !currentModel.get(LNGCoreSolver.var(softClauses.get(i).clause().get(j)))) ||
+                        (!LNGCoreSolver.sign(softClauses.get(i).clause().get(j)) &&
+                                currentModel.get(LNGCoreSolver.var(softClauses.get(i).clause().get(j))))) {
                     unsatisfied = false;
                     break;
                 }
@@ -415,7 +418,7 @@ public class IncWBO extends WBO {
             assumptions.clear();
             for (int i = 0; i < incSoft.size(); i++) {
                 if (!incSoft.get(i)) {
-                    assumptions.push(MiniSatStyleSolver.not(softClauses.get(i).assumptionVar()));
+                    assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                 }
             }
             final SATHandler satHandler = satHandler();
@@ -424,11 +427,11 @@ public class IncWBO extends WBO {
                 return MaxSATResult.UNDEF;
             } else if (res == FALSE) {
                 nbCores++;
-                assert solver.conflict().size() > 0;
-                final int coreCost = computeCostCore(solver.conflict());
+                assert solver.assumptionsConflict().size() > 0;
+                final int coreCost = computeCostCore(solver.assumptionsConflict());
                 lbCost += coreCost;
                 if (verbosity != MaxSATConfig.Verbosity.NONE) {
-                    output.printf("c LB : %d CS : %d W : %d%n", lbCost, solver.conflict().size(), coreCost);
+                    output.printf("c LB : %d CS : %d W : %d%n", lbCost, solver.assumptionsConflict().size(), coreCost);
                 }
                 if (lbCost == ubCost) {
                     if (verbosity != MaxSATConfig.Verbosity.NONE) {
@@ -439,7 +442,7 @@ public class IncWBO extends WBO {
                 if (!foundLowerBound(lbCost, null)) {
                     return MaxSATResult.UNDEF;
                 }
-                relaxCore(solver.conflict(), coreCost);
+                relaxCore(solver.assumptionsConflict(), coreCost);
             } else {
                 nbSatisfiable++;
                 ubCost = incComputeCostModel(solver.model());

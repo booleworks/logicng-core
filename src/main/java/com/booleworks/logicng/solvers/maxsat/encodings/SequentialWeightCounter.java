@@ -26,7 +26,7 @@ import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT.newSATVari
 
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 /**
  * A sequential weight counter for the encoding of pseudo-Boolean constraints in
@@ -50,7 +50,7 @@ public class SequentialWeightCounter extends Encoding {
      */
     SequentialWeightCounter() {
         currentPbRhs = -1;
-        currentLitBlocking = MiniSatStyleSolver.LIT_UNDEF;
+        currentLitBlocking = LNGCoreSolver.LIT_UNDEF;
         pbOutlits = new LNGIntVector();
         unitLits = new LNGIntVector();
         unitCoeffs = new LNGIntVector();
@@ -64,9 +64,9 @@ public class SequentialWeightCounter extends Encoding {
      * @param assumptions the current assumptions
      */
     void updateAssumptions(final LNGIntVector assumptions) {
-        assumptions.push(MiniSatStyleSolver.not(currentLitBlocking));
+        assumptions.push(LNGCoreSolver.not(currentLitBlocking));
         for (int i = 0; i < unitLits.size(); i++) {
-            assumptions.push(MiniSatStyleSolver.not(unitLits.get(i)));
+            assumptions.push(LNGCoreSolver.not(unitLits.get(i)));
         }
     }
 
@@ -85,7 +85,7 @@ public class SequentialWeightCounter extends Encoding {
      * @param coeffs the coefficients of the constraints
      * @param rhs    the right-hand side of the constraint
      */
-    public void encode(final MiniSatStyleSolver s, final LNGIntVector lits, final LNGIntVector coeffs, final int rhs) {
+    public void encode(final LNGCoreSolver s, final LNGIntVector lits, final LNGIntVector coeffs, final int rhs) {
         if (rhs == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Overflow in the encoding.");
         }
@@ -99,11 +99,11 @@ public class SequentialWeightCounter extends Encoding {
                 lits.push(simpLits.get(i));
                 coeffs.push(simpCoeffs.get(i));
             } else {
-                addUnitClause(s, MiniSatStyleSolver.not(simpLits.get(i)));
+                addUnitClause(s, LNGCoreSolver.not(simpLits.get(i)));
             }
         }
         if (lits.size() == 1) {
-            addUnitClause(s, MiniSatStyleSolver.not(lits.get(0)));
+            addUnitClause(s, LNGCoreSolver.not(lits.get(0)));
             return;
         }
         if (lits.size() == 0) {
@@ -117,7 +117,7 @@ public class SequentialWeightCounter extends Encoding {
         }
         for (int i = 1; i <= n; ++i) {
             for (int j = 1; j <= rhs; ++j) {
-                seqAuxiliary[i].set(j, MiniSatStyleSolver.mkLit(s.nVars(), false));
+                seqAuxiliary[i].set(j, LNGCoreSolver.mkLit(s.nVars(), false));
                 newSATVariable(s);
             }
         }
@@ -129,19 +129,19 @@ public class SequentialWeightCounter extends Encoding {
             assert wi <= rhs;
             for (int j = 1; j <= rhs; j++) {
                 if (i >= 2 && i <= n && j <= rhs) {
-                    addBinaryClause(s, MiniSatStyleSolver.not(seqAuxiliary[i - 1].get(j)), seqAuxiliary[i].get(j));
+                    addBinaryClause(s, LNGCoreSolver.not(seqAuxiliary[i - 1].get(j)), seqAuxiliary[i].get(j));
                 }
                 if (i <= n && j <= wi) {
-                    addBinaryClause(s, MiniSatStyleSolver.not(lits.get(i - 1)), seqAuxiliary[i].get(j));
+                    addBinaryClause(s, LNGCoreSolver.not(lits.get(i - 1)), seqAuxiliary[i].get(j));
                 }
                 if (i >= 2 && i <= n && j <= rhs - wi) {
-                    addTernaryClause(s, MiniSatStyleSolver.not(seqAuxiliary[i - 1].get(j)),
-                            MiniSatStyleSolver.not(lits.get(i - 1)), seqAuxiliary[i].get(j + wi));
+                    addTernaryClause(s, LNGCoreSolver.not(seqAuxiliary[i - 1].get(j)),
+                            LNGCoreSolver.not(lits.get(i - 1)), seqAuxiliary[i].get(j + wi));
                 }
             }
             if (i >= 2) {
-                addBinaryClause(s, MiniSatStyleSolver.not(seqAuxiliary[i - 1].get(rhs + 1 - wi)),
-                        MiniSatStyleSolver.not(lits.get(i - 1)));
+                addBinaryClause(s, LNGCoreSolver.not(seqAuxiliary[i - 1].get(rhs + 1 - wi)),
+                        LNGCoreSolver.not(lits.get(i - 1)));
             }
         }
         currentPbRhs = rhs;
@@ -157,7 +157,7 @@ public class SequentialWeightCounter extends Encoding {
      * @param assumptions the current assumptions
      * @param size        the size
      */
-    public void encode(final MiniSatStyleSolver s, final LNGIntVector lits, final LNGIntVector coeffs,
+    public void encode(final LNGCoreSolver s, final LNGIntVector lits, final LNGIntVector coeffs,
                        final int rhs, final LNGIntVector assumptions, final int size) {
         if (rhs == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Overflow in the encoding.");
@@ -191,7 +191,7 @@ public class SequentialWeightCounter extends Encoding {
         }
         if (lits.size() == 1) {
             for (int i = 0; i < unitLits.size(); i++) {
-                assumptions.push(MiniSatStyleSolver.not(unitLits.get(i)));
+                assumptions.push(LNGCoreSolver.not(unitLits.get(i)));
             }
             unitLits.push(lits.get(0));
             unitCoeffs.push(coeffs.get(0));
@@ -199,7 +199,7 @@ public class SequentialWeightCounter extends Encoding {
         }
         if (lits.size() == 0) {
             for (int i = 0; i < unitLits.size(); i++) {
-                assumptions.push(MiniSatStyleSolver.not(unitLits.get(i)));
+                assumptions.push(LNGCoreSolver.not(unitLits.get(i)));
             }
             return;
         }
@@ -211,37 +211,37 @@ public class SequentialWeightCounter extends Encoding {
         }
         for (int i = 1; i <= n; ++i) {
             for (int j = 1; j <= rhs; ++j) {
-                seqAuxiliaryInc.get(i).set(j, MiniSatStyleSolver.mkLit(s.nVars(), false));
+                seqAuxiliaryInc.get(i).set(j, LNGCoreSolver.mkLit(s.nVars(), false));
                 newSATVariable(s);
             }
         }
-        final int blocking = MiniSatStyleSolver.mkLit(s.nVars(), false);
+        final int blocking = LNGCoreSolver.mkLit(s.nVars(), false);
         newSATVariable(s);
         currentLitBlocking = blocking;
-        assumptions.push(MiniSatStyleSolver.not(blocking));
+        assumptions.push(LNGCoreSolver.not(blocking));
         for (int i = 1; i <= n; i++) {
             final int wi = coeffs.get(i - 1);
             assert rhs >= wi;
             for (int j = 1; j <= rhs; j++) {
                 if (i >= 2 && i <= n) {
-                    addBinaryClause(s, MiniSatStyleSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
+                    addBinaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
                             seqAuxiliaryInc.get(i).get(j));
                 }
                 if (i <= n && j <= wi) {
-                    addBinaryClause(s, MiniSatStyleSolver.not(lits.get(i - 1)), seqAuxiliaryInc.get(i).get(j));
+                    addBinaryClause(s, LNGCoreSolver.not(lits.get(i - 1)), seqAuxiliaryInc.get(i).get(j));
                 }
                 if (i >= 2 && i <= n && j <= rhs - wi) {
-                    addTernaryClause(s, MiniSatStyleSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
-                            MiniSatStyleSolver.not(lits.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
+                    addTernaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
+                            LNGCoreSolver.not(lits.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
                 }
             }
             if (i >= 2) {
-                addBinaryClause(s, MiniSatStyleSolver.not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)),
-                        MiniSatStyleSolver.not(lits.get(i - 1)), blocking);
+                addBinaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)),
+                        LNGCoreSolver.not(lits.get(i - 1)), blocking);
             }
         }
         for (int i = 0; i < unitLits.size(); i++) {
-            assumptions.push(MiniSatStyleSolver.not(unitLits.get(i)));
+            assumptions.push(LNGCoreSolver.not(unitLits.get(i)));
         }
         currentPbRhs = rhs;
         hasEncoding = true;
@@ -256,10 +256,10 @@ public class SequentialWeightCounter extends Encoding {
      * @param s   the solver
      * @param rhs the new right-hand side
      */
-    public void update(final MiniSatStyleSolver s, final int rhs) {
+    public void update(final LNGCoreSolver s, final int rhs) {
         assert currentPbRhs != -1;
         for (int i = rhs; i < currentPbRhs; i++) {
-            addUnitClause(s, MiniSatStyleSolver.not(pbOutlits.get(i)));
+            addUnitClause(s, LNGCoreSolver.not(pbOutlits.get(i)));
         }
         currentPbRhs = rhs;
     }
@@ -269,8 +269,8 @@ public class SequentialWeightCounter extends Encoding {
      * @param s   the solver
      * @param rhs the new right-hand side
      */
-    public void updateInc(final MiniSatStyleSolver s, final int rhs) {
-        if (currentLitBlocking != MiniSatStyleSolver.LIT_UNDEF) {
+    public void updateInc(final LNGCoreSolver s, final int rhs) {
+        if (currentLitBlocking != LNGCoreSolver.LIT_UNDEF) {
             addUnitClause(s, currentLitBlocking);
         }
         final int n = litsInc.size();
@@ -278,20 +278,20 @@ public class SequentialWeightCounter extends Encoding {
         assert currentPbRhs < rhs;
         for (int i = 1; i <= n; i++) {
             for (int j = offset; j <= rhs; j++) {
-                seqAuxiliaryInc.get(i).push(MiniSatStyleSolver.LIT_UNDEF);
+                seqAuxiliaryInc.get(i).push(LNGCoreSolver.LIT_UNDEF);
             }
         }
         for (int i = 1; i <= n; ++i) {
             for (int j = offset; j <= rhs; ++j) {
                 assert seqAuxiliaryInc.get(i).size() > j;
-                seqAuxiliaryInc.get(i).set(j, MiniSatStyleSolver.mkLit(s.nVars(), false));
+                seqAuxiliaryInc.get(i).set(j, LNGCoreSolver.mkLit(s.nVars(), false));
                 newSATVariable(s);
             }
         }
         for (int i = 1; i < litsInc.size(); i++) {
             assert seqAuxiliaryInc.get(i).size() == rhs + 1;
         }
-        currentLitBlocking = MiniSatStyleSolver.mkLit(s.nVars(), false);
+        currentLitBlocking = LNGCoreSolver.mkLit(s.nVars(), false);
         newSATVariable(s);
         for (int i = 1; i <= n; i++) {
             final int wi = coeffsInc.get(i - 1);
@@ -300,20 +300,20 @@ public class SequentialWeightCounter extends Encoding {
             for (int j = 1; j <= rhs; j++) {
                 if (i >= 2 && i <= n && j <= rhs && j >= offset) {
                     assert seqAuxiliaryInc.get(i).size() > j;
-                    addBinaryClause(s, MiniSatStyleSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
+                    addBinaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
                             seqAuxiliaryInc.get(i).get(j));
                 }
                 if (i >= 2 && i <= n && j <= rhs - wi && j >= offset - wi) {
-                    addTernaryClause(s, MiniSatStyleSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
-                            MiniSatStyleSolver.not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
+                    addTernaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
+                            LNGCoreSolver.not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
                 }
             }
             if (i >= 2) {
                 assert seqAuxiliaryInc.get(i - 1).size() > rhs + 1 - wi;
                 assert rhs + 1 - wi > 0;
                 assert i - 1 < litsInc.size();
-                addBinaryClause(s, MiniSatStyleSolver.not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)),
-                        MiniSatStyleSolver.not(litsInc.get(i - 1)), currentLitBlocking);
+                addBinaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)),
+                        LNGCoreSolver.not(litsInc.get(i - 1)), currentLitBlocking);
             }
         }
         currentPbRhs = rhs;
@@ -326,8 +326,8 @@ public class SequentialWeightCounter extends Encoding {
      * @param lits   the literals of the constraint
      * @param coeffs the coefficients of the constraint
      */
-    void join(final MiniSatStyleSolver s, final LNGIntVector lits, final LNGIntVector coeffs) {
-        assert currentLitBlocking != MiniSatStyleSolver.LIT_UNDEF;
+    void join(final LNGCoreSolver s, final LNGIntVector lits, final LNGIntVector coeffs) {
+        assert currentLitBlocking != LNGCoreSolver.LIT_UNDEF;
         final int rhs = currentPbRhs;
         if (rhs == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Overflow in the encoding.");
@@ -366,7 +366,7 @@ public class SequentialWeightCounter extends Encoding {
         }
         for (int i = lhsJoin + 1; i <= n; ++i) {
             for (int j = 1; j <= rhs; ++j) {
-                seqAuxiliaryInc.get(i).set(j, MiniSatStyleSolver.mkLit(s.nVars(), false));
+                seqAuxiliaryInc.get(i).set(j, LNGCoreSolver.mkLit(s.nVars(), false));
                 newSATVariable(s);
             }
         }
@@ -380,24 +380,23 @@ public class SequentialWeightCounter extends Encoding {
             for (int j = 1; j <= rhs; j++) {
                 assert seqAuxiliaryInc.get(i).size() > j;
                 assert seqAuxiliaryInc.get(i - 1).size() > j;
-                addBinaryClause(s, MiniSatStyleSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
-                        seqAuxiliaryInc.get(i).get(j));
+                addBinaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)), seqAuxiliaryInc.get(i).get(j));
                 if (j <= wi) {
                     assert seqAuxiliaryInc.get(i).size() > j;
                     assert i - 1 < litsInc.size() && i - 1 >= 0;
-                    addBinaryClause(s, MiniSatStyleSolver.not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j));
+                    addBinaryClause(s, LNGCoreSolver.not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j));
                 }
                 if (j <= rhs - wi) {
-                    addTernaryClause(s, MiniSatStyleSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
-                            MiniSatStyleSolver.not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
+                    addTernaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
+                            LNGCoreSolver.not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
                 }
             }
             if (i > lhsJoin) {
                 assert rhs + 1 - wi >= 0;
                 assert seqAuxiliaryInc.get(i - 1).size() > rhs + 1 - wi;
                 assert i - 1 < litsInc.size();
-                addBinaryClause(s, MiniSatStyleSolver.not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)),
-                        MiniSatStyleSolver.not(litsInc.get(i - 1)), currentLitBlocking);
+                addBinaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)),
+                        LNGCoreSolver.not(litsInc.get(i - 1)), currentLitBlocking);
             }
         }
     }

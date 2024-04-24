@@ -6,6 +6,7 @@ package com.booleworks.logicng.transformations.simplification;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
@@ -14,7 +15,6 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -79,7 +79,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     public void testLarge2(final FormulaContext _c) throws ParserException, IOException {
         final Formula formula =
                 FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
-        final SATSolver solver = MiniSat.miniSat(_c.f);
+        final SATSolver solver = SATSolver.newSolver(_c.f);
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(Arrays.asList(
                 _c.f.variable("v111"),
@@ -107,7 +107,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     public void testLarge3(final FormulaContext _c) throws ParserException, IOException {
         final Formula formula =
                 FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
-        final SATSolver solver = MiniSat.miniSat(_c.f);
+        final SATSolver solver = SATSolver.newSolver(_c.f);
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(Arrays.asList(
                 _c.f.variable("v111"),
@@ -136,6 +136,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
 
     @ParameterizedTest
     @MethodSource("contexts")
+    @LongRunningTag
     public void testSmallFormulas(final FormulaContext _c) throws IOException, ParserException {
         final BufferedReader reader =
                 new BufferedReader(new FileReader("src/test/resources/formulas/small_formulas.txt"));
@@ -144,7 +145,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
             final List<Variable> variables = new ArrayList<>(formula.variables(_c.f));
             final List<Variable> projectedVars = variables.subList(0, Math.min(6, variables.size()));
 
-            final SATSolver solver = MiniSat.miniSat(_c.f);
+            final SATSolver solver = SATSolver.newSolver(_c.f);
             solver.add(formula);
             final List<Model> models = solver.enumerateAllModels(projectedVars);
             final List<Formula> operands = new ArrayList<>(models.size());

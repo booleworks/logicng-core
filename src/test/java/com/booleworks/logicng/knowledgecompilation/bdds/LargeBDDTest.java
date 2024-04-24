@@ -6,6 +6,7 @@ package com.booleworks.logicng.knowledgecompilation.bdds;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.NumberOfNodesBDDHandler;
@@ -79,6 +80,7 @@ public class LargeBDDTest {
     }
 
     @Test
+    @LongRunningTag
     public void testTimeoutBDDHandlerLarge() {
         final FormulaFactory f = FormulaFactory.caching();
         final NQueensGenerator generator = new NQueensGenerator(f);

@@ -12,7 +12,7 @@ import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ModelEnumerationHandler;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.modelenumeration.AbstractModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.EnumerationCollector;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
@@ -113,7 +113,7 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
         }
 
         @Override
-        public boolean addModel(final LNGBooleanVector modelFromSolver, final MiniSat solver,
+        public boolean addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver,
                                 final LNGIntVector relevantAllIndices, final ModelEnumerationHandler handler) {
             if (handler == null || handler.foundModels(dontCareFactor.intValue())) {
                 uncommittedModels.add(modelFromSolver);
@@ -138,10 +138,11 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
         }
 
         @Override
-        public List<Model> rollbackAndReturnModels(final MiniSat solver, final ModelEnumerationHandler handler) {
+        public List<Model> rollbackAndReturnModels(final SATSolver solver, final ModelEnumerationHandler handler) {
             final List<Model> modelsToReturn = new ArrayList<>(uncommittedModels.size());
             for (int i = 0; i < uncommittedModels.size(); i++) {
-                modelsToReturn.add(solver.createModel(uncommittedModels.get(i), uncommittedIndices.get(i)));
+                modelsToReturn.add(new Model(solver.underlyingSolver().convertInternalModel(uncommittedModels.get(i),
+                        uncommittedIndices.get(i))));
             }
             rollback(handler);
             return modelsToReturn;

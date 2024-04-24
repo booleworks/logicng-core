@@ -14,7 +14,7 @@ import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTr
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeNode;
 import com.booleworks.logicng.predicates.satisfiability.SATPredicate;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ public class DnnfCompiler {
         final Pair<Formula, Formula> pair = initializeClauses();
         unitClauses = pair.first();
         nonUnitClauses = pair.second();
-        solver = new DnnfMiniSatStyleSolver(f, cnf.variables(f).size());
+        solver = new DnnfCoreSolver(f, cnf.variables(f).size());
         solver.add(cnf);
         numberOfVariables = cnf.variables(f).size();
         cache = new HashMap<>();
@@ -299,7 +299,7 @@ public class DnnfCompiler {
         int index = 0;
         while (literals.hasNext()) {
             lit = literals.next();
-            switch (solver.valueOf(MiniSatStyleSolver.mkLit(solver.variableIndex(lit), !lit.phase()))) {
+            switch (solver.valueOf(LNGCoreSolver.mkLit(solver.variableIndex(lit), !lit.phase()))) {
                 case TRUE:
                     return f.verum();
                 case UNDEF:

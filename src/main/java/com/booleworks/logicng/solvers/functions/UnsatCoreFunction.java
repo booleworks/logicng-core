@@ -4,21 +4,16 @@
 
 package com.booleworks.logicng.solvers.functions;
 
-import static com.booleworks.logicng.datastructures.Tristate.TRUE;
-
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.explanations.drup.DRUPTrim;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.StandardProposition;
-import com.booleworks.logicng.solvers.MiniSat;
-import com.booleworks.logicng.solvers.sat.GlucoseSyrup;
-import com.booleworks.logicng.solvers.sat.MiniCard;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +21,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * A solver function for computing the unsatisfiable core on the current solver.
@@ -53,32 +47,15 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
     }
 
     @Override
-    public UNSATCore<Proposition> apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
-        if (!solver.getConfig().proofGeneration()) {
+    public UNSATCore<Proposition> apply(final SATSolver solver) {
+        if (!solver.config().proofGeneration()) {
             throw new IllegalStateException("Cannot generate an unsat core if proof generation is not turned on");
         }
-        if (solver.getResult() == TRUE) {
-            throw new IllegalStateException(
-                    "An unsat core can only be generated if the formula is solved and is UNSAT");
-        }
-        if (solver.getResult() == Tristate.UNDEF) {
-            throw new IllegalStateException("Cannot generate an unsat core before the formula was solved.");
-        }
-        if (solver.underlyingSolver() instanceof MiniCard) {
-            throw new IllegalStateException("Cannot compute an unsat core with MiniCard.");
-        }
-        if (solver.underlyingSolver() instanceof GlucoseSyrup && solver.getConfig().incremental()) {
-            throw new IllegalStateException("Cannot compute an unsat core with Glucose in incremental mode.");
-        }
-        if (solver.isLastComputationWithAssumptions()) {
-            throw new IllegalStateException("Cannot compute an unsat core for a computation with assumptions.");
-        }
-
         final DRUPTrim trimmer = new DRUPTrim();
 
         final Map<Formula, Proposition> clause2proposition = new HashMap<>();
         final LNGVector<LNGIntVector> clauses = new LNGVector<>(solver.underlyingSolver().pgOriginalClauses().size());
-        for (final MiniSatStyleSolver.ProofInformation pi : solver.underlyingSolver().pgOriginalClauses()) {
+        for (final LNGCoreSolver.ProofInformation pi : solver.underlyingSolver().pgOriginalClauses()) {
             clauses.push(pi.clause());
             final Formula clause = getFormulaForVector(solver, pi.clause());
             Proposition proposition = pi.proposition();
@@ -104,8 +81,8 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
         return new UNSATCore<>(new ArrayList<>(propositions), false);
     }
 
-    private UNSATCore<Proposition> handleTrivialCase(final MiniSat solver) {
-        final LNGVector<MiniSatStyleSolver.ProofInformation> clauses = solver.underlyingSolver().pgOriginalClauses();
+    private UNSATCore<Proposition> handleTrivialCase(final SATSolver solver) {
+        final LNGVector<LNGCoreSolver.ProofInformation> clauses = solver.underlyingSolver().pgOriginalClauses();
         for (int i = 0; i < clauses.size(); i++) {
             for (int j = i + 1; j < clauses.size(); j++) {
                 if (clauses.get(i).clause().size() == 1 && clauses.get(j).clause().size() == 1 &&
@@ -133,7 +110,7 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
         return false;
     }
 
-    private Formula getFormulaForVector(final MiniSat solver, final LNGIntVector vector) {
+    private Formula getFormulaForVector(final SATSolver solver, final LNGIntVector vector) {
         final List<Literal> literals = new ArrayList<>(vector.size());
         for (int i = 0; i < vector.size(); i++) {
             final int lit = vector.get(i);

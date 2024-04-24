@@ -6,7 +6,6 @@ package com.booleworks.logicng.solvers.functions;
 
 import static java.util.Collections.emptySortedSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.collections.LNGBooleanVector;
@@ -20,7 +19,6 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationToBddFunction.BddModelEnumerationCollector;
 import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
@@ -30,7 +28,6 @@ import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.F
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.LeastCommonVariablesProvider;
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.MostCommonVariablesProvider;
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.SplitVariableProvider;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,16 +58,6 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         f = FormulaFactory.caching();
     }
 
-    @Test
-    public void testNonIncrementalSolver() throws ParserException {
-        final MiniSat solver = MiniSat.miniSat(f, MiniSatConfig.builder().incremental(false).build());
-        solver.add(f.parse("A | B | C"));
-        assertThatThrownBy(() -> solver.execute(ModelEnumerationToBddFunction.builder(List.of()).build()))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage(
-                        "Recursive model enumeration function can only be applied to solvers with load/save state capability.");
-    }
-
     @ParameterizedTest
     @MethodSource("splitProviders")
     public void testContradiction(final SplitVariableProvider splitProvider) {
@@ -80,7 +67,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.literal("A", true));
         solver.add(f.literal("A", false));
         final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder(List.of()).configuration(config).build());
@@ -96,7 +83,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder(List.of()).configuration(config).build());
         assertThat(bdd.isTautology()).isTrue();
     }
@@ -110,7 +97,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("A & (B | C)");
         solver.add(formula);
         final BDD bdd = solver.execute(ModelEnumerationToBddFunction.builder(List.of()).configuration(config).build());
@@ -126,7 +113,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("A & (B | C)");
         solver.add(formula);
         final BDD bdd = solver
@@ -143,7 +130,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
         solver.add(formula);
         final BDD bdd = solver
@@ -161,7 +148,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
         solver.add(formula);
         final ModelEnumerationToBddFunction meFunction =
@@ -183,7 +170,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
         final SortedSet<Variable> variables = f.variables("A", "B", "C", "D");
         solver.add(formula);
@@ -203,7 +190,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
                                         .maxNumberOfModels(2).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
         final SortedSet<Variable> variables = f.variables("A", "C", "D", "E");
         solver.add(formula);
@@ -220,7 +207,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         final ModelEnumerationConfig config =
                 ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder()
                         .splitVariableProvider(splitProvider).maxNumberOfModels(3).build()).build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("A | B | (X & ~X)"); // X will be
                                                              // simplified out
                                                              // and become a
@@ -245,7 +232,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
                         .strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder()
                                 .splitVariableProvider(splitProvider).maxNumberOfModels(3).build())
                         .build();
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
         final BDD bdd = solver.execute(
                 ModelEnumerationToBddFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
@@ -261,7 +248,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
                     new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(i).numVars(15).build());
             final Formula formula = randomizer.formula(3);
 
-            final SATSolver solver = MiniSat.miniSat(f);
+            final SATSolver solver = SATSolver.newSolver(f);
             solver.add(formula);
 
             // recursive call: least common vars
@@ -288,9 +275,8 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testCollector(final FormulaContext _c) {
-        final MiniSat solver = MiniSat.miniSat(_c.f);
+        final SATSolver solver = SATSolver.newSolver(_c.f);
         solver.add(_c.eq1);
-        solver.sat();
 
         final EnumerationCollectorTestHandler handler = new EnumerationCollectorTestHandler();
         final BddModelEnumerationCollector collector =
@@ -302,7 +288,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
 
         final LNGBooleanVector modelFromSolver1 = new LNGBooleanVector(true, true);
         final LNGBooleanVector modelFromSolver2 = new LNGBooleanVector(false, false);
-        final LNGIntVector relevantIndices = new LNGIntVector(new int[]{0, 1});
+        final LNGIntVector relevantIndices = LNGIntVector.of(0, 1);
 
         final Model expectedModel1 = new Model(_c.a, _c.b);
         final Model expectedModel2 = new Model(_c.na, _c.nb);
@@ -359,7 +345,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
 
     private void compareModels(final Formula formula, final Collection<Variable> variables, final BDD bdd) {
         final FormulaFactory factory = formula.factory();
-        final SATSolver solver = MiniSat.miniSat(factory);
+        final SATSolver solver = SATSolver.newSolver(factory);
         solver.add(formula);
         final Variable taut = factory.variable("@TAUT");
         for (final Variable variable : variables) {

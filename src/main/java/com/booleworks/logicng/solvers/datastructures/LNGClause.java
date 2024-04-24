@@ -27,17 +27,17 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import java.util.Comparator;
 
 /**
- * A clause of the SAT solver for MiniSAT-style solvers.
+ * A clause of the SAT solver.
  * @version 2.0.0
  * @since 1.0
  */
-public final class MSClause {
+public final class LNGClause {
 
     /**
      * A comparator for clauses based on LBD and activity (used for the Glucose
      * solver).
      */
-    public static final Comparator<MSClause> glucoseComparator = (x, y) -> {
+    public static final Comparator<LNGClause> glucoseComparator = (x, y) -> {
         if (x.size() > 2 && y.size() == 2) {
             return -1;
         }
@@ -56,17 +56,10 @@ public final class MSClause {
         return x.activity() < y.activity() ? -1 : 1;
     };
 
-    /**
-     * A comparator for clauses based on activity (used for the MiniSAT solver).
-     */
-    public static final Comparator<MSClause> minisatComparator =
-            (x, y) -> x.size() > 2 && (y.size() == 2 || x.activity() < y.activity()) ? -1 : 1;
-
     private final LNGIntVector data;
-    private final boolean learnt;
+    private final int learntOnState;
     private final boolean isAtMost;
     private double activity;
-    private int szWithoutSelectors;
     private boolean seen;
     private long lbd;
     private boolean canBeDel;
@@ -75,29 +68,28 @@ public final class MSClause {
 
     /**
      * Constructs a new clause
-     * @param ps     the vector of literals
-     * @param learnt {@code true} if it is a learnt clause, {@code false}
-     *               otherwise
+     * @param ps            the vector of literals
+     * @param learntOnState the index of the solver state on which this clause
+     *                      was learnt or -1 if it is not a learnt clause
      */
-    public MSClause(final LNGIntVector ps, final boolean learnt) {
-        this(ps, learnt, false);
+    public LNGClause(final LNGIntVector ps, final int learntOnState) {
+        this(ps, learntOnState, false);
     }
 
     /**
      * Constructs a new clause
-     * @param ps       the vector of literals
-     * @param learnt   {@code true} if it is a learnt clause, {@code false}
-     *                 otherwise
-     * @param isAtMost {@code true} if it is an at-most clause, {@code false}
-     *                 otherwise
+     * @param ps            the vector of literals
+     * @param learntOnState the index of the solver state on which this clause
+     *                      was learnt or -1 if it is not a learnt clause
+     * @param isAtMost      {@code true} if it is an at-most clause,
+     *                      {@code false} otherwise
      */
-    public MSClause(final LNGIntVector ps, final boolean learnt, final boolean isAtMost) {
+    public LNGClause(final LNGIntVector ps, final int learntOnState, final boolean isAtMost) {
         data = new LNGIntVector(ps.size());
         for (int i = 0; i < ps.size(); i++) {
             data.unsafePush(ps.get(i));
         }
-        this.learnt = learnt;
-        szWithoutSelectors = 0;
+        this.learntOnState = learntOnState;
         seen = false;
         lbd = 0;
         canBeDel = true;
@@ -106,14 +98,13 @@ public final class MSClause {
         atMostWatchers = -1;
     }
 
-    MSClause(final LNGIntVector data, final boolean learnt, final boolean isAtMost, final double activity,
-             final int szWithoutSelectors, final boolean seen,
-             final long lbd, final boolean canBeDel, final boolean oneWatched, final int atMostWatchers) {
+    LNGClause(final LNGIntVector data, final int learntOnState, final boolean isAtMost, final double activity,
+              final boolean seen,
+              final long lbd, final boolean canBeDel, final boolean oneWatched, final int atMostWatchers) {
         this.data = data;
-        this.learnt = learnt;
+        this.learntOnState = learntOnState;
         this.isAtMost = isAtMost;
         this.activity = activity;
-        this.szWithoutSelectors = szWithoutSelectors;
         this.seen = seen;
         this.lbd = lbd;
         this.canBeDel = canBeDel;
@@ -171,28 +162,20 @@ public final class MSClause {
     }
 
     /**
+     * Returns the solver state on which this clause was learnt, or -1 if it is
+     * not a learnt clause.
+     * @return the solver state on which this clause was learnt
+     */
+    public int getLearntOnState() {
+        return learntOnState;
+    }
+
+    /**
      * Returns {@code true} if this clause is learnt, {@code false} otherwise.
      * @return {@code true} if this clause is learnt
      */
     public boolean learnt() {
-        return learnt;
-    }
-
-    /**
-     * Returns the size of this clause without selector variables.
-     * @return the size of this clause without selector variables
-     */
-    public int sizeWithoutSelectors() {
-        return szWithoutSelectors;
-    }
-
-    /**
-     * Sets the size of this clause without selector variables.
-     * @param szWithoutSelectors the size of this clause without selector
-     *                           variables
-     */
-    public void setSizeWithoutSelectors(final int szWithoutSelectors) {
-        this.szWithoutSelectors = szWithoutSelectors;
+        return learntOnState >= 0;
     }
 
     /**
@@ -306,7 +289,11 @@ public final class MSClause {
         return data.size() - atMostWatchers + 1;
     }
 
-    LNGIntVector getData() {
+    /**
+     * Returns the literals of this clause.
+     * @return the literals of this clause
+     */
+    public LNGIntVector getData() {
         return data;
     }
 
@@ -324,8 +311,7 @@ public final class MSClause {
     public String toString() {
         final StringBuilder sb = new StringBuilder("MSClause{");
         sb.append("activity=").append(activity).append(", ");
-        sb.append("learnt=").append(learnt).append(", ");
-        sb.append("szWithoutSelectors=").append(szWithoutSelectors).append(", ");
+        sb.append("learntOnState=").append(learntOnState).append(", ");
         sb.append("seen=").append(seen).append(", ");
         sb.append("lbd=").append(lbd).append(", ");
         sb.append("canBeDel=").append(canBeDel).append(", ");

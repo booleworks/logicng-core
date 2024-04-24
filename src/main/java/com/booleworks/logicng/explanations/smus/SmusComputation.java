@@ -13,7 +13,6 @@ import com.booleworks.logicng.handlers.Handler;
 import com.booleworks.logicng.handlers.OptimizationHandler;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.StandardProposition;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
@@ -82,7 +81,7 @@ public final class SmusComputation {
                                                               final List<Formula> additionalConstraints,
                                                               final OptimizationHandler handler) {
         Handler.start(handler);
-        final SATSolver growSolver = MiniSat.miniSat(f);
+        final SATSolver growSolver = SATSolver.newSolver(f);
         growSolver.add(additionalConstraints == null ? Collections.singletonList(f.verum()) : additionalConstraints);
         final Map<Variable, P> propositionMapping = new TreeMap<>();
         for (final P proposition : propositions) {
@@ -90,12 +89,12 @@ public final class SmusComputation {
             propositionMapping.put(selector, proposition);
             growSolver.add(f.equivalence(selector, proposition.formula()));
         }
-        final boolean sat =
-                growSolver.sat(OptimizationHandler.satHandler(handler), propositionMapping.keySet()) == Tristate.TRUE;
+        final boolean sat = growSolver.satCall().handler(OptimizationHandler.satHandler(handler))
+                .addFormulas(propositionMapping.keySet()).sat() == Tristate.TRUE;
         if (sat || Handler.aborted(handler)) {
             return null;
         }
-        final SATSolver hSolver = MiniSat.miniSat(f);
+        final SATSolver hSolver = SATSolver.newSolver(f);
         while (true) {
             final SortedSet<Variable> h = minimumHs(hSolver, propositionMapping.keySet(), handler);
             if (h == null || Handler.aborted(handler)) {

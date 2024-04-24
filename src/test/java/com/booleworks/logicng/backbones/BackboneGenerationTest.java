@@ -7,6 +7,7 @@ package com.booleworks.logicng.backbones;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -17,11 +18,9 @@ import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.io.readers.FormulaReader;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
-import com.booleworks.logicng.solvers.sat.MiniSatConfig;
 import com.booleworks.logicng.util.FormulaHelper;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -92,7 +91,7 @@ public class BackboneGenerationTest {
 
     @Test
     public void testSimpleBackbones() {
-        final MiniSat solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
 
         final Literal x = f.literal("x", true);
         final Literal y = f.literal("y", true);
@@ -201,11 +200,12 @@ public class BackboneGenerationTest {
     }
 
     @Test
+    @LongRunningTag
     public void testSmallFormulas() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula =
                 FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
-        final MiniSat solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula);
         final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build());
         assertThat(verifyBackbone(backbone, formula, formula.variables(f))).isTrue();
@@ -216,7 +216,7 @@ public class BackboneGenerationTest {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula =
                 FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
-        final MiniSat solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula);
         final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build());
         assertThat(verifyBackbone(backbone, formula, formula.variables(f))).isTrue();
@@ -224,25 +224,25 @@ public class BackboneGenerationTest {
 
     private boolean verifyBackbone(final Backbone backbone, final Formula formula,
                                    final Collection<Variable> variables) {
-        final SATSolver solver = MiniSat.miniSat(formula.factory());
+        final SATSolver solver = SATSolver.newSolver(formula.factory());
         solver.add(formula);
         for (final Variable bbVar : backbone.getPositiveBackbone()) {
-            if (solver.sat(bbVar.negate(f)) == Tristate.TRUE) {
+            if (solver.satCall().addFormulas(bbVar.negate(f)).sat() == Tristate.TRUE) {
                 return false;
             }
         }
         for (final Variable bbVar : backbone.getNegativeBackbone()) {
-            if (solver.sat(bbVar) == Tristate.TRUE) {
+            if (solver.satCall().addFormulas(bbVar).sat() == Tristate.TRUE) {
                 return false;
             }
         }
         for (final Variable variable : variables) {
             if (!backbone.getPositiveBackbone().contains(variable) &&
                     !backbone.getNegativeBackbone().contains(variable)) {
-                if (solver.sat(variable) == Tristate.FALSE) {
+                if (solver.satCall().addFormulas(variable).sat() == Tristate.FALSE) {
                     return false;
                 }
-                if (solver.sat(variable.negate(f)) == Tristate.FALSE) {
+                if (solver.satCall().addFormulas(variable.negate(f)).sat() == Tristate.FALSE) {
                     return false;
                 }
             }
@@ -253,7 +253,7 @@ public class BackboneGenerationTest {
     @Test
     public void testBackboneType() {
         final FormulaFactory f = FormulaFactory.caching();
-        final MiniSat solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
 
         final Literal x = f.literal("x", true);
         final Literal y = f.literal("y", true);
@@ -327,28 +327,6 @@ public class BackboneGenerationTest {
         combinedPosNegBackbone.addAll(backboneNegative.getCompleteBackbone(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(combinedPosNegBackbone);
         solver.loadState(before);
-    }
-
-    @Test
-    public void testDifferentConfigurations() throws IOException, ParserException {
-        final List<MiniSatConfig> configs = new ArrayList<>();
-        configs.add(MiniSatConfig.builder().bbCheckForComplementModelLiterals(false).build());
-        configs.add(MiniSatConfig.builder().bbCheckForRotatableLiterals(false).build());
-        configs.add(MiniSatConfig.builder().bbInitialUBCheckForRotatableLiterals(false).build());
-
-        final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
-        MiniSat solver = MiniSat.miniSat(f);
-        solver.add(formula);
-        final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build());
-
-        for (final MiniSatConfig config : configs) {
-            solver = MiniSat.miniSat(f, config);
-            solver.add(formula);
-            Assertions.assertThat(solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build()))
-                    .isEqualTo(backbone);
-        }
     }
 
     @Test

@@ -7,13 +7,13 @@ package com.booleworks.logicng.encodings;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LogicNGTest;
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
-import org.assertj.core.api.Assertions;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import org.junit.jupiter.api.Test;
 
 public class CcAmoTest implements LogicNGTest {
@@ -63,6 +63,7 @@ public class CcAmoTest implements LogicNGTest {
     }
 
     @Test
+    @LongRunningTag
     public void testAMOK() {
         final FormulaFactory f = FormulaFactory.caching();
         int counter = 0;
@@ -95,10 +96,10 @@ public class CcAmoTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = miniCard ? MiniSat.miniCard(f) : MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(miniCard).build());
         solver.add(f.amo(problemLits));
         assertSolverSat(solver);
-        Assertions.assertThat(solver.enumerateAllModels(problemLits))
+        assertThat(solver.enumerateAllModels(problemLits))
                 .hasSize(numLits + 1)
                 .allMatch(m -> m.positiveVariables().size() <= 1);
     }

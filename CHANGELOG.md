@@ -363,4 +363,3 @@ tbd
 ### Added
 
 - Initial Release of LogicNG
-

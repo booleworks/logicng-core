@@ -9,23 +9,21 @@ import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.solvers.datastructures.MSClause;
-import com.booleworks.logicng.solvers.datastructures.MSVariable;
-import com.booleworks.logicng.solvers.sat.MiniSat2Solver;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.datastructures.LNGClause;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Collection;
 import java.util.List;
 
 /**
- * A variation of the MiniSat solver used during the DNNF compilation process.
+ * A variation of the LNG core solver used during the DNNF compilation process.
  * @version 2.0.0
  * @since 2.0.0
  */
-public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSolver {
+public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
 
     protected boolean newlyImpliedDirty = false;
     protected int assertionLevel = -1;
@@ -35,11 +33,12 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
     protected final List<Literal> impliedOperands;
 
     /**
-     * Constructs a new DNNF MiniSat solver with the given number of variables.
+     * Constructs a new DNNF core solver with the given number of variables.
      * @param f                 the formula factory
      * @param numberOfVariables the number of variables
      */
-    public DnnfMiniSatStyleSolver(final FormulaFactory f, final int numberOfVariables) {
+    public DnnfCoreSolver(final FormulaFactory f, final int numberOfVariables) {
+        super(f, SATSolverConfig.builder().build());
         this.f = f;
         assignment = new Tristate[2 * numberOfVariables];
         Arrays.fill(assignment, Tristate.UNDEF);
@@ -73,7 +72,7 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
      * @return the variable index of the literal
      */
     public static int var(final int lit) {
-        return MiniSatStyleSolver.var(lit);
+        return LNGCoreSolver.var(lit);
     }
 
     /**
@@ -100,30 +99,16 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
             case FALSE:
             case LITERAL:
             case OR:
-                addClause(generateClauseVector(cnf.literals(f)), null);
+                addClause(generateClauseVector(cnf.literals(f), this), null);
                 break;
             case AND:
                 for (final Formula op : cnf) {
-                    addClause(generateClauseVector(op.literals(f)), null);
+                    addClause(generateClauseVector(op.literals(f), this), null);
                 }
                 break;
             default:
                 throw new IllegalArgumentException("Input formula ist not a valid CNF: " + cnf);
         }
-    }
-
-    protected LNGIntVector generateClauseVector(final Collection<Literal> literals) {
-        final LNGIntVector clauseVec = new LNGIntVector(literals.size());
-        for (final Literal lit : literals) {
-            int index = idxForName(lit.name());
-            if (index == -1) {
-                index = newVar(false, true);
-                addName(lit.name(), index);
-            }
-            final int litNum = lit.phase() ? index * 2 : (index * 2) ^ 1;
-            clauseVec.push(litNum);
-        }
-        return clauseVec;
     }
 
     @Override
@@ -157,15 +142,16 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
             uncheckedEnqueue(lastLearnt.get(0), null);
             unitClauses.push(lastLearnt.get(0));
         } else {
-            final MSClause cr = new MSClause(lastLearnt, true);
+            final LNGClause cr = new LNGClause(lastLearnt, nextStateId);
+            cr.setLBD(analyzeLBD);
+            cr.setOneWatched(false);
             learnts.push(cr);
             attachClause(cr);
-            if (!incremental) {
-                claBumpActivity(cr);
-            }
+            claBumpActivity(cr);
             uncheckedEnqueue(lastLearnt.get(0), cr);
         }
-        decayActivities();
+        varDecayActivity();
+        claDecayActivity();
         return propagateAfterDecide();
     }
 
@@ -191,7 +177,7 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
     }
 
     protected boolean propagateAfterDecide() {
-        final MSClause conflict = propagate();
+        final LNGClause conflict = propagate();
         if (conflict != null) {
             handleConflict(conflict);
             return false;
@@ -200,7 +186,7 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
     }
 
     @Override
-    protected void uncheckedEnqueue(final int lit, final MSClause reason) {
+    protected void uncheckedEnqueue(final int lit, final LNGClause reason) {
         assignment[lit] = Tristate.TRUE;
         assignment[lit ^ 1] = Tristate.FALSE;
         super.uncheckedEnqueue(lit, reason);
@@ -213,19 +199,12 @@ public class DnnfMiniSatStyleSolver extends MiniSat2Solver implements DnnfSatSol
                 final int l = trail.get(c);
                 assignment[l] = Tristate.UNDEF;
                 assignment[l ^ 1] = Tristate.UNDEF;
-                final int x = var(l);
-                final MSVariable v = vars.get(x);
-                v.assign(Tristate.UNDEF);
-                v.setPolarity(sign(trail.get(c)));
-                insertVarOrder(x);
             }
-            qhead = trailLim.get(level);
-            trail.removeElements(trail.size() - trailLim.get(level));
-            trailLim.removeElements(trailLim.size() - level);
+            super.cancelUntil(level);
         }
     }
 
-    protected void handleConflict(final MSClause conflict) {
+    protected void handleConflict(final LNGClause conflict) {
         if (decisionLevel() > 0) {
             lastLearnt = new LNGIntVector();
             analyze(conflict, lastLearnt);

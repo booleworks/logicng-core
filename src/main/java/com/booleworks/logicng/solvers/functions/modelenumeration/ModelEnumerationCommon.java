@@ -7,7 +7,7 @@ package com.booleworks.logicng.solvers.functions.modelenumeration;
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -66,7 +66,7 @@ public interface ModelEnumerationCommon {
      * @param solver    the solver from which the indices should be extracted
      * @return a list of the internal indices
      */
-    static LNGIntVector relevantIndicesFromSolver(final Collection<Variable> variables, final MiniSat solver) {
+    static LNGIntVector relevantIndicesFromSolver(final Collection<Variable> variables, final SATSolver solver) {
         if (variables == null) {
             throw new IllegalArgumentException(
                     "Model enumeration must always be calles with a valid set of variables.");
@@ -94,7 +94,7 @@ public interface ModelEnumerationCommon {
     static LNGIntVector relevantAllIndicesFromSolver(final Collection<Variable> variables,
                                                      final Collection<Variable> additionalVariables,
                                                      final LNGIntVector relevantIndices,
-                                                     final MiniSat solver) {
+                                                     final SATSolver solver) {
         LNGIntVector relevantAllIndices = null;
         final SortedSet<Variable> uniqueAdditionalVariables =
                 new TreeSet<>(additionalVariables == null ? Collections.emptyList() : additionalVariables);

@@ -11,7 +11,6 @@ import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.MiniSat;
 import com.booleworks.logicng.solvers.SATSolver;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -103,7 +102,7 @@ public class CcExoTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = MiniSat.miniSat(f);
+        final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.exo(problemLits));
         assertSolverSat(solver);
         Assertions.assertThat(solver.enumerateAllModels(problemLits))

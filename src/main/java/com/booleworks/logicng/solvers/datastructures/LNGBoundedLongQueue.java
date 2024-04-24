@@ -86,7 +86,11 @@ public final class LNGBoundedLongQueue {
      * @param size the size
      */
     public void initSize(final int size) {
-        growTo(size);
+        elems.growTo(size, 0);
+        first = 0;
+        maxSize = size;
+        queueSize = 0;
+        last = 0;
     }
 
     /**
@@ -129,18 +133,6 @@ public final class LNGBoundedLongQueue {
     }
 
     /**
-     * Grows this queue to a given size.
-     * @param size the size
-     */
-    private void growTo(final int size) {
-        elems.growTo(size, 0);
-        first = 0;
-        maxSize = size;
-        queueSize = 0;
-        last = 0;
-    }
-
-    /**
      * Performs a fast clear of this queue (the elements are left untouched).
      */
     public void fastClear() {
@@ -148,30 +140,6 @@ public final class LNGBoundedLongQueue {
         last = 0;
         queueSize = 0;
         sumOfQueue = 0;
-    }
-
-    LNGLongVector getElems() {
-        return elems;
-    }
-
-    int getFirst() {
-        return first;
-    }
-
-    int getLast() {
-        return last;
-    }
-
-    long getSumOfQueue() {
-        return sumOfQueue;
-    }
-
-    int getMaxSize() {
-        return maxSize;
-    }
-
-    int getQueueSize() {
-        return queueSize;
     }
 
     @Override

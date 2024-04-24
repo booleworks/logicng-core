@@ -23,7 +23,7 @@
 package com.booleworks.logicng.solvers.maxsat.encodings;
 
 import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 /**
  * Super-class for the different encodings.
@@ -47,8 +47,8 @@ public abstract class Encoding {
      * @param s the sat solver
      * @param a the unit literal
      */
-    void addUnitClause(final MiniSatStyleSolver s, final int a) {
-        addUnitClause(s, a, MiniSatStyleSolver.LIT_UNDEF);
+    void addUnitClause(final LNGCoreSolver s, final int a) {
+        addUnitClause(s, a, LNGCoreSolver.LIT_UNDEF);
     }
 
     /**
@@ -57,12 +57,12 @@ public abstract class Encoding {
      * @param a        the unit literal
      * @param blocking the blocking literal
      */
-    private void addUnitClause(final MiniSatStyleSolver s, final int a, final int blocking) {
+    private void addUnitClause(final LNGCoreSolver s, final int a, final int blocking) {
         assert clause.size() == 0;
-        assert a != MiniSatStyleSolver.LIT_UNDEF;
-        assert MiniSatStyleSolver.var(a) < s.nVars();
+        assert a != LNGCoreSolver.LIT_UNDEF;
+        assert LNGCoreSolver.var(a) < s.nVars();
         clause.push(a);
-        if (blocking != MiniSatStyleSolver.LIT_UNDEF) {
+        if (blocking != LNGCoreSolver.LIT_UNDEF) {
             clause.push(blocking);
         }
         s.addClause(clause, null);
@@ -75,8 +75,8 @@ public abstract class Encoding {
      * @param a the first literal
      * @param b the second literal
      */
-    void addBinaryClause(final MiniSatStyleSolver s, final int a, final int b) {
-        addBinaryClause(s, a, b, MiniSatStyleSolver.LIT_UNDEF);
+    void addBinaryClause(final LNGCoreSolver s, final int a, final int b) {
+        addBinaryClause(s, a, b, LNGCoreSolver.LIT_UNDEF);
     }
 
     /**
@@ -86,13 +86,13 @@ public abstract class Encoding {
      * @param b        the second literal
      * @param blocking the blocking literal
      */
-    void addBinaryClause(final MiniSatStyleSolver s, final int a, final int b, final int blocking) {
+    void addBinaryClause(final LNGCoreSolver s, final int a, final int b, final int blocking) {
         assert clause.size() == 0;
-        assert a != MiniSatStyleSolver.LIT_UNDEF && b != MiniSatStyleSolver.LIT_UNDEF;
-        assert MiniSatStyleSolver.var(a) < s.nVars() && MiniSatStyleSolver.var(b) < s.nVars();
+        assert a != LNGCoreSolver.LIT_UNDEF && b != LNGCoreSolver.LIT_UNDEF;
+        assert LNGCoreSolver.var(a) < s.nVars() && LNGCoreSolver.var(b) < s.nVars();
         clause.push(a);
         clause.push(b);
-        if (blocking != MiniSatStyleSolver.LIT_UNDEF) {
+        if (blocking != LNGCoreSolver.LIT_UNDEF) {
             clause.push(blocking);
         }
         s.addClause(clause, null);
@@ -106,8 +106,8 @@ public abstract class Encoding {
      * @param b the second literal
      * @param c the third literal
      */
-    void addTernaryClause(final MiniSatStyleSolver s, final int a, final int b, final int c) {
-        addTernaryClause(s, a, b, c, MiniSatStyleSolver.LIT_UNDEF);
+    void addTernaryClause(final LNGCoreSolver s, final int a, final int b, final int c) {
+        addTernaryClause(s, a, b, c, LNGCoreSolver.LIT_UNDEF);
     }
 
     /**
@@ -118,16 +118,14 @@ public abstract class Encoding {
      * @param c        the third literal
      * @param blocking the blocking literal
      */
-    void addTernaryClause(final MiniSatStyleSolver s, final int a, final int b, final int c, final int blocking) {
+    void addTernaryClause(final LNGCoreSolver s, final int a, final int b, final int c, final int blocking) {
         assert clause.size() == 0;
-        assert a != MiniSatStyleSolver.LIT_UNDEF && b != MiniSatStyleSolver.LIT_UNDEF &&
-                c != MiniSatStyleSolver.LIT_UNDEF;
-        assert MiniSatStyleSolver.var(a) < s.nVars() && MiniSatStyleSolver.var(b) < s.nVars() &&
-                MiniSatStyleSolver.var(c) < s.nVars();
+        assert a != LNGCoreSolver.LIT_UNDEF && b != LNGCoreSolver.LIT_UNDEF && c != LNGCoreSolver.LIT_UNDEF;
+        assert LNGCoreSolver.var(a) < s.nVars() && LNGCoreSolver.var(b) < s.nVars() && LNGCoreSolver.var(c) < s.nVars();
         clause.push(a);
         clause.push(b);
         clause.push(c);
-        if (blocking != MiniSatStyleSolver.LIT_UNDEF) {
+        if (blocking != LNGCoreSolver.LIT_UNDEF) {
             clause.push(blocking);
         }
         s.addClause(clause, null);
@@ -142,8 +140,8 @@ public abstract class Encoding {
      * @param c the third literal
      * @param d the fourth literal
      */
-    void addQuaternaryClause(final MiniSatStyleSolver s, final int a, final int b, final int c, final int d) {
-        addQuaternaryClause(s, a, b, c, d, MiniSatStyleSolver.LIT_UNDEF);
+    void addQuaternaryClause(final LNGCoreSolver s, final int a, final int b, final int c, final int d) {
+        addQuaternaryClause(s, a, b, c, d, LNGCoreSolver.LIT_UNDEF);
     }
 
     /**
@@ -155,18 +153,18 @@ public abstract class Encoding {
      * @param d        the fourth literal
      * @param blocking the blocking literal
      */
-    private void addQuaternaryClause(final MiniSatStyleSolver s, final int a, final int b, final int c, final int d,
+    private void addQuaternaryClause(final LNGCoreSolver s, final int a, final int b, final int c, final int d,
                                      final int blocking) {
         assert clause.size() == 0;
-        assert a != MiniSatStyleSolver.LIT_UNDEF && b != MiniSatStyleSolver.LIT_UNDEF &&
-                c != MiniSatStyleSolver.LIT_UNDEF && d != MiniSatStyleSolver.LIT_UNDEF;
-        assert MiniSatStyleSolver.var(a) < s.nVars() && MiniSatStyleSolver.var(b) < s.nVars() &&
-                MiniSatStyleSolver.var(c) < s.nVars() && MiniSatStyleSolver.var(d) < s.nVars();
+        assert a != LNGCoreSolver.LIT_UNDEF && b != LNGCoreSolver.LIT_UNDEF && c != LNGCoreSolver.LIT_UNDEF &&
+                d != LNGCoreSolver.LIT_UNDEF;
+        assert LNGCoreSolver.var(a) < s.nVars() && LNGCoreSolver.var(b) < s.nVars() &&
+                LNGCoreSolver.var(c) < s.nVars() && LNGCoreSolver.var(d) < s.nVars();
         clause.push(a);
         clause.push(b);
         clause.push(c);
         clause.push(d);
-        if (blocking != MiniSatStyleSolver.LIT_UNDEF) {
+        if (blocking != LNGCoreSolver.LIT_UNDEF) {
             clause.push(blocking);
         }
         s.addClause(clause, null);

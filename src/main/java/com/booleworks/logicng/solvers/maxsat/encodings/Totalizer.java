@@ -26,7 +26,7 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 /**
  * Encodes that at most 'rhs' literals can be assigned value true. Uses the
@@ -53,7 +53,7 @@ public class Totalizer extends Encoding {
      * @param strategy the incremental strategy
      */
     Totalizer(final MaxSATConfig.IncrementalStrategy strategy) {
-        blocking = MiniSatStyleSolver.LIT_UNDEF;
+        blocking = LNGCoreSolver.LIT_UNDEF;
         joinMode = false;
         currentCardinalityRhs = -1;
         incrementalStrategy = strategy;
@@ -71,7 +71,7 @@ public class Totalizer extends Encoding {
      * @param s   the solver
      * @param rhs the new right-hand side
      */
-    public void update(final MiniSatStyleSolver s, final int rhs) {
+    public void update(final LNGCoreSolver s, final int rhs) {
         final LNGIntVector assumptions = new LNGIntVector();
         update(s, rhs, assumptions);
     }
@@ -106,7 +106,7 @@ public class Totalizer extends Encoding {
      * @param lits the literals of the constraint
      * @param rhs  the right-hand side of the constraint
      */
-    void join(final MiniSatStyleSolver s, final LNGIntVector lits, final int rhs) {
+    void join(final LNGCoreSolver s, final LNGIntVector lits, final int rhs) {
         assert incrementalStrategy == MaxSATConfig.IncrementalStrategy.ITERATIVE;
         final LNGIntVector leftCardinalityOutlits = new LNGIntVector(cardinalityOutlits);
         final int oldCardinality = currentCardinalityRhs;
@@ -120,7 +120,7 @@ public class Totalizer extends Encoding {
         final LNGIntVector rightCardinalityOutlits = new LNGIntVector(cardinalityOutlits);
         cardinalityOutlits.clear();
         for (int i = 0; i < leftCardinalityOutlits.size() + rightCardinalityOutlits.size(); i++) {
-            final int p = MiniSatStyleSolver.mkLit(s.nVars(), false);
+            final int p = LNGCoreSolver.mkLit(s.nVars(), false);
             MaxSAT.newSATVariable(s);
             cardinalityOutlits.push(p);
         }
@@ -139,19 +139,19 @@ public class Totalizer extends Encoding {
      * @param assumptions the assumptions
      * @throws IllegalStateException if the incremental strategy is unknown
      */
-    public void update(final MiniSatStyleSolver s, final int rhs, final LNGIntVector assumptions) {
+    public void update(final LNGCoreSolver s, final int rhs, final LNGIntVector assumptions) {
         assert hasEncoding;
         switch (incrementalStrategy) {
             case NONE:
                 for (int i = rhs; i < cardinalityOutlits.size(); i++) {
-                    addUnitClause(s, MiniSatStyleSolver.not(cardinalityOutlits.get(i)));
+                    addUnitClause(s, LNGCoreSolver.not(cardinalityOutlits.get(i)));
                 }
                 break;
             case ITERATIVE:
                 incremental(s, rhs);
                 assumptions.clear();
                 for (int i = rhs; i < cardinalityOutlits.size(); i++) {
-                    assumptions.push(MiniSatStyleSolver.not(cardinalityOutlits.get(i)));
+                    assumptions.push(LNGCoreSolver.not(cardinalityOutlits.get(i)));
                 }
                 break;
             default:
@@ -165,12 +165,12 @@ public class Totalizer extends Encoding {
      * @param lits the literals of the constraint
      * @param rhs  the right-hand side of the constraint
      */
-    public void build(final MiniSatStyleSolver s, final LNGIntVector lits, final int rhs) {
+    public void build(final LNGCoreSolver s, final LNGIntVector lits, final int rhs) {
         cardinalityOutlits.clear();
         hasEncoding = false;
         if (rhs == 0) {
             for (int i = 0; i < lits.size(); i++) {
-                addUnitClause(s, MiniSatStyleSolver.not(lits.get(i)));
+                addUnitClause(s, LNGCoreSolver.not(lits.get(i)));
             }
             return;
         }
@@ -182,7 +182,7 @@ public class Totalizer extends Encoding {
             return;
         }
         for (int i = 0; i < lits.size(); i++) {
-            final int p = MiniSatStyleSolver.mkLit(s.nVars(), false);
+            final int p = LNGCoreSolver.mkLit(s.nVars(), false);
             MaxSAT.newSATVariable(s);
             cardinalityOutlits.push(p);
         }
@@ -197,7 +197,7 @@ public class Totalizer extends Encoding {
         ilits = new LNGIntVector(lits);
     }
 
-    protected void toCNF(final MiniSatStyleSolver s, final LNGIntVector lits) {
+    protected void toCNF(final LNGCoreSolver s, final LNGIntVector lits) {
         final LNGIntVector left = new LNGIntVector();
         final LNGIntVector right = new LNGIntVector();
         assert lits.size() > 1;
@@ -209,7 +209,7 @@ public class Totalizer extends Encoding {
                     left.push(cardinalityInlits.back());
                     cardinalityInlits.pop();
                 } else {
-                    final int p = MiniSatStyleSolver.mkLit(s.nVars(), false);
+                    final int p = LNGCoreSolver.mkLit(s.nVars(), false);
                     MaxSAT.newSATVariable(s);
                     left.push(p);
                 }
@@ -219,7 +219,7 @@ public class Totalizer extends Encoding {
                     right.push(cardinalityInlits.back());
                     cardinalityInlits.pop();
                 } else {
-                    final int p = MiniSatStyleSolver.mkLit(s.nVars(), false);
+                    final int p = LNGCoreSolver.mkLit(s.nVars(), false);
                     MaxSAT.newSATVariable(s);
                     right.push(p);
                 }
@@ -234,7 +234,7 @@ public class Totalizer extends Encoding {
         }
     }
 
-    protected void adder(final MiniSatStyleSolver s, final LNGIntVector left, final LNGIntVector right,
+    protected void adder(final LNGCoreSolver s, final LNGIntVector left, final LNGIntVector right,
                          final LNGIntVector output) {
         assert output.size() == left.size() + right.size();
         if (incrementalStrategy == MaxSATConfig.IncrementalStrategy.ITERATIVE) {
@@ -252,18 +252,18 @@ public class Totalizer extends Encoding {
                     continue;
                 }
                 if (i == 0) {
-                    addBinaryClause(s, MiniSatStyleSolver.not(right.get(j - 1)), output.get(j - 1), blocking);
+                    addBinaryClause(s, LNGCoreSolver.not(right.get(j - 1)), output.get(j - 1), blocking);
                 } else if (j == 0) {
-                    addBinaryClause(s, MiniSatStyleSolver.not(left.get(i - 1)), output.get(i - 1), blocking);
+                    addBinaryClause(s, LNGCoreSolver.not(left.get(i - 1)), output.get(i - 1), blocking);
                 } else {
-                    addTernaryClause(s, MiniSatStyleSolver.not(left.get(i - 1)),
-                            MiniSatStyleSolver.not(right.get(j - 1)), output.get(i + j - 1), blocking);
+                    addTernaryClause(s, LNGCoreSolver.not(left.get(i - 1)), LNGCoreSolver.not(right.get(j - 1)),
+                            output.get(i + j - 1), blocking);
                 }
             }
         }
     }
 
-    protected void incremental(final MiniSatStyleSolver s, final int rhs) {
+    protected void incremental(final LNGCoreSolver s, final int rhs) {
         for (int z = 0; z < totalizerIterativeRhs.size(); z++) {
             for (int i = 0; i <= totalizerIterativeLeft.get(z).size(); i++) {
                 for (int j = 0; j <= totalizerIterativeRight.get(z).size(); j++) {
@@ -274,14 +274,14 @@ public class Totalizer extends Encoding {
                         continue;
                     }
                     if (i == 0) {
-                        addBinaryClause(s, MiniSatStyleSolver.not(totalizerIterativeRight.get(z).get(j - 1)),
+                        addBinaryClause(s, LNGCoreSolver.not(totalizerIterativeRight.get(z).get(j - 1)),
                                 totalizerIterativeOutput.get(z).get(j - 1));
                     } else if (j == 0) {
-                        addBinaryClause(s, MiniSatStyleSolver.not(totalizerIterativeLeft.get(z).get(i - 1)),
+                        addBinaryClause(s, LNGCoreSolver.not(totalizerIterativeLeft.get(z).get(i - 1)),
                                 totalizerIterativeOutput.get(z).get(i - 1));
                     } else {
-                        addTernaryClause(s, MiniSatStyleSolver.not(totalizerIterativeLeft.get(z).get(i - 1)),
-                                MiniSatStyleSolver.not(totalizerIterativeRight.get(z).get(j - 1)),
+                        addTernaryClause(s, LNGCoreSolver.not(totalizerIterativeLeft.get(z).get(i - 1)),
+                                LNGCoreSolver.not(totalizerIterativeRight.get(z).get(j - 1)),
                                 totalizerIterativeOutput.get(z).get(i + j - 1));
                     }
                 }

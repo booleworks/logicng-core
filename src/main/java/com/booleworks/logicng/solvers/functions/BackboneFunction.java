@@ -8,15 +8,13 @@ import static com.booleworks.logicng.handlers.Handler.start;
 
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.SATHandler;
-import com.booleworks.logicng.solvers.MiniSat;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.function.Consumer;
 
 /**
  * A solver function which computes a backbone for the formula on the solver.
@@ -46,16 +44,11 @@ public final class BackboneFunction implements SolverFunction<Backbone> {
     }
 
     @Override
-    public Backbone apply(final MiniSat solver, final Consumer<Tristate> resultSetter) {
+    public Backbone apply(final SATSolver solver) {
         start(handler);
-        SolverState stateBeforeBackbone = null;
-        if (solver.canSaveLoadState()) {
-            stateBeforeBackbone = solver.saveState();
-        }
+        final SolverState stateBeforeBackbone = solver.saveState();
         final Backbone backbone = solver.underlyingSolver().computeBackbone(variables, type, handler);
-        if (solver.canSaveLoadState()) {
-            solver.loadState(stateBeforeBackbone);
-        }
+        solver.loadState(stateBeforeBackbone);
         return backbone;
     }
 

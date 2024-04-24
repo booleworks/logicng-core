@@ -29,7 +29,7 @@ import com.booleworks.logicng.collections.LNGIntVector;
  * @version 1.0
  * @since 1.0
  */
-public final class MSHardClause {
+public final class LNGHardClause {
 
     private final LNGIntVector clause;
 
@@ -37,7 +37,7 @@ public final class MSHardClause {
      * Constructs a new hard clause.
      * @param clause the clause
      */
-    public MSHardClause(final LNGIntVector clause) {
+    public LNGHardClause(final LNGIntVector clause) {
         this.clause = new LNGIntVector(clause);
     }
 

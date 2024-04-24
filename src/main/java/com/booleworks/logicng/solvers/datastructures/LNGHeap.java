@@ -23,7 +23,7 @@
 package com.booleworks.logicng.solvers.datastructures;
 
 import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 /**
  * A minimalistic heap implementation.
@@ -32,7 +32,7 @@ import com.booleworks.logicng.solvers.sat.MiniSatStyleSolver;
  */
 public final class LNGHeap {
 
-    private final MiniSatStyleSolver s;
+    private final LNGCoreSolver s;
     private final LNGIntVector heap;
     private final LNGIntVector indices;
 
@@ -42,13 +42,13 @@ public final class LNGHeap {
      * the heap is 1000 elements.
      * @param solver the solver
      */
-    public LNGHeap(final MiniSatStyleSolver solver) {
+    public LNGHeap(final LNGCoreSolver solver) {
         s = solver;
         heap = new LNGIntVector(1000);
         indices = new LNGIntVector(1000);
     }
 
-    LNGHeap(final MiniSatStyleSolver s, final LNGIntVector heap, final LNGIntVector indices) {
+    LNGHeap(final LNGCoreSolver s, final LNGIntVector heap, final LNGIntVector indices) {
         this.s = s;
         this.heap = heap;
         this.indices = indices;

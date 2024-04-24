@@ -9,6 +9,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.stream.IntStream;
+
 public class LNGIntVectorTest {
 
     @Test
@@ -19,7 +21,7 @@ public class LNGIntVectorTest {
         final LNGIntVector v2 = new LNGIntVector(10);
         assertThat(v2.size()).isEqualTo(0);
         assertThat(v2.empty()).isTrue();
-        final LNGIntVector v3 = new LNGIntVector(10, 42);
+        final LNGIntVector v3 = LNGIntVector.of(IntStream.generate(() -> 42).limit(10).toArray());
         assertThat(v3.size()).isEqualTo(10);
         for (int i = 0; i < v3.size(); i++) {
             assertThat(v3.get(i)).isEqualTo(42);
@@ -31,7 +33,7 @@ public class LNGIntVectorTest {
             assertThat(v4.get(i)).isEqualTo(42);
         }
         assertThat(v4.empty()).isFalse();
-        final LNGIntVector v5 = new LNGIntVector(0, 1, 2, 3, 4);
+        final LNGIntVector v5 = LNGIntVector.of(0, 1, 2, 3, 4);
         assertThat(v5.size()).isEqualTo(5);
         for (int i = 0; i < 5; i++) {
             assertThat(v5.get(i)).isEqualTo(i);

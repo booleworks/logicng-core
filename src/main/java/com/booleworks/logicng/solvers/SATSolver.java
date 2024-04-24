@@ -6,48 +6,96 @@ package com.booleworks.logicng.solvers;
 
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.configurations.ConfigurationType;
+import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.encodings.CcEncoder;
 import com.booleworks.logicng.encodings.CcIncrementalData;
-import com.booleworks.logicng.explanations.UNSATCore;
+import com.booleworks.logicng.encodings.PbEncoder;
+import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
+import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
-import com.booleworks.logicng.solvers.functions.UnsatCoreFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
-import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationStrategy;
-import com.booleworks.logicng.solvers.functions.modelenumeration.NoSplitModelEnumerationStrategy;
+import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.solvers.sat.SATCall;
+import com.booleworks.logicng.solvers.sat.SATCallBuilder;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.transformations.cnf.PlaistedGreenbaumTransformationSolver;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.SortedSet;
 
 /**
  * A generic interface for LogicNG's SAT solvers.
  * @version 3.0.0
  * @since 1.0
  */
-public abstract class SATSolver {
+// TODO sort and cleanup methods
+public class SATSolver {
 
     protected final FormulaFactory f;
-    protected Tristate result;
+    protected final SATSolverConfig config;
+    protected final LNGCoreSolver solver;
+    protected final PlaistedGreenbaumTransformationSolver pgTransformation;
+    protected final PlaistedGreenbaumTransformationSolver fullPgTransformation;
 
     /**
-     * Constructor.
-     * @param f the formula factory
+     * Constructs a new SAT solver instance.
+     * @param f      the formula factory
+     * @param config the solver configuration, must not be {@code null}
      */
-    protected SATSolver(final FormulaFactory f) {
+    protected SATSolver(final FormulaFactory f, final SATSolverConfig config) {
         this.f = f;
+        this.config = config;
+        solver = new LNGCoreSolver(f, config);
+        pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, solver);
+        fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, solver);
+    }
+
+    /**
+     * Constructs a new SAT solver with a given underlying solver core. This
+     * method is primarily used for serialization purposes and should not be
+     * required in any other application use case.
+     * @param f                the formula factory
+     * @param underlyingSolver the underlying solver core
+     */
+    public SATSolver(final FormulaFactory f, final LNGCoreSolver underlyingSolver) {
+        this.f = f;
+        config = underlyingSolver.config();
+        solver = underlyingSolver;
+        pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver);
+        fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, underlyingSolver);
+    }
+
+    /**
+     * Returns a new SAT solver with the solver configuration from the formula
+     * factory.
+     * @param f the formula factory
+     * @return the solver
+     */
+    public static SATSolver newSolver(final FormulaFactory f) {
+        return new SATSolver(f, (SATSolverConfig) f.configurationFor(ConfigurationType.SAT));
+    }
+
+    /**
+     * Returns a new SAT solver with a given configuration.
+     * @param f      the formula factory
+     * @param config the configuration, must not be {@code null}
+     * @return the solver
+     */
+    public static SATSolver newSolver(final FormulaFactory f, final SATSolverConfig config) {
+        return new SATSolver(f, config);
     }
 
     /**
@@ -63,7 +111,37 @@ public abstract class SATSolver {
      * @param formula     the formula
      * @param proposition the proposition of this formula
      */
-    public abstract void add(final Formula formula, Proposition proposition);
+    public void add(final Formula formula, final Proposition proposition) {
+        if (formula.type() == FType.PBC) {
+            final PBConstraint constraint = (PBConstraint) formula;
+            if (constraint.isCC()) {
+                if (config.useAtMostClauses()) {
+                    if (constraint.comparator() == CType.LE) {
+                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver),
+                                constraint.rhs());
+                    } else if (constraint.comparator() == CType.LT && constraint.rhs() > 3) {
+                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver),
+                                constraint.rhs() - 1);
+                    } else if (constraint.comparator() == CType.EQ && constraint.rhs() == 1) {
+                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver),
+                                constraint.rhs());
+                        solver.addClause(LNGCoreSolver.generateClauseVector(constraint.operands(), solver),
+                                proposition);
+                    } else {
+                        CcEncoder.encode((CardinalityConstraint) constraint,
+                                EncodingResult.resultForSATSolver(f, solver, proposition));
+                    }
+                } else {
+                    CcEncoder.encode((CardinalityConstraint) constraint,
+                            EncodingResult.resultForSATSolver(f, solver, proposition));
+                }
+            } else {
+                PbEncoder.encode(constraint, EncodingResult.resultForSATSolver(f, solver, proposition));
+            }
+        } else {
+            addFormulaAsCNF(formula, proposition);
+        }
+    }
 
     /**
      * Adds a given set of propositions to the solver.
@@ -134,21 +212,24 @@ public abstract class SATSolver {
      * Usage constraints:
      * <ul>
      * <li>"&lt;": Cannot be used with right-hand side 2, returns null for
-     * right-hand side 1, but constraint is added to solver</li>
+     * right-hand side 1, but constraint is added to solver.</li>
      * <li>"&lt;=": Cannot be used with right-hand side 1, returns null for
-     * right-hand side 0, but constraint is added to solver</li>
+     * right-hand side 0, but constraint is added to solver.</li>
      * <li>"&gt;": Returns null for right-hand side 0 or number of variables -1,
      * but constraint is added to solver. Adds false to solver for right-hand
-     * side &gt;= number of variables</li>
+     * side &gt;= number of variables.</li>
      * <li>"&gt;=": Returns null for right-hand side 1 or number of variables,
      * but constraint is added to solver. Adds false to solver for right-hand
-     * side &gt; number of variables</li>
+     * side &gt; number of variables.</li>
      * </ul>
      * @param cc the cardinality constraint
      * @return the incremental data of this constraint, or null if the
      *         right-hand side of cc is 1
      */
-    public abstract CcIncrementalData addIncrementalCC(final CardinalityConstraint cc);
+    public CcIncrementalData addIncrementalCc(final CardinalityConstraint cc) {
+        final EncodingResult result = EncodingResult.resultForSATSolver(f, solver, null);
+        return CcEncoder.encodeIncremental(cc, result);
+    }
 
     /**
      * Adds a formula which is already in CNF to the solver.
@@ -179,196 +260,56 @@ public abstract class SATSolver {
      * @param formula     the clause
      * @param proposition a proposition (if required for proof tracing)
      */
-    protected abstract void addClause(final Formula formula, final Proposition proposition);
-
-    /**
-     * Returns {@code Tristate.TRUE} if the current formula in the solver is
-     * satisfiable, @{code Tristate.FALSE} if it is unsatisfiable, or
-     * {@code UNDEF} if the solving process was aborted.
-     * @return the satisfiability of the formula in the solver
-     */
-    public Tristate sat() {
-        return sat((SATHandler) null);
+    protected void addClause(final Formula formula, final Proposition proposition) {
+        final LNGIntVector ps = LNGCoreSolver.generateClauseVector(formula.literals(f), solver);
+        solver.addClause(ps, proposition);
     }
 
     /**
-     * Returns {@code Tristate.TRUE} if the current formula in the solver is
-     * satisfiable, @{code Tristate.FALSE} if it is unsatisfiable, or
-     * {@code UNDEF} if the solving process was aborted.
-     * @param handler the SAT handler
-     * @return the satisfiability of the formula in the solver
-     */
-    public abstract Tristate sat(final SATHandler handler);
-
-    /**
-     * Returns {@code Tristate.TRUE} if the current formula in the solver and a
-     * given literal are satisfiable, {@code Tristate.FALSE} if it is
-     * unsatisfiable, or {@code UNDEF} if the solving process was aborted.
+     * Central method for building a SAT call. This method returns a
+     * {@link SATCallBuilder} which can be enriched with assumptions, additional
+     * formulas, handlers, etc. {@link SATCallBuilder#solve()} then performs the
+     * actual SAT call and returns a {@link SATCall} object from which a
+     * {@link SATCall#model model} or {@link SATCall#unsatCore() UNSAT core} can
+     * be generated.
      * <p>
-     * Side effect: Solving with assumptions adds the assumption literals as
-     * known variables to the solver if not already known. This change lasts
-     * beyond the assumption solving call and can have unintended results for
-     * subsequent solver calls. For example, a subsequent model enumeration call
-     * will produce models containing the now known variables. A reliable
-     * workaround for this side effect is to save the state of the solver with
-     * {@link #saveState()} and load the state of the solver after the
-     * assumption call(s) with {@link #loadState(SolverState)}.
-     * @param literal the assumed literal
-     * @return the satisfiability of the formula in the solver
+     * <b>A SAT solver may only have one &quot;open&quot; SATCall at a time. So
+     * a an existing SAT call must always be {@link SATCall#close() closed}
+     * (ideally using a try-with construct) before the next call to this
+     * method.</b>
+     * @return a new SATCall builder
+     * @see SATCallBuilder
      */
-    public Tristate sat(final Literal literal) {
-        return sat(null, literal);
+    public SATCallBuilder satCall() {
+        return SATCall.builder(this);
     }
 
     /**
-     * Returns {@code Tristate.TRUE} if the current formula in the solver and a
-     * given collection of assumed literals are satisfiable,
-     * {@code Tristate.FALSE} if it is unsatisfiable, or {@code UNDEF} if the
-     * solving process was aborted. The assumptions can be seen as an additional
-     * conjunction of literals. Note: Use ordered collections to ensure
-     * determinism in the solving process and thus in the resulting model or
-     * conflict.
+     * Returns {@code true} if the current formula in the solver is
+     * satisfiable, @{code false} if it is unsatisfiable.
      * <p>
-     * Side effect: Solving with assumptions adds the assumption literals as
-     * known variables to the solver if not already known. This change lasts
-     * beyond the assumption solving call and can have unintended results for
-     * subsequent solver calls. For example, a subsequent model enumeration call
-     * will produce models containing the now known variables. A reliable
-     * workaround for this side effect is to save the state of the solver with
-     * {@link #saveState()} and load the state of the solver after the
-     * assumption call(s) with {@link #loadState(SolverState)}.
-     * @param assumptions a collection of literals
-     * @return the satisfiability of the formula in the solver
+     * This is a shortcut for {@code satCall().sat()} (since no handler is used,
+     * the result is directly transformed to a {@code boolean}).
+     * @return the satisfiability of the formula on the solver
      */
-    public Tristate sat(final Collection<? extends Literal> assumptions) {
-        return sat(null, assumptions);
+    public boolean sat() {
+        try (final SATCall call = satCall().solve()) {
+            return call.getSatResult() == Tristate.TRUE;
+        }
     }
-
-    /**
-     * Returns {@code Tristate.TRUE} if the current formula in the solver and a
-     * given literal are satisfiable, {@code Tristate.FALSE} if it is
-     * unsatisfiable, or {@code UNDEF} if the solving process was aborted.
-     * <p>
-     * Side effect: Solving with assumptions adds the assumption literals as
-     * known variables to the solver if not already known. This change lasts
-     * beyond the assumption solving call and can have unintended results for
-     * subsequent solver calls. For example, a subsequent model enumeration call
-     * will produce models containing the now known variables. A reliable
-     * workaround for this side effect is to save the state of the solver with
-     * {@link #saveState()} and load the state of the solver after the
-     * assumption call(s) with {@link #loadState(SolverState)}.
-     * @param handler the SAT handler
-     * @param literal the assumed literal
-     * @return the satisfiability of the formula in the solver
-     */
-    public abstract Tristate sat(final SATHandler handler, final Literal literal);
-
-    /**
-     * Returns {@code Tristate.TRUE} if the current formula in the solver and a
-     * given collection of assumed literals are satisfiable,
-     * {@code Tristate.FALSE} if it is unsatisfiable, or {@code UNDEF} if the
-     * solving process was aborted. The assumptions can be seen as an additional
-     * conjunction of literals. Note: Use ordered collections to ensure
-     * determinism in the solving process and thus in the resulting model or
-     * conflict.
-     * <p>
-     * Side effect: Solving with assumptions adds the assumption literals as
-     * known variables to the solver if not already known. This change lasts
-     * beyond the assumption solving call and can have unintended results for
-     * subsequent solver calls. For example, a subsequent model enumeration call
-     * will produce models containing the now known variables. A reliable
-     * workaround for this side effect is to save the state of the solver with
-     * {@link #saveState()} and load the state of the solver after the
-     * assumption call(s) with {@link #loadState(SolverState)}.
-     * @param handler     the SAT handler
-     * @param assumptions a collection of literals
-     * @return the satisfiability of the formula in the solver
-     */
-    public abstract Tristate sat(final SATHandler handler, final Collection<? extends Literal> assumptions);
-
-    /**
-     * Solves the formula on the solver with a given selection order.
-     * <p>
-     * If a custom selection order is set, the solver will pick a variable from
-     * the custom order in order to branch on it during the search. The given
-     * polarity in the selection order is used as assignment for the variable.
-     * If all variables in the custom order are already assigned, the solver
-     * falls back to the activity based variable selection.
-     * <p>
-     * Example: Order a, ~b, c. The solver picks variable `a`, if not assigned
-     * yet, and checks if setting `a` to true leads to a satisfying assignment.
-     * Next, the solver picks variable b and checks if setting b to false leads
-     * to a satisfying assignment.
-     * @param selectionOrder the order of the literals for the selection order
-     * @return the satisfiability of the formula in the solver
-     */
-    public Tristate satWithSelectionOrder(final List<? extends Literal> selectionOrder) {
-        return satWithSelectionOrder(selectionOrder, null, null);
-    }
-
-    /**
-     * Solves the formula on the solver with a given selection order, a given
-     * SAT handler and a list of additional assumptions.
-     * <p>
-     * If a custom selection order is set, the solver will pick a variable from
-     * the custom order in order to branch on it during the search. The given
-     * polarity in the selection order is used as assignment for the variable.
-     * If all variables in the custom order are already assigned, the solver
-     * falls back to the activity based variable selection.
-     * <p>
-     * Example: Order a, ~b, c. The solver picks variable `a`, if not assigned
-     * yet, and checks if setting `a` to true leads to a satisfying assignment.
-     * Next, the solver picks variable b and checks if setting b to false leads
-     * to a satisfying assignment.
-     * @param selectionOrder the order of the literals for the selection order
-     * @param handler        the SAT handler
-     * @param assumptions    a collection of literals
-     * @return the satisfiability of the formula in the solver
-     */
-    public Tristate satWithSelectionOrder(final List<? extends Literal> selectionOrder, final SATHandler handler,
-                                          final Collection<? extends Literal> assumptions) {
-        setSolverToUndef();
-        setSelectionOrder(selectionOrder);
-        final Tristate sat = assumptions != null ? sat(handler, assumptions) : sat(handler);
-        resetSelectionOrder();
-        return sat;
-    }
-
-    /**
-     * Resets the SAT solver.
-     */
-    public abstract void reset();
-
-    /**
-     * Returns a model of the current formula on the solver wrt. a given set of
-     * variables. If the set is {@code null}, all variables are considered
-     * relevant. If the formula is UNSAT, {@code null} will be returned. The
-     * formula in the solver has to be solved first, before a model can be
-     * obtained.
-     * @param variables the set of variables
-     * @return a model of the current formula
-     * @throws IllegalStateException if the formula is not yet solved
-     */
-    public Assignment model(final Variable[] variables) {
-        return model(Arrays.asList(variables));
-    }
-
-    /**
-     * Returns a model of the current formula on the solver wrt. a given set of
-     * variables. If the set is {@code null}, all variables are considered
-     * relevant. If the formula is UNSAT, {@code null} will be returned.
-     * @param variables the set of variables
-     * @return a model of the current formula
-     */
-    public abstract Assignment model(final Collection<Variable> variables);
 
     /**
      * Executes a solver function on this solver.
      * @param function the solver function
      * @param <RESULT> the result type of the function
      * @return the result of executing the solver function on the current solver
+     * @throws IllegalStateException if this solver is currently used in a
+     *                               {@link SATCall}
      */
-    public abstract <RESULT> RESULT execute(final SolverFunction<RESULT> function);
+    public <RESULT> RESULT execute(final SolverFunction<RESULT> function) {
+        solver.assertNotInSatCall();
+        return function.apply(this);
+    }
 
     /**
      * Enumerates all models of the current formula wrt. a given set of
@@ -378,10 +319,9 @@ public abstract class SATSolver {
      * @return the list of models
      */
     public List<Model> enumerateAllModels(final Collection<Variable> variables) {
-        final ModelEnumerationStrategy strategy = canSaveLoadState() ? DefaultModelEnumerationStrategy.builder().build()
-                : NoSplitModelEnumerationStrategy.get();
         return execute(ModelEnumerationFunction.builder(variables)
-                .configuration(ModelEnumerationConfig.builder().strategy(strategy).build())
+                .configuration(ModelEnumerationConfig.builder()
+                        .strategy(DefaultModelEnumerationStrategy.builder().build()).build())
                 .build());
     }
 
@@ -393,62 +333,31 @@ public abstract class SATSolver {
      * @return the list of models
      */
     public List<Model> enumerateAllModels(final Variable[] variables) {
-        final ModelEnumerationStrategy strategy = canSaveLoadState() ? DefaultModelEnumerationStrategy.builder().build()
-                : NoSplitModelEnumerationStrategy.get();
         return execute(ModelEnumerationFunction.builder(variables)
-                .configuration(ModelEnumerationConfig.builder().strategy(strategy).build())
+                .configuration(ModelEnumerationConfig.builder()
+                        .strategy(DefaultModelEnumerationStrategy.builder().build()).build())
                 .build());
     }
 
     /**
      * Saves the current solver state.
      * @return the current solver state
-     * @throws UnsupportedOperationException if the solver does not support
-     *                                       state saving/loading
-     * @throws IllegalStateException         if the solver is not in incremental
-     *                                       mode
      */
-    public abstract SolverState saveState();
+    public SolverState saveState() {
+        solver.assertNotInSatCall();
+        return solver.saveState();
+    }
 
     /**
      * Loads a given solver state.
      * @param state the solver state
-     * @throws UnsupportedOperationException if the solver does not support
-     *                                       state saving/loading
-     * @throws IllegalStateException         if the solver is not in incremental
-     *                                       mode
-     * @throws IllegalArgumentException      if the given state has become
-     *                                       invalid
+     * @throws IllegalArgumentException if the given state has become invalid
      */
-    public abstract void loadState(final SolverState state);
-
-    /**
-     * Sets the solver state to UNDEF (required if you fiddle e.g. with the
-     * underlying solver).
-     */
-    public void setSolverToUndef() {
-        result = Tristate.UNDEF;
-    }
-
-    /**
-     * Returns the set of variables currently known by the solver. NOTE: Due to
-     * the incremental/decremental interface of some solvers, this set is
-     * generated each time, the method is called. So if you can maintain a list
-     * of relevant/known variables in your own application, this is recommended.
-     * @return the set of variables currently known by the solver
-     */
-    public abstract SortedSet<Variable> knownVariables();
-
-    /**
-     * Returns an unsat core of the current problem. Only works if the SAT
-     * solver is configured to record the information required to generate a
-     * proof trace and an unsat core. In particular, this method returns the
-     * unsat core only if the parameter "proofGeneration" in the MiniSatConfig
-     * is set to "true".
-     * @return the unsat core
-     */
-    public UNSATCore<Proposition> unsatCore() {
-        return execute(UnsatCoreFunction.get());
+    public void loadState(final SolverState state) {
+        solver.assertNotInSatCall();
+        solver.loadState(state);
+        pgTransformation.clearCache();
+        fullPgTransformation.clearCache();
     }
 
     /**
@@ -482,28 +391,33 @@ public abstract class SATSolver {
     }
 
     /**
-     * Sets the selection order of the variables and their polarity.
+     * Returns the initial phase of literals of this solver.
+     * @return the initial phase of literals of this solver
+     */
+    public SATSolverConfig config() {
+        return config;
+    }
+
+    /**
+     * Returns the underlying core solver.
      * <p>
-     * @param selectionOrder the variable order and their polarity that should
-     *                       be checked first
+     * ATTENTION: by influencing the underlying solver directly, you can mess
+     * things up completely! You should really know what you are doing.
+     * @return the underlying core solver
      */
-    protected abstract void setSelectionOrder(List<? extends Literal> selectionOrder);
+    public LNGCoreSolver underlyingSolver() {
+        return solver;
+    }
 
-    /**
-     * Resets the selection order on the solver. The internal activity
-     * heuristics for the variable ordering will be used again.
-     */
-    protected abstract void resetSelectionOrder();
-
-    /**
-     * Returns whether this solver instance can save and load solver states.
-     * @return true when the solver can save and load states, false otherwise
-     */
-    public abstract boolean canSaveLoadState();
-
-    /**
-     * Returns whether this solver instance can generate proofs.
-     * @return true when the solver can generate proofs, false otherwise
-     */
-    public abstract boolean canGenerateProof();
+    protected void addFormulaAsCNF(final Formula formula, final Proposition proposition) {
+        if (config.cnfMethod() == SATSolverConfig.CNFMethod.FACTORY_CNF) {
+            addClauseSet(formula.cnf(f), proposition);
+        } else if (config.cnfMethod() == SATSolverConfig.CNFMethod.PG_ON_SOLVER) {
+            pgTransformation.addCNFtoSolver(formula, proposition);
+        } else if (config.cnfMethod() == SATSolverConfig.CNFMethod.FULL_PG_ON_SOLVER) {
+            fullPgTransformation.addCNFtoSolver(formula, proposition);
+        } else {
+            throw new IllegalStateException("Unknown Solver CNF method: " + config.cnfMethod());
+        }
+    }
 }

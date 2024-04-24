@@ -58,7 +58,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
 
         /**
          * Computes the DTree from the given CNF.
-         * @param f   the formula factory
+         * @param f   the formula factory to use for caching
          * @param cnf the CNF
          */
         public Graph(final FormulaFactory f, final Formula cnf) {
@@ -100,7 +100,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
         protected List<LNGIntVector> getCopyOfEdgeList() {
             final List<LNGIntVector> result = new ArrayList<>();
             for (final Set<Integer> edge : edgeList) {
-                result.add(new LNGIntVector(edge.stream().mapToInt(i -> i).toArray()));
+                result.add(LNGIntVector.of(edge.stream().mapToInt(i -> i).toArray()));
             }
             return result;
         }
@@ -154,8 +154,8 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
                     }
                 }
 
-                final int bestVertex = possiblyBestVertices.get(0); // or choose
-                                                                    // randomly
+                // or choose randomly
+                final int bestVertex = possiblyBestVertices.get(0);
 
                 final LNGIntVector neighborList = fillEdgeList.get(bestVertex);
                 for (int i = 0; i < neighborList.size(); i++) {
