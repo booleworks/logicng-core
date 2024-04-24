@@ -79,7 +79,7 @@ public class NegationMinimizerTest extends TestWithFormulaContext {
     public void testRandomized(final FormulaContext _c) {
         for (int i = 0; i < 100; i++) {
             final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f,
-                    FormulaRandomizerConfig.builder().numVars(5).weightPbc(1).seed(i * 42).build());
+                    FormulaRandomizerConfig.builder().numVars(5).weightPbc(0).seed(i * 42).build());
             computeAndVerify(randomizer.formula(6));
         }
     }

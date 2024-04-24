@@ -80,13 +80,13 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                                     final SortedSet<Literal> splitModel, final SortedSet<Variable> enumerationVars,
                                     final SortedSet<Variable> splitVars, final int recursionDepth) {
         final int maxNumberOfModelsForEnumeration = strategy.maxNumberOfModelsForEnumeration(recursionDepth);
-        final SolverState state = saveState(solver);
+        final SolverState state = solver.saveState();
         solver.add(splitModel);
         final boolean enumerationFinished = enumerate(collector, solver, enumerationVars,
                 additionalVariables, maxNumberOfModelsForEnumeration, handler);
         if (!enumerationFinished) {
             if (!collector.rollback(handler)) {
-                loadState(solver, state);
+                solver.loadState(state);
                 return;
             }
             SortedSet<Variable> newSplitVars = new TreeSet<>(splitVars);
@@ -94,7 +94,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                     strategy.maxNumberOfModelsForSplitAssignments(recursionDepth);
             while (!enumerate(collector, solver, newSplitVars, null, maxNumberOfModelsForSplitAssignments, handler)) {
                 if (!collector.rollback(handler)) {
-                    loadState(solver, state);
+                    solver.loadState(state);
                     return;
                 }
                 newSplitVars = strategy.reduceSplitVars(newSplitVars, recursionDepth);
@@ -119,24 +119,24 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 enumerateRecursive(collector, solver, recursiveSplitModel, enumerationVars, recursiveSplitVars,
                         recursionDepth + 1);
                 if (!collector.commit(handler)) {
-                    loadState(solver, state);
+                    solver.loadState(state);
                     return;
                 }
             }
         } else {
             if (!collector.commit(handler)) {
-                loadState(solver, state);
+                solver.loadState(state);
                 return;
             }
         }
-        loadState(solver, state);
+        solver.loadState(state);
     }
 
     protected static <R> boolean enumerate(final EnumerationCollector<R> collector, final SATSolver solver,
                                            final SortedSet<Variable> variables,
                                            final SortedSet<Variable> additionalVariables, final int maxModels,
                                            final ModelEnumerationHandler handler) {
-        final SolverState stateBeforeEnumeration = saveState(solver);
+        final SolverState stateBeforeEnumeration = solver.saveState();
         final LNGIntVector relevantIndices = relevantIndicesFromSolver(variables, solver);
         final LNGIntVector relevantAllIndices =
                 relevantAllIndicesFromSolver(variables, additionalVariables, relevantIndices, solver);
@@ -146,7 +146,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         while (proceed && modelEnumerationSATCall(solver, handler)) {
             final LNGBooleanVector modelFromSolver = solver.underlyingSolver().model();
             if (++foundModels >= maxModels) {
-                loadState(solver, stateBeforeEnumeration);
+                solver.loadState(stateBeforeEnumeration);
                 return false;
             }
             proceed = collector.addModel(modelFromSolver, solver, relevantAllIndices, handler);
@@ -157,7 +157,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 break;
             }
         }
-        loadState(solver, stateBeforeEnumeration);
+        solver.loadState(stateBeforeEnumeration);
         return true;
     }
 
@@ -178,11 +178,4 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 : config;
     }
 
-    private static SolverState saveState(final SATSolver solver) {
-        return solver.saveState();
-    }
-
-    private static void loadState(final SATSolver solver, final SolverState state) {
-        solver.loadState(state);
-    }
 }

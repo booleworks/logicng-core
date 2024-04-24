@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.transformations.cnf;
 
+import static com.booleworks.logicng.util.FormulaHelper.variables;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.RandomTag;
@@ -60,7 +61,7 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
             final Formula randomFormula02 = randomSATFormula(f, randomizer, 4);
             solver.add(randomFormula01);
             if (solver.sat()) {
-                final List<Model> models = solver.enumerateAllModels(solver.underlyingSolver().knownVariables());
+                final List<Model> models = solver.enumerateAllModels(randomFormula01.variables(f));
                 final Formula dnf =
                         f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
                 assertThat(f.equivalence(randomFormula01, dnf).holds(new TautologyPredicate(f))).isTrue();
@@ -68,7 +69,7 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
             final SolverState state = solver.saveState();
             solver.add(randomFormula02);
             if (solver.sat()) {
-                final List<Model> models = solver.enumerateAllModels(solver.underlyingSolver().knownVariables());
+                final List<Model> models = solver.enumerateAllModels(variables(f, randomFormula01, randomFormula02));
                 final Formula dnf =
                         f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
                 assertThat(f.equivalence(f.and(randomFormula01, randomFormula02), dnf).holds(new TautologyPredicate(f)))
@@ -76,14 +77,14 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
             }
             solver.loadState(state);
             if (solver.sat()) {
-                final List<Model> models = solver.enumerateAllModels(solver.underlyingSolver().knownVariables());
+                final List<Model> models = solver.enumerateAllModels(randomFormula01.variables(f));
                 final Formula dnf =
                         f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
                 assertThat(f.equivalence(randomFormula01, dnf).holds(new TautologyPredicate(f))).isTrue();
             }
             solver.add(randomFormula02);
             if (solver.sat()) {
-                final List<Model> models = solver.enumerateAllModels(solver.underlyingSolver().knownVariables());
+                final List<Model> models = solver.enumerateAllModels(variables(f, randomFormula01, randomFormula02));
                 final Formula dnf =
                         f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));
                 assertThat(f.equivalence(f.and(randomFormula01, randomFormula02), dnf).holds(new TautologyPredicate(f)))
