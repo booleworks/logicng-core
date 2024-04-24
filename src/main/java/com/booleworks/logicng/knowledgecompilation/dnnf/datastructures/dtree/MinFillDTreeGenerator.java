@@ -13,13 +13,15 @@ import com.booleworks.logicng.formulas.Variable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 
 /**
  * A DTree generator using the min-fill heuristic.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
@@ -38,8 +40,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
         protected final int numberOfVertices;
 
         /**
-         * The adjacency matrix (which is symmetric since the graph is
-         * undirected)
+         * The adjacency matrix (which is symmetric since the graph is undirected)
          */
         protected final boolean[][] adjMatrix;
 
@@ -49,18 +50,17 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
         protected final List<Variable> vertices;
 
         /**
-         * The edges of the graph as a list of edges per node ({{2,3},{1},{1}}
-         * means that there are the edges 1-2 and 1-3)
+         * The edges of the graph as a list of edges per node ({{2,3},{1},{1}} means that there are the edges 1-2 and 1-3)
          */
-        protected final List<LNGIntVector> edgeList;
+        protected final List<Set<Integer>> edgeList;
 
         /**
          * Computes the DTree from the given CNF.
-         * @param f   the formula factory to use for caching
+         * @param f   the formula factory
          * @param cnf the CNF
          */
         public Graph(final FormulaFactory f, final Formula cnf) {
-            // build vertices
+            /* build vertices */
             numberOfVertices = cnf.variables(f).size();
             vertices = new ArrayList<>(numberOfVertices);
             final Map<Literal, Integer> varToIndex = new HashMap<>();
@@ -70,11 +70,11 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
                 varToIndex.put(variable, index++);
             }
 
-            // build edge list and adjacency matrix
+            /* build edge list and adjacency matrix */
             adjMatrix = new boolean[numberOfVertices][numberOfVertices];
             edgeList = new ArrayList<>(numberOfVertices);
             for (int i = 0; i < numberOfVertices; i++) {
-                edgeList.add(new LNGIntVector());
+                edgeList.add(new LinkedHashSet<>());
             }
 
             for (final Formula clause : cnf) {
@@ -86,8 +86,8 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
                 }
                 for (int i = 0; i < varNums.length; i++) {
                     for (int j = i + 1; j < varNums.length; j++) {
-                        edgeList.get(varNums[i]).push(varNums[j]);
-                        edgeList.get(varNums[j]).push(varNums[i]);
+                        edgeList.get(varNums[i]).add(varNums[j]);
+                        edgeList.get(varNums[j]).add(varNums[i]);
                         adjMatrix[varNums[i]][varNums[j]] = true;
                         adjMatrix[varNums[j]][varNums[i]] = true;
                     }
@@ -97,8 +97,8 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
 
         protected List<LNGIntVector> getCopyOfEdgeList() {
             final List<LNGIntVector> result = new ArrayList<>();
-            for (final LNGIntVector edge : edgeList) {
-                result.add(new LNGIntVector(edge));
+            for (final Set<Integer> edge : edgeList) {
+                result.add(new LNGIntVector(edge.stream().mapToInt(i -> i).toArray()));
             }
             return result;
         }
@@ -152,8 +152,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
                     }
                 }
 
-                // random choice
-                final int bestVertex = possiblyBestVertices.get(0);
+                final int bestVertex = possiblyBestVertices.get(0); // or choose randomly
 
                 final LNGIntVector neighborList = fillEdgeList.get(bestVertex);
                 for (int i = 0; i < neighborList.size(); i++) {
@@ -177,7 +176,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
 
                 int currentNumberOfEdges = 0;
                 for (int k = 0; k < numberOfVertices; k++) {
-                    if (fillAdjMatrix[bestVertex][k] && !processed[k]) {
+                    if (k != bestVertex && !processed[k] && fillAdjMatrix[bestVertex][k]) {
                         currentNumberOfEdges++;
                     }
                 }
