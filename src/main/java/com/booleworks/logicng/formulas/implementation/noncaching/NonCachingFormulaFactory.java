@@ -157,36 +157,6 @@ public class NonCachingFormulaFactory extends FormulaFactory {
     }
 
     @Override
-    public Variable newCCVariable() {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        return variable(ccPrefix + ccCounter.getAndIncrement());
-    }
-
-    @Override
-    public Variable newPBVariable() {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        return variable(pbPrefix + pbCounter.getAndIncrement());
-    }
-
-    @Override
-    public Variable newCNFVariable() {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        return variable(cnfPrefix + cnfCounter.getAndIncrement());
-    }
-
-    @Override
-    public boolean isGeneratedVariable(final Variable var) {
-        return var.name().startsWith(CC_PREFIX) || var.name().startsWith(CNF_PREFIX) ||
-                var.name().startsWith(PB_PREFIX);
-    }
-
-    @Override
     protected Formula negateOrNull(final Formula formula) {
         return formula.negate(this);
     }

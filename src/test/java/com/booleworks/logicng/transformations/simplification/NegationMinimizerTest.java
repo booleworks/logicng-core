@@ -7,16 +7,23 @@ package com.booleworks.logicng.transformations.simplification;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.RandomTag;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
+import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
+import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.SortedSet;
 
 public class NegationMinimizerTest extends TestWithFormulaContext {
 
@@ -87,7 +94,15 @@ public class NegationMinimizerTest extends TestWithFormulaContext {
     private static void computeAndVerify(final Formula formula) {
         final FormulaFactory f = formula.factory();
         final Formula simplified = formula.transform(new NegationSimplifier(f));
-        assertThat(formula.isEquivalentTo(f, simplified)).isTrue();
+        final SortedSet<Variable> originalVariables = formula.variables(f);
+        final SATSolver sat1 = SATSolver.newSolver(f);
+        sat1.add(formula);
+        final Set<Model> models1 = new HashSet<>(sat1.enumerateAllModels(originalVariables));
+        final SATSolver sat2 = SATSolver.newSolver(f);
+        sat2.add(simplified);
+        final Set<Model> models2 = new HashSet<>(sat2.enumerateAllModels(originalVariables));
+        assertThat(models1.size()).isEqualTo(models2.size());
+        assertThat(models1).isEqualTo(models2);
         assertThat(simplified.toString().length()).isLessThanOrEqualTo(formula.toString().length());
     }
 }

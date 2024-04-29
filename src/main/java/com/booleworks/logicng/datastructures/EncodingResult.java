@@ -6,6 +6,7 @@ package com.booleworks.logicng.datastructures;
 
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
+import com.booleworks.logicng.formulas.InternalAuxVarType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -15,6 +16,7 @@ import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The result of an encoding.
@@ -133,15 +135,43 @@ public final class EncodingResult {
      * Returns a new auxiliary variable.
      * @return a new auxiliary variable
      */
-    public Variable newVariable() {
+    public Variable newVariable(final String auxType) {
         if (solver == null) {
-            return f.newCCVariable();
+            return f.newAuxVariable(auxType);
         } else {
             final int index = solver.newVar(!solver.config().initialPhase(), true);
-            final String name = FormulaFactory.CC_PREFIX + "MINISAT_" + index;
+            final String name = "@AUX_" + auxType + "_SAT_SOLVER_" + index;
             solver.addName(name, index);
             return new EncodingAuxiliaryVariable(name, false);
         }
+    }
+
+    public Variable newVariable(final InternalAuxVarType auxType) {
+        return newVariable(auxType.prefix());
+    }
+
+    /**
+     * Returns a new auxiliary variable for cardinality constraint encodings.
+     * @return a new auxiliary variable
+     */
+    public Variable newCCVariable() {
+        return newVariable(InternalAuxVarType.CC);
+    }
+
+    /**
+     * Returns a new auxiliary variable for pseudo-boolean constraint encodings.
+     * @return a new auxiliary variable
+     */
+    public Variable newPBCVariable() {
+        return newVariable(InternalAuxVarType.PBC);
+    }
+
+    /**
+     * Returns a new auxiliary variable for cnf encodings.
+     * @return a new auxiliary variable
+     */
+    public Variable newCNFVariable() {
+        return newVariable(InternalAuxVarType.CNF);
     }
 
     /**

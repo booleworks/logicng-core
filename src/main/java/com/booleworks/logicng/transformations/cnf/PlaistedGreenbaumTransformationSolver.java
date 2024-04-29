@@ -8,6 +8,7 @@ import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.generateClauseVec
 import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.solverLiteral;
 
 import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.formulas.InternalAuxVarType;
 import com.booleworks.logicng.formulas.Equivalence;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
@@ -287,7 +288,7 @@ public final class PlaistedGreenbaumTransformationSolver {
 
     private int newSolverVariable() {
         final int index = solver.newVar(!solver.config().initialPhase(), true);
-        final String name = FormulaFactory.CNF_PREFIX + "MINISAT_" + index;
+        final String name = InternalAuxVarType.CNF.prefix() + "SAT_SOLVER_" + index;
         solver.addName(name, index);
         return index * 2;
     }

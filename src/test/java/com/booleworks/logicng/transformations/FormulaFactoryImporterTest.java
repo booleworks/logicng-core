@@ -8,13 +8,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
-import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaFactoryConfig;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
-import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.io.parsers.PropositionalParser;
-import com.booleworks.logicng.transformations.cnf.TseitinTransformation;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -192,31 +188,6 @@ public class FormulaFactoryImporterTest extends TestWithFormulaContext {
         assertThat(myG.statistics().negations()).isEqualTo(0);
         assertThat(myG.statistics().implications()).isEqualTo(0);
         assertThat(myG.statistics().equivalences()).isEqualTo(0);
-    }
-
-    @Test
-    public void testAdjustCounters() throws ParserException {
-        final CachingFormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().name("Factory").build());
-        final PropositionalParser p = new PropositionalParser(f);
-        final Formula cc = p.parse("A + B + C + D + E <= 2").cnf(f);
-        final Formula pbc = p.parse("2*A + -2*B + 3*C + D + 2*E <= 3").cnf(f);
-        final Formula cnf = p.parse("A & B & C | C & D & ~A").transform(new TseitinTransformation(f, 0));
-
-        final CachingFormulaFactory g = new CachingFormulaFactory();
-        g.newCNFVariable();
-        g.newCNFVariable();
-        g.newCCVariable();
-        g.newCCVariable();
-        g.newCCVariable();
-        g.newPBVariable();
-        g.newPBVariable();
-        g.newPBVariable();
-        g.importFormula(cc);
-        g.importFormula(pbc);
-        g.importFormula(cnf);
-        assertThat(g.statistics().cnfCounter()).isEqualTo(2);
-        assertThat(g.statistics().ccCounter()).isEqualTo(13);
-        assertThat(g.statistics().pbCounter()).isEqualTo(25);
     }
 
     /**

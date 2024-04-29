@@ -96,9 +96,9 @@ public final class CcSorting {
         }
         if (n == 2) {
             output.clear();
-            final Variable o1 = result.newVariable();
+            final Variable o1 = result.newCCVariable();
             if (m2 == 2) {
-                final Variable o2 = result.newVariable();
+                final Variable o2 = result.newCCVariable();
                 comparator(result.factory(), input.get(0), input.get(1), o1, o2, result, direction);
                 output.push(o1);
                 output.push(o2);
@@ -205,7 +205,7 @@ public final class CcSorting {
 
         for (int j = 0; j < k; j++) {
             for (int i = j; i < n; i++) {
-                auxVars.get(i).set(j, result.newVariable());
+                auxVars.get(i).set(j, result.newCCVariable());
             }
         }
         if (direction == INPUT_TO_OUTPUT || direction == BOTH) {
@@ -241,7 +241,7 @@ public final class CcSorting {
         final LNGVector<Literal> clause = new LNGVector<>();
         output.clear();
         for (int i = 0; i < m; i++) {
-            output.push(result.newVariable());
+            output.push(result.newCCVariable());
         }
         while (bitmask < Math.pow(2, n)) {
             int count = 0;
@@ -321,15 +321,15 @@ public final class CcSorting {
             b2 = c;
         }
         if (c == 1) {
-            final Variable y = formula.newVariable();
+            final Variable y = formula.newCCVariable();
             comparator(f, inputA.get(0), inputB.get(0), y, formula, direction);
             output.push(y);
             return;
         }
         if (a2 == 1 && b2 == 1) {
             assert c == 2;
-            final Variable y1 = formula.newVariable();
-            final Variable y2 = formula.newVariable();
+            final Variable y1 = formula.newCCVariable();
+            final Variable y2 = formula.newCCVariable();
             comparator(f, inputA.get(0), inputB.get(0), y1, y2, formula, direction);
             output.push(y1);
             output.push(y2);
@@ -367,8 +367,8 @@ public final class CcSorting {
         while (true) {
             if (i < oddMerge.size() && j < evenMerge.size()) {
                 if (output.size() + 2 <= c) {
-                    final Variable z0 = formula.newVariable();
-                    final Variable z1 = formula.newVariable();
+                    final Variable z0 = formula.newCCVariable();
+                    final Variable z1 = formula.newCCVariable();
                     comparator(f, oddMerge.get(i), evenMerge.get(j), z0, z1, formula, direction);
                     output.push(z0);
                     output.push(z1);
@@ -376,7 +376,7 @@ public final class CcSorting {
                         break;
                     }
                 } else if (output.size() + 1 == c) {
-                    final Variable z0 = formula.newVariable();
+                    final Variable z0 = formula.newCCVariable();
                     comparator(f, oddMerge.get(i), evenMerge.get(j), z0, formula, direction);
                     output.push(z0);
                     break;
@@ -405,7 +405,7 @@ public final class CcSorting {
         final int a = inputA.size();
         final int b = inputB.size();
         for (int i = 0; i < m; i++) {
-            output.push(formula.newVariable());
+            output.push(formula.newCCVariable());
         }
         int j = Math.min(m, a);
         for (int i = 0; i < j; i++) {

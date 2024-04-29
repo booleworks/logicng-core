@@ -50,8 +50,9 @@ public class CNFEncoderTest extends TestWithFormulaContext {
         assertThat(phi1.cnf(_c.f)).isEqualTo(_c.p
                 .parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
         _c.f.putConfiguration(CNFConfig.builder().algorithm(CNFConfig.Algorithm.TSEITIN).atomBoundary(8).build());
-        assertThat(phi1.cnf(_c.f)).isEqualTo(_c.p.parse(
-                "(@RESERVED_CNF_0 | ~x1) & (@RESERVED_CNF_0 | ~x2) & (~@RESERVED_CNF_0 | x1 | x2) & (~@RESERVED_CNF_1 | x1) & (~@RESERVED_CNF_1 | x5) & (~@RESERVED_CNF_1 | ~x6) & (~@RESERVED_CNF_1 | ~x7) & (@RESERVED_CNF_1 | ~x1 | ~x5 | x6 | x7) & (@RESERVED_CNF_2 | ~@RESERVED_CNF_1) & (@RESERVED_CNF_2 | ~x8) & (@RESERVED_CNF_2 | ~x9) & (~@RESERVED_CNF_2 | @RESERVED_CNF_1 | x8 | x9) & @RESERVED_CNF_0 & x3 & x4 & @RESERVED_CNF_2"));
+        assertThat(phi1.cnf(_c.f)).isEqualTo(_c.p.parse(String.format(
+                "(@AUX_%1$s_CNF_0 | ~x1) & (@AUX_%1$s_CNF_0 | ~x2) & (~@AUX_%1$s_CNF_0 | x1 | x2) & (~@AUX_%1$s_CNF_1 | x1) & (~@AUX_%1$s_CNF_1 | x5) & (~@AUX_%1$s_CNF_1 | ~x6) & (~@AUX_%1$s_CNF_1 | ~x7) & (@AUX_%1$s_CNF_1 | ~x1 | ~x5 | x6 | x7) & (@AUX_%1$s_CNF_2 | ~@AUX_%1$s_CNF_1) & (@AUX_%1$s_CNF_2 | ~x8) & (@AUX_%1$s_CNF_2 | ~x9) & (~@AUX_%1$s_CNF_2 | @AUX_%1$s_CNF_1 | x8 | x9) & @AUX_%1$s_CNF_0 & x3 & x4 & @AUX_%1$s_CNF_2",
+                _c.f.name())));
         _c.f.putConfiguration(CNFConfig.builder().algorithm(CNFConfig.Algorithm.TSEITIN).atomBoundary(11).build());
         assertThat(phi2.cnf(_c.f)).isEqualTo(_c.p
                 .parse("(y1 | y2) & y3 & y4 & (y1 | y8 | y9) & (y5 | y8 | y9) & (~y6 | y8 | y9) & (~y7 | y8 | y9)"));
@@ -67,8 +68,9 @@ public class CNFEncoderTest extends TestWithFormulaContext {
                 .parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
         _c.f.putConfiguration(
                 CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).atomBoundary(8).build());
-        assertThat(phi1.cnf(_c.f)).isEqualTo(_c.p.parse(
-                "@RESERVED_CNF_1 & x3 & x4 & @RESERVED_CNF_2 & (~@RESERVED_CNF_1 | x1 | x2) & (~@RESERVED_CNF_2 | @RESERVED_CNF_3 | x8 | x9) & (~@RESERVED_CNF_3 | x1) & (~@RESERVED_CNF_3 | x5) & (~@RESERVED_CNF_3 | ~x6) & (~@RESERVED_CNF_3 | ~x7)"));
+        assertThat(phi1.cnf(_c.f)).isEqualTo(_c.p.parse(String.format(
+                "@AUX_%1$s_CNF_1 & x3 & x4 & @AUX_%1$s_CNF_2 & (~@AUX_%1$s_CNF_1 | x1 | x2) & (~@AUX_%1$s_CNF_2 | @AUX_%1$s_CNF_3 | x8 | x9) & (~@AUX_%1$s_CNF_3 | x1) & (~@AUX_%1$s_CNF_3 | x5) & (~@AUX_%1$s_CNF_3 | ~x6) & (~@AUX_%1$s_CNF_3 | ~x7)"
+                , _c.f.name())));
         _c.f.putConfiguration(
                 CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).atomBoundary(11).build());
         assertThat(phi2.cnf(_c.f)).isEqualTo(_c.p
@@ -84,12 +86,12 @@ public class CNFEncoderTest extends TestWithFormulaContext {
         assertThat(phi1.cnf(_c.f)).isEqualTo(_c.p
                 .parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
         _c.f.putConfiguration(CNFConfig.builder().createdClauseBoundary(5).atomBoundary(3).build());
-        assertThat(phi2.cnf(_c.f)).isEqualTo(_c.p.parse(
-                "(y1 | y2) & y3 & y4 & (~@RESERVED_CNF_0 | y1) & (~@RESERVED_CNF_0 | y5) & (~@RESERVED_CNF_0 | ~y6) & (~@RESERVED_CNF_0 | ~y7) & (@RESERVED_CNF_0 | ~y1 | ~y5 | y6 | y7) & (@RESERVED_CNF_0 | y8 | y9)"));
+        assertThat(phi2.cnf(_c.f)).isEqualTo(_c.p.parse(String.format(
+                "(y1 | y2) & y3 & y4 & (~@AUX_%1$s_CNF_0 | y1) & (~@AUX_%1$s_CNF_0 | y5) & (~@AUX_%1$s_CNF_0 | ~y6) & (~@AUX_%1$s_CNF_0 | ~y7) & (@AUX_%1$s_CNF_0 | ~y1 | ~y5 | y6 | y7) & (@AUX_%1$s_CNF_0 | y8 | y9)", _c.f.name())));
         _c.f.putConfiguration(
                 CNFConfig.builder().createdClauseBoundary(-1).distributionBoundary(5).atomBoundary(3).build());
-        assertThat(phi3.cnf(_c.f)).isEqualTo(_c.p.parse(
-                "(z1 | z2) & z3 & z4 & (~@RESERVED_CNF_2 | z1) & (~@RESERVED_CNF_2 | z5) & (~@RESERVED_CNF_2 | ~z6) & (~@RESERVED_CNF_2 | ~z7) & (@RESERVED_CNF_2 | ~z1 | ~z5 | z6 | z7) & (@RESERVED_CNF_2 | z8 | z9)"));
+        assertThat(phi3.cnf(_c.f)).isEqualTo(_c.p.parse(String.format(
+                "(z1 | z2) & z3 & z4 & (~@AUX_%1$s_CNF_2 | z1) & (~@AUX_%1$s_CNF_2 | z5) & (~@AUX_%1$s_CNF_2 | ~z6) & (~@AUX_%1$s_CNF_2 | ~z7) & (@AUX_%1$s_CNF_2 | ~z1 | ~z5 | z6 | z7) & (@AUX_%1$s_CNF_2 | z8 | z9)", _c.f.name())));
     }
 
     @ParameterizedTest
@@ -102,12 +104,14 @@ public class CNFEncoderTest extends TestWithFormulaContext {
                 .parse("(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
         _c.f.putConfiguration(CNFConfig.builder().createdClauseBoundary(5).atomBoundary(3)
                 .fallbackAlgorithmForAdvancedEncoding(CNFConfig.Algorithm.PLAISTED_GREENBAUM).build());
-        assertThat(phi2.cnf(_c.f)).isEqualTo(_c.p.parse(
-                "(y1 | y2) & y3 & y4 & (@RESERVED_CNF_1 | y8 | y9) & (~@RESERVED_CNF_1 | y1) & (~@RESERVED_CNF_1 | y5) & (~@RESERVED_CNF_1 | ~y6) & (~@RESERVED_CNF_1 | ~y7)"));
+        assertThat(phi2.cnf(_c.f)).isEqualTo(_c.p.parse(String.format(
+                "(y1 | y2) & y3 & y4 & (@AUX_%1$s_CNF_1 | y8 | y9) & (~@AUX_%1$s_CNF_1 | y1) & (~@AUX_%1$s_CNF_1 | y5) & (~@AUX_%1$s_CNF_1 | ~y6) & (~@AUX_%1$s_CNF_1 | ~y7)",
+                _c.f.name())));
         _c.f.putConfiguration(CNFConfig.builder().createdClauseBoundary(-1).distributionBoundary(5).atomBoundary(3)
                 .fallbackAlgorithmForAdvancedEncoding(CNFConfig.Algorithm.PLAISTED_GREENBAUM).build());
-        assertThat(phi3.cnf(_c.f)).isEqualTo(_c.p.parse(
-                "(z1 | z2) & z3 & z4 & (@RESERVED_CNF_3 | z8 | z9) & (~@RESERVED_CNF_3 | z1) & (~@RESERVED_CNF_3 | z5) & (~@RESERVED_CNF_3 | ~z6) & (~@RESERVED_CNF_3 | ~z7)"));
+        assertThat(phi3.cnf(_c.f)).isEqualTo(_c.p.parse(String.format(
+                "(z1 | z2) & z3 & z4 & (@AUX_%1$s_CNF_3 | z8 | z9) & (~@AUX_%1$s_CNF_3 | z1) & (~@AUX_%1$s_CNF_3 | z5) & (~@AUX_%1$s_CNF_3 | ~z6) & (~@AUX_%1$s_CNF_3 | ~z7)",
+                _c.f.name())));
     }
 
     @ParameterizedTest
@@ -120,8 +124,10 @@ public class CNFEncoderTest extends TestWithFormulaContext {
                         "(x1 | x2) & x3 & x4 & (x1 | x8 | x9) & (x5 | x8 | x9) & (~x6 | x8 | x9) & (~x7 | x8 | x9)"));
         final CNFConfig config2 = CNFConfig.builder().algorithm(CNFConfig.Algorithm.TSEITIN).atomBoundary(8).build();
         assertThat(CNFEncoder.encode(_c.f, phi1, config2)).isEqualTo(
-                _c.p.parse("(@RESERVED_CNF_0 | ~x1) & (@RESERVED_CNF_0 | ~x2) & (~@RESERVED_CNF_0 | x1 | x2) & " +
-                        "(~@RESERVED_CNF_1 | x1) & (~@RESERVED_CNF_1 | x5) & (~@RESERVED_CNF_1 | ~x6) & (~@RESERVED_CNF_1 | ~x7) & (@RESERVED_CNF_1 | ~x1 | ~x5 | x6 | x7) & (@RESERVED_CNF_2 | ~@RESERVED_CNF_1) & (@RESERVED_CNF_2 | ~x8) & (@RESERVED_CNF_2 | ~x9) & (~@RESERVED_CNF_2 | @RESERVED_CNF_1 | x8 | x9) & @RESERVED_CNF_0 & x3 & x4 & @RESERVED_CNF_2"));
+                _c.p.parse(String.format("(@AUX_%1$s_CNF_0 | ~x1) & (@AUX_%1$s_CNF_0 | ~x2) & (~@AUX_%1$s_CNF_0 | x1 | x2) & " +
+                        "(~@AUX_%1$s_CNF_1 | x1) & (~@AUX_%1$s_CNF_1 | x5) & (~@AUX_%1$s_CNF_1 | ~x6) & (~@AUX_%1$s_CNF_1 | ~x7) & (@AUX_%1$s_CNF_1 | ~x1 | ~x5 | x6 | x7) & " +
+                        "(@AUX_%1$s_CNF_2 | ~@AUX_%1$s_CNF_1) & (@AUX_%1$s_CNF_2 | ~x8) & (@AUX_%1$s_CNF_2 | ~x9) & (~@AUX_%1$s_CNF_2 | @AUX_%1$s_CNF_1 | x8 | x9) & " +
+                        "@AUX_%1$s_CNF_0 & x3 & x4 & @AUX_%1$s_CNF_2", _c.f.name())));
     }
 
     @ParameterizedTest
@@ -135,8 +141,8 @@ public class CNFEncoderTest extends TestWithFormulaContext {
         final CNFConfig config2 =
                 CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).atomBoundary(8).build();
         assertThat(CNFEncoder.encode(_c.f, phi1, config2))
-                .isEqualTo(_c.p.parse("@RESERVED_CNF_1 & x3 & x4 & @RESERVED_CNF_2 & (~@RESERVED_CNF_1 | x1 | x2) & " +
-                        "(~@RESERVED_CNF_2 | @RESERVED_CNF_3 | x8 | x9) & (~@RESERVED_CNF_3 | x1) & (~@RESERVED_CNF_3 | x5) & (~@RESERVED_CNF_3 | ~x6) & (~@RESERVED_CNF_3 | ~x7)"));
+                .isEqualTo(_c.p.parse(String.format("@AUX_%1$s_CNF_1 & x3 & x4 & @AUX_%1$s_CNF_2 & (~@AUX_%1$s_CNF_1 | x1 | x2) & " +
+                        "(~@AUX_%1$s_CNF_2 | @AUX_%1$s_CNF_3 | x8 | x9) & (~@AUX_%1$s_CNF_3 | x1) & (~@AUX_%1$s_CNF_3 | x5) & (~@AUX_%1$s_CNF_3 | ~x6) & (~@AUX_%1$s_CNF_3 | ~x7)", _c.f.name())));
     }
 
     @ParameterizedTest
@@ -168,13 +174,13 @@ public class CNFEncoderTest extends TestWithFormulaContext {
                         " x9)"));
         final CNFConfig config1 = CNFConfig.builder().createdClauseBoundary(5).atomBoundary(3).build();
         assertThat(CNFEncoder.encode(_c.f, phi2, config1))
-                .isEqualTo(_c.p.parse("(y1 | y2) & y3 & y4 & (~@RESERVED_CNF_0 | y1) & (~@RESERVED_CNF_0 | y5) & " +
-                        "(~@RESERVED_CNF_0 | ~y6) & (~@RESERVED_CNF_0 | ~y7) & (@RESERVED_CNF_0 | ~y1 | ~y5 | y6 | y7) & (@RESERVED_CNF_0 | y8 | y9)"));
+                .isEqualTo(_c.p.parse(String.format("(y1 | y2) & y3 & y4 & (~@AUX_%1$s_CNF_0 | y1) & (~@AUX_%1$s_CNF_0 | y5) & " +
+                        "(~@AUX_%1$s_CNF_0 | ~y6) & (~@AUX_%1$s_CNF_0 | ~y7) & (@AUX_%1$s_CNF_0 | ~y1 | ~y5 | y6 | y7) & (@AUX_%1$s_CNF_0 | y8 | y9)", _c.f.name())));
         final CNFConfig config2 =
                 CNFConfig.builder().createdClauseBoundary(-1).distributionBoundary(5).atomBoundary(3).build();
         assertThat(CNFEncoder.encode(_c.f, phi3, config2))
-                .isEqualTo(_c.p.parse("(z1 | z2) & z3 & z4 & (~@RESERVED_CNF_2 | z1) & (~@RESERVED_CNF_2 | z5) & " +
-                        "(~@RESERVED_CNF_2 | ~z6) & (~@RESERVED_CNF_2 | ~z7) & (@RESERVED_CNF_2 | ~z1 | ~z5 | z6 | z7) & (@RESERVED_CNF_2 | z8 | z9)"));
+                .isEqualTo(_c.p.parse(String.format("(z1 | z2) & z3 & z4 & (~@AUX_%1$s_CNF_2 | z1) & (~@AUX_%1$s_CNF_2 | z5) & " +
+                        "(~@AUX_%1$s_CNF_2 | ~z6) & (~@AUX_%1$s_CNF_2 | ~z7) & (@AUX_%1$s_CNF_2 | ~z1 | ~z5 | z6 | z7) & (@AUX_%1$s_CNF_2 | z8 | z9)", _c.f.name())));
     }
 
     @ParameterizedTest
@@ -210,7 +216,7 @@ public class CNFEncoderTest extends TestWithFormulaContext {
     public void testWrongFallbackForConfig() {
         assertThatThrownBy(() -> CNFConfig.builder()
                 .fallbackAlgorithmForAdvancedEncoding(CNFConfig.Algorithm.FACTORIZATION).build())
-                        .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
 }

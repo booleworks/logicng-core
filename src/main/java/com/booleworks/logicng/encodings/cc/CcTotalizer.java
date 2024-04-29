@@ -108,7 +108,7 @@ public final class CcTotalizer {
         final var tv = new TotalizerVars(vars.length);
         for (final Variable var : vars) {
             tv.invars.push(var);
-            tv.outvars.push(result.newVariable());
+            tv.outvars.push(result.newCCVariable());
         }
         return tv;
     }
@@ -125,7 +125,7 @@ public final class CcTotalizer {
                     left.push(tv.invars.back());
                     tv.invars.pop();
                 } else {
-                    left.push(result.newVariable());
+                    left.push(result.newCCVariable());
                 }
             } else {
                 if (tv.outvars.size() - split == 1) {
@@ -133,7 +133,7 @@ public final class CcTotalizer {
                     right.push(tv.invars.back());
                     tv.invars.pop();
                 } else {
-                    right.push(result.newVariable());
+                    right.push(result.newCCVariable());
                 }
             }
         }

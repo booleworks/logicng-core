@@ -226,8 +226,8 @@ public interface Formula extends Iterable<Formula> {
      * {@link FormulaFactory}.
      * <p>
      * Be aware that the default algorithm for the CNF transformation may result
-     * in a CNF containing additional auxiliary variables with prefix
-     * {@value FormulaFactory#CNF_PREFIX}. Also, the result may not be a
+     * in a CNF containing additional auxiliary variables with the prefix of
+     * {@link InternalAuxVarType#CNF}. Also, the result may not be a
      * semantically equivalent CNF but an equisatisfiable CNF.
      * <p>
      * If the introduction of auxiliary variables is unwanted, you can choose

@@ -16,6 +16,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaFactoryConfig;
 import com.booleworks.logicng.formulas.Implication;
+import com.booleworks.logicng.formulas.InternalAuxVarType;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.Or;
@@ -27,19 +28,16 @@ import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 public class CachingFormulaFactory extends FormulaFactory {
 
     private final PropositionalParser parser;
     Map<String, Variable> posLiterals;
     Map<String, Literal> negLiterals;
-    Set<Variable> generatedVariables;
     Map<Formula, Not> nots;
     Map<Pair<Formula, Formula>, Implication> implications;
     Map<LinkedHashSet<? extends Formula>, Equivalence> equivalences;
@@ -350,41 +348,6 @@ public class CachingFormulaFactory extends FormulaFactory {
         return constraint;
     }
 
-    @Override
-    public Variable newCCVariable() {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        final Variable var = variable(ccPrefix + ccCounter.getAndIncrement());
-        generatedVariables.add(var);
-        return var;
-    }
-
-    @Override
-    public Variable newPBVariable() {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        final Variable var = variable(pbPrefix + pbCounter.getAndIncrement());
-        generatedVariables.add(var);
-        return var;
-    }
-
-    @Override
-    public Variable newCNFVariable() {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        final Variable var = variable(cnfPrefix + cnfCounter.getAndIncrement());
-        generatedVariables.add(var);
-        return var;
-    }
-
-    @Override
-    public boolean isGeneratedVariable(final Variable var) {
-        return generatedVariables.contains(var);
-    }
-
     private void setCnfCaches(final Formula formula, final boolean isCNF) {
         if (isCNF) {
             predicateCache.computeIfAbsent(IS_CNF, k -> new HashMap<>()).put(formula, true);
@@ -456,7 +419,6 @@ public class CachingFormulaFactory extends FormulaFactory {
         super.clear();
         posLiterals = new HashMap<>();
         negLiterals = new HashMap<>();
-        generatedVariables = new HashSet<>();
         nots = new HashMap<>();
         implications = new HashMap<>();
         equivalences = new HashMap<>();
@@ -506,9 +468,9 @@ public class CachingFormulaFactory extends FormulaFactory {
         statistics.disjunctionsN = orsN.size();
         statistics.pbcs = pbConstraints.size();
         statistics.ccs = cardinalityConstraints.size();
-        statistics.ccCounter = ccCounter.get();
-        statistics.pbCounter = pbCounter.get();
-        statistics.cnfCounter = cnfCounter.get();
+        statistics.ccCounter = auxVarCounters.get(InternalAuxVarType.CC.prefix()).get();
+        statistics.pbCounter = auxVarCounters.get(InternalAuxVarType.PBC.prefix()).get();
+        statistics.cnfCounter = auxVarCounters.get(InternalAuxVarType.CNF.prefix()).get();
         return statistics;
     }
 
