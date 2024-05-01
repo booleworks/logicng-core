@@ -1,7 +1,7 @@
 package com.booleworks.logicng.csp;
 
-import com.booleworks.logicng.csp.encodings.CspEncoder;
 import com.booleworks.logicng.csp.encodings.CspEncodingContext;
+import com.booleworks.logicng.csp.encodings.OrderDecoding;
 import com.booleworks.logicng.csp.encodings.OrderEncoding;
 import com.booleworks.logicng.csp.encodings.OrderReduction;
 import com.booleworks.logicng.csp.predicates.AllDifferentPredicate;
@@ -14,6 +14,7 @@ import com.booleworks.logicng.csp.terms.MultiplicationFunction;
 import com.booleworks.logicng.csp.terms.NegationFunction;
 import com.booleworks.logicng.csp.terms.SubtractionFunction;
 import com.booleworks.logicng.csp.terms.Term;
+import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -67,6 +68,28 @@ public class CspFactory {
         this.gtPredicates = new HashMap<>();
         this.allDifferentPredicates = new HashMap<>();
         this.auxCounter = 0;
+        this.zero = new IntegerConstant(this, 0);
+        this.one = new IntegerConstant(this, 1);
+        this.integerConstants.put(0, this.zero);
+        this.integerConstants.put(1, this.one);
+    }
+
+    public CspFactory(final CspFactory other, final FormulaFactory formulaFactory) {
+        this.formulaFactory = formulaFactory;
+        this.integerConstants = new HashMap<>(other.integerConstants);
+        this.integerVariables = new HashMap<>(other.integerVariables);
+        this.unaryMinusTerms = new HashMap<>(other.unaryMinusTerms);
+        this.addTerms = new HashMap<>(other.addTerms);
+        this.subTerms = new HashMap<>(other.subTerms);
+        this.mulTerms = new HashMap<>(other.mulTerms);
+        this.eqPredicates = new HashMap<>(other.eqPredicates);
+        this.nePredicates = new HashMap<>(other.nePredicates);
+        this.lePredicates = new HashMap<>(other.lePredicates);
+        this.ltPredicates = new HashMap<>(other.ltPredicates);
+        this.gePredicates = new HashMap<>(other.gePredicates);
+        this.gtPredicates = new HashMap<>(other.gtPredicates);
+        this.allDifferentPredicates = new HashMap<>(other.allDifferentPredicates);
+        this.auxCounter = other.auxCounter;
         this.zero = new IntegerConstant(this, 0);
         this.one = new IntegerConstant(this, 1);
         this.integerConstants.put(0, this.zero);
@@ -272,15 +295,6 @@ public class CspFactory {
         if (foundFormula != null) {
             return foundFormula;
         }
-        //if (left.equals(right)) {
-        //    eqPredicates.put(operands, formulaFactory.verum());
-        //    return formulaFactory.verum();
-        //}
-        //if (left instanceof IntegerConstant && right instanceof IntegerConstant) {
-        //    final Constant constant = formulaFactory.constant(((IntegerConstant) left).getValue() == ((IntegerConstant) right).getValue());
-        //    eqPredicates.put(operands, constant);
-        //    return constant;
-        //}
         final ComparisonPredicate predicate = new ComparisonPredicate(this, CspPredicate.Type.EQ, left, right);
         eqPredicates.put(operands, predicate);
         return predicate;
@@ -292,11 +306,6 @@ public class CspFactory {
         if (foundFormula != null) {
             return foundFormula;
         }
-        //if (left instanceof IntegerConstant && right instanceof IntegerConstant) {
-        //    final Constant constant = formulaFactory.constant(((IntegerConstant) left).getValue() != ((IntegerConstant) right).getValue());
-        //    nePredicates.put(operands, constant);
-        //    return constant;
-        //}
         final ComparisonPredicate predicate = new ComparisonPredicate(this, CspPredicate.Type.NE, left, right);
         nePredicates.put(operands, predicate);
         return predicate;
@@ -325,11 +334,6 @@ public class CspFactory {
         if (foundFormula != null) {
             return foundFormula;
         }
-        //if (left instanceof IntegerConstant && right instanceof IntegerConstant) {
-        //    final Constant constant = formulaFactory.constant(test.test((IntegerConstant) left, (IntegerConstant) right));
-        //    cache.put(operands, constant);
-        //    return constant;
-        //}
         final ComparisonPredicate predicate = new ComparisonPredicate(this, type, left, right);
         cache.put(operands, predicate);
         return predicate;
@@ -341,57 +345,71 @@ public class CspFactory {
         if (foundFormula != null) {
             return foundFormula;
         }
-        // zero or one terms always have different values
-        //if (terms.size() <= 1) {
-        //    allDifferentPredicates.put(operands, formulaFactory.verum());
-        //    return formulaFactory.verum();
-        //}
         final AllDifferentPredicate predicate = new AllDifferentPredicate(this, operands);
         allDifferentPredicates.put(operands, predicate);
         return predicate;
     }
 
-    public FormulaFactory getFormulaFactory() {
+    public FormulaFactory formulaFactory() {
         return formulaFactory;
     }
 
     public Csp buildCsp(final Collection<CspPredicate> predicates) {
         final Set<IntegerClause> clauses = predicates.stream().flatMap(p -> p.decompose().stream()).collect(Collectors.toSet());
-        return Csp.fromClauses(this, clauses);
+        return Csp.fromClauses(clauses);
     }
 
     public Csp buildCsp(final CspPredicate... predicates) {
         return buildCsp(Arrays.asList(predicates));
     }
 
-    public List<Formula> encodeCsp(final Csp csp, final CspEncodingContext context, final CspEncoder.Algorithm algorithm) {
-        CspEncoder encoder = new CspEncoder(csp, algorithm);
-        EncodingResult result = EncodingResult.resultForFormula(context.factory().getFormulaFactory());
-        encoder.encode(context, result);
-        return result.result();
-    }
-
-    public List<Formula> encodeVariable(final IntegerVariable variable, final CspEncodingContext context, final CspEncoder.Algorithm algorithm) {
-        final EncodingResult result = EncodingResult.resultForFormula(context.factory().getFormulaFactory());
-        switch (algorithm) {
+    public List<Formula> encodeCsp(final Csp csp, final CspEncodingContext context) {
+        final Csp newCsp;
+        final EncodingResult result = EncodingResult.resultForFormula(formulaFactory);
+        switch (context.getAlgorithm()) {
             case Order:
-                OrderEncoding.encodeVariable(variable, context, result);
+                newCsp = OrderReduction.reduce(csp, context, formulaFactory);
+                OrderEncoding.encode(newCsp, context, result, this);
                 return result.result();
             default:
-                throw new UnsupportedOperationException("Unsupported csp encoding algorithm: " + algorithm);
+                throw new UnsupportedOperationException("Unsupported csp encoding algorithm: " + context.getAlgorithm());
         }
     }
 
-    public List<Formula> encodeConstraint(final CspPredicate predicate, final CspEncodingContext context, final CspEncoder.Algorithm algorithm) {
-        Set<IntegerClause> clauses = predicate.decompose();
-        EncodingResult result = EncodingResult.resultForFormula(context.factory().getFormulaFactory());
-        switch (algorithm) {
+    public List<Formula> encodeVariable(final IntegerVariable variable, final CspEncodingContext context) {
+        final EncodingResult result = EncodingResult.resultForFormula(formulaFactory);
+        switch (context.getAlgorithm()) {
             case Order:
-                clauses = OrderReduction.reduce(clauses, context);
-                OrderEncoding.encodeClauses(clauses, context, result);
+                OrderEncoding.encodeVariable(variable, context, result, this);
                 return result.result();
             default:
-                throw new UnsupportedOperationException("Unsupported csp encoding algorithm: " + algorithm);
+                throw new UnsupportedOperationException("Unsupported csp encoding algorithm: " + context.getAlgorithm());
+        }
+    }
+
+    public List<Formula> encodeConstraint(final CspPredicate predicate, final CspEncodingContext context) {
+        Set<IntegerClause> clauses = predicate.decompose();
+        final EncodingResult result = EncodingResult.resultForFormula(formulaFactory);
+        switch (context.getAlgorithm()) {
+            case Order:
+                clauses = OrderReduction.reduce(clauses, context, formulaFactory);
+                OrderEncoding.encodeClauses(clauses, context, result, this);
+                return result.result();
+            default:
+                throw new UnsupportedOperationException("Unsupported csp encoding algorithm: " + context.getAlgorithm());
+        }
+    }
+
+    public CspAssignment decode(final Assignment model, final Csp csp, final CspEncodingContext context) {
+        return decode(model, csp.getIntegerVariables(), context);
+    }
+
+    public CspAssignment decode(final Assignment model, final Collection<IntegerVariable> variables, final CspEncodingContext context) {
+        switch (context.getAlgorithm()) {
+            case Order:
+                return OrderDecoding.decode(model, variables, context, this);
+            default:
+                throw new UnsupportedOperationException("Unsupported csp encoding algorithm: " + context.getAlgorithm());
         }
     }
 }

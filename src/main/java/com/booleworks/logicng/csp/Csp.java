@@ -14,27 +14,23 @@ public class Csp {
     private final Set<IntegerVariable> integerVariables;
     private final Set<Variable> booleanVariables;
     private Set<IntegerClause> clauses;
-    private final CspFactory f;
 
-    private Csp(final CspFactory f) {
+    private Csp() {
         this.integerVariables = new TreeSet<>();
         this.booleanVariables = new TreeSet<>();
         this.clauses = new TreeSet<>();
-        this.f = f;
     }
 
     private Csp(final Csp other) {
         this.integerVariables = new TreeSet<>(other.integerVariables);
         this.booleanVariables = new TreeSet<>(other.booleanVariables);
         this.clauses = new TreeSet<>(other.clauses);
-        this.f = other.f;
     }
 
-    public Csp(final CspFactory f, final Set<IntegerVariable> integerVariables, final Set<Variable> booleanVariables, final Set<IntegerClause> clauses) {
+    public Csp(final Set<IntegerVariable> integerVariables, final Set<Variable> booleanVariables, final Set<IntegerClause> clauses) {
         this.integerVariables = integerVariables;
         this.booleanVariables = booleanVariables;
         this.clauses = clauses;
-        this.f = f;
     }
 
     public Set<IntegerVariable> getIntegerVariables() {
@@ -49,10 +45,6 @@ public class Csp {
         return clauses;
     }
 
-    public CspFactory getCspFactory() {
-        return f;
-    }
-
     @Override
     public String toString() {
         return "Csp{" +
@@ -62,14 +54,14 @@ public class Csp {
                 '}';
     }
 
-    public static Csp fromClauses(final CspFactory f, final Set<IntegerClause> clauses) {
+    public static Csp fromClauses(final Set<IntegerClause> clauses) {
         final Set<IntegerVariable> intVars = new TreeSet<>();
         final Set<Variable> boolVars = new TreeSet<>();
         for (final IntegerClause clause : clauses) {
             intVars.addAll(clause.getArithmeticLiterals().stream().flatMap(v -> v.getVariables().stream()).collect(Collectors.toSet()));
             boolVars.addAll(clause.getBoolLiterals().stream().map(Literal::variable).collect(Collectors.toSet()));
         }
-        return new Csp(f, intVars, boolVars, clauses);
+        return new Csp(intVars, boolVars, clauses);
     }
 
     public static Csp merge(final CspFactory f, final Csp... csps) {
@@ -78,11 +70,11 @@ public class Csp {
 
     public static Csp merge(final CspFactory f, final Collection<Csp> csps) {
         if (csps.isEmpty()) {
-            return new Csp(f);
+            return new Csp();
         } else if (csps.size() == 1) {
             return csps.iterator().next();
         } else {
-            final Csp newCsp = new Csp(f);
+            final Csp newCsp = new Csp();
             for (final Csp csp : csps) {
                 newCsp.integerVariables.addAll(csp.integerVariables);
                 newCsp.booleanVariables.addAll(csp.booleanVariables);
@@ -96,7 +88,7 @@ public class Csp {
         private Csp csp;
 
         public Builder(final CspFactory f) {
-            csp = new Csp(f);
+            csp = new Csp();
         }
 
         public Builder(final Csp csp) {
@@ -137,10 +129,6 @@ public class Csp {
 
         public Set<IntegerClause> getClauses() {
             return csp.clauses;
-        }
-
-        public CspFactory getCspFactory() {
-            return csp.f;
         }
 
         @Override

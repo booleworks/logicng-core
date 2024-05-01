@@ -225,23 +225,22 @@ public class LinearExpression implements Comparable<LinearExpression> {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("(add ");
+        sb.append("Add<");
         for (final IntegerVariable v : coef.keySet()) {
             final long c = getA(v);
             if (c == 0) {
             } else if (c == 1) {
                 sb.append(v.toString());
             } else {
-                sb.append("(mul ");
+                sb.append("Mul<");
                 sb.append(c);
-                sb.append(" ");
+                sb.append(",");
                 sb.append(v.toString());
-                sb.append(")");
+                sb.append(">");
             }
-            sb.append(" ");
         }
         sb.append(b);
-        sb.append(")");
+        sb.append(">");
         return sb.toString();
     }
 

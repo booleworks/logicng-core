@@ -4,6 +4,7 @@ import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.IntegerDomain;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.InternalAuxVarType;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
@@ -18,20 +19,18 @@ public class CspEncodingContext {
     private final Map<IntegerVariable, Map<Integer, Variable>> variableMap;
     private final Set<Variable> booleanAuxVariables;
     private final Set<IntegerVariable> integerAuxVariables;
-    private final CspFactory cspFactory;
-    private final CspEncoder.Algorithm algorithm;
+    private final CspEncodingAlgorithm algorithm;
     private int booleanVariables = 0;
     private int integerVariables = 0;
 
-    public CspEncodingContext(final CspFactory f) {
-        this(f, CspEncoder.Algorithm.Order);
+    public CspEncodingContext() {
+        this(CspEncodingAlgorithm.Order);
     }
 
-    public CspEncodingContext(final CspFactory f, final CspEncoder.Algorithm algorithm) {
+    public CspEncodingContext(final CspEncodingAlgorithm algorithm) {
         variableMap = new TreeMap<>();
         booleanAuxVariables = new TreeSet<>();
         integerAuxVariables = new TreeSet<>();
-        cspFactory = f;
         this.algorithm = algorithm;
     }
 
@@ -39,7 +38,6 @@ public class CspEncodingContext {
         variableMap = new TreeMap<>(context.variableMap);
         booleanAuxVariables = new TreeSet<>(context.booleanAuxVariables);
         integerAuxVariables = new TreeSet<>(context.integerAuxVariables);
-        cspFactory = context.cspFactory;
         booleanVariables = context.booleanVariables;
         integerVariables = context.integerVariables;
         algorithm = context.algorithm;
@@ -70,12 +68,8 @@ public class CspEncodingContext {
         return integerAuxVariables;
     }
 
-    public CspEncoder.Algorithm getAlgorithm() {
+    public CspEncodingAlgorithm getAlgorithm() {
         return algorithm;
-    }
-
-    public CspFactory factory() {
-        return cspFactory;
     }
 
     IntegerVariable newAuxIntVariable(final String prefix, final IntegerDomain domain) {
@@ -84,8 +78,8 @@ public class CspEncodingContext {
         return var;
     }
 
-    Variable newAuxBoolVariable() {
-        final Variable var = cspFactory.getFormulaFactory().newAuxVariable(InternalAuxVarType.CSP);
+    Variable newAuxBoolVariable(FormulaFactory f) {
+        final Variable var = f.newAuxVariable(InternalAuxVarType.CSP);
         booleanAuxVariables.add(var);
         return var;
     }

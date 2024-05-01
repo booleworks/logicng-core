@@ -41,11 +41,9 @@ public abstract class NAryFunction extends Function {
 
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(type);
-        builder.append('<');
-        builder.append(operands.stream().map(Object::toString).collect(Collectors.joining(", ")));
-        builder.append('>');
-        return builder.toString();
+        return String.valueOf(type) +
+                '<' +
+                operands.stream().map(Object::toString).collect(Collectors.joining(", ")) +
+                '>';
     }
 }

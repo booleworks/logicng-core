@@ -76,7 +76,6 @@ import java.util.Objects;
 public final class IntegerVariable extends Term implements Comparable<IntegerVariable> {
     private final String name;
     private final IntegerDomain domain;
-    private final boolean aux;
 
     /**
      * Generates a new variable in a given domain.
@@ -87,14 +86,12 @@ public final class IntegerVariable extends Term implements Comparable<IntegerVar
         super(cspFactory, Type.VAR);
         this.name = name;
         this.domain = domain;
-        this.aux = false;
     }
 
     private IntegerVariable(final String name, final IntegerDomain domain) {
         super(null, Type.VAR);
         this.name = name;
         this.domain = domain;
-        this.aux = true;
     }
 
     /**

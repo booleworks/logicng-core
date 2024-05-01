@@ -12,13 +12,13 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class CspPropagation {
-    public static Csp propagate(final Csp csp) {
+    public static Csp propagate(final Csp csp, final CspFactory cf) {
         final Map<IntegerVariable, IntegerVariable> restrictions = new TreeMap<>();
         boolean changed = true;
         while (changed) {
             changed = false;
             for (final IntegerClause clause : csp.getClauses()) {
-                if (calculateNewBounds(clause, restrictions, csp.getCspFactory())) {
+                if (calculateNewBounds(clause, restrictions, cf)) {
                     changed = true;
                 }
             }
@@ -26,7 +26,7 @@ public class CspPropagation {
         if (!restrictions.isEmpty()) {
             final Set<IntegerClause> newClauses =
                     csp.getClauses().stream().map(c -> rebuildClause(c, restrictions)).filter(c -> !c.isValid()).collect(Collectors.toSet());
-            return Csp.fromClauses(csp.getCspFactory(), newClauses);
+            return Csp.fromClauses(newClauses);
         } else {
             return csp;
         }

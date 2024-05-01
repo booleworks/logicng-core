@@ -34,7 +34,7 @@ public abstract class CspPredicate implements Predicate {
 
     @Override
     public FormulaFactory factory() {
-        return cspFactory.getFormulaFactory();
+        return cspFactory.formulaFactory();
     }
 
     public enum Type {

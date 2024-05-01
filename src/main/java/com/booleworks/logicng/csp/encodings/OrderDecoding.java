@@ -2,6 +2,7 @@ package com.booleworks.logicng.csp.encodings;
 
 import com.booleworks.logicng.csp.Csp;
 import com.booleworks.logicng.csp.CspAssignment;
+import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.IntegerDomain;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.datastructures.Assignment;
@@ -12,26 +13,26 @@ import java.util.Collection;
 import java.util.Map;
 
 public class OrderDecoding {
-    public static CspAssignment decode(final Assignment model, final Collection<IntegerVariable> variables, final CspEncodingContext context) {
+    public static CspAssignment decode(final Assignment model, final Collection<IntegerVariable> variables, final CspEncodingContext context, final CspFactory cf) {
         final CspAssignment result = new CspAssignment();
-        for(final IntegerVariable v : variables) {
+        for (final IntegerVariable v : variables) {
             final int value = decodeIntVar(v, model, context);
-            result.addIntAssignment(context.factory().getUnboundedVariableOf(v), value);
+            result.addIntAssignment(cf.getUnboundedVariableOf(v), value);
         }
         return result;
     }
 
-    public static CspAssignment decode(final Assignment model, final Csp csp, final CspEncodingContext context) {
+    public static CspAssignment decode(final Assignment model, final Csp csp, final CspEncodingContext context, final CspFactory cf) {
         final CspAssignment result = new CspAssignment();
         for (final IntegerVariable v : csp.getIntegerVariables()) {
             final int value = decodeIntVar(v, model, context);
-            result.addIntAssignment(csp.getCspFactory().getUnboundedVariableOf(v), value);
+            result.addIntAssignment(cf.getUnboundedVariableOf(v), value);
         }
         for (final Variable v : csp.getBooleanVariables()) {
             if (model.positiveVariables().contains(v)) {
                 result.addPos(v);
             }
-            final Literal negV = v.negate(csp.getCspFactory().getFormulaFactory());
+            final Literal negV = v.negate(cf.formulaFactory());
             if (model.negativeLiterals().contains(v)) {
                 result.addNeg(negV);
             }
