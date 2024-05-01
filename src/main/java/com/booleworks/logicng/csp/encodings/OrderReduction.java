@@ -6,6 +6,7 @@ import com.booleworks.logicng.csp.LinearExpression;
 import com.booleworks.logicng.csp.literals.ArithmeticLiteral;
 import com.booleworks.logicng.csp.literals.LinearLiteral;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 
@@ -22,18 +23,18 @@ public class OrderReduction {
     public static final int SPLITS = 2;
     public static final String AUX_PREFIX1 = "RS";
 
-    public static Csp reduce(final Csp csp, final CspEncodingContext context) {
+    public static Csp reduce(final Csp csp, final CspEncodingContext context, final FormulaFactory f) {
         final Csp.Builder newCsp = new Csp.Builder(csp);
 
         Set<IntegerClause> clauses = split(newCsp.getClauses(), context, newCsp);
-        clauses = simplify(clauses, context, newCsp);
-        clauses = toLinearLe(clauses, context, newCsp);
+        clauses = simplify(clauses, context, newCsp, f);
+        clauses = toLinearLe(clauses, context, newCsp, f);
         newCsp.updateClauses(clauses);
         return newCsp.build();
     }
 
-    public static Set<IntegerClause> reduce(final Set<IntegerClause> clauses, final CspEncodingContext context) {
-        return toLinearLe(simplify(split(clauses, context, null), context , null), context, null);
+    public static Set<IntegerClause> reduce(final Set<IntegerClause> clauses, final CspEncodingContext context, final FormulaFactory f) {
+        return toLinearLe(simplify(split(clauses, context, null), context, null, f), context, null, f);
     }
 
     private static Set<IntegerClause> split(final Set<IntegerClause> clauses, final CspEncodingContext context, final Csp.Builder csp) {
@@ -56,19 +57,19 @@ public class OrderReduction {
         return newClauses;
     }
 
-    private static Set<IntegerClause> simplify(final Set<IntegerClause> clauses, final CspEncodingContext context, final Csp.Builder csp) {
+    private static Set<IntegerClause> simplify(final Set<IntegerClause> clauses, final CspEncodingContext context, final Csp.Builder csp, final FormulaFactory f) {
         return clauses.stream().flatMap(clause -> {
             if (clause.isValid()) {
                 return null;
             } else if (OrderEncoding.isSimpleClause(clause)) {
                 return Stream.of(clause);
             } else {
-                return simplifyClause(clause, Collections.emptySortedSet(), context, null).stream();
+                return simplifyClause(clause, Collections.emptySortedSet(), context, csp, f).stream();
             }
         }).collect(Collectors.toSet());
     }
 
-    private static Set<IntegerClause> toLinearLe(final Set<IntegerClause> clauses, final CspEncodingContext context, final Csp.Builder csp) {
+    private static Set<IntegerClause> toLinearLe(final Set<IntegerClause> clauses, final CspEncodingContext context, final Csp.Builder csp, final FormulaFactory f) {
         return clauses.stream().flatMap(c -> {
             if (c.size() == OrderEncoding.simpleClauseSize(c)) {
                 return Stream.of(c);
@@ -76,7 +77,7 @@ public class OrderReduction {
                 assert c.size() == OrderEncoding.simpleClauseSize(c) + 1;
                 final ArithmeticLiteral al = c.getArithmeticLiterals().first();
                 if (al instanceof LinearLiteral) {
-                    return reduceLinearLiteralToLinearLE((LinearLiteral) al, c.getBoolLiterals(), context, csp).stream();
+                    return reduceLinearLiteralToLinearLE((LinearLiteral) al, c.getBoolLiterals(), context, csp, f).stream();
                 } else {
                     throw new IllegalArgumentException("Invalid literal for order encoding reduction: " + al.getClass());
                 }
@@ -85,7 +86,7 @@ public class OrderReduction {
     }
 
     private static Set<IntegerClause> reduceLinearLiteralToLinearLE(final LinearLiteral literal, final SortedSet<Literal> boolLiterals,
-                                                                    final CspEncodingContext context, final Csp.Builder csp) {
+                                                                    final CspEncodingContext context, final Csp.Builder csp, final FormulaFactory f) {
         switch (literal.getOperator()) {
             case LE:
                 final TreeSet<ArithmeticLiteral> lits = new TreeSet<>();
@@ -111,7 +112,7 @@ public class OrderReduction {
                 litsNe.add(new LinearLiteral(ls1.build(), LinearLiteral.Operator.LE));
                 litsNe.add(new LinearLiteral(ls2.build(), LinearLiteral.Operator.LE));
                 final IntegerClause newClause = new IntegerClause(Collections.emptySortedSet(), litsNe);
-                return simplifyClause(newClause, boolLiterals, context, csp);
+                return simplifyClause(newClause, boolLiterals, context, csp, f);
             default:
                 throw new IllegalArgumentException("Invalid operator of linear expression for order encoding reduction: " + literal.getOperator());
 
@@ -119,7 +120,7 @@ public class OrderReduction {
     }
 
     private static Set<IntegerClause> simplifyClause(final IntegerClause clause, final SortedSet<Literal> initBoolLiterals, final CspEncodingContext context,
-                                                     final Csp.Builder csp) {
+                                                     final Csp.Builder csp, final FormulaFactory f) {
         final TreeSet<IntegerClause> newClauses = new TreeSet<>();
         final TreeSet<ArithmeticLiteral> newArithLiterals = new TreeSet<>();
         final TreeSet<Literal> newBoolLiterals = new TreeSet<>(initBoolLiterals);
@@ -127,7 +128,7 @@ public class OrderReduction {
             if (OrderEncoding.isSimpleLiteral(literal)) {
                 newArithLiterals.add(literal);
             } else {
-                final Variable p = context.newAuxBoolVariable();
+                final Variable p = context.newAuxBoolVariable(f);
                 if (csp != null) {
                     csp.addBooleanVariable(p);
                 }
