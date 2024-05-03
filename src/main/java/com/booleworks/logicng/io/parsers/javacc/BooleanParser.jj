@@ -1,0 +1,167 @@
+//noinspection UnreachableCode
+options {
+    STATIC = false;
+}
+
+PARSER_BEGIN(BooleanFormulaParser)
+package com.booleworks.logicng.io.parsers.javacc;
+
+import com.booleworks.logicng.formulas.*;
+import com.booleworks.logicng.util.Pair;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+
+public class BooleanFormulaParser {
+
+    private FormulaFactory f;
+
+    public void setFactory(final FormulaFactory f) {
+        this.f = f;
+    }
+
+    public FormulaFactory getFactory() {
+        return this.f;
+    }
+}
+
+PARSER_END(BooleanFormulaParser)
+
+SKIP : { " " | "\t" | "\n" | "\r" }
+
+TOKEN :
+{
+    <NUMBER : (["-"])? (["0"-"9"])+ >
+  | < LITERAL : (["~"])? (["A"-"Z", "a"-"z", "0"-"9", "_", "@", "#"])+ >
+  | <TRUE:    "$true">
+  | <FALSE:   "$false">
+  | <LBR:     "(">
+  | <RBR:     ")">
+  | <NOT:     "~">
+  | <AND:     "&">
+  | <OR:      "|">
+  | <IMPL:    "=>">
+  | <EQUIV:   "<=>">
+  | <MUL:     "*">
+  | <ADD:     ["+", "-"]>
+  | <EQ:      "=">
+  | <LE:      "<=">
+  | <LT:      "<">
+  | <GE:      ">=">
+  | <GT:      ">">
+}
+
+Formula formula() : { Formula formula; }
+{
+  ( <EOF> { formula = f.verum(); }
+  |  formula = equiv() <EOF>
+  )
+  { return formula;}
+}
+
+Formula equiv() : {
+  Formula left;
+  Formula right = null;
+}
+{
+  left = impl() (<EQUIV> right = equiv() )? { return right == null ? left : f.equivalence(left, right); }
+}
+
+Formula impl() : {
+  Formula left;
+  Formula right = null;
+}
+{
+  left = disj() (<IMPL> right = impl())? { return right == null ? left : f.implication(left, right); }
+}
+
+Formula disj() : {
+  Formula a, b;
+  LinkedHashSet<Formula> conjs = new LinkedHashSet<>();
+}
+{
+  a = conj() { conjs.add(a); } (<OR> b = conj() { conjs.add(b); })* { return f.or(conjs); }
+}
+
+Formula conj() : {
+  Formula a, b;
+  LinkedHashSet<Formula> lits = new LinkedHashSet<>();
+}
+{
+  a = lit() { lits.add(a); } (<AND> b = lit() { lits.add(b); })* { return f.and(lits); }
+}
+
+Formula lit() : { Formula formula, op; }
+{
+   ( <NOT> op = lit() { formula = f.not(op); }
+   | formula = simp()
+   )
+   { return formula; }
+}
+
+Formula simp() : { Formula formula; }
+{
+    ( formula = comparison()
+    | formula = constant()
+    | <LBR> formula = equiv() <RBR>
+    )
+    { return formula; }
+}
+
+Formula comparison() : {
+  Formula formula;
+  Pair<List<Literal>, List<Integer>> e;
+  CType c;
+  Token t;
+}
+{
+  ( LOOKAHEAD(2) e = add() c = comperator() t = <NUMBER>  {formula = f.pbc(c, Integer.parseInt(t.image), e.first(), e.second()); }
+  | t = <NUMBER>  { formula = (t.image.startsWith("~") ? f.literal(t.image.substring(1), false) : f.literal(t.image, true)); }
+  | t = <LITERAL> { formula = (t.image.startsWith("~") ? f.literal(t.image.substring(1), false) : f.literal(t.image, true)); }
+  )
+  { return formula; }
+}
+
+CType comperator() : {
+
+}
+{
+    <EQ> { return CType.EQ; }
+    | <LE> { return CType.LE; }
+    | <LT> { return CType.LT; }
+    | <GE> { return CType.GE; }
+    | <GT> { return CType.GT; }
+}
+
+Pair<List<Literal>, List<Integer>> add() : {
+    Pair<Literal, Integer> m1, m2;
+    List<Literal> lits = new ArrayList<>();
+    List<Integer> coeffs = new ArrayList<>();
+    Token a;
+}
+{
+  m1 = mul() { lits.add(m1.first()); coeffs.add(m1.second()); } (a = <ADD> m2 = mul() { lits.add(m2.first()); coeffs.add (a.image.equals("+") ? m2.second() : -m2.second()); })*
+  { return new Pair<>(lits, coeffs); }
+}
+
+Pair<Literal, Integer> mul() : {
+  Token n, l;
+  Literal lit;
+  int c = 1;
+}
+{
+  ( LOOKAHEAD(3) n = <NUMBER> <MUL> l = <LITERAL> {lit = (l.image.startsWith("~") ? f.literal(l.image.substring(1), false) : f .literal(l.image, true)); c = Integer.parseInt(n.image); }
+  | LOOKAHEAD(3) n = <NUMBER> <MUL> l = <NUMBER>  {lit = f.literal(l.image, true); c = Integer.parseInt(n.image); }
+  | l = <LITERAL> { lit = (l.image.startsWith("~") ? f.literal(l.image.substring(1), false) : f.literal (l.image, true) ); }
+  | n = <NUMBER>  { lit = f.literal(n.image, true); }
+  )
+  { return new Pair<>(lit, c); }
+}
+
+Formula constant() : {}
+{
+  <TRUE>  { return f.verum(); }
+  | <FALSE> { return f.falsum(); }
+}
+
