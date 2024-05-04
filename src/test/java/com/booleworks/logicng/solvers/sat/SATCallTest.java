@@ -129,7 +129,7 @@ public class SATCallTest {
     @Test
     public void testHandler() throws IOException, ParserException {
         final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).build());
-        solver.add(FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt"));
+        solver.add(FormulaReader.readFormula(f, "src/test/resources/formulas/small_formulas.txt"));
 
         try (final SATCall satCall = solver.satCall().handler(new MaxConflictsHandler(0)).solve()) {
             assertThat(satCall.getSatResult()).isEqualTo(Tristate.UNDEF);
@@ -140,7 +140,7 @@ public class SATCallTest {
         assertThat(solver.satCall().handler(new MaxConflictsHandler(0)).sat()).isEqualTo(Tristate.UNDEF);
         assertThat(
                 solver.satCall().handler(new MaxConflictsHandler(0)).model(solver.underlyingSolver().knownVariables()))
-                        .isNull();
+                .isNull();
         assertThat(solver.satCall().handler(new MaxConflictsHandler(0)).unsatCore()).isNull();
 
         try (final SATCall satCall = solver.satCall().handler(new MaxConflictsHandler(100)).solve()) {
@@ -167,10 +167,10 @@ public class SATCallTest {
                 .isEqualTo(new Assignment(a.negate(f), b, c.negate(f), d));
         assertThat(solver.satCall().selectionOrder(List.of(a.negate(f), b.negate(f), c.negate(f), d.negate(f)))
                 .model(List.of(a, b, c, d)))
-                        .isEqualTo(new Assignment(a.negate(f), b.negate(f), c.negate(f), d));
+                .isEqualTo(new Assignment(a.negate(f), b.negate(f), c.negate(f), d));
         assertThat(solver.satCall().selectionOrder(List.of(a.negate(f), b.negate(f), d.negate(f), c.negate(f)))
                 .model(List.of(a, b, c, d)))
-                        .isEqualTo(new Assignment(a.negate(f), b.negate(f), c, d.negate(f)));
+                .isEqualTo(new Assignment(a.negate(f), b.negate(f), c, d.negate(f)));
     }
 
     @Test
@@ -185,13 +185,13 @@ public class SATCallTest {
 
         assertThat(
                 solver.satCall().addFormulas(f.parse("e <=> ~f")).addFormulas(f.parse("~f")).unsatCore().propositions())
-                        .containsExactlyInAnyOrder(
-                                new StandardProposition(f.parse("a | b | c | d")),
-                                new StandardProposition(f.parse("e => ~a & ~b")),
-                                new StandardProposition(f.parse("~f => ~c & ~d")),
-                                new StandardProposition(f.parse("e <=> ~f")),
-                                new StandardProposition(f.parse("~f"))
-                        );
+                .containsExactlyInAnyOrder(
+                        new StandardProposition(f.parse("a | b | c | d")),
+                        new StandardProposition(f.parse("e => ~a & ~b")),
+                        new StandardProposition(f.parse("~f => ~c & ~d")),
+                        new StandardProposition(f.parse("e <=> ~f")),
+                        new StandardProposition(f.parse("~f"))
+                );
 
         assertThat(solver.satCall().addFormulas(f.parse("e <=> ~f"), f.parse("e")).unsatCore().propositions())
                 .containsExactlyInAnyOrder(
@@ -205,35 +205,35 @@ public class SATCallTest {
         assertThat(solver.satCall()
                 .addPropositions(new StandardProposition(f.parse("e <=> ~f")), new StandardProposition(f.parse("e")))
                 .unsatCore().propositions())
-                        .containsExactlyInAnyOrder(
-                                new StandardProposition(f.parse("a | b | c | d")),
-                                new StandardProposition(f.parse("e => ~a & ~b")),
-                                new StandardProposition(f.parse("~f => ~c & ~d")),
-                                new StandardProposition(f.parse("e <=> ~f")),
-                                new StandardProposition(f.parse("e"))
-                        );
+                .containsExactlyInAnyOrder(
+                        new StandardProposition(f.parse("a | b | c | d")),
+                        new StandardProposition(f.parse("e => ~a & ~b")),
+                        new StandardProposition(f.parse("~f => ~c & ~d")),
+                        new StandardProposition(f.parse("e <=> ~f")),
+                        new StandardProposition(f.parse("e"))
+                );
 
         assertThat(
                 solver.satCall().addFormulas(f.parse("e <=> f")).addPropositions(new StandardProposition(f.parse("~e")))
                         .model(solver.underlyingSolver().knownVariables())).isIn(
-                                new Assignment(f.literal("a", true), f.literal("b", true), f.literal("c", false),
-                                        f.literal("d", false), f.literal("e", false), f.literal("f", false)),
-                                new Assignment(f.literal("a", false), f.literal("b", true), f.literal("c", false),
-                                        f.literal("d", false), f.literal("e", false), f.literal("f", false)),
-                                new Assignment(f.literal("a", true), f.literal("b", false), f.literal("c", false),
-                                        f.literal("d", false), f.literal("e", false), f.literal("f", false))
-                        );
+                new Assignment(f.literal("a", true), f.literal("b", true), f.literal("c", false),
+                        f.literal("d", false), f.literal("e", false), f.literal("f", false)),
+                new Assignment(f.literal("a", false), f.literal("b", true), f.literal("c", false),
+                        f.literal("d", false), f.literal("e", false), f.literal("f", false)),
+                new Assignment(f.literal("a", true), f.literal("b", false), f.literal("c", false),
+                        f.literal("d", false), f.literal("e", false), f.literal("f", false))
+        );
 
         assertThat(solver.satCall().addPropositions(new StandardProposition(f.parse("e <=> f")))
                 .addPropositions(new StandardProposition(f.parse("~e")))
                 .model(solver.underlyingSolver().knownVariables())).isIn(
-                        new Assignment(f.literal("a", true), f.literal("b", true), f.literal("c", false),
-                                f.literal("d", false), f.literal("e", false), f.literal("f", false)),
-                        new Assignment(f.literal("a", false), f.literal("b", true), f.literal("c", false),
-                                f.literal("d", false), f.literal("e", false), f.literal("f", false)),
-                        new Assignment(f.literal("a", true), f.literal("b", false), f.literal("c", false),
-                                f.literal("d", false), f.literal("e", false), f.literal("f", false))
-                );
+                new Assignment(f.literal("a", true), f.literal("b", true), f.literal("c", false),
+                        f.literal("d", false), f.literal("e", false), f.literal("f", false)),
+                new Assignment(f.literal("a", false), f.literal("b", true), f.literal("c", false),
+                        f.literal("d", false), f.literal("e", false), f.literal("f", false)),
+                new Assignment(f.literal("a", true), f.literal("b", false), f.literal("c", false),
+                        f.literal("d", false), f.literal("e", false), f.literal("f", false))
+        );
     }
 
     private static class MaxConflictsHandler implements SATHandler {

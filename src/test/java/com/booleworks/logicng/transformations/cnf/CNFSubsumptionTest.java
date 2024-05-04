@@ -75,7 +75,7 @@ public class CNFSubsumptionTest extends TestWithFormulaContext {
     public void testEvenLargerFormula() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
         final Formula cnf = formula.transform(new CNFFactorization(f));
         final Formula subsumed = cnf.transform(new CNFSubsumption(f));
         assertThat(f.equivalence(cnf, subsumed).holds(new TautologyPredicate(f))).isTrue();

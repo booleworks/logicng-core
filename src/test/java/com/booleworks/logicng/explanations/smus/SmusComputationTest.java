@@ -225,7 +225,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 new TimeoutOptimizationHandler(System.currentTimeMillis() + 1L, TimeoutHandler.TimerType.FIXED_END)
         );
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
         final List<Formula> formulas = formula.stream().collect(Collectors.toList());
         for (final TimeoutOptimizationHandler handler : handlers) {
             testHandler(handler, formulas, true);

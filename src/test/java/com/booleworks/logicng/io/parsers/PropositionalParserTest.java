@@ -15,31 +15,25 @@ import com.booleworks.logicng.formulas.Literal;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-
 public class PropositionalParserTest extends TestWithExampleFormulas {
 
     @Test
     public void testExceptions() throws ParserException {
-        final PropositionalParserNew parser = new PropositionalParserNew(f);
+        final PropositionalParser parser = new PropositionalParser(f);
         Assertions.assertThat(parser.parse("")).isEqualTo(f.verum());
         Assertions.assertThat(parser.parse((String) null)).isEqualTo(f.verum());
     }
 
     @Test
     public void testParseConstants() throws ParserException {
-        final PropositionalParserNew parser = new PropositionalParserNew(f);
+        final PropositionalParser parser = new PropositionalParser(f);
         Assertions.assertThat(parser.parse("$true")).isEqualTo(f.verum());
         Assertions.assertThat(parser.parse("$false")).isEqualTo(f.falsum());
     }
 
     @Test
     public void testParseLiterals() throws ParserException {
-        final PropositionalParserNew parser = new PropositionalParserNew(f);
+        final PropositionalParser parser = new PropositionalParser(f);
         Assertions.assertThat(parser.parse("A")).isEqualTo(f.variable("A"));
         Assertions.assertThat(parser.parse("a")).isEqualTo(f.variable("a"));
         Assertions.assertThat(parser.parse("a1")).isEqualTo(f.variable("a1"));
@@ -58,7 +52,7 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
 
     @Test
     public void testParseOperators() throws ParserException {
-        final PropositionalParserNew parser = new PropositionalParserNew(f);
+        final PropositionalParser parser = new PropositionalParser(f);
         Assertions.assertThat(parser.parse("~a")).isEqualTo(f.not(f.variable("a")));
         Assertions.assertThat(parser.parse("~Var")).isEqualTo(f.not(f.variable("Var")));
         Assertions.assertThat(parser.parse("a & b")).isEqualTo(f.and(f.variable("a"), f.variable("b")));
@@ -79,7 +73,7 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
 
     @Test
     public void testParseMultiplication() throws ParserException {
-        final PropositionalParserNew parser = new PropositionalParserNew(f);
+        final PropositionalParser parser = new PropositionalParser(f);
         Assertions.assertThat(parser.parse("13 * abc = 4"))
                 .isEqualTo(f.pbc(CType.EQ, 4, new Literal[]{f.variable("abc")}, new int[]{13}));
         Assertions.assertThat(parser.parse("-13 * a = 4"))
@@ -102,7 +96,7 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
 
     @Test
     public void testParseAddition() throws ParserException {
-        final PropositionalParserNew parser = new PropositionalParserNew(f);
+        final PropositionalParser parser = new PropositionalParser(f);
         Assertions.assertThat(parser.parse("4 * c + -4 * ~d < -4")).isEqualTo(
                 f.pbc(CType.LT, -4, new Literal[]{f.variable("c"), f.literal("d", false)}, new int[]{4, -4}));
         Assertions.assertThat(parser.parse("5 * c + -5 * ~c >= -5")).isEqualTo(
@@ -125,7 +119,7 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
 
     @Test
     public void testCombination() throws ParserException {
-        final PropositionalParserNew parser = new PropositionalParserNew(f);
+        final PropositionalParser parser = new PropositionalParser(f);
         final Formula pbc = f.pbc(CType.GT, -6,
                 new Literal[]{f.variable("a"), f.literal("b", false), f.literal("c", false)}, new int[]{6, -6, 12});
         Assertions.assertThat(parser.parse("(x => y & z) & (6 * a + -6 * ~b + 12 * ~c > -6)"))
@@ -135,7 +129,7 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
 
     @Test
     public void testParsePrecedences() throws ParserException {
-        final PropositionalParserNew parser = new PropositionalParserNew(f);
+        final PropositionalParser parser = new PropositionalParser(f);
         Assertions.assertThat(parser.parse("x | y & z"))
                 .isEqualTo(f.or(f.variable("x"), f.and(f.variable("y"), f.variable("z"))));
         Assertions.assertThat(parser.parse("x & y | z"))
@@ -188,13 +182,13 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
 
     @Test
     public void parseEmptyString() throws ParserException {
-        final PropositionalParserNew parser = new PropositionalParserNew(f);
+        final PropositionalParser parser = new PropositionalParser(f);
         Assertions.assertThat(parser.parse("")).isEqualTo(f.verum());
     }
 
     @Test
     public void testSkipSymbols() throws ParserException {
-        final PropositionalParserNew parser = new PropositionalParserNew(f);
+        final PropositionalParser parser = new PropositionalParser(f);
         Assertions.assertThat(parser.parse(" ")).isEqualTo(f.verum());
         Assertions.assertThat(parser.parse("\t")).isEqualTo(f.verum());
         Assertions.assertThat(parser.parse("\n")).isEqualTo(f.verum());
@@ -208,7 +202,7 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
     @Test
     public void testNumberLiterals() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final PropositionalParserNew parser = new PropositionalParserNew(f);
+        final PropositionalParser parser = new PropositionalParser(f);
         Assertions.assertThat(parser.parse("12 & A")).isEqualTo(f.and(f.variable("12"), f.variable("A")));
         Assertions.assertThat(parser.parse("~12 & A")).isEqualTo(f.and(f.literal("12", false), f.variable("A")));
         Assertions.assertThat(parser.parse("12 * 12 + 13 * A + 10 * B <= 25")).isEqualTo(f.pbc(CType.LE, 25,
@@ -225,148 +219,89 @@ public class PropositionalParserTest extends TestWithExampleFormulas {
 
     @Test
     public void testIllegalVariable1() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("$$%")).isInstanceOf(ParserException.class);
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("$$%")).isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalVariable3() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse(";;23")).isInstanceOf(ParserException.class);
+        assertThatThrownBy(() -> new PropositionalParser(f).parse(";;23")).isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalVariable4() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("{0}")).isInstanceOf(ParserException.class);
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("{0}")).isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalOperator1() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("A + B")).isInstanceOf(ParserException.class);
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("A + B")).isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalOperator2() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("A &")).isInstanceOf(ParserException.class);
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("A &")).isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalOperator3() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("A /")).isInstanceOf(ParserException.class);
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("A /")).isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalOperator4() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("-A")).isInstanceOf(ParserException.class);
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("-A")).isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalOperator5() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("A * B")).isInstanceOf(ParserException.class);
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("A * B")).isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalBrackets1() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("(A & B")).isInstanceOf(ParserException.class);
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("(A & B")).isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalFormula1() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("((A & B)")).isInstanceOf(ParserException.class);
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("((A & B)")).isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalFormula2() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("(A & (C & D) B)"))
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("(A & (C & D) B)"))
                 .isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalFormula3() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("A | A + (C | B + C)"))
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("A | A + (C | B + C)"))
                 .isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalFormula4() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("A | A & (C | B & C"))
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("A | A & (C | B & C"))
                 .isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalFormula5() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("A & ~B)")).isInstanceOf(ParserException.class);
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("A & ~B)")).isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalFormula6() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("12)")).isInstanceOf(ParserException.class);
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("12)")).isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalFormula7() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("ab@cd)")).isInstanceOf(ParserException.class);
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("ab@cd)")).isInstanceOf(ParserException.class);
     }
 
     @Test
     public void testIllegalSkipPosition() {
-        assertThatThrownBy(() -> new PropositionalParserNew(f).parse("- 1*x <= 3")).isInstanceOf(ParserException.class);
-    }
-
-    @Test
-    public void parseLargeFormula() throws ParserException, IOException {
-        final int num = 100;
-        long sumOld = 0;
-        long sumNew = 0;
-        final String input = Files.readString(Paths.get("src/test/resources/formulas/large_formula.txt"));
-        for (int i = 0; i < num; i++) {
-            final FormulaFactory f1 = FormulaFactory.caching();
-            final var t1 = System.currentTimeMillis();
-            final Formula formula1 = new PropositionalParser(f1).parse(input);
-            final var t2 = System.currentTimeMillis();
-            sumOld += t2 - t1;
-
-            final FormulaFactory f2 = FormulaFactory.caching();
-            final var t3 = System.currentTimeMillis();
-            final Formula formula2 = new PropositionalParserNew(f2).parse(input);
-            final var t4 = System.currentTimeMillis();
-            sumNew += t4 - t3;
-
-            assertThat(formula1.equals(formula2)).isTrue();
-        }
-        System.out.println("ANTLR:  " + (sumOld / num) + " ms.");
-        System.out.println("JavaCC: " + (sumNew / num) + " ms.");
-    }
-
-    @Test
-    public void parseLargeFormulas() throws ParserException, IOException {
-        final int num = 20;
-        long sumOld = 0;
-        long sumNew = 0;
-        final List<String> input = Files.readAllLines(Paths.get("src/test/resources/formulas/formula3.txt"));
-        for (int i = 0; i < num; i++) {
-            final FormulaFactory f1 = FormulaFactory.caching();
-            final var p1 = new PropositionalParser(f1);
-            final var t1 = System.currentTimeMillis();
-            final List<Formula> formula1 = new ArrayList<>();
-            for (final String s : input) {
-                formula1.add(p1.parse(s));
-            }
-
-            final var t2 = System.currentTimeMillis();
-            sumOld += t2 - t1;
-
-            final FormulaFactory f2 = FormulaFactory.caching();
-            final var p2 = new PropositionalParserNew(f2);
-            final var t3 = System.currentTimeMillis();
-            final List<Formula> formula2 = new ArrayList<>();
-            for (final String s : input) {
-                formula2.add(p2.parse(s));
-            }
-            final var t4 = System.currentTimeMillis();
-            sumNew += t4 - t3;
-
-            //assertThat(formula1.equals(formula2)).isTrue();
-        }
-        System.out.println("ANTLR:  " + (sumOld / num) + " ms.");
-        System.out.println("JavaCC: " + (sumNew / num) + " ms.");
+        assertThatThrownBy(() -> new PropositionalParser(f).parse("- 1*x <= 3")).isInstanceOf(ParserException.class);
     }
 }

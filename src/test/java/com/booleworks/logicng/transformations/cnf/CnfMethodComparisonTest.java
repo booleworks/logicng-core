@@ -88,7 +88,7 @@ public class CnfMethodComparisonTest {
             throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(cnfConfig);
-        final Formula formula = FormulaReader.readPropositionalFormula(f, fileName);
+        final Formula formula = FormulaReader.readFormula(f, fileName);
         final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().cnfMethod(cnfMethod).build());
         solver.add(formula);
         return solver.backbone(formula.variables(f));
@@ -113,7 +113,7 @@ public class CnfMethodComparisonTest {
         final long start = System.currentTimeMillis();
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(cnfConfig);
-        final Formula formula = FormulaReader.readPropositionalFormula(f, fileName);
+        final Formula formula = FormulaReader.readFormula(f, fileName);
         final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().cnfMethod(cnfMethod).build());
         solver.add(formula);
         final SolverState solverState = solver.saveState();

@@ -137,11 +137,11 @@ public class OptimizationFunctionTest implements LogicNGTest {
                                 final String solverDescription) {
         final FormulaFactory f = FormulaFactory.nonCaching(FormulaFactoryConfig.builder()
                 .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build()); // caching
-                                                                                                  // factory
-                                                                                                  // goes
-                                                                                                  // out
-                                                                                                  // of
-                                                                                                  // heap
+        // factory
+        // goes
+        // out
+        // of
+        // heap
         final Random random = new Random(42);
         final FormulaRandomizer randomizer =
                 new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(6).weightPbc(2).seed(42).build());
@@ -278,7 +278,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                                          final String solverDescription)
             throws IOException, ParserException {
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
         final List<Variable> variables = randomSubset(formula.variables(f), 300);
         final Assignment minimumModel =
                 optimize(Collections.singleton(formula), variables, Collections.emptyList(), false, solver.get(), null);
@@ -292,7 +292,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                                          final String solverDescription)
             throws IOException, ParserException {
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f),
                 Collections.emptyList(), true, solver.get(), null);
         testMaximumModel(formula, maximumModel, formula.variables(f));
@@ -305,7 +305,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                                           final String solverDescription)
             throws IOException, ParserException {
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/small_formulas.txt");
         final Assignment minimumModel = optimize(Collections.singleton(formula), formula.variables(f),
                 Collections.emptyList(), false, solver.get(), null);
         testMinimumModel(formula, minimumModel, formula.variables(f));
@@ -318,7 +318,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                                           final String solverDescription)
             throws IOException, ParserException {
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/small_formulas.txt");
         final List<Variable> variables = randomSubset(formula.variables(f), 300);
         final Assignment maximumModel =
                 optimize(Collections.singleton(formula), variables, Collections.emptyList(), true, solver.get(), null);
@@ -361,7 +361,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                                                final String solverDescription)
             throws IOException, ParserException {
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
         final TimeoutOptimizationHandler handlerMax = new TimeoutOptimizationHandler(1L);
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f),
                 Collections.emptyList(), true, solver.get(), handlerMax);
@@ -374,13 +374,13 @@ public class OptimizationFunctionTest implements LogicNGTest {
         assertThat(model).isNull();
         assertThat(handlerTooShort.aborted()).isTrue();
         Assertions.assertThat(handlerTooShort.getIntermediateResult()).isNull(); // SATHandler
-                                                                                 // aborted
-                                                                                 // before
-                                                                                 // a
-                                                                                 // model
-                                                                                 // could
-                                                                                 // be
-                                                                                 // computed
+        // aborted
+        // before
+        // a
+        // model
+        // could
+        // be
+        // computed
 
         final CustomOptimizationHandler customHandler = new CustomOptimizationHandler();
         final Assignment modelCustom = optimize(Collections.singleton(formula), formula.variables(f),

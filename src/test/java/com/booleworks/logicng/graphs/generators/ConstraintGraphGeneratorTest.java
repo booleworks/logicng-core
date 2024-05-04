@@ -87,10 +87,10 @@ public class ConstraintGraphGeneratorTest {
         expected.connect(d, a);
         expected.connect(d, e);
         Assertions.assertThat(ConstraintGraphGenerator.generateFromFormulas(f,
-                p.parse("a | ~b | c"),
-                p.parse("d | ~a"),
-                p.parse("d + e = 1"),
-                p.parse("g")).toString())
+                        p.parse("a | ~b | c"),
+                        p.parse("d | ~a"),
+                        p.parse("d + e = 1"),
+                        p.parse("g")).toString())
                 .isEqualTo(expected.toString());
     }
 
@@ -98,7 +98,7 @@ public class ConstraintGraphGeneratorTest {
     public void testRealExample() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
-        final Formula parsed = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/formula1.txt");
+        final Formula parsed = FormulaReader.readFormula(f, "src/test/resources/formulas/formula1.txt");
         final List<Formula> formulas = new ArrayList<>();
         for (final Formula formula : parsed) {
             if (formula instanceof PBConstraint) {
