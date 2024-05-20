@@ -68,8 +68,8 @@ public class CspFactory {
         this.gtPredicates = new HashMap<>();
         this.allDifferentPredicates = new HashMap<>();
         this.auxCounter = 0;
-        this.zero = new IntegerConstant(this, 0);
-        this.one = new IntegerConstant(this, 1);
+        this.zero = new IntegerConstant(0);
+        this.one = new IntegerConstant(1);
         this.integerConstants.put(0, this.zero);
         this.integerConstants.put(1, this.one);
     }
@@ -90,8 +90,8 @@ public class CspFactory {
         this.gtPredicates = new HashMap<>(other.gtPredicates);
         this.allDifferentPredicates = new HashMap<>(other.allDifferentPredicates);
         this.auxCounter = other.auxCounter;
-        this.zero = new IntegerConstant(this, 0);
-        this.one = new IntegerConstant(this, 1);
+        this.zero = new IntegerConstant(0);
+        this.one = new IntegerConstant(1);
         this.integerConstants.put(0, this.zero);
         this.integerConstants.put(1, this.one);
     }
@@ -110,7 +110,7 @@ public class CspFactory {
         } else if (value == 1) {
             return one();
         } else {
-            return integerConstants.computeIfAbsent(value, c -> new IntegerConstant(this, value));
+            return integerConstants.computeIfAbsent(value, c -> new IntegerConstant(value));
         }
     }
 
@@ -133,7 +133,7 @@ public class CspFactory {
             }
             return existingVar;
         }
-        final IntegerVariable newVariable = new IntegerVariable(this, name, domain);
+        final IntegerVariable newVariable = new IntegerVariable(name, domain);
         integerVariables.put(name, newVariable);
         return newVariable;
     }
@@ -166,7 +166,7 @@ public class CspFactory {
         if (term instanceof NegationFunction) {
             return ((NegationFunction) term).getOperand();
         }
-        return unaryMinusTerms.computeIfAbsent(term, t -> new NegationFunction(this, term));
+        return unaryMinusTerms.computeIfAbsent(term, t -> new NegationFunction(term));
     }
 
     public Term minus(final IntegerConstant constant) {
@@ -190,7 +190,7 @@ public class CspFactory {
             addTerms.put(compactedOperands, term);
             return term;
         }
-        final AdditionFunction addition = new AdditionFunction(this, compactedOperands);
+        final AdditionFunction addition = new AdditionFunction(compactedOperands);
         addTerms.put(originalOperands, addition);
         addTerms.put(compactedOperands, addition);
         return addition;
@@ -238,7 +238,7 @@ public class CspFactory {
         if (left instanceof IntegerConstant && right instanceof IntegerConstant) {
             return constant(((IntegerConstant) left).getValue() - ((IntegerConstant) right).getValue());
         }
-        return subTerms.computeIfAbsent(new Pair<>(left, right), p -> new SubtractionFunction(this, left, right));
+        return subTerms.computeIfAbsent(new Pair<>(left, right), p -> new SubtractionFunction(left, right));
     }
 
     public IntegerConstant sub(final IntegerConstant left, final IntegerConstant right) {
@@ -267,7 +267,7 @@ public class CspFactory {
             return constant(left.getValue() * ((IntegerConstant) right).getValue());
         }
         final LinkedHashSet<Term> operands = new LinkedHashSet<>(Arrays.asList(left, right));
-        return mulTerms.computeIfAbsent(operands, o -> new MultiplicationFunction(this, left, right));
+        return mulTerms.computeIfAbsent(operands, o -> new MultiplicationFunction(left, right));
     }
 
     public ComparisonPredicate comparison(final Term left, final Term right, final CspPredicate.Type type) {
@@ -295,7 +295,7 @@ public class CspFactory {
         if (foundFormula != null) {
             return foundFormula;
         }
-        final ComparisonPredicate predicate = new ComparisonPredicate(this, CspPredicate.Type.EQ, left, right);
+        final ComparisonPredicate predicate = new ComparisonPredicate(CspPredicate.Type.EQ, left, right);
         eqPredicates.put(operands, predicate);
         return predicate;
     }
@@ -306,7 +306,7 @@ public class CspFactory {
         if (foundFormula != null) {
             return foundFormula;
         }
-        final ComparisonPredicate predicate = new ComparisonPredicate(this, CspPredicate.Type.NE, left, right);
+        final ComparisonPredicate predicate = new ComparisonPredicate(CspPredicate.Type.NE, left, right);
         nePredicates.put(operands, predicate);
         return predicate;
     }
@@ -334,7 +334,7 @@ public class CspFactory {
         if (foundFormula != null) {
             return foundFormula;
         }
-        final ComparisonPredicate predicate = new ComparisonPredicate(this, type, left, right);
+        final ComparisonPredicate predicate = new ComparisonPredicate(type, left, right);
         cache.put(operands, predicate);
         return predicate;
     }
@@ -345,7 +345,7 @@ public class CspFactory {
         if (foundFormula != null) {
             return foundFormula;
         }
-        final AllDifferentPredicate predicate = new AllDifferentPredicate(this, operands);
+        final AllDifferentPredicate predicate = new AllDifferentPredicate(operands);
         allDifferentPredicates.put(operands, predicate);
         return predicate;
     }
@@ -355,7 +355,7 @@ public class CspFactory {
     }
 
     public Csp buildCsp(final Collection<CspPredicate> predicates) {
-        final Set<IntegerClause> clauses = predicates.stream().flatMap(p -> p.decompose().stream()).collect(Collectors.toSet());
+        final Set<IntegerClause> clauses = predicates.stream().flatMap(p -> p.decompose(this).stream()).collect(Collectors.toSet());
         return Csp.fromClauses(clauses);
     }
 
@@ -388,7 +388,7 @@ public class CspFactory {
     }
 
     public List<Formula> encodeConstraint(final CspPredicate predicate, final CspEncodingContext context) {
-        Set<IntegerClause> clauses = predicate.decompose();
+        Set<IntegerClause> clauses = predicate.decompose(this);
         final EncodingResult result = EncodingResult.resultForFormula(formulaFactory);
         switch (context.getAlgorithm()) {
             case Order:

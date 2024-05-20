@@ -14,69 +14,69 @@ import java.util.TreeSet;
 
 public class ComparisonPredicate extends BinaryPredicate {
 
-    public ComparisonPredicate(final CspFactory f, final Type type, final Term left, final Term right) {
-        super(f, type, left, right);
+    public ComparisonPredicate(final Type type, final Term left, final Term right) {
+        super(type, left, right);
     }
 
     @Override
-    public CspPredicate negate() {
+    public CspPredicate negate(final CspFactory cf) {
         switch (type) {
             case EQ:
-                return cspFactory.ne(left, right);
+                return cf.ne(left, right);
             case NE:
-                return cspFactory.eq(left, right);
+                return cf.eq(left, right);
             case LT:
-                return cspFactory.ge(left, right);
+                return cf.ge(left, right);
             case LE:
-                return cspFactory.gt(left, right);
+                return cf.gt(left, right);
             case GT:
-                return cspFactory.le(left, right);
+                return cf.le(left, right);
             case GE:
-                return cspFactory.lt(left, right);
+                return cf.lt(left, right);
             default:
                 throw new IllegalArgumentException("Invalid type of ComparisonPredicate: " + type);
         }
     }
 
     @Override
-    protected Set<IntegerClause> calculateDecomposition() {
+    protected Set<IntegerClause> calculateDecomposition(final CspFactory cf) {
         switch (type) {
             case EQ:
-                return decomposeEq();
+                return decomposeEq(cf);
             case NE:
-                return decomposeNe();
+                return decomposeNe(cf);
             case LE:
-                return decomposeLe();
+                return decomposeLe(cf);
             case LT:
-                return decomposeLt();
+                return decomposeLt(cf);
             case GE:
-                return decomposeGe();
+                return decomposeGe(cf);
             case GT:
-                return decomposeGt();
+                return decomposeGt(cf);
             default:
                 throw new IllegalArgumentException("Unexpected type for decomposing a ComparisonPredicate");
         }
     }
 
-    private Set<IntegerClause> decomposeEq() {
+    private Set<IntegerClause> decomposeEq(final CspFactory cf) {
         if (right.getType() == Term.Type.ZERO) {
             return decomposeEqZero(left);
         } else if (left.getType() == Term.Type.ZERO) {
             return decomposeEqZero(right);
         }
-        return decomposeEqZero(cspFactory.sub(left, right));
+        return decomposeEqZero(cf.sub(left, right));
     }
 
-    private Set<IntegerClause> decomposeNe() {
+    private Set<IntegerClause> decomposeNe(final CspFactory cf) {
         if (right.getType() == Term.Type.ZERO) {
             return decomposeNeZero(left);
         } else if (left.getType() == Term.Type.ZERO) {
             return decomposeNeZero(right);
         }
-        return decomposeNeZero(cspFactory.sub(left, right));
+        return decomposeNeZero(cf.sub(left, right));
     }
 
-    private Set<IntegerClause> decomposeLe() {
+    private Set<IntegerClause> decomposeLe(final CspFactory cf) {
         // abs(a1) <= x2
         //if (left instanceof IntegerAbsoluteFunction) {
         //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) left).getOperand();
@@ -93,10 +93,10 @@ public class ComparisonPredicate extends BinaryPredicate {
         //            cspFactory.decomposeFormula(cspFactory.le(a1, cspFactory.minus(left)), false)
         //    );
         //}
-        return decomposeLeZero(cspFactory.sub(left, right));
+        return decomposeLeZero(cf.sub(left, right));
     }
 
-    private Set<IntegerClause> decomposeLt() {
+    private Set<IntegerClause> decomposeLt(final CspFactory cf) {
         // abs(a1) < x2
         //if (left instanceof IntegerAbsoluteFunction) {
         //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) left).getOperand();
@@ -113,10 +113,10 @@ public class ComparisonPredicate extends BinaryPredicate {
         //            cspFactory.decomposeFormula(cspFactory.lt(a1, cspFactory.minus(left)), false)
         //    );
         //}
-        return decomposeLeZero(cspFactory.add(cspFactory.sub(left, right), cspFactory.one()));
+        return decomposeLeZero(cf.add(cf.sub(left, right), cf.one()));
     }
 
-    private Set<IntegerClause> decomposeGe() {
+    private Set<IntegerClause> decomposeGe(final CspFactory cf) {
         // abs(a1) >= x2
         //if (left instanceof IntegerAbsoluteFunction) {
         //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) left).getOperand();
@@ -133,10 +133,10 @@ public class ComparisonPredicate extends BinaryPredicate {
         //            cspFactory.decomposeFormula(cspFactory.ge(a1, cspFactory.minus(left)), false)
         //    );
         //}
-        return decomposeLeZero(cspFactory.sub(right, left));
+        return decomposeLeZero(cf.sub(right, left));
     }
 
-    private Set<IntegerClause> decomposeGt() {
+    private Set<IntegerClause> decomposeGt(final CspFactory cf) {
         // abs(a1) < x2
         //if (left instanceof IntegerAbsoluteFunction) {
         //    final IntegerTerm a1 = ((IntegerAbsoluteFunction) left).getOperand();
@@ -153,7 +153,7 @@ public class ComparisonPredicate extends BinaryPredicate {
         //            cspFactory.decomposeFormula(cspFactory.lt(a1, cspFactory.minus(left)), false)
         //    );
         //}
-        return decomposeLeZero(cspFactory.add(cspFactory.sub(right, left), cspFactory.one()));
+        return decomposeLeZero(cf.add(cf.sub(right, left), cf.one()));
     }
 
     private Set<IntegerClause> decomposeEqZero(final Term term) {

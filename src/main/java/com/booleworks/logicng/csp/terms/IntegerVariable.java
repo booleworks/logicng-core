@@ -64,7 +64,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.booleworks.logicng.csp.terms;
 
-import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.IntegerDomain;
 import com.booleworks.logicng.csp.LinearExpression;
 
@@ -82,14 +81,8 @@ public final class IntegerVariable extends Term implements Comparable<IntegerVar
      * @param name   the variable's name
      * @param domain the variable's domain
      */
-    public IntegerVariable(final CspFactory cspFactory, final String name, final IntegerDomain domain) {
-        super(cspFactory, Type.VAR);
-        this.name = name;
-        this.domain = domain;
-    }
-
-    private IntegerVariable(final String name, final IntegerDomain domain) {
-        super(null, Type.VAR);
+    public IntegerVariable(final String name, final IntegerDomain domain) {
+        super(Type.VAR);
         this.name = name;
         this.domain = domain;
     }
@@ -135,9 +128,6 @@ public final class IntegerVariable extends Term implements Comparable<IntegerVar
     public boolean equals(final Object other) {
         if (other == this) {
             return true;
-        }
-        if (other instanceof Term && cspFactory == ((Term) other).cspFactory) {
-            return false; // the same factory would have produced a == object
         }
         if (other instanceof IntegerVariable) {
             return Objects.equals(name, ((IntegerVariable) other).name);

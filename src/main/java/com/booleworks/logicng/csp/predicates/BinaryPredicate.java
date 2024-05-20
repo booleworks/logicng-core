@@ -1,6 +1,5 @@
 package com.booleworks.logicng.csp.predicates;
 
-import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.terms.Term;
 
 import java.util.Objects;
@@ -10,8 +9,8 @@ public abstract class BinaryPredicate extends CspPredicate {
     protected Term left;
     protected Term right;
 
-    BinaryPredicate(final CspFactory f, final CspPredicate.Type type, final Term left, final Term right) {
-        super(f, type);
+    BinaryPredicate(final CspPredicate.Type type, final Term left, final Term right) {
+        super(type);
         this.left = left;
         this.right = right;
     }
@@ -30,9 +29,6 @@ public abstract class BinaryPredicate extends CspPredicate {
             return true;
         }
         if (getClass() == other.getClass()) {
-            if (factory() == ((BinaryPredicate) other).factory()) {
-                return false; // the same factory would have produced a == object
-            }
             final BinaryPredicate that = (BinaryPredicate) other;
             return type == that.type && Objects.equals(left, that.left) && Objects.equals(right, that.right);
         }

@@ -1,14 +1,12 @@
 package com.booleworks.logicng.csp.terms;
 
-import com.booleworks.logicng.csp.CspFactory;
-
 import java.util.Objects;
 
 public abstract class UnaryFunction extends Function {
     protected final Term operand;
 
-    UnaryFunction(final CspFactory cspFactory, final Term.Type type, final Term operand) {
-        super(cspFactory, type);
+    UnaryFunction(final Term.Type type, final Term operand) {
+        super(type);
         this.operand = operand;
     }
 
@@ -22,9 +20,6 @@ public abstract class UnaryFunction extends Function {
             return true;
         }
         if (getClass() == other.getClass()) {
-            if (cspFactory == ((UnaryFunction) other).cspFactory) {
-                return false; // the same factory would have produced a == object
-            }
             return Objects.equals(operand, ((UnaryFunction) other).operand);
         }
         return false;

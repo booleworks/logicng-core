@@ -1,11 +1,10 @@
 package com.booleworks.logicng.csp.terms;
 
-import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.LinearExpression;
 
 public final class MultiplicationFunction extends BinaryFunction {
-    public MultiplicationFunction(final CspFactory cspFactory, final IntegerConstant left, final Term right) {
-        super(cspFactory, Term.Type.MUL, left, right);
+    public MultiplicationFunction(final IntegerConstant left, final Term right) {
+        super(Term.Type.MUL, left, right);
     }
 
     @Override

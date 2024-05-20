@@ -1,12 +1,11 @@
 package com.booleworks.logicng.csp.terms;
 
-import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.LinearExpression;
 
 public final class NegationFunction extends UnaryFunction {
 
-    public NegationFunction(final CspFactory cspFactory, final Term operand) {
-        super(cspFactory, Term.Type.NEG, operand);
+    public NegationFunction(final Term operand) {
+        super(Term.Type.NEG, operand);
     }
 
     @Override

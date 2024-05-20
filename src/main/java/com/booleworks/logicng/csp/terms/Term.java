@@ -1,6 +1,5 @@
 package com.booleworks.logicng.csp.terms;
 
-import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.IntegerClause;
 import com.booleworks.logicng.csp.LinearExpression;
 
@@ -9,12 +8,10 @@ import java.util.Set;
 
 public abstract class Term {
 
-    protected final CspFactory cspFactory;
     protected final Type type;
     protected Decomposition decompositionResult;
 
-    protected Term(final CspFactory cspFactory, final Type type) {
-        this.cspFactory = cspFactory;
+    protected Term(final Type type) {
         this.type = type;
     }
 

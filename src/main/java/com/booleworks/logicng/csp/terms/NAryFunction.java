@@ -1,7 +1,5 @@
 package com.booleworks.logicng.csp.terms;
 
-import com.booleworks.logicng.csp.CspFactory;
-
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -11,8 +9,8 @@ import java.util.stream.Collectors;
 public abstract class NAryFunction extends Function {
     protected final LinkedHashSet<Term> operands;
 
-    NAryFunction(final CspFactory cspFactory, final Term.Type type, final LinkedHashSet<Term> operands) {
-        super(cspFactory, type);
+    NAryFunction(final Term.Type type, final LinkedHashSet<Term> operands) {
+        super(type);
         this.operands = operands;
     }
 
@@ -26,9 +24,6 @@ public abstract class NAryFunction extends Function {
             return true;
         }
         if (getClass() == other.getClass()) {
-            if (cspFactory == ((NAryFunction) other).cspFactory) {
-                return false; // the same factory would have produced a == object
-            }
             return Objects.equals(operands, ((NAryFunction) other).operands);
         }
         return false;

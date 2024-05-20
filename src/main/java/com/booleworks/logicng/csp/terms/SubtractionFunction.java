@@ -1,6 +1,5 @@
 package com.booleworks.logicng.csp.terms;
 
-import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.IntegerClause;
 import com.booleworks.logicng.csp.LinearExpression;
 
@@ -8,8 +7,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public final class SubtractionFunction extends BinaryFunction {
-    public SubtractionFunction(final CspFactory cspFactory, final Term left, final Term right) {
-        super(cspFactory, Term.Type.SUB, left, right);
+    public SubtractionFunction(final Term left, final Term right) {
+        super(Term.Type.SUB, left, right);
     }
 
     @Override

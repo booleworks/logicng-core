@@ -18,23 +18,23 @@ public class AllDifferentPredicate extends CspPredicate {
 
     List<Term> terms;
 
-    public AllDifferentPredicate(final CspFactory f, final Collection<Term> terms) {
-        super(f, CspPredicate.Type.ALLDIFFERENT);
+    public AllDifferentPredicate(final Collection<Term> terms) {
+        super(CspPredicate.Type.ALLDIFFERENT);
         this.terms = new ArrayList<>(terms);
     }
 
     @Override
-    public CspPredicate negate() {
+    public CspPredicate negate(final CspFactory cf) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override
-    protected Set<IntegerClause> calculateDecomposition() {
+    protected Set<IntegerClause> calculateDecomposition(final CspFactory cf) {
         final FormulaFactory f = factory();
         final Set<IntegerClause> clauses = new TreeSet<>();
         for (int i = 0; i < terms.size(); i++) {
             for (int j = i + 1; j < terms.size(); j++) {
-                clauses.addAll(cspFactory.ne(terms.get(i), terms.get(j)).decompose());
+                clauses.addAll(cf.ne(terms.get(i), terms.get(j)).decompose(cf));
             }
         }
         int lb = Integer.MAX_VALUE;
@@ -49,8 +49,8 @@ public class AllDifferentPredicate extends CspPredicate {
         Set<IntegerClause> xs2 = new TreeSet<>();
         boolean first = true;
         for (int i = 0; i < terms.size(); i++) {
-            final Set<IntegerClause> new1 = cspFactory.lt(terms.get(i), cspFactory.constant(lb + terms.size() - 1)).negate().decompose();
-            final Set<IntegerClause> new2 = cspFactory.gt(terms.get(i), cspFactory.constant(ub - terms.size() + 1)).negate().decompose();
+            final Set<IntegerClause> new1 = cf.lt(terms.get(i), cf.constant(lb + terms.size() - 1)).negate(cf).decompose(cf);
+            final Set<IntegerClause> new2 = cf.gt(terms.get(i), cf.constant(ub - terms.size() + 1)).negate(cf).decompose(cf);
             if (first) {
                 xs1 = new1;
                 xs2 = new2;

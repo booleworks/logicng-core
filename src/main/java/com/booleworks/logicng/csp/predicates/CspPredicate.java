@@ -8,12 +8,11 @@ import com.booleworks.logicng.formulas.Predicate;
 import java.util.Set;
 
 public abstract class CspPredicate implements Predicate {
-    protected final CspFactory cspFactory;
+
     protected final Type type;
     protected Set<IntegerClause> decomposition;
 
-    protected CspPredicate(final CspFactory cspFactory, final Type type) {
-        this.cspFactory = cspFactory;
+    protected CspPredicate(final Type type) {
         this.type = type;
     }
 
@@ -21,20 +20,20 @@ public abstract class CspPredicate implements Predicate {
         return type;
     }
 
-    public abstract CspPredicate negate();
+    public abstract CspPredicate negate(final CspFactory cf);
 
-    protected abstract Set<IntegerClause> calculateDecomposition();
+    protected abstract Set<IntegerClause> calculateDecomposition(final CspFactory cf);
 
-    public Set<IntegerClause> decompose() {
+    public Set<IntegerClause> decompose(final CspFactory cf) {
         if (decomposition == null) {
-            decomposition = calculateDecomposition();
+            decomposition = calculateDecomposition(cf);
         }
         return decomposition;
     }
 
     @Override
     public FormulaFactory factory() {
-        return cspFactory.formulaFactory();
+        return null;
     }
 
     public enum Type {

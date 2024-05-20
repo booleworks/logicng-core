@@ -1,15 +1,13 @@
 package com.booleworks.logicng.csp.terms;
 
-import com.booleworks.logicng.csp.CspFactory;
-
 import java.util.Objects;
 
 public abstract class BinaryFunction extends Function {
     protected final Term left;
     protected final Term right;
 
-    BinaryFunction(final CspFactory cspFactory, final Term.Type type, final Term left, final Term right) {
-        super(cspFactory, type);
+    BinaryFunction(final Term.Type type, final Term left, final Term right) {
+        super(type);
         this.left = left;
         this.right = right;
     }
@@ -27,9 +25,6 @@ public abstract class BinaryFunction extends Function {
             return true;
         }
         if (getClass() == other.getClass()) {
-            if (cspFactory == ((BinaryFunction) other).cspFactory) {
-                return false; // the same factory would have produced a == object
-            }
             final BinaryFunction that = (BinaryFunction) other;
             return withOrder
                     ? Objects.equals(left, that.left) && Objects.equals(right, that.right) ||

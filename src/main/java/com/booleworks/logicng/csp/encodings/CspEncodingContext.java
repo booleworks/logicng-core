@@ -1,6 +1,5 @@
 package com.booleworks.logicng.csp.encodings;
 
-import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.IntegerDomain;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.datastructures.EncodingResult;
@@ -78,7 +77,7 @@ public class CspEncodingContext {
         return var;
     }
 
-    Variable newAuxBoolVariable(FormulaFactory f) {
+    Variable newAuxBoolVariable(final FormulaFactory f) {
         final Variable var = f.newAuxVariable(InternalAuxVarType.CSP);
         booleanAuxVariables.add(var);
         return var;

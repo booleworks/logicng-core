@@ -1,12 +1,10 @@
 package com.booleworks.logicng.csp.terms;
 
-import com.booleworks.logicng.csp.CspFactory;
-
 import java.util.Objects;
 
 public abstract class Function extends Term {
-    public Function(final CspFactory cspFactory, final Term.Type type) {
-        super(cspFactory, type);
+    public Function(final Term.Type type) {
+        super(type);
     }
 
     @Override
