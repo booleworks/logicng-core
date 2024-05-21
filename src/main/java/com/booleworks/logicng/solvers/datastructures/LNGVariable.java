@@ -34,8 +34,8 @@ public final class LNGVariable {
         decision = false;
     }
 
-    LNGVariable(final Tristate assignment, final int level, final LNGClause reason, final double activity,
-                final boolean polarity, final boolean decision) {
+    public LNGVariable(final Tristate assignment, final int level, final LNGClause reason, final double activity,
+                       final boolean polarity, final boolean decision) {
         this.assignment = assignment;
         this.level = level;
         this.reason = reason;
@@ -135,7 +135,7 @@ public final class LNGVariable {
      * Returns {@code true} if this variable should be used as a decision
      * variable during solving, {@code false} otherwise.
      * @return {@code true} if this variable should be used as a decision
-     *         variable
+     * variable
      */
     public boolean decision() {
         return decision;

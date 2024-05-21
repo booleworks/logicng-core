@@ -71,8 +71,8 @@ public final class LNGBoundedIntQueue {
         queueSize = 0;
     }
 
-    LNGBoundedIntQueue(final LNGIntVector elems, final int first, final int last, final long sumOfQueue,
-                       final int maxSize, final int queueSize) {
+    public LNGBoundedIntQueue(final LNGIntVector elems, final int first, final int last, final long sumOfQueue,
+                              final int maxSize, final int queueSize) {
         this.elems = elems;
         this.first = first;
         this.last = last;
@@ -131,27 +131,27 @@ public final class LNGBoundedIntQueue {
         last = 0;
     }
 
-    LNGIntVector getElems() {
+    public LNGIntVector getElems() {
         return elems;
     }
 
-    int getFirst() {
+    public int getFirst() {
         return first;
     }
 
-    int getLast() {
+    public int getLast() {
         return last;
     }
 
-    long getSumOfQueue() {
+    public long getSumOfQueue() {
         return sumOfQueue;
     }
 
-    int getMaxSize() {
+    public int getMaxSize() {
         return maxSize;
     }
 
-    int getQueueSize() {
+    public int getQueueSize() {
         return queueSize;
     }
 

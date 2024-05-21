@@ -52,6 +52,78 @@ public final class SATSolverLowLevelConfig {
         return new Builder();
     }
 
+    public double getVarDecay() {
+        return varDecay;
+    }
+
+    public double getVarInc() {
+        return varInc;
+    }
+
+    public int getRestartFirst() {
+        return restartFirst;
+    }
+
+    public double getRestartInc() {
+        return restartInc;
+    }
+
+    public double getClauseDecay() {
+        return clauseDecay;
+    }
+
+    public int getLbLBDMinimizingClause() {
+        return lbLBDMinimizingClause;
+    }
+
+    public int getLbLBDFrozenClause() {
+        return lbLBDFrozenClause;
+    }
+
+    public int getLbSizeMinimizingClause() {
+        return lbSizeMinimizingClause;
+    }
+
+    public int getFirstReduceDB() {
+        return firstReduceDB;
+    }
+
+    public int getSpecialIncReduceDB() {
+        return specialIncReduceDB;
+    }
+
+    public int getIncReduceDB() {
+        return incReduceDB;
+    }
+
+    public double getFactorK() {
+        return factorK;
+    }
+
+    public double getFactorR() {
+        return factorR;
+    }
+
+    public int getSizeLBDQueue() {
+        return sizeLBDQueue;
+    }
+
+    public int getSizeTrailQueue() {
+        return sizeTrailQueue;
+    }
+
+    public boolean isReduceOnSize() {
+        return reduceOnSize;
+    }
+
+    public int getReduceOnSizeSize() {
+        return reduceOnSizeSize;
+    }
+
+    public double getMaxVarDecay() {
+        return maxVarDecay;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SATSolverLowLevelConfig{").append(System.lineSeparator());

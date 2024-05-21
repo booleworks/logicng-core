@@ -98,9 +98,9 @@ public final class LNGClause {
         atMostWatchers = -1;
     }
 
-    LNGClause(final LNGIntVector data, final int learntOnState, final boolean isAtMost, final double activity,
-              final boolean seen,
-              final long lbd, final boolean canBeDel, final boolean oneWatched, final int atMostWatchers) {
+    public LNGClause(final LNGIntVector data, final int learntOnState, final boolean isAtMost, final double activity,
+                     final boolean seen, final long lbd, final boolean canBeDel, final boolean oneWatched,
+                     final int atMostWatchers) {
         this.data = data;
         this.learntOnState = learntOnState;
         this.isAtMost = isAtMost;
