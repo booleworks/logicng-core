@@ -9,6 +9,8 @@ import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 
+import java.util.Objects;
+
 /**
  * The configuration object for a SAT solver.
  * @version 2.0.0
@@ -74,7 +76,7 @@ public final class SATSolverConfig extends Configuration {
      * Returns whether at most clauses should be used to encode cardinality
      * constraints or not.
      * @return whether at most clauses should be used to encode cardinality
-     *         constraints or not
+     * constraints or not
      */
     public boolean useAtMostClauses() {
         return useAtMostClauses;
@@ -110,6 +112,28 @@ public final class SATSolverConfig extends Configuration {
      */
     public SATSolverLowLevelConfig lowLevelConfig() {
         return lowLevelConfig;
+    }
+
+    @Override
+    public boolean equals(final Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        final SATSolverConfig that = (SATSolverConfig) object;
+        return proofGeneration == that.proofGeneration &&
+                useAtMostClauses == that.useAtMostClauses &&
+                initialPhase == that.initialPhase &&
+                cnfMethod == that.cnfMethod &&
+                clauseMinimization == that.clauseMinimization &&
+                Objects.equals(lowLevelConfig, that.lowLevelConfig);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(proofGeneration, useAtMostClauses, cnfMethod, clauseMinimization, initialPhase, lowLevelConfig);
     }
 
     @Override
