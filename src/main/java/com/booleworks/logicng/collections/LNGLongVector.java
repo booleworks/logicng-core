@@ -66,7 +66,7 @@ public final class LNGLongVector {
         size = elems.length;
     }
 
-    LNGLongVector(final long[] elements, final int size) {
+    public LNGLongVector(final long[] elements, final int size) {
         this.elements = elements;
         this.size = size;
     }
