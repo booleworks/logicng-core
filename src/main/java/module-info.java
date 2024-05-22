@@ -75,4 +75,6 @@ module logicng {
     exports com.booleworks.logicng.transformations.simplification;
 
     exports com.booleworks.logicng.util;
+
+    opens com.booleworks.logicng.solvers.sat;
 }
