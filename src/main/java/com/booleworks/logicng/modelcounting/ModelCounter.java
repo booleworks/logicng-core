@@ -4,6 +4,8 @@
 
 package com.booleworks.logicng.modelcounting;
 
+import static com.booleworks.logicng.handlers.Handler.aborted;
+
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
@@ -14,6 +16,7 @@ import com.booleworks.logicng.graphs.algorithms.ConnectedComponentsComputation;
 import com.booleworks.logicng.graphs.datastructures.Graph;
 import com.booleworks.logicng.graphs.datastructures.Node;
 import com.booleworks.logicng.graphs.generators.ConstraintGraphGenerator;
+import com.booleworks.logicng.handlers.DnnfCompilationHandler;
 import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfFactory;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.Dnnf;
 import com.booleworks.logicng.knowledgecompilation.dnnf.functions.DnnfModelCountFunction;
@@ -29,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -46,17 +50,32 @@ public final class ModelCounter {
     }
 
     /**
-     * Computes the model count for a given set of formulas (interpreted as
-     * conjunction) and a set of relevant variables. This set can only be a
-     * superset of the original formulas' variables. No projected model counting
-     * is supported.
+     * Computes the model count for a given set of formulas (interpreted as conjunction)
+     * and a set of relevant variables.  This set can only be a superset of the original
+     * formulas' variables.  No projected model counting is supported.
      * @param f         the formula factory to generate new formulas
      * @param formulas  the list of formulas
      * @param variables the relevant variables
      * @return the model count of the formulas for the variables
      */
-    public static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas,
-                                   final SortedSet<Variable> variables) {
+    public static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas, final SortedSet<Variable> variables) {
+        return count(f, formulas, variables, () -> null);
+    }
+
+    /**
+     * Computes the model count for a given set of formulas (interpreted as conjunction)
+     * and a set of relevant variables.  This set can only be a superset of the original
+     * formulas' variables.  No projected model counting is supported.
+     * @param f                   the formula factory to generate new formulas
+     * @param formulas            the list of formulas
+     * @param variables           the relevant variables
+     * @param dnnfHandlerSupplier a supplier for a DNNF handler, it may return a new handler on each call or always the same.
+     *                            Since multiple DNNFs may be computed, the supplier may be called several times. It must not
+     *                            be {@code null}, but it may return {@code null} (i.e. return no handler).
+     * @return the model count of the formulas for the variables or {@code null} if the DNNF handler aborted the DNNF computation
+     */
+    public static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas, final SortedSet<Variable> variables,
+                                   final Supplier<DnnfCompilationHandler> dnnfHandlerSupplier) {
         if (!variables.containsAll(FormulaHelper.variables(f, formulas))) {
             throw new IllegalArgumentException("Expected variables to contain all of the formulas' variables.");
         }
@@ -67,7 +86,10 @@ public final class ModelCounter {
         }
         final List<Formula> cnfs = encodeAsCnf(f, formulas);
         final SimplificationResult simplification = simplify(f, cnfs);
-        final BigInteger count = count(f, simplification.simplifiedFormulas);
+        final BigInteger count = count(f, simplification.simplifiedFormulas, dnnfHandlerSupplier);
+        if (count == null) {
+            return null;
+        }
         final SortedSet<Variable> dontCareVariables = simplification.getDontCareVariables(variables);
         return count.multiply(BigInteger.valueOf(2).pow(dontCareVariables.size()));
     }
@@ -104,15 +126,19 @@ public final class ModelCounter {
         return new SimplificationResult(f, backboneVariables, simplified);
     }
 
-    private static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas) {
+    private static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas,
+                                    final Supplier<DnnfCompilationHandler> dnnfHandlerSupplier) {
         final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(f, formulas);
         final Set<Set<Node<Variable>>> ccs = ConnectedComponentsComputation.compute(constraintGraph);
-        final List<List<Formula>> components =
-                ConnectedComponentsComputation.splitFormulasByComponent(f, formulas, ccs);
+        final List<List<Formula>> components = ConnectedComponentsComputation.splitFormulasByComponent(f, formulas, ccs);
         final DnnfFactory factory = new DnnfFactory();
         BigInteger count = BigInteger.ONE;
         for (final List<Formula> component : components) {
-            final Dnnf dnnf = factory.compile(f, f.and(component));
+            final DnnfCompilationHandler handler = dnnfHandlerSupplier.get();
+            final Dnnf dnnf = factory.compile(f, f.and(component), handler);
+            if (dnnf == null || aborted(handler)) {
+                return null;
+            }
             count = count.multiply(dnnf.execute(new DnnfModelCountFunction(f)));
         }
         return count;
