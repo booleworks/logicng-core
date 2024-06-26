@@ -16,7 +16,8 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.MaxSATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.solvers.maxsat.algorithms.IncWBO;
 import com.booleworks.logicng.solvers.maxsat.algorithms.LinearSU;
 import com.booleworks.logicng.solvers.maxsat.algorithms.LinearUS;
@@ -365,7 +366,7 @@ public class MaxSATSolver {
      * @return the result (SAT, UNSAT, Optimum found)
      */
     public MaxSAT.MaxSATResult solve() {
-        return solve(null);
+        return solve(NopHandler.get());
     }
 
     /**
@@ -374,7 +375,7 @@ public class MaxSATSolver {
      * @return the result (SAT, UNSAT, Optimum found, or UNDEF if canceled by
      *         the handler)
      */
-    public MaxSAT.MaxSATResult solve(final MaxSATHandler handler) {
+    public MaxSAT.MaxSATResult solve(final ComputationHandler handler) {
         if (result != UNDEF) {
             return result;
         }

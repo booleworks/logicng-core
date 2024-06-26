@@ -25,7 +25,7 @@ package com.booleworks.logicng.solvers.maxsat.algorithms;
 import static com.booleworks.logicng.datastructures.Tristate.FALSE;
 import static com.booleworks.logicng.datastructures.Tristate.TRUE;
 import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
-import static com.booleworks.logicng.handlers.Handler.aborted;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.WeightStrategy;
 
@@ -33,7 +33,6 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import com.booleworks.logicng.util.Pair;
 
@@ -426,9 +425,8 @@ public class WBO extends MaxSAT {
     Tristate unsatSearch() {
         assert assumptions.size() == 0;
         solver = rebuildHardSolver();
-        final SATHandler satHandler = satHandler();
-        final Tristate res = searchSATSolver(solver, satHandler, assumptions);
-        if (aborted(satHandler)) {
+        final Tristate res = searchSATSolver(solver, handler, assumptions);
+        if (!handler.shouldResume(NO_EVENT)) {
             return UNDEF;
         } else if (res == FALSE) {
             nbCores++;
@@ -458,9 +456,8 @@ public class WBO extends MaxSAT {
         updateCurrentWeight(weightStrategy);
         solver = rebuildWeightSolver(weightStrategy);
         while (true) {
-            final SATHandler satHandler = satHandler();
-            final Tristate res = searchSATSolver(solver, satHandler, assumptions);
-            if (aborted(satHandler)) {
+            final Tristate res = searchSATSolver(solver, handler, assumptions);
+            if (!handler.shouldResume(NO_EVENT)) {
                 return MaxSATResult.UNDEF;
             } else if (res == FALSE) {
                 nbCores++;
@@ -470,7 +467,7 @@ public class WBO extends MaxSAT {
                 if (verbosity != Verbosity.NONE) {
                     output.printf("c LB : %d CS : %d W : %d%n", lbCost, solver.assumptionsConflict().size(), coreCost);
                 }
-                if (!foundLowerBound(lbCost, null)) {
+                if (!foundLowerBound(lbCost)) {
                     return MaxSATResult.UNDEF;
                 }
                 relaxCore(solver.assumptionsConflict(), coreCost, assumptions);
@@ -505,7 +502,7 @@ public class WBO extends MaxSAT {
                             output.println("c LB = UB");
                         }
                         return MaxSATResult.OPTIMUM;
-                    } else if (!foundUpperBound(ubCost, null)) {
+                    } else if (!foundUpperBound(ubCost)) {
                         return MaxSATResult.UNDEF;
                     }
                     solver = rebuildWeightSolver(weightStrategy);
@@ -524,9 +521,8 @@ public class WBO extends MaxSAT {
         initAssumptions(assumptions);
         solver = rebuildSolver();
         while (true) {
-            final SATHandler satHandler = satHandler();
-            final Tristate res = searchSATSolver(solver, satHandler, assumptions);
-            if (aborted(satHandler)) {
+            final Tristate res = searchSATSolver(solver, handler, assumptions);
+            if (!handler.shouldResume(NO_EVENT)) {
                 return MaxSATResult.UNDEF;
             } else if (res == FALSE) {
                 nbCores++;
@@ -541,7 +537,7 @@ public class WBO extends MaxSAT {
                         output.println("c LB = UB");
                     }
                     return MaxSATResult.OPTIMUM;
-                } else if (!foundLowerBound(lbCost, null)) {
+                } else if (!foundLowerBound(lbCost)) {
                     return MaxSATResult.UNDEF;
                 }
                 relaxCore(solver.assumptionsConflict(), coreCost, assumptions);

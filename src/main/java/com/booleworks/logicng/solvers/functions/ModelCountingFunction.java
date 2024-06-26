@@ -4,6 +4,8 @@
 
 package com.booleworks.logicng.solvers.functions;
 
+import static com.booleworks.logicng.handlers.events.SimpleEvent.MODEL_ENUMERATION_COMMIT;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.MODEL_ENUMERATION_ROLLBACK;
 import static java.util.Arrays.asList;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
@@ -11,7 +13,8 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.ModelEnumerationHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.modelenumeration.AbstractModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.EnumerationCollector;
@@ -114,8 +117,8 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
 
         @Override
         public boolean addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver,
-                                final LNGIntVector relevantAllIndices, final ModelEnumerationHandler handler) {
-            if (handler == null || handler.foundModels(dontCareFactor.intValue())) {
+                                final LNGIntVector relevantAllIndices, final ComputationHandler handler) {
+            if (handler.shouldResume(new EnumerationFoundModelsEvent(dontCareFactor.intValue()))) {
                 uncommittedModels.add(modelFromSolver);
                 uncommittedIndices.add(relevantAllIndices);
                 return true;
@@ -125,20 +128,20 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
         }
 
         @Override
-        public boolean commit(final ModelEnumerationHandler handler) {
+        public boolean commit(final ComputationHandler handler) {
             committedCount = committedCount.add(BigInteger.valueOf(uncommittedModels.size()).multiply(dontCareFactor));
             clearUncommitted();
-            return handler == null || handler.commit();
+            return handler.shouldResume(MODEL_ENUMERATION_COMMIT);
         }
 
         @Override
-        public boolean rollback(final ModelEnumerationHandler handler) {
+        public boolean rollback(final ComputationHandler handler) {
             clearUncommitted();
-            return handler == null || handler.rollback();
+            return handler.shouldResume(MODEL_ENUMERATION_ROLLBACK);
         }
 
         @Override
-        public List<Model> rollbackAndReturnModels(final SATSolver solver, final ModelEnumerationHandler handler) {
+        public List<Model> rollbackAndReturnModels(final SATSolver solver, final ComputationHandler handler) {
             final List<Model> modelsToReturn = new ArrayList<>(uncommittedModels.size());
             for (int i = 0; i < uncommittedModels.size(); i++) {
                 modelsToReturn.add(new Model(solver.underlyingSolver().convertInternalModel(uncommittedModels.get(i),

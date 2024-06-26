@@ -22,17 +22,19 @@
 
 package com.booleworks.logicng.solvers.maxsat.algorithms;
 
-import static com.booleworks.logicng.handlers.Handler.start;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.MaxSATHandler;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.handlers.events.ComputationFinishedEvent;
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
+import com.booleworks.logicng.handlers.events.MaxSatNewLowerBoundEvent;
+import com.booleworks.logicng.handlers.events.MaxSatNewUpperBoundEvent;
 import com.booleworks.logicng.solvers.datastructures.LNGHardClause;
 import com.booleworks.logicng.solvers.datastructures.LNGSoftClause;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
@@ -75,7 +77,7 @@ public abstract class MaxSAT {
     final LNGVector<LNGHardClause> hardClauses;
     final LNGIntVector orderWeights;
     protected Verbosity verbosity;
-    protected MaxSATHandler handler;
+    protected ComputationHandler handler;
     int hardWeight;
     ProblemType problemType;
     int nbVars;
@@ -114,7 +116,7 @@ public abstract class MaxSAT {
         nbSatisfiable = 0;
         sumSizeCores = 0;
         orderWeights = new LNGIntVector();
-        handler = null;
+        handler = NopHandler.get();
     }
 
     /**
@@ -133,7 +135,7 @@ public abstract class MaxSAT {
      * @param assumptions the assumptions
      * @return the result of the solving process
      */
-    public static Tristate searchSATSolver(final LNGCoreSolver s, final SATHandler satHandler,
+    public static Tristate searchSATSolver(final LNGCoreSolver s, final ComputationHandler satHandler,
                                            final LNGIntVector assumptions) {
         return s.internalSolve(satHandler, assumptions);
     }
@@ -144,7 +146,7 @@ public abstract class MaxSAT {
      * @param satHandler a SAT handler
      * @return the result of the solving process
      */
-    public static Tristate searchSATSolver(final LNGCoreSolver s, final SATHandler satHandler) {
+    public static Tristate searchSATSolver(final LNGCoreSolver s, final ComputationHandler satHandler) {
         return s.internalSolve(satHandler);
     }
 
@@ -154,14 +156,12 @@ public abstract class MaxSAT {
      * @return the result of the solving process
      * @throws IllegalArgumentException if the configuration was not valid
      */
-    public final MaxSATResult search(final MaxSATHandler handler) {
+    public final MaxSATResult search(final ComputationHandler handler) {
         this.handler = handler;
-        start(handler);
+        handler.shouldResume(ComputationStartedEvent.MAX_SAT_CALL_STARTED);
         final MaxSATResult result = search();
-        if (handler != null) {
-            handler.finishedSolving();
-        }
-        this.handler = null;
+        handler.shouldResume(ComputationFinishedEvent.MAX_SAT_CALL_FINISHED);
+        this.handler = NopHandler.get();
         return result;
     }
 
@@ -399,21 +399,12 @@ public abstract class MaxSAT {
         return model;
     }
 
-    /**
-     * Returns the current SAT handler or {@code null} if no MaxSAT handler was
-     * given.
-     * @return the current SAT handler
-     */
-    SATHandler satHandler() {
-        return handler == null ? null : handler.satHandler();
+    boolean foundLowerBound(final int lowerBound) {
+        return handler.shouldResume(new MaxSatNewLowerBoundEvent(lowerBound));
     }
 
-    boolean foundLowerBound(final int lowerBound, final Assignment model) {
-        return handler == null || handler.foundLowerBound(lowerBound, model);
-    }
-
-    boolean foundUpperBound(final int upperBound, final Assignment model) {
-        return handler == null || handler.foundUpperBound(upperBound, model);
+    boolean foundUpperBound(final int upperBound) {
+        return handler.shouldResume(new MaxSatNewUpperBoundEvent(upperBound));
     }
 
     /**

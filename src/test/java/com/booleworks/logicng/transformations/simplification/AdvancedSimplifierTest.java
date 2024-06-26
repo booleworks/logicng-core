@@ -13,9 +13,8 @@ import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.handlers.BoundedOptimizationHandler;
-import com.booleworks.logicng.handlers.OptimizationHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.TimeoutHandler;
-import com.booleworks.logicng.handlers.TimeoutOptimizationHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
@@ -63,13 +62,13 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testTimeoutHandlerSmall(final FormulaContext _c) throws ParserException {
-        final List<TimeoutOptimizationHandler> handlers = Arrays.asList(
-                new TimeoutOptimizationHandler(5_000L, TimeoutHandler.TimerType.SINGLE_TIMEOUT),
-                new TimeoutOptimizationHandler(5_000L, TimeoutHandler.TimerType.RESTARTING_TIMEOUT),
-                new TimeoutOptimizationHandler(System.currentTimeMillis() + 5_000L, TimeoutHandler.TimerType.FIXED_END)
+        final List<TimeoutHandler> handlers = Arrays.asList(
+                new TimeoutHandler(5_000L, TimeoutHandler.TimerType.SINGLE_TIMEOUT),
+                new TimeoutHandler(5_000L, TimeoutHandler.TimerType.RESTARTING_TIMEOUT),
+                new TimeoutHandler(System.currentTimeMillis() + 5_000L, TimeoutHandler.TimerType.FIXED_END)
         );
         final Formula formula = _c.f.parse("a & b | ~c & a");
-        for (final TimeoutOptimizationHandler handler : handlers) {
+        for (final TimeoutHandler handler : handlers) {
             testHandler(handler, formula, false);
         }
     }
@@ -77,14 +76,14 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testTimeoutHandlerLarge(final FormulaContext _c) throws ParserException, IOException {
-        final List<TimeoutOptimizationHandler> handlers = Arrays.asList(
-                new TimeoutOptimizationHandler(1L, TimeoutHandler.TimerType.SINGLE_TIMEOUT),
-                new TimeoutOptimizationHandler(1L, TimeoutHandler.TimerType.RESTARTING_TIMEOUT),
-                new TimeoutOptimizationHandler(System.currentTimeMillis() + 1L, TimeoutHandler.TimerType.FIXED_END)
+        final List<TimeoutHandler> handlers = Arrays.asList(
+                new TimeoutHandler(1L, TimeoutHandler.TimerType.SINGLE_TIMEOUT),
+                new TimeoutHandler(1L, TimeoutHandler.TimerType.RESTARTING_TIMEOUT),
+                new TimeoutHandler(System.currentTimeMillis() + 1L, TimeoutHandler.TimerType.FIXED_END)
         );
         final Formula formula =
                 FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
-        for (final TimeoutOptimizationHandler handler : handlers) {
+        for (final TimeoutHandler handler : handlers) {
             testHandler(handler, formula, true);
         }
     }
@@ -92,15 +91,15 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testPrimeCompilerIsCancelled(final FormulaContext _c) throws ParserException {
-        final OptimizationHandler handler = new BoundedOptimizationHandler(-1, 0);
+        final ComputationHandler handler = new BoundedOptimizationHandler(-1, 0);
         final Formula formula = _c.f.parse("a&(b|c)");
         testHandler(handler, formula, true);
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
-    public void testSmusComputationIsCancelled(final FormulaContext _c) throws ParserException {
-        final OptimizationHandler handler = new BoundedOptimizationHandler(-1, 5);
+    public void testzSmusComputationIsCancelled(final FormulaContext _c) throws ParserException {
+        final ComputationHandler handler = new BoundedOptimizationHandler(-1, 5);
         final Formula formula = _c.f.parse("a&(b|c)");
         testHandler(handler, formula, true);
     }
@@ -144,7 +143,7 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
                         "& (~v20 | ~v8) & (v9 | ~v20) & (~v21 | ~v8) & (v9 | ~v21) & (~v21 | ~v10) & (~v21 | ~v11) & v19");
         for (int numOptimizationStarts = 1; numOptimizationStarts < 30; numOptimizationStarts++) {
             for (int numSatHandlerStarts = 1; numSatHandlerStarts < 500; numSatHandlerStarts++) {
-                final OptimizationHandler handler =
+                final ComputationHandler handler =
                         new BoundedOptimizationHandler(numSatHandlerStarts, numOptimizationStarts);
                 testHandler(handler, formula, true);
             }
@@ -158,16 +157,16 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
                 .isTrue();
     }
 
-    private void testHandler(final OptimizationHandler handler, final Formula formula, final boolean expAborted) {
+    private void testHandler(final ComputationHandler handler, final Formula formula, final boolean expAborted) {
         final AdvancedSimplifier simplifierWithHandler =
                 new AdvancedSimplifier(formula.factory(), AdvancedSimplifierConfig.builder().build(), handler);
         final Formula simplified = formula.transform(simplifierWithHandler);
-        assertThat(handler.aborted()).isEqualTo(expAborted);
+        assertThat(handler.isAborted()).isEqualTo(expAborted);
         if (expAborted) {
-            assertThat(handler.aborted()).isTrue();
+            assertThat(handler.isAborted()).isTrue();
             assertThat(simplified).isNull();
         } else {
-            assertThat(handler.aborted()).isFalse();
+            assertThat(handler.isAborted()).isFalse();
             assertThat(simplified).isNotNull();
         }
     }

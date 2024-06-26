@@ -11,7 +11,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.TestWithExampleFormulas;
 import com.booleworks.logicng.formulas.Formula;
-import com.booleworks.logicng.handlers.TimeoutMaxSATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.TimeoutHandler;
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
+import com.booleworks.logicng.handlers.events.LogicNGEvent;
+import com.booleworks.logicng.handlers.events.MaxSatNewLowerBoundEvent;
+import com.booleworks.logicng.handlers.events.MaxSatNewUpperBoundEvent;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.MaxSATSolver;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT;
@@ -249,21 +254,22 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
     }
 
     private void testTimeoutHandler(final MaxSATSolver solver) {
-        final TimeoutMaxSATHandler handler = new TimeoutMaxSATHandler(1000L);
+        final TimeoutHandler handler = new TimeoutHandler(1000L);
 
         final PigeonHoleGenerator pg = new PigeonHoleGenerator(f);
         final Formula formula = pg.generate(10);
         solver.addHardFormula(formula);
         solver.addSoftFormula(f.or(formula.variables(f)), 1);
         MaxSAT.MaxSATResult result = solver.solve(handler);
-        assertThat(handler.aborted()).isTrue();
+        assertThat(handler.isAborted()).isTrue();
         assertThat(result).isEqualTo(MaxSAT.MaxSATResult.UNDEF);
 
+        final TimeoutHandler handler2 = new TimeoutHandler(1000L);
         solver.reset();
         solver.addHardFormula(IMP1);
         solver.addSoftFormula(AND1, 1);
-        result = solver.solve(handler);
-        assertThat(handler.aborted()).isFalse();
+        result = solver.solve(handler2);
+        assertThat(handler2.isAborted()).isFalse();
         assertThat(result).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
     }
 
@@ -272,18 +278,18 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
         MaxSATSolver solver = MaxSATSolver.wbo(f,
                 MaxSATConfig.builder().verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build());
         readCnfToSolver(solver, "src/test/resources/partialmaxsat/c1355_F176gat-1278gat@1.wcnf");
-        TimeoutMaxSATHandler handler = new TimeoutMaxSATHandler(1000L);
+        MaxSatTimeoutHandlerWithApproximation handler = new MaxSatTimeoutHandlerWithApproximation(1000L);
         MaxSAT.MaxSATResult result = solver.solve(handler);
-        assertThat(handler.aborted()).isTrue();
+        assertThat(handler.isAborted()).isTrue();
         assertThat(result).isEqualTo(MaxSAT.MaxSATResult.UNDEF);
-        assertThat(handler.lowerBoundApproximation()).isLessThan(13);
+        assertThat(handler.lowerBoundApproximation).isLessThan(13);
 
         solver = MaxSATSolver.wbo(f,
                 MaxSATConfig.builder().verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build());
         readCnfToSolver(solver, "src/test/resources/partialmaxsat/c1355_F1229gat@1.wcnf");
-        handler = new TimeoutMaxSATHandler(5000L);
+        handler = new MaxSatTimeoutHandlerWithApproximation(5000L);
         result = solver.solve(handler);
-        assertThat(handler.aborted()).isFalse();
+        assertThat(handler.isAborted()).isFalse();
         assertThat(result).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
     }
 
@@ -292,11 +298,11 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
         final MaxSATSolver solver = MaxSATSolver.linearSU(f,
                 MaxSATConfig.builder().verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build());
         readCnfToSolver(solver, "src/test/resources/partialmaxsat/c1355_F1229gat@1.wcnf");
-        final TimeoutMaxSATHandler handler = new TimeoutMaxSATHandler(5000L);
+        final MaxSatTimeoutHandlerWithApproximation handler = new MaxSatTimeoutHandlerWithApproximation(5000L);
         final MaxSAT.MaxSATResult result = solver.solve(handler);
-        assertThat(handler.aborted()).isFalse();
+        assertThat(handler.isAborted()).isFalse();
         assertThat(result).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
-        assertThat(solver.result()).isEqualTo(handler.upperBoundApproximation());
+        assertThat(solver.result()).isEqualTo(handler.upperBoundApproximation);
     }
 
     @Test
@@ -346,6 +352,39 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
                     f.variable("a"), f.variable("b"), f.variable("c")
             );
             assertThat(solver.result()).isEqualTo(2);
+        }
+    }
+
+    static class MaxSatTimeoutHandlerWithApproximation implements ComputationHandler {
+        boolean aborted = false;
+        long timeout;
+        long designatedEnd;
+        int lowerBoundApproximation;
+        int upperBoundApproximation;
+
+        MaxSatTimeoutHandlerWithApproximation(final long timeout) {
+            this.timeout = timeout;
+            designatedEnd = 0;
+        }
+
+        @Override
+        public boolean shouldResume(final LogicNGEvent event) {
+            if (event instanceof ComputationStartedEvent) {
+                if (designatedEnd == 0) {
+                    designatedEnd = System.currentTimeMillis() + timeout;
+                }
+            } else if (event instanceof MaxSatNewLowerBoundEvent) {
+                lowerBoundApproximation = ((MaxSatNewLowerBoundEvent) event).getBound();
+            } else if (event instanceof MaxSatNewUpperBoundEvent) {
+                upperBoundApproximation = ((MaxSatNewUpperBoundEvent) event).getBound();
+            }
+            aborted = System.currentTimeMillis() >= designatedEnd;
+            return !aborted;
+        }
+
+        @Override
+        public boolean isAborted() {
+            return aborted;
         }
     }
 }

@@ -4,13 +4,16 @@
 
 package com.booleworks.logicng.explanations.smus;
 
+import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
+
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.Handler;
-import com.booleworks.logicng.handlers.OptimizationHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.StandardProposition;
 import com.booleworks.logicng.solvers.SATSolver;
@@ -58,14 +61,14 @@ public final class SmusComputation {
      */
     public static <P extends Proposition> List<P> computeSmus(final FormulaFactory f, final List<P> propositions,
                                                               final List<Formula> additionalConstraints) {
-        return computeSmus(f, propositions, additionalConstraints, null);
+        return computeSmus(f, propositions, additionalConstraints, NopHandler.get());
     }
 
     /**
      * Computes the SMUS for the given list of propositions modulo some
      * additional constraint.
      * <p>
-     * The SMUS computation can be called with an {@link OptimizationHandler}.
+     * The SMUS computation can be called with an {@link ComputationHandler}.
      * The given handler instance will be used for every subsequent *
      * {@link OptimizationFunction} call and the handler's SAT handler is used
      * for every subsequent SAT call.
@@ -79,8 +82,8 @@ public final class SmusComputation {
      */
     public static <P extends Proposition> List<P> computeSmus(final FormulaFactory f, final List<P> propositions,
                                                               final List<Formula> additionalConstraints,
-                                                              final OptimizationHandler handler) {
-        Handler.start(handler);
+                                                              final ComputationHandler handler) {
+        handler.shouldResume(ComputationStartedEvent.SMUS_COMPUTATION_STARTED);
         final SATSolver growSolver = SATSolver.newSolver(f);
         growSolver.add(additionalConstraints == null ? Collections.singletonList(f.verum()) : additionalConstraints);
         final Map<Variable, P> propositionMapping = new TreeMap<>();
@@ -89,19 +92,18 @@ public final class SmusComputation {
             propositionMapping.put(selector, proposition);
             growSolver.add(f.equivalence(selector, proposition.formula()));
         }
-        final boolean sat = growSolver.satCall().handler(OptimizationHandler.satHandler(handler))
-                .addFormulas(propositionMapping.keySet()).sat() == Tristate.TRUE;
-        if (sat || Handler.aborted(handler)) {
+        final boolean sat = growSolver.satCall().handler(handler).addFormulas(propositionMapping.keySet()).sat() == Tristate.TRUE;
+        if (sat || !handler.shouldResume(NO_EVENT)) {
             return null;
         }
         final SATSolver hSolver = SATSolver.newSolver(f);
         while (true) {
             final SortedSet<Variable> h = minimumHs(hSolver, propositionMapping.keySet(), handler);
-            if (h == null || Handler.aborted(handler)) {
+            if (h == null || !handler.shouldResume(NO_EVENT)) {
                 return null;
             }
             final SortedSet<Variable> c = grow(growSolver, h, propositionMapping.keySet(), handler);
-            if (Handler.aborted(handler)) {
+            if (!handler.shouldResume(NO_EVENT)) {
                 return null;
             }
             if (c == null) {
@@ -122,7 +124,7 @@ public final class SmusComputation {
      */
     public static List<Formula> computeSmusForFormulas(final FormulaFactory f, final List<Formula> formulas,
                                                        final List<Formula> additionalConstraints) {
-        return computeSmusForFormulas(f, formulas, additionalConstraints, null);
+        return computeSmusForFormulas(f, formulas, additionalConstraints, NopHandler.get());
     }
 
     /**
@@ -137,30 +139,30 @@ public final class SmusComputation {
      */
     public static List<Formula> computeSmusForFormulas(final FormulaFactory f, final List<Formula> formulas,
                                                        final List<Formula> additionalConstraints,
-                                                       final OptimizationHandler handler) {
+                                                       final ComputationHandler handler) {
         final List<Proposition> props = formulas.stream().map(StandardProposition::new).collect(Collectors.toList());
         final List<Proposition> smus = computeSmus(f, props, additionalConstraints, handler);
         return smus == null ? null : smus.stream().map(Proposition::formula).collect(Collectors.toList());
     }
 
     private static SortedSet<Variable> minimumHs(final SATSolver hSolver, final Set<Variable> variables,
-                                                 final OptimizationHandler handler) {
+                                                 final ComputationHandler handler) {
         final Assignment minimumHsModel = hSolver.execute(OptimizationFunction.builder()
                 .handler(handler)
                 .literals(variables)
                 .minimize().build());
-        return Handler.aborted(handler) ? null : new TreeSet<>(minimumHsModel.positiveVariables());
+        return !handler.shouldResume(NO_EVENT) ? null : new TreeSet<>(minimumHsModel.positiveVariables());
     }
 
     private static SortedSet<Variable> grow(final SATSolver growSolver, final SortedSet<Variable> h,
-                                            final Set<Variable> variables, final OptimizationHandler handler) {
+                                            final Set<Variable> variables, final ComputationHandler handler) {
         final SolverState solverState = growSolver.saveState();
         growSolver.add(h);
         final Assignment maxModel = growSolver.execute(OptimizationFunction.builder()
                 .handler(handler)
                 .literals(variables)
                 .maximize().build());
-        if (maxModel == null || Handler.aborted(handler)) {
+        if (maxModel == null || !handler.shouldResume(NO_EVENT)) {
             return null;
         } else {
             final SortedSet<Variable> maximumSatisfiableSet = maxModel.positiveVariables();

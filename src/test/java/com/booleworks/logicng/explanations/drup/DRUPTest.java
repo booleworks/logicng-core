@@ -283,7 +283,6 @@ public class DRUPTest implements LogicNGTest {
         solver.add(f.parse("A2 => ~A1 | ~A3"));
         try (final SATCall satCall = solver.satCall().addFormulas(f.variable("A3"), f.variable("A1")).solve()) {
             assertThat(satCall.getSatResult()).isEqualTo(Tristate.FALSE);
-            System.out.println(satCall.unsatCore());
         }
     }
 

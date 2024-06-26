@@ -7,7 +7,8 @@ package com.booleworks.logicng.backbones;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
@@ -41,14 +42,13 @@ public final class BackboneGeneration {
      * @param variables the given collection of relevant variables for the
      *                  backbone computation
      * @param type      the type of backbone variables that should be computed
-     * @param handler   an optional handler for the backbone computation's SAT
-     *                  solver
+     * @param handler   a handler
      * @return the backbone or {@code null} if the computation was aborted by
      *         the handler
      */
     public static Backbone compute(final FormulaFactory f, final Collection<Formula> formulas,
                                    final Collection<Variable> variables, final BackboneType type,
-                                   final SATHandler handler) {
+                                   final ComputationHandler handler) {
         if (formulas == null || formulas.isEmpty()) {
             throw new IllegalArgumentException("Provide at least one formula for backbone computation");
         }
@@ -70,7 +70,7 @@ public final class BackboneGeneration {
      */
     public static Backbone compute(final FormulaFactory f, final Collection<Formula> formulas,
                                    final Collection<Variable> variables, final BackboneType type) {
-        return compute(f, formulas, variables, type, null);
+        return compute(f, formulas, variables, type, NopHandler.get());
     }
 
     /**

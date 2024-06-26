@@ -4,12 +4,16 @@
 
 package com.booleworks.logicng.transformations.cnf;
 
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.FACTORIZATION_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.DISTRIBUTION_PERFORMED;
+
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.cache.TransformationCacheEntry;
-import com.booleworks.logicng.handlers.FactorizationHandler;
-import com.booleworks.logicng.handlers.Handler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.handlers.events.FactorizationCreatedClauseEvent;
 import com.booleworks.logicng.transformations.CacheableAndAbortableFormulaTransformation;
 
 import java.util.Iterator;
@@ -21,7 +25,7 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.0
  */
-public final class CNFFactorization extends CacheableAndAbortableFormulaTransformation<FactorizationHandler> {
+public final class CNFFactorization extends CacheableAndAbortableFormulaTransformation<ComputationHandler> {
 
     private boolean proceed = true;
 
@@ -30,7 +34,7 @@ public final class CNFFactorization extends CacheableAndAbortableFormulaTransfor
      * @param f the formula factory to generate new formulas
      */
     public CNFFactorization(final FormulaFactory f) {
-        super(f, TransformationCacheEntry.FACTORIZED_CNF, null);
+        super(f, TransformationCacheEntry.FACTORIZED_CNF, NopHandler.get());
     }
 
     /**
@@ -39,7 +43,7 @@ public final class CNFFactorization extends CacheableAndAbortableFormulaTransfor
      * @param cache the cache to use for the transformation
      */
     public CNFFactorization(final FormulaFactory f, final Map<Formula, Formula> cache) {
-        this(f, null, cache);
+        this(f, NopHandler.get(), cache);
     }
 
     /**
@@ -47,7 +51,7 @@ public final class CNFFactorization extends CacheableAndAbortableFormulaTransfor
      * @param f       the formula factory to generate new formulas
      * @param handler the handler for the transformation
      */
-    public CNFFactorization(final FormulaFactory f, final FactorizationHandler handler) {
+    public CNFFactorization(final FormulaFactory f, final ComputationHandler handler) {
         super(f, TransformationCacheEntry.FACTORIZED_CNF, handler);
     }
 
@@ -59,15 +63,14 @@ public final class CNFFactorization extends CacheableAndAbortableFormulaTransfor
      * @param cache   the cache to use for the transformation
      * @param handler the handler for the transformation
      */
-    public CNFFactorization(final FormulaFactory f, final FactorizationHandler handler,
+    public CNFFactorization(final FormulaFactory f, final ComputationHandler handler,
                             final Map<Formula, Formula> cache) {
         super(f, cache, handler);
     }
 
     @Override
     public Formula apply(final Formula formula) {
-        Handler.start(handler);
-        proceed = true;
+        proceed = handler.shouldResume(FACTORIZATION_STARTED);
         return applyRec(formula);
     }
 
@@ -137,7 +140,7 @@ public final class CNFFactorization extends CacheableAndAbortableFormulaTransfor
      */
     private Formula distribute(final Formula f1, final Formula f2) {
         if (handler != null) {
-            proceed = handler.performedDistribution();
+            proceed = handler.shouldResume(DISTRIBUTION_PERFORMED);
         }
         if (proceed) {
             if (f1.type() == FType.AND || f2.type() == FType.AND) {
@@ -153,7 +156,7 @@ public final class CNFFactorization extends CacheableAndAbortableFormulaTransfor
             }
             final Formula clause = f.or(f1, f2);
             if (handler != null) {
-                proceed = handler.createdClause(clause);
+                proceed = handler.shouldResume(new FactorizationCreatedClauseEvent(clause));
             }
             return clause;
         }

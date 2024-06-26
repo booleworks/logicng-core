@@ -15,7 +15,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.handlers.BoundedSatHandler;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.solvers.SATSolver;
@@ -122,16 +123,16 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
         final Formula formula = FormulaReader.readPropositionalFormula(FormulaFactory.nonCaching(),
                 "src/test/resources/formulas/large_formula.txt");
         for (int numStarts = 0; numStarts < 20; numStarts++) {
-            final SATHandler handler = new BoundedSatHandler(numStarts);
+            final ComputationHandler handler = new BoundedSatHandler(numStarts);
             testFormula(formula, handler, true);
         }
     }
 
     private void testFormula(final Formula formula) {
-        testFormula(formula, null, false);
+        testFormula(formula, NopHandler.get(), false);
     }
 
-    private void testFormula(final Formula formula, final SATHandler handler, final boolean expAborted) {
+    private void testFormula(final Formula formula, final ComputationHandler handler, final boolean expAborted) {
         final FormulaFactory f = formula.factory();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula);
@@ -144,7 +145,7 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
             final NaivePrimeReduction naive = new NaivePrimeReduction(f, formula);
             final SortedSet<Literal> primeImplicant = naive.reduceImplicant(model, handler);
             if (expAborted) {
-                assertThat(handler.aborted()).isTrue();
+                assertThat(handler.isAborted()).isTrue();
                 assertThat(primeImplicant).isNull();
             } else {
                 assertThat(model).containsAll(primeImplicant);

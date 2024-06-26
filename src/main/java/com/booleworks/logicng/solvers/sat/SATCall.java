@@ -12,7 +12,7 @@ import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
@@ -56,7 +56,7 @@ public class SATCall implements AutoCloseable {
     private int pgOriginalClausesLength = -1;
     private Tristate satState;
 
-    SATCall(final SATSolver solverWrapper, final SATHandler handler,
+    SATCall(final SATSolver solverWrapper, final ComputationHandler handler,
             final List<? extends Proposition> additionalPropositions, final List<? extends Literal> selectionOrder) {
         this.solverWrapper = solverWrapper;
         solver = solverWrapper.underlyingSolver();
@@ -67,7 +67,7 @@ public class SATCall implements AutoCloseable {
         return new SATCallBuilder(solver);
     }
 
-    private void initAndSolve(final SATHandler handler, final List<? extends Proposition> additionalPropositions, final List<? extends Literal> selectionOrder) {
+    private void initAndSolve(final ComputationHandler handler, final List<? extends Proposition> additionalPropositions, final List<? extends Literal> selectionOrder) {
         solver.assertNotInSatCall();
         if (solver.config.proofGeneration) {
             pgOriginalClausesLength = solver.pgOriginalClauses.size();
@@ -109,7 +109,7 @@ public class SATCall implements AutoCloseable {
      * {@link Tristate#TRUE} if the formula is satisfiable,
      * {@link Tristate#FALSE} if the formula is not satisfiable, and
      * {@link Tristate#UNDEF} if the SAT call was aborted by the
-     * {@link SATHandler handler}.
+     * {@link ComputationHandler handler}.
      * @return the satisfiability result of this SAT call
      */
     public Tristate getSatResult() {

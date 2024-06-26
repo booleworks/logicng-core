@@ -8,7 +8,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.cache.CacheEntry;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
-import com.booleworks.logicng.handlers.Handler;
+import com.booleworks.logicng.handlers.ComputationHandler;
 
 import java.util.Map;
 
@@ -23,7 +23,7 @@ import java.util.Map;
  * @version 3.0.0
  * @since 3.0.0
  */
-public abstract class CacheableAndAbortableFormulaTransformation<H extends Handler> extends CacheableFormulaTransformation {
+public abstract class CacheableAndAbortableFormulaTransformation<H extends ComputationHandler> extends CacheableFormulaTransformation {
     protected final H handler;
 
     /**

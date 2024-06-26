@@ -22,9 +22,11 @@ import com.booleworks.logicng.formulas.FormulaFactoryConfig;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.BoundedOptimizationHandler;
-import com.booleworks.logicng.handlers.OptimizationHandler;
-import com.booleworks.logicng.handlers.SATHandler;
-import com.booleworks.logicng.handlers.TimeoutOptimizationHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.handlers.TimeoutHandler;
+import com.booleworks.logicng.handlers.events.LogicNGEvent;
+import com.booleworks.logicng.handlers.events.OptimizationFoundBetterBoundEvent;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.io.readers.DimacsReader;
@@ -78,10 +80,10 @@ public class OptimizationFunctionTest implements LogicNGTest {
             throws ParserException {
         final Formula formula = f.parse("a & b & (a => ~b)");
         final Assignment minimumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), false, solver.get(), null);
+                Collections.emptyList(), false, solver.get(), NopHandler.get());
         assertThat(minimumModel).isNull();
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), true, solver.get(), null);
+                Collections.emptyList(), true, solver.get(), NopHandler.get());
         assertThat(maximumModel).isNull();
     }
 
@@ -92,10 +94,10 @@ public class OptimizationFunctionTest implements LogicNGTest {
             throws ParserException {
         final Formula formula = f.parse("~a & ~b & ~c");
         final Assignment minimumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), false, solver.get(), null);
+                Collections.emptyList(), false, solver.get(), NopHandler.get());
         testMinimumModel(formula, minimumModel, formula.variables(f));
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), true, solver.get(), null);
+                Collections.emptyList(), true, solver.get(), NopHandler.get());
         testMaximumModel(formula, maximumModel, formula.variables(f));
     }
 
@@ -105,10 +107,10 @@ public class OptimizationFunctionTest implements LogicNGTest {
         final CardinalityConstraint exo =
                 (CardinalityConstraint) f.exo(f.variable("a"), f.variable("b"), f.variable("c"));
         final Assignment minimumModel = optimize(Collections.singleton(exo), exo.variables(f), Collections.emptyList(),
-                false, solver.get(), null);
+                false, solver.get(), NopHandler.get());
         testMinimumModel(exo, minimumModel, exo.variables(f));
         final Assignment maximumModel = optimize(Collections.singleton(exo), exo.variables(f), Collections.emptyList(),
-                true, solver.get(), null);
+                true, solver.get(), NopHandler.get());
         testMaximumModel(exo, maximumModel, exo.variables(f));
     }
 
@@ -121,11 +123,11 @@ public class OptimizationFunctionTest implements LogicNGTest {
             final Set<Variable> targetLiterals = cornerCases.getVariables();
 
             final Assignment minimumModel = optimize(Collections.singleton(formula), targetLiterals,
-                    Collections.emptySet(), false, solver.get(), null);
+                    Collections.emptySet(), false, solver.get(), NopHandler.get());
             testMinimumModel(formula, minimumModel, targetLiterals);
 
             final Assignment maximumModel = optimize(Collections.singleton(formula), targetLiterals,
-                    Collections.emptySet(), true, solver.get(), null);
+                    Collections.emptySet(), true, solver.get(), NopHandler.get());
             testMaximumModel(formula, maximumModel, targetLiterals);
         }
     }
@@ -136,12 +138,8 @@ public class OptimizationFunctionTest implements LogicNGTest {
     public void testRandomSmall(final Supplier<SATSolver> solver, final FormulaFactory f0,
                                 final String solverDescription) {
         final FormulaFactory f = FormulaFactory.nonCaching(FormulaFactoryConfig.builder()
-                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build()); // caching
-                                                                                                  // factory
-                                                                                                  // goes
-                                                                                                  // out
-                                                                                                  // of
-                                                                                                  // heap
+                // caching factory goes out of heap
+                .formulaMergeStrategy(FormulaFactoryConfig.FormulaMergeStrategy.IMPORT).build());
         final Random random = new Random(42);
         final FormulaRandomizer randomizer =
                 new FormulaRandomizer(f, FormulaRandomizerConfig.builder().numVars(6).weightPbc(2).seed(42).build());
@@ -154,11 +152,11 @@ public class OptimizationFunctionTest implements LogicNGTest {
             final Set<Variable> additionalVariables = randomSubset(random, variables, Math.min(variables.size(), 3));
 
             final Assignment minimumModel = optimize(Collections.singleton(formula), targetLiterals,
-                    additionalVariables, false, solver.get(), null);
+                    additionalVariables, false, solver.get(), NopHandler.get());
             testMinimumModel(formula, minimumModel, targetLiterals);
 
             final Assignment maximumModel = optimize(Collections.singleton(formula), targetLiterals,
-                    additionalVariables, true, solver.get(), null);
+                    additionalVariables, true, solver.get(), NopHandler.get());
             testMaximumModel(formula, maximumModel, targetLiterals);
         }
     }
@@ -250,24 +248,24 @@ public class OptimizationFunctionTest implements LogicNGTest {
 
         final List<Literal> literalsANBX = Arrays.asList(a, nb, x);
         final Assignment minimumModel = optimize(Collections.singleton(formula), literalsANBX, Collections.emptyList(),
-                false, solver.get(), null);
+                false, solver.get(), NopHandler.get());
         Assertions.assertThat(minimumModel.literals()).containsExactlyInAnyOrder(na, b, nx);
         final Assignment minimumModelWithY = optimize(Collections.singleton(formula), literalsANBX,
-                Collections.singleton(y), false, solver.get(), null);
+                Collections.singleton(y), false, solver.get(), NopHandler.get());
         Assertions.assertThat(minimumModelWithY.literals()).containsExactlyInAnyOrder(na, b, nx, y);
         final Assignment minimumModelWithCY =
-                optimize(Collections.singleton(formula), literalsANBX, Arrays.asList(c, y), false, solver.get(), null);
+                optimize(Collections.singleton(formula), literalsANBX, Arrays.asList(c, y), false, solver.get(), NopHandler.get());
         Assertions.assertThat(minimumModelWithCY.literals()).containsExactlyInAnyOrder(na, b, c, nx, y);
 
         final List<Literal> literalsNBNX = Arrays.asList(na, nx);
         final Assignment maximumModel = optimize(Collections.singleton(formula), literalsNBNX, Collections.emptyList(),
-                true, solver.get(), null);
+                true, solver.get(), NopHandler.get());
         Assertions.assertThat(maximumModel.literals()).containsExactlyInAnyOrder(na, nx);
         final Assignment maximumModelWithC = optimize(Collections.singleton(formula), literalsNBNX,
-                Collections.singleton(c), true, solver.get(), null);
+                Collections.singleton(c), true, solver.get(), NopHandler.get());
         Assertions.assertThat(maximumModelWithC.literals()).containsExactlyInAnyOrder(na, c, nx);
         final Assignment maximumModelWithACY = optimize(Collections.singleton(formula), literalsNBNX,
-                Arrays.asList(a, c, y), true, solver.get(), null);
+                Arrays.asList(a, c, y), true, solver.get(), NopHandler.get());
         Assertions.assertThat(maximumModelWithACY.literals()).containsExactlyInAnyOrder(na, c, nx, y);
     }
 
@@ -281,7 +279,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                 FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         final List<Variable> variables = randomSubset(formula.variables(f), 300);
         final Assignment minimumModel =
-                optimize(Collections.singleton(formula), variables, Collections.emptyList(), false, solver.get(), null);
+                optimize(Collections.singleton(formula), variables, Collections.emptyList(), false, solver.get(), NopHandler.get());
         testMinimumModel(formula, minimumModel, variables);
     }
 
@@ -294,7 +292,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
         final Formula formula =
                 FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), true, solver.get(), null);
+                Collections.emptyList(), true, solver.get(), NopHandler.get());
         testMaximumModel(formula, maximumModel, formula.variables(f));
     }
 
@@ -307,7 +305,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
         final Formula formula =
                 FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
         final Assignment minimumModel = optimize(Collections.singleton(formula), formula.variables(f),
-                Collections.emptyList(), false, solver.get(), null);
+                Collections.emptyList(), false, solver.get(), NopHandler.get());
         testMinimumModel(formula, minimumModel, formula.variables(f));
     }
 
@@ -321,7 +319,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                 FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
         final List<Variable> variables = randomSubset(formula.variables(f), 300);
         final Assignment maximumModel =
-                optimize(Collections.singleton(formula), variables, Collections.emptyList(), true, solver.get(), null);
+                optimize(Collections.singleton(formula), variables, Collections.emptyList(), true, solver.get(), NopHandler.get());
         testMaximumModel(formula, maximumModel, variables);
     }
 
@@ -346,11 +344,11 @@ public class OptimizationFunctionTest implements LogicNGTest {
         assertThat(solveMaxSat(formulas, variables, MaxSATSolver.wbo(f))).isEqualTo(expected);
         assertThat(satisfiedLiterals(
                 optimize(formulas, variables, Collections.emptyList(), false,
-                        SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(false).build()), null),
+                        SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(false).build()), NopHandler.get()),
                 variables).size()).isEqualTo(expected);
         assertThat(satisfiedLiterals(
                 optimize(formulas, variables, Collections.emptyList(), false,
-                        SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(true).build()), null),
+                        SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(true).build()), NopHandler.get()),
                 variables).size()).isEqualTo(expected);
     }
 
@@ -362,31 +360,22 @@ public class OptimizationFunctionTest implements LogicNGTest {
             throws IOException, ParserException {
         final Formula formula =
                 FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
-        final TimeoutOptimizationHandler handlerMax = new TimeoutOptimizationHandler(1L);
+        final TimeoutHandler handlerMax = new TimeoutHandler(1L);
         final Assignment maximumModel = optimize(Collections.singleton(formula), formula.variables(f),
                 Collections.emptyList(), true, solver.get(), handlerMax);
         assertThat(maximumModel).isNull();
-        assertThat(handlerMax.aborted()).isTrue();
+        assertThat(handlerMax.isAborted()).isTrue();
 
-        final TimeoutOptimizationHandler handlerTooShort = new TimeoutOptimizationHandler(0L);
+        final TimeoutHandler handlerTooShort = new TimeoutHandler(0L);
         final Assignment model = optimize(Collections.singleton(formula), formula.variables(f), Collections.emptyList(),
                 false, solver.get(), handlerTooShort);
         assertThat(model).isNull();
-        assertThat(handlerTooShort.aborted()).isTrue();
-        Assertions.assertThat(handlerTooShort.getIntermediateResult()).isNull(); // SATHandler
-                                                                                 // aborted
-                                                                                 // before
-                                                                                 // a
-                                                                                 // model
-                                                                                 // could
-                                                                                 // be
-                                                                                 // computed
-
+        assertThat(handlerTooShort.isAborted()).isTrue();
         final CustomOptimizationHandler customHandler = new CustomOptimizationHandler();
         final Assignment modelCustom = optimize(Collections.singleton(formula), formula.variables(f),
                 Collections.emptyList(), true, solver.get(), customHandler);
         assertThat(modelCustom).isNull();
-        assertThat(customHandler.aborted()).isTrue();
+        assertThat(customHandler.isAborted()).isTrue();
         assertThat(customHandler.currentResult).isNotNull();
     }
 
@@ -408,7 +397,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
         final SATSolver solver = solverSupplier.get();
         for (int numSatHandlerStarts = 1; numSatHandlerStarts < 4; numSatHandlerStarts++) {
             solver.add(formulas);
-            final OptimizationHandler handler = new BoundedOptimizationHandler(numSatHandlerStarts, -1);
+            final ComputationHandler handler = new BoundedOptimizationHandler(numSatHandlerStarts, -1);
             final OptimizationFunction optimizationFunction = OptimizationFunction.builder()
                     .handler(handler)
                     .literals(selVars)
@@ -416,7 +405,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
 
             final Assignment result = solver.execute(optimizationFunction);
 
-            assertThat(handler.aborted()).isTrue();
+            assertThat(handler.isAborted()).isTrue();
             assertThat(result).isNull();
         }
     }
@@ -437,8 +426,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
 
     private static Assignment optimize(final Collection<Formula> formulas, final Collection<? extends Literal> literals,
                                        final Collection<Variable> additionalVariables, final boolean maximize,
-                                       final SATSolver solver,
-                                       final OptimizationHandler handler) {
+                                       final SATSolver solver, final ComputationHandler handler) {
         formulas.forEach(solver::add);
         if (maximize) {
             return solver.execute(OptimizationFunction.builder().maximize().literals(literals)
@@ -487,24 +475,21 @@ public class OptimizationFunctionTest implements LogicNGTest {
         return variables.subList(0, size);
     }
 
-    private static class CustomOptimizationHandler implements OptimizationHandler {
+    private static class CustomOptimizationHandler implements ComputationHandler {
         public Assignment currentResult;
         private boolean aborted;
 
         @Override
-        public SATHandler satHandler() {
-            return null;
-        }
-
-        @Override
-        public boolean aborted() {
+        public boolean isAborted() {
             return aborted;
         }
 
         @Override
-        public boolean foundBetterBound(final Supplier<Assignment> currentResultProvider) {
-            currentResult = currentResultProvider.get();
-            aborted = currentResult.positiveVariables().size() >= 161;
+        public boolean shouldResume(final LogicNGEvent event) {
+            if (event instanceof OptimizationFoundBetterBoundEvent) {
+                currentResult = ((OptimizationFoundBetterBoundEvent) event).getModel().get();
+                aborted = currentResult.positiveVariables().size() >= 161;
+            }
             return !aborted;
         }
     }

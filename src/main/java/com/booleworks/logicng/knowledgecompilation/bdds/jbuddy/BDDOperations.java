@@ -7,6 +7,7 @@ package com.booleworks.logicng.knowledgecompilation.bdds.jbuddy;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.NopHandler;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -350,7 +351,7 @@ public class BDDOperations {
         k.reordering.disableReorder();
         for (int n = supportMax; n >= supportMin; --n) {
             if (supportSet[n] == supportID) {
-                k.addRef(res, null);
+                k.addRef(res, NopHandler.get());
                 final int tmp = k.makeNode(n, 0, res);
                 k.delRef(res);
                 res = tmp;

@@ -37,13 +37,13 @@ public class ModelEnumerationHandlerTest {
         final Formula formula =
                 f.parse("A | B | C | D | E | F | G | H | I | J | K | L | N | M | O | P | Q | R | S | T | U | V | W");
         solver.add(formula);
-        final TimeoutModelEnumerationHandler handler = new TimeoutModelEnumerationHandler(100);
+        final TimeoutHandler handler = new TimeoutHandler(100);
         final ModelCountingFunction enumeration = ModelCountingFunction.builder(formula.variables(f))
                 .configuration(ModelEnumerationConfig.builder().handler(handler).build())
                 .build();
 
         Thread.sleep(150);
-        assertThat(handler.aborted()).isFalse();
+        assertThat(handler.isAborted()).isFalse();
 
         final long start = System.currentTimeMillis();
         solver.execute(enumeration);
@@ -53,7 +53,7 @@ public class ModelEnumerationHandlerTest {
         // Should be very unlikely that the formula can be fully enumerated in
         // 100ms.
         // Thus, we expect the handler to stop the execution.
-        assertThat(handler.aborted()).isTrue();
+        assertThat(handler.isAborted()).isTrue();
         assertThat(timeElapsed).isGreaterThanOrEqualTo(100L);
     }
 
@@ -68,11 +68,11 @@ public class ModelEnumerationHandlerTest {
             final NumberOfModelsHandler handler = new NumberOfModelsHandler(i);
             final ModelCountingFunction enumeration = ModelCountingFunction.builder(vars)
                     .configuration(ModelEnumerationConfig.builder().handler(handler).strategy(
-                            DefaultModelEnumerationStrategy.builder().maxNumberOfModels(200).build()
-                    ).build()
+                                    DefaultModelEnumerationStrategy.builder().maxNumberOfModels(200).build()
+                            ).build()
                     ).build();
             final BigInteger numberOfModels = solver.execute(enumeration);
-            assertThat(handler.aborted()).isTrue();
+            assertThat(handler.isAborted()).isTrue();
             assertThat(numberOfModels.longValueExact()).isLessThanOrEqualTo(i);
         }
     }

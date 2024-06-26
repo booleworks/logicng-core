@@ -4,6 +4,9 @@
 
 package com.booleworks.logicng.transformations.simplification;
 
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.ADVANCED_SIMPLIFICATION_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
+
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneGeneration;
 import com.booleworks.logicng.backbones.BackboneType;
@@ -13,8 +16,8 @@ import com.booleworks.logicng.explanations.smus.SmusComputation;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.handlers.Handler;
-import com.booleworks.logicng.handlers.OptimizationHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.primecomputation.PrimeCompiler;
 import com.booleworks.logicng.primecomputation.PrimeResult;
 import com.booleworks.logicng.transformations.AbortableFormulaTransformation;
@@ -53,7 +56,7 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class AdvancedSimplifier extends AbortableFormulaTransformation<OptimizationHandler> {
+public final class AdvancedSimplifier extends AbortableFormulaTransformation {
 
     private final AdvancedSimplifierConfig config;
 
@@ -63,7 +66,7 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
      * @param f the formula factory to generate new formulas
      */
     public AdvancedSimplifier(final FormulaFactory f) {
-        this(f, (AdvancedSimplifierConfig) f.configurationFor(ConfigurationType.ADVANCED_SIMPLIFIER), null);
+        this(f, (AdvancedSimplifierConfig) f.configurationFor(ConfigurationType.ADVANCED_SIMPLIFIER), NopHandler.get());
     }
 
     /**
@@ -72,7 +75,7 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
      * @param f       the formula factory to generate new formulas
      * @param handler the optimization handler to abort the simplification
      */
-    public AdvancedSimplifier(final FormulaFactory f, final OptimizationHandler handler) {
+    public AdvancedSimplifier(final FormulaFactory f, final ComputationHandler handler) {
         this(f, (AdvancedSimplifierConfig) f.configurationFor(ConfigurationType.ADVANCED_SIMPLIFIER), handler);
     }
 
@@ -84,7 +87,7 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
      *               pe performed during the computation.
      */
     public AdvancedSimplifier(final FormulaFactory f, final AdvancedSimplifierConfig config) {
-        this(f, config, null);
+        this(f, config, NopHandler.get());
     }
 
     /**
@@ -96,20 +99,20 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
      *                should pe performed during the computation.
      */
     public AdvancedSimplifier(final FormulaFactory f, final AdvancedSimplifierConfig config,
-                              final OptimizationHandler handler) {
+                              final ComputationHandler handler) {
         super(f, handler);
         this.config = config;
     }
 
     @Override
     public Formula apply(final Formula formula) {
-        Handler.start(handler);
+        handler.shouldResume(ADVANCED_SIMPLIFICATION_STARTED);
         Formula simplified = formula;
         final SortedSet<Literal> backboneLiterals = new TreeSet<>();
         if (config.restrictBackbone) {
             final Backbone backbone = BackboneGeneration.compute(f, Collections.singletonList(formula),
-                    formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE, OptimizationHandler.satHandler(handler));
-            if (backbone == null || Handler.aborted(handler)) {
+                    formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE, handler);
+            if (backbone == null || !handler.shouldResume(NO_EVENT)) {
                 return null;
             }
             if (!backbone.isSat()) {
@@ -141,14 +144,14 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
         final PrimeResult primeResult =
                 PrimeCompiler.getWithMinimization().compute(f, simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE,
                         handler);
-        if (primeResult == null || Handler.aborted(handler)) {
+        if (primeResult == null || !handler.shouldResume(NO_EVENT)) {
             return null;
         }
         final List<SortedSet<Literal>> primeImplicants = primeResult.getPrimeImplicants();
         final List<Formula> minimizedPIs =
                 SmusComputation.computeSmusForFormulas(f, negateAllLiterals(f, primeImplicants),
                         Collections.singletonList(simplified), handler);
-        if (minimizedPIs == null || Handler.aborted(handler)) {
+        if (minimizedPIs == null || !handler.shouldResume(NO_EVENT)) {
             return null;
         }
         simplified =

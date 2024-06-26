@@ -4,12 +4,16 @@
 
 package com.booleworks.logicng.transformations.dnf;
 
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.FACTORIZATION_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.DISTRIBUTION_PERFORMED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
-import com.booleworks.logicng.handlers.FactorizationHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.events.FactorizationCreatedClauseEvent;
+import com.booleworks.logicng.handlers.events.LogicNGEvent;
 import com.booleworks.logicng.io.parsers.ParserException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -113,45 +117,40 @@ public class DNFFactorizationTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testWithHandler(final FormulaContext _c) throws ParserException {
         Formula formula = _c.p.parse("(~(~(a | b) => ~(x | y))) & ((a | x) => ~(b | y))");
-        final FactorizationHandler handler = new FactorizationHandler() {
+        final ComputationHandler handler = new ComputationHandler() {
             private boolean aborted;
             private int dists = 0;
             private int clauses = 0;
 
             @Override
-            public boolean aborted() {
+            public boolean isAborted() {
                 return aborted;
             }
 
             @Override
-            public void started() {
-                aborted = false;
-                dists = 0;
-                clauses = 0;
-            }
-
-            @Override
-            public boolean performedDistribution() {
-                dists++;
-                aborted = dists >= 100;
-                return !aborted;
-            }
-
-            @Override
-            public boolean createdClause(final Formula clause) {
-                clauses++;
-                aborted = clauses >= 5;
+            public boolean shouldResume(final LogicNGEvent event) {
+                if (event == FACTORIZATION_STARTED) {
+                    aborted = false;
+                    dists = 0;
+                    clauses = 0;
+                } else if (event == DISTRIBUTION_PERFORMED) {
+                    dists++;
+                    aborted = dists >= 100;
+                } else if (event instanceof FactorizationCreatedClauseEvent) {
+                    clauses++;
+                    aborted = clauses >= 5;
+                }
                 return !aborted;
             }
         };
         final DNFFactorization factorization = new DNFFactorization(_c.f, handler, null);
         Formula dnf = factorization.apply(formula);
-        assertThat(handler.aborted()).isTrue();
+        assertThat(handler.isAborted()).isTrue();
         assertThat(dnf).isNull();
 
         formula = _c.p.parse("~(a | b)");
         dnf = factorization.apply(formula);
-        assertThat(handler.aborted()).isFalse();
+        assertThat(handler.isAborted()).isFalse();
         assertThat(dnf).isNotNull();
     }
 }

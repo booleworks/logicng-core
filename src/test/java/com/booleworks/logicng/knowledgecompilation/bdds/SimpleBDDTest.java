@@ -11,6 +11,7 @@ import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.knowledgecompilation.bdds.datastructures.BDDConstant;
@@ -44,7 +45,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testFalse(final FormulaContext _c) {
         final BDDKernel kernel = new BDDKernel(_c.f, 0, 100, 100);
-        final BDD bdd = BDDFactory.build(_c.f, _c.f.falsum(), kernel, null);
+        final BDD bdd = BDDFactory.build(_c.f, _c.f.falsum(), kernel, NopHandler.get());
         assertThat(bdd.isTautology()).isFalse();
         assertThat(bdd.isContradiction()).isTrue();
         assertThat(bdd.cnf()).isEqualTo(_c.f.falsum());
@@ -157,7 +158,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         final PropositionalParser parser = new PropositionalParser(f);
         final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
-        final BDD bdd = BDDFactory.build(f, parser.parse("A & B & ~C"), kernel, null);
+        final BDD bdd = BDDFactory.build(f, parser.parse("A & B & ~C"), kernel, NopHandler.get());
         assertThat(bdd.isTautology()).isFalse();
         assertThat(bdd.isContradiction()).isFalse();
         assertThat(bdd.cnf()).isEqualTo(parser.parse("A & (~A | B) & (~A | ~B | ~C)"));
@@ -179,7 +180,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         final PropositionalParser parser = new PropositionalParser(f);
         final List<Variable> ordering = Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"));
         final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
-        final BDD bdd = BDDFactory.build(f, parser.parse("(A => ~C) | (B & ~C)"), kernel, null);
+        final BDD bdd = BDDFactory.build(f, parser.parse("(A => ~C) | (B & ~C)"), kernel, NopHandler.get());
         assertThat(bdd.isTautology()).isFalse();
         assertThat(bdd.isContradiction()).isFalse();
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(6));
@@ -187,7 +188,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.enumerateAllModels()).hasSize(6);
         assertThat(bdd.enumerateAllModels(f.variable("A"))).hasSize(2);
         assertThat(bdd.hashCode())
-                .isEqualTo(BDDFactory.build(f, parser.parse("(A => ~C) | (B & ~C)"), kernel, null).hashCode());
+                .isEqualTo(BDDFactory.build(f, parser.parse("(A => ~C) | (B & ~C)"), kernel, NopHandler.get()).hashCode());
         assertThat(bdd.toString()).isEqualTo("BDD{8}");
     }
 
@@ -197,7 +198,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser parser = new PropositionalParser(f);
         final BDDKernel kernel = new BDDKernel(f, 3, 1000, 1000);
-        final BDD bdd = BDDFactory.build(f, parser.parse("A + B + C = 1"), kernel, null);
+        final BDD bdd = BDDFactory.build(f, parser.parse("A + B + C = 1"), kernel, NopHandler.get());
         assertThat(bdd.isTautology()).isFalse();
         assertThat(bdd.isContradiction()).isFalse();
         assertThat(bdd.cnf()).isEqualTo(parser.parse("(A | B | C) & (A | ~B | ~C) & (~A | B | ~C) & (~A | ~B)"));

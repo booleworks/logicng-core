@@ -4,6 +4,8 @@
 
 package com.booleworks.logicng.transformations.cnf;
 
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.FACTORIZATION_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.DISTRIBUTION_PERFORMED;
 import static com.booleworks.logicng.transformations.cnf.PlaistedGreenbaumTransformation.PGState;
 
 import com.booleworks.logicng.configurations.ConfigurationType;
@@ -12,9 +14,9 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaTransformation;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
-import com.booleworks.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.FactorizationHandler;
+import com.booleworks.logicng.handlers.events.FactorizationCreatedClauseEvent;
+import com.booleworks.logicng.handlers.events.LogicNGEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,8 +127,9 @@ public class CNFEncoder {
     /**
      * The factorization handler for the advanced CNF encoding.
      */
-    protected static class AdvancedFactorizationHandler extends ComputationHandler implements FactorizationHandler {
+    protected static class AdvancedFactorizationHandler implements ComputationHandler {
 
+        protected boolean aborted = false;
         protected int distributionBoundary;
         protected int createdClauseBoundary;
         protected int currentDistributions;
@@ -138,22 +141,21 @@ public class CNFEncoder {
         }
 
         @Override
-        public void started() {
-            super.started();
-            currentDistributions = 0;
-            currentClauses = 0;
-        }
-
-        @Override
-        public boolean performedDistribution() {
-            aborted = distributionBoundary != -1 && ++currentDistributions > distributionBoundary;
+        public boolean shouldResume(final LogicNGEvent event) {
+            if (event == FACTORIZATION_STARTED) {
+                currentDistributions = 0;
+                currentClauses = 0;
+            } else if (event == DISTRIBUTION_PERFORMED) {
+                aborted = distributionBoundary != -1 && ++currentDistributions > distributionBoundary;
+            } else if (event instanceof FactorizationCreatedClauseEvent) {
+                aborted = createdClauseBoundary != -1 && ++currentClauses > createdClauseBoundary;
+            }
             return !aborted;
         }
 
         @Override
-        public boolean createdClause(final Formula clause) {
-            aborted = createdClauseBoundary != -1 && ++currentClauses > createdClauseBoundary;
-            return !aborted;
+        public boolean isAborted() {
+            return aborted;
         }
     }
 }

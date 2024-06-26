@@ -4,9 +4,8 @@
 
 package com.booleworks.logicng.handlers;
 
-import com.booleworks.logicng.datastructures.Assignment;
-
-import java.util.function.Supplier;
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
+import com.booleworks.logicng.handlers.events.LogicNGEvent;
 
 /**
  * Bounded optimization handler for testing purposes.
@@ -16,42 +15,40 @@ import java.util.function.Supplier;
  * @version 2.1.0
  * @since 2.1.0
  */
-public class BoundedOptimizationHandler implements OptimizationHandler {
-    private final SATHandler satHandler;
+public class BoundedOptimizationHandler implements ComputationHandler {
     private final int startsLimit;
+    private final int satStartsLimit;
     private int numStarts;
+    private int numSatStarts;
     private boolean aborted;
 
     /**
      * Constructs a new instance with the given starts limits.
-     * @param satHandlerStartsLimit the number of starts limit for the SAT
-     *                              handler, if -1 then no limit is set
-     * @param startsLimit           the number of starts limit, if -1 then no
-     *                              limit is set
+     * @param satStartsLimit the number of starts limit for the SAT
+     *                       solver, if -1 then no limit is set
+     * @param startsLimit    the number of starts limit, if -1 then no
+     *                       limit is set
      */
-    public BoundedOptimizationHandler(final int satHandlerStartsLimit, final int startsLimit) {
-        satHandler = new BoundedSatHandler(satHandlerStartsLimit);
+    public BoundedOptimizationHandler(final int satStartsLimit, final int startsLimit) {
+        this.satStartsLimit = satStartsLimit;
         this.startsLimit = startsLimit;
         numStarts = 0;
     }
 
     @Override
-    public boolean aborted() {
-        return satHandler.aborted() || aborted;
+    public boolean isAborted() {
+        return aborted;
     }
 
     @Override
-    public void started() {
-        aborted = startsLimit != -1 && ++numStarts >= startsLimit;
-    }
-
-    @Override
-    public SATHandler satHandler() {
-        return satHandler;
-    }
-
-    @Override
-    public boolean foundBetterBound(final Supplier<Assignment> currentResultProvider) {
+    public boolean shouldResume(final LogicNGEvent event) {
+        if (event instanceof ComputationStartedEvent) {
+            if (event == ComputationStartedEvent.SAT_CALL_STARTED) {
+                aborted |= satStartsLimit != -1 && ++numSatStarts >= satStartsLimit;
+            } else {
+                aborted |= startsLimit != -1 && ++numStarts >= startsLimit;
+            }
+        }
         return !aborted;
     }
 }

@@ -22,7 +22,7 @@
 
 package com.booleworks.logicng.solvers.maxsat.algorithms;
 
-import static com.booleworks.logicng.handlers.Handler.aborted;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.CardinalityEncoding;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity;
 
@@ -31,7 +31,6 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.datastructures.LNGSoftClause;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
@@ -114,9 +113,8 @@ public class LinearSU extends MaxSAT {
         int localCost = 0;
         ubCost = 0;
         while (true) {
-            final SATHandler satHandler = satHandler();
-            res = searchSATSolver(solver, satHandler);
-            if (aborted(satHandler)) {
+            res = searchSATSolver(solver, handler);
+            if (!handler.shouldResume(NO_EVENT)) {
                 return MaxSATResult.UNDEF;
             }
             if (res == Tristate.TRUE) {
@@ -128,7 +126,7 @@ public class LinearSU extends MaxSAT {
                         output.println("o " + (newCost + lbCost));
                     }
                     ubCost = newCost + lbCost;
-                    if (newCost > 0 && !foundUpperBound(ubCost, null)) {
+                    if (newCost > 0 && !foundUpperBound(ubCost)) {
                         return MaxSATResult.UNDEF;
                     }
                 } else if (verbosity != Verbosity.NONE) {
@@ -172,7 +170,7 @@ public class LinearSU extends MaxSAT {
                     posWeight++;
                     currentWeight = orderWeights.get(posWeight);
                     localCost = 0;
-                    if (!foundLowerBound(lbCost, null)) {
+                    if (!foundLowerBound(lbCost)) {
                         return MaxSATResult.UNDEF;
                     }
                     solver = rebuildBMO(functions, weights, currentWeight);
@@ -189,9 +187,8 @@ public class LinearSU extends MaxSAT {
         initRelaxation();
         solver = rebuildSolver(1);
         while (true) {
-            final SATHandler satHandler = satHandler();
-            res = searchSATSolver(solver, satHandler);
-            if (aborted(satHandler)) {
+            res = searchSATSolver(solver, handler);
+            if (!handler.shouldResume(NO_EVENT)) {
                 return MaxSATResult.UNDEF;
             } else if (res == Tristate.TRUE) {
                 nbSatisfiable++;
@@ -218,7 +215,7 @@ public class LinearSU extends MaxSAT {
                         }
                     }
                     ubCost = newCost;
-                    if (!foundUpperBound(ubCost, null)) {
+                    if (!foundUpperBound(ubCost)) {
                         return MaxSATResult.UNDEF;
                     }
                 }

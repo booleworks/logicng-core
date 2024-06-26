@@ -236,7 +236,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         solver.add(f.parse("(~A | C) & (~B | C)"));
         final BDD bdd = solver.execute(
                 ModelEnumerationToBddFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
-        assertThat(handler.aborted()).isTrue();
+        assertThat(handler.isAborted()).isTrue();
         assertThat(bdd.modelCount()).isEqualTo(3);
     }
 

@@ -4,14 +4,13 @@
 
 package com.booleworks.logicng.solvers.maxsat.algorithms;
 
-import static com.booleworks.logicng.handlers.Handler.aborted;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
@@ -117,9 +116,8 @@ public class OLL extends MaxSAT {
         final LNGVector<Encoder> softCardinality = new LNGVector<>();
 
         while (true) {
-            final SATHandler satHandler = satHandler();
-            res = searchSATSolver(solver, satHandler, assumptions);
-            if (aborted(satHandler)) {
+            res = searchSATSolver(solver, handler, assumptions);
+            if (!handler.shouldResume(NO_EVENT)) {
                 return MaxSATResult.UNDEF;
             } else if (res == Tristate.TRUE) {
                 nbSatisfiable++;
@@ -247,9 +245,8 @@ public class OLL extends MaxSAT {
         minWeight = currentWeight;
 
         while (true) {
-            final SATHandler satHandler = satHandler();
-            res = searchSATSolver(solver, satHandler, assumptions);
-            if (aborted(satHandler)) {
+            res = searchSATSolver(solver, handler, assumptions);
+            if (!handler.shouldResume(NO_EVENT)) {
                 return MaxSATResult.UNDEF;
             } else if (res == Tristate.TRUE) {
                 nbSatisfiable++;

@@ -110,7 +110,7 @@ public class CnfMethodComparisonTest {
     private Map<Variable, Backbone> computeBackbonePerVariable(final String fileName, final CNFConfig cnfConfig,
                                                                final SATSolverConfig.CNFMethod cnfMethod)
             throws IOException, ParserException {
-        final long start = System.currentTimeMillis();
+//        final long start = System.currentTimeMillis();
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(cnfConfig);
         final Formula formula = FormulaReader.readPropositionalFormula(f, fileName);
@@ -129,9 +129,9 @@ public class CnfMethodComparisonTest {
                 solver.loadState(solverState);
             }
         }
-        final long stop = System.currentTimeMillis();
-        System.out.println(fileName + " " + cnfConfig.algorithm + " " + cnfConfig.fallbackAlgorithmForAdvancedEncoding +
-                " " + cnfMethod + ": " + (stop - start) + " ms.");
+//        final long stop = System.currentTimeMillis();
+//        System.out.println(fileName + " " + cnfConfig.algorithm + " " + cnfConfig.fallbackAlgorithmForAdvancedEncoding +
+//                " " + cnfMethod + ": " + (stop - start) + " ms.");
         return result;
     }
 

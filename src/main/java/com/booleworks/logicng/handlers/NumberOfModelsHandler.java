@@ -4,14 +4,20 @@
 
 package com.booleworks.logicng.handlers;
 
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
+import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
+import com.booleworks.logicng.handlers.events.LogicNGEvent;
+import com.booleworks.logicng.handlers.events.SimpleEvent;
+
 /**
  * A model enumeration handler that terminates the solving process after a given
  * number of models.
  * @version 3.0.0
  * @since 3.0.0
  */
-public class NumberOfModelsHandler extends ComputationHandler implements ModelEnumerationHandler {
+public class NumberOfModelsHandler implements ComputationHandler {
 
+    private boolean aborted = false;
     private final int bound;
     private int countCommitted;
     private int countUncommitted;
@@ -31,38 +37,27 @@ public class NumberOfModelsHandler extends ComputationHandler implements ModelEn
     }
 
     @Override
-    public void started() {
-        super.started();
-        countCommitted = 0;
-        countUncommitted = 0;
+    public boolean isAborted() {
+        return aborted;
     }
 
     @Override
-    public SATHandler satHandler() {
-        return null;
-    }
-
-    @Override
-    public boolean foundModels(final int numberOfModels) {
-        aborted = countUncommitted + countCommitted + numberOfModels > bound;
-        if (!aborted) {
-            countUncommitted += numberOfModels;
-            return true;
-        } else {
-            return false;
+    public boolean shouldResume(final LogicNGEvent event) {
+        if (event == ComputationStartedEvent.MODEL_ENUMERATION_STARTED) {
+            countCommitted = 0;
+            countUncommitted = 0;
+        } else if (event instanceof EnumerationFoundModelsEvent) {
+            final int numberOfModels = ((EnumerationFoundModelsEvent) event).getNumberOfModels();
+            aborted = countUncommitted + countCommitted + numberOfModels > bound;
+            if (!aborted) {
+                countUncommitted += numberOfModels;
+            }
+        } else if (event == SimpleEvent.MODEL_ENUMERATION_COMMIT) {
+            countCommitted += countUncommitted;
+            countUncommitted = 0;
+        } else if (event == SimpleEvent.MODEL_ENUMERATION_ROLLBACK) {
+            countUncommitted = 0;
         }
-    }
-
-    @Override
-    public boolean commit() {
-        countCommitted += countUncommitted;
-        countUncommitted = 0;
-        return true;
-    }
-
-    @Override
-    public boolean rollback() {
-        countUncommitted = 0;
-        return true;
+        return !aborted;
     }
 }

@@ -4,11 +4,13 @@
 
 package com.booleworks.logicng.handlers;
 
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.MODEL_ENUMERATION_STARTED;
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.CNF_METHOD;
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import com.booleworks.logicng.testutils.PigeonHoleGenerator;
@@ -36,11 +38,11 @@ class TimeoutModelEnumerationHandlerTest {
 
     @Test
     public void testFoundModel() throws InterruptedException {
-        final var handler = new TimeoutModelEnumerationHandler(100, TimeoutHandler.TimerType.SINGLE_TIMEOUT);
-        handler.started();
-        assertThat(handler.foundModels(10)).isTrue();
+        final var handler = new TimeoutHandler(100, TimeoutHandler.TimerType.SINGLE_TIMEOUT);
+        handler.shouldResume(MODEL_ENUMERATION_STARTED);
+        assertThat(handler.shouldResume(new EnumerationFoundModelsEvent(10))).isTrue();
         Thread.sleep(200);
-        assertThat(handler.foundModels(10)).isFalse();
+        assertThat(handler.shouldResume(new EnumerationFoundModelsEvent(10))).isFalse();
     }
 
     // TODO

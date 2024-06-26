@@ -4,10 +4,12 @@
 
 package com.booleworks.logicng.explanations.mus;
 
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.MUS_COMPUTATION_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
+
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.Handler;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
@@ -25,7 +27,7 @@ public final class DeletionBasedMUS extends MUSAlgorithm {
     @Override
     public <T extends Proposition> UNSATCore<T> computeMUS(final FormulaFactory f, final List<T> propositions,
                                                            final MUSConfig config) {
-        Handler.start(config.handler);
+        config.handler.shouldResume(MUS_COMPUTATION_STARTED);
         final List<T> mus = new ArrayList<>(propositions.size());
         final List<SolverState> solverStates = new ArrayList<>(propositions.size());
         final SATSolver solver = SATSolver.newSolver(f);
@@ -34,7 +36,7 @@ public final class DeletionBasedMUS extends MUSAlgorithm {
             solver.add(proposition);
         }
         boolean sat = solver.satCall().handler(config.handler).sat() == Tristate.TRUE;
-        if (Handler.aborted(config.handler)) {
+        if (!config.handler.shouldResume(NO_EVENT)) {
             return null;
         }
         if (sat) {
@@ -46,7 +48,7 @@ public final class DeletionBasedMUS extends MUSAlgorithm {
                 solver.add(prop);
             }
             sat = solver.satCall().handler(config.handler).sat() == Tristate.TRUE;
-            if (Handler.aborted(config.handler)) {
+            if (!config.handler.shouldResume(NO_EVENT)) {
                 return null;
             }
             if (sat) {

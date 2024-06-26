@@ -14,7 +14,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.BoundedSatHandler;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.io.readers.FormulaReader;
@@ -41,7 +41,7 @@ public class BackboneGenerationTest {
     public void testNoFormulas() {
         assertThatThrownBy(() -> BackboneGeneration.compute(f, Collections.emptyList(), new TreeSet<>(),
                 BackboneType.POSITIVE_AND_NEGATIVE))
-                        .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class BackboneGenerationTest {
                 .containsExactly(x.negate(f), z.negate(f));
         assertThat(
                 BackboneGeneration.compute(f, collection, new ArrayList<>(Arrays.asList(x, y))).getCompleteBackbone(f))
-                        .containsExactly(x.negate(f), y);
+                .containsExactly(x.negate(f), y);
         assertThat(BackboneGeneration
                 .compute(f, collection, new ArrayList<>(Arrays.asList(x, y)), BackboneType.ONLY_NEGATIVE)
                 .getCompleteBackbone(f)).containsExactly(x.negate(f));
@@ -333,12 +333,12 @@ public class BackboneGenerationTest {
     public void testCancellationPoints() throws IOException {
         final List<Formula> formulas = DimacsReader.readCNF(f, "src/test/resources/sat/term1_gr_rcs_w4.shuffled.cnf");
         for (int numStarts = 0; numStarts < 10; numStarts++) {
-            final SATHandler handler = new BoundedSatHandler(numStarts);
+            final ComputationHandler handler = new BoundedSatHandler(numStarts);
 
             final Backbone result = BackboneGeneration.compute(f, formulas, FormulaHelper.variables(f, formulas),
                     BackboneType.POSITIVE_AND_NEGATIVE, handler);
 
-            assertThat(handler.aborted()).isTrue();
+            assertThat(handler.isAborted()).isTrue();
             assertThat(result).isNull();
         }
     }

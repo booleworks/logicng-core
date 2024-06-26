@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.TestWithExampleFormulas;
 import com.booleworks.logicng.formulas.Formula;
-import com.booleworks.logicng.handlers.TimeoutMaxSATHandler;
+import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.MaxSATSolver;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT;
@@ -378,21 +378,21 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
     }
 
     private void testTimeoutHandler(final MaxSATSolver solver) {
-        final TimeoutMaxSATHandler handler = new TimeoutMaxSATHandler(1000L);
-
+        final TimeoutHandler handler = new TimeoutHandler(1000L);
         final PigeonHoleGenerator pg = new PigeonHoleGenerator(f);
         final Formula formula = pg.generate(10);
         solver.addHardFormula(formula);
         solver.addSoftFormula(f.or(formula.variables(f)), 10);
         MaxSAT.MaxSATResult result = solver.solve(handler);
-        assertThat(handler.aborted()).isTrue();
+        assertThat(handler.isAborted()).isTrue();
         assertThat(result).isEqualTo(MaxSAT.MaxSATResult.UNDEF);
 
+        final TimeoutHandler handler2 = new TimeoutHandler(1000L);
         solver.reset();
         solver.addHardFormula(IMP1);
         solver.addSoftFormula(AND1, 10);
-        result = solver.solve(handler);
-        assertThat(handler.aborted()).isFalse();
+        result = solver.solve(handler2);
+        assertThat(handler2.isAborted()).isFalse();
         assertThat(result).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
     }
 }

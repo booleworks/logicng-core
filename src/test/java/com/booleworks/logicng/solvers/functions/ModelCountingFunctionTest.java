@@ -214,7 +214,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
         solver.add(formula);
         final BigInteger numberOfModels =
                 solver.execute(ModelCountingFunction.builder(formula.variables(f)).configuration(config).build());
-        assertThat(handler.aborted()).isTrue();
+        assertThat(handler.isAborted()).isTrue();
         assertThat(numberOfModels).isEqualTo(3);
     }
 

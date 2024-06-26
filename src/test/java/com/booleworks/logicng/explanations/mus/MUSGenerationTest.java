@@ -13,7 +13,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.BoundedSatHandler;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.propositions.StandardProposition;
 import com.booleworks.logicng.solvers.SATSolver;
@@ -70,7 +70,7 @@ public class MUSGenerationTest {
         final StandardProposition proposition = new StandardProposition(f.variable("a"));
         assertThatThrownBy(() -> mus.computeMUS(f, Collections.singletonList(proposition),
                 MUSConfig.builder().algorithm(MUSConfig.Algorithm.DELETION).build()))
-                        .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class MUSGenerationTest {
         final StandardProposition proposition = new StandardProposition(f.variable("a"));
         assertThatThrownBy(() -> mus.computeMUS(f, Collections.singletonList(proposition),
                 MUSConfig.builder().algorithm(MUSConfig.Algorithm.PLAIN_INSERTION).build()))
-                        .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -130,13 +130,13 @@ public class MUSGenerationTest {
                         .map(StandardProposition::new)
                         .collect(Collectors.toList());
         for (int numStarts = 0; numStarts < 20; numStarts++) {
-            final SATHandler handler = new BoundedSatHandler(numStarts);
+            final ComputationHandler handler = new BoundedSatHandler(numStarts);
             final MUSConfig config =
                     MUSConfig.builder().handler(handler).algorithm(MUSConfig.Algorithm.PLAIN_INSERTION).build();
 
             final UNSATCore<StandardProposition> result = mus.computeMUS(f, propositions, config);
 
-            assertThat(handler.aborted()).isTrue();
+            assertThat(handler.isAborted()).isTrue();
             assertThat(result).isNull();
         }
     }
@@ -152,12 +152,12 @@ public class MUSGenerationTest {
                 Arrays.asList(MUSConfig.Algorithm.DELETION, MUSConfig.Algorithm.PLAIN_INSERTION);
         for (final MUSConfig.Algorithm algorithm : algorithms) {
             for (int numStarts = 0; numStarts < 10; numStarts++) {
-                final SATHandler handler = new BoundedSatHandler(numStarts);
+                final ComputationHandler handler = new BoundedSatHandler(numStarts);
                 final MUSConfig config = MUSConfig.builder().handler(handler).algorithm(algorithm).build();
 
                 final UNSATCore<StandardProposition> result = mus.computeMUS(f, propositions, config);
 
-                assertThat(handler.aborted()).isTrue();
+                assertThat(handler.isAborted()).isTrue();
                 assertThat(result).isNull();
             }
         }

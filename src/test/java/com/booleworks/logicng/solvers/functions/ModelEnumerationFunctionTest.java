@@ -373,7 +373,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
         solver.add(f.parse("(~A | C) & (~B | C)"));
         final List<Model> models = solver
                 .execute(ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build());
-        assertThat(handler.aborted()).isTrue();
+        assertThat(handler.isAborted()).isTrue();
         assertThat(models).hasSize(3);
     }
 

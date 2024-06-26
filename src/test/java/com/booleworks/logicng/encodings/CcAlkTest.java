@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.encodings;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -70,7 +71,7 @@ public class CcAlkTest implements LogicNGTest {
                         .build())
                 .build();
 
-        Assertions.assertThat(solver.execute(me))
+        assertThat(solver.execute(me))
                 .hasSize(expected)
                 .allMatch(m -> m.positiveVariables().size() >= rhs);
     }

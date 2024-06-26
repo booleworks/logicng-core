@@ -10,6 +10,7 @@ import com.booleworks.logicng.functions.LiteralsFunction;
 import com.booleworks.logicng.functions.NumberOfAtomsFunction;
 import com.booleworks.logicng.functions.NumberOfNodesFunction;
 import com.booleworks.logicng.functions.VariablesFunction;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDDFactory;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
@@ -356,7 +357,7 @@ public interface Formula extends Iterable<Formula> {
         } else {
             kernel = new BDDKernel(f, provider.getOrder(f, formula), varNum * 30, varNum * 20);
         }
-        return BDDFactory.build(f, formula, kernel, null);
+        return BDDFactory.build(f, formula, kernel, NopHandler.get());
     }
 
     /**

@@ -22,7 +22,7 @@
 
 package com.booleworks.logicng.solvers.maxsat.algorithms;
 
-import static com.booleworks.logicng.handlers.Handler.aborted;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.CardinalityEncoding;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.IncrementalStrategy;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity;
@@ -31,7 +31,6 @@ import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
@@ -112,9 +111,8 @@ public class MSU3 extends MaxSAT {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
         while (true) {
-            final SATHandler satHandler = satHandler();
-            res = searchSATSolver(solver, satHandler, assumptions);
-            if (aborted(satHandler)) {
+            res = searchSATSolver(solver, handler, assumptions);
+            if (!handler.shouldResume(NO_EVENT)) {
                 return MaxSATResult.UNDEF;
             } else if (res == Tristate.TRUE) {
                 nbSatisfiable++;
@@ -125,7 +123,7 @@ public class MSU3 extends MaxSAT {
                 }
                 ubCost = newCost;
                 if (nbSatisfiable == 1) {
-                    if (!foundUpperBound(ubCost, null)) {
+                    if (!foundUpperBound(ubCost)) {
                         return MaxSATResult.UNDEF;
                     }
                     for (int i = 0; i < objFunction.size(); i++) {
@@ -148,7 +146,7 @@ public class MSU3 extends MaxSAT {
                         output.println("c LB = UB");
                     }
                     return MaxSATResult.OPTIMUM;
-                } else if (!foundLowerBound(lbCost, null)) {
+                } else if (!foundLowerBound(lbCost)) {
                     return MaxSATResult.UNDEF;
                 }
                 sumSizeCores += solver.assumptionsConflict().size();
@@ -193,9 +191,8 @@ public class MSU3 extends MaxSAT {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
         while (true) {
-            final SATHandler satHandler = satHandler();
-            res = searchSATSolver(solver, satHandler, assumptions);
-            if (aborted(satHandler)) {
+            res = searchSATSolver(solver, handler, assumptions);
+            if (!handler.shouldResume(NO_EVENT)) {
                 return MaxSATResult.UNDEF;
             } else if (res == Tristate.TRUE) {
                 nbSatisfiable++;
@@ -206,7 +203,7 @@ public class MSU3 extends MaxSAT {
                 }
                 ubCost = newCost;
                 if (nbSatisfiable == 1) {
-                    if (!foundUpperBound(ubCost, null)) {
+                    if (!foundUpperBound(ubCost)) {
                         return MaxSATResult.UNDEF;
                     }
                     for (int i = 0; i < objFunction.size(); i++) {
@@ -236,7 +233,7 @@ public class MSU3 extends MaxSAT {
                 if (solver.assumptionsConflict().size() == 0) {
                     return MaxSATResult.UNSATISFIABLE;
                 }
-                if (!foundLowerBound(lbCost, null)) {
+                if (!foundLowerBound(lbCost)) {
                     return MaxSATResult.UNDEF;
                 }
                 joinObjFunction.clear();

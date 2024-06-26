@@ -27,10 +27,9 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaFactoryConfig;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.ModelEnumerationHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
-import com.booleworks.logicng.handlers.TimeoutModelEnumerationHandler;
-import com.booleworks.logicng.handlers.TimeoutSATHandler;
+import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.propositions.StandardProposition;
@@ -255,8 +254,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
         final Variable b = f.variable("B");
         final Formula formula = f.parse("A & B => A");
         solver.add(formula); // during NNF conversion, used by the PG
-                             // transformation, the formula simplifies to verum
-                             // when added to the solver
+        // transformation, the formula simplifies to verum
+        // when added to the solver
         assertThat(solver.sat()).isTrue();
         assertThat(solver.underlyingSolver().knownVariables()).isEmpty();
         assertThat(variables(f, solver.satCall().model(List.of(a, b)).literals())).containsExactlyInAnyOrder(a, b);
@@ -385,9 +384,9 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     public void testTimeoutSATHandlerSmall() {
         for (final SATSolver s : solvers) {
             s.add(IMP1);
-            final TimeoutSATHandler handler = new TimeoutSATHandler(1000L);
+            final TimeoutHandler handler = new TimeoutHandler(1000L);
             final Tristate result = s.satCall().handler(handler).sat();
-            assertThat(handler.aborted()).isFalse();
+            assertThat(handler.isAborted()).isFalse();
             assertThat(result).isEqualTo(Tristate.TRUE);
         }
     }
@@ -397,9 +396,9 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     public void testTimeoutSATHandlerLarge() {
         for (final SATSolver s : solvers) {
             s.add(pg.generate(10));
-            final TimeoutSATHandler handler = new TimeoutSATHandler(1000L);
+            final TimeoutHandler handler = new TimeoutHandler(1000L);
             final Tristate result = s.satCall().handler(handler).sat();
-            assertThat(handler.aborted()).isTrue();
+            assertThat(handler.isAborted()).isTrue();
             assertThat(result).isEqualTo(Tristate.UNDEF);
         }
     }
@@ -464,11 +463,11 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
         for (final SATSolver solver : solvers) {
             final Formula formula = pg.generate(10);
             solver.add(formula);
-            final var handler = new TimeoutModelEnumerationHandler(1000L);
+            final var handler = new TimeoutHandler(1000L);
             final var me = meWithHandler(handler, formula.variables(f));
             final List<Model> assignments = solver.execute(me);
             assertThat(assignments).isEmpty();
-            assertThat(handler.aborted()).isTrue();
+            assertThat(handler.isAborted()).isTrue();
         }
     }
 
@@ -482,10 +481,10 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             }
 
             solver.add(f.exo(variables));
-            final var handler = new TimeoutModelEnumerationHandler(50L);
+            final var handler = new TimeoutHandler(50L);
             final var me = meWithHandler(handler, variables);
             solver.execute(me);
-            assertThat(handler.aborted()).isTrue();
+            assertThat(handler.isAborted()).isTrue();
         }
     }
 
@@ -498,11 +497,11 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
             }
 
             solver.add(f.exo(variables.subList(0, 5)));
-            final var handler = new TimeoutModelEnumerationHandler(50L);
+            final var handler = new TimeoutHandler(50L);
             final var me = meWithHandler(handler, variables.subList(0, 5));
             final List<Model> assignments = solver.execute(me);
             assertThat(assignments).hasSize(5);
-            assertThat(handler.aborted()).isFalse();
+            assertThat(handler.isAborted()).isFalse();
         }
     }
 
@@ -556,7 +555,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                             ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
                     .build();
             final List<Model> modelsWithHandler = s.execute(me);
-            assertThat(handler.aborted()).isTrue();
+            assertThat(handler.isAborted()).isTrue();
             assertThat(modelsWithHandler.size()).isEqualTo(29);
             for (final Model model : modelsWithHandler) {
                 for (final Variable lit : lits) {
@@ -588,7 +587,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                             ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
                     .build();
             final List<Model> modelsWithHandler = s.execute(me);
-            assertThat(handler.aborted()).isTrue();
+            assertThat(handler.isAborted()).isTrue();
             assertThat(modelsWithHandler.size()).isEqualTo(29);
             for (final Model model : modelsWithHandler) {
                 for (final Variable lit : lits) {
@@ -625,7 +624,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                     .build();
 
             List<Model> models = s.execute(me);
-            assertThat(handler.aborted()).isFalse();
+            assertThat(handler.isAborted()).isFalse();
             assertThat(models.size()).isEqualTo(100);
             for (final Model m : models) {
                 assertThat(m.positiveVariables().size()).isEqualTo(1);
@@ -639,7 +638,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                             ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
                     .build();
             models = s.execute(me);
-            assertThat(handler.aborted()).isFalse();
+            assertThat(handler.isAborted()).isFalse();
             assertThat(models.size()).isEqualTo(100);
             for (final Model m : models) {
                 assertThat(m.positiveVariables().size()).isEqualTo(1);
@@ -653,7 +652,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                             ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
                     .build();
             models = s.execute(me);
-            assertThat(handler.aborted()).isTrue();
+            assertThat(handler.isAborted()).isTrue();
             assertThat(models.size()).isEqualTo(50);
             for (final Model m : models) {
                 assertThat(m.positiveVariables().size()).isEqualTo(1);
@@ -667,7 +666,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                             ModelEnumerationConfig.builder().strategy(defaultMeStrategy).handler(handler).build())
                     .build();
             models = s.execute(me);
-            assertThat(handler.aborted()).isTrue();
+            assertThat(handler.isAborted()).isTrue();
             assertThat(models.size()).isEqualTo(1);
             for (final Model m : models) {
                 assertThat(m.positiveVariables().size()).isEqualTo(1);
@@ -835,7 +834,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                     .containsExactlyInAnyOrder(f.parse("A | ~B"), f.parse("~A | B"), f.parse("~B | ~A"),
                             f.parse("B | A"));
             solver.sat(); // adds learnt clauses s.t. the formula on the solver
-                          // changes
+            // changes
             assertThat(solver.execute(FormulaOnSolverFunction.get()))
                     .containsExactlyInAnyOrder(f.parse("A | ~B"), f.parse("~A | B"), f.parse("~B | ~A"),
                             f.parse("B | A"),
@@ -1032,7 +1031,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
         }
     }
 
-    static ModelEnumerationFunction meWithHandler(final ModelEnumerationHandler handler,
+    static ModelEnumerationFunction meWithHandler(final ComputationHandler handler,
                                                   final Collection<Variable> variables) {
         return ModelEnumerationFunction.builder(variables)
                 .configuration(ModelEnumerationConfig.builder()

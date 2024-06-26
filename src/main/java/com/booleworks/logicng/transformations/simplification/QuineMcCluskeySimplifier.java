@@ -6,7 +6,8 @@ package com.booleworks.logicng.transformations.simplification;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.OptimizationHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.transformations.AbortableFormulaTransformation;
 
 /**
@@ -18,14 +19,14 @@ import com.booleworks.logicng.transformations.AbortableFormulaTransformation;
  * @version 3.0.0
  * @since 1.4.0
  */
-public class QuineMcCluskeySimplifier extends AbortableFormulaTransformation<OptimizationHandler> {
+public class QuineMcCluskeySimplifier extends AbortableFormulaTransformation {
 
     /**
      * Constructor.
      * @param f the formula factory to generate new formulas
      **/
     protected QuineMcCluskeySimplifier(final FormulaFactory f) {
-        super(f, null);
+        super(f, NopHandler.get());
     }
 
     /**
@@ -33,7 +34,7 @@ public class QuineMcCluskeySimplifier extends AbortableFormulaTransformation<Opt
      * @param f       the formula factory to generate new formulas
      * @param handler the optimization handler to abort Quine-McCluskey
      **/
-    protected QuineMcCluskeySimplifier(final FormulaFactory f, final OptimizationHandler handler) {
+    protected QuineMcCluskeySimplifier(final FormulaFactory f, final ComputationHandler handler) {
         super(f, handler);
     }
 

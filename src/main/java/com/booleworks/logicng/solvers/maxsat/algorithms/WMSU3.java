@@ -23,14 +23,13 @@
 package com.booleworks.logicng.solvers.maxsat.algorithms;
 
 import static com.booleworks.logicng.datastructures.Tristate.TRUE;
-import static com.booleworks.logicng.handlers.Handler.aborted;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.SATHandler;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
@@ -154,9 +153,8 @@ public class WMSU3 extends MaxSAT {
         final LNGIntVector fullObjFunction = new LNGIntVector();
         final LNGIntVector fullCoeffsFunction = new LNGIntVector();
         while (true) {
-            final SATHandler satHandler = satHandler();
-            res = searchSATSolver(solver, satHandler, assumptions);
-            if (aborted(satHandler)) {
+            res = searchSATSolver(solver, handler, assumptions);
+            if (!handler.shouldResume(NO_EVENT)) {
                 return MaxSATResult.UNDEF;
             } else if (res == TRUE) {
                 nbSatisfiable++;
@@ -172,7 +170,7 @@ public class WMSU3 extends MaxSAT {
                     assert lbCost == ubCost;
                     assert nbSatisfiable > 0;
                     return MaxSATResult.OPTIMUM;
-                } else if (!foundUpperBound(ubCost, null)) {
+                } else if (!foundUpperBound(ubCost)) {
                     return MaxSATResult.UNDEF;
                 }
                 for (int i = 0; i < nSoft(); i++) {
@@ -190,7 +188,7 @@ public class WMSU3 extends MaxSAT {
                         output.println("c LB = UB");
                     }
                     return MaxSATResult.OPTIMUM;
-                } else if (!foundLowerBound(lbCost, null)) {
+                } else if (!foundLowerBound(lbCost)) {
                     return MaxSATResult.UNDEF;
                 }
                 sumSizeCores += solver.assumptionsConflict().size();
@@ -249,9 +247,8 @@ public class WMSU3 extends MaxSAT {
         }
         assumptions.clear();
         while (true) {
-            final SATHandler satHandler = satHandler();
-            res = searchSATSolver(solver, satHandler, assumptions);
-            if (aborted(satHandler)) {
+            res = searchSATSolver(solver, handler, assumptions);
+            if (!handler.shouldResume(NO_EVENT)) {
                 return MaxSATResult.UNDEF;
             } else if (res == TRUE) {
                 nbSatisfiable++;
@@ -266,7 +263,7 @@ public class WMSU3 extends MaxSAT {
                 if (ubCost == 0 || lbCost == ubCost || (currentWeight == 1 && nbSatisfiable > 1)) {
                     assert nbSatisfiable > 0;
                     return MaxSATResult.OPTIMUM;
-                } else if (!foundUpperBound(ubCost, null)) {
+                } else if (!foundUpperBound(ubCost)) {
                     return MaxSATResult.UNDEF;
                 }
                 for (int i = 0; i < nSoft(); i++) {
@@ -284,7 +281,7 @@ public class WMSU3 extends MaxSAT {
                         output.println("c LB = UB");
                     }
                     return MaxSATResult.OPTIMUM;
-                } else if (!foundLowerBound(lbCost, null)) {
+                } else if (!foundLowerBound(lbCost)) {
                     return MaxSATResult.UNDEF;
                 }
                 sumSizeCores += solver.assumptionsConflict().size();
@@ -349,9 +346,8 @@ public class WMSU3 extends MaxSAT {
         bmoEncodings.push(e);
         firstEncoding.push(true);
         while (true) {
-            final SATHandler satHandler = satHandler();
-            res = searchSATSolver(solver, satHandler, assumptions);
-            if (aborted(satHandler)) {
+            res = searchSATSolver(solver, handler, assumptions);
+            if (!handler.shouldResume(NO_EVENT)) {
                 return MaxSATResult.UNDEF;
             } else if (res == TRUE) {
                 nbSatisfiable++;
@@ -366,7 +362,7 @@ public class WMSU3 extends MaxSAT {
                 if (nbSatisfiable == 1) {
                     if (ubCost == 0) {
                         return MaxSATResult.OPTIMUM;
-                    } else if (!foundUpperBound(ubCost, null)) {
+                    } else if (!foundUpperBound(ubCost)) {
                         return MaxSATResult.UNDEF;
                     }
                     assert orderWeights.size() > 0;
@@ -382,7 +378,7 @@ public class WMSU3 extends MaxSAT {
                     if (currentWeight == 1 || currentWeight == minWeight) {
                         return MaxSATResult.OPTIMUM;
                     } else {
-                        if (!foundUpperBound(ubCost, null)) {
+                        if (!foundUpperBound(ubCost)) {
                             return MaxSATResult.UNDEF;
                         }
                         assumptions.clear();
@@ -433,7 +429,7 @@ public class WMSU3 extends MaxSAT {
                         output.println("c LB = UB");
                     }
                     return MaxSATResult.OPTIMUM;
-                } else if (!foundLowerBound(lbCost, null)) {
+                } else if (!foundLowerBound(lbCost)) {
                     return MaxSATResult.UNDEF;
                 }
                 sumSizeCores += solver.assumptionsConflict().size();

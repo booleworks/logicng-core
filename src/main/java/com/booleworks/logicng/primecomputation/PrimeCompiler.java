@@ -4,14 +4,17 @@
 
 package com.booleworks.logicng.primecomputation;
 
+import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
+
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.Handler;
-import com.booleworks.logicng.handlers.OptimizationHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
 import com.booleworks.logicng.solvers.sat.SATCall;
@@ -85,7 +88,7 @@ public final class PrimeCompiler {
      * @return the prime result
      */
     public PrimeResult compute(final FormulaFactory f, final Formula formula, final PrimeResult.CoverageType type) {
-        return compute(f, formula, type, null);
+        return compute(f, formula, type, NopHandler.get());
     }
 
     /**
@@ -93,7 +96,7 @@ public final class PrimeCompiler {
      * coverage type specifies if the implicants or the implicates will be
      * complete, the other one will still be a cover of the given formula.
      * <p>
-     * The prime compiler can be called with an {@link OptimizationHandler}. The
+     * The prime compiler can be called with an {@link ComputationHandler}. The
      * given handler instance will be used for every subsequent
      * {@link OptimizationFunction} call and the handler's SAT handler is used
      * for every subsequent SAT call.
@@ -105,13 +108,13 @@ public final class PrimeCompiler {
      *         handler
      */
     public PrimeResult compute(final FormulaFactory f, final Formula formula, final PrimeResult.CoverageType type,
-                               final OptimizationHandler handler) {
-        Handler.start(handler);
+                               final ComputationHandler handler) {
+        handler.shouldResume(ComputationStartedEvent.PRIME_COMPUTATION_STARTED);
         final boolean completeImplicants = type == PrimeResult.CoverageType.IMPLICANTS_COMPLETE;
         final Formula formulaForComputation = completeImplicants ? formula : formula.negate(f);
         final Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>> result =
                 computeGeneric(f, formulaForComputation, handler);
-        if (result == null || Handler.aborted(handler)) {
+        if (result == null || !handler.shouldResume(NO_EVENT)) {
             return null;
         }
         return new PrimeResult(
@@ -122,7 +125,7 @@ public final class PrimeCompiler {
 
     private Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>> computeGeneric(final FormulaFactory f,
                                                                                     final Formula formula,
-                                                                                    final OptimizationHandler handler) {
+                                                                                    final ComputationHandler handler) {
         final SubstitutionResult sub = createSubstitution(f, formula);
         final SATSolver hSolver = SATSolver.newSolver(f,
                 SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
@@ -136,26 +139,26 @@ public final class PrimeCompiler {
         while (true) {
             final Assignment hModel = hSolver.execute(computeWithMaximization
                     ? OptimizationFunction.builder().handler(handler).literals(sub.newVar2oldLit.keySet()).maximize()
-                            .build()
+                    .build()
                     : OptimizationFunction.builder().handler(handler).literals(sub.newVar2oldLit.keySet()).minimize()
-                            .build());
-            if (Handler.aborted(handler)) {
+                    .build());
+            if (!handler.shouldResume(NO_EVENT)) {
                 return null;
             }
             if (hModel == null) {
                 return new Pair<>(primeImplicants, primeImplicates);
             }
             final Assignment fModel = transformModel(hModel, sub.newVar2oldLit);
-            try (final SATCall fCall = fSolver.satCall().handler(OptimizationHandler.satHandler(handler))
+            try (final SATCall fCall = fSolver.satCall().handler(handler)
                     .addFormulas(fModel.literals()).solve()) {
-                if (Handler.aborted(handler)) {
+                if (!handler.shouldResume(NO_EVENT)) {
                     return null;
                 }
                 if (fCall.getSatResult() == Tristate.FALSE) {
                     final SortedSet<Literal> primeImplicant = computeWithMaximization
-                            ? primeReduction.reduceImplicant(fModel.literals(), OptimizationHandler.satHandler(handler))
+                            ? primeReduction.reduceImplicant(fModel.literals(), handler)
                             : fModel.literals();
-                    if (primeImplicant == null || Handler.aborted(handler)) {
+                    if (primeImplicant == null || !handler.shouldResume(NO_EVENT)) {
                         return null;
                     }
                     primeImplicants.add(primeImplicant);
@@ -171,8 +174,8 @@ public final class PrimeCompiler {
                         implicate.add(lit.negate(f));
                     }
                     final SortedSet<Literal> primeImplicate =
-                            primeReduction.reduceImplicate(f, implicate, OptimizationHandler.satHandler(handler));
-                    if (primeImplicate == null || Handler.aborted(handler)) {
+                            primeReduction.reduceImplicate(f, implicate, handler);
+                    if (primeImplicate == null || !handler.shouldResume(NO_EVENT)) {
                         return null;
                     }
                     primeImplicates.add(primeImplicate);

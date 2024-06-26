@@ -5,7 +5,7 @@
 package com.booleworks.logicng.transformations;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.Handler;
+import com.booleworks.logicng.handlers.ComputationHandler;
 
 /**
  * An abortable formula transformation is a stateless transformation which can
@@ -15,15 +15,15 @@ import com.booleworks.logicng.handlers.Handler;
  * @version 3.0.0
  * @since 3.0.0
  */
-public abstract class AbortableFormulaTransformation<H extends Handler> extends StatelessFormulaTransformation {
-    protected final H handler;
+public abstract class AbortableFormulaTransformation extends StatelessFormulaTransformation {
+    protected final ComputationHandler handler;
 
     /**
      * Constructor.
      * @param f       the formula factory to generate new formulas
      * @param handler the handler for the transformation
      **/
-    protected AbortableFormulaTransformation(final FormulaFactory f, final H handler) {
+    protected AbortableFormulaTransformation(final FormulaFactory f, final ComputationHandler handler) {
         super(f);
         this.handler = handler;
     }

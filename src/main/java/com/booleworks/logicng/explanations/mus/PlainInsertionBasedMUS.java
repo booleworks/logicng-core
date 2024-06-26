@@ -4,11 +4,13 @@
 
 package com.booleworks.logicng.explanations.mus;
 
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.MUS_COMPUTATION_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
+
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.Handler;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.SATSolver;
 
@@ -25,7 +27,7 @@ public class PlainInsertionBasedMUS extends MUSAlgorithm {
     @Override
     public <T extends Proposition> UNSATCore<T> computeMUS(final FormulaFactory f, final List<T> propositions,
                                                            final MUSConfig config) {
-        Handler.start(config.handler);
+        config.handler.shouldResume(MUS_COMPUTATION_STARTED);
         final List<T> currentFormula = new ArrayList<>(propositions.size());
         currentFormula.addAll(propositions);
         final List<T> mus = new ArrayList<>(propositions.size());
@@ -46,7 +48,7 @@ public class PlainInsertionBasedMUS extends MUSAlgorithm {
                 transitionProposition = removeProposition;
                 solver.add(removeProposition);
             }
-            if (Handler.aborted(config.handler)) {
+            if (!config.handler.shouldResume(NO_EVENT)) {
                 return null;
             }
             currentFormula.clear();
@@ -59,8 +61,8 @@ public class PlainInsertionBasedMUS extends MUSAlgorithm {
         return new UNSATCore<>(mus, true);
     }
 
-    private static boolean shouldProceed(final SATSolver solver, final SATHandler handler) {
+    private static boolean shouldProceed(final SATSolver solver, final ComputationHandler handler) {
         final boolean sat = solver.satCall().handler(handler).sat() == Tristate.TRUE;
-        return sat && !Handler.aborted(handler);
+        return sat && handler.shouldResume(NO_EVENT);
     }
 }

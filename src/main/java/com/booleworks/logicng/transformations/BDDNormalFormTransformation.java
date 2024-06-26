@@ -8,6 +8,7 @@ import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.cache.TransformationCacheEntry;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDDFactory;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
@@ -76,7 +77,7 @@ public abstract class BDDNormalFormTransformation extends CacheableAndStatefulFo
         if (cached != null) {
             return cached;
         }
-        final BDD bdd = BDDFactory.build(f, formula, state, null);
+        final BDD bdd = BDDFactory.build(f, formula, state, NopHandler.get());
         final Formula normalForm = cnf ? bdd.cnf() : bdd.dnf();
         final Formula simplifiedNormalForm;
         final UnitPropagation up = new UnitPropagation(f);

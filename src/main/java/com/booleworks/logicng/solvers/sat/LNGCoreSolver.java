@@ -23,9 +23,10 @@
 package com.booleworks.logicng.solvers.sat;
 
 import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
-import static com.booleworks.logicng.handlers.Handler.aborted;
-import static com.booleworks.logicng.handlers.Handler.start;
-import static com.booleworks.logicng.handlers.SATHandler.finishSolving;
+import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.SAT_CALL_FINISHED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SAT_CALL_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.SAT_CONFLICT_DETECTED;
 
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
@@ -36,7 +37,8 @@ import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
@@ -129,7 +131,7 @@ public class LNGCoreSolver {
     protected int learntsLiterals = 0;
 
     // SAT handler
-    protected SATHandler handler;
+    protected ComputationHandler handler = NopHandler.get();
     protected boolean canceledByHandler = false;
 
     // Proof generating information
@@ -492,20 +494,20 @@ public class LNGCoreSolver {
      * {@link Tristate#UNDEF} if the computation was canceled by a
      * {@link SATHandler}. If {@code null} is passed as handler, the solver will
      * run until the satisfiability is decided.
-     * @param handler a sat handler
+     * @param handler a handler
      * @return {@link Tristate#TRUE} if the formula is satisfiable,
      *         {@link Tristate#FALSE} if the formula is not satisfiable, or
      *         {@link Tristate#UNDEF} if the computation was canceled.
      */
-    public Tristate internalSolve(final SATHandler handler) {
+    public Tristate internalSolve(final ComputationHandler handler) {
         this.handler = handler;
         final Tristate result = internalSolve();
-        this.handler = null;
+        this.handler = NopHandler.get();
         return result;
     }
 
     public Tristate internalSolve() {
-        start(handler);
+        handler.shouldResume(SAT_CALL_STARTED);
         model.clear();
         assumptionsConflict.clear();
         if (!ok) {
@@ -528,7 +530,7 @@ public class LNGCoreSolver {
         } else if (status == Tristate.FALSE && assumptionsConflict.empty()) {
             ok = false;
         }
-        finishSolving(handler);
+        handler.shouldResume(SAT_CALL_FINISHED);
         cancelUntil(0);
         canceledByHandler = false;
         return status;
@@ -537,9 +539,9 @@ public class LNGCoreSolver {
     /**
      * Sets (or clears) the SAT handler which should be used for subsequent SAT
      * calls.
-     * @param handler the SAT handler to be used
+     * @param handler the handler to be used
      */
-    public void setHandler(final SATHandler handler) {
+    public void setHandler(final ComputationHandler handler) {
         this.handler = handler;
     }
 
@@ -551,13 +553,13 @@ public class LNGCoreSolver {
      * {@link Tristate#UNDEF} if the computation was canceled by a
      * {@link SATHandler}. If {@code null} is passed as handler, the solver will
      * run until the satisfiability is decided.
-     * @param handler     a sat handler
+     * @param handler     a handler
      * @param assumptions the assumptions as a given vector of literals
      * @return {@link Tristate#TRUE} if the formula and the assumptions are
      *         satisfiable, {@link Tristate#FALSE} if they are not satisfiable,
      *         or {@link Tristate#UNDEF} if the computation was canceled.
      */
-    public Tristate internalSolve(final SATHandler handler, final LNGIntVector assumptions) {
+    public Tristate internalSolve(final ComputationHandler handler, final LNGIntVector assumptions) {
         this.assumptions = new LNGIntVector(assumptions);
         final Tristate result = internalSolve(handler);
         this.assumptions.clear();
@@ -1183,7 +1185,7 @@ public class LNGCoreSolver {
         while (true) {
             final LNGClause confl = propagate();
             if (confl != null) {
-                if (handler != null && !handler.detectedConflict()) {
+                if (!handler.shouldResume(SAT_CONFLICT_DETECTED)) {
                     canceledByHandler = true;
                     return Tristate.UNDEF;
                 }
@@ -1752,7 +1754,7 @@ public class LNGCoreSolver {
      * @return the backbone projected to the relevant variables
      */
     public Backbone computeBackbone(final Collection<Variable> variables, final BackboneType type) {
-        return computeBackbone(variables, type, null);
+        return computeBackbone(variables, type, NopHandler.get());
     }
 
     /**
@@ -1765,9 +1767,9 @@ public class LNGCoreSolver {
      *         if the computation was aborted by the handler
      */
     public Backbone computeBackbone(final Collection<Variable> variables, final BackboneType type,
-                                    final SATHandler handler) {
+                                    final ComputationHandler handler) {
         final boolean sat = internalSolve(handler) == Tristate.TRUE;
-        if (aborted(handler)) {
+        if (!handler.shouldResume(NO_EVENT)) {
             return null;
         }
         if (sat) {
@@ -1775,7 +1777,7 @@ public class LNGCoreSolver {
             final List<Integer> relevantVarIndices = getRelevantVarIndices(variables);
             initBackboneDS(relevantVarIndices);
             computeBackbone(relevantVarIndices, type, handler);
-            if (aborted(handler)) {
+            if (!handler.shouldResume(NO_EVENT)) {
                 return null;
             }
             final Backbone backbone = buildBackbone(variables, type);
@@ -1825,12 +1827,12 @@ public class LNGCoreSolver {
      * @param type      the type of the backbone
      * @param handler   the handler
      */
-    protected void computeBackbone(final List<Integer> variables, final BackboneType type, final SATHandler handler) {
+    protected void computeBackbone(final List<Integer> variables, final BackboneType type, final ComputationHandler handler) {
         createInitialCandidates(variables, type);
         while (!backboneCandidates.isEmpty()) {
             final int lit = backboneCandidates.pop();
             final boolean sat = solveWithLit(lit, handler);
-            if (aborted(handler)) {
+            if (!handler.shouldResume(NO_EVENT)) {
                 return;
             }
             if (sat) {
@@ -1888,7 +1890,7 @@ public class LNGCoreSolver {
      * @param handler the handler
      * @return {@code true} if satisfiable, otherwise {@code false}
      */
-    protected boolean solveWithLit(final int lit, final SATHandler handler) {
+    protected boolean solveWithLit(final int lit, final ComputationHandler handler) {
         backboneAssumptions.push(not(lit));
         final boolean sat = internalSolve(handler, backboneAssumptions) == Tristate.TRUE;
         backboneAssumptions.pop();

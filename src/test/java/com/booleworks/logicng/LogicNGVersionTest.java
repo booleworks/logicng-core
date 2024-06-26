@@ -25,7 +25,6 @@ public class LogicNGVersionTest {
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("(A | ~B) & (B | C)"));
         solver.satCall().addFormulas(f.parse("~A"), f.parse("~C")).sat();
-        System.out.println(solver);
     }
 
     @Test

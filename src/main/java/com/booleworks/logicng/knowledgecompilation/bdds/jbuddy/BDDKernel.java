@@ -32,9 +32,12 @@
 
 package com.booleworks.logicng.knowledgecompilation.bdds.jbuddy;
 
+import static com.booleworks.logicng.handlers.events.SimpleEvent.BDD_NEW_REF_ADDED;
+
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.BDDHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.events.SimpleEvent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -400,18 +403,19 @@ public class BDDKernel {
      * Adds a reference for a given node. Reference counting is done on
      * externally referenced nodes only and the count for a specific node
      * {@code r} can and must be increased using this function to avoid losing
-     * the node in the next garbage collection. If a BDD handler is given, the
-     * handler's {@link BDDHandler#newRefAdded()} method is called. If the
-     * generation gets aborted due to the handler, the method will return
-     * {@link BDDKernel#BDD_ABORT} as result. If {@code null} is passed as
-     * handler, the generation will continue without interruption.
+     * the node in the next garbage collection. If a BDD handler is given,
+     * {@link ComputationHandler#shouldResume} is called with the event
+     * {@link SimpleEvent#BDD_NEW_REF_ADDED}. If the generation gets aborted
+     * due to the handler, the method will return {@link BDDKernel#BDD_ABORT}
+     * as result. If {@code null} is passed as handler, the generation will
+     * continue without interruption.
      * @param root    the node
      * @param handler the BDD handler
      * @return return the node
      * @throws IllegalArgumentException if the root node was invalid
      */
-    public int addRef(final int root, final BDDHandler handler) {
-        if (handler != null && !handler.newRefAdded()) {
+    public int addRef(final int root, final ComputationHandler handler) {
+        if (!handler.shouldResume(BDD_NEW_REF_ADDED)) {
             return BDD_ABORT;
         }
         if (root < 2) {

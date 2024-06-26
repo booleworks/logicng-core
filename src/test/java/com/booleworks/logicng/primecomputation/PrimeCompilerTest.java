@@ -4,6 +4,9 @@
 
 package com.booleworks.logicng.primecomputation;
 
+import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.FIXED_END;
+import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.RESTARTING_TIMEOUT;
+import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.SINGLE_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -15,9 +18,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.handlers.BoundedOptimizationHandler;
-import com.booleworks.logicng.handlers.OptimizationHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.TimeoutHandler;
-import com.booleworks.logicng.handlers.TimeoutOptimizationHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
@@ -119,14 +121,13 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
                 new Pair<>(PrimeCompiler.getWithMinimization(), PrimeResult.CoverageType.IMPLICANTS_COMPLETE),
                 new Pair<>(PrimeCompiler.getWithMinimization(), PrimeResult.CoverageType.IMPLICATES_COMPLETE));
         for (final Pair<PrimeCompiler, PrimeResult.CoverageType> compiler : compilers) {
-            final List<TimeoutOptimizationHandler> handlers = Arrays.asList(
-                    new TimeoutOptimizationHandler(5_000L, TimeoutHandler.TimerType.SINGLE_TIMEOUT),
-                    new TimeoutOptimizationHandler(5_000L, TimeoutHandler.TimerType.RESTARTING_TIMEOUT),
-                    new TimeoutOptimizationHandler(System.currentTimeMillis() + 5_000L,
-                            TimeoutHandler.TimerType.FIXED_END)
+            final List<TimeoutHandler> handlers = Arrays.asList(
+                    new TimeoutHandler(5_000L, SINGLE_TIMEOUT),
+                    new TimeoutHandler(5_000L, RESTARTING_TIMEOUT),
+                    new TimeoutHandler(System.currentTimeMillis() + 5_000L, FIXED_END)
             );
             final Formula formula = FormulaFactory.caching().parse("a & b | ~c & a");
-            for (final TimeoutOptimizationHandler handler : handlers) {
+            for (final TimeoutHandler handler : handlers) {
                 testHandler(handler, formula, compiler.first(), compiler.second(), false);
             }
         }
@@ -141,14 +142,14 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
                 new Pair<>(PrimeCompiler.getWithMinimization(), PrimeResult.CoverageType.IMPLICANTS_COMPLETE),
                 new Pair<>(PrimeCompiler.getWithMinimization(), PrimeResult.CoverageType.IMPLICATES_COMPLETE));
         for (final Pair<PrimeCompiler, PrimeResult.CoverageType> compiler : compilers) {
-            final List<TimeoutOptimizationHandler> handlers = Arrays.asList(
-                    new TimeoutOptimizationHandler(1L, TimeoutHandler.TimerType.SINGLE_TIMEOUT),
-                    new TimeoutOptimizationHandler(1L, TimeoutHandler.TimerType.RESTARTING_TIMEOUT),
-                    new TimeoutOptimizationHandler(System.currentTimeMillis() + 1L, TimeoutHandler.TimerType.FIXED_END)
+            final List<TimeoutHandler> handlers = Arrays.asList(
+                    new TimeoutHandler(1L, SINGLE_TIMEOUT),
+                    new TimeoutHandler(1L, RESTARTING_TIMEOUT),
+                    new TimeoutHandler(System.currentTimeMillis() + 1L, FIXED_END)
             );
             final Formula formula =
                     FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
-            for (final TimeoutOptimizationHandler handler : handlers) {
+            for (final TimeoutHandler handler : handlers) {
                 testHandler(handler, formula, compiler.first(), compiler.second(), true);
             }
         }
@@ -167,7 +168,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
         for (final Pair<PrimeCompiler, PrimeResult.CoverageType> compiler : compilers) {
             for (int numOptimizationStarts = 1; numOptimizationStarts < 5; numOptimizationStarts++) {
                 for (int numSatHandlerStarts = 1; numSatHandlerStarts < 10; numSatHandlerStarts++) {
-                    final OptimizationHandler handler =
+                    final BoundedOptimizationHandler handler =
                             new BoundedOptimizationHandler(numSatHandlerStarts, numOptimizationStarts);
                     testHandler(handler, formula, compiler.first(), compiler.second(), true);
                 }
@@ -228,11 +229,11 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
                 .isTrue();
     }
 
-    private void testHandler(final OptimizationHandler handler, final Formula formula, final PrimeCompiler compiler,
+    private void testHandler(final ComputationHandler handler, final Formula formula, final PrimeCompiler compiler,
                              final PrimeResult.CoverageType coverageType,
                              final boolean expAborted) {
         final PrimeResult result = compiler.compute(formula.factory(), formula, coverageType, handler);
-        assertThat(handler.aborted()).isEqualTo(expAborted);
+        assertThat(handler.isAborted()).isEqualTo(expAborted);
         if (expAborted) {
             assertThat(result).isNull();
         } else {

@@ -1,5 +1,6 @@
 module logicng {
     requires org.antlr.antlr4.runtime;
+    requires java.xml;
 
     exports com.booleworks.logicng.backbones;
 
@@ -77,4 +78,5 @@ module logicng {
     exports com.booleworks.logicng.util;
 
     opens com.booleworks.logicng.solvers.sat;
+    exports com.booleworks.logicng.handlers.events;
 }

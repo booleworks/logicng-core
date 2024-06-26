@@ -4,12 +4,13 @@
 
 package com.booleworks.logicng.solvers.functions;
 
-import static com.booleworks.logicng.handlers.Handler.start;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BACKBONE_COMPUTATION_STARTED;
 
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 
@@ -25,11 +26,11 @@ import java.util.Collection;
  */
 public final class BackboneFunction implements SolverFunction<Backbone> {
 
-    private final SATHandler handler;
+    private final ComputationHandler handler;
     private final Collection<Variable> variables;
     private final BackboneType type;
 
-    private BackboneFunction(final SATHandler handler, final Collection<Variable> variables, final BackboneType type) {
+    private BackboneFunction(final ComputationHandler handler, final Collection<Variable> variables, final BackboneType type) {
         this.handler = handler;
         this.variables = variables;
         this.type = type;
@@ -45,7 +46,7 @@ public final class BackboneFunction implements SolverFunction<Backbone> {
 
     @Override
     public Backbone apply(final SATSolver solver) {
-        start(handler);
+        handler.shouldResume(BACKBONE_COMPUTATION_STARTED);
         final SolverState stateBeforeBackbone = solver.saveState();
         final Backbone backbone = solver.underlyingSolver().computeBackbone(variables, type, handler);
         solver.loadState(stateBeforeBackbone);
@@ -57,7 +58,7 @@ public final class BackboneFunction implements SolverFunction<Backbone> {
      */
     public static class Builder {
 
-        private SATHandler handler;
+        private ComputationHandler handler = NopHandler.get();
         private Collection<Variable> variables;
         private BackboneType type = BackboneType.POSITIVE_AND_NEGATIVE;
 
@@ -70,7 +71,7 @@ public final class BackboneFunction implements SolverFunction<Backbone> {
          * @param handler the handler
          * @return the current builder
          */
-        public Builder handler(final SATHandler handler) {
+        public Builder handler(final ComputationHandler handler) {
             this.handler = handler;
             return this;
         }

@@ -7,7 +7,7 @@ package com.booleworks.logicng.solvers.functions.modelenumeration;
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Model;
-import com.booleworks.logicng.handlers.ModelEnumerationHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.solvers.SATSolver;
 
 import java.util.List;
@@ -16,10 +16,10 @@ import java.util.List;
  * An interface for enumeration collectors.
  * <p>
  * An enumeration collector gathers the found models given by
- * {@link #addModel(LNGBooleanVector, SATSolver, LNGIntVector, ModelEnumerationHandler)}.
+ * {@link #addModel(LNGBooleanVector, SATSolver, LNGIntVector, ComputationHandler)}.
  * Added Models added can potentially be discarded later via
- * {@link #rollback(ModelEnumerationHandler)}. To prevent models from being
- * rolled back one can call {@link #commit(ModelEnumerationHandler)}. With
+ * {@link #rollback(ComputationHandler)}. To prevent models from being
+ * rolled back one can call {@link #commit(ComputationHandler)}. With
  * {@link #getResult()} the result, the models committed models, can be
  * retrieved.
  * @param <RESULT> The result type of the model enumeration function. Can be
@@ -34,12 +34,11 @@ public interface EnumerationCollector<RESULT> {
      * @param modelFromSolver    the model from the solver
      * @param solver             the solver
      * @param relevantAllIndices the relevant indices
-     * @param handler            the model enumeration handler, may be
-     *                           {@code null}
+     * @param handler            the model enumeration handler
      * @return true if adding the model was successful, false otherwise
      */
     boolean addModel(LNGBooleanVector modelFromSolver, SATSolver solver, LNGIntVector relevantAllIndices,
-                     ModelEnumerationHandler handler);
+                     ComputationHandler handler);
 
     /**
      * All founds models since the last commit call are confirmed and cannot be
@@ -50,7 +49,7 @@ public interface EnumerationCollector<RESULT> {
      * @return {@code true} if the computation should continue, otherwise
      *         {@code false}
      */
-    boolean commit(ModelEnumerationHandler handler);
+    boolean commit(ComputationHandler handler);
 
     /**
      * All found models since the last commit should be discarded.
@@ -60,7 +59,7 @@ public interface EnumerationCollector<RESULT> {
      * @return {@code true} if the computation should continue, otherwise
      *         {@code false}
      */
-    boolean rollback(ModelEnumerationHandler handler);
+    boolean rollback(ComputationHandler handler);
 
     /**
      * All found models since the last commit will be discarded and returned.
@@ -70,7 +69,7 @@ public interface EnumerationCollector<RESULT> {
      * @param handler the model enumeration handler, may be {@code null}
      * @return list of all discarded models
      */
-    List<Model> rollbackAndReturnModels(final SATSolver solver, ModelEnumerationHandler handler);
+    List<Model> rollbackAndReturnModels(final SATSolver solver, ComputationHandler handler);
 
     /**
      * @return the committed state of the collector

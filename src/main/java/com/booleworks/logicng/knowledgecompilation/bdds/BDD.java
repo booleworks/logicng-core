@@ -10,6 +10,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.knowledgecompilation.bdds.datastructures.BDDNode;
 import com.booleworks.logicng.knowledgecompilation.bdds.functions.BDDCNFFunction;
 import com.booleworks.logicng.knowledgecompilation.bdds.functions.BDDDNFFunction;
@@ -144,7 +145,7 @@ public class BDD {
      * @return the negation of this BDD
      */
     public BDD negate() {
-        return new BDD(kernel.addRef(construction.not(index), null), kernel);
+        return new BDD(kernel.addRef(construction.not(index), NopHandler.get()), kernel);
     }
 
     /**
@@ -159,7 +160,7 @@ public class BDD {
         if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new BDD(kernel.addRef(construction.implication(index, other.index), null), kernel);
+        return new BDD(kernel.addRef(construction.implication(index, other.index), NopHandler.get()), kernel);
     }
 
     /**
@@ -174,7 +175,7 @@ public class BDD {
         if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new BDD(kernel.addRef(construction.implication(other.index, index), null), kernel);
+        return new BDD(kernel.addRef(construction.implication(other.index, index), NopHandler.get()), kernel);
     }
 
     /**
@@ -189,7 +190,7 @@ public class BDD {
         if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new BDD(kernel.addRef(construction.equivalence(index, other.index), null), kernel);
+        return new BDD(kernel.addRef(construction.equivalence(index, other.index), NopHandler.get()), kernel);
     }
 
     /**
@@ -204,7 +205,7 @@ public class BDD {
         if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new BDD(kernel.addRef(construction.and(index, other.index), null), kernel);
+        return new BDD(kernel.addRef(construction.and(index, other.index), NopHandler.get()), kernel);
     }
 
     /**
@@ -219,7 +220,7 @@ public class BDD {
         if (other.kernel != kernel) {
             throw new IllegalArgumentException("Only BDDs with the same kernel can be processed");
         }
-        return new BDD(kernel.addRef(construction.or(index, other.index), null), kernel);
+        return new BDD(kernel.addRef(construction.or(index, other.index), NopHandler.get()), kernel);
     }
 
     /**

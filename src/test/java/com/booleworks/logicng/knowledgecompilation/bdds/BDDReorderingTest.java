@@ -128,7 +128,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
     @Test
     @LongRunningTag
     public void testRandomReorderingLongRunning() {
-        testRandomReordering(25, 50, true);
+        testRandomReordering(25, 50, false);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
     @Test
     @LongRunningTag
     public void testReorderOnBuildLongRunning() {
-        testReorderOnBuild(25, 50, true);
+        testReorderOnBuild(25, 50, false);
     }
 
     private void testRandomReordering(final int minVars, final int maxVars, final boolean verbose) {
@@ -280,28 +280,28 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         if (withBlocks) {
             assertThat(findSequence(bdd,
                     IntStream.range(0, 21).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet())))
-                            .isTrue();
+                    .isTrue();
             assertThat(findSequence(bdd,
                     IntStream.range(0, 11).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet())))
-                            .isTrue();
+                    .isTrue();
             assertThat(findSequence(bdd,
                     IntStream.range(11, 21).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet())))
-                            .isTrue();
+                    .isTrue();
             assertThat(findSequence(bdd,
                     IntStream.range(15, 20).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet())))
-                            .isTrue();
+                    .isTrue();
             assertThat(findSequence(bdd,
                     IntStream.range(15, 18).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet())))
-                            .isTrue();
+                    .isTrue();
             assertThat(findSequence(bdd,
                     IntStream.range(18, 20).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet())))
-                            .isTrue();
+                    .isTrue();
             assertThat(findSequence(bdd, IntStream.range(21, formula.variables(f).size())
                     .mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet()))).isTrue();
             if (formula.variables(f).size() > 33) {
                 assertThat(findSequence(bdd,
                         IntStream.range(30, 34).mapToObj(i -> String.format("v%02d", i)).collect(Collectors.toSet())))
-                                .isTrue();
+                        .isTrue();
             }
             final List<Variable> order = bdd.getVariableOrder();
             assertThat(order.indexOf(f.variable("v00"))).isLessThan(order.indexOf(f.variable("v11")));

@@ -4,9 +4,7 @@
 
 package com.booleworks.logicng.solvers.functions;
 
-import static com.booleworks.logicng.handlers.Handler.aborted;
-import static com.booleworks.logicng.handlers.Handler.start;
-import static com.booleworks.logicng.handlers.OptimizationHandler.satHandler;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
 
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Tristate;
@@ -17,7 +15,10 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.OptimizationHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
+import com.booleworks.logicng.handlers.events.OptimizationFoundBetterBoundEvent;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.sat.SATCall;
@@ -47,11 +48,11 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
     private final Collection<? extends Literal> literals;
     private final SortedSet<Variable> resultModelVariables;
     private final boolean maximize;
-    private final OptimizationHandler handler;
+    private final ComputationHandler handler;
 
     private OptimizationFunction(final Collection<? extends Literal> literals,
                                  final Collection<Variable> additionalVariables, final boolean maximize,
-                                 final OptimizationHandler handler) {
+                                 final ComputationHandler handler) {
         this.literals = literals;
         resultModelVariables = new TreeSet<>(additionalVariables);
         for (final Literal lit : literals) {
@@ -98,7 +99,7 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
     }
 
     private Assignment maximize(final SATSolver solver) {
-        start(handler);
+        handler.shouldResume(ComputationStartedEvent.OPTIMIZATION_FUNCTION_STARTED);
         final FormulaFactory f = solver.factory();
         final Map<Variable, Literal> selectorMap = new TreeMap<>();
         for (final Literal lit : literals) {
@@ -115,8 +116,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         }
         Assignment lastResultModel;
         Assignment currentSelectorModel;
-        try (final SATCall satCall = solver.satCall().handler(satHandler(handler)).solve()) {
-            if (satCall.getSatResult() != Tristate.TRUE || aborted(handler)) {
+        try (final SATCall satCall = solver.satCall().handler(handler).solve()) {
+            if (satCall.getSatResult() != Tristate.TRUE || !handler.shouldResume(NO_EVENT)) {
                 return null;
             }
             lastResultModel = satCall.model(resultModelVariables);
@@ -130,9 +131,9 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         int currentBound = currentSelectorModel.positiveVariables().size();
         if (currentBound == 0) {
             solver.add(f.cc(CType.GE, 1, selectors));
-            try (final SATCall satCall = solver.satCall().handler(satHandler(handler)).solve()) {
+            try (final SATCall satCall = solver.satCall().handler(handler).solve()) {
                 final Tristate sat = satCall.getSatResult();
-                if (aborted(handler)) {
+                if (!handler.shouldResume(NO_EVENT)) {
                     return null;
                 } else if (sat == Tristate.FALSE) {
                     return lastResultModel;
@@ -147,14 +148,14 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         assert cc instanceof CardinalityConstraint;
         final CcIncrementalData incrementalData = solver.addIncrementalCc((CardinalityConstraint) cc);
         while (true) {
-            try (final SATCall satCall = solver.satCall().handler(satHandler(handler)).solve()) {
-                if (aborted(handler)) {
+            try (final SATCall satCall = solver.satCall().handler(handler).solve()) {
+                if (!handler.shouldResume(NO_EVENT)) {
                     return null;
                 }
                 if (satCall.getSatResult() == Tristate.FALSE) {
                     return lastResultModel;
                 }
-                if (handler != null && !handler.foundBetterBound(() -> satCall.model(resultModelVariables))) {
+                if (!handler.shouldResume(new OptimizationFoundBetterBoundEvent(() -> satCall.model(resultModelVariables)))) {
                     return null;
                 }
                 lastResultModel = satCall.model(resultModelVariables);
@@ -175,7 +176,7 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
         private Collection<? extends Literal> literals;
         private Collection<Variable> additionalVariables = new TreeSet<>();
         private boolean maximize = true;
-        private OptimizationHandler handler = null;
+        private ComputationHandler handler = NopHandler.get();
 
         private Builder() {
             // Initialize only via factory
@@ -248,7 +249,7 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
          * @param handler the handler
          * @return the current builder
          */
-        public Builder handler(final OptimizationHandler handler) {
+        public Builder handler(final ComputationHandler handler) {
             this.handler = handler;
             return this;
         }

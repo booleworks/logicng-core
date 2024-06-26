@@ -1,25 +1,24 @@
-// SPDX-License-Identifier: Apache-2.0 and MIT
-// Copyright 2015-2023 Christoph Zengler
-// Copyright 2023-20xx BooleWorks GmbH
-
 package com.booleworks.logicng.handlers;
 
+import com.booleworks.logicng.handlers.events.LogicNGEvent;
+
 /**
- * A computation handler.
- * @version 1.6.2
- * @since 1.6.2
+ * Interface for a computation handler.
+ * @since 3.0.0
+ * @version 3.0.0
  */
-public abstract class ComputationHandler implements Handler {
+public interface ComputationHandler {
+    /**
+     * Processes the given event and returns {@code true} if the computation
+     * should be resumed and {@code false} if it should be aborted.
+     * @param event the event to handle, must not be {@code null}
+     * @return whether the computation should be resumed or not
+     */
+    boolean shouldResume(LogicNGEvent event);
 
-    protected boolean aborted;
-
-    @Override
-    public boolean aborted() {
-        return aborted;
-    }
-
-    @Override
-    public void started() {
-        aborted = false;
-    }
+    /**
+     * @deprecated should be removed
+     */
+    @Deprecated
+    boolean isAborted();
 }

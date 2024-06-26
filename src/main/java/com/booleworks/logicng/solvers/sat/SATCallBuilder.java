@@ -6,7 +6,8 @@ import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.StandardProposition;
 import com.booleworks.logicng.solvers.SATSolver;
@@ -23,12 +24,13 @@ import java.util.List;
  */
 public class SATCallBuilder {
     private final SATSolver solver;
-    private SATHandler handler;
+    private ComputationHandler handler;
     private final List<Proposition> additionalPropositions;
     private List<? extends Literal> selectionOrder;
 
     SATCallBuilder(final SATSolver solver) {
         this.solver = solver;
+        handler = NopHandler.get();
         additionalPropositions = new ArrayList<>();
     }
 
@@ -46,7 +48,7 @@ public class SATCallBuilder {
      * @param handler the handler
      * @return this builder
      */
-    public SATCallBuilder handler(final SATHandler handler) {
+    public SATCallBuilder handler(final ComputationHandler handler) {
         this.handler = handler;
         return this;
     }

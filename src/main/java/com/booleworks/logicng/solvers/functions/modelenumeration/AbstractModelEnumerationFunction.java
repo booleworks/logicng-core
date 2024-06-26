@@ -5,8 +5,7 @@
 package com.booleworks.logicng.solvers.functions.modelenumeration;
 
 import static com.booleworks.logicng.datastructures.Tristate.TRUE;
-import static com.booleworks.logicng.handlers.Handler.aborted;
-import static com.booleworks.logicng.handlers.Handler.start;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
 import static com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationCommon.generateBlockingClause;
 import static com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationCommon.relevantAllIndicesFromSolver;
 import static com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationCommon.relevantIndicesFromSolver;
@@ -20,8 +19,8 @@ import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.ModelEnumerationHandler;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
@@ -42,7 +41,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
 
     protected final SortedSet<Variable> variables;
     protected final SortedSet<Variable> additionalVariables;
-    protected final ModelEnumerationHandler handler;
+    protected final ComputationHandler handler;
     protected final ModelEnumerationStrategy strategy;
 
     protected AbstractModelEnumerationFunction(final SortedSet<Variable> variables,
@@ -61,7 +60,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
 
     @Override
     public RESULT apply(final SATSolver solver) {
-        start(handler);
+        handler.shouldResume(ComputationStartedEvent.MODEL_ENUMERATION_STARTED);
         final SortedSet<Variable> knownVariables = solver.underlyingSolver().knownVariables();
         final SortedSet<Variable> additionalVarsNotOnSolver =
                 difference(additionalVariables, knownVariables, TreeSet::new);
@@ -99,7 +98,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 }
                 newSplitVars = strategy.reduceSplitVars(newSplitVars, recursionDepth);
             }
-            if (aborted(handler)) {
+            if (!handler.shouldResume(NO_EVENT)) {
                 collector.rollback(handler);
                 return;
             }
@@ -135,7 +134,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
     protected static <R> boolean enumerate(final EnumerationCollector<R> collector, final SATSolver solver,
                                            final SortedSet<Variable> variables,
                                            final SortedSet<Variable> additionalVariables, final int maxModels,
-                                           final ModelEnumerationHandler handler) {
+                                           final ComputationHandler handler) {
         final SolverState stateBeforeEnumeration = solver.saveState();
         final LNGIntVector relevantIndices = relevantIndicesFromSolver(variables, solver);
         final LNGIntVector relevantAllIndices =
@@ -161,10 +160,9 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         return true;
     }
 
-    private static boolean modelEnumerationSATCall(final SATSolver solver, final ModelEnumerationHandler handler) {
-        final SATHandler satHandler = handler == null ? null : handler.satHandler();
-        final boolean sat = solver.satCall().handler(satHandler).sat() == TRUE;
-        return !aborted(handler) && sat;
+    private static boolean modelEnumerationSATCall(final SATSolver solver, final ComputationHandler handler) {
+        final boolean sat = solver.satCall().handler(handler).sat() == TRUE;
+        return handler.shouldResume(NO_EVENT) && sat;
     }
 
     protected static FormulaFactory factory(final SortedSet<Variable> variables) {
