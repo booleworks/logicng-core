@@ -12,7 +12,6 @@ import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
 import com.booleworks.logicng.testutils.TestUtil;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -42,25 +41,25 @@ public class BDDCNFTest extends TestWithFormulaContext {
         final BDDCNFTransformation bddcnf = new BDDCNFTransformation(_c.f);
 
         assertThat(_c.imp1.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(_c.imp1, _c.imp1.transform(bddcnf), _c.imp1.variables(_c.f)))
+        assertThat(TestUtil.equivalentModels(_c.imp1, _c.imp1.transform(bddcnf), _c.imp1.variables(_c.f)))
                 .isTrue();
         assertThat(_c.imp2.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(_c.imp2, _c.imp2.transform(bddcnf), _c.imp2.variables(_c.f)))
+        assertThat(TestUtil.equivalentModels(_c.imp2, _c.imp2.transform(bddcnf), _c.imp2.variables(_c.f)))
                 .isTrue();
         assertThat(_c.imp3.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(_c.imp3, _c.imp3.transform(bddcnf), _c.imp3.variables(_c.f)))
+        assertThat(TestUtil.equivalentModels(_c.imp3, _c.imp3.transform(bddcnf), _c.imp3.variables(_c.f)))
                 .isTrue();
         assertThat(_c.eq1.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(_c.eq1, _c.eq1.transform(bddcnf), _c.eq1.variables(_c.f)))
+        assertThat(TestUtil.equivalentModels(_c.eq1, _c.eq1.transform(bddcnf), _c.eq1.variables(_c.f)))
                 .isTrue();
         assertThat(_c.eq2.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(_c.eq2, _c.eq2.transform(bddcnf), _c.eq2.variables(_c.f)))
+        assertThat(TestUtil.equivalentModels(_c.eq2, _c.eq2.transform(bddcnf), _c.eq2.variables(_c.f)))
                 .isTrue();
         assertThat(_c.eq3.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(_c.eq3, _c.eq3.transform(bddcnf), _c.eq3.variables(_c.f)))
+        assertThat(TestUtil.equivalentModels(_c.eq3, _c.eq3.transform(bddcnf), _c.eq3.variables(_c.f)))
                 .isTrue();
         assertThat(_c.eq4.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(_c.eq4, _c.eq4.transform(bddcnf), _c.eq4.variables(_c.f)))
+        assertThat(TestUtil.equivalentModels(_c.eq4, _c.eq4.transform(bddcnf), _c.eq4.variables(_c.f)))
                 .isTrue();
     }
 
@@ -75,11 +74,11 @@ public class BDDCNFTest extends TestWithFormulaContext {
         final Formula f2 = _c.p.parse("~(a & b) | c | ~(x | ~y)");
         final Formula f3 = _c.p.parse("a | b | (~x & ~y)");
         assertThat(f1.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f1, f1.transform(bddcnf), f1.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f1, f1.transform(bddcnf), f1.variables(_c.f))).isTrue();
         assertThat(f2.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f2, f2.transform(bddcnf), f2.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f2, f2.transform(bddcnf), f2.variables(_c.f))).isTrue();
         assertThat(f3.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f3, f3.transform(bddcnf), f3.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f3, f3.transform(bddcnf), f3.variables(_c.f))).isTrue();
     }
 
     @ParameterizedTest
@@ -94,11 +93,11 @@ public class BDDCNFTest extends TestWithFormulaContext {
         final Formula f2 = _c.p.parse("~(a & b) | c | ~(x | ~y)");
         final Formula f3 = _c.p.parse("a | b | (~x & ~y)");
         assertThat(f1.transform(transformation).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f1, f1.transform(transformation), f1.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f1, f1.transform(transformation), f1.variables(_c.f))).isTrue();
         assertThat(f2.transform(transformation).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f2, f2.transform(transformation), f2.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f2, f2.transform(transformation), f2.variables(_c.f))).isTrue();
         assertThat(f3.transform(transformation).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f3, f3.transform(transformation), f3.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f3, f3.transform(transformation), f3.variables(_c.f))).isTrue();
     }
 
     @ParameterizedTest
@@ -113,11 +112,11 @@ public class BDDCNFTest extends TestWithFormulaContext {
         final Formula f2 = _c.p.parse("~(a & b) | c | ~(x | ~y)");
         final Formula f3 = _c.p.parse("a | b | (~x & ~y)");
         assertThat(f1.transform(transformation).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f1, f1.transform(transformation), f1.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f1, f1.transform(transformation), f1.variables(_c.f))).isTrue();
         assertThat(f2.transform(transformation).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f2, f2.transform(transformation), f2.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f2, f2.transform(transformation), f2.variables(_c.f))).isTrue();
         assertThat(f3.transform(transformation).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f3, f3.transform(transformation), f3.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f3, f3.transform(transformation), f3.variables(_c.f))).isTrue();
     }
 
     @ParameterizedTest
@@ -125,26 +124,26 @@ public class BDDCNFTest extends TestWithFormulaContext {
     public void testNot(final FormulaContext _c) throws ParserException {
         final BDDCNFTransformation bddcnf = new BDDCNFTransformation(_c.f);
 
-        Assertions.assertThat(_c.p.parse("~a").transform(bddcnf)).isEqualTo(_c.p.parse("~a"));
-        Assertions.assertThat(_c.p.parse("~~a").transform(bddcnf)).isEqualTo(_c.p.parse("a"));
-        Assertions.assertThat(_c.p.parse("~(a => b)").transform(bddcnf)).isEqualTo(_c.p.parse("a & ~b"));
+        assertThat(_c.p.parse("~a").transform(bddcnf)).isEqualTo(_c.p.parse("~a"));
+        assertThat(_c.p.parse("~~a").transform(bddcnf)).isEqualTo(_c.p.parse("a"));
+        assertThat(_c.p.parse("~(a => b)").transform(bddcnf)).isEqualTo(_c.p.parse("a & ~b"));
         final Formula f1 = _c.p.parse("~(~(a | b) => ~(x | y))");
         final Formula f2 = _c.p.parse("~(a <=> b)");
         final Formula f3 = _c.p.parse("~(~(a | b) <=> ~(x | y))");
         final Formula f4 = _c.p.parse("~(a & b & ~x & ~y)");
         final Formula f5 = _c.p.parse("~(a | b | ~x | ~y)");
         assertThat(f1.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f1, f1.transform(bddcnf), f1.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f1, f1.transform(bddcnf), f1.variables(_c.f))).isTrue();
         assertThat(f2.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f2, f2.transform(bddcnf), f2.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f2, f2.transform(bddcnf), f2.variables(_c.f))).isTrue();
         assertThat(f3.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f3, f3.transform(bddcnf), f3.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f3, f3.transform(bddcnf), f3.variables(_c.f))).isTrue();
         assertThat(f4.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f4, f4.transform(bddcnf), f4.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f4, f4.transform(bddcnf), f4.variables(_c.f))).isTrue();
         assertThat(f5.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f5, f5.transform(bddcnf), f5.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f5, f5.transform(bddcnf), f5.variables(_c.f))).isTrue();
         assertThat(f5.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f5, f5.transform(bddcnf), f5.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f5, f5.transform(bddcnf), f5.variables(_c.f))).isTrue();
     }
 
     @ParameterizedTest
@@ -157,12 +156,12 @@ public class BDDCNFTest extends TestWithFormulaContext {
         final Formula f3 = _c.p.parse("(1 * b + 1 * c + 1 * d <= 1)");
         final Formula f4 = _c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)");
         assertThat(f1.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f1, f1.transform(bddcnf), f1.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f1, f1.transform(bddcnf), f1.variables(_c.f))).isTrue();
         assertThat(f2.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f2, f2.transform(bddcnf), f2.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f2, f2.transform(bddcnf), f2.variables(_c.f))).isTrue();
         assertThat(f3.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f3, f3.transform(bddcnf), f3.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f3, f3.transform(bddcnf), f3.variables(_c.f))).isTrue();
         assertThat(f4.transform(bddcnf).isCNF(_c.f)).isTrue();
-        Assertions.assertThat(TestUtil.equivalentModels(f4, f4.transform(bddcnf), f4.variables(_c.f))).isTrue();
+        assertThat(TestUtil.equivalentModels(f4, f4.transform(bddcnf), f4.variables(_c.f))).isTrue();
     }
 }

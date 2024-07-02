@@ -6,8 +6,6 @@ package com.booleworks.logicng.explanations.mus;
 
 import com.booleworks.logicng.configurations.Configuration;
 import com.booleworks.logicng.configurations.ConfigurationType;
-import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.NopHandler;
 
 /**
  * The configuration object for the MUS generation.
@@ -25,7 +23,6 @@ public final class MUSConfig extends Configuration {
     }
 
     final Algorithm algorithm;
-    final ComputationHandler handler;
 
     /**
      * Constructs a new configuration with a given type.
@@ -34,7 +31,6 @@ public final class MUSConfig extends Configuration {
     private MUSConfig(final Builder builder) {
         super(ConfigurationType.MUS);
         algorithm = builder.algorithm;
-        handler = builder.handler;
     }
 
     /**
@@ -59,7 +55,6 @@ public final class MUSConfig extends Configuration {
     public static class Builder {
 
         private Algorithm algorithm = Algorithm.DELETION;
-        private ComputationHandler handler = NopHandler.get();
 
         private Builder() {
             // Initialize only via factory
@@ -73,16 +68,6 @@ public final class MUSConfig extends Configuration {
          */
         public Builder algorithm(final Algorithm algorithm) {
             this.algorithm = algorithm;
-            return this;
-        }
-
-        /**
-         * Sets the SAT handler for the MUS generation.
-         * @param handler the SAT handler
-         * @return the current builder
-         */
-        public Builder handler(final ComputationHandler handler) {
-            this.handler = handler;
             return this;
         }
 

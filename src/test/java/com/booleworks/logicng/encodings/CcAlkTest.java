@@ -4,7 +4,6 @@
 
 package com.booleworks.logicng.encodings;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -17,7 +16,6 @@ import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class CcAlkTest implements LogicNGTest {
@@ -67,11 +65,10 @@ public class CcAlkTest implements LogicNGTest {
         }
         final ModelEnumerationFunction me = ModelEnumerationFunction.builder(problemLits)
                 .configuration(ModelEnumerationConfig.builder()
-                        .handler(new NumberOfModelsHandler(12000))
                         .build())
                 .build();
 
-        assertThat(solver.execute(me))
+        assertThat(solver.execute(me, new NumberOfModelsHandler(12000)).getResult())
                 .hasSize(expected)
                 .allMatch(m -> m.positiveVariables().size() >= rhs);
     }

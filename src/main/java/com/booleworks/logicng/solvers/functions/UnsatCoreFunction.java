@@ -10,6 +10,8 @@ import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.explanations.drup.DRUPTrim;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.StandardProposition;
 import com.booleworks.logicng.solvers.SATSolver;
@@ -47,7 +49,7 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
     }
 
     @Override
-    public UNSATCore<Proposition> apply(final SATSolver solver) {
+    public LNGResult<UNSATCore<Proposition>> apply(final SATSolver solver, ComputationHandler handler) {
         if (!solver.config().proofGeneration()) {
             throw new IllegalStateException("Cannot generate an unsat core if proof generation is not turned on");
         }
@@ -67,18 +69,18 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
 
         if (containsEmptyClause(clauses)) {
             final Proposition emptyClause = clause2proposition.get(solver.factory().falsum());
-            return new UNSATCore<>(Collections.singletonList(emptyClause), true);
+            return LNGResult.of(new UNSATCore<>(Collections.singletonList(emptyClause), true));
         }
 
         final DRUPTrim.DRUPResult result = trimmer.compute(clauses, solver.underlyingSolver().pgProof());
         if (result.trivialUnsat()) {
-            return handleTrivialCase(solver);
+            return LNGResult.of(handleTrivialCase(solver));
         }
         final LinkedHashSet<Proposition> propositions = new LinkedHashSet<>();
         for (final LNGIntVector vector : result.unsatCore()) {
             propositions.add(clause2proposition.get(getFormulaForVector(solver, vector)));
         }
-        return new UNSATCore<>(new ArrayList<>(propositions), false);
+        return LNGResult.of(new UNSATCore<>(new ArrayList<>(propositions), false));
     }
 
     private UNSATCore<Proposition> handleTrivialCase(final SATSolver solver) {

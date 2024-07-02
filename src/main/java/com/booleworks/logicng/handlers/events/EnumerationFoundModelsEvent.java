@@ -11,13 +11,13 @@ import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class EnumerationFoundModelsEvent implements LogicNGEvent {
+public class EnumerationFoundModelsEvent implements LNGEvent {
 
     private final int numberOfModels;
 
     /**
      * Creates a new event with the given number of models.
-      * @param numberOfModels the number of models which were found
+     * @param numberOfModels the number of models which were found
      */
     public EnumerationFoundModelsEvent(final int numberOfModels) {
         this.numberOfModels = numberOfModels;

@@ -21,9 +21,9 @@ public class BDDNodeTest {
         assertThat(verumNode.isInnerNode()).isFalse();
         assertThat(falsumNode.isInnerNode()).isFalse();
         assertThat(innerNode.isInnerNode()).isTrue();
-        Assertions.assertThat(verumNode.label()).isEqualTo(f.verum());
-        Assertions.assertThat(falsumNode.label()).isEqualTo(f.falsum());
-        Assertions.assertThat(innerNode.label()).isEqualTo(f.variable("A"));
+        assertThat(verumNode.label()).isEqualTo(f.verum());
+        assertThat(falsumNode.label()).isEqualTo(f.falsum());
+        assertThat(innerNode.label()).isEqualTo(f.variable("A"));
         assertThat(verumNode.low()).isNull();
         assertThat(verumNode.high()).isNull();
         assertThat(falsumNode.low()).isNull();

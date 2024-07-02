@@ -7,6 +7,7 @@ package com.booleworks.logicng.handlers;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BDD_COMPUTATION_STARTED;
 import static com.booleworks.logicng.handlers.events.SimpleEvent.BDD_NEW_REF_ADDED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.times;
@@ -57,9 +58,9 @@ class TimeoutBDDHandlerTest {
         final VariableOrderingProvider provider = new BFSOrdering();
         final BDDKernel kernel = new BDDKernel(f, provider.getOrder(f, formula), 100, 100);
         final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
+        when(handler.shouldResume(any())).thenReturn(true);
 
         BDDFactory.build(f, formula, kernel, handler);
-
         verify(handler, times(1)).shouldResume(eq(BDD_COMPUTATION_STARTED));
         verify(handler, atLeast(1)).shouldResume(eq(BDD_NEW_REF_ADDED));
     }
@@ -74,10 +75,8 @@ class TimeoutBDDHandlerTest {
         when(handler.shouldResume(eq(BDD_COMPUTATION_STARTED))).thenReturn(true);
         when(handler.shouldResume(eq(BDD_NEW_REF_ADDED))).thenAnswer(invocationOnMock -> count.addAndGet(1) < 5);
 
-        final BDD result = BDDFactory.build(f, formula, kernel, handler);
-
-        assertThat(result).isEqualTo(new BDD(BDDKernel.BDD_ABORT, kernel));
-
+        final LNGResult<BDD> result = BDDFactory.build(f, formula, kernel, handler);
+        assertThat(result.isSuccess()).isFalse();
         verify(handler, times(1)).shouldResume(eq(BDD_COMPUTATION_STARTED));
         verify(handler, times(5)).shouldResume(eq(BDD_NEW_REF_ADDED));
     }
@@ -89,10 +88,8 @@ class TimeoutBDDHandlerTest {
         final BDDKernel kernel = new BDDKernel(f, provider.getOrder(f, formula), 100, 100);
         final TimeoutHandler handler = new TimeoutHandler(100L);
 
-        final BDD result = BDDFactory.build(f, formula, kernel, handler);
-
-        assertThat(handler.aborted).isTrue();
-        assertThat(result).isEqualTo(new BDD(BDDKernel.BDD_ABORT, kernel));
+        final LNGResult<BDD> result = BDDFactory.build(f, formula, kernel, handler);
+        assertThat(result.isSuccess()).isFalse();
     }
 
     @Test
@@ -103,9 +100,7 @@ class TimeoutBDDHandlerTest {
         final TimeoutHandler handler =
                 new TimeoutHandler(System.currentTimeMillis() + 100L, TimeoutHandler.TimerType.FIXED_END);
 
-        final BDD result = BDDFactory.build(f, formula, kernel, handler);
-
-        assertThat(handler.aborted).isTrue();
-        assertThat(result).isEqualTo(new BDD(BDDKernel.BDD_ABORT, kernel));
+        final LNGResult<BDD> result = BDDFactory.build(f, formula, kernel, handler);
+        assertThat(result.isSuccess()).isFalse();
     }
 }

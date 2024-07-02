@@ -4,8 +4,7 @@
 
 package com.booleworks.logicng.solvers.functions.modelenumeration;
 
-import static com.booleworks.logicng.datastructures.Tristate.TRUE;
-import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.MODEL_ENUMERATION_STARTED;
 import static com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationCommon.generateBlockingClause;
 import static com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationCommon.relevantAllIndicesFromSolver;
 import static com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationCommon.relevantIndicesFromSolver;
@@ -20,7 +19,9 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LNGResultWithPartial;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.functions.SolverFunction;
@@ -41,7 +42,6 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
 
     protected final SortedSet<Variable> variables;
     protected final SortedSet<Variable> additionalVariables;
-    protected final ComputationHandler handler;
     protected final ModelEnumerationStrategy strategy;
 
     protected AbstractModelEnumerationFunction(final SortedSet<Variable> variables,
@@ -49,7 +49,6 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                                                final ModelEnumerationConfig configuration) {
         this.variables = variables;
         this.additionalVariables = additionalVariables;
-        handler = configuration.handler;
         strategy = configuration.strategy == null ? NoSplitModelEnumerationStrategy.get() : configuration.strategy;
     }
 
@@ -59,8 +58,10 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                                                                  SortedSet<Variable> additionalVariablesNotOnSolver);
 
     @Override
-    public RESULT apply(final SATSolver solver) {
-        handler.shouldResume(ComputationStartedEvent.MODEL_ENUMERATION_STARTED);
+    public LNGResultWithPartial<RESULT, RESULT> apply(final SATSolver solver, final ComputationHandler handler) {
+        if (!handler.shouldResume(MODEL_ENUMERATION_STARTED)) {
+            return LNGResultWithPartial.aborted(null, MODEL_ENUMERATION_STARTED);
+        }
         final SortedSet<Variable> knownVariables = solver.underlyingSolver().knownVariables();
         final SortedSet<Variable> additionalVarsNotOnSolver =
                 difference(additionalVariables, knownVariables, TreeSet::new);
@@ -71,36 +72,53 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 knownVariables.stream().filter(variables::contains).collect(Collectors.toCollection(TreeSet::new));
         final SortedSet<Variable> initialSplitVars =
                 nullSafe(() -> strategy.splitVarsForRecursionDepth(enumerationVars, solver, 0), TreeSet::new);
-        enumerateRecursive(collector, solver, new TreeSet<>(), enumerationVars, initialSplitVars, 0);
-        return collector.getResult();
+        final LNGEvent abortionEvent = enumerateRecursive(collector, solver, new TreeSet<>(), enumerationVars, initialSplitVars, 0, handler);
+        final RESULT result = collector.getResult();
+        if (abortionEvent == null) {
+            return LNGResultWithPartial.ofResult(result);
+        } else {
+            return LNGResultWithPartial.aborted(result, abortionEvent);
+        }
     }
 
-    private void enumerateRecursive(final EnumerationCollector<RESULT> collector, final SATSolver solver,
-                                    final SortedSet<Literal> splitModel, final SortedSet<Variable> enumerationVars,
-                                    final SortedSet<Variable> splitVars, final int recursionDepth) {
+    private LNGEvent enumerateRecursive(final EnumerationCollector<RESULT> collector, final SATSolver solver,
+                                        final SortedSet<Literal> splitModel, final SortedSet<Variable> enumerationVars,
+                                        final SortedSet<Variable> splitVars, final int recursionDepth, final ComputationHandler handler) {
         final int maxNumberOfModelsForEnumeration = strategy.maxNumberOfModelsForEnumeration(recursionDepth);
         final SolverState state = solver.saveState();
         solver.add(splitModel);
-        final boolean enumerationFinished = enumerate(collector, solver, enumerationVars,
+        final LNGResult<Boolean> enumerationSucceeded = enumerate(collector, solver, enumerationVars,
                 additionalVariables, maxNumberOfModelsForEnumeration, handler);
-        if (!enumerationFinished) {
-            if (!collector.rollback(handler)) {
+        if (!enumerationSucceeded.isSuccess()) {
+            collector.commit(handler);
+            return enumerationSucceeded.getAbortionEvent();
+        }
+        if (!enumerationSucceeded.getResult()) {
+            final LNGEvent abortionEvent = collector.rollback(handler);
+            if (abortionEvent != null) {
                 solver.loadState(state);
-                return;
+                return abortionEvent;
             }
             SortedSet<Variable> newSplitVars = new TreeSet<>(splitVars);
             final int maxNumberOfModelsForSplitAssignments =
                     strategy.maxNumberOfModelsForSplitAssignments(recursionDepth);
-            while (!enumerate(collector, solver, newSplitVars, null, maxNumberOfModelsForSplitAssignments, handler)) {
-                if (!collector.rollback(handler)) {
+            while (true) {
+                final LNGResult<Boolean> enumerationForSplit = enumerate(
+                        collector, solver, newSplitVars, null, maxNumberOfModelsForSplitAssignments, handler);
+                if (!enumerationForSplit.isSuccess()) {
                     solver.loadState(state);
-                    return;
+                    collector.rollback(handler);
+                    return enumerationForSplit.getAbortionEvent();
+                } else if (enumerationForSplit.getResult()) {
+                    break;
+                } else {
+                    final LNGEvent abortionOnRollback = collector.rollback(handler);
+                    if (abortionOnRollback != null) {
+                        solver.loadState(state);
+                        return abortionOnRollback;
+                    }
+                    newSplitVars = strategy.reduceSplitVars(newSplitVars, recursionDepth);
                 }
-                newSplitVars = strategy.reduceSplitVars(newSplitVars, recursionDepth);
-            }
-            if (!handler.shouldResume(NO_EVENT)) {
-                collector.rollback(handler);
-                return;
             }
 
             final SortedSet<Variable> remainingVars = new TreeSet<>(enumerationVars);
@@ -116,40 +134,43 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 final SortedSet<Literal> recursiveSplitModel = new TreeSet<>(newSplitAssignment.getLiterals());
                 recursiveSplitModel.addAll(splitModel);
                 enumerateRecursive(collector, solver, recursiveSplitModel, enumerationVars, recursiveSplitVars,
-                        recursionDepth + 1);
-                if (!collector.commit(handler)) {
+                        recursionDepth + 1, handler);
+                final LNGEvent commitEvent = collector.commit(handler);
+                if (commitEvent != null) {
                     solver.loadState(state);
-                    return;
+                    return commitEvent;
                 }
             }
         } else {
-            if (!collector.commit(handler)) {
+            final LNGEvent commitEvent = collector.commit(handler);
+            if (commitEvent != null) {
                 solver.loadState(state);
-                return;
+                return commitEvent;
             }
         }
         solver.loadState(state);
+        return null;
     }
 
-    protected static <R> boolean enumerate(final EnumerationCollector<R> collector, final SATSolver solver,
-                                           final SortedSet<Variable> variables,
-                                           final SortedSet<Variable> additionalVariables, final int maxModels,
-                                           final ComputationHandler handler) {
+    protected static <R> LNGResult<Boolean> enumerate(final EnumerationCollector<R> collector, final SATSolver solver,
+                                                      final SortedSet<Variable> variables,
+                                                      final SortedSet<Variable> additionalVariables, final int maxModels,
+                                                      final ComputationHandler handler) {
         final SolverState stateBeforeEnumeration = solver.saveState();
         final LNGIntVector relevantIndices = relevantIndicesFromSolver(variables, solver);
         final LNGIntVector relevantAllIndices =
                 relevantAllIndicesFromSolver(variables, additionalVariables, relevantIndices, solver);
 
         int foundModels = 0;
-        boolean proceed = true;
-        while (proceed && modelEnumerationSATCall(solver, handler)) {
+        LNGEvent abortionEvent = null;
+        while (modelEnumerationSATCall(solver, handler)) {
             final LNGBooleanVector modelFromSolver = solver.underlyingSolver().model();
             if (++foundModels >= maxModels) {
                 solver.loadState(stateBeforeEnumeration);
-                return false;
+                return LNGResult.of(false);
             }
-            proceed = collector.addModel(modelFromSolver, solver, relevantAllIndices, handler);
-            if (modelFromSolver.size() > 0) {
+            abortionEvent = collector.addModel(modelFromSolver, solver, relevantAllIndices, handler);
+            if (abortionEvent == null && modelFromSolver.size() > 0) {
                 final LNGIntVector blockingClause = generateBlockingClause(modelFromSolver, relevantIndices);
                 solver.underlyingSolver().addClause(blockingClause, null);
             } else {
@@ -157,12 +178,12 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
             }
         }
         solver.loadState(stateBeforeEnumeration);
-        return true;
+        return abortionEvent == null ? LNGResult.of(true) : LNGResult.aborted(abortionEvent);
     }
 
     private static boolean modelEnumerationSATCall(final SATSolver solver, final ComputationHandler handler) {
-        final boolean sat = solver.satCall().handler(handler).sat() == TRUE;
-        return handler.shouldResume(NO_EVENT) && sat;
+        final LNGResult<Boolean> sat = solver.satCall().handler(handler).sat();
+        return sat.isSuccess() && sat.getResult();
     }
 
     protected static FormulaFactory factory(final SortedSet<Variable> variables) {

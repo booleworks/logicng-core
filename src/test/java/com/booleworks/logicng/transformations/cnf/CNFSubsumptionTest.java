@@ -28,18 +28,18 @@ public class CNFSubsumptionTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testSimpleCNFSubsumption(final FormulaContext _c) throws ParserException {
         final CNFSubsumption s = new CNFSubsumption(_c.f);
-        Assertions.assertThat(s.apply(_c.p.parse("$false"))).isEqualTo(_c.p.parse("$false"));
-        Assertions.assertThat(s.apply(_c.p.parse("$true"))).isEqualTo(_c.p.parse("$true"));
-        Assertions.assertThat(s.apply(_c.p.parse("a"))).isEqualTo(_c.p.parse("a"));
-        Assertions.assertThat(s.apply(_c.p.parse("~a"))).isEqualTo(_c.p.parse("~a"));
-        Assertions.assertThat(s.apply(_c.p.parse("a | b | c"))).isEqualTo(_c.p.parse("a | b | c"));
-        Assertions.assertThat(s.apply(_c.p.parse("a & b & c"))).isEqualTo(_c.p.parse("a & b & c"));
-        Assertions.assertThat(s.apply(_c.p.parse("a & (a | b)"))).isEqualTo(_c.p.parse("a"));
-        Assertions.assertThat(s.apply(_c.p.parse("(a | b) & (a | b | c)"))).isEqualTo(_c.p.parse("a | b"));
-        Assertions.assertThat(s.apply(_c.p.parse("a & (a | b) & (a | b | c)"))).isEqualTo(_c.p.parse("a"));
-        Assertions.assertThat(s.apply(_c.p.parse("a & (a | b) & b"))).isEqualTo(_c.p.parse("a & b"));
-        Assertions.assertThat(s.apply(_c.p.parse("a & (a | b) & c & (c | b)"))).isEqualTo(_c.p.parse("a & c"));
-        Assertions.assertThat(s.apply(_c.p.parse("(a | b) & (a | c) & (a | b | c)")))
+        assertThat(s.apply(_c.p.parse("$false"))).isEqualTo(_c.p.parse("$false"));
+        assertThat(s.apply(_c.p.parse("$true"))).isEqualTo(_c.p.parse("$true"));
+        assertThat(s.apply(_c.p.parse("a"))).isEqualTo(_c.p.parse("a"));
+        assertThat(s.apply(_c.p.parse("~a"))).isEqualTo(_c.p.parse("~a"));
+        assertThat(s.apply(_c.p.parse("a | b | c"))).isEqualTo(_c.p.parse("a | b | c"));
+        assertThat(s.apply(_c.p.parse("a & b & c"))).isEqualTo(_c.p.parse("a & b & c"));
+        assertThat(s.apply(_c.p.parse("a & (a | b)"))).isEqualTo(_c.p.parse("a"));
+        assertThat(s.apply(_c.p.parse("(a | b) & (a | b | c)"))).isEqualTo(_c.p.parse("a | b"));
+        assertThat(s.apply(_c.p.parse("a & (a | b) & (a | b | c)"))).isEqualTo(_c.p.parse("a"));
+        assertThat(s.apply(_c.p.parse("a & (a | b) & b"))).isEqualTo(_c.p.parse("a & b"));
+        assertThat(s.apply(_c.p.parse("a & (a | b) & c & (c | b)"))).isEqualTo(_c.p.parse("a & c"));
+        assertThat(s.apply(_c.p.parse("(a | b) & (a | c) & (a | b | c)")))
                 .isEqualTo(_c.p.parse("(a | b) & (a | c)"));
     }
 
@@ -47,7 +47,7 @@ public class CNFSubsumptionTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testLargeCNFSubsumption(final FormulaContext _c) throws ParserException {
         final CNFSubsumption s = new CNFSubsumption(_c.f);
-        Assertions.assertThat(s.apply(_c.p.parse("(a | b | c | d) & (a | b | c | e) & (a | b | c)")))
+        assertThat(s.apply(_c.p.parse("(a | b | c | d) & (a | b | c | e) & (a | b | c)")))
                 .isEqualTo(_c.p.parse("(a | b | c)"));
         Assertions
                 .assertThat(
@@ -57,9 +57,9 @@ public class CNFSubsumptionTest extends TestWithFormulaContext {
                 .assertThat(
                         s.apply(_c.p.parse("(a | b) & (a | c) & (a | b | c) & (a | ~b | c) & (a | b | ~c) & (b | c)")))
                 .isEqualTo(_c.p.parse("(a | b) & (a | c) & (b | c)"));
-        Assertions.assertThat(s.apply(_c.p.parse("a & ~b & (c | d) & (~a | ~b | ~c) & (b | c | d) & (a | b | c | d)")))
+        assertThat(s.apply(_c.p.parse("a & ~b & (c | d) & (~a | ~b | ~c) & (b | c | d) & (a | b | c | d)")))
                 .isEqualTo(_c.p.parse("a & ~b & (c | d)"));
-        Assertions.assertThat(s.apply(_c.p.parse("(a | b | c | d | e | f | g) & (b | d | f) & (a | c | e | g)")))
+        assertThat(s.apply(_c.p.parse("(a | b | c | d | e | f | g) & (b | d | f) & (a | c | e | g)")))
                 .isEqualTo(_c.p.parse("(b | d | f) & (a | c | e | g)"));
     }
 

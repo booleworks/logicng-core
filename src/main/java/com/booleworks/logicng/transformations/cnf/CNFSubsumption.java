@@ -9,6 +9,8 @@ import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.transformations.Subsumption;
 
 import java.util.ArrayList;
@@ -29,20 +31,29 @@ public final class CNFSubsumption extends Subsumption {
         super(f);
     }
 
+    public CNFSubsumption(final FormulaFactory f, final ComputationHandler handler) {
+        super(f);
+    }
+
     @Override
-    public Formula apply(final Formula formula) {
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         if (!formula.isCNF(f)) {
             throw new IllegalArgumentException("CNF subsumption can only be applied to formulas in CNF");
         }
         if (formula.type().precedence() >= FType.LITERAL.precedence() || formula.type() == FType.OR) {
-            return formula;
+            return LNGResult.of(formula);
         }
         assert formula.type() == FType.AND;
-        final UBTree<Literal> ubTree = generateSubsumedUBTree(formula);
-        final List<Formula> clauses = new ArrayList<>();
-        for (final SortedSet<Literal> literals : ubTree.allSets()) {
-            clauses.add(f.clause(literals));
+        final LNGResult<UBTree<Literal>> ubTreeResult = generateSubsumedUBTree(formula, handler);
+        if (!ubTreeResult.isSuccess()) {
+            return LNGResult.aborted(ubTreeResult.getAbortionEvent());
+        } else {
+            final UBTree<Literal> ubTree = ubTreeResult.getResult();
+            final List<Formula> clauses = new ArrayList<>();
+            for (final SortedSet<Literal> literals : ubTree.allSets()) {
+                clauses.add(f.clause(literals));
+            }
+            return LNGResult.of(f.cnf(clauses));
         }
-        return f.cnf(clauses);
     }
 }

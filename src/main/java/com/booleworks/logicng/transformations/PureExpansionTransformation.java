@@ -13,6 +13,8 @@ import com.booleworks.logicng.formulas.NAryOperator;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.ArrayList;
@@ -34,7 +36,11 @@ public final class PureExpansionTransformation extends StatelessFormulaTransform
     }
 
     @Override
-    public Formula apply(final Formula formula) {
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+        return LNGResult.of(expand(formula));
+    }
+
+    private Formula expand(final Formula formula) {
         switch (formula.type()) {
             case FALSE:
             case TRUE:

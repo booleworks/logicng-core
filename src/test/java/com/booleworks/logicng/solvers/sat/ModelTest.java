@@ -12,7 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Model;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
@@ -165,12 +164,12 @@ public class ModelTest {
         final SortedSet<Variable> relevantVariables =
                 new TreeSet<>(Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C")));
         final Assignment model = solverForMe.satCall().model(relevantVariables);
-        assertThat(verificationSolver.satCall().addFormulas(model.literals()).sat()).isEqualTo(Tristate.TRUE);
+        assertThat(verificationSolver.satCall().addFormulas(model.literals()).sat().getResult()).isTrue();
         assertThat(model.formula(f).variables(f)).isEqualTo(relevantVariables);
         final List<Model> allModels = solverForMe.enumerateAllModels(relevantVariables);
         assertThat(allModels).hasSize(2);
         for (final Model m : allModels) {
-            assertThat(verificationSolver.satCall().addFormulas(m.getLiterals()).sat()).isEqualTo(Tristate.TRUE);
+            assertThat(verificationSolver.satCall().addFormulas(m.getLiterals()).sat().getResult()).isTrue();
             assertThat(m.formula(f).variables(f)).isEqualTo(relevantVariables);
         }
     }
@@ -192,7 +191,7 @@ public class ModelTest {
         final SortedSet<Variable> allVariables = new TreeSet<>(relevantVariables);
         allVariables.addAll(additionalVariables);
         final Assignment model = solverForMe.satCall().model(additionalVariables);
-        assertThat(verificationSolver.satCall().addFormulas(model.literals()).sat()).isEqualTo(Tristate.TRUE);
+        assertThat(verificationSolver.satCall().addFormulas(model.literals()).sat().getResult()).isTrue();
         assertThat(model.formula(f).variables(f)).containsExactlyInAnyOrder(f.variable("D"), f.variable("X"),
                 f.variable("Y"));
         final ModelEnumerationFunction me = ModelEnumerationFunction.builder(relevantVariables)
@@ -202,7 +201,7 @@ public class ModelTest {
         final List<Model> allModels = solverForMe.execute(me);
         assertThat(allModels).hasSize(2);
         for (final Model m : allModels) {
-            assertThat(verificationSolver.satCall().addFormulas(m.getLiterals()).sat()).isEqualTo(Tristate.TRUE);
+            assertThat(verificationSolver.satCall().addFormulas(m.getLiterals()).sat().getResult()).isTrue();
             assertThat(m.formula(f).variables(f)).isEqualTo(allVariables);
         }
     }

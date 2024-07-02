@@ -14,6 +14,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.handlers.BoundedOptimizationHandler;
 import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
@@ -98,7 +99,7 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
 
     @ParameterizedTest
     @MethodSource("contexts")
-    public void testzSmusComputationIsCancelled(final FormulaContext _c) throws ParserException {
+    public void testSmusComputationIsCancelled(final FormulaContext _c) throws ParserException {
         final ComputationHandler handler = new BoundedOptimizationHandler(-1, 5);
         final Formula formula = _c.f.parse("a&(b|c)");
         testHandler(handler, formula, true);
@@ -159,15 +160,13 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
 
     private void testHandler(final ComputationHandler handler, final Formula formula, final boolean expAborted) {
         final AdvancedSimplifier simplifierWithHandler =
-                new AdvancedSimplifier(formula.factory(), AdvancedSimplifierConfig.builder().build(), handler);
-        final Formula simplified = formula.transform(simplifierWithHandler);
-        assertThat(handler.isAborted()).isEqualTo(expAborted);
+                new AdvancedSimplifier(formula.factory(), AdvancedSimplifierConfig.builder().build());
+        final LNGResult<Formula> simplified = formula.transform(simplifierWithHandler, handler);
+        assertThat(simplified.isSuccess()).isEqualTo(!expAborted);
         if (expAborted) {
-            assertThat(handler.isAborted()).isTrue();
-            assertThat(simplified).isNull();
+            assertThat(simplified.getResult()).isNull();
         } else {
-            assertThat(handler.isAborted()).isFalse();
-            assertThat(simplified).isNotNull();
+            assertThat(simplified.getResult()).isNotNull();
         }
     }
 }

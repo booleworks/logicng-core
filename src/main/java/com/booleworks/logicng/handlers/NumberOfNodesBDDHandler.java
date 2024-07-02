@@ -7,7 +7,7 @@ package com.booleworks.logicng.handlers;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BDD_COMPUTATION_STARTED;
 import static com.booleworks.logicng.handlers.events.SimpleEvent.BDD_NEW_REF_ADDED;
 
-import com.booleworks.logicng.handlers.events.LogicNGEvent;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 
 /**
  * A BDD handler which cancels the build process after a given number of added
@@ -34,17 +34,12 @@ public class NumberOfNodesBDDHandler implements ComputationHandler {
     }
 
     @Override
-    public boolean shouldResume(final LogicNGEvent event) {
+    public boolean shouldResume(final LNGEvent event) {
         if (event == BDD_COMPUTATION_STARTED) {
             count = 0;
         } else if (event == BDD_NEW_REF_ADDED) {
             aborted = ++count >= bound;
         }
         return !aborted;
-    }
-
-    @Override
-    public boolean isAborted() {
-        return aborted;
     }
 }

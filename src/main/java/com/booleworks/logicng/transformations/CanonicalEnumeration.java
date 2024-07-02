@@ -8,6 +8,8 @@ import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.util.FormulaHelper;
@@ -35,24 +37,32 @@ public abstract class CanonicalEnumeration extends StatelessFormulaTransformatio
      * Constructs the canonical CNF/DNF of the given formula by enumerating the
      * falsifying/satisfying assignments.
      * @param formula the formula
+     * @param handler the computation handler
      * @param cnf     {@code true} if the canonical CNF should be computed,
      *                {@code false} if the canonical DNF should be computed
-     * @return the canonical normal form (CNF or DNF) of the formula
+     * @return the (potentially aborted) result with the canonical normal form
+     *         (CNF or DNF) of the formula
      */
-    protected Formula compute(final Formula formula, final boolean cnf) {
+    protected LNGResult<Formula> compute(final Formula formula, final ComputationHandler handler, final boolean cnf) {
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(cnf ? formula.negate(f) : formula);
-        final List<Model> enumeration = solver.execute(ModelEnumerationFunction.builder(formula.variables(f)).build());
-        if (enumeration.isEmpty()) {
-            return f.constant(cnf);
+        final LNGResult<List<Model>> enumerationResult = solver.execute(
+                ModelEnumerationFunction.builder(formula.variables(f)).build(), handler);
+        if (!enumerationResult.isSuccess()) {
+            return LNGResult.aborted(enumerationResult.getAbortionEvent());
+        } else {
+            List<Model> enumeration = enumerationResult.getResult();
+            if (enumeration.isEmpty()) {
+                return LNGResult.of(f.constant(cnf));
+            }
+            final List<Formula> ops = new ArrayList<>();
+            for (final Model model : enumeration) {
+                final List<Literal> literals = model.getLiterals();
+                final Formula term =
+                        cnf ? f.or(FormulaHelper.negate(f, literals, ArrayList::new)) : f.and(model.getLiterals());
+                ops.add(term);
+            }
+            return LNGResult.of(cnf ? f.and(ops) : f.or(ops));
         }
-        final List<Formula> ops = new ArrayList<>();
-        for (final Model model : enumeration) {
-            final List<Literal> literals = model.getLiterals();
-            final Formula term =
-                    cnf ? f.or(FormulaHelper.negate(f, literals, ArrayList::new)) : f.and(model.getLiterals());
-            ops.add(term);
-        }
-        return cnf ? f.and(ops) : f.or(ops);
     }
 }

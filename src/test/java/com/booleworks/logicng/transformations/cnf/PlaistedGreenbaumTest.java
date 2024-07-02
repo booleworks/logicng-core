@@ -81,8 +81,8 @@ public class PlaistedGreenbaumTest extends TestWithFormulaContext {
     public void testNotNary(final FormulaContext _c) throws ParserException {
         final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(_c.f, 0);
 
-        Assertions.assertThat(_c.p.parse("~a").transform(pg)).isEqualTo(_c.p.parse("~a"));
-        Assertions.assertThat(_c.p.parse("~~a").transform(pg)).isEqualTo(_c.p.parse("a"));
+        assertThat(_c.p.parse("~a").transform(pg)).isEqualTo(_c.p.parse("~a"));
+        assertThat(_c.p.parse("~~a").transform(pg)).isEqualTo(_c.p.parse("a"));
         final Formula f0 = _c.p.parse("~(~a | b)");
         final Formula f1 = _c.p.parse("~((a | b) | ~(x | y))");
         final Formula f2 = _c.p.parse("~(a & b | ~a & ~b)");
@@ -113,8 +113,8 @@ public class PlaistedGreenbaumTest extends TestWithFormulaContext {
     public void testNotBinary(final FormulaContext _c) throws ParserException {
         final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(_c.f, 0);
 
-        Assertions.assertThat(_c.p.parse("~a").transform(pg)).isEqualTo(_c.p.parse("~a"));
-        Assertions.assertThat(_c.p.parse("~~a").transform(pg)).isEqualTo(_c.p.parse("a"));
+        assertThat(_c.p.parse("~a").transform(pg)).isEqualTo(_c.p.parse("~a"));
+        assertThat(_c.p.parse("~~a").transform(pg)).isEqualTo(_c.p.parse("a"));
         final Formula f1 = _c.p.parse("~(~(a | b) => ~(x | y))");
         final Formula f2 = _c.p.parse("~(a <=> b)");
         final Formula f3 = _c.p.parse("~(~(a | b) <=> ~(x | y))");
@@ -131,11 +131,11 @@ public class PlaistedGreenbaumTest extends TestWithFormulaContext {
     public void testCC(final FormulaContext _c) throws ParserException {
         final PlaistedGreenbaumTransformation pg = new PlaistedGreenbaumTransformation(_c.f, 0);
 
-        Assertions.assertThat(_c.p.parse("a <=> (1 * b <= 1)").transform(pg)).isEqualTo(_c.p.parse("a"));
-        Assertions.assertThat(_c.p.parse("~(1 * b <= 1)").transform(pg)).isEqualTo(_c.p.parse("$false"));
-        Assertions.assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").transform(pg))
+        assertThat(_c.p.parse("a <=> (1 * b <= 1)").transform(pg)).isEqualTo(_c.p.parse("a"));
+        assertThat(_c.p.parse("~(1 * b <= 1)").transform(pg)).isEqualTo(_c.p.parse("$false"));
+        assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").transform(pg))
                 .isEqualTo(_c.p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
-        Assertions.assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").transform(pg)).isEqualTo(_c.p.parse(
+        assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").transform(pg)).isEqualTo(_c.p.parse(
                 String.format("(d | @AUX_%1$s_CC_1 | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_3 | @AUX_%1$s_CC_1 | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_3 | d | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_4 |" +
                         "@AUX_%1$s_CC_0) & (~@AUX_%1$s_CC_2 | @AUX_%1$s_CC_0) & (~@AUX_%1$s_CC_4 | ~@AUX_%1$s_CC_2) & (c | @AUX_%1$s_CC_3 | @AUX_%1$s_CC_5) & (b | @AUX_%1$s_CC_3" +
                         " | @AUX_%1$s_CC_5) & (b | c | @AUX_%1$s_CC_5) & (~@AUX_%1$s_CC_5 | @AUX_%1$s_CC_2) & ~@AUX_%1$s_CC_0", _c.f.name())));

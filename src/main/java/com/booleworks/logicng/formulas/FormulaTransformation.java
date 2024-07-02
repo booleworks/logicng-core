@@ -4,6 +4,10 @@
 
 package com.booleworks.logicng.formulas;
 
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.NopHandler;
+
 /**
  * A transformation on a formula.
  * @version 3.0.0
@@ -13,9 +17,19 @@ package com.booleworks.logicng.formulas;
 public interface FormulaTransformation {
 
     /**
-     * Returns the transformed formula.
+     * Performs the transformation with the given handler.
+     * @param formula the input formula
+     * @param handler the computation handler
+     * @return the LNGResult with the transformed formula
+     */
+    LNGResult<Formula> apply(Formula formula, ComputationHandler handler);
+
+    /**
+     * Performs the transformation.
      * @param formula the input formula
      * @return the transformed formula
      */
-    Formula apply(Formula formula);
+    default Formula apply(final Formula formula) {
+        return apply(formula, NopHandler.get()).orElseThrow(() -> new IllegalStateException("Computations should never abort with the NopHandler."));
+    }
 }

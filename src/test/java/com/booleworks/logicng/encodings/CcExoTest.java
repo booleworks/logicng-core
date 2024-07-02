@@ -54,7 +54,7 @@ public class CcExoTest implements LogicNGTest {
         final FormulaFactory f = FormulaFactory.caching();
         final CardinalityConstraint cc = (CardinalityConstraint) f.exo(f.variable("v0"));
         for (final EncoderConfig config : configs) {
-            Assertions.assertThat(CcEncoder.encode(f, cc, config)).containsExactly(f.variable("v0"));
+            assertThat(CcEncoder.encode(f, cc, config)).containsExactly(f.variable("v0"));
         }
         assertThat(f.newCCVariable().name()).endsWith("_0");
     }
@@ -105,7 +105,7 @@ public class CcExoTest implements LogicNGTest {
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.exo(problemLits));
         assertSolverSat(solver);
-        Assertions.assertThat(solver.enumerateAllModels(problemLits))
+        assertThat(solver.enumerateAllModels(problemLits))
                 .hasSize(numLits)
                 .allMatch(m -> m.positiveVariables().size() == 1);
     }

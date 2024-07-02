@@ -11,7 +11,7 @@ import java.util.function.Supplier;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class OptimizationFoundBetterBoundEvent implements LogicNGEvent {
+public class OptimizationFoundBetterBoundEvent implements LNGEvent {
 
     private final Supplier<Assignment> model;
 

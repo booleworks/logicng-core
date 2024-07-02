@@ -8,6 +8,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
@@ -46,16 +47,16 @@ public final class BackboneGeneration {
      * @return the backbone or {@code null} if the computation was aborted by
      *         the handler
      */
-    public static Backbone compute(final FormulaFactory f, final Collection<Formula> formulas,
-                                   final Collection<Variable> variables, final BackboneType type,
-                                   final ComputationHandler handler) {
+    public static LNGResult<Backbone> compute(final FormulaFactory f, final Collection<Formula> formulas,
+                                              final Collection<Variable> variables, final BackboneType type,
+                                              final ComputationHandler handler) {
         if (formulas == null || formulas.isEmpty()) {
             throw new IllegalArgumentException("Provide at least one formula for backbone computation");
         }
         final SATSolver solver = SATSolver.newSolver(f,
                 SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         solver.add(formulas);
-        return solver.execute(BackboneFunction.builder().handler(handler).variables(variables).type(type).build());
+        return solver.execute(BackboneFunction.builder().variables(variables).type(type).build(), handler);
     }
 
     /**
@@ -70,7 +71,7 @@ public final class BackboneGeneration {
      */
     public static Backbone compute(final FormulaFactory f, final Collection<Formula> formulas,
                                    final Collection<Variable> variables, final BackboneType type) {
-        return compute(f, formulas, variables, type, NopHandler.get());
+        return compute(f, formulas, variables, type, NopHandler.get()).getResult();
     }
 
     /**
@@ -120,8 +121,8 @@ public final class BackboneGeneration {
      * @param type      the type of backbone variables that should be computed
      * @return the backbone
      */
-    public static Backbone compute(final FormulaFactory f, final Formula formula, final Collection<Variable> variables,
-                                   final BackboneType type) {
+    public static Backbone compute(final FormulaFactory f, final Formula formula,
+                                   final Collection<Variable> variables, final BackboneType type) {
         return compute(f, Collections.singletonList(formula), variables, type);
     }
 

@@ -658,35 +658,35 @@ public class PBConstraintTest extends TestWithFormulaContext {
 
     @Test
     public void testEvaluateCoeffs() {
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, -3, CType.EQ)).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 3, CType.EQ)).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, -2, CType.EQ)).isEqualTo(Tristate.UNDEF);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 2, CType.EQ)).isEqualTo(Tristate.UNDEF);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 0, CType.EQ)).isEqualTo(Tristate.UNDEF);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, -3, CType.EQ)).isEqualTo(Tristate.FALSE);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 3, CType.EQ)).isEqualTo(Tristate.FALSE);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, -2, CType.EQ)).isEqualTo(Tristate.UNDEF);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 2, CType.EQ)).isEqualTo(Tristate.UNDEF);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 0, CType.EQ)).isEqualTo(Tristate.UNDEF);
 
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, -3, CType.GE)).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 3, CType.GE)).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, -2, CType.GE)).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 2, CType.GE)).isEqualTo(Tristate.UNDEF);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 0, CType.GE)).isEqualTo(Tristate.UNDEF);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, -3, CType.GE)).isEqualTo(Tristate.TRUE);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 3, CType.GE)).isEqualTo(Tristate.FALSE);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, -2, CType.GE)).isEqualTo(Tristate.TRUE);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 2, CType.GE)).isEqualTo(Tristate.UNDEF);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 0, CType.GE)).isEqualTo(Tristate.UNDEF);
 
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, -3, CType.GT)).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 3, CType.GT)).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, -2, CType.GT)).isEqualTo(Tristate.UNDEF);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 2, CType.GT)).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 0, CType.GT)).isEqualTo(Tristate.UNDEF);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, -3, CType.GT)).isEqualTo(Tristate.TRUE);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 3, CType.GT)).isEqualTo(Tristate.FALSE);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, -2, CType.GT)).isEqualTo(Tristate.UNDEF);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 2, CType.GT)).isEqualTo(Tristate.FALSE);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 0, CType.GT)).isEqualTo(Tristate.UNDEF);
 
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, -3, CType.LE)).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 3, CType.LE)).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, -2, CType.LE)).isEqualTo(Tristate.UNDEF);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 2, CType.LE)).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 0, CType.LE)).isEqualTo(Tristate.UNDEF);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, -3, CType.LE)).isEqualTo(Tristate.FALSE);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 3, CType.LE)).isEqualTo(Tristate.TRUE);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, -2, CType.LE)).isEqualTo(Tristate.UNDEF);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 2, CType.LE)).isEqualTo(Tristate.TRUE);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 0, CType.LE)).isEqualTo(Tristate.UNDEF);
 
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, -3, CType.LT)).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 3, CType.LT)).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, -2, CType.LT)).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 2, CType.LT)).isEqualTo(Tristate.UNDEF);
-        Assertions.assertThat(PBConstraint.evaluateCoeffs(-2, 2, 0, CType.LT)).isEqualTo(Tristate.UNDEF);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, -3, CType.LT)).isEqualTo(Tristate.FALSE);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 3, CType.LT)).isEqualTo(Tristate.TRUE);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, -2, CType.LT)).isEqualTo(Tristate.FALSE);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 2, CType.LT)).isEqualTo(Tristate.UNDEF);
+        assertThat(PBConstraint.evaluateCoeffs(-2, 2, 0, CType.LT)).isEqualTo(Tristate.UNDEF);
     }
 
     @ParameterizedTest

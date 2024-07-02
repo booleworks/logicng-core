@@ -5,7 +5,7 @@
 package com.booleworks.logicng.handlers;
 
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
-import com.booleworks.logicng.handlers.events.LogicNGEvent;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 
 /**
  * Bounded SAT handler for testing purposes.
@@ -28,13 +28,12 @@ public class BoundedSatHandler implements ComputationHandler {
         numStarts = 0;
     }
 
-    @Override
     public boolean isAborted() {
         return aborted;
     }
 
     @Override
-    public boolean shouldResume(final LogicNGEvent event) {
+    public boolean shouldResume(final LNGEvent event) {
         if (event == ComputationStartedEvent.SAT_CALL_STARTED) {
             aborted = startsLimit != -1 && ++numStarts >= startsLimit;
         }

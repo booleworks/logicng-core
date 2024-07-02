@@ -7,7 +7,7 @@ import com.booleworks.logicng.solvers.MaxSATSolver;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class MaxSatNewUpperBoundEvent implements LogicNGEvent {
+public class MaxSatNewUpperBoundEvent implements LNGEvent {
     private final int bound;
 
     /**

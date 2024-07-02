@@ -7,7 +7,6 @@ package com.booleworks.logicng.primecomputation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.RandomTag;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -15,6 +14,7 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.handlers.BoundedSatHandler;
 import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
@@ -43,16 +43,15 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testPrimeImplicateNaive(final FormulaContext _c) throws ParserException {
         final NaivePrimeReduction naive01 = new NaivePrimeReduction(_c.f, _c.f.parse("a&b"));
-        Assertions.assertThat(naive01.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.a, _c.b))))
+        assertThat(naive01.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.a, _c.b))))
                 .containsAnyOf(_c.a, _c.b).hasSize(1);
 
         final NaivePrimeReduction naive02 = new NaivePrimeReduction(_c.f, _c.f.parse("(a => b) | b | c"));
-        Assertions
-                .assertThat(naive02.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.a.negate(_c.f), _c.b, _c.c))))
+        assertThat(naive02.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.a.negate(_c.f), _c.b, _c.c))))
                 .containsExactly(_c.a.negate(_c.f), _c.b, _c.c);
 
         final NaivePrimeReduction naive03 = new NaivePrimeReduction(_c.f, _c.f.parse("(a => b) & b & c"));
-        Assertions.assertThat(naive03.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.b, _c.c))))
+        assertThat(naive03.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.b, _c.c))))
                 .containsAnyOf(_c.b, _c.c).hasSize(1);
     }
 
@@ -127,20 +126,19 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula.negate(f));
         try (final SATCall call = solver.satCall().solve()) {
-            final boolean isSAT = call.getSatResult() == Tristate.TRUE;
-            if (!isSAT) {
+            if (!call.getSatResult().getResult()) {
                 return;
             }
             final SortedSet<Literal> falsifyingAssignment =
                     FormulaHelper.negateLiterals(f, call.model(formula.variables(f)).literals(), TreeSet::new);
             final NaivePrimeReduction naive = new NaivePrimeReduction(f, formula);
-            final SortedSet<Literal> primeImplicate = naive.reduceImplicate(f, falsifyingAssignment, handler);
+            final LNGResult<SortedSet<Literal>> primeImplicate = naive.reduceImplicate(f, falsifyingAssignment, handler);
             if (expAborted) {
-                assertThat(handler.isAborted()).isTrue();
-                assertThat(primeImplicate).isNull();
+                assertThat(primeImplicate.isSuccess()).isFalse();
+                assertThat(primeImplicate.getResult()).isNull();
             } else {
-                assertThat(falsifyingAssignment).containsAll(primeImplicate);
-                testPrimeImplicateProperty(formula, primeImplicate);
+                assertThat(falsifyingAssignment).containsAll(primeImplicate.getResult());
+                testPrimeImplicateProperty(formula, primeImplicate.getResult());
             }
         }
     }
@@ -150,11 +148,11 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula);
         final SortedSet<Literal> negatedLiterals = FormulaHelper.negateLiterals(f, primeImplicate, TreeSet::new);
-        Assertions.assertThat(solver.satCall().addFormulas(negatedLiterals).sat()).isEqualTo(Tristate.FALSE);
+        assertThat(solver.satCall().addFormulas(negatedLiterals).sat().getResult()).isFalse();
         for (final Literal lit : negatedLiterals) {
             final SortedSet<Literal> reducedNegatedLiterals = new TreeSet<>(negatedLiterals);
             reducedNegatedLiterals.remove(lit);
-            Assertions.assertThat(solver.satCall().addFormulas(reducedNegatedLiterals).sat()).isEqualTo(Tristate.TRUE);
+            assertThat(solver.satCall().addFormulas(reducedNegatedLiterals).sat().getResult()).isTrue();
         }
     }
 }

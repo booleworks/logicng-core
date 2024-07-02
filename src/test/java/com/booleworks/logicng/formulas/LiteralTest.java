@@ -7,7 +7,6 @@ package com.booleworks.logicng.formulas;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.datastructures.Substitution;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -95,17 +94,17 @@ public class LiteralTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testEqualsDifferentFormulaFactory(final FormulaContext _c) {
-        Assertions.assertThat(FormulaFactory.caching().literal("a", true).equals(_c.a)).isTrue();
-        Assertions.assertThat(FormulaFactory.caching().literal("a", false).equals(_c.na)).isTrue();
-        Assertions.assertThat(FormulaFactory.caching().literal("a", false).equals(_c.a)).isFalse();
-        Assertions.assertThat(FormulaFactory.caching().literal("b", true).equals(_c.a)).isFalse();
-        Assertions.assertThat(FormulaFactory.caching().falsum()).isNotEqualTo(_c.a);
+        assertThat(FormulaFactory.caching().literal("a", true).equals(_c.a)).isTrue();
+        assertThat(FormulaFactory.caching().literal("a", false).equals(_c.na)).isTrue();
+        assertThat(FormulaFactory.caching().literal("a", false).equals(_c.a)).isFalse();
+        assertThat(FormulaFactory.caching().literal("b", true).equals(_c.a)).isFalse();
+        assertThat(FormulaFactory.caching().falsum()).isNotEqualTo(_c.a);
 
-        Assertions.assertThat(FormulaFactory.nonCaching().literal("a", true).equals(_c.a)).isTrue();
-        Assertions.assertThat(FormulaFactory.nonCaching().literal("a", false).equals(_c.na)).isTrue();
-        Assertions.assertThat(FormulaFactory.nonCaching().literal("a", false).equals(_c.a)).isFalse();
-        Assertions.assertThat(FormulaFactory.nonCaching().literal("b", true).equals(_c.a)).isFalse();
-        Assertions.assertThat(FormulaFactory.nonCaching().falsum()).isNotEqualTo(_c.a);
+        assertThat(FormulaFactory.nonCaching().literal("a", true).equals(_c.a)).isTrue();
+        assertThat(FormulaFactory.nonCaching().literal("a", false).equals(_c.na)).isTrue();
+        assertThat(FormulaFactory.nonCaching().literal("a", false).equals(_c.a)).isFalse();
+        assertThat(FormulaFactory.nonCaching().literal("b", true).equals(_c.a)).isFalse();
+        assertThat(FormulaFactory.nonCaching().falsum()).isNotEqualTo(_c.a);
     }
 
     @ParameterizedTest

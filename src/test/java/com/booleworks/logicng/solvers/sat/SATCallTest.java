@@ -4,13 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.TimeoutHandler;
-import com.booleworks.logicng.handlers.events.LogicNGEvent;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.handlers.events.SimpleEvent;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
@@ -70,8 +69,8 @@ public class SATCallTest {
         final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().build());
         solver.add(f.parse("a | b"));
         solver.add(f.parse("c & (~c | ~a)"));
-        assertThat(solver.satCall().sat()).isEqualTo(Tristate.TRUE);
-        assertThat(solver.satCall().addFormulas(f.literal("b", false)).sat()).isEqualTo(Tristate.FALSE);
+        assertThat(solver.satCall().sat().getResult()).isTrue();
+        assertThat(solver.satCall().addFormulas(f.literal("b", false)).sat().getResult()).isFalse();
         assertThat(solver.sat()).isTrue();
     }
 
@@ -134,19 +133,19 @@ public class SATCallTest {
         solver.add(FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt"));
 
         try (final SATCall satCall = solver.satCall().handler(new MaxConflictsHandler(0)).solve()) {
-            assertThat(satCall.getSatResult()).isEqualTo(Tristate.UNDEF);
+            assertThat(satCall.getSatResult().isSuccess()).isFalse();
             assertThat(satCall.model(solver.underlyingSolver().knownVariables())).isNull();
             assertThat(satCall.unsatCore()).isNull();
         }
 
-        assertThat(solver.satCall().handler(new MaxConflictsHandler(0)).sat()).isEqualTo(Tristate.UNDEF);
+        assertThat(solver.satCall().handler(new MaxConflictsHandler(0)).sat().isSuccess()).isFalse();
         assertThat(
                 solver.satCall().handler(new MaxConflictsHandler(0)).model(solver.underlyingSolver().knownVariables()))
                 .isNull();
         assertThat(solver.satCall().handler(new MaxConflictsHandler(0)).unsatCore()).isNull();
 
         try (final SATCall satCall = solver.satCall().handler(new MaxConflictsHandler(100)).solve()) {
-            assertThat(satCall.getSatResult()).isEqualTo(Tristate.TRUE);
+            assertThat(satCall.getSatResult().getResult()).isTrue();
             assertThat(satCall.model(solver.underlyingSolver().knownVariables())).isNotNull();
             assertThat(satCall.unsatCore()).isNull();
         }
@@ -249,16 +248,11 @@ public class SATCallTest {
         }
 
         @Override
-        public boolean shouldResume(final LogicNGEvent event) {
+        public boolean shouldResume(final LNGEvent event) {
             if (event == SimpleEvent.SAT_CONFLICT_DETECTED) {
                 aborted = numConflicts++ > maxConflicts;
             }
             return !aborted;
-        }
-
-        @Override
-        public boolean isAborted() {
-            return aborted;
         }
     }
 }

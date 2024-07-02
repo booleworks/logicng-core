@@ -12,10 +12,12 @@ import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SAT
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.CNF_METHOD;
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.formulas.Formula;
@@ -65,12 +67,8 @@ class TimeoutOptimizationHandlerTest {
         for (final SATSolver solver : solvers) {
             solver.add(formula);
             final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
-
-            solver.execute(OptimizationFunction.builder()
-                    .handler(handler)
-                    .literals(formula.variables(f))
-                    .maximize().build());
-
+            when(handler.shouldResume(any())).thenReturn(true);
+            solver.execute(OptimizationFunction.builder().literals(formula.variables(f)).maximize().build(), handler);
             verify(handler, times(1)).shouldResume(eq(OPTIMIZATION_FUNCTION_STARTED));
             verify(handler, atLeast(1)).shouldResume(eq(SAT_CALL_STARTED));
         }
@@ -82,14 +80,12 @@ class TimeoutOptimizationHandlerTest {
                 DimacsReader.readCNF(f, "src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf");
         for (final SATSolver solver : solvers) {
             solver.add(formulas);
-            final TimeoutHandler handler = new TimeoutHandler(100L);
+            final TimeoutHandler handler = new TimeoutHandler(10L);
 
-            final Assignment result = solver.execute(OptimizationFunction.builder()
-                    .handler(handler)
+            final LNGResult<SatResult<Assignment>> result = solver.execute(OptimizationFunction.builder()
                     .literals(FormulaHelper.variables(f, formulas))
-                    .maximize().build());
-
-            assertThat(result).isNull();
+                    .maximize().build(), handler);
+            assertThat(result.isSuccess()).isFalse();
         }
     }
 
@@ -99,15 +95,11 @@ class TimeoutOptimizationHandlerTest {
                 DimacsReader.readCNF(f, "src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf");
         for (final SATSolver solver : solvers) {
             solver.add(formulas);
-            final TimeoutHandler handler =
-                    new TimeoutHandler(100L, FIXED_END);
-
-            final Assignment result = solver.execute(OptimizationFunction.builder()
-                    .handler(handler)
+            final TimeoutHandler handler = new TimeoutHandler(100L, FIXED_END);
+            final LNGResult<SatResult<Assignment>> result = solver.execute(OptimizationFunction.builder()
                     .literals(FormulaHelper.variables(f, formulas))
-                    .maximize().build());
-
-            assertThat(result).isNull();
+                    .maximize().build(), handler);
+            assertThat(result.isSuccess()).isFalse();
         }
     }
 }

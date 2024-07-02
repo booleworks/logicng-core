@@ -21,20 +21,20 @@ public class DFSOrderingTest {
     public void testSimpleCases() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        Assertions.assertThat(ordering.getOrder(f, p.parse("$true"))).isEmpty();
-        Assertions.assertThat(ordering.getOrder(f, p.parse("$false"))).isEmpty();
-        Assertions.assertThat(ordering.getOrder(f, p.parse("A"))).containsExactly(f.variable("A"));
-        Assertions.assertThat(ordering.getOrder(f, p.parse("A => ~B"))).containsExactly(f.variable("A"),
+        assertThat(ordering.getOrder(f, p.parse("$true"))).isEmpty();
+        assertThat(ordering.getOrder(f, p.parse("$false"))).isEmpty();
+        assertThat(ordering.getOrder(f, p.parse("A"))).containsExactly(f.variable("A"));
+        assertThat(ordering.getOrder(f, p.parse("A => ~B"))).containsExactly(f.variable("A"),
                 f.variable("B"));
-        Assertions.assertThat(ordering.getOrder(f, p.parse("A <=> ~B"))).containsExactly(f.variable("A"),
+        assertThat(ordering.getOrder(f, p.parse("A <=> ~B"))).containsExactly(f.variable("A"),
                 f.variable("B"));
-        Assertions.assertThat(ordering.getOrder(f, p.parse("~(A <=> ~B)"))).containsExactly(f.variable("A"),
+        assertThat(ordering.getOrder(f, p.parse("~(A <=> ~B)"))).containsExactly(f.variable("A"),
                 f.variable("B"));
-        Assertions.assertThat(ordering.getOrder(f, p.parse("A | ~C | B | D"))).containsExactly(f.variable("A"),
+        assertThat(ordering.getOrder(f, p.parse("A | ~C | B | D"))).containsExactly(f.variable("A"),
                 f.variable("C"), f.variable("B"), f.variable("D"));
-        Assertions.assertThat(ordering.getOrder(f, p.parse("A & ~C & B & D"))).containsExactly(f.variable("A"),
+        assertThat(ordering.getOrder(f, p.parse("A & ~C & B & D"))).containsExactly(f.variable("A"),
                 f.variable("C"), f.variable("B"), f.variable("D"));
-        Assertions.assertThat(ordering.getOrder(f, p.parse("A + C + B + D < 2"))).containsExactly(f.variable("A"),
+        assertThat(ordering.getOrder(f, p.parse("A + C + B + D < 2"))).containsExactly(f.variable("A"),
                 f.variable("C"), f.variable("B"), f.variable("D"));
     }
 

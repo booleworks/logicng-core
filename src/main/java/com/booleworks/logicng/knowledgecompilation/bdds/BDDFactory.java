@@ -42,7 +42,9 @@ import com.booleworks.logicng.formulas.Implication;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.handlers.events.SimpleEvent;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDConstruction;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
 
@@ -73,7 +75,7 @@ public final class BDDFactory {
      * @return the top node of the BDD
      */
     public static BDD build(final FormulaFactory f, final Formula formula) {
-        return build(f, formula, null, NopHandler.get());
+        return build(f, formula, null, NopHandler.get()).getResult();
     }
 
     /**
@@ -91,7 +93,7 @@ public final class BDDFactory {
      *         computation was aborted
      */
     public static BDD build(final FormulaFactory f, final Formula formula, final BDDKernel kernel) {
-        return build(f, formula, kernel, NopHandler.get());
+        return build(f, formula, kernel, NopHandler.get()).getResult();
     }
 
     /**
@@ -114,12 +116,15 @@ public final class BDDFactory {
      * @return the top node of the BDD or {@link BDDKernel#BDD_ABORT} if the
      *         computation was aborted
      */
-    public static BDD build(final FormulaFactory f, final Formula formula, final BDDKernel kernel,
-                            final ComputationHandler handler) {
+    public static LNGResult<BDD> build(final FormulaFactory f, final Formula formula, final BDDKernel kernel,
+                                       final ComputationHandler handler) {
         handler.shouldResume(BDD_COMPUTATION_STARTED);
         final int varNum = formula.variables(f).size();
         final BDDKernel bddKernel = kernel == null ? new BDDKernel(f, varNum, varNum * 30, varNum * 20) : kernel;
-        return new BDD(buildRec(f, formula, bddKernel, new BDDConstruction(bddKernel), handler), bddKernel);
+        final int bddIndex = buildRec(f, formula, bddKernel, new BDDConstruction(bddKernel), handler);
+        return bddIndex == BDDKernel.BDD_ABORT
+                ? LNGResult.aborted(SimpleEvent.BDD_NEW_REF_ADDED)
+                : LNGResult.of(new BDD(bddIndex, bddKernel));
     }
 
     public static BDD build(final Collection<? extends Literal> literals, final BDDKernel kernel) {
@@ -164,8 +169,7 @@ public final class BDDFactory {
      *         was aborted
      */
     private static int buildRec(final FormulaFactory f, final Formula formula, final BDDKernel kernel,
-                                final BDDConstruction construction,
-                                final ComputationHandler handler) {
+                                final BDDConstruction construction, final ComputationHandler handler) {
         switch (formula.type()) {
             case FALSE:
                 return BDDKernel.BDD_FALSE;

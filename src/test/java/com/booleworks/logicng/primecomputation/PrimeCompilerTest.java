@@ -19,6 +19,7 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.handlers.BoundedOptimizationHandler;
 import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
@@ -230,14 +231,13 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
     }
 
     private void testHandler(final ComputationHandler handler, final Formula formula, final PrimeCompiler compiler,
-                             final PrimeResult.CoverageType coverageType,
-                             final boolean expAborted) {
-        final PrimeResult result = compiler.compute(formula.factory(), formula, coverageType, handler);
-        assertThat(handler.isAborted()).isEqualTo(expAborted);
+                             final PrimeResult.CoverageType coverageType, final boolean expAborted) {
+        final LNGResult<PrimeResult> result = compiler.compute(formula.factory(), formula, coverageType, handler);
+        assertThat(!result.isSuccess()).isEqualTo(expAborted);
         if (expAborted) {
-            assertThat(result).isNull();
+            assertThat(result.getResult()).isNull();
         } else {
-            assertThat(result).isNotNull();
+            assertThat(result.getResult()).isNotNull();
         }
     }
 }

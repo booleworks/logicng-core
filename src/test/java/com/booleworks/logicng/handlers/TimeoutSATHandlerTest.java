@@ -15,11 +15,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.SATSolver;
@@ -63,9 +63,8 @@ class TimeoutSATHandlerTest {
         for (final SATSolver solver : solvers) {
             solver.add(f.parse("(x => y) & (~x => y) & (y => z) & (z => ~y)"));
             final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
-
+            when(handler.shouldResume(any())).thenReturn(true);
             solver.satCall().handler(handler).solve().close();
-
             verify(handler, times(1)).shouldResume(eq(SAT_CALL_STARTED));
             verify(handler, atLeast(1)).shouldResume(eq(SAT_CONFLICT_DETECTED));
             verify(handler, times(1)).shouldResume(eq(SAT_CALL_FINISHED));
@@ -79,15 +78,13 @@ class TimeoutSATHandlerTest {
             final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
             final AtomicInteger count = new AtomicInteger(0);
             when(handler.shouldResume(any())).thenReturn(true);
-            when(handler.shouldResume(eq(SAT_CONFLICT_DETECTED))).thenAnswer(invocationOnMock -> count.addAndGet(1) < 5);
-
-            final Tristate result = solver.satCall().handler(handler).sat();
-
-            assertThat(result).isEqualTo(Tristate.UNDEF);
-
+            when(handler.shouldResume(eq(SAT_CONFLICT_DETECTED)))
+                    .thenAnswer(invocationOnMock -> count.addAndGet(1) < 5);
+            final LNGResult<Boolean> result = solver.satCall().handler(handler).sat();
+            assertThat(result.isSuccess()).isFalse();
             verify(handler, times(1)).shouldResume(eq(SAT_CALL_STARTED));
             verify(handler, times(5)).shouldResume(eq(SAT_CONFLICT_DETECTED));
-            verify(handler, times(1)).shouldResume(eq(SAT_CALL_FINISHED));
+            verify(handler, never()).shouldResume(eq(SAT_CALL_FINISHED));
         }
     }
 
@@ -96,11 +93,8 @@ class TimeoutSATHandlerTest {
         for (final SATSolver solver : solvers) {
             solver.add(pg.generate(10));
             final TimeoutHandler handler = new TimeoutHandler(100L);
-
-            final Tristate result = solver.satCall().handler(handler).sat();
-
-            assertThat(handler.aborted).isTrue();
-            assertThat(result).isEqualTo(Tristate.UNDEF);
+            final LNGResult<Boolean> result = solver.satCall().handler(handler).sat();
+            assertThat(result.isSuccess()).isFalse();
         }
     }
 
@@ -108,13 +102,9 @@ class TimeoutSATHandlerTest {
     public void testTimeoutHandlerFixedEnd() {
         for (final SATSolver solver : solvers) {
             solver.add(pg.generate(10));
-            final TimeoutHandler handler =
-                    new TimeoutHandler(System.currentTimeMillis() + 100L, FIXED_END);
-
-            final Tristate result = solver.satCall().handler(handler).sat();
-
-            assertThat(handler.aborted).isTrue();
-            assertThat(result).isEqualTo(Tristate.UNDEF);
+            final TimeoutHandler handler = new TimeoutHandler(System.currentTimeMillis() + 100L, FIXED_END);
+            final LNGResult<Boolean> result = solver.satCall().handler(handler).sat();
+            assertThat(result.isSuccess()).isFalse();
         }
     }
 }

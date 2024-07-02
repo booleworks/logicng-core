@@ -4,13 +4,12 @@
 
 package com.booleworks.logicng.solvers.maxsat.algorithms;
 
-import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
-
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
@@ -64,14 +63,14 @@ public class OLL extends MaxSAT {
     }
 
     @Override
-    public MaxSATResult search() {
+    protected LNGResult<MaxSATResult> internalSearch(final ComputationHandler handler) {
         if (encoder.cardEncoding() != MaxSATConfig.CardinalityEncoding.TOTALIZER) {
             throw new IllegalStateException("Error: Currently OLL only supports the totalizer encoding.");
         }
         if (problemType == ProblemType.WEIGHTED) {
-            return weighted();
+            return weighted(handler);
         } else {
-            return unweighted();
+            return unweighted(handler);
         }
     }
 
@@ -96,9 +95,8 @@ public class OLL extends MaxSAT {
         return s;
     }
 
-    private MaxSATResult unweighted() {
+    private LNGResult<MaxSATResult> unweighted(final ComputationHandler handler) {
         nbInitialVariables = nVars();
-        Tristate res;
         initRelaxation();
         solver = rebuildSolver();
 
@@ -116,10 +114,10 @@ public class OLL extends MaxSAT {
         final LNGVector<Encoder> softCardinality = new LNGVector<>();
 
         while (true) {
-            res = searchSATSolver(solver, handler, assumptions);
-            if (!handler.shouldResume(NO_EVENT)) {
-                return MaxSATResult.UNDEF;
-            } else if (res == Tristate.TRUE) {
+            final LNGResult<Boolean> res = searchSATSolver(solver, handler, assumptions);
+            if (!res.isSuccess()) {
+                return LNGResult.aborted(res.getAbortionEvent());
+            } else if (res.getResult()) {
                 nbSatisfiable++;
                 final LNGBooleanVector model = solver.model();
                 final int newCost = computeCostModel(model, Integer.MAX_VALUE);
@@ -128,24 +126,24 @@ public class OLL extends MaxSAT {
                 ubCost = newCost;
                 if (nbSatisfiable == 1) {
                     if (newCost == 0) {
-                        return MaxSATResult.OPTIMUM;
+                        return LNGResult.of(MaxSATResult.OPTIMUM);
                     }
                     for (int i = 0; i < nSoft(); i++) {
                         assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
                 } else {
                     assert lbCost == newCost;
-                    return MaxSATResult.OPTIMUM;
+                    return LNGResult.of(MaxSATResult.OPTIMUM);
                 }
             } else {
                 lbCost++;
                 nbCores++;
                 if (nbSatisfiable == 0) {
-                    return MaxSATResult.UNSATISFIABLE;
+                    return LNGResult.of(MaxSATResult.UNSATISFIABLE);
                 }
                 if (lbCost == ubCost) {
                     assert nbSatisfiable > 0;
-                    return MaxSATResult.OPTIMUM;
+                    return LNGResult.of(MaxSATResult.OPTIMUM);
                 }
                 sumSizeCores += solver.assumptionsConflict().size();
                 final LNGIntVector softRelax = new LNGIntVector();
@@ -224,9 +222,8 @@ public class OLL extends MaxSAT {
         }
     }
 
-    private MaxSATResult weighted() {
+    private LNGResult<MaxSATResult> weighted(final ComputationHandler handler) {
         nbInitialVariables = nVars();
-        Tristate res;
         initRelaxation();
         solver = rebuildSolver();
 
@@ -245,10 +242,10 @@ public class OLL extends MaxSAT {
         minWeight = currentWeight;
 
         while (true) {
-            res = searchSATSolver(solver, handler, assumptions);
-            if (!handler.shouldResume(NO_EVENT)) {
-                return MaxSATResult.UNDEF;
-            } else if (res == Tristate.TRUE) {
+            final LNGResult<Boolean> res = searchSATSolver(solver, handler, assumptions);
+            if (!res.isSuccess()) {
+                return LNGResult.aborted(res.getAbortionEvent());
+            } else if (res.getResult()) {
                 nbSatisfiable++;
                 final LNGBooleanVector model = solver.model();
                 final int newCost = computeCostModel(model, Integer.MAX_VALUE);
@@ -295,10 +292,10 @@ public class OLL extends MaxSAT {
                         }
                     } else {
                         assert lbCost == newCost;
-                        return MaxSATResult.OPTIMUM;
+                        return LNGResult.of(MaxSATResult.OPTIMUM);
                     }
                 }
-            } else if (res == Tristate.FALSE) {
+            } else {
                 // reduce the weighted to the unweighted case
                 int minCore = Integer.MAX_VALUE;
                 for (int i = 0; i < solver.assumptionsConflict().size(); i++) {
@@ -319,11 +316,11 @@ public class OLL extends MaxSAT {
                 lbCost += minCore;
                 nbCores++;
                 if (nbSatisfiable == 0) {
-                    return MaxSATResult.UNSATISFIABLE;
+                    return LNGResult.of(MaxSATResult.UNSATISFIABLE);
                 }
                 if (lbCost == ubCost) {
                     assert nbSatisfiable > 0;
-                    return MaxSATResult.OPTIMUM;
+                    return LNGResult.of(MaxSATResult.OPTIMUM);
                 }
                 sumSizeCores += solver.assumptionsConflict().size();
                 final LNGIntVector softRelax = new LNGIntVector();

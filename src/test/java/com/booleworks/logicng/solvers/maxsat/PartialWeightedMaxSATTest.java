@@ -5,12 +5,14 @@
 package com.booleworks.logicng.solvers.maxsat;
 
 import static com.booleworks.logicng.solvers.maxsat.MaxSATReader.readCnfToSolver;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT.MaxSATResult.OPTIMUM;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.TestWithExampleFormulas;
 import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.MaxSATSolver;
@@ -87,7 +89,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
             for (int i = 0; i < files.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
                 readCnfToSolver(solver, "src/test/resources/partialweightedmaxsat/" + files[i]);
-                Assertions.assertThat(solver.solve()).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
+                assertThat(solver.solve().getResult()).isEqualTo(OPTIMUM);
                 assertThat(solver.result()).isEqualTo(results[i]);
             }
         }
@@ -107,7 +109,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
             for (int i = 0; i < files.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.incWBO(f, config);
                 readCnfToSolver(solver, "src/test/resources/partialweightedmaxsat/" + files[i]);
-                Assertions.assertThat(solver.solve()).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
+                assertThat(solver.solve().getResult()).isEqualTo(OPTIMUM);
                 assertThat(solver.result()).isEqualTo(results[i]);
             }
         }
@@ -125,7 +127,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
             for (int i = 0; i < files.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.linearSU(f, config);
                 readCnfToSolver(solver, "src/test/resources/partialweightedmaxsat/" + files[i]);
-                Assertions.assertThat(solver.solve()).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
+                assertThat(solver.solve().getResult()).isEqualTo(OPTIMUM);
                 assertThat(solver.result()).isEqualTo(results[i]);
             }
         }
@@ -148,7 +150,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
             for (int i = 0; i < files.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.wmsu3(f, config);
                 readCnfToSolver(solver, "src/test/resources/partialweightedmaxsat/" + files[i]);
-                Assertions.assertThat(solver.solve()).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
+                assertThat(solver.solve().getResult()).isEqualTo(OPTIMUM);
                 assertThat(solver.result()).isEqualTo(results[i]);
             }
         }
@@ -164,7 +166,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
             for (int i = 0; i < bmoFiles.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.wmsu3(f, config);
                 readCnfToSolver(solver, "src/test/resources/partialweightedmaxsat/bmo/" + bmoFiles[i]);
-                Assertions.assertThat(solver.solve()).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
+                assertThat(solver.solve().getResult()).isEqualTo(OPTIMUM);
                 assertThat(solver.result()).isEqualTo(bmoResults[i]);
             }
         }
@@ -181,7 +183,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
             for (int i = 0; i < bmoFiles.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.linearSU(f, config);
                 readCnfToSolver(solver, "src/test/resources/partialweightedmaxsat/bmo/" + bmoFiles[i]);
-                Assertions.assertThat(solver.solve()).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
+                assertThat(solver.solve().getResult()).isEqualTo(OPTIMUM);
                 assertThat(solver.result()).isEqualTo(bmoResults[i]);
             }
         }
@@ -192,13 +194,13 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
         for (int i = 0; i < bmoFiles.length; i++) {
             final MaxSATSolver solver = MaxSATSolver.oll(f);
             readCnfToSolver(solver, "src/test/resources/partialweightedmaxsat/bmo/" + bmoFiles[i]);
-            Assertions.assertThat(solver.solve()).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
+            assertThat(solver.solve().getResult()).isEqualTo(OPTIMUM);
             assertThat(solver.result()).isEqualTo(bmoResults[i]);
         }
         for (int i = 0; i < files.length; i++) {
             final MaxSATSolver solver = MaxSATSolver.oll(f);
             readCnfToSolver(solver, "src/test/resources/partialweightedmaxsat/" + files[i]);
-            Assertions.assertThat(solver.solve()).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
+            assertThat(solver.solve().getResult()).isEqualTo(OPTIMUM);
             assertThat(solver.result()).isEqualTo(results[i]);
         }
     }
@@ -208,7 +210,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
     public void testLargeOLL1() throws IOException {
         final MaxSATSolver solver = MaxSATSolver.oll(f);
         readCnfToSolver(solver, "src/test/resources/partialweightedmaxsat/large/large_industrial.wcnf");
-        Assertions.assertThat(solver.solve()).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
+        assertThat(solver.solve().getResult()).isEqualTo(OPTIMUM);
         assertThat(solver.result()).isEqualTo(68974);
     }
 
@@ -217,7 +219,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
     public void testLargeOLL2() throws IOException {
         final MaxSATSolver solver = MaxSATSolver.oll(f);
         readCnfToSolver(solver, "src/test/resources/partialweightedmaxsat/large/t3g3-5555.spn.wcnf");
-        Assertions.assertThat(solver.solve()).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
+        assertThat(solver.solve().getResult()).isEqualTo(OPTIMUM);
         assertThat(solver.result()).isEqualTo(1100610);
     }
 
@@ -226,7 +228,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
     public void testOLLWithLargeWeights() throws IOException {
         final MaxSATSolver solver = MaxSATSolver.oll(f);
         readCnfToSolver(solver, "src/test/resources/partialweightedmaxsat/large/large_weights.wcnf");
-        Assertions.assertThat(solver.solve()).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
+        assertThat(solver.solve().getResult()).isEqualTo(OPTIMUM);
         assertThat(solver.result()).isEqualTo(90912);
     }
 
@@ -330,12 +332,12 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
         for (final MaxSATSolver solver : solvers) {
             solver.addHardFormula(f.parse("a & b & c"));
             solver.addSoftFormula(f.parse("~a & ~b & ~c"), 2);
-            Assertions.assertThat(solver.solve()).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
-            Assertions.assertThat(solver.model().literals()).containsExactlyInAnyOrder(
+            assertThat(solver.solve().getResult()).isEqualTo(OPTIMUM);
+            assertThat(solver.model().literals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")
             );
             assertThat(solver.result()).isEqualTo(2);
-            Assertions.assertThat(solver.factory()).isEqualTo(f);
+            assertThat(solver.factory()).isEqualTo(f);
         }
     }
 
@@ -350,8 +352,8 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
             solver.addHardFormula(f.parse("a & b & c"));
             solver.addSoftFormula(f.parse("$true"), 2);
             solver.addSoftFormula(f.parse("~a & ~b & ~c"), 3);
-            Assertions.assertThat(solver.solve()).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
-            Assertions.assertThat(solver.model().literals()).containsExactlyInAnyOrder(
+            assertThat(solver.solve().getResult()).isEqualTo(OPTIMUM);
+            assertThat(solver.model().literals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")
             );
             assertThat(solver.result()).isEqualTo(3);
@@ -369,8 +371,8 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
             solver.addHardFormula(f.parse("a & b & c"));
             solver.addSoftFormula(f.parse("$false"), 2);
             solver.addSoftFormula(f.parse("~a & ~b & ~c"), 3);
-            Assertions.assertThat(solver.solve()).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
-            Assertions.assertThat(solver.model().literals()).containsExactlyInAnyOrder(
+            assertThat(solver.solve().getResult()).isEqualTo(OPTIMUM);
+            assertThat(solver.model().literals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")
             );
             assertThat(solver.result()).isEqualTo(5);
@@ -383,16 +385,15 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
         final Formula formula = pg.generate(10);
         solver.addHardFormula(formula);
         solver.addSoftFormula(f.or(formula.variables(f)), 10);
-        MaxSAT.MaxSATResult result = solver.solve(handler);
-        assertThat(handler.isAborted()).isTrue();
-        assertThat(result).isEqualTo(MaxSAT.MaxSATResult.UNDEF);
+        LNGResult<MaxSAT.MaxSATResult> result = solver.solve(handler);
+        assertThat(result.isSuccess()).isFalse();
 
         final TimeoutHandler handler2 = new TimeoutHandler(1000L);
         solver.reset();
         solver.addHardFormula(IMP1);
         solver.addSoftFormula(AND1, 10);
         result = solver.solve(handler2);
-        assertThat(handler2.isAborted()).isFalse();
-        assertThat(result).isEqualTo(MaxSAT.MaxSATResult.OPTIMUM);
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getResult()).isEqualTo(OPTIMUM);
     }
 }

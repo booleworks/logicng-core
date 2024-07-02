@@ -10,7 +10,8 @@ import com.booleworks.logicng.functions.LiteralsFunction;
 import com.booleworks.logicng.functions.NumberOfAtomsFunction;
 import com.booleworks.logicng.functions.NumberOfNodesFunction;
 import com.booleworks.logicng.functions.VariablesFunction;
-import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDDFactory;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
@@ -71,7 +72,7 @@ public interface Formula extends Iterable<Formula> {
      * Returns the number of operands of this formula.
      * @return the number of operands of this formula
      */
-    public abstract int numberOfOperands();
+    int numberOfOperands();
 
     /**
      * Returns the number of internal nodes of this formula.
@@ -357,7 +358,7 @@ public interface Formula extends Iterable<Formula> {
         } else {
             kernel = new BDDKernel(f, provider.getOrder(f, formula), varNum * 30, varNum * 20);
         }
-        return BDDFactory.build(f, formula, kernel, NopHandler.get());
+        return BDDFactory.build(f, formula, kernel);
     }
 
     /**
@@ -380,6 +381,17 @@ public interface Formula extends Iterable<Formula> {
      */
     default Formula transform(final FormulaTransformation transformation) {
         return transformation.apply(this);
+    }
+
+    /**
+     * Transforms this formula with a given formula transformation.
+     * @param transformation the formula transformation
+     * @param handler        the computation handler
+     * @return the result of the transformation which may have been aborted by
+     *         the computation handler
+     */
+    default LNGResult<Formula> transform(final FormulaTransformation transformation, final ComputationHandler handler) {
+        return transformation.apply(this, handler);
     }
 
     /**

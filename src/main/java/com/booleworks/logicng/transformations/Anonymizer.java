@@ -8,6 +8,8 @@ import com.booleworks.logicng.datastructures.Substitution;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 
 /**
  * An anonymizer replaces all variables in a formula with new variables
@@ -78,15 +80,15 @@ public final class Anonymizer extends StatefulFormulaTransformation<Substitution
     }
 
     @Override
-    public Formula apply(final Formula formula) {
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         if (formula.variables(f).isEmpty()) {
-            return formula;
+            return LNGResult.of(formula);
         }
         for (final Variable variable : formula.variables(f)) {
             if (state.getSubstitution(variable) == null) {
                 state.addMapping(variable, f.variable(prefix + counter++));
             }
         }
-        return formula.substitute(f, state);
+        return LNGResult.of(formula.substitute(f, state));
     }
 }

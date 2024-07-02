@@ -43,8 +43,8 @@ public class UNSATCoreTest {
 
     @Test
     public void testGetters() {
-        Assertions.assertThat(core1.propositions()).isEqualTo(props1);
-        Assertions.assertThat(core2.propositions()).isEqualTo(props2);
+        assertThat(core1.propositions()).isEqualTo(props1);
+        assertThat(core2.propositions()).isEqualTo(props2);
         assertThat(core1.isMUS()).isTrue();
         assertThat(core2.isMUS()).isFalse();
     }
@@ -59,10 +59,10 @@ public class UNSATCoreTest {
     public void testEquals() {
         assertThat(core1).isEqualTo(core1);
         assertThat(core1.equals(core1)).isTrue();
-        Assertions.assertThat(new UNSATCore<>(props1, true)).isEqualTo(core1);
+        assertThat(new UNSATCore<>(props1, true)).isEqualTo(core1);
         assertThat(core2).isNotEqualTo(core1);
-        Assertions.assertThat(new UNSATCore<>(props1, false)).isNotEqualTo(core1);
-        Assertions.assertThat(new UNSATCore<>(props2, true)).isNotEqualTo(core1);
+        assertThat(new UNSATCore<>(props1, false)).isNotEqualTo(core1);
+        assertThat(new UNSATCore<>(props2, true)).isNotEqualTo(core1);
         assertThat("String").isNotEqualTo(core1);
         assertThat(core1).isNotEqualTo("String");
     }

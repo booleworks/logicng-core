@@ -7,5 +7,5 @@ import com.booleworks.logicng.handlers.ComputationHandler;
  * @version 3.0.0
  * @since 3.0.0
  */
-public interface LogicNGEvent {
+public interface LNGEvent {
 }

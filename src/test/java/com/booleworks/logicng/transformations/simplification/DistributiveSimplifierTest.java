@@ -57,8 +57,8 @@ public class DistributiveSimplifierTest extends TestWithFormulaContext {
         assertThat(_c.f.or(_c.and1, _c.a).transform(distributiveSimplifier)).isEqualTo(_c.f.or(_c.and1, _c.a));
         assertThat(_c.f.or(_c.and2, _c.a).transform(distributiveSimplifier)).isEqualTo(_c.f.or(_c.and2, _c.a));
         assertThat(_c.f.or(_c.or1, _c.x).transform(distributiveSimplifier)).isEqualTo(_c.or1);
-        Assertions.assertThat(_c.p.parse(
-                "(a | b | ~c) & (~a | ~d) & (~c | d) & (~b | e | ~f | g) & (e | f | g | h) & (e | ~f | ~g | h) & f & c")
+        assertThat(_c.p.parse(
+                        "(a | b | ~c) & (~a | ~d) & (~c | d) & (~b | e | ~f | g) & (e | f | g | h) & (e | ~f | ~g | h) & f & c")
                 .transform(distributiveSimplifier))
                 .isEqualTo(_c.p.parse(
                         "(a | b | ~c) & (~a | ~d) & (~c | d) & f & c & (e | (~b | ~f | g) & (f | g | h) & (~f | ~g | h))"));

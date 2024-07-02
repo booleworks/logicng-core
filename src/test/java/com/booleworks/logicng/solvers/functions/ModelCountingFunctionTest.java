@@ -15,6 +15,8 @@ import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LNGResultWithPartial;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.modelcounting.ModelCounter;
@@ -64,7 +66,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
                 ModelEnumerationConfig.builder()
                         .strategy(splitProvider == null ? null
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
-                                        .maxNumberOfModels(2).build())
+                                .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         final BigInteger numberOfModels =
@@ -79,7 +81,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
                 ModelEnumerationConfig.builder()
                         .strategy(splitProvider == null ? null
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
-                                        .maxNumberOfModels(2).build())
+                                .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("A & (B | C)");
@@ -96,7 +98,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
                 ModelEnumerationConfig.builder()
                         .strategy(splitProvider == null ? null
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
-                                        .maxNumberOfModels(2).build())
+                                .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & (B | C)"));
@@ -112,7 +114,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
                 ModelEnumerationConfig.builder()
                         .strategy(splitProvider == null ? null
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
-                                        .maxNumberOfModels(2).build())
+                                .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("(~A | C) & (~B | C)"));
@@ -128,7 +130,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
                 ModelEnumerationConfig.builder()
                         .strategy(splitProvider == null ? null
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
-                                        .maxNumberOfModels(2).build())
+                                .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
@@ -148,7 +150,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
                 ModelEnumerationConfig.builder()
                         .strategy(splitProvider == null ? null
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
-                                        .maxNumberOfModels(2).build())
+                                .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
@@ -167,7 +169,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
                 ModelEnumerationConfig.builder()
                         .strategy(splitProvider == null ? null
                                 : DefaultModelEnumerationStrategy.builder().splitVariableProvider(splitProvider)
-                                        .maxNumberOfModels(2).build())
+                                .maxNumberOfModels(2).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
@@ -187,11 +189,11 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
                         .splitVariableProvider(splitProvider).maxNumberOfModels(3).build()).build();
         final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("A | B | (X & ~X)"); // X will be
-                                                             // simplified out
-                                                             // and become a
-                                                             // don't care
-                                                             // variable unknown
-                                                             // by the solver
+        // simplified out
+        // and become a
+        // don't care
+        // variable unknown
+        // by the solver
         solver.add(formula);
         final SortedSet<Variable> variables = new TreeSet<>(f.variables("A", "B", "X"));
         final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder(variables)
@@ -205,17 +207,19 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
     public void testHandlerWithNumModelsLimit(final SplitVariableProvider splitProvider) throws ParserException {
         final NumberOfModelsHandler handler = new NumberOfModelsHandler(3);
         final ModelEnumerationConfig config =
-                ModelEnumerationConfig.builder().handler(handler)
+                ModelEnumerationConfig.builder()
                         .strategy(splitProvider == null ? null : DefaultModelEnumerationStrategy.builder()
                                 .splitVariableProvider(splitProvider).maxNumberOfModels(3).build())
                         .build();
         final SATSolver solver = SATSolver.newSolver(f);
         final Formula formula = f.parse("(~A | C) & (~B | C)");
         solver.add(formula);
-        final BigInteger numberOfModels =
-                solver.execute(ModelCountingFunction.builder(formula.variables(f)).configuration(config).build());
-        assertThat(handler.isAborted()).isTrue();
-        assertThat(numberOfModels).isEqualTo(3);
+        final LNGResult<BigInteger> numberOfModels = solver.execute(
+                ModelCountingFunction.builder(formula.variables(f)).configuration(config).build(), handler);
+        assertThat(numberOfModels.isSuccess()).isFalse();
+        assertThat(numberOfModels).isInstanceOf(LNGResultWithPartial.class);
+        assertThat(((LNGResultWithPartial<BigInteger, BigInteger>) numberOfModels).getPartialResult().get())
+                .isEqualTo(3);
     }
 
     @Test
@@ -235,7 +239,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
             // recursive call: least common vars
             final ModelEnumerationConfig configLcv =
                     ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder()
-                            .splitVariableProvider(new LeastCommonVariablesProvider()).maxNumberOfModels(500).build())
+                                    .splitVariableProvider(new LeastCommonVariablesProvider()).maxNumberOfModels(500).build())
                             .build();
             final BigInteger count1 = solver
                     .execute(ModelCountingFunction.builder(formula.variables(f)).configuration(configLcv).build());

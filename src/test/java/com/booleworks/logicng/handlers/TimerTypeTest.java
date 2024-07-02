@@ -7,6 +7,7 @@ package com.booleworks.logicng.handlers;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
+import com.booleworks.logicng.handlers.events.SimpleEvent;
 import org.junit.jupiter.api.Test;
 
 public class TimerTypeTest {
@@ -17,35 +18,35 @@ public class TimerTypeTest {
     public void testSingleTimeout() throws InterruptedException {
         final TimeoutHandler handler = handler(100L, TimeoutHandler.TimerType.SINGLE_TIMEOUT);
         handler.shouldResume(COMPUTATION_STARTED);
-        assertThat(handler.isAborted()).isFalse();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isTrue();
         Thread.sleep(200L);
-        assertThat(handler.isAborted()).isTrue();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isFalse();
         handler.shouldResume(COMPUTATION_STARTED);
-        assertThat(handler.isAborted()).isTrue();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isFalse();
     }
 
     @Test
     public void testRestartingTimeout() throws InterruptedException {
         final TimeoutHandler handler = handler(100L, TimeoutHandler.TimerType.RESTARTING_TIMEOUT);
         handler.shouldResume(COMPUTATION_STARTED);
-        assertThat(handler.isAborted()).isFalse();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isTrue();
         Thread.sleep(200L);
-        assertThat(handler.isAborted()).isTrue();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isFalse();
         handler.shouldResume(COMPUTATION_STARTED);
-        assertThat(handler.isAborted()).isFalse();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isTrue();
         Thread.sleep(200L);
-        assertThat(handler.isAborted()).isTrue();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isFalse();
     }
 
     @Test
     public void testFixedEnd() throws InterruptedException {
         final TimeoutHandler handler = fixedEndHandler(100L);
         handler.shouldResume(COMPUTATION_STARTED);
-        assertThat(handler.isAborted()).isFalse();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isTrue();
         Thread.sleep(200L);
-        assertThat(handler.isAborted()).isTrue();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isFalse();
         handler.shouldResume(COMPUTATION_STARTED);
-        assertThat(handler.isAborted()).isTrue();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isFalse();
     }
 
     @Test
@@ -53,25 +54,25 @@ public class TimerTypeTest {
         final TimeoutHandler handler = fixedEndHandler(100L);
         Thread.sleep(200L);
         handler.shouldResume(COMPUTATION_STARTED);
-        assertThat(handler.isAborted()).isTrue();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isFalse();
         handler.shouldResume(COMPUTATION_STARTED);
-        assertThat(handler.isAborted()).isTrue();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isFalse();
     }
 
     @Test
     public void testFixedEndWithZeroTime() {
         final TimeoutHandler handler = fixedEndHandler(0L);
-        assertThat(handler.isAborted()).isTrue();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isFalse();
         handler.shouldResume(COMPUTATION_STARTED);
-        assertThat(handler.isAborted()).isTrue();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isFalse();
     }
 
     @Test
     public void testFixedEndWithPastPointInTime() {
         final TimeoutHandler handler = fixedEndHandler(-100L);
-        assertThat(handler.isAborted()).isTrue();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isFalse();
         handler.shouldResume(COMPUTATION_STARTED);
-        assertThat(handler.isAborted()).isTrue();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isFalse();
     }
 
     private static TimeoutHandler handler(final long timeout, final TimeoutHandler.TimerType type) {

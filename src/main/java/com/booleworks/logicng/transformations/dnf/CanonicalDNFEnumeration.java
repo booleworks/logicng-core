@@ -6,6 +6,8 @@ package com.booleworks.logicng.transformations.dnf;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.transformations.CanonicalEnumeration;
 
 /**
@@ -20,7 +22,7 @@ public final class CanonicalDNFEnumeration extends CanonicalEnumeration {
     }
 
     @Override
-    public Formula apply(final Formula formula) {
-        return compute(formula, false);
+    public LNGResult<Formula> apply(final Formula formula, ComputationHandler handler) {
+        return compute(formula, handler, false);
     }
 }

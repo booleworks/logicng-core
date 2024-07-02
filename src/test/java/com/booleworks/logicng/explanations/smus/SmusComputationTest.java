@@ -14,7 +14,9 @@ import com.booleworks.logicng.TestWithExampleFormulas;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.handlers.BoundedOptimizationHandler;
 import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.TimeoutHandler;
+import com.booleworks.logicng.handlers.UnsatResult;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.io.readers.FormulaReader;
@@ -40,7 +42,8 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~m|l"),
                 f.parse("~l")
         );
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList());
+        final List<Formula> result =
+                SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList()).getResult();
         assertThat(result).containsExactlyInAnyOrder(f.parse("~s"), f.parse("s|~p"), f.parse("p"));
     }
 
@@ -57,7 +60,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~l")
         );
         final List<Formula> result =
-                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
+                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l"))).getResult();
         assertThat(result).containsExactlyInAnyOrder(f.parse("~n"), f.parse("~l"));
     }
 
@@ -72,7 +75,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~m|l")
         );
         final List<Formula> result =
-                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
+                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l"))).getResult();
         assertThat(result).isNull();
     }
 
@@ -86,7 +89,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~n|s")
         );
         final List<Formula> result =
-                SmusComputation.computeSmusForFormulas(f, input, Arrays.asList(f.parse("~a&b"), f.parse("a|~b")));
+                SmusComputation.computeSmusForFormulas(f, input, Arrays.asList(f.parse("~a&b"), f.parse("a|~b"))).getResult();
         assertThat(result).isEmpty();
     }
 
@@ -104,7 +107,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("a&~a")
         );
         final List<Formula> result =
-                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
+                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l"))).getResult();
         assertThat(result).containsExactly(f.falsum());
     }
 
@@ -122,7 +125,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("(a<=>b)&(~a<=>b)")
         );
         final List<Formula> result =
-                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
+                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l"))).getResult();
         assertThat(result).containsExactly(f.parse("(a<=>b)&(~a<=>b)"));
     }
 
@@ -139,7 +142,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~m|l"),
                 f.parse("~l")
         );
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList());
+        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList()).getResult();
         assertThat(result).containsExactlyInAnyOrder(f.parse("s|~p"), f.parse("p&~s"));
     }
 
@@ -153,7 +156,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("n|~l"),
                 f.parse("l|s")
         );
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList());
+        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList()).getResult();
         assertThat(result).containsExactlyInAnyOrderElementsOf(input);
     }
 
@@ -168,7 +171,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("l|s"),
                 f.parse("n|s")
         );
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList());
+        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList()).getResult();
         assertThat(result).containsExactlyInAnyOrder(f.parse("~s"),
                 f.parse("s|~p"),
                 f.parse("p|~m"),
@@ -199,7 +202,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("x&~y"),
                 f.parse("x=>y")
         );
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList());
+        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList()).getResult();
         assertThat(result).containsExactlyInAnyOrder(f.parse("x&~y"), f.parse("x=>y"));
     }
 
@@ -270,13 +273,8 @@ public class SmusComputationTest extends TestWithExampleFormulas {
 
     private void testHandler(final ComputationHandler handler, final List<Formula> formulas,
                              final boolean expAborted) {
-        final List<Formula> result =
+        final LNGResult<UnsatResult<List<Formula>>> result =
                 SmusComputation.computeSmusForFormulas(f, formulas, Collections.emptyList(), handler);
-        assertThat(handler.isAborted()).isEqualTo(expAborted);
-        if (expAborted) {
-            assertThat(result).isNull();
-        } else {
-            assertThat(result).isNotNull();
-        }
+        assertThat(!result.isSuccess()).isEqualTo(expAborted);
     }
 }

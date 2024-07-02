@@ -4,16 +4,16 @@
 
 package com.booleworks.logicng;
 
-import com.booleworks.logicng.datastructures.Tristate;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booleworks.logicng.solvers.SATSolver;
-import org.assertj.core.api.Assertions;
 
 public interface LogicNGTest {
     default void assertSolverSat(final SATSolver solver) {
-        Assertions.assertThat(solver.sat()).isTrue();
+        assertThat(solver.sat()).isTrue();
     }
 
     default void assertSolverUnsat(final SATSolver solver) {
-        Assertions.assertThat(solver.sat()).isFalse();
+        assertThat(solver.sat()).isFalse();
     }
 }

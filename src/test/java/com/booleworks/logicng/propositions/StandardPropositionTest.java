@@ -27,8 +27,8 @@ public class StandardPropositionTest {
 
     @Test
     public void testGetters() throws ParserException {
-        Assertions.assertThat(prop1.formula()).isEqualTo(p.parse("a & b"));
-        Assertions.assertThat(prop2.formula()).isEqualTo(p.parse("a & b & ~c"));
+        assertThat(prop1.formula()).isEqualTo(p.parse("a & b"));
+        assertThat(prop2.formula()).isEqualTo(p.parse("a & b & ~c"));
 
         assertThat(prop1.description()).isEqualTo("");
         assertThat(prop2.description()).isEqualTo("prop2");

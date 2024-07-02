@@ -29,8 +29,8 @@ public class ExtendedPropositionTest {
 
     @Test
     public void testGetters() throws ParserException {
-        Assertions.assertThat(prop1.formula()).isEqualTo(p.parse("a & b"));
-        Assertions.assertThat(prop2.formula()).isEqualTo(p.parse("a & b & ~c"));
+        assertThat(prop1.formula()).isEqualTo(p.parse("a & b"));
+        assertThat(prop2.formula()).isEqualTo(p.parse("a & b & ~c"));
 
         assertThat(prop1.backpack().description).isEqualTo("prop1");
         assertThat(prop2.backpack().description).isEqualTo("prop2");

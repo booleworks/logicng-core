@@ -6,7 +6,7 @@ package com.booleworks.logicng.handlers;
 
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
-import com.booleworks.logicng.handlers.events.LogicNGEvent;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.handlers.events.SimpleEvent;
 
 /**
@@ -17,7 +17,6 @@ import com.booleworks.logicng.handlers.events.SimpleEvent;
  */
 public class NumberOfModelsHandler implements ComputationHandler {
 
-    private boolean aborted = false;
     private final int bound;
     private int countCommitted;
     private int countUncommitted;
@@ -37,27 +36,19 @@ public class NumberOfModelsHandler implements ComputationHandler {
     }
 
     @Override
-    public boolean isAborted() {
-        return aborted;
-    }
-
-    @Override
-    public boolean shouldResume(final LogicNGEvent event) {
+    public boolean shouldResume(final LNGEvent event) {
         if (event == ComputationStartedEvent.MODEL_ENUMERATION_STARTED) {
             countCommitted = 0;
             countUncommitted = 0;
         } else if (event instanceof EnumerationFoundModelsEvent) {
             final int numberOfModels = ((EnumerationFoundModelsEvent) event).getNumberOfModels();
-            aborted = countUncommitted + countCommitted + numberOfModels > bound;
-            if (!aborted) {
-                countUncommitted += numberOfModels;
-            }
+            countUncommitted += numberOfModels;
         } else if (event == SimpleEvent.MODEL_ENUMERATION_COMMIT) {
             countCommitted += countUncommitted;
             countUncommitted = 0;
         } else if (event == SimpleEvent.MODEL_ENUMERATION_ROLLBACK) {
             countUncommitted = 0;
         }
-        return !aborted;
+        return countUncommitted + countCommitted < bound;
     }
 }

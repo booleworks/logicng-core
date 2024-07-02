@@ -9,6 +9,8 @@ import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.transformations.Subsumption;
 
 import java.util.ArrayList;
@@ -30,19 +32,24 @@ public final class DNFSubsumption extends Subsumption {
     }
 
     @Override
-    public Formula apply(final Formula formula) {
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         if (!formula.isDNF(f)) {
             throw new IllegalArgumentException("DNF subsumption can only be applied to formulas in DNF");
         }
         if (formula.type().precedence() >= FType.LITERAL.precedence() || formula.type() == FType.AND) {
-            return formula;
+            return LNGResult.of(formula);
         }
         assert formula.type() == FType.OR;
-        final UBTree<Literal> ubTree = generateSubsumedUBTree(formula);
-        final List<Formula> minterms = new ArrayList<>();
-        for (final SortedSet<Literal> literals : ubTree.allSets()) {
-            minterms.add(f.and(literals));
+        final LNGResult<UBTree<Literal>> ubTreeResult = generateSubsumedUBTree(formula, handler);
+        if (!ubTreeResult.isSuccess()) {
+            return LNGResult.aborted(ubTreeResult.getAbortionEvent());
+        } else {
+            final UBTree<Literal> ubTree = ubTreeResult.getResult();
+            final List<Formula> minterms = new ArrayList<>();
+            for (final SortedSet<Literal> literals : ubTree.allSets()) {
+                minterms.add(f.and(literals));
+            }
+            return LNGResult.of(f.or(minterms));
         }
-        return f.or(minterms);
     }
 }

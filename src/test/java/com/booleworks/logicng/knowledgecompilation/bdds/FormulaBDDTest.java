@@ -29,7 +29,7 @@ public class FormulaBDDTest {
         bdd = f.falsum().bdd(f);
         assertThat(bdd.isContradiction()).isTrue();
         bdd = f.variable("A").bdd(f);
-        Assertions.assertThat(bdd.enumerateAllModels()).containsExactly(new Model(f.variable("A")));
+        assertThat(bdd.enumerateAllModels()).containsExactly(new Model(f.variable("A")));
     }
 
     @Test
@@ -67,8 +67,8 @@ public class FormulaBDDTest {
     @Test
     public void testNonNnfs() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        Assertions.assertThat(f.parse("A + 2*B - C = 1").bdd(f)).isNotNull();
-        Assertions.assertThat(f.parse("(A & B & C | D & E & F) & (A - 2*B -D <= 0) | (C + 3*D - F > 0)").bdd(f))
+        assertThat(f.parse("A + 2*B - C = 1").bdd(f)).isNotNull();
+        assertThat(f.parse("(A & B & C | D & E & F) & (A - 2*B -D <= 0) | (C + 3*D - F > 0)").bdd(f))
                 .isNotNull();
     }
 }

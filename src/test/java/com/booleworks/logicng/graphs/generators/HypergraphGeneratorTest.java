@@ -25,10 +25,10 @@ public class HypergraphGeneratorTest {
     public void testCNF() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        Assertions.assertThat(HypergraphGenerator.fromCNF(f, p.parse("$false")).nodes()).isEmpty();
-        Assertions.assertThat(HypergraphGenerator.fromCNF(f, p.parse("$false")).edges()).isEmpty();
-        Assertions.assertThat(HypergraphGenerator.fromCNF(f, p.parse("$true")).nodes()).isEmpty();
-        Assertions.assertThat(HypergraphGenerator.fromCNF(f, p.parse("$true")).edges()).isEmpty();
+        assertThat(HypergraphGenerator.fromCNF(f, p.parse("$false")).nodes()).isEmpty();
+        assertThat(HypergraphGenerator.fromCNF(f, p.parse("$false")).edges()).isEmpty();
+        assertThat(HypergraphGenerator.fromCNF(f, p.parse("$true")).nodes()).isEmpty();
+        assertThat(HypergraphGenerator.fromCNF(f, p.parse("$true")).edges()).isEmpty();
 
         Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(f, p.parse("A"));
         HypergraphNode<Variable> nodeA = new HypergraphNode<>(hypergraph, f.variable("A"));
@@ -67,13 +67,13 @@ public class HypergraphGeneratorTest {
     public void testCNFFromList() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        Assertions.assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$false"))).nodes())
+        assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$false"))).nodes())
                 .isEmpty();
-        Assertions.assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$false"))).edges())
+        assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$false"))).edges())
                 .isEmpty();
-        Assertions.assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$true"))).nodes())
+        assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$true"))).nodes())
                 .isEmpty();
-        Assertions.assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$true"))).edges())
+        assertThat(HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("$true"))).edges())
                 .isEmpty();
 
         Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("A")));

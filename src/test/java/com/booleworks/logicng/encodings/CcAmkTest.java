@@ -97,7 +97,7 @@ public class CcAmkTest implements LogicNGTest {
         final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(miniCard).build());
         solver.add(f.cc(CType.LE, rhs, problemLits));
         assertSolverSat(solver);
-        Assertions.assertThat(solver.enumerateAllModels(problemLits))
+        assertThat(solver.enumerateAllModels(problemLits))
                 .hasSize(expected)
                 .allMatch(m -> m.positiveVariables().size() <= rhs);
     }

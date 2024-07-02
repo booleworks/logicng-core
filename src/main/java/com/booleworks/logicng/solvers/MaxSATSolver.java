@@ -5,7 +5,6 @@
 package com.booleworks.logicng.solvers;
 
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT.MaxSATResult.OPTIMUM;
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT.MaxSATResult.UNDEF;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT.MaxSATResult.UNSATISFIABLE;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
@@ -17,6 +16,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.solvers.maxsat.algorithms.IncWBO;
 import com.booleworks.logicng.solvers.maxsat.algorithms.LinearSU;
@@ -55,7 +55,7 @@ public class MaxSATSolver {
     protected final MaxSATConfig configuration;
     protected final Algorithm algorithm;
     protected FormulaFactory f;
-    protected MaxSAT.MaxSATResult result;
+    protected LNGResult<MaxSAT.MaxSATResult> result;
     protected MaxSAT solver;
     protected SortedMap<Variable, Integer> var2index;
     protected SortedMap<Integer, Variable> index2var;
@@ -242,7 +242,7 @@ public class MaxSATSolver {
      * @throws IllegalArgumentException if the algorithm was unknown
      */
     public void reset() {
-        result = UNDEF;
+        result = null;
         var2index = new TreeMap<>();
         index2var = new TreeMap<>();
         selectorVariables = new TreeSet<>();
@@ -280,7 +280,7 @@ public class MaxSATSolver {
      *                               already solved.
      */
     public void addHardFormula(final Formula formula) {
-        if (result != UNDEF) {
+        if (result != null) {
             throw new IllegalStateException(
                     "The MaxSAT solver does currently not support an incremental interface.  Reset the solver.");
         }
@@ -296,7 +296,7 @@ public class MaxSATSolver {
      * @throws IllegalArgumentException if the weight is &lt;1
      */
     public void addSoftFormula(final Formula formula, final int weight) {
-        if (result != UNDEF) {
+        if (result != null) {
             throw new IllegalStateException(
                     "The MaxSAT solver does currently not support an incremental interface.  Reset the solver.");
         }
@@ -340,7 +340,7 @@ public class MaxSATSolver {
      * @param weight  the weight of the clause (or -1 for a hard clause)
      */
     protected void addClause(final Formula formula, final int weight) {
-        result = UNDEF;
+        result = null;
         final LNGIntVector clauseVec = new LNGIntVector((int) formula.numberOfAtoms(f));
         for (final Literal lit : formula.literals(f)) {
             Integer index = var2index.get(lit.variable());
@@ -365,7 +365,7 @@ public class MaxSATSolver {
      * Solves the formula on the solver and returns the result.
      * @return the result (SAT, UNSAT, Optimum found)
      */
-    public MaxSAT.MaxSATResult solve() {
+    public LNGResult<MaxSAT.MaxSATResult> solve() {
         return solve(NopHandler.get());
     }
 
@@ -375,8 +375,8 @@ public class MaxSATSolver {
      * @return the result (SAT, UNSAT, Optimum found, or UNDEF if canceled by
      *         the handler)
      */
-    public MaxSAT.MaxSATResult solve(final ComputationHandler handler) {
-        if (result != UNDEF) {
+    public LNGResult<MaxSAT.MaxSATResult> solve(final ComputationHandler handler) {
+        if (result != null && result.isSuccess()) {
             return result;
         }
         if (solver.currentWeight() == 1) {
@@ -396,11 +396,11 @@ public class MaxSATSolver {
      * @throws IllegalStateException if the formula is not yet solved
      */
     public int result() {
-        if (result == UNDEF) {
+        if (result == null || !result.isSuccess()) {
             throw new IllegalStateException(
                     "Cannot get a result as long as the formula is not solved.  Call 'solver' first.");
         }
-        return result == OPTIMUM ? solver.result() : -1;
+        return result.getResult() == OPTIMUM ? solver.result() : -1;
     }
 
     /**
@@ -409,11 +409,11 @@ public class MaxSATSolver {
      * @throws IllegalStateException if the formula is not yet solved
      */
     public Assignment model() {
-        if (result == UNDEF) {
+        if (result == null || !result.isSuccess()) {
             throw new IllegalStateException(
                     "Cannot get a model as long as the formula is not solved.  Call 'solver' first.");
         }
-        return result != UNSATISFIABLE ? createAssignment(solver.model()) : null;
+        return result.getResult() != UNSATISFIABLE ? createAssignment(solver.model()) : null;
     }
 
     /**

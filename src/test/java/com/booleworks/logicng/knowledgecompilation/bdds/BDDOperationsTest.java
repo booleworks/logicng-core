@@ -98,8 +98,8 @@ public class BDDOperationsTest {
         final Literal a = f.literal("A", true);
         final List<Literal> resNotA = Collections.singletonList(f.literal("A", false));
         final List<Literal> resAB = Arrays.asList(f.literal("A", true), f.literal("B", true));
-        Assertions.assertThat(bddPosLit.construction.restrict(0, 1)).isEqualTo(0);
-        Assertions.assertThat(bddPosLit.construction.restrict(1, 1)).isEqualTo(1);
+        assertThat(bddPosLit.construction.restrict(0, 1)).isEqualTo(0);
+        assertThat(bddPosLit.construction.restrict(1, 1)).isEqualTo(1);
         assertThat(bddVerum.restrict(a)).isEqualTo(bddVerum);
         assertThat(bddVerum.restrict(resNotA)).isEqualTo(bddVerum);
         assertThat(bddVerum.restrict(resAB)).isEqualTo(bddVerum);
@@ -130,8 +130,8 @@ public class BDDOperationsTest {
     public void testExistentialQuantification() throws ParserException {
         final Variable a = f.variable("A");
         final List<Variable> resAB = Arrays.asList(f.variable("A"), f.variable("B"));
-        Assertions.assertThat(bddPosLit.construction.exists(0, 1)).isEqualTo(0);
-        Assertions.assertThat(bddPosLit.construction.exists(1, 1)).isEqualTo(1);
+        assertThat(bddPosLit.construction.exists(0, 1)).isEqualTo(0);
+        assertThat(bddPosLit.construction.exists(1, 1)).isEqualTo(1);
         assertThat(bddVerum.exists(a)).isEqualTo(bddVerum);
         assertThat(bddVerum.exists(resAB)).isEqualTo(bddVerum);
         assertThat(bddFalsum.exists(a)).isEqualTo(bddFalsum);
@@ -154,8 +154,8 @@ public class BDDOperationsTest {
     public void testUniversalQuantification() throws ParserException {
         final Variable a = f.variable("A");
         final List<Variable> resAB = Arrays.asList(f.variable("A"), f.variable("B"));
-        Assertions.assertThat(bddPosLit.construction.forAll(0, 1)).isEqualTo(0);
-        Assertions.assertThat(bddPosLit.construction.forAll(1, 1)).isEqualTo(1);
+        assertThat(bddPosLit.construction.forAll(0, 1)).isEqualTo(0);
+        assertThat(bddPosLit.construction.forAll(1, 1)).isEqualTo(1);
         assertThat(bddVerum.forall(a)).isEqualTo(bddVerum);
         assertThat(bddVerum.forall(resAB)).isEqualTo(bddVerum);
         assertThat(bddFalsum.forall(a)).isEqualTo(bddFalsum);

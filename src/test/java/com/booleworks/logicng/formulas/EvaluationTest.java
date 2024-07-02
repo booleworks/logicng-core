@@ -66,13 +66,13 @@ public class EvaluationTest extends TestWithFormulaContext {
         assertThat(_c.or1.evaluate(ass)).isFalse();
         assertThat(_c.or2.evaluate(ass)).isTrue();
         assertThat(_c.or3.evaluate(ass)).isTrue();
-        Assertions.assertThat(p.parse("~a | ~b | ~c | x | y").evaluate(ass)).isFalse();
-        Assertions.assertThat(p.parse("~a | ~b | ~c | x | ~y").evaluate(ass)).isTrue();
+        assertThat(p.parse("~a | ~b | ~c | x | y").evaluate(ass)).isFalse();
+        assertThat(p.parse("~a | ~b | ~c | x | ~y").evaluate(ass)).isTrue();
 
         assertThat(_c.and1.evaluate(ass)).isTrue();
         assertThat(_c.and2.evaluate(ass)).isFalse();
         assertThat(_c.and3.evaluate(ass)).isFalse();
-        Assertions.assertThat(p.parse("a & b & c & ~x & ~y").evaluate(ass)).isTrue();
-        Assertions.assertThat(p.parse("a & b & c & ~x & y").evaluate(ass)).isFalse();
+        assertThat(p.parse("a & b & c & ~x & ~y").evaluate(ass)).isTrue();
+        assertThat(p.parse("a & b & c & ~x & y").evaluate(ass)).isFalse();
     }
 }

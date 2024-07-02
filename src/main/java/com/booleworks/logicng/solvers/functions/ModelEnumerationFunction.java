@@ -18,6 +18,7 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.modelenumeration.AbstractModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.EnumerationCollector;
@@ -148,32 +149,28 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         }
 
         @Override
-        public boolean addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver,
-                                final LNGIntVector relevantAllIndices,
-                                final ComputationHandler handler) {
-            if (handler.shouldResume(new EnumerationFoundModelsEvent(baseModels.size()))) {
-                final Model model =
-                        new Model(solver.underlyingSolver().convertInternalModel(modelFromSolver, relevantAllIndices));
-                final List<Literal> modelLiterals = new ArrayList<>(additionalVariablesNotOnSolver);
-                modelLiterals.addAll(model.getLiterals());
-                uncommittedModels.add(modelLiterals);
-                return true;
-            } else {
-                return false;
-            }
+        public LNGEvent addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver,
+                                 final LNGIntVector relevantAllIndices, final ComputationHandler handler) {
+            final Model model =
+                    new Model(solver.underlyingSolver().convertInternalModel(modelFromSolver, relevantAllIndices));
+            final List<Literal> modelLiterals = new ArrayList<>(additionalVariablesNotOnSolver);
+            modelLiterals.addAll(model.getLiterals());
+            uncommittedModels.add(modelLiterals);
+            final EnumerationFoundModelsEvent event = new EnumerationFoundModelsEvent(baseModels.size());
+            return handler.shouldResume(event) ? null : event;
         }
 
         @Override
-        public boolean commit(final ComputationHandler handler) {
+        public LNGEvent commit(final ComputationHandler handler) {
             committedModels.addAll(expandUncommittedModels());
             uncommittedModels.clear();
-            return handler.shouldResume(MODEL_ENUMERATION_COMMIT);
+            return !handler.shouldResume(MODEL_ENUMERATION_COMMIT) ? MODEL_ENUMERATION_COMMIT : null;
         }
 
         @Override
-        public boolean rollback(final ComputationHandler handler) {
+        public LNGEvent rollback(final ComputationHandler handler) {
             uncommittedModels.clear();
-            return handler.shouldResume(MODEL_ENUMERATION_ROLLBACK);
+            return !handler.shouldResume(MODEL_ENUMERATION_ROLLBACK) ? MODEL_ENUMERATION_ROLLBACK : null;
         }
 
         @Override

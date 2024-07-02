@@ -16,7 +16,6 @@ import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -176,7 +175,7 @@ public class PbSolvingTest implements LogicNGTest {
     private void testCCAMK(final SATSolver solver, final int rhs, final int expected) {
         solver.add(f.cc(CType.LE, rhs, literals10));
         assertSolverSat(solver);
-        Assertions.assertThat(solver.enumerateAllModels(literals10))
+        assertThat(solver.enumerateAllModels(literals10))
                 .hasSize(expected)
                 .allMatch(model -> model.positiveVariables().size() <= rhs);
     }
@@ -184,7 +183,7 @@ public class PbSolvingTest implements LogicNGTest {
     private void testCCLT(final SATSolver solver, final int rhs, final int expected) {
         solver.add(f.cc(CType.LT, rhs, literals10));
         assertSolverSat(solver);
-        Assertions.assertThat(solver.enumerateAllModels(literals10))
+        assertThat(solver.enumerateAllModels(literals10))
                 .hasSize(expected)
                 .allMatch(model -> model.positiveVariables().size() < rhs);
     }
@@ -192,7 +191,7 @@ public class PbSolvingTest implements LogicNGTest {
     private void testCCALK(final SATSolver solver, final int rhs, final int expected) {
         solver.add(f.cc(CType.GE, rhs, literals10));
         assertSolverSat(solver);
-        Assertions.assertThat(solver.enumerateAllModels(literals10))
+        assertThat(solver.enumerateAllModels(literals10))
                 .hasSize(expected)
                 .allMatch(model -> model.positiveVariables().size() >= rhs);
     }
@@ -200,7 +199,7 @@ public class PbSolvingTest implements LogicNGTest {
     private void testCCGT(final SATSolver solver, final int rhs, final int expected) {
         solver.add(f.cc(CType.GT, rhs, literals10));
         assertSolverSat(solver);
-        Assertions.assertThat(solver.enumerateAllModels(literals10))
+        assertThat(solver.enumerateAllModels(literals10))
                 .hasSize(expected)
                 .allMatch(model -> model.positiveVariables().size() > rhs);
     }
@@ -208,7 +207,7 @@ public class PbSolvingTest implements LogicNGTest {
     private void testCCEQ(final SATSolver solver, final int rhs, final int expected) {
         solver.add(f.cc(CType.EQ, rhs, literals10));
         assertSolverSat(solver);
-        Assertions.assertThat(solver.enumerateAllModels(literals10))
+        assertThat(solver.enumerateAllModels(literals10))
                 .hasSize(expected)
                 .allMatch(model -> model.positiveVariables().size() == rhs);
     }
@@ -221,7 +220,7 @@ public class PbSolvingTest implements LogicNGTest {
                 final int[] coeffs10 = new int[]{3, 2, 2, 2, 2, 2, 2, 2, 2, 2};
                 solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.EQ, 5, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10))
+                assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(9)
                         .allMatch(model -> model.positiveVariables().size() == 2)
                         .allMatch(model -> model.positiveVariables().contains(f.variable("v" + 0)));
@@ -229,14 +228,14 @@ public class PbSolvingTest implements LogicNGTest {
                 solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.EQ, 7, literals10, coeffs10), config));
                 assertSolverSat(solver);
 
-                Assertions.assertThat(solver.enumerateAllModels(literals10))
+                assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(36)
                         .allMatch(model -> model.positiveVariables().size() == 3)
                         .allMatch(model -> model.positiveVariables().contains(f.variable("v" + 0)));
                 solver = solverSupplier.get();
                 solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.EQ, 0, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver = solverSupplier.get();
                 solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.EQ, 1, literals10, coeffs10), config));
                 assertSolverUnsat(solver);
@@ -255,31 +254,31 @@ public class PbSolvingTest implements LogicNGTest {
                 final int[] coeffs10 = new int[]{3, 2, 2, 2, 2, 2, 2, 2, 2, 2};
                 solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, 6, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10))
+                assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(140)
                         .allMatch(model -> model.positiveVariables().size() <= 3);
                 solver = solverSupplier.get();
                 solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LT, 7, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10))
+                assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(140)
                         .allMatch(model -> model.positiveVariables().size() <= 3);
                 solver = solverSupplier.get();
                 solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, 0, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver = solverSupplier.get();
                 solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, 1, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver = solverSupplier.get();
                 solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LT, 2, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver = solverSupplier.get();
                 solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LT, 1, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
             }
         }
     }
@@ -293,19 +292,19 @@ public class PbSolvingTest implements LogicNGTest {
                 solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.GE, 17, literals10, coeffs10), config));
                 assertSolverSat(solver);
 
-                Assertions.assertThat(solver.enumerateAllModels(literals10))
+                assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(47)
                         .allMatch(model -> model.positiveVariables().size() >= 8);
                 solver = solverSupplier.get();
                 solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.GT, 16, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10))
+                assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(47)
                         .allMatch(model -> model.positiveVariables().size() >= 8);
                 solver = solverSupplier.get();
                 solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.GE, 21, literals10, coeffs10), config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver = solverSupplier.get();
                 solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.GE, 22, literals10, coeffs10), config));
                 assertSolverUnsat(solver);
@@ -325,7 +324,7 @@ public class PbSolvingTest implements LogicNGTest {
                 final PBConstraint pbc = (PBConstraint) f.pbc(CType.EQ, 2, literals10, coeffs10);
                 solver.add(PbEncoder.encode(f, pbc, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(45)
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(45)
                         .allMatch(m -> pbc.evaluate(m.assignment()));
                 solver = solverSupplier.get();
 
@@ -333,7 +332,7 @@ public class PbSolvingTest implements LogicNGTest {
                 final PBConstraint pbc2 = (PBConstraint) f.pbc(CType.EQ, 4, literals10, coeffs10);
                 solver.add(PbEncoder.encode(f, pbc2, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(120)
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(120)
                         .allMatch(m -> pbc2.evaluate(m.assignment()));
                 solver = solverSupplier.get();
 
@@ -341,7 +340,7 @@ public class PbSolvingTest implements LogicNGTest {
                 final PBConstraint pbc3 = (PBConstraint) f.pbc(CType.EQ, 4, literals10, coeffs10);
                 solver.add(PbEncoder.encode(f, pbc3, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(57)
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(57)
                         .allMatch(m -> pbc3.evaluate(m.assignment()));
                 solver = solverSupplier.get();
 
@@ -349,7 +348,7 @@ public class PbSolvingTest implements LogicNGTest {
                 final PBConstraint pbc4 = (PBConstraint) f.pbc(CType.EQ, -10, literals10, coeffs10);
                 solver.add(PbEncoder.encode(f, pbc4, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(8)
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(8)
                         .allMatch(m -> pbc4.evaluate(m.assignment()));
                 solver = solverSupplier.get();
 
@@ -357,7 +356,7 @@ public class PbSolvingTest implements LogicNGTest {
                 final PBConstraint pbc5 = (PBConstraint) f.pbc(CType.EQ, -12, literals10, coeffs10);
                 solver.add(PbEncoder.encode(f, pbc5, config));
                 assertSolverSat(solver);
-                Assertions.assertThat(solver.enumerateAllModels(literals10)).hasSize(1)
+                assertThat(solver.enumerateAllModels(literals10)).hasSize(1)
                         .allMatch(m -> pbc5.evaluate(m.assignment()));
             }
         }

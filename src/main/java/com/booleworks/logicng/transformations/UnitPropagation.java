@@ -9,6 +9,8 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.cache.TransformationCacheEntry;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.solvers.datastructures.LNGClause;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
@@ -45,16 +47,16 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
     }
 
     @Override
-    public Formula apply(final Formula formula) {
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         final Formula cached = lookupCache(formula);
         if (cached != null) {
-            return cached;
+            return LNGResult.of(cached);
         }
         final Propagator propagator = new Propagator(f);
         propagator.add(formula);
         final Formula result = propagator.propagatedFormula(f);
         setCache(formula, result);
-        return result;
+        return LNGResult.of(result);
     }
 
     /**

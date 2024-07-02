@@ -30,15 +30,15 @@ public class FormulaDepthFunctionTest extends TestWithFormulaContext {
     public void testAtoms(final FormulaContext _c) {
         final FormulaDepthFunction df = new FormulaDepthFunction(_c.f);
 
-        Assertions.assertThat(_c.verum.apply(df)).isEqualTo(0);
-        Assertions.assertThat(_c.falsum.apply(df)).isEqualTo(0);
-        Assertions.assertThat(_c.a.apply(df)).isEqualTo(0);
-        Assertions.assertThat(_c.na.apply(df)).isEqualTo(0);
-        Assertions.assertThat(_c.pbc1.apply(df)).isEqualTo(0);
-        Assertions.assertThat(_c.pbc2.apply(df)).isEqualTo(0);
-        Assertions.assertThat(_c.pbc3.apply(df)).isEqualTo(0);
-        Assertions.assertThat(_c.pbc4.apply(df)).isEqualTo(0);
-        Assertions.assertThat(_c.pbc5.apply(df)).isEqualTo(0);
+        assertThat(_c.verum.apply(df)).isEqualTo(0);
+        assertThat(_c.falsum.apply(df)).isEqualTo(0);
+        assertThat(_c.a.apply(df)).isEqualTo(0);
+        assertThat(_c.na.apply(df)).isEqualTo(0);
+        assertThat(_c.pbc1.apply(df)).isEqualTo(0);
+        assertThat(_c.pbc2.apply(df)).isEqualTo(0);
+        assertThat(_c.pbc3.apply(df)).isEqualTo(0);
+        assertThat(_c.pbc4.apply(df)).isEqualTo(0);
+        assertThat(_c.pbc5.apply(df)).isEqualTo(0);
     }
 
     @ParameterizedTest
@@ -46,22 +46,22 @@ public class FormulaDepthFunctionTest extends TestWithFormulaContext {
     public void testDeepFormulas(final FormulaContext _c) {
         final FormulaDepthFunction df = new FormulaDepthFunction(_c.f);
 
-        Assertions.assertThat(_c.and1.apply(df)).isEqualTo(1);
-        Assertions.assertThat(_c.and2.apply(df)).isEqualTo(1);
-        Assertions.assertThat(_c.and3.apply(df)).isEqualTo(2);
-        Assertions.assertThat(_c.or1.apply(df)).isEqualTo(1);
-        Assertions.assertThat(_c.or2.apply(df)).isEqualTo(1);
-        Assertions.assertThat(_c.or3.apply(df)).isEqualTo(2);
-        Assertions.assertThat(_c.not1.apply(df)).isEqualTo(2);
-        Assertions.assertThat(_c.not2.apply(df)).isEqualTo(2);
-        Assertions.assertThat(_c.imp1.apply(df)).isEqualTo(1);
-        Assertions.assertThat(_c.imp2.apply(df)).isEqualTo(1);
-        Assertions.assertThat(_c.imp3.apply(df)).isEqualTo(2);
-        Assertions.assertThat(_c.imp4.apply(df)).isEqualTo(2);
-        Assertions.assertThat(_c.eq1.apply(df)).isEqualTo(1);
-        Assertions.assertThat(_c.eq2.apply(df)).isEqualTo(1);
-        Assertions.assertThat(_c.eq3.apply(df)).isEqualTo(2);
-        Assertions.assertThat(_c.eq4.apply(df)).isEqualTo(2);
+        assertThat(_c.and1.apply(df)).isEqualTo(1);
+        assertThat(_c.and2.apply(df)).isEqualTo(1);
+        assertThat(_c.and3.apply(df)).isEqualTo(2);
+        assertThat(_c.or1.apply(df)).isEqualTo(1);
+        assertThat(_c.or2.apply(df)).isEqualTo(1);
+        assertThat(_c.or3.apply(df)).isEqualTo(2);
+        assertThat(_c.not1.apply(df)).isEqualTo(2);
+        assertThat(_c.not2.apply(df)).isEqualTo(2);
+        assertThat(_c.imp1.apply(df)).isEqualTo(1);
+        assertThat(_c.imp2.apply(df)).isEqualTo(1);
+        assertThat(_c.imp3.apply(df)).isEqualTo(2);
+        assertThat(_c.imp4.apply(df)).isEqualTo(2);
+        assertThat(_c.eq1.apply(df)).isEqualTo(1);
+        assertThat(_c.eq2.apply(df)).isEqualTo(1);
+        assertThat(_c.eq3.apply(df)).isEqualTo(2);
+        assertThat(_c.eq4.apply(df)).isEqualTo(2);
     }
 
     @ParameterizedTest
@@ -74,7 +74,7 @@ public class FormulaDepthFunctionTest extends TestWithFormulaContext {
             final Variable var = _c.f.variable("X" + i);
             formula = i % 2 == 0 ? _c.f.or(formula, var) : _c.f.and(formula, var);
         }
-        Assertions.assertThat(formula.apply(df)).isEqualTo(10);
+        assertThat(formula.apply(df)).isEqualTo(10);
     }
 
     @Test
@@ -85,11 +85,11 @@ public class FormulaDepthFunctionTest extends TestWithFormulaContext {
         final Formula formula = f.parse("A & B | C");
         final Map<Formula, Integer> cache = f.getFunctionCacheForType(FunctionCacheEntry.DEPTH);
         assertThat(cache.get(formula)).isNull();
-        Assertions.assertThat(formula.apply(df)).isEqualTo(2);
+        assertThat(formula.apply(df)).isEqualTo(2);
         assertThat(cache.get(formula)).isEqualTo(2);
         assertThat(cache.get(f.variable("A"))).isEqualTo(0);
         cache.put(formula, 3);
-        Assertions.assertThat(formula.apply(df)).isEqualTo(3);
+        assertThat(formula.apply(df)).isEqualTo(3);
     }
 
     @Test
@@ -102,16 +102,16 @@ public class FormulaDepthFunctionTest extends TestWithFormulaContext {
         final Map<Formula, Integer> ffCache = f.getFunctionCacheForType(FunctionCacheEntry.DEPTH);
 
         assertThat(cache.get(formula)).isNull();
-        Assertions.assertThat(formula.apply(df)).isEqualTo(2);
+        assertThat(formula.apply(df)).isEqualTo(2);
         assertThat(cache.get(formula)).isEqualTo(2);
         assertThat(cache.get(f.variable("A"))).isEqualTo(0);
         cache.put(formula, 3);
-        Assertions.assertThat(formula.apply(df)).isEqualTo(3);
+        assertThat(formula.apply(df)).isEqualTo(3);
 
         assertThat(ffCache.get(formula)).isNull();
         assertThat(ffCache.get(f.variable("A"))).isNull();
         ffCache.put(formula, 5);
-        Assertions.assertThat(formula.apply(df)).isEqualTo(3);
+        assertThat(formula.apply(df)).isEqualTo(3);
     }
 
     @Test
@@ -122,10 +122,10 @@ public class FormulaDepthFunctionTest extends TestWithFormulaContext {
 
         final Formula formula = f.parse("A & B | C");
         assertThat(cache.get(formula)).isNull();
-        Assertions.assertThat(formula.apply(df)).isEqualTo(2);
+        assertThat(formula.apply(df)).isEqualTo(2);
         assertThat(cache.get(formula)).isEqualTo(2);
         assertThat(cache.get(f.variable("A"))).isEqualTo(0);
         cache.put(formula, 3);
-        Assertions.assertThat(formula.apply(df)).isEqualTo(3);
+        assertThat(formula.apply(df)).isEqualTo(3);
     }
 }

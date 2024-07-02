@@ -11,7 +11,7 @@ import com.booleworks.logicng.transformations.dnf.DNFFactorization;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class FactorizationCreatedClauseEvent implements LogicNGEvent {
+public class FactorizationCreatedClauseEvent implements LNGEvent {
 
     private final Formula clause;
 

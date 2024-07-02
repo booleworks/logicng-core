@@ -9,9 +9,11 @@ import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.SINGLE_TI
 import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.MAX_SAT_CALL_FINISHED;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.MAX_SAT_CALL_STARTED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -78,6 +80,7 @@ class TimeoutMaxSATHandlerTest {
             solver.addSoftFormula(f.parse("~A"), weight);
             solver.addSoftFormula(f.parse("~B"), weight);
             final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
+            when(handler.shouldResume(any())).thenReturn(true);
             solver.solve(handler);
 
             verify(handler, times(1)).shouldResume(eq(MAX_SAT_CALL_STARTED));
@@ -93,11 +96,8 @@ class TimeoutMaxSATHandlerTest {
             final int weight = solver.isWeighted() ? 2 : 1;
             formulas.forEach(c -> solver.addSoftFormula(c, weight));
             final TimeoutHandler handler = new TimeoutHandler(10L);
-
-            final MaxSAT.MaxSATResult solve = solver.solve(handler);
-
-            assertThat(handler.isAborted()).isTrue();
-            assertThat(solve).isEqualTo(MaxSAT.MaxSATResult.UNDEF);
+            final LNGResult<MaxSAT.MaxSATResult> solve = solver.solve(handler);
+            assertThat(solve.isSuccess()).isFalse();
         }
     }
 
@@ -108,11 +108,8 @@ class TimeoutMaxSATHandlerTest {
             final int weight = solver.isWeighted() ? 2 : 1;
             ph.forEach(c -> solver.addSoftFormula(c, weight));
             final TimeoutHandler handler = new TimeoutHandler(System.currentTimeMillis() + 100L, FIXED_END);
-
-            final MaxSAT.MaxSATResult solve = solver.solve(handler);
-
-            assertThat(handler.isAborted()).isTrue();
-            assertThat(solve).isEqualTo(MaxSAT.MaxSATResult.UNDEF);
+            final LNGResult<MaxSAT.MaxSATResult> solve = solver.solve(handler);
+            assertThat(solve.isSuccess()).isFalse();
         }
     }
 }

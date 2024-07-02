@@ -12,9 +12,9 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.cache.TransformationCacheEntry;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.events.FactorizationCreatedClauseEvent;
-import com.booleworks.logicng.transformations.CacheableAndAbortableFormulaTransformation;
+import com.booleworks.logicng.transformations.CacheableFormulaTransformation;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -25,141 +25,127 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.0
  */
-public final class CNFFactorization extends CacheableAndAbortableFormulaTransformation<ComputationHandler> {
-
-    private boolean proceed = true;
+public final class CNFFactorization extends CacheableFormulaTransformation {
 
     /**
      * Constructor for a CNF Factorization.
      * @param f the formula factory to generate new formulas
      */
     public CNFFactorization(final FormulaFactory f) {
-        super(f, TransformationCacheEntry.FACTORIZED_CNF, NopHandler.get());
+        super(f, TransformationCacheEntry.FACTORIZED_CNF);
     }
 
     /**
-     * Constructor for a CNF Factorization.
+     * Constructor for a CNF Factorization. For all factory type the provided
+     * cache will be used. If it is null, no cache will be used.
      * @param f     the formula factory to generate new formulas
      * @param cache the cache to use for the transformation
      */
     public CNFFactorization(final FormulaFactory f, final Map<Formula, Formula> cache) {
-        this(f, NopHandler.get(), cache);
-    }
-
-    /**
-     * Constructor for a CNF Factorization.
-     * @param f       the formula factory to generate new formulas
-     * @param handler the handler for the transformation
-     */
-    public CNFFactorization(final FormulaFactory f, final ComputationHandler handler) {
-        super(f, TransformationCacheEntry.FACTORIZED_CNF, handler);
-    }
-
-    /**
-     * Constructs a new transformation. For all factory type the provided cache
-     * will be used. If it is null, no cache will be used. The handler - if not
-     * null - is used for aborting the computation.
-     * @param f       the formula factory to generate new formulas
-     * @param cache   the cache to use for the transformation
-     * @param handler the handler for the transformation
-     */
-    public CNFFactorization(final FormulaFactory f, final ComputationHandler handler,
-                            final Map<Formula, Formula> cache) {
-        super(f, cache, handler);
+        super(f, cache);
     }
 
     @Override
-    public Formula apply(final Formula formula) {
-        proceed = handler.shouldResume(FACTORIZATION_STARTED);
-        return applyRec(formula);
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+        if (!handler.shouldResume(FACTORIZATION_STARTED)) {
+            return LNGResult.aborted(FACTORIZATION_STARTED);
+        }
+        return applyRec(formula, handler);
     }
 
-    private Formula applyRec(final Formula formula) {
-        if (!proceed) {
-            return null;
-        }
+    private LNGResult<Formula> applyRec(final Formula formula, final ComputationHandler handler) {
         if (formula.type().precedence() >= FType.LITERAL.precedence()) {
-            return formula;
+            return LNGResult.of(formula);
         }
-        Formula cached = lookupCache(formula);
+        final Formula cached = lookupCache(formula);
         if (cached != null) {
-            return cached;
+            return LNGResult.of(cached);
         }
+        final Formula computed;
         switch (formula.type()) {
             case NOT:
             case IMPL:
             case EQUIV:
-                cached = applyRec(formula.nnf(f));
+                final LNGResult<Formula> rec = applyRec(formula.nnf(f), handler);
+                if (rec.isSuccess()) {
+                    computed = rec.getResult();
+                } else {
+                    return rec;
+                }
                 break;
             case OR:
                 LinkedHashSet<Formula> nops = new LinkedHashSet<>();
                 for (final Formula op : formula) {
-                    if (!proceed) {
-                        return null;
+                    final LNGResult<Formula> nop = applyRec(op, handler);
+                    if (nop.isSuccess()) {
+                        nops.add(nop.getResult());
+                    } else {
+                        return nop;
                     }
-                    nops.add(applyRec(op));
                 }
                 final Iterator<Formula> it = nops.iterator();
-                cached = it.next();
+                Formula currentResult = it.next();
                 while (it.hasNext()) {
-                    if (!proceed) {
-                        return null;
+                    final LNGResult<Formula> distributed = distribute(currentResult, it.next(), handler);
+                    if (distributed.isSuccess()) {
+                        currentResult = distributed.getResult();
+                    } else {
+                        return distributed;
                     }
-                    cached = distribute(cached, it.next());
                 }
+                computed = currentResult;
                 break;
             case AND:
                 nops = new LinkedHashSet<>();
                 for (final Formula op : formula) {
-                    final Formula apply = applyRec(op);
-                    if (!proceed) {
-                        return null;
+                    final LNGResult<Formula> nop = applyRec(op, handler);
+                    if (nop.isSuccess()) {
+                        nops.add(nop.getResult());
+                    } else {
+                        return nop;
                     }
-                    nops.add(apply);
                 }
-                cached = f.and(nops);
+                computed = f.and(nops);
                 break;
             case PBC:
-                cached = formula.nnf(f);
+                computed = formula.nnf(f);
                 break;
             default:
                 throw new IllegalArgumentException("Could not process the formula type " + formula.type());
         }
-        if (proceed) {
-            setCache(formula, cached);
-            return cached;
-        }
-        return null;
+        setCache(formula, computed);
+        return LNGResult.of(computed);
     }
 
     /**
      * Computes the distribution (factorization) of two formulas.
-     * @param f1 the first formula
-     * @param f2 the second formula
+     * @param f1      the first formula
+     * @param f2      the second formula
+     * @param handler the computation handler
      * @return the distribution of the two formulas
      */
-    private Formula distribute(final Formula f1, final Formula f2) {
-        if (handler != null) {
-            proceed = handler.shouldResume(DISTRIBUTION_PERFORMED);
+    private LNGResult<Formula> distribute(final Formula f1, final Formula f2, final ComputationHandler handler) {
+        if (!handler.shouldResume(DISTRIBUTION_PERFORMED)) {
+            return LNGResult.aborted(DISTRIBUTION_PERFORMED);
         }
-        if (proceed) {
-            if (f1.type() == FType.AND || f2.type() == FType.AND) {
-                final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
-                for (final Formula op : f1.type() == FType.AND ? f1 : f2) {
-                    final Formula distribute = distribute(op, f1.type() == FType.AND ? f2 : f1);
-                    if (!proceed) {
-                        return null;
-                    }
-                    nops.add(distribute);
+        if (f1.type() == FType.AND || f2.type() == FType.AND) {
+            final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
+            for (final Formula op : f1.type() == FType.AND ? f1 : f2) {
+                final LNGResult<Formula> distributed = distribute(op, f1.type() == FType.AND ? f2 : f1, handler);
+                if (distributed.isSuccess()) {
+                    nops.add(distributed.getResult());
+                } else {
+                    return distributed;
                 }
-                return f.and(nops);
             }
-            final Formula clause = f.or(f1, f2);
-            if (handler != null) {
-                proceed = handler.shouldResume(new FactorizationCreatedClauseEvent(clause));
-            }
-            return clause;
+            return LNGResult.of(f.and(nops));
         }
-        return null;
+        final Formula clause = f.or(f1, f2);
+        final FactorizationCreatedClauseEvent createdClauseEvent = new FactorizationCreatedClauseEvent(clause);
+        if (handler.shouldResume(createdClauseEvent)) {
+            return LNGResult.of(clause);
+        } else {
+            return LNGResult.aborted(createdClauseEvent);
+        }
     }
 }

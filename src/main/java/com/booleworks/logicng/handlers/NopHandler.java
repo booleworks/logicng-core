@@ -1,6 +1,6 @@
 package com.booleworks.logicng.handlers;
 
-import com.booleworks.logicng.handlers.events.LogicNGEvent;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 
 /**
  * A computation handler which never aborts the computation.
@@ -25,12 +25,7 @@ public class NopHandler implements ComputationHandler {
     }
 
     @Override
-    public boolean shouldResume(final LogicNGEvent event) {
+    public boolean shouldResume(final LNGEvent event) {
         return true;
-    }
-
-    @Override
-    public boolean isAborted() {
-        return false;
     }
 }

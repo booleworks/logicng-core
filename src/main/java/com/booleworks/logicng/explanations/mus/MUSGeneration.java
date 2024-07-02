@@ -7,6 +7,9 @@ package com.booleworks.logicng.explanations.mus;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.propositions.Proposition;
 
 import java.util.List;
@@ -53,14 +56,30 @@ public final class MUSGeneration {
      */
     public <T extends Proposition> UNSATCore<T> computeMUS(final FormulaFactory f, final List<T> propositions,
                                                            final MUSConfig config) {
+        return computeMUS(f, propositions, config, NopHandler.get()).getResult();
+    }
+
+    /**
+     * Computes a MUS for the given propositions and the given configuration of
+     * the MUS generation.
+     * @param <T>          the type of the MUSes propositions
+     * @param f            the formula factory
+     * @param propositions the propositions
+     * @param config       the MUS configuration
+     * @param handler      the computation handler
+     * @return the MUS
+     */
+    public <T extends Proposition> LNGResult<UNSATCore<T>> computeMUS(
+            final FormulaFactory f, final List<T> propositions,
+            final MUSConfig config, final ComputationHandler handler) {
         if (propositions.isEmpty()) {
             throw new IllegalArgumentException("Cannot generate a MUS for an empty list of propositions");
         }
         switch (config.algorithm) {
             case PLAIN_INSERTION:
-                return insertion.computeMUS(f, propositions, config);
+                return insertion.computeMUS(f, propositions, config, handler);
             case DELETION:
-                return deletion.computeMUS(f, propositions, config);
+                return deletion.computeMUS(f, propositions, config, handler);
             default:
                 throw new IllegalStateException("Unknown MUS algorithm: " + config.algorithm);
         }

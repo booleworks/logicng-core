@@ -15,6 +15,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.modelenumeration.AbstractModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.EnumerationCollector;
@@ -116,28 +117,25 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
         }
 
         @Override
-        public boolean addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver,
-                                final LNGIntVector relevantAllIndices, final ComputationHandler handler) {
-            if (handler.shouldResume(new EnumerationFoundModelsEvent(dontCareFactor.intValue()))) {
-                uncommittedModels.add(modelFromSolver);
-                uncommittedIndices.add(relevantAllIndices);
-                return true;
-            } else {
-                return false;
-            }
+        public LNGEvent addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver,
+                                 final LNGIntVector relevantAllIndices, final ComputationHandler handler) {
+            final EnumerationFoundModelsEvent event = new EnumerationFoundModelsEvent(dontCareFactor.intValue());
+            uncommittedModels.add(modelFromSolver);
+            uncommittedIndices.add(relevantAllIndices);
+            return handler.shouldResume(event) ? null : event;
         }
 
         @Override
-        public boolean commit(final ComputationHandler handler) {
+        public LNGEvent commit(final ComputationHandler handler) {
             committedCount = committedCount.add(BigInteger.valueOf(uncommittedModels.size()).multiply(dontCareFactor));
             clearUncommitted();
-            return handler.shouldResume(MODEL_ENUMERATION_COMMIT);
+            return handler.shouldResume(MODEL_ENUMERATION_COMMIT) ? null : MODEL_ENUMERATION_COMMIT;
         }
 
         @Override
-        public boolean rollback(final ComputationHandler handler) {
+        public LNGEvent rollback(final ComputationHandler handler) {
             clearUncommitted();
-            return handler.shouldResume(MODEL_ENUMERATION_ROLLBACK);
+            return handler.shouldResume(MODEL_ENUMERATION_ROLLBACK) ? null : MODEL_ENUMERATION_ROLLBACK;
         }
 
         @Override

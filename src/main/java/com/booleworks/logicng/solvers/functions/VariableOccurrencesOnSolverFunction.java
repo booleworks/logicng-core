@@ -10,6 +10,8 @@ import static com.booleworks.logicng.util.CollectionHelper.nullSafe;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.datastructures.LNGClause;
 import com.booleworks.logicng.solvers.datastructures.LNGVariable;
@@ -56,7 +58,7 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
     }
 
     @Override
-    public Map<Variable, Integer> apply(final SATSolver solver) {
+    public LNGResult<Map<Variable, Integer>> apply(final SATSolver solver, final ComputationHandler handler) {
         final FormulaFactory f = solver.factory();
         final LNGCoreSolver underlyingSolver = solver.underlyingSolver();
         final Map<String, Integer> counts = initResultMap(underlyingSolver);
@@ -66,7 +68,8 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
                 counts.computeIfPresent(key, (u, old) -> old + 1);
             }
         }
-        return counts.entrySet().stream().collect(Collectors.toMap(v -> f.variable(v.getKey()), Map.Entry::getValue));
+        return LNGResult.of(counts.entrySet().stream()
+                .collect(Collectors.toMap(v -> f.variable(v.getKey()), Map.Entry::getValue)));
     }
 
     private Map<String, Integer> initResultMap(final LNGCoreSolver underlyingSolver) {

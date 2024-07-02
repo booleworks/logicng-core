@@ -5,7 +5,7 @@
 package com.booleworks.logicng.handlers;
 
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
-import com.booleworks.logicng.handlers.events.LogicNGEvent;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 
 /**
  * A generic timeout handler.
@@ -14,7 +14,6 @@ import com.booleworks.logicng.handlers.events.LogicNGEvent;
  */
 public class TimeoutHandler implements ComputationHandler {
 
-    protected boolean aborted = false;
     protected long timeout;
     protected final TimerType type;
     protected long designatedEnd;
@@ -58,7 +57,7 @@ public class TimeoutHandler implements ComputationHandler {
     }
 
     @Override
-    public boolean shouldResume(final LogicNGEvent event) {
+    public boolean shouldResume(final LNGEvent event) {
         if (event instanceof ComputationStartedEvent) {
             if (type == TimerType.RESTARTING_TIMEOUT || designatedEnd == 0) {
                 designatedEnd = System.currentTimeMillis() + timeout;
@@ -67,19 +66,13 @@ public class TimeoutHandler implements ComputationHandler {
         return !timeLimitExceeded();
     }
 
-    @Override
-    public boolean isAborted() {
-        return timeLimitExceeded();
-    }
-
     /**
      * Tests if the current time exceeds the timeout limit.
      * @return {@code true} if the current time exceeds the timeout limit,
      *         otherwise {@code false}
      */
     private boolean timeLimitExceeded() {
-        aborted = designatedEnd > 0 && System.currentTimeMillis() >= designatedEnd;
-        return aborted;
+        return designatedEnd > 0 && System.currentTimeMillis() >= designatedEnd;
     }
 
     /**

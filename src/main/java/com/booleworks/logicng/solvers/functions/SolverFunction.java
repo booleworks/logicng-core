@@ -4,6 +4,9 @@
 
 package com.booleworks.logicng.solvers.functions;
 
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.solvers.SATSolver;
 
 /**
@@ -19,8 +22,18 @@ public interface SolverFunction<RESULT> {
 
     /**
      * Applies this function to the given solver.
+     * @param solver  the solver on which the function should work on
+     * @param handler the computation handler
+     * @return the (potentially aborted) result of the function application
+     */
+    LNGResult<RESULT> apply(SATSolver solver, ComputationHandler handler);
+
+    /**
+     * Applies this function to the given solver.
      * @param solver the solver on which the function should work on
      * @return the result of the function application
      */
-    RESULT apply(SATSolver solver);
+    default RESULT apply(final SATSolver solver) {
+        return apply(solver, NopHandler.get()).getResult();
+    }
 }

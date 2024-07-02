@@ -6,6 +6,8 @@ package com.booleworks.logicng.transformations.cnf;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
 import com.booleworks.logicng.transformations.BDDNormalFormTransformation;
 
@@ -57,7 +59,7 @@ public final class BDDCNFTransformation extends BDDNormalFormTransformation {
     }
 
     @Override
-    public Formula apply(final Formula formula) {
-        return compute(formula);
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+        return compute(formula, handler);
     }
 }

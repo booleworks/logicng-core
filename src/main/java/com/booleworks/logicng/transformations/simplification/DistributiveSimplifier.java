@@ -11,6 +11,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Implication;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.cache.TransformationCacheEntry;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.transformations.CacheableFormulaTransformation;
 
 import java.util.LinkedHashMap;
@@ -35,10 +37,10 @@ public final class DistributiveSimplifier extends CacheableFormulaTransformation
     }
 
     @Override
-    public Formula apply(final Formula formula) {
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         Formula result = lookupCache(formula);
         if (result != null) {
-            return result;
+            return LNGResult.of(result);
         }
         switch (formula.type()) {
             case FALSE:
@@ -68,7 +70,7 @@ public final class DistributiveSimplifier extends CacheableFormulaTransformation
                 throw new IllegalStateException("Unknown formula type: " + formula.type());
         }
         setCache(formula, result);
-        return result;
+        return LNGResult.of(result);
     }
 
     private Formula distributeNAry(final Formula formula) {

@@ -5,11 +5,11 @@
 package com.booleworks.logicng.explanations.mus;
 
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.MUS_COMPUTATION_STARTED;
-import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
 
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
@@ -25,9 +25,12 @@ import java.util.List;
 public final class DeletionBasedMUS extends MUSAlgorithm {
 
     @Override
-    public <T extends Proposition> UNSATCore<T> computeMUS(final FormulaFactory f, final List<T> propositions,
-                                                           final MUSConfig config) {
-        config.handler.shouldResume(MUS_COMPUTATION_STARTED);
+    public <T extends Proposition> LNGResult<UNSATCore<T>> computeMUS(
+            final FormulaFactory f, final List<T> propositions,
+            final MUSConfig config, final ComputationHandler handler) {
+        if (!handler.shouldResume(MUS_COMPUTATION_STARTED)) {
+            return LNGResult.aborted(MUS_COMPUTATION_STARTED);
+        }
         final List<T> mus = new ArrayList<>(propositions.size());
         final List<SolverState> solverStates = new ArrayList<>(propositions.size());
         final SATSolver solver = SATSolver.newSolver(f);
@@ -35,11 +38,11 @@ public final class DeletionBasedMUS extends MUSAlgorithm {
             solverStates.add(solver.saveState());
             solver.add(proposition);
         }
-        boolean sat = solver.satCall().handler(config.handler).sat() == Tristate.TRUE;
-        if (!config.handler.shouldResume(NO_EVENT)) {
-            return null;
+        LNGResult<Boolean> sat = solver.satCall().handler(handler).sat();
+        if (!sat.isSuccess()) {
+            return LNGResult.aborted(sat.getAbortionEvent());
         }
-        if (sat) {
+        if (sat.getResult()) {
             throw new IllegalArgumentException("Cannot compute a MUS for a satisfiable formula set.");
         }
         for (int i = solverStates.size() - 1; i >= 0; i--) {
@@ -47,14 +50,14 @@ public final class DeletionBasedMUS extends MUSAlgorithm {
             for (final Proposition prop : mus) {
                 solver.add(prop);
             }
-            sat = solver.satCall().handler(config.handler).sat() == Tristate.TRUE;
-            if (!config.handler.shouldResume(NO_EVENT)) {
-                return null;
+            sat = solver.satCall().handler(handler).sat();
+            if (!sat.isSuccess()) {
+                return LNGResult.aborted(sat.getAbortionEvent());
             }
-            if (sat) {
+            if (sat.getResult()) {
                 mus.add(propositions.get(i));
             }
         }
-        return new UNSATCore<>(mus, true);
+        return LNGResult.of(new UNSATCore<>(mus, true));
     }
 }

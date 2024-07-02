@@ -8,6 +8,7 @@ import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.solvers.SATSolver;
 
 import java.util.List;
@@ -35,44 +36,47 @@ public interface EnumerationCollector<RESULT> {
      * @param solver             the solver
      * @param relevantAllIndices the relevant indices
      * @param handler            the model enumeration handler
-     * @return true if adding the model was successful, false otherwise
+     * @return an event if the handler aborted the computation,
+     *         otherwise {@code null}
      */
-    boolean addModel(LNGBooleanVector modelFromSolver, SATSolver solver, LNGIntVector relevantAllIndices,
-                     ComputationHandler handler);
+    LNGEvent addModel(LNGBooleanVector modelFromSolver, SATSolver solver, LNGIntVector relevantAllIndices,
+                      ComputationHandler handler);
 
     /**
      * All founds models since the last commit call are confirmed and cannot be
      * rolled back.
      * <p>
      * Calls the {@code commit()} routine of {@code handler}.
-     * @param handler the model enumeration handler, may be {@code null}
-     * @return {@code true} if the computation should continue, otherwise
-     *         {@code false}
+     * @param handler the computation handler
+     * @return an event if the handler aborted the computation,
+     *         otherwise {@code null}
      */
-    boolean commit(ComputationHandler handler);
+    LNGEvent commit(ComputationHandler handler);
 
     /**
      * All found models since the last commit should be discarded.
      * <p>
-     * Calls the {@code rollback} routine of {@code handler}.
-     * @param handler the model enumeration handler, may be {@code null}
-     * @return {@code true} if the computation should continue, otherwise
-     *         {@code false}
+     * The rollback should <b>always</b> be performed, even if the handler
+     * aborts the computation.
+     * @param handler the computation handler
+     * @return an event if the handler aborted the computation,
+     *         otherwise {@code null}
      */
-    boolean rollback(ComputationHandler handler);
+    LNGEvent rollback(ComputationHandler handler);
 
     /**
      * All found models since the last commit will be discarded and returned.
      * <p>
      * Calls the {@code rollback} routine of {@code handler}.
      * @param solver  solver used for the enumeration
-     * @param handler the model enumeration handler, may be {@code null}
+     * @param handler the computation handler
      * @return list of all discarded models
      */
     List<Model> rollbackAndReturnModels(final SATSolver solver, ComputationHandler handler);
 
     /**
-     * @return the committed state of the collector
+     * Returns the currently committed state of the collector.
+     * @return the currently committed state of the collector
      */
     RESULT getResult();
 }

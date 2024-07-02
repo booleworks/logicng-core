@@ -89,7 +89,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         bdd.swapVariables(_c.b, _c.c);
         assertThat(bdd.getVariableOrder()).containsExactly(_c.b, _c.c, _c.a);
         assertThat(_c.f.equivalence(formula, bdd.cnf()).holds(new TautologyPredicate(_c.f))).isTrue();
-        Assertions.assertThat(bdd.apply(new LngBDDFunction(_c.f))).isEqualTo(
+        assertThat(bdd.apply(new LngBDDFunction(_c.f))).isEqualTo(
                 new BDDInnerNode(_c.b,
                         new BDDInnerNode(_c.c,
                                 new BDDInnerNode(_c.a, BDDConstant.getFalsumNode(_c.f), BDDConstant.getVerumNode(_c.f)),
@@ -108,13 +108,13 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         final BDD bdd2 = BDDFactory.build(_c.f, formula2, kernel);
         assertThat(bdd1.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
         assertThat(bdd2.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
-        Assertions.assertThat(bdd2.apply(new LngBDDFunction(_c.f))).isEqualTo(
+        assertThat(bdd2.apply(new LngBDDFunction(_c.f))).isEqualTo(
                 new BDDInnerNode(_c.a, BDDConstant.getFalsumNode(_c.f),
                         new BDDInnerNode(_c.b, BDDConstant.getFalsumNode(_c.f), BDDConstant.getVerumNode(_c.f))));
         bdd1.swapVariables(_c.a, _c.b);
         assertThat(bdd1.getVariableOrder()).containsExactly(_c.b, _c.a, _c.c);
         assertThat(bdd2.getVariableOrder()).containsExactly(_c.b, _c.a, _c.c);
-        Assertions.assertThat(bdd2.apply(new LngBDDFunction(_c.f))).isEqualTo(
+        assertThat(bdd2.apply(new LngBDDFunction(_c.f))).isEqualTo(
                 new BDDInnerNode(_c.b, BDDConstant.getFalsumNode(_c.f),
                         new BDDInnerNode(_c.a, BDDConstant.getFalsumNode(_c.f), BDDConstant.getVerumNode(_c.f))));
     }

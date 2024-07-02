@@ -1,12 +1,12 @@
 package com.booleworks.logicng.solvers.sat;
 
 import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.StandardProposition;
@@ -137,13 +137,10 @@ public class SATCallBuilder {
 
     /**
      * Directly computes the satisfiability result with the current state of the
-     * builder. Returns {@link Tristate#TRUE} if the formula is satisfiable,
-     * {@link Tristate#FALSE} if the formula is not satisfiable, and
-     * {@link Tristate#UNDEF} if the SAT call was aborted by the
-     * {@link SATHandler handler}.
+     * builder.
      * @return the satisfiability result
      */
-    public Tristate sat() {
+    public LNGResult<Boolean> sat() {
         try (final SATCall call = solve()) {
             return call.getSatResult();
         }

@@ -6,8 +6,8 @@ package com.booleworks.logicng.solvers.functions.modelenumeration;
 
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
-import com.booleworks.logicng.handlers.events.LogicNGEvent;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.handlers.events.SimpleEvent;
 
 public final class EnumerationCollectorTestHandler implements ComputationHandler {
@@ -17,7 +17,7 @@ public final class EnumerationCollectorTestHandler implements ComputationHandler
     private int rollbackCalls;
 
     @Override
-    public boolean shouldResume(final LogicNGEvent event) {
+    public boolean shouldResume(final LNGEvent event) {
         if (event == ComputationStartedEvent.MODEL_ENUMERATION_STARTED) {
             foundModels = 0;
         } else if (event instanceof EnumerationFoundModelsEvent) {
@@ -28,11 +28,6 @@ public final class EnumerationCollectorTestHandler implements ComputationHandler
             ++rollbackCalls;
         }
         return true;
-    }
-
-    @Override
-    public boolean isAborted() {
-        return false;
     }
 
     public int getFoundModels() {

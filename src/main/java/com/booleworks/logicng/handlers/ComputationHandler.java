@@ -1,11 +1,11 @@
 package com.booleworks.logicng.handlers;
 
-import com.booleworks.logicng.handlers.events.LogicNGEvent;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 
 /**
  * Interface for a computation handler.
- * @since 3.0.0
  * @version 3.0.0
+ * @since 3.0.0
  */
 public interface ComputationHandler {
     /**
@@ -14,11 +14,5 @@ public interface ComputationHandler {
      * @param event the event to handle, must not be {@code null}
      * @return whether the computation should be resumed or not
      */
-    boolean shouldResume(LogicNGEvent event);
-
-    /**
-     * @deprecated should be removed
-     */
-    @Deprecated
-    boolean isAborted();
+    boolean shouldResume(LNGEvent event);
 }

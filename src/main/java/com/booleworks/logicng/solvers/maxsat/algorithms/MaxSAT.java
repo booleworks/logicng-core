@@ -22,17 +22,17 @@
 
 package com.booleworks.logicng.solvers.maxsat.algorithms;
 
+import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.MAX_SAT_CALL_FINISHED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.MAX_SAT_CALL_STARTED;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.handlers.events.ComputationFinishedEvent;
-import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.handlers.events.MaxSatNewLowerBoundEvent;
 import com.booleworks.logicng.handlers.events.MaxSatNewUpperBoundEvent;
 import com.booleworks.logicng.solvers.datastructures.LNGHardClause;
@@ -68,6 +68,7 @@ public abstract class MaxSAT {
     public enum MaxSATResult {
         UNSATISFIABLE,
         OPTIMUM,
+        @Deprecated // TODO remove UNDEF
         UNDEF
     }
 
@@ -77,7 +78,6 @@ public abstract class MaxSAT {
     final LNGVector<LNGHardClause> hardClauses;
     final LNGIntVector orderWeights;
     protected Verbosity verbosity;
-    protected ComputationHandler handler;
     int hardWeight;
     ProblemType problemType;
     int nbVars;
@@ -116,7 +116,6 @@ public abstract class MaxSAT {
         nbSatisfiable = 0;
         sumSizeCores = 0;
         orderWeights = new LNGIntVector();
-        handler = NopHandler.get();
     }
 
     /**
@@ -131,23 +130,23 @@ public abstract class MaxSAT {
      * Solves the formula that is currently loaded in the SAT solver with a set
      * of assumptions.
      * @param s           the SAT solver
-     * @param satHandler  a SAT handler
+     * @param handler     the handler
      * @param assumptions the assumptions
      * @return the result of the solving process
      */
-    public static Tristate searchSATSolver(final LNGCoreSolver s, final ComputationHandler satHandler,
-                                           final LNGIntVector assumptions) {
-        return s.internalSolve(satHandler, assumptions);
+    public static LNGResult<Boolean> searchSATSolver(final LNGCoreSolver s, final ComputationHandler handler,
+                                                     final LNGIntVector assumptions) {
+        return s.internalSolve(handler, assumptions);
     }
 
     /**
      * Solves the formula without assumptions.
-     * @param s          the SAT solver
-     * @param satHandler a SAT handler
+     * @param s       the SAT solver
+     * @param handler the handler
      * @return the result of the solving process
      */
-    public static Tristate searchSATSolver(final LNGCoreSolver s, final ComputationHandler satHandler) {
-        return s.internalSolve(satHandler);
+    public static LNGResult<Boolean> searchSATSolver(final LNGCoreSolver s, final ComputationHandler handler) {
+        return s.internalSolve(handler);
     }
 
     /**
@@ -156,12 +155,14 @@ public abstract class MaxSAT {
      * @return the result of the solving process
      * @throws IllegalArgumentException if the configuration was not valid
      */
-    public final MaxSATResult search(final ComputationHandler handler) {
-        this.handler = handler;
-        handler.shouldResume(ComputationStartedEvent.MAX_SAT_CALL_STARTED);
-        final MaxSATResult result = search();
-        handler.shouldResume(ComputationFinishedEvent.MAX_SAT_CALL_FINISHED);
-        this.handler = NopHandler.get();
+    public final LNGResult<MaxSATResult> search(final ComputationHandler handler) {
+        if (!handler.shouldResume(MAX_SAT_CALL_STARTED)) {
+            return LNGResult.aborted(MAX_SAT_CALL_STARTED);
+        }
+        final LNGResult<MaxSATResult> result = internalSearch(handler);
+        if (!handler.shouldResume(MAX_SAT_CALL_FINISHED)) {
+            return LNGResult.aborted(MAX_SAT_CALL_FINISHED);
+        }
         return result;
     }
 
@@ -170,7 +171,7 @@ public abstract class MaxSAT {
      * @return the result of the solving process
      * @throws IllegalArgumentException if the configuration was not valid
      */
-    public abstract MaxSATResult search();
+    protected abstract LNGResult<MaxSATResult> internalSearch(ComputationHandler handler);
 
     /**
      * Returns the number of variables in the working MaxSAT formula.
@@ -399,12 +400,32 @@ public abstract class MaxSAT {
         return model;
     }
 
-    boolean foundLowerBound(final int lowerBound) {
-        return handler.shouldResume(new MaxSatNewLowerBoundEvent(lowerBound));
+    /**
+     * Informs the handler about a newly found lower bound and returns the
+     * event if the handler aborted the computation. Otherwise, {@code null} is
+     * returned.
+     * @param lowerBound the new lower bound
+     * @param handler    the computation handler
+     * @return the event if the handler aborted the computation, otherwise
+     *         {@code null}
+     */
+    LNGEvent foundLowerBound(final int lowerBound, final ComputationHandler handler) {
+        final MaxSatNewLowerBoundEvent event = new MaxSatNewLowerBoundEvent(lowerBound);
+        return handler.shouldResume(event) ? null : event;
     }
 
-    boolean foundUpperBound(final int upperBound) {
-        return handler.shouldResume(new MaxSatNewUpperBoundEvent(upperBound));
+    /**
+     * Informs the handler about a newly found upper bound and returns the
+     * event if the handler aborted the computation. Otherwise, {@code null} is
+     * returned.
+     * @param upperBound the new upper bound
+     * @param handler    the computation handler
+     * @return the event if the handler aborted the computation, otherwise
+     *         {@code null}
+     */
+    LNGEvent foundUpperBound(final int upperBound, final ComputationHandler handler) {
+        final MaxSatNewUpperBoundEvent event = new MaxSatNewUpperBoundEvent(upperBound);
+        return handler.shouldResume(event) ? null : event;
     }
 
     /**

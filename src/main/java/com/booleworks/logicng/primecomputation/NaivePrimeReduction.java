@@ -4,13 +4,11 @@
 
 package com.booleworks.logicng.primecomputation;
 
-import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
-
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.solvers.SATSolver;
@@ -57,7 +55,7 @@ public final class NaivePrimeReduction {
      * @return a prime implicant
      */
     public SortedSet<Literal> reduceImplicant(final SortedSet<Literal> implicant) {
-        return reduceImplicant(implicant, NopHandler.get());
+        return reduceImplicant(implicant, NopHandler.get()).getResult();
     }
 
     /**
@@ -69,21 +67,22 @@ public final class NaivePrimeReduction {
      * @return a prime implicant or null if the computation was aborted by the
      *         handler
      */
-    public SortedSet<Literal> reduceImplicant(final SortedSet<Literal> implicant, final ComputationHandler handler) {
+    public LNGResult<SortedSet<Literal>> reduceImplicant(final SortedSet<Literal> implicant,
+                                                         final ComputationHandler handler) {
         handler.shouldResume(ComputationStartedEvent.IMPLICATE_REDUCTION_STARTED);
         final SortedSet<Literal> primeImplicant = new TreeSet<>(implicant);
         for (final Literal lit : implicant) {
             primeImplicant.remove(lit);
-            final boolean sat =
-                    implicantSolver.satCall().handler(handler).addFormulas(primeImplicant).sat() == Tristate.TRUE;
-            if (!handler.shouldResume(NO_EVENT)) {
-                return null;
+            final LNGResult<Boolean> sat =
+                    implicantSolver.satCall().handler(handler).addFormulas(primeImplicant).sat();
+            if (!sat.isSuccess()) {
+                return LNGResult.aborted(sat.getAbortionEvent());
             }
-            if (sat) {
+            if (sat.getResult()) {
                 primeImplicant.add(lit);
             }
         }
-        return primeImplicant;
+        return LNGResult.of(primeImplicant);
     }
 
     /**
@@ -95,7 +94,7 @@ public final class NaivePrimeReduction {
      * @return a prime implicate
      */
     public SortedSet<Literal> reduceImplicate(final FormulaFactory f, final SortedSet<Literal> implicate) {
-        return reduceImplicate(f, implicate, NopHandler.get());
+        return reduceImplicate(f, implicate, NopHandler.get()).getResult();
     }
 
     /**
@@ -108,22 +107,21 @@ public final class NaivePrimeReduction {
      * @return a prime implicate of null if the computation was aborted by the
      *         handler
      */
-    public SortedSet<Literal> reduceImplicate(final FormulaFactory f, final SortedSet<Literal> implicate,
-                                              final ComputationHandler handler) {
+    public LNGResult<SortedSet<Literal>> reduceImplicate(final FormulaFactory f, final SortedSet<Literal> implicate,
+                                                         final ComputationHandler handler) {
         handler.shouldResume(ComputationStartedEvent.IMPLICATE_REDUCTION_STARTED);
         final SortedSet<Literal> primeImplicate = new TreeSet<>(implicate);
         for (final Literal lit : implicate) {
             primeImplicate.remove(lit);
             final List<Literal> assumptions = FormulaHelper.negateLiterals(f, primeImplicate, ArrayList::new);
-            final boolean sat =
-                    implicateSolver.satCall().handler(handler).addFormulas(assumptions).sat() == Tristate.TRUE;
-            if (!handler.shouldResume(NO_EVENT)) {
-                return null;
+            final LNGResult<Boolean> sat = implicateSolver.satCall().handler(handler).addFormulas(assumptions).sat();
+            if (!sat.isSuccess()) {
+                return LNGResult.aborted(sat.getAbortionEvent());
             }
-            if (sat) {
+            if (sat.getResult()) {
                 primeImplicate.add(lit);
             }
         }
-        return primeImplicate;
+        return LNGResult.of(primeImplicate);
     }
 }
