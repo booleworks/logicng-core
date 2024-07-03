@@ -12,6 +12,10 @@ import com.booleworks.logicng.handlers.events.SimpleEvent;
 /**
  * A model enumeration handler that terminates the solving process after a given
  * number of models.
+ * <p>
+ * <i>Note that it is still possible that the computation yields <b>more</b>
+ * models than the given bound</i>, since there are cases where several models
+ * are added at once.
  * @version 3.0.0
  * @since 3.0.0
  */
@@ -24,6 +28,10 @@ public class NumberOfModelsHandler implements ComputationHandler {
     /**
      * Constructs a new model handler with an upper bound for the number of
      * models (inclusive).
+     * <p>
+     * <i>Note that it is still possible that the computation yields <b>more</b>
+     * models than the given bound</i>, since there are cases where several
+     * models are added at once.
      * @param bound the upper bound
      * @throws IllegalArgumentException if the number of models to generate is
      *                                  &lt;= 0
