@@ -98,9 +98,9 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         solver.addHardFormula(f.parse("a | b"));
         solver.addHardFormula(f.verum());
         solver.addSoftFormula(A, 1);
-        MaxSATResult result = solver.solve().getResult();
+        MaxSATResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
-        result = solver.solve().getResult();
+        result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
     }
 
@@ -116,13 +116,13 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
             for (final String file : files) {
                 final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
                 MaxSATReader.readCnfToSolver(solver, "src/test/resources/maxsat/" + file);
-                final MaxSATResult result = solver.solve().getResult();
+                final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(1);
             }
             final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
             MaxSATReader.readCnfToSolver(solver, "src/test/resources/sat/9symml_gr_rcs_w6.shuffled.cnf");
-            final MaxSATResult result = solver.solve().getResult();
+            final MaxSATResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getOptimum()).isEqualTo(0);
         }
@@ -140,13 +140,13 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
             for (final String file : files) {
                 final MaxSATSolver solver = MaxSATSolver.incWBO(f, config);
                 MaxSATReader.readCnfToSolver(solver, "src/test/resources/maxsat/" + file);
-                final MaxSATResult result = solver.solve().getResult();
+                final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(1);
             }
             final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
             MaxSATReader.readCnfToSolver(solver, "src/test/resources/sat/9symml_gr_rcs_w6.shuffled.cnf");
-            final MaxSATResult result = solver.solve().getResult();
+            final MaxSATResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getOptimum()).isEqualTo(0);
         }
@@ -164,13 +164,13 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
             for (final String file : files) {
                 final MaxSATSolver solver = MaxSATSolver.linearSU(f, config);
                 MaxSATReader.readCnfToSolver(solver, "src/test/resources/maxsat/" + file);
-                final MaxSATResult result = solver.solve().getResult();
+                final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(1);
             }
             final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
             MaxSATReader.readCnfToSolver(solver, "src/test/resources/sat/9symml_gr_rcs_w6.shuffled.cnf");
-            final MaxSATResult result = solver.solve().getResult();
+            final MaxSATResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getOptimum()).isEqualTo(0);
         }
@@ -196,13 +196,13 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
             for (final String file : files) {
                 final MaxSATSolver solver = MaxSATSolver.linearUS(f, config);
                 MaxSATReader.readCnfToSolver(solver, "src/test/resources/maxsat/" + file);
-                final MaxSATResult result = solver.solve().getResult();
+                final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(1);
             }
             final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
             MaxSATReader.readCnfToSolver(solver, "src/test/resources/sat/9symml_gr_rcs_w6.shuffled.cnf");
-            final MaxSATResult result = solver.solve().getResult();
+            final MaxSATResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getOptimum()).isEqualTo(0);
         }
@@ -228,13 +228,13 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
             for (final String file : files) {
                 final MaxSATSolver solver = MaxSATSolver.msu3(f, config);
                 MaxSATReader.readCnfToSolver(solver, "src/test/resources/maxsat/" + file);
-                final MaxSATResult result = solver.solve().getResult();
+                final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(1);
             }
             final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
             MaxSATReader.readCnfToSolver(solver, "src/test/resources/sat/9symml_gr_rcs_w6.shuffled.cnf");
-            final MaxSATResult result = solver.solve().getResult();
+            final MaxSATResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getOptimum()).isEqualTo(0);
         }
@@ -246,13 +246,13 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         for (final String file : files) {
             final MaxSATSolver solver = MaxSATSolver.oll(f);
             MaxSATReader.readCnfToSolver(solver, "src/test/resources/maxsat/" + file);
-            final MaxSATResult result = solver.solve().getResult();
+            final MaxSATResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getOptimum()).isEqualTo(1);
         }
         final MaxSATSolver solver = MaxSATSolver.oll(f);
         MaxSATReader.readCnfToSolver(solver, "src/test/resources/sat/9symml_gr_rcs_w6.shuffled.cnf");
-        final MaxSATResult result = solver.solve().getResult();
+        final MaxSATResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
         assertThat(result.getOptimum()).isEqualTo(0);
     }
@@ -262,7 +262,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         final MaxSATSolver solver = MaxSATSolver.incWBO(f, MaxSATConfig.builder()
                 .cardinality(MaxSATConfig.CardinalityEncoding.MTOTALIZER).verbosity(SOME).output(logStream).build());
         readCnfToSolver(solver, "src/test/resources/maxsat/c-fat200-2.clq.cnf");
-        final MaxSATResult result = solver.solve().getResult();
+        final MaxSATResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
         assertThat(result.getOptimum()).isEqualTo(26);
         final MaxSAT.Stats stats = solver.stats();
@@ -292,7 +292,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         solver.addSoftFormula(p.parse("a"), 1);
         solver.addSoftFormula(p.parse("~y"), 1);
         solver.addSoftFormula(p.parse("z"), 1);
-        final MaxSATResult result = solver.solve().getResult();
+        final MaxSATResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
         assertThat(result.getOptimum()).isEqualTo(3);
         final Assignment model = result.getModel();

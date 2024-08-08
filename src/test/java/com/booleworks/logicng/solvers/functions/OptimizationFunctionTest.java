@@ -418,7 +418,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                             final MaxSATSolver solver) {
         formulas.forEach(solver::addHardFormula);
         variables.forEach(v -> solver.addSoftFormula(v.negate(formulas.iterator().next().factory()), 1));
-        return solver.solve().getResult().getOptimum();
+        return solver.solve().getOptimum();
     }
 
     private SortedSet<Literal> satisfiedLiterals(final LNGResult<SatResult<Assignment>> assignment,
@@ -467,8 +467,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                 final MaxSATSolver solver = MaxSATSolver.oll(f);
                 solver.addHardFormula(formula);
                 literals.forEach(l -> solver.addSoftFormula(maximize ? l : l.negate(f), 1));
-                final int numSatisfiedOll = satisfiedLiterals(
-                        LNGResult.of(SatResult.sat(solver.solve().getResult().getModel())), literals).size();
+                final int numSatisfiedOll = satisfiedLiterals(LNGResult.of(SatResult.sat(solver.solve().getModel())), literals).size();
                 assertThat(actualNumSatisfied).isEqualTo(numSatisfiedOll);
             }
         } else {

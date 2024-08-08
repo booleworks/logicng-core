@@ -80,7 +80,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
             for (int i = 0; i < files.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
                 readCnfToSolver(solver, "src/test/resources/partialmaxsat/" + files[i]);
-                final MaxSATResult result = solver.solve().getResult();
+                final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(results[i]);
             }
@@ -92,7 +92,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
         for (int i = 0; i < files.length; i++) {
             final MaxSATSolver solver = MaxSATSolver.oll(f);
             readCnfToSolver(solver, "src/test/resources/partialmaxsat/" + files[i]);
-            final MaxSATResult result = solver.solve().getResult();
+            final MaxSATResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getOptimum()).isEqualTo(results[i]);
         }
@@ -107,7 +107,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
             for (int i = 0; i < files.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.incWBO(f, config);
                 readCnfToSolver(solver, "src/test/resources/partialmaxsat/" + files[i]);
-                final MaxSATResult result = solver.solve().getResult();
+                final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(results[i]);
             }
@@ -129,7 +129,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
             for (int i = 0; i < files.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.linearSU(f, config);
                 readCnfToSolver(solver, "src/test/resources/partialmaxsat/" + files[i]);
-                final MaxSATResult result = solver.solve().getResult();
+                final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(results[i]);
             }
@@ -153,7 +153,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
             for (int i = 0; i < files.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.linearUS(f, config);
                 readCnfToSolver(solver, "src/test/resources/partialmaxsat/" + files[i]);
-                final MaxSATResult result = solver.solve().getResult();
+                final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(results[i]);
             }
@@ -176,7 +176,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
             for (int i = 0; i < files.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.msu3(f, config);
                 readCnfToSolver(solver, "src/test/resources/partialmaxsat/" + files[i]);
-                final MaxSATResult result = solver.solve().getResult();
+                final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(results[i]);
             }
@@ -317,7 +317,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
         for (final MaxSATSolver solver : solvers) {
             solver.addHardFormula(f.parse("a & b & c"));
             solver.addSoftFormula(f.parse("~a & ~b & ~c"), 1);
-            final MaxSATResult result = solver.solve().getResult();
+            final MaxSATResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getModel().literals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")
@@ -335,7 +335,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
             solver.addHardFormula(f.parse("a & b & c"));
             solver.addSoftFormula(f.parse("$true"), 1);
             solver.addSoftFormula(f.parse("~a & ~b & ~c"), 1);
-            final MaxSATResult result = solver.solve().getResult();
+            final MaxSATResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getModel().literals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")
@@ -353,7 +353,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
             solver.addHardFormula(f.parse("a & b & c"));
             solver.addSoftFormula(f.parse("$false"), 1);
             solver.addSoftFormula(f.parse("~a & ~b & ~c"), 1);
-            final MaxSATResult result = solver.solve().getResult();
+            final MaxSATResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getModel().literals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")

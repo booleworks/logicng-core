@@ -9,8 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.solvers.MaxSATResult;
 import com.booleworks.logicng.solvers.MaxSATSolver;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
 import org.junit.jupiter.api.Test;
@@ -37,16 +35,13 @@ public class MaxSatLongRunningTest {
                 MaxSATSolver.incWBO(f, MaxSATConfig.builder().weight(MaxSATConfig.WeightStrategy.DIVERSIFY).build());
         solvers[2] = MaxSATSolver.incWBO(f);
         for (final MaxSATSolver solver : solvers) {
-//            final long start = System.currentTimeMillis();
             for (final File file : Objects.requireNonNull(folder.listFiles())) {
                 if (file.getName().endsWith("wcnf")) {
                     solver.reset();
                     readCnfToSolver(solver, file.getAbsolutePath());
-                    assertThat(solver.solve().getResult().getOptimum()).isEqualTo(result.get(file.getName()));
+                    assertThat(solver.solve().getOptimum()).isEqualTo(result.get(file.getName()));
                 }
             }
-//            final long stop = System.currentTimeMillis();
-//            System.out.printf("%-8s: %.2f sec%n", solver.getAlgorithm(), (stop - start) / 1000.0);
         }
     }
 

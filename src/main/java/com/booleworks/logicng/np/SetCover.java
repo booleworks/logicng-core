@@ -67,7 +67,7 @@ public final class SetCover {
         for (final Variable setVar : setMap.keySet()) {
             solver.addSoftFormula(setVar.negate(f), 1);
         }
-        final MaxSATResult maxSATResult = solver.solve().getResult();
+        final MaxSATResult maxSATResult = solver.solve();
         if (!maxSATResult.isSatisfiable()) {
             throw new IllegalStateException("Internal optimization problem was not feasible.");
         }

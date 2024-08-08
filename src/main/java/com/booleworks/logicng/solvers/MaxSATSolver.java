@@ -363,8 +363,8 @@ public class MaxSATSolver {
      * Solves the formula on the solver and returns the result.
      * @return the result (SAT, UNSAT, Optimum found)
      */
-    public LNGResult<MaxSATResult> solve() {
-        return solve(NopHandler.get());
+    public MaxSATResult solve() {
+        return solve(NopHandler.get()).getResult();
     }
 
     /**
