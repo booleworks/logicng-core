@@ -30,12 +30,4 @@ public class MaxSATClassTest {
         assertThat(Arrays.asList(MaxSATConfig.Verbosity.values()).contains(MaxSATConfig.Verbosity.valueOf("SOME")))
                 .isTrue();
     }
-
-    @Test
-    public void testMaxSATEnum() {
-        assertThat(Arrays.asList(MaxSAT.ProblemType.values()).contains(MaxSAT.ProblemType.valueOf("UNWEIGHTED")))
-                .isTrue();
-        assertThat(Arrays.asList(MaxSAT.MaxSATResult.values()).contains(MaxSAT.MaxSATResult.valueOf("OPTIMUM")))
-                .isTrue();
-    }
 }

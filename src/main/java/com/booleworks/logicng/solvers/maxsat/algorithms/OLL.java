@@ -10,6 +10,7 @@ import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.solvers.maxsat.InternalMaxSATResult;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
@@ -63,7 +64,7 @@ public class OLL extends MaxSAT {
     }
 
     @Override
-    protected LNGResult<MaxSATResult> internalSearch(final ComputationHandler handler) {
+    protected LNGResult<InternalMaxSATResult> internalSearch(final ComputationHandler handler) {
         if (encoder.cardEncoding() != MaxSATConfig.CardinalityEncoding.TOTALIZER) {
             throw new IllegalStateException("Error: Currently OLL only supports the totalizer encoding.");
         }
@@ -95,7 +96,7 @@ public class OLL extends MaxSAT {
         return s;
     }
 
-    private LNGResult<MaxSATResult> unweighted(final ComputationHandler handler) {
+    private LNGResult<InternalMaxSATResult> unweighted(final ComputationHandler handler) {
         nbInitialVariables = nVars();
         initRelaxation();
         solver = rebuildSolver();
@@ -126,24 +127,24 @@ public class OLL extends MaxSAT {
                 ubCost = newCost;
                 if (nbSatisfiable == 1) {
                     if (newCost == 0) {
-                        return LNGResult.of(MaxSATResult.OPTIMUM);
+                        return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                     }
                     for (int i = 0; i < nSoft(); i++) {
                         assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
                 } else {
                     assert lbCost == newCost;
-                    return LNGResult.of(MaxSATResult.OPTIMUM);
+                    return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                 }
             } else {
                 lbCost++;
                 nbCores++;
                 if (nbSatisfiable == 0) {
-                    return LNGResult.of(MaxSATResult.UNSATISFIABLE);
+                    return LNGResult.of(InternalMaxSATResult.unsatisfiable());
                 }
                 if (lbCost == ubCost) {
                     assert nbSatisfiable > 0;
-                    return LNGResult.of(MaxSATResult.OPTIMUM);
+                    return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                 }
                 sumSizeCores += solver.assumptionsConflict().size();
                 final LNGIntVector softRelax = new LNGIntVector();
@@ -222,7 +223,7 @@ public class OLL extends MaxSAT {
         }
     }
 
-    private LNGResult<MaxSATResult> weighted(final ComputationHandler handler) {
+    private LNGResult<InternalMaxSATResult> weighted(final ComputationHandler handler) {
         nbInitialVariables = nVars();
         initRelaxation();
         solver = rebuildSolver();
@@ -292,7 +293,7 @@ public class OLL extends MaxSAT {
                         }
                     } else {
                         assert lbCost == newCost;
-                        return LNGResult.of(MaxSATResult.OPTIMUM);
+                        return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                     }
                 }
             } else {
@@ -316,11 +317,11 @@ public class OLL extends MaxSAT {
                 lbCost += minCore;
                 nbCores++;
                 if (nbSatisfiable == 0) {
-                    return LNGResult.of(MaxSATResult.UNSATISFIABLE);
+                    return LNGResult.of(InternalMaxSATResult.unsatisfiable());
                 }
                 if (lbCost == ubCost) {
                     assert nbSatisfiable > 0;
-                    return LNGResult.of(MaxSATResult.OPTIMUM);
+                    return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                 }
                 sumSizeCores += solver.assumptionsConflict().size();
                 final LNGIntVector softRelax = new LNGIntVector();

@@ -6,8 +6,8 @@ package com.booleworks.logicng.np;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.solvers.MaxSATResult;
 import com.booleworks.logicng.solvers.MaxSATSolver;
-import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT;
 import com.booleworks.logicng.util.CollectionHelper;
 
 import java.util.ArrayList;
@@ -67,11 +67,12 @@ public final class SetCover {
         for (final Variable setVar : setMap.keySet()) {
             solver.addSoftFormula(setVar.negate(f), 1);
         }
-        if (solver.solve().getResult() != MaxSAT.MaxSATResult.OPTIMUM) {
+        final MaxSATResult maxSATResult = solver.solve().getResult();
+        if (!maxSATResult.isSatisfiable()) {
             throw new IllegalStateException("Internal optimization problem was not feasible.");
         }
         final ArrayList<Variable> minimumCover =
-                CollectionHelper.intersection(solver.model().positiveVariables(), setMap.keySet(), ArrayList::new);
+                CollectionHelper.intersection(maxSATResult.getModel().positiveVariables(), setMap.keySet(), ArrayList::new);
         final List<Set<T>> result = new ArrayList<>();
         for (final Variable setVar : minimumCover) {
             result.add(setMap.get(setVar));

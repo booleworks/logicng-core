@@ -29,6 +29,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.events.LNGEvent;
+import com.booleworks.logicng.solvers.maxsat.InternalMaxSATResult;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import com.booleworks.logicng.util.Pair;
@@ -84,7 +85,7 @@ public class IncWBO extends WBO {
     }
 
     @Override
-    protected LNGResult<MaxSATResult> internalSearch(final ComputationHandler handler) {
+    protected LNGResult<InternalMaxSATResult> internalSearch(final ComputationHandler handler) {
         nbInitialVariables = nVars();
         if (currentWeight == 1) {
             problemType = ProblemType.UNWEIGHTED;
@@ -298,14 +299,14 @@ public class IncWBO extends WBO {
     }
 
     @Override
-    protected LNGResult<MaxSATResult> weightSearch(final ComputationHandler handler) {
+    protected LNGResult<InternalMaxSATResult> weightSearch(final ComputationHandler handler) {
         assert weightStrategy == MaxSATConfig.WeightStrategy.NORMAL ||
                 weightStrategy == MaxSATConfig.WeightStrategy.DIVERSIFY;
         final LNGResult<Boolean> unsatResult = unsatSearch(handler);
         if (!unsatResult.isSuccess()) {
             return LNGResult.aborted(unsatResult.getAbortionEvent());
         } else if (!unsatResult.getResult()) {
-            return LNGResult.of(MaxSATResult.UNSATISFIABLE);
+            return LNGResult.of(InternalMaxSATResult.unsatisfiable());
         }
         initAssumptions(assumptions);
         updateCurrentWeight(weightStrategy);
@@ -349,7 +350,7 @@ public class IncWBO extends WBO {
                             output.println("o " + lbCost);
                         }
                     }
-                    return LNGResult.of(MaxSATResult.OPTIMUM);
+                    return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                 } else {
                     updateCurrentWeight(weightStrategy);
                     final int cost = incComputeCostModel(solver.model());
@@ -364,7 +365,7 @@ public class IncWBO extends WBO {
                         if (verbosity != MaxSATConfig.Verbosity.NONE) {
                             output.println("c LB = UB");
                         }
-                        return LNGResult.of(MaxSATResult.OPTIMUM);
+                        return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                     } else {
                         final LNGEvent upperBoundEvent = foundUpperBound(ubCost, handler);
                         if (upperBoundEvent != null) {
@@ -404,12 +405,12 @@ public class IncWBO extends WBO {
     }
 
     @Override
-    protected LNGResult<MaxSATResult> normalSearch(final ComputationHandler handler) {
+    protected LNGResult<InternalMaxSATResult> normalSearch(final ComputationHandler handler) {
         final LNGResult<Boolean> unsatResult = unsatSearch(handler);
         if (!unsatResult.isSuccess()) {
             return LNGResult.aborted(unsatResult.getAbortionEvent());
         } else if (!unsatResult.getResult()) {
-            return LNGResult.of(MaxSATResult.UNSATISFIABLE);
+            return LNGResult.of(InternalMaxSATResult.unsatisfiable());
         }
         initAssumptions(assumptions);
         solver = rebuildSolver();
@@ -436,7 +437,7 @@ public class IncWBO extends WBO {
                     if (verbosity != MaxSATConfig.Verbosity.NONE) {
                         output.println("c LB = UB");
                     }
-                    return LNGResult.of(MaxSATResult.OPTIMUM);
+                    return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                 }
                 final LNGEvent lowerBoundEvent = foundLowerBound(lbCost, handler);
                 if (lowerBoundEvent != null) {
@@ -451,7 +452,7 @@ public class IncWBO extends WBO {
                     output.println("o " + lbCost);
                 }
                 saveModel(solver.model());
-                return LNGResult.of(MaxSATResult.OPTIMUM);
+                return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
             }
         }
     }

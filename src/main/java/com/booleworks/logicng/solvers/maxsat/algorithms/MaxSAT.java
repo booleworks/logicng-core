@@ -37,6 +37,7 @@ import com.booleworks.logicng.handlers.events.MaxSatNewLowerBoundEvent;
 import com.booleworks.logicng.handlers.events.MaxSatNewUpperBoundEvent;
 import com.booleworks.logicng.solvers.datastructures.LNGHardClause;
 import com.booleworks.logicng.solvers.datastructures.LNGSoftClause;
+import com.booleworks.logicng.solvers.maxsat.InternalMaxSATResult;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 
@@ -59,17 +60,6 @@ public abstract class MaxSAT {
     public enum ProblemType {
         UNWEIGHTED,
         WEIGHTED
-    }
-
-    /**
-     * The MaxSAT result type: {@code SATISFIABLE}, {@code UNSATISFIABLE},
-     * {@code OPTIMUM}, or {@code UNDEF}.
-     */
-    public enum MaxSATResult {
-        UNSATISFIABLE,
-        OPTIMUM,
-        @Deprecated // TODO remove UNDEF
-        UNDEF
     }
 
     protected final FormulaFactory f;
@@ -155,11 +145,11 @@ public abstract class MaxSAT {
      * @return the result of the solving process
      * @throws IllegalArgumentException if the configuration was not valid
      */
-    public final LNGResult<MaxSATResult> search(final ComputationHandler handler) {
+    public final LNGResult<InternalMaxSATResult> search(final ComputationHandler handler) {
         if (!handler.shouldResume(MAX_SAT_CALL_STARTED)) {
             return LNGResult.aborted(MAX_SAT_CALL_STARTED);
         }
-        final LNGResult<MaxSATResult> result = internalSearch(handler);
+        final LNGResult<InternalMaxSATResult> result = internalSearch(handler);
         if (!handler.shouldResume(MAX_SAT_CALL_FINISHED)) {
             return LNGResult.aborted(MAX_SAT_CALL_FINISHED);
         }
@@ -171,7 +161,7 @@ public abstract class MaxSAT {
      * @return the result of the solving process
      * @throws IllegalArgumentException if the configuration was not valid
      */
-    protected abstract LNGResult<MaxSATResult> internalSearch(ComputationHandler handler);
+    protected abstract LNGResult<InternalMaxSATResult> internalSearch(ComputationHandler handler);
 
     /**
      * Returns the number of variables in the working MaxSAT formula.
@@ -382,22 +372,6 @@ public abstract class MaxSAT {
      */
     public Stats stats() {
         return new Stats();
-    }
-
-    /**
-     * Returns the optimal result of the solver.
-     * @return the optimal result of the solver
-     */
-    public int result() {
-        return ubCost;
-    }
-
-    /**
-     * Returns the model of the solver.
-     * @return the model of the solver
-     */
-    public LNGBooleanVector model() {
-        return model;
     }
 
     /**

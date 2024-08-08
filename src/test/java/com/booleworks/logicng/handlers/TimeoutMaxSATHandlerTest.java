@@ -21,8 +21,8 @@ import com.booleworks.logicng.handlers.events.MaxSatNewLowerBoundEvent;
 import com.booleworks.logicng.handlers.events.MaxSatNewUpperBoundEvent;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
+import com.booleworks.logicng.solvers.MaxSATResult;
 import com.booleworks.logicng.solvers.MaxSATSolver;
-import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT;
 import com.booleworks.logicng.testutils.PigeonHoleGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -96,7 +96,7 @@ class TimeoutMaxSATHandlerTest {
             final int weight = solver.isWeighted() ? 2 : 1;
             formulas.forEach(c -> solver.addSoftFormula(c, weight));
             final TimeoutHandler handler = new TimeoutHandler(10L);
-            final LNGResult<MaxSAT.MaxSATResult> solve = solver.solve(handler);
+            final LNGResult<MaxSATResult> solve = solver.solve(handler);
             assertThat(solve.isSuccess()).isFalse();
         }
     }
@@ -108,7 +108,7 @@ class TimeoutMaxSATHandlerTest {
             final int weight = solver.isWeighted() ? 2 : 1;
             ph.forEach(c -> solver.addSoftFormula(c, weight));
             final TimeoutHandler handler = new TimeoutHandler(System.currentTimeMillis() + 100L, FIXED_END);
-            final LNGResult<MaxSAT.MaxSATResult> solve = solver.solve(handler);
+            final LNGResult<MaxSATResult> solve = solver.solve(handler);
             assertThat(solve.isSuccess()).isFalse();
         }
     }

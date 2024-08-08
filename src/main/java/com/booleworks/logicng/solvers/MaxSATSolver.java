@@ -4,9 +4,6 @@
 
 package com.booleworks.logicng.solvers;
 
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT.MaxSATResult.OPTIMUM;
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT.MaxSATResult.UNSATISFIABLE;
-
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
@@ -18,6 +15,7 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.solvers.maxsat.InternalMaxSATResult;
 import com.booleworks.logicng.solvers.maxsat.algorithms.IncWBO;
 import com.booleworks.logicng.solvers.maxsat.algorithms.LinearSU;
 import com.booleworks.logicng.solvers.maxsat.algorithms.LinearUS;
@@ -42,7 +40,7 @@ public class MaxSATSolver {
 
     private static final String SEL_PREFIX = "@SEL_SOFT_";
 
-    protected enum Algorithm {
+    public enum Algorithm {
         WBO,
         INC_WBO,
         LINEAR_SU,
@@ -55,7 +53,7 @@ public class MaxSATSolver {
     protected final MaxSATConfig configuration;
     protected final Algorithm algorithm;
     protected FormulaFactory f;
-    protected LNGResult<MaxSAT.MaxSATResult> result;
+    protected LNGResult<MaxSATResult> result;
     protected MaxSAT solver;
     protected SortedMap<Variable, Integer> var2index;
     protected SortedMap<Integer, Variable> index2var;
@@ -365,7 +363,7 @@ public class MaxSATSolver {
      * Solves the formula on the solver and returns the result.
      * @return the result (SAT, UNSAT, Optimum found)
      */
-    public LNGResult<MaxSAT.MaxSATResult> solve() {
+    public LNGResult<MaxSATResult> solve() {
         return solve(NopHandler.get());
     }
 
@@ -375,7 +373,7 @@ public class MaxSATSolver {
      * @return the result (SAT, UNSAT, Optimum found, or UNDEF if canceled by
      *         the handler)
      */
-    public LNGResult<MaxSAT.MaxSATResult> solve(final ComputationHandler handler) {
+    public LNGResult<MaxSATResult> solve(final ComputationHandler handler) {
         if (result != null && result.isSuccess()) {
             return result;
         }
@@ -384,36 +382,9 @@ public class MaxSATSolver {
         } else {
             solver.setProblemType(MaxSAT.ProblemType.WEIGHTED);
         }
-        result = solver.search(handler);
+        final LNGResult<InternalMaxSATResult> internalResult = solver.search(handler);
+        result = internalResult.map(res -> res.toMaxSATResult(this::createAssignment));
         return result;
-    }
-
-    /**
-     * Returns the minimum weight (or number of clauses if unweighted) of
-     * clauses which have to be unsatisfied. Therefore, if the minimum number of
-     * weights is 0, the formula is satisfiable.
-     * @return the minimum weight of clauses which have to be unsatisfied
-     * @throws IllegalStateException if the formula is not yet solved
-     */
-    public int result() {
-        if (result == null || !result.isSuccess()) {
-            throw new IllegalStateException(
-                    "Cannot get a result as long as the formula is not solved.  Call 'solver' first.");
-        }
-        return result.getResult() == OPTIMUM ? solver.result() : -1;
-    }
-
-    /**
-     * Returns the model of the current result.
-     * @return the model of the current result
-     * @throws IllegalStateException if the formula is not yet solved
-     */
-    public Assignment model() {
-        if (result == null || !result.isSuccess()) {
-            throw new IllegalStateException(
-                    "Cannot get a model as long as the formula is not solved.  Call 'solver' first.");
-        }
-        return result.getResult() != UNSATISFIABLE ? createAssignment(solver.model()) : null;
     }
 
     /**

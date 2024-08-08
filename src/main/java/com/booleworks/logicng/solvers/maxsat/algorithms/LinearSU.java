@@ -33,6 +33,7 @@ import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.solvers.datastructures.LNGSoftClause;
+import com.booleworks.logicng.solvers.maxsat.InternalMaxSATResult;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
@@ -83,7 +84,7 @@ public class LinearSU extends MaxSAT {
     }
 
     @Override
-    protected LNGResult<MaxSATResult> internalSearch(final ComputationHandler handler) {
+    protected LNGResult<InternalMaxSATResult> internalSearch(final ComputationHandler handler) {
         nbInitialVariables = nVars();
         if (currentWeight == 1) {
             problemType = ProblemType.UNWEIGHTED;
@@ -101,7 +102,7 @@ public class LinearSU extends MaxSAT {
         }
     }
 
-    protected LNGResult<MaxSATResult> bmoSearch(final ComputationHandler handler) {
+    protected LNGResult<InternalMaxSATResult> bmoSearch(final ComputationHandler handler) {
         assert orderWeights.size() > 0;
         initRelaxation();
         int currentWeight = orderWeights.get(0);
@@ -136,7 +137,7 @@ public class LinearSU extends MaxSAT {
                     output.printf("c BMO-UB : %d (Function %d/%d)%n", newCost, posWeight + 1, orderWeights.size());
                 }
                 if (newCost == 0 && currentWeight == minWeight) {
-                    return LNGResult.of(MaxSATResult.OPTIMUM);
+                    return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                 } else {
                     if (newCost == 0) {
                         functions.push(new LNGIntVector(objFunction));
@@ -162,9 +163,9 @@ public class LinearSU extends MaxSAT {
                 if (currentWeight == minWeight) {
                     if (model.size() == 0) {
                         assert nbSatisfiable == 0;
-                        return LNGResult.of(MaxSATResult.UNSATISFIABLE);
+                        return LNGResult.of(InternalMaxSATResult.unsatisfiable());
                     } else {
-                        return LNGResult.of(MaxSATResult.OPTIMUM);
+                        return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                     }
                 } else {
                     functions.push(new LNGIntVector(objFunction));
@@ -186,7 +187,7 @@ public class LinearSU extends MaxSAT {
         }
     }
 
-    protected LNGResult<MaxSATResult> normalSearch(final ComputationHandler handler) {
+    protected LNGResult<InternalMaxSATResult> normalSearch(final ComputationHandler handler) {
         initRelaxation();
         solver = rebuildSolver(1);
         while (true) {
@@ -202,7 +203,7 @@ public class LinearSU extends MaxSAT {
                 }
                 if (newCost == 0) {
                     ubCost = newCost;
-                    return LNGResult.of(MaxSATResult.OPTIMUM);
+                    return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                 } else {
                     if (problemType == ProblemType.WEIGHTED) {
                         if (!encoder.hasPBEncoding()) {
@@ -227,9 +228,9 @@ public class LinearSU extends MaxSAT {
                 nbCores++;
                 if (model.size() == 0) {
                     assert nbSatisfiable == 0;
-                    return LNGResult.of(MaxSATResult.UNSATISFIABLE);
+                    return LNGResult.of(InternalMaxSATResult.unsatisfiable());
                 } else {
-                    return LNGResult.of(MaxSATResult.OPTIMUM);
+                    return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                 }
             }
         }

@@ -27,6 +27,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.events.LNGEvent;
+import com.booleworks.logicng.solvers.maxsat.InternalMaxSATResult;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
@@ -69,7 +70,7 @@ public class LinearUS extends MaxSAT {
     }
 
     @Override
-    protected LNGResult<MaxSATResult> internalSearch(final ComputationHandler handler) {
+    protected LNGResult<InternalMaxSATResult> internalSearch(final ComputationHandler handler) {
         if (problemType == ProblemType.WEIGHTED) {
             throw new IllegalStateException("Error: Currently LinearUS does not support weighted MaxSAT instances.");
         }
@@ -87,7 +88,7 @@ public class LinearUS extends MaxSAT {
         }
     }
 
-    protected LNGResult<MaxSATResult> none(final ComputationHandler handler) {
+    protected LNGResult<InternalMaxSATResult> none(final ComputationHandler handler) {
         nbInitialVariables = nVars();
         initRelaxation();
         solver = rebuildSolver();
@@ -115,7 +116,7 @@ public class LinearUS extends MaxSAT {
                     }
                     encoder.encodeCardinality(solver, objFunction, 0);
                 } else {
-                    return LNGResult.of(MaxSATResult.OPTIMUM);
+                    return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                 }
             } else {
                 lbCost++;
@@ -123,15 +124,15 @@ public class LinearUS extends MaxSAT {
                     output.println("c LB : " + lbCost);
                 }
                 if (nbSatisfiable == 0) {
-                    return LNGResult.of(MaxSATResult.UNSATISFIABLE);
+                    return LNGResult.of(InternalMaxSATResult.unsatisfiable());
                 } else if (lbCost == ubCost) {
                     if (nbSatisfiable > 0) {
                         if (verbosity != MaxSATConfig.Verbosity.NONE) {
                             output.println("c LB = UB");
                         }
-                        return LNGResult.of(MaxSATResult.OPTIMUM);
+                        return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                     } else {
-                        return LNGResult.of(MaxSATResult.UNSATISFIABLE);
+                        return LNGResult.of(InternalMaxSATResult.unsatisfiable());
                     }
                 } else {
                     final LNGEvent lowerBoundEvent = foundLowerBound(lbCost, handler);
@@ -145,7 +146,7 @@ public class LinearUS extends MaxSAT {
         }
     }
 
-    protected LNGResult<MaxSATResult> iterative(final ComputationHandler handler) {
+    protected LNGResult<InternalMaxSATResult> iterative(final ComputationHandler handler) {
         assert encoder.cardEncoding() == MaxSATConfig.CardinalityEncoding.TOTALIZER;
         nbInitialVariables = nVars();
         initRelaxation();
@@ -174,7 +175,7 @@ public class LinearUS extends MaxSAT {
                     }
                 } else {
                     assert lbCost == ubCost;
-                    return LNGResult.of(MaxSATResult.OPTIMUM);
+                    return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                 }
             } else {
                 nbCores++;
@@ -183,16 +184,16 @@ public class LinearUS extends MaxSAT {
                     output.println("c LB : " + lbCost);
                 }
                 if (nbSatisfiable == 0) {
-                    return LNGResult.of(MaxSATResult.UNSATISFIABLE);
+                    return LNGResult.of(InternalMaxSATResult.unsatisfiable());
                 }
                 if (lbCost == ubCost) {
                     if (nbSatisfiable > 0) {
                         if (verbosity != MaxSATConfig.Verbosity.NONE) {
                             output.println("c LB = UB");
                         }
-                        return LNGResult.of(MaxSATResult.OPTIMUM);
+                        return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                     } else {
-                        return LNGResult.of(MaxSATResult.UNSATISFIABLE);
+                        return LNGResult.of(InternalMaxSATResult.unsatisfiable());
                     }
                 }
                 final LNGEvent lowerBoundEvent = foundLowerBound(lbCost, handler);
