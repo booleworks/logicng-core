@@ -48,24 +48,6 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         assertThatThrownBy(() -> {
             final MaxSATSolver solver = MaxSATSolver.incWBO(f);
             solver.addHardFormula(f.parse("a | b"));
-            solver.addSoftFormula(A, 1);
-            solver.solve();
-            solver.addHardFormula(B);
-        }).isInstanceOf(IllegalStateException.class)
-                .hasMessage(
-                        "The MaxSAT solver does currently not support an incremental interface.  Reset the solver.");
-        assertThatThrownBy(() -> {
-            final MaxSATSolver solver = MaxSATSolver.incWBO(f);
-            solver.addHardFormula(f.parse("a | b"));
-            solver.addSoftFormula(A, 1);
-            solver.solve();
-            solver.addSoftFormula(B, 1);
-        }).isInstanceOf(IllegalStateException.class)
-                .hasMessage(
-                        "The MaxSAT solver does currently not support an incremental interface.  Reset the solver.");
-        assertThatThrownBy(() -> {
-            final MaxSATSolver solver = MaxSATSolver.incWBO(f);
-            solver.addHardFormula(f.parse("a | b"));
             solver.addSoftFormula(A, -1);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("The weight of a formula must be > 0");

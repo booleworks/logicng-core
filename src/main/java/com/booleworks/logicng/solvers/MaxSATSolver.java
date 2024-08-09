@@ -276,14 +276,8 @@ public class MaxSATSolver {
     /**
      * Adds a new hard formula to the solver. Hard formulas must always be true.
      * @param formula the formula
-     * @throws IllegalStateException if a formula is added to a solver which is
-     *                               already solved.
      */
     public void addHardFormula(final Formula formula) {
-        if (result != null) {
-            throw new IllegalStateException(
-                    "The MaxSAT solver does currently not support an incremental interface.  Reset the solver.");
-        }
         addCNF(formula.cnf(f), -1);
     }
 
@@ -291,15 +285,9 @@ public class MaxSATSolver {
      * Adds a new soft formula to the solver.
      * @param formula the formula
      * @param weight  the weight
-     * @throws IllegalStateException    if a formula is added to a solver which
-     *                                  is already solved.
      * @throws IllegalArgumentException if the weight is &lt;1
      */
     public void addSoftFormula(final Formula formula, final int weight) {
-        if (result != null) {
-            throw new IllegalStateException(
-                    "The MaxSAT solver does currently not support an incremental interface.  Reset the solver.");
-        }
         if (weight < 1) {
             throw new IllegalArgumentException("The weight of a formula must be > 0");
         }

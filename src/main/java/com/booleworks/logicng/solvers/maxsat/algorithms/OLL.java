@@ -28,15 +28,7 @@ import java.util.TreeMap;
  * @since 2.4.0
  */
 public class OLL extends MaxSAT {
-    private LNGCoreSolver solver;
-    private final Encoder encoder;
-    // Mapping between the assumption literal and the respective soft clause.
-    private final SortedMap<Integer, Integer> coreMapping;
-    // lit -> <ID, bound, weight>
-    private final SortedMap<Integer, IntTriple> boundMapping;
-    // Soft clauses that are currently in the MaxSAT formula.
-    private final LNGBooleanVector activeSoft;
-    private int minWeight;
+    private Encoder encoder;
 
     /**
      * Constructs a new solver with default values.
@@ -53,21 +45,16 @@ public class OLL extends MaxSAT {
      */
     public OLL(final FormulaFactory f, final MaxSATConfig config) {
         super(f, config);
-        solver = null;
         verbosity = config.verbosity;
-        encoder = new Encoder(config.cardinalityEncoding);
-        encoder.setPBEncoding(config.pbEncoding);
-        coreMapping = new TreeMap<>();
-        boundMapping = new TreeMap<>();
-        activeSoft = new LNGBooleanVector();
-        minWeight = 1;
+        if (config.cardinalityEncoding != MaxSATConfig.CardinalityEncoding.TOTALIZER) {
+            throw new IllegalStateException("Error: Currently OLL only supports the totalizer encoding.");
+        }
     }
 
     @Override
     protected LNGResult<InternalMaxSATResult> internalSearch(final ComputationHandler handler) {
-        if (encoder.cardEncoding() != MaxSATConfig.CardinalityEncoding.TOTALIZER) {
-            throw new IllegalStateException("Error: Currently OLL only supports the totalizer encoding.");
-        }
+        encoder = new Encoder(config.cardinalityEncoding);
+        encoder.setPBEncoding(config.pbEncoding);
         if (problemType == ProblemType.WEIGHTED) {
             return weighted(handler);
         } else {
@@ -97,16 +84,18 @@ public class OLL extends MaxSAT {
     }
 
     private LNGResult<InternalMaxSATResult> unweighted(final ComputationHandler handler) {
+        final SortedMap<Integer, Integer> coreMapping = new TreeMap<>();
+        final SortedMap<Integer, IntTriple> boundMapping = new TreeMap<>();
         nbInitialVariables = nVars();
         initRelaxation();
-        solver = rebuildSolver();
+        final LNGCoreSolver solver = rebuildSolver();
 
         final LNGIntVector assumptions = new LNGIntVector();
         final LNGIntVector joinObjFunction = new LNGIntVector();
         final LNGIntVector encodingAssumptions = new LNGIntVector();
         encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
 
-        activeSoft.growTo(nSoft(), false);
+        final LNGBooleanVector activeSoft = new LNGBooleanVector(nSoft(), false);
         for (int i = 0; i < nSoft(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
@@ -224,23 +213,25 @@ public class OLL extends MaxSAT {
     }
 
     private LNGResult<InternalMaxSATResult> weighted(final ComputationHandler handler) {
+        final SortedMap<Integer, Integer> coreMapping = new TreeMap<>();
+        final SortedMap<Integer, IntTriple> boundMapping = new TreeMap<>();
         nbInitialVariables = nVars();
         initRelaxation();
-        solver = rebuildSolver();
+        final LNGCoreSolver solver = rebuildSolver();
 
         final LNGIntVector assumptions = new LNGIntVector();
         final LNGIntVector joinObjFunction = new LNGIntVector();
         final LNGIntVector encodingAssumptions = new LNGIntVector();
         encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
 
-        activeSoft.growTo(nSoft(), false);
+        final LNGBooleanVector activeSoft = new LNGBooleanVector(nSoft(), false);
         for (int i = 0; i < nSoft(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
 
         final LinkedHashSet<Integer> cardinalityAssumptions = new LinkedHashSet<>();
         final LNGVector<Encoder> softCardinality = new LNGVector<>();
-        minWeight = currentWeight;
+        int minWeight = currentWeight;
 
         while (true) {
             final LNGResult<Boolean> res = searchSATSolver(solver, handler, assumptions);
@@ -255,7 +246,7 @@ public class OLL extends MaxSAT {
                     ubCost = newCost;
                 }
                 if (nbSatisfiable == 1) {
-                    minWeight = findNextWeightDiversity(minWeight, cardinalityAssumptions);
+                    minWeight = findNextWeightDiversity(minWeight, cardinalityAssumptions, boundMapping);
                     for (int i = 0; i < nSoft(); i++) {
                         if (softClauses.get(i).weight() >= minWeight) {
                             assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
@@ -277,7 +268,7 @@ public class OLL extends MaxSAT {
                         }
                     }
                     if (notConsidered != 0) {
-                        minWeight = findNextWeightDiversity(minWeight, cardinalityAssumptions);
+                        minWeight = findNextWeightDiversity(minWeight, cardinalityAssumptions, boundMapping);
                         assumptions.clear();
                         for (int i = 0; i < nSoft(); i++) {
                             if (!activeSoft.get(i) && softClauses.get(i).weight() >= minWeight) {
@@ -481,7 +472,7 @@ public class OLL extends MaxSAT {
         }
     }
 
-    private int findNextWeightDiversity(final int weight, final Set<Integer> cardinalityAssumptions) {
+    private int findNextWeightDiversity(final int weight, final Set<Integer> cardinalityAssumptions, final SortedMap<Integer, IntTriple> boundMapping) {
         assert (nbSatisfiable > 0);
         int nextWeight = weight;
         int nbClauses;
@@ -490,7 +481,7 @@ public class OLL extends MaxSAT {
         boolean findNext = false;
         while (true) {
             if (nbSatisfiable > 1 || findNext) {
-                nextWeight = findNextWeight(nextWeight, cardinalityAssumptions);
+                nextWeight = findNextWeight(nextWeight, cardinalityAssumptions, boundMapping);
             }
             nbClauses = 0;
             nbWeights.clear();
@@ -518,7 +509,7 @@ public class OLL extends MaxSAT {
         return nextWeight;
     }
 
-    int findNextWeight(final int weight, final Set<Integer> cardinalityAssumptions) {
+    int findNextWeight(final int weight, final Set<Integer> cardinalityAssumptions, final SortedMap<Integer, IntTriple> boundMapping) {
         int nextWeight = 1;
         for (int i = 0; i < nSoft(); i++) {
             if (softClauses.get(i).weight() > nextWeight && softClauses.get(i).weight() < weight) {

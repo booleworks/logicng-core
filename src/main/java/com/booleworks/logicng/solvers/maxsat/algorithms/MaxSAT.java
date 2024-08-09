@@ -25,6 +25,7 @@ package com.booleworks.logicng.solvers.maxsat.algorithms;
 import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.MAX_SAT_CALL_FINISHED;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.MAX_SAT_CALL_STARTED;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity;
+import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.LIT_UNDEF;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
@@ -63,6 +64,7 @@ public abstract class MaxSAT {
     }
 
     protected final FormulaFactory f;
+    protected final MaxSATConfig config;
     protected final LNGBooleanVector model;
     final LNGVector<LNGSoftClause> softClauses;
     final LNGVector<LNGHardClause> hardClauses;
@@ -81,6 +83,7 @@ public abstract class MaxSAT {
     int ubCost;
     int lbCost;
     int currentWeight;
+    MaxSAT.Stats lastStats;
 
     /**
      * Constructor.
@@ -89,6 +92,7 @@ public abstract class MaxSAT {
      */
     protected MaxSAT(final FormulaFactory f, final MaxSATConfig config) {
         this.f = f;
+        this.config = config;
         hardClauses = new LNGVector<>();
         softClauses = new LNGVector<>();
         hardWeight = Integer.MAX_VALUE;
@@ -149,11 +153,45 @@ public abstract class MaxSAT {
         if (!handler.shouldResume(MAX_SAT_CALL_STARTED)) {
             return LNGResult.canceled(MAX_SAT_CALL_STARTED);
         }
+        final StateBeforeSolving stateBeforeSolving = saveStateBeforeSolving();
         final LNGResult<InternalMaxSATResult> result = internalSearch(handler);
         if (!handler.shouldResume(MAX_SAT_CALL_FINISHED)) {
             return LNGResult.canceled(MAX_SAT_CALL_FINISHED);
         }
+        lastStats = new Stats();
+        loadStateBeforeSolving(stateBeforeSolving);
         return result;
+    }
+
+    protected StateBeforeSolving saveStateBeforeSolving() {
+        assert nbSoft == softClauses.size();
+        final int[] softWeights = new int[nbSoft];
+        for (int i = 0; i < nbSoft; i++) {
+            softWeights[i] = softClauses.get(i).weight();
+        }
+        return new StateBeforeSolving(nbVars, nbSoft, nbHard, ubCost, currentWeight, softWeights);
+    }
+
+    protected void loadStateBeforeSolving(final StateBeforeSolving stateBeforeSolving) {
+        softClauses.shrinkTo(stateBeforeSolving.nbSoft);
+        hardClauses.shrinkTo(stateBeforeSolving.nbHard);
+        orderWeights.clear();
+        nbVars = stateBeforeSolving.nbVars;
+        nbSoft = stateBeforeSolving.nbSoft;
+        nbHard = stateBeforeSolving.nbHard;
+        nbCores = 0;
+        nbSymmetryClauses = 0;
+        sumSizeCores = 0;
+        nbSatisfiable = 0;
+        ubCost = stateBeforeSolving.ubCost;
+        lbCost = 0;
+        currentWeight = stateBeforeSolving.currentWeight;
+        for (int i = 0; i < softClauses.size(); i++) {
+            final LNGSoftClause clause = softClauses.get(i);
+            clause.relaxationVars().clear();
+            clause.setWeight(stateBeforeSolving.softWeights[i]);
+            clause.setAssumptionVar(LIT_UNDEF);
+        }
     }
 
     /**
@@ -209,9 +247,7 @@ public abstract class MaxSAT {
      * @param lits   the literals of the soft clause
      */
     public void addSoftClause(final int weight, final LNGIntVector lits) {
-        final LNGIntVector rVars = new LNGIntVector();
-        softClauses.push(new LNGSoftClause(lits, weight, LNGCoreSolver.LIT_UNDEF, rVars));
-        nbSoft++;
+        addSoftClause(weight, lits, new LNGIntVector());
     }
 
     /**
@@ -222,7 +258,7 @@ public abstract class MaxSAT {
      * @param vars   the relaxation variables of the soft clause
      */
     public void addSoftClause(final int weight, final LNGIntVector lits, final LNGIntVector vars) {
-        softClauses.push(new LNGSoftClause(lits, weight, LNGCoreSolver.LIT_UNDEF, vars));
+        softClauses.push(new LNGSoftClause(lits, weight, LIT_UNDEF, vars));
         nbSoft++;
     }
 
@@ -371,7 +407,7 @@ public abstract class MaxSAT {
      * @return the stats of this solver instance
      */
     public Stats stats() {
-        return new Stats();
+        return lastStats;
     }
 
     /**
@@ -400,6 +436,24 @@ public abstract class MaxSAT {
     LNGEvent foundUpperBound(final int upperBound, final ComputationHandler handler) {
         final MaxSatNewUpperBoundEvent event = new MaxSatNewUpperBoundEvent(upperBound);
         return handler.shouldResume(event) ? null : event;
+    }
+
+    protected static class StateBeforeSolving {
+        protected final int nbVars;
+        protected final int nbSoft;
+        protected final int nbHard;
+        protected final int ubCost;
+        protected final int currentWeight;
+        protected final int[] softWeights;
+
+        protected StateBeforeSolving(final int nbVars, final int nbSoft, final int nbHard, final int ubCost, final int currentWeight, final int[] softWeights) {
+            this.nbVars = nbVars;
+            this.nbSoft = nbSoft;
+            this.nbHard = nbHard;
+            this.ubCost = ubCost;
+            this.currentWeight = currentWeight;
+            this.softWeights = softWeights;
+        }
     }
 
     /**

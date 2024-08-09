@@ -46,7 +46,7 @@ import java.io.PrintStream;
  */
 public class LinearSU extends MaxSAT {
 
-    protected final Encoder encoder;
+    protected Encoder encoder;
     protected final boolean bmoMode; // Enables BMO mode.
     // Literals to be used in the constraint that excludes models.
     protected final LNGIntVector objFunction;
@@ -73,8 +73,6 @@ public class LinearSU extends MaxSAT {
     public LinearSU(final FormulaFactory f, final MaxSATConfig config) {
         super(f, config);
         solver = null;
-        encoder = new Encoder(config.cardinalityEncoding);
-        encoder.setPBEncoding(config.pbEncoding);
         verbosity = config.verbosity;
         bmoMode = config.bmo;
         isBmo = false;
@@ -85,12 +83,16 @@ public class LinearSU extends MaxSAT {
 
     @Override
     protected LNGResult<InternalMaxSATResult> internalSearch(final ComputationHandler handler) {
+        encoder = new Encoder(config.cardinalityEncoding);
+        encoder.setPBEncoding(config.pbEncoding);
         nbInitialVariables = nVars();
         if (currentWeight == 1) {
             problemType = ProblemType.UNWEIGHTED;
         } else {
             isBmo = isBMO(true);
         }
+        objFunction.clear();
+        coeffs.clear();
         if (problemType == ProblemType.WEIGHTED) {
             if (bmoMode && isBmo) {
                 return bmoSearch(handler);

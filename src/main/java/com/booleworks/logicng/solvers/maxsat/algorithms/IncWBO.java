@@ -45,7 +45,7 @@ import java.util.TreeMap;
  */
 public class IncWBO extends WBO {
 
-    protected final Encoder encoder;
+    protected Encoder encoder;
     protected final LNGBooleanVector incSoft;
     protected final PrintStream output;
     protected boolean firstBuild;
@@ -78,15 +78,23 @@ public class IncWBO extends WBO {
         softMapping = new LNGVector<>();
         relaxationMapping = new LNGVector<>();
         duplicatedSymmetryClauses = new HashSet<>();
-        encoder = new Encoder(MaxSATConfig.CardinalityEncoding.TOTALIZER);
-        encoder.setAMOEncoding(config.amoEncoding);
         incSoft = new LNGBooleanVector();
         output = config.output;
     }
 
     @Override
     protected LNGResult<InternalMaxSATResult> internalSearch(final ComputationHandler handler) {
+        encoder = new Encoder(MaxSATConfig.CardinalityEncoding.TOTALIZER);
+        encoder.setAMOEncoding(config.amoEncoding);
         nbInitialVariables = nVars();
+        coreMapping.clear();
+        assumptions.clear();
+        indexSoftCore.clear();
+        softMapping.clear();
+        relaxationMapping.clear();
+        duplicatedSymmetryClauses.clear();
+        incSoft.clear();
+        firstBuild = true;
         if (currentWeight == 1) {
             problemType = ProblemType.UNWEIGHTED;
             weightStrategy = MaxSATConfig.WeightStrategy.NONE;
@@ -308,7 +316,7 @@ public class IncWBO extends WBO {
         } else if (!unsatResult.getResult()) {
             return LNGResult.of(InternalMaxSATResult.unsatisfiable());
         }
-        initAssumptions(assumptions);
+        initAssumptions();
         updateCurrentWeight(weightStrategy);
         incrementalBuildWeightSolver(weightStrategy);
         incSoft.growTo(nSoft(), false);
@@ -412,7 +420,7 @@ public class IncWBO extends WBO {
         } else if (!unsatResult.getResult()) {
             return LNGResult.of(InternalMaxSATResult.unsatisfiable());
         }
-        initAssumptions(assumptions);
+        initAssumptions();
         solver = rebuildSolver();
         incSoft.growTo(nSoft(), false);
         while (true) {

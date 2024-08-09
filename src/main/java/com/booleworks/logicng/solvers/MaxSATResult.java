@@ -12,6 +12,7 @@ import java.util.Objects;
  * @version 3.0.0
  * @since 3.0.0
  */
+// TODO rename or redefine or fix documentation of 'optimum'
 public class MaxSATResult {
 
     private static final MaxSATResult UNSAT = new MaxSATResult(false, -1, null);

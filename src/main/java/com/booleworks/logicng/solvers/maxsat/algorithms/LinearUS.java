@@ -40,11 +40,9 @@ import java.io.PrintStream;
  */
 public class LinearUS extends MaxSAT {
 
-    protected final Encoder encoder;
+    protected Encoder encoder;
     protected final MaxSATConfig.IncrementalStrategy incrementalStrategy;
-    protected final LNGIntVector objFunction;
     protected final PrintStream output;
-    protected LNGCoreSolver solver;
 
     /**
      * Constructs a new solver with default values.
@@ -61,16 +59,14 @@ public class LinearUS extends MaxSAT {
      */
     public LinearUS(final FormulaFactory f, final MaxSATConfig config) {
         super(f, config);
-        solver = null;
         verbosity = config.verbosity;
         incrementalStrategy = config.incrementalStrategy;
-        encoder = new Encoder(config.cardinalityEncoding);
-        objFunction = new LNGIntVector();
         output = config.output;
     }
 
     @Override
     protected LNGResult<InternalMaxSATResult> internalSearch(final ComputationHandler handler) {
+        encoder = new Encoder(config.cardinalityEncoding);
         if (problemType == ProblemType.WEIGHTED) {
             throw new IllegalStateException("Error: Currently LinearUS does not support weighted MaxSAT instances.");
         }
@@ -90,8 +86,9 @@ public class LinearUS extends MaxSAT {
 
     protected LNGResult<InternalMaxSATResult> none(final ComputationHandler handler) {
         nbInitialVariables = nVars();
-        initRelaxation();
-        solver = rebuildSolver();
+        final LNGIntVector objFunction = new LNGIntVector();
+        initRelaxation(objFunction);
+        LNGCoreSolver solver = rebuildSolver();
         final LNGIntVector assumptions = new LNGIntVector();
         encoder.setIncremental(MaxSATConfig.IncrementalStrategy.NONE);
         while (true) {
@@ -148,9 +145,10 @@ public class LinearUS extends MaxSAT {
 
     protected LNGResult<InternalMaxSATResult> iterative(final ComputationHandler handler) {
         assert encoder.cardEncoding() == MaxSATConfig.CardinalityEncoding.TOTALIZER;
+        final LNGIntVector objFunction = new LNGIntVector();
         nbInitialVariables = nVars();
-        initRelaxation();
-        solver = rebuildSolver();
+        initRelaxation(objFunction);
+        final LNGCoreSolver solver = rebuildSolver();
         final LNGIntVector assumptions = new LNGIntVector();
         encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
         while (true) {
@@ -228,7 +226,7 @@ public class LinearUS extends MaxSAT {
         return s;
     }
 
-    protected void initRelaxation() {
+    protected void initRelaxation(final LNGIntVector objFunction) {
         for (int i = 0; i < nbSoft; i++) {
             final int l = newLiteral(false);
             softClauses.get(i).relaxationVars().push(l);

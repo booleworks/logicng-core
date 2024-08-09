@@ -96,6 +96,12 @@ public class WBO extends MaxSAT {
     @Override
     protected LNGResult<InternalMaxSATResult> internalSearch(final ComputationHandler handler) {
         nbInitialVariables = nVars();
+        coreMapping.clear();
+        assumptions.clear();
+        indexSoftCore.clear();
+        softMapping.clear();
+        relaxationMapping.clear();
+        duplicatedSymmetryClauses.clear();
         if (currentWeight == 1) {
             problemType = ProblemType.UNWEIGHTED;
             weightStrategy = WeightStrategy.NONE;
@@ -451,7 +457,7 @@ public class WBO extends MaxSAT {
         } else if (!unsatResult.getResult()) {
             return LNGResult.of(InternalMaxSATResult.unsatisfiable());
         }
-        initAssumptions(assumptions);
+        initAssumptions();
         updateCurrentWeight(weightStrategy);
         solver = rebuildWeightSolver(weightStrategy);
         while (true) {
@@ -521,7 +527,7 @@ public class WBO extends MaxSAT {
         } else if (!unsatResult.getResult()) {
             return LNGResult.of(InternalMaxSATResult.unsatisfiable());
         }
-        initAssumptions(assumptions);
+        initAssumptions();
         solver = rebuildSolver();
         while (true) {
             final LNGResult<Boolean> res = searchSATSolver(solver, handler, assumptions);
@@ -561,12 +567,12 @@ public class WBO extends MaxSAT {
         }
     }
 
-    void initAssumptions(final LNGIntVector assumps) {
+    void initAssumptions() {
         for (int i = 0; i < nbSoft; i++) {
             final int l = newLiteral(false);
             softClauses.get(i).setAssumptionVar(l);
             coreMapping.put(l, i);
-            assumps.push(LNGCoreSolver.not(l));
+            assumptions.push(LNGCoreSolver.not(l));
         }
     }
 }

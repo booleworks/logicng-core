@@ -47,13 +47,9 @@ import java.util.TreeMap;
  */
 public class MSU3 extends MaxSAT {
 
-    protected final Encoder encoder;
+    protected Encoder encoder;
     protected final IncrementalStrategy incrementalStrategy;
-    protected final LNGIntVector objFunction;
-    protected final SortedMap<Integer, Integer> coreMapping;
-    protected final LNGBooleanVector activeSoft;
     protected final PrintStream output;
-    protected LNGCoreSolver solver;
 
     /**
      * Constructs a new solver with default values.
@@ -70,18 +66,14 @@ public class MSU3 extends MaxSAT {
      */
     public MSU3(final FormulaFactory f, final MaxSATConfig config) {
         super(f, config);
-        solver = null;
         verbosity = config.verbosity;
         incrementalStrategy = config.incrementalStrategy;
-        encoder = new Encoder(config.cardinalityEncoding);
-        objFunction = new LNGIntVector();
-        coreMapping = new TreeMap<>();
-        activeSoft = new LNGBooleanVector();
         output = config.output;
     }
 
     @Override
     protected LNGResult<InternalMaxSATResult> internalSearch(final ComputationHandler handler) {
+        encoder = new Encoder(config.cardinalityEncoding);
         if (problemType == ProblemType.WEIGHTED) {
             throw new IllegalStateException(
                     "Error: Currently algorithm MSU3 does not support weighted MaxSAT instances.");
@@ -102,12 +94,14 @@ public class MSU3 extends MaxSAT {
 
     protected LNGResult<InternalMaxSATResult> none(final ComputationHandler handler) {
         nbInitialVariables = nVars();
-        initRelaxation();
-        solver = rebuildSolver();
+        final LNGIntVector objFunction = new LNGIntVector();
+        final SortedMap<Integer, Integer> coreMapping = new TreeMap<>();
+        initRelaxation(objFunction);
+        LNGCoreSolver solver = rebuildSolver();
         final LNGIntVector assumptions = new LNGIntVector();
         final LNGIntVector currentObjFunction = new LNGIntVector();
         encoder.setIncremental(IncrementalStrategy.NONE);
-        activeSoft.growTo(nSoft(), false);
+        final LNGBooleanVector activeSoft = new LNGBooleanVector(nSoft(), false);
         for (int i = 0; i < nSoft(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
@@ -183,14 +177,16 @@ public class MSU3 extends MaxSAT {
                     "Error: Currently algorithm MSU3 with iterative encoding only  supports the totalizer encoding.");
         }
         nbInitialVariables = nVars();
-        initRelaxation();
-        solver = rebuildSolver();
+        final LNGIntVector objFunction = new LNGIntVector();
+        final SortedMap<Integer, Integer> coreMapping = new TreeMap<>();
+        initRelaxation(objFunction);
+        final LNGCoreSolver solver = rebuildSolver();
         final LNGIntVector assumptions = new LNGIntVector();
         final LNGIntVector joinObjFunction = new LNGIntVector();
         final LNGIntVector currentObjFunction = new LNGIntVector();
         final LNGIntVector encodingAssumptions = new LNGIntVector();
         encoder.setIncremental(IncrementalStrategy.ITERATIVE);
-        activeSoft.growTo(nSoft(), false);
+        final LNGBooleanVector activeSoft = new LNGBooleanVector(nSoft(), false);
         for (int i = 0; i < nSoft(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
@@ -300,7 +296,7 @@ public class MSU3 extends MaxSAT {
         return s;
     }
 
-    protected void initRelaxation() {
+    protected void initRelaxation(final LNGIntVector objFunction) {
         for (int i = 0; i < nbSoft; i++) {
             final int l = newLiteral(false);
             softClauses.get(i).relaxationVars().push(l);

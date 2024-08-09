@@ -44,17 +44,10 @@ import java.util.TreeMap;
  */
 public class WMSU3 extends MaxSAT {
 
-    final boolean bmoStrategy;
-    final protected Encoder encoder;
-    final protected MaxSATConfig.IncrementalStrategy incrementalStrategy;
-    final protected LNGIntVector assumptions;
-    final protected LNGIntVector objFunction;
-    final protected LNGIntVector coeffs;
-    final protected SortedMap<Integer, Integer> coreMapping;
-    final protected LNGBooleanVector activeSoft;
-    final protected PrintStream output;
-    boolean isBmo;
-    protected LNGCoreSolver solver;
+    protected final boolean bmoStrategy;
+    protected Encoder encoder;
+    protected final MaxSATConfig.IncrementalStrategy incrementalStrategy;
+    protected final PrintStream output;
 
     /**
      * Constructs a new solver with default values.
@@ -71,18 +64,9 @@ public class WMSU3 extends MaxSAT {
      */
     public WMSU3(final FormulaFactory f, final MaxSATConfig config) {
         super(f, config);
-        solver = null;
         verbosity = config.verbosity;
         incrementalStrategy = config.incrementalStrategy;
-        encoder = new Encoder(config.cardinalityEncoding);
-        encoder.setPBEncoding(config.pbEncoding);
         bmoStrategy = config.bmo;
-        isBmo = false;
-        assumptions = new LNGIntVector();
-        objFunction = new LNGIntVector();
-        coeffs = new LNGIntVector();
-        coreMapping = new TreeMap<>();
-        activeSoft = new LNGBooleanVector();
         output = config.output;
     }
 
@@ -115,9 +99,9 @@ public class WMSU3 extends MaxSAT {
             throw new IllegalStateException(
                     "Error: Currently algorithm WMSU3 does not support unweighted MaxSAT instances.");
         }
-        if (bmoStrategy) {
-            isBmo = isBMO(true);
-        }
+        encoder = new Encoder(config.cardinalityEncoding);
+        encoder.setPBEncoding(config.pbEncoding);
+        final boolean isBmo = bmoStrategy && isBMO(true);
         if (!isBmo) {
             currentWeight = 1;
         }
@@ -140,15 +124,17 @@ public class WMSU3 extends MaxSAT {
     }
 
     protected LNGResult<InternalMaxSATResult> iterative(final ComputationHandler handler) {
+        final SortedMap<Integer, Integer> coreMapping = new TreeMap<>();
         nbInitialVariables = nVars();
         initRelaxation();
-        solver = rebuildSolver();
+        final LNGCoreSolver solver = rebuildSolver();
         encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
-        activeSoft.growTo(nSoft(), false);
+        final LNGBooleanVector activeSoft = new LNGBooleanVector(nSoft(), false);
         for (int i = 0; i < nSoft(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
-        assumptions.clear();
+        final LNGIntVector assumptions = new LNGIntVector();
+        final LNGIntVector coeffs = new LNGIntVector();
         final LNGIntVector fullObjFunction = new LNGIntVector();
         final LNGIntVector fullCoeffsFunction = new LNGIntVector();
         while (true) {
@@ -197,7 +183,7 @@ public class WMSU3 extends MaxSAT {
                     }
                 }
                 sumSizeCores += solver.assumptionsConflict().size();
-                objFunction.clear();
+                final LNGIntVector objFunction = new LNGIntVector();
                 coeffs.clear();
                 assumptions.clear();
                 for (int i = 0; i < solver.assumptionsConflict().size(); i++) {
@@ -241,15 +227,17 @@ public class WMSU3 extends MaxSAT {
     }
 
     protected LNGResult<InternalMaxSATResult> none(final ComputationHandler handler) {
+        final SortedMap<Integer, Integer> coreMapping = new TreeMap<>();
         nbInitialVariables = nVars();
         initRelaxation();
-        solver = rebuildSolver();
+        LNGCoreSolver solver = rebuildSolver();
         encoder.setIncremental(MaxSATConfig.IncrementalStrategy.NONE);
-        activeSoft.growTo(nSoft(), false);
+        final LNGBooleanVector activeSoft = new LNGBooleanVector(nSoft(), false);
         for (int i = 0; i < nSoft(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
-        assumptions.clear();
+        final LNGIntVector assumptions = new LNGIntVector();
+        final LNGIntVector coeffs = new LNGIntVector();
         while (true) {
             final LNGResult<Boolean> res = searchSATSolver(solver, handler, assumptions);
             if (!res.isSuccess()) {
@@ -300,7 +288,7 @@ public class WMSU3 extends MaxSAT {
                     assert !activeSoft.get(indexSoft);
                     activeSoft.set(indexSoft, true);
                 }
-                objFunction.clear();
+                final LNGIntVector objFunction = new LNGIntVector();
                 coeffs.clear();
                 assumptions.clear();
                 for (int i = 0; i < nSoft(); i++) {
@@ -328,15 +316,15 @@ public class WMSU3 extends MaxSAT {
     }
 
     protected LNGResult<InternalMaxSATResult> iterativeBmo(final ComputationHandler handler) {
-        assert isBmo;
+        final SortedMap<Integer, Integer> coreMapping = new TreeMap<>();
         nbInitialVariables = nVars();
         initRelaxation();
-        solver = rebuildSolver();
+        final LNGCoreSolver solver = rebuildSolver();
         encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
         final LNGIntVector joinObjFunction = new LNGIntVector();
         final LNGIntVector encodingAssumptions = new LNGIntVector();
         final LNGIntVector joinCoeffs = new LNGIntVector();
-        activeSoft.growTo(nSoft(), false);
+        final LNGBooleanVector activeSoft = new LNGBooleanVector(nSoft(), false);
         for (int i = 0; i < nSoft(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
@@ -349,11 +337,13 @@ public class WMSU3 extends MaxSAT {
         final LNGBooleanVector firstEncoding = new LNGBooleanVector();
         functions.push(new LNGIntVector());
         weights.push(0);
-        assert objFunction.size() == 0;
+        final LNGIntVector objFunction = new LNGIntVector();
         Encoder e = new Encoder(MaxSATConfig.CardinalityEncoding.TOTALIZER);
         e.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
         bmoEncodings.push(e);
         firstEncoding.push(true);
+        final LNGIntVector assumptions = new LNGIntVector();
+        final LNGIntVector coeffs = new LNGIntVector();
         while (true) {
             final LNGResult<Boolean> res = searchSATSolver(solver, handler, assumptions);
             if (!res.isSuccess()) {
