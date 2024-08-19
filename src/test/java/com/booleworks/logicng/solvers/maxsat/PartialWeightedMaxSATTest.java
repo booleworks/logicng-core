@@ -17,6 +17,7 @@ import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.MaxSATResult;
 import com.booleworks.logicng.solvers.MaxSATSolver;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.testutils.PigeonHoleGenerator;
 import org.junit.jupiter.api.Test;
 
@@ -119,9 +120,13 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
     @LongRunningTag
     public void testLinearSU() throws IOException {
         final MaxSATConfig[] configs = new MaxSATConfig[2];
-        configs[0] = MaxSATConfig.builder().cardinality(MaxSATConfig.CardinalityEncoding.TOTALIZER).bmo(false)
+        configs[0] = MaxSATConfig.builder()
+                .cnfMethod(SATSolverConfig.CNFMethod.FACTORY_CNF)
+                .cardinality(MaxSATConfig.CardinalityEncoding.TOTALIZER).bmo(false)
                 .verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();
-        configs[1] = MaxSATConfig.builder().cardinality(MaxSATConfig.CardinalityEncoding.MTOTALIZER).bmo(false)
+        configs[1] = MaxSATConfig.builder()
+                .cnfMethod(SATSolverConfig.CNFMethod.FACTORY_CNF)
+                .cardinality(MaxSATConfig.CardinalityEncoding.MTOTALIZER).bmo(false)
                 .verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSATConfig config : configs) {
             for (int i = 0; i < files.length; i++) {

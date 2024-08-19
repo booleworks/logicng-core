@@ -30,7 +30,10 @@ import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.LIT_UNDEF;
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
+import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.events.LNGEvent;
@@ -66,6 +69,8 @@ public abstract class MaxSAT {
     protected final FormulaFactory f;
     protected final MaxSATConfig config;
     protected final LNGBooleanVector model;
+    protected SortedMap<Variable, Integer> var2index;
+    protected SortedMap<Integer, Variable> index2var;
     final LNGVector<LNGSoftClause> softClauses;
     final LNGVector<LNGHardClause> hardClauses;
     final LNGIntVector orderWeights;
@@ -93,6 +98,8 @@ public abstract class MaxSAT {
     protected MaxSAT(final FormulaFactory f, final MaxSATConfig config) {
         this.f = f;
         this.config = config;
+        var2index = new TreeMap<>();
+        index2var = new TreeMap<>();
         hardClauses = new LNGVector<>();
         softClauses = new LNGVector<>();
         hardWeight = Integer.MAX_VALUE;
@@ -176,6 +183,12 @@ public abstract class MaxSAT {
         softClauses.shrinkTo(stateBeforeSolving.nbSoft);
         hardClauses.shrinkTo(stateBeforeSolving.nbHard);
         orderWeights.clear();
+        for (int i = stateBeforeSolving.nbVars; i < nbVars; i++) {
+            final Variable var = index2var.remove(i);
+            if (var != null) {
+                var2index.remove(var);
+            }
+        }
         nbVars = stateBeforeSolving.nbVars;
         nbSoft = stateBeforeSolving.nbSoft;
         nbHard = stateBeforeSolving.nbHard;
@@ -257,9 +270,56 @@ public abstract class MaxSAT {
      * @param lits   the literals of the soft clause
      * @param vars   the relaxation variables of the soft clause
      */
-    public void addSoftClause(final int weight, final LNGIntVector lits, final LNGIntVector vars) {
+    protected void addSoftClause(final int weight, final LNGIntVector lits, final LNGIntVector vars) {
         softClauses.push(new LNGSoftClause(lits, weight, LIT_UNDEF, vars));
         nbSoft++;
+    }
+
+    /**
+     * Adds a clause to the solver.
+     * @param formula the clause
+     * @param weight  the weight of the clause (or -1 for a hard clause)
+     */
+    public void addClause(final Formula formula, final int weight) {
+        final LNGIntVector clauseVec = new LNGIntVector((int) formula.numberOfAtoms(f));
+        for (final Literal lit : formula.literals(f)) {
+            Integer index = var2index.get(lit.variable());
+            if (index == null) {
+                index = newLiteral(false) >> 1;
+                var2index.put(lit.variable(), index);
+                index2var.put(index, lit.variable());
+                assert var2index.size() == index2var.size();
+            }
+            final int litNum = lit.phase() ? index * 2 : (index * 2) ^ 1;
+            clauseVec.push(litNum);
+        }
+        addClause(clauseVec, weight);
+    }
+
+    /**
+     * Adds a clause to the solver.
+     * @param clauseVec the clause
+     * @param weight    the weight of the clause (or -1 for a hard clause)
+     */
+    public void addClause(final LNGIntVector clauseVec, final int weight) {
+        if (weight == -1) {
+            addHardClause(clauseVec);
+        } else {
+            setCurrentWeight(weight);
+            updateSumWeights(weight);
+            addSoftClause(weight, clauseVec);
+        }
+    }
+
+    public int literal(final Literal lit) {
+        final Variable variable = lit.variable();
+        Integer index = var2index.get(variable);
+        if (index == null) {
+            index = newLiteral(false) >> 1;
+            var2index.put(variable, index);
+            index2var.put(index, variable);
+        }
+        return lit.phase() ? index * 2 : (index * 2) ^ 1;
     }
 
     /**
@@ -274,6 +334,15 @@ public abstract class MaxSAT {
     }
 
     /**
+     * Returns the variable for the given index.
+     * @param index the index
+     * @return the variable for the given index
+     */
+    public Variable varForIndex(final int index) {
+        return index2var.get(index);
+    }
+
+    /**
      * Sets the problem type.
      * @param type the problem type
      */
@@ -285,7 +354,7 @@ public abstract class MaxSAT {
      * Initializes 'ubCost' to the sum of weights of the soft clauses
      * @param weight the weight
      */
-    public void updateSumWeights(final int weight) {
+    protected void updateSumWeights(final int weight) {
         if (weight != hardWeight) {
             ubCost += weight;
         }
@@ -295,7 +364,7 @@ public abstract class MaxSAT {
      * Initializes the current weight to the maximum weight of the soft clauses.
      * @param weight the weight
      */
-    public void setCurrentWeight(final int weight) {
+    protected void setCurrentWeight(final int weight) {
         if (weight > currentWeight && weight != hardWeight) {
             currentWeight = weight;
         }

@@ -6,6 +6,7 @@ package com.booleworks.logicng.solvers.maxsat.algorithms;
 
 import com.booleworks.logicng.configurations.Configuration;
 import com.booleworks.logicng.configurations.ConfigurationType;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 
 import java.io.PrintStream;
 
@@ -63,6 +64,7 @@ public final class MaxSATConfig extends Configuration {
         SOME
     }
 
+    final SATSolverConfig.CNFMethod cnfMethod;
     final IncrementalStrategy incrementalStrategy;
     final AMOEncoding amoEncoding;
     final PBEncoding pbEncoding;
@@ -80,6 +82,7 @@ public final class MaxSATConfig extends Configuration {
      */
     private MaxSATConfig(final Builder builder) {
         super(ConfigurationType.MAXSAT);
+        cnfMethod = builder.cnfMethod;
         incrementalStrategy = builder.incrementalStrategy;
         amoEncoding = builder.amoEncoding;
         pbEncoding = builder.pbEncoding;
@@ -99,6 +102,7 @@ public final class MaxSATConfig extends Configuration {
      */
     public MaxSATConfig(final MaxSATConfig config, final CardinalityEncoding cardinalityEncoding) {
         super(ConfigurationType.MAXSAT);
+        cnfMethod = config.cnfMethod;
         incrementalStrategy = config.incrementalStrategy;
         amoEncoding = config.amoEncoding;
         pbEncoding = config.pbEncoding;
@@ -118,6 +122,7 @@ public final class MaxSATConfig extends Configuration {
      */
     public MaxSATConfig(final MaxSATConfig config, final IncrementalStrategy incrementalStrategy) {
         super(ConfigurationType.MAXSAT);
+        cnfMethod = config.cnfMethod;
         this.incrementalStrategy = incrementalStrategy;
         amoEncoding = config.amoEncoding;
         pbEncoding = config.pbEncoding;
@@ -131,6 +136,14 @@ public final class MaxSATConfig extends Configuration {
     }
 
     /**
+     * Returns the CNF method.
+     * @return the CNF method
+     */
+    public SATSolverConfig.CNFMethod getCnfMethod() {
+        return cnfMethod;
+    }
+
+    /**
      * Returns a new builder for the configuration.
      * @return the builder
      */
@@ -141,6 +154,7 @@ public final class MaxSATConfig extends Configuration {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("MaxSATConfig{").append(System.lineSeparator());
+        sb.append("cnfMethod=").append(cnfMethod).append(System.lineSeparator());
         sb.append("incrementalStrategy=").append(incrementalStrategy).append(System.lineSeparator());
         sb.append("pbEncoding=").append(amoEncoding).append(System.lineSeparator());
         sb.append("pbEncoding=").append(pbEncoding).append(System.lineSeparator());
@@ -160,6 +174,7 @@ public final class MaxSATConfig extends Configuration {
     public static class Builder {
         private final AMOEncoding amoEncoding;
         private final PBEncoding pbEncoding;
+        private SATSolverConfig.CNFMethod cnfMethod = SATSolverConfig.CNFMethod.PG_ON_SOLVER;
         private IncrementalStrategy incrementalStrategy = IncrementalStrategy.NONE;
         private CardinalityEncoding cardinalityEncoding = CardinalityEncoding.TOTALIZER;
         private WeightStrategy weightStrategy = WeightStrategy.NONE;
@@ -175,6 +190,16 @@ public final class MaxSATConfig extends Configuration {
         private Builder() {
             amoEncoding = AMOEncoding.LADDER;
             pbEncoding = PBEncoding.SWC;
+        }
+
+        /**
+         * Sets the cnf method. The default value is {@link SATSolverConfig.CNFMethod#PG_ON_SOLVER}
+         * @param cnfMethod the cnf method
+         * @return the builder
+         */
+        public Builder cnfMethod(final SATSolverConfig.CNFMethod cnfMethod) {
+            this.cnfMethod = cnfMethod;
+            return this;
         }
 
         /**

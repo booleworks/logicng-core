@@ -4,8 +4,10 @@
 
 package com.booleworks.logicng.solvers;
 
+import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.FACTORY_CNF;
+import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.FULL_PG_ON_SOLVER;
+
 import com.booleworks.logicng.collections.LNGBooleanVector;
-import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
@@ -25,12 +27,11 @@ import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
 import com.booleworks.logicng.solvers.maxsat.algorithms.OLL;
 import com.booleworks.logicng.solvers.maxsat.algorithms.WBO;
 import com.booleworks.logicng.solvers.maxsat.algorithms.WMSU3;
+import com.booleworks.logicng.transformations.cnf.PlaistedGreenbaumTransformationMaxSATSolver;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedMap;
 import java.util.SortedSet;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
@@ -54,11 +55,10 @@ public class MaxSATSolver {
 
     protected final MaxSATConfig configuration;
     protected final Algorithm algorithm;
+    protected PlaistedGreenbaumTransformationMaxSATSolver pgTransformation;
     protected FormulaFactory f;
     protected LNGResult<MaxSATResult> result;
     protected MaxSAT solver;
-    protected SortedMap<Variable, Integer> var2index;
-    protected SortedMap<Integer, Variable> index2var;
     protected SortedSet<Variable> selectorVariables;
 
     /**
@@ -243,8 +243,6 @@ public class MaxSATSolver {
      */
     public void reset() {
         result = null;
-        var2index = new TreeMap<>();
-        index2var = new TreeMap<>();
         selectorVariables = new TreeSet<>();
         switch (algorithm) {
             case WBO:
@@ -271,6 +269,9 @@ public class MaxSATSolver {
             default:
                 throw new IllegalArgumentException("Unknown MaxSAT algorithm: " + algorithm);
         }
+        pgTransformation = configuration.getCnfMethod() == FACTORY_CNF
+                ? null
+                : new PlaistedGreenbaumTransformationMaxSATSolver(f, configuration.getCnfMethod() == FULL_PG_ON_SOLVER, solver);
     }
 
     /**
@@ -278,7 +279,7 @@ public class MaxSATSolver {
      * @param formula the formula
      */
     public void addHardFormula(final Formula formula) {
-        addCNF(formula.cnf(f), -1);
+        addFormulaAsCnf(formula, -1);
     }
 
     /**
@@ -293,9 +294,18 @@ public class MaxSATSolver {
         }
         final Variable selVar = f.variable(SEL_PREFIX + selectorVariables.size());
         selectorVariables.add(selVar);
-        addHardFormula(f.or(selVar.negate(f), formula));
-        addHardFormula(f.or(formula.negate(f), selVar));
-        addClause(selVar, weight);
+        addFormulaAsCnf(f.or(selVar.negate(f), formula), -1);
+        addFormulaAsCnf(f.or(formula.negate(f), selVar), -1);
+        addFormulaAsCnf(selVar, weight);
+    }
+
+    private void addFormulaAsCnf(final Formula formula, final int weight) {
+        result = null;
+        if (configuration.getCnfMethod() == FACTORY_CNF) {
+            addCNF(formula.cnf(f), weight);
+        } else {
+            pgTransformation.addCnfToSolver(formula, weight);
+        }
     }
 
     /**
@@ -310,42 +320,15 @@ public class MaxSATSolver {
             case FALSE:
             case LITERAL:
             case OR:
-                addClause(formula, weight);
+                solver.addClause(formula, weight);
                 break;
             case AND:
                 for (final Formula op : formula) {
-                    addClause(op, weight);
+                    solver.addClause(op, weight);
                 }
                 break;
             default:
                 throw new IllegalArgumentException("Input formula ist not a valid CNF: " + formula);
-        }
-    }
-
-    /**
-     * Adds a clause to the solver.
-     * @param formula the clause
-     * @param weight  the weight of the clause (or -1 for a hard clause)
-     */
-    protected void addClause(final Formula formula, final int weight) {
-        result = null;
-        final LNGIntVector clauseVec = new LNGIntVector((int) formula.numberOfAtoms(f));
-        for (final Literal lit : formula.literals(f)) {
-            Integer index = var2index.get(lit.variable());
-            if (index == null) {
-                index = solver.newLiteral(false) >> 1;
-                var2index.put(lit.variable(), index);
-                index2var.put(index, lit.variable());
-            }
-            final int litNum = lit.phase() ? index * 2 : (index * 2) ^ 1;
-            clauseVec.push(litNum);
-        }
-        if (weight == -1) {
-            solver.addHardClause(clauseVec);
-        } else {
-            solver.setCurrentWeight(weight);
-            solver.updateSumWeights(weight);
-            solver.addSoftClause(weight, clauseVec);
         }
     }
 
@@ -385,9 +368,9 @@ public class MaxSATSolver {
     protected Model createModel(final LNGBooleanVector vec) {
         final List<Literal> model = new ArrayList<>();
         for (int i = 0; i < vec.size(); i++) {
-            final Literal lit = index2var.get(i);
-            if (lit != null && !selectorVariables.contains(lit.variable())) {
-                model.add(vec.get(i) ? lit : lit.negate(f));
+            final Variable var = solver.varForIndex(i);
+            if (var != null && !selectorVariables.contains(var)) {
+                model.add(vec.get(i) ? var : var.negate(f));
             }
         }
         return new Model(model);
@@ -419,6 +402,6 @@ public class MaxSATSolver {
 
     @Override
     public String toString() {
-        return String.format("MaxSATSolver{result=%s, var2index=%s}", result, var2index);
+        return String.format("MaxSATSolver{result=%s}", result);
     }
 }

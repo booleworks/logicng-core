@@ -61,6 +61,7 @@ public class ConfigurationsTest {
     @Test
     public void testMaxSATConfigToString() {
         final MaxSATConfig config = MaxSATConfig.builder()
+                .cnfMethod(SATSolverConfig.CNFMethod.FULL_PG_ON_SOLVER)
                 .incremental(MaxSATConfig.IncrementalStrategy.ITERATIVE)
                 .cardinality(MaxSATConfig.CardinalityEncoding.MTOTALIZER)
                 .weight(MaxSATConfig.WeightStrategy.DIVERSIFY)
@@ -71,6 +72,7 @@ public class ConfigurationsTest {
                 .bmo(false)
                 .build();
         final String expected = String.format("MaxSATConfig{%n" +
+                "cnfMethod=FULL_PG_ON_SOLVER%n" +
                 "incrementalStrategy=ITERATIVE%n" +
                 "pbEncoding=LADDER%n" +
                 "pbEncoding=SWC%n" +

@@ -11,6 +11,7 @@ import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.solvers.MaxSATSolver;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
+import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -31,9 +32,9 @@ public class MaxSatLongRunningTest {
         final Map<String, Integer> result = readResult(new File("src/test/resources/longrunning/wms/result.txt"));
         final MaxSATSolver[] solvers = new MaxSATSolver[3];
         solvers[0] = MaxSATSolver.oll(f);
-        solvers[1] =
-                MaxSATSolver.incWBO(f, MaxSATConfig.builder().weight(MaxSATConfig.WeightStrategy.DIVERSIFY).build());
-        solvers[2] = MaxSATSolver.incWBO(f);
+        solvers[1] = MaxSATSolver.incWBO(f, MaxSATConfig.builder()
+                .cnfMethod(SATSolverConfig.CNFMethod.FACTORY_CNF).weight(MaxSATConfig.WeightStrategy.DIVERSIFY).build());
+        solvers[2] = MaxSATSolver.incWBO(f, MaxSATConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.FACTORY_CNF).build());
         for (final MaxSATSolver solver : solvers) {
             for (final File file : Objects.requireNonNull(folder.listFiles())) {
                 if (file.getName().endsWith("wcnf")) {
