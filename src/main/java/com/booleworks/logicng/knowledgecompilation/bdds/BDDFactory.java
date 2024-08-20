@@ -33,6 +33,7 @@
 package com.booleworks.logicng.knowledgecompilation.bdds;
 
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BDD_COMPUTATION_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.BDD_NEW_REF_ADDED;
 
 import com.booleworks.logicng.formulas.And;
 import com.booleworks.logicng.formulas.BinaryOperator;
@@ -118,12 +119,14 @@ public final class BDDFactory {
      */
     public static LNGResult<BDD> build(final FormulaFactory f, final Formula formula, final BDDKernel kernel,
                                        final ComputationHandler handler) {
-        handler.shouldResume(BDD_COMPUTATION_STARTED);
+        if (!handler.shouldResume(BDD_COMPUTATION_STARTED)) {
+            return LNGResult.canceled(BDD_COMPUTATION_STARTED);
+        }
         final int varNum = formula.variables(f).size();
         final BDDKernel bddKernel = kernel == null ? new BDDKernel(f, varNum, varNum * 30, varNum * 20) : kernel;
         final int bddIndex = buildRec(f, formula, bddKernel, new BDDConstruction(bddKernel), handler);
         return bddIndex == BDDKernel.BDD_ABORT
-                ? LNGResult.canceled(SimpleEvent.BDD_NEW_REF_ADDED)
+                ? LNGResult.canceled(BDD_NEW_REF_ADDED)
                 : LNGResult.of(new BDD(bddIndex, bddKernel));
     }
 

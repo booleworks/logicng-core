@@ -4,11 +4,16 @@
 
 package com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree;
 
+import static com.booleworks.logicng.handlers.events.SimpleEvent.DNNF_DTREE_MIN_FILL_GRAPH_INITIALIZED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.DNNF_DTREE_MIN_FILL_NEW_ITERATION;
+
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,10 +32,16 @@ import java.util.SortedSet;
 public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
 
     @Override
-    public DTree generate(final FormulaFactory f, final Formula cnf) {
+    public LNGResult<DTree> generate(final FormulaFactory f, final Formula cnf, final ComputationHandler handler) {
         final Graph graph = new Graph(f, cnf);
-        final List<Variable> ordering = graph.getMinFillOrdering();
-        return generateWithEliminatingOrder(f, cnf, ordering);
+        if (!handler.shouldResume(DNNF_DTREE_MIN_FILL_GRAPH_INITIALIZED)) {
+            return LNGResult.canceled(DNNF_DTREE_MIN_FILL_GRAPH_INITIALIZED);
+        }
+        final LNGResult<List<Variable>> minFillOrdering = graph.getMinFillOrdering(handler);
+        if (!minFillOrdering.isSuccess()) {
+            return LNGResult.canceled(minFillOrdering.getCancelCause());
+        }
+        return generateWithEliminatingOrder(f, cnf, minFillOrdering.getResult(), handler);
     }
 
     /**
@@ -113,7 +124,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
             return result;
         }
 
-        protected List<Variable> getMinFillOrdering() {
+        protected LNGResult<List<Variable>> getMinFillOrdering(final ComputationHandler handler) {
             final boolean[][] fillAdjMatrix = getCopyOfAdjMatrix();
             final List<LNGIntVector> fillEdgeList = getCopyOfEdgeList();
 
@@ -122,6 +133,9 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
             int treewidth = 0;
 
             for (int iteration = 0; iteration < numberOfVertices; iteration++) {
+                if (!handler.shouldResume(DNNF_DTREE_MIN_FILL_NEW_ITERATION)) {
+                    return LNGResult.canceled(DNNF_DTREE_MIN_FILL_NEW_ITERATION);
+                }
                 final LNGIntVector possiblyBestVertices = new LNGIntVector();
                 int minEdges = Integer.MAX_VALUE;
                 for (int currentVertex = 0; currentVertex < numberOfVertices; currentVertex++) {
@@ -190,7 +204,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
                 processed[bestVertex] = true;
                 ordering[iteration] = vertices.get(bestVertex);
             }
-            return Arrays.asList(ordering);
+            return LNGResult.of(Arrays.asList(ordering));
         }
     }
 }

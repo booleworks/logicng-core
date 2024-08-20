@@ -4,10 +4,14 @@
 
 package com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree;
 
+import static com.booleworks.logicng.handlers.events.SimpleEvent.DNNF_DTREE_PROCESSING_NEXT_ORDER_VARIABLE;
+
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,14 +33,15 @@ public abstract class EliminatingOrderDTreeGenerator implements DTreeGenerator {
      * @param ordering the variable ordering
      * @return the DTree
      */
-    public final DTree generateWithEliminatingOrder(final FormulaFactory f, final Formula cnf,
-                                                    final List<Variable> ordering) {
+    public final LNGResult<DTree> generateWithEliminatingOrder(final FormulaFactory f, final Formula cnf,
+                                                               final List<Variable> ordering,
+                                                               final ComputationHandler handler) {
         assert cnf.variables(f).size() == ordering.size();
 
         if (!cnf.isCNF(f) || cnf.isAtomicFormula()) {
             throw new IllegalArgumentException("Cannot generate DTree from a non-cnf formula or atomic formula");
         } else if (cnf.type() != FType.AND) {
-            return new DTreeLeaf(f, 0, cnf);
+            return LNGResult.of(new DTreeLeaf(f, 0, cnf));
         }
 
         final List<DTree> sigma = new ArrayList<>();
@@ -46,6 +51,9 @@ public abstract class EliminatingOrderDTreeGenerator implements DTreeGenerator {
         }
 
         for (final Variable variable : ordering) {
+            if (!handler.shouldResume(DNNF_DTREE_PROCESSING_NEXT_ORDER_VARIABLE)) {
+                return LNGResult.canceled(DNNF_DTREE_PROCESSING_NEXT_ORDER_VARIABLE);
+            }
             final List<DTree> gamma = new ArrayList<>();
             final Iterator<DTree> sigmaIterator = sigma.iterator();
             while (sigmaIterator.hasNext()) {
@@ -60,7 +68,7 @@ public abstract class EliminatingOrderDTreeGenerator implements DTreeGenerator {
             }
         }
 
-        return compose(f, sigma);
+        return LNGResult.of(compose(f, sigma));
     }
 
     protected DTree compose(final FormulaFactory f, final List<DTree> trees) {

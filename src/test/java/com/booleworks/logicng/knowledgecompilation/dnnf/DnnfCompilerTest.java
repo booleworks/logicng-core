@@ -4,7 +4,19 @@
 
 package com.booleworks.logicng.knowledgecompilation.dnnf;
 
+import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.SAT_CALL_FINISHED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BACKBONE_COMPUTATION_STARTED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.DNNF_COMPUTATION_STARTED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SAT_CALL_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.DNNF_DTREE_MIN_FILL_GRAPH_INITIALIZED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.DNNF_DTREE_MIN_FILL_NEW_ITERATION;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.DNNF_DTREE_PROCESSING_NEXT_ORDER_VARIABLE;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.DNNF_SHANNON_EXPANSION;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.SAT_CONFLICT_DETECTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.SUBSUMPTION_ADDED_NEW_SET;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.SUBSUMPTION_STARTING_UB_TREE_GENERATION;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.encodings.EncoderConfig;
@@ -17,6 +29,9 @@ import com.booleworks.logicng.graphs.algorithms.ConnectedComponentsComputation;
 import com.booleworks.logicng.graphs.datastructures.Graph;
 import com.booleworks.logicng.graphs.datastructures.Node;
 import com.booleworks.logicng.graphs.generators.ConstraintGraphGenerator;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.io.parsers.FormulaParser;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
@@ -35,7 +50,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class DnnfCompilerTest {
@@ -82,17 +99,32 @@ public class DnnfCompilerTest {
 
     @Test
     public void testDnnfProperties() throws ParserException {
-        final Dnnf dnnf = new DnnfFactory().compile(f, parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"));
-        assertThat(dnnf.getOriginalVariables()).extracting(Variable::name).containsExactlyInAnyOrder("a", "b", "c", "d",
-                "e");
+        final Dnnf dnnf = DnnfFactory.compile(f, parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"));
+        assertThat(dnnf.getOriginalVariables()).extracting(Variable::name)
+                .containsExactlyInAnyOrder("a", "b", "c", "d", "e");
     }
 
     @Test
-    @LongRunningTag
-    public void testAllSmallFormulas() throws IOException, ParserException {
-        final Formula formulas =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
-        formulas.stream().forEach(op -> testFormula(f, op, false));
+    public void testDnnfEvents() throws ParserException, IOException {
+        final FormulaFactory f = FormulaFactory.caching();
+        f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
+        final Formula parsed = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/formula1.txt");
+        final DnnfComputationHandler handler = new DnnfComputationHandler();
+        final LNGResult<Dnnf> dnnf = DnnfFactory.compile(f, parsed, handler);
+        assertThat(dnnf.isSuccess()).isTrue();
+        assertThat(handler.eventCounter).containsExactly(
+                entry(BACKBONE_COMPUTATION_STARTED, 1),
+                entry(SAT_CALL_STARTED, 125),
+                entry(SAT_CONFLICT_DETECTED, 51),
+                entry(SAT_CALL_FINISHED, 125),
+                entry(SUBSUMPTION_STARTING_UB_TREE_GENERATION, 1),
+                entry(SUBSUMPTION_ADDED_NEW_SET, 4104),
+                entry(DNNF_DTREE_MIN_FILL_GRAPH_INITIALIZED, 1),
+                entry(DNNF_DTREE_MIN_FILL_NEW_ITERATION, 411),
+                entry(DNNF_DTREE_PROCESSING_NEXT_ORDER_VARIABLE, 411),
+                entry(DNNF_COMPUTATION_STARTED, 1),
+                entry(DNNF_SHANNON_EXPANSION, 6866)
+        );
     }
 
     @Test
@@ -101,8 +133,7 @@ public class DnnfCompilerTest {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
         final Formula parsed = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/formula1.txt");
-        final DnnfFactory dnnfFactory = new DnnfFactory();
-        Dnnf dnnf = dnnfFactory.compile(f, parsed);
+        Dnnf dnnf = DnnfFactory.compile(f, parsed);
         final BigInteger dnnfCount = dnnf.execute(new DnnfModelCountFunction(f));
         final List<Formula> formulas = new ArrayList<>();
         final List<Formula> originalFormulas = new ArrayList<>();
@@ -120,15 +151,14 @@ public class DnnfCompilerTest {
                 ConnectedComponentsComputation.splitFormulasByComponent(f, originalFormulas, ccs);
         BigInteger multipliedCount = BigInteger.ONE;
         for (final List<Formula> component : split) {
-            dnnf = dnnfFactory.compile(f, f.and(component));
+            dnnf = DnnfFactory.compile(f, f.and(component));
             multipliedCount = multipliedCount.multiply(dnnf.execute(new DnnfModelCountFunction(f)));
         }
         assertThat(dnnfCount).isEqualTo(multipliedCount);
     }
 
     private void testFormula(final FormulaFactory f, final Formula formula, final boolean withEquivalence) {
-        final DnnfFactory dnnfFactory = new DnnfFactory();
-        final Dnnf dnnf = dnnfFactory.compile(f, formula);
+        final Dnnf dnnf = DnnfFactory.compile(f, formula);
         final BigInteger dnnfCount = dnnf.execute(new DnnfModelCountFunction(f));
         if (withEquivalence) {
             final Formula equivalence = f.equivalence(formula, dnnf.formula());
@@ -148,5 +178,15 @@ public class DnnfCompilerTest {
                 new ForceOrdering().getOrder(formula.factory(), formula), 100000, 1000000);
         final BDD bdd = BDDFactory.build(formula.factory(), formula, kernel);
         return bdd.modelCount();
+    }
+
+    private static class DnnfComputationHandler implements ComputationHandler {
+        private final Map<LNGEvent, Integer> eventCounter = new LinkedHashMap<>();
+
+        @Override
+        public boolean shouldResume(final LNGEvent event) {
+            eventCounter.put(event, eventCounter.getOrDefault(event, 0) + 1);
+            return true;
+        }
     }
 }

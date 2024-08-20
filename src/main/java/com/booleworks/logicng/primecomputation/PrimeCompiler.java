@@ -4,6 +4,8 @@
 
 package com.booleworks.logicng.primecomputation;
 
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.PRIME_COMPUTATION_STARTED;
+
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -12,7 +14,6 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
 import com.booleworks.logicng.solvers.sat.SATCall;
@@ -107,7 +108,9 @@ public final class PrimeCompiler {
      */
     public LNGResult<PrimeResult> compute(final FormulaFactory f, final Formula formula,
                                           final PrimeResult.CoverageType type, final ComputationHandler handler) {
-        handler.shouldResume(ComputationStartedEvent.PRIME_COMPUTATION_STARTED);
+        if (!handler.shouldResume(PRIME_COMPUTATION_STARTED)) {
+            return LNGResult.canceled(PRIME_COMPUTATION_STARTED);
+        }
         final boolean completeImplicants = type == PrimeResult.CoverageType.IMPLICANTS_COMPLETE;
         final Formula formulaForComputation = completeImplicants ? formula : formula.negate(f);
         final LNGResult<Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>>> genericResult =

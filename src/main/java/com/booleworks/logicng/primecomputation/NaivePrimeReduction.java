@@ -4,13 +4,15 @@
 
 package com.booleworks.logicng.primecomputation;
 
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.IMPLICANT_REDUCTION_STARTED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.IMPLICATE_REDUCTION_STARTED;
+
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.util.FormulaHelper;
@@ -70,7 +72,9 @@ public final class NaivePrimeReduction {
      */
     public LNGResult<SortedSet<Literal>> reduceImplicant(final Collection<Literal> implicant,
                                                          final ComputationHandler handler) {
-        handler.shouldResume(ComputationStartedEvent.IMPLICATE_REDUCTION_STARTED);
+        if (!handler.shouldResume(IMPLICANT_REDUCTION_STARTED)) {
+            return LNGResult.canceled(IMPLICANT_REDUCTION_STARTED);
+        }
         final SortedSet<Literal> primeImplicant = new TreeSet<>(implicant);
         for (final Literal lit : implicant) {
             primeImplicant.remove(lit);
@@ -110,7 +114,9 @@ public final class NaivePrimeReduction {
      */
     public LNGResult<SortedSet<Literal>> reduceImplicate(final FormulaFactory f, final SortedSet<Literal> implicate,
                                                          final ComputationHandler handler) {
-        handler.shouldResume(ComputationStartedEvent.IMPLICATE_REDUCTION_STARTED);
+        if (!handler.shouldResume(IMPLICATE_REDUCTION_STARTED)) {
+            return LNGResult.canceled(IMPLICATE_REDUCTION_STARTED);
+        }
         final SortedSet<Literal> primeImplicate = new TreeSet<>(implicate);
         for (final Literal lit : implicate) {
             primeImplicate.remove(lit);

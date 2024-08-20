@@ -17,6 +17,9 @@ public class SimpleEvent implements LNGEvent {
     public static final SimpleEvent NO_EVENT = new SimpleEvent("No event");
     public static final SimpleEvent DISTRIBUTION_PERFORMED = new SimpleEvent("Distribution performed");
     public static final SimpleEvent BDD_NEW_REF_ADDED = new SimpleEvent("New reference added in BDD");
+    public static final SimpleEvent DNNF_DTREE_MIN_FILL_GRAPH_INITIALIZED = new SimpleEvent("DNNF DTree MinFill Graph initialized");
+    public static final SimpleEvent DNNF_DTREE_MIN_FILL_NEW_ITERATION = new SimpleEvent("DNNF DTree MinFill new iteration");
+    public static final SimpleEvent DNNF_DTREE_PROCESSING_NEXT_ORDER_VARIABLE = new SimpleEvent("DNNF DTree processing next order variable");
     public static final SimpleEvent DNNF_SHANNON_EXPANSION = new SimpleEvent("DNNF Shannon Expansion");
     public static final SimpleEvent SAT_CONFLICT_DETECTED = new SimpleEvent("SAT conflict detected");
     public static final SimpleEvent MODEL_ENUMERATION_COMMIT = new SimpleEvent("Model Enumeration Commit");

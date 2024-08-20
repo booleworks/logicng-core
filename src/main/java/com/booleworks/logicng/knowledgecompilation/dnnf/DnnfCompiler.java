@@ -4,21 +4,18 @@
 
 package com.booleworks.logicng.knowledgecompilation.dnnf;
 
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.DNNF_COMPUTATION_STARTED;
 import static com.booleworks.logicng.handlers.events.SimpleEvent.DNNF_SHANNON_EXPANSION;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTree;
-import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeNode;
-import com.booleworks.logicng.predicates.satisfiability.SATPredicate;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
-import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +24,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Implementation of a DNNF compiler based on ideas by Adnan Darwiche in "New
@@ -39,7 +35,7 @@ public class DnnfCompiler {
 
     protected final FormulaFactory f;
 
-    protected final Formula cnf;
+    protected final Formula originalCnf;
     protected final Formula unitClauses;
     protected final Formula nonUnitClauses;
     protected final DnnfSatSolver solver;
@@ -47,7 +43,6 @@ public class DnnfCompiler {
     protected final int numberOfVariables;
 
     protected final Map<BitSet, Formula> cache;
-    protected ComputationHandler handler;
 
     protected BitSet[][] localCacheKeys;
     protected int[][][] localOccurrences;
@@ -56,46 +51,23 @@ public class DnnfCompiler {
 
     /**
      * Constructs a new DNNF compiler for the given formula.
-     * @param f       the formula factory to generate new formulas
-     * @param formula the formula to compile
+     * @param f              the formula factory to generate new formulas
+     * @param originalCnf    the formula to compile
+     * @param unitClauses    the unit clauses of the cnf
+     * @param nonUnitClauses the non-unit clauses of the cnf
      */
-    public DnnfCompiler(final FormulaFactory f, final Formula formula) {
+    protected DnnfCompiler(final FormulaFactory f, final Formula originalCnf, final DTree tree, final Formula unitClauses, final Formula nonUnitClauses) {
         this.f = f;
-        cnf = formula;
-        final Pair<Formula, Formula> pair = initializeClauses();
-        unitClauses = pair.first();
-        nonUnitClauses = pair.second();
-        solver = new DnnfCoreSolver(f, cnf.variables(f).size());
-        solver.add(cnf);
-        numberOfVariables = cnf.variables(f).size();
+        this.originalCnf = originalCnf;
+        this.unitClauses = unitClauses;
+        this.nonUnitClauses = nonUnitClauses;
+        solver = new DnnfCoreSolver(f, this.originalCnf.variables(f).size());
+        solver.add(this.originalCnf);
+        numberOfVariables = this.originalCnf.variables(f).size();
         cache = new HashMap<>();
-        final int maxClauseSize = computeMaxClauseSize(cnf);
+        final int maxClauseSize = computeMaxClauseSize(this.originalCnf);
         leafResultOperands = new ArrayList<>(maxClauseSize);
         leafCurrentLiterals = new ArrayList<>(maxClauseSize);
-    }
-
-    /**
-     * Performs the compilation using the given DTree generator.
-     * @param generator the DTree generator
-     * @return the compiled DNNF
-     */
-    public Formula compile(final DTreeGenerator generator) {
-        return compile(generator, null);
-    }
-
-    /**
-     * Performs the compilation using the given DTree generator and the
-     * compilation handler.
-     * @param generator the DTree generator
-     * @param handler   the compilation handler
-     * @return the compiled DNNF
-     */
-    public Formula compile(final DTreeGenerator generator, final ComputationHandler handler) {
-        if (!cnf.holds(new SATPredicate(f))) {
-            return f.falsum();
-        }
-        final DTree dTree = generateDTree(f, generator);
-        return compile(dTree, handler);
     }
 
     protected int computeMaxClauseSize(final Formula cnf) {
@@ -115,62 +87,22 @@ public class DnnfCompiler {
         }
     }
 
-    protected Pair<Formula, Formula> initializeClauses() {
-        final List<Formula> units = new ArrayList<>();
-        final List<Formula> nonUnits = new ArrayList<>();
-        switch (cnf.type()) {
-            case AND:
-                for (final Formula clause : cnf) {
-                    if (clause.isAtomicFormula()) {
-                        units.add(clause);
-                    } else {
-                        nonUnits.add(clause);
-                    }
-                }
-                break;
-            case OR:
-                nonUnits.add(cnf);
-                break;
-            default:
-                units.add(cnf);
-        }
-        return new Pair<>(f.and(units), f.and(nonUnits));
-    }
-
-    protected DTree generateDTree(final FormulaFactory f, final DTreeGenerator generator) {
-        if (nonUnitClauses.isAtomicFormula()) {
-            return null;
-        }
-        final DTree tree = generator.generate(f, nonUnitClauses);
-        tree.initialize(solver);
-        return tree;
-    }
-
-    protected Formula compile(final DTree dTree, final ComputationHandler handler) {
-        if (nonUnitClauses.isAtomicFormula()) {
-            return cnf;
-        }
+    protected LNGResult<Formula> start(final DTree tree, final ComputationHandler handler) {
         if (!solver.start()) {
-            return f.falsum();
+            return LNGResult.of(f.falsum());
         }
-        initializeCaches(dTree);
-        this.handler = handler;
-        handler.shouldResume(ComputationStartedEvent.DNNF_COMPUTATION_STARTED);
-
-        Formula result;
-        try {
-            result = cnf2Ddnnf(dTree);
-        } catch (final TimeoutException e) {
-            result = null;
+        tree.initialize(solver);
+        initializeCaches(tree);
+        if (!handler.shouldResume(DNNF_COMPUTATION_STARTED)) {
+            return LNGResult.canceled(DNNF_COMPUTATION_STARTED);
         }
-        this.handler = NopHandler.get();
-        return result == null ? null : f.and(unitClauses, result);
+        return cnf2Ddnnf(tree, handler).map(result -> f.and(unitClauses, result));
     }
 
     protected void initializeCaches(final DTree dTree) {
         final int depth = dTree.depth() + 1;
         final int sep = dTree.widestSeparator() + 1;
-        final int variables = cnf.variables(f).size();
+        final int variables = originalCnf.variables(f).size();
 
         localCacheKeys = new BitSet[depth][sep];
         localOccurrences = new int[depth][sep][variables];
@@ -182,59 +114,71 @@ public class DnnfCompiler {
         }
     }
 
-    protected Formula cnf2Ddnnf(final DTree tree) throws TimeoutException {
-        return cnf2Ddnnf(tree, 0);
+    protected LNGResult<Formula> cnf2Ddnnf(final DTree tree, final ComputationHandler handler) {
+        return cnf2Ddnnf(tree, 0, handler);
     }
 
-    protected Formula cnf2Ddnnf(final DTree tree, final int currentShannons) throws TimeoutException {
+    protected LNGResult<Formula> cnf2Ddnnf(final DTree tree, final int currentShannons, final ComputationHandler handler) {
         final BitSet separator = tree.dynamicSeparator();
         final Formula implied = newlyImpliedLiterals(tree.staticVarSet());
 
         if (separator.isEmpty()) {
             if (tree instanceof DTreeLeaf) {
-                return f.and(implied, leaf2Ddnnf((DTreeLeaf) tree));
+                return LNGResult.of(f.and(implied, leaf2Ddnnf((DTreeLeaf) tree)));
             } else {
-                return conjoin(implied, (DTreeNode) tree, currentShannons);
+                return conjoin(implied, (DTreeNode) tree, currentShannons, handler);
             }
         } else {
-            final int var = chooseShannonVariable(tree, separator, currentShannons);
-
             if (!handler.shouldResume(DNNF_SHANNON_EXPANSION)) {
-                throw new TimeoutException();
+                return LNGResult.canceled(DNNF_SHANNON_EXPANSION);
             }
 
+            final int var = chooseShannonVariable(tree, separator, currentShannons);
+
             /* Positive branch */
-            Formula positiveDnnf = f.falsum();
+            final Formula positiveDnnf;
             if (solver.decide(var, true)) {
-                positiveDnnf = cnf2Ddnnf(tree, currentShannons + 1);
+                final LNGResult<Formula> recursivePositive = cnf2Ddnnf(tree, currentShannons + 1, handler);
+                if (!recursivePositive.isSuccess()) {
+                    solver.undoDecide(var);
+                    return recursivePositive;
+                }
+                positiveDnnf = recursivePositive.getResult();
+            } else {
+                positiveDnnf = f.falsum();
             }
             solver.undoDecide(var);
             if (positiveDnnf == f.falsum()) {
                 if (solver.atAssertionLevel() && solver.assertCdLiteral()) {
-                    return cnf2Ddnnf(tree);
+                    return cnf2Ddnnf(tree, handler);
                 } else {
-                    return f.falsum();
+                    return LNGResult.of(f.falsum());
                 }
             }
 
             /* Negative branch */
             Formula negativeDnnf = f.falsum();
             if (solver.decide(var, false)) {
-                negativeDnnf = cnf2Ddnnf(tree, currentShannons + 1);
+                final LNGResult<Formula> recursiveNegative = cnf2Ddnnf(tree, currentShannons + 1, handler);
+                if (!recursiveNegative.isSuccess()) {
+                    solver.undoDecide(var);
+                    return recursiveNegative;
+                }
+                negativeDnnf = recursiveNegative.getResult();
             }
             solver.undoDecide(var);
             if (negativeDnnf == f.falsum()) {
                 if (solver.atAssertionLevel() && solver.assertCdLiteral()) {
-                    return cnf2Ddnnf(tree);
+                    return cnf2Ddnnf(tree, handler);
                 } else {
-                    return f.falsum();
+                    return LNGResult.of(f.falsum());
                 }
             }
 
             final Literal lit = solver.litForIdx(var);
             final Formula positiveBranch = f.and(lit, positiveDnnf);
             final Formula negativeBranch = f.and(lit.negate(f), negativeDnnf);
-            return f.and(implied, f.or(positiveBranch, negativeBranch));
+            return LNGResult.of(f.and(implied, f.or(positiveBranch, negativeBranch)));
         }
     }
 
@@ -257,30 +201,32 @@ public class DnnfCompiler {
         return max;
     }
 
-    protected Formula conjoin(final Formula implied, final DTreeNode tree, final int currentShannons)
-            throws TimeoutException {
-        final Formula left;
-        final Formula right;
-        if (implied == f.falsum() ||
-                (left = cnfAux(tree.left(), currentShannons)) == f.falsum() ||
-                (right = cnfAux(tree.right(), currentShannons)) == f.falsum()) {
-            return f.falsum();
-        } else {
-            return f.and(implied, left, right);
+    protected LNGResult<Formula> conjoin(final Formula implied, final DTreeNode tree, final int currentShannons, final ComputationHandler handler) {
+        if (implied == f.falsum()) {
+            return LNGResult.of(f.falsum());
         }
+        final LNGResult<Formula> left = cnfAux(tree.left(), currentShannons, handler);
+        if (left.getResult() == null || left.getResult() == f.falsum()) {
+            return left;
+        }
+        final LNGResult<Formula> right = cnfAux(tree.right(), currentShannons, handler);
+        if (right.getResult() == null || right.getResult() == f.falsum()) {
+            return right;
+        }
+        return LNGResult.of(f.and(implied, left.getResult(), right.getResult()));
     }
 
-    protected Formula cnfAux(final DTree tree, final int currentShannons) throws TimeoutException {
+    protected LNGResult<Formula> cnfAux(final DTree tree, final int currentShannons, final ComputationHandler handler) {
         if (tree instanceof DTreeLeaf) {
-            return leaf2Ddnnf((DTreeLeaf) tree);
+            return LNGResult.of(leaf2Ddnnf((DTreeLeaf) tree));
         } else {
             final BitSet key = computeCacheKey((DTreeNode) tree, currentShannons);
             if (cache.containsKey(key)) {
-                return cache.get(key);
+                return LNGResult.of(cache.get(key));
             } else {
-                final Formula dnnf = cnf2Ddnnf(tree);
-                if (dnnf != f.falsum()) {
-                    cache.put((BitSet) key.clone(), dnnf);
+                final LNGResult<Formula> dnnf = cnf2Ddnnf(tree, handler);
+                if (dnnf.getResult() != null && dnnf.getResult() != f.falsum()) {
+                    cache.put((BitSet) key.clone(), dnnf.getResult());
                 }
                 return dnnf;
             }

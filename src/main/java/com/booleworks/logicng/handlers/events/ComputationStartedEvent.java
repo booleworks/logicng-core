@@ -25,6 +25,7 @@ public class ComputationStartedEvent implements LNGEvent {
     public static final ComputationStartedEvent BACKBONE_COMPUTATION_STARTED = new ComputationStartedEvent("Backbone Computation");
     public static final ComputationStartedEvent ADVANCED_SIMPLIFICATION_STARTED = new ComputationStartedEvent("Advanced Simplification");
     public static final ComputationStartedEvent PRIME_COMPUTATION_STARTED = new ComputationStartedEvent("Prime Computation");
+    public static final ComputationStartedEvent IMPLICANT_REDUCTION_STARTED = new ComputationStartedEvent("Implicant Reduction");
     public static final ComputationStartedEvent IMPLICATE_REDUCTION_STARTED = new ComputationStartedEvent("Implicate Reduction");
     public static final ComputationStartedEvent MUS_COMPUTATION_STARTED = new ComputationStartedEvent("MUS Computation");
     public static final ComputationStartedEvent SMUS_COMPUTATION_STARTED = new ComputationStartedEvent("SMUS Computation");

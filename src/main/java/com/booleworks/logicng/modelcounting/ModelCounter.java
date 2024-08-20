@@ -4,8 +4,6 @@
 
 package com.booleworks.logicng.modelcounting;
 
-import static com.booleworks.logicng.handlers.events.SimpleEvent.NO_EVENT;
-
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
@@ -17,6 +15,7 @@ import com.booleworks.logicng.graphs.datastructures.Graph;
 import com.booleworks.logicng.graphs.datastructures.Node;
 import com.booleworks.logicng.graphs.generators.ConstraintGraphGenerator;
 import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfFactory;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.Dnnf;
@@ -59,8 +58,9 @@ public final class ModelCounter {
      * @param variables the relevant variables
      * @return the model count of the formulas for the variables
      */
-    public static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas, final SortedSet<Variable> variables) {
-        return count(f, formulas, variables, NopHandler.get());
+    public static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas,
+                                   final SortedSet<Variable> variables) {
+        return count(f, formulas, variables, NopHandler.get()).getResult();
     }
 
     /**
@@ -75,25 +75,24 @@ public final class ModelCounter {
      * @return the model count of the formulas for the variables or {@code null}
      *         if the DNNF handler canceled the DNNF computation
      */
-    public static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas,
-                                   final SortedSet<Variable> variables,
-                                   final ComputationHandler handler) {
+    public static LNGResult<BigInteger> count(final FormulaFactory f, final Collection<Formula> formulas,
+                                              final SortedSet<Variable> variables, final ComputationHandler handler) {
         if (!variables.containsAll(FormulaHelper.variables(f, formulas))) {
             throw new IllegalArgumentException("Expected variables to contain all of the formulas' variables.");
         }
         if (variables.isEmpty()) {
             final List<Formula> remainingConstants =
                     formulas.stream().filter(formula -> formula.type() != FType.TRUE).collect(Collectors.toList());
-            return remainingConstants.isEmpty() ? BigInteger.ONE : BigInteger.ZERO;
+            return LNGResult.of(remainingConstants.isEmpty() ? BigInteger.ONE : BigInteger.ZERO);
         }
         final List<Formula> cnfs = encodeAsCnf(f, formulas);
         final SimplificationResult simplification = simplify(f, cnfs);
-        final BigInteger count = count(f, simplification.simplifiedFormulas, handler);
-        if (count == null) {
-            return null;
+        final LNGResult<BigInteger> count = count(f, simplification.simplifiedFormulas, handler);
+        if (!count.isSuccess()) {
+            return count;
         }
         final SortedSet<Variable> dontCareVariables = simplification.getDontCareVariables(variables);
-        return count.multiply(BigInteger.valueOf(2).pow(dontCareVariables.size()));
+        return LNGResult.of(count.getResult().multiply(BigInteger.valueOf(2).pow(dontCareVariables.size())));
     }
 
     private static List<Formula> encodeAsCnf(final FormulaFactory f, final Collection<Formula> formulas) {
@@ -128,21 +127,21 @@ public final class ModelCounter {
         return new SimplificationResult(f, backboneVariables, simplified);
     }
 
-    private static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas,
-                                    final ComputationHandler handler) {
+    private static LNGResult<BigInteger> count(final FormulaFactory f, final Collection<Formula> formulas,
+                                               final ComputationHandler handler) {
         final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(f, formulas);
         final Set<Set<Node<Variable>>> ccs = ConnectedComponentsComputation.compute(constraintGraph);
         final List<List<Formula>> components = ConnectedComponentsComputation.splitFormulasByComponent(f, formulas, ccs);
         final DnnfFactory factory = new DnnfFactory();
         BigInteger count = BigInteger.ONE;
         for (final List<Formula> component : components) {
-            final Dnnf dnnf = factory.compile(f, f.and(component), handler);
-            if (dnnf == null || !handler.shouldResume(NO_EVENT)) {
-                return null;
+            final LNGResult<Dnnf> dnnf = factory.compile(f, f.and(component), handler);
+            if (!dnnf.isSuccess()) {
+                return LNGResult.canceled(dnnf.getCancelCause());
             }
-            count = count.multiply(dnnf.execute(new DnnfModelCountFunction(f)));
+            count = count.multiply(dnnf.getResult().execute(new DnnfModelCountFunction(f)));
         }
-        return count;
+        return LNGResult.of(count);
     }
 
     private static class SimplificationResult {
