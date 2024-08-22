@@ -24,7 +24,7 @@ import java.util.TreeMap;
  * <p>
  * Based on "Unsatisfiability-based optimization in clasp*" by Andres, Kaufmann,
  * Matheis, and Schaub.
- * @version 2.4.0
+ * @version 3.0.0
  * @since 2.4.0
  */
 public class OLL extends MaxSAT {

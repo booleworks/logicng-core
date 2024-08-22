@@ -39,7 +39,7 @@ import java.util.TreeMap;
 
 /**
  * The weighted MSU3 algorithm.
- * @version 2.1.0
+ * @version 3.0.0
  * @since 1.0
  */
 public class WMSU3 extends MaxSAT {

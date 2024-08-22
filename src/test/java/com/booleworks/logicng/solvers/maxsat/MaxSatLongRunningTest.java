@@ -17,10 +17,12 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class MaxSatLongRunningTest {
 
@@ -30,15 +32,17 @@ public class MaxSatLongRunningTest {
         final FormulaFactory f = FormulaFactory.caching();
         final File folder = new File("src/test/resources/longrunning/wms");
         final Map<String, Integer> result = readResult(new File("src/test/resources/longrunning/wms/result.txt"));
-        final MaxSATSolver[] solvers = new MaxSATSolver[3];
-        solvers[0] = MaxSATSolver.oll(f);
-        solvers[1] = MaxSATSolver.incWBO(f, MaxSATConfig.builder()
-                .cnfMethod(SATSolverConfig.CNFMethod.FACTORY_CNF).weight(MaxSATConfig.WeightStrategy.DIVERSIFY).build());
-        solvers[2] = MaxSATSolver.incWBO(f, MaxSATConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.FACTORY_CNF).build());
-        for (final MaxSATSolver solver : solvers) {
+        final List<Supplier<MaxSATSolver>> solvers = Arrays.asList(
+                () -> MaxSATSolver.oll(f),
+                () -> MaxSATSolver.incWBO(f, MaxSATConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.FACTORY_CNF)
+                        .weight(MaxSATConfig.WeightStrategy.DIVERSIFY).build()),
+                () -> MaxSATSolver.incWBO(f, MaxSATConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.FACTORY_CNF)
+                        .build())
+        );
+        for (final Supplier<MaxSATSolver> solverGenerator : solvers) {
             for (final File file : Objects.requireNonNull(folder.listFiles())) {
                 if (file.getName().endsWith("wcnf")) {
-                    solver.reset();
+                    final MaxSATSolver solver = solverGenerator.get();
                     readCnfToSolver(solver, file.getAbsolutePath());
                     assertThat(solver.solve().getOptimum()).isEqualTo(result.get(file.getName()));
                 }

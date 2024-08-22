@@ -42,7 +42,7 @@ import java.util.TreeMap;
 
 /**
  * Non-incremental MSU3 solver.
- * @version 2.1.0
+ * @version 3.0.0
  * @since 1.0
  */
 public class MSU3 extends MaxSAT {

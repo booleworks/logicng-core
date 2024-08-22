@@ -24,6 +24,7 @@ import com.booleworks.logicng.solvers.maxsat.algorithms.LinearUS;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MSU3;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATState;
 import com.booleworks.logicng.solvers.maxsat.algorithms.OLL;
 import com.booleworks.logicng.solvers.maxsat.algorithms.WBO;
 import com.booleworks.logicng.solvers.maxsat.algorithms.WMSU3;
@@ -55,11 +56,11 @@ public class MaxSATSolver {
 
     protected final MaxSATConfig configuration;
     protected final Algorithm algorithm;
-    protected PlaistedGreenbaumTransformationMaxSATSolver pgTransformation;
-    protected FormulaFactory f;
+    protected final PlaistedGreenbaumTransformationMaxSATSolver pgTransformation;
+    protected final FormulaFactory f;
+    protected final MaxSAT solver;
+    protected final SortedSet<Variable> selectorVariables;
     protected LNGResult<MaxSATResult> result;
-    protected MaxSAT solver;
-    protected SortedSet<Variable> selectorVariables;
 
     /**
      * Constructs a new MaxSAT solver with a given configuration.
@@ -72,7 +73,36 @@ public class MaxSATSolver {
         this.f = f;
         this.algorithm = algorithm;
         this.configuration = configuration;
-        reset();
+        result = null;
+        selectorVariables = new TreeSet<>();
+        switch (algorithm) {
+            case WBO:
+                solver = new WBO(f, configuration);
+                break;
+            case INC_WBO:
+                solver = new IncWBO(f, configuration);
+                break;
+            case LINEAR_SU:
+                solver = new LinearSU(f, configuration);
+                break;
+            case LINEAR_US:
+                solver = new LinearUS(f, configuration);
+                break;
+            case MSU3:
+                solver = new MSU3(f, configuration);
+                break;
+            case WMSU3:
+                solver = new WMSU3(f, configuration);
+                break;
+            case OLL:
+                solver = new OLL(f, configuration);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown MaxSAT algorithm: " + algorithm);
+        }
+        pgTransformation = configuration.getCnfMethod() == FACTORY_CNF
+                ? null
+                : new PlaistedGreenbaumTransformationMaxSATSolver(f, configuration.getCnfMethod() == FULL_PG_ON_SOLVER, solver);
     }
 
     /**
@@ -238,43 +268,6 @@ public class MaxSATSolver {
     }
 
     /**
-     * Resets the solver.
-     * @throws IllegalArgumentException if the algorithm was unknown
-     */
-    public void reset() {
-        result = null;
-        selectorVariables = new TreeSet<>();
-        switch (algorithm) {
-            case WBO:
-                solver = new WBO(f, configuration);
-                break;
-            case INC_WBO:
-                solver = new IncWBO(f, configuration);
-                break;
-            case LINEAR_SU:
-                solver = new LinearSU(f, configuration);
-                break;
-            case LINEAR_US:
-                solver = new LinearUS(f, configuration);
-                break;
-            case MSU3:
-                solver = new MSU3(f, configuration);
-                break;
-            case WMSU3:
-                solver = new WMSU3(f, configuration);
-                break;
-            case OLL:
-                solver = new OLL(f, configuration);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown MaxSAT algorithm: " + algorithm);
-        }
-        pgTransformation = configuration.getCnfMethod() == FACTORY_CNF
-                ? null
-                : new PlaistedGreenbaumTransformationMaxSATSolver(f, configuration.getCnfMethod() == FULL_PG_ON_SOLVER, solver);
-    }
-
-    /**
      * Adds a new hard formula to the solver. Hard formulas must always be true.
      * @param formula the formula
      */
@@ -297,6 +290,31 @@ public class MaxSATSolver {
         addFormulaAsCnf(f.or(selVar.negate(f), formula), -1);
         addFormulaAsCnf(f.or(formula.negate(f), selVar), -1);
         addFormulaAsCnf(selVar, weight);
+    }
+
+    /**
+     * Saves the current solver state.
+     * @return the current solver state
+     */
+    public MaxSATState saveState() {
+        return solver.saveState();
+    }
+
+    /**
+     * Loads a given state in the solver.
+     * <p>
+     * ATTENTION: You can only load a state which was created by this instance
+     * of the solver before the current state. Only the sizes of the internal
+     * data structures are stored, meaning you can go back in time and
+     * restore a solver state with fewer variables and/or fewer clauses. It is
+     * not possible to import a solver state from another solver or another
+     * solving execution.
+     * @param state the solver state to load
+     * @throws IllegalArgumentException if the solver state is not valid anymore
+     */
+    public void loadState(final MaxSATState state) {
+        result = null;
+        solver.loadState(state);
     }
 
     private void addFormulaAsCnf(final Formula formula, final int weight) {

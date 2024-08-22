@@ -45,7 +45,7 @@ import java.util.TreeSet;
 
 /**
  * Weighted Boolean Optimization solver.
- * @version 2.1.0
+ * @version 3.0.0
  * @since 1.0
  */
 public class WBO extends MaxSAT {

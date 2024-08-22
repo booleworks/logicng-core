@@ -578,8 +578,7 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Saves and returns the solver state expressed as an integer array which
-     * stores the length of the internal data structures.
+     * Saves and returns the solver state.
      * @return the current solver state
      */
     public SolverState saveState() {

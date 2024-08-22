@@ -53,7 +53,7 @@ import java.util.TreeSet;
 
 /**
  * Super class for the MaxSAT solvers.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.0
  */
 public abstract class MaxSAT {
@@ -88,6 +88,10 @@ public abstract class MaxSAT {
     int currentWeight;
     MaxSAT.Stats lastStats;
 
+    // bookkeeping of solver states
+    protected LNGIntVector validStates;
+    protected int nextStateId;
+
     /**
      * Constructor.
      * @param f      the formula factory
@@ -113,6 +117,8 @@ public abstract class MaxSAT {
         nbSatisfiable = 0;
         sumSizeCores = 0;
         orderWeights = new LNGIntVector();
+        validStates = new LNGIntVector();
+        nextStateId = 0;
     }
 
     /**
@@ -156,46 +162,75 @@ public abstract class MaxSAT {
         if (!handler.shouldResume(MAX_SAT_CALL_STARTED)) {
             return LNGResult.canceled(MAX_SAT_CALL_STARTED);
         }
-        final StateBeforeSolving stateBeforeSolving = saveStateBeforeSolving();
+        final MaxSATState stateBeforeSolving = saveState();
         final LNGResult<InternalMaxSATResult> result = internalSearch(handler);
         if (!handler.shouldResume(MAX_SAT_CALL_FINISHED)) {
             return LNGResult.canceled(MAX_SAT_CALL_FINISHED);
         }
         lastStats = new Stats();
-        loadStateBeforeSolving(stateBeforeSolving);
+        loadState(stateBeforeSolving);
         return result;
     }
 
-    protected StateBeforeSolving saveStateBeforeSolving() {
+    /**
+     * Saves and returns the solver state.
+     * @return the current solver state
+     */
+    public MaxSATState saveState() {
         final int[] softWeights = new int[softClauses.size()];
         for (int i = 0; i < softClauses.size(); i++) {
             softWeights[i] = softClauses.get(i).weight();
         }
-        return new StateBeforeSolving(nbVars, hardClauses.size(), softClauses.size(), ubCost, currentWeight, softWeights);
+        final int stateId = nextStateId++;
+        validStates.push(stateId);
+        return new MaxSATState(stateId, nbVars, hardClauses.size(), softClauses.size(), ubCost, currentWeight, softWeights);
     }
 
-    protected void loadStateBeforeSolving(final StateBeforeSolving stateBeforeSolving) {
-        hardClauses.shrinkTo(stateBeforeSolving.nbHard);
-        softClauses.shrinkTo(stateBeforeSolving.nbSoft);
+    /**
+     * Loads a given state in the solver.
+     * <p>
+     * ATTENTION: You can only load a state which was created by this instance
+     * of the solver before the current state. Only the sizes of the internal
+     * data structures are stored, meaning you can go back in time and
+     * restore a solver state with fewer variables and/or fewer clauses. It is
+     * not possible to import a solver state from another solver or another
+     * solving execution.
+     * @param state the solver state to load
+     * @throws IllegalArgumentException if the solver state is not valid anymore
+     */
+    public void loadState(final MaxSATState state) {
+        int index = -1;
+        for (int i = validStates.size() - 1; i >= 0 && index == -1; i--) {
+            if (validStates.get(i) == state.stateId) {
+                index = i;
+            }
+        }
+        if (index == -1) {
+            throw new IllegalArgumentException("The given solver state is not valid anymore.");
+        }
+        validStates.shrinkTo(index + 1);
+
+        hardClauses.shrinkTo(state.nbHard);
+        softClauses.shrinkTo(state.nbSoft);
         orderWeights.clear();
-        for (int i = stateBeforeSolving.nbVars; i < nbVars; i++) {
+        for (int i = state.nbVars; i < nbVars; i++) {
             final Variable var = index2var.remove(i);
             if (var != null) {
                 var2index.remove(var);
             }
         }
-        nbVars = stateBeforeSolving.nbVars;
+        nbVars = state.nbVars;
         nbCores = 0;
         nbSymmetryClauses = 0;
         sumSizeCores = 0;
         nbSatisfiable = 0;
-        ubCost = stateBeforeSolving.ubCost;
+        ubCost = state.ubCost;
         lbCost = 0;
-        currentWeight = stateBeforeSolving.currentWeight;
+        currentWeight = state.currentWeight;
         for (int i = 0; i < softClauses.size(); i++) {
             final LNGSoftClause clause = softClauses.get(i);
             clause.relaxationVars().clear();
-            clause.setWeight(stateBeforeSolving.softWeights[i]);
+            clause.setWeight(state.softWeights[i]);
             clause.setAssumptionVar(LIT_UNDEF);
         }
     }
@@ -366,8 +401,6 @@ public abstract class MaxSAT {
      * @param currentModel the model found by the solver
      */
     public void saveModel(final LNGBooleanVector currentModel) {
-        assert nbInitialVariables != 0;
-        assert currentModel.size() != 0;
         model.clear();
         for (int i = 0; i < nbInitialVariables; i++) {
             model.push(currentModel.get(i));
@@ -384,7 +417,6 @@ public abstract class MaxSAT {
      * @return the cost of the given model
      */
     public int computeCostModel(final LNGBooleanVector currentModel, final int weight) {
-        assert currentModel.size() != 0;
         int currentCost = 0;
         for (int i = 0; i < softClauses.size(); i++) {
             boolean unsatisfied = true;
@@ -480,24 +512,6 @@ public abstract class MaxSAT {
     LNGEvent foundUpperBound(final int upperBound, final ComputationHandler handler) {
         final MaxSatNewUpperBoundEvent event = new MaxSatNewUpperBoundEvent(upperBound);
         return handler.shouldResume(event) ? null : event;
-    }
-
-    protected static class StateBeforeSolving {
-        protected final int nbVars;
-        protected final int nbHard;
-        protected final int nbSoft;
-        protected final int ubCost;
-        protected final int currentWeight;
-        protected final int[] softWeights;
-
-        protected StateBeforeSolving(final int nbVars, final int nbHard, final int nbSoft, final int ubCost, final int currentWeight, final int[] softWeights) {
-            this.nbVars = nbVars;
-            this.nbSoft = nbSoft;
-            this.nbHard = nbHard;
-            this.ubCost = ubCost;
-            this.currentWeight = currentWeight;
-            this.softWeights = softWeights;
-        }
     }
 
     /**

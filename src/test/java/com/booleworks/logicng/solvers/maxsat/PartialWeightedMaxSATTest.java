@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.function.Supplier;
 
 public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
 
@@ -257,8 +258,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
         configs[2] = MaxSATConfig.builder().weight(MaxSATConfig.WeightStrategy.DIVERSIFY)
                 .verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSATConfig config : configs) {
-            final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
-            testTimeoutHandler(solver);
+            testTimeoutHandler(() -> MaxSATSolver.wbo(f, config));
         }
     }
 
@@ -273,8 +273,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
         configs[2] = MaxSATConfig.builder().weight(MaxSATConfig.WeightStrategy.DIVERSIFY)
                 .verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSATConfig config : configs) {
-            final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
-            testTimeoutHandler(solver);
+            testTimeoutHandler(() -> MaxSATSolver.wbo(f, config));
         }
     }
 
@@ -286,8 +285,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
         configs[1] = MaxSATConfig.builder().cardinality(MaxSATConfig.CardinalityEncoding.MTOTALIZER).bmo(false)
                 .verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSATConfig config : configs) {
-            final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
-            testTimeoutHandler(solver);
+            testTimeoutHandler(() -> MaxSATSolver.wbo(f, config));
         }
     }
 
@@ -305,8 +303,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
                 .cardinality(MaxSATConfig.CardinalityEncoding.TOTALIZER).bmo(false)
                 .verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSATConfig config : configs) {
-            final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
-            testTimeoutHandler(solver);
+            testTimeoutHandler(() -> MaxSATSolver.wbo(f, config));
         }
     }
 
@@ -318,8 +315,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
                 .cardinality(MaxSATConfig.CardinalityEncoding.TOTALIZER).bmo(true)
                 .verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSATConfig config : configs) {
-            final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
-            testTimeoutHandler(solver);
+            testTimeoutHandler(() -> MaxSATSolver.wbo(f, config));
         }
     }
 
@@ -331,8 +327,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
         configs[1] = MaxSATConfig.builder().cardinality(MaxSATConfig.CardinalityEncoding.MTOTALIZER).bmo(true)
                 .verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSATConfig config : configs) {
-            final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
-            testTimeoutHandler(solver);
+            testTimeoutHandler(() -> MaxSATSolver.wbo(f, config));
         }
     }
 
@@ -396,17 +391,18 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
         }
     }
 
-    private void testTimeoutHandler(final MaxSATSolver solver) {
+    private void testTimeoutHandler(final Supplier<MaxSATSolver> solverGenerator) {
         final TimeoutHandler handler = new TimeoutHandler(1000L);
         final PigeonHoleGenerator pg = new PigeonHoleGenerator(f);
         final Formula formula = pg.generate(10);
+        MaxSATSolver solver = solverGenerator.get();
         solver.addHardFormula(formula);
         solver.addSoftFormula(f.or(formula.variables(f)), 10);
         LNGResult<MaxSATResult> result = solver.solve(handler);
         assertThat(result.isSuccess()).isFalse();
 
         final TimeoutHandler handler2 = new TimeoutHandler(1000L);
-        solver.reset();
+        solver = solverGenerator.get();
         solver.addHardFormula(IMP1);
         solver.addSoftFormula(AND1, 10);
         result = solver.solve(handler2);

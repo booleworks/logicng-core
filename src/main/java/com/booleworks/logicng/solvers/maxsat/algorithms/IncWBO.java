@@ -40,7 +40,7 @@ import java.util.TreeMap;
 
 /**
  * Incremental WBO solver.
- * @version 2.1.0
+ * @version 3.0.0
  * @since 1.0
  */
 public class IncWBO extends WBO {
@@ -387,7 +387,6 @@ public class IncWBO extends WBO {
     }
 
     protected int incComputeCostModel(final LNGBooleanVector currentModel) {
-        assert currentModel.size() != 0;
         int currentCost = 0;
         for (int i = 0; i < softClauses.size(); i++) {
             boolean unsatisfied = true;

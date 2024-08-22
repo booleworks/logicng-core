@@ -79,7 +79,6 @@ public class ModularTotalizer extends Encoding {
      * @param rhs  the right-hand side of the constraint
      */
     public void encode(final LNGCoreSolver s, final LNGIntVector lits, final int rhs) {
-        assert lits.size() > 0;
         hasEncoding = false;
         cardinalityUpoutlits.clear();
         cardinalityLwoutlits.clear();

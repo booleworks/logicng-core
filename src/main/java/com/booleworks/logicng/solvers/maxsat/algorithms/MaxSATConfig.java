@@ -12,7 +12,7 @@ import java.io.PrintStream;
 
 /**
  * The configuration object for a MaxSAT solver.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.0
  */
 public final class MaxSATConfig extends Configuration {
