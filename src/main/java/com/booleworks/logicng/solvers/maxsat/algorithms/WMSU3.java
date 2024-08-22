@@ -129,8 +129,8 @@ public class WMSU3 extends MaxSAT {
         initRelaxation();
         final LNGCoreSolver solver = rebuildSolver();
         encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
-        final LNGBooleanVector activeSoft = new LNGBooleanVector(nSoft(), false);
-        for (int i = 0; i < nSoft(); i++) {
+        final LNGBooleanVector activeSoft = new LNGBooleanVector(softClauses.size(), false);
+        for (int i = 0; i < softClauses.size(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
         final LNGIntVector assumptions = new LNGIntVector();
@@ -161,7 +161,7 @@ public class WMSU3 extends MaxSAT {
                         return LNGResult.canceled(upperBoundEvent);
                     }
                 }
-                for (int i = 0; i < nSoft(); i++) {
+                for (int i = 0; i < softClauses.size(); i++) {
                     if (softClauses.get(i).weight() >= currentWeight && !activeSoft.get(i)) {
                         assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
@@ -197,7 +197,7 @@ public class WMSU3 extends MaxSAT {
                         coeffs.push(softClauses.get(indexSoft).weight());
                     }
                 }
-                for (int i = 0; i < nSoft(); i++) {
+                for (int i = 0; i < softClauses.size(); i++) {
                     if (!activeSoft.get(i) && softClauses.get(i).weight() >= currentWeight) {
                         assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
@@ -207,7 +207,7 @@ public class WMSU3 extends MaxSAT {
                     fullObjFunction.push(objFunction.get(i));
                 }
                 if (verbosity != MaxSATConfig.Verbosity.NONE) {
-                    output.printf("c Relaxed soft clauses %d / %d%n", fullCoeffsFunction.size(), nSoft());
+                    output.printf("c Relaxed soft clauses %d / %d%n", fullCoeffsFunction.size(), softClauses.size());
                 }
                 lbCost++;
                 while (!subsetSum(fullCoeffsFunction, lbCost)) {
@@ -217,7 +217,7 @@ public class WMSU3 extends MaxSAT {
                     output.println("c LB : " + lbCost);
                 }
                 if (!encoder.hasPBEncoding()) {
-                    encoder.incEncodePB(solver, objFunction, coeffs, lbCost, assumptions, nSoft());
+                    encoder.incEncodePB(solver, objFunction, coeffs, lbCost, assumptions, softClauses.size());
                 } else {
                     encoder.incUpdatePB(solver, objFunction, coeffs, lbCost);
                     encoder.incUpdatePBAssumptions(assumptions);
@@ -232,8 +232,8 @@ public class WMSU3 extends MaxSAT {
         initRelaxation();
         LNGCoreSolver solver = rebuildSolver();
         encoder.setIncremental(MaxSATConfig.IncrementalStrategy.NONE);
-        final LNGBooleanVector activeSoft = new LNGBooleanVector(nSoft(), false);
-        for (int i = 0; i < nSoft(); i++) {
+        final LNGBooleanVector activeSoft = new LNGBooleanVector(softClauses.size(), false);
+        for (int i = 0; i < softClauses.size(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
         final LNGIntVector assumptions = new LNGIntVector();
@@ -261,7 +261,7 @@ public class WMSU3 extends MaxSAT {
                         return LNGResult.canceled(upperBoundEvent);
                     }
                 }
-                for (int i = 0; i < nSoft(); i++) {
+                for (int i = 0; i < softClauses.size(); i++) {
                     if (softClauses.get(i).weight() >= currentWeight && !activeSoft.get(i)) {
                         assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
@@ -291,7 +291,7 @@ public class WMSU3 extends MaxSAT {
                 final LNGIntVector objFunction = new LNGIntVector();
                 coeffs.clear();
                 assumptions.clear();
-                for (int i = 0; i < nSoft(); i++) {
+                for (int i = 0; i < softClauses.size(); i++) {
                     if (activeSoft.get(i)) {
                         objFunction.push(softClauses.get(i).relaxationVars().get(0));
                         coeffs.push(softClauses.get(i).weight());
@@ -300,7 +300,7 @@ public class WMSU3 extends MaxSAT {
                     }
                 }
                 if (verbosity != MaxSATConfig.Verbosity.NONE) {
-                    output.printf("c Relaxed soft clauses %d / %d%n", objFunction.size(), nSoft());
+                    output.printf("c Relaxed soft clauses %d / %d%n", objFunction.size(), softClauses.size());
                 }
                 solver = rebuildSolver();
                 lbCost++;
@@ -324,8 +324,8 @@ public class WMSU3 extends MaxSAT {
         final LNGIntVector joinObjFunction = new LNGIntVector();
         final LNGIntVector encodingAssumptions = new LNGIntVector();
         final LNGIntVector joinCoeffs = new LNGIntVector();
-        final LNGBooleanVector activeSoft = new LNGBooleanVector(nSoft(), false);
-        for (int i = 0; i < nSoft(); i++) {
+        final LNGBooleanVector activeSoft = new LNGBooleanVector(softClauses.size(), false);
+        for (int i = 0; i < softClauses.size(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
         int minWeight = 0;
@@ -371,7 +371,7 @@ public class WMSU3 extends MaxSAT {
                     assert orderWeights.get(0) > 1;
                     minWeight = orderWeights.get(orderWeights.size() - 1);
                     currentWeight = orderWeights.get(0);
-                    for (int i = 0; i < nSoft(); i++) {
+                    for (int i = 0; i < softClauses.size(); i++) {
                         if (softClauses.get(i).weight() >= currentWeight) {
                             assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                         }
@@ -403,7 +403,7 @@ public class WMSU3 extends MaxSAT {
                             solver.addClause(encodingAssumptions.get(i), null);
                         }
                         encodingAssumptions.clear();
-                        for (int i = 0; i < nSoft(); i++) {
+                        for (int i = 0; i < softClauses.size(); i++) {
                             if (!activeSoft.get(i) && previousWeight == softClauses.get(i).weight()) {
                                 solver.addClause(LNGCoreSolver.not(softClauses.get(i).assumptionVar()), null);
                             }
@@ -457,7 +457,7 @@ public class WMSU3 extends MaxSAT {
                 objFunction.clear();
                 coeffs.clear();
                 assumptions.clear();
-                for (int i = 0; i < nSoft(); i++) {
+                for (int i = 0; i < softClauses.size(); i++) {
                     if (activeSoft.get(i)) {
                         assert softClauses.get(i).weight() == currentWeight;
                         objFunction.push(softClauses.get(i).relaxationVars().get(0));
@@ -467,7 +467,7 @@ public class WMSU3 extends MaxSAT {
                     }
                 }
                 if (verbosity != MaxSATConfig.Verbosity.NONE) {
-                    output.printf("c Relaxed soft clauses %d / %d%n", objFunction.size(), nSoft());
+                    output.printf("c Relaxed soft clauses %d / %d%n", objFunction.size(), softClauses.size());
                 }
                 assert posWeight < functions.size();
                 functions.set(posWeight, new LNGIntVector(objFunction));
@@ -496,11 +496,11 @@ public class WMSU3 extends MaxSAT {
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }
-        for (int i = 0; i < nHard(); i++) {
+        for (int i = 0; i < hardClauses.size(); i++) {
             s.addClause(hardClauses.get(i).clause(), null);
         }
         LNGIntVector clause;
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             clause = new LNGIntVector(softClauses.get(i).clause());
             for (int j = 0; j < softClauses.get(i).relaxationVars().size(); j++) {
                 clause.push(softClauses.get(i).relaxationVars().get(j));
@@ -511,7 +511,7 @@ public class WMSU3 extends MaxSAT {
     }
 
     protected void initRelaxation() {
-        for (int i = 0; i < nbSoft; i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             final int l = newLiteral(false);
             softClauses.get(i).relaxationVars().push(l);
             softClauses.get(i).setAssumptionVar(l);

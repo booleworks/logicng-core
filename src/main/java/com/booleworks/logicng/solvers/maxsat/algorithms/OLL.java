@@ -67,12 +67,12 @@ public class OLL extends MaxSAT {
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }
-        for (int i = 0; i < nHard(); i++) {
+        for (int i = 0; i < hardClauses.size(); i++) {
             s.addClause(hardClauses.get(i).clause(), null);
         }
 
         LNGIntVector clause;
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             clause = new LNGIntVector(softClauses.get(i).clause());
             for (int j = 0; j < softClauses.get(i).relaxationVars().size(); j++) {
                 clause.push(softClauses.get(i).relaxationVars().get(j));
@@ -95,8 +95,8 @@ public class OLL extends MaxSAT {
         final LNGIntVector encodingAssumptions = new LNGIntVector();
         encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
 
-        final LNGBooleanVector activeSoft = new LNGBooleanVector(nSoft(), false);
-        for (int i = 0; i < nSoft(); i++) {
+        final LNGBooleanVector activeSoft = new LNGBooleanVector(softClauses.size(), false);
+        for (int i = 0; i < softClauses.size(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
 
@@ -118,7 +118,7 @@ public class OLL extends MaxSAT {
                     if (newCost == 0) {
                         return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                     }
-                    for (int i = 0; i < nSoft(); i++) {
+                    for (int i = 0; i < softClauses.size(); i++) {
                         assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
                 } else {
@@ -200,7 +200,7 @@ public class OLL extends MaxSAT {
 
                 // reset the assumptions
                 assumptions.clear();
-                for (int i = 0; i < nSoft(); i++) {
+                for (int i = 0; i < softClauses.size(); i++) {
                     if (!activeSoft.get(i)) {
                         assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
@@ -224,8 +224,8 @@ public class OLL extends MaxSAT {
         final LNGIntVector encodingAssumptions = new LNGIntVector();
         encoder.setIncremental(MaxSATConfig.IncrementalStrategy.ITERATIVE);
 
-        final LNGBooleanVector activeSoft = new LNGBooleanVector(nSoft(), false);
-        for (int i = 0; i < nSoft(); i++) {
+        final LNGBooleanVector activeSoft = new LNGBooleanVector(softClauses.size(), false);
+        for (int i = 0; i < softClauses.size(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
 
@@ -247,7 +247,7 @@ public class OLL extends MaxSAT {
                 }
                 if (nbSatisfiable == 1) {
                     minWeight = findNextWeightDiversity(minWeight, cardinalityAssumptions, boundMapping);
-                    for (int i = 0; i < nSoft(); i++) {
+                    for (int i = 0; i < softClauses.size(); i++) {
                         if (softClauses.get(i).weight() >= minWeight) {
                             assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                         }
@@ -255,7 +255,7 @@ public class OLL extends MaxSAT {
                 } else {
                     // compute min weight in soft
                     int notConsidered = 0;
-                    for (int i = 0; i < nSoft(); i++) {
+                    for (int i = 0; i < softClauses.size(); i++) {
                         if (softClauses.get(i).weight() < minWeight) {
                             notConsidered++;
                         }
@@ -270,7 +270,7 @@ public class OLL extends MaxSAT {
                     if (notConsidered != 0) {
                         minWeight = findNextWeightDiversity(minWeight, cardinalityAssumptions, boundMapping);
                         assumptions.clear();
-                        for (int i = 0; i < nSoft(); i++) {
+                        for (int i = 0; i < softClauses.size(); i++) {
                             if (!activeSoft.get(i) && softClauses.get(i).weight() >= minWeight) {
                                 assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                             }
@@ -350,18 +350,18 @@ public class OLL extends MaxSAT {
                             clause.push(l);
                             solver.addClause(clause, null);
                             assert clause.size() - 1 == softClauses.get(indexSoft).clause().size();
-                            assert softClauses.get(nSoft() - 1).relaxationVars().size() == 1;
+                            assert softClauses.get(softClauses.size() - 1).relaxationVars().size() == 1;
 
                             // Create a new assumption literal.
-                            softClauses.get(nSoft() - 1).setAssumptionVar(l);
-                            assert softClauses.get(nSoft() - 1).assumptionVar() ==
-                                    softClauses.get(nSoft() - 1).relaxationVars().get(0);
+                            softClauses.get(softClauses.size() - 1).setAssumptionVar(l);
+                            assert softClauses.get(softClauses.size() - 1).assumptionVar() ==
+                                    softClauses.get(softClauses.size() - 1).relaxationVars().get(0);
                             // Map the new soft clause to its assumption
                             // literal.
-                            coreMapping.put(l, nSoft() - 1);
+                            coreMapping.put(l, softClauses.size() - 1);
                             softRelax.push(l);
                             assert softClauses.get(coreMapping.get(l)).weight() == minCore;
-                            assert activeSoft.size() == nSoft();
+                            assert activeSoft.size() == softClauses.size();
                         } else {
                             assert softClauses.get(coreMapping.get(solver.assumptionsConflict().get(i))).weight() ==
                                     minCore;
@@ -448,7 +448,7 @@ public class OLL extends MaxSAT {
                     cardinalityAssumptions.add(out);
                 }
                 assumptions.clear();
-                for (int i = 0; i < nSoft(); i++) {
+                for (int i = 0; i < softClauses.size(); i++) {
                     if (!activeSoft.get(i) && softClauses.get(i).weight() >= minWeight) {
                         assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
@@ -465,7 +465,7 @@ public class OLL extends MaxSAT {
     }
 
     private void initRelaxation() {
-        for (int i = 0; i < nbSoft; i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             final int l = newLiteral(false);
             softClauses.get(i).relaxationVars().push(l);
             softClauses.get(i).setAssumptionVar(l);
@@ -485,7 +485,7 @@ public class OLL extends MaxSAT {
             }
             nbClauses = 0;
             nbWeights.clear();
-            for (int i = 0; i < nSoft(); i++) {
+            for (int i = 0; i < softClauses.size(); i++) {
                 if (softClauses.get(i).weight() >= nextWeight) {
                     nbClauses++;
                     nbWeights.add(softClauses.get(i).weight());
@@ -499,7 +499,7 @@ public class OLL extends MaxSAT {
                     nbWeights.add(softId.weight);
                 }
             }
-            if ((float) nbClauses / nbWeights.size() > alpha || nbClauses == nSoft() + cardinalityAssumptions.size()) {
+            if ((float) nbClauses / nbWeights.size() > alpha || nbClauses == softClauses.size() + cardinalityAssumptions.size()) {
                 break;
             }
             if (nbSatisfiable == 1 && !findNext) {
@@ -511,7 +511,7 @@ public class OLL extends MaxSAT {
 
     int findNextWeight(final int weight, final Set<Integer> cardinalityAssumptions, final SortedMap<Integer, IntTriple> boundMapping) {
         int nextWeight = 1;
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             if (softClauses.get(i).weight() > nextWeight && softClauses.get(i).weight() < weight) {
                 nextWeight = softClauses.get(i).weight();
             }

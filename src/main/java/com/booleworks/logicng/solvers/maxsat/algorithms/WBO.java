@@ -123,7 +123,7 @@ public class WBO extends MaxSAT {
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }
-        for (int i = 0; i < nHard(); i++) {
+        for (int i = 0; i < hardClauses.size(); i++) {
             s.addClause(hardClauses.get(i).clause(), null);
         }
         if (symmetryStrategy) {
@@ -131,7 +131,7 @@ public class WBO extends MaxSAT {
         }
         LNGIntVector clause = new LNGIntVector();
         nbCurrentSoft = 0;
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             if (softClauses.get(i).weight() >= currentWeight) {
                 nbCurrentSoft++;
                 clause.clear();
@@ -153,14 +153,14 @@ public class WBO extends MaxSAT {
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }
-        for (int i = 0; i < nHard(); i++) {
+        for (int i = 0; i < hardClauses.size(); i++) {
             s.addClause(hardClauses.get(i).clause(), null);
         }
         if (symmetryStrategy) {
             symmetryBreaking();
         }
         LNGIntVector clause;
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             clause = new LNGIntVector(softClauses.get(i).clause());
             for (int j = 0; j < softClauses.get(i).relaxationVars().size(); j++) {
                 clause.push(softClauses.get(i).relaxationVars().get(j));
@@ -176,24 +176,28 @@ public class WBO extends MaxSAT {
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }
-        for (int i = 0; i < nHard(); i++) {
+        for (int i = 0; i < hardClauses.size(); i++) {
             s.addClause(hardClauses.get(i).clause(), null);
         }
         return s;
     }
 
     void updateCurrentWeight(final WeightStrategy strategy) {
-        assert strategy == WeightStrategy.NORMAL || strategy == WeightStrategy.DIVERSIFY;
-        if (strategy == WeightStrategy.NORMAL) {
-            currentWeight = findNextWeight(currentWeight);
-        } else if (strategy == WeightStrategy.DIVERSIFY) {
-            currentWeight = findNextWeightDiversity(currentWeight);
+        switch (strategy) {
+            case NORMAL:
+                currentWeight = findNextWeight(currentWeight);
+                break;
+            case DIVERSIFY:
+                currentWeight = findNextWeightDiversity(currentWeight);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown strategy: " + strategy);
         }
     }
 
     protected int findNextWeight(final int weight) {
         int nextWeight = 1;
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             if (softClauses.get(i).weight() > nextWeight && softClauses.get(i).weight() < weight) {
                 nextWeight = softClauses.get(i).weight();
             }
@@ -215,13 +219,13 @@ public class WBO extends MaxSAT {
             }
             nbClauses = 0;
             nbWeights.clear();
-            for (int i = 0; i < nSoft(); i++) {
+            for (int i = 0; i < softClauses.size(); i++) {
                 if (softClauses.get(i).weight() >= nextWeight) {
                     nbClauses++;
                     nbWeights.add(softClauses.get(i).weight());
                 }
             }
-            if ((double) nbClauses / nbWeights.size() > alpha || nbClauses == nSoft()) {
+            if ((double) nbClauses / nbWeights.size() > alpha || nbClauses == softClauses.size()) {
                 break;
             }
             if (nbSatisfiable == 1 && !findNext) {
@@ -308,13 +312,13 @@ public class WBO extends MaxSAT {
                 lits.push(p);
                 addSoftClause(weightCore, clause, vars);
                 final int l = newLiteral(false);
-                softClauses.get(nSoft() - 1).setAssumptionVar(l);
+                softClauses.get(softClauses.size() - 1).setAssumptionVar(l);
                 // Map the new soft clause to its assumption literal
-                coreMapping.put(l, nSoft() - 1);
+                coreMapping.put(l, softClauses.size() - 1);
                 // Update the assumption vector
                 assumps.push(LNGCoreSolver.not(l));
                 if (symmetryStrategy) {
-                    symmetryLog(nSoft() - 1);
+                    symmetryLog(softClauses.size() - 1);
                 }
             }
         }
@@ -338,7 +342,7 @@ public class WBO extends MaxSAT {
     }
 
     void initSymmetry() {
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             softMapping.push(new LNGIntVector());
             relaxationMapping.push(new LNGIntVector());
         }
@@ -480,7 +484,7 @@ public class WBO extends MaxSAT {
                 solver = rebuildWeightSolver(weightStrategy);
             } else {
                 nbSatisfiable++;
-                if (nbCurrentSoft == nSoft()) {
+                if (nbCurrentSoft == softClauses.size()) {
                     assert computeCostModel(solver.model(), Integer.MAX_VALUE) == lbCost;
                     if (lbCost == ubCost && verbosity != Verbosity.NONE) {
                         output.println("c LB = UB");
@@ -568,7 +572,7 @@ public class WBO extends MaxSAT {
     }
 
     void initAssumptions() {
-        for (int i = 0; i < nbSoft; i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             final int l = newLiteral(false);
             softClauses.get(i).setAssumptionVar(l);
             coreMapping.put(l, i);

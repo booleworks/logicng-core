@@ -212,11 +212,11 @@ public class LinearUS extends MaxSAT {
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }
-        for (int i = 0; i < nHard(); i++) {
+        for (int i = 0; i < hardClauses.size(); i++) {
             s.addClause(hardClauses.get(i).clause(), null);
         }
         LNGIntVector clause;
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             clause = new LNGIntVector(softClauses.get(i).clause());
             for (int j = 0; j < softClauses.get(i).relaxationVars().size(); j++) {
                 clause.push(softClauses.get(i).relaxationVars().get(j));
@@ -227,7 +227,7 @@ public class LinearUS extends MaxSAT {
     }
 
     protected void initRelaxation(final LNGIntVector objFunction) {
-        for (int i = 0; i < nbSoft; i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             final int l = newLiteral(false);
             softClauses.get(i).relaxationVars().push(l);
             softClauses.get(i).setAssumptionVar(l);

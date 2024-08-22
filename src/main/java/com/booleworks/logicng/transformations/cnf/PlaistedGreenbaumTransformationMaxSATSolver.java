@@ -282,11 +282,7 @@ public final class PlaistedGreenbaumTransformationMaxSATSolver {
     }
 
     private int newSolverVariable() {
-        final int index = solver.nVars();
-        solver.newVar();
-//        final String name = InternalAuxVarType.CNF.prefix() + "MAX_SAT_SOLVER_" + index;
-//        solver.addName(name, index);
-        return index * 2;
+        return solver.newVar() * 2;
     }
 
     private static LNGIntVector vector(final int... elts) {

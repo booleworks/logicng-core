@@ -101,8 +101,8 @@ public class MSU3 extends MaxSAT {
         final LNGIntVector assumptions = new LNGIntVector();
         final LNGIntVector currentObjFunction = new LNGIntVector();
         encoder.setIncremental(IncrementalStrategy.NONE);
-        final LNGBooleanVector activeSoft = new LNGBooleanVector(nSoft(), false);
-        for (int i = 0; i < nSoft(); i++) {
+        final LNGBooleanVector activeSoft = new LNGBooleanVector(softClauses.size(), false);
+        for (int i = 0; i < softClauses.size(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
         while (true) {
@@ -155,7 +155,7 @@ public class MSU3 extends MaxSAT {
                 }
                 currentObjFunction.clear();
                 assumptions.clear();
-                for (int i = 0; i < nSoft(); i++) {
+                for (int i = 0; i < softClauses.size(); i++) {
                     if (activeSoft.get(i)) {
                         currentObjFunction.push(softClauses.get(i).relaxationVars().get(0));
                     } else {
@@ -186,8 +186,8 @@ public class MSU3 extends MaxSAT {
         final LNGIntVector currentObjFunction = new LNGIntVector();
         final LNGIntVector encodingAssumptions = new LNGIntVector();
         encoder.setIncremental(IncrementalStrategy.ITERATIVE);
-        final LNGBooleanVector activeSoft = new LNGBooleanVector(nSoft(), false);
-        for (int i = 0; i < nSoft(); i++) {
+        final LNGBooleanVector activeSoft = new LNGBooleanVector(softClauses.size(), false);
+        for (int i = 0; i < softClauses.size(); i++) {
             coreMapping.put(softClauses.get(i).assumptionVar(), i);
         }
         while (true) {
@@ -249,7 +249,7 @@ public class MSU3 extends MaxSAT {
                 }
                 currentObjFunction.clear();
                 assumptions.clear();
-                for (int i = 0; i < nSoft(); i++) {
+                for (int i = 0; i < softClauses.size(); i++) {
                     if (activeSoft.get(i)) {
                         currentObjFunction.push(softClauses.get(i).relaxationVars().get(0));
                     } else {
@@ -282,11 +282,11 @@ public class MSU3 extends MaxSAT {
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }
-        for (int i = 0; i < nHard(); i++) {
+        for (int i = 0; i < hardClauses.size(); i++) {
             s.addClause(hardClauses.get(i).clause(), null);
         }
         LNGIntVector clause;
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             clause = new LNGIntVector(softClauses.get(i).clause());
             for (int j = 0; j < softClauses.get(i).relaxationVars().size(); j++) {
                 clause.push(softClauses.get(i).relaxationVars().get(j));
@@ -297,7 +297,7 @@ public class MSU3 extends MaxSAT {
     }
 
     protected void initRelaxation(final LNGIntVector objFunction) {
-        for (int i = 0; i < nbSoft; i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             final int l = newLiteral(false);
             softClauses.get(i).relaxationVars().push(l);
             softClauses.get(i).setAssumptionVar(l);

@@ -78,8 +78,6 @@ public abstract class MaxSAT {
     int hardWeight;
     ProblemType problemType;
     int nbVars;
-    int nbSoft;
-    int nbHard;
     int nbInitialVariables;
     int nbCores;
     int nbSymmetryClauses;
@@ -105,8 +103,6 @@ public abstract class MaxSAT {
         hardWeight = Integer.MAX_VALUE;
         problemType = ProblemType.UNWEIGHTED;
         nbVars = 0;
-        nbSoft = 0;
-        nbHard = 0;
         nbInitialVariables = 0;
         currentWeight = 1;
         model = new LNGBooleanVector();
@@ -171,17 +167,16 @@ public abstract class MaxSAT {
     }
 
     protected StateBeforeSolving saveStateBeforeSolving() {
-        assert nbSoft == softClauses.size();
-        final int[] softWeights = new int[nbSoft];
-        for (int i = 0; i < nbSoft; i++) {
+        final int[] softWeights = new int[softClauses.size()];
+        for (int i = 0; i < softClauses.size(); i++) {
             softWeights[i] = softClauses.get(i).weight();
         }
-        return new StateBeforeSolving(nbVars, nbSoft, nbHard, ubCost, currentWeight, softWeights);
+        return new StateBeforeSolving(nbVars, hardClauses.size(), softClauses.size(), ubCost, currentWeight, softWeights);
     }
 
     protected void loadStateBeforeSolving(final StateBeforeSolving stateBeforeSolving) {
-        softClauses.shrinkTo(stateBeforeSolving.nbSoft);
         hardClauses.shrinkTo(stateBeforeSolving.nbHard);
+        softClauses.shrinkTo(stateBeforeSolving.nbSoft);
         orderWeights.clear();
         for (int i = stateBeforeSolving.nbVars; i < nbVars; i++) {
             final Variable var = index2var.remove(i);
@@ -190,8 +185,6 @@ public abstract class MaxSAT {
             }
         }
         nbVars = stateBeforeSolving.nbVars;
-        nbSoft = stateBeforeSolving.nbSoft;
-        nbHard = stateBeforeSolving.nbHard;
         nbCores = 0;
         nbSymmetryClauses = 0;
         sumSizeCores = 0;
@@ -223,26 +216,12 @@ public abstract class MaxSAT {
     }
 
     /**
-     * Returns the number of soft clauses in the working MaxSAT formula.
-     * @return the number of soft clauses in the working MaxSAT formula
+     * Returns a new variable index and increases the internal number of
+     * variables.
+     * @return a new variable index
      */
-    public int nSoft() {
-        return nbSoft;
-    }
-
-    /**
-     * Returns the number of hard clauses in the working MaxSAT formula.
-     * @return the number of hard clauses in the working MaxSAT formula
-     */
-    public int nHard() {
-        return nbHard;
-    }
-
-    /**
-     * Increases the number of variables in the working MaxSAT formula.
-     */
-    public void newVar() {
-        nbVars++;
+    public int newVar() {
+        return nbVars++;
     }
 
     /**
@@ -251,7 +230,6 @@ public abstract class MaxSAT {
      */
     public void addHardClause(final LNGIntVector lits) {
         hardClauses.push(new LNGHardClause(lits));
-        nbHard++;
     }
 
     /**
@@ -272,7 +250,6 @@ public abstract class MaxSAT {
      */
     protected void addSoftClause(final int weight, final LNGIntVector lits, final LNGIntVector vars) {
         softClauses.push(new LNGSoftClause(lits, weight, LIT_UNDEF, vars));
-        nbSoft++;
     }
 
     /**
@@ -328,9 +305,7 @@ public abstract class MaxSAT {
      * @return the new literal
      */
     public int newLiteral(final boolean sign) {
-        final int p = LNGCoreSolver.mkLit(nVars(), sign);
-        newVar();
-        return p;
+        return LNGCoreSolver.mkLit(newVar(), sign);
     }
 
     /**
@@ -411,7 +386,7 @@ public abstract class MaxSAT {
     public int computeCostModel(final LNGBooleanVector currentModel, final int weight) {
         assert currentModel.size() != 0;
         int currentCost = 0;
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             boolean unsatisfied = true;
             for (int j = 0; j < softClauses.get(i).clause().size(); j++) {
                 if (weight != Integer.MAX_VALUE && softClauses.get(i).weight() != weight) {
@@ -445,7 +420,7 @@ public abstract class MaxSAT {
         boolean bmo = true;
         final SortedSet<Integer> partitionWeights = new TreeSet<>();
         final SortedMap<Integer, Integer> nbPartitionWeights = new TreeMap<>();
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             final int weight = softClauses.get(i).weight();
             partitionWeights.add(weight);
             nbPartitionWeights.merge(weight, 1, Integer::sum);
@@ -509,13 +484,13 @@ public abstract class MaxSAT {
 
     protected static class StateBeforeSolving {
         protected final int nbVars;
-        protected final int nbSoft;
         protected final int nbHard;
+        protected final int nbSoft;
         protected final int ubCost;
         protected final int currentWeight;
         protected final int[] softWeights;
 
-        protected StateBeforeSolving(final int nbVars, final int nbSoft, final int nbHard, final int ubCost, final int currentWeight, final int[] softWeights) {
+        protected StateBeforeSolving(final int nbVars, final int nbHard, final int nbSoft, final int ubCost, final int currentWeight, final int[] softWeights) {
             this.nbVars = nbVars;
             this.nbSoft = nbSoft;
             this.nbHard = nbHard;

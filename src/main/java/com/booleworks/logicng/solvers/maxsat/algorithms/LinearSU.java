@@ -250,10 +250,10 @@ public class LinearSU extends MaxSAT {
         for (int i = 0; i < nVars(); i++) {
             newSATVariable(s);
         }
-        for (int i = 0; i < nHard(); i++) {
+        for (int i = 0; i < hardClauses.size(); i++) {
             s.addClause(hardClauses.get(i).clause(), null);
         }
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             if (softClauses.get(i).weight() < minWeight) {
                 continue;
             }
@@ -279,7 +279,7 @@ public class LinearSU extends MaxSAT {
         final LNGCoreSolver s = rebuildSolver(currentWeight);
         objFunction.clear();
         coeffs.clear();
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             if (softClauses.get(i).weight() == currentWeight) {
                 objFunction.push(softClauses.get(i).relaxationVars().get(0));
                 coeffs.push(softClauses.get(i).weight());

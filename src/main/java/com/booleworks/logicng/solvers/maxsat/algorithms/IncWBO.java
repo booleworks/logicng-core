@@ -118,7 +118,7 @@ public class IncWBO extends WBO {
             for (int i = 0; i < nVars(); i++) {
                 newSATVariable(solver);
             }
-            for (int i = 0; i < nHard(); i++) {
+            for (int i = 0; i < hardClauses.size(); i++) {
                 solver.addClause(hardClauses.get(i).clause(), null);
             }
             if (symmetryStrategy) {
@@ -128,7 +128,7 @@ public class IncWBO extends WBO {
         }
         LNGIntVector clause;
         nbCurrentSoft = 0;
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             if (softClauses.get(i).weight() >= currentWeight && softClauses.get(i).weight() != 0) {
                 nbCurrentSoft++;
                 clause = new LNGIntVector(softClauses.get(i).clause());
@@ -157,8 +157,8 @@ public class IncWBO extends WBO {
                 addSoftClause(weightCore, clause, vars);
                 final int l = newLiteral(false);
                 newSATVariable(solver);
-                softClauses.get(nSoft() - 1).setAssumptionVar(l);
-                coreMapping.put(l, nSoft() - 1);
+                softClauses.get(softClauses.size() - 1).setAssumptionVar(l);
+                coreMapping.put(l, softClauses.size() - 1);
                 incSoft.set(indexSoft, true);
                 incSoft.push(false);
                 for (int j = 0; j < vars.size(); j++) {
@@ -174,7 +174,7 @@ public class IncWBO extends WBO {
                     softMapping.get(indexSoft).clear();
                     relaxationMapping.push(new LNGIntVector(relaxationMapping.get(indexSoft)));
                     relaxationMapping.get(indexSoft).clear();
-                    symmetryLog(nSoft() - 1);
+                    symmetryLog(softClauses.size() - 1);
                 }
             } else {
                 assert softClauses.get(indexSoft).weight() - weightCore > 0;
@@ -191,8 +191,8 @@ public class IncWBO extends WBO {
                 incSoft.set(indexSoft, true);
                 int l = newLiteral(false);
                 newSATVariable(solver);
-                softClauses.get(nSoft() - 1).setAssumptionVar(l);
-                coreMapping.put(l, nSoft() - 1);
+                softClauses.get(softClauses.size() - 1).setAssumptionVar(l);
+                coreMapping.put(l, softClauses.size() - 1);
                 incSoft.push(false);
                 for (int j = 0; j < vars.size(); j++) {
                     clause.push(vars.get(j));
@@ -210,8 +210,8 @@ public class IncWBO extends WBO {
                 addSoftClause(weightCore, clause, vars);
                 l = newLiteral(false);
                 newSATVariable(solver);
-                softClauses.get(nSoft() - 1).setAssumptionVar(l);
-                coreMapping.put(l, nSoft() - 1);
+                softClauses.get(softClauses.size() - 1).setAssumptionVar(l);
+                coreMapping.put(l, softClauses.size() - 1);
                 incSoft.push(false);
                 for (int j = 0; j < vars.size(); j++) {
                     clause.push(vars.get(j));
@@ -224,7 +224,7 @@ public class IncWBO extends WBO {
                 if (symmetryStrategy) {
                     softMapping.push(new LNGIntVector());
                     relaxationMapping.push(new LNGIntVector());
-                    symmetryLog(nSoft() - 1);
+                    symmetryLog(softClauses.size() - 1);
                 }
             }
         }
@@ -319,7 +319,7 @@ public class IncWBO extends WBO {
         initAssumptions();
         updateCurrentWeight(weightStrategy);
         incrementalBuildWeightSolver(weightStrategy);
-        incSoft.growTo(nSoft(), false);
+        incSoft.growTo(softClauses.size(), false);
         while (true) {
             assumptions.clear();
             for (int i = 0; i < incSoft.size(); i++) {
@@ -346,7 +346,7 @@ public class IncWBO extends WBO {
                 incrementalBuildWeightSolver(weightStrategy);
             } else {
                 nbSatisfiable++;
-                if (nbCurrentSoft == nSoft()) {
+                if (nbCurrentSoft == softClauses.size()) {
                     assert incComputeCostModel(solver.model()) == lbCost;
                     if (lbCost == ubCost && verbosity != MaxSATConfig.Verbosity.NONE) {
                         output.println("c LB = UB");
@@ -389,7 +389,7 @@ public class IncWBO extends WBO {
     protected int incComputeCostModel(final LNGBooleanVector currentModel) {
         assert currentModel.size() != 0;
         int currentCost = 0;
-        for (int i = 0; i < nSoft(); i++) {
+        for (int i = 0; i < softClauses.size(); i++) {
             boolean unsatisfied = true;
             for (int j = 0; j < softClauses.get(i).clause().size(); j++) {
                 if (incSoft.get(i)) {
@@ -422,7 +422,7 @@ public class IncWBO extends WBO {
         }
         initAssumptions();
         solver = rebuildSolver();
-        incSoft.growTo(nSoft(), false);
+        incSoft.growTo(softClauses.size(), false);
         while (true) {
             assumptions.clear();
             for (int i = 0; i < incSoft.size(); i++) {
