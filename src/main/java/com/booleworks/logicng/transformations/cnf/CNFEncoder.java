@@ -133,7 +133,7 @@ public class CNFEncoder {
      */
     protected static class AdvancedFactorizationHandler implements ComputationHandler {
 
-        protected boolean aborted = false;
+        protected boolean canceled = false;
         protected int distributionBoundary;
         protected int createdClauseBoundary;
         protected int currentDistributions;
@@ -150,11 +150,11 @@ public class CNFEncoder {
                 currentDistributions = 0;
                 currentClauses = 0;
             } else if (event == DISTRIBUTION_PERFORMED) {
-                aborted = distributionBoundary != -1 && ++currentDistributions > distributionBoundary;
+                canceled = distributionBoundary != -1 && ++currentDistributions > distributionBoundary;
             } else if (event instanceof FactorizationCreatedClauseEvent) {
-                aborted = createdClauseBoundary != -1 && ++currentClauses > createdClauseBoundary;
+                canceled = createdClauseBoundary != -1 && ++currentClauses > createdClauseBoundary;
             }
-            return !aborted;
+            return !canceled;
         }
     }
 }

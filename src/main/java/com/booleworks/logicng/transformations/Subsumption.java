@@ -61,7 +61,7 @@ public abstract class Subsumption extends StatelessFormulaTransformation {
             mapping.computeIfAbsent(term.literals(f).size(), k -> new ArrayList<>()).add(term.literals(f));
         }
         if (!handler.shouldResume(SUBSUMPTION_STARTING_UB_TREE_GENERATION)) {
-            return LNGResult.aborted(SUBSUMPTION_STARTING_UB_TREE_GENERATION);
+            return LNGResult.canceled(SUBSUMPTION_STARTING_UB_TREE_GENERATION);
         }
         final UBTree<Literal> ubTree = new UBTree<>();
         for (final Map.Entry<Integer, List<SortedSet<Literal>>> entry : mapping.entrySet()) {
@@ -69,7 +69,7 @@ public abstract class Subsumption extends StatelessFormulaTransformation {
                 if (ubTree.firstSubset(set) == null) {
                     ubTree.addSet(set);
                     if (!handler.shouldResume(SUBSUMPTION_ADDED_NEW_SET)) {
-                        return LNGResult.aborted(SUBSUMPTION_ADDED_NEW_SET);
+                        return LNGResult.canceled(SUBSUMPTION_ADDED_NEW_SET);
                     }
                 }
             }

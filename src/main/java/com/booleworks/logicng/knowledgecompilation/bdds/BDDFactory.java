@@ -90,7 +90,7 @@ public final class BDDFactory {
      * @param formula the formula
      * @param kernel  the BBD kernel to use
      * @return the top node of the BDD or {@link BDDKernel#BDD_ABORT} if the
-     *         computation was aborted
+     *         computation was canceled
      */
     public static BDD build(final FormulaFactory f, final Formula formula, final BDDKernel kernel) {
         return build(f, formula, kernel, NopHandler.get()).getResult();
@@ -105,7 +105,7 @@ public final class BDDFactory {
      * pseudo-Boolean constraints in their respective CNF representation before
      * converting them to a BDD.
      * <p>
-     * If a BDD handler is given and the BDD generation is aborted due to the
+     * If a BDD handler is given and the BDD generation is canceled due to the
      * handler, the method will return {@link BDDKernel#BDD_ABORT} as result. If
      * {@code null} is passed as handler, the generation will continue without
      * interruption.
@@ -114,7 +114,7 @@ public final class BDDFactory {
      * @param kernel  the BBD kernel to use
      * @param handler the handler
      * @return the top node of the BDD or {@link BDDKernel#BDD_ABORT} if the
-     *         computation was aborted
+     *         computation was canceled
      */
     public static LNGResult<BDD> build(final FormulaFactory f, final Formula formula, final BDDKernel kernel,
                                        final ComputationHandler handler) {
@@ -123,7 +123,7 @@ public final class BDDFactory {
         final BDDKernel bddKernel = kernel == null ? new BDDKernel(f, varNum, varNum * 30, varNum * 20) : kernel;
         final int bddIndex = buildRec(f, formula, bddKernel, new BDDConstruction(bddKernel), handler);
         return bddIndex == BDDKernel.BDD_ABORT
-                ? LNGResult.aborted(SimpleEvent.BDD_NEW_REF_ADDED)
+                ? LNGResult.canceled(SimpleEvent.BDD_NEW_REF_ADDED)
                 : LNGResult.of(new BDD(bddIndex, bddKernel));
     }
 
@@ -157,7 +157,7 @@ public final class BDDFactory {
     /**
      * Recursive build procedure for the BDD.
      * <p>
-     * If a BDD handler is given and the BDD generation is aborted due to the
+     * If a BDD handler is given and the BDD generation is canceled due to the
      * handler, the method will return {@link BDDKernel#BDD_ABORT} as result. If
      * {@code null} is passed as handler, the generation will continue without
      * interruption.
@@ -166,7 +166,7 @@ public final class BDDFactory {
      * @param construction the BDD construction instance
      * @param handler      the handler
      * @return the BDD index or {@link BDDKernel#BDD_ABORT} if the computation
-     *         was aborted
+     *         was canceled
      */
     private static int buildRec(final FormulaFactory f, final Formula formula, final BDDKernel kernel,
                                 final BDDConstruction construction, final ComputationHandler handler) {

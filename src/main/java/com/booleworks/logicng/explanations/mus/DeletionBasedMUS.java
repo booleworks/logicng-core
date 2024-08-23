@@ -29,7 +29,7 @@ public final class DeletionBasedMUS extends MUSAlgorithm {
             final FormulaFactory f, final List<T> propositions,
             final MUSConfig config, final ComputationHandler handler) {
         if (!handler.shouldResume(MUS_COMPUTATION_STARTED)) {
-            return LNGResult.aborted(MUS_COMPUTATION_STARTED);
+            return LNGResult.canceled(MUS_COMPUTATION_STARTED);
         }
         final List<T> mus = new ArrayList<>(propositions.size());
         final List<SolverState> solverStates = new ArrayList<>(propositions.size());
@@ -40,7 +40,7 @@ public final class DeletionBasedMUS extends MUSAlgorithm {
         }
         LNGResult<Boolean> sat = solver.satCall().handler(handler).sat();
         if (!sat.isSuccess()) {
-            return LNGResult.aborted(sat.getAbortionEvent());
+            return LNGResult.canceled(sat.getCancelCause());
         }
         if (sat.getResult()) {
             throw new IllegalArgumentException("Cannot compute a MUS for a satisfiable formula set.");
@@ -52,7 +52,7 @@ public final class DeletionBasedMUS extends MUSAlgorithm {
             }
             sat = solver.satCall().handler(handler).sat();
             if (!sat.isSuccess()) {
-                return LNGResult.aborted(sat.getAbortionEvent());
+                return LNGResult.canceled(sat.getCancelCause());
             }
             if (sat.getResult()) {
                 mus.add(propositions.get(i));

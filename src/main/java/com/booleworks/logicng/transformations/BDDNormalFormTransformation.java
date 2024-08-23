@@ -66,7 +66,7 @@ public abstract class BDDNormalFormTransformation extends CacheableAndStatefulFo
      * Computes the CNF or DNF from the given formula by using a BDD.
      * @param formula the formula to transform
      * @param handler the computation handler
-     * @return a (potentially aborted) LNGResult with the normal form (CNF or
+     * @return a (potentially canceled) LNGResult with the normal form (CNF or
      *         DNF) of the formula
      */
     protected LNGResult<Formula> compute(final Formula formula, final ComputationHandler handler) {
@@ -79,7 +79,7 @@ public abstract class BDDNormalFormTransformation extends CacheableAndStatefulFo
         }
         final LNGResult<BDD> bdd = BDDFactory.build(f, formula, state, handler);
         if (!bdd.isSuccess()) {
-            return LNGResult.aborted(bdd.getAbortionEvent());
+            return LNGResult.canceled(bdd.getCancelCause());
         }
         final Formula normalForm = cnf ? bdd.getResult().cnf() : bdd.getResult().dnf();
         final LNGResult<Formula> simplifiedNormalForm;

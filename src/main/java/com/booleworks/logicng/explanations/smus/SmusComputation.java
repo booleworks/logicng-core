@@ -58,7 +58,7 @@ public final class SmusComputation {
      * @param propositions          the propositions
      * @param additionalConstraints the additional constraints
      * @return the SMUS or {@code null} if the given propositions are
-     *         satisfiable or the handler aborted the computation
+     *         satisfiable or the handler canceled the computation
      */
     public static <P extends Proposition> UnsatResult<List<P>> computeSmus(
             final FormulaFactory f, final List<P> propositions,
@@ -80,13 +80,13 @@ public final class SmusComputation {
      * @param additionalConstraints the additional constraints
      * @param handler               the handler, can be {@code null}
      * @return the SMUS or {@code null} if the given propositions are
-     *         satisfiable or the handler aborted the computation
+     *         satisfiable or the handler canceled the computation
      */
     public static <P extends Proposition> LNGResult<UnsatResult<List<P>>> computeSmus(
             final FormulaFactory f, final List<P> propositions,
             final List<Formula> additionalConstraints, final ComputationHandler handler) {
         if (!handler.shouldResume(SMUS_COMPUTATION_STARTED)) {
-            return LNGResult.aborted(SMUS_COMPUTATION_STARTED);
+            return LNGResult.canceled(SMUS_COMPUTATION_STARTED);
         }
         final SATSolver growSolver = SATSolver.newSolver(f);
         growSolver.add(additionalConstraints == null ? Collections.singletonList(f.verum()) : additionalConstraints);
@@ -99,7 +99,7 @@ public final class SmusComputation {
         final LNGResult<Boolean> sat =
                 growSolver.satCall().handler(handler).addFormulas(propositionMapping.keySet()).sat();
         if (!sat.isSuccess()) {
-            return LNGResult.aborted(sat.getAbortionEvent());
+            return LNGResult.canceled(sat.getCancelCause());
         } else if (sat.getResult()) {
             return LNGResult.of(UnsatResult.sat());
         }
@@ -108,7 +108,7 @@ public final class SmusComputation {
             final LNGResult<SatResult<SortedSet<Variable>>> h =
                     minimumHs(hSolver, propositionMapping.keySet(), handler);
             if (!h.isSuccess()) {
-                return LNGResult.aborted(h.getAbortionEvent());
+                return LNGResult.canceled(h.getCancelCause());
             } else if (!h.getResult().isSat()) {
                 return LNGResult.of(UnsatResult.sat());
             } else {
@@ -116,7 +116,7 @@ public final class SmusComputation {
                 final LNGResult<SatResult<SortedSet<Variable>>> c =
                         grow(growSolver, hResult, propositionMapping.keySet(), handler);
                 if (!c.isSuccess()) {
-                    return LNGResult.aborted(c.getAbortionEvent());
+                    return LNGResult.canceled(c.getCancelCause());
                 } else if (!c.getResult().isSat()) {
                     return LNGResult.of(UnsatResult.unsat(
                             hResult.stream().map(propositionMapping::get).collect(Collectors.toList())));
@@ -134,7 +134,7 @@ public final class SmusComputation {
      * @param formulas              the formulas
      * @param additionalConstraints the additional constraints
      * @return the SMUS or {@code null} if the given propositions are
-     *         satisfiable or the handler aborted the computation
+     *         satisfiable or the handler canceled the computation
      */
     public static UnsatResult<List<Formula>> computeSmusForFormulas(final FormulaFactory f, final List<Formula> formulas,
                                                                     final List<Formula> additionalConstraints) {
@@ -149,7 +149,7 @@ public final class SmusComputation {
      * @param additionalConstraints the additional constraints
      * @param handler               the SMUS handler, can be {@code null}
      * @return the SMUS or {@code null} if the given propositions are
-     *         satisfiable or the handler aborted the computation
+     *         satisfiable or the handler canceled the computation
      */
     public static LNGResult<UnsatResult<List<Formula>>> computeSmusForFormulas(
             final FormulaFactory f, final List<Formula> formulas,
@@ -157,7 +157,7 @@ public final class SmusComputation {
         final List<Proposition> props = formulas.stream().map(StandardProposition::new).collect(Collectors.toList());
         final LNGResult<UnsatResult<List<Proposition>>> smus = computeSmus(f, props, additionalConstraints, handler);
         if (!smus.isSuccess()) {
-            return LNGResult.aborted(smus.getAbortionEvent());
+            return LNGResult.canceled(smus.getCancelCause());
         } else if (!smus.getResult().isUnsat()) {
             return LNGResult.of(UnsatResult.sat());
         } else {
@@ -173,7 +173,7 @@ public final class SmusComputation {
                 .literals(variables)
                 .minimize().build(), handler);
         if (!minimumHsModel.isSuccess()) {
-            return LNGResult.aborted(minimumHsModel.getAbortionEvent());
+            return LNGResult.canceled(minimumHsModel.getCancelCause());
         } else if (minimumHsModel.getResult().isSat()) {
             final SortedSet<Variable> model = minimumHsModel.getResult().getResult().positiveVariables();
             return LNGResult.of(SatResult.sat(new TreeSet<>(model)));
@@ -191,7 +191,7 @@ public final class SmusComputation {
                 .literals(variables)
                 .maximize().build(), handler);
         if (!maxModel.isSuccess()) {
-            return LNGResult.aborted(maxModel.getAbortionEvent());
+            return LNGResult.canceled(maxModel.getCancelCause());
         } else if (!maxModel.getResult().isSat()) {
             return LNGResult.of(SatResult.unsat());
         } else {

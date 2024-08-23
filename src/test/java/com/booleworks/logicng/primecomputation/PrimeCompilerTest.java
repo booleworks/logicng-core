@@ -231,10 +231,10 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
     }
 
     private void testHandler(final ComputationHandler handler, final Formula formula, final PrimeCompiler compiler,
-                             final PrimeResult.CoverageType coverageType, final boolean expAborted) {
+                             final PrimeResult.CoverageType coverageType, final boolean expCanceled) {
         final LNGResult<PrimeResult> result = compiler.compute(formula.factory(), formula, coverageType, handler);
-        assertThat(!result.isSuccess()).isEqualTo(expAborted);
-        if (expAborted) {
+        assertThat(!result.isSuccess()).isEqualTo(expCanceled);
+        if (expCanceled) {
             assertThat(result.getResult()).isNull();
         } else {
             assertThat(result.getResult()).isNotNull();

@@ -16,7 +16,6 @@ import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.events.FactorizationCreatedClauseEvent;
 import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.io.parsers.ParserException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -137,24 +136,24 @@ public class CNFTest extends TestWithFormulaContext {
     public void testWithHandler(final FormulaContext _c) throws ParserException {
         Formula formula = _c.p.parse("(~(~(a | b) => ~(x | y))) & ((a | x) => ~(b | y))");
         final ComputationHandler handler = new ComputationHandler() {
-            private boolean aborted;
+            private boolean canceled;
             private int dists = 0;
             private int clauses = 0;
 
             @Override
             public boolean shouldResume(final LNGEvent event) {
                 if (event == FACTORIZATION_STARTED) {
-                    aborted = false;
+                    canceled = false;
                     dists = 0;
                     clauses = 0;
                 } else if (event == DISTRIBUTION_PERFORMED) {
                     dists++;
-                    aborted = dists >= 100;
+                    canceled = dists >= 100;
                 } else if (event instanceof FactorizationCreatedClauseEvent) {
                     clauses++;
-                    aborted = clauses >= 2;
+                    canceled = clauses >= 2;
                 }
-                return !aborted;
+                return !canceled;
             }
         };
         final CNFFactorization factorization = new CNFFactorization(_c.f, null);

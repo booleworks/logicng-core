@@ -103,7 +103,7 @@ public final class PrimeCompiler {
      * @param formula the formula
      * @param type    the coverage type
      * @param handler an optimization handler, can be {@code null}
-     * @return the prime result or null if the computation was aborted by the
+     * @return the prime result or null if the computation was canceled by the
      *         handler
      */
     public LNGResult<PrimeResult> compute(final FormulaFactory f, final Formula formula,
@@ -114,7 +114,7 @@ public final class PrimeCompiler {
         final LNGResult<Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>>> genericResult =
                 computeGeneric(f, formulaForComputation, handler);
         if (!genericResult.isSuccess()) {
-            return LNGResult.aborted(genericResult.getAbortionEvent());
+            return LNGResult.canceled(genericResult.getCancelCause());
         }
         final Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>> result = genericResult.getResult();
         return LNGResult.of(new PrimeResult(
@@ -140,7 +140,7 @@ public final class PrimeCompiler {
                     ? OptimizationFunction.builder().literals(sub.newVar2oldLit.keySet()).maximize().build()
                     : OptimizationFunction.builder().literals(sub.newVar2oldLit.keySet()).minimize().build(), handler);
             if (!hModelResult.isSuccess()) {
-                return LNGResult.aborted(hModelResult.getAbortionEvent());
+                return LNGResult.canceled(hModelResult.getCancelCause());
             }
             final SatResult<Assignment> hModel = hModelResult.getResult();
             if (!hModel.isSat()) {
@@ -150,14 +150,14 @@ public final class PrimeCompiler {
             try (final SATCall fCall = fSolver.satCall().handler(handler)
                     .addFormulas(fModel.literals()).solve()) {
                 if (!fCall.getSatResult().isSuccess()) {
-                    return LNGResult.aborted(fCall.getSatResult().getAbortionEvent());
+                    return LNGResult.canceled(fCall.getSatResult().getCancelCause());
                 }
                 if (!fCall.getSatResult().getResult()) {
                     final LNGResult<SortedSet<Literal>> primeImplicantResult = computeWithMaximization
                             ? primeReduction.reduceImplicant(fModel.literals(), handler)
                             : LNGResult.of(fModel.literals());
                     if (!primeImplicantResult.isSuccess()) {
-                        return LNGResult.aborted(primeImplicantResult.getAbortionEvent());
+                        return LNGResult.canceled(primeImplicantResult.getCancelCause());
                     }
                     final SortedSet<Literal> primeImplicant = primeImplicantResult.getResult();
                     primeImplicants.add(primeImplicant);
@@ -175,7 +175,7 @@ public final class PrimeCompiler {
                     final LNGResult<SortedSet<Literal>> primeImplicateResult =
                             primeReduction.reduceImplicate(f, implicate, handler);
                     if (!primeImplicateResult.isSuccess()) {
-                        return LNGResult.aborted(primeImplicateResult.getAbortionEvent());
+                        return LNGResult.canceled(primeImplicateResult.getCancelCause());
                     }
                     final SortedSet<Literal> primeImplicate = primeImplicateResult.getResult();
                     primeImplicates.add(primeImplicate);

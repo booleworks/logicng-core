@@ -240,7 +240,7 @@ public class SATCallTest {
     private static class MaxConflictsHandler implements ComputationHandler {
         private final int maxConflicts;
         private int numConflicts;
-        private boolean aborted;
+        private boolean canceled;
 
         public MaxConflictsHandler(final int maxConflicts) {
             this.maxConflicts = maxConflicts;
@@ -250,9 +250,9 @@ public class SATCallTest {
         @Override
         public boolean shouldResume(final LNGEvent event) {
             if (event == SimpleEvent.SAT_CONFLICT_DETECTED) {
-                aborted = numConflicts++ > maxConflicts;
+                canceled = numConflicts++ > maxConflicts;
             }
-            return !aborted;
+            return !canceled;
         }
     }
 }

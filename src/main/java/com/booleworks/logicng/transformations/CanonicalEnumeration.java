@@ -40,7 +40,7 @@ public abstract class CanonicalEnumeration extends StatelessFormulaTransformatio
      * @param handler the computation handler
      * @param cnf     {@code true} if the canonical CNF should be computed,
      *                {@code false} if the canonical DNF should be computed
-     * @return the (potentially aborted) result with the canonical normal form
+     * @return the (potentially canceled) result with the canonical normal form
      *         (CNF or DNF) of the formula
      */
     protected LNGResult<Formula> compute(final Formula formula, final ComputationHandler handler, final boolean cnf) {
@@ -49,9 +49,9 @@ public abstract class CanonicalEnumeration extends StatelessFormulaTransformatio
         final LNGResult<List<Model>> enumerationResult = solver.execute(
                 ModelEnumerationFunction.builder(formula.variables(f)).build(), handler);
         if (!enumerationResult.isSuccess()) {
-            return LNGResult.aborted(enumerationResult.getAbortionEvent());
+            return LNGResult.canceled(enumerationResult.getCancelCause());
         } else {
-            List<Model> enumeration = enumerationResult.getResult();
+            final List<Model> enumeration = enumerationResult.getResult();
             if (enumeration.isEmpty()) {
                 return LNGResult.of(f.constant(cnf));
             }

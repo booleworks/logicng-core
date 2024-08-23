@@ -158,12 +158,12 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
                 .isTrue();
     }
 
-    private void testHandler(final ComputationHandler handler, final Formula formula, final boolean expAborted) {
+    private void testHandler(final ComputationHandler handler, final Formula formula, final boolean expCanceled) {
         final AdvancedSimplifier simplifierWithHandler =
                 new AdvancedSimplifier(formula.factory(), AdvancedSimplifierConfig.builder().build());
         final LNGResult<Formula> simplified = formula.transform(simplifierWithHandler, handler);
-        assertThat(simplified.isSuccess()).isEqualTo(!expAborted);
-        if (expAborted) {
+        assertThat(simplified.isSuccess()).isEqualTo(!expCanceled);
+        if (expCanceled) {
             assertThat(simplified.getResult()).isNull();
         } else {
             assertThat(simplified.getResult()).isNotNull();

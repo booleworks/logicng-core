@@ -24,7 +24,7 @@ public interface SolverFunction<RESULT> {
      * Applies this function to the given solver.
      * @param solver  the solver on which the function should work on
      * @param handler the computation handler
-     * @return the (potentially aborted) result of the function application
+     * @return the (potentially canceled) result of the function application
      */
     LNGResult<RESULT> apply(SATSolver solver, ComputationHandler handler);
 

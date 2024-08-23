@@ -60,7 +60,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
     @Override
     public LNGResultWithPartial<RESULT, RESULT> apply(final SATSolver solver, final ComputationHandler handler) {
         if (!handler.shouldResume(MODEL_ENUMERATION_STARTED)) {
-            return LNGResultWithPartial.aborted(null, MODEL_ENUMERATION_STARTED);
+            return LNGResultWithPartial.canceled(null, MODEL_ENUMERATION_STARTED);
         }
         final SortedSet<Variable> knownVariables = solver.underlyingSolver().knownVariables();
         final SortedSet<Variable> additionalVarsNotOnSolver =
@@ -72,12 +72,12 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 knownVariables.stream().filter(variables::contains).collect(Collectors.toCollection(TreeSet::new));
         final SortedSet<Variable> initialSplitVars =
                 nullSafe(() -> strategy.splitVarsForRecursionDepth(enumerationVars, solver, 0), TreeSet::new);
-        final LNGEvent abortionEvent = enumerateRecursive(collector, solver, new TreeSet<>(), enumerationVars, initialSplitVars, 0, handler);
+        final LNGEvent cancelCause = enumerateRecursive(collector, solver, new TreeSet<>(), enumerationVars, initialSplitVars, 0, handler);
         final RESULT result = collector.getResult();
-        if (abortionEvent == null) {
+        if (cancelCause == null) {
             return LNGResultWithPartial.ofResult(result);
         } else {
-            return LNGResultWithPartial.aborted(result, abortionEvent);
+            return LNGResultWithPartial.canceled(result, cancelCause);
         }
     }
 
@@ -91,13 +91,13 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 additionalVariables, maxNumberOfModelsForEnumeration, handler);
         if (!enumerationSucceeded.isSuccess()) {
             collector.commit(handler);
-            return enumerationSucceeded.getAbortionEvent();
+            return enumerationSucceeded.getCancelCause();
         }
         if (!enumerationSucceeded.getResult()) {
-            final LNGEvent abortionEvent = collector.rollback(handler);
-            if (abortionEvent != null) {
+            final LNGEvent cancelCause = collector.rollback(handler);
+            if (cancelCause != null) {
                 solver.loadState(state);
-                return abortionEvent;
+                return cancelCause;
             }
             SortedSet<Variable> newSplitVars = new TreeSet<>(splitVars);
             final int maxNumberOfModelsForSplitAssignments =
@@ -108,14 +108,14 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 if (!enumerationForSplit.isSuccess()) {
                     solver.loadState(state);
                     collector.rollback(handler);
-                    return enumerationForSplit.getAbortionEvent();
+                    return enumerationForSplit.getCancelCause();
                 } else if (enumerationForSplit.getResult()) {
                     break;
                 } else {
-                    final LNGEvent abortionOnRollback = collector.rollback(handler);
-                    if (abortionOnRollback != null) {
+                    final LNGEvent cancellationOnRollback = collector.rollback(handler);
+                    if (cancellationOnRollback != null) {
                         solver.loadState(state);
-                        return abortionOnRollback;
+                        return cancellationOnRollback;
                     }
                     newSplitVars = strategy.reduceSplitVars(newSplitVars, recursionDepth);
                 }
@@ -162,15 +162,15 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 relevantAllIndicesFromSolver(variables, additionalVariables, relevantIndices, solver);
 
         int foundModels = 0;
-        LNGEvent abortionEvent = null;
+        LNGEvent cancelCause = null;
         while (modelEnumerationSATCall(solver, handler)) {
             final LNGBooleanVector modelFromSolver = solver.underlyingSolver().model();
             if (++foundModels >= maxModels) {
                 solver.loadState(stateBeforeEnumeration);
                 return LNGResult.of(false);
             }
-            abortionEvent = collector.addModel(modelFromSolver, solver, relevantAllIndices, handler);
-            if (abortionEvent == null && modelFromSolver.size() > 0) {
+            cancelCause = collector.addModel(modelFromSolver, solver, relevantAllIndices, handler);
+            if (cancelCause == null && modelFromSolver.size() > 0) {
                 final LNGIntVector blockingClause = generateBlockingClause(modelFromSolver, relevantIndices);
                 solver.underlyingSolver().addClause(blockingClause, null);
             } else {
@@ -178,7 +178,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
             }
         }
         solver.loadState(stateBeforeEnumeration);
-        return abortionEvent == null ? LNGResult.of(true) : LNGResult.aborted(abortionEvent);
+        return cancelCause == null ? LNGResult.of(true) : LNGResult.canceled(cancelCause);
     }
 
     private static boolean modelEnumerationSATCall(final SATSolver solver, final ComputationHandler handler) {

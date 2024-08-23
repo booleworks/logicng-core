@@ -484,15 +484,15 @@ public class OptimizationFunctionTest implements LogicNGTest {
 
     private static class CustomOptimizationHandler implements ComputationHandler {
         public Assignment currentResult;
-        private boolean aborted;
+        private boolean canceled;
 
         @Override
         public boolean shouldResume(final LNGEvent event) {
             if (event instanceof OptimizationFoundBetterBoundEvent) {
                 currentResult = ((OptimizationFoundBetterBoundEvent) event).getModel().get();
-                aborted = currentResult.positiveVariables().size() >= 161;
+                canceled = currentResult.positiveVariables().size() >= 161;
             }
-            return !aborted;
+            return !canceled;
         }
     }
 }

@@ -30,7 +30,7 @@ public class TimeoutHandler implements ComputationHandler {
      * a {@link ComputationStartedEvent} is received.</li>
      * <li>{@link TimerType#FIXED_END}: Timeout which is interpreted as fixed
      * point in time (in milliseconds) at which the computation should be
-     * aborted.
+     * canceled.
      * </ul>
      * Note that it might take a few milliseconds more until the computation is
      * actually canceled, since the cancellation depends on the next call to
@@ -103,7 +103,7 @@ public class TimeoutHandler implements ComputationHandler {
 
         /**
          * Timeout which is interpreted as fixed point in time (in milliseconds)
-         * at which the computation should be aborted.
+         * at which the computation should be canceled.
          */
         FIXED_END
     }

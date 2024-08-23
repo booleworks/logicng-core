@@ -17,7 +17,7 @@ import com.booleworks.logicng.handlers.events.LNGEvent;
  */
 public class NumberOfNodesBDDHandler implements ComputationHandler {
 
-    private boolean aborted = false;
+    private boolean canceled = false;
     private final int bound;
     private int count;
 
@@ -38,8 +38,8 @@ public class NumberOfNodesBDDHandler implements ComputationHandler {
         if (event == BDD_COMPUTATION_STARTED) {
             count = 0;
         } else if (event == BDD_NEW_REF_ADDED) {
-            aborted = ++count >= bound;
+            canceled = ++count >= bound;
         }
-        return !aborted;
+        return !canceled;
     }
 }

@@ -116,7 +116,7 @@ public class LinearSU extends MaxSAT {
         while (true) {
             final LNGResult<Boolean> res = searchSATSolver(solver, handler);
             if (!res.isSuccess()) {
-                return LNGResult.aborted(res.getAbortionEvent());
+                return LNGResult.canceled(res.getCancelCause());
             }
             if (res.getResult()) {
                 nbSatisfiable++;
@@ -130,7 +130,7 @@ public class LinearSU extends MaxSAT {
                     if (newCost > 0) {
                         final LNGEvent upperBoundEvent = foundUpperBound(ubCost, handler);
                         if (upperBoundEvent != null) {
-                            return LNGResult.aborted(upperBoundEvent);
+                            return LNGResult.canceled(upperBoundEvent);
                         }
                     }
                 } else if (verbosity != Verbosity.NONE) {
@@ -176,7 +176,7 @@ public class LinearSU extends MaxSAT {
                     localCost = 0;
                     final LNGEvent lowerBoundEvent = foundLowerBound(lbCost, handler);
                     if (lowerBoundEvent != null) {
-                        return LNGResult.aborted(lowerBoundEvent);
+                        return LNGResult.canceled(lowerBoundEvent);
                     }
                     solver = rebuildBMO(functions, weights, currentWeight);
                     if (verbosity != Verbosity.NONE) {
@@ -193,7 +193,7 @@ public class LinearSU extends MaxSAT {
         while (true) {
             final LNGResult<Boolean> res = searchSATSolver(solver, handler);
             if (!res.isSuccess()) {
-                return LNGResult.aborted(res.getAbortionEvent());
+                return LNGResult.canceled(res.getCancelCause());
             } else if (res.getResult()) {
                 nbSatisfiable++;
                 final int newCost = computeCostModel(solver.model(), Integer.MAX_VALUE);
@@ -221,7 +221,7 @@ public class LinearSU extends MaxSAT {
                     ubCost = newCost;
                     final LNGEvent upperBoundEvent = foundUpperBound(ubCost, handler);
                     if (upperBoundEvent != null) {
-                        return LNGResult.aborted(upperBoundEvent);
+                        return LNGResult.canceled(upperBoundEvent);
                     }
                 }
             } else {

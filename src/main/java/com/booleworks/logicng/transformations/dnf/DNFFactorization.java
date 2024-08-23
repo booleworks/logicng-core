@@ -47,7 +47,7 @@ public final class DNFFactorization extends CacheableFormulaTransformation {
     @Override
     public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         if (!handler.shouldResume(FACTORIZATION_STARTED)) {
-            return LNGResult.aborted(FACTORIZATION_STARTED);
+            return LNGResult.canceled(FACTORIZATION_STARTED);
         }
         return applyRec(formula, handler);
     }
@@ -123,7 +123,7 @@ public final class DNFFactorization extends CacheableFormulaTransformation {
      */
     private LNGResult<Formula> distribute(final Formula f1, final Formula f2, final ComputationHandler handler) {
         if (!handler.shouldResume(DISTRIBUTION_PERFORMED)) {
-            return LNGResult.aborted(DISTRIBUTION_PERFORMED);
+            return LNGResult.canceled(DISTRIBUTION_PERFORMED);
         }
         if (f1.type() == FType.OR || f2.type() == FType.OR) {
             final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
@@ -142,7 +142,7 @@ public final class DNFFactorization extends CacheableFormulaTransformation {
         if (handler.shouldResume(createdClauseEvent)) {
             return LNGResult.of(clause);
         } else {
-            return LNGResult.aborted(createdClauseEvent);
+            return LNGResult.canceled(createdClauseEvent);
         }
     }
 }

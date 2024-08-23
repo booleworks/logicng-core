@@ -272,9 +272,9 @@ public class SmusComputationTest extends TestWithExampleFormulas {
     }
 
     private void testHandler(final ComputationHandler handler, final List<Formula> formulas,
-                             final boolean expAborted) {
+                             final boolean expCanceled) {
         final LNGResult<UnsatResult<List<Formula>>> result =
                 SmusComputation.computeSmusForFormulas(f, formulas, Collections.emptyList(), handler);
-        assertThat(!result.isSuccess()).isEqualTo(expAborted);
+        assertThat(!result.isSuccess()).isEqualTo(expCanceled);
     }
 }

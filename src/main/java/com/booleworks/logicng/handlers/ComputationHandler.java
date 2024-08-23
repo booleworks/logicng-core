@@ -10,7 +10,7 @@ import com.booleworks.logicng.handlers.events.LNGEvent;
 public interface ComputationHandler {
     /**
      * Processes the given event and returns {@code true} if the computation
-     * should be resumed and {@code false} if it should be aborted.
+     * should be resumed and {@code false} if it should be canceled.
      * @param event the event to handle, must not be {@code null}
      * @return whether the computation should be resumed or not
      */

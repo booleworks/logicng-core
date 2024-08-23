@@ -27,7 +27,7 @@ abstract class MUSAlgorithm {
      * @param propositions the propositions
      * @param config       the MUS configuration
      * @param handler      the computation handler
-     * @return an LNG result containing the MUS (unless the handler aborted
+     * @return an LNG result containing the MUS (unless the handler canceled
      *         the computation)
      * @throws IllegalArgumentException if the set of propositions is
      *                                  satisfiable

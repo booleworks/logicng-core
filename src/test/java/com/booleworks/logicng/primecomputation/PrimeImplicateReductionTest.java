@@ -121,7 +121,7 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
         testFormula(formula, NopHandler.get(), false);
     }
 
-    private void testFormula(final Formula formula, final ComputationHandler handler, final boolean expAborted) {
+    private void testFormula(final Formula formula, final ComputationHandler handler, final boolean expCanceled) {
         final FormulaFactory f = formula.factory();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula.negate(f));
@@ -133,7 +133,7 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
                     FormulaHelper.negateLiterals(f, call.model(formula.variables(f)).literals(), TreeSet::new);
             final NaivePrimeReduction naive = new NaivePrimeReduction(f, formula);
             final LNGResult<SortedSet<Literal>> primeImplicate = naive.reduceImplicate(f, falsifyingAssignment, handler);
-            if (expAborted) {
+            if (expCanceled) {
                 assertThat(primeImplicate.isSuccess()).isFalse();
                 assertThat(primeImplicate.getResult()).isNull();
             } else {

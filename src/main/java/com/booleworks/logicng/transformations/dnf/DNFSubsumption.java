@@ -42,7 +42,7 @@ public final class DNFSubsumption extends Subsumption {
         assert formula.type() == FType.OR;
         final LNGResult<UBTree<Literal>> ubTreeResult = generateSubsumedUBTree(formula, handler);
         if (!ubTreeResult.isSuccess()) {
-            return LNGResult.aborted(ubTreeResult.getAbortionEvent());
+            return LNGResult.canceled(ubTreeResult.getCancelCause());
         } else {
             final UBTree<Literal> ubTree = ubTreeResult.getResult();
             final List<Formula> minterms = new ArrayList<>();

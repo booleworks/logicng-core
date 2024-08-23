@@ -316,7 +316,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
 
         final String expected = "MaxSATSolver{result=ComputationResult{" +
                 "result=MaxSATResult{satisfiable=true, optimum=1, model=Assignment{pos=[], neg=[~a, ~b]}}, " +
-                "abortionEvent=null}, var2index={@SEL_SOFT_0=2, @SEL_SOFT_1=3, a=0, b=1}}";
+                "cancelCause=null}, var2index={@SEL_SOFT_0=2, @SEL_SOFT_1=3, a=0, b=1}}";
 
         for (int i = 0; i < solvers.length; i++) {
             final MaxSATSolver solver = solvers[i];

@@ -147,11 +147,11 @@ public abstract class MaxSAT {
      */
     public final LNGResult<InternalMaxSATResult> search(final ComputationHandler handler) {
         if (!handler.shouldResume(MAX_SAT_CALL_STARTED)) {
-            return LNGResult.aborted(MAX_SAT_CALL_STARTED);
+            return LNGResult.canceled(MAX_SAT_CALL_STARTED);
         }
         final LNGResult<InternalMaxSATResult> result = internalSearch(handler);
         if (!handler.shouldResume(MAX_SAT_CALL_FINISHED)) {
-            return LNGResult.aborted(MAX_SAT_CALL_FINISHED);
+            return LNGResult.canceled(MAX_SAT_CALL_FINISHED);
         }
         return result;
     }
@@ -376,11 +376,11 @@ public abstract class MaxSAT {
 
     /**
      * Informs the handler about a newly found lower bound and returns the
-     * event if the handler aborted the computation. Otherwise, {@code null} is
+     * event if the handler canceled the computation. Otherwise, {@code null} is
      * returned.
      * @param lowerBound the new lower bound
      * @param handler    the computation handler
-     * @return the event if the handler aborted the computation, otherwise
+     * @return the event if the handler canceled the computation, otherwise
      *         {@code null}
      */
     LNGEvent foundLowerBound(final int lowerBound, final ComputationHandler handler) {
@@ -390,11 +390,11 @@ public abstract class MaxSAT {
 
     /**
      * Informs the handler about a newly found upper bound and returns the
-     * event if the handler aborted the computation. Otherwise, {@code null} is
+     * event if the handler canceled the computation. Otherwise, {@code null} is
      * returned.
      * @param upperBound the new upper bound
      * @param handler    the computation handler
-     * @return the event if the handler aborted the computation, otherwise
+     * @return the event if the handler canceled the computation, otherwise
      *         {@code null}
      */
     LNGEvent foundUpperBound(final int upperBound, final ComputationHandler handler) {

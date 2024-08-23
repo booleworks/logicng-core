@@ -387,7 +387,7 @@ public interface Formula extends Iterable<Formula> {
      * Transforms this formula with a given formula transformation.
      * @param transformation the formula transformation
      * @param handler        the computation handler
-     * @return the result of the transformation which may have been aborted by
+     * @return the result of the transformation which may have been canceled by
      *         the computation handler
      */
     default LNGResult<Formula> transform(final FormulaTransformation transformation, final ComputationHandler handler) {

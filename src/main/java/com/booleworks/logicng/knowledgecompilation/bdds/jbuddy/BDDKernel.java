@@ -405,7 +405,7 @@ public class BDDKernel {
      * {@code r} can and must be increased using this function to avoid losing
      * the node in the next garbage collection. If a BDD handler is given,
      * {@link ComputationHandler#shouldResume} is called with the event
-     * {@link SimpleEvent#BDD_NEW_REF_ADDED}. If the generation gets aborted
+     * {@link SimpleEvent#BDD_NEW_REF_ADDED}. If the generation gets canceled
      * due to the handler, the method will return {@link BDDKernel#BDD_ABORT}
      * as result. If {@code null} is passed as handler, the generation will
      * continue without interruption.

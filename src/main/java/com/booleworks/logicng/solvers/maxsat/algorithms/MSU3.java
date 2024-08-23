@@ -114,7 +114,7 @@ public class MSU3 extends MaxSAT {
         while (true) {
             final LNGResult<Boolean> res = searchSATSolver(solver, handler, assumptions);
             if (!res.isSuccess()) {
-                return LNGResult.aborted(res.getAbortionEvent());
+                return LNGResult.canceled(res.getCancelCause());
             } else if (res.getResult()) {
                 nbSatisfiable++;
                 final int newCost = computeCostModel(solver.model(), Integer.MAX_VALUE);
@@ -126,7 +126,7 @@ public class MSU3 extends MaxSAT {
                 if (nbSatisfiable == 1) {
                     final LNGEvent upperBoundEvent = foundUpperBound(ubCost, handler);
                     if (upperBoundEvent != null) {
-                        return LNGResult.aborted(upperBoundEvent);
+                        return LNGResult.canceled(upperBoundEvent);
                     }
                     for (int i = 0; i < objFunction.size(); i++) {
                         assumptions.push(LNGCoreSolver.not(objFunction.get(i)));
@@ -151,7 +151,7 @@ public class MSU3 extends MaxSAT {
                 } else {
                     final LNGEvent lowerBoundEvent = foundLowerBound(lbCost, handler);
                     if (lowerBoundEvent != null) {
-                        return LNGResult.aborted(lowerBoundEvent);
+                        return LNGResult.canceled(lowerBoundEvent);
                     }
                 }
                 sumSizeCores += solver.assumptionsConflict().size();
@@ -197,7 +197,7 @@ public class MSU3 extends MaxSAT {
         while (true) {
             final LNGResult<Boolean> res = searchSATSolver(solver, handler, assumptions);
             if (!res.isSuccess()) {
-                return LNGResult.aborted(res.getAbortionEvent());
+                return LNGResult.canceled(res.getCancelCause());
             } else if (res.getResult()) {
                 nbSatisfiable++;
                 final int newCost = computeCostModel(solver.model(), Integer.MAX_VALUE);
@@ -209,7 +209,7 @@ public class MSU3 extends MaxSAT {
                 if (nbSatisfiable == 1) {
                     final LNGEvent upperBoundEvent = foundUpperBound(ubCost, handler);
                     if (upperBoundEvent != null) {
-                        return LNGResult.aborted(upperBoundEvent);
+                        return LNGResult.canceled(upperBoundEvent);
                     }
                     for (int i = 0; i < objFunction.size(); i++) {
                         assumptions.push(LNGCoreSolver.not(objFunction.get(i)));
@@ -240,7 +240,7 @@ public class MSU3 extends MaxSAT {
                 }
                 final LNGEvent lowerBoundEvent = foundLowerBound(lbCost, handler);
                 if (lowerBoundEvent != null) {
-                    return LNGResult.aborted(lowerBoundEvent);
+                    return LNGResult.canceled(lowerBoundEvent);
                 }
                 joinObjFunction.clear();
                 for (int i = 0; i < solver.assumptionsConflict().size(); i++) {

@@ -9,11 +9,11 @@ import java.util.function.Supplier;
 public class LNGResult<RESULT> {
 
     protected final RESULT result;
-    protected final LNGEvent abortionEvent;
+    protected final LNGEvent cancelCause;
 
-    protected LNGResult(final RESULT result, final LNGEvent abortionEvent) {
+    protected LNGResult(final RESULT result, final LNGEvent cancelCause) {
         this.result = result;
-        this.abortionEvent = abortionEvent;
+        this.cancelCause = cancelCause;
     }
 
     public static <RESULT> LNGResult<RESULT> of(final RESULT result) {
@@ -21,7 +21,7 @@ public class LNGResult<RESULT> {
         return new LNGResult<>(result, null);
     }
 
-    public static <RESULT> LNGResult<RESULT> aborted(final LNGEvent event) {
+    public static <RESULT> LNGResult<RESULT> canceled(final LNGEvent event) {
         assert event != null;
         return new LNGResult<>(null, event);
     }
@@ -30,21 +30,21 @@ public class LNGResult<RESULT> {
         return result;
     }
 
-    public LNGEvent getAbortionEvent() {
-        return abortionEvent;
+    public LNGEvent getCancelCause() {
+        return cancelCause;
     }
 
     public boolean isSuccess() {
-        return abortionEvent == null;
+        return cancelCause == null;
     }
 
     public <T> LNGResult<T> map(final Function<? super RESULT, ? extends T> transformation) {
-        return new LNGResult<>(isSuccess() ? transformation.apply(result) : null, abortionEvent);
+        return new LNGResult<>(isSuccess() ? transformation.apply(result) : null, cancelCause);
     }
 
     @SuppressWarnings("unchecked")
     public <T> LNGResult<T> flatMap(final Function<? super RESULT, ? extends LNGResult<? extends T>> transformation) {
-        return isSuccess() ? (LNGResult<T>) transformation.apply(result) : LNGResult.aborted(abortionEvent);
+        return isSuccess() ? (LNGResult<T>) transformation.apply(result) : LNGResult.canceled(cancelCause);
     }
 
     public RESULT orElse(final RESULT alternative) {
@@ -68,19 +68,19 @@ public class LNGResult<RESULT> {
             return false;
         }
         final LNGResult<?> that = (LNGResult<?>) o;
-        return Objects.equals(result, that.result) && Objects.equals(abortionEvent, that.abortionEvent);
+        return Objects.equals(result, that.result) && Objects.equals(cancelCause, that.cancelCause);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(result, abortionEvent);
+        return Objects.hash(result, cancelCause);
     }
 
     @Override
     public String toString() {
         return "ComputationResult{" +
                 "result=" + result +
-                ", abortionEvent=" + abortionEvent +
+                ", cancelCause=" + cancelCause +
                 '}';
     }
 }

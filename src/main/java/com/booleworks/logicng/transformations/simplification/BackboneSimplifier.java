@@ -38,7 +38,7 @@ public final class BackboneSimplifier extends StatelessFormulaTransformation {
                 .type(BackboneType.POSITIVE_AND_NEGATIVE)
                 .build(), handler);
         if (!backboneResult.isSuccess()) {
-            return LNGResult.aborted(backboneResult.getAbortionEvent());
+            return LNGResult.canceled(backboneResult.getCancelCause());
         }
         final Backbone backbone = backboneResult.getResult();
         if (!backbone.isSat()) {

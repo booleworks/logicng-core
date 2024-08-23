@@ -84,7 +84,7 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
     @Override
     public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         if (!handler.shouldResume(ADVANCED_SIMPLIFICATION_STARTED)) {
-            return LNGResult.aborted(ADVANCED_SIMPLIFICATION_STARTED);
+            return LNGResult.canceled(ADVANCED_SIMPLIFICATION_STARTED);
         }
         Formula simplified = formula;
         final SortedSet<Literal> backboneLiterals = new TreeSet<>();
@@ -92,7 +92,7 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
             final LNGResult<Backbone> backboneResult = BackboneGeneration.compute(f, Collections.singletonList(formula),
                     formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE, handler);
             if (!backboneResult.isSuccess()) {
-                return LNGResult.aborted(backboneResult.getAbortionEvent());
+                return LNGResult.canceled(backboneResult.getCancelCause());
             }
             final Backbone backbone = backboneResult.getResult();
             if (!backbone.isSat()) {
@@ -103,7 +103,7 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
         }
         final LNGResult<Formula> simplifyMinDnf = computeMinDnf(f, simplified, handler);
         if (!simplifyMinDnf.isSuccess()) {
-            return LNGResult.aborted(simplifyMinDnf.getAbortionEvent());
+            return LNGResult.canceled(simplifyMinDnf.getCancelCause());
         }
         simplified = simplifyWithRating(simplified, simplifyMinDnf.getResult(), config);
         if (config.factorOut) {
@@ -125,14 +125,14 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
         final LNGResult<PrimeResult> primeResult = PrimeCompiler.getWithMinimization()
                 .compute(f, simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE, handler);
         if (!primeResult.isSuccess()) {
-            return LNGResult.aborted(primeResult.getAbortionEvent());
+            return LNGResult.canceled(primeResult.getCancelCause());
         }
         final List<SortedSet<Literal>> primeImplicants = primeResult.getResult().getPrimeImplicants();
         final LNGResult<UnsatResult<List<Formula>>> minimizedPIsResult =
                 SmusComputation.computeSmusForFormulas(f, negateAllLiterals(f, primeImplicants),
                         Collections.singletonList(simplified), handler);
         if (!minimizedPIsResult.isSuccess()) {
-            return LNGResult.aborted(minimizedPIsResult.getAbortionEvent());
+            return LNGResult.canceled(minimizedPIsResult.getCancelCause());
         } else if (!minimizedPIsResult.getResult().isUnsat()) {
             return LNGResult.of(f.falsum());
         } else {

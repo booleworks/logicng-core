@@ -13,11 +13,11 @@ import java.util.Map;
 
 /**
  * A cacheable formula transformation does not hold an internal mutable state
- * but does use an internal cache to speed up computations and can be aborted by
- * a handler. This cache is usually changed by the transformation. Formulas from
- * a caching formula factory provide their cache via the factory, formulas from
- * a non-caching formula factory can be given their own cache per
- * transformation. A cacheable and an abortable formula transformation with a
+ * but does use an internal cache to speed up computations and can be canceled
+ * by a handler. This cache is usually changed by the transformation. Formulas
+ * from a caching formula factory provide their cache via the factory, formulas
+ * from a non-caching formula factory can be given their own cache per
+ * transformation. A cacheable and a cancelable formula transformation with a
  * provided cache or handler is not thread-safe.
  * @version 3.0.0
  * @since 3.0.0

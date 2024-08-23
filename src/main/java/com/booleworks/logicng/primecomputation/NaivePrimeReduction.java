@@ -64,7 +64,7 @@ public final class NaivePrimeReduction {
      * formula
      * @param implicant the implicant
      * @param handler   a SAT handler for the underlying SAT Solver
-     * @return a prime implicant or null if the computation was aborted by the
+     * @return a prime implicant or null if the computation was canceled by the
      *         handler
      */
     public LNGResult<SortedSet<Literal>> reduceImplicant(final SortedSet<Literal> implicant,
@@ -76,7 +76,7 @@ public final class NaivePrimeReduction {
             final LNGResult<Boolean> sat =
                     implicantSolver.satCall().handler(handler).addFormulas(primeImplicant).sat();
             if (!sat.isSuccess()) {
-                return LNGResult.aborted(sat.getAbortionEvent());
+                return LNGResult.canceled(sat.getCancelCause());
             }
             if (sat.getResult()) {
                 primeImplicant.add(lit);
@@ -104,7 +104,7 @@ public final class NaivePrimeReduction {
      * @param f         the formula factory to generate new formulas
      * @param implicate the implicate
      * @param handler   a SAT handler for the underlying SAT Solver
-     * @return a prime implicate of null if the computation was aborted by the
+     * @return a prime implicate of null if the computation was canceled by the
      *         handler
      */
     public LNGResult<SortedSet<Literal>> reduceImplicate(final FormulaFactory f, final SortedSet<Literal> implicate,
@@ -116,7 +116,7 @@ public final class NaivePrimeReduction {
             final List<Literal> assumptions = FormulaHelper.negateLiterals(f, primeImplicate, ArrayList::new);
             final LNGResult<Boolean> sat = implicateSolver.satCall().handler(handler).addFormulas(assumptions).sat();
             if (!sat.isSuccess()) {
-                return LNGResult.aborted(sat.getAbortionEvent());
+                return LNGResult.canceled(sat.getCancelCause());
             }
             if (sat.getResult()) {
                 primeImplicate.add(lit);

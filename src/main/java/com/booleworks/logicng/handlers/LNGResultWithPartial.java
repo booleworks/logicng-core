@@ -9,8 +9,8 @@ public class LNGResultWithPartial<RESULT, PARTIAL> extends LNGResult<RESULT> {
 
     protected final PARTIAL partialResult;
 
-    protected LNGResultWithPartial(final RESULT result, final PARTIAL partialResult, final LNGEvent abortionEvent) {
-        super(result, abortionEvent);
+    protected LNGResultWithPartial(final RESULT result, final PARTIAL partialResult, final LNGEvent cancelCause) {
+        super(result, cancelCause);
         this.partialResult = partialResult;
     }
 
@@ -19,7 +19,7 @@ public class LNGResultWithPartial<RESULT, PARTIAL> extends LNGResult<RESULT> {
         return new LNGResultWithPartial<>(result, null, null);
     }
 
-    public static <RESULT, PARTIAL> LNGResultWithPartial<RESULT, PARTIAL> aborted(
+    public static <RESULT, PARTIAL> LNGResultWithPartial<RESULT, PARTIAL> canceled(
             final PARTIAL partialResult, final LNGEvent event) {
         return new LNGResultWithPartial<>(null, partialResult, event);
     }
@@ -53,7 +53,7 @@ public class LNGResultWithPartial<RESULT, PARTIAL> extends LNGResult<RESULT> {
         return "LNGResultWithPartial{" +
                 "result=" + result +
                 ", partialResult=" + partialResult +
-                ", abortionEvent=" + abortionEvent +
+                ", cancelCause=" + cancelCause +
                 '}';
     }
 }

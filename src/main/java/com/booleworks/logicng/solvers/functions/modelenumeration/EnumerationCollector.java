@@ -36,7 +36,7 @@ public interface EnumerationCollector<RESULT> {
      * @param solver             the solver
      * @param relevantAllIndices the relevant indices
      * @param handler            the model enumeration handler
-     * @return an event if the handler aborted the computation,
+     * @return an event if the handler canceled the computation,
      *         otherwise {@code null}
      */
     LNGEvent addModel(LNGBooleanVector modelFromSolver, SATSolver solver, LNGIntVector relevantAllIndices,
@@ -48,7 +48,7 @@ public interface EnumerationCollector<RESULT> {
      * <p>
      * Calls the {@code commit()} routine of {@code handler}.
      * @param handler the computation handler
-     * @return an event if the handler aborted the computation,
+     * @return an event if the handler canceled the computation,
      *         otherwise {@code null}
      */
     LNGEvent commit(ComputationHandler handler);
@@ -57,9 +57,9 @@ public interface EnumerationCollector<RESULT> {
      * All found models since the last commit should be discarded.
      * <p>
      * The rollback should <b>always</b> be performed, even if the handler
-     * aborts the computation.
+     * cancels the computation.
      * @param handler the computation handler
-     * @return an event if the handler aborted the computation,
+     * @return an event if the handler canceled the computation,
      *         otherwise {@code null}
      */
     LNGEvent rollback(ComputationHandler handler);

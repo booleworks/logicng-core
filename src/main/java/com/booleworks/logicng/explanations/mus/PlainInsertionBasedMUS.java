@@ -28,7 +28,7 @@ public class PlainInsertionBasedMUS extends MUSAlgorithm {
             final FormulaFactory f, final List<T> propositions,
             final MUSConfig config, final ComputationHandler handler) {
         if (!handler.shouldResume(MUS_COMPUTATION_STARTED)) {
-            return LNGResult.aborted(MUS_COMPUTATION_STARTED);
+            return LNGResult.canceled(MUS_COMPUTATION_STARTED);
         }
         final List<T> currentFormula = new ArrayList<>(propositions.size());
         currentFormula.addAll(propositions);
@@ -44,7 +44,7 @@ public class PlainInsertionBasedMUS extends MUSAlgorithm {
             while (true) {
                 final LNGResult<Boolean> sat = solver.satCall().handler(handler).sat();
                 if (!sat.isSuccess()) {
-                    return LNGResult.aborted(sat.getAbortionEvent());
+                    return LNGResult.canceled(sat.getCancelCause());
                 }
                 if (!sat.getResult()) {
                     break;

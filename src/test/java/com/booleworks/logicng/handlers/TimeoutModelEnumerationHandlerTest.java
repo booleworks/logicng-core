@@ -4,23 +4,36 @@
 
 package com.booleworks.logicng.handlers;
 
+import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.FIXED_END;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.MODEL_ENUMERATION_STARTED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SAT_CALL_STARTED;
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.CNF_METHOD;
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.booleworks.logicng.datastructures.Model;
+import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
+import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import com.booleworks.logicng.testutils.PigeonHoleGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @ExtendWith(MockitoExtension.class)
 class TimeoutModelEnumerationHandlerTest {
@@ -45,83 +58,69 @@ class TimeoutModelEnumerationHandlerTest {
         assertThat(handler.shouldResume(new EnumerationFoundModelsEvent(10))).isFalse();
     }
 
-    // TODO
-    // @Test
-    // public void testThatMethodsAreCalled() throws ParserException {
-    // final Formula formula = f.parse("A & B | C");
-    // for (final SATSolver solver : solvers) {
-    // solver.add(formula);
-    // final TimeoutModelEnumerationHandler handler =
-    // Mockito.mock(TimeoutModelEnumerationHandler.class);
-    // final ModelEnumerationFunction me =
-    // ModelEnumerationFunction.builder().handler(handler).variables(formula.variables(f)).build();
-    //
-    // solver.execute(me);
-    //
-    // verify(handler, times(1)).started();
-    // verify(handler, times(1)).satHandler();
-    // }
-    // }
-    //
-    // @Test
-    // public void testThatSatHandlerIsHandledProperly() {
-    // final Formula formula = pg.generate(10).negate(f);
-    // for (final SATSolver solver : solvers) {
-    // solver.add(formula);
-    // final TimeoutSATHandler satHandler =
-    // Mockito.mock(TimeoutSATHandler.class);
-    // final TimeoutModelEnumerationHandler handler =
-    // Mockito.mock(TimeoutModelEnumerationHandler.class);
-    // final AtomicInteger count = new AtomicInteger(0);
-    // when(handler.satHandler()).then(invocationOnMock -> {
-    // count.addAndGet(1);
-    // return satHandler;
-    // });
-    // when(handler.foundModel(any(Assignment.class))).thenReturn(true);
-    // when(handler.aborted()).then(invocationOnMock -> count.get() > 5);
-    // lenient().when(satHandler.detectedConflict()).thenReturn(true);
-    // final ModelEnumerationFunction me =
-    // ModelEnumerationFunction.builder().handler(handler).variables(formula.variables(f)).build();
-    //
-    // solver.execute(me);
-    //
-    // verify(handler, times(1)).started();
-    // verify(handler, times(6)).satHandler();
-    // }
-    // }
-    //
-    // @Test
-    // public void testTimeoutHandlerSingleTimeout() {
-    // final Formula formula = pg.generate(10).negate(f);
-    // for (final SATSolver solver : solvers) {
-    // solver.add(formula);
-    // final TimeoutModelEnumerationHandler handler = new
-    // TimeoutModelEnumerationHandler(100L);
-    // final ModelEnumerationFunction me =
-    // ModelEnumerationFunction.builder().handler(handler).variables(formula.variables(f)).build();
-    //
-    // final List<Assignment> result = solver.execute(me);
-    //
-    // assertThat(handler.aborted).isTrue();
-    // assertThat(result).isNotNull(); // assignments found so far are returned
-    // }
-    // }
-    //
-    // @Test
-    // public void testTimeoutHandlerFixedEnd() {
-    // final Formula formula = pg.generate(10).negate(f);
-    // for (final SATSolver solver : solvers) {
-    // solver.add(formula);
-    // final TimeoutModelEnumerationHandler handler = new
-    // TimeoutModelEnumerationHandler(System.currentTimeMillis() + 100L,
-    // TimeoutHandler.TimerType.FIXED_END);
-    // final ModelEnumerationFunction me =
-    // ModelEnumerationFunction.builder().handler(handler).variables(formula.variables(f)).build();
-    //
-    // final List<Assignment> result = solver.execute(me);
-    //
-    // assertThat(handler.aborted).isTrue();
-    // assertThat(result).isNotNull(); // assignments found so far are returned
-    // }
-    // }
+    @Test
+    public void testThatMethodsAreCalled() throws ParserException {
+        final Formula formula = f.parse("A & B | C");
+        for (final SATSolver solver : solvers) {
+            solver.add(formula);
+            final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
+            when(handler.shouldResume(any())).thenReturn(true);
+            final ModelEnumerationFunction me = ModelEnumerationFunction.builder(formula.variables(f)).build();
+            solver.execute(me, handler);
+            verify(handler, times(1)).shouldResume(MODEL_ENUMERATION_STARTED);
+            verify(handler, atLeast(1)).shouldResume(SAT_CALL_STARTED);
+        }
+    }
+
+    @Test
+    public void testThatSatHandlerIsHandledProperly() {
+        final Formula formula = pg.generate(10).negate(f);
+        for (final SATSolver solver : solvers) {
+            solver.add(formula);
+            final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
+            final AtomicInteger count = new AtomicInteger(0);
+            when(handler.shouldResume(any())).then(invocationOnMock -> {
+                if (invocationOnMock.getArgument(0) == SAT_CALL_STARTED) {
+                    count.addAndGet(1);
+                }
+                return count.get() <= 5;
+            });
+            final ModelEnumerationFunction me = ModelEnumerationFunction.builder(formula.variables(f)).build();
+            solver.execute(me, handler);
+            verify(handler, times(1)).shouldResume(MODEL_ENUMERATION_STARTED);
+            verify(handler, times(6)).shouldResume(SAT_CALL_STARTED);
+        }
+    }
+
+    @Test
+    public void testTimeoutHandlerSingleTimeout() {
+        final Formula formula = pg.generate(10).negate(f);
+        for (final SATSolver solver : solvers) {
+            solver.add(formula);
+            final TimeoutHandler handler = new TimeoutHandler(100L);
+            final ModelEnumerationFunction me = ModelEnumerationFunction.builder(formula.variables(f)).build();
+
+            final LNGResultWithPartial<List<Model>, List<Model>> result = me.apply(solver, handler);
+
+            assertThat(result.isSuccess()).isFalse();
+            assertThat(result.getResult()).isNull();
+            assertThat(result.getPartialResult()).isNotEmpty();
+        }
+    }
+
+    @Test
+    public void testTimeoutHandlerFixedEnd() {
+        final Formula formula = pg.generate(10).negate(f);
+        for (final SATSolver solver : solvers) {
+            solver.add(formula);
+            final TimeoutHandler handler = new TimeoutHandler(System.currentTimeMillis() + 100L, FIXED_END);
+            final ModelEnumerationFunction me = ModelEnumerationFunction.builder(formula.variables(f)).build();
+
+            final LNGResultWithPartial<List<Model>, List<Model>> result = me.apply(solver, handler);
+
+            assertThat(result.isSuccess()).isFalse();
+            assertThat(result.getResult()).isNull();
+            assertThat(result.getPartialResult()).isNotEmpty();
+        }
+    }
 }

@@ -10,7 +10,7 @@ import com.booleworks.logicng.handlers.events.LNGEvent;
 /**
  * Bounded optimization handler for testing purposes.
  * <p>
- * The handler aborts the optimization if a certain number of starts or a
+ * The handler cancels the optimization if a certain number of starts or a
  * certain number of SAT handler starts is reached.
  * @version 2.1.0
  * @since 2.1.0
@@ -20,7 +20,7 @@ public class BoundedOptimizationHandler implements ComputationHandler {
     private final int satStartsLimit;
     private int numStarts;
     private int numSatStarts;
-    private boolean aborted;
+    private boolean canceled;
 
     /**
      * Constructs a new instance with the given starts limits.
@@ -39,11 +39,11 @@ public class BoundedOptimizationHandler implements ComputationHandler {
     public boolean shouldResume(final LNGEvent event) {
         if (event instanceof ComputationStartedEvent) {
             if (event == ComputationStartedEvent.SAT_CALL_STARTED) {
-                aborted |= satStartsLimit != -1 && ++numSatStarts >= satStartsLimit;
+                canceled |= satStartsLimit != -1 && ++numSatStarts >= satStartsLimit;
             } else {
-                aborted |= startsLimit != -1 && ++numStarts >= startsLimit;
+                canceled |= startsLimit != -1 && ++numStarts >= startsLimit;
             }
         }
-        return !aborted;
+        return !canceled;
     }
 }

@@ -50,9 +50,10 @@ public final class ModelCounter {
     }
 
     /**
-     * Computes the model count for a given set of formulas (interpreted as conjunction)
-     * and a set of relevant variables.  This set can only be a superset of the original
-     * formulas' variables.  No projected model counting is supported.
+     * Computes the model count for a given set of formulas (interpreted as
+     * conjunction) and a set of relevant variables. This set can only be a
+     * superset of the original formulas' variables. No projected model counting
+     * is supported.
      * @param f         the formula factory to generate new formulas
      * @param formulas  the list of formulas
      * @param variables the relevant variables
@@ -63,16 +64,19 @@ public final class ModelCounter {
     }
 
     /**
-     * Computes the model count for a given set of formulas (interpreted as conjunction)
-     * and a set of relevant variables.  This set can only be a superset of the original
-     * formulas' variables.  No projected model counting is supported.
+     * Computes the model count for a given set of formulas (interpreted as
+     * conjunction) and a set of relevant variables. This set can only be a
+     * superset of the original formulas' variables. No projected model counting
+     * is supported.
      * @param f         the formula factory to generate new formulas
      * @param formulas  the list of formulas
      * @param variables the relevant variables
      * @param handler   the computation handler
-     * @return the model count of the formulas for the variables or {@code null} if the DNNF handler aborted the DNNF computation
+     * @return the model count of the formulas for the variables or {@code null}
+     *         if the DNNF handler canceled the DNNF computation
      */
-    public static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas, final SortedSet<Variable> variables,
+    public static BigInteger count(final FormulaFactory f, final Collection<Formula> formulas,
+                                   final SortedSet<Variable> variables,
                                    final ComputationHandler handler) {
         if (!variables.containsAll(FormulaHelper.variables(f, formulas))) {
             throw new IllegalArgumentException("Expected variables to contain all of the formulas' variables.");

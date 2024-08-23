@@ -44,7 +44,7 @@ public final class BackboneGeneration {
      *                  backbone computation
      * @param type      the type of backbone variables that should be computed
      * @param handler   a handler
-     * @return the backbone or {@code null} if the computation was aborted by
+     * @return the backbone or {@code null} if the computation was canceled by
      *         the handler
      */
     public static LNGResult<Backbone> compute(final FormulaFactory f, final Collection<Formula> formulas,

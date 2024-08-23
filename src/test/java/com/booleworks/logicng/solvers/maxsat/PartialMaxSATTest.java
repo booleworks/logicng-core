@@ -363,7 +363,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
     }
 
     static class MaxSatTimeoutHandlerWithApproximation implements ComputationHandler {
-        boolean aborted = false;
+        boolean canceled = false;
         long timeout;
         long designatedEnd;
         int lowerBoundApproximation;
@@ -385,8 +385,8 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
             } else if (event instanceof MaxSatNewUpperBoundEvent) {
                 upperBoundApproximation = ((MaxSatNewUpperBoundEvent) event).getBound();
             }
-            aborted = System.currentTimeMillis() >= designatedEnd;
-            return !aborted;
+            canceled = System.currentTimeMillis() >= designatedEnd;
+            return !canceled;
         }
     }
 }

@@ -317,7 +317,7 @@ public class SATSolver {
      * @param function the solver function
      * @param handler  the computation handler
      * @param <RESULT> the result type of the function
-     * @return the (potentially aborted) result of executing the solver
+     * @return the (potentially canceled) result of executing the solver
      *         function on the current solver
      * @throws IllegalStateException if this solver is currently used in a
      *                               {@link SATCall}

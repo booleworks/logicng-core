@@ -15,7 +15,7 @@ import com.booleworks.logicng.transformations.StatelessFormulaTransformation;
  * DNFs. This implementation uses the {@link AdvancedSimplifier} to compute the
  * minimization. This is far more efficient than performing manual term table
  * manipulations but still has its limits. An optional handler can be provided
- * to abort long-running computations.
+ * to cancel long-running computations.
  * @version 3.0.0
  * @since 1.4.0
  */

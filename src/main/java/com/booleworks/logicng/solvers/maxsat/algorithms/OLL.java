@@ -117,7 +117,7 @@ public class OLL extends MaxSAT {
         while (true) {
             final LNGResult<Boolean> res = searchSATSolver(solver, handler, assumptions);
             if (!res.isSuccess()) {
-                return LNGResult.aborted(res.getAbortionEvent());
+                return LNGResult.canceled(res.getCancelCause());
             } else if (res.getResult()) {
                 nbSatisfiable++;
                 final LNGBooleanVector model = solver.model();
@@ -245,7 +245,7 @@ public class OLL extends MaxSAT {
         while (true) {
             final LNGResult<Boolean> res = searchSATSolver(solver, handler, assumptions);
             if (!res.isSuccess()) {
-                return LNGResult.aborted(res.getAbortionEvent());
+                return LNGResult.canceled(res.getCancelCause());
             } else if (res.getResult()) {
                 nbSatisfiable++;
                 final LNGBooleanVector model = solver.model();

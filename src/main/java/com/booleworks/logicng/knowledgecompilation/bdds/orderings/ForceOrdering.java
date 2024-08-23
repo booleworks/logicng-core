@@ -110,7 +110,7 @@ public final class ForceOrdering implements VariableOrderingProvider {
     }
 
     /**
-     * The abortion criteria for the FORCE algorithm.
+     * The cancel criteria for the FORCE algorithm.
      * @param lastOrdering    the ordering of the last step
      * @param currentOrdering the ordering of the current step
      * @return {@code true} if the algorithm should proceed, {@code false} if it

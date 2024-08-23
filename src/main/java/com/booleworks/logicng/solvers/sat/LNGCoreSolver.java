@@ -489,14 +489,14 @@ public class LNGCoreSolver {
 
     /**
      * Solves the formula currently stored in the solver and returns whether
-     * it is satisfiable or not. If the handler aborts the computation earlier,
-     * a result with the respective abortion event is returned.
+     * it is satisfiable or not. If the handler cancels the computation earlier,
+     * a result with the respective cancel event is returned.
      * @param handler a handler
      * @return the result of the solve call
      */
     public LNGResult<Boolean> internalSolve(final ComputationHandler handler) {
         if (!handler.shouldResume(SAT_CALL_STARTED)) {
-            return LNGResult.aborted(SAT_CALL_STARTED);
+            return LNGResult.canceled(SAT_CALL_STARTED);
         }
         model.clear();
         assumptionsConflict.clear();
@@ -510,7 +510,7 @@ public class LNGCoreSolver {
 
         if (!status.isSuccess()) {
             cancelUntil(0);
-            return LNGResult.aborted(status.getAbortionEvent());
+            return LNGResult.canceled(status.getCancelCause());
         }
 
         final boolean result = status.getResult() == TRUE;
@@ -529,7 +529,7 @@ public class LNGCoreSolver {
         }
         cancelUntil(0);
         if (!handler.shouldResume(SAT_CALL_FINISHED)) {
-            return LNGResult.aborted(SAT_CALL_FINISHED);
+            return LNGResult.canceled(SAT_CALL_FINISHED);
         }
         return LNGResult.of(result);
     }
@@ -537,8 +537,8 @@ public class LNGCoreSolver {
     /**
      * Solves the formula currently stored in the solver together with the
      * given assumption literals and returns whether it is satisfiable or not.
-     * If the handler aborts the computation earlier, a result with the
-     * respective abortion event is returned.
+     * If the handler cancels the computation earlier, a result with the
+     * respective cancel event is returned.
      * @param handler     a handler
      * @param assumptions the assumptions as a given vector of literals
      * @return the result of the solve call
@@ -1170,7 +1170,7 @@ public class LNGCoreSolver {
             final LNGClause confl = propagate();
             if (confl != null) {
                 if (!handler.shouldResume(SAT_CONFLICT_DETECTED)) {
-                    return LNGResult.aborted(SAT_CONFLICT_DETECTED);
+                    return LNGResult.canceled(SAT_CONFLICT_DETECTED);
                 }
                 conflicts++;
                 conflictsRestarts++;
@@ -1747,25 +1747,25 @@ public class LNGCoreSolver {
      * @param type      backbone type
      * @param handler   the handler
      * @return the backbone projected to the relevant variables or {@code null}
-     *         if the computation was aborted by the handler
+     *         if the computation was canceled by the handler
      */
     public LNGResult<Backbone> computeBackbone(final Collection<Variable> variables, final BackboneType type,
                                                final ComputationHandler handler) {
         if (!handler.shouldResume(BACKBONE_COMPUTATION_STARTED)) {
-            return LNGResult.aborted(BACKBONE_COMPUTATION_STARTED);
+            return LNGResult.canceled(BACKBONE_COMPUTATION_STARTED);
         }
         final SolverState stateBeforeBackbone = saveState();
         final LNGResult<Boolean> solveResult = internalSolve(handler);
         final LNGResult<Backbone> result;
         if (!solveResult.isSuccess()) {
-            result = LNGResult.aborted(solveResult.getAbortionEvent());
+            result = LNGResult.canceled(solveResult.getCancelCause());
         } else if (solveResult.getResult()) {
             computingBackbone = true;
             final List<Integer> relevantVarIndices = getRelevantVarIndices(variables);
             initBackboneDS(relevantVarIndices);
             final LNGEvent backboneEvent = computeBackbone(relevantVarIndices, type, handler);
             if (backboneEvent != null) {
-                result = LNGResult.aborted(backboneEvent);
+                result = LNGResult.canceled(backboneEvent);
             } else {
                 final Backbone backbone = buildBackbone(variables, type);
                 result = LNGResult.of(backbone);
@@ -1823,7 +1823,7 @@ public class LNGCoreSolver {
             final int lit = backboneCandidates.pop();
             final LNGResult<Boolean> satResult = solveWithLit(lit, handler);
             if (!satResult.isSuccess()) {
-                return satResult.getAbortionEvent();
+                return satResult.getCancelCause();
             } else if (satResult.getResult()) {
                 refineUpperBound();
             } else {

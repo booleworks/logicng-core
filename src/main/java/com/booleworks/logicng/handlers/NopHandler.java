@@ -3,7 +3,7 @@ package com.booleworks.logicng.handlers;
 import com.booleworks.logicng.handlers.events.LNGEvent;
 
 /**
- * A computation handler which never aborts the computation.
+ * A computation handler which never canceled the computation.
  * <p>
  * {@link #get()} returns the one and only instance of the class.
  * @version 3.0.0
