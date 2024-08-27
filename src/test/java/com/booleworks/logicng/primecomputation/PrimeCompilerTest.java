@@ -8,6 +8,7 @@ import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.FIXED_END
 import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.RESTARTING_TIMEOUT;
 import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.SINGLE_TIMEOUT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 
 import com.booleworks.logicng.LongRunningTag;
@@ -235,7 +236,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
         final LNGResult<PrimeResult> result = compiler.compute(formula.factory(), formula, coverageType, handler);
         assertThat(!result.isSuccess()).isEqualTo(expCanceled);
         if (expCanceled) {
-            assertThat(result.getResult()).isNull();
+            assertThatThrownBy(result::getResult).isInstanceOf(IllegalStateException.class);
         } else {
             assertThat(result.getResult()).isNotNull();
         }

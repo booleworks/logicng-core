@@ -16,7 +16,6 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.handlers.LNGResultWithPartial;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.modelcounting.ModelCounter;
@@ -217,9 +216,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
         final LNGResult<BigInteger> numberOfModels = solver.execute(
                 ModelCountingFunction.builder(formula.variables(f)).configuration(config).build(), handler);
         assertThat(numberOfModels.isSuccess()).isFalse();
-        assertThat(numberOfModels).isInstanceOf(LNGResultWithPartial.class);
-        assertThat(((LNGResultWithPartial<BigInteger, BigInteger>) numberOfModels).getPartialResult().get())
-                .isEqualTo(3);
+        assertThat(numberOfModels.isPartial()).isTrue();
+        assertThat(numberOfModels.getPartialResult()).isEqualTo(3);
     }
 
     @Test

@@ -16,7 +16,6 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.handlers.LNGResultWithPartial;
 import com.booleworks.logicng.handlers.SatResult;
 import com.booleworks.logicng.handlers.events.OptimizationFoundBetterBoundEvent;
 import com.booleworks.logicng.solvers.SATSolver;
@@ -88,18 +87,18 @@ public final class OptimizationFunction implements SolverFunction<SatResult<Assi
     }
 
     @Override
-    public LNGResultWithPartial<SatResult<Assignment>, SatResult<Assignment>> apply(
+    public LNGResult<SatResult<Assignment>> apply(
             final SATSolver solver, final ComputationHandler handler) {
         final SolverState initialState = solver.saveState();
-        final LNGResultWithPartial<SatResult<Assignment>, SatResult<Assignment>> model = maximize(solver, handler);
+        final LNGResult<SatResult<Assignment>> model = maximize(solver, handler);
         solver.loadState(initialState);
         return model;
     }
 
-    private LNGResultWithPartial<SatResult<Assignment>, SatResult<Assignment>> maximize(
+    private LNGResult<SatResult<Assignment>> maximize(
             final SATSolver solver, final ComputationHandler handler) {
         if (!handler.shouldResume(OPTIMIZATION_FUNCTION_STARTED)) {
-            return LNGResultWithPartial.canceled(null, OPTIMIZATION_FUNCTION_STARTED);
+            return LNGResult.canceled(OPTIMIZATION_FUNCTION_STARTED);
         }
         final FormulaFactory f = solver.factory();
         final Map<Variable, Literal> selectorMap = new TreeMap<>();
@@ -119,17 +118,17 @@ public final class OptimizationFunction implements SolverFunction<SatResult<Assi
         Assignment currentSelectorModel;
         try (final SATCall satCall = solver.satCall().handler(handler).solve()) {
             if (!satCall.getSatResult().isSuccess()) {
-                return LNGResultWithPartial.canceled(null, satCall.getSatResult().getCancelCause());
+                return LNGResult.canceled(satCall.getSatResult().getCancelCause());
             }
             if (!satCall.getSatResult().getResult()) {
-                return LNGResultWithPartial.ofResult(SatResult.unsat());
+                return LNGResult.of(SatResult.unsat());
             }
             lastResultModel = satCall.model(resultModelVariables);
             currentSelectorModel = satCall.model(selectors);
             if (currentSelectorModel.positiveVariables().size() == selectors.size()) {
                 // all optimization literals satisfied -- no need for further
                 // optimization
-                return LNGResultWithPartial.ofResult(SatResult.sat(satCall.model(resultModelVariables)));
+                return LNGResult.of(SatResult.sat(satCall.model(resultModelVariables)));
             }
         }
         int currentBound = currentSelectorModel.positiveVariables().size();
@@ -138,9 +137,9 @@ public final class OptimizationFunction implements SolverFunction<SatResult<Assi
             try (final SATCall satCall = solver.satCall().handler(handler).solve()) {
                 final LNGResult<Boolean> satResult = satCall.getSatResult();
                 if (!satResult.isSuccess()) {
-                    return LNGResultWithPartial.canceled(SatResult.sat(lastResultModel), satResult.getCancelCause());
+                    return LNGResult.partial(SatResult.sat(lastResultModel), satResult.getCancelCause());
                 } else if (!satResult.getResult()) {
-                    return LNGResultWithPartial.ofResult(SatResult.sat(lastResultModel));
+                    return LNGResult.of(SatResult.sat(lastResultModel));
                 } else {
                     lastResultModel = satCall.model(resultModelVariables);
                     currentSelectorModel = satCall.model(selectors);
@@ -155,19 +154,19 @@ public final class OptimizationFunction implements SolverFunction<SatResult<Assi
             try (final SATCall satCall = solver.satCall().handler(handler).solve()) {
                 final LNGResult<Boolean> satResult = satCall.getSatResult();
                 if (!satResult.isSuccess()) {
-                    return LNGResultWithPartial.canceled(SatResult.sat(lastResultModel), satResult.getCancelCause());
+                    return LNGResult.partial(SatResult.sat(lastResultModel), satResult.getCancelCause());
                 } else if (!satResult.getResult()) {
-                    return LNGResultWithPartial.ofResult(SatResult.sat(lastResultModel));
+                    return LNGResult.of(SatResult.sat(lastResultModel));
                 }
                 lastResultModel = satCall.model(resultModelVariables);
                 final OptimizationFoundBetterBoundEvent betterBoundEvent = new OptimizationFoundBetterBoundEvent(() -> satCall.model(resultModelVariables));
                 if (!handler.shouldResume(betterBoundEvent)) {
-                    return LNGResultWithPartial.canceled(SatResult.sat(lastResultModel), betterBoundEvent);
+                    return LNGResult.partial(SatResult.sat(lastResultModel), betterBoundEvent);
                 }
                 currentSelectorModel = satCall.model(selectors);
                 currentBound = currentSelectorModel.positiveVariables().size();
                 if (currentBound == selectors.size()) {
-                    return LNGResultWithPartial.ofResult(SatResult.sat(lastResultModel));
+                    return LNGResult.of(SatResult.sat(lastResultModel));
                 }
             }
             incrementalData.newLowerBoundForSolver(currentBound + 1);

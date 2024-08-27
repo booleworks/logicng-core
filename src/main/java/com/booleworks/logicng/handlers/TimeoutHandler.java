@@ -33,7 +33,7 @@ public class TimeoutHandler implements ComputationHandler {
      * canceled.
      * </ul>
      * Note that it might take a few milliseconds more until the computation is
-     * actually canceled, since the cancellation depends on the next call to
+     * actually canceled, since the cancelation depends on the next call to
      * {@link #shouldResume}.
      * @param timeout the timeout in milliseconds, its meaning is defined by the
      *                timeout type

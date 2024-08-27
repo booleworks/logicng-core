@@ -113,7 +113,6 @@ public class LargeBDDTest {
         final NumberOfNodesBDDHandler handler = new NumberOfNodesBDDHandler(5);
         final LNGResult<BDD> bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(bdd.isSuccess()).isFalse();
-        assertThat(bdd.getResult()).isNull();
     }
 
     @Test
@@ -124,6 +123,5 @@ public class LargeBDDTest {
         final NumberOfNodesBDDHandler handler = new NumberOfNodesBDDHandler(5);
         final LNGResult<BDD> bdd = BDDFactory.build(f, formula, kernel, handler);
         assertThat(bdd.isSuccess()).isFalse();
-        assertThat(bdd.getResult()).isNull();
     }
 }

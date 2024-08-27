@@ -4,8 +4,19 @@ import com.booleworks.logicng.handlers.events.LNGEvent;
 
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
+/**
+ * The result of a computation which is cancelable by a
+ * {@link ComputationHandler}. The computation was canceled iff
+ * {@link #getCancelCause()} is not {@code null}.
+ * <p>
+ * A canceled result may provide a {@link #getPartialResult() partial result}.
+ * <p>
+ * The result of a successful computation must never be {@code null}.
+ * @param <RESULT> the result type
+ * @version 3.0.0
+ * @since 3.0.0
+ */
 public class LNGResult<RESULT> {
 
     protected final RESULT result;
@@ -16,47 +27,113 @@ public class LNGResult<RESULT> {
         this.cancelCause = cancelCause;
     }
 
+    /**
+     * Creates a new LNG result for a successful computation with the given
+     * result.
+     * @param result   the result of the successful computation,
+     *                 must not be {@code null}
+     * @param <RESULT> the type of the result
+     * @return the LNG result
+     */
     public static <RESULT> LNGResult<RESULT> of(final RESULT result) {
-        assert result != null;
+        if (result == null) {
+            throw new IllegalArgumentException("result cannot be null");
+        }
         return new LNGResult<>(result, null);
     }
 
-    public static <RESULT> LNGResult<RESULT> canceled(final LNGEvent event) {
-        assert event != null;
-        return new LNGResult<>(null, event);
+    /**
+     * Creates a new LNG result for a computation which was canceled by the
+     * given event.
+     * @param cancelCause the event which canceled the computation,
+     *                    must not be {@code null}
+     * @param <RESULT>    the type of the result
+     * @return the LNG result
+     */
+    public static <RESULT> LNGResult<RESULT> canceled(final LNGEvent cancelCause) {
+        if (cancelCause == null) {
+            throw new IllegalArgumentException("event cannot be null");
+        }
+        return new LNGResult<>(null, cancelCause);
     }
 
+    /**
+     * Creates a new LNG result for a computation which was canceled by the
+     * given event, but still can provide a partial result.
+     * @param partialResult the partial result (allowed to be {@code null})
+     * @param cancelCause   the event which canceled the computation,
+     *                      must not be {@code null}
+     * @param <RESULT>      the type of the result
+     * @return the LNG result
+     */
+    public static <RESULT> LNGResult<RESULT> partial(final RESULT partialResult, final LNGEvent cancelCause) {
+        return new LNGResult<>(partialResult, cancelCause);
+    }
+
+    /**
+     * Returns the result if the computation was not canceled, otherwise an
+     * {@link IllegalStateException} is thrown.
+     * @return the result if the computation was not canceled
+     */
     public RESULT getResult() {
+        if (cancelCause != null) {
+            throw new IllegalStateException("Cannot return a result because the computation was canceled.");
+        }
         return result;
     }
 
+    /**
+     * Returns the partial result of the computation. This can be {@code null}
+     * if the computation could not provide a partial result, or it can also
+     * represent the result of a successful and complete computation if the
+     * {@link #getCancelCause() cancel cause} is {@code null}.
+     * @return the partial result
+     */
+    public RESULT getPartialResult() {
+        return result;
+    }
+
+    /**
+     * Returns the event which canceled the computation or {@code null} if the
+     * computation finished successfully.
+     * @return the event which canceled the computation
+     */
     public LNGEvent getCancelCause() {
         return cancelCause;
     }
 
+    /**
+     * Returns {@code true} if the computation finished successfully (i.e. the
+     * {@link #getCancelCause() cancel cause} is {@code null}), otherwise
+     * {@code false}.
+     * @return {@code true} if the computation finished successfully
+     */
     public boolean isSuccess() {
         return cancelCause == null;
     }
 
+    /**
+     * Returns {@code true} if the computation of this result was canceled and
+     * has a partial result. Returns {@code false} if the computation of this
+     * result was canceled without partial result or successful.
+     * @return {@code true} if the computation of this result was canceled and
+     *         has a partial result
+     */
+    public boolean isPartial() {
+        return result != null && cancelCause != null;
+    }
+
+    /**
+     * Transforms the result of a (potentially partially) successful computation
+     * using the given transformation if this result is successful. Otherwise,
+     * a new LNG result equals to this result is returned.1
+     * @param transformation the transformation for the (partially) successful
+     *                       result
+     * @param <T>            the type of the new result
+     * @return the transformed LNG result
+     */
     public <T> LNGResult<T> map(final Function<? super RESULT, ? extends T> transformation) {
-        return new LNGResult<>(isSuccess() ? transformation.apply(result) : null, cancelCause);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> LNGResult<T> flatMap(final Function<? super RESULT, ? extends LNGResult<? extends T>> transformation) {
-        return isSuccess() ? (LNGResult<T>) transformation.apply(result) : LNGResult.canceled(cancelCause);
-    }
-
-    public RESULT orElse(final RESULT alternative) {
-        return isSuccess() ? result : alternative;
-    }
-
-    public <X extends Throwable> RESULT orElseThrow(final Supplier<X> exception) throws X {
-        if (isSuccess()) {
-            return result;
-        } else {
-            throw exception.get();
-        }
+        return new LNGResult<>(result != null ? transformation.apply(result) : null, cancelCause);
     }
 
     @Override
@@ -78,8 +155,9 @@ public class LNGResult<RESULT> {
 
     @Override
     public String toString() {
+        final String resultOrPartial = result != null && cancelCause != null ? "partialResult" : "result";
         return "ComputationResult{" +
-                "result=" + result +
+                resultOrPartial + "=" + result +
                 ", cancelCause=" + cancelCause +
                 '}';
     }

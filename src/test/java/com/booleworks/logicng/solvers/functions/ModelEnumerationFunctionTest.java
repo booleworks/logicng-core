@@ -24,7 +24,6 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.handlers.LNGResultWithPartial;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.modelcounting.ModelCounter;
@@ -375,8 +374,8 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
         final LNGResult<List<Model>> models = solver.execute(
                 ModelEnumerationFunction.builder(f.variables("A", "B", "C")).configuration(config).build(), handler);
         assertThat(models.isSuccess()).isFalse();
-        assertThat(models).isInstanceOf(LNGResultWithPartial.class);
-        assertThat(((LNGResultWithPartial<List<Model>, List<Model>>) models).getPartialResult().get()).hasSize(3);
+        assertThat(models.isPartial()).isTrue();
+        assertThat(models.getPartialResult()).hasSize(3);
     }
 
     @RandomTag

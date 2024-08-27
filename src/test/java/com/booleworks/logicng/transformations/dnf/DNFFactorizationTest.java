@@ -141,7 +141,6 @@ public class DNFFactorizationTest extends TestWithFormulaContext {
         final DNFFactorization factorization = new DNFFactorization(_c.f, null);
         LNGResult<Formula> dnf = factorization.apply(formula, handler);
         assertThat(dnf.isSuccess()).isFalse();
-        assertThat(dnf.getResult()).isNull();
 
         formula = _c.p.parse("~(a | b)");
         dnf = factorization.apply(formula, handler);

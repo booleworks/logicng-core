@@ -20,7 +20,6 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.handlers.LNGResultWithPartial;
 import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
@@ -58,9 +57,9 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                                                                  SortedSet<Variable> additionalVariablesNotOnSolver);
 
     @Override
-    public LNGResultWithPartial<RESULT, RESULT> apply(final SATSolver solver, final ComputationHandler handler) {
+    public LNGResult<RESULT> apply(final SATSolver solver, final ComputationHandler handler) {
         if (!handler.shouldResume(MODEL_ENUMERATION_STARTED)) {
-            return LNGResultWithPartial.canceled(null, MODEL_ENUMERATION_STARTED);
+            return LNGResult.canceled(MODEL_ENUMERATION_STARTED);
         }
         final SortedSet<Variable> knownVariables = solver.underlyingSolver().knownVariables();
         final SortedSet<Variable> additionalVarsNotOnSolver =
@@ -75,9 +74,9 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         final LNGEvent cancelCause = enumerateRecursive(collector, solver, new TreeSet<>(), enumerationVars, initialSplitVars, 0, handler);
         final RESULT result = collector.getResult();
         if (cancelCause == null) {
-            return LNGResultWithPartial.ofResult(result);
+            return LNGResult.of(result);
         } else {
-            return LNGResultWithPartial.canceled(result, cancelCause);
+            return LNGResult.partial(result, cancelCause);
         }
     }
 
@@ -112,10 +111,10 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 } else if (enumerationForSplit.getResult()) {
                     break;
                 } else {
-                    final LNGEvent cancellationOnRollback = collector.rollback(handler);
-                    if (cancellationOnRollback != null) {
+                    final LNGEvent cancelationOnRollback = collector.rollback(handler);
+                    if (cancelationOnRollback != null) {
                         solver.loadState(state);
-                        return cancellationOnRollback;
+                        return cancelationOnRollback;
                     }
                     newSplitVars = strategy.reduceSplitVars(newSplitVars, recursionDepth);
                 }

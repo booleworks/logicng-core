@@ -11,6 +11,7 @@ import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigPa
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES;
 import static java.util.stream.Collectors.toCollection;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.LogicNGTest;
 import com.booleworks.logicng.LongRunningTag;
@@ -25,7 +26,6 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.BoundedOptimizationHandler;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.handlers.LNGResultWithPartial;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.handlers.SatResult;
 import com.booleworks.logicng.handlers.TimeoutHandler;
@@ -367,25 +367,22 @@ public class OptimizationFunctionTest implements LogicNGTest {
         final LNGResult<SatResult<Assignment>> maximumModel = optimize(Collections.singleton(formula),
                 formula.variables(f), Collections.emptyList(), true, solver.get(), handlerMax);
         assertThat(maximumModel.isSuccess()).isFalse();
-        assertThat(maximumModel).isInstanceOf(LNGResultWithPartial.class);
-        assertThat(((LNGResultWithPartial<SatResult<Assignment>, SatResult<Assignment>>) maximumModel)
-                .getPartialResult()).isEmpty();
+        assertThat(maximumModel.isPartial()).isFalse();
+        assertThat(maximumModel.getPartialResult()).isNull();
 
         final TimeoutHandler handlerTooShort = new TimeoutHandler(0L);
         final LNGResult<SatResult<Assignment>> model = optimize(Collections.singleton(formula), formula.variables(f),
                 Collections.emptyList(), false, solver.get(), handlerTooShort);
         assertThat(model.isSuccess()).isFalse();
-        assertThat(model).isInstanceOf(LNGResultWithPartial.class);
-        assertThat(((LNGResultWithPartial<SatResult<Assignment>, SatResult<Assignment>>) model).getPartialResult())
-                .isEmpty();
+        assertThat(model.isPartial()).isFalse();
+        assertThat(model.getPartialResult()).isNull();
         final CustomOptimizationHandler customHandler = new CustomOptimizationHandler();
         final LNGResult<SatResult<Assignment>> modelCustom = optimize(Collections.singleton(formula),
                 formula.variables(f), Collections.emptyList(), true, solver.get(), customHandler);
         assertThat(modelCustom.isSuccess()).isFalse();
-        assertThat(modelCustom).isInstanceOf(LNGResultWithPartial.class);
-        assertThat(((LNGResultWithPartial<SatResult<Assignment>, SatResult<Assignment>>) modelCustom)
-                .getPartialResult().get().getResult()).isNotNull();
-        assertThat(modelCustom.getResult()).isNull();
+        assertThat(modelCustom.isPartial()).isTrue();
+        assertThat(modelCustom.getPartialResult()).isNotNull();
+        assertThatThrownBy(modelCustom::getResult).isInstanceOf(IllegalStateException.class);
     }
 
     @ParameterizedTest(name = "{index} {2}")

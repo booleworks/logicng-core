@@ -159,7 +159,6 @@ public class CNFTest extends TestWithFormulaContext {
         final CNFFactorization factorization = new CNFFactorization(_c.f, null);
         LNGResult<Formula> cnf = factorization.apply(formula, handler);
         assertThat(cnf.isSuccess()).isFalse();
-        assertThat(cnf.getResult()).isNull();
 
         formula = _c.p.parse("~(a | b)");
         cnf = factorization.apply(formula, handler);

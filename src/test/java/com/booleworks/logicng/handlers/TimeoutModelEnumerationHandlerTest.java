@@ -10,6 +10,7 @@ import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SAT
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.CNF_METHOD;
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.times;
@@ -100,11 +101,10 @@ class TimeoutModelEnumerationHandlerTest {
             final TimeoutHandler handler = new TimeoutHandler(100L);
             final ModelEnumerationFunction me = ModelEnumerationFunction.builder(formula.variables(f)).build();
 
-            final LNGResultWithPartial<List<Model>, List<Model>> result = me.apply(solver, handler);
+            final LNGResult<List<Model>> result = me.apply(solver, handler);
 
             assertThat(result.isSuccess()).isFalse();
-            assertThat(result.getResult()).isNull();
-            assertThat(result.getPartialResult()).isNotEmpty();
+            assertThatThrownBy(result::getResult).isInstanceOf(IllegalStateException.class);
         }
     }
 
@@ -116,11 +116,12 @@ class TimeoutModelEnumerationHandlerTest {
             final TimeoutHandler handler = new TimeoutHandler(System.currentTimeMillis() + 100L, FIXED_END);
             final ModelEnumerationFunction me = ModelEnumerationFunction.builder(formula.variables(f)).build();
 
-            final LNGResultWithPartial<List<Model>, List<Model>> result = me.apply(solver, handler);
+            final LNGResult<List<Model>> result = me.apply(solver, handler);
 
             assertThat(result.isSuccess()).isFalse();
-            assertThat(result.getResult()).isNull();
-            assertThat(result.getPartialResult()).isNotEmpty();
+            assertThatThrownBy(result::getResult).isInstanceOf(IllegalStateException.class);
         }
     }
+
+    // TODO test partial results (does not seem to work well with negated Pigeon Hole
 }

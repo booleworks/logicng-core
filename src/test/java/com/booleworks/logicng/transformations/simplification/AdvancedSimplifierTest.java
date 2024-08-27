@@ -5,6 +5,7 @@
 package com.booleworks.logicng.transformations.simplification;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.RandomTag;
@@ -164,7 +165,7 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
         final LNGResult<Formula> simplified = formula.transform(simplifierWithHandler, handler);
         assertThat(simplified.isSuccess()).isEqualTo(!expCanceled);
         if (expCanceled) {
-            assertThat(simplified.getResult()).isNull();
+            assertThatThrownBy(simplified::getResult).isInstanceOf(IllegalStateException.class);
         } else {
             assertThat(simplified.getResult()).isNotNull();
         }

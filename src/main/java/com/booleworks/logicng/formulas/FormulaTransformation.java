@@ -30,7 +30,6 @@ public interface FormulaTransformation {
      * @return the transformed formula
      */
     default Formula apply(final Formula formula) {
-        return apply(formula, NopHandler.get())
-                .orElseThrow(() -> new IllegalStateException("Computations should never cancel with the NopHandler."));
+        return apply(formula, NopHandler.get()).getResult();
     }
 }

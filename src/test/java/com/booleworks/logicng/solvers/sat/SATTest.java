@@ -27,7 +27,6 @@ import com.booleworks.logicng.formulas.FormulaFactoryConfig;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.handlers.LNGResultWithPartial;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.handlers.SatResult;
 import com.booleworks.logicng.handlers.TimeoutHandler;
@@ -555,9 +554,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                     .build();
             final LNGResult<List<Model>> modelsWithHandler = s.execute(me, handler);
             assertThat(modelsWithHandler.isSuccess()).isFalse();
-            assertThat(modelsWithHandler).isInstanceOf(LNGResultWithPartial.class);
-            final List<Model> partialResult = ((LNGResultWithPartial<List<Model>, List<Model>>) modelsWithHandler)
-                    .getPartialResult().get();
+            assertThat(modelsWithHandler.isPartial()).isTrue();
+            final List<Model> partialResult = modelsWithHandler.getPartialResult();
             assertThat(partialResult).hasSize(29);
             for (final Model model : partialResult) {
                 for (final Variable lit : lits) {
@@ -589,11 +587,9 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                     .build();
             final LNGResult<List<Model>> modelsWithHandler = s.execute(me, handler);
             assertThat(modelsWithHandler.isSuccess()).isFalse();
-            assertThat(modelsWithHandler).isInstanceOf(LNGResultWithPartial.class);
-            final List<Model> partialResult = ((LNGResultWithPartial<List<Model>, List<Model>>) modelsWithHandler)
-                    .getPartialResult().get();
-            assertThat(partialResult).hasSize(29);
-            for (final Model model : partialResult) {
+            assertThat(modelsWithHandler.isPartial()).isTrue();
+            assertThat(modelsWithHandler.getPartialResult()).hasSize(29);
+            for (final Model model : modelsWithHandler.getPartialResult()) {
                 for (final Variable lit : lits) {
                     assertThat(model.positiveVariables().contains(lit) || model.negativeVariables().contains(lit))
                             .isTrue();
@@ -653,10 +649,9 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                     .build();
             models = s.execute(me, handler);
             assertThat(models.isSuccess()).isFalse();
-            assertThat(models).isInstanceOf(LNGResultWithPartial.class);
-            List<Model> partial = ((LNGResultWithPartial<List<Model>, List<Model>>) models).getPartialResult().get();
-            assertThat(partial).hasSize(50);
-            for (final Model m : partial) {
+            assertThat(models.isPartial()).isTrue();
+            assertThat(models.getPartialResult()).hasSize(50);
+            for (final Model m : models.getPartialResult()) {
                 assertThat(m.positiveVariables().size()).isEqualTo(1);
             }
 
@@ -668,10 +663,9 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                     .build();
             models = s.execute(me, handler);
             assertThat(models.isSuccess()).isFalse();
-            assertThat(models).isInstanceOf(LNGResultWithPartial.class);
-            partial = ((LNGResultWithPartial<List<Model>, List<Model>>) models).getPartialResult().get();
-            assertThat(partial).hasSize(1);
-            for (final Model m : partial) {
+            assertThat(models.isPartial()).isTrue();
+            assertThat(models.getPartialResult()).hasSize(1);
+            for (final Model m : models.getPartialResult()) {
                 assertThat(m.positiveVariables().size()).isEqualTo(1);
             }
         }

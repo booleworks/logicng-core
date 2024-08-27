@@ -144,7 +144,6 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
             final LNGResult<SortedSet<Literal>> primeImplicant = naive.reduceImplicant(model, handler);
             if (expCanceled) {
                 assertThat(primeImplicant.isSuccess()).isFalse();
-                assertThat(primeImplicant.getResult()).isNull();
             } else {
                 assertThat(model).containsAll(primeImplicant.getResult());
                 testPrimeImplicantProperty(formula, primeImplicant.getResult());

@@ -17,7 +17,6 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.handlers.LNGResultWithPartial;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
@@ -237,8 +236,8 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
                 ModelEnumerationToBddFunction.builder(f.variables("A", "B", "C")).configuration(config).build(),
                 handler);
         assertThat(bdd.isSuccess()).isFalse();
-        assertThat(bdd).isInstanceOf(LNGResultWithPartial.class);
-        assertThat(((LNGResultWithPartial<BDD, BDD>) bdd).getPartialResult().get().modelCount()).isEqualTo(3);
+        assertThat(bdd.isPartial()).isTrue();
+        assertThat(bdd.getPartialResult().modelCount()).isEqualTo(3);
     }
 
     @RandomTag

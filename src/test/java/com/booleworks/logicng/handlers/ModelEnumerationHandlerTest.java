@@ -72,9 +72,8 @@ public class ModelEnumerationHandlerTest {
                     ).build();
             final LNGResult<BigInteger> numberOfModels = solver.execute(enumeration, handler);
             assertThat(numberOfModels.isSuccess()).isFalse();
-            assertThat(numberOfModels).isInstanceOf(LNGResultWithPartial.class);
-            assertThat(((LNGResultWithPartial<BigInteger, BigInteger>) numberOfModels).getPartialResult()
-                    .get().longValueExact()).isLessThanOrEqualTo(i + 8); // because of 3 dont cares
+            assertThat(numberOfModels.isPartial()).isTrue();
+            assertThat(numberOfModels.getPartialResult().longValueExact()).isLessThanOrEqualTo(i + 8); // because of 3 dont cares
         }
     }
 }
