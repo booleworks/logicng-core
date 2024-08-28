@@ -75,8 +75,7 @@ public class CNFEncoder {
      * @return the CNF encoding of the formula
      */
     protected static Formula advancedEncoding(final FormulaFactory f, final Formula formula, final CNFConfig config) {
-        final var factorizationHandler = new AdvancedFactorizationHandler();
-        factorizationHandler.setBounds(config.distributionBoundary, config.createdClauseBoundary);
+        final var factorizationHandler = new AdvancedFactorizationHandler(config.distributionBoundary, config.createdClauseBoundary);
         final var advancedFactorization = new CNFFactorization(f);
         final FormulaTransformation fallbackTransformation;
         switch (config.fallbackAlgorithmForAdvancedEncoding) {
@@ -133,13 +132,13 @@ public class CNFEncoder {
      */
     protected static class AdvancedFactorizationHandler implements ComputationHandler {
 
-        protected boolean canceled = false;
-        protected int distributionBoundary;
-        protected int createdClauseBoundary;
-        protected int currentDistributions;
-        protected int currentClauses;
+        private final int distributionBoundary;
+        private final int createdClauseBoundary;
+        private boolean canceled = false;
+        private int currentDistributions = 0;
+        private int currentClauses = 0;
 
-        protected void setBounds(final int distributionBoundary, final int createdClauseBoundary) {
+        protected AdvancedFactorizationHandler(final int distributionBoundary, final int createdClauseBoundary) {
             this.distributionBoundary = distributionBoundary;
             this.createdClauseBoundary = createdClauseBoundary;
         }
