@@ -10,7 +10,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaFunction;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.SatResult;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
@@ -22,12 +23,12 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * Computes a minimum-size prime implicant for the given formula. Returns
- * {@code null} if the formula was not satisfiable.
+ * Computes a minimum-size prime implicant for the given formula. The formula
+ * must be satisfiable, otherwise an {@link IllegalArgumentException} is thrown.
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class MinimumPrimeImplicantFunction implements FormulaFunction<SatResult<SortedSet<Literal>>> {
+public final class MinimumPrimeImplicantFunction implements FormulaFunction<SortedSet<Literal>> {
 
     private static final String POS = "_POS";
     private static final String NEG = "_NEG";
@@ -38,7 +39,7 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<SatR
     }
 
     @Override
-    public SatResult<SortedSet<Literal>> apply(final Formula formula) {
+    public LNGResult<SortedSet<Literal>> apply(final Formula formula, final ComputationHandler handler) {
         final Formula nnf = formula.nnf(f);
         final Map<Variable, Literal> newVar2oldLit = new HashMap<>();
         final Map<Literal, Literal> substitution = new HashMap<>();
@@ -57,10 +58,14 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<SatR
                 solver.add(f.amo(f.variable(literal.name() + POS), f.variable(literal.name() + NEG)));
             }
         }
+        if (!solver.sat()) {
+            throw new IllegalArgumentException("The given formula must be satisfiable");
+        }
 
-        final SatResult<Assignment> minimumModel = solver.execute(OptimizationFunction.minimize(newVar2oldLit.keySet()));
-        if (!minimumModel.isSat()) {
-            return SatResult.unsat();
+        final LNGResult<Assignment> minimumModel =
+                solver.execute(OptimizationFunction.minimize(newVar2oldLit.keySet()), handler);
+        if (!minimumModel.isSuccess()) {
+            return LNGResult.canceled(minimumModel.getCancelCause());
         }
         final SortedSet<Literal> primeImplicant = new TreeSet<>();
         for (final Variable variable : minimumModel.getResult().positiveVariables()) {
@@ -69,6 +74,6 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<SatR
                 primeImplicant.add(literal);
             }
         }
-        return SatResult.sat(primeImplicant);
+        return LNGResult.of(primeImplicant);
     }
 }

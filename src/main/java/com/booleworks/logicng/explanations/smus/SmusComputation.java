@@ -13,8 +13,6 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.handlers.SatResult;
-import com.booleworks.logicng.handlers.UnsatResult;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.StandardProposition;
 import com.booleworks.logicng.solvers.SATSolver;
@@ -60,7 +58,7 @@ public final class SmusComputation {
      * @return the SMUS or {@code null} if the given propositions are
      *         satisfiable or the handler canceled the computation
      */
-    public static <P extends Proposition> UnsatResult<List<P>> computeSmus(
+    public static <P extends Proposition> List<P> computeSmus(
             final FormulaFactory f, final List<P> propositions,
             final List<Formula> additionalConstraints) {
         return computeSmus(f, propositions, additionalConstraints, NopHandler.get()).getResult();
@@ -82,7 +80,7 @@ public final class SmusComputation {
      * @return the SMUS or {@code null} if the given propositions are
      *         satisfiable or the handler canceled the computation
      */
-    public static <P extends Proposition> LNGResult<UnsatResult<List<P>>> computeSmus(
+    public static <P extends Proposition> LNGResult<List<P>> computeSmus(
             final FormulaFactory f, final List<P> propositions,
             final List<Formula> additionalConstraints, final ComputationHandler handler) {
         if (!handler.shouldResume(SMUS_COMPUTATION_STARTED)) {
@@ -100,28 +98,22 @@ public final class SmusComputation {
                 growSolver.satCall().handler(handler).addFormulas(propositionMapping.keySet()).sat();
         if (!sat.isSuccess()) {
             return LNGResult.canceled(sat.getCancelCause());
-        } else if (sat.getResult()) {
-            return LNGResult.of(UnsatResult.sat());
         }
         final SATSolver hSolver = SATSolver.newSolver(f);
         while (true) {
-            final LNGResult<SatResult<SortedSet<Variable>>> h =
-                    minimumHs(hSolver, propositionMapping.keySet(), handler);
+            final LNGResult<SortedSet<Variable>> h = minimumHs(hSolver, propositionMapping.keySet(), handler);
             if (!h.isSuccess()) {
                 return LNGResult.canceled(h.getCancelCause());
-            } else if (!h.getResult().isSat()) {
-                return LNGResult.of(UnsatResult.sat());
             } else {
-                final SortedSet<Variable> hResult = h.getResult().getResult();
-                final LNGResult<SatResult<SortedSet<Variable>>> c =
+                final SortedSet<Variable> hResult = h.getResult();
+                final LNGResult<SortedSet<Variable>> c =
                         grow(growSolver, hResult, propositionMapping.keySet(), handler);
-                if (!c.isSuccess()) {
+                if (c == null) {
+                    return LNGResult.of(hResult.stream().map(propositionMapping::get).collect(Collectors.toList()));
+                } else if (!c.isSuccess()) {
                     return LNGResult.canceled(c.getCancelCause());
-                } else if (!c.getResult().isSat()) {
-                    return LNGResult.of(UnsatResult.unsat(
-                            hResult.stream().map(propositionMapping::get).collect(Collectors.toList())));
                 } else {
-                    hSolver.add(f.or(c.getResult().getResult()));
+                    hSolver.add(f.or(c.getResult()));
                 }
             }
         }
@@ -136,8 +128,8 @@ public final class SmusComputation {
      * @return the SMUS or {@code null} if the given propositions are
      *         satisfiable or the handler canceled the computation
      */
-    public static UnsatResult<List<Formula>> computeSmusForFormulas(final FormulaFactory f, final List<Formula> formulas,
-                                                                    final List<Formula> additionalConstraints) {
+    public static List<Formula> computeSmusForFormulas(final FormulaFactory f, final List<Formula> formulas,
+                                                       final List<Formula> additionalConstraints) {
         return computeSmusForFormulas(f, formulas, additionalConstraints, NopHandler.get()).getResult();
     }
 
@@ -151,55 +143,50 @@ public final class SmusComputation {
      * @return the SMUS or {@code null} if the given propositions are
      *         satisfiable or the handler canceled the computation
      */
-    public static LNGResult<UnsatResult<List<Formula>>> computeSmusForFormulas(
+    public static LNGResult<List<Formula>> computeSmusForFormulas(
             final FormulaFactory f, final List<Formula> formulas,
             final List<Formula> additionalConstraints, final ComputationHandler handler) {
         final List<Proposition> props = formulas.stream().map(StandardProposition::new).collect(Collectors.toList());
-        final LNGResult<UnsatResult<List<Proposition>>> smus = computeSmus(f, props, additionalConstraints, handler);
+        final LNGResult<List<Proposition>> smus = computeSmus(f, props, additionalConstraints, handler);
         if (!smus.isSuccess()) {
             return LNGResult.canceled(smus.getCancelCause());
-        } else if (!smus.getResult().isUnsat()) {
-            return LNGResult.of(UnsatResult.sat());
         } else {
-            return LNGResult.of(UnsatResult.unsat(smus.getResult().getResult().stream()
-                    .map(Proposition::formula).collect(Collectors.toList())));
+            return LNGResult.of(smus.getResult().stream().map(Proposition::formula).collect(Collectors.toList()));
         }
     }
 
-    private static LNGResult<SatResult<SortedSet<Variable>>> minimumHs(final SATSolver hSolver,
-                                                                       final Set<Variable> variables,
-                                                                       final ComputationHandler handler) {
-        final LNGResult<SatResult<Assignment>> minimumHsModel = hSolver.execute(OptimizationFunction.builder()
+    private static LNGResult<SortedSet<Variable>> minimumHs(final SATSolver hSolver,
+                                                            final Set<Variable> variables,
+                                                            final ComputationHandler handler) {
+        final LNGResult<Assignment> minimumHsModel = hSolver.execute(OptimizationFunction.builder()
                 .literals(variables)
                 .minimize().build(), handler);
         if (!minimumHsModel.isSuccess()) {
             return LNGResult.canceled(minimumHsModel.getCancelCause());
-        } else if (minimumHsModel.getResult().isSat()) {
-            final SortedSet<Variable> model = minimumHsModel.getResult().getResult().positiveVariables();
-            return LNGResult.of(SatResult.sat(new TreeSet<>(model)));
         } else {
-            return LNGResult.of(SatResult.unsat());
+            return LNGResult.of(minimumHsModel.getResult().positiveVariables());
         }
     }
 
-    private static LNGResult<SatResult<SortedSet<Variable>>> grow(
-            final SATSolver growSolver, final SortedSet<Variable> h,
-            final Set<Variable> variables, final ComputationHandler handler) {
+    private static LNGResult<SortedSet<Variable>> grow(final SATSolver growSolver, final SortedSet<Variable> h,
+                                                       final Set<Variable> variables,
+                                                       final ComputationHandler handler) {
         final SolverState solverState = growSolver.saveState();
         growSolver.add(h);
-        final LNGResult<SatResult<Assignment>> maxModel = growSolver.execute(OptimizationFunction.builder()
+        if (!growSolver.sat()) {
+            return null;
+        }
+        final LNGResult<Assignment> maxModel = growSolver.execute(OptimizationFunction.builder()
                 .literals(variables)
                 .maximize().build(), handler);
         if (!maxModel.isSuccess()) {
             return LNGResult.canceled(maxModel.getCancelCause());
-        } else if (!maxModel.getResult().isSat()) {
-            return LNGResult.of(SatResult.unsat());
         } else {
-            final SortedSet<Variable> maximumSatisfiableSet = maxModel.getResult().getResult().positiveVariables();
+            final SortedSet<Variable> maximumSatisfiableSet = maxModel.getResult().positiveVariables();
             growSolver.loadState(solverState);
             final SortedSet<Variable> minimumCorrectionSet = new TreeSet<>(variables);
             maximumSatisfiableSet.forEach(minimumCorrectionSet::remove);
-            return LNGResult.of(SatResult.sat(minimumCorrectionSet));
+            return LNGResult.of(minimumCorrectionSet);
         }
     }
 }

@@ -8,7 +8,6 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.handlers.SatResult;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
@@ -22,7 +21,7 @@ import java.util.TreeSet;
  * @version 2.0.0
  * @since 2.0.0
  */
-public final class UpZeroLiteralsFunction implements SolverFunction<SatResult<SortedSet<Literal>>> {
+public final class UpZeroLiteralsFunction implements SolverFunction<SortedSet<Literal>> {
 
     private final static UpZeroLiteralsFunction INSTANCE = new UpZeroLiteralsFunction();
 
@@ -42,9 +41,9 @@ public final class UpZeroLiteralsFunction implements SolverFunction<SatResult<So
     }
 
     @Override
-    public LNGResult<SatResult<SortedSet<Literal>>> apply(final SATSolver solver, final ComputationHandler handler) {
+    public LNGResult<SortedSet<Literal>> apply(final SATSolver solver, final ComputationHandler handler) {
         if (!solver.sat()) {
-            return LNGResult.of(SatResult.unsat());
+            return LNGResult.of(new TreeSet<>());
         }
         final LNGIntVector literals = solver.underlyingSolver().upZeroLiterals();
         final SortedSet<Literal> upZeroLiterals = new TreeSet<>();
@@ -53,6 +52,6 @@ public final class UpZeroLiteralsFunction implements SolverFunction<SatResult<So
             upZeroLiterals.add(solver.factory().literal(solver.underlyingSolver().nameForIdx(LNGCoreSolver.var(lit)),
                     !LNGCoreSolver.sign(lit)));
         }
-        return LNGResult.of(SatResult.sat(upZeroLiterals));
+        return LNGResult.of(upZeroLiterals);
     }
 }

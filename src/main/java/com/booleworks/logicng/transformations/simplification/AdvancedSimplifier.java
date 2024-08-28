@@ -17,7 +17,6 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.handlers.UnsatResult;
 import com.booleworks.logicng.primecomputation.PrimeCompiler;
 import com.booleworks.logicng.primecomputation.PrimeResult;
 import com.booleworks.logicng.transformations.StatelessFormulaTransformation;
@@ -128,15 +127,13 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
             return LNGResult.canceled(primeResult.getCancelCause());
         }
         final List<SortedSet<Literal>> primeImplicants = primeResult.getResult().getPrimeImplicants();
-        final LNGResult<UnsatResult<List<Formula>>> minimizedPIsResult =
+        final LNGResult<List<Formula>> minimizedPIsResult =
                 SmusComputation.computeSmusForFormulas(f, negateAllLiterals(f, primeImplicants),
                         Collections.singletonList(simplified), handler);
         if (!minimizedPIsResult.isSuccess()) {
             return LNGResult.canceled(minimizedPIsResult.getCancelCause());
-        } else if (!minimizedPIsResult.getResult().isUnsat()) {
-            return LNGResult.of(f.falsum());
         } else {
-            final List<Formula> minimizedPIs = minimizedPIsResult.getResult().getResult();
+            final List<Formula> minimizedPIs = minimizedPIsResult.getResult();
             return LNGResult.of(f.or(
                     negateAllLiteralsInFormulas(f, minimizedPIs).stream().map(f::and).collect(Collectors.toList())));
         }

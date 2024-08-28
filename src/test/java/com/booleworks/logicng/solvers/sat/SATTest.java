@@ -28,7 +28,6 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
-import com.booleworks.logicng.handlers.SatResult;
 import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
@@ -716,8 +715,8 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
         final Formula formula = parser.parse("a & (a => b) & (b => c) & (c => ~a)");
         for (final SATSolver solver : solvers) {
             solver.add(formula);
-            final SatResult<SortedSet<Literal>> upLiterals = solver.execute(UpZeroLiteralsFunction.get());
-            assertThat(upLiterals.isSat()).isFalse();
+            final SortedSet<Literal> upLiterals = solver.execute(UpZeroLiteralsFunction.get());
+            assertThat(upLiterals).isEmpty();
         }
     }
 
@@ -743,7 +742,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                 solver.add(formula);
                 final boolean res = solver.sat();
                 assertThat(res).isTrue();
-                final SortedSet<Literal> upLiterals = solver.execute(UpZeroLiteralsFunction.get()).getResult();
+                final SortedSet<Literal> upLiterals = solver.execute(UpZeroLiteralsFunction.get());
                 assertThat(upLiterals).containsAll(expectedSubsets.get(formula));
             }
         }
@@ -762,7 +761,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
                     final SATSolver solver = solverSupplier.get();
                     readCNF(solver, file);
                     if (solver.sat()) {
-                        final SortedSet<Literal> upZeroLiterals = solver.execute(UpZeroLiteralsFunction.get()).getResult();
+                        final SortedSet<Literal> upZeroLiterals = solver.execute(UpZeroLiteralsFunction.get());
                         final List<Literal> negations = new ArrayList<>(upZeroLiterals.size());
                         for (final Literal lit : upZeroLiterals) {
                             negations.add(lit.negate(f));

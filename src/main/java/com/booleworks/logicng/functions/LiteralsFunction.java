@@ -12,6 +12,8 @@ import com.booleworks.logicng.formulas.NAryOperator;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.cache.FunctionCacheEntry;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.Collections;
@@ -47,10 +49,10 @@ public class LiteralsFunction extends CacheableFormulaFunction<SortedSet<Literal
     }
 
     @Override
-    public SortedSet<Literal> apply(final Formula formula) {
+    public LNGResult<SortedSet<Literal>> apply(final Formula formula, ComputationHandler handler) {
         final SortedSet<Literal> cached = lookupCache(formula);
         if (cached != null) {
-            return cached;
+            return LNGResult.of(cached);
         }
         SortedSet<Literal> result = new TreeSet<>();
         switch (formula.type()) {
@@ -89,6 +91,6 @@ public class LiteralsFunction extends CacheableFormulaFunction<SortedSet<Literal
         }
         result = Collections.unmodifiableSortedSet(result);
         setCache(formula, result);
-        return result;
+        return LNGResult.of(result);
     }
 }

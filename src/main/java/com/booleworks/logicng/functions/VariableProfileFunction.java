@@ -10,6 +10,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.formulas.cache.FunctionCacheEntry;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,8 +52,8 @@ public final class VariableProfileFunction extends CacheableFormulaFunction<Map<
     }
 
     @Override
-    public Map<Variable, Integer> apply(final Formula formula) {
-        return hasCache() ? cachingVariableProfile(formula) : nonCachingVariableProfile(formula);
+    public LNGResult<Map<Variable, Integer>> apply(final Formula formula, ComputationHandler handler) {
+        return LNGResult.of(hasCache() ? cachingVariableProfile(formula) : nonCachingVariableProfile(formula));
     }
 
     /**

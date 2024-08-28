@@ -13,6 +13,8 @@ import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.formulas.cache.FunctionCacheEntry;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.Collections;
@@ -48,10 +50,10 @@ public class VariablesFunction extends CacheableFormulaFunction<SortedSet<Variab
     }
 
     @Override
-    public SortedSet<Variable> apply(final Formula formula) {
+    public LNGResult<SortedSet<Variable>> apply(final Formula formula, ComputationHandler handler) {
         final SortedSet<Variable> cached = lookupCache(formula);
         if (cached != null) {
-            return cached;
+            return LNGResult.of(cached);
         }
         SortedSet<Variable> result = new TreeSet<>();
         switch (formula.type()) {
@@ -90,6 +92,6 @@ public class VariablesFunction extends CacheableFormulaFunction<SortedSet<Variab
         }
         result = Collections.unmodifiableSortedSet(result);
         setCache(formula, result);
-        return result;
+        return LNGResult.of(result);
     }
 }

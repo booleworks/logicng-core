@@ -82,7 +82,7 @@ class TimeoutOptimizationHandlerTest {
             solver.add(formulas);
             final TimeoutHandler handler = new TimeoutHandler(10L);
 
-            final LNGResult<SatResult<Assignment>> result = solver.execute(OptimizationFunction.builder()
+            final LNGResult<Assignment> result = solver.execute(OptimizationFunction.builder()
                     .literals(FormulaHelper.variables(f, formulas))
                     .maximize().build(), handler);
             assertThat(result.isSuccess()).isFalse();
@@ -96,7 +96,7 @@ class TimeoutOptimizationHandlerTest {
         for (final SATSolver solver : solvers) {
             solver.add(formulas);
             final TimeoutHandler handler = new TimeoutHandler(100L, FIXED_END);
-            final LNGResult<SatResult<Assignment>> result = solver.execute(OptimizationFunction.builder()
+            final LNGResult<Assignment> result = solver.execute(OptimizationFunction.builder()
                     .literals(FormulaHelper.variables(f, formulas))
                     .maximize().build(), handler);
             assertThat(result.isSuccess()).isFalse();

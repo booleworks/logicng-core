@@ -7,6 +7,8 @@ package com.booleworks.logicng.functions;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.cache.FunctionCacheEntry;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -41,10 +43,10 @@ public final class SubNodeFunction extends CacheableFormulaFunction<LinkedHashSe
     }
 
     @Override
-    public LinkedHashSet<Formula> apply(final Formula formula) {
+    public LNGResult<LinkedHashSet<Formula>> apply(final Formula formula, final ComputationHandler handler) {
         final LinkedHashSet<Formula> cached = lookupCache(formula);
         if (cached != null) {
-            return cached;
+            return LNGResult.of(cached);
         }
         final LinkedHashSet<Formula> result = new LinkedHashSet<>();
         for (final Formula op : formula) {
@@ -54,6 +56,6 @@ public final class SubNodeFunction extends CacheableFormulaFunction<LinkedHashSe
         }
         result.add(formula);
         setCache(formula, result);
-        return result;
+        return LNGResult.of(result);
     }
 }

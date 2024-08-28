@@ -12,7 +12,6 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.handlers.SatResult;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
@@ -136,19 +135,18 @@ public final class PrimeCompiler {
         final List<SortedSet<Literal>> primeImplicants = new ArrayList<>();
         final List<SortedSet<Literal>> primeImplicates = new ArrayList<>();
         while (true) {
-            final LNGResult<SatResult<Assignment>> hModelResult = hSolver.execute(computeWithMaximization
+            if (!hSolver.sat()) {
+                return LNGResult.of(new Pair<>(primeImplicants, primeImplicates));
+            }
+            final LNGResult<Assignment> hModelResult = hSolver.execute(computeWithMaximization
                     ? OptimizationFunction.builder().literals(sub.newVar2oldLit.keySet()).maximize().build()
                     : OptimizationFunction.builder().literals(sub.newVar2oldLit.keySet()).minimize().build(), handler);
             if (!hModelResult.isSuccess()) {
                 return LNGResult.canceled(hModelResult.getCancelCause());
             }
-            final SatResult<Assignment> hModel = hModelResult.getResult();
-            if (!hModel.isSat()) {
-                return LNGResult.of(new Pair<>(primeImplicants, primeImplicates));
-            }
-            final Assignment fModel = transformModel(hModel.getResult(), sub.newVar2oldLit);
-            try (final SATCall fCall = fSolver.satCall().handler(handler)
-                    .addFormulas(fModel.literals()).solve()) {
+            final Assignment hModel = hModelResult.getResult();
+            final Assignment fModel = transformModel(hModel, sub.newVar2oldLit);
+            try (final SATCall fCall = fSolver.satCall().handler(handler).addFormulas(fModel.literals()).solve()) {
                 if (!fCall.getSatResult().isSuccess()) {
                     return LNGResult.canceled(fCall.getSatResult().getCancelCause());
                 }
