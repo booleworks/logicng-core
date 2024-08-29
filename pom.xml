@@ -239,15 +239,16 @@
         </configuration>
       </plugin>
 
-      <!-- Necessary for Wercker toolchain -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${version.surefire}</version>
         <configuration>
-          <useSystemClassLoader>false</useSystemClassLoader>
-          <trimStackTrace>false</trimStackTrace>
           <argLine>-Xmx4g</argLine>
+          <properties>
+            <!-- Only execute standard unit tests without tag -->
+            <groups>none()</groups>
+          </properties>
         </configuration>
       </plugin>
     </plugins>
@@ -400,15 +401,8 @@
 
     <profile>
       <id>all-tests</id>
-    </profile>
-
-    <profile>
-      <id>regular-tests</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
       <properties>
-        <excludedGroups>random,longRunning</excludedGroups>
+        <groups>none(),longRunning,random</groups>
       </properties>
     </profile>
 
@@ -424,6 +418,25 @@
       <properties>
         <groups>random</groups>
       </properties>
+    </profile>
+
+    <profile>
+      <id>parallel-tests</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <argLine>-Xmx16g</argLine>
+              <systemPropertyVariables>
+                <junit.jupiter.execution.parallel.enabled>true</junit.jupiter.execution.parallel.enabled>
+                <junit.jupiter.execution.parallel.mode.default>concurrent</junit.jupiter.execution.parallel.mode.default>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>
