@@ -6,7 +6,9 @@ package com.booleworks.logicng.datastructures;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
+import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
@@ -15,6 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Unit tests for the class {@link Model}.
@@ -62,6 +65,22 @@ public class ModelTest extends TestWithFormulaContext {
         assertThat(new Model(Arrays.asList(_c.a, _c.b)).formula(_c.f)).isEqualTo(p.parse("a & b"));
         assertThat(new Model(Arrays.asList(_c.a, _c.b, _c.nx, _c.ny)).formula(_c.f))
                 .isEqualTo(p.parse("a & b & ~x & ~y"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("contexts")
+    public void testBlockingClause(final FormulaContext _c) throws ParserException {
+        final Model ass = new Model(_c.a, _c.b, _c.nx, _c.ny);
+        final Formula bc01 = ass.blockingClause(_c.f);
+        assertThat(bc01.containsVariable(_c.c)).isFalse();
+        assertThat(bc01).isEqualTo(_c.f.parse("~a | ~b | x | y"));
+        final Formula bc02 = ass.blockingClause(_c.f, null);
+        assertThat(bc02.containsVariable(_c.c)).isFalse();
+        assertThat(bc02).isEqualTo(_c.f.parse("~a | ~b | x | y"));
+        final List<Literal> lits = Arrays.asList(_c.a, _c.x, _c.c);
+        final Formula bcProjected = ass.blockingClause(_c.f, lits);
+        assertThat(bcProjected.containsVariable(_c.c)).isFalse();
+        assertThat(bcProjected).isEqualTo(_c.f.parse("~a | x"));
     }
 
     @ParameterizedTest

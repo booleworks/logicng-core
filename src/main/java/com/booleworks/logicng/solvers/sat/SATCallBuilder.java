@@ -1,6 +1,6 @@
 package com.booleworks.logicng.solvers.sat;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Literal;
@@ -156,7 +156,7 @@ public class SATCallBuilder {
      *         was unsatisfiable
      * @throws IllegalArgumentException if the given variables are {@code null}
      */
-    public Assignment model(final Collection<Variable> variables) {
+    public Model model(final Collection<Variable> variables) {
         try (final SATCall call = solve()) {
             return call.model(variables);
         }

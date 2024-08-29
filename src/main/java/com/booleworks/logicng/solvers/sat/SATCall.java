@@ -5,6 +5,7 @@ import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.generateClauseVec
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Literal;
@@ -119,7 +120,7 @@ public class SATCall implements AutoCloseable {
      *         was unsatisfiable
      * @throws IllegalArgumentException if the given variables are {@code null}
      */
-    public Assignment model(final Collection<Variable> variables) {
+    public Model model(final Collection<Variable> variables) {
         if (variables == null) {
             throw new IllegalArgumentException("The given variables must not be null.");
         }
@@ -138,7 +139,7 @@ public class SATCall implements AutoCloseable {
             }
             final List<Literal> finalModel = solver.convertInternalModel(solver.model(), relevantIndices);
             finalModel.addAll(unknowns);
-            return new Assignment(finalModel);
+            return new Model(finalModel);
         }
     }
 

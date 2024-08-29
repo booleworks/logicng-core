@@ -139,7 +139,7 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
             if (!call.getSatResult().getResult()) {
                 return;
             }
-            final SortedSet<Literal> model = call.model(formula.variables(f)).literals();
+            final List<Literal> model = call.model(formula.variables(f)).getLiterals();
             final NaivePrimeReduction naive = new NaivePrimeReduction(f, formula);
             final LNGResult<SortedSet<Literal>> primeImplicant = naive.reduceImplicant(model, handler);
             if (expCanceled) {

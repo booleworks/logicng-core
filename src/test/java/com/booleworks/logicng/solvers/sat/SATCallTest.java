@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
@@ -61,7 +62,7 @@ public class SATCallTest {
         solver.loadState(newState);
         solver.add(f.variable("a"));
         assertThat(solver.sat()).isTrue();
-        assertThat(solver.satCall().model(List.of(f.variable("a")))).isEqualTo(new Assignment(f.variable("a")));
+        assertThat(solver.satCall().model(List.of(f.variable("a")))).isEqualTo(new Model(f.variable("a")));
     }
 
     @Test
@@ -81,13 +82,13 @@ public class SATCallTest {
         solver.add(f.parse("c & (~c | ~a)"));
         final Set<Variable> abc = Set.of(f.variable("a"), f.variable("b"), f.variable("c"));
         final Set<Variable> abcd = Set.of(f.variable("a"), f.variable("b"), f.variable("c"), f.variable("d"));
-        assertThat(solver.satCall().model(abc))
+        assertThat(solver.satCall().model(abc).assignment())
                 .isEqualTo(new Assignment(f.literal("a", false), f.variable("b"), f.variable("c")));
-        assertThat(solver.satCall().addFormulas(f.parse("c | d")).model(abcd)).isIn(
+        assertThat(solver.satCall().addFormulas(f.parse("c | d")).model(abcd).assignment()).isIn(
                 new Assignment(f.literal("a", false), f.variable("b"), f.variable("c"), f.literal("d", false)),
                 new Assignment(f.literal("a", false), f.variable("b"), f.variable("c"), f.literal("d", true))
         );
-        assertThat(solver.satCall().model(abc))
+        assertThat(solver.satCall().model(abc).assignment())
                 .isEqualTo(new Assignment(f.literal("a", false), f.variable("b"), f.variable("c")));
     }
 
@@ -162,15 +163,15 @@ public class SATCallTest {
         final Variable c = f.variable("c");
         final Variable d = f.variable("d");
 
-        assertThat(solver.satCall().selectionOrder(List.of(a, b, c, d)).model(List.of(a, b, c, d)))
+        assertThat(solver.satCall().selectionOrder(List.of(a, b, c, d)).model(List.of(a, b, c, d)).assignment())
                 .isEqualTo(new Assignment(a, b.negate(f), c, d.negate(f)));
-        assertThat(solver.satCall().selectionOrder(List.of(b, a, d, c)).model(List.of(a, b, c, d)))
+        assertThat(solver.satCall().selectionOrder(List.of(b, a, d, c)).model(List.of(a, b, c, d)).assignment())
                 .isEqualTo(new Assignment(a.negate(f), b, c.negate(f), d));
         assertThat(solver.satCall().selectionOrder(List.of(a.negate(f), b.negate(f), c.negate(f), d.negate(f)))
-                .model(List.of(a, b, c, d)))
+                .model(List.of(a, b, c, d)).assignment())
                 .isEqualTo(new Assignment(a.negate(f), b.negate(f), c.negate(f), d));
         assertThat(solver.satCall().selectionOrder(List.of(a.negate(f), b.negate(f), d.negate(f), c.negate(f)))
-                .model(List.of(a, b, c, d)))
+                .model(List.of(a, b, c, d)).assignment())
                 .isEqualTo(new Assignment(a.negate(f), b.negate(f), c, d.negate(f)));
     }
 
@@ -216,7 +217,7 @@ public class SATCallTest {
 
         assertThat(
                 solver.satCall().addFormulas(f.parse("e <=> f")).addPropositions(new StandardProposition(f.parse("~e")))
-                        .model(solver.underlyingSolver().knownVariables())).isIn(
+                        .model(solver.underlyingSolver().knownVariables()).assignment()).isIn(
                 new Assignment(f.literal("a", true), f.literal("b", true), f.literal("c", false),
                         f.literal("d", false), f.literal("e", false), f.literal("f", false)),
                 new Assignment(f.literal("a", false), f.literal("b", true), f.literal("c", false),
@@ -227,7 +228,7 @@ public class SATCallTest {
 
         assertThat(solver.satCall().addPropositions(new StandardProposition(f.parse("e <=> f")))
                 .addPropositions(new StandardProposition(f.parse("~e")))
-                .model(solver.underlyingSolver().knownVariables())).isIn(
+                .model(solver.underlyingSolver().knownVariables()).assignment()).isIn(
                 new Assignment(f.literal("a", true), f.literal("b", true), f.literal("c", false),
                         f.literal("d", false), f.literal("e", false), f.literal("f", false)),
                 new Assignment(f.literal("a", false), f.literal("b", true), f.literal("c", false),

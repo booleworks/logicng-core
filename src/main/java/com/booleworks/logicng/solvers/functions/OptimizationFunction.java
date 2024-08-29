@@ -6,7 +6,7 @@ package com.booleworks.logicng.solvers.functions;
 
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.OPTIMIZATION_FUNCTION_STARTED;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.encodings.CcIncrementalData;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
@@ -40,7 +40,7 @@ import java.util.TreeSet;
  * @version 2.1.0
  * @since 2.0.0
  */
-public final class OptimizationFunction implements SolverFunction<Assignment> {
+public final class OptimizationFunction implements SolverFunction<Model> {
 
     private static final String SEL_PREFIX = "@SEL_OPT_";
 
@@ -87,15 +87,15 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
     }
 
     @Override
-    public LNGResult<Assignment> apply(
+    public LNGResult<Model> apply(
             final SATSolver solver, final ComputationHandler handler) {
         final SolverState initialState = solver.saveState();
-        final LNGResult<Assignment> model = maximize(solver, handler);
+        final LNGResult<Model> model = maximize(solver, handler);
         solver.loadState(initialState);
         return model;
     }
 
-    private LNGResult<Assignment> maximize(
+    private LNGResult<Model> maximize(
             final SATSolver solver, final ComputationHandler handler) {
         if (!handler.shouldResume(OPTIMIZATION_FUNCTION_STARTED)) {
             return LNGResult.canceled(OPTIMIZATION_FUNCTION_STARTED);
@@ -114,8 +114,8 @@ public final class OptimizationFunction implements SolverFunction<Assignment> {
             selectorMap.forEach((selVar, lit) -> solver.add(f.or(selVar.negate(f), lit.negate(f))));
             selectorMap.forEach((selVar, lit) -> solver.add(f.or(lit, selVar)));
         }
-        Assignment lastResultModel;
-        Assignment currentSelectorModel;
+        Model lastResultModel;
+        Model currentSelectorModel;
         try (final SATCall satCall = solver.satCall().handler(handler).solve()) {
             if (!satCall.getSatResult().isSuccess()) {
                 return LNGResult.canceled(satCall.getSatResult().getCancelCause());

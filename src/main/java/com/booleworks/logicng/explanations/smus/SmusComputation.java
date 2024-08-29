@@ -6,7 +6,7 @@ package com.booleworks.logicng.explanations.smus;
 
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SMUS_COMPUTATION_STARTED;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
@@ -158,7 +158,7 @@ public final class SmusComputation {
     private static LNGResult<SortedSet<Variable>> minimumHs(final SATSolver hSolver,
                                                             final Set<Variable> variables,
                                                             final ComputationHandler handler) {
-        final LNGResult<Assignment> minimumHsModel = hSolver.execute(OptimizationFunction.builder()
+        final LNGResult<Model> minimumHsModel = hSolver.execute(OptimizationFunction.builder()
                 .literals(variables)
                 .minimize().build(), handler);
         if (!minimumHsModel.isSuccess()) {
@@ -176,7 +176,7 @@ public final class SmusComputation {
         if (!growSolver.sat()) {
             return null;
         }
-        final LNGResult<Assignment> maxModel = growSolver.execute(OptimizationFunction.builder()
+        final LNGResult<Model> maxModel = growSolver.execute(OptimizationFunction.builder()
                 .literals(variables)
                 .maximize().build(), handler);
         if (!maxModel.isSuccess()) {

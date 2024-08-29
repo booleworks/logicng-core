@@ -11,9 +11,12 @@ import com.booleworks.logicng.formulas.Variable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -134,6 +137,43 @@ public class Model {
             }
         }
         return set;
+    }
+
+    /**
+     * Creates the blocking clause for this model.
+     * @param f the formula factory
+     * @return the blocking clause for this model
+     */
+    public Formula blockingClause(final FormulaFactory f) {
+        final List<Literal> ops = new ArrayList<>();
+        for (final Literal lit : literals) {
+            ops.add(lit.negate(f));
+        }
+        return f.or(ops);
+    }
+
+    /**
+     * Creates the blocking clause for this model wrt. a given set of
+     * literals. If the set is {@code null}, all literals are considered
+     * relevant.
+     * @param f        the formula factory
+     * @param literals the set of literals
+     * @return the blocking clause for this model
+     */
+    public Formula blockingClause(final FormulaFactory f, final Collection<? extends Literal> literals) {
+        if (literals == null) {
+            return blockingClause(f);
+        }
+        final Set<Literal> myLiterals = new HashSet<>(this.literals);
+        final List<Literal> ops = new ArrayList<>();
+        for (final Literal lit : literals) {
+            if (myLiterals.contains(lit)) {
+                ops.add(lit.negate(f));
+            } else if (myLiterals.contains(lit.negate(f))) {
+                ops.add(lit);
+            }
+        }
+        return f.or(ops);
     }
 
     @Override

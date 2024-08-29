@@ -319,7 +319,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
             solver.addSoftFormula(f.parse("~a & ~b & ~c"), 1);
             final MaxSATResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
-            assertThat(result.getModel().literals()).containsExactlyInAnyOrder(
+            assertThat(result.getModel().getLiterals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")
             );
             assertThat(result.getOptimum()).isEqualTo(1);
@@ -337,7 +337,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
             solver.addSoftFormula(f.parse("~a & ~b & ~c"), 1);
             final MaxSATResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
-            assertThat(result.getModel().literals()).containsExactlyInAnyOrder(
+            assertThat(result.getModel().getLiterals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")
             );
             assertThat(result.getOptimum()).isEqualTo(1);
@@ -355,7 +355,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
             solver.addSoftFormula(f.parse("~a & ~b & ~c"), 1);
             final MaxSATResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
-            assertThat(result.getModel().literals()).containsExactlyInAnyOrder(
+            assertThat(result.getModel().getLiterals()).containsExactlyInAnyOrder(
                     f.variable("a"), f.variable("b"), f.variable("c")
             );
             assertThat(result.getOptimum()).isEqualTo(2);

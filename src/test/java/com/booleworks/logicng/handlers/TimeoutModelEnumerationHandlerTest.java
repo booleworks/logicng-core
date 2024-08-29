@@ -98,7 +98,7 @@ class TimeoutModelEnumerationHandlerTest {
         final Formula formula = pg.generate(10).negate(f);
         for (final SATSolver solver : solvers) {
             solver.add(formula);
-            final TimeoutHandler handler = new TimeoutHandler(100L);
+            final TimeoutHandler handler = new TimeoutHandler(20L);
             final ModelEnumerationFunction me = ModelEnumerationFunction.builder(formula.variables(f)).build();
 
             final LNGResult<List<Model>> result = me.apply(solver, handler);
@@ -123,5 +123,5 @@ class TimeoutModelEnumerationHandlerTest {
         }
     }
 
-    // TODO test partial results (does not seem to work well with negated Pigeon Hole
+    // TODO test partial results (does not seem to work well with negated Pigeon Hole)
 }

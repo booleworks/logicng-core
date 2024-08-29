@@ -9,10 +9,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -31,7 +29,6 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 1.0
  */
-
 public final class Assignment {
 
     private final SortedSet<Variable> pos = new TreeSet<>();
@@ -185,47 +182,6 @@ public final class Assignment {
      */
     public Model model() {
         return new Model(this);
-    }
-
-    /**
-     * Creates the blocking clause for this assignment.
-     * @param f the formula factory
-     * @return the blocking clause for this assignment
-     */
-    public Formula blockingClause(final FormulaFactory f) {
-        final List<Literal> ops = new ArrayList<>();
-        for (final Literal lit : pos) {
-            ops.add(lit.negate(f));
-        }
-        for (final Literal lit : neg) {
-            ops.add(lit.negate(f));
-        }
-        return f.or(ops);
-    }
-
-    /**
-     * Creates the blocking clause for this assignment wrt. a given set of
-     * literals. If the set is {@code null}, all literals are considered
-     * relevant.
-     * @param f        the formula factory
-     * @param literals the set of literals
-     * @return the blocking clause for this assignment
-     */
-    public Formula blockingClause(final FormulaFactory f, final Collection<? extends Literal> literals) {
-        if (literals == null) {
-            return blockingClause(f);
-        }
-        final List<Literal> ops = new ArrayList<>();
-        for (final Literal lit : literals) {
-            final Variable var = lit.variable();
-            final Literal negatedVar = var.negate(f);
-            if (pos.contains(var)) {
-                ops.add(negatedVar);
-            } else if (neg.contains(negatedVar)) {
-                ops.add(var);
-            }
-        }
-        return f.or(ops);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.booleworks.logicng.solvers.maxsat;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.solvers.MaxSATResult;
 
 import java.util.Objects;
@@ -51,7 +51,7 @@ public class InternalMaxSATResult {
      *                        assignment
      * @return the converted result
      */
-    public MaxSATResult toMaxSATResult(final Function<LNGBooleanVector, Assignment> modelConversion) {
+    public MaxSATResult toMaxSATResult(final Function<LNGBooleanVector, Model> modelConversion) {
         return satisfiable ? MaxSATResult.optimum(optimum, modelConversion.apply(model)) : MaxSATResult.unsatisfiable();
     }
 

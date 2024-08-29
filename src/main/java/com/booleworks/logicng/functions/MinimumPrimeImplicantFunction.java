@@ -4,7 +4,7 @@
 
 package com.booleworks.logicng.functions;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaFunction;
@@ -62,7 +62,7 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<Sort
             throw new IllegalArgumentException("The given formula must be satisfiable");
         }
 
-        final LNGResult<Assignment> minimumModel =
+        final LNGResult<Model> minimumModel =
                 solver.execute(OptimizationFunction.minimize(newVar2oldLit.keySet()), handler);
         if (!minimumModel.isSuccess()) {
             return LNGResult.canceled(minimumModel.getCancelCause());

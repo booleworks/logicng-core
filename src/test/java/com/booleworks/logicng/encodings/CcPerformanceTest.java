@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.booleworks.logicng.LogicNGTest;
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -59,8 +60,8 @@ public class CcPerformanceTest implements LogicNGTest {
                     SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(miniCard).build());
             solver.add(cc);
             assertSolverSat(solver);
-            final Assignment model = solver.satCall().model(Arrays.asList(problemLits));
-            assertThat(cc.evaluate(model)).isTrue();
+            final Model model = solver.satCall().model(Arrays.asList(problemLits));
+            assertThat(cc.evaluate(model.assignment())).isTrue();
         }
     }
 }

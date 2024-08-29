@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.TestWithExampleFormulas;
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
@@ -295,7 +295,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         final MaxSATResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
         assertThat(result.getOptimum()).isEqualTo(3);
-        final Assignment model = result.getModel();
+        final Model model = result.getModel();
         assertThat(model.size()).isEqualTo(8);
         assertThat(model.positiveVariables()).hasSize(1);
         assertThat(model.positiveVariables()).extracting(Variable::name).containsExactlyInAnyOrder("y");
@@ -315,7 +315,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         solvers[5] = MaxSATSolver.wmsu3(f);
 
         final String expected = "MaxSATSolver{result=ComputationResult{" +
-                "result=MaxSATResult{satisfiable=true, optimum=1, model=Assignment{pos=[], neg=[~a, ~b]}}, " +
+                "result=MaxSATResult{satisfiable=true, optimum=1, model=Model{literals=[~a, ~b]}}, " +
                 "cancelCause=null}, var2index={@SEL_SOFT_0=2, @SEL_SOFT_1=3, a=0, b=1}}";
 
         for (int i = 0; i < solvers.length; i++) {

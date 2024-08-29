@@ -1,6 +1,6 @@
 package com.booleworks.logicng.solvers;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 
 import java.util.Objects;
 
@@ -18,7 +18,7 @@ public class MaxSATResult {
 
     private final boolean satisfiable;
     private final int optimum;
-    private final Assignment model;
+    private final Model model;
 
     /**
      * Creates a new MaxSATResult with the given parameters.
@@ -26,7 +26,7 @@ public class MaxSATResult {
      * @param optimum     the optimum value
      * @param model       the model for optimum solution
      */
-    private MaxSATResult(final boolean satisfiable, final int optimum, final Assignment model) {
+    private MaxSATResult(final boolean satisfiable, final int optimum, final Model model) {
         this.satisfiable = satisfiable;
         this.optimum = optimum;
         this.model = model;
@@ -47,7 +47,7 @@ public class MaxSATResult {
      * @param model   the model for the optimum solution
      * @return the result
      */
-    public static MaxSATResult optimum(final int optimum, final Assignment model) {
+    public static MaxSATResult optimum(final int optimum, final Model model) {
         return new MaxSATResult(true, optimum, model);
     }
 
@@ -74,7 +74,7 @@ public class MaxSATResult {
      * not satisfiable.
      * @return the optimum model
      */
-    public Assignment getModel() {
+    public Model getModel() {
         return model;
     }
 

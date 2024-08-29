@@ -24,7 +24,6 @@ import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaHelper;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -130,7 +129,7 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
                 return;
             }
             final SortedSet<Literal> falsifyingAssignment =
-                    FormulaHelper.negateLiterals(f, call.model(formula.variables(f)).literals(), TreeSet::new);
+                    FormulaHelper.negateLiterals(f, call.model(formula.variables(f)).getLiterals(), TreeSet::new);
             final NaivePrimeReduction naive = new NaivePrimeReduction(f, formula);
             final LNGResult<SortedSet<Literal>> primeImplicate = naive.reduceImplicate(f, falsifyingAssignment, handler);
             if (expCanceled) {

@@ -19,7 +19,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.events.OptimizationFoundBetterBoundEvent;
@@ -56,9 +56,9 @@ class TimeoutOptimizationHandlerTest {
         final TimeoutHandler handler =
                 new TimeoutHandler(100, SINGLE_TIMEOUT);
         handler.shouldResume(MODEL_ENUMERATION_STARTED);
-        assertThat(handler.shouldResume(new OptimizationFoundBetterBoundEvent(Assignment::new))).isTrue();
+        assertThat(handler.shouldResume(new OptimizationFoundBetterBoundEvent(Model::new))).isTrue();
         Thread.sleep(200);
-        assertThat(handler.shouldResume(new OptimizationFoundBetterBoundEvent(Assignment::new))).isFalse();
+        assertThat(handler.shouldResume(new OptimizationFoundBetterBoundEvent(Model::new))).isFalse();
     }
 
     @Test
@@ -82,7 +82,7 @@ class TimeoutOptimizationHandlerTest {
             solver.add(formulas);
             final TimeoutHandler handler = new TimeoutHandler(10L);
 
-            final LNGResult<Assignment> result = solver.execute(OptimizationFunction.builder()
+            final LNGResult<Model> result = solver.execute(OptimizationFunction.builder()
                     .literals(FormulaHelper.variables(f, formulas))
                     .maximize().build(), handler);
             assertThat(result.isSuccess()).isFalse();
@@ -96,7 +96,7 @@ class TimeoutOptimizationHandlerTest {
         for (final SATSolver solver : solvers) {
             solver.add(formulas);
             final TimeoutHandler handler = new TimeoutHandler(100L, FIXED_END);
-            final LNGResult<Assignment> result = solver.execute(OptimizationFunction.builder()
+            final LNGResult<Model> result = solver.execute(OptimizationFunction.builder()
                     .literals(FormulaHelper.variables(f, formulas))
                     .maximize().build(), handler);
             assertThat(result.isSuccess()).isFalse();

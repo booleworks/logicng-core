@@ -4,7 +4,7 @@
 
 package com.booleworks.logicng.primecomputation;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -138,22 +138,22 @@ public final class PrimeCompiler {
             if (!hSolver.sat()) {
                 return LNGResult.of(new Pair<>(primeImplicants, primeImplicates));
             }
-            final LNGResult<Assignment> hModelResult = hSolver.execute(computeWithMaximization
+            final LNGResult<Model> hModelResult = hSolver.execute(computeWithMaximization
                     ? OptimizationFunction.builder().literals(sub.newVar2oldLit.keySet()).maximize().build()
                     : OptimizationFunction.builder().literals(sub.newVar2oldLit.keySet()).minimize().build(), handler);
             if (!hModelResult.isSuccess()) {
                 return LNGResult.canceled(hModelResult.getCancelCause());
             }
-            final Assignment hModel = hModelResult.getResult();
-            final Assignment fModel = transformModel(hModel, sub.newVar2oldLit);
-            try (final SATCall fCall = fSolver.satCall().handler(handler).addFormulas(fModel.literals()).solve()) {
+            final Model hModel = hModelResult.getResult();
+            final Model fModel = transformModel(hModel, sub.newVar2oldLit);
+            try (final SATCall fCall = fSolver.satCall().handler(handler).addFormulas(fModel.getLiterals()).solve()) {
                 if (!fCall.getSatResult().isSuccess()) {
                     return LNGResult.canceled(fCall.getSatResult().getCancelCause());
                 }
                 if (!fCall.getSatResult().getResult()) {
                     final LNGResult<SortedSet<Literal>> primeImplicantResult = computeWithMaximization
-                            ? primeReduction.reduceImplicant(fModel.literals(), handler)
-                            : LNGResult.of(fModel.literals());
+                            ? primeReduction.reduceImplicant(fModel.getLiterals(), handler)
+                            : LNGResult.of(new TreeSet<>(fModel.getLiterals()));
                     if (!primeImplicantResult.isSuccess()) {
                         return LNGResult.canceled(primeImplicantResult.getCancelCause());
                     }
@@ -167,7 +167,7 @@ public final class PrimeCompiler {
                 } else {
                     final SortedSet<Literal> implicate = new TreeSet<>();
                     for (final Literal lit :
-                            (computeWithMaximization ? fModel : fCall.model(formula.variables(f))).literals()) {
+                            (computeWithMaximization ? fModel : fCall.model(formula.variables(f))).getLiterals()) {
                         implicate.add(lit.negate(f));
                     }
                     final LNGResult<SortedSet<Literal>> primeImplicateResult =
@@ -200,12 +200,12 @@ public final class PrimeCompiler {
         return new SubstitutionResult(newVar2oldLit, substTransformation, f.and(constraintOps));
     }
 
-    private Assignment transformModel(final Assignment model, final Map<Variable, Literal> mapping) {
-        final Assignment mapped = new Assignment();
+    private Model transformModel(final Model model, final Map<Variable, Literal> mapping) {
+        final List<Literal> mapped = new ArrayList<>();
         for (final Variable var : model.positiveVariables()) {
-            mapped.addLiteral(mapping.get(var));
+            mapped.add(mapping.get(var));
         }
-        return mapped;
+        return new Model(mapped);
     }
 
     private List<SortedSet<Literal>> negateAll(final FormulaFactory f,

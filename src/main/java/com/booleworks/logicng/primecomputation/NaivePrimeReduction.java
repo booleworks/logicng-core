@@ -16,6 +16,7 @@ import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -67,7 +68,7 @@ public final class NaivePrimeReduction {
      * @return a prime implicant or null if the computation was canceled by the
      *         handler
      */
-    public LNGResult<SortedSet<Literal>> reduceImplicant(final SortedSet<Literal> implicant,
+    public LNGResult<SortedSet<Literal>> reduceImplicant(final Collection<Literal> implicant,
                                                          final ComputationHandler handler) {
         handler.shouldResume(ComputationStartedEvent.IMPLICATE_REDUCTION_STARTED);
         final SortedSet<Literal> primeImplicant = new TreeSet<>(implicant);

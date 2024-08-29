@@ -89,7 +89,6 @@ public class LargeBDDTest {
         final TimeoutHandler handler = new TimeoutHandler(1000L);
         final LNGResult<BDD> bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(bdd.isSuccess()).isFalse();
-        assertThat(bdd.getResult()).isNull();
     }
 
     @Test

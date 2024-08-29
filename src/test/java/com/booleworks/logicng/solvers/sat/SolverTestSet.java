@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,18 +25,18 @@ public interface SolverTestSet {
                 .collect(Collectors.toList());
     }
 
-    static List<Arguments> solverSupplierTestSetForParameterizedTests(final Collection<SATSolverConfigParam> variance,
-                                                                      final FormulaFactory f) {
-        return solverSupplierTestSet(variance, f).stream()
-                .map(s -> Arguments.of(s, solverDescription(s.get(), variance))).collect(Collectors.toList());
+    static List<Arguments> solverSupplierTestSetForParameterizedTests(final Collection<SATSolverConfigParam> variance) {
+        return solverSupplierTestSet(variance).stream()
+                .map(s -> Arguments.of(s, solverDescription(s.apply(FormulaFactory.nonCaching()), variance)))
+                .collect(Collectors.toList());
     }
 
     static List<SATSolver> solverTestSet(final Collection<SATSolverConfigParam> variance, final FormulaFactory f) {
-        return solverSupplierTestSet(variance, f).stream().map(Supplier::get).collect(Collectors.toList());
+        return solverSupplierTestSet(variance).stream().map(s -> s.apply(f)).collect(Collectors.toList());
     }
 
-    static List<Supplier<SATSolver>> solverSupplierTestSet(final Collection<SATSolverConfigParam> variance,
-                                                           final FormulaFactory f) {
+    static List<Function<FormulaFactory, SATSolver>> solverSupplierTestSet(
+            final Collection<SATSolverConfigParam> variance) {
         List<SATSolverConfig> currentList = List.of(SATSolverConfig.builder().build());
         if (variance.contains(SATSolverConfigParam.PROOF_GENERATION)) {
             currentList = currentList.stream().flatMap(config -> Stream.of(
@@ -70,7 +70,8 @@ public interface SolverTestSet {
                     SATSolverConfig.copy(config).clauseMinimization(DEEP).build()
             )).collect(Collectors.toList());
         }
-        return currentList.stream().map(config -> (Supplier<SATSolver>) () -> SATSolver.newSolver(f, config))
+        return currentList.stream()
+                .map(config -> (Function<FormulaFactory, SATSolver>) f -> SATSolver.newSolver(f, config))
                 .collect(Collectors.toList());
     }
 

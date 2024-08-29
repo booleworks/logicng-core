@@ -1,6 +1,6 @@
 package com.booleworks.logicng.handlers.events;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
 
 import java.util.function.Supplier;
@@ -13,13 +13,13 @@ import java.util.function.Supplier;
  */
 public class OptimizationFoundBetterBoundEvent implements LNGEvent {
 
-    private final Supplier<Assignment> model;
+    private final Supplier<Model> model;
 
     /**
      * Creates a new event including a supplier to get the latest model.
      * @param model the latest model
      */
-    public OptimizationFoundBetterBoundEvent(final Supplier<Assignment> model) {
+    public OptimizationFoundBetterBoundEvent(final Supplier<Model> model) {
         this.model = model;
     }
 
@@ -27,7 +27,7 @@ public class OptimizationFoundBetterBoundEvent implements LNGEvent {
      * Returns the supplier for the latest model.
      * @return the supplier for the latest model
      */
-    public Supplier<Assignment> getModel() {
+    public Supplier<Model> getModel() {
         return model;
     }
 

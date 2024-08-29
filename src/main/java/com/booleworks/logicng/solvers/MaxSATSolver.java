@@ -7,7 +7,7 @@ package com.booleworks.logicng.solvers;
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -26,6 +26,8 @@ import com.booleworks.logicng.solvers.maxsat.algorithms.OLL;
 import com.booleworks.logicng.solvers.maxsat.algorithms.WBO;
 import com.booleworks.logicng.solvers.maxsat.algorithms.WMSU3;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -383,28 +385,24 @@ public class MaxSATSolver {
             solver.setProblemType(MaxSAT.ProblemType.WEIGHTED);
         }
         final LNGResult<InternalMaxSATResult> internalResult = solver.search(handler);
-        result = internalResult.map(res -> res.toMaxSATResult(this::createAssignment));
+        result = internalResult.map(res -> res.toMaxSATResult(this::createModel));
         return result;
     }
 
     /**
-     * Creates an assignment from a Boolean vector of the solver.
+     * Creates a model from a Boolean vector of the solver.
      * @param vec the vector of the solver
-     * @return the assignment
+     * @return the model
      */
-    protected Assignment createAssignment(final LNGBooleanVector vec) {
-        final Assignment model = new Assignment();
+    protected Model createModel(final LNGBooleanVector vec) {
+        final List<Literal> model = new ArrayList<>();
         for (int i = 0; i < vec.size(); i++) {
             final Literal lit = index2var.get(i);
             if (lit != null && !selectorVariables.contains(lit.variable())) {
-                if (vec.get(i)) {
-                    model.addLiteral(lit);
-                } else {
-                    model.addLiteral(lit.negate(f));
-                }
+                model.add(vec.get(i) ? lit : lit.negate(f));
             }
         }
-        return model;
+        return new Model(model);
     }
 
     /**
