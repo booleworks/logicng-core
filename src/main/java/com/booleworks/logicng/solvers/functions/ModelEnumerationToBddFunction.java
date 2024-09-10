@@ -4,6 +4,8 @@
 
 package com.booleworks.logicng.solvers.functions;
 
+import static com.booleworks.logicng.handlers.events.SimpleEvent.MODEL_ENUMERATION_COMMIT;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.MODEL_ENUMERATION_ROLLBACK;
 import static java.util.Arrays.asList;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
@@ -12,7 +14,9 @@ import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.ModelEnumerationHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDDFactory;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
@@ -126,26 +130,23 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         }
 
         @Override
-        public boolean addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver,
-                                final LNGIntVector relevantAllIndices,
-                                final ModelEnumerationHandler handler) {
-            if (handler == null || handler.foundModels(dontCareFactor)) {
-                final Model model =
-                        new Model(solver.underlyingSolver().convertInternalModel(modelFromSolver, relevantAllIndices));
-                uncommittedModels.add(model);
-                return true;
-            } else {
-                return false;
-            }
+        public LNGEvent addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver,
+                                 final LNGIntVector relevantAllIndices,
+                                 final ComputationHandler handler) {
+            final EnumerationFoundModelsEvent event = new EnumerationFoundModelsEvent(dontCareFactor);
+            final Model model =
+                    new Model(solver.underlyingSolver().convertInternalModel(modelFromSolver, relevantAllIndices));
+            uncommittedModels.add(model);
+            return handler.shouldResume(event) ? null : event;
         }
 
         @Override
-        public boolean commit(final ModelEnumerationHandler handler) {
+        public LNGEvent commit(final ComputationHandler handler) {
             for (final Model uncommittedModel : uncommittedModels) {
                 committedModels = committedModels.or(model2Bdd(uncommittedModel));
             }
             uncommittedModels.clear();
-            return handler == null || handler.commit();
+            return handler.shouldResume(MODEL_ENUMERATION_COMMIT) ? null : MODEL_ENUMERATION_COMMIT;
         }
 
         private BDD model2Bdd(final Model model) {
@@ -157,13 +158,13 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         }
 
         @Override
-        public boolean rollback(final ModelEnumerationHandler handler) {
+        public LNGEvent rollback(final ComputationHandler handler) {
             uncommittedModels.clear();
-            return handler == null || handler.rollback();
+            return handler.shouldResume(MODEL_ENUMERATION_ROLLBACK) ? null : MODEL_ENUMERATION_ROLLBACK;
         }
 
         @Override
-        public List<Model> rollbackAndReturnModels(final SATSolver solver, final ModelEnumerationHandler handler) {
+        public List<Model> rollbackAndReturnModels(final SATSolver solver, final ComputationHandler handler) {
             final List<Model> modelsToReturn = new ArrayList<>(uncommittedModels);
             rollback(handler);
             return modelsToReturn;

@@ -4,11 +4,14 @@
 
 package com.booleworks.logicng.knowledgecompilation.dnnf;
 
+import static com.booleworks.logicng.handlers.events.SimpleEvent.DNNF_SHANNON_EXPANSION;
+
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.handlers.DnnfCompilationHandler;
-import com.booleworks.logicng.handlers.Handler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTree;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeLeaf;
@@ -44,7 +47,7 @@ public class DnnfCompiler {
     protected final int numberOfVariables;
 
     protected final Map<BitSet, Formula> cache;
-    protected DnnfCompilationHandler handler;
+    protected ComputationHandler handler;
 
     protected BitSet[][] localCacheKeys;
     protected int[][][] localOccurrences;
@@ -87,7 +90,7 @@ public class DnnfCompiler {
      * @param handler   the compilation handler
      * @return the compiled DNNF
      */
-    public Formula compile(final DTreeGenerator generator, final DnnfCompilationHandler handler) {
+    public Formula compile(final DTreeGenerator generator, final ComputationHandler handler) {
         if (!cnf.holds(new SATPredicate(f))) {
             return f.falsum();
         }
@@ -143,7 +146,7 @@ public class DnnfCompiler {
         return tree;
     }
 
-    protected Formula compile(final DTree dTree, final DnnfCompilationHandler handler) {
+    protected Formula compile(final DTree dTree, final ComputationHandler handler) {
         if (nonUnitClauses.isAtomicFormula()) {
             return cnf;
         }
@@ -152,7 +155,7 @@ public class DnnfCompiler {
         }
         initializeCaches(dTree);
         this.handler = handler;
-        Handler.start(handler);
+        handler.shouldResume(ComputationStartedEvent.DNNF_COMPUTATION_STARTED);
 
         Formula result;
         try {
@@ -160,7 +163,7 @@ public class DnnfCompiler {
         } catch (final TimeoutException e) {
             result = null;
         }
-        this.handler = null;
+        this.handler = NopHandler.get();
         return result == null ? null : f.and(unitClauses, result);
     }
 
@@ -196,7 +199,7 @@ public class DnnfCompiler {
         } else {
             final int var = chooseShannonVariable(tree, separator, currentShannons);
 
-            if (handler != null && !handler.shannonExpansion()) {
+            if (!handler.shouldResume(DNNF_SHANNON_EXPANSION)) {
                 throw new TimeoutException();
             }
 

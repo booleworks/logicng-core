@@ -4,6 +4,10 @@
 
 package com.booleworks.logicng.formulas;
 
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.NopHandler;
+
 /**
  * A function on a formula.
  * @param <T> the result type of the function
@@ -18,5 +22,14 @@ public interface FormulaFunction<T> {
      * @param formula the input formula
      * @return the result of the application
      */
-    T apply(Formula formula);
+    LNGResult<T> apply(Formula formula, ComputationHandler handler);
+
+    /**
+     * Applies this function to a given formula.
+     * @param formula the input formula
+     * @return the result of the application
+     */
+    default T apply(final Formula formula) {
+        return apply(formula, NopHandler.get()).getResult();
+    }
 }

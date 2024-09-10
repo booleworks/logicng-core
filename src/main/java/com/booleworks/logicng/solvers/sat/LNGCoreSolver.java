@@ -22,10 +22,13 @@
 
 package com.booleworks.logicng.solvers.sat;
 
+import static com.booleworks.logicng.datastructures.Tristate.FALSE;
+import static com.booleworks.logicng.datastructures.Tristate.TRUE;
 import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
-import static com.booleworks.logicng.handlers.Handler.aborted;
-import static com.booleworks.logicng.handlers.Handler.start;
-import static com.booleworks.logicng.handlers.SATHandler.finishSolving;
+import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.SAT_CALL_FINISHED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BACKBONE_COMPUTATION_STARTED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SAT_CALL_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.SAT_CONFLICT_DETECTED;
 
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
@@ -36,7 +39,10 @@ import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
@@ -127,10 +133,6 @@ public class LNGCoreSolver {
     protected double varDecay;
     protected int clausesLiterals = 0;
     protected int learntsLiterals = 0;
-
-    // SAT handler
-    protected SATHandler handler;
-    protected boolean canceledByHandler = false;
 
     // Proof generating information
     protected LNGVector<ProofInformation> pgOriginalClauses = new LNGVector<>();
@@ -326,7 +328,7 @@ public class LNGCoreSolver {
      * @param x the first variable
      * @param y the second variable
      * @return {@code true} if the first variable's activity is larger than the
-     *         second one's
+     * second one's
      */
     public boolean lt(final int x, final int y) {
         return vars.get(x).activity() > vars.get(y).activity();
@@ -389,13 +391,11 @@ public class LNGCoreSolver {
      * Adds a unit clause to the solver.
      * @param lit         the unit clause's literal
      * @param proposition a proposition (if required for proof tracing)
-     * @return {@code true} if the clause was added successfully, {@code false}
-     *         otherwise
      */
-    public boolean addClause(final int lit, final Proposition proposition) {
+    public void addClause(final int lit, final Proposition proposition) {
         final LNGIntVector unit = new LNGIntVector(1);
         unit.push(lit);
-        return addClause(unit, proposition);
+        addClause(unit, proposition);
     }
 
     /**
@@ -403,7 +403,7 @@ public class LNGCoreSolver {
      * @param ps          the literals of the clause
      * @param proposition a proposition (if required for proof tracing)
      * @return {@code true} if the clause was added successfully, {@code false}
-     *         otherwise
+     * otherwise
      * @throws IllegalStateException if a {@link SATCall} is currently running
      *                               on this solver
      */
@@ -431,16 +431,16 @@ public class LNGCoreSolver {
             oc = new LNGIntVector();
             for (i = 0, p = LIT_UNDEF; i < ps.size(); i++) {
                 oc.push(ps.get(i));
-                if (value(ps.get(i)) == Tristate.TRUE || ps.get(i) == not(p) || value(ps.get(i)) == Tristate.FALSE) {
+                if (value(ps.get(i)) == TRUE || ps.get(i) == not(p) || value(ps.get(i)) == FALSE) {
                     flag = true;
                 }
             }
         }
 
         for (i = 0, j = 0, p = LIT_UNDEF; i < ps.size(); i++) {
-            if (value(ps.get(i)) == Tristate.TRUE || ps.get(i) == not(p)) {
+            if (value(ps.get(i)) == TRUE || ps.get(i) == not(p)) {
                 return true;
-            } else if (value(ps.get(i)) != Tristate.FALSE && ps.get(i) != p) {
+            } else if (value(ps.get(i)) != FALSE && ps.get(i) != p) {
                 p = ps.get(i);
                 ps.set(j++, p);
             }
@@ -486,80 +486,64 @@ public class LNGCoreSolver {
     }
 
     /**
-     * Solves the formula currently stored in the solver. Returns
-     * {@link Tristate#TRUE} if the formula is satisfiable (SAT),
-     * {@link Tristate#FALSE} if the formula is unsatisfiable (UNSAT), or
-     * {@link Tristate#UNDEF} if the computation was canceled by a
-     * {@link SATHandler}. If {@code null} is passed as handler, the solver will
-     * run until the satisfiability is decided.
-     * @param handler a sat handler
-     * @return {@link Tristate#TRUE} if the formula is satisfiable,
-     *         {@link Tristate#FALSE} if the formula is not satisfiable, or
-     *         {@link Tristate#UNDEF} if the computation was canceled.
+     * Solves the formula currently stored in the solver and returns whether
+     * it is satisfiable or not. If the handler cancels the computation earlier,
+     * a result with the respective cancel event is returned.
+     * @param handler a handler
+     * @return the result of the solve call
      */
-    public Tristate internalSolve(final SATHandler handler) {
-        this.handler = handler;
-        final Tristate result = internalSolve();
-        this.handler = null;
-        return result;
-    }
-
-    public Tristate internalSolve() {
-        start(handler);
+    public LNGResult<Boolean> internalSolve(final ComputationHandler handler) {
+        if (!handler.shouldResume(SAT_CALL_STARTED)) {
+            return LNGResult.canceled(SAT_CALL_STARTED);
+        }
         model.clear();
         assumptionsConflict.clear();
         if (!ok) {
-            return Tristate.FALSE;
+            return LNGResult.of(false);
         }
-        Tristate status = Tristate.UNDEF;
-        while (status == Tristate.UNDEF && !canceledByHandler) {
-            status = search();
+        LNGResult<Tristate> status = LNGResult.of(UNDEF);
+        while (status.isSuccess() && status.getResult() == UNDEF) {
+            status = search(handler);
         }
 
-        if (config.proofGeneration && assumptions.empty() && status == Tristate.FALSE) {
+        if (!status.isSuccess()) {
+            cancelUntil(0);
+            return LNGResult.canceled(status.getCancelCause());
+        }
+
+        final boolean result = status.getResult() == TRUE;
+
+        if (config.proofGeneration && assumptions.empty() && !result) {
             pgProof.push(LNGIntVector.of(0));
         }
 
-        if (status == Tristate.TRUE) {
+        if (result) {
             model = new LNGBooleanVector(vars.size());
             for (final LNGVariable v : vars) {
-                model.push(v.assignment() == Tristate.TRUE);
+                model.push(v.assignment() == TRUE);
             }
-        } else if (status == Tristate.FALSE && assumptionsConflict.empty()) {
+        } else if (assumptionsConflict.empty()) {
             ok = false;
         }
-        finishSolving(handler);
         cancelUntil(0);
-        canceledByHandler = false;
-        return status;
+        if (!handler.shouldResume(SAT_CALL_FINISHED)) {
+            return LNGResult.canceled(SAT_CALL_FINISHED);
+        }
+        return LNGResult.of(result);
     }
 
     /**
-     * Sets (or clears) the SAT handler which should be used for subsequent SAT
-     * calls.
-     * @param handler the SAT handler to be used
-     */
-    public void setHandler(final SATHandler handler) {
-        this.handler = handler;
-    }
-
-    /**
-     * Solves the formula currently stored in the solver together with the given
-     * assumption literals. Returns {@link Tristate#TRUE} if the formula and the
-     * assumptions are satisfiable (SAT), {@link Tristate#FALSE} if the formula
-     * and the assumptions are not satisfiable together (UNSAT), or
-     * {@link Tristate#UNDEF} if the computation was canceled by a
-     * {@link SATHandler}. If {@code null} is passed as handler, the solver will
-     * run until the satisfiability is decided.
-     * @param handler     a sat handler
+     * Solves the formula currently stored in the solver together with the
+     * given assumption literals and returns whether it is satisfiable or not.
+     * If the handler cancels the computation earlier, a result with the
+     * respective cancel event is returned.
+     * @param handler     a handler
      * @param assumptions the assumptions as a given vector of literals
-     * @return {@link Tristate#TRUE} if the formula and the assumptions are
-     *         satisfiable, {@link Tristate#FALSE} if they are not satisfiable,
-     *         or {@link Tristate#UNDEF} if the computation was canceled.
+     * @return the result of the solve call
      */
-    public Tristate internalSolve(final SATHandler handler, final LNGIntVector assumptions) {
+    public LNGResult<Boolean> internalSolve(final ComputationHandler handler, final LNGIntVector assumptions) {
         this.assumptions = new LNGIntVector(assumptions);
-        final Tristate result = internalSolve(handler);
+        final LNGResult<Boolean> result = internalSolve(handler);
         this.assumptions.clear();
         return result;
     }
@@ -577,7 +561,7 @@ public class LNGCoreSolver {
      * Returns {@code false} if this solver is known to be in a conflicting
      * state, otherwise {@code true}.
      * @return {@code false} if this solver is known to be in a conflicting
-     *         state, otherwise {@code true}
+     * state, otherwise {@code true}
      */
     public boolean ok() {
         return ok;
@@ -798,7 +782,7 @@ public class LNGCoreSolver {
      * @return {@code true} if the given clause is locked
      */
     protected boolean locked(final LNGClause c) {
-        return value(c.get(0)) == Tristate.TRUE && v(c.get(0)).reason() != null && v(c.get(0)).reason() == c;
+        return value(c.get(0)) == TRUE && v(c.get(0)).reason() != null && v(c.get(0)).reason() == c;
     }
 
     /**
@@ -829,7 +813,7 @@ public class LNGCoreSolver {
      *               or {@code null} if it was a decision
      */
     protected void uncheckedEnqueue(final int lit, final LNGClause reason) {
-        assert value(lit) == Tristate.UNDEF;
+        assert value(lit) == UNDEF;
         final LNGVariable var = v(lit);
         var.assign(Tristate.fromBool(!sign(lit)));
         var.setReason(reason);
@@ -903,7 +887,7 @@ public class LNGCoreSolver {
     /**
      * Performs unit propagation.
      * @return the conflicting clause if a conflict arose during unit
-     *         propagation or {@code null} if there was none
+     * propagation or {@code null} if there was none
      */
     protected LNGClause propagate() {
         LNGClause confl = null;
@@ -915,17 +899,17 @@ public class LNGCoreSolver {
             final LNGVector<LNGWatcher> wbin = watchesBin.get(p);
             for (int k = 0; k < wbin.size(); k++) {
                 final int imp = wbin.get(k).blocker();
-                if (value(imp) == Tristate.FALSE) {
+                if (value(imp) == FALSE) {
                     return wbin.get(k).clause();
                 }
-                if (value(imp) == Tristate.UNDEF) {
+                if (value(imp) == UNDEF) {
                     uncheckedEnqueue(imp, wbin.get(k).clause());
                 }
             }
             while (iInd < ws.size()) {
                 final LNGWatcher i = ws.get(iInd);
                 final int blocker = i.blocker();
-                if (blocker != LIT_UNDEF && value(blocker) == Tristate.TRUE) {
+                if (blocker != LIT_UNDEF && value(blocker) == TRUE) {
                     ws.set(jInd++, i);
                     iInd++;
                     continue;
@@ -936,8 +920,8 @@ public class LNGCoreSolver {
                     final int newWatch = findNewWatchForAtMostClause(c, p);
                     if (newWatch == LIT_UNDEF) {
                         for (int k = 0; k < c.atMostWatchers(); k++) {
-                            if (c.get(k) != p && value(c.get(k)) != Tristate.FALSE) {
-                                assert value(c.get(k)) == Tristate.UNDEF || value(c.get(k)) == Tristate.FALSE;
+                            if (c.get(k) != p && value(c.get(k)) != FALSE) {
+                                assert value(c.get(k)) == UNDEF || value(c.get(k)) == FALSE;
                                 uncheckedEnqueue(not(c.get(k)), c);
                             }
                         }
@@ -965,13 +949,13 @@ public class LNGCoreSolver {
                     iInd++;
                     final int first = c.get(0);
                     final LNGWatcher w = new LNGWatcher(c, first);
-                    if (first != blocker && value(first) == Tristate.TRUE) {
+                    if (first != blocker && value(first) == TRUE) {
                         ws.set(jInd++, w);
                         continue;
                     }
                     boolean foundWatch = false;
                     for (int k = 2; k < c.size() && !foundWatch; k++) {
-                        if (value(c.get(k)) != Tristate.FALSE) {
+                        if (value(c.get(k)) != FALSE) {
                             c.set(1, c.get(k));
                             c.set(k, falseLit);
                             watches.get(not(c.get(1))).push(w);
@@ -980,7 +964,7 @@ public class LNGCoreSolver {
                     }
                     if (!foundWatch) {
                         ws.set(jInd++, w);
-                        if (value(first) == Tristate.FALSE) {
+                        if (value(first) == FALSE) {
                             confl = c;
                             qhead = trail.size();
                             while (iInd < ws.size()) {
@@ -1004,7 +988,7 @@ public class LNGCoreSolver {
      * @param abstractLevels an abstraction of levels
      * @param analyzeToClear helper vector
      * @return {@code true} if a given literal is redundant in the current
-     *         conflict analysis
+     * conflict analysis
      */
     protected boolean litRedundant(final int p, final int abstractLevels, final LNGIntVector analyzeToClear) {
         final LNGIntVector analyzeStack = new LNGIntVector();
@@ -1016,7 +1000,7 @@ public class LNGCoreSolver {
             analyzeStack.pop();
             if (c.isAtMost()) {
                 for (int i = 0; i < c.size(); i++) {
-                    if (value(c.get(i)) != Tristate.TRUE) {
+                    if (value(c.get(i)) != TRUE) {
                         continue;
                     }
                     final int q = not(c.get(i));
@@ -1035,8 +1019,8 @@ public class LNGCoreSolver {
                     }
                 }
             } else {
-                if (c.size() == 2 && value(c.get(0)) == Tristate.FALSE) {
-                    assert value(c.get(1)) == Tristate.TRUE;
+                if (c.size() == 2 && value(c.get(0)) == FALSE) {
+                    assert value(c.get(1)) == TRUE;
                     final int tmp = c.get(0);
                     c.set(0, c.get(1));
                     c.set(1, tmp);
@@ -1092,7 +1076,7 @@ public class LNGCoreSolver {
                         }
                     } else {
                         for (int j = 0; j < c.size(); j++) {
-                            if (value(c.get(j)) == Tristate.TRUE && v(c.get(j)).level() > 0) {
+                            if (value(c.get(j)) == TRUE && v(c.get(j)).level() > 0) {
                                 seen.set(var(c.get(j)), true);
                             }
                         }
@@ -1109,7 +1093,7 @@ public class LNGCoreSolver {
             for (int c = trail.size() - 1; c >= trailLim.get(level); c--) {
                 final int x = var(trail.get(c));
                 final LNGVariable v = vars.get(x);
-                v.assign(Tristate.UNDEF);
+                v.assign(UNDEF);
                 v.setPolarity(!computingBackbone && sign(trail.get(c)));
                 insertVarOrder(x);
             }
@@ -1170,22 +1154,21 @@ public class LNGCoreSolver {
     /**
      * The main search procedure of the CDCL algorithm.
      * @return a {@link Tristate} representing the result. {@code FALSE} if the
-     *         formula is UNSAT, {@code TRUE} if the formula is SAT, and
-     *         {@code UNDEF} if the state is not known yet (restart) or the
-     *         handler canceled the computation
+     * formula is UNSAT, {@code TRUE} if the formula is SAT, and
+     * {@code UNDEF} if the state is not known yet (restart) or the
+     * handler canceled the computation
      */
-    protected Tristate search() {
+    protected LNGResult<Tristate> search(final ComputationHandler handler) {
         if (!ok) {
-            return Tristate.FALSE;
+            return LNGResult.of(FALSE);
         }
         final LNGIntVector learntClause = new LNGIntVector();
         selectionOrderIdx = 0;
         while (true) {
             final LNGClause confl = propagate();
             if (confl != null) {
-                if (handler != null && !handler.detectedConflict()) {
-                    canceledByHandler = true;
-                    return Tristate.UNDEF;
+                if (!handler.shouldResume(SAT_CONFLICT_DETECTED)) {
+                    return LNGResult.canceled(SAT_CONFLICT_DETECTED);
                 }
                 conflicts++;
                 conflictsRestarts++;
@@ -1193,7 +1176,7 @@ public class LNGCoreSolver {
                     varDecay += 0.01;
                 }
                 if (decisionLevel() == 0) {
-                    return Tristate.FALSE;
+                    return LNGResult.of(FALSE);
                 }
                 trailQueue.push(trail.size());
                 if (conflictsRestarts > LB_BLOCKING_RESTART && lbdQueue.valid() &&
@@ -1236,7 +1219,7 @@ public class LNGCoreSolver {
                 if (lbdQueue.valid() && (lbdQueue.avg() * llConfig.factorK) > (sumLBD / conflictsRestarts)) {
                     lbdQueue.fastClear();
                     cancelUntil(0);
-                    return Tristate.UNDEF;
+                    return LNGResult.of(UNDEF);
                 }
                 if (conflicts >= (curRestart * nbClausesBeforeReduce) && learnts.size() > 0) {
                     curRestart = (conflicts / nbClausesBeforeReduce) + 1;
@@ -1246,16 +1229,16 @@ public class LNGCoreSolver {
                 int next = LIT_UNDEF;
                 while (decisionLevel() < assumptions.size()) {
                     final int p = assumptions.get(decisionLevel());
-                    if (value(p) == Tristate.TRUE) {
+                    if (value(p) == TRUE) {
                         trailLim.push(trail.size());
-                    } else if (value(p) == Tristate.FALSE) {
+                    } else if (value(p) == FALSE) {
                         if (config.proofGeneration) {
                             final int drupLit = (var(p) + 1) * (-2 * (sign(p) ? 1 : 0) + 1);
                             pgOriginalClauses.push(new ProofInformation(LNGIntVector.of(drupLit),
                                     assumptionPropositions.get(decisionLevel())));
                         }
                         analyzeAssumptionConflict(not(p));
-                        return Tristate.FALSE;
+                        return LNGResult.of(FALSE);
                     } else {
                         if (config.proofGeneration) {
                             final int drupLit = (var(p) + 1) * (-2 * (sign(p) ? 1 : 0) + 1);
@@ -1269,7 +1252,7 @@ public class LNGCoreSolver {
                 if (next == LIT_UNDEF) {
                     next = pickBranchLit();
                     if (next == LIT_UNDEF) {
-                        return Tristate.TRUE;
+                        return LNGResult.of(TRUE);
                     }
                 }
                 trailLim.push(trail.size());
@@ -1297,7 +1280,7 @@ public class LNGCoreSolver {
             assert c != null;
             if (c.isAtMost()) {
                 for (int j = 0; j < c.size(); j++) {
-                    if (value(c.get(j)) != Tristate.TRUE) {
+                    if (value(c.get(j)) != TRUE) {
                         continue;
                     }
                     final int q = not(c.get(j));
@@ -1312,8 +1295,8 @@ public class LNGCoreSolver {
                     }
                 }
             } else {
-                if (p != LIT_UNDEF && c.size() == 2 && value(c.get(0)) == Tristate.FALSE) {
-                    assert value(c.get(1)) == Tristate.TRUE;
+                if (p != LIT_UNDEF && c.size() == 2 && value(c.get(0)) == FALSE) {
+                    assert value(c.get(1)) == TRUE;
                     final int tmp = c.get(0);
                     c.set(0, c.get(1));
                     c.set(1, tmp);
@@ -1475,7 +1458,7 @@ public class LNGCoreSolver {
             int nb = 0;
             for (final LNGWatcher wbin : watchesBin.get(p)) {
                 final int imp = wbin.blocker();
-                if (permDiff.get(var(imp)) == myflag && value(imp) == Tristate.TRUE) {
+                if (permDiff.get(var(imp)) == myflag && value(imp) == TRUE) {
                     nb++;
                     permDiff.set(var(imp), myflag - 1);
                 }
@@ -1502,7 +1485,7 @@ public class LNGCoreSolver {
     protected void completeBacktrack() {
         for (int v = 0; v < vars.size(); v++) {
             final LNGVariable var = vars.get(v);
-            var.assign(Tristate.UNDEF);
+            var.assign(UNDEF);
             var.setReason(null);
             if (!orderHeap.inHeap(v) && var.decision()) {
                 orderHeap.insert(v);
@@ -1548,13 +1531,13 @@ public class LNGCoreSolver {
         int i;
         int j;
         for (i = j = 0, p = LIT_UNDEF; i < ps.size(); i++) {
-            if (value(ps.get(i)) == Tristate.TRUE) {
+            if (value(ps.get(i)) == TRUE) {
                 k--;
             } else if (ps.get(i) == not(p)) {
                 p = ps.get(i);
                 j--;
                 k--;
-            } else if (value(ps.get(i)) != Tristate.FALSE) {
+            } else if (value(ps.get(i)) != FALSE) {
                 p = ps.get(i);
                 ps.set(j++, p);
             }
@@ -1603,7 +1586,7 @@ public class LNGCoreSolver {
                     }
                     if (c.get(q) == p) {
                         for (int next = c.atMostWatchers(); next < c.size(); next++) {
-                            if (value(c.get(next)) != Tristate.TRUE) {
+                            if (value(c.get(next)) != TRUE) {
                                 final int newWatch = c.get(next);
                                 c.set(next, c.get(q));
                                 c.set(q, newWatch);
@@ -1639,7 +1622,7 @@ public class LNGCoreSolver {
      * Returns {@code true} if a {@link SATCall} is currently using this solver,
      * otherwise {@code false}.
      * @return {@code true} if a {@link SATCall} is currently using this solver,
-     *         otherwise {@code false}
+     * otherwise {@code false}
      */
     public boolean inSatCall() {
         return inSatCall;
@@ -1751,8 +1734,8 @@ public class LNGCoreSolver {
      * @param type      backbone type
      * @return the backbone projected to the relevant variables
      */
-    public Backbone computeBackbone(final Collection<Variable> variables, final BackboneType type) {
-        return computeBackbone(variables, type, null);
+    public LNGResult<Backbone> computeBackbone(final Collection<Variable> variables, final BackboneType type) {
+        return computeBackbone(variables, type, NopHandler.get());
     }
 
     /**
@@ -1762,28 +1745,35 @@ public class LNGCoreSolver {
      * @param type      backbone type
      * @param handler   the handler
      * @return the backbone projected to the relevant variables or {@code null}
-     *         if the computation was aborted by the handler
+     * if the computation was canceled by the handler
      */
-    public Backbone computeBackbone(final Collection<Variable> variables, final BackboneType type,
-                                    final SATHandler handler) {
-        final boolean sat = internalSolve(handler) == Tristate.TRUE;
-        if (aborted(handler)) {
-            return null;
+    public LNGResult<Backbone> computeBackbone(final Collection<Variable> variables, final BackboneType type,
+                                               final ComputationHandler handler) {
+        if (!handler.shouldResume(BACKBONE_COMPUTATION_STARTED)) {
+            return LNGResult.canceled(BACKBONE_COMPUTATION_STARTED);
         }
-        if (sat) {
+        final SolverState stateBeforeBackbone = saveState();
+        final LNGResult<Boolean> solveResult = internalSolve(handler);
+        final LNGResult<Backbone> result;
+        if (!solveResult.isSuccess()) {
+            result = LNGResult.canceled(solveResult.getCancelCause());
+        } else if (solveResult.getResult()) {
             computingBackbone = true;
             final List<Integer> relevantVarIndices = getRelevantVarIndices(variables);
             initBackboneDS(relevantVarIndices);
-            computeBackbone(relevantVarIndices, type, handler);
-            if (aborted(handler)) {
-                return null;
+            final LNGEvent backboneEvent = computeBackbone(relevantVarIndices, type, handler);
+            if (backboneEvent != null) {
+                result = LNGResult.canceled(backboneEvent);
+            } else {
+                final Backbone backbone = buildBackbone(variables, type);
+                result = LNGResult.of(backbone);
             }
-            final Backbone backbone = buildBackbone(variables, type);
             computingBackbone = false;
-            return backbone;
         } else {
-            return Backbone.unsatBackbone();
+            result = LNGResult.of(Backbone.unsatBackbone());
         }
+        loadState(stateBeforeBackbone);
+        return result;
     }
 
     /**
@@ -1825,20 +1815,20 @@ public class LNGCoreSolver {
      * @param type      the type of the backbone
      * @param handler   the handler
      */
-    protected void computeBackbone(final List<Integer> variables, final BackboneType type, final SATHandler handler) {
+    protected LNGEvent computeBackbone(final List<Integer> variables, final BackboneType type, final ComputationHandler handler) {
         createInitialCandidates(variables, type);
         while (!backboneCandidates.isEmpty()) {
             final int lit = backboneCandidates.pop();
-            final boolean sat = solveWithLit(lit, handler);
-            if (aborted(handler)) {
-                return;
-            }
-            if (sat) {
+            final LNGResult<Boolean> satResult = solveWithLit(lit, handler);
+            if (!satResult.isSuccess()) {
+                return satResult.getCancelCause();
+            } else if (satResult.getResult()) {
                 refineUpperBound();
             } else {
                 addBackboneLiteral(lit);
             }
         }
+        return null;
     }
 
     /**
@@ -1888,11 +1878,11 @@ public class LNGCoreSolver {
      * @param handler the handler
      * @return {@code true} if satisfiable, otherwise {@code false}
      */
-    protected boolean solveWithLit(final int lit, final SATHandler handler) {
+    protected LNGResult<Boolean> solveWithLit(final int lit, final ComputationHandler handler) {
         backboneAssumptions.push(not(lit));
-        final boolean sat = internalSolve(handler, backboneAssumptions) == Tristate.TRUE;
+        final LNGResult<Boolean> result = internalSolve(handler, backboneAssumptions);
         backboneAssumptions.pop();
-        return sat;
+        return result;
     }
 
     /**
@@ -1944,7 +1934,7 @@ public class LNGCoreSolver {
      * satisfiable before.
      * @param var variable index to test
      * @return {@code true} if the variable is a unit propagated literal on
-     *         level 0, otherwise {@code false}
+     * level 0, otherwise {@code false}
      */
     protected boolean isUPZeroLit(final int var) {
         return vars.get(var).level() == 0;
@@ -2010,7 +2000,7 @@ public class LNGCoreSolver {
      * @param lit literal to add
      */
     protected void addBackboneLiteral(final int lit) {
-        backboneMap.put(var(lit), sign(lit) ? Tristate.FALSE : Tristate.TRUE);
+        backboneMap.put(var(lit), sign(lit) ? FALSE : TRUE);
         backboneAssumptions.push(lit);
     }
 

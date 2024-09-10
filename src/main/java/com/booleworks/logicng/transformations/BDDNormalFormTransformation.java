@@ -8,6 +8,8 @@ import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.cache.TransformationCacheEntry;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
 import com.booleworks.logicng.knowledgecompilation.bdds.BDDFactory;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
@@ -63,31 +65,37 @@ public abstract class BDDNormalFormTransformation extends CacheableAndStatefulFo
     /**
      * Computes the CNF or DNF from the given formula by using a BDD.
      * @param formula the formula to transform
-     * @return the normal form (CNF or DNF) of the formula
+     * @param handler the computation handler
+     * @return a (potentially canceled) LNGResult with the normal form (CNF or
+     *         DNF) of the formula
      */
-    protected Formula compute(final Formula formula) {
-        if (formula.type().precedence() >= FType.LITERAL.precedence()) {
-            return formula;
-        }
-        if (hasNormalForm(formula, cnf)) {
-            return formula;
+    protected LNGResult<Formula> compute(final Formula formula, final ComputationHandler handler) {
+        if (formula.type().precedence() >= FType.LITERAL.precedence() || hasNormalForm(formula, cnf)) {
+            return LNGResult.of(formula);
         }
         final Formula cached = lookupCache(formula);
         if (cached != null) {
-            return cached;
+            return LNGResult.of(cached);
         }
-        final BDD bdd = BDDFactory.build(f, formula, state, null);
-        final Formula normalForm = cnf ? bdd.cnf() : bdd.dnf();
-        final Formula simplifiedNormalForm;
+        final LNGResult<BDD> bdd = BDDFactory.build(f, formula, state, handler);
+        if (!bdd.isSuccess()) {
+            return LNGResult.canceled(bdd.getCancelCause());
+        }
+        final Formula normalForm = cnf ? bdd.getResult().cnf() : bdd.getResult().dnf();
+        final LNGResult<Formula> simplifiedNormalForm;
         final UnitPropagation up = new UnitPropagation(f);
         if (cnf) {
-            simplifiedNormalForm = normalForm.transform(up);
+            simplifiedNormalForm = normalForm.transform(up, handler);
         } else {
             // unit propagation simplification creates a CNF, so we use the
             // negated DNF to negate the result back to DNF again
-            simplifiedNormalForm = normalForm.negate(f).nnf(f).transform(up).negate(f).nnf(f);
+            simplifiedNormalForm = normalForm.negate(f).nnf(f)
+                    .transform(up, handler)
+                    .map(result -> result.negate(f).nnf(f));
         }
-        setCache(formula, simplifiedNormalForm);
+        if (simplifiedNormalForm.isSuccess()) {
+            setCache(formula, simplifiedNormalForm.getResult());
+        }
         return simplifiedNormalForm;
     }
 

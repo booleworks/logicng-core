@@ -10,7 +10,6 @@ import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.datastructures.Model;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.encodings.CcEncoder;
 import com.booleworks.logicng.encodings.CcIncrementalData;
 import com.booleworks.logicng.encodings.PbEncoder;
@@ -21,6 +20,8 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
@@ -294,7 +295,7 @@ public class SATSolver {
      */
     public boolean sat() {
         try (final SATCall call = satCall().solve()) {
-            return call.getSatResult() == Tristate.TRUE;
+            return call.getSatResult().getResult();
         }
     }
 
@@ -309,6 +310,21 @@ public class SATSolver {
     public <RESULT> RESULT execute(final SolverFunction<RESULT> function) {
         solver.assertNotInSatCall();
         return function.apply(this);
+    }
+
+    /**
+     * Executes a solver function on this solver.
+     * @param function the solver function
+     * @param handler  the computation handler
+     * @param <RESULT> the result type of the function
+     * @return the (potentially canceled) result of executing the solver
+     *         function on the current solver
+     * @throws IllegalStateException if this solver is currently used in a
+     *                               {@link SATCall}
+     */
+    public <RESULT> LNGResult<RESULT> execute(final SolverFunction<RESULT> function, final ComputationHandler handler) {
+        solver.assertNotInSatCall();
+        return function.apply(this, handler);
     }
 
     /**

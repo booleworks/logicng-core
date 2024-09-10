@@ -11,7 +11,6 @@ import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.predicates.AIGPredicate;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -79,24 +78,24 @@ public class AIGTest extends TestWithFormulaContext {
 
         assertThat(_c.and1.transform(aigCaching)).isEqualTo(_c.and1);
         assertThat(_c.or1.transform(aigCaching)).isEqualTo(_c.p.parse("~(~x & ~y)"));
-        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(aigCaching))
+        assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(aigCaching))
                 .isEqualTo(_c.p.parse("(~a & ~b) & c & ~(x & ~y) & ~(w & ~z)"));
-        Assertions.assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(aigCaching))
+        assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(aigCaching))
                 .isEqualTo(_c.p.parse("~(a & b & ~c & ~(~x & y))"));
-        Assertions.assertThat(_c.p.parse("a | b | (~x & ~y)").transform(aigCaching))
+        assertThat(_c.p.parse("a | b | (~x & ~y)").transform(aigCaching))
                 .isEqualTo(_c.p.parse("~(~a & ~b & ~(~x & ~y))"));
         assertThat(_c.and1.transform(aigCaching).holds(aigPred)).isTrue();
         assertThat(_c.or1.transform(aigCaching).holds(aigPred)).isTrue();
-        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(aigCaching).holds(aigPred))
+        assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(aigCaching).holds(aigPred))
                 .isTrue();
-        Assertions.assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(aigCaching).holds(aigPred)).isTrue();
-        Assertions.assertThat(_c.p.parse("a | b | (~x & ~y)").transform(aigCaching).holds(aigPred)).isTrue();
+        assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(aigCaching).holds(aigPred)).isTrue();
+        assertThat(_c.p.parse("a | b | (~x & ~y)").transform(aigCaching).holds(aigPred)).isTrue();
         assertThat(_c.and1.holds(aigPred)).isTrue();
         assertThat(_c.f.and(_c.and1, _c.pbc1).holds(aigPred)).isFalse();
         assertThat(_c.or1.holds(aigPred)).isFalse();
-        Assertions.assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").holds(aigPred)).isFalse();
-        Assertions.assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").holds(aigPred)).isFalse();
-        Assertions.assertThat(_c.p.parse("a | b | (~x & ~y)").holds(aigPred)).isFalse();
+        assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").holds(aigPred)).isFalse();
+        assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").holds(aigPred)).isFalse();
+        assertThat(_c.p.parse("a | b | (~x & ~y)").holds(aigPred)).isFalse();
         final Formula or = _c.p.parse("m | n | o");
         or.transform(aigNonCaching);
         final Formula and = _c.p.parse("m & n & o");
@@ -109,20 +108,20 @@ public class AIGTest extends TestWithFormulaContext {
         final AIGTransformation aigCaching = new AIGTransformation(_c.f);
         final AIGTransformation aigNonCaching = new AIGTransformation(_c.f, null);
 
-        Assertions.assertThat(_c.p.parse("~a").transform(aigCaching)).isEqualTo(_c.p.parse("~a"));
-        Assertions.assertThat(_c.p.parse("~~a").transform(aigCaching)).isEqualTo(_c.p.parse("a"));
-        Assertions.assertThat(_c.p.parse("~(a => b)").transform(aigCaching)).isEqualTo(_c.p.parse("a & ~b"));
-        Assertions.assertThat(_c.p.parse("~(~(a | b) => ~(x | y))").transform(aigCaching))
+        assertThat(_c.p.parse("~a").transform(aigCaching)).isEqualTo(_c.p.parse("~a"));
+        assertThat(_c.p.parse("~~a").transform(aigCaching)).isEqualTo(_c.p.parse("a"));
+        assertThat(_c.p.parse("~(a => b)").transform(aigCaching)).isEqualTo(_c.p.parse("a & ~b"));
+        assertThat(_c.p.parse("~(~(a | b) => ~(x | y))").transform(aigCaching))
                 .isEqualTo(_c.p.parse("(~a & ~b) & ~(~x & ~y)"));
-        Assertions.assertThat(_c.p.parse("~(a <=> b)").transform(aigCaching))
+        assertThat(_c.p.parse("~(a <=> b)").transform(aigCaching))
                 .isEqualTo(_c.p.parse("~(~(a & ~b) & ~(~a & b))"));
-        Assertions.assertThat(_c.p.parse("~(~(a | b) <=> ~(x | y))").transform(aigCaching))
+        assertThat(_c.p.parse("~(~(a | b) <=> ~(x | y))").transform(aigCaching))
                 .isEqualTo(_c.p.parse("~(~(~a & ~b & ~(~x & ~y)) & ~((a | b) & ~(x | y)))"));
-        Assertions.assertThat(_c.p.parse("~(a & b & ~x & ~y)").transform(aigCaching))
+        assertThat(_c.p.parse("~(a & b & ~x & ~y)").transform(aigCaching))
                 .isEqualTo(_c.p.parse("~(a & b & ~x & ~y)"));
-        Assertions.assertThat(_c.p.parse("~(a | b | ~x | ~y)").transform(aigCaching))
+        assertThat(_c.p.parse("~(a | b | ~x | ~y)").transform(aigCaching))
                 .isEqualTo(_c.p.parse("~a & ~b & x & y"));
-        Assertions.assertThat(_c.p.parse("~(a | b | ~x | ~y)").transform(aigCaching))
+        assertThat(_c.p.parse("~(a | b | ~x | ~y)").transform(aigCaching))
                 .isEqualTo(_c.p.parse("~a & ~b & x & y")); // test caching
         final Formula not = _c.p.parse("~(m | n)");
         not.transform(aigNonCaching);

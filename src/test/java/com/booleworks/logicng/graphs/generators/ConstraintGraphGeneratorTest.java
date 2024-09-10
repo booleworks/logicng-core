@@ -18,7 +18,6 @@ import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.transformations.cnf.CNFFactorization;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -32,8 +31,8 @@ public class ConstraintGraphGeneratorTest {
     public void testSimple() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
-        Assertions.assertThat(ConstraintGraphGenerator.generateFromFormulas(f, List.of(f.falsum())).nodes()).isEmpty();
-        Assertions.assertThat(ConstraintGraphGenerator.generateFromFormulas(f, f.verum()).nodes()).isEmpty();
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f, List.of(f.falsum())).nodes()).isEmpty();
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f, f.verum()).nodes()).isEmpty();
         Graph<Variable> graph = ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a"));
         assertThat(graph.nodes()).containsExactly(graph.node(f.variable("a")));
         graph = ConstraintGraphGenerator.generateFromFormulas(f, p.parse("~a"));
@@ -51,7 +50,7 @@ public class ConstraintGraphGeneratorTest {
         expected.connect(a, b);
         expected.connect(a, c);
         expected.connect(b, c);
-        Assertions.assertThat(ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a | ~b | c")).toString())
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a | ~b | c")).toString())
                 .isEqualTo(expected.toString());
     }
 
@@ -66,7 +65,7 @@ public class ConstraintGraphGeneratorTest {
         expected.connect(a, b);
         expected.connect(a, c);
         expected.connect(b, c);
-        Assertions.assertThat(ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a + b + c <= 1")).toString())
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f, p.parse("a + b + c <= 1")).toString())
                 .isEqualTo(expected.toString());
     }
 
@@ -86,7 +85,7 @@ public class ConstraintGraphGeneratorTest {
         expected.connect(b, c);
         expected.connect(d, a);
         expected.connect(d, e);
-        Assertions.assertThat(ConstraintGraphGenerator.generateFromFormulas(f,
+        assertThat(ConstraintGraphGenerator.generateFromFormulas(f,
                         p.parse("a | ~b | c"),
                         p.parse("d | ~a"),
                         p.parse("d + e = 1"),

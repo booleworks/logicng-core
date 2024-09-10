@@ -10,6 +10,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +43,11 @@ public final class LiteralSubstitution extends StatelessFormulaTransformation {
     }
 
     @Override
-    public Formula apply(final Formula formula) {
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+        return LNGResult.of(substitute(formula));
+    }
+
+    private Formula substitute(final Formula formula) {
         switch (formula.type()) {
             case TRUE:
             case FALSE:

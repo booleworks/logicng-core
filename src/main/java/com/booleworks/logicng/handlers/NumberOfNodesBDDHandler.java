@@ -4,14 +4,20 @@
 
 package com.booleworks.logicng.handlers;
 
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BDD_COMPUTATION_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.BDD_NEW_REF_ADDED;
+
+import com.booleworks.logicng.handlers.events.LNGEvent;
+
 /**
  * A BDD handler which cancels the build process after a given number of added
  * nodes.
- * @version 1.6.2
- * @since 1.6.2
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class NumberOfNodesBDDHandler extends ComputationHandler implements BDDHandler {
+public class NumberOfNodesBDDHandler implements ComputationHandler {
 
+    private boolean canceled = false;
     private final int bound;
     private int count;
 
@@ -28,14 +34,12 @@ public class NumberOfNodesBDDHandler extends ComputationHandler implements BDDHa
     }
 
     @Override
-    public void started() {
-        super.started();
-        count = 0;
-    }
-
-    @Override
-    public boolean newRefAdded() {
-        aborted = ++count >= bound;
-        return !aborted;
+    public boolean shouldResume(final LNGEvent event) {
+        if (event == BDD_COMPUTATION_STARTED) {
+            count = 0;
+        } else if (event == BDD_NEW_REF_ADDED) {
+            canceled = ++count >= bound;
+        }
+        return !canceled;
     }
 }

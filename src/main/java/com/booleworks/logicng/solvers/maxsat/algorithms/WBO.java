@@ -22,18 +22,16 @@
 
 package com.booleworks.logicng.solvers.maxsat.algorithms;
 
-import static com.booleworks.logicng.datastructures.Tristate.FALSE;
-import static com.booleworks.logicng.datastructures.Tristate.TRUE;
-import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
-import static com.booleworks.logicng.handlers.Handler.aborted;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.WeightStrategy;
 
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.events.LNGEvent;
+import com.booleworks.logicng.solvers.maxsat.InternalMaxSATResult;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import com.booleworks.logicng.util.Pair;
 
@@ -96,7 +94,7 @@ public class WBO extends MaxSAT {
     }
 
     @Override
-    public MaxSATResult search() {
+    protected LNGResult<InternalMaxSATResult> internalSearch(final ComputationHandler handler) {
         nbInitialVariables = nVars();
         if (currentWeight == 1) {
             problemType = ProblemType.UNWEIGHTED;
@@ -106,9 +104,9 @@ public class WBO extends MaxSAT {
             initSymmetry();
         }
         if (problemType == ProblemType.UNWEIGHTED || weightStrategy == WeightStrategy.NONE) {
-            return normalSearch();
+            return normalSearch(handler);
         } else if (weightStrategy == WeightStrategy.NORMAL || weightStrategy == WeightStrategy.DIVERSIFY) {
-            return weightSearch();
+            return weightSearch(handler);
         }
         throw new IllegalArgumentException("Unknown problem type.");
     }
@@ -423,16 +421,15 @@ public class WBO extends MaxSAT {
         indexSoftCore.clear();
     }
 
-    Tristate unsatSearch() {
+    LNGResult<Boolean> unsatSearch(final ComputationHandler handler) {
         assert assumptions.size() == 0;
         solver = rebuildHardSolver();
-        final SATHandler satHandler = satHandler();
-        final Tristate res = searchSATSolver(solver, satHandler, assumptions);
-        if (aborted(satHandler)) {
-            return UNDEF;
-        } else if (res == FALSE) {
+        final LNGResult<Boolean> res = searchSATSolver(solver, handler, assumptions);
+        if (!res.isSuccess()) {
+            return LNGResult.canceled(res.getCancelCause());
+        } else if (!res.getResult()) {
             nbCores++;
-        } else if (res == TRUE) {
+        } else {
             nbSatisfiable++;
             final int cost = computeCostModel(solver.model(), Integer.MAX_VALUE);
             assert cost <= ubCost;
@@ -446,23 +443,22 @@ public class WBO extends MaxSAT {
         return res;
     }
 
-    protected MaxSATResult weightSearch() {
+    protected LNGResult<InternalMaxSATResult> weightSearch(final ComputationHandler handler) {
         assert weightStrategy == WeightStrategy.NORMAL || weightStrategy == WeightStrategy.DIVERSIFY;
-        final Tristate unsatResult = unsatSearch();
-        if (unsatResult == UNDEF) {
-            return MaxSATResult.UNDEF;
-        } else if (unsatResult == FALSE) {
-            return MaxSATResult.UNSATISFIABLE;
+        final LNGResult<Boolean> unsatResult = unsatSearch(handler);
+        if (!unsatResult.isSuccess()) {
+            return LNGResult.canceled(unsatResult.getCancelCause());
+        } else if (!unsatResult.getResult()) {
+            return LNGResult.of(InternalMaxSATResult.unsatisfiable());
         }
         initAssumptions(assumptions);
         updateCurrentWeight(weightStrategy);
         solver = rebuildWeightSolver(weightStrategy);
         while (true) {
-            final SATHandler satHandler = satHandler();
-            final Tristate res = searchSATSolver(solver, satHandler, assumptions);
-            if (aborted(satHandler)) {
-                return MaxSATResult.UNDEF;
-            } else if (res == FALSE) {
+            final LNGResult<Boolean> res = searchSATSolver(solver, handler, assumptions);
+            if (!res.isSuccess()) {
+                return LNGResult.canceled(res.getCancelCause());
+            } else if (!res.getResult()) {
                 nbCores++;
                 assert solver.assumptionsConflict().size() > 0;
                 final int coreCost = computeCostCore(solver.assumptionsConflict());
@@ -470,8 +466,9 @@ public class WBO extends MaxSAT {
                 if (verbosity != Verbosity.NONE) {
                     output.printf("c LB : %d CS : %d W : %d%n", lbCost, solver.assumptionsConflict().size(), coreCost);
                 }
-                if (!foundLowerBound(lbCost, null)) {
-                    return MaxSATResult.UNDEF;
+                final LNGEvent lowerBoundEvent = foundLowerBound(lbCost, handler);
+                if (lowerBoundEvent != null) {
+                    return LNGResult.canceled(lowerBoundEvent);
                 }
                 relaxCore(solver.assumptionsConflict(), coreCost, assumptions);
                 solver = rebuildWeightSolver(weightStrategy);
@@ -489,7 +486,7 @@ public class WBO extends MaxSAT {
                             output.println("o " + lbCost);
                         }
                     }
-                    return MaxSATResult.OPTIMUM;
+                    return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
                 } else {
                     updateCurrentWeight(weightStrategy);
                     final int cost = computeCostModel(solver.model(), Integer.MAX_VALUE);
@@ -504,9 +501,12 @@ public class WBO extends MaxSAT {
                         if (verbosity != Verbosity.NONE) {
                             output.println("c LB = UB");
                         }
-                        return MaxSATResult.OPTIMUM;
-                    } else if (!foundUpperBound(ubCost, null)) {
-                        return MaxSATResult.UNDEF;
+                        return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
+                    } else {
+                        final LNGEvent upperBoundEvent = foundUpperBound(ubCost, handler);
+                        if (upperBoundEvent != null) {
+                            return LNGResult.canceled(upperBoundEvent);
+                        }
                     }
                     solver = rebuildWeightSolver(weightStrategy);
                 }
@@ -514,21 +514,20 @@ public class WBO extends MaxSAT {
         }
     }
 
-    protected MaxSATResult normalSearch() {
-        final Tristate unsatResult = unsatSearch();
-        if (unsatResult == UNDEF) {
-            return MaxSATResult.UNDEF;
-        } else if (unsatResult == FALSE) {
-            return MaxSATResult.UNSATISFIABLE;
+    protected LNGResult<InternalMaxSATResult> normalSearch(final ComputationHandler handler) {
+        final LNGResult<Boolean> unsatResult = unsatSearch(handler);
+        if (!unsatResult.isSuccess()) {
+            return LNGResult.canceled(unsatResult.getCancelCause());
+        } else if (!unsatResult.getResult()) {
+            return LNGResult.of(InternalMaxSATResult.unsatisfiable());
         }
         initAssumptions(assumptions);
         solver = rebuildSolver();
         while (true) {
-            final SATHandler satHandler = satHandler();
-            final Tristate res = searchSATSolver(solver, satHandler, assumptions);
-            if (aborted(satHandler)) {
-                return MaxSATResult.UNDEF;
-            } else if (res == FALSE) {
+            final LNGResult<Boolean> res = searchSATSolver(solver, handler, assumptions);
+            if (!res.isSuccess()) {
+                return LNGResult.canceled(res.getCancelCause());
+            } else if (!res.getResult()) {
                 nbCores++;
                 assert solver.assumptionsConflict().size() > 0;
                 final int coreCost = computeCostCore(solver.assumptionsConflict());
@@ -540,9 +539,12 @@ public class WBO extends MaxSAT {
                     if (verbosity != Verbosity.NONE) {
                         output.println("c LB = UB");
                     }
-                    return MaxSATResult.OPTIMUM;
-                } else if (!foundLowerBound(lbCost, null)) {
-                    return MaxSATResult.UNDEF;
+                    return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
+                } else {
+                    final LNGEvent lowerBoundEvent = foundLowerBound(lbCost, handler);
+                    if (lowerBoundEvent != null) {
+                        return LNGResult.canceled(lowerBoundEvent);
+                    }
                 }
                 relaxCore(solver.assumptionsConflict(), coreCost, assumptions);
                 solver = rebuildSolver();
@@ -554,7 +556,7 @@ public class WBO extends MaxSAT {
                     output.println("o " + lbCost);
                 }
                 saveModel(solver.model());
-                return MaxSATResult.OPTIMUM;
+                return LNGResult.of(InternalMaxSATResult.optimum(ubCost, model));
             }
         }
     }

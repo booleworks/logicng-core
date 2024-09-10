@@ -7,8 +7,8 @@ package com.booleworks.logicng.solvers.sat;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.SATSolver;
 import org.assertj.core.api.Assertions;
@@ -29,13 +29,13 @@ public class LNGCoreSolverTest {
         solver.addClause(clause(-1, -2), null);
         solver.addClause(clause(-1, -3), null);
         solver.addClause(clause(-2, -3), null);
-        Assertions.assertThat(solver.internalSolve()).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.internalSolve(null, clause(1, 2))).isEqualTo(Tristate.FALSE);
+        assertThat(solver.internalSolve(NopHandler.get()).getResult()).isTrue();
+        assertThat(solver.internalSolve(NopHandler.get(), clause(1, 2)).getResult()).isFalse();
     }
 
     @Test
     public void testConfig() {
-        Assertions.assertThat(SATSolverConfig.builder().build().type().toString()).isEqualTo("SAT");
+        assertThat(SATSolverConfig.builder().build().type().toString()).isEqualTo("SAT");
         assertThat(Arrays.asList(SATSolverConfig.ClauseMinimization.values())
                 .contains(SATSolverConfig.ClauseMinimization.valueOf("DEEP"))).isTrue();
     }
@@ -45,15 +45,15 @@ public class LNGCoreSolverTest {
         final FormulaFactory f = FormulaFactory.caching();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(f.parse("A & B"));
-        Assertions.assertThat(solver.sat()).isTrue();
-        Assertions.assertThat(solver.satCall().addFormulas(f.literal("A", true)).sat()).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.satCall().addFormulas(f.literal("B", true)).sat()).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.satCall().addFormulas(f.literal("A", false)).sat()).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(solver.satCall().addFormulas(f.literal("B", false)).sat()).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(solver.satCall().addFormulas(f.literal("A", true)).sat()).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.satCall().addFormulas(f.literal("B", true)).sat()).isEqualTo(Tristate.TRUE);
-        Assertions.assertThat(solver.satCall().addFormulas(f.literal("A", false)).sat()).isEqualTo(Tristate.FALSE);
-        Assertions.assertThat(solver.sat()).isTrue();
+        assertThat(solver.sat()).isTrue();
+        assertThat(solver.satCall().addFormulas(f.literal("A", true)).sat().getResult()).isTrue();
+        assertThat(solver.satCall().addFormulas(f.literal("B", true)).sat().getResult()).isTrue();
+        assertThat(solver.satCall().addFormulas(f.literal("A", false)).sat().getResult()).isFalse();
+        assertThat(solver.satCall().addFormulas(f.literal("B", false)).sat().getResult()).isFalse();
+        assertThat(solver.satCall().addFormulas(f.literal("A", true)).sat().getResult()).isTrue();
+        assertThat(solver.satCall().addFormulas(f.literal("B", true)).sat().getResult()).isTrue();
+        assertThat(solver.satCall().addFormulas(f.literal("A", false)).sat().getResult()).isFalse();
+        assertThat(solver.sat()).isTrue();
     }
 
     private LNGIntVector clause(final int... lits) {

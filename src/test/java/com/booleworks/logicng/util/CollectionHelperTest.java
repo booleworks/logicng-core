@@ -20,25 +20,25 @@ public class CollectionHelperTest {
 
     @Test
     public void testNullOrEmpty() {
-        Assertions.assertThat(CollectionHelper.nullOrEmpty(null)).isTrue();
-        Assertions.assertThat(CollectionHelper.nullOrEmpty(Collections.emptySet())).isTrue();
-        Assertions.assertThat(CollectionHelper.nullOrEmpty(Collections.emptyMap().entrySet())).isTrue();
-        Assertions.assertThat(CollectionHelper.nullOrEmpty(Collections.singletonList(2))).isFalse();
+        assertThat(CollectionHelper.nullOrEmpty(null)).isTrue();
+        assertThat(CollectionHelper.nullOrEmpty(Collections.emptySet())).isTrue();
+        assertThat(CollectionHelper.nullOrEmpty(Collections.emptyMap().entrySet())).isTrue();
+        assertThat(CollectionHelper.nullOrEmpty(Collections.singletonList(2))).isFalse();
     }
 
     @Test
     public void testNullSafe() {
-        Assertions.assertThat(CollectionHelper.nullSafe(null)).isEmpty();
+        assertThat(CollectionHelper.nullSafe(null)).isEmpty();
         final List<String> strings = Arrays.asList("a", "b", "c");
-        Assertions.assertThat(CollectionHelper.nullSafe(strings)).isEqualTo(strings);
+        assertThat(CollectionHelper.nullSafe(strings)).isEqualTo(strings);
 
-        Assertions.assertThat(CollectionHelper.nullSafe(() -> Arrays.asList("a", "b"), ArrayList::new))
+        assertThat(CollectionHelper.nullSafe(() -> Arrays.asList("a", "b"), ArrayList::new))
                 .isEqualTo(new ArrayList<>(Arrays.asList("a", "b")));
-        Assertions.assertThat(CollectionHelper.nullSafe(() -> new TreeSet<>(Arrays.asList("a", "b")), TreeSet::new))
+        assertThat(CollectionHelper.nullSafe(() -> new TreeSet<>(Arrays.asList("a", "b")), TreeSet::new))
                 .isEqualTo(new TreeSet<>(Arrays.asList("a", "b")));
-        Assertions.assertThat(CollectionHelper.nullSafe(() -> (ArrayList<Integer>) null, ArrayList::new))
+        assertThat(CollectionHelper.nullSafe(() -> (ArrayList<Integer>) null, ArrayList::new))
                 .isEqualTo(new ArrayList<Integer>());
-        Assertions.assertThat(CollectionHelper.nullSafe(() -> (TreeSet<String>) null, TreeSet::new))
+        assertThat(CollectionHelper.nullSafe(() -> (TreeSet<String>) null, TreeSet::new))
                 .isEqualTo(new TreeSet<String>());
     }
 

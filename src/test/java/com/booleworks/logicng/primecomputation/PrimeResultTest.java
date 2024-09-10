@@ -10,7 +10,6 @@ import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -51,19 +50,19 @@ public class PrimeResultTest extends TestWithFormulaContext {
     @Test
     public void testGetters() {
         assertThat(result1.getPrimeImplicants()).hasSize(2);
-        Assertions.assertThat(result1.getPrimeImplicants().get(0)).containsExactly(c.a, c.nb);
-        Assertions.assertThat(result1.getPrimeImplicants().get(1)).containsExactly(c.a, c.c);
+        assertThat(result1.getPrimeImplicants().get(0)).containsExactly(c.a, c.nb);
+        assertThat(result1.getPrimeImplicants().get(1)).containsExactly(c.a, c.c);
         assertThat(result2.getPrimeImplicants()).hasSize(2);
-        Assertions.assertThat(result2.getPrimeImplicants().get(0)).containsExactly(c.a, c.nb);
-        Assertions.assertThat(result2.getPrimeImplicants().get(1)).containsExactly(c.c);
+        assertThat(result2.getPrimeImplicants().get(0)).containsExactly(c.a, c.nb);
+        assertThat(result2.getPrimeImplicants().get(1)).containsExactly(c.c);
         assertThat(result3.getPrimeImplicants()).hasSize(1);
-        Assertions.assertThat(result3.getPrimeImplicants().get(0)).isEmpty();
+        assertThat(result3.getPrimeImplicants().get(0)).isEmpty();
 
         assertThat(result1.getPrimeImplicates()).hasSize(1);
-        Assertions.assertThat(result1.getPrimeImplicates().get(0)).containsExactly(c.a, c.nb);
+        assertThat(result1.getPrimeImplicates().get(0)).containsExactly(c.a, c.nb);
         assertThat(result2.getPrimeImplicates()).hasSize(0);
         assertThat(result3.getPrimeImplicates()).hasSize(1);
-        Assertions.assertThat(result3.getPrimeImplicates().get(0)).containsExactly(c.nb);
+        assertThat(result3.getPrimeImplicates().get(0)).containsExactly(c.nb);
 
         assertThat(result1.getCoverageType()).isEqualTo(PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
         assertThat(result2.getCoverageType()).isEqualTo(PrimeResult.CoverageType.IMPLICANTS_COMPLETE);

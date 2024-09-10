@@ -4,6 +4,8 @@
 
 package com.booleworks.logicng.solvers.sat;
 
+import java.util.Objects;
+
 public final class SATSolverLowLevelConfig {
     // MiniSat-related configuration
     final double varDecay;
@@ -52,6 +54,78 @@ public final class SATSolverLowLevelConfig {
         return new Builder();
     }
 
+    public double getVarDecay() {
+        return varDecay;
+    }
+
+    public double getVarInc() {
+        return varInc;
+    }
+
+    public int getRestartFirst() {
+        return restartFirst;
+    }
+
+    public double getRestartInc() {
+        return restartInc;
+    }
+
+    public double getClauseDecay() {
+        return clauseDecay;
+    }
+
+    public int getLbLBDMinimizingClause() {
+        return lbLBDMinimizingClause;
+    }
+
+    public int getLbLBDFrozenClause() {
+        return lbLBDFrozenClause;
+    }
+
+    public int getLbSizeMinimizingClause() {
+        return lbSizeMinimizingClause;
+    }
+
+    public int getFirstReduceDB() {
+        return firstReduceDB;
+    }
+
+    public int getSpecialIncReduceDB() {
+        return specialIncReduceDB;
+    }
+
+    public int getIncReduceDB() {
+        return incReduceDB;
+    }
+
+    public double getFactorK() {
+        return factorK;
+    }
+
+    public double getFactorR() {
+        return factorR;
+    }
+
+    public int getSizeLBDQueue() {
+        return sizeLBDQueue;
+    }
+
+    public int getSizeTrailQueue() {
+        return sizeTrailQueue;
+    }
+
+    public boolean isReduceOnSize() {
+        return reduceOnSize;
+    }
+
+    public int getReduceOnSizeSize() {
+        return reduceOnSizeSize;
+    }
+
+    public double getMaxVarDecay() {
+        return maxVarDecay;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SATSolverLowLevelConfig{").append(System.lineSeparator());
@@ -75,6 +149,42 @@ public final class SATSolverLowLevelConfig {
         sb.append("maxVarDecay=").append(maxVarDecay).append(System.lineSeparator());
         sb.append("}");
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(final Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        final SATSolverLowLevelConfig that = (SATSolverLowLevelConfig) object;
+        return Double.compare(varDecay, that.varDecay) == 0 &&
+                Double.compare(varInc, that.varInc) == 0 &&
+                restartFirst == that.restartFirst &&
+                Double.compare(restartInc, that.restartInc) == 0 &&
+                Double.compare(clauseDecay, that.clauseDecay) == 0 &&
+                lbLBDMinimizingClause == that.lbLBDMinimizingClause &&
+                lbLBDFrozenClause == that.lbLBDFrozenClause &&
+                lbSizeMinimizingClause == that.lbSizeMinimizingClause &&
+                firstReduceDB == that.firstReduceDB &&
+                specialIncReduceDB == that.specialIncReduceDB &&
+                incReduceDB == that.incReduceDB &&
+                Double.compare(factorK, that.factorK) == 0
+                && Double.compare(factorR, that.factorR) == 0 &&
+                sizeLBDQueue == that.sizeLBDQueue &&
+                sizeTrailQueue == that.sizeTrailQueue &&
+                reduceOnSize == that.reduceOnSize &&
+                reduceOnSizeSize == that.reduceOnSizeSize &&
+                Double.compare(maxVarDecay, that.maxVarDecay) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(varDecay, varInc, restartFirst, restartInc, clauseDecay, lbLBDMinimizingClause,
+                lbLBDFrozenClause, lbSizeMinimizingClause, firstReduceDB, specialIncReduceDB, incReduceDB,
+                factorK, factorR, sizeLBDQueue, sizeTrailQueue, reduceOnSize, reduceOnSizeSize, maxVarDecay);
     }
 
     public static class Builder {

@@ -4,19 +4,18 @@
 
 package com.booleworks.logicng.solvers;
 
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT.MaxSATResult.OPTIMUM;
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT.MaxSATResult.UNDEF;
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT.MaxSATResult.UNSATISFIABLE;
-
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.MaxSATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.solvers.maxsat.InternalMaxSATResult;
 import com.booleworks.logicng.solvers.maxsat.algorithms.IncWBO;
 import com.booleworks.logicng.solvers.maxsat.algorithms.LinearSU;
 import com.booleworks.logicng.solvers.maxsat.algorithms.LinearUS;
@@ -27,6 +26,8 @@ import com.booleworks.logicng.solvers.maxsat.algorithms.OLL;
 import com.booleworks.logicng.solvers.maxsat.algorithms.WBO;
 import com.booleworks.logicng.solvers.maxsat.algorithms.WMSU3;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -41,7 +42,7 @@ public class MaxSATSolver {
 
     private static final String SEL_PREFIX = "@SEL_SOFT_";
 
-    protected enum Algorithm {
+    public enum Algorithm {
         WBO,
         INC_WBO,
         LINEAR_SU,
@@ -53,8 +54,8 @@ public class MaxSATSolver {
 
     protected final MaxSATConfig configuration;
     protected final Algorithm algorithm;
-    protected FormulaFactory f;
-    protected MaxSAT.MaxSATResult result;
+    protected final FormulaFactory f;
+    protected LNGResult<MaxSATResult> result;
     protected MaxSAT solver;
     protected SortedMap<Variable, Integer> var2index;
     protected SortedMap<Integer, Variable> index2var;
@@ -241,7 +242,7 @@ public class MaxSATSolver {
      * @throws IllegalArgumentException if the algorithm was unknown
      */
     public void reset() {
-        result = UNDEF;
+        result = null;
         var2index = new TreeMap<>();
         index2var = new TreeMap<>();
         selectorVariables = new TreeSet<>();
@@ -279,7 +280,7 @@ public class MaxSATSolver {
      *                               already solved.
      */
     public void addHardFormula(final Formula formula) {
-        if (result != UNDEF) {
+        if (result != null) {
             throw new IllegalStateException(
                     "The MaxSAT solver does currently not support an incremental interface.  Reset the solver.");
         }
@@ -295,7 +296,7 @@ public class MaxSATSolver {
      * @throws IllegalArgumentException if the weight is &lt;1
      */
     public void addSoftFormula(final Formula formula, final int weight) {
-        if (result != UNDEF) {
+        if (result != null) {
             throw new IllegalStateException(
                     "The MaxSAT solver does currently not support an incremental interface.  Reset the solver.");
         }
@@ -339,7 +340,7 @@ public class MaxSATSolver {
      * @param weight  the weight of the clause (or -1 for a hard clause)
      */
     protected void addClause(final Formula formula, final int weight) {
-        result = UNDEF;
+        result = null;
         final LNGIntVector clauseVec = new LNGIntVector((int) formula.numberOfAtoms(f));
         for (final Literal lit : formula.literals(f)) {
             Integer index = var2index.get(lit.variable());
@@ -364,18 +365,18 @@ public class MaxSATSolver {
      * Solves the formula on the solver and returns the result.
      * @return the result (SAT, UNSAT, Optimum found)
      */
-    public MaxSAT.MaxSATResult solve() {
-        return solve(null);
+    public MaxSATResult solve() {
+        return solve(NopHandler.get()).getResult();
     }
 
     /**
      * Solves the formula on the solver and returns the result.
      * @param handler a MaxSAT handler
      * @return the result (SAT, UNSAT, Optimum found, or UNDEF if canceled by
-     *         the handler)
+     * the handler)
      */
-    public MaxSAT.MaxSATResult solve(final MaxSATHandler handler) {
-        if (result != UNDEF) {
+    public LNGResult<MaxSATResult> solve(final ComputationHandler handler) {
+        if (result != null && result.isSuccess()) {
             return result;
         }
         if (solver.currentWeight() == 1) {
@@ -383,56 +384,25 @@ public class MaxSATSolver {
         } else {
             solver.setProblemType(MaxSAT.ProblemType.WEIGHTED);
         }
-        result = solver.search(handler);
+        final LNGResult<InternalMaxSATResult> internalResult = solver.search(handler);
+        result = internalResult.map(res -> res.toMaxSATResult(this::createModel));
         return result;
     }
 
     /**
-     * Returns the minimum weight (or number of clauses if unweighted) of
-     * clauses which have to be unsatisfied. Therefore, if the minimum number of
-     * weights is 0, the formula is satisfiable.
-     * @return the minimum weight of clauses which have to be unsatisfied
-     * @throws IllegalStateException if the formula is not yet solved
-     */
-    public int result() {
-        if (result == UNDEF) {
-            throw new IllegalStateException(
-                    "Cannot get a result as long as the formula is not solved.  Call 'solver' first.");
-        }
-        return result == OPTIMUM ? solver.result() : -1;
-    }
-
-    /**
-     * Returns the model of the current result.
-     * @return the model of the current result
-     * @throws IllegalStateException if the formula is not yet solved
-     */
-    public Assignment model() {
-        if (result == UNDEF) {
-            throw new IllegalStateException(
-                    "Cannot get a model as long as the formula is not solved.  Call 'solver' first.");
-        }
-        return result != UNSATISFIABLE ? createAssignment(solver.model()) : null;
-    }
-
-    /**
-     * Creates an assignment from a Boolean vector of the solver.
+     * Creates a model from a Boolean vector of the solver.
      * @param vec the vector of the solver
-     * @return the assignment
+     * @return the model
      */
-    protected Assignment createAssignment(final LNGBooleanVector vec) {
-        final Assignment model = new Assignment();
+    protected Model createModel(final LNGBooleanVector vec) {
+        final List<Literal> model = new ArrayList<>();
         for (int i = 0; i < vec.size(); i++) {
             final Literal lit = index2var.get(i);
             if (lit != null && !selectorVariables.contains(lit.variable())) {
-                if (vec.get(i)) {
-                    model.addLiteral(lit);
-                } else {
-                    model.addLiteral(lit.negate(f));
-                }
+                model.add(vec.get(i) ? lit : lit.negate(f));
             }
         }
-        return model;
+        return new Model(model);
     }
 
     /**

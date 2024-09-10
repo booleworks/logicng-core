@@ -178,12 +178,12 @@ public class FormulaFactoryWithoutContradictionCheckTest {
         solver.add(_c.f.parse("C | ~C"));
         List<Model> models = solver.enumerateAllModels(_c.f.variables("A", "B", "C"));
         assertThat(models).hasSize(2);
-        models.forEach(m -> Assertions.assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true),
+        models.forEach(m -> assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true),
                 _c.f.literal("C", false)));
         solver.add(_c.f.parse("D | ~D"));
         models = solver.enumerateAllModels(_c.f.variables("A", "B", "C", "D"));
         assertThat(models).hasSize(4);
-        models.forEach(m -> Assertions.assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true),
+        models.forEach(m -> assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true),
                 _c.f.literal("C", false),
                 _c.f.literal("D", true), _c.f.literal("D", false)));
     }
@@ -197,10 +197,10 @@ public class FormulaFactoryWithoutContradictionCheckTest {
         solver.add(_c.f.parse("C | ~C"));
         final List<Model> models = solver.enumerateAllModels(_c.f.variables("A", "B", "C"));
         assertThat(models).hasSize(2);
-        models.forEach(m -> Assertions.assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true),
+        models.forEach(m -> assertThat(m.getLiterals()).containsAnyOf(_c.f.literal("C", true),
                 _c.f.literal("C", false)));
         solver.add(_c.f.parse("D & ~D"));
-        Assertions.assertThat(solver.sat()).isFalse();
+        assertThat(solver.sat()).isFalse();
     }
 
     @ParameterizedTest
@@ -215,9 +215,9 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testBdds(final FormulaContext _c) {
-        Assertions.assertThat(_c.tautology.bdd(_c.f).isTautology()).isTrue();
-        Assertions.assertThat(_c.contradiction.bdd(_c.f).isTautology()).isFalse();
-        Assertions.assertThat(_c.tautology.bdd(_c.f).isContradiction()).isFalse();
-        Assertions.assertThat(_c.contradiction.bdd(_c.f).isContradiction()).isTrue();
+        assertThat(_c.tautology.bdd(_c.f).isTautology()).isTrue();
+        assertThat(_c.contradiction.bdd(_c.f).isTautology()).isFalse();
+        assertThat(_c.tautology.bdd(_c.f).isContradiction()).isFalse();
+        assertThat(_c.contradiction.bdd(_c.f).isContradiction()).isTrue();
     }
 }

@@ -39,10 +39,6 @@ public class MinimumPrimeImplicantTest {
         assertThat(pi).hasSize(1);
         isPrimeImplicant(formula, pi);
 
-        formula = f.parse("a & b & (~a|~b)");
-        pi = formula.apply(new MinimumPrimeImplicantFunction(f));
-        assertThat(pi).isNull();
-
         formula = f.parse("a & b & c");
         pi = formula.apply(new MinimumPrimeImplicantFunction(f));
         assertThat(pi).hasSize(3);

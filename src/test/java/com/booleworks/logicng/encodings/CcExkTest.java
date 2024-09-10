@@ -11,7 +11,6 @@ import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.SATSolver;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class CcExkTest implements LogicNGTest {
@@ -57,7 +56,7 @@ public class CcExkTest implements LogicNGTest {
         } else {
             assertSolverUnsat(solver);
         }
-        Assertions.assertThat(solver.enumerateAllModels(problemLits))
+        assertThat(solver.enumerateAllModels(problemLits))
                 .hasSize(expected)
                 .allMatch(m -> m.positiveVariables().size() == rhs);
     }

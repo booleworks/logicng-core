@@ -4,6 +4,8 @@
 
 package com.booleworks.logicng.transformations.cnf;
 
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.FACTORIZATION_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.DISTRIBUTION_PERFORMED;
 import static com.booleworks.logicng.transformations.cnf.PlaistedGreenbaumTransformation.PGState;
 
 import com.booleworks.logicng.configurations.ConfigurationType;
@@ -12,9 +14,10 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaTransformation;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
-import com.booleworks.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.FactorizationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.events.FactorizationCreatedClauseEvent;
+import com.booleworks.logicng.handlers.events.LNGEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,9 +75,8 @@ public class CNFEncoder {
      * @return the CNF encoding of the formula
      */
     protected static Formula advancedEncoding(final FormulaFactory f, final Formula formula, final CNFConfig config) {
-        final var factorizationHandler = new AdvancedFactorizationHandler();
-        factorizationHandler.setBounds(config.distributionBoundary, config.createdClauseBoundary);
-        final var advancedFactorization = new CNFFactorization(f, factorizationHandler);
+        final var factorizationHandler = new AdvancedFactorizationHandler(config.distributionBoundary, config.createdClauseBoundary);
+        final var advancedFactorization = new CNFFactorization(f);
         final FormulaTransformation fallbackTransformation;
         switch (config.fallbackAlgorithmForAdvancedEncoding) {
             case TSEITIN:
@@ -90,20 +92,23 @@ public class CNFEncoder {
         if (formula.type() == FType.AND) {
             final List<Formula> operands = new ArrayList<>(formula.numberOfOperands());
             for (final Formula op : formula) {
-                operands.add(singleAdvancedEncoding(op, advancedFactorization, fallbackTransformation));
+                operands.add(singleAdvancedEncoding(op, advancedFactorization, factorizationHandler, fallbackTransformation));
             }
             return f.and(operands);
         }
-        return singleAdvancedEncoding(formula, advancedFactorization, fallbackTransformation);
+        return singleAdvancedEncoding(formula, advancedFactorization, factorizationHandler, fallbackTransformation);
     }
 
-    protected static Formula singleAdvancedEncoding(final Formula formula, final CNFFactorization advancedFactorization,
+    protected static Formula singleAdvancedEncoding(final Formula formula,
+                                                    final CNFFactorization advancedFactorization,
+                                                    final AdvancedFactorizationHandler factorizationHandler,
                                                     final FormulaTransformation fallback) {
-        Formula result = formula.transform(advancedFactorization);
-        if (result == null) {
-            result = formula.transform(fallback);
+        final LNGResult<Formula> result = formula.transform(advancedFactorization, factorizationHandler);
+        if (result.isSuccess()) {
+            return result.getResult();
+        } else {
+            return formula.transform(fallback);
         }
-        return result;
     }
 
     private static FormulaTransformation getTseitinTransformation(final FormulaFactory f, final CNFConfig config) {
@@ -125,35 +130,30 @@ public class CNFEncoder {
     /**
      * The factorization handler for the advanced CNF encoding.
      */
-    protected static class AdvancedFactorizationHandler extends ComputationHandler implements FactorizationHandler {
+    protected static class AdvancedFactorizationHandler implements ComputationHandler {
 
-        protected int distributionBoundary;
-        protected int createdClauseBoundary;
-        protected int currentDistributions;
-        protected int currentClauses;
+        private final int distributionBoundary;
+        private final int createdClauseBoundary;
+        private boolean canceled = false;
+        private int currentDistributions = 0;
+        private int currentClauses = 0;
 
-        protected void setBounds(final int distributionBoundary, final int createdClauseBoundary) {
+        protected AdvancedFactorizationHandler(final int distributionBoundary, final int createdClauseBoundary) {
             this.distributionBoundary = distributionBoundary;
             this.createdClauseBoundary = createdClauseBoundary;
         }
 
         @Override
-        public void started() {
-            super.started();
-            currentDistributions = 0;
-            currentClauses = 0;
-        }
-
-        @Override
-        public boolean performedDistribution() {
-            aborted = distributionBoundary != -1 && ++currentDistributions > distributionBoundary;
-            return !aborted;
-        }
-
-        @Override
-        public boolean createdClause(final Formula clause) {
-            aborted = createdClauseBoundary != -1 && ++currentClauses > createdClauseBoundary;
-            return !aborted;
+        public boolean shouldResume(final LNGEvent event) {
+            if (event == FACTORIZATION_STARTED) {
+                currentDistributions = 0;
+                currentClauses = 0;
+            } else if (event == DISTRIBUTION_PERFORMED) {
+                canceled = distributionBoundary != -1 && ++currentDistributions > distributionBoundary;
+            } else if (event instanceof FactorizationCreatedClauseEvent) {
+                canceled = createdClauseBoundary != -1 && ++currentClauses > createdClauseBoundary;
+            }
+            return !canceled;
         }
     }
 }

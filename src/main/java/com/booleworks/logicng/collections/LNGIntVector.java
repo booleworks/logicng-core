@@ -45,6 +45,11 @@ public final class LNGIntVector {
         size = other.size;
     }
 
+    public LNGIntVector(final int[] elements, final int size) {
+        this.elements = elements;
+        this.size = size;
+    }
+
     /**
      * Returns a new vector with the given elements.
      * @param elements the elements

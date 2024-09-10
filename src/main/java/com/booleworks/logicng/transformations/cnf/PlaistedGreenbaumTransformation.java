@@ -9,6 +9,8 @@ import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.transformations.StatefulFormulaTransformation;
 
 import java.util.ArrayList;
@@ -104,10 +106,10 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
     }
 
     @Override
-    public Formula apply(final Formula formula) {
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         final Formula nnf = formula.nnf(f);
         if (nnf.isCNF(f)) {
-            return nnf;
+            return LNGResult.of(nnf);
         }
         Formula pg;
         if (nnf.numberOfAtoms(f) < boundaryForFactorization) {
@@ -118,7 +120,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
             pg = pg.restrict(f, topLevel);
         }
         state.literalMap.put(formula, state.literal(nnf));
-        return pg;
+        return LNGResult.of(pg);
     }
 
     private Formula computeTransformation(final Formula formula) {

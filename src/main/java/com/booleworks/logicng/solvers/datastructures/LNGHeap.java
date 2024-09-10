@@ -48,7 +48,7 @@ public final class LNGHeap {
         indices = new LNGIntVector(1000);
     }
 
-    LNGHeap(final LNGCoreSolver s, final LNGIntVector heap, final LNGIntVector indices) {
+    public LNGHeap(final LNGCoreSolver s, final LNGIntVector heap, final LNGIntVector indices) {
         this.s = s;
         this.heap = heap;
         this.indices = indices;
@@ -239,11 +239,11 @@ public final class LNGHeap {
         indices.set(y, p);
     }
 
-    LNGIntVector getHeap() {
+    public LNGIntVector getHeap() {
         return heap;
     }
 
-    LNGIntVector getIndices() {
+    public LNGIntVector getIndices() {
         return indices;
     }
 

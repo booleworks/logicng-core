@@ -9,13 +9,11 @@ import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigPa
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LogicNGTest;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.solvers.SATSolver;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -52,26 +50,26 @@ public class AssumeTest implements LogicNGTest {
             s.add(parser.parse("c => d"));
             s.add(parser.parse("d => e"));
             s.add(parser.parse("e => f"));
-            assertThat(s.satCall().addFormulas(f.literal("a", false)).sat()).isEqualTo(Tristate.TRUE);
-            assertThat(s.satCall().addFormulas(f.variable("b")).sat()).isEqualTo(Tristate.TRUE);
-            assertThat(s.satCall().addFormulas(f.variable("c")).sat()).isEqualTo(Tristate.TRUE);
-            assertThat(s.satCall().addFormulas(f.variable("d")).sat()).isEqualTo(Tristate.TRUE);
-            assertThat(s.satCall().addFormulas(f.variable("e")).sat()).isEqualTo(Tristate.TRUE);
-            assertThat(s.satCall().addFormulas(f.variable("f")).sat()).isEqualTo(Tristate.TRUE);
-            assertThat(s.satCall().addFormulas(f.variable("g")).sat()).isEqualTo(Tristate.TRUE);
-            assertThat(s.satCall().addFormulas(f.variable("a")).sat()).isEqualTo(Tristate.FALSE);
-            assertThat(s.satCall().addFormulas(f.literal("b", false)).sat()).isEqualTo(Tristate.FALSE);
-            assertThat(s.satCall().addFormulas(f.literal("c", false)).sat()).isEqualTo(Tristate.FALSE);
-            assertThat(s.satCall().addFormulas(f.literal("d", false)).sat()).isEqualTo(Tristate.FALSE);
-            assertThat(s.satCall().addFormulas(f.literal("e", false)).sat()).isEqualTo(Tristate.FALSE);
-            assertThat(s.satCall().addFormulas(f.literal("f", false)).sat()).isEqualTo(Tristate.FALSE);
-            assertThat(s.satCall().addFormulas(f.literal("g", false)).sat()).isEqualTo(Tristate.TRUE);
-            assertThat(s.satCall().addFormulas(assumptions1).sat()).isEqualTo(Tristate.TRUE);
-            assertThat(s.satCall().addFormulas(assumptions2).sat()).isEqualTo(Tristate.TRUE);
-            assertThat(s.satCall().addFormulas(assumptions3).sat()).isEqualTo(Tristate.TRUE);
-            assertThat(s.satCall().addFormulas(assumptions4).sat()).isEqualTo(Tristate.FALSE);
-            assertThat(s.satCall().addFormulas(assumptions5).sat()).isEqualTo(Tristate.FALSE);
-            assertThat(s.satCall().addFormulas(assumptions6).sat()).isEqualTo(Tristate.FALSE);
+            assertThat(s.satCall().addFormulas(f.literal("a", false)).sat().getResult()).isTrue();
+            assertThat(s.satCall().addFormulas(f.variable("b")).sat().getResult()).isTrue();
+            assertThat(s.satCall().addFormulas(f.variable("c")).sat().getResult()).isTrue();
+            assertThat(s.satCall().addFormulas(f.variable("d")).sat().getResult()).isTrue();
+            assertThat(s.satCall().addFormulas(f.variable("e")).sat().getResult()).isTrue();
+            assertThat(s.satCall().addFormulas(f.variable("f")).sat().getResult()).isTrue();
+            assertThat(s.satCall().addFormulas(f.variable("g")).sat().getResult()).isTrue();
+            assertThat(s.satCall().addFormulas(f.variable("a")).sat().getResult()).isFalse();
+            assertThat(s.satCall().addFormulas(f.literal("b", false)).sat().getResult()).isFalse();
+            assertThat(s.satCall().addFormulas(f.literal("c", false)).sat().getResult()).isFalse();
+            assertThat(s.satCall().addFormulas(f.literal("d", false)).sat().getResult()).isFalse();
+            assertThat(s.satCall().addFormulas(f.literal("e", false)).sat().getResult()).isFalse();
+            assertThat(s.satCall().addFormulas(f.literal("f", false)).sat().getResult()).isFalse();
+            assertThat(s.satCall().addFormulas(f.literal("g", false)).sat().getResult()).isTrue();
+            assertThat(s.satCall().addFormulas(assumptions1).sat().getResult()).isTrue();
+            assertThat(s.satCall().addFormulas(assumptions2).sat().getResult()).isTrue();
+            assertThat(s.satCall().addFormulas(assumptions3).sat().getResult()).isTrue();
+            assertThat(s.satCall().addFormulas(assumptions4).sat().getResult()).isFalse();
+            assertThat(s.satCall().addFormulas(assumptions5).sat().getResult()).isFalse();
+            assertThat(s.satCall().addFormulas(assumptions6).sat().getResult()).isFalse();
         }
     }
 }

@@ -1,12 +1,13 @@
 package com.booleworks.logicng.solvers.sat;
 
-import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.StandardProposition;
 import com.booleworks.logicng.solvers.SATSolver;
@@ -23,12 +24,13 @@ import java.util.List;
  */
 public class SATCallBuilder {
     private final SATSolver solver;
-    private SATHandler handler;
+    private ComputationHandler handler;
     private final List<Proposition> additionalPropositions;
     private List<? extends Literal> selectionOrder;
 
     SATCallBuilder(final SATSolver solver) {
         this.solver = solver;
+        handler = NopHandler.get();
         additionalPropositions = new ArrayList<>();
     }
 
@@ -46,7 +48,7 @@ public class SATCallBuilder {
      * @param handler the handler
      * @return this builder
      */
-    public SATCallBuilder handler(final SATHandler handler) {
+    public SATCallBuilder handler(final ComputationHandler handler) {
         this.handler = handler;
         return this;
     }
@@ -135,13 +137,10 @@ public class SATCallBuilder {
 
     /**
      * Directly computes the satisfiability result with the current state of the
-     * builder. Returns {@link Tristate#TRUE} if the formula is satisfiable,
-     * {@link Tristate#FALSE} if the formula is not satisfiable, and
-     * {@link Tristate#UNDEF} if the SAT call was aborted by the
-     * {@link SATHandler handler}.
+     * builder.
      * @return the satisfiability result
      */
-    public Tristate sat() {
+    public LNGResult<Boolean> sat() {
         try (final SATCall call = solve()) {
             return call.getSatResult();
         }
@@ -157,7 +156,7 @@ public class SATCallBuilder {
      *         was unsatisfiable
      * @throws IllegalArgumentException if the given variables are {@code null}
      */
-    public Assignment model(final Collection<Variable> variables) {
+    public Model model(final Collection<Variable> variables) {
         try (final SATCall call = solve()) {
             return call.model(variables);
         }

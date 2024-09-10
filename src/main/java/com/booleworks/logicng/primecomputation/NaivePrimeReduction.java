@@ -4,17 +4,19 @@
 
 package com.booleworks.logicng.primecomputation;
 
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.handlers.Handler;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -54,7 +56,7 @@ public final class NaivePrimeReduction {
      * @return a prime implicant
      */
     public SortedSet<Literal> reduceImplicant(final SortedSet<Literal> implicant) {
-        return reduceImplicant(implicant, null);
+        return reduceImplicant(implicant, NopHandler.get()).getResult();
     }
 
     /**
@@ -63,24 +65,25 @@ public final class NaivePrimeReduction {
      * formula
      * @param implicant the implicant
      * @param handler   a SAT handler for the underlying SAT Solver
-     * @return a prime implicant or null if the computation was aborted by the
+     * @return a prime implicant or null if the computation was canceled by the
      *         handler
      */
-    public SortedSet<Literal> reduceImplicant(final SortedSet<Literal> implicant, final SATHandler handler) {
-        Handler.start(handler);
+    public LNGResult<SortedSet<Literal>> reduceImplicant(final Collection<Literal> implicant,
+                                                         final ComputationHandler handler) {
+        handler.shouldResume(ComputationStartedEvent.IMPLICATE_REDUCTION_STARTED);
         final SortedSet<Literal> primeImplicant = new TreeSet<>(implicant);
         for (final Literal lit : implicant) {
             primeImplicant.remove(lit);
-            final boolean sat =
-                    implicantSolver.satCall().handler(handler).addFormulas(primeImplicant).sat() == Tristate.TRUE;
-            if (Handler.aborted(handler)) {
-                return null;
+            final LNGResult<Boolean> sat =
+                    implicantSolver.satCall().handler(handler).addFormulas(primeImplicant).sat();
+            if (!sat.isSuccess()) {
+                return LNGResult.canceled(sat.getCancelCause());
             }
-            if (sat) {
+            if (sat.getResult()) {
                 primeImplicant.add(lit);
             }
         }
-        return primeImplicant;
+        return LNGResult.of(primeImplicant);
     }
 
     /**
@@ -92,7 +95,7 @@ public final class NaivePrimeReduction {
      * @return a prime implicate
      */
     public SortedSet<Literal> reduceImplicate(final FormulaFactory f, final SortedSet<Literal> implicate) {
-        return reduceImplicate(f, implicate, null);
+        return reduceImplicate(f, implicate, NopHandler.get()).getResult();
     }
 
     /**
@@ -102,25 +105,24 @@ public final class NaivePrimeReduction {
      * @param f         the formula factory to generate new formulas
      * @param implicate the implicate
      * @param handler   a SAT handler for the underlying SAT Solver
-     * @return a prime implicate of null if the computation was aborted by the
+     * @return a prime implicate of null if the computation was canceled by the
      *         handler
      */
-    public SortedSet<Literal> reduceImplicate(final FormulaFactory f, final SortedSet<Literal> implicate,
-                                              final SATHandler handler) {
-        Handler.start(handler);
+    public LNGResult<SortedSet<Literal>> reduceImplicate(final FormulaFactory f, final SortedSet<Literal> implicate,
+                                                         final ComputationHandler handler) {
+        handler.shouldResume(ComputationStartedEvent.IMPLICATE_REDUCTION_STARTED);
         final SortedSet<Literal> primeImplicate = new TreeSet<>(implicate);
         for (final Literal lit : implicate) {
             primeImplicate.remove(lit);
             final List<Literal> assumptions = FormulaHelper.negateLiterals(f, primeImplicate, ArrayList::new);
-            final boolean sat =
-                    implicateSolver.satCall().handler(handler).addFormulas(assumptions).sat() == Tristate.TRUE;
-            if (Handler.aborted(handler)) {
-                return null;
+            final LNGResult<Boolean> sat = implicateSolver.satCall().handler(handler).addFormulas(assumptions).sat();
+            if (!sat.isSuccess()) {
+                return LNGResult.canceled(sat.getCancelCause());
             }
-            if (sat) {
+            if (sat.getResult()) {
                 primeImplicate.add(lit);
             }
         }
-        return primeImplicate;
+        return LNGResult.of(primeImplicate);
     }
 }

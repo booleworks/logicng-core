@@ -6,6 +6,8 @@ package com.booleworks.logicng.solvers.functions;
 
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
@@ -39,9 +41,9 @@ public final class UpZeroLiteralsFunction implements SolverFunction<SortedSet<Li
     }
 
     @Override
-    public SortedSet<Literal> apply(final SATSolver solver) {
+    public LNGResult<SortedSet<Literal>> apply(final SATSolver solver, final ComputationHandler handler) {
         if (!solver.sat()) {
-            return null;
+            return LNGResult.of(new TreeSet<>());
         }
         final LNGIntVector literals = solver.underlyingSolver().upZeroLiterals();
         final SortedSet<Literal> upZeroLiterals = new TreeSet<>();
@@ -50,6 +52,6 @@ public final class UpZeroLiteralsFunction implements SolverFunction<SortedSet<Li
             upZeroLiterals.add(solver.factory().literal(solver.underlyingSolver().nameForIdx(LNGCoreSolver.var(lit)),
                     !LNGCoreSolver.sign(lit)));
         }
-        return upZeroLiterals;
+        return LNGResult.of(upZeroLiterals);
     }
 }

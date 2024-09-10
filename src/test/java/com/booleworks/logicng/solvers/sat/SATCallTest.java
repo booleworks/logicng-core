@@ -4,12 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
-import com.booleworks.logicng.handlers.SATHandler;
-import com.booleworks.logicng.handlers.TimeoutSATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.TimeoutHandler;
+import com.booleworks.logicng.handlers.events.LNGEvent;
+import com.booleworks.logicng.handlers.events.SimpleEvent;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.propositions.StandardProposition;
@@ -31,7 +33,7 @@ public class SATCallTest {
         final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).build());
         final SATCall openCall = solver.satCall().solve();
 
-        final SATCallBuilder newCallBuilder = solver.satCall().handler(new TimeoutSATHandler(1000))
+        final SATCallBuilder newCallBuilder = solver.satCall().handler(new TimeoutHandler(1000))
                 .addFormulas(f.variable("a")).selectionOrder(List.of(f.variable("a")));
         assertThat(newCallBuilder).isNotNull();
 
@@ -60,7 +62,7 @@ public class SATCallTest {
         solver.loadState(newState);
         solver.add(f.variable("a"));
         assertThat(solver.sat()).isTrue();
-        assertThat(solver.satCall().model(List.of(f.variable("a")))).isEqualTo(new Assignment(f.variable("a")));
+        assertThat(solver.satCall().model(List.of(f.variable("a")))).isEqualTo(new Model(f.variable("a")));
     }
 
     @Test
@@ -68,8 +70,8 @@ public class SATCallTest {
         final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().build());
         solver.add(f.parse("a | b"));
         solver.add(f.parse("c & (~c | ~a)"));
-        assertThat(solver.satCall().sat()).isEqualTo(Tristate.TRUE);
-        assertThat(solver.satCall().addFormulas(f.literal("b", false)).sat()).isEqualTo(Tristate.FALSE);
+        assertThat(solver.satCall().sat().getResult()).isTrue();
+        assertThat(solver.satCall().addFormulas(f.literal("b", false)).sat().getResult()).isFalse();
         assertThat(solver.sat()).isTrue();
     }
 
@@ -80,13 +82,13 @@ public class SATCallTest {
         solver.add(f.parse("c & (~c | ~a)"));
         final Set<Variable> abc = Set.of(f.variable("a"), f.variable("b"), f.variable("c"));
         final Set<Variable> abcd = Set.of(f.variable("a"), f.variable("b"), f.variable("c"), f.variable("d"));
-        assertThat(solver.satCall().model(abc))
+        assertThat(solver.satCall().model(abc).assignment())
                 .isEqualTo(new Assignment(f.literal("a", false), f.variable("b"), f.variable("c")));
-        assertThat(solver.satCall().addFormulas(f.parse("c | d")).model(abcd)).isIn(
+        assertThat(solver.satCall().addFormulas(f.parse("c | d")).model(abcd).assignment()).isIn(
                 new Assignment(f.literal("a", false), f.variable("b"), f.variable("c"), f.literal("d", false)),
                 new Assignment(f.literal("a", false), f.variable("b"), f.variable("c"), f.literal("d", true))
         );
-        assertThat(solver.satCall().model(abc))
+        assertThat(solver.satCall().model(abc).assignment())
                 .isEqualTo(new Assignment(f.literal("a", false), f.variable("b"), f.variable("c")));
     }
 
@@ -132,19 +134,19 @@ public class SATCallTest {
         solver.add(FormulaReader.readFormula(f, "src/test/resources/formulas/small_formulas.txt"));
 
         try (final SATCall satCall = solver.satCall().handler(new MaxConflictsHandler(0)).solve()) {
-            assertThat(satCall.getSatResult()).isEqualTo(Tristate.UNDEF);
+            assertThat(satCall.getSatResult().isSuccess()).isFalse();
             assertThat(satCall.model(solver.underlyingSolver().knownVariables())).isNull();
             assertThat(satCall.unsatCore()).isNull();
         }
 
-        assertThat(solver.satCall().handler(new MaxConflictsHandler(0)).sat()).isEqualTo(Tristate.UNDEF);
+        assertThat(solver.satCall().handler(new MaxConflictsHandler(0)).sat().isSuccess()).isFalse();
         assertThat(
                 solver.satCall().handler(new MaxConflictsHandler(0)).model(solver.underlyingSolver().knownVariables()))
                 .isNull();
         assertThat(solver.satCall().handler(new MaxConflictsHandler(0)).unsatCore()).isNull();
 
         try (final SATCall satCall = solver.satCall().handler(new MaxConflictsHandler(100)).solve()) {
-            assertThat(satCall.getSatResult()).isEqualTo(Tristate.TRUE);
+            assertThat(satCall.getSatResult().getResult()).isTrue();
             assertThat(satCall.model(solver.underlyingSolver().knownVariables())).isNotNull();
             assertThat(satCall.unsatCore()).isNull();
         }
@@ -161,15 +163,15 @@ public class SATCallTest {
         final Variable c = f.variable("c");
         final Variable d = f.variable("d");
 
-        assertThat(solver.satCall().selectionOrder(List.of(a, b, c, d)).model(List.of(a, b, c, d)))
+        assertThat(solver.satCall().selectionOrder(List.of(a, b, c, d)).model(List.of(a, b, c, d)).assignment())
                 .isEqualTo(new Assignment(a, b.negate(f), c, d.negate(f)));
-        assertThat(solver.satCall().selectionOrder(List.of(b, a, d, c)).model(List.of(a, b, c, d)))
+        assertThat(solver.satCall().selectionOrder(List.of(b, a, d, c)).model(List.of(a, b, c, d)).assignment())
                 .isEqualTo(new Assignment(a.negate(f), b, c.negate(f), d));
         assertThat(solver.satCall().selectionOrder(List.of(a.negate(f), b.negate(f), c.negate(f), d.negate(f)))
-                .model(List.of(a, b, c, d)))
+                .model(List.of(a, b, c, d)).assignment())
                 .isEqualTo(new Assignment(a.negate(f), b.negate(f), c.negate(f), d));
         assertThat(solver.satCall().selectionOrder(List.of(a.negate(f), b.negate(f), d.negate(f), c.negate(f)))
-                .model(List.of(a, b, c, d)))
+                .model(List.of(a, b, c, d)).assignment())
                 .isEqualTo(new Assignment(a.negate(f), b.negate(f), c, d.negate(f)));
     }
 
@@ -215,7 +217,7 @@ public class SATCallTest {
 
         assertThat(
                 solver.satCall().addFormulas(f.parse("e <=> f")).addPropositions(new StandardProposition(f.parse("~e")))
-                        .model(solver.underlyingSolver().knownVariables())).isIn(
+                        .model(solver.underlyingSolver().knownVariables()).assignment()).isIn(
                 new Assignment(f.literal("a", true), f.literal("b", true), f.literal("c", false),
                         f.literal("d", false), f.literal("e", false), f.literal("f", false)),
                 new Assignment(f.literal("a", false), f.literal("b", true), f.literal("c", false),
@@ -226,7 +228,7 @@ public class SATCallTest {
 
         assertThat(solver.satCall().addPropositions(new StandardProposition(f.parse("e <=> f")))
                 .addPropositions(new StandardProposition(f.parse("~e")))
-                .model(solver.underlyingSolver().knownVariables())).isIn(
+                .model(solver.underlyingSolver().knownVariables()).assignment()).isIn(
                 new Assignment(f.literal("a", true), f.literal("b", true), f.literal("c", false),
                         f.literal("d", false), f.literal("e", false), f.literal("f", false)),
                 new Assignment(f.literal("a", false), f.literal("b", true), f.literal("c", false),
@@ -236,10 +238,10 @@ public class SATCallTest {
         );
     }
 
-    private static class MaxConflictsHandler implements SATHandler {
+    private static class MaxConflictsHandler implements ComputationHandler {
         private final int maxConflicts;
         private int numConflicts;
-        private boolean aborted;
+        private boolean canceled;
 
         public MaxConflictsHandler(final int maxConflicts) {
             this.maxConflicts = maxConflicts;
@@ -247,14 +249,11 @@ public class SATCallTest {
         }
 
         @Override
-        public boolean aborted() {
-            return aborted;
-        }
-
-        @Override
-        public boolean detectedConflict() {
-            aborted = numConflicts++ > maxConflicts;
-            return !aborted;
+        public boolean shouldResume(final LNGEvent event) {
+            if (event == SimpleEvent.SAT_CONFLICT_DETECTED) {
+                canceled = numConflicts++ > maxConflicts;
+            }
+            return !canceled;
         }
     }
 }

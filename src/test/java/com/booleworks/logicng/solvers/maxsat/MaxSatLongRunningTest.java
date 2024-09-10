@@ -35,17 +35,13 @@ public class MaxSatLongRunningTest {
                 MaxSATSolver.incWBO(f, MaxSATConfig.builder().weight(MaxSATConfig.WeightStrategy.DIVERSIFY).build());
         solvers[2] = MaxSATSolver.incWBO(f);
         for (final MaxSATSolver solver : solvers) {
-            final long start = System.currentTimeMillis();
             for (final File file : Objects.requireNonNull(folder.listFiles())) {
                 if (file.getName().endsWith("wcnf")) {
                     solver.reset();
                     readCnfToSolver(solver, file.getAbsolutePath());
-                    solver.solve();
-                    assertThat(solver.result()).isEqualTo(result.get(file.getName()));
+                    assertThat(solver.solve().getOptimum()).isEqualTo(result.get(file.getName()));
                 }
             }
-            final long stop = System.currentTimeMillis();
-            System.out.printf("%-8s: %.2f sec%n", solver.getAlgorithm(), (stop - start) / 1000.0);
         }
     }
 

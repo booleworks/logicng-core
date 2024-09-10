@@ -4,6 +4,8 @@
 
 package com.booleworks.logicng.transformations.simplification;
 
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.ADVANCED_SIMPLIFICATION_STARTED;
+
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneGeneration;
 import com.booleworks.logicng.backbones.BackboneType;
@@ -13,11 +15,11 @@ import com.booleworks.logicng.explanations.smus.SmusComputation;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.handlers.Handler;
-import com.booleworks.logicng.handlers.OptimizationHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.primecomputation.PrimeCompiler;
 import com.booleworks.logicng.primecomputation.PrimeResult;
-import com.booleworks.logicng.transformations.AbortableFormulaTransformation;
+import com.booleworks.logicng.transformations.StatelessFormulaTransformation;
 import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.ArrayList;
@@ -53,7 +55,7 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 2.0.0
  */
-public final class AdvancedSimplifier extends AbortableFormulaTransformation<OptimizationHandler> {
+public final class AdvancedSimplifier extends StatelessFormulaTransformation {
 
     private final AdvancedSimplifierConfig config;
 
@@ -63,66 +65,46 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
      * @param f the formula factory to generate new formulas
      */
     public AdvancedSimplifier(final FormulaFactory f) {
-        this(f, (AdvancedSimplifierConfig) f.configurationFor(ConfigurationType.ADVANCED_SIMPLIFIER), null);
-    }
-
-    /**
-     * Constructs a new simplifier with the advanced simplifier configuration
-     * from the formula factory.
-     * @param f       the formula factory to generate new formulas
-     * @param handler the optimization handler to abort the simplification
-     */
-    public AdvancedSimplifier(final FormulaFactory f, final OptimizationHandler handler) {
-        this(f, (AdvancedSimplifierConfig) f.configurationFor(ConfigurationType.ADVANCED_SIMPLIFIER), handler);
+        this(f, (AdvancedSimplifierConfig) f.configurationFor(ConfigurationType.ADVANCED_SIMPLIFIER));
     }
 
     /**
      * Constructs a new simplifier with the given configuration.
      * @param f      the formula factory to generate new formulas
      * @param config The configuration for the advanced simplifier, including a
-     *               handler, a rating function and flags for which steps should
-     *               pe performed during the computation.
+     *               handler, a rating function and flags for which steps
+     *               should pe performed during the computation.
      */
     public AdvancedSimplifier(final FormulaFactory f, final AdvancedSimplifierConfig config) {
-        this(f, config, null);
-    }
-
-    /**
-     * Constructs a new simplifier with the given configuration.
-     * @param f       the formula factory to generate new formulas
-     * @param handler the optimization handler to abort the simplification
-     * @param config  The configuration for the advanced simplifier, including a
-     *                handler, a rating function and flags for which steps
-     *                should pe performed during the computation.
-     */
-    public AdvancedSimplifier(final FormulaFactory f, final AdvancedSimplifierConfig config,
-                              final OptimizationHandler handler) {
-        super(f, handler);
+        super(f);
         this.config = config;
     }
 
     @Override
-    public Formula apply(final Formula formula) {
-        Handler.start(handler);
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+        if (!handler.shouldResume(ADVANCED_SIMPLIFICATION_STARTED)) {
+            return LNGResult.canceled(ADVANCED_SIMPLIFICATION_STARTED);
+        }
         Formula simplified = formula;
         final SortedSet<Literal> backboneLiterals = new TreeSet<>();
         if (config.restrictBackbone) {
-            final Backbone backbone = BackboneGeneration.compute(f, Collections.singletonList(formula),
-                    formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE, OptimizationHandler.satHandler(handler));
-            if (backbone == null || Handler.aborted(handler)) {
-                return null;
+            final LNGResult<Backbone> backboneResult = BackboneGeneration.compute(f, Collections.singletonList(formula),
+                    formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE, handler);
+            if (!backboneResult.isSuccess()) {
+                return LNGResult.canceled(backboneResult.getCancelCause());
             }
+            final Backbone backbone = backboneResult.getResult();
             if (!backbone.isSat()) {
-                return f.falsum();
+                return LNGResult.of(f.falsum());
             }
             backboneLiterals.addAll(backbone.getCompleteBackbone(f));
             simplified = formula.restrict(f, new Assignment(backboneLiterals));
         }
-        final Formula simplifyMinDnf = computeMinDnf(f, simplified);
-        if (simplifyMinDnf == null) {
-            return null;
+        final LNGResult<Formula> simplifyMinDnf = computeMinDnf(f, simplified, handler);
+        if (!simplifyMinDnf.isSuccess()) {
+            return LNGResult.canceled(simplifyMinDnf.getCancelCause());
         }
-        simplified = simplifyWithRating(simplified, simplifyMinDnf, config);
+        simplified = simplifyWithRating(simplified, simplifyMinDnf.getResult(), config);
         if (config.factorOut) {
             final Formula factoredOut = simplified.transform(new FactorOutSimplifier(f, config.ratingFunction));
             simplified = simplifyWithRating(simplified, factoredOut, config);
@@ -134,26 +116,27 @@ public final class AdvancedSimplifier extends AbortableFormulaTransformation<Opt
             final Formula negationSimplified = simplified.transform(new NegationSimplifier(f));
             simplified = simplifyWithRating(simplified, negationSimplified, config);
         }
-        return simplified;
+        return LNGResult.of(simplified);
     }
 
-    private Formula computeMinDnf(final FormulaFactory f, Formula simplified) {
-        final PrimeResult primeResult =
-                PrimeCompiler.getWithMinimization().compute(f, simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE,
-                        handler);
-        if (primeResult == null || Handler.aborted(handler)) {
-            return null;
+    private LNGResult<Formula> computeMinDnf(final FormulaFactory f, final Formula simplified,
+                                             final ComputationHandler handler) {
+        final LNGResult<PrimeResult> primeResult = PrimeCompiler.getWithMinimization()
+                .compute(f, simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE, handler);
+        if (!primeResult.isSuccess()) {
+            return LNGResult.canceled(primeResult.getCancelCause());
         }
-        final List<SortedSet<Literal>> primeImplicants = primeResult.getPrimeImplicants();
-        final List<Formula> minimizedPIs =
+        final List<SortedSet<Literal>> primeImplicants = primeResult.getResult().getPrimeImplicants();
+        final LNGResult<List<Formula>> minimizedPIsResult =
                 SmusComputation.computeSmusForFormulas(f, negateAllLiterals(f, primeImplicants),
                         Collections.singletonList(simplified), handler);
-        if (minimizedPIs == null || Handler.aborted(handler)) {
-            return null;
+        if (!minimizedPIsResult.isSuccess()) {
+            return LNGResult.canceled(minimizedPIsResult.getCancelCause());
+        } else {
+            final List<Formula> minimizedPIs = minimizedPIsResult.getResult();
+            return LNGResult.of(f.or(
+                    negateAllLiteralsInFormulas(f, minimizedPIs).stream().map(f::and).collect(Collectors.toList())));
         }
-        simplified =
-                f.or(negateAllLiteralsInFormulas(f, minimizedPIs).stream().map(f::and).collect(Collectors.toList()));
-        return simplified;
     }
 
     private List<Formula> negateAllLiterals(final FormulaFactory f, final Collection<SortedSet<Literal>> literalSets) {

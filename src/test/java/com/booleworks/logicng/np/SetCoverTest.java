@@ -4,8 +4,9 @@
 
 package com.booleworks.logicng.np;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booleworks.logicng.formulas.FormulaFactory;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -29,27 +30,27 @@ public class SetCoverTest {
         sets.add(new TreeSet<>(Arrays.asList("b", "e", "h", "k")));
         sets.add(new TreeSet<>(Arrays.asList("c", "f", "i", "l")));
         sets.add(new TreeSet<>(Arrays.asList("j", "k", "l")));
-        Assertions.assertThat(SetCover.compute(f, sets)).containsExactlyInAnyOrder(sets.get(2), sets.get(3),
+        assertThat(SetCover.compute(f, sets)).containsExactlyInAnyOrder(sets.get(2), sets.get(3),
                 sets.get(4));
     }
 
     @Test
     public void cornerCasesTest() {
         final List<Set<String>> sets = new ArrayList<>();
-        Assertions.assertThat(SetCover.compute(f, sets)).isEmpty();
+        assertThat(SetCover.compute(f, sets)).isEmpty();
         sets.add(Collections.emptySet());
-        Assertions.assertThat(SetCover.compute(f, sets)).isEmpty();
+        assertThat(SetCover.compute(f, sets)).isEmpty();
         sets.add(new HashSet<>(Collections.singletonList("A")));
         sets.add(new HashSet<>(Collections.singletonList("A")));
         sets.add(new HashSet<>(Collections.singletonList("A")));
-        Assertions.assertThat(SetCover.compute(f, sets)).hasSize(1);
+        assertThat(SetCover.compute(f, sets)).hasSize(1);
         sets.add(new HashSet<>(Collections.singletonList("B")));
-        Assertions.assertThat(SetCover.compute(f, sets)).containsExactlyInAnyOrder(
+        assertThat(SetCover.compute(f, sets)).containsExactlyInAnyOrder(
                 new HashSet<>(Collections.singletonList("A")),
                 new HashSet<>(Collections.singletonList("B"))
         );
         sets.add(new HashSet<>(Arrays.asList("A", "B")));
-        Assertions.assertThat(SetCover.compute(f, sets)).hasSize(1).containsExactly(
+        assertThat(SetCover.compute(f, sets)).hasSize(1).containsExactly(
                 new HashSet<>(Arrays.asList("A", "B"))
         );
     }

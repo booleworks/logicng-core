@@ -4,12 +4,14 @@
 
 package com.booleworks.logicng.functions;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaFunction;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
@@ -21,8 +23,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * Computes a minimum-size prime implicant for the given formula. Returns
- * {@code null} if the formula was not satisfiable.
+ * Computes a minimum-size prime implicant for the given formula. The formula
+ * must be satisfiable, otherwise an {@link IllegalArgumentException} is thrown.
  * @version 3.0.0
  * @since 2.0.0
  */
@@ -37,7 +39,7 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<Sort
     }
 
     @Override
-    public SortedSet<Literal> apply(final Formula formula) {
+    public LNGResult<SortedSet<Literal>> apply(final Formula formula, final ComputationHandler handler) {
         final Formula nnf = formula.nnf(f);
         final Map<Variable, Literal> newVar2oldLit = new HashMap<>();
         final Map<Literal, Literal> substitution = new HashMap<>();
@@ -56,18 +58,22 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<Sort
                 solver.add(f.amo(f.variable(literal.name() + POS), f.variable(literal.name() + NEG)));
             }
         }
-
         if (!solver.sat()) {
-            return null;
+            throw new IllegalArgumentException("The given formula must be satisfiable");
         }
-        final Assignment minimumModel = solver.execute(OptimizationFunction.minimize(newVar2oldLit.keySet()));
+
+        final LNGResult<Model> minimumModel =
+                solver.execute(OptimizationFunction.minimize(newVar2oldLit.keySet()), handler);
+        if (!minimumModel.isSuccess()) {
+            return LNGResult.canceled(minimumModel.getCancelCause());
+        }
         final SortedSet<Literal> primeImplicant = new TreeSet<>();
-        for (final Variable variable : minimumModel.positiveVariables()) {
+        for (final Variable variable : minimumModel.getResult().positiveVariables()) {
             final Literal literal = newVar2oldLit.get(variable);
             if (literal != null) {
                 primeImplicant.add(literal);
             }
         }
-        return primeImplicant;
+        return LNGResult.of(primeImplicant);
     }
 }

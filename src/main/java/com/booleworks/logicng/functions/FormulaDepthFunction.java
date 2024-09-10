@@ -7,6 +7,8 @@ package com.booleworks.logicng.functions;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.cache.FunctionCacheEntry;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 
 import java.util.Map;
 
@@ -39,10 +41,10 @@ public final class FormulaDepthFunction extends CacheableFormulaFunction<Integer
     }
 
     @Override
-    public Integer apply(final Formula formula) {
+    public LNGResult<Integer> apply(final Formula formula, ComputationHandler handler) {
         final Integer cached = lookupCache(formula);
         if (cached != null) {
-            return cached;
+            return LNGResult.of(cached);
         }
         final int result;
         if (formula.isAtomicFormula()) {
@@ -55,6 +57,6 @@ public final class FormulaDepthFunction extends CacheableFormulaFunction<Integer
             result = maxDepth + 1;
         }
         setCache(formula, result);
-        return result;
+        return LNGResult.of(result);
     }
 }

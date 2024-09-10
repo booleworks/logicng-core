@@ -6,7 +6,6 @@ package com.booleworks.logicng.solvers.functions.modelenumeration;
 
 import com.booleworks.logicng.configurations.Configuration;
 import com.booleworks.logicng.configurations.ConfigurationType;
-import com.booleworks.logicng.handlers.ModelEnumerationHandler;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.MostCommonVariablesProvider;
 
@@ -17,7 +16,6 @@ import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.M
  */
 public class ModelEnumerationConfig extends Configuration {
 
-    final ModelEnumerationHandler handler;
     final ModelEnumerationStrategy strategy;
 
     /**
@@ -26,7 +24,6 @@ public class ModelEnumerationConfig extends Configuration {
      */
     private ModelEnumerationConfig(final Builder builder) {
         super(ConfigurationType.MODEL_ENUMERATION);
-        handler = builder.handler;
         strategy = builder.strategy;
     }
 
@@ -44,22 +41,10 @@ public class ModelEnumerationConfig extends Configuration {
      * @since 3.0.0
      */
     public static class Builder {
-        private ModelEnumerationHandler handler = null;
         private ModelEnumerationStrategy strategy = DefaultModelEnumerationStrategy.builder().build();
 
         private Builder() {
             // Initialize only via factory
-        }
-
-        /**
-         * Sets the model enumeration handler for this function. The default is
-         * no handler.
-         * @param handler the handler, may be {@code null}
-         * @return the current builder
-         */
-        public Builder handler(final ModelEnumerationHandler handler) {
-            this.handler = handler;
-            return this;
         }
 
         /**

@@ -63,6 +63,7 @@ module logicng {
     exports com.booleworks.logicng.solvers.functions.modelenumeration;
     exports com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider;
     exports com.booleworks.logicng.solvers.sat;
+    exports com.booleworks.logicng.solvers.maxsat;
     exports com.booleworks.logicng.solvers.maxsat.algorithms;
     exports com.booleworks.logicng.solvers.maxsat.encodings;
 
@@ -73,4 +74,7 @@ module logicng {
     exports com.booleworks.logicng.transformations.simplification;
 
     exports com.booleworks.logicng.util;
+
+    opens com.booleworks.logicng.solvers.sat;
+    exports com.booleworks.logicng.handlers.events;
 }

@@ -15,11 +15,11 @@ import com.booleworks.logicng.configurations.ConfigurationType;
 
 public class AdvancedSimplifierConfig extends Configuration {
 
-    boolean restrictBackbone;
-    boolean factorOut;
-    boolean simplifyNegations;
-    boolean useRatingFunction;
-    RatingFunction<?> ratingFunction;
+    final boolean restrictBackbone;
+    final boolean factorOut;
+    final boolean simplifyNegations;
+    final boolean useRatingFunction;
+    final RatingFunction<?> ratingFunction;
 
     @Override
     public String toString() {

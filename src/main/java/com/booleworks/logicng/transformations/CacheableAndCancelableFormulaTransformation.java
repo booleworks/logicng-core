@@ -8,22 +8,22 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.cache.CacheEntry;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
-import com.booleworks.logicng.handlers.Handler;
+import com.booleworks.logicng.handlers.ComputationHandler;
 
 import java.util.Map;
 
 /**
  * A cacheable formula transformation does not hold an internal mutable state
- * but does use an internal cache to speed up computations and can be aborted by
- * a handler. This cache is usually changed by the transformation. Formulas from
- * a caching formula factory provide their cache via the factory, formulas from
- * a non-caching formula factory can be given their own cache per
- * transformation. A cacheable and an abortable formula transformation with a
+ * but does use an internal cache to speed up computations and can be canceled
+ * by a handler. This cache is usually changed by the transformation. Formulas
+ * from a caching formula factory provide their cache via the factory, formulas
+ * from a non-caching formula factory can be given their own cache per
+ * transformation. A cacheable and an cancelable formula transformation with a
  * provided cache or handler is not thread-safe.
  * @version 3.0.0
  * @since 3.0.0
  */
-public abstract class CacheableAndAbortableFormulaTransformation<H extends Handler> extends CacheableFormulaTransformation {
+public abstract class CacheableAndCancelableFormulaTransformation<H extends ComputationHandler> extends CacheableFormulaTransformation {
     protected final H handler;
 
     /**
@@ -35,8 +35,8 @@ public abstract class CacheableAndAbortableFormulaTransformation<H extends Handl
      *                   caching formula factory
      * @param handler    the handler for the transformation
      **/
-    protected CacheableAndAbortableFormulaTransformation(final FormulaFactory f, final CacheEntry cacheEntry,
-                                                         final H handler) {
+    protected CacheableAndCancelableFormulaTransformation(final FormulaFactory f, final CacheEntry cacheEntry,
+                                                          final H handler) {
         this(f, f instanceof CachingFormulaFactory
                 ? ((CachingFormulaFactory) f).getTransformationCacheForType(cacheEntry) : null, handler);
     }
@@ -50,8 +50,8 @@ public abstract class CacheableAndAbortableFormulaTransformation<H extends Handl
      *                will be used)
      * @param handler the handler for the transformation
      */
-    protected CacheableAndAbortableFormulaTransformation(final FormulaFactory f, final Map<Formula, Formula> cache,
-                                                         final H handler) {
+    protected CacheableAndCancelableFormulaTransformation(final FormulaFactory f, final Map<Formula, Formula> cache,
+                                                          final H handler) {
         super(f, cache);
         this.handler = handler;
     }

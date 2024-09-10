@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.events.SimpleEvent;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.ModelCountingFunction;
@@ -37,23 +38,21 @@ public class ModelEnumerationHandlerTest {
         final Formula formula =
                 f.parse("A | B | C | D | E | F | G | H | I | J | K | L | N | M | O | P | Q | R | S | T | U | V | W");
         solver.add(formula);
-        final TimeoutModelEnumerationHandler handler = new TimeoutModelEnumerationHandler(100);
+        final TimeoutHandler handler = new TimeoutHandler(100);
         final ModelCountingFunction enumeration = ModelCountingFunction.builder(formula.variables(f))
-                .configuration(ModelEnumerationConfig.builder().handler(handler).build())
+                .configuration(ModelEnumerationConfig.builder().build())
                 .build();
-
         Thread.sleep(150);
-        assertThat(handler.aborted()).isFalse();
+        assertThat(handler.shouldResume(SimpleEvent.NO_EVENT)).isTrue();
 
         final long start = System.currentTimeMillis();
-        solver.execute(enumeration);
+        final LNGResult<BigInteger> result = solver.execute(enumeration, handler);
         final long finish = System.currentTimeMillis();
         final long timeElapsed = finish - start;
 
         // Should be very unlikely that the formula can be fully enumerated in
-        // 100ms.
-        // Thus, we expect the handler to stop the execution.
-        assertThat(handler.aborted()).isTrue();
+        // 100ms. Thus, we expect the handler to stop the execution.
+        assertThat(result.isSuccess()).isFalse();
         assertThat(timeElapsed).isGreaterThanOrEqualTo(100L);
     }
 
@@ -67,13 +66,14 @@ public class ModelEnumerationHandlerTest {
             solver.add(formula);
             final NumberOfModelsHandler handler = new NumberOfModelsHandler(i);
             final ModelCountingFunction enumeration = ModelCountingFunction.builder(vars)
-                    .configuration(ModelEnumerationConfig.builder().handler(handler).strategy(
-                            DefaultModelEnumerationStrategy.builder().maxNumberOfModels(200).build()
-                    ).build()
+                    .configuration(ModelEnumerationConfig.builder()
+                            .strategy(DefaultModelEnumerationStrategy.builder().maxNumberOfModels(200).build())
+                            .build()
                     ).build();
-            final BigInteger numberOfModels = solver.execute(enumeration);
-            assertThat(handler.aborted()).isTrue();
-            assertThat(numberOfModels.longValueExact()).isLessThanOrEqualTo(i);
+            final LNGResult<BigInteger> numberOfModels = solver.execute(enumeration, handler);
+            assertThat(numberOfModels.isSuccess()).isFalse();
+            assertThat(numberOfModels.isPartial()).isTrue();
+            assertThat(numberOfModels.getPartialResult().longValueExact()).isLessThanOrEqualTo(i + 8); // because of 3 dont cares
         }
     }
 }

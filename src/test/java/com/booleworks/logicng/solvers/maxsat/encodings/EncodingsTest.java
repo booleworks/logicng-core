@@ -20,7 +20,7 @@ public class EncodingsTest {
     @Test
     public void testTotalizer() {
         final Totalizer totalizer = new Totalizer(MaxSATConfig.IncrementalStrategy.ITERATIVE);
-        Assertions.assertThat(totalizer.incremental()).isEqualTo(MaxSATConfig.IncrementalStrategy.ITERATIVE);
+        assertThat(totalizer.incremental()).isEqualTo(MaxSATConfig.IncrementalStrategy.ITERATIVE);
     }
 
     @Test

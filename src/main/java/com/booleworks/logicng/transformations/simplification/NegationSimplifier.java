@@ -9,6 +9,8 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.NAryOperator;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.transformations.StatelessFormulaTransformation;
 
 import java.util.ArrayList;
@@ -31,13 +33,13 @@ public final class NegationSimplifier extends StatelessFormulaTransformation {
     }
 
     @Override
-    public Formula apply(final Formula formula) {
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         final Formula nnf = formula.nnf(f);
         if (nnf.isAtomicFormula()) {
-            return getSmallestFormula(true, formula, nnf);
+            return LNGResult.of(getSmallestFormula(true, formula, nnf));
         }
         final MinimizationResult result = minimize(nnf, true);
-        return getSmallestFormula(true, formula, nnf, result.positiveResult);
+        return LNGResult.of(getSmallestFormula(true, formula, nnf, result.positiveResult));
     }
 
     private MinimizationResult minimize(final Formula formula, final boolean topLevel) {

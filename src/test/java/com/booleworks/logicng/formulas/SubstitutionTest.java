@@ -132,7 +132,7 @@ public class SubstitutionTest extends TestWithFormulaContext {
         subst3.addMapping(_s.c, _s.and1);
         assertThat(subst2).isEqualTo(subst);
         assertThat(subst).isEqualTo(subst);
-        Assertions.assertThat(new Assignment()).isNotEqualTo(subst);
+        assertThat(new Assignment()).isNotEqualTo(subst);
         assertThat(subst3).isNotEqualTo(subst);
     }
 

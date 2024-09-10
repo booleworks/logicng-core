@@ -22,19 +22,22 @@
 
 package com.booleworks.logicng.solvers.maxsat.algorithms;
 
-import static com.booleworks.logicng.handlers.Handler.start;
+import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.MAX_SAT_CALL_FINISHED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.MAX_SAT_CALL_STARTED;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.MaxSATHandler;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.events.LNGEvent;
+import com.booleworks.logicng.handlers.events.MaxSatNewLowerBoundEvent;
+import com.booleworks.logicng.handlers.events.MaxSatNewUpperBoundEvent;
 import com.booleworks.logicng.solvers.datastructures.LNGHardClause;
 import com.booleworks.logicng.solvers.datastructures.LNGSoftClause;
+import com.booleworks.logicng.solvers.maxsat.InternalMaxSATResult;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 
@@ -59,24 +62,13 @@ public abstract class MaxSAT {
         WEIGHTED
     }
 
-    /**
-     * The MaxSAT result type: {@code SATISFIABLE}, {@code UNSATISFIABLE},
-     * {@code OPTIMUM}, or {@code UNDEF}.
-     */
-    public enum MaxSATResult {
-        UNSATISFIABLE,
-        OPTIMUM,
-        UNDEF
-    }
-
     protected final FormulaFactory f;
     protected final LNGBooleanVector model;
     final LNGVector<LNGSoftClause> softClauses;
     final LNGVector<LNGHardClause> hardClauses;
     final LNGIntVector orderWeights;
     protected Verbosity verbosity;
-    protected MaxSATHandler handler;
-    int hardWeight;
+    final int hardWeight;
     ProblemType problemType;
     int nbVars;
     int nbSoft;
@@ -114,7 +106,6 @@ public abstract class MaxSAT {
         nbSatisfiable = 0;
         sumSizeCores = 0;
         orderWeights = new LNGIntVector();
-        handler = null;
     }
 
     /**
@@ -129,23 +120,23 @@ public abstract class MaxSAT {
      * Solves the formula that is currently loaded in the SAT solver with a set
      * of assumptions.
      * @param s           the SAT solver
-     * @param satHandler  a SAT handler
+     * @param handler     the handler
      * @param assumptions the assumptions
      * @return the result of the solving process
      */
-    public static Tristate searchSATSolver(final LNGCoreSolver s, final SATHandler satHandler,
-                                           final LNGIntVector assumptions) {
-        return s.internalSolve(satHandler, assumptions);
+    public static LNGResult<Boolean> searchSATSolver(final LNGCoreSolver s, final ComputationHandler handler,
+                                                     final LNGIntVector assumptions) {
+        return s.internalSolve(handler, assumptions);
     }
 
     /**
      * Solves the formula without assumptions.
-     * @param s          the SAT solver
-     * @param satHandler a SAT handler
+     * @param s       the SAT solver
+     * @param handler the handler
      * @return the result of the solving process
      */
-    public static Tristate searchSATSolver(final LNGCoreSolver s, final SATHandler satHandler) {
-        return s.internalSolve(satHandler);
+    public static LNGResult<Boolean> searchSATSolver(final LNGCoreSolver s, final ComputationHandler handler) {
+        return s.internalSolve(handler);
     }
 
     /**
@@ -154,14 +145,14 @@ public abstract class MaxSAT {
      * @return the result of the solving process
      * @throws IllegalArgumentException if the configuration was not valid
      */
-    public final MaxSATResult search(final MaxSATHandler handler) {
-        this.handler = handler;
-        start(handler);
-        final MaxSATResult result = search();
-        if (handler != null) {
-            handler.finishedSolving();
+    public final LNGResult<InternalMaxSATResult> search(final ComputationHandler handler) {
+        if (!handler.shouldResume(MAX_SAT_CALL_STARTED)) {
+            return LNGResult.canceled(MAX_SAT_CALL_STARTED);
         }
-        this.handler = null;
+        final LNGResult<InternalMaxSATResult> result = internalSearch(handler);
+        if (!handler.shouldResume(MAX_SAT_CALL_FINISHED)) {
+            return LNGResult.canceled(MAX_SAT_CALL_FINISHED);
+        }
         return result;
     }
 
@@ -170,7 +161,7 @@ public abstract class MaxSAT {
      * @return the result of the solving process
      * @throws IllegalArgumentException if the configuration was not valid
      */
-    public abstract MaxSATResult search();
+    protected abstract LNGResult<InternalMaxSATResult> internalSearch(ComputationHandler handler);
 
     /**
      * Returns the number of variables in the working MaxSAT formula.
@@ -342,7 +333,7 @@ public abstract class MaxSAT {
      * Tests if the MaxSAT formula has lexicographical optimization criterion.
      * @param cache is indicates whether the result should be cached.
      * @return {@code true} if the formula has lexicographical optimization
-     *         criterion
+     * criterion
      */
     public boolean isBMO(final boolean cache) {
         assert orderWeights.size() == 0;
@@ -384,36 +375,31 @@ public abstract class MaxSAT {
     }
 
     /**
-     * Returns the optimal result of the solver.
-     * @return the optimal result of the solver
+     * Informs the handler about a newly found lower bound and returns the
+     * event if the handler canceled the computation. Otherwise, {@code null} is
+     * returned.
+     * @param lowerBound the new lower bound
+     * @param handler    the computation handler
+     * @return the event if the handler canceled the computation, otherwise
+     * {@code null}
      */
-    public int result() {
-        return ubCost;
+    LNGEvent foundLowerBound(final int lowerBound, final ComputationHandler handler) {
+        final MaxSatNewLowerBoundEvent event = new MaxSatNewLowerBoundEvent(lowerBound);
+        return handler.shouldResume(event) ? null : event;
     }
 
     /**
-     * Returns the model of the solver.
-     * @return the model of the solver
+     * Informs the handler about a newly found upper bound and returns the
+     * event if the handler canceled the computation. Otherwise, {@code null} is
+     * returned.
+     * @param upperBound the new upper bound
+     * @param handler    the computation handler
+     * @return the event if the handler canceled the computation, otherwise
+     * {@code null}
      */
-    public LNGBooleanVector model() {
-        return model;
-    }
-
-    /**
-     * Returns the current SAT handler or {@code null} if no MaxSAT handler was
-     * given.
-     * @return the current SAT handler
-     */
-    SATHandler satHandler() {
-        return handler == null ? null : handler.satHandler();
-    }
-
-    boolean foundLowerBound(final int lowerBound, final Assignment model) {
-        return handler == null || handler.foundLowerBound(lowerBound, model);
-    }
-
-    boolean foundUpperBound(final int upperBound, final Assignment model) {
-        return handler == null || handler.foundUpperBound(upperBound, model);
+    LNGEvent foundUpperBound(final int upperBound, final ComputationHandler handler) {
+        final MaxSatNewUpperBoundEvent event = new MaxSatNewUpperBoundEvent(upperBound);
+        return handler.shouldResume(event) ? null : event;
     }
 
     /**

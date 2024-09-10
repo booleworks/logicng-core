@@ -12,6 +12,8 @@ import com.booleworks.logicng.formulas.Implication;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.Or;
 import com.booleworks.logicng.formulas.cache.TransformationCacheEntry;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -45,7 +47,11 @@ public final class AIGTransformation extends CacheableFormulaTransformation {
     }
 
     @Override
-    public Formula apply(final Formula formula) {
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+        return LNGResult.of(transform(formula));
+    }
+
+    private Formula transform(final Formula formula) {
         switch (formula.type()) {
             case FALSE:
             case TRUE:
@@ -63,7 +69,7 @@ public final class AIGTransformation extends CacheableFormulaTransformation {
             case OR:
                 return transformOr((Or) formula);
             case PBC:
-                return apply(formula.cnf(f));
+                return transform(formula.cnf(f));
             default:
                 throw new IllegalArgumentException("Could not process the formula type " + formula.type());
         }

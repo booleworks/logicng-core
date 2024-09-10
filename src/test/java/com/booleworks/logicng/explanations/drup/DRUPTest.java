@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LogicNGTest;
 import com.booleworks.logicng.LongRunningTag;
-import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -114,7 +113,7 @@ public class DRUPTest implements LogicNGTest {
 
         final SATSolver solver = solverSupplier.get();
         solver.addPropositions(propositions);
-        Assertions.assertThat(solver.sat()).isFalse();
+        assertThat(solver.sat()).isFalse();
         final UNSATCore<Proposition> unsatCore = solver.satCall().unsatCore();
         assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(propositions.get(0), propositions.get(1),
                 propositions.get(2), propositions.get(3), propositions.get(4), propositions.get(5));
@@ -141,32 +140,32 @@ public class DRUPTest implements LogicNGTest {
         final SolverState state2 = solver.saveState();
         solver.addPropositions(p7, p8);
 
-        Assertions.assertThat(solver.sat()).isFalse();
+        assertThat(solver.sat()).isFalse();
         UNSATCore<Proposition> unsatCore = solver.satCall().unsatCore();
         assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p5, p6);
 
         solver.loadState(state2);
-        Assertions.assertThat(solver.sat()).isFalse();
+        assertThat(solver.sat()).isFalse();
         unsatCore = solver.satCall().unsatCore();
         assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p5, p6);
 
         solver.loadState(state1);
         solver.add(p9);
-        Assertions.assertThat(solver.sat()).isFalse();
+        assertThat(solver.sat()).isFalse();
         unsatCore = solver.satCall().unsatCore();
         assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p9);
 
         solver.loadState(state1);
         solver.add(p5);
         solver.add(p6);
-        Assertions.assertThat(solver.sat()).isFalse();
+        assertThat(solver.sat()).isFalse();
         unsatCore = solver.satCall().unsatCore();
         assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p5, p6);
 
         solver.loadState(state1);
         solver.add(p10);
         solver.add(p11);
-        Assertions.assertThat(solver.sat()).isFalse();
+        assertThat(solver.sat()).isFalse();
         unsatCore = solver.satCall().unsatCore();
         assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p4, p11);
     }
@@ -231,7 +230,7 @@ public class DRUPTest implements LogicNGTest {
 
         solver.add(f.parse("~A"));
         solver.sat();
-        Assertions.assertThat(solver.satCall().unsatCore()).isNotNull();
+        assertThat(solver.satCall().unsatCore()).isNotNull();
     }
 
     @Test
@@ -257,7 +256,7 @@ public class DRUPTest implements LogicNGTest {
         solver.add(f.parse("X"));
 
         solver.sat();
-        Assertions.assertThat(solver.satCall().unsatCore()).isNotNull();
+        assertThat(solver.satCall().unsatCore()).isNotNull();
     }
 
     @Test
@@ -273,7 +272,7 @@ public class DRUPTest implements LogicNGTest {
         solver.add(f.parse("L & A3 => A4"));
         solver.add(f.parse("~A4"));
         solver.add(f.parse("L | R"));
-        Assertions.assertThat(solver.satCall().unsatCore()).isNotNull();
+        assertThat(solver.satCall().unsatCore()).isNotNull();
     }
 
     @Test
@@ -282,8 +281,7 @@ public class DRUPTest implements LogicNGTest {
         solver.add(f.parse("A1 => A2"));
         solver.add(f.parse("A2 => ~A1 | ~A3"));
         try (final SATCall satCall = solver.satCall().addFormulas(f.variable("A3"), f.variable("A1")).solve()) {
-            assertThat(satCall.getSatResult()).isEqualTo(Tristate.FALSE);
-            System.out.println(satCall.unsatCore());
+            assertThat(satCall.getSatResult().getResult()).isFalse();
         }
     }
 
@@ -301,8 +299,8 @@ public class DRUPTest implements LogicNGTest {
         solver.add(p2);
         solver.add(p3);
         solver.add(p4);
-        Assertions.assertThat(solver.sat()).isFalse();
-        Assertions.assertThat(solver.satCall().unsatCore().propositions()).containsExactlyInAnyOrder(p1, p2, p3);
+        assertThat(solver.sat()).isFalse();
+        assertThat(solver.satCall().unsatCore().propositions()).containsExactlyInAnyOrder(p1, p2, p3);
     }
 
     @Test
@@ -321,10 +319,10 @@ public class DRUPTest implements LogicNGTest {
         final StandardProposition p10 = new StandardProposition(f.parse("d => (l + m + e + f = 1)"));
         final StandardProposition p11 = new StandardProposition(f.parse("~k"));
         solver.addPropositions(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
-        Assertions.assertThat(solver.sat()).isTrue();
+        assertThat(solver.sat()).isTrue();
         solver.add(f.variable("a"));
-        Assertions.assertThat(solver.sat()).isFalse();
-        Assertions.assertThat(solver.satCall().unsatCore().propositions()).contains(p1, p2, p4, p5, p6, p7, p8, p9, p10,
+        assertThat(solver.sat()).isFalse();
+        assertThat(solver.satCall().unsatCore().propositions()).contains(p1, p2, p4, p5, p6, p7, p8, p9, p10,
                 p11);
     }
 

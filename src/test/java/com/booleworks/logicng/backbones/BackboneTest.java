@@ -36,41 +36,41 @@ public class BackboneTest {
     @Test
     public void testToFormula() throws ParserException {
         Backbone backbone = Backbone.satBackbone(set(a1, a2, a3), null, null);
-        Assertions.assertThat(backbone.toFormula(f)).isEqualTo(p.parse("a1 & a2 & a3"));
+        assertThat(backbone.toFormula(f)).isEqualTo(p.parse("a1 & a2 & a3"));
         backbone = Backbone.satBackbone(null, set(b1, b2, b3), null);
-        Assertions.assertThat(backbone.toFormula(f)).isEqualTo(p.parse("~b1 & ~b2 & ~b3"));
+        assertThat(backbone.toFormula(f)).isEqualTo(p.parse("~b1 & ~b2 & ~b3"));
         backbone = Backbone.satBackbone(set(a1, a2, a3), set(b1), null);
-        Assertions.assertThat(backbone.toFormula(f)).isEqualTo(p.parse("a1 & a2 & a3 & ~b1"));
+        assertThat(backbone.toFormula(f)).isEqualTo(p.parse("a1 & a2 & a3 & ~b1"));
         backbone = Backbone.satBackbone(set(a1, a2, a3), null, set(x1, x2, x3));
-        Assertions.assertThat(backbone.toFormula(f)).isEqualTo(p.parse("a1 & a2 & a3"));
+        assertThat(backbone.toFormula(f)).isEqualTo(p.parse("a1 & a2 & a3"));
         backbone = Backbone.satBackbone(null, set(b1, b2, b3), set(x1, x2, x3));
-        Assertions.assertThat(backbone.toFormula(f)).isEqualTo(p.parse("~b1 & ~b2 & ~b3"));
+        assertThat(backbone.toFormula(f)).isEqualTo(p.parse("~b1 & ~b2 & ~b3"));
         backbone = Backbone.satBackbone(set(a1), set(b1, b2, b3), set(x1));
-        Assertions.assertThat(backbone.toFormula(f)).isEqualTo(p.parse("a1 & ~b1 & ~b2 & ~b3"));
+        assertThat(backbone.toFormula(f)).isEqualTo(p.parse("a1 & ~b1 & ~b2 & ~b3"));
     }
 
     @Test
     public void testToMap() {
         Backbone backbone = Backbone.satBackbone(set(a1, a2), null, null);
-        Assertions.assertThat(backbone.toMap()).containsExactly(
+        assertThat(backbone.toMap()).containsExactly(
                 MapEntry.entry(a1, Tristate.TRUE),
                 MapEntry.entry(a2, Tristate.TRUE)
         );
         backbone = Backbone.satBackbone(null, set(b1, b2, b3), null);
-        Assertions.assertThat(backbone.toMap()).containsExactly(
+        assertThat(backbone.toMap()).containsExactly(
                 MapEntry.entry(b1, Tristate.FALSE),
                 MapEntry.entry(b2, Tristate.FALSE),
                 MapEntry.entry(b3, Tristate.FALSE)
         );
         backbone = Backbone.satBackbone(set(a1, a2, a3), set(b1), null);
-        Assertions.assertThat(backbone.toMap()).containsExactly(
+        assertThat(backbone.toMap()).containsExactly(
                 MapEntry.entry(a1, Tristate.TRUE),
                 MapEntry.entry(a2, Tristate.TRUE),
                 MapEntry.entry(a3, Tristate.TRUE),
                 MapEntry.entry(b1, Tristate.FALSE)
         );
         backbone = Backbone.satBackbone(set(a1, a2, a3), null, set(x1, x2, x3));
-        Assertions.assertThat(backbone.toMap()).containsExactly(
+        assertThat(backbone.toMap()).containsExactly(
                 MapEntry.entry(a1, Tristate.TRUE),
                 MapEntry.entry(a2, Tristate.TRUE),
                 MapEntry.entry(a3, Tristate.TRUE),
@@ -79,7 +79,7 @@ public class BackboneTest {
                 MapEntry.entry(x3, Tristate.UNDEF)
         );
         backbone = Backbone.satBackbone(null, set(b1, b2, b3), set(x1, x2, x3));
-        Assertions.assertThat(backbone.toMap()).containsExactly(
+        assertThat(backbone.toMap()).containsExactly(
                 MapEntry.entry(b1, Tristate.FALSE),
                 MapEntry.entry(b2, Tristate.FALSE),
                 MapEntry.entry(b3, Tristate.FALSE),
@@ -88,7 +88,7 @@ public class BackboneTest {
                 MapEntry.entry(x3, Tristate.UNDEF)
         );
         backbone = Backbone.satBackbone(set(a1), set(b1, b2), set(x1));
-        Assertions.assertThat(backbone.toMap()).containsExactly(
+        assertThat(backbone.toMap()).containsExactly(
                 MapEntry.entry(a1, Tristate.TRUE),
                 MapEntry.entry(b1, Tristate.FALSE),
                 MapEntry.entry(b2, Tristate.FALSE),
@@ -99,12 +99,12 @@ public class BackboneTest {
     @Test
     public void testUnsatBackbone() {
         final Backbone backbone = Backbone.unsatBackbone();
-        Assertions.assertThat(backbone.getCompleteBackbone(f)).isEmpty();
-        Assertions.assertThat(backbone.getNegativeBackbone()).isEmpty();
-        Assertions.assertThat(backbone.getPositiveBackbone()).isEmpty();
-        Assertions.assertThat(backbone.getOptionalVariables()).isEmpty();
-        Assertions.assertThat(backbone.toMap()).isEmpty();
-        Assertions.assertThat(backbone.toFormula(f)).isEqualTo(f.falsum());
+        assertThat(backbone.getCompleteBackbone(f)).isEmpty();
+        assertThat(backbone.getNegativeBackbone()).isEmpty();
+        assertThat(backbone.getPositiveBackbone()).isEmpty();
+        assertThat(backbone.getOptionalVariables()).isEmpty();
+        assertThat(backbone.toMap()).isEmpty();
+        assertThat(backbone.toFormula(f)).isEqualTo(f.falsum());
     }
 
     @Test

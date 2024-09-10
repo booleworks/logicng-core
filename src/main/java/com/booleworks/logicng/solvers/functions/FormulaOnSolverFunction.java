@@ -13,6 +13,8 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.datastructures.LNGClause;
 import com.booleworks.logicng.solvers.datastructures.LNGVariable;
@@ -61,7 +63,7 @@ public final class FormulaOnSolverFunction implements SolverFunction<Set<Formula
     }
 
     @Override
-    public Set<Formula> apply(final SATSolver solver) {
+    public LNGResult<Set<Formula>> apply(final SATSolver solver, final ComputationHandler handler) {
         final FormulaFactory f = solver.factory();
         final Set<Formula> formulas = new LinkedHashSet<>();
         for (final LNGClause clause : solver.underlyingSolver().clauses()) {
@@ -91,6 +93,6 @@ public final class FormulaOnSolverFunction implements SolverFunction<Set<Formula
         if (!solver.underlyingSolver().ok()) {
             formulas.add(f.falsum());
         }
-        return formulas;
+        return LNGResult.of(formulas);
     }
 }

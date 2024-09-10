@@ -10,6 +10,8 @@ import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.transformations.StatefulFormulaTransformation;
 
 import java.util.ArrayList;
@@ -86,15 +88,15 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
     }
 
     @Override
-    public Formula apply(final Formula formula) {
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         final Formula nnf = formula.nnf(f);
         if (nnf.isCNF(f)) {
-            return nnf;
+            return LNGResult.of(nnf);
         }
         Formula tseitin = state.formula(nnf);
         if (tseitin != null) {
             final Assignment topLevel = new Assignment(state.literal(nnf));
-            return state.formula(nnf).restrict(f, topLevel);
+            return LNGResult.of(state.formula(nnf).restrict(f, topLevel));
         }
         if (nnf.numberOfAtoms(f) < boundaryForFactorization) {
             tseitin = nnf.transform(factorization);
@@ -106,7 +108,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
             tseitin = state.formula(nnf).restrict(f, topLevel);
         }
         state.literalMap.put(formula, state.literal(nnf));
-        return tseitin;
+        return LNGResult.of(tseitin);
     }
 
     /**

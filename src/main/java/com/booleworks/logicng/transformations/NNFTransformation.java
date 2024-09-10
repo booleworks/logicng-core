@@ -12,6 +12,8 @@ import com.booleworks.logicng.formulas.Implication;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.cache.TransformationCacheEntry;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -46,8 +48,8 @@ public class NNFTransformation extends CacheableFormulaTransformation {
     }
 
     @Override
-    public Formula apply(final Formula formula) {
-        return applyRec(formula, true);
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+        return LNGResult.of(applyRec(formula, true));
     }
 
     private Formula applyRec(final Formula formula, final boolean polarity) {

@@ -14,6 +14,8 @@ import com.booleworks.logicng.formulas.NAryOperator;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.Or;
 import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -38,7 +40,11 @@ public final class FormulaFactoryImporter extends StatelessFormulaTransformation
     }
 
     @Override
-    public Formula apply(final Formula formula) {
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+        return LNGResult.of(applyRec(formula));
+    }
+
+    private Formula applyRec(final Formula formula) {
         if (formula.factory() == f) {
             return formula;
         }

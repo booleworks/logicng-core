@@ -66,7 +66,7 @@ public final class LNGBooleanVector {
         size = elems.length;
     }
 
-    LNGBooleanVector(final boolean[] elements, final int size) {
+    public LNGBooleanVector(final boolean[] elements, final int size) {
         this.elements = elements;
         this.size = size;
     }

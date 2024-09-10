@@ -1,18 +1,17 @@
 package com.booleworks.logicng.solvers.sat;
 
-import static com.booleworks.logicng.datastructures.Tristate.FALSE;
-import static com.booleworks.logicng.datastructures.Tristate.TRUE;
 import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.generateClauseVector;
 
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
 import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.datastructures.Tristate;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
@@ -54,9 +53,9 @@ public class SATCall implements AutoCloseable {
     private final LNGCoreSolver solver;
     private SolverState initialState;
     private int pgOriginalClausesLength = -1;
-    private Tristate satState;
+    private LNGResult<Boolean> satResult;
 
-    SATCall(final SATSolver solverWrapper, final SATHandler handler,
+    SATCall(final SATSolver solverWrapper, final ComputationHandler handler,
             final List<? extends Proposition> additionalPropositions, final List<? extends Literal> selectionOrder) {
         this.solverWrapper = solverWrapper;
         solver = solverWrapper.underlyingSolver();
@@ -67,7 +66,7 @@ public class SATCall implements AutoCloseable {
         return new SATCallBuilder(solver);
     }
 
-    private void initAndSolve(final SATHandler handler, final List<? extends Proposition> additionalPropositions, final List<? extends Literal> selectionOrder) {
+    private void initAndSolve(final ComputationHandler handler, final List<? extends Proposition> additionalPropositions, final List<? extends Literal> selectionOrder) {
         solver.assertNotInSatCall();
         if (solver.config.proofGeneration) {
             pgOriginalClausesLength = solver.pgOriginalClauses.size();
@@ -82,11 +81,10 @@ public class SATCall implements AutoCloseable {
             additionals.additionalFormulas.forEach(solverWrapper::add);
         }
         solver.startSatCall();
-        solver.setHandler(handler);
         if (selectionOrder != null) {
             solver.setSelectionOrder(selectionOrder);
         }
-        satState = solver.internalSolve();
+        satResult = solver.internalSolve(handler);
     }
 
     private Additionals splitPropsIntoLiteralsAndFormulas(final List<? extends Proposition> additionalPropositions) {
@@ -105,15 +103,11 @@ public class SATCall implements AutoCloseable {
     }
 
     /**
-     * Returns the satisfiability result of this SAT call, i.e.
-     * {@link Tristate#TRUE} if the formula is satisfiable,
-     * {@link Tristate#FALSE} if the formula is not satisfiable, and
-     * {@link Tristate#UNDEF} if the SAT call was aborted by the
-     * {@link SATHandler handler}.
+     * Returns the satisfiability result of this SAT call.
      * @return the satisfiability result of this SAT call
      */
-    public Tristate getSatResult() {
-        return satState;
+    public LNGResult<Boolean> getSatResult() {
+        return satResult;
     }
 
     /**
@@ -126,11 +120,11 @@ public class SATCall implements AutoCloseable {
      *         was unsatisfiable
      * @throws IllegalArgumentException if the given variables are {@code null}
      */
-    public Assignment model(final Collection<Variable> variables) {
+    public Model model(final Collection<Variable> variables) {
         if (variables == null) {
             throw new IllegalArgumentException("The given variables must not be null.");
         }
-        if (satState != TRUE) {
+        if (!satResult.isSuccess() || !satResult.getResult()) {
             return null;
         } else {
             final List<Literal> unknowns = new ArrayList<>();
@@ -145,7 +139,7 @@ public class SATCall implements AutoCloseable {
             }
             final List<Literal> finalModel = solver.convertInternalModel(solver.model(), relevantIndices);
             finalModel.addAll(unknowns);
-            return new Assignment(finalModel);
+            return new Model(finalModel);
         }
     }
 
@@ -164,7 +158,7 @@ public class SATCall implements AutoCloseable {
         if (!solver.config().proofGeneration()) {
             throw new IllegalStateException("Cannot generate an unsat core if proof generation is not turned on");
         }
-        if (satState != FALSE) {
+        if (!satResult.isSuccess() || satResult.getResult()) {
             return null;
         }
         return UnsatCoreFunction.get().apply(solverWrapper);
@@ -181,7 +175,6 @@ public class SATCall implements AutoCloseable {
         if (initialState != null) {
             solver.loadState(initialState);
         }
-        solver.setHandler(null);
         solver.finishSatCall();
     }
 

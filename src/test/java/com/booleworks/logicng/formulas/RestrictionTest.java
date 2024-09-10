@@ -67,13 +67,13 @@ public class RestrictionTest extends TestWithFormulaContext {
         assertThat(_c.or1.restrict(_c.f, ass)).isEqualTo(_c.y);
         assertThat(_c.or2.restrict(_c.f, ass)).isEqualTo(_c.verum);
         assertThat(_c.or3.restrict(_c.f, ass)).isEqualTo(_c.falsum);
-        Assertions.assertThat(_c.p.parse("~a | b | ~c | x | y").restrict(_c.f, ass)).isEqualTo(_c.p.parse("~c | y"));
-        Assertions.assertThat(_c.p.parse("~a | b | ~c | ~x | ~y").restrict(_c.f, ass)).isEqualTo(_c.verum);
+        assertThat(_c.p.parse("~a | b | ~c | x | y").restrict(_c.f, ass)).isEqualTo(_c.p.parse("~c | y"));
+        assertThat(_c.p.parse("~a | b | ~c | ~x | ~y").restrict(_c.f, ass)).isEqualTo(_c.verum);
 
         assertThat(_c.and1.restrict(_c.f, ass)).isEqualTo(_c.falsum);
         assertThat(_c.and2.restrict(_c.f, ass)).isEqualTo(_c.falsum);
         assertThat(_c.and3.restrict(_c.f, ass)).isEqualTo(_c.y);
-        Assertions.assertThat(_c.p.parse("a & ~b & c & ~x & ~y").restrict(_c.f, ass)).isEqualTo(_c.p.parse("c & ~y"));
-        Assertions.assertThat(_c.p.parse("a & b & c & ~x & y").restrict(_c.f, ass)).isEqualTo(_c.falsum);
+        assertThat(_c.p.parse("a & ~b & c & ~x & ~y").restrict(_c.f, ass)).isEqualTo(_c.p.parse("c & ~y"));
+        assertThat(_c.p.parse("a & b & c & ~x & y").restrict(_c.f, ass)).isEqualTo(_c.falsum);
     }
 }

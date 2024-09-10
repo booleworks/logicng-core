@@ -123,8 +123,8 @@ public class PredicatesTest extends TestWithFormulaContext {
         assertThat(_c.or3.holds(sat)).isTrue();
         assertThat(_c.not1.holds(sat)).isTrue();
         assertThat(_c.not2.holds(sat)).isTrue();
-        Assertions.assertThat(new PigeonHoleGenerator(_c.f).generate(1).holds(sat)).isFalse();
-        Assertions.assertThat(new PigeonHoleGenerator(_c.f).generate(2).holds(sat)).isFalse();
-        Assertions.assertThat(new PigeonHoleGenerator(_c.f).generate(3).holds(sat)).isFalse();
+        assertThat(new PigeonHoleGenerator(_c.f).generate(1).holds(sat)).isFalse();
+        assertThat(new PigeonHoleGenerator(_c.f).generate(2).holds(sat)).isFalse();
+        assertThat(new PigeonHoleGenerator(_c.f).generate(3).holds(sat)).isFalse();
     }
 }

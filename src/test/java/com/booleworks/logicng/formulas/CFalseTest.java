@@ -58,10 +58,10 @@ public class CFalseTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testEqualsDifferentFormulaFactory(final FormulaContext _c) {
-        Assertions.assertThat(FormulaFactory.caching().falsum()).isEqualTo(_c.falsum);
-        Assertions.assertThat(FormulaFactory.caching().verum()).isNotEqualTo(_c.falsum);
-        Assertions.assertThat(FormulaFactory.nonCaching().falsum()).isEqualTo(_c.falsum);
-        Assertions.assertThat(FormulaFactory.nonCaching().verum()).isNotEqualTo(_c.falsum);
+        assertThat(FormulaFactory.caching().falsum()).isEqualTo(_c.falsum);
+        assertThat(FormulaFactory.caching().verum()).isNotEqualTo(_c.falsum);
+        assertThat(FormulaFactory.nonCaching().falsum()).isEqualTo(_c.falsum);
+        assertThat(FormulaFactory.nonCaching().verum()).isNotEqualTo(_c.falsum);
     }
 
     @ParameterizedTest

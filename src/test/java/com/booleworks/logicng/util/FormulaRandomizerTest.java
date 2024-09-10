@@ -20,7 +20,6 @@ import com.booleworks.logicng.formulas.Or;
 import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.functions.FormulaDepthFunction;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -40,11 +39,11 @@ public class FormulaRandomizerTest {
     public void testDeterminism() {
         final Formula expected =
                 new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build()).formula(3);
-        Assertions.assertThat(new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build()).formula(3))
+        assertThat(new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build()).formula(3))
                 .isEqualTo(expected);
-        Assertions.assertThat(new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(43).build()).formula(3))
+        assertThat(new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(43).build()).formula(3))
                 .isNotEqualTo(expected);
-        Assertions.assertThat(new FormulaRandomizer(f, FormulaRandomizerConfig.builder().build()).formula(3))
+        assertThat(new FormulaRandomizer(f, FormulaRandomizerConfig.builder().build()).formula(3))
                 .isNotEqualTo(expected);
         final List<Formula> expectedList = randomFormulas();
         for (int i = 0; i < 10; i++) {
@@ -105,7 +104,7 @@ public class FormulaRandomizerTest {
                 .weightExo(1)
                 .seed(42).build());
         for (int i = 0; i < 100; i++) {
-            Assertions.assertThat(random2.formula(4).variables(f)).isSubsetOf(vars2);
+            assertThat(random2.formula(4).variables(f)).isSubsetOf(vars2);
         }
     }
 
@@ -168,7 +167,7 @@ public class FormulaRandomizerTest {
         final FormulaRandomizer randomOnlyLiterals = new FormulaRandomizer(f, FormulaRandomizerConfig.builder()
                 .weightConstant(0).weightPositiveLiteral(3).weightNegativeLiteral(6).seed(42).build());
         for (int i = 0; i < 100; i++) {
-            Assertions.assertThat(randomOnlyLiterals.atom().type()).isEqualTo(FType.LITERAL);
+            assertThat(randomOnlyLiterals.atom().type()).isEqualTo(FType.LITERAL);
         }
     }
 
@@ -176,13 +175,13 @@ public class FormulaRandomizerTest {
     public void testAnd() {
         final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build());
         for (int i = 0; i < 10; i++) {
-            Assertions.assertThat(random.and(0).isAtomicFormula()).isTrue();
+            assertThat(random.and(0).isAtomicFormula()).isTrue();
         }
         for (int depth = 1; depth <= 7; depth++) {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.and(depth);
                 assertThat(formula).isInstanceOf(And.class);
-                Assertions.assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
             }
         }
     }
@@ -191,13 +190,13 @@ public class FormulaRandomizerTest {
     public void testOr() {
         final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build());
         for (int i = 0; i < 10; i++) {
-            Assertions.assertThat(random.or(0).isAtomicFormula()).isTrue();
+            assertThat(random.or(0).isAtomicFormula()).isTrue();
         }
         for (int depth = 1; depth <= 7; depth++) {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.or(depth);
                 assertThat(formula).isInstanceOf(Or.class);
-                Assertions.assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
             }
         }
     }
@@ -206,14 +205,14 @@ public class FormulaRandomizerTest {
     public void testNot() {
         final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build());
         for (int i = 0; i < 10; i++) {
-            Assertions.assertThat(random.not(0).isAtomicFormula()).isTrue();
-            Assertions.assertThat(random.not(1).isAtomicFormula()).isTrue();
+            assertThat(random.not(0).isAtomicFormula()).isTrue();
+            assertThat(random.not(1).isAtomicFormula()).isTrue();
         }
         for (int depth = 2; depth <= 7; depth++) {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.not(depth);
                 assertThat(formula).isInstanceOf(Not.class);
-                Assertions.assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
             }
         }
     }
@@ -222,13 +221,13 @@ public class FormulaRandomizerTest {
     public void testImpl() {
         final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build());
         for (int i = 0; i < 10; i++) {
-            Assertions.assertThat(random.impl(0).isAtomicFormula()).isTrue();
+            assertThat(random.impl(0).isAtomicFormula()).isTrue();
         }
         for (int depth = 1; depth <= 7; depth++) {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.impl(depth);
                 assertThat(formula).isInstanceOf(Implication.class);
-                Assertions.assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
             }
         }
     }
@@ -237,13 +236,13 @@ public class FormulaRandomizerTest {
     public void testEquiv() {
         final FormulaRandomizer random = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build());
         for (int i = 0; i < 10; i++) {
-            Assertions.assertThat(random.equiv(0).isAtomicFormula()).isTrue();
+            assertThat(random.equiv(0).isAtomicFormula()).isTrue();
         }
         for (int depth = 1; depth <= 7; depth++) {
             for (int i = 0; i < 10; i++) {
                 final Formula formula = random.equiv(depth);
                 assertThat(formula).isInstanceOf(Equivalence.class);
-                Assertions.assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
+                assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(depth);
             }
         }
     }
@@ -418,7 +417,7 @@ public class FormulaRandomizerTest {
         for (int i = 0; i < 10000; i++) {
             final Formula formula = random.formula(3);
             countOccurrences(formula, occurrences, 3);
-            Assertions.assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(3);
+            assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(3);
         }
         final int totalOccurrences =
                 occurrences.get("and") + occurrences.get("or") + occurrences.get("impl") + occurrences.get("equiv");
@@ -453,7 +452,7 @@ public class FormulaRandomizerTest {
         for (int i = 0; i < 10000; i++) {
             final Formula formula = random.formula(3);
             countOccurrences(formula, occurrences, 3);
-            Assertions.assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(3);
+            assertThat(formula.apply(new FormulaDepthFunction(f))).isLessThanOrEqualTo(3);
         }
         assertThat(occurrences.get("negLit")).isStrictlyBetween((int) (.8 * occurrences.get("posLit")),
                 (int) (1.2 * occurrences.get("posLit")));

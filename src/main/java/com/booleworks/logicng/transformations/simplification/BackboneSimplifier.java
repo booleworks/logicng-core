@@ -9,6 +9,8 @@ import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
 import com.booleworks.logicng.transformations.StatelessFormulaTransformation;
@@ -28,21 +30,27 @@ public final class BackboneSimplifier extends StatelessFormulaTransformation {
     }
 
     @Override
-    public Formula apply(final Formula formula) {
+    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula);
-        final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f))
-                .type(BackboneType.POSITIVE_AND_NEGATIVE).build());
+        final LNGResult<Backbone> backboneResult = solver.execute(BackboneFunction.builder()
+                .variables(formula.variables(f))
+                .type(BackboneType.POSITIVE_AND_NEGATIVE)
+                .build(), handler);
+        if (!backboneResult.isSuccess()) {
+            return LNGResult.canceled(backboneResult.getCancelCause());
+        }
+        final Backbone backbone = backboneResult.getResult();
         if (!backbone.isSat()) {
-            return f.falsum();
+            return LNGResult.of(f.falsum());
         }
         if (!backbone.getNegativeBackbone().isEmpty() || !backbone.getPositiveBackbone().isEmpty()) {
             final Formula backboneFormula = backbone.toFormula(f);
             final Assignment assignment = new Assignment(backbone.getCompleteBackbone(f));
             final Formula restrictedFormula = formula.restrict(f, assignment);
-            return f.and(backboneFormula, restrictedFormula);
+            return LNGResult.of(f.and(backboneFormula, restrictedFormula));
         } else {
-            return formula;
+            return LNGResult.of(formula);
         }
     }
 }

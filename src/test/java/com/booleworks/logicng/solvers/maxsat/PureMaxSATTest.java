@@ -5,21 +5,20 @@
 package com.booleworks.logicng.solvers.maxsat;
 
 import static com.booleworks.logicng.solvers.maxsat.MaxSATReader.readCnfToSolver;
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT.MaxSATResult.OPTIMUM;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity.SOME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.TestWithExampleFormulas;
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
+import com.booleworks.logicng.solvers.MaxSATResult;
 import com.booleworks.logicng.solvers.MaxSATSolver;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
-import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
@@ -70,20 +69,6 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
             solver.addSoftFormula(A, -1);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("The weight of a formula must be > 0");
-        assertThatThrownBy(() -> {
-            final MaxSATSolver solver = MaxSATSolver.incWBO(f);
-            solver.addHardFormula(f.parse("a | b"));
-            solver.addSoftFormula(A, 1);
-            solver.result();
-        }).isInstanceOf(IllegalStateException.class)
-                .hasMessage("Cannot get a result as long as the formula is not solved.  Call 'solver' first.");
-        assertThatThrownBy(() -> {
-            final MaxSATSolver solver = MaxSATSolver.incWBO(f);
-            solver.addHardFormula(f.parse("a | b"));
-            solver.addSoftFormula(A, 1);
-            solver.model();
-        }).isInstanceOf(IllegalStateException.class)
-                .hasMessage("Cannot get a model as long as the formula is not solved.  Call 'solver' first.");
     }
 
     @Test
@@ -113,10 +98,10 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         solver.addHardFormula(f.parse("a | b"));
         solver.addHardFormula(f.verum());
         solver.addSoftFormula(A, 1);
-        MaxSAT.MaxSATResult result = solver.solve();
-        assertThat(result).isEqualTo(OPTIMUM);
+        MaxSATResult result = solver.solve();
+        assertThat(result.isSatisfiable()).isTrue();
         result = solver.solve();
-        assertThat(result).isEqualTo(OPTIMUM);
+        assertThat(result.isSatisfiable()).isTrue();
     }
 
     @Test
@@ -131,13 +116,15 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
             for (final String file : files) {
                 final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
                 MaxSATReader.readCnfToSolver(solver, "src/test/resources/maxsat/" + file);
-                Assertions.assertThat(solver.solve()).isEqualTo(OPTIMUM);
-                assertThat(solver.result()).isEqualTo(1);
+                final MaxSATResult result = solver.solve();
+                assertThat(result.isSatisfiable()).isTrue();
+                assertThat(result.getOptimum()).isEqualTo(1);
             }
             final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
             MaxSATReader.readCnfToSolver(solver, "src/test/resources/sat/9symml_gr_rcs_w6.shuffled.cnf");
-            Assertions.assertThat(solver.solve()).isEqualTo(OPTIMUM);
-            assertThat(solver.result()).isEqualTo(0);
+            final MaxSATResult result = solver.solve();
+            assertThat(result.isSatisfiable()).isTrue();
+            assertThat(result.getOptimum()).isEqualTo(0);
         }
     }
 
@@ -153,13 +140,15 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
             for (final String file : files) {
                 final MaxSATSolver solver = MaxSATSolver.incWBO(f, config);
                 MaxSATReader.readCnfToSolver(solver, "src/test/resources/maxsat/" + file);
-                Assertions.assertThat(solver.solve()).isEqualTo(OPTIMUM);
-                assertThat(solver.result()).isEqualTo(1);
+                final MaxSATResult result = solver.solve();
+                assertThat(result.isSatisfiable()).isTrue();
+                assertThat(result.getOptimum()).isEqualTo(1);
             }
             final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
             MaxSATReader.readCnfToSolver(solver, "src/test/resources/sat/9symml_gr_rcs_w6.shuffled.cnf");
-            Assertions.assertThat(solver.solve()).isEqualTo(OPTIMUM);
-            assertThat(solver.result()).isEqualTo(0);
+            final MaxSATResult result = solver.solve();
+            assertThat(result.isSatisfiable()).isTrue();
+            assertThat(result.getOptimum()).isEqualTo(0);
         }
     }
 
@@ -175,13 +164,15 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
             for (final String file : files) {
                 final MaxSATSolver solver = MaxSATSolver.linearSU(f, config);
                 MaxSATReader.readCnfToSolver(solver, "src/test/resources/maxsat/" + file);
-                Assertions.assertThat(solver.solve()).isEqualTo(OPTIMUM);
-                assertThat(solver.result()).isEqualTo(1);
+                final MaxSATResult result = solver.solve();
+                assertThat(result.isSatisfiable()).isTrue();
+                assertThat(result.getOptimum()).isEqualTo(1);
             }
             final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
             MaxSATReader.readCnfToSolver(solver, "src/test/resources/sat/9symml_gr_rcs_w6.shuffled.cnf");
-            Assertions.assertThat(solver.solve()).isEqualTo(OPTIMUM);
-            assertThat(solver.result()).isEqualTo(0);
+            final MaxSATResult result = solver.solve();
+            assertThat(result.isSatisfiable()).isTrue();
+            assertThat(result.getOptimum()).isEqualTo(0);
         }
     }
 
@@ -205,13 +196,15 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
             for (final String file : files) {
                 final MaxSATSolver solver = MaxSATSolver.linearUS(f, config);
                 MaxSATReader.readCnfToSolver(solver, "src/test/resources/maxsat/" + file);
-                Assertions.assertThat(solver.solve()).isEqualTo(OPTIMUM);
-                assertThat(solver.result()).isEqualTo(1);
+                final MaxSATResult result = solver.solve();
+                assertThat(result.isSatisfiable()).isTrue();
+                assertThat(result.getOptimum()).isEqualTo(1);
             }
             final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
             MaxSATReader.readCnfToSolver(solver, "src/test/resources/sat/9symml_gr_rcs_w6.shuffled.cnf");
-            Assertions.assertThat(solver.solve()).isEqualTo(OPTIMUM);
-            assertThat(solver.result()).isEqualTo(0);
+            final MaxSATResult result = solver.solve();
+            assertThat(result.isSatisfiable()).isTrue();
+            assertThat(result.getOptimum()).isEqualTo(0);
         }
     }
 
@@ -235,13 +228,15 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
             for (final String file : files) {
                 final MaxSATSolver solver = MaxSATSolver.msu3(f, config);
                 MaxSATReader.readCnfToSolver(solver, "src/test/resources/maxsat/" + file);
-                Assertions.assertThat(solver.solve()).isEqualTo(OPTIMUM);
-                assertThat(solver.result()).isEqualTo(1);
+                final MaxSATResult result = solver.solve();
+                assertThat(result.isSatisfiable()).isTrue();
+                assertThat(result.getOptimum()).isEqualTo(1);
             }
             final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
             MaxSATReader.readCnfToSolver(solver, "src/test/resources/sat/9symml_gr_rcs_w6.shuffled.cnf");
-            Assertions.assertThat(solver.solve()).isEqualTo(OPTIMUM);
-            assertThat(solver.result()).isEqualTo(0);
+            final MaxSATResult result = solver.solve();
+            assertThat(result.isSatisfiable()).isTrue();
+            assertThat(result.getOptimum()).isEqualTo(0);
         }
     }
 
@@ -251,13 +246,15 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         for (final String file : files) {
             final MaxSATSolver solver = MaxSATSolver.oll(f);
             MaxSATReader.readCnfToSolver(solver, "src/test/resources/maxsat/" + file);
-            Assertions.assertThat(solver.solve()).isEqualTo(OPTIMUM);
-            assertThat(solver.result()).isEqualTo(1);
+            final MaxSATResult result = solver.solve();
+            assertThat(result.isSatisfiable()).isTrue();
+            assertThat(result.getOptimum()).isEqualTo(1);
         }
         final MaxSATSolver solver = MaxSATSolver.oll(f);
         MaxSATReader.readCnfToSolver(solver, "src/test/resources/sat/9symml_gr_rcs_w6.shuffled.cnf");
-        Assertions.assertThat(solver.solve()).isEqualTo(OPTIMUM);
-        assertThat(solver.result()).isEqualTo(0);
+        final MaxSATResult result = solver.solve();
+        assertThat(result.isSatisfiable()).isTrue();
+        assertThat(result.getOptimum()).isEqualTo(0);
     }
 
     @Test
@@ -265,8 +262,9 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         final MaxSATSolver solver = MaxSATSolver.incWBO(f, MaxSATConfig.builder()
                 .cardinality(MaxSATConfig.CardinalityEncoding.MTOTALIZER).verbosity(SOME).output(logStream).build());
         readCnfToSolver(solver, "src/test/resources/maxsat/c-fat200-2.clq.cnf");
-        assertThat(solver.solve()).isEqualTo(OPTIMUM);
-        assertThat(solver.result()).isEqualTo(26);
+        final MaxSATResult result = solver.solve();
+        assertThat(result.isSatisfiable()).isTrue();
+        assertThat(result.getOptimum()).isEqualTo(26);
         final MaxSAT.Stats stats = solver.stats();
         assertThat(stats.bestSolution()).isEqualTo(26);
         assertThat(stats.unsatCalls()).isEqualTo(26);
@@ -294,30 +292,16 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         solver.addSoftFormula(p.parse("a"), 1);
         solver.addSoftFormula(p.parse("~y"), 1);
         solver.addSoftFormula(p.parse("z"), 1);
-        Assertions.assertThat(solver.solve()).isEqualTo(OPTIMUM);
-        assertThat(solver.result()).isEqualTo(3);
-        final Assignment model = solver.model();
+        final MaxSATResult result = solver.solve();
+        assertThat(result.isSatisfiable()).isTrue();
+        assertThat(result.getOptimum()).isEqualTo(3);
+        final Model model = result.getModel();
         assertThat(model.size()).isEqualTo(8);
-        Assertions.assertThat(model.positiveVariables()).hasSize(1);
-        Assertions.assertThat(model.positiveVariables()).extracting(Variable::name).containsExactlyInAnyOrder("y");
-        Assertions.assertThat(model.negativeLiterals()).hasSize(7);
-        Assertions.assertThat(model.negativeVariables()).extracting(Variable::name).containsExactlyInAnyOrder("a", "b",
+        assertThat(model.positiveVariables()).hasSize(1);
+        assertThat(model.positiveVariables()).extracting(Variable::name).containsExactlyInAnyOrder("y");
+        assertThat(model.negativeLiterals()).hasSize(7);
+        assertThat(model.negativeVariables()).extracting(Variable::name).containsExactlyInAnyOrder("a", "b",
                 "c", "d", "e", "x", "z");
-    }
-
-    @Test
-    public void testIllegalModel() throws ParserException {
-        final MaxSATSolver solver = MaxSATSolver.incWBO(f, MaxSATConfig.builder()
-                .cardinality(MaxSATConfig.CardinalityEncoding.MTOTALIZER).verbosity(SOME).output(logStream).build());
-        final PropositionalParser p = new PropositionalParser(f);
-        solver.addSoftFormula(p.parse("a => b"), 1);
-        solver.addSoftFormula(p.parse("b => c"), 1);
-        solver.addSoftFormula(p.parse("c => d"), 1);
-        solver.addSoftFormula(p.parse("d => e"), 1);
-        solver.addSoftFormula(p.parse("a => x"), 1);
-        solver.addSoftFormula(p.parse("~e"), 1);
-        solver.addSoftFormula(p.parse("~x"), 1);
-        assertThatThrownBy(solver::model).isInstanceOf(IllegalStateException.class);
     }
 
     @Test
@@ -330,7 +314,9 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         solvers[4] = MaxSATSolver.wbo(f);
         solvers[5] = MaxSATSolver.wmsu3(f);
 
-        final String expected = "MaxSATSolver{result=OPTIMUM, var2index={@SEL_SOFT_0=2, @SEL_SOFT_1=3, a=0, b=1}}";
+        final String expected = "MaxSATSolver{result=ComputationResult{" +
+                "result=MaxSATResult{satisfiable=true, optimum=1, model=Model{literals=[~a, ~b]}}, " +
+                "cancelCause=null}, var2index={@SEL_SOFT_0=2, @SEL_SOFT_1=3, a=0, b=1}}";
 
         for (int i = 0; i < solvers.length; i++) {
             final MaxSATSolver solver = solvers[i];

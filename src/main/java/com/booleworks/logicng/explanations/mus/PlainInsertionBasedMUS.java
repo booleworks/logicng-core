@@ -4,11 +4,12 @@
 
 package com.booleworks.logicng.explanations.mus;
 
-import com.booleworks.logicng.datastructures.Tristate;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.MUS_COMPUTATION_STARTED;
+
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.Handler;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.SATSolver;
 
@@ -23,9 +24,12 @@ import java.util.List;
 public class PlainInsertionBasedMUS extends MUSAlgorithm {
 
     @Override
-    public <T extends Proposition> UNSATCore<T> computeMUS(final FormulaFactory f, final List<T> propositions,
-                                                           final MUSConfig config) {
-        Handler.start(config.handler);
+    public <T extends Proposition> LNGResult<UNSATCore<T>> computeMUS(
+            final FormulaFactory f, final List<T> propositions,
+            final MUSConfig config, final ComputationHandler handler) {
+        if (!handler.shouldResume(MUS_COMPUTATION_STARTED)) {
+            return LNGResult.canceled(MUS_COMPUTATION_STARTED);
+        }
         final List<T> currentFormula = new ArrayList<>(propositions.size());
         currentFormula.addAll(propositions);
         final List<T> mus = new ArrayList<>(propositions.size());
@@ -37,7 +41,14 @@ public class PlainInsertionBasedMUS extends MUSAlgorithm {
                 solver.add(p);
             }
             int count = currentFormula.size();
-            while (shouldProceed(solver, config.handler)) {
+            while (true) {
+                final LNGResult<Boolean> sat = solver.satCall().handler(handler).sat();
+                if (!sat.isSuccess()) {
+                    return LNGResult.canceled(sat.getCancelCause());
+                }
+                if (!sat.getResult()) {
+                    break;
+                }
                 if (count == 0) {
                     throw new IllegalArgumentException("Cannot compute a MUS for a satisfiable formula set.");
                 }
@@ -46,9 +57,6 @@ public class PlainInsertionBasedMUS extends MUSAlgorithm {
                 transitionProposition = removeProposition;
                 solver.add(removeProposition);
             }
-            if (Handler.aborted(config.handler)) {
-                return null;
-            }
             currentFormula.clear();
             currentFormula.addAll(currentSubset);
             if (transitionProposition != null) {
@@ -56,11 +64,7 @@ public class PlainInsertionBasedMUS extends MUSAlgorithm {
                 mus.add(transitionProposition);
             }
         }
-        return new UNSATCore<>(mus, true);
+        return LNGResult.of(new UNSATCore<>(mus, true));
     }
 
-    private static boolean shouldProceed(final SATSolver solver, final SATHandler handler) {
-        final boolean sat = solver.satCall().handler(handler).sat() == Tristate.TRUE;
-        return sat && !Handler.aborted(handler);
-    }
 }

@@ -1,0 +1,43 @@
+package com.booleworks.logicng.handlers.events;
+
+import com.booleworks.logicng.handlers.ComputationHandler;
+
+/**
+ * A class for {@link LNGEvent}s which indicate the end of a computation.
+ * By convention, these events are instantiated as {@code static final} fields
+ * s.t. they can be checked in {@link ComputationHandler handlers} by using
+ * referential equality.
+ * <p>
+ * The {@link #computationType} should only be used for debugging purposes.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+public class ComputationFinishedEvent implements LNGEvent {
+
+    public static final ComputationFinishedEvent SAT_CALL_FINISHED = new ComputationFinishedEvent("SAT Call");
+    public static final ComputationFinishedEvent MAX_SAT_CALL_FINISHED = new ComputationFinishedEvent("MaxSAT Call");
+
+    private final String computationType;
+
+    /**
+     * Creates a new event for the given computation type.
+     * @param computationType the computation type
+     */
+
+    public ComputationFinishedEvent(final String computationType) {
+        this.computationType = computationType;
+    }
+
+    /**
+     * Returns the computation type.
+     * @return the computation type
+     */
+    public String getComputationType() {
+        return computationType;
+    }
+
+    @Override
+    public String toString() {
+        return "Event: Finished " + computationType;
+    }
+}

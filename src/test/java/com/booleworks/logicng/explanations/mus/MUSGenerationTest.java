@@ -13,12 +13,12 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.BoundedSatHandler;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.propositions.StandardProposition;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.testutils.PigeonHoleGenerator;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
@@ -70,7 +70,7 @@ public class MUSGenerationTest {
         final StandardProposition proposition = new StandardProposition(f.variable("a"));
         assertThatThrownBy(() -> mus.computeMUS(f, Collections.singletonList(proposition),
                 MUSConfig.builder().algorithm(MUSConfig.Algorithm.DELETION).build()))
-                        .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class MUSGenerationTest {
         final StandardProposition proposition = new StandardProposition(f.variable("a"));
         assertThatThrownBy(() -> mus.computeMUS(f, Collections.singletonList(proposition),
                 MUSConfig.builder().algorithm(MUSConfig.Algorithm.PLAIN_INSERTION).build()))
-                        .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -130,14 +130,10 @@ public class MUSGenerationTest {
                         .map(StandardProposition::new)
                         .collect(Collectors.toList());
         for (int numStarts = 0; numStarts < 20; numStarts++) {
-            final SATHandler handler = new BoundedSatHandler(numStarts);
-            final MUSConfig config =
-                    MUSConfig.builder().handler(handler).algorithm(MUSConfig.Algorithm.PLAIN_INSERTION).build();
-
-            final UNSATCore<StandardProposition> result = mus.computeMUS(f, propositions, config);
-
-            assertThat(handler.aborted()).isTrue();
-            assertThat(result).isNull();
+            final BoundedSatHandler handler = new BoundedSatHandler(numStarts);
+            final MUSConfig config = MUSConfig.builder().algorithm(MUSConfig.Algorithm.PLAIN_INSERTION).build();
+            final LNGResult<UNSATCore<StandardProposition>> result = mus.computeMUS(f, propositions, config, handler);
+            assertThat(result.isSuccess()).isFalse();
         }
     }
 
@@ -152,13 +148,10 @@ public class MUSGenerationTest {
                 Arrays.asList(MUSConfig.Algorithm.DELETION, MUSConfig.Algorithm.PLAIN_INSERTION);
         for (final MUSConfig.Algorithm algorithm : algorithms) {
             for (int numStarts = 0; numStarts < 10; numStarts++) {
-                final SATHandler handler = new BoundedSatHandler(numStarts);
-                final MUSConfig config = MUSConfig.builder().handler(handler).algorithm(algorithm).build();
-
-                final UNSATCore<StandardProposition> result = mus.computeMUS(f, propositions, config);
-
-                assertThat(handler.aborted()).isTrue();
-                assertThat(result).isNull();
+                final ComputationHandler handler = new BoundedSatHandler(numStarts);
+                final MUSConfig config = MUSConfig.builder().algorithm(algorithm).build();
+                final LNGResult<UNSATCore<StandardProposition>> result = mus.computeMUS(f, propositions, config, handler);
+                assertThat(result.isSuccess()).isFalse();
             }
         }
     }
@@ -196,9 +189,9 @@ public class MUSGenerationTest {
         final SATSolver solver = SATSolver.newSolver(f);
         for (final StandardProposition p : mus.propositions()) {
             assertThat(original.contains(p)).isTrue();
-            Assertions.assertThat(solver.sat()).isTrue();
+            assertThat(solver.sat()).isTrue();
             solver.add(p);
         }
-        Assertions.assertThat(solver.sat()).isFalse();
+        assertThat(solver.sat()).isFalse();
     }
 }

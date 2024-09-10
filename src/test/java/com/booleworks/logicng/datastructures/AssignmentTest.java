@@ -59,26 +59,6 @@ public class AssignmentTest extends TestWithFormulaContext {
                 .isEqualTo(_c.p.parse("a & b & ~x & ~y"));
     }
 
-    @ParameterizedTest
-    @MethodSource("contexts")
-    public void testBlockingClause(final FormulaContext _c) throws ParserException {
-        final Assignment ass = new Assignment();
-        ass.addLiteral(_c.a);
-        ass.addLiteral(_c.b);
-        ass.addLiteral(_c.nx);
-        ass.addLiteral(_c.ny);
-        final Formula bc01 = ass.blockingClause(_c.f);
-        assertThat(bc01.containsVariable(_c.c)).isFalse();
-        assertThat(bc01).isEqualTo(_c.f.parse("~a | ~b | x | y"));
-        final Formula bc02 = ass.blockingClause(_c.f, null);
-        assertThat(bc02.containsVariable(_c.c)).isFalse();
-        assertThat(bc02).isEqualTo(_c.f.parse("~a | ~b | x | y"));
-        final List<Literal> lits = Arrays.asList(_c.a, _c.x, _c.c);
-        final Formula bcProjected = ass.blockingClause(_c.f, lits);
-        assertThat(bcProjected.containsVariable(_c.c)).isFalse();
-        assertThat(bcProjected).isEqualTo(_c.f.parse("~a | x"));
-    }
-
     @Test
     public void testCreators() {
         assertThat(new Assignment(Arrays.asList(c.a, c.b, c.x, c.y))).isNotNull();

@@ -175,7 +175,7 @@ public class SubformulaTest extends TestWithFormulaContext {
         expected.add(_c.p.parse("(~x | y) & (x | ~z)"));
         expected.add(_c.p.parse("a => (~x | y) & (x | ~z)"));
         expected.add(_c.p.parse("((a & ~b & c) | (d & (~e | c))) & (a => (~x | y) & (x | ~z))"));
-        Assertions.assertThat(f1.apply(new SubNodeFunction(_c.f))).isEqualTo(expected);
+        assertThat(f1.apply(new SubNodeFunction(_c.f))).isEqualTo(expected);
     }
 
     @Test

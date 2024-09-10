@@ -4,41 +4,29 @@
 
 package com.booleworks.logicng.solvers.functions.modelenumeration;
 
-import com.booleworks.logicng.handlers.ModelEnumerationHandler;
-import com.booleworks.logicng.handlers.SATHandler;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
+import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
+import com.booleworks.logicng.handlers.events.LNGEvent;
+import com.booleworks.logicng.handlers.events.SimpleEvent;
 
-public final class EnumerationCollectorTestHandler implements ModelEnumerationHandler {
+public final class EnumerationCollectorTestHandler implements ComputationHandler {
 
     private int foundModels;
     private int commitCalls;
     private int rollbackCalls;
 
     @Override
-    public void started() {
-        ModelEnumerationHandler.super.started();
-        foundModels = 0;
-    }
-
-    @Override
-    public SATHandler satHandler() {
-        return null;
-    }
-
-    @Override
-    public boolean foundModels(final int numberOfModels) {
-        foundModels += numberOfModels;
-        return true;
-    }
-
-    @Override
-    public boolean commit() {
-        ++commitCalls;
-        return true;
-    }
-
-    @Override
-    public boolean rollback() {
-        ++rollbackCalls;
+    public boolean shouldResume(final LNGEvent event) {
+        if (event == ComputationStartedEvent.MODEL_ENUMERATION_STARTED) {
+            foundModels = 0;
+        } else if (event instanceof EnumerationFoundModelsEvent) {
+            foundModels += ((EnumerationFoundModelsEvent) event).getNumberOfModels();
+        } else if (event == SimpleEvent.MODEL_ENUMERATION_COMMIT) {
+            ++commitCalls;
+        } else if (event == SimpleEvent.MODEL_ENUMERATION_ROLLBACK) {
+            ++rollbackCalls;
+        }
         return true;
     }
 
