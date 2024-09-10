@@ -88,7 +88,7 @@ public class BDDKernel {
     protected final SortedMap<Variable, Integer> var2idx;
     protected final SortedMap<Integer, Variable> idx2var;
 
-    protected BDDReordering reordering;
+    protected final BDDReordering reordering;
 
     protected int[] nodes; // All the bdd nodes
     protected int[] vars; // Set of defined BDD variables

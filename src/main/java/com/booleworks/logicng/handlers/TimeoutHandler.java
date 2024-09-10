@@ -14,7 +14,7 @@ import com.booleworks.logicng.handlers.events.LNGEvent;
  */
 public class TimeoutHandler implements ComputationHandler {
 
-    protected long timeout;
+    protected final long timeout;
     protected final TimerType type;
     protected long designatedEnd;
 
@@ -69,7 +69,7 @@ public class TimeoutHandler implements ComputationHandler {
     /**
      * Tests if the current time exceeds the timeout limit.
      * @return {@code true} if the current time exceeds the timeout limit,
-     *         otherwise {@code false}
+     * otherwise {@code false}
      */
     private boolean timeLimitExceeded() {
         return designatedEnd > 0 && System.currentTimeMillis() >= designatedEnd;

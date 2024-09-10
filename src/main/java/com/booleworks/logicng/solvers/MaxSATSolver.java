@@ -54,7 +54,7 @@ public class MaxSATSolver {
 
     protected final MaxSATConfig configuration;
     protected final Algorithm algorithm;
-    protected FormulaFactory f;
+    protected final FormulaFactory f;
     protected LNGResult<MaxSATResult> result;
     protected MaxSAT solver;
     protected SortedMap<Variable, Integer> var2index;
@@ -373,7 +373,7 @@ public class MaxSATSolver {
      * Solves the formula on the solver and returns the result.
      * @param handler a MaxSAT handler
      * @return the result (SAT, UNSAT, Optimum found, or UNDEF if canceled by
-     *         the handler)
+     * the handler)
      */
     public LNGResult<MaxSATResult> solve(final ComputationHandler handler) {
         if (result != null && result.isSuccess()) {
