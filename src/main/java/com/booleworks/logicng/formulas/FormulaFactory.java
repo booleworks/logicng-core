@@ -12,7 +12,9 @@ import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFacto
 import com.booleworks.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
 import com.booleworks.logicng.formulas.printer.FormulaStringRepresentation;
 import com.booleworks.logicng.functions.SubNodeFunction;
+import com.booleworks.logicng.io.parsers.FormulaParser;
 import com.booleworks.logicng.io.parsers.ParserException;
+import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
@@ -49,6 +51,7 @@ import java.util.stream.Collectors;
  */
 public abstract class FormulaFactory {
 
+    protected FormulaParser parser;
     protected final String name;
     protected final FormulaStringRepresentation stringRepresentation;
     protected final FormulaFactoryConfig.FormulaMergeStrategy formulaMergeStrategy;
@@ -93,7 +96,8 @@ public abstract class FormulaFactory {
         auxVarCounters = new ConcurrentHashMap<>();
         clear();
         subformulaFunction = new SubNodeFunction(this);
-        auxVarPrefix = "@AUX_" + this.name + "_";
+        auxVarPrefix = "@AUX_" + name + "_";
+        parser = new PropositionalParser(this);
         readOnly = false;
     }
 
@@ -723,7 +727,7 @@ public abstract class FormulaFactory {
      * @param coefficients the coefficients or {@code null} if there are no
      *                     coefficients to test
      * @return {@code true} if the given pseudo-Boolean constraint is a
-     *         cardinality constraint, otherwise {@code false}
+     * cardinality constraint, otherwise {@code false}
      */
     private static boolean isCC(final CType comparator, final int rhs, final Collection<? extends Literal> literals,
                                 final List<Integer> coefficients) {
@@ -752,7 +756,7 @@ public abstract class FormulaFactory {
      * @param comparator the comparator
      * @param rhs        the right-hand side
      * @return {@code true} if the trivial case is a tautology, {@code false} if
-     *         the trivial case is a contradiction
+     * the trivial case is a contradiction
      */
     private static boolean evaluateTrivialPBConstraint(final CType comparator, final int rhs) {
         switch (comparator) {
@@ -910,12 +914,27 @@ public abstract class FormulaFactory {
     }
 
     /**
+     * Sets a formula parser for this factory.  By default, this will be the
+     * included JavaCC-based formula parser.  But you could replace with an
+     * ANTLR-based parser or your application-specific parser.
+     * @param parser the formula parser
+     */
+    public void setParser(final FormulaParser parser) {
+        this.parser = parser;
+    }
+
+    /**
      * Parses a given string to a formula using a pseudo boolean parser.
      * @param string a string representing the formula
      * @return the formula
      * @throws ParserException if the parser throws an exception
      */
-    public abstract Formula parse(final String string) throws ParserException;
+    public Formula parse(final String string) throws ParserException {
+        if (readOnly) {
+            throwReadOnlyException();
+        }
+        return parser.parse(string);
+    }
 
     /**
      * Adds a given formula to a list of operands. If the formula is the neutral
@@ -966,7 +985,7 @@ public abstract class FormulaFactory {
      * @param formulas the list of formulas
      * @param formula  the formula
      * @return {@code true} if a given list of formulas contains a given
-     *         formula, {@code false} otherwise
+     * formula, {@code false} otherwise
      */
     private boolean containsComplement(final LinkedHashSet<Formula> formulas, final Formula formula) {
         if (!simplifyComplementaryOperands) {
@@ -981,7 +1000,7 @@ public abstract class FormulaFactory {
      * otherwise {@code null} is returned.
      * @param formula the formula
      * @return the negated formula if the negation exists in the cache,
-     *         otherwise {@code null}
+     * otherwise {@code null}
      */
     protected abstract Formula negateOrNull(final Formula formula);
 

@@ -150,7 +150,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
                     new TimeoutHandler(System.currentTimeMillis() + 1L, FIXED_END)
             );
             final Formula formula =
-                    FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+                    FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
             for (final TimeoutHandler handler : handlers) {
                 testHandler(handler, formula, compiler.first(), compiler.second(), true);
             }

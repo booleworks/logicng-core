@@ -292,7 +292,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                                          final String solverDescription)
             throws IOException, ParserException {
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
         final List<Variable> variables = randomSubset(formula.variables(f), 300);
         final LNGResult<Model> minimumModel = optimize(Collections.singleton(formula), variables,
                 Collections.emptyList(), false, solver.apply(f), NopHandler.get());
@@ -306,7 +306,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                                          final String solverDescription)
             throws IOException, ParserException {
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
         final LNGResult<Model> maximumModel = optimize(Collections.singleton(formula),
                 formula.variables(f), Collections.emptyList(), true, solver.apply(f), NopHandler.get());
         testMaximumModel(formula, maximumModel, formula.variables(f));
@@ -319,7 +319,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                                           final String solverDescription)
             throws IOException, ParserException {
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/small_formulas.txt");
         final LNGResult<Model> minimumModel = optimize(Collections.singleton(formula),
                 formula.variables(f), Collections.emptyList(), false, solver.apply(f), NopHandler.get());
         testMinimumModel(formula, minimumModel, formula.variables(f));
@@ -332,7 +332,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                                           final String solverDescription)
             throws IOException, ParserException {
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/small_formulas.txt");
         final List<Variable> variables = randomSubset(formula.variables(f), 300);
         final LNGResult<Model> maximumModel = optimize(Collections.singleton(formula), variables,
                 Collections.emptyList(), true, solver.apply(f), NopHandler.get());
@@ -375,7 +375,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
                                                final String solverDescription)
             throws IOException, ParserException {
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
         final TimeoutHandler handlerMax = new TimeoutHandler(1L);
         final LNGResult<Model> maximumModel = optimize(Collections.singleton(formula),
                 formula.variables(f), Collections.emptyList(), true, solver.apply(f), handlerMax);

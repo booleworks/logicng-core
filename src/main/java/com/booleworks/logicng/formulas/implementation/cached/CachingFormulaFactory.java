@@ -23,8 +23,6 @@ import com.booleworks.logicng.formulas.Or;
 import com.booleworks.logicng.formulas.PBConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.formulas.cache.CacheEntry;
-import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.HashMap;
@@ -35,7 +33,6 @@ import java.util.Objects;
 
 public class CachingFormulaFactory extends FormulaFactory {
 
-    private final PropositionalParser parser;
     Map<String, Variable> posLiterals;
     Map<String, Literal> negLiterals;
     Map<Formula, Not> nots;
@@ -71,7 +68,6 @@ public class CachingFormulaFactory extends FormulaFactory {
         super(config);
         cFalse = new LngCachedFalse(this);
         cTrue = new LngCachedTrue(this);
-        parser = new PropositionalParser(this);
         clear();
     }
 
@@ -438,14 +434,6 @@ public class CachingFormulaFactory extends FormulaFactory {
         pbEncodingCache = new HashMap<>();
     }
 
-    @Override
-    public Formula parse(final String string) throws ParserException {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        return parser.parse(string);
-    }
-
     /**
      * Returns the statistics for this formula factory.
      * @return the statistics for this formula factory
@@ -731,7 +719,7 @@ public class CachingFormulaFactory extends FormulaFactory {
          * Returns the number of generated cardinality constraint auxiliary
          * variables.
          * @return the number of generated cardinality constraint auxiliary
-         *         variables
+         * variables
          */
         public int ccCounter() {
             return ccCounter;

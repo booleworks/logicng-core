@@ -14,13 +14,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * A reader for formulas.
- * <p>
- * Reads a formula from an input file. If the file has more than one line, the
- * lines will be co-joined.
+ * A reader for formula files.
  * @version 3.0.0
  * @since 1.2
  */
@@ -34,46 +32,106 @@ public final class FormulaReader {
     }
 
     /**
-     * Reads a given file and returns the contained propositional formula.
+     * Reads a given file and returns the contained formulas as a formula conjunction.
      * @param f        the formula factory
      * @param fileName the file name
      * @return the parsed formula
      * @throws IOException     if there was a problem reading the file
      * @throws ParserException if there was a problem parsing the formula
      */
-    public static Formula readPropositionalFormula(final FormulaFactory f, final String fileName)
-            throws IOException, ParserException {
-        return read(new File(fileName), new PropositionalParser(f));
+    public static Formula readFormula(final FormulaFactory f, final String fileName) throws IOException, ParserException {
+        return readFormula(new PropositionalParser(f), new File(fileName));
     }
 
     /**
-     * Reads a given file and returns the contained propositional formula.
+     * Reads a given file and returns the contained formulas as a formula conjunction.
      * @param f    the formula factory
      * @param file the file
      * @return the parsed formula
      * @throws IOException     if there was a problem reading the file
      * @throws ParserException if there was a problem parsing the formula
      */
-    public static Formula readPropositionalFormula(final FormulaFactory f, final File file)
-            throws IOException, ParserException {
-        return read(file, new PropositionalParser(f));
+    public static Formula readFormula(final FormulaFactory f, final File file) throws IOException, ParserException {
+        return readFormula(new PropositionalParser(f), file);
     }
 
     /**
-     * Internal read function.
-     * @param file   the file
-     * @param parser the parser
-     * @return the parsed formula
+     * Reads a given file and returns the contained formulas.
+     * @param f        the formula factory
+     * @param fileName the file name
+     * @return the parsed formulas
      * @throws IOException     if there was a problem reading the file
      * @throws ParserException if there was a problem parsing the formula
      */
-    private static Formula read(final File file, final FormulaParser parser) throws IOException, ParserException {
+    public static List<Formula> readFormulas(final FormulaFactory f, final String fileName) throws IOException, ParserException {
+        return readFormulas(new PropositionalParser(f), new File(fileName));
+    }
+
+    /**
+     * Reads a given file and returns the contained formulas.
+     * @param f    the formula factory
+     * @param file the file
+     * @return the parsed formulas
+     * @throws IOException     if there was a problem reading the file
+     * @throws ParserException if there was a problem parsing the formula
+     */
+    public static List<Formula> readFormulas(final FormulaFactory f, final File file) throws IOException, ParserException {
+        return readFormulas(new PropositionalParser(f), file);
+    }
+
+    /**
+     * Reads a given file and returns the contained formulas as a formula conjunction.
+     * @param parser   the parser
+     * @param fileName the file name
+     * @return the parsed formula
+     * @throws IOException     if there was a problem reading the file
+     * @throws ParserException if there was a problem parsing the formulas
+     */
+    public static Formula readFormula(final FormulaParser parser, final String fileName) throws IOException, ParserException {
+        return parser.factory().and(readFormulas(parser, fileName));
+    }
+
+    /**
+     * Reads a given file and returns the contained formulas as a formula conjunction.
+     * @param parser the parser
+     * @param file   the file
+     * @return the parsed formula
+     * @throws IOException     if there was a problem reading the file
+     * @throws ParserException if there was a problem parsing the formulas
+     */
+    public static Formula readFormula(final FormulaParser parser, final File file) throws IOException, ParserException {
+        return parser.factory().and(readFormulas(parser, file));
+    }
+
+    /**
+     * Reads a given file and returns the contained formulas.
+     * @param parser   the parser
+     * @param fileName the file name
+     * @return the parsed formulas
+     * @throws IOException     if there was a problem reading the file
+     * @throws ParserException if there was a problem parsing the formulas
+     */
+    public static List<Formula> readFormulas(final FormulaParser parser, final String fileName)
+            throws IOException, ParserException {
+        return readFormulas(parser, new File(fileName));
+    }
+
+    /**
+     * Reads a given file and returns the contained formulas.
+     * @param parser the parser
+     * @param file   the file
+     * @return the parsed formulas
+     * @throws IOException     if there was a problem reading the file
+     * @throws ParserException if there was a problem parsing the formulas
+     */
+    public static List<Formula> readFormulas(final FormulaParser parser, final File file)
+            throws IOException, ParserException {
+        final List<Formula> formulas = new ArrayList<>();
         try (final BufferedReader br = new BufferedReader(new FileReader(file))) {
-            final LinkedHashSet<Formula> ops = new LinkedHashSet<>();
             while (br.ready()) {
-                ops.add(parser.parse(br.readLine()));
+                formulas.add(parser.parse(br.readLine()));
             }
-            return parser.factory().and(ops);
         }
+        return formulas;
     }
 }

@@ -131,7 +131,7 @@ public class SATCallTest {
     @Test
     public void testHandler() throws IOException, ParserException {
         final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().proofGeneration(true).build());
-        solver.add(FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt"));
+        solver.add(FormulaReader.readFormula(f, "src/test/resources/formulas/small_formulas.txt"));
 
         try (final SATCall satCall = solver.satCall().handler(new MaxConflictsHandler(0)).solve()) {
             assertThat(satCall.getSatResult().isSuccess()).isFalse();
