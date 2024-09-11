@@ -63,7 +63,7 @@ public class ConnectedComponentsComputerTest {
     }
 
     @Test
-    public void graph60Test() throws IOException {
+    public void graph50Test() throws IOException {
         final Graph<Long> g = GraphTest.getLongGraph("50");
         for (long i = 0; i < 60; i++) {
             g.node(i);

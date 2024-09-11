@@ -4,7 +4,6 @@ import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.generateClauseVec
 
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.explanations.UNSATCore;
 import com.booleworks.logicng.formulas.FType;
@@ -25,7 +24,7 @@ import java.util.List;
  * Encapsulates the data used for a single SAT call to a {@link SATSolver}.
  * <p>
  * A SAT Solver is stateful and features like assumptions, selection order,
- * handler etc require manual housekeeping. This class aims to facilitate the
+ * handler etc. require manual housekeeping. This class aims to facilitate the
  * interaction with the SAT solver.
  * <p>
  * <b>There can never be more than one SAT call for the same SAT solver. You
@@ -117,7 +116,7 @@ public class SATCall implements AutoCloseable {
      * If the formula is UNSAT, {@code null} will be returned.
      * @param variables the set of variables
      * @return a model of the current formula or {@code null} if the SAT call
-     *         was unsatisfiable
+     * was unsatisfiable
      * @throws IllegalArgumentException if the given variables are {@code null}
      */
     public Model model(final Collection<Variable> variables) {

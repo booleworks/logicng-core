@@ -10,7 +10,7 @@ import com.booleworks.logicng.formulas.FormulaPredicate;
 import com.booleworks.logicng.formulas.Not;
 
 /**
- * Predicate to test if a formula contains any subformula that is a
+ * Predicate to test if a formula contains any sub-formula that is a
  * pseudo-Boolean constraint.
  * @version 3.0.0
  * @since 2.0.0

@@ -331,7 +331,7 @@ public abstract class MaxSAT {
 
     /**
      * Tests if the MaxSAT formula has lexicographical optimization criterion.
-     * @param cache is indicates whether the result should be cached.
+     * @param cache indicates whether the result should be cached.
      * @return {@code true} if the formula has lexicographical optimization
      * criterion
      */

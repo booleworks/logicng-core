@@ -44,7 +44,6 @@ public abstract class Subsumption extends StatelessFormulaTransformation {
      * @return the UBTree with the operands and deleted subsumed operands
      */
     protected UBTree<Literal> generateSubsumedUBTree(final Formula formula) {
-        //noinspection OptionalGetWithoutIsPresent
         return generateSubsumedUBTree(formula, NopHandler.get()).getResult();
     }
 

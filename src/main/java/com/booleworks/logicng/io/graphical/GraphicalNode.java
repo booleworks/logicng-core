@@ -45,7 +45,7 @@ public class GraphicalNode {
 
     /**
      * Returns the id of this node.
-     * @return the if of this node
+     * @return the id of this node
      */
     public String getId() {
         return id;

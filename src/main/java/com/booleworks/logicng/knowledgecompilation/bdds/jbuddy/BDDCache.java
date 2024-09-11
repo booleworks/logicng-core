@@ -34,12 +34,12 @@ package com.booleworks.logicng.knowledgecompilation.bdds.jbuddy;
 
 /**
  * BDD Cache.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.4.0
  */
 public class BDDCache {
     private final BDDPrime prime;
-    protected BDDCacheEntry[] table;
+    private BDDCacheEntry[] table;
 
     /**
      * Constructs a new BDD cache of a given size (number of entries in the
@@ -82,7 +82,7 @@ public class BDDCache {
      * @param hash the hash value.
      * @return the respective entry in the cache
      */
-    protected BDDCacheEntry lookup(final int hash) {
+    BDDCacheEntry lookup(final int hash) {
         return table[Math.abs(hash % table.length)];
     }
 }

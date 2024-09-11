@@ -176,7 +176,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
     }
 
     @Test
-    public void testLineaerSUBMO() throws IOException {
+    public void testLinearSUBMO() throws IOException {
         final MaxSATConfig[] configs = new MaxSATConfig[2];
         configs[0] = MaxSATConfig.builder().cardinality(MaxSATConfig.CardinalityEncoding.TOTALIZER).bmo(true)
                 .verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build();
