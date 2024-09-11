@@ -23,8 +23,8 @@ import java.util.Map;
 
 /**
  * A Plaisted-Greenbaum CNF conversion which is performed directly on the
- * internal SAT solver, not on a formula factory.
- * @version 2.0.0
+ * internal MaxSAT solver, not on a formula factory.
+ * @version 3.0.0
  * @since 1.6.0
  */
 public final class PlaistedGreenbaumTransformationMaxSATSolver {
@@ -36,7 +36,7 @@ public final class PlaistedGreenbaumTransformationMaxSATSolver {
     private final MaxSAT solver;
 
     /**
-     * Constructs a new transformation for a given SAT solver.
+     * Constructs a new transformation for a given MaxSAT solver.
      * @param f          the formula factory to generate new formulas
      * @param performNNF flag whether an NNF transformation should be
      *                   performed on the input formula

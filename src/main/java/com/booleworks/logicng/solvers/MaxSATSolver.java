@@ -5,7 +5,7 @@
 package com.booleworks.logicng.solvers;
 
 import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.FACTORY_CNF;
-import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.FULL_PG_ON_SOLVER;
+import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.PG_ON_SOLVER;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
@@ -102,7 +102,7 @@ public class MaxSATSolver {
         }
         pgTransformation = configuration.getCnfMethod() == FACTORY_CNF
                 ? null
-                : new PlaistedGreenbaumTransformationMaxSATSolver(f, configuration.getCnfMethod() == FULL_PG_ON_SOLVER, solver);
+                : new PlaistedGreenbaumTransformationMaxSATSolver(f, configuration.getCnfMethod() == PG_ON_SOLVER, solver);
     }
 
     /**
@@ -362,7 +362,7 @@ public class MaxSATSolver {
      * Solves the formula on the solver and returns the result.
      * @param handler a MaxSAT handler
      * @return the result (SAT, UNSAT, Optimum found, or UNDEF if canceled by
-     *         the handler)
+     * the handler)
      */
     public LNGResult<MaxSATResult> solve(final ComputationHandler handler) {
         if (result != null && result.isSuccess()) {
