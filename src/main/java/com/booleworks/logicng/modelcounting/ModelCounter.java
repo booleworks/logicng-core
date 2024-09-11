@@ -17,7 +17,7 @@ import com.booleworks.logicng.graphs.generators.ConstraintGraphGenerator;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfFactory;
+import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfCompiler;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.Dnnf;
 import com.booleworks.logicng.knowledgecompilation.dnnf.functions.DnnfModelCountFunction;
 import com.booleworks.logicng.transformations.PureExpansionTransformation;
@@ -132,10 +132,9 @@ public final class ModelCounter {
         final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(f, formulas);
         final Set<Set<Node<Variable>>> ccs = ConnectedComponentsComputation.compute(constraintGraph);
         final List<List<Formula>> components = ConnectedComponentsComputation.splitFormulasByComponent(f, formulas, ccs);
-        final DnnfFactory factory = new DnnfFactory();
         BigInteger count = BigInteger.ONE;
         for (final List<Formula> component : components) {
-            final LNGResult<Dnnf> dnnf = factory.compile(f, f.and(component), handler);
+            final LNGResult<Dnnf> dnnf = DnnfCompiler.compile(f, f.and(component), handler);
             if (!dnnf.isSuccess()) {
                 return LNGResult.canceled(dnnf.getCancelCause());
             }
@@ -149,14 +148,14 @@ public final class ModelCounter {
         private final SortedSet<Variable> backboneVariables;
         private final FormulaFactory f;
 
-        public SimplificationResult(final FormulaFactory f, final SortedSet<Variable> backboneVariables,
+        private SimplificationResult(final FormulaFactory f, final SortedSet<Variable> backboneVariables,
                                     final List<Formula> simplifiedFormulas) {
             this.simplifiedFormulas = simplifiedFormulas;
             this.backboneVariables = backboneVariables;
             this.f = f;
         }
 
-        public SortedSet<Variable> getDontCareVariables(final SortedSet<Variable> variables) {
+        private SortedSet<Variable> getDontCareVariables(final SortedSet<Variable> variables) {
             final SortedSet<Variable> dontCareVariables = new TreeSet<>(variables);
             dontCareVariables.removeAll(FormulaHelper.variables(f, simplifiedFormulas));
             dontCareVariables.removeAll(backboneVariables);

@@ -10,12 +10,20 @@ import static com.booleworks.logicng.handlers.events.SimpleEvent.DNNF_SHANNON_EX
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.Dnnf;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTree;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeNode;
+import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.MinFillDTreeGenerator;
+import com.booleworks.logicng.predicates.satisfiability.SATPredicate;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.transformations.cnf.CNFSubsumption;
+import com.booleworks.logicng.transformations.simplification.BackboneSimplifier;
+import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +32,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Implementation of a DNNF compiler based on ideas by Adnan Darwiche in "New
@@ -55,8 +65,9 @@ public class DnnfCompiler {
      * @param originalCnf    the formula to compile
      * @param unitClauses    the unit clauses of the cnf
      * @param nonUnitClauses the non-unit clauses of the cnf
+     * @param maxClauseSize  the maximum clause size of the non-unit clauses
      */
-    protected DnnfCompiler(final FormulaFactory f, final Formula originalCnf, final DTree tree, final Formula unitClauses, final Formula nonUnitClauses) {
+    protected DnnfCompiler(final FormulaFactory f, final Formula originalCnf, final Formula unitClauses, final Formula nonUnitClauses, final int maxClauseSize) {
         this.f = f;
         this.originalCnf = originalCnf;
         this.unitClauses = unitClauses;
@@ -65,12 +76,92 @@ public class DnnfCompiler {
         solver.add(this.originalCnf);
         numberOfVariables = this.originalCnf.variables(f).size();
         cache = new HashMap<>();
-        final int maxClauseSize = computeMaxClauseSize(this.originalCnf);
         leafResultOperands = new ArrayList<>(maxClauseSize);
         leafCurrentLiterals = new ArrayList<>(maxClauseSize);
     }
 
-    protected int computeMaxClauseSize(final Formula cnf) {
+    /**
+     * Compiles the given formula to a DNNF instance.
+     * @param formula the formula
+     * @return the compiled DNNF
+     */
+    public static Dnnf compile(final FormulaFactory f, final Formula formula) {
+        return compile(f, formula, NopHandler.get()).getResult();
+    }
+
+    /**
+     * Compiles the given formula to a DNNF instance.
+     * @param f       the formula factory to generate new formulas
+     * @param formula the formula
+     * @param handler the computation handler
+     * @return the compiled DNNF
+     */
+    public static LNGResult<Dnnf> compile(final FormulaFactory f, final Formula formula, final ComputationHandler handler) {
+        return prepareAndStartComputation(f, formula, handler);
+    }
+
+    private static LNGResult<Dnnf> prepareAndStartComputation(final FormulaFactory f, final Formula formula, final ComputationHandler handler) {
+        final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables(f));
+        final Formula cnf = formula.cnf(f);
+        originalVariables.addAll(cnf.variables(f));
+        final LNGResult<Formula> simplified = simplifyFormula(f, cnf, handler);
+        if (!simplified.isSuccess()) {
+            return LNGResult.canceled(simplified.getCancelCause());
+        }
+        final Formula simplifiedFormula = simplified.getResult();
+
+        final Pair<Formula, Formula> unitAndNonUnitClauses = splitCnfClauses(simplifiedFormula, f);
+        final Formula unitClauses = unitAndNonUnitClauses.first();
+        final Formula nonUnitClauses = unitAndNonUnitClauses.second();
+        if (nonUnitClauses.isAtomicFormula()) {
+            return LNGResult.of(new Dnnf(originalVariables, simplifiedFormula));
+        }
+        if (!simplifiedFormula.holds(new SATPredicate(f))) {
+            return LNGResult.of(new Dnnf(originalVariables, f.falsum()));
+        }
+        final LNGResult<DTree> dTreeResult = generateDTree(nonUnitClauses, f, handler);
+        if (!dTreeResult.isSuccess()) {
+            return LNGResult.canceled(dTreeResult.getCancelCause());
+        }
+        return new DnnfCompiler(f, simplifiedFormula, unitClauses, nonUnitClauses, computeMaxClauseSize(nonUnitClauses))
+                .start(dTreeResult.getResult(), originalVariables, handler);
+    }
+
+    protected static LNGResult<DTree> generateDTree(final Formula nonUnitClauses, final FormulaFactory f, final ComputationHandler handler) {
+        return new MinFillDTreeGenerator().generate(f, nonUnitClauses, handler);
+    }
+
+    protected static LNGResult<Formula> simplifyFormula(final FormulaFactory f, final Formula formula, final ComputationHandler handler) {
+        final LNGResult<Formula> backboneSimplified = formula.transform(new BackboneSimplifier(f), handler);
+        if (!backboneSimplified.isSuccess()) {
+            return LNGResult.canceled(backboneSimplified.getCancelCause());
+        }
+        return backboneSimplified.getResult().transform(new CNFSubsumption(f), handler);
+    }
+
+    protected static Pair<Formula, Formula> splitCnfClauses(final Formula originalCnf, final FormulaFactory f) {
+        final List<Formula> units = new ArrayList<>();
+        final List<Formula> nonUnits = new ArrayList<>();
+        switch (originalCnf.type()) {
+            case AND:
+                for (final Formula clause : originalCnf) {
+                    if (clause.isAtomicFormula()) {
+                        units.add(clause);
+                    } else {
+                        nonUnits.add(clause);
+                    }
+                }
+                break;
+            case OR:
+                nonUnits.add(originalCnf);
+                break;
+            default:
+                units.add(originalCnf);
+        }
+        return new Pair<>(f.and(units), f.and(nonUnits));
+    }
+
+    protected static int computeMaxClauseSize(final Formula cnf) {
         switch (cnf.type()) {
             case OR:
                 return cnf.numberOfOperands();
@@ -87,16 +178,18 @@ public class DnnfCompiler {
         }
     }
 
-    protected LNGResult<Formula> start(final DTree tree, final ComputationHandler handler) {
+    protected LNGResult<Dnnf> start(final DTree tree,
+                                    final SortedSet<Variable> originalVariables,
+                                    final ComputationHandler handler) {
         if (!solver.start()) {
-            return LNGResult.of(f.falsum());
+            return LNGResult.of(new Dnnf(originalVariables, f.falsum()));
         }
         tree.initialize(solver);
         initializeCaches(tree);
         if (!handler.shouldResume(DNNF_COMPUTATION_STARTED)) {
             return LNGResult.canceled(DNNF_COMPUTATION_STARTED);
         }
-        return cnf2Ddnnf(tree, handler).map(result -> f.and(unitClauses, result));
+        return cnf2Ddnnf(tree, handler).map(result -> new Dnnf(originalVariables, f.and(unitClauses, result)));
     }
 
     protected void initializeCaches(final DTree dTree) {

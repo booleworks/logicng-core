@@ -62,23 +62,23 @@ public class DnnfCompilerTest {
 
     @Test
     public void testTrivialFormulas() throws ParserException {
-        testFormula(f, parser.parse("$true"), true);
-        testFormula(f, parser.parse("$false"), true);
-        testFormula(f, parser.parse("a"), true);
-        testFormula(f, parser.parse("~a"), true);
-        testFormula(f, parser.parse("a & b"), true);
-        testFormula(f, parser.parse("a | b"), true);
-        testFormula(f, parser.parse("a => b"), true);
-        testFormula(f, parser.parse("a <=> b"), true);
-        testFormula(f, parser.parse("a | b | c"), true);
-        testFormula(f, parser.parse("a & b & c"), true);
-        testFormula(f, parser.parse("f & ((~b | c) <=> ~a & ~c)"), true);
-        testFormula(f, parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"), true);
-        testFormula(f, parser.parse("a + b + c + d <= 1"), true);
-        testFormula(f, parser.parse("a + b + c + d <= 3"), true);
-        testFormula(f, parser.parse("2*a + 3*b + -2*c + d < 5"), true);
-        testFormula(f, parser.parse("2*a + 3*b + -2*c + d >= 5"), true);
-        testFormula(f, parser.parse("~a & (~a | b | c | d)"), true);
+        testFormula(f, parser.parse("$true"));
+        testFormula(f, parser.parse("$false"));
+        testFormula(f, parser.parse("a"));
+        testFormula(f, parser.parse("~a"));
+        testFormula(f, parser.parse("a & b"));
+        testFormula(f, parser.parse("a | b"));
+        testFormula(f, parser.parse("a => b"));
+        testFormula(f, parser.parse("a <=> b"));
+        testFormula(f, parser.parse("a | b | c"));
+        testFormula(f, parser.parse("a & b & c"));
+        testFormula(f, parser.parse("f & ((~b | c) <=> ~a & ~c)"));
+        testFormula(f, parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"));
+        testFormula(f, parser.parse("a + b + c + d <= 1"));
+        testFormula(f, parser.parse("a + b + c + d <= 3"));
+        testFormula(f, parser.parse("2*a + 3*b + -2*c + d < 5"));
+        testFormula(f, parser.parse("2*a + 3*b + -2*c + d >= 5"));
+        testFormula(f, parser.parse("~a & (~a | b | c | d)"));
     }
 
     @Test
@@ -86,20 +86,20 @@ public class DnnfCompilerTest {
     public void testLargeFormulas() throws IOException {
         final FormulaFactory f = FormulaFactory.caching();
         List<Formula> dimacs = DimacsReader.readCNF(f, "src/test/resources/dnnf/both_bdd_dnnf_1.cnf");
-        testFormula(f, f.cnf(dimacs), true);
+        testFormula(f, f.cnf(dimacs));
         dimacs = DimacsReader.readCNF(f, "src/test/resources/dnnf/both_bdd_dnnf_2.cnf");
-        testFormula(f, f.cnf(dimacs), true);
+        testFormula(f, f.cnf(dimacs));
         dimacs = DimacsReader.readCNF(f, "src/test/resources/dnnf/both_bdd_dnnf_3.cnf");
-        testFormula(f, f.cnf(dimacs), true);
+        testFormula(f, f.cnf(dimacs));
         dimacs = DimacsReader.readCNF(f, "src/test/resources/dnnf/both_bdd_dnnf_4.cnf");
-        testFormula(f, f.cnf(dimacs), true);
+        testFormula(f, f.cnf(dimacs));
         dimacs = DimacsReader.readCNF(f, "src/test/resources/dnnf/both_bdd_dnnf_5.cnf");
-        testFormula(f, f.cnf(dimacs), true);
+        testFormula(f, f.cnf(dimacs));
     }
 
     @Test
     public void testDnnfProperties() throws ParserException {
-        final Dnnf dnnf = DnnfFactory.compile(f, parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"));
+        final Dnnf dnnf = DnnfCompiler.compile(f, parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"));
         assertThat(dnnf.getOriginalVariables()).extracting(Variable::name)
                 .containsExactlyInAnyOrder("a", "b", "c", "d", "e");
     }
@@ -110,7 +110,7 @@ public class DnnfCompilerTest {
         f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
         final Formula parsed = FormulaReader.readFormula(f, "src/test/resources/formulas/formula1.txt");
         final DnnfComputationHandler handler = new DnnfComputationHandler();
-        final LNGResult<Dnnf> dnnf = DnnfFactory.compile(f, parsed, handler);
+        final LNGResult<Dnnf> dnnf = DnnfCompiler.compile(f, parsed, handler);
         assertThat(dnnf.isSuccess()).isTrue();
         assertThat(handler.eventCounter).containsExactly(
                 entry(BACKBONE_COMPUTATION_STARTED, 1),
@@ -133,7 +133,7 @@ public class DnnfCompilerTest {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
         final Formula parsed = FormulaReader.readFormula(f, "src/test/resources/formulas/formula1.txt");
-        Dnnf dnnf = DnnfFactory.compile(f, parsed);
+        Dnnf dnnf = DnnfCompiler.compile(f, parsed);
         final BigInteger dnnfCount = dnnf.execute(new DnnfModelCountFunction(f));
         final List<Formula> formulas = new ArrayList<>();
         final List<Formula> originalFormulas = new ArrayList<>();
@@ -151,19 +151,17 @@ public class DnnfCompilerTest {
                 ConnectedComponentsComputation.splitFormulasByComponent(f, originalFormulas, ccs);
         BigInteger multipliedCount = BigInteger.ONE;
         for (final List<Formula> component : split) {
-            dnnf = DnnfFactory.compile(f, f.and(component));
+            dnnf = DnnfCompiler.compile(f, f.and(component));
             multipliedCount = multipliedCount.multiply(dnnf.execute(new DnnfModelCountFunction(f)));
         }
         assertThat(dnnfCount).isEqualTo(multipliedCount);
     }
 
-    private void testFormula(final FormulaFactory f, final Formula formula, final boolean withEquivalence) {
-        final Dnnf dnnf = DnnfFactory.compile(f, formula);
+    private void testFormula(final FormulaFactory f, final Formula formula) {
+        final Dnnf dnnf = DnnfCompiler.compile(f, formula);
         final BigInteger dnnfCount = dnnf.execute(new DnnfModelCountFunction(f));
-        if (withEquivalence) {
-            final Formula equivalence = f.equivalence(formula, dnnf.formula());
-            assertThat(equivalence.holds(new TautologyPredicate(formula.factory()))).isTrue();
-        }
+        final Formula equivalence = f.equivalence(formula, dnnf.formula());
+        assertThat(equivalence.holds(new TautologyPredicate(formula.factory()))).isTrue();
         final BigInteger bddCount = countWithBdd(formula);
         assertThat(dnnfCount).isEqualTo(bddCount);
     }
