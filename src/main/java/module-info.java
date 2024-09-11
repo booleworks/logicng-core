@@ -1,7 +1,4 @@
 module logicng {
-    requires org.antlr.antlr4.runtime;
-    requires java.xml;
-
     exports com.booleworks.logicng.backbones;
 
     exports com.booleworks.logicng.encodings;

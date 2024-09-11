@@ -4,8 +4,14 @@
 
 package com.booleworks.logicng.io.parsers;
 
+import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import org.antlr.v4.runtime.CommonTokenStream;
+import com.booleworks.logicng.io.parsers.javacc.BooleanFormulaParser;
+import com.booleworks.logicng.io.parsers.javacc.ParseException;
+import com.booleworks.logicng.io.parsers.javacc.TokenMgrError;
+
+import java.io.InputStream;
+import java.io.StringReader;
 
 /**
  * A parser for propositional (including pseudo-Boolean) formulas.
@@ -44,17 +50,51 @@ import org.antlr.v4.runtime.CommonTokenStream;
  * @version 2.4.1
  * @since 1.0
  */
-public final class PropositionalParser extends FormulaParser {
+public final class PropositionalParser implements FormulaParser {
+
+    private final BooleanFormulaParser parser;
 
     /**
      * Constructs a new parser for pseudo boolean formulas.
      * @param f the formula factory
      */
     public PropositionalParser(final FormulaFactory f) {
-        super(f);
-        final PropositionalLexer lexer = new PropositionalLexer(null);
-        final CommonTokenStream tokens = new CommonTokenStream(lexer);
-        final ParserWithFormula parser = new LogicNGPropositionalParser(tokens);
-        setLexerAndParser(lexer, parser);
+        parser = new BooleanFormulaParser(new StringReader(""));
+        parser.setFactory(f);
+    }
+
+    @Override
+    public Formula parse(final InputStream inStream) throws ParserException {
+        if (inStream == null) {
+            return parser.getFactory().verum();
+        }
+        try {
+            parser.ReInit(inStream);
+            return parser.formula();
+        } catch (final TokenMgrError e) {
+            throw new ParserException("lexer error", e);
+        } catch (final ParseException e) {
+            throw new ParserException("parser error", e);
+        }
+    }
+
+    @Override
+    public Formula parse(final String input) throws ParserException {
+        if (input == null || input.isBlank()) {
+            return parser.getFactory().verum();
+        }
+        try {
+            parser.ReInit(new StringReader(input));
+            return parser.formula();
+        } catch (final TokenMgrError e) {
+            throw new ParserException("lexer error", e);
+        } catch (final ParseException e) {
+            throw new ParserException("parser error", e);
+        }
+    }
+
+    @Override
+    public FormulaFactory factory() {
+        return parser.getFactory();
     }
 }

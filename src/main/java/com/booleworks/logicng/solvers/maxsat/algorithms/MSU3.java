@@ -174,7 +174,7 @@ public class MSU3 extends MaxSAT {
     protected LNGResult<InternalMaxSATResult> iterative(final ComputationHandler handler) {
         if (encoder.cardEncoding() != CardinalityEncoding.TOTALIZER) {
             throw new IllegalStateException(
-                    "Error: Currently algorithm MSU3 with iterative encoding only  supports the totalizer encoding.");
+                    "Error: Currently algorithm MSU3 with iterative encoding only supports the totalizer encoding.");
         }
         nbInitialVariables = nVars();
         final LNGIntVector objFunction = new LNGIntVector();

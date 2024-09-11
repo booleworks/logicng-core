@@ -93,7 +93,7 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
      * Returns the sorted string representation of the given formula.
      * @param formula the formula
      * @return the sorted string representation of the formula with regard to
-     *         the variable ordering
+     * the variable ordering
      */
     @Override
     public String toInnerString(final Formula formula) {
@@ -194,7 +194,7 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
                 sb.append(sortedOperands.get(i)).append(add);
             }
         }
-        if (sortedOperands.size() > 0) {
+        if (!sortedOperands.isEmpty()) {
             if (sortedCoefficients.get(sortedOperands.size() - 1) != 1) {
                 sb.append(sortedCoefficients.get(sortedOperands.size() - 1)).append(mul)
                         .append(sortedOperands.get(sortedOperands.size() - 1));
@@ -243,12 +243,12 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
          * @param formula1 the first formula
          * @param formula2 the second formula
          * @return -1 iff formula1 &lt; formula2 (when for the first time a
-         *         variable of the ordering appears in formula1 but not
-         *         formula2) 0 iff formula1 = formula2 (when all variables of
-         *         the ordering appear (or not appear) in both formula1 and
-         *         formula2) 1 iff formula1 &gt; formula2 (when for the first
-         *         time a variable of the ordering appears in formula2 but not
-         *         formula1)
+         * variable of the ordering appears in formula1 but not
+         * formula2) 0 iff formula1 = formula2 (when all variables of
+         * the ordering appear (or not appear) in both formula1 and
+         * formula2) 1 iff formula1 &gt; formula2 (when for the first
+         * time a variable of the ordering appears in formula2 but not
+         * formula1)
          */
         @Override
         public int compare(final Formula formula1, final Formula formula2) {

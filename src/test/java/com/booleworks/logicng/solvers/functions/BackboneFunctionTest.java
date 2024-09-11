@@ -39,7 +39,6 @@ import java.util.TreeSet;
 @SuppressWarnings("unused")
 public class BackboneFunctionTest {
 
-
     public static List<Arguments> solvers() {
         final FormulaFactory f = FormulaFactory.caching();
         return SolverTestSet.solverTestSetForParameterizedTests(Set.of(USE_AT_MOST_CLAUSES, CNF_METHOD), f);
@@ -103,7 +102,7 @@ public class BackboneFunctionTest {
         final FormulaFactory f = solver.factory();
         solver.add(f.parse("(a => c | d) & (b => d | ~e) & (a | b)"));
         Backbone backbone = solver.execute(BackboneFunction.builder().variables(
-                f.variable("a"), f.variable("b"), f.variable("c"), f.variable("d"), f.variable("e"), f.variable("f"))
+                        f.variable("a"), f.variable("b"), f.variable("c"), f.variable("d"), f.variable("e"), f.variable("f"))
                 .build());
         assertThat(backbone.isSat()).isTrue();
         assertThat(backbone.getCompleteBackbone(f)).isEmpty();
@@ -124,7 +123,7 @@ public class BackboneFunctionTest {
             throws IOException, ParserException {
         final FormulaFactory f = solver.factory();
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
         solver.add(formula);
         final List<String> expectedBackbones = new ArrayList<>();
         final BufferedReader reader =
@@ -168,7 +167,7 @@ public class BackboneFunctionTest {
             throws IOException, ParserException {
         final FormulaFactory f = solver.factory();
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/small_formulas.txt");
         solver.add(formula);
         final List<String> expectedBackbones = new ArrayList<>();
         final BufferedReader reader =
@@ -212,7 +211,7 @@ public class BackboneFunctionTest {
             throws IOException, ParserException {
         final FormulaFactory f = solver.factory();
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
         solver.add(formula);
         final SolverState state = solver.saveState();
         final List<String> expectedBackbones = new ArrayList<>();
@@ -267,7 +266,7 @@ public class BackboneFunctionTest {
             throws IOException, ParserException {
         final FormulaFactory f = solver.factory();
         final Formula formula =
-                FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/small_formulas.txt");
+                FormulaReader.readFormula(f, "src/test/resources/formulas/small_formulas.txt");
         solver.add(formula);
         final SolverState state = solver.saveState();
         final List<String> expectedBackbones = new ArrayList<>();

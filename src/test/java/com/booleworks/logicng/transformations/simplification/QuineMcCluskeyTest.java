@@ -78,7 +78,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testLarge2(final FormulaContext _c) throws ParserException, IOException {
         final Formula formula =
-                FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
         final SATSolver solver = SATSolver.newSolver(_c.f);
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(Arrays.asList(
@@ -106,7 +106,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testLarge3(final FormulaContext _c) throws ParserException, IOException {
         final Formula formula =
-                FormulaReader.readPropositionalFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
         final SATSolver solver = SATSolver.newSolver(_c.f);
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(Arrays.asList(

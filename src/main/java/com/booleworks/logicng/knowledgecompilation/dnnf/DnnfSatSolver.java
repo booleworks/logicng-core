@@ -22,7 +22,7 @@ public interface DnnfSatSolver {
      * Returns the factory of the solver
      * @return the factory
      */
-    public FormulaFactory f();
+    FormulaFactory f();
 
     /**
      * Adds a formula to the solver. The formula is first converted to CNF.
@@ -56,7 +56,7 @@ public interface DnnfSatSolver {
      * Returns {@code true} if the current decision level was previously
      * selected as backtrack level.
      * @return {@code true} if the current decision level was previously
-     *         selected as backtrack level, otherwise {@code false}
+     * selected as backtrack level, otherwise {@code false}
      */
     boolean atAssertionLevel();
 

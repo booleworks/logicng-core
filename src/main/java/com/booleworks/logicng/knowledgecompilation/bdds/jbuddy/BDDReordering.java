@@ -153,9 +153,7 @@ public class BDDReordering {
         reorderMethod = method;
         bddreorderTimes = 1;
         top = new BDDTree(-1);
-        if (reorderInit() < 0) {
-            return;
-        }
+        reorderInit();
         usednumBefore = k.nodesize - k.freenum;
         top.setFirst(0);
         top.setLast(k.varnum - 1);
@@ -729,7 +727,6 @@ public class BDDReordering {
         return Integer.compare(a.val, b.val);
     }
 
-
     // === Random reordering (mostly for debugging and test ) =============
     protected BDDTree reorderRandom(final BDDTree t) {
         BDDTree thisTree;
@@ -950,7 +947,6 @@ public class BDDReordering {
         final int hash;
         int res;
 
-
         // Note: We know that low,high has a refcou greater than zero, so there
         // is no need to add reference *recursively*
         // Check whether childs are equal
@@ -1090,7 +1086,7 @@ public class BDDReordering {
         bddreorderTimes--;
     }
 
-    protected int reorderInit() {
+    protected void reorderInit() {
         levels = new LevelData[k.varnum];
         for (int n = 0; n < k.varnum; n++) {
             levels[n] = new LevelData();
@@ -1100,17 +1096,14 @@ public class BDDReordering {
         }
         // First mark and recursive refcou. all roots and childs. Also do some
         // setup here for both setLevellookup and reorder_gbc
-        if (markRoots() < 0) {
-            return -1;
-        }
+        markRoots();
         // Initialize the hash tables
         reorderSetLevellookup();
         // Garbage collect and rehash to new scheme
         reorderGbc();
-        return 0;
     }
 
-    protected int markRoots() {
+    protected void markRoots() {
         final int[] dep = new int[k.varnum];
         extRootSize = 0;
         for (int n = 2; n < k.nodesize; n++) {
@@ -1142,7 +1135,6 @@ public class BDDReordering {
         }
         k.setHash(0, 0);
         k.setHash(1, 0);
-        return 0;
     }
 
     protected void reorderGbc() {

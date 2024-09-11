@@ -17,7 +17,7 @@ import java.util.TreeSet;
  * A data structure for storing sets with efficient sub- and superset queries.
  * C.f. `A New Method to Index and Query Sets`, Hoffmann and Koehler, 1999
  * @param <T> the type of the elements (must be comparable)
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.5.0
  */
 public final class UBTree<T extends Comparable<T>> {
@@ -38,11 +38,7 @@ public final class UBTree<T extends Comparable<T>> {
         SortedMap<T, UBNode<T>> nodes = rootNodes;
         UBNode<T> node = null;
         for (final T element : set) {
-            node = nodes.get(element);
-            if (node == null) {
-                node = new UBNode<>(element);
-                nodes.put(element, node);
-            }
+            node = nodes.computeIfAbsent(element, UBNode::new);
             nodes = node.children();
         }
         if (node != null) {
@@ -54,7 +50,7 @@ public final class UBTree<T extends Comparable<T>> {
      * Returns the first subset of a given set in this UBTree.
      * @param set the set to search for
      * @return the first subset which is found for the given set or {@code null}
-     *         if there is none
+     * if there is none
      */
     public SortedSet<T> firstSubset(final SortedSet<T> set) {
         if (rootNodes.isEmpty() || set == null || set.isEmpty()) {
@@ -138,7 +134,7 @@ public final class UBTree<T extends Comparable<T>> {
 
     private void allSupersets(final SortedSet<T> set, final SortedMap<T, UBNode<T>> forest,
                               final Set<SortedSet<T>> supersets) {
-        final Set<UBNode<T>> nodes = getAllNodesContainingElementsLessThan(set, forest, set.first());
+        final Set<UBNode<T>> nodes = getAllNodesContainingElementsLessThan(forest, set.first());
         for (final UBNode<T> node : nodes) {
             allSupersets(set, node.children(), supersets);
         }
@@ -172,8 +168,7 @@ public final class UBTree<T extends Comparable<T>> {
         return nodes;
     }
 
-    private Set<UBNode<T>> getAllNodesContainingElementsLessThan(final SortedSet<T> set,
-                                                                 final SortedMap<T, UBNode<T>> forest,
+    private Set<UBNode<T>> getAllNodesContainingElementsLessThan(final SortedMap<T, UBNode<T>> forest,
                                                                  final T element) {
         final Set<UBNode<T>> nodes = new LinkedHashSet<>();
         for (final UBNode<T> node : forest.values()) {

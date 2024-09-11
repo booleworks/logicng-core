@@ -201,7 +201,7 @@ public final class LNGHeap {
     }
 
     /**
-     * Bubbles a element at a given position up.
+     * Bubbles an element at a given position up.
      * @param pos the position
      */
     private void percolateUp(final int pos) {
@@ -219,7 +219,7 @@ public final class LNGHeap {
     }
 
     /**
-     * Bubbles a element at a given position down.
+     * Bubbles an element at a given position down.
      * @param pos the position
      */
     private void percolateDown(final int pos) {

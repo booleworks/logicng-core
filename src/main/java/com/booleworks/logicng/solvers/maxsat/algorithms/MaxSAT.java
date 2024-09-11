@@ -75,7 +75,7 @@ public abstract class MaxSAT {
     final LNGVector<LNGHardClause> hardClauses;
     final LNGIntVector orderWeights;
     protected Verbosity verbosity;
-    int hardWeight;
+    final int hardWeight;
     ProblemType problemType;
     int nbVars;
     int nbInitialVariables;
@@ -443,9 +443,9 @@ public abstract class MaxSAT {
 
     /**
      * Tests if the MaxSAT formula has lexicographical optimization criterion.
-     * @param cache is indicates whether the result should be cached.
+     * @param cache indicates whether the result should be cached.
      * @return {@code true} if the formula has lexicographical optimization
-     *         criterion
+     * criterion
      */
     public boolean isBMO(final boolean cache) {
         assert orderWeights.size() == 0;
@@ -493,7 +493,7 @@ public abstract class MaxSAT {
      * @param lowerBound the new lower bound
      * @param handler    the computation handler
      * @return the event if the handler canceled the computation, otherwise
-     *         {@code null}
+     * {@code null}
      */
     LNGEvent foundLowerBound(final int lowerBound, final ComputationHandler handler) {
         final MaxSatNewLowerBoundEvent event = new MaxSatNewLowerBoundEvent(lowerBound);
@@ -507,7 +507,7 @@ public abstract class MaxSAT {
      * @param upperBound the new upper bound
      * @param handler    the computation handler
      * @return the event if the handler canceled the computation, otherwise
-     *         {@code null}
+     * {@code null}
      */
     LNGEvent foundUpperBound(final int upperBound, final ComputationHandler handler) {
         final MaxSatNewUpperBoundEvent event = new MaxSatNewUpperBoundEvent(upperBound);

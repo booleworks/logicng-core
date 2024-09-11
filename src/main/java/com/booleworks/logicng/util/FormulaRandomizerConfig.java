@@ -435,7 +435,7 @@ public final class FormulaRandomizerConfig extends Configuration {
 
         /**
          * Sets the maximum absolute value of a coefficient in a pseudo boolean
-         * constraint. Whether the coefficient is positive or negative is
+         * constraint. Whether the coefficient is positive or negative
          * depends on {@link #weightPbcCoeffPositive} and
          * {@link #weightPbcCoeffNegative}.
          * @param maximumCoefficientPbc the maximum absolute value of a

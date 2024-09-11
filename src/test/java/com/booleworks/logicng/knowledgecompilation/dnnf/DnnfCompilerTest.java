@@ -108,7 +108,7 @@ public class DnnfCompilerTest {
     public void testDnnfEvents() throws ParserException, IOException {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
-        final Formula parsed = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/formula1.txt");
+        final Formula parsed = FormulaReader.readFormula(f, "src/test/resources/formulas/formula1.txt");
         final DnnfComputationHandler handler = new DnnfComputationHandler();
         final LNGResult<Dnnf> dnnf = DnnfFactory.compile(f, parsed, handler);
         assertThat(dnnf.isSuccess()).isTrue();
@@ -132,7 +132,7 @@ public class DnnfCompilerTest {
     public void testLargeFormula() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
-        final Formula parsed = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/formula1.txt");
+        final Formula parsed = FormulaReader.readFormula(f, "src/test/resources/formulas/formula1.txt");
         Dnnf dnnf = DnnfFactory.compile(f, parsed);
         final BigInteger dnnfCount = dnnf.execute(new DnnfModelCountFunction(f));
         final List<Formula> formulas = new ArrayList<>();

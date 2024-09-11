@@ -63,7 +63,7 @@ public class ConnectedComponentsComputerTest {
     }
 
     @Test
-    public void graph60Test() throws IOException {
+    public void graph50Test() throws IOException {
         final Graph<Long> g = GraphTest.getLongGraph("50");
         for (long i = 0; i < 60; i++) {
             g.node(i);
@@ -100,7 +100,7 @@ public class ConnectedComponentsComputerTest {
     public void testFormulaSplit() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
-        final Formula parsed = FormulaReader.readPropositionalFormula(f, "src/test/resources/formulas/formula1.txt");
+        final Formula parsed = FormulaReader.readFormula(f, "src/test/resources/formulas/formula1.txt");
         final List<Formula> formulas = new ArrayList<>();
         final List<Formula> originalFormulas = new ArrayList<>();
         for (final Formula formula : parsed) {

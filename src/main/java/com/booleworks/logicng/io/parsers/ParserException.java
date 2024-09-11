@@ -17,7 +17,7 @@ public final class ParserException extends Exception {
      * @param message   the message
      * @param exception the inner exception
      */
-    public ParserException(final String message, final Exception exception) {
+    public ParserException(final String message, final Throwable exception) {
         super(message, exception);
     }
 }

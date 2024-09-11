@@ -10,8 +10,6 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaFactoryConfig;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.io.parsers.PropositionalParser;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -159,14 +157,6 @@ public class NonCachingFormulaFactory extends FormulaFactory {
     @Override
     protected Formula negateOrNull(final Formula formula) {
         return formula.negate(this);
-    }
-
-    @Override
-    public Formula parse(final String string) throws ParserException {
-        if (readOnly) {
-            throwReadOnlyException();
-        }
-        return new PropositionalParser(this).parse(string);
     }
 
     @Override
