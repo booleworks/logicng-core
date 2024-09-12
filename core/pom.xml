@@ -5,67 +5,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.booleworks</groupId>
+
+  <parent>
+    <groupId>com.booleworks</groupId>
+    <artifactId>logicng</artifactId>
+    <version>3.0.0-SNAPSHOT</version>
+  </parent>
+
   <artifactId>logicng-core</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
-  <name>LogicNG</name>
-  <description>The Next Generation Logic Library</description>
-  <url>https://www.logicng.org</url>
-
-  <licenses>
-    <license>
-      <name>Apache-2.0</name>
-      <url>https://spdx.org/licenses/Apache-2.0.html</url>
-    </license>
-    <license>
-      <name>MIT</name>
-      <url>https://spdx.org/licenses/MIT.html</url>
-    </license>
-  </licenses>
-
-  <developers>
-    <developer>
-      <id>BooleWorks</id>
-      <name>BooleWorks Team</name>
-      <organization>BooleWorks GmbH</organization>
-      <organizationUrl>https://www.booleworks.com</organizationUrl>
-      <email>info@booleworks.com</email>
-    </developer>
-  </developers>
-
-  <scm>
-    <connection>scm:git:git://github.com:booleworks/logicng-core.git</connection>
-    <developerConnection>scm:git:ssh://github.com:booleworks/logicng-core.git</developerConnection>
-    <url>https://github.com/booleworks/logicng-core</url>
-  </scm>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
-
-    <!-- Dependency Versions -->
-    <version.junit>5.10.1</version.junit>
-    <version.assertj>3.24.2</version.assertj>
-    <version.mockito>5.2.0</version.mockito>
-
-    <!-- Plugin Versions -->
-    <version.javacc>3.0.1</version.javacc>
-    <version.jacoco>0.8.11</version.jacoco>
-    <version.coveralls>4.3.0</version.coveralls>
-    <version.maven-compiler>3.13.0</version.maven-compiler>
-    <version.surefire>3.2.3</version.surefire>
-    <version.nexus-staging>1.6.13</version.nexus-staging>
-    <version.maven-gpg>1.6</version.maven-gpg>
-    <version.osgi-plugin>5.1.9</version.osgi-plugin>
-    <version.maven-source>3.3.0</version.maven-source>
-    <version.maven-javadoc>3.6.3</version.maven-javadoc>
-    <version.maven-jar>3.3.0</version.maven-jar>
-    <version.formatter>2.23.0</version.formatter>
-  </properties>
+  <name>LogicNG Core</name>
+  <description>The LogicNG core library</description>
 
   <build>
     <resources>
@@ -83,7 +34,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>javacc-maven-plugin</artifactId>
-        <version>${version.javacc}</version>
         <executions>
           <execution>
             <id>javacc</id>
@@ -94,18 +44,15 @@
         </executions>
       </plugin>
 
-      <!-- Store POM version in application manifest and set Jigsaw module name-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>${version.maven-compiler}</version>
       </plugin>
 
       <!-- Store POM version in application manifest and set Jigsaw module name-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>${version.maven-jar}</version>
         <executions>
           <execution>
             <goals>
@@ -131,46 +78,23 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>${version.maven-source}</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
 
       <!-- Compile jar with javadocs -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${version.maven-javadoc}</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
 
       <plugin>
         <groupId>net.revelc.code.formatter</groupId>
         <artifactId>formatter-maven-plugin</artifactId>
-        <version>${version.formatter}</version>
-        <configuration>
-          <configFile>${basedir}/code-style.xml</configFile>
-        </configuration>
       </plugin>
 
       <!-- JaCoCo (Test Coverage)  -->
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>${version.jacoco}</version>
         <configuration>
           <excludes>
             <exclude>**/LogicNGPropositional*</exclude>
@@ -211,7 +135,6 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>${version.osgi-plugin}</version>
         <extensions>true</extensions>
         <configuration>
           <instructions>
@@ -227,7 +150,6 @@
       <plugin>
         <groupId>org.eluder.coveralls</groupId>
         <artifactId>coveralls-maven-plugin</artifactId>
-        <version>${version.coveralls}</version>
         <configuration>
           <sourceDirectories>
             <sourceDirectory>target/generated-sources/parser</sourceDirectory>
@@ -238,7 +160,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${version.surefire}</version>
         <configuration>
           <argLine>-Xmx4g</argLine>
           <properties>
@@ -255,177 +176,37 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>${version.junit}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
-      <version>${version.junit}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>${version.assertj}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>${version.mockito}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-junit-jupiter</artifactId>
-      <version>${version.mockito}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-inline</artifactId>
-      <version>${version.mockito}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <profiles>
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <!-- Deploy to Maven Central -->
-          <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>${version.nexus-staging}</version>
-            <extensions>true</extensions>
-            <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>false</autoReleaseAfterClose>
-            </configuration>
-          </plugin>
-
-          <!-- Sign components -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>${version.maven-gpg}</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>gh-action-release</id>
-      <build>
-        <plugins>
-          <!-- Deploy to Maven Central -->
-          <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>${version.nexus-staging}</version>
-            <extensions>true</extensions>
-            <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://s01.oss.sonatype.org/content/repositories/snapshots</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
-            </configuration>
-          </plugin>
-
-          <!-- Sign components -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
-            <version>${version.maven-gpg}</version>
-            <executions>
-              <execution>
-                <id>sign-artifacts</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sign</goal>
-                </goals>
-                <configuration>
-                  <!-- Don't stop for asking for the passphrase -->
-                  <gpgArguments>
-                    <arg>--pinentry-mode</arg>
-                    <arg>loopback</arg>
-                  </gpgArguments>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-
-      <distributionManagement>
-        <repository>
-          <id>ossrh</id>
-          <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-          <releases>
-            <enabled>false</enabled>
-          </releases>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-        </repository>
-      </distributionManagement>
-    </profile>
-
-    <profile>
-      <id>all-tests</id>
-      <properties>
-        <groups>none(),longRunning,random</groups>
-      </properties>
-    </profile>
-
-    <profile>
-      <id>long-running-tests</id>
-      <properties>
-        <groups>longRunning</groups>
-      </properties>
-    </profile>
-
-    <profile>
-      <id>random-tests</id>
-      <properties>
-        <groups>random</groups>
-      </properties>
-    </profile>
-
-    <profile>
-      <id>parallel-tests</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <argLine>-Xmx16g</argLine>
-              <systemPropertyVariables>
-                <junit.jupiter.execution.parallel.enabled>true</junit.jupiter.execution.parallel.enabled>
-                <junit.jupiter.execution.parallel.mode.default>concurrent</junit.jupiter.execution.parallel.mode.default>
-              </systemPropertyVariables>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>
