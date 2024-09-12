@@ -116,24 +116,24 @@ public class OLL extends MaxSAT {
                 ubCost = newCost;
                 if (nbSatisfiable == 1) {
                     if (newCost == 0) {
-                        return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                        return optimum();
                     }
                     for (int i = 0; i < softClauses.size(); i++) {
                         assumptions.push(LNGCoreSolver.not(softClauses.get(i).assumptionVar()));
                     }
                 } else {
                     assert lbCost == newCost;
-                    return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                    return optimum();
                 }
             } else {
                 lbCost++;
                 nbCores++;
                 if (nbSatisfiable == 0) {
-                    return LNGResult.of(MaxSATResult.unsatisfiable());
+                    return unsat();
                 }
                 if (lbCost == ubCost) {
                     assert nbSatisfiable > 0;
-                    return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                    return optimum();
                 }
                 sumSizeCores += solver.assumptionsConflict().size();
                 final LNGIntVector softRelax = new LNGIntVector();
@@ -284,7 +284,7 @@ public class OLL extends MaxSAT {
                         }
                     } else {
                         assert lbCost == newCost;
-                        return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                        return optimum();
                     }
                 }
             } else {
@@ -308,11 +308,11 @@ public class OLL extends MaxSAT {
                 lbCost += minCore;
                 nbCores++;
                 if (nbSatisfiable == 0) {
-                    return LNGResult.of(MaxSATResult.unsatisfiable());
+                    return unsat();
                 }
                 if (lbCost == ubCost) {
                     assert nbSatisfiable > 0;
-                    return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                    return optimum();
                 }
                 sumSizeCores += solver.assumptionsConflict().size();
                 final LNGIntVector softRelax = new LNGIntVector();

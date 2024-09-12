@@ -15,8 +15,6 @@ import java.util.Objects;
 // TODO rename or redefine or fix documentation of 'optimum'
 public class MaxSATResult {
 
-    private static final MaxSATResult UNSAT = new MaxSATResult(false, -1, null);
-
     private final boolean satisfiable;
     private final int optimum;
     private final Model model;
@@ -27,29 +25,10 @@ public class MaxSATResult {
      * @param optimum     the optimum value
      * @param model       the model for optimum solution
      */
-    private MaxSATResult(final boolean satisfiable, final int optimum, final Model model) {
+    public MaxSATResult(final boolean satisfiable, final int optimum, final Model model) {
         this.satisfiable = satisfiable;
         this.optimum = optimum;
         this.model = model;
-    }
-
-    /**
-     * Creates a new result for an unsatisfiable MaxSAT problem.
-     * @return the result
-     */
-    public static MaxSATResult unsatisfiable() {
-        return UNSAT;
-    }
-
-    /**
-     * Creates a new result for a satisfiable MaxSAT problem with the given
-     * optimum and model.
-     * @param optimum the optimum value
-     * @param model   the model for the optimum solution
-     * @return the result
-     */
-    public static MaxSATResult optimum(final int optimum, final Model model) {
-        return new MaxSATResult(true, optimum, model);
     }
 
     /**

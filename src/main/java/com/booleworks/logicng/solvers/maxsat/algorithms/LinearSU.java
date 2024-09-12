@@ -132,7 +132,7 @@ public class LinearSU extends MaxSAT {
                     output.printf("c BMO-UB : %d (Function %d/%d)%n", newCost, posWeight + 1, orderWeights.size());
                 }
                 if (newCost == 0 && currentWeight == minWeight) {
-                    return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                    return optimum();
                 } else {
                     if (newCost == 0) {
                         functions.push(new LNGIntVector(objFunction));
@@ -158,9 +158,9 @@ public class LinearSU extends MaxSAT {
                 if (currentWeight == minWeight) {
                     if (model.size() == 0) {
                         assert nbSatisfiable == 0;
-                        return LNGResult.of(MaxSATResult.unsatisfiable());
+                        return unsat();
                     } else {
-                        return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                        return optimum();
                     }
                 } else {
                     functions.push(new LNGIntVector(objFunction));
@@ -198,7 +198,7 @@ public class LinearSU extends MaxSAT {
                 }
                 if (newCost == 0) {
                     ubCost = newCost;
-                    return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                    return optimum();
                 } else {
                     if (problemType == ProblemType.WEIGHTED) {
                         if (!encoder.hasPBEncoding()) {
@@ -223,9 +223,9 @@ public class LinearSU extends MaxSAT {
                 nbCores++;
                 if (model.size() == 0) {
                     assert nbSatisfiable == 0;
-                    return LNGResult.of(MaxSATResult.unsatisfiable());
+                    return unsat();
                 } else {
-                    return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                    return optimum();
                 }
             }
         }

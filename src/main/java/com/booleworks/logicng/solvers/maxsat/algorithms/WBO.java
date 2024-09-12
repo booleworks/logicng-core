@@ -458,7 +458,7 @@ public class WBO extends MaxSAT {
         if (!unsatResult.isSuccess()) {
             return LNGResult.canceled(unsatResult.getCancelCause());
         } else if (!unsatResult.getResult()) {
-            return LNGResult.of(MaxSATResult.unsatisfiable());
+            return unsat();
         }
         initAssumptions();
         updateCurrentWeight(weightStrategy);
@@ -495,7 +495,7 @@ public class WBO extends MaxSAT {
                             output.println("o " + lbCost);
                         }
                     }
-                    return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                    return optimum();
                 } else {
                     updateCurrentWeight(weightStrategy);
                     final int cost = computeCostModel(solver.model(), Integer.MAX_VALUE);
@@ -510,7 +510,7 @@ public class WBO extends MaxSAT {
                         if (verbosity != Verbosity.NONE) {
                             output.println("c LB = UB");
                         }
-                        return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                        return optimum();
                     } else {
                         final LNGEvent upperBoundEvent = foundUpperBound(ubCost, handler);
                         if (upperBoundEvent != null) {
@@ -528,7 +528,7 @@ public class WBO extends MaxSAT {
         if (!unsatResult.isSuccess()) {
             return LNGResult.canceled(unsatResult.getCancelCause());
         } else if (!unsatResult.getResult()) {
-            return LNGResult.of(MaxSATResult.unsatisfiable());
+            return unsat();
         }
         initAssumptions();
         solver = rebuildSolver();
@@ -548,7 +548,7 @@ public class WBO extends MaxSAT {
                     if (verbosity != Verbosity.NONE) {
                         output.println("c LB = UB");
                     }
-                    return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                    return optimum();
                 } else {
                     final LNGEvent lowerBoundEvent = foundLowerBound(lbCost, handler);
                     if (lowerBoundEvent != null) {
@@ -565,7 +565,7 @@ public class WBO extends MaxSAT {
                     output.println("o " + lbCost);
                 }
                 saveModel(solver.model());
-                return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                return optimum();
             }
         }
     }

@@ -61,6 +61,7 @@ import java.util.TreeSet;
  * @since 1.0
  */
 public abstract class MaxSAT {
+    private static final MaxSATResult UNSAT = new MaxSATResult(false, -1, null);
 
     /**
      * The MaxSAT problem type: {@code UNWEIGHTED} or {@code WEIGHTED}.
@@ -241,18 +242,17 @@ public abstract class MaxSAT {
 
     /**
      * Creates a model from a Boolean vector of the solver.
-     * @param vec the vector of the solver
      * @return the model
      */
-    protected Model createModel(final LNGBooleanVector vec) {
-        final List<Literal> model = new ArrayList<>();
-        for (int i = 0; i < vec.size(); i++) {
+    protected Model createModel() {
+        final List<Literal> mdl = new ArrayList<>();
+        for (int i = 0; i < model.size(); i++) {
             final Variable var = varForIndex(i);
             if (var != null && !var.name().startsWith(SEL_PREFIX)) {
-                model.add(vec.get(i) ? var : var.negate(f));
+                mdl.add(model.get(i) ? var : var.negate(f));
             }
         }
-        return new Model(model);
+        return new Model(mdl);
     }
 
     /**
@@ -532,6 +532,23 @@ public abstract class MaxSAT {
     LNGEvent foundUpperBound(final int upperBound, final ComputationHandler handler) {
         final MaxSatNewUpperBoundEvent event = new MaxSatNewUpperBoundEvent(upperBound);
         return handler.shouldResume(event) ? null : event;
+    }
+
+    /**
+     * Creates a new result for a satisfiable MaxSAT problem with the given
+     * optimum and model.
+     * @return the result
+     */
+    public LNGResult<MaxSATResult> optimum() {
+        return LNGResult.of(new MaxSATResult(true, ubCost, createModel()));
+    }
+
+    /**
+     * Creates a new result for an unsatisfiable MaxSAT problem.
+     * @return the result
+     */
+    public LNGResult<MaxSATResult> unsat() {
+        return LNGResult.of(UNSAT);
     }
 
     /**

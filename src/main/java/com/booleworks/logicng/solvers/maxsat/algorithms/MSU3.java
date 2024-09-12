@@ -126,7 +126,7 @@ public class MSU3 extends MaxSAT {
                         assumptions.push(LNGCoreSolver.not(objFunction.get(i)));
                     }
                 } else {
-                    return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                    return optimum();
                 }
             } else {
                 lbCost++;
@@ -135,13 +135,13 @@ public class MSU3 extends MaxSAT {
                     output.println("c LB : " + lbCost);
                 }
                 if (nbSatisfiable == 0) {
-                    return LNGResult.of(MaxSATResult.unsatisfiable());
+                    return unsat();
                 } else if (lbCost == ubCost) {
                     assert nbSatisfiable > 0;
                     if (verbosity != Verbosity.NONE) {
                         output.println("c LB = UB");
                     }
-                    return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                    return optimum();
                 } else {
                     final LNGEvent lowerBoundEvent = foundLowerBound(lbCost, handler);
                     if (lowerBoundEvent != null) {
@@ -212,7 +212,7 @@ public class MSU3 extends MaxSAT {
                     }
                 } else {
                     assert lbCost == newCost;
-                    return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                    return optimum();
                 }
             } else {
                 lbCost++;
@@ -221,18 +221,18 @@ public class MSU3 extends MaxSAT {
                     output.println("c LB : " + lbCost);
                 }
                 if (nbSatisfiable == 0) {
-                    return LNGResult.of(MaxSATResult.unsatisfiable());
+                    return unsat();
                 }
                 if (lbCost == ubCost) {
                     assert nbSatisfiable > 0;
                     if (verbosity != Verbosity.NONE) {
                         output.println("c LB = UB");
                     }
-                    return LNGResult.of(MaxSATResult.optimum(ubCost, createModel(model)));
+                    return optimum();
                 }
                 sumSizeCores += solver.assumptionsConflict().size();
                 if (solver.assumptionsConflict().size() == 0) {
-                    return LNGResult.of(MaxSATResult.unsatisfiable());
+                    return unsat();
                 }
                 final LNGEvent lowerBoundEvent = foundLowerBound(lbCost, handler);
                 if (lowerBoundEvent != null) {
