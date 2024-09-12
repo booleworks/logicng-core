@@ -11,6 +11,7 @@ import java.io.InputStream;
  * @since 3.0.0
  */
 public interface FormulaParser {
+
     /**
      * Parses and returns a given input stream.
      * @param inStream an input stream
@@ -26,6 +27,21 @@ public interface FormulaParser {
      * @throws ParserException if the string was not a valid formula
      */
     Formula parse(final String in) throws ParserException;
+
+    /**
+     * An unsafe parse method which throws a runtime exception when a parser
+     * error occurs instead of a checked exception like the other parse methods.
+     * @param in a string
+     * @return the {@link Formula} representation of this string
+     * @throws IllegalArgumentException if the string was not a valid formula
+     */
+    default Formula parseUnsafe(final String in) {
+        try {
+            return parse(in);
+        } catch (final ParserException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 
     /**
      * Returns the factory of this parser.
