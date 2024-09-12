@@ -7,17 +7,13 @@ package com.booleworks.logicng.solvers;
 import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.FACTORY_CNF;
 import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.PG_ON_SOLVER;
 
-import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
-import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.solvers.maxsat.InternalMaxSATResult;
 import com.booleworks.logicng.solvers.maxsat.algorithms.IncWBO;
 import com.booleworks.logicng.solvers.maxsat.algorithms.LinearSU;
 import com.booleworks.logicng.solvers.maxsat.algorithms.LinearUS;
@@ -30,11 +26,6 @@ import com.booleworks.logicng.solvers.maxsat.algorithms.WBO;
 import com.booleworks.logicng.solvers.maxsat.algorithms.WMSU3;
 import com.booleworks.logicng.transformations.cnf.PlaistedGreenbaumTransformationMaxSATSolver;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 /**
  * A wrapper for the OpenWBO solver.
  * @version 3.0.0
@@ -42,7 +33,7 @@ import java.util.TreeSet;
  */
 public class MaxSATSolver {
 
-    private static final String SEL_PREFIX = "@SEL_SOFT_";
+    public static final String SEL_PREFIX = "@SEL_SOFT_";
 
     public enum Algorithm {
         WBO,
@@ -59,7 +50,7 @@ public class MaxSATSolver {
     protected final PlaistedGreenbaumTransformationMaxSATSolver pgTransformation;
     protected final FormulaFactory f;
     protected final MaxSAT solver;
-    protected final SortedSet<Variable> selectorVariables;
+    protected int selectorCounter;
     protected LNGResult<MaxSATResult> result;
 
     /**
@@ -74,7 +65,6 @@ public class MaxSATSolver {
         this.algorithm = algorithm;
         this.configuration = configuration;
         result = null;
-        selectorVariables = new TreeSet<>();
         switch (algorithm) {
             case WBO:
                 solver = new WBO(f, configuration);
@@ -285,8 +275,7 @@ public class MaxSATSolver {
         if (weight < 1) {
             throw new IllegalArgumentException("The weight of a formula must be > 0");
         }
-        final Variable selVar = f.variable(SEL_PREFIX + selectorVariables.size());
-        selectorVariables.add(selVar);
+        final Variable selVar = f.variable(SEL_PREFIX + selectorCounter++);
         addFormulaAsCnf(f.or(selVar.negate(f), formula), -1);
         addFormulaAsCnf(f.or(formula.negate(f), selVar), -1);
         addFormulaAsCnf(selVar, weight);
@@ -315,6 +304,7 @@ public class MaxSATSolver {
     public void loadState(final MaxSATState state) {
         result = null;
         solver.loadState(state);
+        pgTransformation.clearCache();
     }
 
     private void addFormulaAsCnf(final Formula formula, final int weight) {
@@ -373,25 +363,8 @@ public class MaxSATSolver {
         } else {
             solver.setProblemType(MaxSAT.ProblemType.WEIGHTED);
         }
-        final LNGResult<InternalMaxSATResult> internalResult = solver.search(handler);
-        result = internalResult.map(res -> res.toMaxSATResult(this::createModel));
+        result = solver.search(handler);
         return result;
-    }
-
-    /**
-     * Creates a model from a Boolean vector of the solver.
-     * @param vec the vector of the solver
-     * @return the model
-     */
-    protected Model createModel(final LNGBooleanVector vec) {
-        final List<Literal> model = new ArrayList<>();
-        for (int i = 0; i < vec.size(); i++) {
-            final Variable var = solver.varForIndex(i);
-            if (var != null && !selectorVariables.contains(var)) {
-                model.add(vec.get(i) ? var : var.negate(f));
-            }
-        }
-        return new Model(model);
     }
 
     /**

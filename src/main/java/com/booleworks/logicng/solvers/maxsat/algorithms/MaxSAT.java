@@ -24,12 +24,14 @@ package com.booleworks.logicng.solvers.maxsat.algorithms;
 
 import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.MAX_SAT_CALL_FINISHED;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.MAX_SAT_CALL_STARTED;
+import static com.booleworks.logicng.solvers.MaxSATSolver.SEL_PREFIX;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.Verbosity;
 import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.LIT_UNDEF;
 
 import com.booleworks.logicng.collections.LNGBooleanVector;
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
+import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -39,12 +41,14 @@ import com.booleworks.logicng.handlers.LNGResult;
 import com.booleworks.logicng.handlers.events.LNGEvent;
 import com.booleworks.logicng.handlers.events.MaxSatNewLowerBoundEvent;
 import com.booleworks.logicng.handlers.events.MaxSatNewUpperBoundEvent;
+import com.booleworks.logicng.solvers.MaxSATResult;
 import com.booleworks.logicng.solvers.datastructures.LNGHardClause;
 import com.booleworks.logicng.solvers.datastructures.LNGSoftClause;
-import com.booleworks.logicng.solvers.maxsat.InternalMaxSATResult;
 import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -158,12 +162,12 @@ public abstract class MaxSAT {
      * @return the result of the solving process
      * @throws IllegalArgumentException if the configuration was not valid
      */
-    public final LNGResult<InternalMaxSATResult> search(final ComputationHandler handler) {
+    public final LNGResult<MaxSATResult> search(final ComputationHandler handler) {
         if (!handler.shouldResume(MAX_SAT_CALL_STARTED)) {
             return LNGResult.canceled(MAX_SAT_CALL_STARTED);
         }
         final MaxSATState stateBeforeSolving = saveState();
-        final LNGResult<InternalMaxSATResult> result = internalSearch(handler);
+        final LNGResult<MaxSATResult> result = internalSearch(handler);
         if (!handler.shouldResume(MAX_SAT_CALL_FINISHED)) {
             return LNGResult.canceled(MAX_SAT_CALL_FINISHED);
         }
@@ -236,11 +240,27 @@ public abstract class MaxSAT {
     }
 
     /**
+     * Creates a model from a Boolean vector of the solver.
+     * @param vec the vector of the solver
+     * @return the model
+     */
+    protected Model createModel(final LNGBooleanVector vec) {
+        final List<Literal> model = new ArrayList<>();
+        for (int i = 0; i < vec.size(); i++) {
+            final Variable var = varForIndex(i);
+            if (var != null && !var.name().startsWith(SEL_PREFIX)) {
+                model.add(vec.get(i) ? var : var.negate(f));
+            }
+        }
+        return new Model(model);
+    }
+
+    /**
      * The main MaxSAT solving method.
      * @return the result of the solving process
      * @throws IllegalArgumentException if the configuration was not valid
      */
-    protected abstract LNGResult<InternalMaxSATResult> internalSearch(ComputationHandler handler);
+    protected abstract LNGResult<MaxSATResult> internalSearch(ComputationHandler handler);
 
     /**
      * Returns the number of variables in the working MaxSAT formula.
