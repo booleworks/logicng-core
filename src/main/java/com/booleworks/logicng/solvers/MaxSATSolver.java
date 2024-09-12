@@ -304,7 +304,9 @@ public class MaxSATSolver {
     public void loadState(final MaxSATState state) {
         result = null;
         solver.loadState(state);
-        pgTransformation.clearCache();
+        if (pgTransformation != null) {
+            pgTransformation.clearCache();
+        }
     }
 
     private void addFormulaAsCnf(final Formula formula, final int weight) {
