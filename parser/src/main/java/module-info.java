@@ -1,6 +1,6 @@
-module com.booleworks.logicng.parsers {
+module logicng.parser {
     requires org.antlr.antlr4.runtime;
-    requires logicng;
+    requires logicng.core;
 
     exports com.booleworks.logicng.io.parsers.antlr;
 }

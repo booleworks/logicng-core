@@ -119,6 +119,7 @@
         <configuration>
           <instructions>
             <Bundle-RequiredExecutionEnvironment>JavaSE-11</Bundle-RequiredExecutionEnvironment>
+            <Export-Package>com.booleworks.logicng.io.parsers.antlr</Export-Package>
           </instructions>
         </configuration>
       </plugin>

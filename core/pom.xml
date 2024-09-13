@@ -139,9 +139,7 @@
         <configuration>
           <instructions>
             <Bundle-RequiredExecutionEnvironment>JavaSE-11</Bundle-RequiredExecutionEnvironment>
-            <Export-Package>
-              org.logicng.formulas.implementation
-            </Export-Package>
+            <Export-Package>org.logicng.formulas.implementation</Export-Package>
           </instructions>
         </configuration>
       </plugin>

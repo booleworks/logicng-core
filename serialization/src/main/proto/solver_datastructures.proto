@@ -1,0 +1,82 @@
+syntax = "proto3";
+package solver;
+import "collections.proto";
+option java_package = "com.booleworks.logicng.serialization";
+option java_outer_classname = "ProtoBufSolverDatastructures";
+
+enum PBTristate {
+  FALSE = 0;
+  TRUE = 1;
+  UNDEF = 2;
+}
+
+message PBClause {
+  collections.PBIntVector data = 1;
+  int32 learntOnState = 2;
+  bool isAtMost = 3;
+  double activity = 4;
+  bool seen = 6;
+  int64 lbd = 7;
+  bool canBeDel = 8;
+  bool oneWatched = 9;
+  int32 atMostWatchers = 10;
+  int32 id = 11;
+}
+
+message PBClauseVector {
+  repeated PBClause element = 1;
+}
+
+message PBWatcher {
+  int32 clause = 1;
+  int32 blocker = 2;
+}
+
+message PBWatcherVector {
+  repeated PBWatcher element = 1;
+}
+
+message PBWatcherVectorVector {
+  repeated PBWatcherVector element = 1;
+}
+
+message PBVariable {
+  PBTristate assignment = 1;
+  int32 level = 2;
+  int32 reason = 3;
+  double activity = 4;
+  bool polarity = 5;
+  bool decision = 6;
+}
+
+message PBVariableVector {
+  repeated PBVariable element = 1;
+}
+
+message PBHeap {
+  collections.PBIntVector heap = 1;
+  collections.PBIntVector indices = 2;
+}
+
+message PBBoundedIntQueue {
+  collections.PBIntVector elems = 1;
+  int32 first = 2;
+  int32 last = 3;
+  int64 sumOfQueue = 4;
+  int32 maxSize = 5;
+  int32 queueSize = 6;
+}
+
+message PBBoundedLongQueue {
+  collections.PBLongVector elems = 1;
+  int32 first = 2;
+  int32 last = 3;
+  int64 sumOfQueue = 4;
+  int32 maxSize = 5;
+  int32 queueSize = 6;
+}
+
+message PBProofInformation {
+  collections.PBIntVector clause = 1;
+  optional bytes proposition = 2;
+}

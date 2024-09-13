@@ -17,6 +17,7 @@
   <modules>
     <module>core</module>
     <module>parser</module>
+    <module>serialization</module>
   </modules>
 
   <licenses>
@@ -57,12 +58,14 @@
     <version.assertj>3.26.3</version.assertj>
     <version.mockito>5.2.0</version.mockito>
     <version.antlr>4.13.2</version.antlr>
+    <version.protobuf>4.28.0</version.protobuf>
 
     <!-- Plugin Versions -->
     <version.javacc>3.1.0</version.javacc>
     <version.jacoco>0.8.12</version.jacoco>
     <version.coveralls>4.3.0</version.coveralls>
     <version.maven-compiler>3.13.0</version.maven-compiler>
+    <version.maven-helper>3.6.0</version.maven-helper>
     <version.surefire>3.5.0</version.surefire>
     <version.nexus-staging>1.6.13</version.nexus-staging>
     <version.maven-gpg>1.6</version.maven-gpg>
@@ -93,6 +96,12 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${version.maven-compiler}</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>${version.maven-helper}</version>
         </plugin>
 
         <!-- Store POM version in application manifest and set Jigsaw module name-->
@@ -185,6 +194,13 @@
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter</artifactId>
         <version>${version.junit}</version>
+      </dependency>
+
+      <!-- Protocol Buffers -->
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>${version.protobuf}</version>
       </dependency>
 
       <dependency>

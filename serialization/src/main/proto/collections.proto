@@ -1,0 +1,24 @@
+syntax = "proto3";
+package collections;
+option java_package = "com.booleworks.logicng.serialization";
+option java_outer_classname = "ProtoBufCollections";
+
+message PBIntVector {
+  repeated int32 element = 1;
+  int32 size = 2;
+}
+
+message PBBooleanVector {
+  repeated bool element = 1;
+  int32 size = 2;
+}
+
+message PBLongVector {
+  repeated int64 element = 1;
+  int32 size = 2;
+}
+
+message PBIntVectorVector {
+  repeated PBIntVector element = 1;
+  int32 size = 2;
+}

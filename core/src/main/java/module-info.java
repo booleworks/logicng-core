@@ -1,4 +1,4 @@
-module logicng {
+module logicng.core {
     exports com.booleworks.logicng.backbones;
 
     exports com.booleworks.logicng.encodings;

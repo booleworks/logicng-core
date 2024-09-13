@@ -1,0 +1,48 @@
+syntax = "proto3";
+package formulas;
+option java_package = "com.booleworks.logicng.serialization";
+option java_outer_classname = "ProtoBufFormulas";
+
+enum PBComparison {
+  EQ = 0;
+  GT = 1;
+  GE = 2;
+  LT = 3;
+  LE = 4;
+}
+
+enum PBFormulaType {
+  CONST = 0;
+  LITERAL = 1;
+  NOT = 2;
+  AND = 3;
+  OR = 4;
+  IMPL = 5;
+  EQUIV = 6;
+  PBC = 7;
+  PREDICATE = 8;
+}
+
+message PBFormulas {
+  repeated int32 id = 1;
+  PBFormulaMapping mapping = 2;
+}
+
+message PBFormulaMapping {
+  map<int32, PBInternalFormula> mapping = 1;
+}
+
+message PBInternalFormula {
+  optional PBFormulaType type = 1;
+  optional bool value = 2; // constants
+  optional string variable = 3; // literal (together with value)
+  optional PBInternalPseudoBooleanConstraint pbConstraint = 4; // PBConstraint
+  repeated int32 operand = 5; // not = 1, impl/equiv = 2, and/or = n
+}
+
+message PBInternalPseudoBooleanConstraint {
+  PBComparison comparator = 1;
+  int64 rhs = 2;
+  repeated int64 coefficient = 3;
+  repeated string literal = 4; // including phase with/out `-`
+}

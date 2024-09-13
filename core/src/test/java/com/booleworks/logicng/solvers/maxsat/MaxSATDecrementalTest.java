@@ -57,7 +57,7 @@ public class MaxSATDecrementalTest extends TestWithExampleFormulas {
             final MaxSATState state3 = solver.saveState();
             solver.addSoftFormula(C, 1);
             solver.addSoftFormula(D, 1);
-            //assertThat(solver.solve().getOptimum()).isEqualTo(2);
+            assertThat(solver.solve().getOptimum()).isEqualTo(2);
             final MaxSATState state4 = solver.saveState();
             solver.addSoftFormula(NA, 1);
             assertThat(solver.solve().getOptimum()).isEqualTo(3);
@@ -94,10 +94,14 @@ public class MaxSATDecrementalTest extends TestWithExampleFormulas {
                 MaxSATSolver.linearSU(f, MaxSATConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER).bmo(false).build()),
                 MaxSATSolver.linearSU(f, MaxSATConfig.builder().cardinality(CardinalityEncoding.TOTALIZER).bmo(true).build()),
                 MaxSATSolver.linearSU(f, MaxSATConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER).bmo(true).build()),
-                MaxSATSolver.wmsu3(f, MaxSATConfig.builder().incremental(IncrementalStrategy.NONE).cardinality(CardinalityEncoding.TOTALIZER).bmo(false).build()),
-                MaxSATSolver.wmsu3(f, MaxSATConfig.builder().incremental(IncrementalStrategy.NONE).cardinality(CardinalityEncoding.MTOTALIZER).bmo(false).build()),
-                MaxSATSolver.wmsu3(f, MaxSATConfig.builder().incremental(IncrementalStrategy.ITERATIVE).cardinality(CardinalityEncoding.TOTALIZER).bmo(false).build()),
-                MaxSATSolver.wmsu3(f, MaxSATConfig.builder().incremental(IncrementalStrategy.ITERATIVE).cardinality(CardinalityEncoding.TOTALIZER).bmo(true).build()),
+                MaxSATSolver.wmsu3(f,
+                        MaxSATConfig.builder().incremental(IncrementalStrategy.NONE).cardinality(CardinalityEncoding.TOTALIZER).bmo(false).build()),
+                MaxSATSolver.wmsu3(f,
+                        MaxSATConfig.builder().incremental(IncrementalStrategy.NONE).cardinality(CardinalityEncoding.MTOTALIZER).bmo(false).build()),
+                MaxSATSolver.wmsu3(f,
+                        MaxSATConfig.builder().incremental(IncrementalStrategy.ITERATIVE).cardinality(CardinalityEncoding.TOTALIZER).bmo(false).build()),
+                MaxSATSolver.wmsu3(f,
+                        MaxSATConfig.builder().incremental(IncrementalStrategy.ITERATIVE).cardinality(CardinalityEncoding.TOTALIZER).bmo(true).build()),
                 MaxSATSolver.oll(f)
         };
         for (final MaxSATSolver solver : solvers) {
@@ -126,7 +130,7 @@ public class MaxSATDecrementalTest extends TestWithExampleFormulas {
             final MaxSATState state3 = solver.saveState();
             solver.addSoftFormula(C, 1);
             solver.addSoftFormula(D, 2);
-            //assertThat(solver.solve().getOptimum()).isEqualTo(4);
+            assertThat(solver.solve().getOptimum()).isEqualTo(4);
             final MaxSATState state4 = solver.saveState();
             solver.addSoftFormula(NA, 4);
             assertThat(solver.solve().getOptimum()).isEqualTo(4);
