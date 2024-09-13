@@ -20,7 +20,6 @@ import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -123,11 +122,11 @@ public class BackboneFunctionTest {
             throws IOException, ParserException {
         final FormulaFactory f = solver.factory();
         final Formula formula =
-                FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(f, "../test_files/formulas/large_formula.txt");
         solver.add(formula);
         final List<String> expectedBackbones = new ArrayList<>();
         final BufferedReader reader =
-                new BufferedReader(new FileReader("src/test/resources/backbones/backbone_large_formula.txt"));
+                new BufferedReader(new FileReader("../test_files/backbones/backbone_large_formula.txt"));
         while (reader.ready()) {
             expectedBackbones.add(reader.readLine());
         }
@@ -167,11 +166,11 @@ public class BackboneFunctionTest {
             throws IOException, ParserException {
         final FormulaFactory f = solver.factory();
         final Formula formula =
-                FormulaReader.readFormula(f, "src/test/resources/formulas/small_formulas.txt");
+                FormulaReader.readFormula(f, "../test_files/formulas/small_formulas.txt");
         solver.add(formula);
         final List<String> expectedBackbones = new ArrayList<>();
         final BufferedReader reader =
-                new BufferedReader(new FileReader("src/test/resources/backbones/backbone_small_formulas.txt"));
+                new BufferedReader(new FileReader("../test_files/backbones/backbone_small_formulas.txt"));
         while (reader.ready()) {
             expectedBackbones.add(reader.readLine());
         }
@@ -211,12 +210,12 @@ public class BackboneFunctionTest {
             throws IOException, ParserException {
         final FormulaFactory f = solver.factory();
         final Formula formula =
-                FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(f, "../test_files/formulas/large_formula.txt");
         solver.add(formula);
         final SolverState state = solver.saveState();
         final List<String> expectedBackbones = new ArrayList<>();
         final BufferedReader reader =
-                new BufferedReader(new FileReader("src/test/resources/backbones/backbone_large_formula.txt"));
+                new BufferedReader(new FileReader("../test_files/backbones/backbone_large_formula.txt"));
         while (reader.ready()) {
             expectedBackbones.add(reader.readLine());
         }
@@ -266,12 +265,12 @@ public class BackboneFunctionTest {
             throws IOException, ParserException {
         final FormulaFactory f = solver.factory();
         final Formula formula =
-                FormulaReader.readFormula(f, "src/test/resources/formulas/small_formulas.txt");
+                FormulaReader.readFormula(f, "../test_files/formulas/small_formulas.txt");
         solver.add(formula);
         final SolverState state = solver.saveState();
         final List<String> expectedBackbones = new ArrayList<>();
         final BufferedReader reader =
-                new BufferedReader(new FileReader("src/test/resources/backbones/backbone_small_formulas.txt"));
+                new BufferedReader(new FileReader("../test_files/backbones/backbone_small_formulas.txt"));
         while (reader.ready()) {
             expectedBackbones.add(reader.readLine());
         }

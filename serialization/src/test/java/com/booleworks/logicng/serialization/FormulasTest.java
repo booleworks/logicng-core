@@ -30,7 +30,7 @@ public class FormulasTest {
 
     final FormulaFactory f = FormulaFactory.caching();
 
-    private static final Path ORIGINAL = Paths.get("src/test/resources/large_formula.txt");
+    private static final Path ORIGINAL = Paths.get("../test_files/formulas/largest_formula.txt");
     private static final Path PROTO = Paths.get("list.proto");
     private static final Path ZIP = Paths.get("list.zip");
 

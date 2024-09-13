@@ -61,7 +61,7 @@ public class SatSolversTest {
         f = FormulaFactory.caching();
         serializer = SolverSerializer.withoutPropositions(f);
         tempFile = Files.createTempFile("temp", "pb");
-        final Formula whole = FormulaReader.readFormula(f, Paths.get("src/test/resources/large_formula.txt").toFile());
+        final Formula whole = FormulaReader.readFormula(f, Paths.get("../test_files/formulas/largest_formula.txt").toFile());
         variables = whole.variables(f);
         formula = whole.stream().collect(Collectors.toList());
     }

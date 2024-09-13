@@ -84,7 +84,7 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
                 new TimeoutHandler(System.currentTimeMillis() + 1L, TimeoutHandler.TimerType.FIXED_END)
         );
         final Formula formula =
-                FormulaReader.readFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(_c.f, "../test_files/formulas/large_formula.txt");
         for (final TimeoutHandler handler : handlers) {
             testHandler(handler, formula, true);
         }

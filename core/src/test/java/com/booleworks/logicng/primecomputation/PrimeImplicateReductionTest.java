@@ -58,7 +58,7 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testFormula1(final FormulaContext _c) throws IOException, ParserException {
         final Formula formula =
-                FormulaReader.readFormula(_c.f, "src/test/resources/formulas/formula1.txt");
+                FormulaReader.readFormula(_c.f, "../test_files/formulas/formula1.txt");
         testFormula(formula);
     }
 
@@ -66,7 +66,7 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testSimplifyFormulas(final FormulaContext _c) throws IOException, ParserException {
         final Formula formula =
-                FormulaReader.readFormula(_c.f, "src/test/resources/formulas/simplify_formulas.txt");
+                FormulaReader.readFormula(_c.f, "../test_files/formulas/simplify_formulas.txt");
         testFormula(formula);
     }
 
@@ -74,14 +74,14 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testLargeFormula(final FormulaContext _c) throws IOException, ParserException {
         final Formula formula =
-                FormulaReader.readFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(_c.f, "../test_files/formulas/large_formula.txt");
         testFormula(formula);
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSmallFormulas(final FormulaContext _c) throws IOException, ParserException {
-        final List<String> lines = Files.readAllLines(Paths.get("src/test/resources/formulas/small_formulas.txt"));
+        final List<String> lines = Files.readAllLines(Paths.get("../test_files/formulas/small_formulas.txt"));
         for (final String line : lines) {
             testFormula(_c.f.parse(line));
         }
@@ -109,7 +109,7 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
     @Test
     public void testCancellationPoints() throws ParserException, IOException {
         final Formula formula = FormulaReader.readFormula(FormulaFactory.nonCaching(),
-                "src/test/resources/formulas/large_formula.txt");
+                "../test_files/formulas/large_formula.txt");
         for (int numStarts = 0; numStarts < 20; numStarts++) {
             final ComputationHandler handler = new BoundedSatHandler(numStarts);
             testFormula(formula, handler, true);

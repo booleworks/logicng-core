@@ -405,12 +405,12 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     @LongRunningTag
     public void testDimacsFiles() throws IOException {
         final Map<String, Boolean> expectedResults = new HashMap<>();
-        final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/sat/results.txt"));
+        final BufferedReader reader = new BufferedReader(new FileReader("../test_files/sat/results.txt"));
         while (reader.ready()) {
             final String[] tokens = reader.readLine().split(";");
             expectedResults.put(tokens[0], Boolean.valueOf(tokens[1]));
         }
-        final File testFolder = new File("src/test/resources/sat");
+        final File testFolder = new File("../test_files/sat");
         final File[] files = testFolder.listFiles();
         assert files != null;
         for (final Function<FormulaFactory, SATSolver> solverSupplier : solverSuppliers) {
@@ -750,7 +750,7 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     @Test
     @LongRunningTag
     public void testUPZeroLiteralsDimacsFiles() throws IOException {
-        final File testFolder = new File("src/test/resources/sat");
+        final File testFolder = new File("../test_files/sat");
         final File[] files = testFolder.listFiles();
         assert files != null;
         for (final Function<FormulaFactory, SATSolver> solverSupplier : solverSuppliers) {
@@ -918,12 +918,12 @@ public class SATTest extends TestWithExampleFormulas implements LogicNGTest {
     @LongRunningTag
     public void testDimacsFilesWithSelectionOrder() throws IOException {
         final Map<String, Boolean> expectedResults = new HashMap<>();
-        final BufferedReader reader = new BufferedReader(new FileReader("src/test/resources/sat/results.txt"));
+        final BufferedReader reader = new BufferedReader(new FileReader("../test_files/sat/results.txt"));
         while (reader.ready()) {
             final String[] tokens = reader.readLine().split(";");
             expectedResults.put(tokens[0], Boolean.valueOf(tokens[1]));
         }
-        final File testFolder = new File("src/test/resources/sat");
+        final File testFolder = new File("../test_files/sat");
         final File[] files = testFolder.listFiles();
         assert files != null;
         for (final Function<FormulaFactory, SATSolver> solverSupplier : solverSuppliers) {

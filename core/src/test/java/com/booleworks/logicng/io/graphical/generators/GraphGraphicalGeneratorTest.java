@@ -107,15 +107,15 @@ public class GraphGraphicalGeneratorTest {
     private <T> void testFiles(final String fileName, final Graph<T> g, final GraphGraphicalGenerator<T> generator)
             throws IOException {
         final GraphicalRepresentation representation = generator.translate(g);
-        representation.write("src/test/resources/writers/temp/" + fileName + ".dot", GraphicalDotWriter.get());
-        representation.write("src/test/resources/writers/temp/" + fileName + ".txt", GraphicalMermaidWriter.get());
+        representation.write("../test_files/writers/temp/" + fileName + ".dot", GraphicalDotWriter.get());
+        representation.write("../test_files/writers/temp/" + fileName + ".txt", GraphicalMermaidWriter.get());
 
-        final File expectedDot = new File("src/test/resources/writers/graph/" + fileName + ".dot");
-        final File tempDot = new File("src/test/resources/writers/temp/" + fileName + ".dot");
+        final File expectedDot = new File("../test_files/writers/graph/" + fileName + ".dot");
+        final File tempDot = new File("../test_files/writers/temp/" + fileName + ".dot");
         assertThat(contentOf(tempDot)).isEqualTo(contentOf(expectedDot));
 
-        final File expectedMermaid = new File("src/test/resources/writers/graph/" + fileName + ".txt");
-        final File tempMermaid = new File("src/test/resources/writers/temp/" + fileName + ".txt");
+        final File expectedMermaid = new File("../test_files/writers/graph/" + fileName + ".txt");
+        final File tempMermaid = new File("../test_files/writers/temp/" + fileName + ".txt");
         assertThat(contentOf(tempMermaid)).isEqualTo(contentOf(expectedMermaid));
     }
 }

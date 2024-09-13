@@ -91,7 +91,7 @@ class TimeoutMaxSATHandlerTest {
     @Test
     public void testTimeoutHandlerSingleTimeout() throws IOException {
         final List<Formula> formulas =
-                DimacsReader.readCNF(f, "src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf");
+                DimacsReader.readCNF(f, "../test_files/sat/too_large_gr_rcs_w5.shuffled.cnf");
         for (final MaxSATSolver solver : solvers) {
             final int weight = solver.isWeighted() ? 2 : 1;
             formulas.forEach(c -> solver.addSoftFormula(c, weight));

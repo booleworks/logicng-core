@@ -96,7 +96,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     @LongRunningTag
     public void testOriginalFormulas(final FormulaContext _c) throws IOException {
-        Files.lines(Paths.get("src/test/resources/formulas/simplify_formulas.txt"))
+        Files.lines(Paths.get("../test_files/formulas/simplify_formulas.txt"))
                 .filter(s -> !s.isEmpty())
                 .forEach(s -> {
                     try {
@@ -150,7 +150,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
                     new TimeoutHandler(System.currentTimeMillis() + 1L, FIXED_END)
             );
             final Formula formula =
-                    FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
+                    FormulaReader.readFormula(f, "../test_files/formulas/large_formula.txt");
             for (final TimeoutHandler handler : handlers) {
                 testHandler(handler, formula, compiler.first(), compiler.second(), true);
             }
@@ -161,7 +161,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
     public void testCancellationPoints() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.nonCaching();
         final Formula formula =
-                f.parse(Files.readAllLines(Paths.get("src/test/resources/formulas/simplify_formulas.txt")).get(0));
+                f.parse(Files.readAllLines(Paths.get("../test_files/formulas/simplify_formulas.txt")).get(0));
         final List<Pair<PrimeCompiler, PrimeResult.CoverageType>> compilers = Arrays.asList(
                 new Pair<>(PrimeCompiler.getWithMaximization(), PrimeResult.CoverageType.IMPLICANTS_COMPLETE),
                 new Pair<>(PrimeCompiler.getWithMaximization(), PrimeResult.CoverageType.IMPLICATES_COMPLETE),

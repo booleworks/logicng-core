@@ -22,7 +22,6 @@ import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
 import com.booleworks.logicng.util.FormulaHelper;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -114,7 +113,7 @@ public class BackboneGenerationTest {
         before = solver.saveState();
         solver.add(formula);
         assertThat(
-                        solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
+                solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
                 .containsExactly(x);
         solver.loadState(before);
 
@@ -122,7 +121,7 @@ public class BackboneGenerationTest {
         before = solver.saveState();
         solver.add(formula);
         assertThat(
-                        solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
+                solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
                 .containsExactly(x, y);
         solver.loadState(before);
 
@@ -130,7 +129,7 @@ public class BackboneGenerationTest {
         before = solver.saveState();
         solver.add(formula);
         assertThat(
-                        solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
+                solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
                 .isEmpty();
         solver.loadState(before);
 
@@ -138,7 +137,7 @@ public class BackboneGenerationTest {
         before = solver.saveState();
         solver.add(formula);
         assertThat(
-                        solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
+                solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
                 .containsExactly(x.negate(f));
         solver.loadState(before);
 
@@ -146,7 +145,7 @@ public class BackboneGenerationTest {
         before = solver.saveState();
         solver.add(formula);
         assertThat(
-                        solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
+                solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
                 .containsExactly(x);
         solver.loadState(before);
 
@@ -154,7 +153,7 @@ public class BackboneGenerationTest {
         before = solver.saveState();
         solver.add(formula);
         assertThat(
-                        solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
+                solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
                 .isEmpty();
         solver.loadState(before);
 
@@ -162,7 +161,7 @@ public class BackboneGenerationTest {
         before = solver.saveState();
         solver.add(formula);
         assertThat(
-                        solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
+                solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
                 .containsExactly(x, y);
         solver.loadState(before);
 
@@ -170,7 +169,7 @@ public class BackboneGenerationTest {
         before = solver.saveState();
         solver.add(formula);
         assertThat(
-                        solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
+                solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
                 .containsExactly(y);
         solver.loadState(before);
 
@@ -178,14 +177,14 @@ public class BackboneGenerationTest {
         before = solver.saveState();
         solver.add(formula);
         assertThat(
-                        solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
+                solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
                 .containsExactly(x.negate(f), y, z);
         solver.loadState(before);
 
         formula = f.and(f.or(x, y), f.or(u, v), z);
         solver.add(formula);
         assertThat(
-                        solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
+                solver.execute(BackboneFunction.builder().variables(variables).build()).getCompleteBackbone(f))
                 .containsExactly(z);
     }
 
@@ -194,7 +193,7 @@ public class BackboneGenerationTest {
     public void testSmallFormulas() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula =
-                FormulaReader.readFormula(f, "src/test/resources/formulas/small_formulas.txt");
+                FormulaReader.readFormula(f, "../test_files/formulas/small_formulas.txt");
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula);
         final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build());
@@ -205,7 +204,7 @@ public class BackboneGenerationTest {
     public void testLargeFormula() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula =
-                FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(f, "../test_files/formulas/large_formula.txt");
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula);
         final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build());
@@ -321,7 +320,7 @@ public class BackboneGenerationTest {
 
     @Test
     public void testCancellationPoints() throws IOException {
-        final List<Formula> formulas = DimacsReader.readCNF(f, "src/test/resources/sat/term1_gr_rcs_w4.shuffled.cnf");
+        final List<Formula> formulas = DimacsReader.readCNF(f, "../test_files/sat/term1_gr_rcs_w4.shuffled.cnf");
         for (int numStarts = 0; numStarts < 10; numStarts++) {
             final ComputationHandler handler = new BoundedSatHandler(numStarts);
             final LNGResult<Backbone> result = BackboneGeneration.compute(f, formulas, FormulaHelper.variables(f, formulas),

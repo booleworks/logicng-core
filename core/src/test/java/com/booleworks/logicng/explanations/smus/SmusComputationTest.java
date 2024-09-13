@@ -230,7 +230,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 new TimeoutHandler(System.currentTimeMillis() + 1L, FIXED_END)
         );
         final Formula formula =
-                FormulaReader.readFormula(f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(f, "../test_files/formulas/large_formula.txt");
         final List<Formula> formulas = formula.stream().collect(Collectors.toList());
         for (final TimeoutHandler handler : handlers) {
             testHandler(handler, formulas, true);
@@ -240,7 +240,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
     @Test
     @LongRunningTag
     public void testCancellationPoints() throws IOException {
-        final List<Formula> formulas = DimacsReader.readCNF(f, "src/test/resources/sat/unsat/bf0432-007.cnf");
+        final List<Formula> formulas = DimacsReader.readCNF(f, "../test_files/sat/unsat/bf0432-007.cnf");
         for (int numOptimizationStarts = 1; numOptimizationStarts < 5; numOptimizationStarts++) {
             for (int numSatHandlerStarts = 1; numSatHandlerStarts < 10; numSatHandlerStarts++) {
                 final ComputationHandler handler =

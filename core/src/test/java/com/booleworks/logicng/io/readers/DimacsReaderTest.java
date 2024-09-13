@@ -17,7 +17,7 @@ public class DimacsReaderTest {
     public void testExceptionalBehavior() {
         assertThatThrownBy(() -> {
             final FormulaFactory f = FormulaFactory.caching();
-            final File file = new File("src/test/resources/dimacs/malformed/contains-line-without-zero.cnf");
+            final File file = new File("../test_files/dimacs/malformed/contains-line-without-zero.cnf");
             DimacsReader.readCNF(f, file, "v");
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Line '2 -3' did not end with 0.");

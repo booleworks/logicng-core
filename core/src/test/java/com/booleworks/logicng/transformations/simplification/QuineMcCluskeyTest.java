@@ -78,7 +78,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testLarge2(final FormulaContext _c) throws ParserException, IOException {
         final Formula formula =
-                FormulaReader.readFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(_c.f, "../test_files/formulas/large_formula.txt");
         final SATSolver solver = SATSolver.newSolver(_c.f);
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(Arrays.asList(
@@ -106,7 +106,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testLarge3(final FormulaContext _c) throws ParserException, IOException {
         final Formula formula =
-                FormulaReader.readFormula(_c.f, "src/test/resources/formulas/large_formula.txt");
+                FormulaReader.readFormula(_c.f, "../test_files/formulas/large_formula.txt");
         final SATSolver solver = SATSolver.newSolver(_c.f);
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(Arrays.asList(
@@ -139,7 +139,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     @LongRunningTag
     public void testSmallFormulas(final FormulaContext _c) throws IOException, ParserException {
         final BufferedReader reader =
-                new BufferedReader(new FileReader("src/test/resources/formulas/small_formulas.txt"));
+                new BufferedReader(new FileReader("../test_files/formulas/small_formulas.txt"));
         while (reader.ready()) {
             final Formula formula = _c.p.parse(reader.readLine());
             final List<Variable> variables = new ArrayList<>(formula.variables(_c.f));

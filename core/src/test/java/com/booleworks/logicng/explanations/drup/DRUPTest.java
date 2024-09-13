@@ -21,7 +21,6 @@ import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.sat.SATCall;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 
@@ -42,9 +41,9 @@ public class DRUPTest implements LogicNGTest {
     @LongRunningTag
     public void testUnsatCoresFromDimacs() throws IOException {
         final List<List<Formula>> cnfs = new ArrayList<>(3);
-        cnfs.add(DimacsReader.readCNF(f, "src/test/resources/drup/simple_input.cnf"));
-        cnfs.add(DimacsReader.readCNF(f, "src/test/resources/drup/pg4_input.cnf"));
-        cnfs.add(DimacsReader.readCNF(f, "src/test/resources/drup/avg_input.cnf", "var"));
+        cnfs.add(DimacsReader.readCNF(f, "../test_files/drup/simple_input.cnf"));
+        cnfs.add(DimacsReader.readCNF(f, "../test_files/drup/pg4_input.cnf"));
+        cnfs.add(DimacsReader.readCNF(f, "../test_files/drup/avg_input.cnf", "var"));
 
         for (final List<Formula> cnf : cnfs) {
             final SATSolver solver = solverSupplier.get();
@@ -58,7 +57,7 @@ public class DRUPTest implements LogicNGTest {
     @Test
     @LongRunningTag
     public void testUnsatCoresFromLargeTestset() throws IOException {
-        final File testFolder = new File("src/test/resources/sat");
+        final File testFolder = new File("../test_files/sat");
         final File[] files = testFolder.listFiles();
         assert files != null;
         int count = 0;
@@ -80,7 +79,7 @@ public class DRUPTest implements LogicNGTest {
 
     @Test
     public void testUnsatCoresAimTestset() throws IOException {
-        final File testFolder = new File("src/test/resources/sat/unsat");
+        final File testFolder = new File("../test_files/sat/unsat");
         final File[] files = testFolder.listFiles();
         assert files != null;
         int count = 0;

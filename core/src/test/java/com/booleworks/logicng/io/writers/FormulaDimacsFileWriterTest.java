@@ -71,14 +71,14 @@ public class FormulaDimacsFileWriterTest extends TestWithFormulaContext {
     }
 
     private void testFiles(final String fileName, final Formula formula) throws IOException {
-        FormulaDimacsFileWriter.write("src/test/resources/writers/temp/" + fileName + "_t.cnf", formula, true);
-        FormulaDimacsFileWriter.write("src/test/resources/writers/temp/" + fileName + "_f", formula, false);
-        final File expectedT = new File("src/test/resources/writers/formulas-dimacs/" + fileName + "_t.cnf");
-        final File expectedF = new File("src/test/resources/writers/formulas-dimacs/" + fileName + "_f.cnf");
-        final File tempT = new File("src/test/resources/writers/temp/" + fileName + "_t.cnf");
-        final File tempF = new File("src/test/resources/writers/temp/" + fileName + "_f.cnf");
-        final File expectedMap = new File("src/test/resources/writers/formulas-dimacs/" + fileName + "_t.map");
-        final File tempMap = new File("src/test/resources/writers/temp/" + fileName + "_t.map");
+        FormulaDimacsFileWriter.write("../test_files/writers/temp/" + fileName + "_t.cnf", formula, true);
+        FormulaDimacsFileWriter.write("../test_files/writers/temp/" + fileName + "_f", formula, false);
+        final File expectedT = new File("../test_files/writers/formulas-dimacs/" + fileName + "_t.cnf");
+        final File expectedF = new File("../test_files/writers/formulas-dimacs/" + fileName + "_f.cnf");
+        final File tempT = new File("../test_files/writers/temp/" + fileName + "_t.cnf");
+        final File tempF = new File("../test_files/writers/temp/" + fileName + "_f.cnf");
+        final File expectedMap = new File("../test_files/writers/formulas-dimacs/" + fileName + "_t.map");
+        final File tempMap = new File("../test_files/writers/temp/" + fileName + "_t.map");
         assertFilesEqual(expectedT, tempT);
         assertFilesEqual(expectedF, tempF);
         assertFilesEqual(expectedMap, tempMap);

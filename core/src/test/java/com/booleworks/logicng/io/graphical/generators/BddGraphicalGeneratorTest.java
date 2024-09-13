@@ -95,10 +95,10 @@ public class BddGraphicalGeneratorTest {
     private void testFiles(final String fileName, final BDD bdd, final BddGraphicalGenerator generator)
             throws IOException {
         final GraphicalRepresentation representation = generator.translate(bdd);
-        representation.write("src/test/resources/writers/temp/" + fileName + "_bdd.dot", GraphicalDotWriter.get());
-        representation.write("src/test/resources/writers/temp/" + fileName + "_bdd.txt", GraphicalMermaidWriter.get());
-        final File expectedT = new File("src/test/resources/writers/bdd/" + fileName + "_bdd.dot");
-        final File tempT = new File("src/test/resources/writers/temp/" + fileName + "_bdd.dot");
+        representation.write("../test_files/writers/temp/" + fileName + "_bdd.dot", GraphicalDotWriter.get());
+        representation.write("../test_files/writers/temp/" + fileName + "_bdd.txt", GraphicalMermaidWriter.get());
+        final File expectedT = new File("../test_files/writers/bdd/" + fileName + "_bdd.dot");
+        final File tempT = new File("../test_files/writers/temp/" + fileName + "_bdd.dot");
         assertThat(contentOf(tempT)).isEqualTo(contentOf(expectedT));
     }
 

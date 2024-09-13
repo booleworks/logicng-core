@@ -12,9 +12,14 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.io.parsers.ParserException;
+import com.booleworks.logicng.io.parsers.PropositionalParser;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class AntlrPropositionalParserTest {
 
@@ -280,5 +285,17 @@ public class AntlrPropositionalParserTest {
         assertThat(f.parse("(x => y & z) & (6 * a + -6 * ~b + 12 * ~c > -6)")).isEqualTo(
                 f.and(f.implication(f.variable("x"), f.and(f.variable("y"), f.variable("z"))), pbc));
         assertThat(f.parse("~(6 * a - 6 * ~b - -12 * ~c > -6)")).isEqualTo(f.not(pbc));
+    }
+
+    @Test
+    public void testCompareWithStockParser() throws IOException {
+        final var strings = Files.readAllLines(Paths.get("../test_files/formulas/largest_formula.txt"));
+        final var f1 = FormulaFactory.caching();
+        final var f2 = FormulaFactory.caching();
+        final var p1 = new PropositionalParser(f1);
+        final var p2 = new AntlrPropositionalParser(f2);
+        final var formulasStock = strings.stream().map(p1::parseUnsafe).collect(Collectors.toList());
+        final var formulasAntlr = strings.stream().map(p2::parseUnsafe).collect(Collectors.toList());
+        assertThat(formulasAntlr).isEqualTo(formulasStock);
     }
 }

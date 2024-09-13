@@ -51,10 +51,10 @@ public class MUSGenerationTest {
         pg5 = generatePGPropositions(5);
         pg6 = generatePGPropositions(6);
         pg7 = generatePGPropositions(7);
-        file1 = readDimacs("src/test/resources/sat/3col40_5_10.shuffled.cnf");
-        file2 = readDimacs("src/test/resources/sat/x1_16.shuffled.cnf");
-        file3 = readDimacs("src/test/resources/sat/grid_10_20.shuffled.cnf");
-        file4 = readDimacs("src/test/resources/sat/ca032.shuffled.cnf");
+        file1 = readDimacs("../test_files/sat/3col40_5_10.shuffled.cnf");
+        file2 = readDimacs("../test_files/sat/x1_16.shuffled.cnf");
+        file3 = readDimacs("../test_files/sat/grid_10_20.shuffled.cnf");
+        file4 = readDimacs("../test_files/sat/ca032.shuffled.cnf");
     }
 
     @Test
@@ -126,7 +126,7 @@ public class MUSGenerationTest {
     public void testDeletionBasedCancellationPoints() throws IOException {
         final MUSGeneration mus = new MUSGeneration();
         final List<StandardProposition> propositions =
-                DimacsReader.readCNF(f, "src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf").stream()
+                DimacsReader.readCNF(f, "../test_files/sat/too_large_gr_rcs_w5.shuffled.cnf").stream()
                         .map(StandardProposition::new)
                         .collect(Collectors.toList());
         for (int numStarts = 0; numStarts < 20; numStarts++) {
@@ -141,7 +141,7 @@ public class MUSGenerationTest {
     public void testCancellationPoints() throws IOException {
         final MUSGeneration mus = new MUSGeneration();
         final List<StandardProposition> propositions =
-                DimacsReader.readCNF(f, "src/test/resources/sat/unsat/bf0432-007.cnf").stream()
+                DimacsReader.readCNF(f, "../test_files/sat/unsat/bf0432-007.cnf").stream()
                         .map(StandardProposition::new)
                         .collect(Collectors.toList());
         final List<MUSConfig.Algorithm> algorithms =

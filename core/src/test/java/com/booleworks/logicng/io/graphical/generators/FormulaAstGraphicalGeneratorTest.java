@@ -154,15 +154,15 @@ public class FormulaAstGraphicalGeneratorTest {
     private void testFiles(final String fileName, final Formula formula, final FormulaAstGraphicalGenerator generator)
             throws IOException {
         final GraphicalRepresentation representation = generator.translate(formula);
-        representation.write("src/test/resources/writers/temp/" + fileName + "-ast.dot", GraphicalDotWriter.get());
-        representation.write("src/test/resources/writers/temp/" + fileName + "-ast.txt", GraphicalMermaidWriter.get());
+        representation.write("../test_files/writers/temp/" + fileName + "-ast.dot", GraphicalDotWriter.get());
+        representation.write("../test_files/writers/temp/" + fileName + "-ast.txt", GraphicalMermaidWriter.get());
 
-        final File expectedDot = new File("src/test/resources/writers/formulas-ast/" + fileName + "-ast.dot");
-        final File tempDot = new File("src/test/resources/writers/temp/" + fileName + "-ast.dot");
+        final File expectedDot = new File("../test_files/writers/formulas-ast/" + fileName + "-ast.dot");
+        final File tempDot = new File("../test_files/writers/temp/" + fileName + "-ast.dot");
         assertThat(contentOf(tempDot)).isEqualTo(contentOf(expectedDot));
 
-        final File expectedMermaid = new File("src/test/resources/writers/formulas-ast/" + fileName + "-ast.txt");
-        final File tempMermaid = new File("src/test/resources/writers/temp/" + fileName + "-ast.txt");
+        final File expectedMermaid = new File("../test_files/writers/formulas-ast/" + fileName + "-ast.txt");
+        final File tempMermaid = new File("../test_files/writers/temp/" + fileName + "-ast.txt");
         assertThat(contentOf(tempMermaid)).isEqualTo(contentOf(expectedMermaid));
     }
 }

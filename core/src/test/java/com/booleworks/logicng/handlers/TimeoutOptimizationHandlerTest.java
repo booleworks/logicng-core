@@ -77,7 +77,7 @@ class TimeoutOptimizationHandlerTest {
     @Test
     public void testTimeoutHandlerSingleTimeout() throws IOException {
         final List<Formula> formulas =
-                DimacsReader.readCNF(f, "src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf");
+                DimacsReader.readCNF(f, "../test_files/sat/too_large_gr_rcs_w5.shuffled.cnf");
         for (final SATSolver solver : solvers) {
             solver.add(formulas);
             final TimeoutHandler handler = new TimeoutHandler(10L);
@@ -92,7 +92,7 @@ class TimeoutOptimizationHandlerTest {
     @Test
     public void testTimeoutHandlerFixedEnd() throws IOException {
         final List<Formula> formulas =
-                DimacsReader.readCNF(f, "src/test/resources/sat/too_large_gr_rcs_w5.shuffled.cnf");
+                DimacsReader.readCNF(f, "../test_files/sat/too_large_gr_rcs_w5.shuffled.cnf");
         for (final SATSolver solver : solvers) {
             solver.add(formulas);
             final TimeoutHandler handler = new TimeoutHandler(100L, FIXED_END);

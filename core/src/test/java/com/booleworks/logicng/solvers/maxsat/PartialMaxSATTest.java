@@ -48,7 +48,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
     private final PrintStream logStream;
 
     public PartialMaxSATTest() throws FileNotFoundException {
-        logStream = new PrintStream("src/test/resources/partialmaxsat/log.txt");
+        logStream = new PrintStream("../test_files/partialmaxsat/log.txt");
     }
 
     @Test
@@ -80,7 +80,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
         for (final MaxSATConfig config : configs) {
             for (int i = 0; i < files.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.wbo(f, config);
-                readCnfToSolver(solver, "src/test/resources/partialmaxsat/" + files[i]);
+                readCnfToSolver(solver, "../test_files/partialmaxsat/" + files[i]);
                 final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(results[i]);
@@ -92,7 +92,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
     public void testOLL() throws IOException {
         for (int i = 0; i < files.length; i++) {
             final MaxSATSolver solver = MaxSATSolver.oll(f);
-            readCnfToSolver(solver, "src/test/resources/partialmaxsat/" + files[i]);
+            readCnfToSolver(solver, "../test_files/partialmaxsat/" + files[i]);
             final MaxSATResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getOptimum()).isEqualTo(results[i]);
@@ -107,7 +107,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
         for (final MaxSATConfig config : configs) {
             for (int i = 0; i < files.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.incWBO(f, config);
-                readCnfToSolver(solver, "src/test/resources/partialmaxsat/" + files[i]);
+                readCnfToSolver(solver, "../test_files/partialmaxsat/" + files[i]);
                 final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(results[i]);
@@ -129,7 +129,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
         for (final MaxSATConfig config : configs) {
             for (int i = 0; i < files.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.linearSU(f, config);
-                readCnfToSolver(solver, "src/test/resources/partialmaxsat/" + files[i]);
+                readCnfToSolver(solver, "../test_files/partialmaxsat/" + files[i]);
                 final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(results[i]);
@@ -153,7 +153,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
         for (final MaxSATConfig config : configs) {
             for (int i = 0; i < files.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.linearUS(f, config);
-                readCnfToSolver(solver, "src/test/resources/partialmaxsat/" + files[i]);
+                readCnfToSolver(solver, "../test_files/partialmaxsat/" + files[i]);
                 final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(results[i]);
@@ -176,7 +176,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
         for (final MaxSATConfig config : configs) {
             for (int i = 0; i < files.length; i++) {
                 final MaxSATSolver solver = MaxSATSolver.msu3(f, config);
-                readCnfToSolver(solver, "src/test/resources/partialmaxsat/" + files[i]);
+                readCnfToSolver(solver, "../test_files/partialmaxsat/" + files[i]);
                 final MaxSATResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
                 assertThat(result.getOptimum()).isEqualTo(results[i]);
@@ -279,7 +279,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
     public void testTimeoutHandlerSimple() throws IOException {
         MaxSATSolver solver = MaxSATSolver.wbo(f,
                 MaxSATConfig.builder().verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build());
-        readCnfToSolver(solver, "src/test/resources/partialmaxsat/c1355_F176gat-1278gat@1.wcnf");
+        readCnfToSolver(solver, "../test_files/partialmaxsat/c1355_F176gat-1278gat@1.wcnf");
         MaxSatTimeoutHandlerWithApproximation handler = new MaxSatTimeoutHandlerWithApproximation(1000L);
         LNGResult<MaxSATResult> result = solver.solve(handler);
         assertThat(result.isSuccess()).isFalse();
@@ -287,7 +287,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
 
         solver = MaxSATSolver.wbo(f,
                 MaxSATConfig.builder().verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build());
-        readCnfToSolver(solver, "src/test/resources/partialmaxsat/c1355_F1229gat@1.wcnf");
+        readCnfToSolver(solver, "../test_files/partialmaxsat/c1355_F1229gat@1.wcnf");
         handler = new MaxSatTimeoutHandlerWithApproximation(5000L);
         result = solver.solve(handler);
         assertThat(result.isSuccess()).isTrue();
@@ -298,7 +298,7 @@ public class PartialMaxSATTest extends TestWithExampleFormulas {
     public void testTimeoutHandlerUB() throws IOException {
         final MaxSATSolver solver = MaxSATSolver.linearSU(f,
                 MaxSATConfig.builder().verbosity(MaxSATConfig.Verbosity.SOME).output(logStream).build());
-        readCnfToSolver(solver, "src/test/resources/partialmaxsat/c1355_F1229gat@1.wcnf");
+        readCnfToSolver(solver, "../test_files/partialmaxsat/c1355_F1229gat@1.wcnf");
         final MaxSatTimeoutHandlerWithApproximation handler = new MaxSatTimeoutHandlerWithApproximation(5000L);
         final LNGResult<MaxSATResult> result = solver.solve(handler);
         assertThat(result.isSuccess()).isTrue();

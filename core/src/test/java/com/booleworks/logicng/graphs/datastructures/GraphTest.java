@@ -22,7 +22,7 @@ public class GraphTest {
         final Graph<Long> g = new Graph<>(id + "-Long");
 
         final BufferedReader reader =
-                new BufferedReader(new FileReader("src/test/resources/graphs/graph" + id + ".txt"));
+                new BufferedReader(new FileReader("../test_files/graphs/graph" + id + ".txt"));
 
         while (reader.ready()) {
             final String line = reader.readLine().trim();

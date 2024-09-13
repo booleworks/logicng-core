@@ -14,15 +14,15 @@ target/
 .sonar/
 
 # test logs
-core/src/test/resources/maxsat/log.txt
-core/src/test/resources/partialmaxsat/log.txt
-core/src/test/resources/partialweightedmaxsat/log.txt
+test_files/maxsat/log.txt
+test_files/partialmaxsat/log.txt
+test_files/partialweightedmaxsat/log.txt
 
 # test temporary files
-core/src/test/resources/writers/temp/*.dot
-core/src/test/resources/writers/temp/*.txt
-core/src/test/resources/writers/temp/*.cnf
-core/src/test/resources/writers/temp/*.map
+test_files/writers/temp/*.dot
+test_files/writers/temp/*.txt
+test_files/writers/temp/*.cnf
+test_files/writers/temp/*.map
 
 # LSP
 .settings

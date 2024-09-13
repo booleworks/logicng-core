@@ -30,8 +30,8 @@ public class MaxSatLongRunningTest {
     @LongRunningTag
     public void testWeightedMaxSat() throws IOException {
         final FormulaFactory f = FormulaFactory.caching();
-        final File folder = new File("src/test/resources/longrunning/wms");
-        final Map<String, Integer> result = readResult(new File("src/test/resources/longrunning/wms/result.txt"));
+        final File folder = new File("../test_files/longrunning/wms");
+        final Map<String, Integer> result = readResult(new File("../test_files/longrunning/wms/result.txt"));
         final List<Supplier<MaxSATSolver>> solvers = Arrays.asList(
                 () -> MaxSATSolver.oll(f),
                 () -> MaxSATSolver.incWBO(f, MaxSATConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.FACTORY_CNF)

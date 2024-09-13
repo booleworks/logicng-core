@@ -85,15 +85,15 @@ public class DnnfCompilerTest {
     @LongRunningTag
     public void testLargeFormulas() throws IOException {
         final FormulaFactory f = FormulaFactory.caching();
-        List<Formula> dimacs = DimacsReader.readCNF(f, "src/test/resources/dnnf/both_bdd_dnnf_1.cnf");
+        List<Formula> dimacs = DimacsReader.readCNF(f, "../test_files/dnnf/both_bdd_dnnf_1.cnf");
         testFormula(f, f.cnf(dimacs));
-        dimacs = DimacsReader.readCNF(f, "src/test/resources/dnnf/both_bdd_dnnf_2.cnf");
+        dimacs = DimacsReader.readCNF(f, "../test_files/dnnf/both_bdd_dnnf_2.cnf");
         testFormula(f, f.cnf(dimacs));
-        dimacs = DimacsReader.readCNF(f, "src/test/resources/dnnf/both_bdd_dnnf_3.cnf");
+        dimacs = DimacsReader.readCNF(f, "../test_files/dnnf/both_bdd_dnnf_3.cnf");
         testFormula(f, f.cnf(dimacs));
-        dimacs = DimacsReader.readCNF(f, "src/test/resources/dnnf/both_bdd_dnnf_4.cnf");
+        dimacs = DimacsReader.readCNF(f, "../test_files/dnnf/both_bdd_dnnf_4.cnf");
         testFormula(f, f.cnf(dimacs));
-        dimacs = DimacsReader.readCNF(f, "src/test/resources/dnnf/both_bdd_dnnf_5.cnf");
+        dimacs = DimacsReader.readCNF(f, "../test_files/dnnf/both_bdd_dnnf_5.cnf");
         testFormula(f, f.cnf(dimacs));
     }
 
@@ -108,7 +108,7 @@ public class DnnfCompilerTest {
     public void testDnnfEvents() throws ParserException, IOException {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
-        final Formula parsed = FormulaReader.readFormula(f, "src/test/resources/formulas/formula1.txt");
+        final Formula parsed = FormulaReader.readFormula(f, "../test_files/formulas/formula1.txt");
         final DnnfComputationHandler handler = new DnnfComputationHandler();
         final LNGResult<Dnnf> dnnf = DnnfCompiler.compile(f, parsed, handler);
         assertThat(dnnf.isSuccess()).isTrue();
@@ -132,7 +132,7 @@ public class DnnfCompilerTest {
     public void testLargeFormula() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
-        final Formula parsed = FormulaReader.readFormula(f, "src/test/resources/formulas/formula1.txt");
+        final Formula parsed = FormulaReader.readFormula(f, "../test_files/formulas/formula1.txt");
         Dnnf dnnf = DnnfCompiler.compile(f, parsed);
         final BigInteger dnnfCount = dnnf.execute(new DnnfModelCountFunction(f));
         final List<Formula> formulas = new ArrayList<>();

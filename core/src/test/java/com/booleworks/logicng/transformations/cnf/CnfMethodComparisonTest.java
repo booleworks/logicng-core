@@ -63,7 +63,7 @@ public class CnfMethodComparisonTest {
     public void compareFullBackbonesOnLargeFormulas(final CNFConfig cnfConfig,
                                                     final SATSolverConfig.CNFMethod cnfMethod)
             throws IOException, ParserException {
-        final String baseDir = "src/test/resources/formulas/";
+        final String baseDir = "../test_files/formulas/";
         final List<String> fileNames = Arrays.asList("formula1.txt", "formula2.txt", "formula3.txt",
                 "large_formula.txt", "small_formulas.txt");
         for (final String fileName : fileNames) {
@@ -78,9 +78,9 @@ public class CnfMethodComparisonTest {
     @Test
     @LongRunningTag
     public void compareBackbonesForVariablesOnLargeFormulas() throws IOException, ParserException {
-        compareBackbonePerVariable("src/test/resources/formulas/formula1.txt");
-        compareBackbonePerVariable("src/test/resources/formulas/large_formula.txt");
-        compareBackbonePerVariable("src/test/resources/formulas/small_formulas.txt");
+        compareBackbonePerVariable("../test_files/formulas/formula1.txt");
+        compareBackbonePerVariable("../test_files/formulas/large_formula.txt");
+        compareBackbonePerVariable("../test_files/formulas/small_formulas.txt");
     }
 
     private Backbone computeBackbone(final String fileName, final CNFConfig cnfConfig,
@@ -110,7 +110,7 @@ public class CnfMethodComparisonTest {
     private Map<Variable, Backbone> computeBackbonePerVariable(final String fileName, final CNFConfig cnfConfig,
                                                                final SATSolverConfig.CNFMethod cnfMethod)
             throws IOException, ParserException {
-//        final long start = System.currentTimeMillis();
+        //        final long start = System.currentTimeMillis();
         final FormulaFactory f = FormulaFactory.caching();
         f.putConfiguration(cnfConfig);
         final Formula formula = FormulaReader.readFormula(f, fileName);
@@ -129,9 +129,9 @@ public class CnfMethodComparisonTest {
                 solver.loadState(solverState);
             }
         }
-//        final long stop = System.currentTimeMillis();
-//        System.out.println(fileName + " " + cnfConfig.algorithm + " " + cnfConfig.fallbackAlgorithmForAdvancedEncoding +
-//                " " + cnfMethod + ": " + (stop - start) + " ms.");
+        //        final long stop = System.currentTimeMillis();
+        //        System.out.println(fileName + " " + cnfConfig.algorithm + " " + cnfConfig.fallbackAlgorithmForAdvancedEncoding +
+        //                " " + cnfMethod + ": " + (stop - start) + " ms.");
         return result;
     }
 
