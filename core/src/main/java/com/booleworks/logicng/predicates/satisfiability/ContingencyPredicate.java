@@ -29,6 +29,6 @@ public final class ContingencyPredicate implements FormulaPredicate {
 
     @Override
     public boolean test(final Formula formula) {
-        return formula.holds(new SATPredicate(f)) && !formula.holds(new TautologyPredicate(f));
+        return formula.holds(new SatPredicate(f)) && !formula.holds(new TautologyPredicate(f));
     }
 }

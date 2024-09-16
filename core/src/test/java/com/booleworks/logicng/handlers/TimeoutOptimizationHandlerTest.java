@@ -25,7 +25,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.events.OptimizationFoundBetterBoundEvent;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import com.booleworks.logicng.util.FormulaHelper;
@@ -43,7 +43,7 @@ import java.util.Set;
 class TimeoutOptimizationHandlerTest {
 
     private FormulaFactory f;
-    private List<SATSolver> solvers;
+    private List<SatSolver> solvers;
 
     @BeforeEach
     public void init() {
@@ -64,7 +64,7 @@ class TimeoutOptimizationHandlerTest {
     @Test
     public void testThatMethodsAreCalled() throws ParserException {
         final Formula formula = f.parse("a & b & (~a => b)");
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             solver.add(formula);
             final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
             when(handler.shouldResume(any())).thenReturn(true);
@@ -78,11 +78,11 @@ class TimeoutOptimizationHandlerTest {
     public void testTimeoutHandlerSingleTimeout() throws IOException {
         final List<Formula> formulas =
                 DimacsReader.readCNF(f, "../test_files/sat/too_large_gr_rcs_w5.shuffled.cnf");
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             solver.add(formulas);
             final TimeoutHandler handler = new TimeoutHandler(10L);
 
-            final LNGResult<Model> result = solver.execute(OptimizationFunction.builder()
+            final LngResult<Model> result = solver.execute(OptimizationFunction.builder()
                     .literals(FormulaHelper.variables(f, formulas))
                     .maximize().build(), handler);
             assertThat(result.isSuccess()).isFalse();
@@ -93,10 +93,10 @@ class TimeoutOptimizationHandlerTest {
     public void testTimeoutHandlerFixedEnd() throws IOException {
         final List<Formula> formulas =
                 DimacsReader.readCNF(f, "../test_files/sat/too_large_gr_rcs_w5.shuffled.cnf");
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             solver.add(formulas);
             final TimeoutHandler handler = new TimeoutHandler(100L, FIXED_END);
-            final LNGResult<Model> result = solver.execute(OptimizationFunction.builder()
+            final LngResult<Model> result = solver.execute(OptimizationFunction.builder()
                     .literals(FormulaHelper.variables(f, formulas))
                     .maximize().build(), handler);
             assertThat(result.isSuccess()).isFalse();

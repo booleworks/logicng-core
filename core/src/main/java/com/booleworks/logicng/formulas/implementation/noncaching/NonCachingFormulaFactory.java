@@ -64,7 +64,7 @@ public class NonCachingFormulaFactory extends FormulaFactory {
      */
     @Override
     protected Formula internalAnd(final LinkedHashSet<? extends Formula> operandsIn) {
-        final LinkedHashSet<? extends Formula> operands = importOrPanicLHS(operandsIn);
+        final LinkedHashSet<? extends Formula> operands = importOrPanicLhs(operandsIn);
         final LinkedHashSet<? extends Formula> condensedOperands =
                 operands.size() < 2 ? operands : condenseOperandsAnd(operands);
         if (condensedOperands == null) {
@@ -81,7 +81,7 @@ public class NonCachingFormulaFactory extends FormulaFactory {
 
     @Override
     protected Formula internalCnf(final LinkedHashSet<? extends Formula> clausesIn) {
-        final LinkedHashSet<? extends Formula> clauses = importOrPanicLHS(clausesIn);
+        final LinkedHashSet<? extends Formula> clauses = importOrPanicLhs(clausesIn);
         if (clauses.isEmpty()) {
             return verum();
         }
@@ -93,7 +93,7 @@ public class NonCachingFormulaFactory extends FormulaFactory {
 
     @Override
     protected Formula internalOr(final LinkedHashSet<? extends Formula> operandsIn) {
-        final LinkedHashSet<? extends Formula> operands = importOrPanicLHS(operandsIn);
+        final LinkedHashSet<? extends Formula> operands = importOrPanicLhs(operandsIn);
         final LinkedHashSet<? extends Formula> condensedOperands =
                 operands.size() < 2 ? operands : condenseOperandsOr(operands);
         if (condensedOperands == null) {
@@ -110,7 +110,7 @@ public class NonCachingFormulaFactory extends FormulaFactory {
 
     @Override
     protected Formula internalClause(final LinkedHashSet<Literal> literalsIn) {
-        final LinkedHashSet<? extends Formula> literals = importOrPanicLHS(literalsIn);
+        final LinkedHashSet<? extends Formula> literals = importOrPanicLhs(literalsIn);
         if (literals.isEmpty()) {
             return falsum();
         }
@@ -146,7 +146,7 @@ public class NonCachingFormulaFactory extends FormulaFactory {
     @Override
     protected Formula internalPbc(final List<? extends Literal> literals, final List<Integer> coefficients,
                                   final CType comparator, final int rhs) {
-        return new LngNativePBConstraint(literals, coefficients, comparator, rhs, this);
+        return new LngNativePbConstraint(literals, coefficients, comparator, rhs, this);
     }
 
     @Override

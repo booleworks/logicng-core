@@ -22,13 +22,13 @@
 
 package com.booleworks.logicng.solvers.maxsat.encodings;
 
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.AMOEncoding;
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.CardinalityEncoding;
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.IncrementalStrategy;
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig.PBEncoding;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.AmoEncoding;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CardinalityEncoding;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.IncrementalStrategy;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.PbEncoding;
 
-import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 
 /**
  * Encoders for cardinality constraints, pseudo Booleans and AMO constraints.
@@ -43,15 +43,15 @@ public class Encoder {
     protected final Totalizer totalizer;
     protected final SequentialWeightCounter swc;
     protected IncrementalStrategy incrementalStrategy;
-    protected PBEncoding pbEncoding;
-    protected AMOEncoding amoEncoding;
+    protected PbEncoding pbEncoding;
+    protected AmoEncoding amoEncoding;
 
     /**
      * Constructs a new Encoder.
      * @param cardinality the cardinality constraint encoder
      */
     public Encoder(final CardinalityEncoding cardinality) {
-        this(IncrementalStrategy.NONE, cardinality, AMOEncoding.LADDER, PBEncoding.SWC);
+        this(IncrementalStrategy.NONE, cardinality, AmoEncoding.LADDER, PbEncoding.SWC);
     }
 
     /**
@@ -62,7 +62,7 @@ public class Encoder {
      * @param pb          the pseudo Boolean encoder
      */
     protected Encoder(final IncrementalStrategy incremental, final CardinalityEncoding cardinality,
-                      final AMOEncoding amo, final PBEncoding pb) {
+                      final AmoEncoding amo, final PbEncoding pb) {
         incrementalStrategy = incremental;
         cardinalityEncoding = cardinality;
         amoEncoding = amo;
@@ -85,7 +85,7 @@ public class Encoder {
      * Sets the pseudo Boolean encoding.
      * @param enc the pseudo Boolean encoding
      */
-    public void setPBEncoding(final PBEncoding enc) {
+    public void setPbEncoding(final PbEncoding enc) {
         pbEncoding = enc;
     }
 
@@ -93,7 +93,7 @@ public class Encoder {
      * Sets the AMO encoding.
      * @param enc the AMO encoding
      */
-    public void setAMOEncoding(final AMOEncoding enc) {
+    public void setAmoEncoding(final AmoEncoding enc) {
         amoEncoding = enc;
     }
 
@@ -120,7 +120,7 @@ public class Encoder {
      * @param lits the literals for the constraint
      * @throws IllegalStateException if the AMO encoding is unknown
      */
-    public void encodeAMO(final LNGCoreSolver s, final LNGIntVector lits) {
+    public void encodeAmo(final LngCoreSolver s, final LngIntVector lits) {
         switch (amoEncoding) {
             case LADDER:
                 ladder.encode(s, lits);
@@ -137,7 +137,7 @@ public class Encoder {
      * @param rhs  the right-hand side of the constraint
      * @throws IllegalStateException if the cardinality encoding is unknown
      */
-    public void encodeCardinality(final LNGCoreSolver s, final LNGIntVector lits, final int rhs) {
+    public void encodeCardinality(final LngCoreSolver s, final LngIntVector lits, final int rhs) {
         switch (cardinalityEncoding) {
             case TOTALIZER:
                 totalizer.build(s, lits, rhs);
@@ -159,7 +159,7 @@ public class Encoder {
      * @param rhs the new right-hand side
      * @throws IllegalStateException if the cardinality encoding is unknown
      */
-    public void updateCardinality(final LNGCoreSolver s, final int rhs) {
+    public void updateCardinality(final LngCoreSolver s, final int rhs) {
         switch (cardinalityEncoding) {
             case TOTALIZER:
                 totalizer.update(s, rhs);
@@ -181,7 +181,7 @@ public class Encoder {
      * @throws IllegalStateException if the cardinality encoding does not
      *                               support incrementality
      */
-    public void buildCardinality(final LNGCoreSolver s, final LNGIntVector lits, final int rhs) {
+    public void buildCardinality(final LngCoreSolver s, final LngIntVector lits, final int rhs) {
         assert incrementalStrategy != IncrementalStrategy.NONE;
         switch (cardinalityEncoding) {
             case TOTALIZER:
@@ -203,8 +203,8 @@ public class Encoder {
      * @throws IllegalStateException if the cardinality encoding does not
      *                               support incrementality
      */
-    public void incUpdateCardinality(final LNGCoreSolver s, final LNGIntVector join, final LNGIntVector lits,
-                                     final int rhs, final LNGIntVector assumptions) {
+    public void incUpdateCardinality(final LngCoreSolver s, final LngIntVector join, final LngIntVector lits,
+                                     final int rhs, final LngIntVector assumptions) {
         assert incrementalStrategy == IncrementalStrategy.ITERATIVE;
         switch (cardinalityEncoding) {
             case TOTALIZER:
@@ -228,7 +228,7 @@ public class Encoder {
      * @param rhs    the right-hand side of the constraint
      * @throws IllegalStateException if the pseudo-Boolean encoding is unknown
      */
-    public void encodePB(final LNGCoreSolver s, final LNGIntVector lits, final LNGIntVector coeffs, final int rhs) {
+    public void encodePb(final LngCoreSolver s, final LngIntVector lits, final LngIntVector coeffs, final int rhs) {
         switch (pbEncoding) {
             case SWC:
                 swc.encode(s, lits, coeffs, rhs);
@@ -244,7 +244,7 @@ public class Encoder {
      * @param rhs the new right-hand side
      * @throws IllegalStateException if the pseudo-Boolean encoding is unknown
      */
-    public void updatePB(final LNGCoreSolver s, final int rhs) {
+    public void updatePb(final LngCoreSolver s, final int rhs) {
         switch (pbEncoding) {
             case SWC:
                 swc.update(s, rhs);
@@ -264,8 +264,8 @@ public class Encoder {
      * @param size        the size
      * @throws IllegalStateException if the pseudo-Boolean encoding is unknown
      */
-    public void incEncodePB(final LNGCoreSolver s, final LNGIntVector lits, final LNGIntVector coeffs,
-                            final int rhs, final LNGIntVector assumptions, final int size) {
+    public void incEncodePb(final LngCoreSolver s, final LngIntVector lits, final LngIntVector coeffs,
+                            final int rhs, final LngIntVector assumptions, final int size) {
         assert incrementalStrategy == IncrementalStrategy.ITERATIVE;
         switch (pbEncoding) {
             case SWC:
@@ -284,7 +284,7 @@ public class Encoder {
      * @param rhs    the new right-hand side of the constraint
      * @throws IllegalStateException if the pseudo-Boolean encoding is unknown
      */
-    public void incUpdatePB(final LNGCoreSolver s, final LNGIntVector lits, final LNGIntVector coeffs, final int rhs) {
+    public void incUpdatePb(final LngCoreSolver s, final LngIntVector lits, final LngIntVector coeffs, final int rhs) {
         assert incrementalStrategy == IncrementalStrategy.ITERATIVE;
         switch (pbEncoding) {
             case SWC:
@@ -301,7 +301,7 @@ public class Encoder {
      * @param assumptions the assumptions
      * @throws IllegalStateException if the pseudo-Boolean encoding is unknown
      */
-    public void incUpdatePBAssumptions(final LNGIntVector assumptions) {
+    public void incUpdatePbAssumptions(final LngIntVector assumptions) {
         assert incrementalStrategy == IncrementalStrategy.ITERATIVE;
         switch (pbEncoding) {
             case SWC:
@@ -333,15 +333,15 @@ public class Encoder {
      * {@code false} otherwise.
      * @return {@code true} if the pseudo-Boolean encoding was built
      */
-    public boolean hasPBEncoding() {
-        return pbEncoding == PBEncoding.SWC && swc.hasCreatedEncoding();
+    public boolean hasPbEncoding() {
+        return pbEncoding == PbEncoding.SWC && swc.hasCreatedEncoding();
     }
 
     /**
      * Returns the totalizer's literals.
      * @return the literals
      */
-    public LNGIntVector lits() {
+    public LngIntVector lits() {
         assert cardinalityEncoding == CardinalityEncoding.TOTALIZER &&
                 incrementalStrategy == IncrementalStrategy.ITERATIVE;
         return totalizer.lits();
@@ -351,7 +351,7 @@ public class Encoder {
      * Returns the totalizer's output literals.
      * @return the literals
      */
-    public LNGIntVector outputs() {
+    public LngIntVector outputs() {
         assert cardinalityEncoding == CardinalityEncoding.TOTALIZER &&
                 incrementalStrategy == IncrementalStrategy.ITERATIVE;
         return totalizer.outputs();

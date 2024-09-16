@@ -12,16 +12,16 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.Dnnf;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTree;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeNode;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.MinFillDTreeGenerator;
-import com.booleworks.logicng.predicates.satisfiability.SATPredicate;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
-import com.booleworks.logicng.transformations.cnf.CNFSubsumption;
+import com.booleworks.logicng.predicates.satisfiability.SatPredicate;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
+import com.booleworks.logicng.transformations.cnf.CnfSubsumption;
 import com.booleworks.logicng.transformations.simplification.BackboneSimplifier;
 import com.booleworks.logicng.util.Pair;
 
@@ -97,17 +97,17 @@ public class DnnfCompiler {
      * @param handler the computation handler
      * @return the compiled DNNF
      */
-    public static LNGResult<Dnnf> compile(final FormulaFactory f, final Formula formula, final ComputationHandler handler) {
+    public static LngResult<Dnnf> compile(final FormulaFactory f, final Formula formula, final ComputationHandler handler) {
         return prepareAndStartComputation(f, formula, handler);
     }
 
-    private static LNGResult<Dnnf> prepareAndStartComputation(final FormulaFactory f, final Formula formula, final ComputationHandler handler) {
+    private static LngResult<Dnnf> prepareAndStartComputation(final FormulaFactory f, final Formula formula, final ComputationHandler handler) {
         final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables(f));
         final Formula cnf = formula.cnf(f);
         originalVariables.addAll(cnf.variables(f));
-        final LNGResult<Formula> simplified = simplifyFormula(f, cnf, handler);
+        final LngResult<Formula> simplified = simplifyFormula(f, cnf, handler);
         if (!simplified.isSuccess()) {
-            return LNGResult.canceled(simplified.getCancelCause());
+            return LngResult.canceled(simplified.getCancelCause());
         }
         final Formula simplifiedFormula = simplified.getResult();
 
@@ -115,29 +115,29 @@ public class DnnfCompiler {
         final Formula unitClauses = unitAndNonUnitClauses.getFirst();
         final Formula nonUnitClauses = unitAndNonUnitClauses.getSecond();
         if (nonUnitClauses.isAtomicFormula()) {
-            return LNGResult.of(new Dnnf(originalVariables, simplifiedFormula));
+            return LngResult.of(new Dnnf(originalVariables, simplifiedFormula));
         }
-        if (!simplifiedFormula.holds(new SATPredicate(f))) {
-            return LNGResult.of(new Dnnf(originalVariables, f.falsum()));
+        if (!simplifiedFormula.holds(new SatPredicate(f))) {
+            return LngResult.of(new Dnnf(originalVariables, f.falsum()));
         }
-        final LNGResult<DTree> dTreeResult = generateDTree(nonUnitClauses, f, handler);
+        final LngResult<DTree> dTreeResult = generateDTree(nonUnitClauses, f, handler);
         if (!dTreeResult.isSuccess()) {
-            return LNGResult.canceled(dTreeResult.getCancelCause());
+            return LngResult.canceled(dTreeResult.getCancelCause());
         }
         return new DnnfCompiler(f, simplifiedFormula, unitClauses, nonUnitClauses, computeMaxClauseSize(nonUnitClauses))
                 .start(dTreeResult.getResult(), originalVariables, handler);
     }
 
-    protected static LNGResult<DTree> generateDTree(final Formula nonUnitClauses, final FormulaFactory f, final ComputationHandler handler) {
+    protected static LngResult<DTree> generateDTree(final Formula nonUnitClauses, final FormulaFactory f, final ComputationHandler handler) {
         return new MinFillDTreeGenerator().generate(f, nonUnitClauses, handler);
     }
 
-    protected static LNGResult<Formula> simplifyFormula(final FormulaFactory f, final Formula formula, final ComputationHandler handler) {
-        final LNGResult<Formula> backboneSimplified = formula.transform(new BackboneSimplifier(f), handler);
+    protected static LngResult<Formula> simplifyFormula(final FormulaFactory f, final Formula formula, final ComputationHandler handler) {
+        final LngResult<Formula> backboneSimplified = formula.transform(new BackboneSimplifier(f), handler);
         if (!backboneSimplified.isSuccess()) {
-            return LNGResult.canceled(backboneSimplified.getCancelCause());
+            return LngResult.canceled(backboneSimplified.getCancelCause());
         }
-        return backboneSimplified.getResult().transform(new CNFSubsumption(f), handler);
+        return backboneSimplified.getResult().transform(new CnfSubsumption(f), handler);
     }
 
     protected static Pair<Formula, Formula> splitCnfClauses(final Formula originalCnf, final FormulaFactory f) {
@@ -179,16 +179,16 @@ public class DnnfCompiler {
         }
     }
 
-    protected LNGResult<Dnnf> start(final DTree tree,
+    protected LngResult<Dnnf> start(final DTree tree,
                                     final SortedSet<Variable> originalVariables,
                                     final ComputationHandler handler) {
         if (!solver.start()) {
-            return LNGResult.of(new Dnnf(originalVariables, f.falsum()));
+            return LngResult.of(new Dnnf(originalVariables, f.falsum()));
         }
         tree.initialize(solver);
         initializeCaches(tree);
         if (!handler.shouldResume(DNNF_COMPUTATION_STARTED)) {
-            return LNGResult.canceled(DNNF_COMPUTATION_STARTED);
+            return LngResult.canceled(DNNF_COMPUTATION_STARTED);
         }
         return cnf2Ddnnf(tree, handler).map(result -> new Dnnf(originalVariables, f.and(unitClauses, result)));
     }
@@ -208,23 +208,23 @@ public class DnnfCompiler {
         }
     }
 
-    protected LNGResult<Formula> cnf2Ddnnf(final DTree tree, final ComputationHandler handler) {
+    protected LngResult<Formula> cnf2Ddnnf(final DTree tree, final ComputationHandler handler) {
         return cnf2Ddnnf(tree, 0, handler);
     }
 
-    protected LNGResult<Formula> cnf2Ddnnf(final DTree tree, final int currentShannons, final ComputationHandler handler) {
+    protected LngResult<Formula> cnf2Ddnnf(final DTree tree, final int currentShannons, final ComputationHandler handler) {
         final BitSet separator = tree.dynamicSeparator();
         final Formula implied = newlyImpliedLiterals(tree.getStaticVarSet());
 
         if (separator.isEmpty()) {
             if (tree instanceof DTreeLeaf) {
-                return LNGResult.of(f.and(implied, leaf2Ddnnf((DTreeLeaf) tree)));
+                return LngResult.of(f.and(implied, leaf2Ddnnf((DTreeLeaf) tree)));
             } else {
                 return conjoin(implied, (DTreeNode) tree, currentShannons, handler);
             }
         } else {
             if (!handler.shouldResume(DNNF_SHANNON_EXPANSION)) {
-                return LNGResult.canceled(DNNF_SHANNON_EXPANSION);
+                return LngResult.canceled(DNNF_SHANNON_EXPANSION);
             }
 
             final int var = chooseShannonVariable(tree, separator, currentShannons);
@@ -232,7 +232,7 @@ public class DnnfCompiler {
             /* Positive branch */
             final Formula positiveDnnf;
             if (solver.decide(var, true)) {
-                final LNGResult<Formula> recursivePositive = cnf2Ddnnf(tree, currentShannons + 1, handler);
+                final LngResult<Formula> recursivePositive = cnf2Ddnnf(tree, currentShannons + 1, handler);
                 if (!recursivePositive.isSuccess()) {
                     solver.undoDecide(var);
                     return recursivePositive;
@@ -246,14 +246,14 @@ public class DnnfCompiler {
                 if (solver.atAssertionLevel() && solver.assertCdLiteral()) {
                     return cnf2Ddnnf(tree, handler);
                 } else {
-                    return LNGResult.of(f.falsum());
+                    return LngResult.of(f.falsum());
                 }
             }
 
             /* Negative branch */
             Formula negativeDnnf = f.falsum();
             if (solver.decide(var, false)) {
-                final LNGResult<Formula> recursiveNegative = cnf2Ddnnf(tree, currentShannons + 1, handler);
+                final LngResult<Formula> recursiveNegative = cnf2Ddnnf(tree, currentShannons + 1, handler);
                 if (!recursiveNegative.isSuccess()) {
                     solver.undoDecide(var);
                     return recursiveNegative;
@@ -265,14 +265,14 @@ public class DnnfCompiler {
                 if (solver.atAssertionLevel() && solver.assertCdLiteral()) {
                     return cnf2Ddnnf(tree, handler);
                 } else {
-                    return LNGResult.of(f.falsum());
+                    return LngResult.of(f.falsum());
                 }
             }
 
             final Literal lit = solver.litForIdx(var);
             final Formula positiveBranch = f.and(lit, positiveDnnf);
             final Formula negativeBranch = f.and(lit.negate(f), negativeDnnf);
-            return LNGResult.of(f.and(implied, f.or(positiveBranch, negativeBranch)));
+            return LngResult.of(f.and(implied, f.or(positiveBranch, negativeBranch)));
         }
     }
 
@@ -295,30 +295,30 @@ public class DnnfCompiler {
         return max;
     }
 
-    protected LNGResult<Formula> conjoin(final Formula implied, final DTreeNode tree, final int currentShannons, final ComputationHandler handler) {
+    protected LngResult<Formula> conjoin(final Formula implied, final DTreeNode tree, final int currentShannons, final ComputationHandler handler) {
         if (implied == f.falsum()) {
-            return LNGResult.of(f.falsum());
+            return LngResult.of(f.falsum());
         }
-        final LNGResult<Formula> left = cnfAux(tree.left(), currentShannons, handler);
+        final LngResult<Formula> left = cnfAux(tree.left(), currentShannons, handler);
         if (left.getResult() == null || left.getResult() == f.falsum()) {
             return left;
         }
-        final LNGResult<Formula> right = cnfAux(tree.right(), currentShannons, handler);
+        final LngResult<Formula> right = cnfAux(tree.right(), currentShannons, handler);
         if (right.getResult() == null || right.getResult() == f.falsum()) {
             return right;
         }
-        return LNGResult.of(f.and(implied, left.getResult(), right.getResult()));
+        return LngResult.of(f.and(implied, left.getResult(), right.getResult()));
     }
 
-    protected LNGResult<Formula> cnfAux(final DTree tree, final int currentShannons, final ComputationHandler handler) {
+    protected LngResult<Formula> cnfAux(final DTree tree, final int currentShannons, final ComputationHandler handler) {
         if (tree instanceof DTreeLeaf) {
-            return LNGResult.of(leaf2Ddnnf((DTreeLeaf) tree));
+            return LngResult.of(leaf2Ddnnf((DTreeLeaf) tree));
         } else {
             final BitSet key = computeCacheKey((DTreeNode) tree, currentShannons);
             if (cache.containsKey(key)) {
-                return LNGResult.of(cache.get(key));
+                return LngResult.of(cache.get(key));
             } else {
-                final LNGResult<Formula> dnnf = cnf2Ddnnf(tree, handler);
+                final LngResult<Formula> dnnf = cnf2Ddnnf(tree, handler);
                 if (dnnf.getResult() != null && dnnf.getResult() != f.falsum()) {
                     cache.put((BitSet) key.clone(), dnnf.getResult());
                 }
@@ -342,7 +342,7 @@ public class DnnfCompiler {
         int index = 0;
         while (literals.hasNext()) {
             lit = literals.next();
-            switch (solver.valueOf(LNGCoreSolver.mkLit(solver.variableIndex(lit), !lit.getPhase()))) {
+            switch (solver.valueOf(LngCoreSolver.mkLit(solver.variableIndex(lit), !lit.getPhase()))) {
                 case TRUE:
                     return f.verum();
                 case UNDEF:

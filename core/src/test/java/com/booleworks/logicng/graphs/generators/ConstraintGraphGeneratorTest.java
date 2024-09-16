@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.booleworks.logicng.encodings.EncoderConfig;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.graphs.algorithms.ConnectedComponentsComputation;
 import com.booleworks.logicng.graphs.datastructures.Graph;
@@ -17,7 +17,7 @@ import com.booleworks.logicng.graphs.datastructures.Node;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.io.readers.FormulaReader;
-import com.booleworks.logicng.transformations.cnf.CNFFactorization;
+import com.booleworks.logicng.transformations.cnf.CnfFactorization;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -96,14 +96,14 @@ public class ConstraintGraphGeneratorTest {
     @Test
     public void testRealExample() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
+        f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.PURE).build());
         final Formula parsed = FormulaReader.readFormula(f, "../test_files/formulas/formula1.txt");
         final List<Formula> formulas = new ArrayList<>();
         for (final Formula formula : parsed) {
-            if (formula instanceof PBConstraint) {
+            if (formula instanceof PbConstraint) {
                 formulas.add(formula);
             } else {
-                formulas.add(formula.transform(new CNFFactorization(f)));
+                formulas.add(formula.transform(new CnfFactorization(f)));
             }
         }
         final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(f, formulas);

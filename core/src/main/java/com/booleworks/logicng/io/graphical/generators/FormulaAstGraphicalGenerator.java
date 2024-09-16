@@ -10,7 +10,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.NAryOperator;
 import com.booleworks.logicng.formulas.Not;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.io.graphical.GraphicalEdge;
 import com.booleworks.logicng.io.graphical.GraphicalNode;
 import com.booleworks.logicng.io.graphical.GraphicalRepresentation;
@@ -61,7 +61,7 @@ public class FormulaAstGraphicalGenerator extends GraphicalGenerator<Formula> {
             case PREDICATE:
                 return walkAtomicFormula(formula, graphicalRepresentation);
             case PBC:
-                return walkPBConstraint((PBConstraint) formula, graphicalRepresentation);
+                return walkPBConstraint((PbConstraint) formula, graphicalRepresentation);
             case NOT:
                 return walkNotFormula((Not) formula, graphicalRepresentation);
             case IMPL:
@@ -81,7 +81,7 @@ public class FormulaAstGraphicalGenerator extends GraphicalGenerator<Formula> {
         return addNode(formula, label, true, graphicalRepresentation);
     }
 
-    private GraphicalNode walkPBConstraint(final PBConstraint pbc,
+    private GraphicalNode walkPBConstraint(final PbConstraint pbc,
                                            final GraphicalRepresentation graphicalRepresentation) {
         final GraphicalNode pbNode = addNode(pbc, pbc.toString(), false, graphicalRepresentation);
         for (final Literal operand : pbc.getOperands()) {

@@ -12,8 +12,8 @@ import com.booleworks.logicng.formulas.FormulaFactoryConfig;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
-import com.booleworks.logicng.transformations.cnf.CNFConfig;
-import com.booleworks.logicng.transformations.cnf.CNFEncoder;
+import com.booleworks.logicng.transformations.cnf.CnfConfig;
+import com.booleworks.logicng.transformations.cnf.CnfEncoder;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +25,7 @@ import java.io.IOException;
 public class FormulaDimacsFileWriterTest extends TestWithFormulaContext {
 
     private final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().name("F").build());
-    private final CNFConfig config = CNFConfig.builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build();
+    private final CnfConfig config = CnfConfig.builder().algorithm(CnfConfig.Algorithm.FACTORIZATION).build();
     private final PropositionalParser p = new PropositionalParser(f);
     private final PropositionalParser pp = new PropositionalParser(f);
 
@@ -50,11 +50,11 @@ public class FormulaDimacsFileWriterTest extends TestWithFormulaContext {
 
     @Test
     public void testFormulas() throws IOException, ParserException {
-        final Formula f1 = CNFEncoder.encode(f, p.parse("(a & b) <=> (~c => (x | z))"), config);
-        final Formula f2 = CNFEncoder.encode(f, p.parse("a & b | b & ~c"), config);
-        final Formula f3 = CNFEncoder.encode(f, p.parse("(a & b) <=> (~c => (a | b))"), config);
-        final Formula f4 = CNFEncoder.encode(f, p.parse("~(a & b) | b & ~c"), config);
-        final Formula f5 = CNFEncoder.encode(f, pp.parse("a | ~b | (2*a + 3*~b + 4*c <= 4)"), config);
+        final Formula f1 = CnfEncoder.encode(f, p.parse("(a & b) <=> (~c => (x | z))"), config);
+        final Formula f2 = CnfEncoder.encode(f, p.parse("a & b | b & ~c"), config);
+        final Formula f3 = CnfEncoder.encode(f, p.parse("(a & b) <=> (~c => (a | b))"), config);
+        final Formula f4 = CnfEncoder.encode(f, p.parse("~(a & b) | b & ~c"), config);
+        final Formula f5 = CnfEncoder.encode(f, pp.parse("a | ~b | (2*a + 3*~b + 4*c <= 4)"), config);
         testFiles("f1", f1);
         testFiles("f2", f2);
         testFiles("f3", f3);
@@ -64,9 +64,9 @@ public class FormulaDimacsFileWriterTest extends TestWithFormulaContext {
 
     @Test
     public void testDuplicateFormulaParts() throws ParserException, IOException {
-        final Formula f6 = CNFEncoder.encode(f, p.parse("(a & b) | (c & ~(a & b))"), config);
+        final Formula f6 = CnfEncoder.encode(f, p.parse("(a & b) | (c & ~(a & b))"), config);
         testFiles("f6", f6);
-        final Formula f7 = CNFEncoder.encode(f, p.parse("(c & d) | (a & b) | ((c & d) <=> (a & b))"), config);
+        final Formula f7 = CnfEncoder.encode(f, p.parse("(c & d) | (a & b) | ((c & d) <=> (a & b))"), config);
         testFiles("f7", f7);
     }
 

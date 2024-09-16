@@ -4,15 +4,15 @@
 
 package com.booleworks.logicng.datastructures;
 
-import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.collections.LNGVector;
+import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.collections.LngVector;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.InternalAuxVarType;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.propositions.Proposition;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.List;
 public final class EncodingResult {
     private final FormulaFactory f;
     private final Proposition proposition;
-    private final LNGCoreSolver solver;
+    private final LngCoreSolver solver;
     private final List<Formula> result;
 
     /**
@@ -42,7 +42,7 @@ public final class EncodingResult {
      * @param solver      the solver instance
      * @param proposition the original proposition of the cardinality constraint
      */
-    private EncodingResult(final FormulaFactory f, final LNGCoreSolver solver, final Proposition proposition) {
+    private EncodingResult(final FormulaFactory f, final LngCoreSolver solver, final Proposition proposition) {
         this.f = f;
         this.proposition = proposition;
         this.solver = solver;
@@ -65,7 +65,7 @@ public final class EncodingResult {
      * @param proposition the original proposition of the cardinality constraint
      * @return the result
      */
-    public static EncodingResult resultForSATSolver(final FormulaFactory f, final LNGCoreSolver solver,
+    public static EncodingResult resultForSatSolver(final FormulaFactory f, final LngCoreSolver solver,
                                                     final Proposition proposition) {
         return new EncodingResult(f, solver, proposition);
     }
@@ -78,7 +78,7 @@ public final class EncodingResult {
         if (solver == null) {
             result.add(f.clause(literals));
         } else {
-            final LNGIntVector clauseVec = new LNGIntVector(literals.length);
+            final LngIntVector clauseVec = new LngIntVector(literals.length);
             for (final Literal literal : literals) {
                 addLiteral(clauseVec, literal);
             }
@@ -90,11 +90,11 @@ public final class EncodingResult {
      * Adds a clause to the result
      * @param literals the literals of the clause
      */
-    public void addClause(final LNGVector<Literal> literals) {
+    public void addClause(final LngVector<Literal> literals) {
         if (solver == null) {
             result.add(vec2clause(literals));
         } else {
-            final LNGIntVector clauseVec = new LNGIntVector(literals.size());
+            final LngIntVector clauseVec = new LngIntVector(literals.size());
             for (final Literal l : literals) {
                 addLiteral(clauseVec, l);
             }
@@ -102,7 +102,7 @@ public final class EncodingResult {
         }
     }
 
-    private void addLiteral(final LNGIntVector clauseVec, final Literal lit) {
+    private void addLiteral(final LngIntVector clauseVec, final Literal lit) {
         int index = solver.idxForName(lit.getName());
         if (index == -1) {
             index = solver.newVar(!solver.getConfig().getInitialPhase(), true);
@@ -122,7 +122,7 @@ public final class EncodingResult {
      * @param literals the literals
      * @return the clause
      */
-    private Formula vec2clause(final LNGVector<Literal> literals) {
+    private Formula vec2clause(final LngVector<Literal> literals) {
         final List<Literal> lits = new ArrayList<>(literals.size());
         for (final Literal l : literals) {
             lits.add(l);
@@ -153,7 +153,7 @@ public final class EncodingResult {
      * Returns a new auxiliary variable for cardinality constraint encodings.
      * @return a new auxiliary variable
      */
-    public Variable newCCVariable() {
+    public Variable newCcVariable() {
         return newVariable(InternalAuxVarType.CC);
     }
 
@@ -161,7 +161,7 @@ public final class EncodingResult {
      * Returns a new auxiliary variable for pseudo-boolean constraint encodings.
      * @return a new auxiliary variable
      */
-    public Variable newPBCVariable() {
+    public Variable newPbcVariable() {
         return newVariable(InternalAuxVarType.PBC);
     }
 
@@ -169,7 +169,7 @@ public final class EncodingResult {
      * Returns a new auxiliary variable for cnf encodings.
      * @return a new auxiliary variable
      */
-    public Variable newCNFVariable() {
+    public Variable newCnfVariable() {
         return newVariable(InternalAuxVarType.CNF);
     }
 

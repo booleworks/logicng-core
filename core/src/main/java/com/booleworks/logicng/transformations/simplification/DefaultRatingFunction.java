@@ -7,7 +7,7 @@ package com.booleworks.logicng.transformations.simplification;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.printer.DefaultStringRepresentation;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 
 /**
  * A rating function which rates a formula with the length of its representation
@@ -33,7 +33,7 @@ public class DefaultRatingFunction implements RatingFunction<Integer> {
     }
 
     @Override
-    public LNGResult<Integer> apply(final Formula formula, final ComputationHandler handler) {
-        return LNGResult.of(formatter.toString(formula).length());
+    public LngResult<Integer> apply(final Formula formula, final ComputationHandler handler) {
+        return LngResult.of(formatter.toString(formula).length());
     }
 }

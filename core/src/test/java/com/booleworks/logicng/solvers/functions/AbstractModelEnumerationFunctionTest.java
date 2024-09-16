@@ -11,7 +11,7 @@ import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
 import com.booleworks.logicng.solvers.functions.modelenumeration.TestVariableProvider;
@@ -34,7 +34,7 @@ public class AbstractModelEnumerationFunctionTest {
     public void testEmptySplitVariables() throws ParserException {
         final Formula formula = f.parse("A | B | C | D | E");
 
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
 
         final ModelEnumerationConfig config = ModelEnumerationConfig.builder()
@@ -53,7 +53,7 @@ public class AbstractModelEnumerationFunctionTest {
     public void testNullSplitVariables() throws ParserException {
         final Formula formula = f.parse("A | B | C | D | E");
 
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
 
         final ModelEnumerationConfig config = ModelEnumerationConfig.builder()

@@ -3,23 +3,23 @@ package solver;
 option java_package = "com.booleworks.logicng.serialization";
 option java_outer_classname = "ProtoBufSolverCommons";
 
-enum PBClauseMinimization {
+enum PbClauseMinimization {
   NONE = 0;
   BASIC = 1;
   DEEP = 2;
 }
 
-enum PBCnfMethod {
+enum PbCnfMethod {
   FACTORY_CNF = 0;
   PG_ON_SOLVER = 1;
   FULL_PG_ON_SOLVER = 2;
 }
 
-message PBSatSolverConfig {
+message PbSatSolverConfig {
   bool proofGeneration = 1;
   bool useAtMostClauses = 2;
-  PBCnfMethod cnfMethod = 3;
-  PBClauseMinimization clauseMinimization = 4;
+  PbCnfMethod cnfMethod = 3;
+  PbClauseMinimization clauseMinimization = 4;
   bool initialPhase = 5;
 
   double varDecay = 6;
@@ -28,15 +28,15 @@ message PBSatSolverConfig {
   double restartInc = 9;
   double clauseDecay = 10;
 
-  int32 lbLBDMinimizingClause = 11;
-  int32 lbLBDFrozenClause = 12;
+  int32 lbLbdMinimizingClause = 11;
+  int32 lbLbdFrozenClause = 12;
   int32 lbSizeMinimizingClause = 13;
-  int32 firstReduceDB = 14;
-  int32 specialIncReduceDB = 15;
-  int32 incReduceDB = 16;
+  int32 firstReduceDb = 14;
+  int32 specialIncReduceDb = 15;
+  int32 incReduceDb = 16;
   double factorK = 17;
   double factorR = 18;
-  int32 sizeLBDQueue = 19;
+  int32 sizeLbdQueue = 19;
   int32 sizeTrailQueue = 20;
   bool reduceOnSize = 21;
   int32 reduceOnSizeSize = 22;

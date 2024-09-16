@@ -22,7 +22,7 @@
 
 package com.booleworks.logicng.encodings.cc;
 
-import com.booleworks.logicng.collections.LNGVector;
+import com.booleworks.logicng.collections.LngVector;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -62,7 +62,7 @@ public final class CcAmo {
         final FormulaFactory f = result.getFactory();
         final Variable[] seqAuxiliary = new Variable[vars.length - 1];
         for (int i = 0; i < vars.length - 1; i++) {
-            seqAuxiliary[i] = result.newCCVariable();
+            seqAuxiliary[i] = result.newCcVariable();
         }
         for (int i = 0; i < vars.length; i++) {
             if (i == 0) {
@@ -90,11 +90,11 @@ public final class CcAmo {
         final int q = (int) Math.ceil((double) n / (double) p);
         final Variable[] us = new Variable[p];
         for (int i = 0; i < us.length; i++) {
-            us[i] = result.newCCVariable();
+            us[i] = result.newCcVariable();
         }
         final Variable[] vs = new Variable[q];
         for (int i = 0; i < vs.length; i++) {
-            vs[i] = result.newCCVariable();
+            vs[i] = result.newCcVariable();
         }
         if (us.length <= recursiveBound) {
             pure(result, us);
@@ -129,7 +129,7 @@ public final class CcAmo {
         final int k = (twoPowNBits - vars.length) * 2;
         final Variable[] bits = new Variable[numberOfBits];
         for (int i = 0; i < numberOfBits; i++) {
-            bits[i] = result.newCCVariable();
+            bits[i] = result.newCcVariable();
         }
         int grayCode;
         int nextGray;
@@ -172,21 +172,21 @@ public final class CcAmo {
      * @param vars      the variables for the at-most-one constraint
      */
     public static void commander(final EncodingResult result, final int groupSize, final Variable... vars) {
-        commanderRec(result, groupSize, new LNGVector<>(vars));
+        commanderRec(result, groupSize, new LngVector<>(vars));
     }
 
     private static void commanderRec(final EncodingResult result, final int groupSize,
-                                     final LNGVector<Literal> currentLiterals) {
+                                     final LngVector<Literal> currentLiterals) {
         final FormulaFactory f = result.getFactory();
         boolean isExactlyOne = false;
         while (currentLiterals.size() > groupSize) {
-            final LNGVector<Literal> literals = new LNGVector<>();
-            final LNGVector<Literal> nextLiterals = new LNGVector<>();
+            final LngVector<Literal> literals = new LngVector<>();
+            final LngVector<Literal> nextLiterals = new LngVector<>();
             for (int i = 0; i < currentLiterals.size(); i++) {
                 literals.push(currentLiterals.get(i));
                 if (i % groupSize == groupSize - 1 || i == currentLiterals.size() - 1) {
                     pure(result, literals);
-                    literals.push(result.newCCVariable());
+                    literals.push(result.newCcVariable());
                     nextLiterals.push(literals.back().negate(f));
                     if (isExactlyOne && literals.size() > 0) {
                         result.addClause(literals);
@@ -213,10 +213,10 @@ public final class CcAmo {
      * @param vars      the variables for the at-most-one constraint
      */
     public static void nested(final EncodingResult result, final int groupSize, final Variable... vars) {
-        nestedRec(result, groupSize, new LNGVector<>(vars));
+        nestedRec(result, groupSize, new LngVector<>(vars));
     }
 
-    private static void nestedRec(final EncodingResult result, final int groupSize, final LNGVector<Literal> vars) {
+    private static void nestedRec(final EncodingResult result, final int groupSize, final LngVector<Literal> vars) {
         final FormulaFactory f = result.getFactory();
         if (vars.size() <= groupSize) {
             for (int i = 0; i + 1 < vars.size(); i++) {
@@ -225,8 +225,8 @@ public final class CcAmo {
                 }
             }
         } else {
-            final LNGVector<Literal> l1 = new LNGVector<>(vars.size() / 2);
-            final LNGVector<Literal> l2 = new LNGVector<>(vars.size() / 2);
+            final LngVector<Literal> l1 = new LngVector<>(vars.size() / 2);
+            final LngVector<Literal> l2 = new LngVector<>(vars.size() / 2);
             int i = 0;
             for (; i < vars.size() / 2; i++) {
                 l1.push(vars.get(i));
@@ -234,7 +234,7 @@ public final class CcAmo {
             for (; i < vars.size(); i++) {
                 l2.push(vars.get(i));
             }
-            final Variable newVariable = result.newCCVariable();
+            final Variable newVariable = result.newCcVariable();
             l1.push(newVariable);
             l2.push(newVariable.negate(f));
             nestedRec(result, groupSize, l1);
@@ -249,12 +249,12 @@ public final class CcAmo {
      * @param vars      the variables for the at-most-one constraint
      */
     public static void bimander(final EncodingResult result, final int groupSize, final Variable... vars) {
-        bimanderIntern(result, groupSize, new LNGVector<>(vars));
+        bimanderIntern(result, groupSize, new LngVector<>(vars));
     }
 
     private static void bimanderIntern(final EncodingResult result, final int groupSize,
-                                       final LNGVector<Literal> vars) {
-        final LNGVector<LNGVector<Literal>> groups = initializeGroups(result, groupSize, vars);
+                                       final LngVector<Literal> vars) {
+        final LngVector<LngVector<Literal>> groups = initializeGroups(result, groupSize, vars);
         final BimanderBits bits = initializeBits(result, groupSize);
         int grayCode;
         int nextGray;
@@ -280,7 +280,7 @@ public final class CcAmo {
         }
     }
 
-    private static void handleGrayCode(final EncodingResult result, final LNGVector<LNGVector<Literal>> groups,
+    private static void handleGrayCode(final EncodingResult result, final LngVector<LngVector<Literal>> groups,
                                        final BimanderBits bits,
                                        final int grayCode, final int index, final int j) {
         if ((grayCode & (1 << j)) != 0) {
@@ -295,12 +295,12 @@ public final class CcAmo {
         }
     }
 
-    private static LNGVector<LNGVector<Literal>> initializeGroups(final EncodingResult result, final int groupSize,
-                                                                  final LNGVector<Literal> vars) {
-        final LNGVector<LNGVector<Literal>> groups = new LNGVector<>();
+    private static LngVector<LngVector<Literal>> initializeGroups(final EncodingResult result, final int groupSize,
+                                                                  final LngVector<Literal> vars) {
+        final LngVector<LngVector<Literal>> groups = new LngVector<>();
         final int n = vars.size();
         for (int i = 0; i < groupSize; i++) {
-            groups.push(new LNGVector<>());
+            groups.push(new LngVector<>());
         }
 
         int g = (int) Math.ceil((double) n / groupSize);
@@ -327,12 +327,12 @@ public final class CcAmo {
         bits.twoPowNBits = (int) Math.pow(2, bits.numberOfBits);
         bits.k = (bits.twoPowNBits - groupSize) * 2;
         for (int i = 0; i < bits.numberOfBits; ++i) {
-            bits.bits.push(result.newCCVariable());
+            bits.bits.push(result.newCcVariable());
         }
         return bits;
     }
 
-    private static void pure(final EncodingResult result, final LNGVector<Literal> vars) {
+    private static void pure(final EncodingResult result, final LngVector<Literal> vars) {
         final FormulaFactory f = result.getFactory();
         for (int i = 0; i < vars.size(); i++) {
             for (int j = i + 1; j < vars.size(); j++) {
@@ -342,7 +342,7 @@ public final class CcAmo {
     }
 
     private static final class BimanderBits {
-        private final LNGVector<Literal> bits = new LNGVector<>();
+        private final LngVector<Literal> bits = new LngVector<>();
         private int numberOfBits;
         private int twoPowNBits;
         private int k;

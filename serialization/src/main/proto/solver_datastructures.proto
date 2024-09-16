@@ -4,14 +4,14 @@ import "collections.proto";
 option java_package = "com.booleworks.logicng.serialization";
 option java_outer_classname = "ProtoBufSolverDatastructures";
 
-enum PBTristate {
+enum PbTristate {
   FALSE = 0;
   TRUE = 1;
   UNDEF = 2;
 }
 
-message PBClause {
-  collections.PBIntVector data = 1;
+message PbClause {
+  collections.PbIntVector data = 1;
   int32 learntOnState = 2;
   bool isAtMost = 3;
   double activity = 4;
@@ -23,25 +23,25 @@ message PBClause {
   int32 id = 11;
 }
 
-message PBClauseVector {
-  repeated PBClause element = 1;
+message PbClauseVector {
+  repeated PbClause element = 1;
 }
 
-message PBWatcher {
+message PbWatcher {
   int32 clause = 1;
   int32 blocker = 2;
 }
 
-message PBWatcherVector {
-  repeated PBWatcher element = 1;
+message PbWatcherVector {
+  repeated PbWatcher element = 1;
 }
 
-message PBWatcherVectorVector {
-  repeated PBWatcherVector element = 1;
+message PbWatcherVectorVector {
+  repeated PbWatcherVector element = 1;
 }
 
-message PBVariable {
-  PBTristate assignment = 1;
+message PbVariable {
+  PbTristate assignment = 1;
   int32 level = 2;
   int32 reason = 3;
   double activity = 4;
@@ -49,17 +49,17 @@ message PBVariable {
   bool decision = 6;
 }
 
-message PBVariableVector {
-  repeated PBVariable element = 1;
+message PbVariableVector {
+  repeated PbVariable element = 1;
 }
 
-message PBHeap {
-  collections.PBIntVector heap = 1;
-  collections.PBIntVector indices = 2;
+message PbHeap {
+  collections.PbIntVector heap = 1;
+  collections.PbIntVector indices = 2;
 }
 
-message PBBoundedIntQueue {
-  collections.PBIntVector elems = 1;
+message PbBoundedIntQueue {
+  collections.PbIntVector elems = 1;
   int32 first = 2;
   int32 last = 3;
   int64 sumOfQueue = 4;
@@ -67,8 +67,8 @@ message PBBoundedIntQueue {
   int32 queueSize = 6;
 }
 
-message PBBoundedLongQueue {
-  collections.PBLongVector elems = 1;
+message PbBoundedLongQueue {
+  collections.PbLongVector elems = 1;
   int32 first = 2;
   int32 last = 3;
   int64 sumOfQueue = 4;
@@ -76,7 +76,7 @@ message PBBoundedLongQueue {
   int32 queueSize = 6;
 }
 
-message PBProofInformation {
-  collections.PBIntVector clause = 1;
+message PbProofInformation {
+  collections.PbIntVector clause = 1;
   optional bytes proposition = 2;
 }

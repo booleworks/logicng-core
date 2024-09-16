@@ -9,9 +9,9 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Not;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +43,8 @@ public final class LiteralSubstitution extends StatelessFormulaTransformation {
     }
 
     @Override
-    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
-        return LNGResult.of(substitute(formula));
+    public LngResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+        return LngResult.of(substitute(formula));
     }
 
     private Formula substitute(final Formula formula) {
@@ -78,7 +78,7 @@ public final class LiteralSubstitution extends StatelessFormulaTransformation {
                 }
                 return f.naryOperator(formula.getType(), operands);
             case PBC:
-                final PBConstraint pbc = (PBConstraint) formula;
+                final PbConstraint pbc = (PbConstraint) formula;
                 final List<Literal> originalOperands = pbc.getOperands();
                 final List<Literal> literals = new ArrayList<>(originalOperands.size());
                 for (final Literal originalOperand : originalOperands) {

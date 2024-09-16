@@ -11,21 +11,21 @@ import com.booleworks.logicng.functions.NumberOfAtomsFunction;
 import com.booleworks.logicng.functions.NumberOfNodesFunction;
 import com.booleworks.logicng.functions.VariablesFunction;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
-import com.booleworks.logicng.knowledgecompilation.bdds.BDDFactory;
-import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
+import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.knowledgecompilation.bdds.Bdd;
+import com.booleworks.logicng.knowledgecompilation.bdds.BddFactory;
+import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel;
 import com.booleworks.logicng.knowledgecompilation.bdds.orderings.VariableOrderingProvider;
-import com.booleworks.logicng.predicates.CNFPredicate;
-import com.booleworks.logicng.predicates.DNFPredicate;
-import com.booleworks.logicng.predicates.NNFPredicate;
+import com.booleworks.logicng.predicates.CnfPredicate;
+import com.booleworks.logicng.predicates.DnfPredicate;
+import com.booleworks.logicng.predicates.NnfPredicate;
 import com.booleworks.logicng.predicates.satisfiability.ContradictionPredicate;
-import com.booleworks.logicng.predicates.satisfiability.SATPredicate;
+import com.booleworks.logicng.predicates.satisfiability.SatPredicate;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
-import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.transformations.NNFTransformation;
-import com.booleworks.logicng.transformations.cnf.CNFConfig;
-import com.booleworks.logicng.transformations.cnf.CNFEncoder;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.transformations.NnfTransformation;
+import com.booleworks.logicng.transformations.cnf.CnfConfig;
+import com.booleworks.logicng.transformations.cnf.CnfEncoder;
 
 import java.util.SortedSet;
 import java.util.stream.Stream;
@@ -158,30 +158,30 @@ public interface Formula extends Iterable<Formula> {
      * Returns {@code true} if this formula is in NNF, otherwise {@code false}
      * @param f the formula factory to use for caching
      * @return {@code true} if this formula is in NNF, otherwise {@code false}
-     * @see NNFPredicate the NNF predicate
+     * @see NnfPredicate the NNF predicate
      */
-    default boolean isNNF(final FormulaFactory f) {
-        return holds(new NNFPredicate(f));
+    default boolean isNnf(final FormulaFactory f) {
+        return holds(new NnfPredicate(f));
     }
 
     /**
      * Returns {@code true} if this formula is in DNF, otherwise {@code false}
      * @param f the formula factory to use for caching
      * @return {@code true} if this formula is in DNF, otherwise {@code false}
-     * @see DNFPredicate the DNF predicate
+     * @see DnfPredicate the DNF predicate
      */
-    default boolean isDNF(final FormulaFactory f) {
-        return holds(new DNFPredicate(f));
+    default boolean isDnf(final FormulaFactory f) {
+        return holds(new DnfPredicate(f));
     }
 
     /**
      * Returns {@code true} if this formula is in CNF, otherwise {@code false}
      * @param f the formula factory to use for caching
      * @return {@code true} if this formula is in CNF, otherwise {@code false}
-     * @see CNFPredicate the CNF predicate
+     * @see CnfPredicate the CNF predicate
      */
-    default boolean isCNF(final FormulaFactory f) {
-        return holds(new CNFPredicate(f));
+    default boolean isCnf(final FormulaFactory f) {
+        return holds(new CnfPredicate(f));
     }
 
     /**
@@ -219,7 +219,7 @@ public interface Formula extends Iterable<Formula> {
      * @return a copy of this formula which is in NNF
      */
     default Formula nnf(final FormulaFactory f) {
-        return transform(new NNFTransformation(f));
+        return transform(new NnfTransformation(f));
     }
 
     /**
@@ -233,8 +233,8 @@ public interface Formula extends Iterable<Formula> {
      * semantically equivalent CNF but an equisatisfiable CNF.
      * <p>
      * If the introduction of auxiliary variables is unwanted, you can choose
-     * one of the algorithms {@link CNFConfig.Algorithm#FACTORIZATION} and
-     * {@link CNFConfig.Algorithm#BDD}. Both algorithms provide CNF conversions
+     * one of the algorithms {@link CnfConfig.Algorithm#FACTORIZATION} and
+     * {@link CnfConfig.Algorithm#BDD}. Both algorithms provide CNF conversions
      * without the introduction of auxiliary variables and the result is a
      * semantically equivalent CNF.
      * <p>
@@ -245,21 +245,21 @@ public interface Formula extends Iterable<Formula> {
      * @return a copy of this formula which is in CNF
      */
     default Formula cnf(final FormulaFactory f) {
-        return CNFEncoder.encode(f, this, null);
+        return CnfEncoder.encode(f, this, null);
     }
 
     /**
      * Returns whether this formula is satisfiable. A new SAT solver is used to
      * check the satisfiability. This is a convenience method for the predicate
-     * {@link SATPredicate}. If you want to have more influence on the solver
+     * {@link SatPredicate}. If you want to have more influence on the solver
      * (e.g. which solver type or configuration) you must create and use a
-     * {@link SATSolver} on your own.
+     * {@link SatSolver} on your own.
      * @param f the formula factory to use for caching
      * @return {@code true} when this formula is satisfiable, {@code false}
      * otherwise
      */
     default boolean isSatisfiable(final FormulaFactory f) {
-        return holds(new SATPredicate(f));
+        return holds(new SatPredicate(f));
     }
 
     /**
@@ -267,7 +267,7 @@ public interface Formula extends Iterable<Formula> {
      * solver is used to check the tautology. This is a convenience method for
      * the predicate {@link TautologyPredicate}. If you want to have more
      * influence on the solver (e.g. which solver type or configuration) you
-     * must create and use a {@link SATSolver} on your own.
+     * must create and use a {@link SatSolver} on your own.
      * @param f the formula factory to use for caching
      * @return {@code true} when this formula is a tautology, {@code false}
      * otherwise
@@ -281,7 +281,7 @@ public interface Formula extends Iterable<Formula> {
      * new SAT solver is used to check the contradiction. This is a convenience
      * method for the predicate {@link ContradictionPredicate}. If you want to
      * have more influence on the solver (e.g. which solver type or
-     * configuration) you must create and use a {@link SATSolver} on your own.
+     * configuration) you must create and use a {@link SatSolver} on your own.
      * @param f the formula factory to use for caching
      * @return {@code true} when this formula is a contradiction, {@code false}
      * otherwise
@@ -295,7 +295,7 @@ public interface Formula extends Iterable<Formula> {
      * =&gt; other` is a tautology. A new SAT solver is used to check this
      * tautology. This is a convenience method. If you want to have more
      * influence on the solver (e.g. which solver type or configuration) you
-     * must create and use a {@link SATSolver} on your own.
+     * must create and use a {@link SatSolver} on your own.
      * @param f     the formula factory to use for caching
      * @param other the formula which should be checked if it is implied by this
      *              formula
@@ -311,7 +311,7 @@ public interface Formula extends Iterable<Formula> {
      * `other =&gt; this` is a tautology. A new SAT solver is used to check this
      * tautology. This is a convenience method. If you want to have more
      * influence on the solver (e.g. which solver type or configuration) you
-     * must create and use a {@link SATSolver} on your own.
+     * must create and use a {@link SatSolver} on your own.
      * @param f     the formula factory to use for caching
      * @param other the formula which should be checked if it implies this
      *              formula
@@ -327,7 +327,7 @@ public interface Formula extends Iterable<Formula> {
      * i.e. `other &lt;=&gt; this` is a tautology. A new SAT solver is used to
      * check this tautology. This is a convenience method. If you want to have
      * more influence on the solver (e.g. which solver type or configuration)
-     * you must create and use a {@link SATSolver} on your own.
+     * you must create and use a {@link SatSolver} on your own.
      * @param f     the formula factory to use for caching
      * @param other the formula which should be checked if it is equivalent with
      *              this formula
@@ -343,22 +343,22 @@ public interface Formula extends Iterable<Formula> {
      * done by generating a new BDD factory, generating the variable order for
      * this formula, and building a new BDD. If more sophisticated operations
      * should be performed on the BDD or more than one formula should be
-     * constructed on the BDD, an own instance of {@link BDDFactory} should be
+     * constructed on the BDD, an own instance of {@link BddFactory} should be
      * created and used.
      * @param f        the formula factory to generate new formulas
      * @param provider the variable ordering provider
      * @return the BDD for this formula with the given ordering
      */
-    default BDD bdd(final FormulaFactory f, final VariableOrderingProvider provider) {
+    default Bdd bdd(final FormulaFactory f, final VariableOrderingProvider provider) {
         final Formula formula = nnf(f);
         final int varNum = formula.variables(f).size();
-        final BDDKernel kernel;
+        final BddKernel kernel;
         if (provider == null) {
-            kernel = new BDDKernel(f, varNum, varNum * 30, varNum * 20);
+            kernel = new BddKernel(f, varNum, varNum * 30, varNum * 20);
         } else {
-            kernel = new BDDKernel(f, provider.getOrder(f, formula), varNum * 30, varNum * 20);
+            kernel = new BddKernel(f, provider.getOrder(f, formula), varNum * 30, varNum * 20);
         }
-        return BDDFactory.build(f, formula, kernel);
+        return BddFactory.build(f, formula, kernel);
     }
 
     /**
@@ -366,11 +366,11 @@ public interface Formula extends Iterable<Formula> {
      * is done by generating a new BDD factory and building a new BDD. If more
      * sophisticated operations should be performed on the BDD or more than one
      * formula should be constructed on the BDD, an own instance of *
-     * {@link BDDFactory} should be created and used.
+     * {@link BddFactory} should be created and used.
      * @param f the formula factory to generate new formulas
      * @return the BDD for this formula
      */
-    default BDD bdd(final FormulaFactory f) {
+    default Bdd bdd(final FormulaFactory f) {
         return bdd(f, null);
     }
 
@@ -390,7 +390,7 @@ public interface Formula extends Iterable<Formula> {
      * @return the result of the transformation which may have been canceled by
      * the computation handler
      */
-    default LNGResult<Formula> transform(final FormulaTransformation transformation, final ComputationHandler handler) {
+    default LngResult<Formula> transform(final FormulaTransformation transformation, final ComputationHandler handler) {
         return transformation.apply(this, handler);
     }
 

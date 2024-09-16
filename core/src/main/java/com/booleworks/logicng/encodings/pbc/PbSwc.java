@@ -22,8 +22,8 @@
 
 package com.booleworks.logicng.encodings.pbc;
 
-import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.collections.LNGVector;
+import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.collections.LngVector;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -36,24 +36,24 @@ import com.booleworks.logicng.formulas.Literal;
  */
 public final class PbSwc {
 
-    public static void encode(final EncodingResult result, final LNGVector<Literal> lits, final LNGIntVector coeffs,
+    public static void encode(final EncodingResult result, final LngVector<Literal> lits, final LngIntVector coeffs,
                               final int rhs) {
         generateConstraint(result, rhs, lits, coeffs);
     }
 
-    private static void generateConstraint(final EncodingResult result, final int rhs, final LNGVector<Literal> lits,
-                                           final LNGIntVector coeffs) {
+    private static void generateConstraint(final EncodingResult result, final int rhs, final LngVector<Literal> lits,
+                                           final LngIntVector coeffs) {
         final FormulaFactory f = result.getFactory();
         final int n = lits.size();
-        final LNGVector<LNGVector<Literal>> seqAuxiliary = new LNGVector<>(n + 1);
+        final LngVector<LngVector<Literal>> seqAuxiliary = new LngVector<>(n + 1);
         for (int i = 0; i < n + 1; i++) {
-            final LNGVector<Literal> temp = new LNGVector<>();
+            final LngVector<Literal> temp = new LngVector<>();
             temp.growTo(rhs + 1);
             seqAuxiliary.push(temp);
         }
         for (int i = 1; i <= n; ++i) {
             for (int j = 1; j <= rhs; ++j) {
-                seqAuxiliary.get(i).set(j, f.newPBVariable());
+                seqAuxiliary.get(i).set(j, f.newPbVariable());
             }
         }
         for (int i = 1; i <= n; i++) {

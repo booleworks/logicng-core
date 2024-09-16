@@ -4,14 +4,14 @@
 
 package com.booleworks.logicng.knowledgecompilation.dnnf;
 
-import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.solvers.datastructures.LNGClause;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.solvers.datastructures.LngClause;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,11 +23,11 @@ import java.util.List;
  * @version 2.0.0
  * @since 2.0.0
  */
-public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
+public class DnnfCoreSolver extends LngCoreSolver implements DnnfSatSolver {
 
     protected boolean newlyImpliedDirty = false;
     protected int assertionLevel = -1;
-    protected LNGIntVector lastLearnt = null;
+    protected LngIntVector lastLearnt = null;
     protected final FormulaFactory f;
     protected final Tristate[] assignment;
     protected final List<Literal> impliedOperands;
@@ -38,7 +38,7 @@ public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
      * @param numberOfVariables the number of variables
      */
     public DnnfCoreSolver(final FormulaFactory f, final int numberOfVariables) {
-        super(f, SATSolverConfig.builder().build());
+        super(f, SatSolverConfig.builder().build());
         this.f = f;
         assignment = new Tristate[2 * numberOfVariables];
         Arrays.fill(assignment, Tristate.UNDEF);
@@ -72,7 +72,7 @@ public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
      * @return the variable index of the literal
      */
     public static int var(final int lit) {
-        return LNGCoreSolver.var(lit);
+        return LngCoreSolver.var(lit);
     }
 
     /**
@@ -142,8 +142,8 @@ public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
             uncheckedEnqueue(lastLearnt.get(0), null);
             unitClauses.push(lastLearnt.get(0));
         } else {
-            final LNGClause cr = new LNGClause(lastLearnt, nextStateId);
-            cr.setLBD(analyzeLBD);
+            final LngClause cr = new LngClause(lastLearnt, nextStateId);
+            cr.setLbd(analyzeLbd);
             cr.setOneWatched(false);
             learnts.push(cr);
             attachClause(cr);
@@ -177,7 +177,7 @@ public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
     }
 
     protected boolean propagateAfterDecide() {
-        final LNGClause conflict = propagate();
+        final LngClause conflict = propagate();
         if (conflict != null) {
             handleConflict(conflict);
             return false;
@@ -186,7 +186,7 @@ public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
     }
 
     @Override
-    protected void uncheckedEnqueue(final int lit, final LNGClause reason) {
+    protected void uncheckedEnqueue(final int lit, final LngClause reason) {
         assignment[lit] = Tristate.TRUE;
         assignment[lit ^ 1] = Tristate.FALSE;
         super.uncheckedEnqueue(lit, reason);
@@ -204,9 +204,9 @@ public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
         }
     }
 
-    protected void handleConflict(final LNGClause conflict) {
+    protected void handleConflict(final LngClause conflict) {
         if (decisionLevel() > 0) {
-            lastLearnt = new LNGIntVector();
+            lastLearnt = new LngIntVector();
             analyze(conflict, lastLearnt);
             assertionLevel = analyzeBtLevel;
         } else {

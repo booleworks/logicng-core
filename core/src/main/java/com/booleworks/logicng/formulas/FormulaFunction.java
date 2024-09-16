@@ -5,7 +5,7 @@
 package com.booleworks.logicng.formulas;
 
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
 
 /**
@@ -22,7 +22,7 @@ public interface FormulaFunction<T> {
      * @param formula the input formula
      * @return the result of the application
      */
-    LNGResult<T> apply(Formula formula, ComputationHandler handler);
+    LngResult<T> apply(Formula formula, ComputationHandler handler);
 
     /**
      * Applies this function to a given formula.

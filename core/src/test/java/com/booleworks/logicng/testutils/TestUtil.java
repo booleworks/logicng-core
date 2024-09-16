@@ -10,7 +10,7 @@ import static com.booleworks.logicng.util.CollectionHelper.union;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 
 import java.math.BigInteger;
 import java.util.Collections;
@@ -30,10 +30,10 @@ public final class TestUtil {
      * projected to the given set of variables, otherwise {@code false}
      */
     public static boolean equivalentModels(final Formula f1, final Formula f2, final SortedSet<Variable> vars) {
-        final SATSolver s1 = SATSolver.newSolver(f1.getFactory());
+        final SatSolver s1 = SatSolver.newSolver(f1.getFactory());
         s1.add(f1);
         final List<Model> models1 = s1.enumerateAllModels(vars);
-        final SATSolver s2 = SATSolver.newSolver(f2.getFactory());
+        final SatSolver s2 = SatSolver.newSolver(f2.getFactory());
         s2.add(f2);
         final List<Model> models2 = s2.enumerateAllModels(vars);
         if (models1.size() != models2.size()) {

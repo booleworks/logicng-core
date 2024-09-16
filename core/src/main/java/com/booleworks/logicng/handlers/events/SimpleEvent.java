@@ -3,7 +3,7 @@ package com.booleworks.logicng.handlers.events;
 import com.booleworks.logicng.handlers.ComputationHandler;
 
 /**
- * A class for simple {@link LNGEvent} types which can basically be used
+ * A class for simple {@link LngEvent} types which can basically be used
  * as singletons. By convention, simple events are instantiated as
  * {@code static final} fields s.t. they can be checked in
  * {@link ComputationHandler handlers} by using referential equality.
@@ -12,7 +12,7 @@ import com.booleworks.logicng.handlers.ComputationHandler;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class SimpleEvent implements LNGEvent {
+public class SimpleEvent implements LngEvent {
 
     public static final SimpleEvent NO_EVENT = new SimpleEvent("No event");
     public static final SimpleEvent DISTRIBUTION_PERFORMED = new SimpleEvent("Distribution performed");

@@ -14,11 +14,11 @@ import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.predicates.satisfiability.SATPredicate;
+import com.booleworks.logicng.predicates.satisfiability.SatPredicate;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.SolverState;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
@@ -37,10 +37,10 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
     public void testCornerCases(final FormulaContext _c) {
         final FormulaCornerCases cornerCases = new FormulaCornerCases(_c.f);
         for (final Formula formula : cornerCases.cornerCases()) {
-            final SATSolver solverFactorization = SATSolver.newSolver(_c.f,
-                    SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.FACTORY_CNF).build());
-            final SATSolver solverFullPG = SATSolver.newSolver(_c.f,
-                    SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.FULL_PG_ON_SOLVER).build());
+            final SatSolver solverFactorization = SatSolver.newSolver(_c.f,
+                    SatSolverConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.FACTORY_CNF).build());
+            final SatSolver solverFullPG = SatSolver.newSolver(_c.f,
+                    SatSolverConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.FULL_PG_ON_SOLVER).build());
             solverFactorization.add(formula);
             solverFullPG.add(formula);
             assertThat(solverFactorization.sat() == solverFullPG.sat()).isTrue();
@@ -52,8 +52,8 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
     public void randomCaching() {
         for (int i = 0; i < 500; i++) {
             final FormulaFactory f = FormulaFactory.caching();
-            final SATSolver solver = SATSolver.newSolver(f,
-                    SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.FULL_PG_ON_SOLVER).build());
+            final SatSolver solver = SatSolver.newSolver(f,
+                    SatSolverConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.FULL_PG_ON_SOLVER).build());
             final FormulaRandomizer randomizer = new FormulaRandomizer(f,
                     FormulaRandomizerConfig.builder().numVars(10).weightPbc(1).seed(i * 42).build());
 
@@ -123,14 +123,14 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
     private static Formula randomSATFormula(final FormulaFactory f, final FormulaRandomizer randomizer,
                                             final int maxDepth) {
         return Stream.generate(() -> randomizer.formula(maxDepth))
-                .filter(formula -> formula.holds(new SATPredicate(f)))
+                .filter(formula -> formula.holds(new SatPredicate(f)))
                 .findAny().get();
     }
 
     private static void computeAndVerify(final Formula formula) {
         final FormulaFactory f = formula.getFactory();
-        final SATSolver solver = SATSolver.newSolver(f,
-                SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.FULL_PG_ON_SOLVER).build());
+        final SatSolver solver = SatSolver.newSolver(f,
+                SatSolverConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.FULL_PG_ON_SOLVER).build());
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(formula.variables(f));
         final Formula dnf = f.or(models.stream().map(model -> f.and(model.getLiterals())).collect(Collectors.toList()));

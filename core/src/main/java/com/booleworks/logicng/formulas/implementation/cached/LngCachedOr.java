@@ -28,7 +28,7 @@ public class LngCachedOr extends LngCachedNAryOperator implements Or {
      * @return {@code true} if this formula is a CNF clause
      */
     @Override
-    public boolean isCNFClause() {
+    public boolean isCnfClause() {
         return f.getPredicateCacheForType(PredicateCacheEntry.IS_CNF).get(this) == Boolean.TRUE;
     }
 

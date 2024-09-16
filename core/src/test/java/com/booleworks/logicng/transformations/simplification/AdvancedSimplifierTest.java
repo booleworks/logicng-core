@@ -15,7 +15,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.handlers.BoundedOptimizationHandler;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
@@ -162,7 +162,7 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
     private void testHandler(final ComputationHandler handler, final Formula formula, final boolean expCanceled) {
         final AdvancedSimplifier simplifierWithHandler =
                 new AdvancedSimplifier(formula.getFactory(), AdvancedSimplifierConfig.builder().build());
-        final LNGResult<Formula> simplified = formula.transform(simplifierWithHandler, handler);
+        final LngResult<Formula> simplified = formula.transform(simplifierWithHandler, handler);
         assertThat(simplified.isSuccess()).isEqualTo(!expCanceled);
         if (expCanceled) {
             assertThatThrownBy(simplified::getResult).isInstanceOf(IllegalStateException.class);

@@ -11,7 +11,7 @@ import com.booleworks.logicng.formulas.Literal;
 import java.util.Collections;
 import java.util.List;
 
-public class LngNativeCardinalityConstraint extends LngNativePBConstraint implements CardinalityConstraint {
+public class LngNativeCardinalityConstraint extends LngNativePbConstraint implements CardinalityConstraint {
 
     /**
      * Constructs a new cardinality constraint.

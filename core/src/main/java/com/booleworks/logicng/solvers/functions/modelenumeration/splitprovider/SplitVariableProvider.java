@@ -5,7 +5,7 @@
 package com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider;
 
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 
 import java.util.Collection;
@@ -28,5 +28,5 @@ public interface SplitVariableProvider {
      *                  chosen
      * @return the split variables
      */
-    SortedSet<Variable> getSplitVars(final SATSolver solver, final Collection<Variable> variables);
+    SortedSet<Variable> getSplitVars(final SatSolver solver, final Collection<Variable> variables);
 }

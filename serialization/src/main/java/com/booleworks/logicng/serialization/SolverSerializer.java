@@ -14,25 +14,25 @@ import static com.booleworks.logicng.serialization.SolverDatastructures.deserial
 import static com.booleworks.logicng.serialization.SolverDatastructures.serializeIntQueue;
 import static com.booleworks.logicng.serialization.SolverDatastructures.serializeLongQueue;
 
-import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.collections.LNGVector;
+import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.collections.LngVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.StandardProposition;
-import com.booleworks.logicng.serialization.ProtoBufSatSolver.PBSatSolver;
-import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PBClause;
-import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PBClauseVector;
-import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PBProofInformation;
-import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PBVariableVector;
-import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PBWatcherVector;
-import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PBWatcherVectorVector;
-import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.datastructures.LNGClause;
-import com.booleworks.logicng.solvers.datastructures.LNGVariable;
-import com.booleworks.logicng.solvers.datastructures.LNGWatcher;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver.ProofInformation;
+import com.booleworks.logicng.serialization.ProtoBufSatSolver.PbSatSolver;
+import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PbClause;
+import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PbClauseVector;
+import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PbProofInformation;
+import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PbVariableVector;
+import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PbWatcherVector;
+import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PbWatcherVectorVector;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.datastructures.LngClause;
+import com.booleworks.logicng.solvers.datastructures.LngVariable;
+import com.booleworks.logicng.solvers.datastructures.LngWatcher;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver.ProofInformation;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -95,7 +95,7 @@ public class SolverSerializer {
         };
         final Function<byte[], Proposition> deserializer = (final byte[] bs) -> {
             try {
-                return Propositions.deserializePropositions(f, ProtoBufPropositions.PBStandardProposition.newBuilder().mergeFrom(bs).build());
+                return Propositions.deserializePropositions(f, ProtoBufPropositions.PbStandardProposition.newBuilder().mergeFrom(bs).build());
             } catch (final InvalidProtocolBufferException e) {
                 throw new IllegalArgumentException("Can only deserialize Standard propositions");
             }
@@ -127,7 +127,7 @@ public class SolverSerializer {
      * @param compress a flag whether the file should be compressed (zip)
      * @throws IOException if there is a problem writing the file
      */
-    public void serializeSolverToFile(final SATSolver solver, final Path path, final boolean compress) throws IOException {
+    public void serializeSolverToFile(final SatSolver solver, final Path path, final boolean compress) throws IOException {
         try (final OutputStream outputStream = compress ? new GZIPOutputStream(Files.newOutputStream(path)) : Files.newOutputStream(path)) {
             serializeSolverToStream(solver, outputStream);
         }
@@ -139,7 +139,7 @@ public class SolverSerializer {
      * @param stream the stream
      * @throws IOException if there is a problem writing to the stream
      */
-    public void serializeSolverToStream(final SATSolver solver, final OutputStream stream) throws IOException {
+    public void serializeSolverToStream(final SatSolver solver, final OutputStream stream) throws IOException {
         serializeSolver(solver).writeTo(stream);
     }
 
@@ -148,7 +148,7 @@ public class SolverSerializer {
      * @param solver the SAT solver
      * @return the protocol buffer
      */
-    public PBSatSolver serializeSolver(final SATSolver solver) {
+    public PbSatSolver serializeSolver(final SatSolver solver) {
         return serialize(solver);
     }
 
@@ -159,7 +159,7 @@ public class SolverSerializer {
      * @return the solver
      * @throws IOException if there is a problem reading the file
      */
-    public SATSolver deserializeSatSolverFromFile(final Path path, final boolean compress) throws IOException {
+    public SatSolver deserializeSatSolverFromFile(final Path path, final boolean compress) throws IOException {
         try (final InputStream inputStream = compress ? new GZIPInputStream(Files.newInputStream(path)) : Files.newInputStream(path)) {
             return deserializeSatSolverFromStream(inputStream);
         }
@@ -171,8 +171,8 @@ public class SolverSerializer {
      * @return the solver
      * @throws IOException if there is a problem reading from the stream
      */
-    public SATSolver deserializeSatSolverFromStream(final InputStream stream) throws IOException {
-        return deserializeSatSolver(PBSatSolver.newBuilder().mergeFrom(stream).build());
+    public SatSolver deserializeSatSolverFromStream(final InputStream stream) throws IOException {
+        return deserializeSatSolver(PbSatSolver.newBuilder().mergeFrom(stream).build());
     }
 
     /**
@@ -180,16 +180,16 @@ public class SolverSerializer {
      * @param bin the protocol buffer
      * @return the solver
      */
-    public SATSolver deserializeSatSolver(final PBSatSolver bin) {
+    public SatSolver deserializeSatSolver(final PbSatSolver bin) {
         return deserialize(bin);
     }
 
-    PBSatSolver serialize(final SATSolver solver) {
+    PbSatSolver serialize(final SatSolver solver) {
         final var core = solver.getUnderlyingSolver();
-        final LNGVector<LNGClause> clauses = getField(core, "clauses");
-        final LNGVector<LNGClause> learnts = getField(core, "learnts");
-        final IdentityHashMap<LNGClause, Integer> clauseMap = generateClauseMap(clauses, learnts);
-        final PBSatSolver.Builder builder = PBSatSolver.newBuilder();
+        final LngVector<LngClause> clauses = getField(core, "clauses");
+        final LngVector<LngClause> learnts = getField(core, "learnts");
+        final IdentityHashMap<LngClause, Integer> clauseMap = generateClauseMap(clauses, learnts);
+        final PbSatSolver.Builder builder = PbSatSolver.newBuilder();
 
         builder.setConfig(SatSolverConfigs.serializeSatSolverConfig(getField(core, "config")));
         builder.setInSatCall(getField(core, "inSatCall"));
@@ -218,11 +218,11 @@ public class SolverSerializer {
         builder.setClausesLiterals(getField(core, "clausesLiterals"));
         builder.setLearntsLiterals(getField(core, "learntsLiterals"));
 
-        final LNGVector<LNGIntVector> pgProof = getField(core, "pgProof");
+        final LngVector<LngIntVector> pgProof = getField(core, "pgProof");
         if (pgProof != null) {
             builder.setPgProof(Collections.serializeVec(pgProof));
         }
-        final LNGVector<ProofInformation> pgOriginalClauses = getField(core, "pgOriginalClauses");
+        final LngVector<ProofInformation> pgOriginalClauses = getField(core, "pgOriginalClauses");
         if (pgOriginalClauses != null) {
             for (final ProofInformation oc : pgOriginalClauses) {
                 builder.addPgOriginalClauses(serialize(oc));
@@ -234,7 +234,7 @@ public class SolverSerializer {
         if (backboneCandidates != null) {
             builder.setBackboneCandidates(serializeStack(backboneCandidates));
         }
-        final LNGIntVector backboneAssumptions = getField(core, "backboneAssumptions");
+        final LngIntVector backboneAssumptions = getField(core, "backboneAssumptions");
         if (backboneAssumptions != null) {
             builder.setBackboneAssumptions(serializeIntVec(backboneAssumptions));
         }
@@ -252,19 +252,19 @@ public class SolverSerializer {
         builder.setLbdQueue(serializeLongQueue(getField(core, "lbdQueue")));
         builder.setTrailQueue(serializeIntQueue(getField(core, "trailQueue")));
         builder.setMyflag(getField(core, "myflag"));
-        builder.setAnalyzeLBD(getField(core, "analyzeLBD"));
+        builder.setAnalyzeLBD(getField(core, "analyzeLbd"));
         builder.setNbClausesBeforeReduce(getField(core, "nbClausesBeforeReduce"));
         builder.setConflicts(getField(core, "conflicts"));
         builder.setConflictsRestarts(getField(core, "conflictsRestarts"));
-        builder.setSumLBD(getField(core, "sumLBD"));
+        builder.setSumLBD(getField(core, "sumLbd"));
         builder.setCurRestart(getField(core, "curRestart"));
 
         return builder.build();
     }
 
-    SATSolver deserialize(final PBSatSolver bin) {
-        final Map<Integer, LNGClause> clauseMap = new TreeMap<>();
-        final var core = new LNGCoreSolver(f, SatSolverConfigs.deserializeSatSolverConfig(bin.getConfig()));
+    SatSolver deserialize(final PbSatSolver bin) {
+        final Map<Integer, LngClause> clauseMap = new TreeMap<>();
+        final var core = new LngCoreSolver(f, SatSolverConfigs.deserializeSatSolverConfig(bin.getConfig()));
         setField(core, "inSatCall", bin.getInSatCall());
         setField(core, "name2idx", new TreeMap<>(bin.getName2IdxMap()));
         final Map<Integer, String> idx2name = new TreeMap<>();
@@ -298,8 +298,8 @@ public class SolverSerializer {
             setField(core, "pgProof", Collections.deserializeVec(bin.getPgProof()));
         }
         if (bin.getPgOriginalClausesCount() > 0) {
-            final LNGVector<ProofInformation> originalClauses = new LNGVector<>(bin.getPgOriginalClausesCount());
-            for (final PBProofInformation pi : bin.getPgOriginalClausesList()) {
+            final LngVector<ProofInformation> originalClauses = new LngVector<>(bin.getPgOriginalClausesCount());
+            for (final PbProofInformation pi : bin.getPgOriginalClausesList()) {
                 originalClauses.push(deserialize(pi));
             }
             setField(core, "pgOriginalClauses", originalClauses);
@@ -322,52 +322,52 @@ public class SolverSerializer {
         setField(core, "lbdQueue", deserializeLongQueue(bin.getLbdQueue()));
         setField(core, "trailQueue", deserializeIntQueue(bin.getTrailQueue()));
         setField(core, "myflag", bin.getMyflag());
-        setField(core, "analyzeLBD", bin.getAnalyzeLBD());
+        setField(core, "analyzeLbd", bin.getAnalyzeLBD());
         setField(core, "nbClausesBeforeReduce", bin.getNbClausesBeforeReduce());
         setField(core, "conflicts", bin.getConflicts());
         setField(core, "conflictsRestarts", bin.getConflictsRestarts());
-        setField(core, "sumLBD", bin.getSumLBD());
+        setField(core, "sumLbd", bin.getSumLBD());
         setField(core, "curRestart", bin.getCurRestart());
-        return new SATSolver(f, core);
+        return new SatSolver(f, core);
     }
 
-    private static IdentityHashMap<LNGClause, Integer> generateClauseMap(final LNGVector<LNGClause> clauses, final LNGVector<LNGClause> learnts) {
-        final IdentityHashMap<LNGClause, Integer> clauseMap = new IdentityHashMap<>();
-        for (final LNGClause clause : clauses) {
+    private static IdentityHashMap<LngClause, Integer> generateClauseMap(final LngVector<LngClause> clauses, final LngVector<LngClause> learnts) {
+        final IdentityHashMap<LngClause, Integer> clauseMap = new IdentityHashMap<>();
+        for (final LngClause clause : clauses) {
             clauseMap.put(clause, clauseMap.size());
         }
-        for (final LNGClause learnt : learnts) {
+        for (final LngClause learnt : learnts) {
             clauseMap.put(learnt, clauseMap.size());
         }
         return clauseMap;
     }
 
-    private static PBClauseVector serializeClauseVec(final LNGVector<LNGClause> vec,
-                                                     final IdentityHashMap<LNGClause, Integer> clauseMap) {
-        final PBClauseVector.Builder builder = PBClauseVector.newBuilder();
-        for (final LNGClause clause : vec) {
+    private static PbClauseVector serializeClauseVec(final LngVector<LngClause> vec,
+                                                     final IdentityHashMap<LngClause, Integer> clauseMap) {
+        final PbClauseVector.Builder builder = PbClauseVector.newBuilder();
+        for (final LngClause clause : vec) {
             builder.addElement(SolverDatastructures.serializeClause(clause, clauseMap.get(clause)));
         }
         return builder.build();
     }
 
-    private static LNGVector<LNGClause> deserializeClauseVec(final PBClauseVector bin, final Map<Integer, LNGClause> clauseMap) {
-        final LNGVector<LNGClause> vec = new LNGVector<>(bin.getElementCount());
+    private static LngVector<LngClause> deserializeClauseVec(final PbClauseVector bin, final Map<Integer, LngClause> clauseMap) {
+        final LngVector<LngClause> vec = new LngVector<>(bin.getElementCount());
         for (int i = 0; i < bin.getElementCount(); i++) {
-            final PBClause binClause = bin.getElement(i);
-            final LNGClause clause = SolverDatastructures.deserializeClause(binClause);
+            final PbClause binClause = bin.getElement(i);
+            final LngClause clause = SolverDatastructures.deserializeClause(binClause);
             clauseMap.put(binClause.getId(), clause);
             vec.push(clause);
         }
         return vec;
     }
 
-    private static PBWatcherVectorVector serializeWatches(final LNGVector<LNGVector<LNGWatcher>> vec,
-                                                          final IdentityHashMap<LNGClause, Integer> clauseMap) {
-        final PBWatcherVectorVector.Builder builder = PBWatcherVectorVector.newBuilder();
-        for (final LNGVector<LNGWatcher> watchList : vec) {
-            final PBWatcherVector.Builder watchBuilder = PBWatcherVector.newBuilder();
-            for (final LNGWatcher watch : watchList) {
+    private static PbWatcherVectorVector serializeWatches(final LngVector<LngVector<LngWatcher>> vec,
+                                                          final IdentityHashMap<LngClause, Integer> clauseMap) {
+        final PbWatcherVectorVector.Builder builder = PbWatcherVectorVector.newBuilder();
+        for (final LngVector<LngWatcher> watchList : vec) {
+            final PbWatcherVector.Builder watchBuilder = PbWatcherVector.newBuilder();
+            for (final LngWatcher watch : watchList) {
                 watchBuilder.addElement(SolverDatastructures.serializeWatcher(watch, clauseMap));
             }
             builder.addElement(watchBuilder.build());
@@ -375,12 +375,12 @@ public class SolverSerializer {
         return builder.build();
     }
 
-    private static LNGVector<LNGVector<LNGWatcher>> deserializeWatches(final PBWatcherVectorVector bin,
-                                                                       final Map<Integer, LNGClause> clauseMap) {
-        final LNGVector<LNGVector<LNGWatcher>> vec = new LNGVector<>(bin.getElementCount());
+    private static LngVector<LngVector<LngWatcher>> deserializeWatches(final PbWatcherVectorVector bin,
+                                                                       final Map<Integer, LngClause> clauseMap) {
+        final LngVector<LngVector<LngWatcher>> vec = new LngVector<>(bin.getElementCount());
         for (int i = 0; i < bin.getElementCount(); i++) {
-            final PBWatcherVector binWatch = bin.getElement(i);
-            final LNGVector<LNGWatcher> watch = new LNGVector<>(binWatch.getElementCount());
+            final PbWatcherVector binWatch = bin.getElement(i);
+            final LngVector<LngWatcher> watch = new LngVector<>(binWatch.getElementCount());
             for (int j = 0; j < binWatch.getElementCount(); j++) {
                 watch.push(SolverDatastructures.deserializeWatcher(binWatch.getElement(j), clauseMap));
             }
@@ -389,28 +389,28 @@ public class SolverSerializer {
         return vec;
     }
 
-    private static PBVariableVector serializeVarVec(final LNGVector<LNGVariable> vec,
-                                                    final IdentityHashMap<LNGClause, Integer> clauseMap) {
-        final PBVariableVector.Builder builder = PBVariableVector.newBuilder();
-        for (final LNGVariable var : vec) {
+    private static PbVariableVector serializeVarVec(final LngVector<LngVariable> vec,
+                                                    final IdentityHashMap<LngClause, Integer> clauseMap) {
+        final PbVariableVector.Builder builder = PbVariableVector.newBuilder();
+        for (final LngVariable var : vec) {
             builder.addElement(SolverDatastructures.serializeVariable(var, clauseMap));
         }
         return builder.build();
     }
 
-    private static LNGVector<LNGVariable> deserializeVarVec(final PBVariableVector bin, final Map<Integer, LNGClause> clauseMap) {
-        final LNGVector<LNGVariable> vec = new LNGVector<>(bin.getElementCount());
+    private static LngVector<LngVariable> deserializeVarVec(final PbVariableVector bin, final Map<Integer, LngClause> clauseMap) {
+        final LngVector<LngVariable> vec = new LngVector<>(bin.getElementCount());
         for (int i = 0; i < bin.getElementCount(); i++) {
             vec.push(SolverDatastructures.deserializeVariable(bin.getElement(i), clauseMap));
         }
         return vec;
     }
 
-    public static ProtoBufCollections.PBIntVector serializeStack(final Stack<Integer> stack) {
+    public static ProtoBufCollections.PbIntVector serializeStack(final Stack<Integer> stack) {
         if (stack == null) {
             return null;
         }
-        final ProtoBufCollections.PBIntVector.Builder vec = ProtoBufCollections.PBIntVector.newBuilder();
+        final ProtoBufCollections.PbIntVector.Builder vec = ProtoBufCollections.PbIntVector.newBuilder();
         for (final Integer integer : stack) {
             vec.addElement(integer);
         }
@@ -418,7 +418,7 @@ public class SolverSerializer {
         return vec.build();
     }
 
-    public static Stack<Integer> deserializeStack(final ProtoBufCollections.PBIntVector vec) {
+    public static Stack<Integer> deserializeStack(final ProtoBufCollections.PbIntVector vec) {
         final Stack<Integer> stack = new Stack<>();
         for (int i = 0; i < vec.getSize(); i++) {
             stack.push(vec.getElement(i));
@@ -426,13 +426,13 @@ public class SolverSerializer {
         return stack;
     }
 
-    private static HashMap<Integer, ProtoBufSolverDatastructures.PBTristate> serializeBbMap(final Map<Integer, Tristate> map) {
-        final HashMap<Integer, ProtoBufSolverDatastructures.PBTristate> ser = new HashMap<>();
+    private static HashMap<Integer, ProtoBufSolverDatastructures.PbTristate> serializeBbMap(final Map<Integer, Tristate> map) {
+        final HashMap<Integer, ProtoBufSolverDatastructures.PbTristate> ser = new HashMap<>();
         map.forEach((k, v) -> ser.put(k, SolverDatastructures.serializeTristate(v)));
         return ser;
     }
 
-    private static HashMap<Integer, Tristate> deserializeBbMap(final Map<Integer, ProtoBufSolverDatastructures.PBTristate> map) {
+    private static HashMap<Integer, Tristate> deserializeBbMap(final Map<Integer, ProtoBufSolverDatastructures.PbTristate> map) {
         if (map.isEmpty()) {
             return null;
         }
@@ -441,20 +441,20 @@ public class SolverSerializer {
         return ser;
     }
 
-    private PBProofInformation serialize(final ProofInformation pi) {
-        final PBProofInformation.Builder builder = PBProofInformation.newBuilder().setClause(serializeIntVec(pi.getClause()));
+    private PbProofInformation serialize(final ProofInformation pi) {
+        final PbProofInformation.Builder builder = PbProofInformation.newBuilder().setClause(serializeIntVec(pi.getClause()));
         if (pi.getProposition() != null) {
             builder.setProposition(ByteString.copyFrom(serializer.apply(pi.getProposition())));
         }
         return builder.build();
     }
 
-    private ProofInformation deserialize(final PBProofInformation bin) {
+    private ProofInformation deserialize(final PbProofInformation bin) {
         final Proposition prop = bin.hasProposition() ? deserializer.apply(bin.getProposition().toByteArray()) : null;
         return new ProofInformation(deserializeIntVec(bin.getClause()), prop);
     }
 
-    private List<ByteString> serializeProps(final LNGVector<Proposition> props) {
+    private List<ByteString> serializeProps(final LngVector<Proposition> props) {
         final List<ByteString> res = new ArrayList<>();
         for (final Proposition prop : props) {
             res.add(ByteString.copyFrom(serializer.apply(prop)));
@@ -462,8 +462,8 @@ public class SolverSerializer {
         return res;
     }
 
-    private LNGVector<Proposition> deserializeProps(final List<ByteString> bin) {
-        return new LNGVector<>(bin.stream()
+    private LngVector<Proposition> deserializeProps(final List<ByteString> bin) {
+        return new LngVector<>(bin.stream()
                 .map(it -> deserializer.apply(it.toByteArray()))
                 .collect(Collectors.toList()));
     }

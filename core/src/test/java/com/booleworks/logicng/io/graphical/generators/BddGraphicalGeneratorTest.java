@@ -17,9 +17,9 @@ import com.booleworks.logicng.io.graphical.GraphicalNodeStyle;
 import com.booleworks.logicng.io.graphical.GraphicalRepresentation;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
-import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
-import com.booleworks.logicng.knowledgecompilation.bdds.BDDFactory;
-import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
+import com.booleworks.logicng.knowledgecompilation.bdds.Bdd;
+import com.booleworks.logicng.knowledgecompilation.bdds.BddFactory;
+import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -35,18 +35,18 @@ public class BddGraphicalGeneratorTest {
         final PropositionalParser p = new PropositionalParser(f);
         final List<Variable> ordering =
                 Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
-        final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
-        testFiles("false", BDDFactory.build(f, p.parse("$false"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("true", BDDFactory.build(f, p.parse("$true"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("a", BDDFactory.build(f, p.parse("A"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("not_a", BDDFactory.build(f, p.parse("~A"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("impl", BDDFactory.build(f, p.parse("A => ~C"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("equiv", BDDFactory.build(f, p.parse("A <=> ~C"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("or", BDDFactory.build(f, p.parse("A | B | ~C"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("and", BDDFactory.build(f, p.parse("A & B & ~C"), kernel), BddGraphicalGenerator.builder().build());
-        testFiles("not", BDDFactory.build(f, p.parse("~(A & B & ~C)"), kernel),
+        final BddKernel kernel = new BddKernel(f, ordering, 1000, 1000);
+        testFiles("false", BddFactory.build(f, p.parse("$false"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("true", BddFactory.build(f, p.parse("$true"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("a", BddFactory.build(f, p.parse("A"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("not_a", BddFactory.build(f, p.parse("~A"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("impl", BddFactory.build(f, p.parse("A => ~C"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("equiv", BddFactory.build(f, p.parse("A <=> ~C"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("or", BddFactory.build(f, p.parse("A | B | ~C"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("and", BddFactory.build(f, p.parse("A & B & ~C"), kernel), BddGraphicalGenerator.builder().build());
+        testFiles("not", BddFactory.build(f, p.parse("~(A & B & ~C)"), kernel),
                 BddGraphicalGenerator.builder().build());
-        testFiles("formula", BDDFactory.build(f, p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel),
+        testFiles("formula", BddFactory.build(f, p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel),
                 BddGraphicalGenerator.builder().build());
     }
 
@@ -56,8 +56,8 @@ public class BddGraphicalGeneratorTest {
         final PropositionalParser p = new PropositionalParser(f);
         final List<Variable> ordering =
                 Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
-        final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
-        final BDD bdd = BDDFactory.build(f, p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel);
+        final BddKernel kernel = new BddKernel(f, ordering, 1000, 1000);
+        final Bdd bdd = BddFactory.build(f, p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel);
 
         final BddGraphicalGenerator generator = BddGraphicalGenerator.builder()
                 .falseNodeStyle(GraphicalNodeStyle.rectangle(GraphicalColor.PURPLE, GraphicalColor.WHITE,
@@ -80,8 +80,8 @@ public class BddGraphicalGeneratorTest {
         final PropositionalParser p = new PropositionalParser(f);
         final List<Variable> ordering =
                 Arrays.asList(f.variable("A"), f.variable("B"), f.variable("C"), f.variable("D"));
-        final BDDKernel kernel = new BDDKernel(f, ordering, 1000, 1000);
-        final BDD bdd = BDDFactory.build(f, p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel);
+        final BddKernel kernel = new BddKernel(f, ordering, 1000, 1000);
+        final Bdd bdd = BddFactory.build(f, p.parse("(A => (B|~C)) & (B => C & D) & (D <=> A)"), kernel);
 
         final BddGraphicalGenerator generator = BddGraphicalGenerator.builder()
                 .negativeEdgeMapper(new MyNegEdgeMapper(kernel))
@@ -92,7 +92,7 @@ public class BddGraphicalGeneratorTest {
         testFiles("formula-dynamic", bdd, generator);
     }
 
-    private void testFiles(final String fileName, final BDD bdd, final BddGraphicalGenerator generator)
+    private void testFiles(final String fileName, final Bdd bdd, final BddGraphicalGenerator generator)
             throws IOException {
         final GraphicalRepresentation representation = generator.translate(bdd);
         representation.write("../test_files/writers/temp/" + fileName + "_bdd.dot", GraphicalDotWriter.get());
@@ -113,7 +113,7 @@ public class BddGraphicalGeneratorTest {
         final GraphicalNodeStyle otherStyle =
                 GraphicalNodeStyle.circle(GraphicalColor.CYAN, GraphicalColor.WHITE, GraphicalColor.CYAN);
 
-        public MyStyleMapper(final BDDKernel kernel) {
+        public MyStyleMapper(final BddKernel kernel) {
             super(kernel);
         }
 
@@ -136,7 +136,7 @@ public class BddGraphicalGeneratorTest {
 
     private static class MyLabelMapper extends BddLabelMapper {
 
-        public MyLabelMapper(final BDDKernel kernel) {
+        public MyLabelMapper(final BddKernel kernel) {
             super(kernel);
         }
 
@@ -162,7 +162,7 @@ public class BddGraphicalGeneratorTest {
         final GraphicalEdgeStyle style1 = GraphicalEdgeStyle.solid(GraphicalColor.GREEN);
         final GraphicalEdgeStyle style2 = GraphicalEdgeStyle.bold(GraphicalColor.GREEN);
 
-        public MyPosEdgeMapper(final BDDKernel kernel) {
+        public MyPosEdgeMapper(final BddKernel kernel) {
             super(kernel);
         }
 
@@ -177,7 +177,7 @@ public class BddGraphicalGeneratorTest {
         final GraphicalEdgeStyle style1 = GraphicalEdgeStyle.dotted(GraphicalColor.RED);
         final GraphicalEdgeStyle style2 = GraphicalEdgeStyle.bold(GraphicalColor.RED);
 
-        public MyNegEdgeMapper(final BDDKernel kernel) {
+        public MyNegEdgeMapper(final BddKernel kernel) {
             super(kernel);
         }
 

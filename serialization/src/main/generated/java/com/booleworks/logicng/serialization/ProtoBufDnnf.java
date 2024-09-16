@@ -25,8 +25,8 @@ public final class ProtoBufDnnf {
     registerAllExtensions(
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
-  public interface PBDnnfOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:dnnf.PBDnnf)
+  public interface PbDnnfOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:dnnf.PbDnnf)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -55,27 +55,27 @@ public final class ProtoBufDnnf {
         getOriginalVariablesBytes(int index);
 
     /**
-     * <code>.formulas.PBFormulas formula = 2;</code>
+     * <code>.formulas.PbFormulas formula = 2;</code>
      * @return Whether the formula field is set.
      */
     boolean hasFormula();
     /**
-     * <code>.formulas.PBFormulas formula = 2;</code>
+     * <code>.formulas.PbFormulas formula = 2;</code>
      * @return The formula.
      */
-    com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas getFormula();
+    com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas getFormula();
     /**
-     * <code>.formulas.PBFormulas formula = 2;</code>
+     * <code>.formulas.PbFormulas formula = 2;</code>
      */
-    com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulasOrBuilder getFormulaOrBuilder();
+    com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulasOrBuilder getFormulaOrBuilder();
   }
   /**
-   * Protobuf type {@code dnnf.PBDnnf}
+   * Protobuf type {@code dnnf.PbDnnf}
    */
-  public static final class PBDnnf extends
+  public static final class PbDnnf extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:dnnf.PBDnnf)
-      PBDnnfOrBuilder {
+      // @@protoc_insertion_point(message_implements:dnnf.PbDnnf)
+      PbDnnfOrBuilder {
   private static final long serialVersionUID = 0L;
     static {
       com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
@@ -84,28 +84,28 @@ public final class ProtoBufDnnf {
         /* minor= */ 28,
         /* patch= */ 1,
         /* suffix= */ "",
-        PBDnnf.class.getName());
+        PbDnnf.class.getName());
     }
-    // Use PBDnnf.newBuilder() to construct.
-    private PBDnnf(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    // Use PbDnnf.newBuilder() to construct.
+    private PbDnnf(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
     }
-    private PBDnnf() {
+    private PbDnnf() {
       originalVariables_ =
           com.google.protobuf.LazyStringArrayList.emptyList();
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.booleworks.logicng.serialization.ProtoBufDnnf.internal_static_dnnf_PBDnnf_descriptor;
+      return com.booleworks.logicng.serialization.ProtoBufDnnf.internal_static_dnnf_PbDnnf_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.booleworks.logicng.serialization.ProtoBufDnnf.internal_static_dnnf_PBDnnf_fieldAccessorTable
+      return com.booleworks.logicng.serialization.ProtoBufDnnf.internal_static_dnnf_PbDnnf_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf.class, com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf.Builder.class);
+              com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf.class, com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf.Builder.class);
     }
 
     private int bitField0_;
@@ -147,9 +147,9 @@ public final class ProtoBufDnnf {
     }
 
     public static final int FORMULA_FIELD_NUMBER = 2;
-    private com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas formula_;
+    private com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas formula_;
     /**
-     * <code>.formulas.PBFormulas formula = 2;</code>
+     * <code>.formulas.PbFormulas formula = 2;</code>
      * @return Whether the formula field is set.
      */
     @java.lang.Override
@@ -157,19 +157,19 @@ public final class ProtoBufDnnf {
       return ((bitField0_ & 0x00000001) != 0);
     }
     /**
-     * <code>.formulas.PBFormulas formula = 2;</code>
+     * <code>.formulas.PbFormulas formula = 2;</code>
      * @return The formula.
      */
     @java.lang.Override
-    public com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas getFormula() {
-      return formula_ == null ? com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas.getDefaultInstance() : formula_;
+    public com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas getFormula() {
+      return formula_ == null ? com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas.getDefaultInstance() : formula_;
     }
     /**
-     * <code>.formulas.PBFormulas formula = 2;</code>
+     * <code>.formulas.PbFormulas formula = 2;</code>
      */
     @java.lang.Override
-    public com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulasOrBuilder getFormulaOrBuilder() {
-      return formula_ == null ? com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas.getDefaultInstance() : formula_;
+    public com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulasOrBuilder getFormulaOrBuilder() {
+      return formula_ == null ? com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas.getDefaultInstance() : formula_;
     }
 
     private byte memoizedIsInitialized = -1;
@@ -223,10 +223,10 @@ public final class ProtoBufDnnf {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf)) {
+      if (!(obj instanceof com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf)) {
         return super.equals(obj);
       }
-      com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf other = (com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf) obj;
+      com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf other = (com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf) obj;
 
       if (!getOriginalVariablesList()
           .equals(other.getOriginalVariablesList())) return false;
@@ -259,44 +259,44 @@ public final class ProtoBufDnnf {
       return hash;
     }
 
-    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf parseFrom(byte[] data)
+    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf parseFrom(java.io.InputStream input)
+    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessage
           .parseWithIOException(PARSER, input);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -304,26 +304,26 @@ public final class ProtoBufDnnf {
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf parseDelimitedFrom(java.io.InputStream input)
+    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessage
           .parseDelimitedWithIOException(PARSER, input);
     }
 
-    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf parseDelimitedFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessage
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessage
           .parseWithIOException(PARSER, input);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -336,7 +336,7 @@ public final class ProtoBufDnnf {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf prototype) {
+    public static Builder newBuilder(com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -352,26 +352,26 @@ public final class ProtoBufDnnf {
       return builder;
     }
     /**
-     * Protobuf type {@code dnnf.PBDnnf}
+     * Protobuf type {@code dnnf.PbDnnf}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:dnnf.PBDnnf)
-        com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnfOrBuilder {
+        // @@protoc_insertion_point(builder_implements:dnnf.PbDnnf)
+        com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnfOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.booleworks.logicng.serialization.ProtoBufDnnf.internal_static_dnnf_PBDnnf_descriptor;
+        return com.booleworks.logicng.serialization.ProtoBufDnnf.internal_static_dnnf_PbDnnf_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.booleworks.logicng.serialization.ProtoBufDnnf.internal_static_dnnf_PBDnnf_fieldAccessorTable
+        return com.booleworks.logicng.serialization.ProtoBufDnnf.internal_static_dnnf_PbDnnf_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf.class, com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf.Builder.class);
+                com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf.class, com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf.Builder.class);
       }
 
-      // Construct using com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf.newBuilder()
+      // Construct using com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
@@ -404,17 +404,17 @@ public final class ProtoBufDnnf {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.booleworks.logicng.serialization.ProtoBufDnnf.internal_static_dnnf_PBDnnf_descriptor;
+        return com.booleworks.logicng.serialization.ProtoBufDnnf.internal_static_dnnf_PbDnnf_descriptor;
       }
 
       @java.lang.Override
-      public com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf getDefaultInstanceForType() {
-        return com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf.getDefaultInstance();
+      public com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf getDefaultInstanceForType() {
+        return com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf.getDefaultInstance();
       }
 
       @java.lang.Override
-      public com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf build() {
-        com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf result = buildPartial();
+      public com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf build() {
+        com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -422,14 +422,14 @@ public final class ProtoBufDnnf {
       }
 
       @java.lang.Override
-      public com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf buildPartial() {
-        com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf result = new com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf(this);
+      public com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf buildPartial() {
+        com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf result = new com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf(this);
         if (bitField0_ != 0) { buildPartial0(result); }
         onBuilt();
         return result;
       }
 
-      private void buildPartial0(com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf result) {
+      private void buildPartial0(com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf result) {
         int from_bitField0_ = bitField0_;
         if (((from_bitField0_ & 0x00000001) != 0)) {
           originalVariables_.makeImmutable();
@@ -447,16 +447,16 @@ public final class ProtoBufDnnf {
 
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf) {
-          return mergeFrom((com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf)other);
+        if (other instanceof com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf) {
+          return mergeFrom((com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf other) {
-        if (other == com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf.getDefaultInstance()) return this;
+      public Builder mergeFrom(com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf other) {
+        if (other == com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf.getDefaultInstance()) return this;
         if (!other.originalVariables_.isEmpty()) {
           if (originalVariables_.isEmpty()) {
             originalVariables_ = other.originalVariables_;
@@ -637,31 +637,31 @@ public final class ProtoBufDnnf {
         return this;
       }
 
-      private com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas formula_;
+      private com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas formula_;
       private com.google.protobuf.SingleFieldBuilder<
-          com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas, com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas.Builder, com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulasOrBuilder> formulaBuilder_;
+          com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas, com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas.Builder, com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulasOrBuilder> formulaBuilder_;
       /**
-       * <code>.formulas.PBFormulas formula = 2;</code>
+       * <code>.formulas.PbFormulas formula = 2;</code>
        * @return Whether the formula field is set.
        */
       public boolean hasFormula() {
         return ((bitField0_ & 0x00000002) != 0);
       }
       /**
-       * <code>.formulas.PBFormulas formula = 2;</code>
+       * <code>.formulas.PbFormulas formula = 2;</code>
        * @return The formula.
        */
-      public com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas getFormula() {
+      public com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas getFormula() {
         if (formulaBuilder_ == null) {
-          return formula_ == null ? com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas.getDefaultInstance() : formula_;
+          return formula_ == null ? com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas.getDefaultInstance() : formula_;
         } else {
           return formulaBuilder_.getMessage();
         }
       }
       /**
-       * <code>.formulas.PBFormulas formula = 2;</code>
+       * <code>.formulas.PbFormulas formula = 2;</code>
        */
-      public Builder setFormula(com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas value) {
+      public Builder setFormula(com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas value) {
         if (formulaBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -675,10 +675,10 @@ public final class ProtoBufDnnf {
         return this;
       }
       /**
-       * <code>.formulas.PBFormulas formula = 2;</code>
+       * <code>.formulas.PbFormulas formula = 2;</code>
        */
       public Builder setFormula(
-          com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas.Builder builderForValue) {
+          com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas.Builder builderForValue) {
         if (formulaBuilder_ == null) {
           formula_ = builderForValue.build();
         } else {
@@ -689,13 +689,13 @@ public final class ProtoBufDnnf {
         return this;
       }
       /**
-       * <code>.formulas.PBFormulas formula = 2;</code>
+       * <code>.formulas.PbFormulas formula = 2;</code>
        */
-      public Builder mergeFormula(com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas value) {
+      public Builder mergeFormula(com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas value) {
         if (formulaBuilder_ == null) {
           if (((bitField0_ & 0x00000002) != 0) &&
             formula_ != null &&
-            formula_ != com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas.getDefaultInstance()) {
+            formula_ != com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas.getDefaultInstance()) {
             getFormulaBuilder().mergeFrom(value);
           } else {
             formula_ = value;
@@ -710,7 +710,7 @@ public final class ProtoBufDnnf {
         return this;
       }
       /**
-       * <code>.formulas.PBFormulas formula = 2;</code>
+       * <code>.formulas.PbFormulas formula = 2;</code>
        */
       public Builder clearFormula() {
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -723,33 +723,33 @@ public final class ProtoBufDnnf {
         return this;
       }
       /**
-       * <code>.formulas.PBFormulas formula = 2;</code>
+       * <code>.formulas.PbFormulas formula = 2;</code>
        */
-      public com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas.Builder getFormulaBuilder() {
+      public com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas.Builder getFormulaBuilder() {
         bitField0_ |= 0x00000002;
         onChanged();
         return getFormulaFieldBuilder().getBuilder();
       }
       /**
-       * <code>.formulas.PBFormulas formula = 2;</code>
+       * <code>.formulas.PbFormulas formula = 2;</code>
        */
-      public com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulasOrBuilder getFormulaOrBuilder() {
+      public com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulasOrBuilder getFormulaOrBuilder() {
         if (formulaBuilder_ != null) {
           return formulaBuilder_.getMessageOrBuilder();
         } else {
           return formula_ == null ?
-              com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas.getDefaultInstance() : formula_;
+              com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas.getDefaultInstance() : formula_;
         }
       }
       /**
-       * <code>.formulas.PBFormulas formula = 2;</code>
+       * <code>.formulas.PbFormulas formula = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilder<
-          com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas, com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas.Builder, com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulasOrBuilder> 
+          com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas, com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas.Builder, com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulasOrBuilder> 
           getFormulaFieldBuilder() {
         if (formulaBuilder_ == null) {
           formulaBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-              com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas, com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas.Builder, com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulasOrBuilder>(
+              com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas, com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas.Builder, com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulasOrBuilder>(
                   getFormula(),
                   getParentForChildren(),
                   isClean());
@@ -758,23 +758,23 @@ public final class ProtoBufDnnf {
         return formulaBuilder_;
       }
 
-      // @@protoc_insertion_point(builder_scope:dnnf.PBDnnf)
+      // @@protoc_insertion_point(builder_scope:dnnf.PbDnnf)
     }
 
-    // @@protoc_insertion_point(class_scope:dnnf.PBDnnf)
-    private static final com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:dnnf.PbDnnf)
+    private static final com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf();
+      DEFAULT_INSTANCE = new com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf();
     }
 
-    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf getDefaultInstance() {
+    public static com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<PBDnnf>
-        PARSER = new com.google.protobuf.AbstractParser<PBDnnf>() {
+    private static final com.google.protobuf.Parser<PbDnnf>
+        PARSER = new com.google.protobuf.AbstractParser<PbDnnf>() {
       @java.lang.Override
-      public PBDnnf parsePartialFrom(
+      public PbDnnf parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
@@ -793,27 +793,27 @@ public final class ProtoBufDnnf {
       }
     };
 
-    public static com.google.protobuf.Parser<PBDnnf> parser() {
+    public static com.google.protobuf.Parser<PbDnnf> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<PBDnnf> getParserForType() {
+    public com.google.protobuf.Parser<PbDnnf> getParserForType() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf getDefaultInstanceForType() {
+    public com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_dnnf_PBDnnf_descriptor;
+    internal_static_dnnf_PbDnnf_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_dnnf_PBDnnf_fieldAccessorTable;
+      internal_static_dnnf_PbDnnf_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -823,9 +823,9 @@ public final class ProtoBufDnnf {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\ndnnf.proto\022\004dnnf\032\016formulas.proto\"J\n\006PB" +
+      "\n\ndnnf.proto\022\004dnnf\032\016formulas.proto\"J\n\006Pb" +
       "Dnnf\022\031\n\021originalVariables\030\001 \003(\t\022%\n\007formu" +
-      "la\030\002 \001(\0132\024.formulas.PBFormulasB4\n$com.bo" +
+      "la\030\002 \001(\0132\024.formulas.PbFormulasB4\n$com.bo" +
       "oleworks.logicng.serializationB\014ProtoBuf" +
       "Dnnfb\006proto3"
     };
@@ -834,11 +834,11 @@ public final class ProtoBufDnnf {
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           com.booleworks.logicng.serialization.ProtoBufFormulas.getDescriptor(),
         });
-    internal_static_dnnf_PBDnnf_descriptor =
+    internal_static_dnnf_PbDnnf_descriptor =
       getDescriptor().getMessageTypes().get(0);
-    internal_static_dnnf_PBDnnf_fieldAccessorTable = new
+    internal_static_dnnf_PbDnnf_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_dnnf_PBDnnf_descriptor,
+        internal_static_dnnf_PbDnnf_descriptor,
         new java.lang.String[] { "OriginalVariables", "Formula", });
     descriptor.resolveAllFeaturesImmutable();
     com.booleworks.logicng.serialization.ProtoBufFormulas.getDescriptor();

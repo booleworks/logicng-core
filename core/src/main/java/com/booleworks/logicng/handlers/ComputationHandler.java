@@ -1,6 +1,6 @@
 package com.booleworks.logicng.handlers;
 
-import com.booleworks.logicng.handlers.events.LNGEvent;
+import com.booleworks.logicng.handlers.events.LngEvent;
 
 /**
  * Interface for a computation handler.
@@ -14,5 +14,5 @@ public interface ComputationHandler {
      * @param event the event to handle, must not be {@code null}
      * @return whether the computation should be resumed or not
      */
-    boolean shouldResume(LNGEvent event);
+    boolean shouldResume(LngEvent event);
 }

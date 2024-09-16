@@ -108,18 +108,18 @@ public class CFalseTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsNNF(final FormulaContext _c) {
-        assertThat(_c.falsum.isNNF(_c.f)).isTrue();
+        assertThat(_c.falsum.isNnf(_c.f)).isTrue();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsDNF(final FormulaContext _c) {
-        assertThat(_c.falsum.isDNF(_c.f)).isTrue();
+        assertThat(_c.falsum.isDnf(_c.f)).isTrue();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsCNF(final FormulaContext _c) {
-        assertThat(_c.falsum.isCNF(_c.f)).isTrue();
+        assertThat(_c.falsum.isCnf(_c.f)).isTrue();
     }
 }

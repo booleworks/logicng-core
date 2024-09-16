@@ -10,7 +10,7 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.functions.LiteralsFunction;
 import com.booleworks.logicng.functions.VariablesFunction;
-import com.booleworks.logicng.predicates.CNFPredicate;
+import com.booleworks.logicng.predicates.CnfPredicate;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -65,7 +65,7 @@ public final class FormulaDimacsFileWriter {
         for (final Variable var : new TreeSet<>(formula.apply(vf))) {
             var2id.put(var, i++);
         }
-        if (!formula.holds(new CNFPredicate(formula.getFactory(), null))) {
+        if (!formula.holds(new CnfPredicate(formula.getFactory(), null))) {
             throw new IllegalArgumentException("Cannot write a non-CNF formula to dimacs.  Convert to CNF first.");
         }
         final List<Formula> parts = new ArrayList<>();

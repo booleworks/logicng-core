@@ -57,8 +57,8 @@ public class FormulaContext {
     public final Formula pbc4;
     public final Formula pbc5;
 
-    public final PBConstraint pb1;
-    public final PBConstraint pb2;
+    public final PbConstraint pb1;
+    public final PbConstraint pb2;
     public final CardinalityConstraint cc1;
     public final CardinalityConstraint cc2;
     public final CardinalityConstraint amo1;
@@ -122,8 +122,8 @@ public class FormulaContext {
         final List<Variable> litsCC2 = Arrays.asList(f.variable("a"), f.variable("b"), f.variable("c"));
         final int[] coeffs1 = new int[]{3};
         final List<Integer> coeffs2 = Arrays.asList(3, -2, 7);
-        pb1 = (PBConstraint) f.pbc(CType.LE, 2, lits1, coeffs1);
-        pb2 = (PBConstraint) f.pbc(CType.LE, 8, lits2, coeffs2);
+        pb1 = (PbConstraint) f.pbc(CType.LE, 2, lits1, coeffs1);
+        pb2 = (PbConstraint) f.pbc(CType.LE, 8, lits2, coeffs2);
         cc1 = (CardinalityConstraint) f.cc(CType.LT, 1, lits1);
         cc2 = (CardinalityConstraint) f.cc(CType.GE, 2, litsCC2);
         amo1 = (CardinalityConstraint) f.amo(lits1);

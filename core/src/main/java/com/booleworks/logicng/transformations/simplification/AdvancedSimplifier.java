@@ -16,7 +16,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.primecomputation.PrimeCompiler;
 import com.booleworks.logicng.primecomputation.PrimeResult;
 import com.booleworks.logicng.transformations.StatelessFormulaTransformation;
@@ -81,28 +81,28 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
     }
 
     @Override
-    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+    public LngResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         if (!handler.shouldResume(ADVANCED_SIMPLIFICATION_STARTED)) {
-            return LNGResult.canceled(ADVANCED_SIMPLIFICATION_STARTED);
+            return LngResult.canceled(ADVANCED_SIMPLIFICATION_STARTED);
         }
         Formula simplified = formula;
         final SortedSet<Literal> backboneLiterals = new TreeSet<>();
         if (config.restrictBackbone) {
-            final LNGResult<Backbone> backboneResult = BackboneGeneration.compute(f, Collections.singletonList(formula),
+            final LngResult<Backbone> backboneResult = BackboneGeneration.compute(f, Collections.singletonList(formula),
                     formula.variables(f), BackboneType.POSITIVE_AND_NEGATIVE, handler);
             if (!backboneResult.isSuccess()) {
-                return LNGResult.canceled(backboneResult.getCancelCause());
+                return LngResult.canceled(backboneResult.getCancelCause());
             }
             final Backbone backbone = backboneResult.getResult();
             if (!backbone.isSat()) {
-                return LNGResult.of(f.falsum());
+                return LngResult.of(f.falsum());
             }
             backboneLiterals.addAll(backbone.getCompleteBackbone(f));
             simplified = formula.restrict(f, new Assignment(backboneLiterals));
         }
-        final LNGResult<Formula> simplifyMinDnf = computeMinDnf(f, simplified, handler);
+        final LngResult<Formula> simplifyMinDnf = computeMinDnf(f, simplified, handler);
         if (!simplifyMinDnf.isSuccess()) {
-            return LNGResult.canceled(simplifyMinDnf.getCancelCause());
+            return LngResult.canceled(simplifyMinDnf.getCancelCause());
         }
         simplified = simplifyWithRating(simplified, simplifyMinDnf.getResult(), config);
         if (config.factorOut) {
@@ -116,25 +116,25 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
             final Formula negationSimplified = simplified.transform(new NegationSimplifier(f));
             simplified = simplifyWithRating(simplified, negationSimplified, config);
         }
-        return LNGResult.of(simplified);
+        return LngResult.of(simplified);
     }
 
-    private LNGResult<Formula> computeMinDnf(final FormulaFactory f, final Formula simplified,
+    private LngResult<Formula> computeMinDnf(final FormulaFactory f, final Formula simplified,
                                              final ComputationHandler handler) {
-        final LNGResult<PrimeResult> primeResult = PrimeCompiler.getWithMinimization()
+        final LngResult<PrimeResult> primeResult = PrimeCompiler.getWithMinimization()
                 .compute(f, simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE, handler);
         if (!primeResult.isSuccess()) {
-            return LNGResult.canceled(primeResult.getCancelCause());
+            return LngResult.canceled(primeResult.getCancelCause());
         }
         final List<SortedSet<Literal>> primeImplicants = primeResult.getResult().getPrimeImplicants();
-        final LNGResult<List<Formula>> minimizedPIsResult =
+        final LngResult<List<Formula>> minimizedPisResult =
                 SmusComputation.computeSmusForFormulas(f, negateAllLiterals(f, primeImplicants),
                         Collections.singletonList(simplified), handler);
-        if (!minimizedPIsResult.isSuccess()) {
-            return LNGResult.canceled(minimizedPIsResult.getCancelCause());
+        if (!minimizedPisResult.isSuccess()) {
+            return LngResult.canceled(minimizedPisResult.getCancelCause());
         } else {
-            final List<Formula> minimizedPIs = minimizedPIsResult.getResult();
-            return LNGResult.of(f.or(
+            final List<Formula> minimizedPIs = minimizedPisResult.getResult();
+            return LngResult.of(f.or(
                     negateAllLiteralsInFormulas(f, minimizedPIs).stream().map(f::and).collect(Collectors.toList())));
         }
     }

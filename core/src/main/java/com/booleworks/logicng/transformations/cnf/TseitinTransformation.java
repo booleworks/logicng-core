@@ -11,7 +11,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.transformations.StatefulFormulaTransformation;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
     public static final int DEFAULT_BOUNDARY = 12;
 
     private final int boundaryForFactorization;
-    private final CNFFactorization factorization;
+    private final CnfFactorization factorization;
 
     /**
      * Constructor for a Tseitin transformation with the default factorization
@@ -54,7 +54,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
     public TseitinTransformation(final FormulaFactory f, final int boundaryForFactorization) {
         super(f);
         this.boundaryForFactorization = boundaryForFactorization;
-        factorization = new CNFFactorization(f);
+        factorization = new CnfFactorization(f);
     }
 
     /**
@@ -79,7 +79,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
     public TseitinTransformation(final FormulaFactory f, final int boundaryForFactorization, final TseitinState state) {
         super(f, state);
         this.boundaryForFactorization = boundaryForFactorization;
-        factorization = new CNFFactorization(f);
+        factorization = new CnfFactorization(f);
     }
 
     @Override
@@ -88,15 +88,15 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
     }
 
     @Override
-    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+    public LngResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         final Formula nnf = formula.nnf(f);
-        if (nnf.isCNF(f)) {
-            return LNGResult.of(nnf);
+        if (nnf.isCnf(f)) {
+            return LngResult.of(nnf);
         }
         Formula tseitin = state.formula(nnf);
         if (tseitin != null) {
             final Assignment topLevel = new Assignment(state.literal(nnf));
-            return LNGResult.of(state.formula(nnf).restrict(f, topLevel));
+            return LngResult.of(state.formula(nnf).restrict(f, topLevel));
         }
         if (nnf.numberOfAtoms(f) < boundaryForFactorization) {
             tseitin = nnf.transform(factorization);
@@ -108,7 +108,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
             tseitin = state.formula(nnf).restrict(f, topLevel);
         }
         state.literalMap.put(formula, state.literal(nnf));
-        return LNGResult.of(tseitin);
+        return LngResult.of(tseitin);
     }
 
     /**
@@ -128,7 +128,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
             case AND:
             case OR:
                 final boolean isConjunction = formula instanceof And;
-                final Literal tsLiteral = f.newCNFVariable();
+                final Literal tsLiteral = f.newCnfVariable();
                 final List<Formula> nops = new ArrayList<>();
                 final List<Formula> operands = new ArrayList<>(formula.numberOfOperands());
                 final List<Formula> negOperands = new ArrayList<>(formula.numberOfOperands());

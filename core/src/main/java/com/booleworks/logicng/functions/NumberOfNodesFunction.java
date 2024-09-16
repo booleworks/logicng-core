@@ -9,10 +9,10 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.NAryOperator;
 import com.booleworks.logicng.formulas.Not;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.cache.FunctionCacheEntry;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 
 import java.util.Map;
 
@@ -44,10 +44,10 @@ public class NumberOfNodesFunction extends CacheableFormulaFunction<Long> {
     }
 
     @Override
-    public LNGResult<Long> apply(final Formula formula, final ComputationHandler handler) {
+    public LngResult<Long> apply(final Formula formula, final ComputationHandler handler) {
         final Long cached = lookupCache(formula);
         if (cached != null) {
-            return LNGResult.of(cached);
+            return LngResult.of(cached);
         }
         long result;
         switch (formula.getType()) {
@@ -73,7 +73,7 @@ public class NumberOfNodesFunction extends CacheableFormulaFunction<Long> {
                 }
                 break;
             case PBC:
-                final PBConstraint pbc = (PBConstraint) formula;
+                final PbConstraint pbc = (PbConstraint) formula;
                 result = 1L + pbc.getOperands().size();
                 break;
             case PREDICATE:
@@ -83,6 +83,6 @@ public class NumberOfNodesFunction extends CacheableFormulaFunction<Long> {
                 throw new IllegalStateException("Unknown formula type " + formula.getType());
         }
         setCache(formula, result);
-        return LNGResult.of(result);
+        return LngResult.of(result);
     }
 }

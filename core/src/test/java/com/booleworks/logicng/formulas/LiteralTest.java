@@ -182,22 +182,22 @@ public class LiteralTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsNNF(final FormulaContext _c) {
-        assertThat(_c.a.isNNF(_c.f)).isTrue();
-        assertThat(_c.na.isNNF(_c.f)).isTrue();
+        assertThat(_c.a.isNnf(_c.f)).isTrue();
+        assertThat(_c.na.isNnf(_c.f)).isTrue();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsDNF(final FormulaContext _c) {
-        assertThat(_c.a.isDNF(_c.f)).isTrue();
-        assertThat(_c.na.isDNF(_c.f)).isTrue();
+        assertThat(_c.a.isDnf(_c.f)).isTrue();
+        assertThat(_c.na.isDnf(_c.f)).isTrue();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsCNF(final FormulaContext _c) {
-        assertThat(_c.a.isCNF(_c.f)).isTrue();
-        assertThat(_c.na.isCNF(_c.f)).isTrue();
+        assertThat(_c.a.isCnf(_c.f)).isTrue();
+        assertThat(_c.na.isCnf(_c.f)).isTrue();
     }
 
     @ParameterizedTest

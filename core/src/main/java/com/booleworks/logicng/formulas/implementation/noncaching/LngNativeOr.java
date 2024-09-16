@@ -27,7 +27,7 @@ public class LngNativeOr extends LngNativeNAryOperator implements Or {
      * @return {@code true} if this formula is a CNF clause
      */
     @Override
-    public boolean isCNFClause() {
+    public boolean isCnfClause() {
         return operands.stream().allMatch(op -> op.getType() == FType.LITERAL);
     }
 

@@ -12,12 +12,12 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
-import com.booleworks.logicng.solvers.sat.SATCall;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.solvers.sat.SatCall;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import com.booleworks.logicng.transformations.LiteralSubstitution;
 import com.booleworks.logicng.util.FormulaHelper;
 import com.booleworks.logicng.util.Pair;
@@ -106,59 +106,59 @@ public final class PrimeCompiler {
      * @return the prime result or null if the computation was canceled by the
      * handler
      */
-    public LNGResult<PrimeResult> compute(final FormulaFactory f, final Formula formula,
+    public LngResult<PrimeResult> compute(final FormulaFactory f, final Formula formula,
                                           final PrimeResult.CoverageType type, final ComputationHandler handler) {
         if (!handler.shouldResume(PRIME_COMPUTATION_STARTED)) {
-            return LNGResult.canceled(PRIME_COMPUTATION_STARTED);
+            return LngResult.canceled(PRIME_COMPUTATION_STARTED);
         }
         final boolean completeImplicants = type == PrimeResult.CoverageType.IMPLICANTS_COMPLETE;
         final Formula formulaForComputation = completeImplicants ? formula : formula.negate(f);
-        final LNGResult<Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>>> genericResult =
+        final LngResult<Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>>> genericResult =
                 computeGeneric(f, formulaForComputation, handler);
         if (!genericResult.isSuccess()) {
-            return LNGResult.canceled(genericResult.getCancelCause());
+            return LngResult.canceled(genericResult.getCancelCause());
         }
         final Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>> result = genericResult.getResult();
-        return LNGResult.of(new PrimeResult(
+        return LngResult.of(new PrimeResult(
                 completeImplicants ? result.getFirst() : negateAll(f, result.getSecond()),
                 completeImplicants ? result.getSecond() : negateAll(f, result.getFirst()),
                 type));
     }
 
-    private LNGResult<Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>>> computeGeneric(
+    private LngResult<Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>>> computeGeneric(
             final FormulaFactory f, final Formula formula, final ComputationHandler handler) {
         final SubstitutionResult sub = createSubstitution(f, formula);
-        final SATSolver hSolver = SATSolver.newSolver(f,
-                SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SatSolver hSolver = SatSolver.newSolver(f,
+                SatSolverConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.PG_ON_SOLVER).build());
         hSolver.add(sub.constraintFormula);
-        final SATSolver fSolver = SATSolver.newSolver(f,
-                SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SatSolver fSolver = SatSolver.newSolver(f,
+                SatSolverConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.PG_ON_SOLVER).build());
         fSolver.add(formula.negate(f));
         final NaivePrimeReduction primeReduction = new NaivePrimeReduction(f, formula);
         final List<SortedSet<Literal>> primeImplicants = new ArrayList<>();
         final List<SortedSet<Literal>> primeImplicates = new ArrayList<>();
         while (true) {
             if (!hSolver.sat()) {
-                return LNGResult.of(new Pair<>(primeImplicants, primeImplicates));
+                return LngResult.of(new Pair<>(primeImplicants, primeImplicates));
             }
-            final LNGResult<Model> hModelResult = hSolver.execute(computeWithMaximization
+            final LngResult<Model> hModelResult = hSolver.execute(computeWithMaximization
                     ? OptimizationFunction.builder().literals(sub.newVar2oldLit.keySet()).maximize().build()
                     : OptimizationFunction.builder().literals(sub.newVar2oldLit.keySet()).minimize().build(), handler);
             if (!hModelResult.isSuccess()) {
-                return LNGResult.canceled(hModelResult.getCancelCause());
+                return LngResult.canceled(hModelResult.getCancelCause());
             }
             final Model hModel = hModelResult.getResult();
             final Model fModel = transformModel(hModel, sub.newVar2oldLit);
-            try (final SATCall fCall = fSolver.satCall().handler(handler).addFormulas(fModel.getLiterals()).solve()) {
+            try (final SatCall fCall = fSolver.satCall().handler(handler).addFormulas(fModel.getLiterals()).solve()) {
                 if (!fCall.getSatResult().isSuccess()) {
-                    return LNGResult.canceled(fCall.getSatResult().getCancelCause());
+                    return LngResult.canceled(fCall.getSatResult().getCancelCause());
                 }
                 if (!fCall.getSatResult().getResult()) {
-                    final LNGResult<SortedSet<Literal>> primeImplicantResult = computeWithMaximization
+                    final LngResult<SortedSet<Literal>> primeImplicantResult = computeWithMaximization
                             ? primeReduction.reduceImplicant(fModel.getLiterals(), handler)
-                            : LNGResult.of(new TreeSet<>(fModel.getLiterals()));
+                            : LngResult.of(new TreeSet<>(fModel.getLiterals()));
                     if (!primeImplicantResult.isSuccess()) {
-                        return LNGResult.canceled(primeImplicantResult.getCancelCause());
+                        return LngResult.canceled(primeImplicantResult.getCancelCause());
                     }
                     final SortedSet<Literal> primeImplicant = primeImplicantResult.getResult();
                     primeImplicants.add(primeImplicant);
@@ -173,10 +173,10 @@ public final class PrimeCompiler {
                             (computeWithMaximization ? fModel : fCall.model(formula.variables(f))).getLiterals()) {
                         implicate.add(lit.negate(f));
                     }
-                    final LNGResult<SortedSet<Literal>> primeImplicateResult =
+                    final LngResult<SortedSet<Literal>> primeImplicateResult =
                             primeReduction.reduceImplicate(f, implicate, handler);
                     if (!primeImplicateResult.isSuccess()) {
-                        return LNGResult.canceled(primeImplicateResult.getCancelCause());
+                        return LngResult.canceled(primeImplicateResult.getCancelCause());
                     }
                     final SortedSet<Literal> primeImplicate = primeImplicateResult.getResult();
                     primeImplicates.add(primeImplicate);

@@ -7,7 +7,7 @@ package com.booleworks.logicng.formulas;
 import com.booleworks.logicng.configurations.Configuration;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.encodings.EncoderConfig;
-import com.booleworks.logicng.explanations.mus.MUSConfig;
+import com.booleworks.logicng.explanations.mus.MusConfig;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import com.booleworks.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
 import com.booleworks.logicng.formulas.printer.FormulaStringRepresentation;
@@ -16,10 +16,10 @@ import com.booleworks.logicng.io.parsers.FormulaParser;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
-import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import com.booleworks.logicng.transformations.FormulaFactoryImporter;
-import com.booleworks.logicng.transformations.cnf.CNFConfig;
+import com.booleworks.logicng.transformations.cnf.CnfConfig;
 import com.booleworks.logicng.transformations.simplification.AdvancedSimplifierConfig;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
 
@@ -106,11 +106,11 @@ public abstract class FormulaFactory {
      */
     private static Map<ConfigurationType, Configuration> initDefaultConfigs() {
         final Map<ConfigurationType, Configuration> configMap = new ConcurrentHashMap<>();
-        configMap.put(ConfigurationType.CNF, CNFConfig.builder().build());
+        configMap.put(ConfigurationType.CNF, CnfConfig.builder().build());
         configMap.put(ConfigurationType.ENCODER, EncoderConfig.builder().build());
-        configMap.put(ConfigurationType.SAT, SATSolverConfig.builder().build());
-        configMap.put(ConfigurationType.MAXSAT, MaxSATConfig.builder().build());
-        configMap.put(ConfigurationType.MUS, MUSConfig.builder().build());
+        configMap.put(ConfigurationType.SAT, SatSolverConfig.builder().build());
+        configMap.put(ConfigurationType.MAXSAT, MaxSatConfig.builder().build());
+        configMap.put(ConfigurationType.MUS, MusConfig.builder().build());
         configMap.put(ConfigurationType.ADVANCED_SIMPLIFIER, AdvancedSimplifierConfig.builder().build());
         configMap.put(ConfigurationType.MODEL_ENUMERATION, ModelEnumerationConfig.builder().build());
         configMap.put(ConfigurationType.FORMULA_RANDOMIZER, FormulaRandomizerConfig.builder().build());
@@ -592,7 +592,7 @@ public abstract class FormulaFactory {
         if (readOnly) {
             throwReadOnlyException();
         }
-        return constructPBC(comparator, rhs, literals, coefficients);
+        return constructPbc(comparator, rhs, literals, coefficients);
     }
 
     /**
@@ -609,18 +609,18 @@ public abstract class FormulaFactory {
         if (readOnly) {
             throwReadOnlyException();
         }
-        return constructPBC(comparator, rhs, Arrays.asList(literals),
+        return constructPbc(comparator, rhs, Arrays.asList(literals),
                 Arrays.stream(coefficients).boxed().collect(Collectors.toList()));
     }
 
-    private Formula constructPBC(final CType comparator, final int rhs, final List<? extends Literal> literalsIn,
+    private Formula constructPbc(final CType comparator, final int rhs, final List<? extends Literal> literalsIn,
                                  final List<Integer> coefficients) {
         final List<? extends Literal> literals = importOrPanic(literalsIn);
         if (literals.isEmpty()) {
             return constant(evaluateTrivialPBConstraint(comparator, rhs));
         }
-        if (isCC(comparator, rhs, literals, coefficients)) {
-            return constructCCUnsafe(comparator, rhs, literals);
+        if (isCc(comparator, rhs, literals, coefficients)) {
+            return constructCcUnsafe(comparator, rhs, literals);
         }
         return internalPbc(literals, coefficients, comparator, rhs);
     }
@@ -637,7 +637,7 @@ public abstract class FormulaFactory {
      * @throws IllegalArgumentException if there are negative variables
      */
     public Formula cc(final CType comparator, final int rhs, final Collection<Variable> variables) {
-        return constructCC(comparator, rhs, variables);
+        return constructCc(comparator, rhs, variables);
     }
 
     /**
@@ -649,7 +649,7 @@ public abstract class FormulaFactory {
      * @throws IllegalArgumentException if there are negative variables
      */
     public Formula cc(final CType comparator, final int rhs, final Variable... variables) {
-        return constructCC(comparator, rhs, Arrays.asList(variables));
+        return constructCc(comparator, rhs, Arrays.asList(variables));
     }
 
     /**
@@ -659,7 +659,7 @@ public abstract class FormulaFactory {
      * @throws IllegalArgumentException if there are negative variables
      */
     public Formula amo(final Collection<Variable> variables) {
-        return constructCCUnsafe(CType.LE, 1, variables);
+        return constructCcUnsafe(CType.LE, 1, variables);
     }
 
     /**
@@ -669,7 +669,7 @@ public abstract class FormulaFactory {
      * @throws IllegalArgumentException if there are negative variables
      */
     public Formula amo(final Variable... variables) {
-        return constructCCUnsafe(CType.LE, 1, Arrays.asList(variables));
+        return constructCcUnsafe(CType.LE, 1, Arrays.asList(variables));
     }
 
     /**
@@ -679,7 +679,7 @@ public abstract class FormulaFactory {
      * @throws IllegalArgumentException if there are negative variables
      */
     public Formula exo(final Collection<Variable> variables) {
-        return constructCCUnsafe(CType.EQ, 1, variables);
+        return constructCcUnsafe(CType.EQ, 1, variables);
     }
 
     /**
@@ -689,20 +689,20 @@ public abstract class FormulaFactory {
      * @throws IllegalArgumentException if there are negative variables
      */
     public Formula exo(final Variable... variables) {
-        return constructCCUnsafe(CType.EQ, 1, Arrays.asList(variables));
+        return constructCcUnsafe(CType.EQ, 1, Arrays.asList(variables));
     }
 
-    private Formula constructCC(final CType comparator, final int rhs, final Collection<Variable> literals) {
+    private Formula constructCc(final CType comparator, final int rhs, final Collection<Variable> literals) {
         if (readOnly) {
             throwReadOnlyException();
         }
-        if (!isCC(comparator, rhs, literals, null)) {
+        if (!isCc(comparator, rhs, literals, null)) {
             throw new IllegalArgumentException("Given values do not represent a cardinality constraint.");
         }
-        return constructCCUnsafe(comparator, rhs, literals);
+        return constructCcUnsafe(comparator, rhs, literals);
     }
 
-    private Formula constructCCUnsafe(final CType comparator, final int rhs,
+    private Formula constructCcUnsafe(final CType comparator, final int rhs,
                                       final Collection<? extends Literal> literalsIn) {
         if (readOnly) {
             throwReadOnlyException();
@@ -729,7 +729,7 @@ public abstract class FormulaFactory {
      * @return {@code true} if the given pseudo-Boolean constraint is a
      * cardinality constraint, otherwise {@code false}
      */
-    private static boolean isCC(final CType comparator, final int rhs, final Collection<? extends Literal> literals,
+    private static boolean isCc(final CType comparator, final int rhs, final Collection<? extends Literal> literals,
                                 final List<Integer> coefficients) {
         for (final Literal lit : literals) {
             if (!lit.getPhase()) {
@@ -815,7 +815,7 @@ public abstract class FormulaFactory {
      * the literal is already present.
      * @return the new cardinality constraint auxiliary literal
      */
-    public Variable newCCVariable() {
+    public Variable newCcVariable() {
         return newAuxVariable(InternalAuxVarType.CC);
     }
 
@@ -826,7 +826,7 @@ public abstract class FormulaFactory {
      * the literal is already present.
      * @return the new pseudo Boolean auxiliary literal
      */
-    public Variable newPBVariable() {
+    public Variable newPbVariable() {
         return newAuxVariable(InternalAuxVarType.PBC);
     }
 
@@ -837,7 +837,7 @@ public abstract class FormulaFactory {
      * the literal is already present.
      * @return the new CNF auxiliary literal
      */
-    public Variable newCNFVariable() {
+    public Variable newCnfVariable() {
         return newAuxVariable(InternalAuxVarType.CNF);
     }
 
@@ -974,7 +974,7 @@ public abstract class FormulaFactory {
         } else {
             ops.add(formula);
             return (byte) (formula.getType() == FType.LITERAL ||
-                    formula.getType() == FType.OR && ((Or) formula).isCNFClause() ? 0x01 : 0x02);
+                    formula.getType() == FType.OR && ((Or) formula).isCnfClause() ? 0x01 : 0x02);
         }
     }
 
@@ -1062,7 +1062,7 @@ public abstract class FormulaFactory {
      *                                       merge strategy is
      *                                       {@link FormulaFactoryConfig.FormulaMergeStrategy#PANIC}.
      */
-    protected LinkedHashSet<? extends Formula> importOrPanicLHS(final LinkedHashSet<? extends Formula> formulas) {
+    protected LinkedHashSet<? extends Formula> importOrPanicLhs(final LinkedHashSet<? extends Formula> formulas) {
         if (formulaMergeStrategy == FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT) {
             return formulas;
         }

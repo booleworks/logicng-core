@@ -4,10 +4,10 @@
 
 package com.booleworks.logicng.solvers.functions.modelenumeration;
 
-import com.booleworks.logicng.collections.LNGBooleanVector;
-import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.collections.LngBooleanVector;
+import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -30,11 +30,11 @@ public interface ModelEnumerationCommon {
      *                        {@code null} all variables are relevant.
      * @return the blocking clause for the given model and relevant variables
      */
-    static LNGIntVector generateBlockingClause(final LNGBooleanVector modelFromSolver,
-                                               final LNGIntVector relevantVars) {
-        final LNGIntVector blockingClause;
+    static LngIntVector generateBlockingClause(final LngBooleanVector modelFromSolver,
+                                               final LngIntVector relevantVars) {
+        final LngIntVector blockingClause;
         if (relevantVars != null) {
-            blockingClause = new LNGIntVector(relevantVars.size());
+            blockingClause = new LngIntVector(relevantVars.size());
             for (int i = 0; i < relevantVars.size(); i++) {
                 final int varIndex = relevantVars.get(i);
                 if (varIndex != -1) {
@@ -43,7 +43,7 @@ public interface ModelEnumerationCommon {
                 }
             }
         } else {
-            blockingClause = new LNGIntVector(modelFromSolver.size());
+            blockingClause = new LngIntVector(modelFromSolver.size());
             for (int i = 0; i < modelFromSolver.size(); i++) {
                 final boolean varAssignment = modelFromSolver.get(i);
                 blockingClause.push(varAssignment ? (i * 2) ^ 1 : i * 2);
@@ -66,13 +66,13 @@ public interface ModelEnumerationCommon {
      * @param solver    the solver from which the indices should be extracted
      * @return a list of the internal indices
      */
-    static LNGIntVector relevantIndicesFromSolver(final Collection<Variable> variables, final SATSolver solver) {
+    static LngIntVector relevantIndicesFromSolver(final Collection<Variable> variables, final SatSolver solver) {
         if (variables == null) {
             throw new IllegalArgumentException(
                     "Model enumeration must always be calles with a valid set of variables.");
         }
-        final LNGIntVector relevantIndices;
-        relevantIndices = new LNGIntVector(variables.size());
+        final LngIntVector relevantIndices;
+        relevantIndices = new LngIntVector(variables.size());
         for (final Variable var : variables) {
             relevantIndices.push(solver.getUnderlyingSolver().idxForName(var.getName()));
         }
@@ -91,11 +91,11 @@ public interface ModelEnumerationCommon {
      *                            extracted
      * @return {@code relevantIndices} + the newly obtained additional indices
      */
-    static LNGIntVector relevantAllIndicesFromSolver(final Collection<Variable> variables,
+    static LngIntVector relevantAllIndicesFromSolver(final Collection<Variable> variables,
                                                      final Collection<Variable> additionalVariables,
-                                                     final LNGIntVector relevantIndices,
-                                                     final SATSolver solver) {
-        LNGIntVector relevantAllIndices = null;
+                                                     final LngIntVector relevantIndices,
+                                                     final SatSolver solver) {
+        LngIntVector relevantAllIndices = null;
         final SortedSet<Variable> uniqueAdditionalVariables =
                 new TreeSet<>(additionalVariables == null ? Collections.emptyList() : additionalVariables);
         uniqueAdditionalVariables.removeAll(variables);
@@ -103,7 +103,7 @@ public interface ModelEnumerationCommon {
             if (uniqueAdditionalVariables.isEmpty()) {
                 relevantAllIndices = relevantIndices;
             } else {
-                relevantAllIndices = new LNGIntVector(relevantIndices.size() + uniqueAdditionalVariables.size());
+                relevantAllIndices = new LngIntVector(relevantIndices.size() + uniqueAdditionalVariables.size());
                 for (int i = 0; i < relevantIndices.size(); ++i) {
                     relevantAllIndices.push(relevantIndices.get(i));
                 }

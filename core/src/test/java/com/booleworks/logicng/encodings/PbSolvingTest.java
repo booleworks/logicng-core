@@ -12,9 +12,9 @@ import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import org.junit.jupiter.api.Test;
 
@@ -28,8 +28,8 @@ public class PbSolvingTest implements LogicNGTest {
     private final FormulaFactory f;
     private final Variable[] literals100;
     private final Variable[] literals10;
-    private final List<SATSolver> solvers;
-    private final List<Function<FormulaFactory, SATSolver>> solverSuppliers;
+    private final List<SatSolver> solvers;
+    private final List<Function<FormulaFactory, SatSolver>> solverSuppliers;
 
     private final EncoderConfig[] configs;
 
@@ -46,30 +46,30 @@ public class PbSolvingTest implements LogicNGTest {
         solvers = SolverTestSet.solverTestSet(Set.of(USE_AT_MOST_CLAUSES), f);
         solverSuppliers = SolverTestSet.solverSupplierTestSet(Set.of(USE_AT_MOST_CLAUSES));
         configs = new EncoderConfig[]{
-                EncoderConfig.builder().pbEncoding(EncoderConfig.PB_ENCODER.SWC).build(),
-                EncoderConfig.builder().pbEncoding(EncoderConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true)
+                EncoderConfig.builder().pbEncoding(EncoderConfig.PbEncoder.SWC).build(),
+                EncoderConfig.builder().pbEncoding(EncoderConfig.PbEncoder.BINARY_MERGE).binaryMergeUseGac(true)
                         .binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(true).build(),
-                EncoderConfig.builder().pbEncoding(EncoderConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true)
+                EncoderConfig.builder().pbEncoding(EncoderConfig.PbEncoder.BINARY_MERGE).binaryMergeUseGac(true)
                         .binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(false).build(),
-                EncoderConfig.builder().pbEncoding(EncoderConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true)
+                EncoderConfig.builder().pbEncoding(EncoderConfig.PbEncoder.BINARY_MERGE).binaryMergeUseGac(true)
                         .binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(true).build(),
-                EncoderConfig.builder().pbEncoding(EncoderConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(true)
+                EncoderConfig.builder().pbEncoding(EncoderConfig.PbEncoder.BINARY_MERGE).binaryMergeUseGac(true)
                         .binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(false).build(),
-                EncoderConfig.builder().pbEncoding(EncoderConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false)
+                EncoderConfig.builder().pbEncoding(EncoderConfig.PbEncoder.BINARY_MERGE).binaryMergeUseGac(false)
                         .binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(true).build(),
-                EncoderConfig.builder().pbEncoding(EncoderConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false)
+                EncoderConfig.builder().pbEncoding(EncoderConfig.PbEncoder.BINARY_MERGE).binaryMergeUseGac(false)
                         .binaryMergeNoSupportForSingleBit(true).binaryMergeUseWatchDog(false).build(),
-                EncoderConfig.builder().pbEncoding(EncoderConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false)
+                EncoderConfig.builder().pbEncoding(EncoderConfig.PbEncoder.BINARY_MERGE).binaryMergeUseGac(false)
                         .binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(true).build(),
-                EncoderConfig.builder().pbEncoding(EncoderConfig.PB_ENCODER.BINARY_MERGE).binaryMergeUseGAC(false)
+                EncoderConfig.builder().pbEncoding(EncoderConfig.PbEncoder.BINARY_MERGE).binaryMergeUseGac(false)
                         .binaryMergeNoSupportForSingleBit(false).binaryMergeUseWatchDog(false).build(),
-                EncoderConfig.builder().pbEncoding(EncoderConfig.PB_ENCODER.ADDER_NETWORKS).build(),
+                EncoderConfig.builder().pbEncoding(EncoderConfig.PbEncoder.ADDER_NETWORKS).build(),
         };
     }
 
     @Test
     public void testCCAMO() {
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             solver.add(f.amo(literals100));
             final List<Model> models = solver.enumerateAllModels(literals100);
             assertThat(models.size()).isEqualTo(101);
@@ -81,7 +81,7 @@ public class PbSolvingTest implements LogicNGTest {
 
     @Test
     public void testCCEXO() {
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             solver.add(f.exo(literals100));
             final List<Model> models = solver.enumerateAllModels(literals100);
             assertThat(models.size()).isEqualTo(100);
@@ -93,7 +93,7 @@ public class PbSolvingTest implements LogicNGTest {
 
     @Test
     public void testCCAMK() {
-        for (final Function<FormulaFactory, SATSolver> solver : solverSuppliers) {
+        for (final Function<FormulaFactory, SatSolver> solver : solverSuppliers) {
             testCCAMK(solver.apply(f), 0, 1);
             testCCAMK(solver.apply(f), 1, 11);
             testCCAMK(solver.apply(f), 2, 56);
@@ -109,7 +109,7 @@ public class PbSolvingTest implements LogicNGTest {
 
     @Test
     public void testCCLT() {
-        for (final Function<FormulaFactory, SATSolver> solver : solverSuppliers) {
+        for (final Function<FormulaFactory, SatSolver> solver : solverSuppliers) {
             testCCLT(solver.apply(f), 1, 1);
             testCCLT(solver.apply(f), 2, 11);
             testCCLT(solver.apply(f), 3, 56);
@@ -125,7 +125,7 @@ public class PbSolvingTest implements LogicNGTest {
 
     @Test
     public void testCCALK() {
-        for (final Function<FormulaFactory, SATSolver> solver : solverSuppliers) {
+        for (final Function<FormulaFactory, SatSolver> solver : solverSuppliers) {
             testCCALK(solver.apply(f), 1, 1023);
             testCCALK(solver.apply(f), 2, 1013);
             testCCALK(solver.apply(f), 3, 968);
@@ -141,7 +141,7 @@ public class PbSolvingTest implements LogicNGTest {
 
     @Test
     public void testCCGT() {
-        for (final Function<FormulaFactory, SATSolver> solver : solverSuppliers) {
+        for (final Function<FormulaFactory, SatSolver> solver : solverSuppliers) {
             testCCGT(solver.apply(f), 0, 1023);
             testCCGT(solver.apply(f), 1, 1013);
             testCCGT(solver.apply(f), 2, 968);
@@ -157,7 +157,7 @@ public class PbSolvingTest implements LogicNGTest {
 
     @Test
     public void testCCEQ() {
-        for (final Function<FormulaFactory, SATSolver> solver : solverSuppliers) {
+        for (final Function<FormulaFactory, SatSolver> solver : solverSuppliers) {
             testCCEQ(solver.apply(f), 0, 1);
             testCCEQ(solver.apply(f), 1, 10);
             testCCEQ(solver.apply(f), 2, 45);
@@ -172,7 +172,7 @@ public class PbSolvingTest implements LogicNGTest {
         }
     }
 
-    private void testCCAMK(final SATSolver solver, final int rhs, final int expected) {
+    private void testCCAMK(final SatSolver solver, final int rhs, final int expected) {
         solver.add(f.cc(CType.LE, rhs, literals10));
         assertSolverSat(solver);
         assertThat(solver.enumerateAllModels(literals10))
@@ -180,7 +180,7 @@ public class PbSolvingTest implements LogicNGTest {
                 .allMatch(model -> model.positiveVariables().size() <= rhs);
     }
 
-    private void testCCLT(final SATSolver solver, final int rhs, final int expected) {
+    private void testCCLT(final SatSolver solver, final int rhs, final int expected) {
         solver.add(f.cc(CType.LT, rhs, literals10));
         assertSolverSat(solver);
         assertThat(solver.enumerateAllModels(literals10))
@@ -188,7 +188,7 @@ public class PbSolvingTest implements LogicNGTest {
                 .allMatch(model -> model.positiveVariables().size() < rhs);
     }
 
-    private void testCCALK(final SATSolver solver, final int rhs, final int expected) {
+    private void testCCALK(final SatSolver solver, final int rhs, final int expected) {
         solver.add(f.cc(CType.GE, rhs, literals10));
         assertSolverSat(solver);
         assertThat(solver.enumerateAllModels(literals10))
@@ -196,7 +196,7 @@ public class PbSolvingTest implements LogicNGTest {
                 .allMatch(model -> model.positiveVariables().size() >= rhs);
     }
 
-    private void testCCGT(final SATSolver solver, final int rhs, final int expected) {
+    private void testCCGT(final SatSolver solver, final int rhs, final int expected) {
         solver.add(f.cc(CType.GT, rhs, literals10));
         assertSolverSat(solver);
         assertThat(solver.enumerateAllModels(literals10))
@@ -204,7 +204,7 @@ public class PbSolvingTest implements LogicNGTest {
                 .allMatch(model -> model.positiveVariables().size() > rhs);
     }
 
-    private void testCCEQ(final SATSolver solver, final int rhs, final int expected) {
+    private void testCCEQ(final SatSolver solver, final int rhs, final int expected) {
         solver.add(f.cc(CType.EQ, rhs, literals10));
         assertSolverSat(solver);
         assertThat(solver.enumerateAllModels(literals10))
@@ -215,17 +215,17 @@ public class PbSolvingTest implements LogicNGTest {
     @Test
     public void testPBEQ() {
         for (final EncoderConfig config : configs) {
-            for (final Function<FormulaFactory, SATSolver> solverSupplier : solverSuppliers) {
-                SATSolver solver = solverSupplier.apply(f);
+            for (final Function<FormulaFactory, SatSolver> solverSupplier : solverSuppliers) {
+                SatSolver solver = solverSupplier.apply(f);
                 final int[] coeffs10 = new int[]{3, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.EQ, 5, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.EQ, 5, literals10, coeffs10), config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(9)
                         .allMatch(model -> model.positiveVariables().size() == 2)
                         .allMatch(model -> model.positiveVariables().contains(f.variable("v" + 0)));
                 solver = solverSupplier.apply(f);
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.EQ, 7, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.EQ, 7, literals10, coeffs10), config));
                 assertSolverSat(solver);
 
                 assertThat(solver.enumerateAllModels(literals10))
@@ -233,14 +233,14 @@ public class PbSolvingTest implements LogicNGTest {
                         .allMatch(model -> model.positiveVariables().size() == 3)
                         .allMatch(model -> model.positiveVariables().contains(f.variable("v" + 0)));
                 solver = solverSupplier.apply(f);
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.EQ, 0, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.EQ, 0, literals10, coeffs10), config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver = solverSupplier.apply(f);
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.EQ, 1, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.EQ, 1, literals10, coeffs10), config));
                 assertSolverUnsat(solver);
                 solver = solverSupplier.apply(f);
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.EQ, 22, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.EQ, 22, literals10, coeffs10), config));
                 assertSolverUnsat(solver);
             }
         }
@@ -249,34 +249,34 @@ public class PbSolvingTest implements LogicNGTest {
     @Test
     public void testPBLess() {
         for (final EncoderConfig config : configs) {
-            for (final Function<FormulaFactory, SATSolver> solverSupplier : solverSuppliers) {
-                SATSolver solver = solverSupplier.apply(f);
+            for (final Function<FormulaFactory, SatSolver> solverSupplier : solverSuppliers) {
+                SatSolver solver = solverSupplier.apply(f);
                 final int[] coeffs10 = new int[]{3, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, 6, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.LE, 6, literals10, coeffs10), config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(140)
                         .allMatch(model -> model.positiveVariables().size() <= 3);
                 solver = solverSupplier.apply(f);
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LT, 7, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.LT, 7, literals10, coeffs10), config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(140)
                         .allMatch(model -> model.positiveVariables().size() <= 3);
                 solver = solverSupplier.apply(f);
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, 0, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.LE, 0, literals10, coeffs10), config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver = solverSupplier.apply(f);
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, 1, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.LE, 1, literals10, coeffs10), config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver = solverSupplier.apply(f);
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LT, 2, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.LT, 2, literals10, coeffs10), config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver = solverSupplier.apply(f);
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LT, 1, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.LT, 1, literals10, coeffs10), config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
             }
@@ -286,30 +286,30 @@ public class PbSolvingTest implements LogicNGTest {
     @Test
     public void testPBGreater() {
         for (final EncoderConfig config : configs) {
-            for (final Function<FormulaFactory, SATSolver> solverSupplier : solverSuppliers) {
-                SATSolver solver = solverSupplier.apply(f);
+            for (final Function<FormulaFactory, SatSolver> solverSupplier : solverSuppliers) {
+                SatSolver solver = solverSupplier.apply(f);
                 final int[] coeffs10 = new int[]{3, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.GE, 17, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.GE, 17, literals10, coeffs10), config));
                 assertSolverSat(solver);
 
                 assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(47)
                         .allMatch(model -> model.positiveVariables().size() >= 8);
                 solver = solverSupplier.apply(f);
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.GT, 16, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.GT, 16, literals10, coeffs10), config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10))
                         .hasSize(47)
                         .allMatch(model -> model.positiveVariables().size() >= 8);
                 solver = solverSupplier.apply(f);
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.GE, 21, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.GE, 21, literals10, coeffs10), config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(1);
                 solver = solverSupplier.apply(f);
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.GE, 22, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.GE, 22, literals10, coeffs10), config));
                 assertSolverUnsat(solver);
                 solver = solverSupplier.apply(f);
-                solver.add(PbEncoder.encode(f, (PBConstraint) f.pbc(CType.GT, 42, literals10, coeffs10), config));
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.GT, 42, literals10, coeffs10), config));
                 assertSolverUnsat(solver);
             }
         }
@@ -318,43 +318,43 @@ public class PbSolvingTest implements LogicNGTest {
     @Test
     public void testPBNegative() {
         for (final EncoderConfig config : configs) {
-            for (final Function<FormulaFactory, SATSolver> solverSupplier : solverSuppliers) {
-                SATSolver solver = solverSupplier.apply(f);
+            for (final Function<FormulaFactory, SatSolver> solverSupplier : solverSuppliers) {
+                SatSolver solver = solverSupplier.apply(f);
                 int[] coeffs10 = new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, -2};
-                final PBConstraint pbc = (PBConstraint) f.pbc(CType.EQ, 2, literals10, coeffs10);
-                solver.add(PbEncoder.encode(f, pbc, config));
+                final PbConstraint pbc = (PbConstraint) f.pbc(CType.EQ, 2, literals10, coeffs10);
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, pbc, config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(45)
                         .allMatch(m -> pbc.evaluate(m.toAssignment()));
                 solver = solverSupplier.apply(f);
 
                 coeffs10 = new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, -2};
-                final PBConstraint pbc2 = (PBConstraint) f.pbc(CType.EQ, 4, literals10, coeffs10);
-                solver.add(PbEncoder.encode(f, pbc2, config));
+                final PbConstraint pbc2 = (PbConstraint) f.pbc(CType.EQ, 4, literals10, coeffs10);
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, pbc2, config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(120)
                         .allMatch(m -> pbc2.evaluate(m.toAssignment()));
                 solver = solverSupplier.apply(f);
 
                 coeffs10 = new int[]{2, 2, -3, 2, -7, 2, 2, 2, 2, -2};
-                final PBConstraint pbc3 = (PBConstraint) f.pbc(CType.EQ, 4, literals10, coeffs10);
-                solver.add(PbEncoder.encode(f, pbc3, config));
+                final PbConstraint pbc3 = (PbConstraint) f.pbc(CType.EQ, 4, literals10, coeffs10);
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, pbc3, config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(57)
                         .allMatch(m -> pbc3.evaluate(m.toAssignment()));
                 solver = solverSupplier.apply(f);
 
                 coeffs10 = new int[]{2, 2, -3, 2, -7, 2, 2, 2, 2, -2};
-                final PBConstraint pbc4 = (PBConstraint) f.pbc(CType.EQ, -10, literals10, coeffs10);
-                solver.add(PbEncoder.encode(f, pbc4, config));
+                final PbConstraint pbc4 = (PbConstraint) f.pbc(CType.EQ, -10, literals10, coeffs10);
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, pbc4, config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(8)
                         .allMatch(m -> pbc4.evaluate(m.toAssignment()));
                 solver = solverSupplier.apply(f);
 
                 coeffs10 = new int[]{2, 2, -4, 2, -6, 2, 2, 2, 2, -2};
-                final PBConstraint pbc5 = (PBConstraint) f.pbc(CType.EQ, -12, literals10, coeffs10);
-                solver.add(PbEncoder.encode(f, pbc5, config));
+                final PbConstraint pbc5 = (PbConstraint) f.pbc(CType.EQ, -12, literals10, coeffs10);
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, pbc5, config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(1)
                         .allMatch(m -> pbc5.evaluate(m.toAssignment()));
@@ -366,8 +366,8 @@ public class PbSolvingTest implements LogicNGTest {
     @LongRunningTag
     public void testLargePBs() {
         for (final EncoderConfig config : configs) {
-            for (final Function<FormulaFactory, SATSolver> solverSupplier : solverSuppliers) {
-                final SATSolver solver = solverSupplier.apply(f);
+            for (final Function<FormulaFactory, SatSolver> solverSupplier : solverSuppliers) {
+                final SatSolver solver = solverSupplier.apply(f);
                 final int numLits = 100;
                 final Variable[] lits = new Variable[numLits];
                 final int[] coeffs = new int[numLits];
@@ -375,8 +375,8 @@ public class PbSolvingTest implements LogicNGTest {
                     lits[i] = f.variable("v" + i);
                     coeffs[i] = i + 1;
                 }
-                final PBConstraint pbc = (PBConstraint) f.pbc(CType.GE, 5000, lits, coeffs);
-                solver.add(PbEncoder.encode(f, pbc, config));
+                final PbConstraint pbc = (PbConstraint) f.pbc(CType.GE, 5000, lits, coeffs);
+                solver.add(com.booleworks.logicng.encodings.PbEncoder.encode(f, pbc, config));
                 assertSolverSat(solver);
                 assertThat(pbc.evaluate(solver.satCall().model(Arrays.asList(lits)).toAssignment())).isTrue();
             }

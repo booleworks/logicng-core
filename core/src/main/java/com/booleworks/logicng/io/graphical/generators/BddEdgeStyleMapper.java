@@ -5,7 +5,7 @@
 package com.booleworks.logicng.io.graphical.generators;
 
 import com.booleworks.logicng.io.graphical.GraphicalEdgeStyle;
-import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
+import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel;
 
 /**
  * An abstract super class for an edge mapper for a graphical representation of
@@ -20,7 +20,7 @@ public abstract class BddEdgeStyleMapper extends BddMapper implements EdgeStyleM
      * constructed with this kernel.
      * @param kernel a BDD kernel
      */
-    public BddEdgeStyleMapper(final BDDKernel kernel) {
+    public BddEdgeStyleMapper(final BddKernel kernel) {
         super(kernel);
     }
 

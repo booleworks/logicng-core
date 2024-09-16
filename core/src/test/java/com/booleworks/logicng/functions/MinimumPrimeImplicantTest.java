@@ -24,7 +24,7 @@ public class MinimumPrimeImplicantTest {
     final FormulaFactory f = FormulaFactory.caching();
 
     public MinimumPrimeImplicantTest() {
-        f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
+        f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.PURE).build());
     }
 
     @Test

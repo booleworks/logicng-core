@@ -10,10 +10,10 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.cache.TransformationCacheEntry;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.solvers.datastructures.LNGClause;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.solvers.datastructures.LngClause;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,28 +47,28 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
     }
 
     @Override
-    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+    public LngResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         final Formula cached = lookupCache(formula);
         if (cached != null) {
-            return LNGResult.of(cached);
+            return LngResult.of(cached);
         }
         final Propagator propagator = new Propagator(f);
         propagator.add(formula);
         final Formula result = propagator.propagatedFormula(f);
         setCache(formula, result);
-        return LNGResult.of(result);
+        return LngResult.of(result);
     }
 
     /**
      * An extension of the Core Solver to propagate units on formulas.
      */
-    private static class Propagator extends LNGCoreSolver {
+    private static class Propagator extends LngCoreSolver {
 
         /**
          * Constructs a new Propagator.
          */
         public Propagator(final FormulaFactory f) {
-            super(f, SATSolverConfig.builder().build());
+            super(f, SatSolverConfig.builder().build());
         }
 
         /**
@@ -107,7 +107,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
                 return f.falsum();
             }
             final List<Formula> newClauses = new ArrayList<>();
-            for (final LNGClause clause : clauses) {
+            for (final LngClause clause : clauses) {
                 newClauses.add(clauseToFormula(f, clause));
             }
             for (int i = 0; i < trail.size(); i++) {
@@ -135,7 +135,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
          * @param clause the solver clause to transform
          * @return the transformed clause
          */
-        private Formula clauseToFormula(final FormulaFactory f, final LNGClause clause) {
+        private Formula clauseToFormula(final FormulaFactory f, final LngClause clause) {
             final List<Literal> literals = new ArrayList<>(clause.size());
             for (int i = 0; i < clause.size(); i++) {
                 final int lit = clause.get(i);

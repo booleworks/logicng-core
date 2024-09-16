@@ -15,8 +15,8 @@ import com.booleworks.logicng.propositions.ExtendedProposition;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.PropositionBackpack;
 import com.booleworks.logicng.propositions.StandardProposition;
-import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -35,17 +35,17 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class SatSolversTest {
-    private static final SATSolverConfig STAND_CONFIG = SATSolverConfig.builder()
+    private static final SatSolverConfig STAND_CONFIG = SatSolverConfig.builder()
             .useAtMostClauses(false)
             .build();
-    private static final SATSolverConfig CARD_CONFIG = SATSolverConfig.builder()
+    private static final SatSolverConfig CARD_CONFIG = SatSolverConfig.builder()
             .useAtMostClauses(true)
             .build();
-    private static final SATSolverConfig STAND_PROOF_CONFIG = SATSolverConfig.builder()
+    private static final SatSolverConfig STAND_PROOF_CONFIG = SatSolverConfig.builder()
             .proofGeneration(true)
             .useAtMostClauses(false)
             .build();
-    private static final SATSolverConfig CARD_PROOF_CONFIG = SATSolverConfig.builder()
+    private static final SatSolverConfig CARD_PROOF_CONFIG = SatSolverConfig.builder()
             .proofGeneration(true)
             .useAtMostClauses(true)
             .build();
@@ -74,7 +74,7 @@ public class SatSolversTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     public void testSatSolverSimple(final boolean compress) throws IOException {
-        final var solverBefore = SATSolver.newSolver(f, STAND_CONFIG);
+        final var solverBefore = SatSolver.newSolver(f, STAND_CONFIG);
         solverBefore.add(formula);
         serializer.serializeSolverToFile(solverBefore, tempFile, compress);
         final var solverAfter = SolverSerializer.withoutPropositions(FormulaFactory.nonCaching()).deserializeSatSolverFromFile(tempFile, compress);
@@ -85,7 +85,7 @@ public class SatSolversTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     public void testCardSolverSimple(final boolean compress) throws IOException {
-        final var solverBefore = SATSolver.newSolver(f, CARD_CONFIG);
+        final var solverBefore = SatSolver.newSolver(f, CARD_CONFIG);
         solverBefore.add(formula);
         serializer.serializeSolverToFile(solverBefore, tempFile, compress);
         final var solverAfter = SolverSerializer.withoutPropositions(FormulaFactory.nonCaching()).deserializeSatSolverFromFile(tempFile, compress);
@@ -96,7 +96,7 @@ public class SatSolversTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     public void testSatSolverSolved(final boolean compress) throws IOException {
-        final var solverBefore = SATSolver.newSolver(f, STAND_CONFIG);
+        final var solverBefore = SatSolver.newSolver(f, STAND_CONFIG);
         solverBefore.add(formula);
         solverBefore.sat();
         serializer.serializeSolverToFile(solverBefore, tempFile, compress);
@@ -113,7 +113,7 @@ public class SatSolversTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     public void testCardSolverSolved(final boolean compress) throws IOException {
-        final var solverBefore = SATSolver.newSolver(f, CARD_CONFIG);
+        final var solverBefore = SatSolver.newSolver(f, CARD_CONFIG);
         solverBefore.add(formula);
         solverBefore.sat();
         serializer.serializeSolverToFile(solverBefore, tempFile, compress);
@@ -130,7 +130,7 @@ public class SatSolversTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     public void testSatSolverWithProof(final boolean compress) throws IOException, ParserException {
-        final var solverBefore = SATSolver.newSolver(f, STAND_PROOF_CONFIG);
+        final var solverBefore = SatSolver.newSolver(f, STAND_PROOF_CONFIG);
         solverBefore.add(formula);
         serializer.serializeSolverToFile(solverBefore, tempFile, compress);
         final FormulaFactory ff = FormulaFactory.caching();
@@ -148,7 +148,7 @@ public class SatSolversTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     public void testCardSolverWithProof(final boolean compress) throws IOException, ParserException {
-        final var solverBefore = SATSolver.newSolver(f, CARD_PROOF_CONFIG);
+        final var solverBefore = SatSolver.newSolver(f, CARD_PROOF_CONFIG);
         solverBefore.add(formula);
         serializer.serializeSolverToFile(solverBefore, tempFile, compress);
         final FormulaFactory ff = FormulaFactory.nonCaching();
@@ -170,7 +170,7 @@ public class SatSolversTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     public void testSatSolverWithStandardPropositions(final boolean compress) throws IOException, ParserException {
-        final var solverBefore = SATSolver.newSolver(f, STAND_PROOF_CONFIG);
+        final var solverBefore = SatSolver.newSolver(f, STAND_PROOF_CONFIG);
         for (int i = 0; i < formula.size(); i++) {
             solverBefore.add(new StandardProposition("Prop " + i, formula.get(i)));
         }
@@ -191,7 +191,7 @@ public class SatSolversTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     public void testCardSolverWithStandardPropositions(final boolean compress) throws IOException, ParserException {
-        final var solverBefore = SATSolver.newSolver(f, CARD_PROOF_CONFIG);
+        final var solverBefore = SatSolver.newSolver(f, CARD_PROOF_CONFIG);
         for (int i = 0; i < formula.size(); i++) {
             solverBefore.add(new StandardProposition("Prop " + i, formula.get(i)));
         }
@@ -212,7 +212,7 @@ public class SatSolversTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     public void testSatSolverWithCustomPropositions(final boolean compress) throws IOException, ParserException {
-        final var solverBefore = SATSolver.newSolver(f, STAND_PROOF_CONFIG);
+        final var solverBefore = SatSolver.newSolver(f, STAND_PROOF_CONFIG);
         for (int i = 0; i < formula.size(); i++) {
             solverBefore.add(new ExtendedProposition<>(new CustomBackpack(i), formula.get(i)));
         }
@@ -236,7 +236,7 @@ public class SatSolversTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     public void testCardSolverWithCustomPropositions(final boolean compress) throws IOException, ParserException {
-        final var solverBefore = SATSolver.newSolver(f, CARD_PROOF_CONFIG);
+        final var solverBefore = SatSolver.newSolver(f, CARD_PROOF_CONFIG);
         for (int i = 0; i < formula.size(); i++) {
             solverBefore.add(new ExtendedProposition<>(new CustomBackpack(i), formula.get(i)));
         }
@@ -257,7 +257,7 @@ public class SatSolversTest {
         SolverComparator.compareSolverStates(solverBefore, solverAfter);
     }
 
-    private static void compareSolverModels(final SATSolver solver1, final SATSolver solver2) {
+    private static void compareSolverModels(final SatSolver solver1, final SatSolver solver2) {
         solver1.sat();
         solver2.sat();
         final var model1 = solver1.satCall().model(variables).positiveVariables();
@@ -288,7 +288,7 @@ public class SatSolversTest {
             buffer.get(formulaBytes);
             try {
                 return new ExtendedProposition<>(new CustomBackpack(integer),
-                        Formulas.deserializeFormula(f, ProtoBufFormulas.PBFormulas.parseFrom(formulaBytes)));
+                        Formulas.deserializeFormula(f, ProtoBufFormulas.PbFormulas.parseFrom(formulaBytes)));
             } catch (InvalidProtocolBufferException e) {
                 throw new RuntimeException(e);
             }

@@ -14,7 +14,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Not;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.modelcounting.ModelCounter;
@@ -145,7 +145,7 @@ public class PureExpansionTransformationTest extends TestWithFormulaContext {
         final FormulaCornerCases cornerCases = new FormulaCornerCases(_c.f);
         for (final Formula formula : cornerCases.cornerCases()) {
             if (formula.getType() == FType.PBC) {
-                final PBConstraint pbc = (PBConstraint) formula;
+                final PbConstraint pbc = (PbConstraint) formula;
                 if (!pbc.isAmo() && !pbc.isExo()) {
                     assertThatThrownBy(
                             () -> ModelCounter.count(_c.f, Collections.singletonList(formula), formula.variables(_c.f)))

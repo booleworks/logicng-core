@@ -10,10 +10,10 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.NAryOperator;
 import com.booleworks.logicng.formulas.Not;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.cache.FunctionCacheEntry;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.Collections;
@@ -49,10 +49,10 @@ public class LiteralsFunction extends CacheableFormulaFunction<SortedSet<Literal
     }
 
     @Override
-    public LNGResult<SortedSet<Literal>> apply(final Formula formula, final ComputationHandler handler) {
+    public LngResult<SortedSet<Literal>> apply(final Formula formula, final ComputationHandler handler) {
         final SortedSet<Literal> cached = lookupCache(formula);
         if (cached != null) {
-            return LNGResult.of(cached);
+            return LngResult.of(cached);
         }
         SortedSet<Literal> result = new TreeSet<>();
         switch (formula.getType()) {
@@ -83,7 +83,7 @@ public class LiteralsFunction extends CacheableFormulaFunction<SortedSet<Literal
                 }
                 break;
             case PBC:
-                final PBConstraint pbc = (PBConstraint) formula;
+                final PbConstraint pbc = (PbConstraint) formula;
                 result = FormulaHelper.literals(f, pbc.getOperands());
                 break;
             default:
@@ -91,6 +91,6 @@ public class LiteralsFunction extends CacheableFormulaFunction<SortedSet<Literal
         }
         result = Collections.unmodifiableSortedSet(result);
         setCache(formula, result);
-        return LNGResult.of(result);
+        return LngResult.of(result);
     }
 }

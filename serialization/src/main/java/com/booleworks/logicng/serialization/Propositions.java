@@ -5,7 +5,7 @@ package com.booleworks.logicng.serialization;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.propositions.StandardProposition;
-import com.booleworks.logicng.serialization.ProtoBufPropositions.PBStandardProposition;
+import com.booleworks.logicng.serialization.ProtoBufPropositions.PbStandardProposition;
 
 /**
  * Serialization methods for LogicNG propositions.
@@ -22,8 +22,8 @@ public interface Propositions {
      * @param prop the proposition
      * @return the protocol buffer
      */
-    static PBStandardProposition serializePropositions(final StandardProposition prop) {
-        final PBStandardProposition.Builder builder = PBStandardProposition.newBuilder();
+    static PbStandardProposition serializePropositions(final StandardProposition prop) {
+        final PbStandardProposition.Builder builder = PbStandardProposition.newBuilder();
         builder.setFormula(Formulas.serializeFormula(prop.getFormula()));
         return builder.setDescription(prop.getDescription()).build();
     }
@@ -34,7 +34,7 @@ public interface Propositions {
      * @param bin the protocol buffer
      * @return the proposition
      */
-    static StandardProposition deserializePropositions(final FormulaFactory f, final PBStandardProposition bin) {
+    static StandardProposition deserializePropositions(final FormulaFactory f, final PbStandardProposition bin) {
         return new StandardProposition(bin.getDescription(), Formulas.deserializeFormula(f, bin.getFormula()));
     }
 }

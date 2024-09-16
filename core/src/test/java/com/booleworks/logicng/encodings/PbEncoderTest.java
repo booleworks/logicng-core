@@ -11,10 +11,10 @@ import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -28,11 +28,11 @@ public class PbEncoderTest implements LogicNGTest {
 
     public PbEncoderTest() {
         configs = Arrays.asList(
-                EncoderConfig.builder().pbEncoding(EncoderConfig.PB_ENCODER.SWC).build(),
+                EncoderConfig.builder().pbEncoding(EncoderConfig.PbEncoder.SWC).build(),
                 EncoderConfig.builder()
-                        .pbEncoding(EncoderConfig.PB_ENCODER.BINARY_MERGE)
-                        .binaryMergeUseGAC(false)
-                        .amoEncoding(EncoderConfig.AMO_ENCODER.NESTED)
+                        .pbEncoding(EncoderConfig.PbEncoder.BINARY_MERGE)
+                        .binaryMergeUseGac(false)
+                        .amoEncoding(EncoderConfig.AmoEncoder.NESTED)
                         .build(),
                 null
         );
@@ -51,8 +51,8 @@ public class PbEncoderTest implements LogicNGTest {
                 problemLits[i] = var;
                 coeffs.add(1);
             }
-            final List<Formula> clauses = PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, 0, lits, coeffs), config);
-            final SATSolver solver = SATSolver.newSolver(f);
+            final List<Formula> clauses = com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.LE, 0, lits, coeffs), config);
+            final SatSolver solver = SatSolver.newSolver(f);
             solver.add(clauses);
             assertSolverSat(solver);
             assertThat(solver.enumerateAllModels(problemLits))
@@ -75,9 +75,9 @@ public class PbEncoderTest implements LogicNGTest {
                 problemLits[i] = var;
                 coeffs.add(1);
             }
-            final List<Formula> clauses = PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, rhs, lits, coeffs),
+            final List<Formula> clauses = com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.LE, rhs, lits, coeffs),
                     config);
-            final SATSolver solver = SATSolver.newSolver(f);
+            final SatSolver solver = SatSolver.newSolver(f);
             solver.add(clauses);
             assertSolverSat(solver);
             assertThat(solver.enumerateAllModels(problemLits))
@@ -109,9 +109,9 @@ public class PbEncoderTest implements LogicNGTest {
             problemLits[i] = f.variable("v" + i);
             coeffs[i] = 1;
         }
-        final List<Formula> clauses = PbEncoder.encode(f, (PBConstraint) f.pbc(CType.LE, rhs, problemLits, coeffs),
+        final List<Formula> clauses = com.booleworks.logicng.encodings.PbEncoder.encode(f, (PbConstraint) f.pbc(CType.LE, rhs, problemLits, coeffs),
                 config);
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(clauses);
         assertSolverSat(solver);
         assertThat(solver.enumerateAllModels(problemLits))
@@ -127,9 +127,9 @@ public class PbEncoderTest implements LogicNGTest {
         final List<Integer> coeffs = new ArrayList<>();
         coeffs.add(2);
         coeffs.add(1);
-        final PBConstraint truePBC = (PBConstraint) f.pbc(CType.GE, 0, lits, coeffs);
+        final PbConstraint truePBC = (PbConstraint) f.pbc(CType.GE, 0, lits, coeffs);
         for (final EncoderConfig config : configs) {
-            assertThat(PbEncoder.encode(f, truePBC, config)).isEmpty();
+            assertThat(com.booleworks.logicng.encodings.PbEncoder.encode(f, truePBC, config)).isEmpty();
         }
     }
 
@@ -141,7 +141,7 @@ public class PbEncoderTest implements LogicNGTest {
         final List<Integer> coeffs2 = new ArrayList<>();
         coeffs2.add(2);
         coeffs2.add(2);
-        final PBConstraint normCC = (PBConstraint) f.pbc(CType.LE, 2, lits, coeffs2);
-        assertThat(PbEncoder.encode(f, normCC, configs.get(0))).containsExactly(f.parse("~m | ~n"));
+        final PbConstraint normCC = (PbConstraint) f.pbc(CType.LE, 2, lits, coeffs2);
+        assertThat(com.booleworks.logicng.encodings.PbEncoder.encode(f, normCC, configs.get(0))).containsExactly(f.parse("~m | ~n"));
     }
 }

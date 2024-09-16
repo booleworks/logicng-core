@@ -28,6 +28,6 @@ public final class ContradictionPredicate implements FormulaPredicate {
 
     @Override
     public boolean test(final Formula formula) {
-        return !formula.holds(new SATPredicate(f));
+        return !formula.holds(new SatPredicate(f));
     }
 }

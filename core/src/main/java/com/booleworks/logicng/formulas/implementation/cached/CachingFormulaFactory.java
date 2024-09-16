@@ -20,7 +20,7 @@ import com.booleworks.logicng.formulas.InternalAuxVarType;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.Or;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.formulas.cache.CacheEntry;
 import com.booleworks.logicng.util.Pair;
@@ -46,12 +46,12 @@ public class CachingFormulaFactory extends FormulaFactory {
     Map<LinkedHashSet<? extends Formula>, Or> ors3;
     Map<LinkedHashSet<? extends Formula>, Or> ors4;
     Map<LinkedHashSet<? extends Formula>, Or> orsN;
-    Map<PBOperands, PBConstraint> pbConstraints;
-    Map<CCOperands, CardinalityConstraint> cardinalityConstraints;
+    Map<PbOperands, PbConstraint> pbConstraints;
+    Map<CcOperands, CardinalityConstraint> cardinalityConstraints;
     Map<CacheEntry, Map<Formula, Formula>> transformationCache;
     Map<CacheEntry, Map<Formula, Boolean>> predicateCache;
     Map<CacheEntry, Map<Formula, Object>> functionCache;
-    Map<PBConstraint, List<Formula>> pbEncodingCache;
+    Map<PbConstraint, List<Formula>> pbEncodingCache;
 
     /**
      * Constructor for a new formula factory with the default configuration.
@@ -110,7 +110,7 @@ public class CachingFormulaFactory extends FormulaFactory {
      */
     @Override
     protected Formula internalAnd(final LinkedHashSet<? extends Formula> operandsIn) {
-        final LinkedHashSet<? extends Formula> operands = importOrPanicLHS(operandsIn);
+        final LinkedHashSet<? extends Formula> operands = importOrPanicLhs(operandsIn);
         And tempAnd = null;
         Map<LinkedHashSet<? extends Formula>, And> opAndMap = andsN;
         if (operands.size() > 1) {
@@ -172,7 +172,7 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     @Override
     protected Formula internalCnf(final LinkedHashSet<? extends Formula> clausesIn) {
-        final LinkedHashSet<? extends Formula> clauses = importOrPanicLHS(clausesIn);
+        final LinkedHashSet<? extends Formula> clauses = importOrPanicLhs(clausesIn);
         if (clauses.isEmpty()) {
             return verum();
         }
@@ -205,7 +205,7 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     @Override
     protected Formula internalOr(final LinkedHashSet<? extends Formula> operandsIn) {
-        final LinkedHashSet<? extends Formula> operands = importOrPanicLHS(operandsIn);
+        final LinkedHashSet<? extends Formula> operands = importOrPanicLhs(operandsIn);
         Or tempOr = null;
         Map<LinkedHashSet<? extends Formula>, Or> opOrMap = orsN;
         if (operands.size() > 1) {
@@ -267,7 +267,7 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     @Override
     protected Formula internalClause(final LinkedHashSet<Literal> literalsIn) {
-        final LinkedHashSet<? extends Formula> literals = importOrPanicLHS(literalsIn);
+        final LinkedHashSet<? extends Formula> literals = importOrPanicLhs(literalsIn);
         if (literals.isEmpty()) {
             return falsum();
         }
@@ -324,10 +324,10 @@ public class CachingFormulaFactory extends FormulaFactory {
     @Override
     protected Formula internalPbc(final List<? extends Literal> literals, final List<Integer> coefficients,
                                   final CType comparator, final int rhs) {
-        final PBOperands operands = new PBOperands(literals, coefficients, comparator, rhs);
-        PBConstraint constraint = pbConstraints.get(operands);
+        final PbOperands operands = new PbOperands(literals, coefficients, comparator, rhs);
+        PbConstraint constraint = pbConstraints.get(operands);
         if (constraint == null) {
-            constraint = new LngCachedPBConstraint(literals, coefficients, comparator, rhs, this);
+            constraint = new LngCachedPbConstraint(literals, coefficients, comparator, rhs, this);
             pbConstraints.put(operands, constraint);
         }
         return constraint;
@@ -335,7 +335,7 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     @Override
     protected Formula internalCc(final List<? extends Literal> literals, final CType comparator, final int rhs) {
-        final CCOperands operands = new CCOperands(literals, comparator, rhs);
+        final CcOperands operands = new CcOperands(literals, comparator, rhs);
         CardinalityConstraint constraint = cardinalityConstraints.get(operands);
         if (constraint == null) {
             constraint = new LngCachedCardinalityConstraint(importOrPanic(literals), comparator, rhs, this);
@@ -344,8 +344,8 @@ public class CachingFormulaFactory extends FormulaFactory {
         return constraint;
     }
 
-    private void setCnfCaches(final Formula formula, final boolean isCNF) {
-        if (isCNF) {
+    private void setCnfCaches(final Formula formula, final boolean isCnf) {
+        if (isCnf) {
             predicateCache.computeIfAbsent(IS_CNF, k -> new HashMap<>()).put(formula, true);
             transformationCache.computeIfAbsent(FACTORIZED_CNF, k -> new HashMap<>()).put(formula, formula);
         } else {
@@ -485,7 +485,7 @@ public class CachingFormulaFactory extends FormulaFactory {
     /**
      * Helper class for the operands of a pseudo-Boolean constraint.
      */
-    private final static class PBOperands {
+    private final static class PbOperands {
         private final List<? extends Literal> literals;
         private final List<Integer> coefficients;
         private final CType comparator;
@@ -498,7 +498,7 @@ public class CachingFormulaFactory extends FormulaFactory {
          * @param comparator   the comparator of the constraint
          * @param rhs          the right-hand side of the constraint
          */
-        public PBOperands(final List<? extends Literal> literals, final List<Integer> coefficients,
+        public PbOperands(final List<? extends Literal> literals, final List<Integer> coefficients,
                           final CType comparator, final int rhs) {
             this.literals = literals;
             this.coefficients = coefficients;
@@ -516,8 +516,8 @@ public class CachingFormulaFactory extends FormulaFactory {
             if (this == other) {
                 return true;
             }
-            if (other instanceof PBOperands) {
-                final PBOperands o = (PBOperands) other;
+            if (other instanceof PbOperands) {
+                final PbOperands o = (PbOperands) other;
                 return rhs == o.rhs && comparator == o.comparator && coefficients.equals(o.coefficients) &&
                         literals.equals(o.literals);
             }
@@ -528,7 +528,7 @@ public class CachingFormulaFactory extends FormulaFactory {
     /**
      * Helper class for the operands of a cardinality constraint.
      */
-    private final static class CCOperands {
+    private final static class CcOperands {
         private final List<? extends Literal> literals;
         private final CType comparator;
         private final int rhs;
@@ -539,7 +539,7 @@ public class CachingFormulaFactory extends FormulaFactory {
          * @param comparator the comparator of the constraint
          * @param rhs        the right-hand side of the constraint
          */
-        public CCOperands(final List<? extends Literal> literals, final CType comparator, final int rhs) {
+        public CcOperands(final List<? extends Literal> literals, final CType comparator, final int rhs) {
             this.literals = literals;
             this.comparator = comparator;
             this.rhs = rhs;
@@ -555,8 +555,8 @@ public class CachingFormulaFactory extends FormulaFactory {
             if (this == other) {
                 return true;
             }
-            if (other instanceof CCOperands) {
-                final CCOperands o = (CCOperands) other;
+            if (other instanceof CcOperands) {
+                final CcOperands o = (CcOperands) other;
                 return rhs == o.rhs && comparator == o.comparator && literals.equals(o.literals);
             }
             return false;

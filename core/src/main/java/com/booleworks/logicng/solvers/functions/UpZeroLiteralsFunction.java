@@ -4,12 +4,12 @@
 
 package com.booleworks.logicng.solvers.functions;
 
-import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -41,17 +41,17 @@ public final class UpZeroLiteralsFunction implements SolverFunction<SortedSet<Li
     }
 
     @Override
-    public LNGResult<SortedSet<Literal>> apply(final SATSolver solver, final ComputationHandler handler) {
+    public LngResult<SortedSet<Literal>> apply(final SatSolver solver, final ComputationHandler handler) {
         if (!solver.sat()) {
-            return LNGResult.of(new TreeSet<>());
+            return LngResult.of(new TreeSet<>());
         }
-        final LNGIntVector literals = solver.getUnderlyingSolver().upZeroLiterals();
+        final LngIntVector literals = solver.getUnderlyingSolver().upZeroLiterals();
         final SortedSet<Literal> upZeroLiterals = new TreeSet<>();
         for (int i = 0; i < literals.size(); ++i) {
             final int lit = literals.get(i);
-            upZeroLiterals.add(solver.getFactory().literal(solver.getUnderlyingSolver().nameForIdx(LNGCoreSolver.var(lit)),
-                    !LNGCoreSolver.sign(lit)));
+            upZeroLiterals.add(solver.getFactory().literal(solver.getUnderlyingSolver().nameForIdx(LngCoreSolver.var(lit)),
+                    !LngCoreSolver.sign(lit)));
         }
-        return LNGResult.of(upZeroLiterals);
+        return LngResult.of(upZeroLiterals);
     }
 }

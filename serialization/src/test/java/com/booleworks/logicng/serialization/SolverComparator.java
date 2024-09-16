@@ -12,17 +12,17 @@ import static com.booleworks.logicng.serialization.SolverDatastructureComparator
 import static com.booleworks.logicng.serialization.SolverDatastructureComparator.assertWatchListsEquals;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver.ProofInformation;
+import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.collections.LngVector;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver.ProofInformation;
 
 public class SolverComparator {
 
-    public static void compareSolverStates(final SATSolver solver1, final SATSolver solver2) {
-        final LNGCoreSolver s1 = solver1.getUnderlyingSolver();
-        final LNGCoreSolver s2 = solver2.getUnderlyingSolver();
+    public static void compareSolverStates(final SatSolver solver1, final SatSolver solver2) {
+        final LngCoreSolver s1 = solver1.getUnderlyingSolver();
+        final LngCoreSolver s2 = solver2.getUnderlyingSolver();
 
         assertFieldEqual(s1, s2, "config");
         assertFieldEqual(s1, s2, "llConfig");
@@ -69,23 +69,23 @@ public class SolverComparator {
         assertIntVecEquals(getField(s1, "permDiff"), getField(s2, "permDiff"));
         assertIntVecEquals(getField(s1, "lastDecisionLevel"), getField(s2, "lastDecisionLevel"));
         assertFieldEqual(s1, s2, "myflag");
-        assertFieldEqual(s1, s2, "analyzeLBD");
+        assertFieldEqual(s1, s2, "analyzeLbd");
         assertFieldEqual(s1, s2, "nbClausesBeforeReduce");
         assertFieldEqual(s1, s2, "conflicts");
         assertFieldEqual(s1, s2, "conflictsRestarts");
-        assertFieldEqual(s1, s2, "sumLBD");
+        assertFieldEqual(s1, s2, "sumLbd");
         assertFieldEqual(s1, s2, "curRestart");
     }
 
-    private static void assertFieldEqual(final LNGCoreSolver s1, final LNGCoreSolver s2, final String field) {
+    private static void assertFieldEqual(final LngCoreSolver s1, final LngCoreSolver s2, final String field) {
         final Object f1 = getField(s1, field);
         final Object f2 = getField(s2, field);
         assertThat(f1).isEqualTo(f2);
     }
 
-    private static void assertProofEqual(final LNGCoreSolver s1, final LNGCoreSolver s2) {
-        final LNGVector<ProofInformation> pg1 = getField(s1, "pgOriginalClauses");
-        final LNGVector<ProofInformation> pg2 = getField(s2, "pgOriginalClauses");
+    private static void assertProofEqual(final LngCoreSolver s1, final LngCoreSolver s2) {
+        final LngVector<ProofInformation> pg1 = getField(s1, "pgOriginalClauses");
+        final LngVector<ProofInformation> pg2 = getField(s2, "pgOriginalClauses");
         if (pg1 == null) {
             assertThat(pg2).isNull();
         }
@@ -103,8 +103,8 @@ public class SolverComparator {
             assertThat(pi1.getProposition()).isEqualTo(pi2.getProposition());
         }
 
-        final LNGVector<LNGIntVector> proof1 = getField(s1, "pgProof");
-        final LNGVector<LNGIntVector> proof2 = getField(s2, "pgProof");
+        final LngVector<LngIntVector> proof1 = getField(s1, "pgProof");
+        final LngVector<LngIntVector> proof2 = getField(s2, "pgProof");
         if (proof1 == null) {
             assertThat(proof2).isNull();
         }

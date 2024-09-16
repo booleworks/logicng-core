@@ -34,7 +34,7 @@ public final class ForceOrdering implements VariableOrderingProvider {
     private static final Comparator<? super Map.Entry<HypergraphNode<Variable>, Double>> COMPARATOR =
             Map.Entry.comparingByValue();
 
-    private final DFSOrdering dfsOrdering = new DFSOrdering();
+    private final DfsOrdering dfsOrdering = new DfsOrdering();
 
     @Override
     public List<Variable> getOrder(final FormulaFactory f, final Formula formula) {
@@ -42,7 +42,7 @@ public final class ForceOrdering implements VariableOrderingProvider {
         final Formula nnf = formula.nnf(f);
         originalVariables.addAll(nnf.variables(f));
         final Formula cnf = nnf.cnf(f);
-        final Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCNF(f, cnf);
+        final Hypergraph<Variable> hypergraph = HypergraphGenerator.fromCnf(f, cnf);
         final Map<Variable, HypergraphNode<Variable>> nodes = new HashMap<>();
         for (final HypergraphNode<Variable> node : hypergraph.getNodes()) {
             nodes.put(node.getContent(), node);

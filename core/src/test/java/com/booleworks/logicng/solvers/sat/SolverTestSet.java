@@ -1,14 +1,14 @@
 package com.booleworks.logicng.solvers.sat;
 
-import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.FACTORY_CNF;
-import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.FULL_PG_ON_SOLVER;
-import static com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod.PG_ON_SOLVER;
-import static com.booleworks.logicng.solvers.sat.SATSolverConfig.ClauseMinimization.BASIC;
-import static com.booleworks.logicng.solvers.sat.SATSolverConfig.ClauseMinimization.DEEP;
-import static com.booleworks.logicng.solvers.sat.SATSolverConfig.ClauseMinimization.NONE;
+import static com.booleworks.logicng.solvers.sat.SatSolverConfig.ClauseMinimization.BASIC;
+import static com.booleworks.logicng.solvers.sat.SatSolverConfig.ClauseMinimization.DEEP;
+import static com.booleworks.logicng.solvers.sat.SatSolverConfig.ClauseMinimization.NONE;
+import static com.booleworks.logicng.solvers.sat.SatSolverConfig.CnfMethod.FACTORY_CNF;
+import static com.booleworks.logicng.solvers.sat.SatSolverConfig.CnfMethod.FULL_PG_ON_SOLVER;
+import static com.booleworks.logicng.solvers.sat.SatSolverConfig.CnfMethod.PG_ON_SOLVER;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.ArrayList;
@@ -31,52 +31,52 @@ public interface SolverTestSet {
                 .collect(Collectors.toList());
     }
 
-    static List<SATSolver> solverTestSet(final Collection<SATSolverConfigParam> variance, final FormulaFactory f) {
+    static List<SatSolver> solverTestSet(final Collection<SATSolverConfigParam> variance, final FormulaFactory f) {
         return solverSupplierTestSet(variance).stream().map(s -> s.apply(f)).collect(Collectors.toList());
     }
 
-    static List<Function<FormulaFactory, SATSolver>> solverSupplierTestSet(
+    static List<Function<FormulaFactory, SatSolver>> solverSupplierTestSet(
             final Collection<SATSolverConfigParam> variance) {
-        List<SATSolverConfig> currentList = List.of(SATSolverConfig.builder().build());
+        List<SatSolverConfig> currentList = List.of(SatSolverConfig.builder().build());
         if (variance.contains(SATSolverConfigParam.PROOF_GENERATION)) {
             currentList = currentList.stream().flatMap(config -> Stream.of(
-                    SATSolverConfig.copy(config).proofGeneration(false).build(),
-                    SATSolverConfig.copy(config).proofGeneration(true).build()
+                    SatSolverConfig.copy(config).proofGeneration(false).build(),
+                    SatSolverConfig.copy(config).proofGeneration(true).build()
             )).collect(Collectors.toList());
         }
         if (variance.contains(SATSolverConfigParam.USE_AT_MOST_CLAUSES)) {
             currentList = currentList.stream().flatMap(config -> Stream.of(
-                    SATSolverConfig.copy(config).useAtMostClauses(false).build(),
-                    SATSolverConfig.copy(config).useAtMostClauses(true).build()
+                    SatSolverConfig.copy(config).useAtMostClauses(false).build(),
+                    SatSolverConfig.copy(config).useAtMostClauses(true).build()
             )).collect(Collectors.toList());
         }
         if (variance.contains(SATSolverConfigParam.CNF_METHOD)) {
             currentList = currentList.stream().flatMap(config -> Stream.of(
-                    SATSolverConfig.copy(config).cnfMethod(FACTORY_CNF).build(),
-                    SATSolverConfig.copy(config).cnfMethod(PG_ON_SOLVER).build(),
-                    SATSolverConfig.copy(config).cnfMethod(FULL_PG_ON_SOLVER).build()
+                    SatSolverConfig.copy(config).cnfMethod(FACTORY_CNF).build(),
+                    SatSolverConfig.copy(config).cnfMethod(PG_ON_SOLVER).build(),
+                    SatSolverConfig.copy(config).cnfMethod(FULL_PG_ON_SOLVER).build()
             )).collect(Collectors.toList());
         }
         if (variance.contains(SATSolverConfigParam.INITIAL_PHASE)) {
             currentList = currentList.stream().flatMap(config -> Stream.of(
-                    SATSolverConfig.copy(config).initialPhase(false).build(),
-                    SATSolverConfig.copy(config).initialPhase(true).build()
+                    SatSolverConfig.copy(config).initialPhase(false).build(),
+                    SatSolverConfig.copy(config).initialPhase(true).build()
             )).collect(Collectors.toList());
         }
         if (variance.contains(SATSolverConfigParam.CLAUSE_MINIMIZATION)) {
             currentList = currentList.stream().flatMap(config -> Stream.of(
-                    SATSolverConfig.copy(config).clauseMinimization(NONE).build(),
-                    SATSolverConfig.copy(config).clauseMinimization(BASIC).build(),
-                    SATSolverConfig.copy(config).clauseMinimization(DEEP).build()
+                    SatSolverConfig.copy(config).clauseMinimization(NONE).build(),
+                    SatSolverConfig.copy(config).clauseMinimization(BASIC).build(),
+                    SatSolverConfig.copy(config).clauseMinimization(DEEP).build()
             )).collect(Collectors.toList());
         }
         return currentList.stream()
-                .map(config -> (Function<FormulaFactory, SATSolver>) f -> SATSolver.newSolver(f, config))
+                .map(config -> (Function<FormulaFactory, SatSolver>) f -> SatSolver.newSolver(f, config))
                 .collect(Collectors.toList());
     }
 
-    static String solverDescription(final SATSolver s, final Collection<SATSolverConfigParam> variance) {
-        final SATSolverConfig config = s.getConfig();
+    static String solverDescription(final SatSolver s, final Collection<SATSolverConfigParam> variance) {
+        final SatSolverConfig config = s.getConfig();
         final List<String> elements = new ArrayList<>();
         if (variance.contains(SATSolverConfigParam.PROOF_GENERATION)) {
             elements.add((config.isProofGeneration() ? "+" : "-") + "PROOF");

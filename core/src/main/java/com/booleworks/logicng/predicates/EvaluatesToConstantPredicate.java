@@ -15,7 +15,7 @@ import com.booleworks.logicng.formulas.Implication;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.Or;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.Variable;
 
 import java.util.ArrayList;
@@ -117,7 +117,7 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
             case AND:
                 return handleAnd((And) formula, topLevel);
             case PBC:
-                return handlePBC((PBConstraint) formula);
+                return handlePbc((PbConstraint) formula);
             case PREDICATE:
                 throw new UnsupportedOperationException(
                         "Cannot evaluate a formula with predicates with a boolean assignment");
@@ -206,7 +206,7 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
         return f.and(nops);
     }
 
-    private Formula handlePBC(final PBConstraint formula) {
+    private Formula handlePbc(final PbConstraint formula) {
         final Assignment assignment = new Assignment();
         for (final Map.Entry<Variable, Boolean> entry : mapping.entrySet()) {
             assignment.addLiteral(f.literal(entry.getKey().getName(), entry.getValue()));

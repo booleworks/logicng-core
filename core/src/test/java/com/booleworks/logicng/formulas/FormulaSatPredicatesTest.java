@@ -7,7 +7,7 @@ package com.booleworks.logicng.formulas;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.transformations.cnf.BDDCNFTransformation;
+import com.booleworks.logicng.transformations.cnf.BddCnfTransformation;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -83,6 +83,6 @@ public class FormulaSatPredicatesTest extends TestWithFormulaContext {
         assertThat(f1.isEquivalentTo(_c.f, f3)).isTrue();
         assertThat(f3.isEquivalentTo(_c.f, f1)).isTrue();
         assertThat(f2.isEquivalentTo(_c.f, f3)).isFalse();
-        assertThat(f2.isEquivalentTo(_c.f, f2.transform(new BDDCNFTransformation(_c.f)))).isTrue();
+        assertThat(f2.isEquivalentTo(_c.f, f2.transform(new BddCnfTransformation(_c.f)))).isTrue();
     }
 }

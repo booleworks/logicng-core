@@ -207,27 +207,27 @@ public class ImplicationTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsNNF(final FormulaContext _c) {
-        assertThat(_c.imp1.isNNF(_c.f)).isFalse();
-        assertThat(_c.imp2.isNNF(_c.f)).isFalse();
-        assertThat(_c.imp3.isNNF(_c.f)).isFalse();
-        assertThat(_c.imp4.isNNF(_c.f)).isFalse();
+        assertThat(_c.imp1.isNnf(_c.f)).isFalse();
+        assertThat(_c.imp2.isNnf(_c.f)).isFalse();
+        assertThat(_c.imp3.isNnf(_c.f)).isFalse();
+        assertThat(_c.imp4.isNnf(_c.f)).isFalse();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsDNF(final FormulaContext _c) {
-        assertThat(_c.imp1.isDNF(_c.f)).isFalse();
-        assertThat(_c.imp2.isDNF(_c.f)).isFalse();
-        assertThat(_c.imp3.isDNF(_c.f)).isFalse();
-        assertThat(_c.imp4.isDNF(_c.f)).isFalse();
+        assertThat(_c.imp1.isDnf(_c.f)).isFalse();
+        assertThat(_c.imp2.isDnf(_c.f)).isFalse();
+        assertThat(_c.imp3.isDnf(_c.f)).isFalse();
+        assertThat(_c.imp4.isDnf(_c.f)).isFalse();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsCNF(final FormulaContext _c) {
-        assertThat(_c.imp1.isCNF(_c.f)).isFalse();
-        assertThat(_c.imp2.isCNF(_c.f)).isFalse();
-        assertThat(_c.imp3.isCNF(_c.f)).isFalse();
-        assertThat(_c.imp4.isCNF(_c.f)).isFalse();
+        assertThat(_c.imp1.isCnf(_c.f)).isFalse();
+        assertThat(_c.imp2.isCnf(_c.f)).isFalse();
+        assertThat(_c.imp3.isCnf(_c.f)).isFalse();
+        assertThat(_c.imp4.isCnf(_c.f)).isFalse();
     }
 }

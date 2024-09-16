@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.LogicNGTest;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.testutils.PigeonHoleGenerator;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,7 +29,7 @@ public class IncDecTest implements LogicNGTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testIncDec(final SATSolver s, final String solverDescription) {
+    public void testIncDec(final SatSolver s, final String solverDescription) {
         final var f = s.getFactory();
         final PigeonHoleGenerator pg = new PigeonHoleGenerator(f);
         s.add(f.variable("a"));
@@ -57,7 +57,7 @@ public class IncDecTest implements LogicNGTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testIncDecDeep(final SATSolver s, final String solverDescription) {
+    public void testIncDecDeep(final SatSolver s, final String solverDescription) {
         final var f = s.getFactory();
         s.add(f.variable("a"));
         final SolverState state1 = s.saveState();

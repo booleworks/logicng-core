@@ -12,9 +12,9 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.FactorizationCreatedClauseEvent;
-import com.booleworks.logicng.handlers.events.LNGEvent;
+import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.io.parsers.ParserException;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -28,7 +28,7 @@ public class CNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testConstants(final FormulaContext _c) {
-        final CNFFactorization cnf = new CNFFactorization(_c.f);
+        final CnfFactorization cnf = new CnfFactorization(_c.f);
 
         assertThat(_c.verum.transform(cnf, handler).getResult()).isEqualTo(_c.verum);
         assertThat(_c.falsum.transform(cnf, handler).getResult()).isEqualTo(_c.falsum);
@@ -37,7 +37,7 @@ public class CNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLiterals(final FormulaContext _c) {
-        final CNFFactorization cnf = new CNFFactorization(_c.f);
+        final CnfFactorization cnf = new CnfFactorization(_c.f);
 
         assertThat(_c.a.transform(cnf, handler).getResult()).isEqualTo(_c.a);
         assertThat(_c.na.transform(cnf, handler).getResult()).isEqualTo(_c.na);
@@ -46,26 +46,26 @@ public class CNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testBinaryOperators(final FormulaContext _c) throws ParserException {
-        final CNFFactorization cnf = new CNFFactorization(_c.f);
+        final CnfFactorization cnf = new CnfFactorization(_c.f);
 
         assertThat(_c.imp1.transform(cnf, handler).getResult()).isEqualTo(_c.p.parse("~a | b"));
         assertThat(_c.imp2.transform(cnf, handler).getResult()).isEqualTo(_c.p.parse("a | ~b"));
         assertThat(_c.imp3.transform(cnf, handler).getResult()).isEqualTo(_c.p.parse("~a | ~b | x | y"));
         assertThat(_c.eq1.transform(cnf, handler).getResult()).isEqualTo(_c.p.parse("(a | ~b) & (~a | b)"));
         assertThat(_c.eq2.transform(cnf, handler).getResult()).isEqualTo(_c.p.parse("(~a | b) & (a | ~b)"));
-        assertThat(_c.imp1.transform(cnf, handler).getResult().isCNF(_c.f)).isTrue();
-        assertThat(_c.imp2.transform(cnf, handler).getResult().isCNF(_c.f)).isTrue();
-        assertThat(_c.imp3.transform(cnf, handler).getResult().isCNF(_c.f)).isTrue();
-        assertThat(_c.eq1.transform(cnf, handler).getResult().isCNF(_c.f)).isTrue();
-        assertThat(_c.eq1.transform(cnf, handler).getResult().isDNF(_c.f)).isFalse();
-        assertThat(_c.eq2.transform(cnf, handler).getResult().isCNF(_c.f)).isTrue();
-        assertThat(_c.eq2.transform(cnf, handler).getResult().isDNF(_c.f)).isFalse();
+        assertThat(_c.imp1.transform(cnf, handler).getResult().isCnf(_c.f)).isTrue();
+        assertThat(_c.imp2.transform(cnf, handler).getResult().isCnf(_c.f)).isTrue();
+        assertThat(_c.imp3.transform(cnf, handler).getResult().isCnf(_c.f)).isTrue();
+        assertThat(_c.eq1.transform(cnf, handler).getResult().isCnf(_c.f)).isTrue();
+        assertThat(_c.eq1.transform(cnf, handler).getResult().isDnf(_c.f)).isFalse();
+        assertThat(_c.eq2.transform(cnf, handler).getResult().isCnf(_c.f)).isTrue();
+        assertThat(_c.eq2.transform(cnf, handler).getResult().isDnf(_c.f)).isFalse();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNAryOperators(final FormulaContext _c) throws ParserException {
-        final CNFFactorization cnf = new CNFFactorization(_c.f);
+        final CnfFactorization cnf = new CnfFactorization(_c.f);
 
         assertThat(_c.and1.transform(cnf, handler).getResult()).isEqualTo(_c.and1);
         assertThat(_c.or1.transform(cnf, handler).getResult()).isEqualTo(_c.or1);
@@ -76,29 +76,29 @@ public class CNFTest extends TestWithFormulaContext {
                 .isEqualTo(_c.p.parse("(~a | ~b | c | ~x) & (~a  | ~b | c | y)"));
         assertThat(_c.p.parse("a | b | (~x & ~y)").transform(cnf, handler).getResult())
                 .isEqualTo(_c.p.parse("(a | b | ~x) & (a | b | ~y)"));
-        assertThat(_c.and1.transform(cnf, handler).getResult().isCNF(_c.f)).isTrue();
-        assertThat(_c.or1.transform(cnf, handler).getResult().isCNF(_c.f)).isTrue();
+        assertThat(_c.and1.transform(cnf, handler).getResult().isCnf(_c.f)).isTrue();
+        assertThat(_c.or1.transform(cnf, handler).getResult().isCnf(_c.f)).isTrue();
         assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(cnf, handler)
-                .getResult().isCNF(_c.f)).isTrue();
+                .getResult().isCnf(_c.f)).isTrue();
         assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(cnf, handler)
-                .getResult().isDNF(_c.f)).isFalse();
+                .getResult().isDnf(_c.f)).isFalse();
         assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(cnf, handler)
-                .getResult().isCNF(_c.f)).isTrue();
+                .getResult().isCnf(_c.f)).isTrue();
         assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(cnf, handler)
-                .getResult().isDNF(_c.f)).isFalse();
+                .getResult().isDnf(_c.f)).isFalse();
         assertThat(_c.p.parse("a | b | (~x & ~y)").transform(cnf, handler)
-                .getResult().isCNF(_c.f)).isTrue();
+                .getResult().isCnf(_c.f)).isTrue();
         assertThat(_c.p.parse("a | b | (~x & ~y)").transform(cnf, handler)
-                .getResult().isDNF(_c.f)).isFalse();
+                .getResult().isDnf(_c.f)).isFalse();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNot(final FormulaContext _c) throws ParserException {
-        final CNFFactorization cnf = new CNFFactorization(_c.f);
+        final CnfFactorization cnf = new CnfFactorization(_c.f);
 
         final TestFactorizationHandler handler2 = new TestFactorizationHandler();
-        final CNFFactorization cnf2 = new CNFFactorization(_c.f, new HashMap<>());
+        final CnfFactorization cnf2 = new CnfFactorization(_c.f, new HashMap<>());
         assertThat(_c.p.parse("~a2").transform(cnf, handler).getResult()).isEqualTo(_c.p.parse("~a2"));
         assertThat(_c.p.parse("~~a2").transform(cnf, handler).getResult()).isEqualTo(_c.p.parse("a2"));
         assertThat(_c.p.parse("~(a2 => b2)").transform(cnf, handler).getResult()).isEqualTo(_c.p.parse("a2 & ~b2"));
@@ -144,7 +144,7 @@ public class CNFTest extends TestWithFormulaContext {
             private int clauses = 0;
 
             @Override
-            public boolean shouldResume(final LNGEvent event) {
+            public boolean shouldResume(final LngEvent event) {
                 if (event == FACTORIZATION_STARTED) {
                     canceled = false;
                     dists = 0;
@@ -159,8 +159,8 @@ public class CNFTest extends TestWithFormulaContext {
                 return !canceled;
             }
         };
-        final CNFFactorization factorization = new CNFFactorization(_c.f, null);
-        LNGResult<Formula> cnf = factorization.apply(formula, handler);
+        final CnfFactorization factorization = new CnfFactorization(_c.f, null);
+        LngResult<Formula> cnf = factorization.apply(formula, handler);
         assertThat(cnf.isSuccess()).isFalse();
 
         formula = _c.p.parse("~(a | b)");
@@ -175,7 +175,7 @@ public class CNFTest extends TestWithFormulaContext {
         private long longestClause = 0;
 
         @Override
-        public boolean shouldResume(final LNGEvent event) {
+        public boolean shouldResume(final LngEvent event) {
             if (event == FACTORIZATION_STARTED) {
                 distCount = 0;
                 clauseCount = 0;

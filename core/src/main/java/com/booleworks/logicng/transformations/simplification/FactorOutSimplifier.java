@@ -10,7 +10,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.NAryOperator;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.transformations.StatelessFormulaTransformation;
 import com.booleworks.logicng.util.Pair;
 
@@ -52,14 +52,14 @@ public final class FactorOutSimplifier extends StatelessFormulaTransformation {
     }
 
     @Override
-    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+    public LngResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         Formula last;
         Formula simplified = formula;
         do {
             last = simplified;
             simplified = applyRec(last);
         } while (!simplified.equals(last));
-        return LNGResult.of(simplified);
+        return LngResult.of(simplified);
     }
 
     private Formula applyRec(final Formula formula) {

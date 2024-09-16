@@ -4,7 +4,7 @@
 
 package com.booleworks.logicng.io.graphical.generators;
 
-import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
+import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel;
 
 /**
  * An abstract super class for a label mapper for a graphical representation of
@@ -19,7 +19,7 @@ public abstract class BddLabelMapper extends BddMapper implements LabelMapper<In
      * be constructed with this kernel.
      * @param kernel a BDD kernel
      */
-    public BddLabelMapper(final BDDKernel kernel) {
+    public BddLabelMapper(final BddKernel kernel) {
         super(kernel);
     }
 

@@ -7,7 +7,7 @@ package com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
 
 /**
@@ -34,5 +34,5 @@ public interface DTreeGenerator {
      * @param handler the computation handler
      * @return the DTree
      */
-    LNGResult<DTree> generate(final FormulaFactory f, final Formula cnf, ComputationHandler handler);
+    LngResult<DTree> generate(final FormulaFactory f, final Formula cnf, ComputationHandler handler);
 }

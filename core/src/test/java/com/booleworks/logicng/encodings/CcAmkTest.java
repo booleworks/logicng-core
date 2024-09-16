@@ -13,8 +13,8 @@ import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import org.junit.jupiter.api.Test;
 
 public class CcAmkTest implements LogicNGTest {
@@ -23,9 +23,9 @@ public class CcAmkTest implements LogicNGTest {
 
     public CcAmkTest() {
         configs = new EncoderConfig[3];
-        configs[0] = EncoderConfig.builder().amkEncoding(EncoderConfig.AMK_ENCODER.TOTALIZER).build();
-        configs[1] = EncoderConfig.builder().amkEncoding(EncoderConfig.AMK_ENCODER.MODULAR_TOTALIZER).build();
-        configs[2] = EncoderConfig.builder().amkEncoding(EncoderConfig.AMK_ENCODER.CARDINALITY_NETWORK).build();
+        configs[0] = EncoderConfig.builder().amkEncoding(EncoderConfig.AmkEncoder.TOTALIZER).build();
+        configs[1] = EncoderConfig.builder().amkEncoding(EncoderConfig.AmkEncoder.MODULAR_TOTALIZER).build();
+        configs[2] = EncoderConfig.builder().amkEncoding(EncoderConfig.AmkEncoder.CARDINALITY_NETWORK).build();
     }
 
     @Test
@@ -46,7 +46,7 @@ public class CcAmkTest implements LogicNGTest {
             testCC(f, 10, 9, 1023, false);
             testCC(f, 10, 10, 1024, false);
             testCC(f, 10, 15, 1024, false);
-            assertThat(f.newCCVariable().getName()).endsWith("_" + counter++);
+            assertThat(f.newCcVariable().getName()).endsWith("_" + counter++);
         }
     }
 
@@ -65,7 +65,7 @@ public class CcAmkTest implements LogicNGTest {
         testCC(f, 10, 9, 1023, true);
         testCC(f, 10, 10, 1024, true);
         testCC(f, 10, 15, 1024, true);
-        assertThat(f.newCCVariable().getName()).endsWith("_0");
+        assertThat(f.newCcVariable().getName()).endsWith("_0");
     }
 
     @Test
@@ -76,7 +76,7 @@ public class CcAmkTest implements LogicNGTest {
         for (final EncoderConfig config : configs) {
             f.putConfiguration(config);
             testCC(f, 150, 2, 1 + 150 + 11175, false);
-            assertThat(f.newCCVariable().getName()).endsWith("_" + counter++);
+            assertThat(f.newCcVariable().getName()).endsWith("_" + counter++);
         }
     }
 
@@ -84,7 +84,7 @@ public class CcAmkTest implements LogicNGTest {
     public void testLargeAMKMiniCard() {
         final FormulaFactory f = FormulaFactory.caching();
         testCC(f, 150, 2, 1 + 150 + 11175, true);
-        assertThat(f.newCCVariable().getName()).endsWith("_0");
+        assertThat(f.newCcVariable().getName()).endsWith("_0");
     }
 
     private void testCC(final FormulaFactory f, final int numLits, final int rhs, final int expected,
@@ -93,7 +93,7 @@ public class CcAmkTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(miniCard).build());
+        final SatSolver solver = SatSolver.newSolver(f, SatSolverConfig.builder().useAtMostClauses(miniCard).build());
         solver.add(f.cc(CType.LE, rhs, problemLits));
         assertSolverSat(solver);
         assertThat(solver.enumerateAllModels(problemLits))

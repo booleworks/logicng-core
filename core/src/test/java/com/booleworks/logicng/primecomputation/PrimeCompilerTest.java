@@ -20,7 +20,7 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.handlers.BoundedOptimizationHandler;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
@@ -233,7 +233,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
 
     private void testHandler(final ComputationHandler handler, final Formula formula, final PrimeCompiler compiler,
                              final PrimeResult.CoverageType coverageType, final boolean expCanceled) {
-        final LNGResult<PrimeResult> result = compiler.compute(formula.getFactory(), formula, coverageType, handler);
+        final LngResult<PrimeResult> result = compiler.compute(formula.getFactory(), formula, coverageType, handler);
         assertThat(!result.isSuccess()).isEqualTo(expCanceled);
         if (expCanceled) {
             assertThatThrownBy(result::getResult).isInstanceOf(IllegalStateException.class);

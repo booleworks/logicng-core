@@ -11,8 +11,8 @@ import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
-import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
-import com.booleworks.logicng.predicates.DNFPredicate;
+import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel;
+import com.booleworks.logicng.predicates.DnfPredicate;
 import com.booleworks.logicng.testutils.TestUtil;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -22,7 +22,7 @@ public class BDDDNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testConstants(final FormulaContext _c) {
-        final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
+        final BddDnfTransformation bdddnf = new BddDnfTransformation(_c.f);
 
         assertThat(_c.verum.transform(bdddnf)).isEqualTo(_c.verum);
         assertThat(_c.falsum.transform(bdddnf)).isEqualTo(_c.falsum);
@@ -31,7 +31,7 @@ public class BDDDNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLiterals(final FormulaContext _c) {
-        final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
+        final BddDnfTransformation bdddnf = new BddDnfTransformation(_c.f);
 
         assertThat(_c.a.transform(bdddnf)).isEqualTo(_c.a);
         assertThat(_c.na.transform(bdddnf)).isEqualTo(_c.na);
@@ -40,8 +40,8 @@ public class BDDDNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testBinaryOperators(final FormulaContext _c) {
-        final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
-        final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
+        final DnfPredicate dnfPredicate = new DnfPredicate(_c.f);
+        final BddDnfTransformation bdddnf = new BddDnfTransformation(_c.f);
 
         assertThat(_c.imp1.transform(bdddnf).holds(dnfPredicate)).isTrue();
         assertThat(TestUtil.equivalentModels(_c.imp1, _c.imp1.transform(bdddnf), _c.imp1.variables(_c.f)))
@@ -69,8 +69,8 @@ public class BDDDNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNAryOperators(final FormulaContext _c) throws ParserException {
-        final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
-        final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
+        final DnfPredicate dnfPredicate = new DnfPredicate(_c.f);
+        final BddDnfTransformation bdddnf = new BddDnfTransformation(_c.f);
 
         assertThat(_c.and1.transform(bdddnf)).isEqualTo(_c.and1);
         assertThat(_c.or1.transform(bdddnf)).isEqualTo(_c.or1);
@@ -88,10 +88,10 @@ public class BDDDNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNAryOperatorsWithExternalFactory(final FormulaContext _c) throws ParserException {
-        final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
-        final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
+        final DnfPredicate dnfPredicate = new DnfPredicate(_c.f);
+        final BddDnfTransformation bdddnf = new BddDnfTransformation(_c.f);
 
-        final BDDDNFTransformation transformation = new BDDDNFTransformation(_c.f, new BDDKernel(_c.f, 7, 100, 1000));
+        final BddDnfTransformation transformation = new BddDnfTransformation(_c.f, new BddKernel(_c.f, 7, 100, 1000));
         assertThat(_c.and1.transform(bdddnf)).isEqualTo(_c.and1);
         assertThat(_c.or1.transform(bdddnf)).isEqualTo(_c.or1);
         final Formula f1 = _c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)");
@@ -108,10 +108,10 @@ public class BDDDNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNAryOperatorsWithExternalFactory2(final FormulaContext _c) throws ParserException {
-        final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
-        final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
+        final DnfPredicate dnfPredicate = new DnfPredicate(_c.f);
+        final BddDnfTransformation bdddnf = new BddDnfTransformation(_c.f);
 
-        final BDDDNFTransformation transformation = new BDDDNFTransformation(_c.f, new BDDKernel(_c.f, 7, 50, 50));
+        final BddDnfTransformation transformation = new BddDnfTransformation(_c.f, new BddKernel(_c.f, 7, 50, 50));
         assertThat(_c.and1.transform(bdddnf)).isEqualTo(_c.and1);
         assertThat(_c.or1.transform(bdddnf)).isEqualTo(_c.or1);
         final Formula f1 = _c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)");
@@ -128,8 +128,8 @@ public class BDDDNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNot(final FormulaContext _c) throws ParserException {
-        final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
-        final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
+        final DnfPredicate dnfPredicate = new DnfPredicate(_c.f);
+        final BddDnfTransformation bdddnf = new BddDnfTransformation(_c.f);
 
         assertThat(_c.p.parse("~a").transform(bdddnf)).isEqualTo(_c.p.parse("~a"));
         assertThat(_c.p.parse("~~a").transform(bdddnf)).isEqualTo(_c.p.parse("a"));
@@ -156,8 +156,8 @@ public class BDDDNFTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testCC(final FormulaContext _c) throws ParserException {
-        final DNFPredicate dnfPredicate = new DNFPredicate(_c.f);
-        final BDDDNFTransformation bdddnf = new BDDDNFTransformation(_c.f);
+        final DnfPredicate dnfPredicate = new DnfPredicate(_c.f);
+        final BddDnfTransformation bdddnf = new BddDnfTransformation(_c.f);
 
         final PropositionalParser p = new PropositionalParser(_c.f);
         final Formula f1 = p.parse("a <=> (1 * b <= 0)");

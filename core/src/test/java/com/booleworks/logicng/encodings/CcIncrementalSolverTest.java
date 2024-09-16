@@ -12,9 +12,9 @@ import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.SolverState;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import org.junit.jupiter.api.Test;
 
@@ -24,17 +24,17 @@ import java.util.Set;
 public class CcIncrementalSolverTest implements LogicNGTest {
 
     private final FormulaFactory f = FormulaFactory.caching();
-    private final List<SATSolver> solvers;
+    private final List<SatSolver> solvers;
     private final EncoderConfig[] configs;
 
     public CcIncrementalSolverTest() {
         configs = new EncoderConfig[]{
-                EncoderConfig.builder().amkEncoding(EncoderConfig.AMK_ENCODER.TOTALIZER)
-                        .alkEncoding(EncoderConfig.ALK_ENCODER.TOTALIZER).build(),
-                EncoderConfig.builder().amkEncoding(EncoderConfig.AMK_ENCODER.CARDINALITY_NETWORK)
-                        .alkEncoding(EncoderConfig.ALK_ENCODER.CARDINALITY_NETWORK).build(),
-                EncoderConfig.builder().amkEncoding(EncoderConfig.AMK_ENCODER.MODULAR_TOTALIZER)
-                        .alkEncoding(EncoderConfig.ALK_ENCODER.MODULAR_TOTALIZER).build(),
+                EncoderConfig.builder().amkEncoding(EncoderConfig.AmkEncoder.TOTALIZER)
+                        .alkEncoding(EncoderConfig.AlkEncoder.TOTALIZER).build(),
+                EncoderConfig.builder().amkEncoding(EncoderConfig.AmkEncoder.CARDINALITY_NETWORK)
+                        .alkEncoding(EncoderConfig.AlkEncoder.CARDINALITY_NETWORK).build(),
+                EncoderConfig.builder().amkEncoding(EncoderConfig.AmkEncoder.MODULAR_TOTALIZER)
+                        .alkEncoding(EncoderConfig.AlkEncoder.MODULAR_TOTALIZER).build(),
         };
         solvers = SolverTestSet.solverTestSet(Set.of(SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES), f);
     }
@@ -48,7 +48,7 @@ public class CcIncrementalSolverTest implements LogicNGTest {
             for (int i = 0; i < numLits; i++) {
                 vars[i] = f.variable("v" + i);
             }
-            final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(false).build());
+            final SatSolver solver = SatSolver.newSolver(f, SatSolverConfig.builder().useAtMostClauses(false).build());
             solver.add(f.cc(CType.GE, 4, vars)); // >= 4
             solver.add(f.cc(CType.LE, 7, vars)); // <= 7
 
@@ -80,7 +80,7 @@ public class CcIncrementalSolverTest implements LogicNGTest {
 
     @Test
     public void testSimpleIncrementalALK() {
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             final SolverState initialState = solver.saveState();
             for (final EncoderConfig config : configs) {
                 solver.loadState(initialState);
@@ -130,7 +130,7 @@ public class CcIncrementalSolverTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             vars[i] = f.variable("v" + i);
         }
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             solver.add(f.cc(CType.GE, 42, vars)); // >= 42
             f.putConfiguration(configs[0]);
             final CcIncrementalData incData =
@@ -147,7 +147,7 @@ public class CcIncrementalSolverTest implements LogicNGTest {
 
     @Test
     public void testLargeTotalizerLowerBoundALK() {
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         f.putConfiguration(configs[2]);
         final int numLits = 100;
         int currentBound = 2;
@@ -169,7 +169,7 @@ public class CcIncrementalSolverTest implements LogicNGTest {
 
     @Test
     public void testLargeModularTotalizerAMK() {
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             f.putConfiguration(configs[2]);
             final int numLits = 100;
             int currentBound = numLits - 1;
@@ -193,7 +193,7 @@ public class CcIncrementalSolverTest implements LogicNGTest {
     @Test
     @LongRunningTag
     public void testVeryLargeModularTotalizerAMK() {
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             f.putConfiguration(configs[2]);
             final int numLits = 300;
             int currentBound = numLits - 1;

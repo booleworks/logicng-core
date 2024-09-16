@@ -5,9 +5,9 @@
 package com.booleworks.logicng.knowledgecompilation.bdds.jbuddy;
 
 public class BDDVerification {
-    private final BDDKernel k;
+    private final BddKernel k;
 
-    public BDDVerification(final BDDKernel k) {
+    public BDDVerification(final BddKernel k) {
         this.k = k;
     }
 
@@ -22,7 +22,7 @@ public class BDDVerification {
     public boolean verify(final int root) {
         final int varnum = k.level2var.length - 1;
         for (int i = 0; i < varnum * 2 + 2; i++) {
-            if (k.refcou(i) != BDDKernel.MAXREF) {
+            if (k.refcou(i) != BddKernel.MAXREF) {
                 System.out.println("Constant or Variable without MAXREF count: " + i);
                 return false;
             }
@@ -53,7 +53,7 @@ public class BDDVerification {
                 }
             }
             if (i > 1 && k.level(i) >= varnum) { // this.level2var[node.level]
-                                                 // != i / 2 - 1) {
+                // != i / 2 - 1) {
                 System.out.println("VAR Level wrong");
                 return false;
             }
@@ -118,7 +118,7 @@ public class BDDVerification {
 
     protected boolean verifyLevelData() {
         for (int level = 0; level < k.reordering.levels.length; level++) {
-            final BDDReordering.LevelData data = k.reordering.levels[level];
+            final BddReordering.LevelData data = k.reordering.levels[level];
             for (int i = data.start; i < data.start + data.size; i++) {
                 int r = k.hash(i);
                 while (r != 0) {

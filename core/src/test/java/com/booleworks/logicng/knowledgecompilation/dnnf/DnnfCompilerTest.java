@@ -23,28 +23,28 @@ import com.booleworks.logicng.encodings.EncoderConfig;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.graphs.algorithms.ConnectedComponentsComputation;
 import com.booleworks.logicng.graphs.datastructures.Graph;
 import com.booleworks.logicng.graphs.datastructures.Node;
 import com.booleworks.logicng.graphs.generators.ConstraintGraphGenerator;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.handlers.events.LNGEvent;
+import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.io.parsers.FormulaParser;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.io.readers.FormulaReader;
-import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
-import com.booleworks.logicng.knowledgecompilation.bdds.BDDFactory;
-import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
+import com.booleworks.logicng.knowledgecompilation.bdds.Bdd;
+import com.booleworks.logicng.knowledgecompilation.bdds.BddFactory;
+import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel;
 import com.booleworks.logicng.knowledgecompilation.bdds.orderings.ForceOrdering;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.Dnnf;
 import com.booleworks.logicng.knowledgecompilation.dnnf.functions.DnnfModelCountFunction;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
-import com.booleworks.logicng.transformations.cnf.CNFFactorization;
+import com.booleworks.logicng.transformations.cnf.CnfFactorization;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -107,10 +107,10 @@ public class DnnfCompilerTest {
     @Test
     public void testDnnfEvents() throws ParserException, IOException {
         final FormulaFactory f = FormulaFactory.caching();
-        f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
+        f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.PURE).build());
         final Formula parsed = FormulaReader.readFormula(f, "../test_files/formulas/formula1.txt");
         final DnnfComputationHandler handler = new DnnfComputationHandler();
-        final LNGResult<Dnnf> dnnf = DnnfCompiler.compile(f, parsed, handler);
+        final LngResult<Dnnf> dnnf = DnnfCompiler.compile(f, parsed, handler);
         assertThat(dnnf.isSuccess()).isTrue();
         assertThat(handler.eventCounter).containsExactly(
                 entry(BACKBONE_COMPUTATION_STARTED, 1),
@@ -131,7 +131,7 @@ public class DnnfCompilerTest {
     @LongRunningTag
     public void testLargeFormula() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
+        f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.PURE).build());
         final Formula parsed = FormulaReader.readFormula(f, "../test_files/formulas/formula1.txt");
         Dnnf dnnf = DnnfCompiler.compile(f, parsed);
         final BigInteger dnnfCount = dnnf.execute(new DnnfModelCountFunction(f));
@@ -139,10 +139,10 @@ public class DnnfCompilerTest {
         final List<Formula> originalFormulas = new ArrayList<>();
         for (final Formula formula : parsed) {
             originalFormulas.add(formula);
-            if (formula instanceof PBConstraint) {
+            if (formula instanceof PbConstraint) {
                 formulas.add(formula);
             } else {
-                formulas.add(formula.transform(new CNFFactorization(f)));
+                formulas.add(formula.transform(new CnfFactorization(f)));
             }
         }
         final Graph<Variable> constraintGraph = ConstraintGraphGenerator.generateFromFormulas(f, formulas);
@@ -172,17 +172,17 @@ public class DnnfCompilerTest {
         } else if (formula.getType() == FType.FALSE) {
             return BigInteger.ZERO;
         }
-        final BDDKernel kernel = new BDDKernel(formula.getFactory(),
+        final BddKernel kernel = new BddKernel(formula.getFactory(),
                 new ForceOrdering().getOrder(formula.getFactory(), formula), 100000, 1000000);
-        final BDD bdd = BDDFactory.build(formula.getFactory(), formula, kernel);
+        final Bdd bdd = BddFactory.build(formula.getFactory(), formula, kernel);
         return bdd.modelCount();
     }
 
     private static class DnnfComputationHandler implements ComputationHandler {
-        private final Map<LNGEvent, Integer> eventCounter = new LinkedHashMap<>();
+        private final Map<LngEvent, Integer> eventCounter = new LinkedHashMap<>();
 
         @Override
-        public boolean shouldResume(final LNGEvent event) {
+        public boolean shouldResume(final LngEvent event) {
             eventCounter.put(event, eventCounter.getOrDefault(event, 0) + 1);
             return true;
         }

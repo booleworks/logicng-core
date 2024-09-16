@@ -221,24 +221,24 @@ public class OrTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsNNF(final FormulaContext _c) {
-        assertThat(_c.or1.isNNF(_c.f)).isTrue();
-        assertThat(_c.or2.isNNF(_c.f)).isTrue();
-        assertThat(_c.or3.isNNF(_c.f)).isTrue();
+        assertThat(_c.or1.isNnf(_c.f)).isTrue();
+        assertThat(_c.or2.isNnf(_c.f)).isTrue();
+        assertThat(_c.or3.isNnf(_c.f)).isTrue();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsDNF(final FormulaContext _c) {
-        assertThat(_c.or1.isDNF(_c.f)).isTrue();
-        assertThat(_c.or2.isDNF(_c.f)).isTrue();
-        assertThat(_c.or3.isDNF(_c.f)).isTrue();
+        assertThat(_c.or1.isDnf(_c.f)).isTrue();
+        assertThat(_c.or2.isDnf(_c.f)).isTrue();
+        assertThat(_c.or3.isDnf(_c.f)).isTrue();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsCNF(final FormulaContext _c) {
-        assertThat(_c.or1.isCNF(_c.f)).isTrue();
-        assertThat(_c.or2.isCNF(_c.f)).isTrue();
-        assertThat(_c.or3.isCNF(_c.f)).isFalse();
+        assertThat(_c.or1.isCnf(_c.f)).isTrue();
+        assertThat(_c.or2.isCnf(_c.f)).isTrue();
+        assertThat(_c.or3.isCnf(_c.f)).isFalse();
     }
 }

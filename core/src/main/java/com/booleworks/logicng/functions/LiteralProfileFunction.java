@@ -10,7 +10,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.cache.FunctionCacheEntry;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,8 +51,8 @@ public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<L
     }
 
     @Override
-    public LNGResult<Map<Literal, Integer>> apply(final Formula formula, final ComputationHandler handler) {
-        return LNGResult.of(hasCache() ? cachingLiteralProfile(formula) : nonCachingLiteralProfile(formula));
+    public LngResult<Map<Literal, Integer>> apply(final Formula formula, final ComputationHandler handler) {
+        return LngResult.of(hasCache() ? cachingLiteralProfile(formula) : nonCachingLiteralProfile(formula));
     }
 
     /**

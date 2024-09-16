@@ -226,7 +226,7 @@ public class CcEncoder {
                 CcAmo.bimander(result, computeBimanderGroupSize(config, vars.length), vars);
                 break;
             case BEST:
-                bestAMO(result, config, vars);
+                bestAmo(result, config, vars);
                 break;
             default:
                 throw new IllegalStateException("Unknown at-most-one encoder: " + config.amoEncoder);
@@ -416,7 +416,7 @@ public class CcEncoder {
      * &lt;= 10 the pure encoding without introduction of new variables is used,
      * otherwise the product encoding is chosen.
      */
-    private static void bestAMO(final EncodingResult result, final EncoderConfig config, final Variable... vars) {
+    private static void bestAmo(final EncodingResult result, final EncoderConfig config, final Variable... vars) {
         if (vars.length <= 10) {
             CcAmo.pure(result, vars);
         } else {

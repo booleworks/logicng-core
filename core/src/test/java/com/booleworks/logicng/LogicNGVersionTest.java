@@ -10,7 +10,7 @@ import static org.mockito.Mockito.mockStatic;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
@@ -22,7 +22,7 @@ public class LogicNGVersionTest {
     @Test
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(f.parse("(A | ~B) & (B | C)"));
         solver.satCall().addFormulas(f.parse("~A"), f.parse("~C")).sat();
     }

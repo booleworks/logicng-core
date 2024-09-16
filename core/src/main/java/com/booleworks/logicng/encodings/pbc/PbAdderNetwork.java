@@ -22,9 +22,9 @@
 
 package com.booleworks.logicng.encodings.pbc;
 
-import com.booleworks.logicng.collections.LNGBooleanVector;
-import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.collections.LNGVector;
+import com.booleworks.logicng.collections.LngBooleanVector;
+import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.collections.LngVector;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -40,10 +40,10 @@ import java.util.List;
  */
 public final class PbAdderNetwork {
 
-    public static void encode(final EncodingResult result, final LNGVector<Literal> lits, final LNGIntVector coeffs,
+    public static void encode(final EncodingResult result, final LngVector<Literal> lits, final LngIntVector coeffs,
                               final int rhs) {
-        final LNGVector<Literal> literals = new LNGVector<>();
-        final LNGVector<LinkedList<Literal>> buckets = new LNGVector<>();
+        final LngVector<Literal> literals = new LngVector<>();
+        final LngVector<LinkedList<Literal>> buckets = new LngVector<>();
         final int nb = ldInt(rhs);
         for (int iBit = 0; iBit < nb; ++iBit) {
             buckets.push(new LinkedList<>());
@@ -55,12 +55,12 @@ public final class PbAdderNetwork {
             }
         }
         adderTree(result, buckets, literals);
-        final LNGBooleanVector kBits = numToBits(buckets.size(), rhs);
+        final LngBooleanVector kBits = numToBits(buckets.size(), rhs);
         lessThanOrEqual(result, literals, kBits);
     }
 
-    private static void adderTree(final EncodingResult result, final LNGVector<LinkedList<Literal>> buckets,
-                                  final LNGVector<Literal> literals) {
+    private static void adderTree(final EncodingResult result, final LngVector<LinkedList<Literal>> buckets,
+                                  final LngVector<Literal> literals) {
         Literal x;
         Literal y;
         Literal z;
@@ -93,9 +93,9 @@ public final class PbAdderNetwork {
         }
     }
 
-    private static LNGBooleanVector numToBits(final int n, final int num) {
+    private static LngBooleanVector numToBits(final int n, final int num) {
         int number = num;
-        final LNGBooleanVector bits = new LNGBooleanVector();
+        final LngBooleanVector bits = new LngBooleanVector();
         for (int i = n - 1; i >= 0; i--) {
             final int tmp = 1 << i;
             if (number < tmp) {
@@ -109,8 +109,8 @@ public final class PbAdderNetwork {
         return bits;
     }
 
-    private static void lessThanOrEqual(final EncodingResult result, final LNGVector<Literal> xs,
-                                        final LNGBooleanVector ys) {
+    private static void lessThanOrEqual(final EncodingResult result, final LngVector<Literal> xs,
+                                        final LngBooleanVector ys) {
         assert xs.size() == ys.size();
         final FormulaFactory f = result.getFactory();
         final List<Literal> clause = new ArrayList<>();
@@ -156,7 +156,7 @@ public final class PbAdderNetwork {
 
     private static Literal faCarry(final EncodingResult result, final Literal a, final Literal b, final Literal c) {
         final FormulaFactory f = result.getFactory();
-        final Literal x = f.newPBVariable();
+        final Literal x = f.newPbVariable();
         result.addClause(b, c, x.negate(f));
         result.addClause(a, c, x.negate(f));
         result.addClause(a, b, x.negate(f));
@@ -168,7 +168,7 @@ public final class PbAdderNetwork {
 
     private static Literal faSum(final EncodingResult result, final Literal a, final Literal b, final Literal c) {
         final FormulaFactory f = result.getFactory();
-        final Literal x = f.newPBVariable();
+        final Literal x = f.newPbVariable();
         result.addClause(a, b, c, x.negate(f));
         result.addClause(a, b.negate(f), c.negate(f), x.negate(f));
         result.addClause(a.negate(f), b, c.negate(f), x.negate(f));
@@ -182,7 +182,7 @@ public final class PbAdderNetwork {
 
     private static Literal haCarry(final EncodingResult result, final Literal a, final Literal b) {
         final FormulaFactory f = result.getFactory();
-        final Literal x = f.newPBVariable();
+        final Literal x = f.newPbVariable();
         result.addClause(a, x.negate(f));
         result.addClause(b, x.negate(f));
         result.addClause(a.negate(f), b.negate(f), x);
@@ -191,7 +191,7 @@ public final class PbAdderNetwork {
 
     private static Literal haSum(final EncodingResult result, final Literal a, final Literal b) {
         final FormulaFactory f = result.getFactory();
-        final Literal x = f.newPBVariable();
+        final Literal x = f.newPbVariable();
         result.addClause(a.negate(f), b.negate(f), x.negate(f));
         result.addClause(a, b, x.negate(f));
         result.addClause(a.negate(f), b, x);

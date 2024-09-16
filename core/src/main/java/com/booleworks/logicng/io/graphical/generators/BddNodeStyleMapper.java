@@ -5,7 +5,7 @@
 package com.booleworks.logicng.io.graphical.generators;
 
 import com.booleworks.logicng.io.graphical.GraphicalNodeStyle;
-import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
+import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel;
 
 /**
  * An abstract super class for a style mapper for a graphical representation of
@@ -20,7 +20,7 @@ public abstract class BddNodeStyleMapper extends BddMapper implements NodeStyleM
      * are styled must be constructed with this kernel.
      * @param kernel a BDD kernel
      */
-    public BddNodeStyleMapper(final BDDKernel kernel) {
+    public BddNodeStyleMapper(final BddKernel kernel) {
         super(kernel);
     }
 

@@ -7,13 +7,13 @@ package com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree;
 import static com.booleworks.logicng.handlers.events.SimpleEvent.DNNF_DTREE_MIN_FILL_GRAPH_INITIALIZED;
 import static com.booleworks.logicng.handlers.events.SimpleEvent.DNNF_DTREE_MIN_FILL_NEW_ITERATION;
 
-import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,14 +32,14 @@ import java.util.SortedSet;
 public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
 
     @Override
-    public LNGResult<DTree> generate(final FormulaFactory f, final Formula cnf, final ComputationHandler handler) {
+    public LngResult<DTree> generate(final FormulaFactory f, final Formula cnf, final ComputationHandler handler) {
         final Graph graph = new Graph(f, cnf);
         if (!handler.shouldResume(DNNF_DTREE_MIN_FILL_GRAPH_INITIALIZED)) {
-            return LNGResult.canceled(DNNF_DTREE_MIN_FILL_GRAPH_INITIALIZED);
+            return LngResult.canceled(DNNF_DTREE_MIN_FILL_GRAPH_INITIALIZED);
         }
-        final LNGResult<List<Variable>> minFillOrdering = graph.getMinFillOrdering(handler);
+        final LngResult<List<Variable>> minFillOrdering = graph.getMinFillOrdering(handler);
         if (!minFillOrdering.isSuccess()) {
-            return LNGResult.canceled(minFillOrdering.getCancelCause());
+            return LngResult.canceled(minFillOrdering.getCancelCause());
         }
         return generateWithEliminatingOrder(f, cnf, minFillOrdering.getResult(), handler);
     }
@@ -108,10 +108,10 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
             }
         }
 
-        protected List<LNGIntVector> getCopyOfEdgeList() {
-            final List<LNGIntVector> result = new ArrayList<>();
+        protected List<LngIntVector> getCopyOfEdgeList() {
+            final List<LngIntVector> result = new ArrayList<>();
             for (final Set<Integer> edge : edgeList) {
-                result.add(LNGIntVector.of(edge.stream().mapToInt(i -> i).toArray()));
+                result.add(LngIntVector.of(edge.stream().mapToInt(i -> i).toArray()));
             }
             return result;
         }
@@ -124,9 +124,9 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
             return result;
         }
 
-        protected LNGResult<List<Variable>> getMinFillOrdering(final ComputationHandler handler) {
+        protected LngResult<List<Variable>> getMinFillOrdering(final ComputationHandler handler) {
             final boolean[][] fillAdjMatrix = getCopyOfAdjMatrix();
-            final List<LNGIntVector> fillEdgeList = getCopyOfEdgeList();
+            final List<LngIntVector> fillEdgeList = getCopyOfEdgeList();
 
             final Variable[] ordering = new Variable[numberOfVertices];
             final boolean[] processed = new boolean[numberOfVertices];
@@ -134,16 +134,16 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
 
             for (int iteration = 0; iteration < numberOfVertices; iteration++) {
                 if (!handler.shouldResume(DNNF_DTREE_MIN_FILL_NEW_ITERATION)) {
-                    return LNGResult.canceled(DNNF_DTREE_MIN_FILL_NEW_ITERATION);
+                    return LngResult.canceled(DNNF_DTREE_MIN_FILL_NEW_ITERATION);
                 }
-                final LNGIntVector possiblyBestVertices = new LNGIntVector();
+                final LngIntVector possiblyBestVertices = new LngIntVector();
                 int minEdges = Integer.MAX_VALUE;
                 for (int currentVertex = 0; currentVertex < numberOfVertices; currentVertex++) {
                     if (processed[currentVertex]) {
                         continue;
                     }
                     int edgesAdded = 0;
-                    final LNGIntVector neighborList = fillEdgeList.get(currentVertex);
+                    final LngIntVector neighborList = fillEdgeList.get(currentVertex);
                     for (int i = 0; i < neighborList.size(); i++) {
                         final int firstNeighbor = neighborList.get(i);
                         if (processed[firstNeighbor]) {
@@ -171,7 +171,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
                 // or choose randomly
                 final int bestVertex = possiblyBestVertices.get(0);
 
-                final LNGIntVector neighborList = fillEdgeList.get(bestVertex);
+                final LngIntVector neighborList = fillEdgeList.get(bestVertex);
                 for (int i = 0; i < neighborList.size(); i++) {
                     final int firstNeighbor = neighborList.get(i);
                     if (processed[firstNeighbor]) {
@@ -204,7 +204,7 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
                 processed[bestVertex] = true;
                 ordering[iteration] = vertices.get(bestVertex);
             }
-            return LNGResult.of(Arrays.asList(ordering));
+            return LngResult.of(Arrays.asList(ordering));
         }
     }
 }

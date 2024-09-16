@@ -6,29 +6,29 @@ import "solver_commons.proto";
 option java_package = "com.booleworks.logicng.serialization";
 option java_outer_classname = "ProtoBufSatSolver";
 
-message PBSatSolver {
-  PBSatSolverConfig config = 1;
+message PbSatSolver {
+  PbSatSolverConfig config = 1;
   bool inSatCall = 2;
 
   map<string, int32> name2idx = 3;
-  collections.PBIntVector validStates = 4;
+  collections.PbIntVector validStates = 4;
   int32 nextStateId = 5;
 
   bool ok = 6;
   int32 qhead = 7;
-  collections.PBIntVector unitClauses = 8;
-  PBClauseVector clauses = 9;
-  PBClauseVector learnts = 10;
-  PBWatcherVectorVector watches = 11;
-  PBVariableVector vars = 12;
-  PBHeap orderHeap = 13;
-  collections.PBIntVector trail = 14;
-  collections.PBIntVector trailLim = 15;
-  collections.PBBooleanVector model = 16;
-  collections.PBIntVector assumptionConflict = 17;
-  collections.PBIntVector assumptions = 18;
+  collections.PbIntVector unitClauses = 8;
+  PbClauseVector clauses = 9;
+  PbClauseVector learnts = 10;
+  PbWatcherVectorVector watches = 11;
+  PbVariableVector vars = 12;
+  PbHeap orderHeap = 13;
+  collections.PbIntVector trail = 14;
+  collections.PbIntVector trailLim = 15;
+  collections.PbBooleanVector model = 16;
+  collections.PbIntVector assumptionConflict = 17;
+  collections.PbIntVector assumptions = 18;
   repeated bytes assumptionPropositions = 19;
-  collections.PBBooleanVector seen = 20;
+  collections.PbBooleanVector seen = 20;
   int32 analyzeBtLevel = 21;
   double claInc = 22;
   double varInc = 23;
@@ -36,22 +36,22 @@ message PBSatSolver {
   int32 clausesLiterals = 25;
   int32 learntsLiterals = 26;
 
-  repeated solver.PBProofInformation pgOriginalClauses = 27;
-  collections.PBIntVectorVector pgProof = 28;
+  repeated solver.PbProofInformation pgOriginalClauses = 27;
+  collections.PbIntVectorVector pgProof = 28;
 
   bool computingBackbone = 29;
-  collections.PBIntVector backboneCandidates = 30;
-  collections.PBIntVector backboneAssumptions = 31;
-  map<int32, PBTristate> backboneMap = 32;
+  collections.PbIntVector backboneCandidates = 30;
+  collections.PbIntVector backboneAssumptions = 31;
+  map<int32, PbTristate> backboneMap = 32;
 
-  collections.PBIntVector selectionOrder = 33;
+  collections.PbIntVector selectionOrder = 33;
   int32 selectionOrderIdx = 34;
 
-  PBWatcherVectorVector watchesBin = 35;
-  collections.PBIntVector permDiff = 36;
-  collections.PBIntVector lastDecisionLevel = 37;
-  PBBoundedLongQueue lbdQueue = 38;
-  PBBoundedIntQueue trailQueue = 39;
+  PbWatcherVectorVector watchesBin = 35;
+  collections.PbIntVector permDiff = 36;
+  collections.PbIntVector lastDecisionLevel = 37;
+  PbBoundedLongQueue lbdQueue = 38;
+  PbBoundedIntQueue trailQueue = 39;
   int32 myflag = 40;
   int64 analyzeLBD = 41;
   int32 nbClausesBeforeReduce = 42;

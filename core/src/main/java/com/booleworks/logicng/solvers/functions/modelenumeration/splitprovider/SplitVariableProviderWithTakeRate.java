@@ -5,7 +5,7 @@
 package com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider;
 
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.VariableOccurrencesOnSolverFunction;
 
 import java.util.Collection;
@@ -55,7 +55,7 @@ public abstract class SplitVariableProviderWithTakeRate implements SplitVariable
      *                   should be selected
      * @return a subset of the most or least common variables
      */
-    protected SortedSet<Variable> chooseVariablesByOccurrences(final SATSolver solver,
+    protected SortedSet<Variable> chooseVariablesByOccurrences(final SatSolver solver,
                                                                final Collection<Variable> variables,
                                                                final boolean mostCommon) {
         final Comparator<Map.Entry<Variable, Integer>> comparator =

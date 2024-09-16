@@ -4,7 +4,7 @@ import "formulas.proto";
 option java_package = "com.booleworks.logicng.serialization";
 option java_outer_classname = "ProtoBufDnnf";
 
-message PBDnnf {
+message PbDnnf {
   repeated string originalVariables = 1;
-  formulas.PBFormulas formula = 2;
+  formulas.PbFormulas formula = 2;
 }

@@ -6,7 +6,7 @@ package com.booleworks.logicng.solvers.functions;
 
 import static com.booleworks.logicng.datastructures.Tristate.TRUE;
 
-import com.booleworks.logicng.collections.LNGVector;
+import com.booleworks.logicng.collections.LngVector;
 import com.booleworks.logicng.formulas.CFalse;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.Formula;
@@ -14,10 +14,10 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.datastructures.LNGClause;
-import com.booleworks.logicng.solvers.datastructures.LNGVariable;
+import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.datastructures.LngClause;
+import com.booleworks.logicng.solvers.datastructures.LngVariable;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -34,7 +34,7 @@ import java.util.Set;
  * <p>
  * If the formula on the solver is known to be unsatisfiable, this function will
  * add {@link CFalse falsum} to the returned set of formulas. However, as long
- * as {@link SATSolver#sat()} was not called on the current solver state, the
+ * as {@link SatSolver#sat()} was not called on the current solver state, the
  * absence of {@link CFalse falsum} does not imply that the formula is
  * satisfiable.
  * <p>
@@ -63,10 +63,10 @@ public final class FormulaOnSolverFunction implements SolverFunction<Set<Formula
     }
 
     @Override
-    public LNGResult<Set<Formula>> apply(final SATSolver solver, final ComputationHandler handler) {
+    public LngResult<Set<Formula>> apply(final SatSolver solver, final ComputationHandler handler) {
         final FormulaFactory f = solver.getFactory();
         final Set<Formula> formulas = new LinkedHashSet<>();
-        for (final LNGClause clause : solver.getUnderlyingSolver().getClauses()) {
+        for (final LngClause clause : solver.getUnderlyingSolver().getClauses()) {
             final List<Literal> lits = new ArrayList<>();
             for (int i = 0; i < clause.size(); i++) {
                 final int litInt = clause.get(i);
@@ -83,9 +83,9 @@ public final class FormulaOnSolverFunction implements SolverFunction<Set<Formula
                 formulas.add(f.cc(CType.LE, rhs, vars));
             }
         }
-        final LNGVector<LNGVariable> variables = solver.getUnderlyingSolver().getVariables();
+        final LngVector<LngVariable> variables = solver.getUnderlyingSolver().getVariables();
         for (int i = 0; i < variables.size(); i++) {
-            final LNGVariable var = variables.get(i);
+            final LngVariable var = variables.get(i);
             if (var.level() == 0) {
                 formulas.add(f.literal(solver.getUnderlyingSolver().nameForIdx(i), var.assignment() == TRUE));
             }
@@ -93,6 +93,6 @@ public final class FormulaOnSolverFunction implements SolverFunction<Set<Formula
         if (!solver.getUnderlyingSolver().ok()) {
             formulas.add(f.falsum());
         }
-        return LNGResult.of(formulas);
+        return LngResult.of(formulas);
     }
 }

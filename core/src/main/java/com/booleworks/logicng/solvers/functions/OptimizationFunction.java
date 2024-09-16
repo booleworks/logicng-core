@@ -15,11 +15,11 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.OptimizationFoundBetterBoundEvent;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.SolverState;
-import com.booleworks.logicng.solvers.sat.SATCall;
+import com.booleworks.logicng.solvers.sat.SatCall;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -87,18 +87,18 @@ public final class OptimizationFunction implements SolverFunction<Model> {
     }
 
     @Override
-    public LNGResult<Model> apply(
-            final SATSolver solver, final ComputationHandler handler) {
+    public LngResult<Model> apply(
+            final SatSolver solver, final ComputationHandler handler) {
         final SolverState initialState = solver.saveState();
-        final LNGResult<Model> model = maximize(solver, handler);
+        final LngResult<Model> model = maximize(solver, handler);
         solver.loadState(initialState);
         return model;
     }
 
-    private LNGResult<Model> maximize(
-            final SATSolver solver, final ComputationHandler handler) {
+    private LngResult<Model> maximize(
+            final SatSolver solver, final ComputationHandler handler) {
         if (!handler.shouldResume(OPTIMIZATION_FUNCTION_STARTED)) {
-            return LNGResult.canceled(OPTIMIZATION_FUNCTION_STARTED);
+            return LngResult.canceled(OPTIMIZATION_FUNCTION_STARTED);
         }
         final FormulaFactory f = solver.getFactory();
         final Map<Variable, Literal> selectorMap = new TreeMap<>();
@@ -116,9 +116,9 @@ public final class OptimizationFunction implements SolverFunction<Model> {
         }
         Model lastResultModel;
         Model currentSelectorModel;
-        try (final SATCall satCall = solver.satCall().handler(handler).solve()) {
+        try (final SatCall satCall = solver.satCall().handler(handler).solve()) {
             if (!satCall.getSatResult().isSuccess()) {
-                return LNGResult.canceled(satCall.getSatResult().getCancelCause());
+                return LngResult.canceled(satCall.getSatResult().getCancelCause());
             }
             if (!satCall.getSatResult().getResult()) {
                 throw new IllegalArgumentException("The given formula must be satisfiable");
@@ -128,18 +128,18 @@ public final class OptimizationFunction implements SolverFunction<Model> {
             if (currentSelectorModel.positiveVariables().size() == selectors.size()) {
                 // all optimization literals satisfied -- no need for further
                 // optimization
-                return LNGResult.of(satCall.model(resultModelVariables));
+                return LngResult.of(satCall.model(resultModelVariables));
             }
         }
         int currentBound = currentSelectorModel.positiveVariables().size();
         if (currentBound == 0) {
             solver.add(f.cc(CType.GE, 1, selectors));
-            try (final SATCall satCall = solver.satCall().handler(handler).solve()) {
-                final LNGResult<Boolean> satResult = satCall.getSatResult();
+            try (final SatCall satCall = solver.satCall().handler(handler).solve()) {
+                final LngResult<Boolean> satResult = satCall.getSatResult();
                 if (!satResult.isSuccess()) {
-                    return LNGResult.partial(lastResultModel, satResult.getCancelCause());
+                    return LngResult.partial(lastResultModel, satResult.getCancelCause());
                 } else if (!satResult.getResult()) {
-                    return LNGResult.of(lastResultModel);
+                    return LngResult.of(lastResultModel);
                 } else {
                     lastResultModel = satCall.model(resultModelVariables);
                     currentSelectorModel = satCall.model(selectors);
@@ -151,22 +151,22 @@ public final class OptimizationFunction implements SolverFunction<Model> {
         assert cc instanceof CardinalityConstraint;
         final CcIncrementalData incrementalData = solver.addIncrementalCc((CardinalityConstraint) cc);
         while (true) {
-            try (final SATCall satCall = solver.satCall().handler(handler).solve()) {
-                final LNGResult<Boolean> satResult = satCall.getSatResult();
+            try (final SatCall satCall = solver.satCall().handler(handler).solve()) {
+                final LngResult<Boolean> satResult = satCall.getSatResult();
                 if (!satResult.isSuccess()) {
-                    return LNGResult.partial(lastResultModel, satResult.getCancelCause());
+                    return LngResult.partial(lastResultModel, satResult.getCancelCause());
                 } else if (!satResult.getResult()) {
-                    return LNGResult.of(lastResultModel);
+                    return LngResult.of(lastResultModel);
                 }
                 lastResultModel = satCall.model(resultModelVariables);
                 final OptimizationFoundBetterBoundEvent betterBoundEvent = new OptimizationFoundBetterBoundEvent(() -> satCall.model(resultModelVariables));
                 if (!handler.shouldResume(betterBoundEvent)) {
-                    return LNGResult.partial(lastResultModel, betterBoundEvent);
+                    return LngResult.partial(lastResultModel, betterBoundEvent);
                 }
                 currentSelectorModel = satCall.model(selectors);
                 currentBound = currentSelectorModel.positiveVariables().size();
                 if (currentBound == selectors.size()) {
-                    return LNGResult.of(lastResultModel);
+                    return LngResult.of(lastResultModel);
                 }
             }
             incrementalData.newLowerBoundForSolver(currentBound + 1);

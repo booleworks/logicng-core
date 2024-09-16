@@ -18,8 +18,8 @@ import com.booleworks.logicng.formulas.Or;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
-import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -88,8 +88,8 @@ public class CachingFormulaFactoryTest {
     @Test
     public void testConfigurations() {
         final FormulaFactory f = FormulaFactory.caching();
-        final Configuration configMaxSat = MaxSATConfig.builder().build();
-        final Configuration configSat = SATSolverConfig.builder().build();
+        final Configuration configMaxSat = MaxSatConfig.builder().build();
+        final Configuration configSat = SatSolverConfig.builder().build();
         f.putConfiguration(configMaxSat);
         f.putConfiguration(configSat);
         assertThat(f.configurationFor(ConfigurationType.MAXSAT)).isEqualTo(configMaxSat);
@@ -99,9 +99,9 @@ public class CachingFormulaFactoryTest {
     @Test
     public void testGeneratedVariables() {
         FormulaFactory f = FormulaFactory.caching();
-        Variable ccVar = f.newCCVariable();
-        Variable cnfVar = f.newCNFVariable();
-        Variable pbVar = f.newPBVariable();
+        Variable ccVar = f.newCcVariable();
+        Variable cnfVar = f.newCnfVariable();
+        Variable pbVar = f.newPbVariable();
         Variable var = f.variable("x");
         assertThat(ccVar.getName().startsWith("@AUX_")).isTrue();
         assertThat(cnfVar.getName().startsWith("@AUX_")).isTrue();
@@ -112,9 +112,9 @@ public class CachingFormulaFactoryTest {
         assertThat(cnfVar.getName()).isEqualTo("@AUX_" + f.getName() + "_CNF_0");
 
         f = FormulaFactory.caching(FormulaFactoryConfig.builder().name("f").build());
-        ccVar = f.newCCVariable();
-        cnfVar = f.newCNFVariable();
-        pbVar = f.newPBVariable();
+        ccVar = f.newCcVariable();
+        cnfVar = f.newCnfVariable();
+        pbVar = f.newPbVariable();
         var = f.variable("x");
         assertThat(ccVar.getName().startsWith("@AUX_")).isTrue();
         assertThat(cnfVar.getName().startsWith("@AUX_")).isTrue();

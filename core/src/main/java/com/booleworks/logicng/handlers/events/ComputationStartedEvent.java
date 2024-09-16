@@ -4,7 +4,7 @@ import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.TimeoutHandler;
 
 /**
- * A class for {@link LNGEvent}s which indicate the start of a computation.
+ * A class for {@link LngEvent}s which indicate the start of a computation.
  * By convention, these events are instantiated as {@code static final} fields
  * s.t. they can be checked in {@link ComputationHandler handlers} by using
  * referential equality. On the other hand, some handlers (like the
@@ -15,7 +15,7 @@ import com.booleworks.logicng.handlers.TimeoutHandler;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class ComputationStartedEvent implements LNGEvent {
+public class ComputationStartedEvent implements LngEvent {
 
     public static final ComputationStartedEvent FACTORIZATION_STARTED = new ComputationStartedEvent("Factorization");
     public static final ComputationStartedEvent BDD_COMPUTATION_STARTED = new ComputationStartedEvent("BDD Computation");

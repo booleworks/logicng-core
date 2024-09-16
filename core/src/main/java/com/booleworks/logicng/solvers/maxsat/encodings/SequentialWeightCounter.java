@@ -22,11 +22,11 @@
 
 package com.booleworks.logicng.solvers.maxsat.encodings;
 
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT.newSATVariable;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSat.newSatVariable;
 
-import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.collections.LngVector;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 
 /**
  * A sequential weight counter for the encoding of pseudo-Boolean constraints in
@@ -36,37 +36,37 @@ import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
  */
 public class SequentialWeightCounter extends Encoding {
 
-    protected final LNGIntVector pbOutlits;
-    protected final LNGIntVector unitLits;
-    protected final LNGIntVector unitCoeffs;
+    protected final LngIntVector pbOutlits;
+    protected final LngIntVector unitLits;
+    protected final LngIntVector unitCoeffs;
     protected int currentPbRhs;
     protected int currentLitBlocking;
-    protected LNGVector<LNGIntVector> seqAuxiliaryInc;
-    protected LNGIntVector litsInc;
-    protected LNGIntVector coeffsInc;
+    protected LngVector<LngIntVector> seqAuxiliaryInc;
+    protected LngIntVector litsInc;
+    protected LngIntVector coeffsInc;
 
     /**
      * Constructs a new sequential weight counter encoder.
      */
     SequentialWeightCounter() {
         currentPbRhs = -1;
-        currentLitBlocking = LNGCoreSolver.LIT_UNDEF;
-        pbOutlits = new LNGIntVector();
-        unitLits = new LNGIntVector();
-        unitCoeffs = new LNGIntVector();
-        seqAuxiliaryInc = new LNGVector<>();
-        litsInc = new LNGIntVector();
-        coeffsInc = new LNGIntVector();
+        currentLitBlocking = LngCoreSolver.LIT_UNDEF;
+        pbOutlits = new LngIntVector();
+        unitLits = new LngIntVector();
+        unitCoeffs = new LngIntVector();
+        seqAuxiliaryInc = new LngVector<>();
+        litsInc = new LngIntVector();
+        coeffsInc = new LngIntVector();
     }
 
     /**
      * Updates the assumptions with the unit literals.
      * @param assumptions the current assumptions
      */
-    void updateAssumptions(final LNGIntVector assumptions) {
-        assumptions.push(LNGCoreSolver.not(currentLitBlocking));
+    void updateAssumptions(final LngIntVector assumptions) {
+        assumptions.push(LngCoreSolver.not(currentLitBlocking));
         for (int i = 0; i < unitLits.size(); i++) {
-            assumptions.push(LNGCoreSolver.not(unitLits.get(i)));
+            assumptions.push(LngCoreSolver.not(unitLits.get(i)));
         }
     }
 
@@ -85,13 +85,13 @@ public class SequentialWeightCounter extends Encoding {
      * @param coeffs the coefficients of the constraints
      * @param rhs    the right-hand side of the constraint
      */
-    public void encode(final LNGCoreSolver s, final LNGIntVector lits, final LNGIntVector coeffs, final int rhs) {
+    public void encode(final LngCoreSolver s, final LngIntVector lits, final LngIntVector coeffs, final int rhs) {
         if (rhs == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Overflow in the encoding.");
         }
         hasEncoding = false;
-        final LNGIntVector simpLits = new LNGIntVector(lits);
-        final LNGIntVector simpCoeffs = new LNGIntVector(coeffs);
+        final LngIntVector simpLits = new LngIntVector(lits);
+        final LngIntVector simpCoeffs = new LngIntVector(coeffs);
         lits.clear();
         coeffs.clear();
         for (int i = 0; i < simpLits.size(); i++) {
@@ -99,26 +99,26 @@ public class SequentialWeightCounter extends Encoding {
                 lits.push(simpLits.get(i));
                 coeffs.push(simpCoeffs.get(i));
             } else {
-                addUnitClause(s, LNGCoreSolver.not(simpLits.get(i)));
+                addUnitClause(s, LngCoreSolver.not(simpLits.get(i)));
             }
         }
         if (lits.size() == 1) {
-            addUnitClause(s, LNGCoreSolver.not(lits.get(0)));
+            addUnitClause(s, LngCoreSolver.not(lits.get(0)));
             return;
         }
         if (lits.size() == 0) {
             return;
         }
         final int n = lits.size();
-        final LNGIntVector[] seqAuxiliary = new LNGIntVector[n + 1];
+        final LngIntVector[] seqAuxiliary = new LngIntVector[n + 1];
         for (int i = 0; i < n + 1; i++) {
-            seqAuxiliary[i] = new LNGIntVector();
+            seqAuxiliary[i] = new LngIntVector();
             seqAuxiliary[i].growTo(rhs + 1, -1);
         }
         for (int i = 1; i <= n; ++i) {
             for (int j = 1; j <= rhs; ++j) {
-                seqAuxiliary[i].set(j, LNGCoreSolver.mkLit(s.nVars(), false));
-                newSATVariable(s);
+                seqAuxiliary[i].set(j, LngCoreSolver.mkLit(s.nVars(), false));
+                newSatVariable(s);
             }
         }
         for (int i = 1; i <= rhs; ++i) {
@@ -129,19 +129,19 @@ public class SequentialWeightCounter extends Encoding {
             assert wi <= rhs;
             for (int j = 1; j <= rhs; j++) {
                 if (i >= 2 && i <= n && j <= rhs) {
-                    addBinaryClause(s, LNGCoreSolver.not(seqAuxiliary[i - 1].get(j)), seqAuxiliary[i].get(j));
+                    addBinaryClause(s, LngCoreSolver.not(seqAuxiliary[i - 1].get(j)), seqAuxiliary[i].get(j));
                 }
                 if (i <= n && j <= wi) {
-                    addBinaryClause(s, LNGCoreSolver.not(lits.get(i - 1)), seqAuxiliary[i].get(j));
+                    addBinaryClause(s, LngCoreSolver.not(lits.get(i - 1)), seqAuxiliary[i].get(j));
                 }
                 if (i >= 2 && i <= n && j <= rhs - wi) {
-                    addTernaryClause(s, LNGCoreSolver.not(seqAuxiliary[i - 1].get(j)),
-                            LNGCoreSolver.not(lits.get(i - 1)), seqAuxiliary[i].get(j + wi));
+                    addTernaryClause(s, LngCoreSolver.not(seqAuxiliary[i - 1].get(j)),
+                            LngCoreSolver.not(lits.get(i - 1)), seqAuxiliary[i].get(j + wi));
                 }
             }
             if (i >= 2) {
-                addBinaryClause(s, LNGCoreSolver.not(seqAuxiliary[i - 1].get(rhs + 1 - wi)),
-                        LNGCoreSolver.not(lits.get(i - 1)));
+                addBinaryClause(s, LngCoreSolver.not(seqAuxiliary[i - 1].get(rhs + 1 - wi)),
+                        LngCoreSolver.not(lits.get(i - 1)));
             }
         }
         currentPbRhs = rhs;
@@ -157,18 +157,18 @@ public class SequentialWeightCounter extends Encoding {
      * @param assumptions the current assumptions
      * @param size        the size
      */
-    public void encode(final LNGCoreSolver s, final LNGIntVector lits, final LNGIntVector coeffs,
-                       final int rhs, final LNGIntVector assumptions, final int size) {
+    public void encode(final LngCoreSolver s, final LngIntVector lits, final LngIntVector coeffs,
+                       final int rhs, final LngIntVector assumptions, final int size) {
         if (rhs == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Overflow in the encoding.");
         }
         hasEncoding = false;
-        final LNGIntVector simpLits = new LNGIntVector(lits);
-        final LNGIntVector simpCoeffs = new LNGIntVector(coeffs);
+        final LngIntVector simpLits = new LngIntVector(lits);
+        final LngIntVector simpCoeffs = new LngIntVector(coeffs);
         lits.clear();
         coeffs.clear();
-        final LNGIntVector simpUnitLits = new LNGIntVector(unitLits);
-        final LNGIntVector simpUnitCoeffs = new LNGIntVector(unitCoeffs);
+        final LngIntVector simpUnitLits = new LngIntVector(unitLits);
+        final LngIntVector simpUnitCoeffs = new LngIntVector(unitCoeffs);
         unitLits.clear();
         unitCoeffs.clear();
         for (int i = 0; i < simpUnitLits.size(); i++) {
@@ -191,7 +191,7 @@ public class SequentialWeightCounter extends Encoding {
         }
         if (lits.size() == 1) {
             for (int i = 0; i < unitLits.size(); i++) {
-                assumptions.push(LNGCoreSolver.not(unitLits.get(i)));
+                assumptions.push(LngCoreSolver.not(unitLits.get(i)));
             }
             unitLits.push(lits.get(0));
             unitCoeffs.push(coeffs.get(0));
@@ -199,54 +199,54 @@ public class SequentialWeightCounter extends Encoding {
         }
         if (lits.size() == 0) {
             for (int i = 0; i < unitLits.size(); i++) {
-                assumptions.push(LNGCoreSolver.not(unitLits.get(i)));
+                assumptions.push(LngCoreSolver.not(unitLits.get(i)));
             }
             return;
         }
         final int n = lits.size();
-        seqAuxiliaryInc = new LNGVector<>(size + 1);
+        seqAuxiliaryInc = new LngVector<>(size + 1);
         for (int i = 0; i <= n; i++) {
-            seqAuxiliaryInc.set(i, new LNGIntVector());
+            seqAuxiliaryInc.set(i, new LngIntVector());
             seqAuxiliaryInc.get(i).growTo(rhs + 1, -1);
         }
         for (int i = 1; i <= n; ++i) {
             for (int j = 1; j <= rhs; ++j) {
-                seqAuxiliaryInc.get(i).set(j, LNGCoreSolver.mkLit(s.nVars(), false));
-                newSATVariable(s);
+                seqAuxiliaryInc.get(i).set(j, LngCoreSolver.mkLit(s.nVars(), false));
+                newSatVariable(s);
             }
         }
-        final int blocking = LNGCoreSolver.mkLit(s.nVars(), false);
-        newSATVariable(s);
+        final int blocking = LngCoreSolver.mkLit(s.nVars(), false);
+        newSatVariable(s);
         currentLitBlocking = blocking;
-        assumptions.push(LNGCoreSolver.not(blocking));
+        assumptions.push(LngCoreSolver.not(blocking));
         for (int i = 1; i <= n; i++) {
             final int wi = coeffs.get(i - 1);
             assert rhs >= wi;
             for (int j = 1; j <= rhs; j++) {
                 if (i >= 2 && i <= n) {
-                    addBinaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
+                    addBinaryClause(s, LngCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
                             seqAuxiliaryInc.get(i).get(j));
                 }
                 if (i <= n && j <= wi) {
-                    addBinaryClause(s, LNGCoreSolver.not(lits.get(i - 1)), seqAuxiliaryInc.get(i).get(j));
+                    addBinaryClause(s, LngCoreSolver.not(lits.get(i - 1)), seqAuxiliaryInc.get(i).get(j));
                 }
                 if (i >= 2 && i <= n && j <= rhs - wi) {
-                    addTernaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
-                            LNGCoreSolver.not(lits.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
+                    addTernaryClause(s, LngCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
+                            LngCoreSolver.not(lits.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
                 }
             }
             if (i >= 2) {
-                addBinaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)),
-                        LNGCoreSolver.not(lits.get(i - 1)), blocking);
+                addBinaryClause(s, LngCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)),
+                        LngCoreSolver.not(lits.get(i - 1)), blocking);
             }
         }
         for (int i = 0; i < unitLits.size(); i++) {
-            assumptions.push(LNGCoreSolver.not(unitLits.get(i)));
+            assumptions.push(LngCoreSolver.not(unitLits.get(i)));
         }
         currentPbRhs = rhs;
         hasEncoding = true;
-        litsInc = new LNGIntVector(lits);
-        coeffsInc = new LNGIntVector(coeffs);
+        litsInc = new LngIntVector(lits);
+        coeffsInc = new LngIntVector(coeffs);
     }
 
     /**
@@ -256,10 +256,10 @@ public class SequentialWeightCounter extends Encoding {
      * @param s   the solver
      * @param rhs the new right-hand side
      */
-    public void update(final LNGCoreSolver s, final int rhs) {
+    public void update(final LngCoreSolver s, final int rhs) {
         assert currentPbRhs != -1;
         for (int i = rhs; i < currentPbRhs; i++) {
-            addUnitClause(s, LNGCoreSolver.not(pbOutlits.get(i)));
+            addUnitClause(s, LngCoreSolver.not(pbOutlits.get(i)));
         }
         currentPbRhs = rhs;
     }
@@ -269,8 +269,8 @@ public class SequentialWeightCounter extends Encoding {
      * @param s   the solver
      * @param rhs the new right-hand side
      */
-    public void updateInc(final LNGCoreSolver s, final int rhs) {
-        if (currentLitBlocking != LNGCoreSolver.LIT_UNDEF) {
+    public void updateInc(final LngCoreSolver s, final int rhs) {
+        if (currentLitBlocking != LngCoreSolver.LIT_UNDEF) {
             addUnitClause(s, currentLitBlocking);
         }
         final int n = litsInc.size();
@@ -278,21 +278,21 @@ public class SequentialWeightCounter extends Encoding {
         assert currentPbRhs < rhs;
         for (int i = 1; i <= n; i++) {
             for (int j = offset; j <= rhs; j++) {
-                seqAuxiliaryInc.get(i).push(LNGCoreSolver.LIT_UNDEF);
+                seqAuxiliaryInc.get(i).push(LngCoreSolver.LIT_UNDEF);
             }
         }
         for (int i = 1; i <= n; ++i) {
             for (int j = offset; j <= rhs; ++j) {
                 assert seqAuxiliaryInc.get(i).size() > j;
-                seqAuxiliaryInc.get(i).set(j, LNGCoreSolver.mkLit(s.nVars(), false));
-                newSATVariable(s);
+                seqAuxiliaryInc.get(i).set(j, LngCoreSolver.mkLit(s.nVars(), false));
+                newSatVariable(s);
             }
         }
         for (int i = 1; i < litsInc.size(); i++) {
             assert seqAuxiliaryInc.get(i).size() == rhs + 1;
         }
-        currentLitBlocking = LNGCoreSolver.mkLit(s.nVars(), false);
-        newSATVariable(s);
+        currentLitBlocking = LngCoreSolver.mkLit(s.nVars(), false);
+        newSatVariable(s);
         for (int i = 1; i <= n; i++) {
             final int wi = coeffsInc.get(i - 1);
             assert wi > 0;
@@ -300,20 +300,20 @@ public class SequentialWeightCounter extends Encoding {
             for (int j = 1; j <= rhs; j++) {
                 if (i >= 2 && i <= n && j <= rhs && j >= offset) {
                     assert seqAuxiliaryInc.get(i).size() > j;
-                    addBinaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
+                    addBinaryClause(s, LngCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
                             seqAuxiliaryInc.get(i).get(j));
                 }
                 if (i >= 2 && i <= n && j <= rhs - wi && j >= offset - wi) {
-                    addTernaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
-                            LNGCoreSolver.not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
+                    addTernaryClause(s, LngCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
+                            LngCoreSolver.not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
                 }
             }
             if (i >= 2) {
                 assert seqAuxiliaryInc.get(i - 1).size() > rhs + 1 - wi;
                 assert rhs + 1 - wi > 0;
                 assert i - 1 < litsInc.size();
-                addBinaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)),
-                        LNGCoreSolver.not(litsInc.get(i - 1)), currentLitBlocking);
+                addBinaryClause(s, LngCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)),
+                        LngCoreSolver.not(litsInc.get(i - 1)), currentLitBlocking);
             }
         }
         currentPbRhs = rhs;
@@ -326,14 +326,14 @@ public class SequentialWeightCounter extends Encoding {
      * @param lits   the literals of the constraint
      * @param coeffs the coefficients of the constraint
      */
-    void join(final LNGCoreSolver s, final LNGIntVector lits, final LNGIntVector coeffs) {
-        assert currentLitBlocking != LNGCoreSolver.LIT_UNDEF;
+    void join(final LngCoreSolver s, final LngIntVector lits, final LngIntVector coeffs) {
+        assert currentLitBlocking != LngCoreSolver.LIT_UNDEF;
         final int rhs = currentPbRhs;
         if (rhs == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Overflow in the encoding.");
         }
-        final LNGIntVector simpUnitLits = new LNGIntVector(unitLits);
-        final LNGIntVector simpUnitCoeffs = new LNGIntVector(unitCoeffs);
+        final LngIntVector simpUnitLits = new LngIntVector(unitLits);
+        final LngIntVector simpUnitCoeffs = new LngIntVector(unitCoeffs);
         unitLits.clear();
         unitCoeffs.clear();
         final int lhsJoin = litsInc.size();
@@ -361,13 +361,13 @@ public class SequentialWeightCounter extends Encoding {
         final int n = litsInc.size();
         assert seqAuxiliaryInc.get(lhsJoin).size() > 0;
         for (int i = lhsJoin + 1; i <= n; i++) {
-            seqAuxiliaryInc.set(i, new LNGIntVector());
+            seqAuxiliaryInc.set(i, new LngIntVector());
             seqAuxiliaryInc.get(i).growTo(rhs + 1, -1);
         }
         for (int i = lhsJoin + 1; i <= n; ++i) {
             for (int j = 1; j <= rhs; ++j) {
-                seqAuxiliaryInc.get(i).set(j, LNGCoreSolver.mkLit(s.nVars(), false));
-                newSATVariable(s);
+                seqAuxiliaryInc.get(i).set(j, LngCoreSolver.mkLit(s.nVars(), false));
+                newSatVariable(s);
             }
         }
         for (int i = 1; i <= n; i++) {
@@ -380,23 +380,23 @@ public class SequentialWeightCounter extends Encoding {
             for (int j = 1; j <= rhs; j++) {
                 assert seqAuxiliaryInc.get(i).size() > j;
                 assert seqAuxiliaryInc.get(i - 1).size() > j;
-                addBinaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)), seqAuxiliaryInc.get(i).get(j));
+                addBinaryClause(s, LngCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)), seqAuxiliaryInc.get(i).get(j));
                 if (j <= wi) {
                     assert seqAuxiliaryInc.get(i).size() > j;
                     assert i - 1 < litsInc.size() && i - 1 >= 0;
-                    addBinaryClause(s, LNGCoreSolver.not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j));
+                    addBinaryClause(s, LngCoreSolver.not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j));
                 }
                 if (j <= rhs - wi) {
-                    addTernaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
-                            LNGCoreSolver.not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
+                    addTernaryClause(s, LngCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(j)),
+                            LngCoreSolver.not(litsInc.get(i - 1)), seqAuxiliaryInc.get(i).get(j + wi));
                 }
             }
             if (i > lhsJoin) {
                 assert rhs + 1 - wi >= 0;
                 assert seqAuxiliaryInc.get(i - 1).size() > rhs + 1 - wi;
                 assert i - 1 < litsInc.size();
-                addBinaryClause(s, LNGCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)),
-                        LNGCoreSolver.not(litsInc.get(i - 1)), currentLitBlocking);
+                addBinaryClause(s, LngCoreSolver.not(seqAuxiliaryInc.get(i - 1).get(rhs + 1 - wi)),
+                        LngCoreSolver.not(litsInc.get(i - 1)), currentLitBlocking);
             }
         }
     }

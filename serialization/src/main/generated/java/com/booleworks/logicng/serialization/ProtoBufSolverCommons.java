@@ -26,9 +26,9 @@ public final class ProtoBufSolverCommons {
         (com.google.protobuf.ExtensionRegistryLite) registry);
   }
   /**
-   * Protobuf enum {@code solver.PBClauseMinimization}
+   * Protobuf enum {@code solver.PbClauseMinimization}
    */
-  public enum PBClauseMinimization
+  public enum PbClauseMinimization
       implements com.google.protobuf.ProtocolMessageEnum {
     /**
      * <code>NONE = 0;</code>
@@ -52,7 +52,7 @@ public final class ProtoBufSolverCommons {
         /* minor= */ 28,
         /* patch= */ 1,
         /* suffix= */ "",
-        PBClauseMinimization.class.getName());
+        PbClauseMinimization.class.getName());
     }
     /**
      * <code>NONE = 0;</code>
@@ -82,7 +82,7 @@ public final class ProtoBufSolverCommons {
      * @deprecated Use {@link #forNumber(int)} instead.
      */
     @java.lang.Deprecated
-    public static PBClauseMinimization valueOf(int value) {
+    public static PbClauseMinimization valueOf(int value) {
       return forNumber(value);
     }
 
@@ -90,7 +90,7 @@ public final class ProtoBufSolverCommons {
      * @param value The numeric wire value of the corresponding enum entry.
      * @return The enum associated with the given numeric wire value.
      */
-    public static PBClauseMinimization forNumber(int value) {
+    public static PbClauseMinimization forNumber(int value) {
       switch (value) {
         case 0: return NONE;
         case 1: return BASIC;
@@ -99,15 +99,15 @@ public final class ProtoBufSolverCommons {
       }
     }
 
-    public static com.google.protobuf.Internal.EnumLiteMap<PBClauseMinimization>
+    public static com.google.protobuf.Internal.EnumLiteMap<PbClauseMinimization>
         internalGetValueMap() {
       return internalValueMap;
     }
     private static final com.google.protobuf.Internal.EnumLiteMap<
-        PBClauseMinimization> internalValueMap =
-          new com.google.protobuf.Internal.EnumLiteMap<PBClauseMinimization>() {
-            public PBClauseMinimization findValueByNumber(int number) {
-              return PBClauseMinimization.forNumber(number);
+        PbClauseMinimization> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<PbClauseMinimization>() {
+            public PbClauseMinimization findValueByNumber(int number) {
+              return PbClauseMinimization.forNumber(number);
             }
           };
 
@@ -128,9 +128,9 @@ public final class ProtoBufSolverCommons {
       return com.booleworks.logicng.serialization.ProtoBufSolverCommons.getDescriptor().getEnumTypes().get(0);
     }
 
-    private static final PBClauseMinimization[] VALUES = values();
+    private static final PbClauseMinimization[] VALUES = values();
 
-    public static PBClauseMinimization valueOf(
+    public static PbClauseMinimization valueOf(
         com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
       if (desc.getType() != getDescriptor()) {
         throw new java.lang.IllegalArgumentException(
@@ -144,17 +144,17 @@ public final class ProtoBufSolverCommons {
 
     private final int value;
 
-    private PBClauseMinimization(int value) {
+    private PbClauseMinimization(int value) {
       this.value = value;
     }
 
-    // @@protoc_insertion_point(enum_scope:solver.PBClauseMinimization)
+    // @@protoc_insertion_point(enum_scope:solver.PbClauseMinimization)
   }
 
   /**
-   * Protobuf enum {@code solver.PBCnfMethod}
+   * Protobuf enum {@code solver.PbCnfMethod}
    */
-  public enum PBCnfMethod
+  public enum PbCnfMethod
       implements com.google.protobuf.ProtocolMessageEnum {
     /**
      * <code>FACTORY_CNF = 0;</code>
@@ -178,7 +178,7 @@ public final class ProtoBufSolverCommons {
         /* minor= */ 28,
         /* patch= */ 1,
         /* suffix= */ "",
-        PBCnfMethod.class.getName());
+        PbCnfMethod.class.getName());
     }
     /**
      * <code>FACTORY_CNF = 0;</code>
@@ -208,7 +208,7 @@ public final class ProtoBufSolverCommons {
      * @deprecated Use {@link #forNumber(int)} instead.
      */
     @java.lang.Deprecated
-    public static PBCnfMethod valueOf(int value) {
+    public static PbCnfMethod valueOf(int value) {
       return forNumber(value);
     }
 
@@ -216,7 +216,7 @@ public final class ProtoBufSolverCommons {
      * @param value The numeric wire value of the corresponding enum entry.
      * @return The enum associated with the given numeric wire value.
      */
-    public static PBCnfMethod forNumber(int value) {
+    public static PbCnfMethod forNumber(int value) {
       switch (value) {
         case 0: return FACTORY_CNF;
         case 1: return PG_ON_SOLVER;
@@ -225,15 +225,15 @@ public final class ProtoBufSolverCommons {
       }
     }
 
-    public static com.google.protobuf.Internal.EnumLiteMap<PBCnfMethod>
+    public static com.google.protobuf.Internal.EnumLiteMap<PbCnfMethod>
         internalGetValueMap() {
       return internalValueMap;
     }
     private static final com.google.protobuf.Internal.EnumLiteMap<
-        PBCnfMethod> internalValueMap =
-          new com.google.protobuf.Internal.EnumLiteMap<PBCnfMethod>() {
-            public PBCnfMethod findValueByNumber(int number) {
-              return PBCnfMethod.forNumber(number);
+        PbCnfMethod> internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<PbCnfMethod>() {
+            public PbCnfMethod findValueByNumber(int number) {
+              return PbCnfMethod.forNumber(number);
             }
           };
 
@@ -254,9 +254,9 @@ public final class ProtoBufSolverCommons {
       return com.booleworks.logicng.serialization.ProtoBufSolverCommons.getDescriptor().getEnumTypes().get(1);
     }
 
-    private static final PBCnfMethod[] VALUES = values();
+    private static final PbCnfMethod[] VALUES = values();
 
-    public static PBCnfMethod valueOf(
+    public static PbCnfMethod valueOf(
         com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
       if (desc.getType() != getDescriptor()) {
         throw new java.lang.IllegalArgumentException(
@@ -270,15 +270,15 @@ public final class ProtoBufSolverCommons {
 
     private final int value;
 
-    private PBCnfMethod(int value) {
+    private PbCnfMethod(int value) {
       this.value = value;
     }
 
-    // @@protoc_insertion_point(enum_scope:solver.PBCnfMethod)
+    // @@protoc_insertion_point(enum_scope:solver.PbCnfMethod)
   }
 
-  public interface PBSatSolverConfigOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:solver.PBSatSolverConfig)
+  public interface PbSatSolverConfigOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:solver.PbSatSolverConfig)
       com.google.protobuf.MessageOrBuilder {
 
     /**
@@ -294,26 +294,26 @@ public final class ProtoBufSolverCommons {
     boolean getUseAtMostClauses();
 
     /**
-     * <code>.solver.PBCnfMethod cnfMethod = 3;</code>
+     * <code>.solver.PbCnfMethod cnfMethod = 3;</code>
      * @return The enum numeric value on the wire for cnfMethod.
      */
     int getCnfMethodValue();
     /**
-     * <code>.solver.PBCnfMethod cnfMethod = 3;</code>
+     * <code>.solver.PbCnfMethod cnfMethod = 3;</code>
      * @return The cnfMethod.
      */
-    com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBCnfMethod getCnfMethod();
+    com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbCnfMethod getCnfMethod();
 
     /**
-     * <code>.solver.PBClauseMinimization clauseMinimization = 4;</code>
+     * <code>.solver.PbClauseMinimization clauseMinimization = 4;</code>
      * @return The enum numeric value on the wire for clauseMinimization.
      */
     int getClauseMinimizationValue();
     /**
-     * <code>.solver.PBClauseMinimization clauseMinimization = 4;</code>
+     * <code>.solver.PbClauseMinimization clauseMinimization = 4;</code>
      * @return The clauseMinimization.
      */
-    com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBClauseMinimization getClauseMinimization();
+    com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbClauseMinimization getClauseMinimization();
 
     /**
      * <code>bool initialPhase = 5;</code>
@@ -352,16 +352,16 @@ public final class ProtoBufSolverCommons {
     double getClauseDecay();
 
     /**
-     * <code>int32 lbLBDMinimizingClause = 11;</code>
-     * @return The lbLBDMinimizingClause.
+     * <code>int32 lbLbdMinimizingClause = 11;</code>
+     * @return The lbLbdMinimizingClause.
      */
-    int getLbLBDMinimizingClause();
+    int getLbLbdMinimizingClause();
 
     /**
-     * <code>int32 lbLBDFrozenClause = 12;</code>
-     * @return The lbLBDFrozenClause.
+     * <code>int32 lbLbdFrozenClause = 12;</code>
+     * @return The lbLbdFrozenClause.
      */
-    int getLbLBDFrozenClause();
+    int getLbLbdFrozenClause();
 
     /**
      * <code>int32 lbSizeMinimizingClause = 13;</code>
@@ -370,22 +370,22 @@ public final class ProtoBufSolverCommons {
     int getLbSizeMinimizingClause();
 
     /**
-     * <code>int32 firstReduceDB = 14;</code>
-     * @return The firstReduceDB.
+     * <code>int32 firstReduceDb = 14;</code>
+     * @return The firstReduceDb.
      */
-    int getFirstReduceDB();
+    int getFirstReduceDb();
 
     /**
-     * <code>int32 specialIncReduceDB = 15;</code>
-     * @return The specialIncReduceDB.
+     * <code>int32 specialIncReduceDb = 15;</code>
+     * @return The specialIncReduceDb.
      */
-    int getSpecialIncReduceDB();
+    int getSpecialIncReduceDb();
 
     /**
-     * <code>int32 incReduceDB = 16;</code>
-     * @return The incReduceDB.
+     * <code>int32 incReduceDb = 16;</code>
+     * @return The incReduceDb.
      */
-    int getIncReduceDB();
+    int getIncReduceDb();
 
     /**
      * <code>double factorK = 17;</code>
@@ -400,10 +400,10 @@ public final class ProtoBufSolverCommons {
     double getFactorR();
 
     /**
-     * <code>int32 sizeLBDQueue = 19;</code>
-     * @return The sizeLBDQueue.
+     * <code>int32 sizeLbdQueue = 19;</code>
+     * @return The sizeLbdQueue.
      */
-    int getSizeLBDQueue();
+    int getSizeLbdQueue();
 
     /**
      * <code>int32 sizeTrailQueue = 20;</code>
@@ -430,12 +430,12 @@ public final class ProtoBufSolverCommons {
     double getMaxVarDecay();
   }
   /**
-   * Protobuf type {@code solver.PBSatSolverConfig}
+   * Protobuf type {@code solver.PbSatSolverConfig}
    */
-  public static final class PBSatSolverConfig extends
+  public static final class PbSatSolverConfig extends
       com.google.protobuf.GeneratedMessage implements
-      // @@protoc_insertion_point(message_implements:solver.PBSatSolverConfig)
-      PBSatSolverConfigOrBuilder {
+      // @@protoc_insertion_point(message_implements:solver.PbSatSolverConfig)
+      PbSatSolverConfigOrBuilder {
   private static final long serialVersionUID = 0L;
     static {
       com.google.protobuf.RuntimeVersion.validateProtobufGencodeVersion(
@@ -444,28 +444,28 @@ public final class ProtoBufSolverCommons {
         /* minor= */ 28,
         /* patch= */ 1,
         /* suffix= */ "",
-        PBSatSolverConfig.class.getName());
+        PbSatSolverConfig.class.getName());
     }
-    // Use PBSatSolverConfig.newBuilder() to construct.
-    private PBSatSolverConfig(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+    // Use PbSatSolverConfig.newBuilder() to construct.
+    private PbSatSolverConfig(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
     }
-    private PBSatSolverConfig() {
+    private PbSatSolverConfig() {
       cnfMethod_ = 0;
       clauseMinimization_ = 0;
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
-      return com.booleworks.logicng.serialization.ProtoBufSolverCommons.internal_static_solver_PBSatSolverConfig_descriptor;
+      return com.booleworks.logicng.serialization.ProtoBufSolverCommons.internal_static_solver_PbSatSolverConfig_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.booleworks.logicng.serialization.ProtoBufSolverCommons.internal_static_solver_PBSatSolverConfig_fieldAccessorTable
+      return com.booleworks.logicng.serialization.ProtoBufSolverCommons.internal_static_solver_PbSatSolverConfig_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig.class, com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig.Builder.class);
+              com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig.class, com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig.Builder.class);
     }
 
     public static final int PROOFGENERATION_FIELD_NUMBER = 1;
@@ -493,37 +493,37 @@ public final class ProtoBufSolverCommons {
     public static final int CNFMETHOD_FIELD_NUMBER = 3;
     private int cnfMethod_ = 0;
     /**
-     * <code>.solver.PBCnfMethod cnfMethod = 3;</code>
+     * <code>.solver.PbCnfMethod cnfMethod = 3;</code>
      * @return The enum numeric value on the wire for cnfMethod.
      */
     @java.lang.Override public int getCnfMethodValue() {
       return cnfMethod_;
     }
     /**
-     * <code>.solver.PBCnfMethod cnfMethod = 3;</code>
+     * <code>.solver.PbCnfMethod cnfMethod = 3;</code>
      * @return The cnfMethod.
      */
-    @java.lang.Override public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBCnfMethod getCnfMethod() {
-      com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBCnfMethod result = com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBCnfMethod.forNumber(cnfMethod_);
-      return result == null ? com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBCnfMethod.UNRECOGNIZED : result;
+    @java.lang.Override public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbCnfMethod getCnfMethod() {
+      com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbCnfMethod result = com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbCnfMethod.forNumber(cnfMethod_);
+      return result == null ? com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbCnfMethod.UNRECOGNIZED : result;
     }
 
     public static final int CLAUSEMINIMIZATION_FIELD_NUMBER = 4;
     private int clauseMinimization_ = 0;
     /**
-     * <code>.solver.PBClauseMinimization clauseMinimization = 4;</code>
+     * <code>.solver.PbClauseMinimization clauseMinimization = 4;</code>
      * @return The enum numeric value on the wire for clauseMinimization.
      */
     @java.lang.Override public int getClauseMinimizationValue() {
       return clauseMinimization_;
     }
     /**
-     * <code>.solver.PBClauseMinimization clauseMinimization = 4;</code>
+     * <code>.solver.PbClauseMinimization clauseMinimization = 4;</code>
      * @return The clauseMinimization.
      */
-    @java.lang.Override public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBClauseMinimization getClauseMinimization() {
-      com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBClauseMinimization result = com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBClauseMinimization.forNumber(clauseMinimization_);
-      return result == null ? com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBClauseMinimization.UNRECOGNIZED : result;
+    @java.lang.Override public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbClauseMinimization getClauseMinimization() {
+      com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbClauseMinimization result = com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbClauseMinimization.forNumber(clauseMinimization_);
+      return result == null ? com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbClauseMinimization.UNRECOGNIZED : result;
     }
 
     public static final int INITIALPHASE_FIELD_NUMBER = 5;
@@ -593,25 +593,25 @@ public final class ProtoBufSolverCommons {
     }
 
     public static final int LBLBDMINIMIZINGCLAUSE_FIELD_NUMBER = 11;
-    private int lbLBDMinimizingClause_ = 0;
+    private int lbLbdMinimizingClause_ = 0;
     /**
-     * <code>int32 lbLBDMinimizingClause = 11;</code>
-     * @return The lbLBDMinimizingClause.
+     * <code>int32 lbLbdMinimizingClause = 11;</code>
+     * @return The lbLbdMinimizingClause.
      */
     @java.lang.Override
-    public int getLbLBDMinimizingClause() {
-      return lbLBDMinimizingClause_;
+    public int getLbLbdMinimizingClause() {
+      return lbLbdMinimizingClause_;
     }
 
     public static final int LBLBDFROZENCLAUSE_FIELD_NUMBER = 12;
-    private int lbLBDFrozenClause_ = 0;
+    private int lbLbdFrozenClause_ = 0;
     /**
-     * <code>int32 lbLBDFrozenClause = 12;</code>
-     * @return The lbLBDFrozenClause.
+     * <code>int32 lbLbdFrozenClause = 12;</code>
+     * @return The lbLbdFrozenClause.
      */
     @java.lang.Override
-    public int getLbLBDFrozenClause() {
-      return lbLBDFrozenClause_;
+    public int getLbLbdFrozenClause() {
+      return lbLbdFrozenClause_;
     }
 
     public static final int LBSIZEMINIMIZINGCLAUSE_FIELD_NUMBER = 13;
@@ -626,36 +626,36 @@ public final class ProtoBufSolverCommons {
     }
 
     public static final int FIRSTREDUCEDB_FIELD_NUMBER = 14;
-    private int firstReduceDB_ = 0;
+    private int firstReduceDb_ = 0;
     /**
-     * <code>int32 firstReduceDB = 14;</code>
-     * @return The firstReduceDB.
+     * <code>int32 firstReduceDb = 14;</code>
+     * @return The firstReduceDb.
      */
     @java.lang.Override
-    public int getFirstReduceDB() {
-      return firstReduceDB_;
+    public int getFirstReduceDb() {
+      return firstReduceDb_;
     }
 
     public static final int SPECIALINCREDUCEDB_FIELD_NUMBER = 15;
-    private int specialIncReduceDB_ = 0;
+    private int specialIncReduceDb_ = 0;
     /**
-     * <code>int32 specialIncReduceDB = 15;</code>
-     * @return The specialIncReduceDB.
+     * <code>int32 specialIncReduceDb = 15;</code>
+     * @return The specialIncReduceDb.
      */
     @java.lang.Override
-    public int getSpecialIncReduceDB() {
-      return specialIncReduceDB_;
+    public int getSpecialIncReduceDb() {
+      return specialIncReduceDb_;
     }
 
     public static final int INCREDUCEDB_FIELD_NUMBER = 16;
-    private int incReduceDB_ = 0;
+    private int incReduceDb_ = 0;
     /**
-     * <code>int32 incReduceDB = 16;</code>
-     * @return The incReduceDB.
+     * <code>int32 incReduceDb = 16;</code>
+     * @return The incReduceDb.
      */
     @java.lang.Override
-    public int getIncReduceDB() {
-      return incReduceDB_;
+    public int getIncReduceDb() {
+      return incReduceDb_;
     }
 
     public static final int FACTORK_FIELD_NUMBER = 17;
@@ -681,14 +681,14 @@ public final class ProtoBufSolverCommons {
     }
 
     public static final int SIZELBDQUEUE_FIELD_NUMBER = 19;
-    private int sizeLBDQueue_ = 0;
+    private int sizeLbdQueue_ = 0;
     /**
-     * <code>int32 sizeLBDQueue = 19;</code>
-     * @return The sizeLBDQueue.
+     * <code>int32 sizeLbdQueue = 19;</code>
+     * @return The sizeLbdQueue.
      */
     @java.lang.Override
-    public int getSizeLBDQueue() {
-      return sizeLBDQueue_;
+    public int getSizeLbdQueue() {
+      return sizeLbdQueue_;
     }
 
     public static final int SIZETRAILQUEUE_FIELD_NUMBER = 20;
@@ -755,10 +755,10 @@ public final class ProtoBufSolverCommons {
       if (useAtMostClauses_ != false) {
         output.writeBool(2, useAtMostClauses_);
       }
-      if (cnfMethod_ != com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBCnfMethod.FACTORY_CNF.getNumber()) {
+      if (cnfMethod_ != com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbCnfMethod.FACTORY_CNF.getNumber()) {
         output.writeEnum(3, cnfMethod_);
       }
-      if (clauseMinimization_ != com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBClauseMinimization.NONE.getNumber()) {
+      if (clauseMinimization_ != com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbClauseMinimization.NONE.getNumber()) {
         output.writeEnum(4, clauseMinimization_);
       }
       if (initialPhase_ != false) {
@@ -779,23 +779,23 @@ public final class ProtoBufSolverCommons {
       if (java.lang.Double.doubleToRawLongBits(clauseDecay_) != 0) {
         output.writeDouble(10, clauseDecay_);
       }
-      if (lbLBDMinimizingClause_ != 0) {
-        output.writeInt32(11, lbLBDMinimizingClause_);
+      if (lbLbdMinimizingClause_ != 0) {
+        output.writeInt32(11, lbLbdMinimizingClause_);
       }
-      if (lbLBDFrozenClause_ != 0) {
-        output.writeInt32(12, lbLBDFrozenClause_);
+      if (lbLbdFrozenClause_ != 0) {
+        output.writeInt32(12, lbLbdFrozenClause_);
       }
       if (lbSizeMinimizingClause_ != 0) {
         output.writeInt32(13, lbSizeMinimizingClause_);
       }
-      if (firstReduceDB_ != 0) {
-        output.writeInt32(14, firstReduceDB_);
+      if (firstReduceDb_ != 0) {
+        output.writeInt32(14, firstReduceDb_);
       }
-      if (specialIncReduceDB_ != 0) {
-        output.writeInt32(15, specialIncReduceDB_);
+      if (specialIncReduceDb_ != 0) {
+        output.writeInt32(15, specialIncReduceDb_);
       }
-      if (incReduceDB_ != 0) {
-        output.writeInt32(16, incReduceDB_);
+      if (incReduceDb_ != 0) {
+        output.writeInt32(16, incReduceDb_);
       }
       if (java.lang.Double.doubleToRawLongBits(factorK_) != 0) {
         output.writeDouble(17, factorK_);
@@ -803,8 +803,8 @@ public final class ProtoBufSolverCommons {
       if (java.lang.Double.doubleToRawLongBits(factorR_) != 0) {
         output.writeDouble(18, factorR_);
       }
-      if (sizeLBDQueue_ != 0) {
-        output.writeInt32(19, sizeLBDQueue_);
+      if (sizeLbdQueue_ != 0) {
+        output.writeInt32(19, sizeLbdQueue_);
       }
       if (sizeTrailQueue_ != 0) {
         output.writeInt32(20, sizeTrailQueue_);
@@ -835,11 +835,11 @@ public final class ProtoBufSolverCommons {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(2, useAtMostClauses_);
       }
-      if (cnfMethod_ != com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBCnfMethod.FACTORY_CNF.getNumber()) {
+      if (cnfMethod_ != com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbCnfMethod.FACTORY_CNF.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(3, cnfMethod_);
       }
-      if (clauseMinimization_ != com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBClauseMinimization.NONE.getNumber()) {
+      if (clauseMinimization_ != com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbClauseMinimization.NONE.getNumber()) {
         size += com.google.protobuf.CodedOutputStream
           .computeEnumSize(4, clauseMinimization_);
       }
@@ -867,29 +867,29 @@ public final class ProtoBufSolverCommons {
         size += com.google.protobuf.CodedOutputStream
           .computeDoubleSize(10, clauseDecay_);
       }
-      if (lbLBDMinimizingClause_ != 0) {
+      if (lbLbdMinimizingClause_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(11, lbLBDMinimizingClause_);
+          .computeInt32Size(11, lbLbdMinimizingClause_);
       }
-      if (lbLBDFrozenClause_ != 0) {
+      if (lbLbdFrozenClause_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(12, lbLBDFrozenClause_);
+          .computeInt32Size(12, lbLbdFrozenClause_);
       }
       if (lbSizeMinimizingClause_ != 0) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(13, lbSizeMinimizingClause_);
       }
-      if (firstReduceDB_ != 0) {
+      if (firstReduceDb_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(14, firstReduceDB_);
+          .computeInt32Size(14, firstReduceDb_);
       }
-      if (specialIncReduceDB_ != 0) {
+      if (specialIncReduceDb_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(15, specialIncReduceDB_);
+          .computeInt32Size(15, specialIncReduceDb_);
       }
-      if (incReduceDB_ != 0) {
+      if (incReduceDb_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(16, incReduceDB_);
+          .computeInt32Size(16, incReduceDb_);
       }
       if (java.lang.Double.doubleToRawLongBits(factorK_) != 0) {
         size += com.google.protobuf.CodedOutputStream
@@ -899,9 +899,9 @@ public final class ProtoBufSolverCommons {
         size += com.google.protobuf.CodedOutputStream
           .computeDoubleSize(18, factorR_);
       }
-      if (sizeLBDQueue_ != 0) {
+      if (sizeLbdQueue_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(19, sizeLBDQueue_);
+          .computeInt32Size(19, sizeLbdQueue_);
       }
       if (sizeTrailQueue_ != 0) {
         size += com.google.protobuf.CodedOutputStream
@@ -929,10 +929,10 @@ public final class ProtoBufSolverCommons {
       if (obj == this) {
        return true;
       }
-      if (!(obj instanceof com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig)) {
+      if (!(obj instanceof com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig)) {
         return super.equals(obj);
       }
-      com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig other = (com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig) obj;
+      com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig other = (com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig) obj;
 
       if (getProofGeneration()
           != other.getProofGeneration()) return false;
@@ -956,26 +956,26 @@ public final class ProtoBufSolverCommons {
       if (java.lang.Double.doubleToLongBits(getClauseDecay())
           != java.lang.Double.doubleToLongBits(
               other.getClauseDecay())) return false;
-      if (getLbLBDMinimizingClause()
-          != other.getLbLBDMinimizingClause()) return false;
-      if (getLbLBDFrozenClause()
-          != other.getLbLBDFrozenClause()) return false;
+      if (getLbLbdMinimizingClause()
+          != other.getLbLbdMinimizingClause()) return false;
+      if (getLbLbdFrozenClause()
+          != other.getLbLbdFrozenClause()) return false;
       if (getLbSizeMinimizingClause()
           != other.getLbSizeMinimizingClause()) return false;
-      if (getFirstReduceDB()
-          != other.getFirstReduceDB()) return false;
-      if (getSpecialIncReduceDB()
-          != other.getSpecialIncReduceDB()) return false;
-      if (getIncReduceDB()
-          != other.getIncReduceDB()) return false;
+      if (getFirstReduceDb()
+          != other.getFirstReduceDb()) return false;
+      if (getSpecialIncReduceDb()
+          != other.getSpecialIncReduceDb()) return false;
+      if (getIncReduceDb()
+          != other.getIncReduceDb()) return false;
       if (java.lang.Double.doubleToLongBits(getFactorK())
           != java.lang.Double.doubleToLongBits(
               other.getFactorK())) return false;
       if (java.lang.Double.doubleToLongBits(getFactorR())
           != java.lang.Double.doubleToLongBits(
               other.getFactorR())) return false;
-      if (getSizeLBDQueue()
-          != other.getSizeLBDQueue()) return false;
+      if (getSizeLbdQueue()
+          != other.getSizeLbdQueue()) return false;
       if (getSizeTrailQueue()
           != other.getSizeTrailQueue()) return false;
       if (getReduceOnSize()
@@ -1024,17 +1024,17 @@ public final class ProtoBufSolverCommons {
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           java.lang.Double.doubleToLongBits(getClauseDecay()));
       hash = (37 * hash) + LBLBDMINIMIZINGCLAUSE_FIELD_NUMBER;
-      hash = (53 * hash) + getLbLBDMinimizingClause();
+      hash = (53 * hash) + getLbLbdMinimizingClause();
       hash = (37 * hash) + LBLBDFROZENCLAUSE_FIELD_NUMBER;
-      hash = (53 * hash) + getLbLBDFrozenClause();
+      hash = (53 * hash) + getLbLbdFrozenClause();
       hash = (37 * hash) + LBSIZEMINIMIZINGCLAUSE_FIELD_NUMBER;
       hash = (53 * hash) + getLbSizeMinimizingClause();
       hash = (37 * hash) + FIRSTREDUCEDB_FIELD_NUMBER;
-      hash = (53 * hash) + getFirstReduceDB();
+      hash = (53 * hash) + getFirstReduceDb();
       hash = (37 * hash) + SPECIALINCREDUCEDB_FIELD_NUMBER;
-      hash = (53 * hash) + getSpecialIncReduceDB();
+      hash = (53 * hash) + getSpecialIncReduceDb();
       hash = (37 * hash) + INCREDUCEDB_FIELD_NUMBER;
-      hash = (53 * hash) + getIncReduceDB();
+      hash = (53 * hash) + getIncReduceDb();
       hash = (37 * hash) + FACTORK_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           java.lang.Double.doubleToLongBits(getFactorK()));
@@ -1042,7 +1042,7 @@ public final class ProtoBufSolverCommons {
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           java.lang.Double.doubleToLongBits(getFactorR()));
       hash = (37 * hash) + SIZELBDQUEUE_FIELD_NUMBER;
-      hash = (53 * hash) + getSizeLBDQueue();
+      hash = (53 * hash) + getSizeLbdQueue();
       hash = (37 * hash) + SIZETRAILQUEUE_FIELD_NUMBER;
       hash = (53 * hash) + getSizeTrailQueue();
       hash = (37 * hash) + REDUCEONSIZE_FIELD_NUMBER;
@@ -1058,44 +1058,44 @@ public final class ProtoBufSolverCommons {
       return hash;
     }
 
-    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig parseFrom(
         java.nio.ByteBuffer data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig parseFrom(
         java.nio.ByteBuffer data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig parseFrom(
         com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig parseFrom(byte[] data)
+    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig parseFrom(
         byte[] data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig parseFrom(java.io.InputStream input)
+    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig parseFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessage
           .parseWithIOException(PARSER, input);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1103,26 +1103,26 @@ public final class ProtoBufSolverCommons {
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig parseDelimitedFrom(java.io.InputStream input)
+    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessage
           .parseDelimitedWithIOException(PARSER, input);
     }
 
-    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig parseDelimitedFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessage
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessage
           .parseWithIOException(PARSER, input);
     }
-    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig parseFrom(
+    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1135,7 +1135,7 @@ public final class ProtoBufSolverCommons {
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
     }
-    public static Builder newBuilder(com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig prototype) {
+    public static Builder newBuilder(com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
     @java.lang.Override
@@ -1151,26 +1151,26 @@ public final class ProtoBufSolverCommons {
       return builder;
     }
     /**
-     * Protobuf type {@code solver.PBSatSolverConfig}
+     * Protobuf type {@code solver.PbSatSolverConfig}
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessage.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:solver.PBSatSolverConfig)
-        com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfigOrBuilder {
+        // @@protoc_insertion_point(builder_implements:solver.PbSatSolverConfig)
+        com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfigOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
-        return com.booleworks.logicng.serialization.ProtoBufSolverCommons.internal_static_solver_PBSatSolverConfig_descriptor;
+        return com.booleworks.logicng.serialization.ProtoBufSolverCommons.internal_static_solver_PbSatSolverConfig_descriptor;
       }
 
       @java.lang.Override
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
-        return com.booleworks.logicng.serialization.ProtoBufSolverCommons.internal_static_solver_PBSatSolverConfig_fieldAccessorTable
+        return com.booleworks.logicng.serialization.ProtoBufSolverCommons.internal_static_solver_PbSatSolverConfig_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
-                com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig.class, com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig.Builder.class);
+                com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig.class, com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig.Builder.class);
       }
 
-      // Construct using com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig.newBuilder()
+      // Construct using com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig.newBuilder()
       private Builder() {
 
       }
@@ -1194,15 +1194,15 @@ public final class ProtoBufSolverCommons {
         restartFirst_ = 0;
         restartInc_ = 0D;
         clauseDecay_ = 0D;
-        lbLBDMinimizingClause_ = 0;
-        lbLBDFrozenClause_ = 0;
+        lbLbdMinimizingClause_ = 0;
+        lbLbdFrozenClause_ = 0;
         lbSizeMinimizingClause_ = 0;
-        firstReduceDB_ = 0;
-        specialIncReduceDB_ = 0;
-        incReduceDB_ = 0;
+        firstReduceDb_ = 0;
+        specialIncReduceDb_ = 0;
+        incReduceDb_ = 0;
         factorK_ = 0D;
         factorR_ = 0D;
-        sizeLBDQueue_ = 0;
+        sizeLbdQueue_ = 0;
         sizeTrailQueue_ = 0;
         reduceOnSize_ = false;
         reduceOnSizeSize_ = 0;
@@ -1213,17 +1213,17 @@ public final class ProtoBufSolverCommons {
       @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
-        return com.booleworks.logicng.serialization.ProtoBufSolverCommons.internal_static_solver_PBSatSolverConfig_descriptor;
+        return com.booleworks.logicng.serialization.ProtoBufSolverCommons.internal_static_solver_PbSatSolverConfig_descriptor;
       }
 
       @java.lang.Override
-      public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig getDefaultInstanceForType() {
-        return com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig.getDefaultInstance();
+      public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig getDefaultInstanceForType() {
+        return com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig.getDefaultInstance();
       }
 
       @java.lang.Override
-      public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig build() {
-        com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig result = buildPartial();
+      public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig build() {
+        com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
@@ -1231,14 +1231,14 @@ public final class ProtoBufSolverCommons {
       }
 
       @java.lang.Override
-      public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig buildPartial() {
-        com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig result = new com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig(this);
+      public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig buildPartial() {
+        com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig result = new com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig(this);
         if (bitField0_ != 0) { buildPartial0(result); }
         onBuilt();
         return result;
       }
 
-      private void buildPartial0(com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig result) {
+      private void buildPartial0(com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig result) {
         int from_bitField0_ = bitField0_;
         if (((from_bitField0_ & 0x00000001) != 0)) {
           result.proofGeneration_ = proofGeneration_;
@@ -1271,22 +1271,22 @@ public final class ProtoBufSolverCommons {
           result.clauseDecay_ = clauseDecay_;
         }
         if (((from_bitField0_ & 0x00000400) != 0)) {
-          result.lbLBDMinimizingClause_ = lbLBDMinimizingClause_;
+          result.lbLbdMinimizingClause_ = lbLbdMinimizingClause_;
         }
         if (((from_bitField0_ & 0x00000800) != 0)) {
-          result.lbLBDFrozenClause_ = lbLBDFrozenClause_;
+          result.lbLbdFrozenClause_ = lbLbdFrozenClause_;
         }
         if (((from_bitField0_ & 0x00001000) != 0)) {
           result.lbSizeMinimizingClause_ = lbSizeMinimizingClause_;
         }
         if (((from_bitField0_ & 0x00002000) != 0)) {
-          result.firstReduceDB_ = firstReduceDB_;
+          result.firstReduceDb_ = firstReduceDb_;
         }
         if (((from_bitField0_ & 0x00004000) != 0)) {
-          result.specialIncReduceDB_ = specialIncReduceDB_;
+          result.specialIncReduceDb_ = specialIncReduceDb_;
         }
         if (((from_bitField0_ & 0x00008000) != 0)) {
-          result.incReduceDB_ = incReduceDB_;
+          result.incReduceDb_ = incReduceDb_;
         }
         if (((from_bitField0_ & 0x00010000) != 0)) {
           result.factorK_ = factorK_;
@@ -1295,7 +1295,7 @@ public final class ProtoBufSolverCommons {
           result.factorR_ = factorR_;
         }
         if (((from_bitField0_ & 0x00040000) != 0)) {
-          result.sizeLBDQueue_ = sizeLBDQueue_;
+          result.sizeLbdQueue_ = sizeLbdQueue_;
         }
         if (((from_bitField0_ & 0x00080000) != 0)) {
           result.sizeTrailQueue_ = sizeTrailQueue_;
@@ -1313,16 +1313,16 @@ public final class ProtoBufSolverCommons {
 
       @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig) {
-          return mergeFrom((com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig)other);
+        if (other instanceof com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig) {
+          return mergeFrom((com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig other) {
-        if (other == com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig.getDefaultInstance()) return this;
+      public Builder mergeFrom(com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig other) {
+        if (other == com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig.getDefaultInstance()) return this;
         if (other.getProofGeneration() != false) {
           setProofGeneration(other.getProofGeneration());
         }
@@ -1353,23 +1353,23 @@ public final class ProtoBufSolverCommons {
         if (other.getClauseDecay() != 0D) {
           setClauseDecay(other.getClauseDecay());
         }
-        if (other.getLbLBDMinimizingClause() != 0) {
-          setLbLBDMinimizingClause(other.getLbLBDMinimizingClause());
+        if (other.getLbLbdMinimizingClause() != 0) {
+          setLbLbdMinimizingClause(other.getLbLbdMinimizingClause());
         }
-        if (other.getLbLBDFrozenClause() != 0) {
-          setLbLBDFrozenClause(other.getLbLBDFrozenClause());
+        if (other.getLbLbdFrozenClause() != 0) {
+          setLbLbdFrozenClause(other.getLbLbdFrozenClause());
         }
         if (other.getLbSizeMinimizingClause() != 0) {
           setLbSizeMinimizingClause(other.getLbSizeMinimizingClause());
         }
-        if (other.getFirstReduceDB() != 0) {
-          setFirstReduceDB(other.getFirstReduceDB());
+        if (other.getFirstReduceDb() != 0) {
+          setFirstReduceDb(other.getFirstReduceDb());
         }
-        if (other.getSpecialIncReduceDB() != 0) {
-          setSpecialIncReduceDB(other.getSpecialIncReduceDB());
+        if (other.getSpecialIncReduceDb() != 0) {
+          setSpecialIncReduceDb(other.getSpecialIncReduceDb());
         }
-        if (other.getIncReduceDB() != 0) {
-          setIncReduceDB(other.getIncReduceDB());
+        if (other.getIncReduceDb() != 0) {
+          setIncReduceDb(other.getIncReduceDb());
         }
         if (other.getFactorK() != 0D) {
           setFactorK(other.getFactorK());
@@ -1377,8 +1377,8 @@ public final class ProtoBufSolverCommons {
         if (other.getFactorR() != 0D) {
           setFactorR(other.getFactorR());
         }
-        if (other.getSizeLBDQueue() != 0) {
-          setSizeLBDQueue(other.getSizeLBDQueue());
+        if (other.getSizeLbdQueue() != 0) {
+          setSizeLbdQueue(other.getSizeLbdQueue());
         }
         if (other.getSizeTrailQueue() != 0) {
           setSizeTrailQueue(other.getSizeTrailQueue());
@@ -1469,12 +1469,12 @@ public final class ProtoBufSolverCommons {
                 break;
               } // case 81
               case 88: {
-                lbLBDMinimizingClause_ = input.readInt32();
+                lbLbdMinimizingClause_ = input.readInt32();
                 bitField0_ |= 0x00000400;
                 break;
               } // case 88
               case 96: {
-                lbLBDFrozenClause_ = input.readInt32();
+                lbLbdFrozenClause_ = input.readInt32();
                 bitField0_ |= 0x00000800;
                 break;
               } // case 96
@@ -1484,17 +1484,17 @@ public final class ProtoBufSolverCommons {
                 break;
               } // case 104
               case 112: {
-                firstReduceDB_ = input.readInt32();
+                firstReduceDb_ = input.readInt32();
                 bitField0_ |= 0x00002000;
                 break;
               } // case 112
               case 120: {
-                specialIncReduceDB_ = input.readInt32();
+                specialIncReduceDb_ = input.readInt32();
                 bitField0_ |= 0x00004000;
                 break;
               } // case 120
               case 128: {
-                incReduceDB_ = input.readInt32();
+                incReduceDb_ = input.readInt32();
                 bitField0_ |= 0x00008000;
                 break;
               } // case 128
@@ -1509,7 +1509,7 @@ public final class ProtoBufSolverCommons {
                 break;
               } // case 145
               case 152: {
-                sizeLBDQueue_ = input.readInt32();
+                sizeLbdQueue_ = input.readInt32();
                 bitField0_ |= 0x00040000;
                 break;
               } // case 152
@@ -1616,14 +1616,14 @@ public final class ProtoBufSolverCommons {
 
       private int cnfMethod_ = 0;
       /**
-       * <code>.solver.PBCnfMethod cnfMethod = 3;</code>
+       * <code>.solver.PbCnfMethod cnfMethod = 3;</code>
        * @return The enum numeric value on the wire for cnfMethod.
        */
       @java.lang.Override public int getCnfMethodValue() {
         return cnfMethod_;
       }
       /**
-       * <code>.solver.PBCnfMethod cnfMethod = 3;</code>
+       * <code>.solver.PbCnfMethod cnfMethod = 3;</code>
        * @param value The enum numeric value on the wire for cnfMethod to set.
        * @return This builder for chaining.
        */
@@ -1634,20 +1634,20 @@ public final class ProtoBufSolverCommons {
         return this;
       }
       /**
-       * <code>.solver.PBCnfMethod cnfMethod = 3;</code>
+       * <code>.solver.PbCnfMethod cnfMethod = 3;</code>
        * @return The cnfMethod.
        */
       @java.lang.Override
-      public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBCnfMethod getCnfMethod() {
-        com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBCnfMethod result = com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBCnfMethod.forNumber(cnfMethod_);
-        return result == null ? com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBCnfMethod.UNRECOGNIZED : result;
+      public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbCnfMethod getCnfMethod() {
+        com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbCnfMethod result = com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbCnfMethod.forNumber(cnfMethod_);
+        return result == null ? com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbCnfMethod.UNRECOGNIZED : result;
       }
       /**
-       * <code>.solver.PBCnfMethod cnfMethod = 3;</code>
+       * <code>.solver.PbCnfMethod cnfMethod = 3;</code>
        * @param value The cnfMethod to set.
        * @return This builder for chaining.
        */
-      public Builder setCnfMethod(com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBCnfMethod value) {
+      public Builder setCnfMethod(com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbCnfMethod value) {
         if (value == null) {
           throw new NullPointerException();
         }
@@ -1657,7 +1657,7 @@ public final class ProtoBufSolverCommons {
         return this;
       }
       /**
-       * <code>.solver.PBCnfMethod cnfMethod = 3;</code>
+       * <code>.solver.PbCnfMethod cnfMethod = 3;</code>
        * @return This builder for chaining.
        */
       public Builder clearCnfMethod() {
@@ -1669,14 +1669,14 @@ public final class ProtoBufSolverCommons {
 
       private int clauseMinimization_ = 0;
       /**
-       * <code>.solver.PBClauseMinimization clauseMinimization = 4;</code>
+       * <code>.solver.PbClauseMinimization clauseMinimization = 4;</code>
        * @return The enum numeric value on the wire for clauseMinimization.
        */
       @java.lang.Override public int getClauseMinimizationValue() {
         return clauseMinimization_;
       }
       /**
-       * <code>.solver.PBClauseMinimization clauseMinimization = 4;</code>
+       * <code>.solver.PbClauseMinimization clauseMinimization = 4;</code>
        * @param value The enum numeric value on the wire for clauseMinimization to set.
        * @return This builder for chaining.
        */
@@ -1687,20 +1687,20 @@ public final class ProtoBufSolverCommons {
         return this;
       }
       /**
-       * <code>.solver.PBClauseMinimization clauseMinimization = 4;</code>
+       * <code>.solver.PbClauseMinimization clauseMinimization = 4;</code>
        * @return The clauseMinimization.
        */
       @java.lang.Override
-      public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBClauseMinimization getClauseMinimization() {
-        com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBClauseMinimization result = com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBClauseMinimization.forNumber(clauseMinimization_);
-        return result == null ? com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBClauseMinimization.UNRECOGNIZED : result;
+      public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbClauseMinimization getClauseMinimization() {
+        com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbClauseMinimization result = com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbClauseMinimization.forNumber(clauseMinimization_);
+        return result == null ? com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbClauseMinimization.UNRECOGNIZED : result;
       }
       /**
-       * <code>.solver.PBClauseMinimization clauseMinimization = 4;</code>
+       * <code>.solver.PbClauseMinimization clauseMinimization = 4;</code>
        * @param value The clauseMinimization to set.
        * @return This builder for chaining.
        */
-      public Builder setClauseMinimization(com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBClauseMinimization value) {
+      public Builder setClauseMinimization(com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbClauseMinimization value) {
         if (value == null) {
           throw new NullPointerException();
         }
@@ -1710,7 +1710,7 @@ public final class ProtoBufSolverCommons {
         return this;
       }
       /**
-       * <code>.solver.PBClauseMinimization clauseMinimization = 4;</code>
+       * <code>.solver.PbClauseMinimization clauseMinimization = 4;</code>
        * @return This builder for chaining.
        */
       public Builder clearClauseMinimization() {
@@ -1912,66 +1912,66 @@ public final class ProtoBufSolverCommons {
         return this;
       }
 
-      private int lbLBDMinimizingClause_ ;
+      private int lbLbdMinimizingClause_ ;
       /**
-       * <code>int32 lbLBDMinimizingClause = 11;</code>
-       * @return The lbLBDMinimizingClause.
+       * <code>int32 lbLbdMinimizingClause = 11;</code>
+       * @return The lbLbdMinimizingClause.
        */
       @java.lang.Override
-      public int getLbLBDMinimizingClause() {
-        return lbLBDMinimizingClause_;
+      public int getLbLbdMinimizingClause() {
+        return lbLbdMinimizingClause_;
       }
       /**
-       * <code>int32 lbLBDMinimizingClause = 11;</code>
-       * @param value The lbLBDMinimizingClause to set.
+       * <code>int32 lbLbdMinimizingClause = 11;</code>
+       * @param value The lbLbdMinimizingClause to set.
        * @return This builder for chaining.
        */
-      public Builder setLbLBDMinimizingClause(int value) {
+      public Builder setLbLbdMinimizingClause(int value) {
 
-        lbLBDMinimizingClause_ = value;
+        lbLbdMinimizingClause_ = value;
         bitField0_ |= 0x00000400;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 lbLBDMinimizingClause = 11;</code>
+       * <code>int32 lbLbdMinimizingClause = 11;</code>
        * @return This builder for chaining.
        */
-      public Builder clearLbLBDMinimizingClause() {
+      public Builder clearLbLbdMinimizingClause() {
         bitField0_ = (bitField0_ & ~0x00000400);
-        lbLBDMinimizingClause_ = 0;
+        lbLbdMinimizingClause_ = 0;
         onChanged();
         return this;
       }
 
-      private int lbLBDFrozenClause_ ;
+      private int lbLbdFrozenClause_ ;
       /**
-       * <code>int32 lbLBDFrozenClause = 12;</code>
-       * @return The lbLBDFrozenClause.
+       * <code>int32 lbLbdFrozenClause = 12;</code>
+       * @return The lbLbdFrozenClause.
        */
       @java.lang.Override
-      public int getLbLBDFrozenClause() {
-        return lbLBDFrozenClause_;
+      public int getLbLbdFrozenClause() {
+        return lbLbdFrozenClause_;
       }
       /**
-       * <code>int32 lbLBDFrozenClause = 12;</code>
-       * @param value The lbLBDFrozenClause to set.
+       * <code>int32 lbLbdFrozenClause = 12;</code>
+       * @param value The lbLbdFrozenClause to set.
        * @return This builder for chaining.
        */
-      public Builder setLbLBDFrozenClause(int value) {
+      public Builder setLbLbdFrozenClause(int value) {
 
-        lbLBDFrozenClause_ = value;
+        lbLbdFrozenClause_ = value;
         bitField0_ |= 0x00000800;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 lbLBDFrozenClause = 12;</code>
+       * <code>int32 lbLbdFrozenClause = 12;</code>
        * @return This builder for chaining.
        */
-      public Builder clearLbLBDFrozenClause() {
+      public Builder clearLbLbdFrozenClause() {
         bitField0_ = (bitField0_ & ~0x00000800);
-        lbLBDFrozenClause_ = 0;
+        lbLbdFrozenClause_ = 0;
         onChanged();
         return this;
       }
@@ -2008,98 +2008,98 @@ public final class ProtoBufSolverCommons {
         return this;
       }
 
-      private int firstReduceDB_ ;
+      private int firstReduceDb_ ;
       /**
-       * <code>int32 firstReduceDB = 14;</code>
-       * @return The firstReduceDB.
+       * <code>int32 firstReduceDb = 14;</code>
+       * @return The firstReduceDb.
        */
       @java.lang.Override
-      public int getFirstReduceDB() {
-        return firstReduceDB_;
+      public int getFirstReduceDb() {
+        return firstReduceDb_;
       }
       /**
-       * <code>int32 firstReduceDB = 14;</code>
-       * @param value The firstReduceDB to set.
+       * <code>int32 firstReduceDb = 14;</code>
+       * @param value The firstReduceDb to set.
        * @return This builder for chaining.
        */
-      public Builder setFirstReduceDB(int value) {
+      public Builder setFirstReduceDb(int value) {
 
-        firstReduceDB_ = value;
+        firstReduceDb_ = value;
         bitField0_ |= 0x00002000;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 firstReduceDB = 14;</code>
+       * <code>int32 firstReduceDb = 14;</code>
        * @return This builder for chaining.
        */
-      public Builder clearFirstReduceDB() {
+      public Builder clearFirstReduceDb() {
         bitField0_ = (bitField0_ & ~0x00002000);
-        firstReduceDB_ = 0;
+        firstReduceDb_ = 0;
         onChanged();
         return this;
       }
 
-      private int specialIncReduceDB_ ;
+      private int specialIncReduceDb_ ;
       /**
-       * <code>int32 specialIncReduceDB = 15;</code>
-       * @return The specialIncReduceDB.
+       * <code>int32 specialIncReduceDb = 15;</code>
+       * @return The specialIncReduceDb.
        */
       @java.lang.Override
-      public int getSpecialIncReduceDB() {
-        return specialIncReduceDB_;
+      public int getSpecialIncReduceDb() {
+        return specialIncReduceDb_;
       }
       /**
-       * <code>int32 specialIncReduceDB = 15;</code>
-       * @param value The specialIncReduceDB to set.
+       * <code>int32 specialIncReduceDb = 15;</code>
+       * @param value The specialIncReduceDb to set.
        * @return This builder for chaining.
        */
-      public Builder setSpecialIncReduceDB(int value) {
+      public Builder setSpecialIncReduceDb(int value) {
 
-        specialIncReduceDB_ = value;
+        specialIncReduceDb_ = value;
         bitField0_ |= 0x00004000;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 specialIncReduceDB = 15;</code>
+       * <code>int32 specialIncReduceDb = 15;</code>
        * @return This builder for chaining.
        */
-      public Builder clearSpecialIncReduceDB() {
+      public Builder clearSpecialIncReduceDb() {
         bitField0_ = (bitField0_ & ~0x00004000);
-        specialIncReduceDB_ = 0;
+        specialIncReduceDb_ = 0;
         onChanged();
         return this;
       }
 
-      private int incReduceDB_ ;
+      private int incReduceDb_ ;
       /**
-       * <code>int32 incReduceDB = 16;</code>
-       * @return The incReduceDB.
+       * <code>int32 incReduceDb = 16;</code>
+       * @return The incReduceDb.
        */
       @java.lang.Override
-      public int getIncReduceDB() {
-        return incReduceDB_;
+      public int getIncReduceDb() {
+        return incReduceDb_;
       }
       /**
-       * <code>int32 incReduceDB = 16;</code>
-       * @param value The incReduceDB to set.
+       * <code>int32 incReduceDb = 16;</code>
+       * @param value The incReduceDb to set.
        * @return This builder for chaining.
        */
-      public Builder setIncReduceDB(int value) {
+      public Builder setIncReduceDb(int value) {
 
-        incReduceDB_ = value;
+        incReduceDb_ = value;
         bitField0_ |= 0x00008000;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 incReduceDB = 16;</code>
+       * <code>int32 incReduceDb = 16;</code>
        * @return This builder for chaining.
        */
-      public Builder clearIncReduceDB() {
+      public Builder clearIncReduceDb() {
         bitField0_ = (bitField0_ & ~0x00008000);
-        incReduceDB_ = 0;
+        incReduceDb_ = 0;
         onChanged();
         return this;
       }
@@ -2168,34 +2168,34 @@ public final class ProtoBufSolverCommons {
         return this;
       }
 
-      private int sizeLBDQueue_ ;
+      private int sizeLbdQueue_ ;
       /**
-       * <code>int32 sizeLBDQueue = 19;</code>
-       * @return The sizeLBDQueue.
+       * <code>int32 sizeLbdQueue = 19;</code>
+       * @return The sizeLbdQueue.
        */
       @java.lang.Override
-      public int getSizeLBDQueue() {
-        return sizeLBDQueue_;
+      public int getSizeLbdQueue() {
+        return sizeLbdQueue_;
       }
       /**
-       * <code>int32 sizeLBDQueue = 19;</code>
-       * @param value The sizeLBDQueue to set.
+       * <code>int32 sizeLbdQueue = 19;</code>
+       * @param value The sizeLbdQueue to set.
        * @return This builder for chaining.
        */
-      public Builder setSizeLBDQueue(int value) {
+      public Builder setSizeLbdQueue(int value) {
 
-        sizeLBDQueue_ = value;
+        sizeLbdQueue_ = value;
         bitField0_ |= 0x00040000;
         onChanged();
         return this;
       }
       /**
-       * <code>int32 sizeLBDQueue = 19;</code>
+       * <code>int32 sizeLbdQueue = 19;</code>
        * @return This builder for chaining.
        */
-      public Builder clearSizeLBDQueue() {
+      public Builder clearSizeLbdQueue() {
         bitField0_ = (bitField0_ & ~0x00040000);
-        sizeLBDQueue_ = 0;
+        sizeLbdQueue_ = 0;
         onChanged();
         return this;
       }
@@ -2328,23 +2328,23 @@ public final class ProtoBufSolverCommons {
         return this;
       }
 
-      // @@protoc_insertion_point(builder_scope:solver.PBSatSolverConfig)
+      // @@protoc_insertion_point(builder_scope:solver.PbSatSolverConfig)
     }
 
-    // @@protoc_insertion_point(class_scope:solver.PBSatSolverConfig)
-    private static final com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig DEFAULT_INSTANCE;
+    // @@protoc_insertion_point(class_scope:solver.PbSatSolverConfig)
+    private static final com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig();
+      DEFAULT_INSTANCE = new com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig();
     }
 
-    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig getDefaultInstance() {
+    public static com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<PBSatSolverConfig>
-        PARSER = new com.google.protobuf.AbstractParser<PBSatSolverConfig>() {
+    private static final com.google.protobuf.Parser<PbSatSolverConfig>
+        PARSER = new com.google.protobuf.AbstractParser<PbSatSolverConfig>() {
       @java.lang.Override
-      public PBSatSolverConfig parsePartialFrom(
+      public PbSatSolverConfig parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
@@ -2363,27 +2363,27 @@ public final class ProtoBufSolverCommons {
       }
     };
 
-    public static com.google.protobuf.Parser<PBSatSolverConfig> parser() {
+    public static com.google.protobuf.Parser<PbSatSolverConfig> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<PBSatSolverConfig> getParserForType() {
+    public com.google.protobuf.Parser<PbSatSolverConfig> getParserForType() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig getDefaultInstanceForType() {
+    public com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
 
   }
 
   private static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_solver_PBSatSolverConfig_descriptor;
+    internal_static_solver_PbSatSolverConfig_descriptor;
   private static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internal_static_solver_PBSatSolverConfig_fieldAccessorTable;
+      internal_static_solver_PbSatSolverConfig_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -2393,24 +2393,24 @@ public final class ProtoBufSolverCommons {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\024solver_commons.proto\022\006solver\"\326\004\n\021PBSat" +
+      "\n\024solver_commons.proto\022\006solver\"\326\004\n\021PbSat" +
       "SolverConfig\022\027\n\017proofGeneration\030\001 \001(\010\022\030\n" +
       "\020useAtMostClauses\030\002 \001(\010\022&\n\tcnfMethod\030\003 \001" +
-      "(\0162\023.solver.PBCnfMethod\0228\n\022clauseMinimiz" +
-      "ation\030\004 \001(\0162\034.solver.PBClauseMinimizatio" +
+      "(\0162\023.solver.PbCnfMethod\0228\n\022clauseMinimiz" +
+      "ation\030\004 \001(\0162\034.solver.PbClauseMinimizatio" +
       "n\022\024\n\014initialPhase\030\005 \001(\010\022\020\n\010varDecay\030\006 \001(" +
       "\001\022\016\n\006varInc\030\007 \001(\001\022\024\n\014restartFirst\030\010 \001(\005\022" +
       "\022\n\nrestartInc\030\t \001(\001\022\023\n\013clauseDecay\030\n \001(\001" +
-      "\022\035\n\025lbLBDMinimizingClause\030\013 \001(\005\022\031\n\021lbLBD" +
+      "\022\035\n\025lbLbdMinimizingClause\030\013 \001(\005\022\031\n\021lbLbd" +
       "FrozenClause\030\014 \001(\005\022\036\n\026lbSizeMinimizingCl" +
-      "ause\030\r \001(\005\022\025\n\rfirstReduceDB\030\016 \001(\005\022\032\n\022spe" +
-      "cialIncReduceDB\030\017 \001(\005\022\023\n\013incReduceDB\030\020 \001" +
+      "ause\030\r \001(\005\022\025\n\rfirstReduceDb\030\016 \001(\005\022\032\n\022spe" +
+      "cialIncReduceDb\030\017 \001(\005\022\023\n\013incReduceDb\030\020 \001" +
       "(\005\022\017\n\007factorK\030\021 \001(\001\022\017\n\007factorR\030\022 \001(\001\022\024\n\014" +
-      "sizeLBDQueue\030\023 \001(\005\022\026\n\016sizeTrailQueue\030\024 \001" +
+      "sizeLbdQueue\030\023 \001(\005\022\026\n\016sizeTrailQueue\030\024 \001" +
       "(\005\022\024\n\014reduceOnSize\030\025 \001(\010\022\030\n\020reduceOnSize" +
-      "Size\030\026 \001(\005\022\023\n\013maxVarDecay\030\027 \001(\001*5\n\024PBCla" +
+      "Size\030\026 \001(\005\022\023\n\013maxVarDecay\030\027 \001(\001*5\n\024PbCla" +
       "useMinimization\022\010\n\004NONE\020\000\022\t\n\005BASIC\020\001\022\010\n\004" +
-      "DEEP\020\002*G\n\013PBCnfMethod\022\017\n\013FACTORY_CNF\020\000\022\020" +
+      "DEEP\020\002*G\n\013PbCnfMethod\022\017\n\013FACTORY_CNF\020\000\022\020" +
       "\n\014PG_ON_SOLVER\020\001\022\025\n\021FULL_PG_ON_SOLVER\020\002B" +
       "=\n$com.booleworks.logicng.serializationB" +
       "\025ProtoBufSolverCommonsb\006proto3"
@@ -2419,12 +2419,12 @@ public final class ProtoBufSolverCommons {
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         });
-    internal_static_solver_PBSatSolverConfig_descriptor =
+    internal_static_solver_PbSatSolverConfig_descriptor =
       getDescriptor().getMessageTypes().get(0);
-    internal_static_solver_PBSatSolverConfig_fieldAccessorTable = new
+    internal_static_solver_PbSatSolverConfig_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-        internal_static_solver_PBSatSolverConfig_descriptor,
-        new java.lang.String[] { "ProofGeneration", "UseAtMostClauses", "CnfMethod", "ClauseMinimization", "InitialPhase", "VarDecay", "VarInc", "RestartFirst", "RestartInc", "ClauseDecay", "LbLBDMinimizingClause", "LbLBDFrozenClause", "LbSizeMinimizingClause", "FirstReduceDB", "SpecialIncReduceDB", "IncReduceDB", "FactorK", "FactorR", "SizeLBDQueue", "SizeTrailQueue", "ReduceOnSize", "ReduceOnSizeSize", "MaxVarDecay", });
+        internal_static_solver_PbSatSolverConfig_descriptor,
+        new java.lang.String[] { "ProofGeneration", "UseAtMostClauses", "CnfMethod", "ClauseMinimization", "InitialPhase", "VarDecay", "VarInc", "RestartFirst", "RestartInc", "ClauseDecay", "LbLbdMinimizingClause", "LbLbdFrozenClause", "LbSizeMinimizingClause", "FirstReduceDb", "SpecialIncReduceDb", "IncReduceDb", "FactorK", "FactorR", "SizeLbdQueue", "SizeTrailQueue", "ReduceOnSize", "ReduceOnSizeSize", "MaxVarDecay", });
     descriptor.resolveAllFeaturesImmutable();
   }
 

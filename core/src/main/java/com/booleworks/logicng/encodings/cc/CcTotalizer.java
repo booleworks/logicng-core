@@ -22,7 +22,7 @@
 
 package com.booleworks.logicng.encodings.cc;
 
-import com.booleworks.logicng.collections.LNGVector;
+import com.booleworks.logicng.collections.LngVector;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.encodings.CcIncrementalData;
 import com.booleworks.logicng.encodings.EncoderConfig;
@@ -57,12 +57,12 @@ public final class CcTotalizer {
      */
     public static CcIncrementalData amk(final EncodingResult result, final Variable[] vars, final int rhs) {
         final TotalizerVars tv = initializeConstraint(result, vars);
-        toCNF(result, tv, rhs, Bound.UPPER);
+        toCnf(result, tv, rhs, Bound.UPPER);
         assert tv.invars.size() == 0;
         for (int i = rhs; i < tv.outvars.size(); i++) {
             result.addClause(tv.outvars.get(i).negate(result.getFactory()));
         }
-        return new CcIncrementalData(result, EncoderConfig.AMK_ENCODER.TOTALIZER, rhs, tv.outvars);
+        return new CcIncrementalData(result, EncoderConfig.AmkEncoder.TOTALIZER, rhs, tv.outvars);
     }
 
     /**
@@ -76,12 +76,12 @@ public final class CcTotalizer {
      */
     public static CcIncrementalData alk(final EncodingResult result, final Variable[] vars, final int rhs) {
         final TotalizerVars tv = initializeConstraint(result, vars);
-        toCNF(result, tv, rhs, Bound.LOWER);
+        toCnf(result, tv, rhs, Bound.LOWER);
         assert tv.invars.size() == 0;
         for (int i = 0; i < rhs; i++) {
             result.addClause(tv.outvars.get(i));
         }
-        return new CcIncrementalData(result, EncoderConfig.ALK_ENCODER.TOTALIZER, rhs, vars.length, tv.outvars);
+        return new CcIncrementalData(result, EncoderConfig.AlkEncoder.TOTALIZER, rhs, vars.length, tv.outvars);
     }
 
     /**
@@ -94,7 +94,7 @@ public final class CcTotalizer {
      */
     public static void exk(final EncodingResult result, final Variable[] vars, final int rhs) {
         final TotalizerVars tv = initializeConstraint(result, vars);
-        toCNF(result, tv, rhs, Bound.BOTH);
+        toCnf(result, tv, rhs, Bound.BOTH);
         assert tv.invars.size() == 0;
         for (int i = 0; i < rhs; i++) {
             result.addClause(tv.outvars.get(i));
@@ -108,14 +108,14 @@ public final class CcTotalizer {
         final var tv = new TotalizerVars(vars.length);
         for (final Variable var : vars) {
             tv.invars.push(var);
-            tv.outvars.push(result.newCCVariable());
+            tv.outvars.push(result.newCcVariable());
         }
         return tv;
     }
 
-    private static void toCNF(final EncodingResult result, final TotalizerVars tv, final int rhs, final Bound bound) {
-        final LNGVector<Variable> left = new LNGVector<>();
-        final LNGVector<Variable> right = new LNGVector<>();
+    private static void toCnf(final EncodingResult result, final TotalizerVars tv, final int rhs, final Bound bound) {
+        final LngVector<Variable> left = new LngVector<>();
+        final LngVector<Variable> right = new LngVector<>();
         assert tv.outvars.size() > 1;
         final int split = tv.outvars.size() / 2;
         for (int i = 0; i < tv.outvars.size(); i++) {
@@ -125,7 +125,7 @@ public final class CcTotalizer {
                     left.push(tv.invars.back());
                     tv.invars.pop();
                 } else {
-                    left.push(result.newCCVariable());
+                    left.push(result.newCcVariable());
                 }
             } else {
                 if (tv.outvars.size() - split == 1) {
@@ -133,27 +133,27 @@ public final class CcTotalizer {
                     right.push(tv.invars.back());
                     tv.invars.pop();
                 } else {
-                    right.push(result.newCCVariable());
+                    right.push(result.newCcVariable());
                 }
             }
         }
         if (bound == Bound.UPPER || bound == Bound.BOTH) {
-            adderAMK(result, left, right, tv.outvars, rhs);
+            adderAmk(result, left, right, tv.outvars, rhs);
         }
         if (bound == Bound.LOWER || bound == Bound.BOTH) {
-            adderALK(result, left, right, tv.outvars);
+            adderAlk(result, left, right, tv.outvars);
         }
         if (left.size() > 1) {
-            toCNF(result, tv.withNewOutvars(left), rhs, bound);
+            toCnf(result, tv.withNewOutvars(left), rhs, bound);
         }
         if (right.size() > 1) {
-            toCNF(result, tv.withNewOutvars(right), rhs, bound);
+            toCnf(result, tv.withNewOutvars(right), rhs, bound);
         }
     }
 
-    private static void adderAMK(final EncodingResult result, final LNGVector<Variable> left,
-                                 final LNGVector<Variable> right,
-                                 final LNGVector<Variable> output, final int rhs) {
+    private static void adderAmk(final EncodingResult result, final LngVector<Variable> left,
+                                 final LngVector<Variable> right,
+                                 final LngVector<Variable> output, final int rhs) {
         assert output.size() == left.size() + right.size();
         final FormulaFactory f = result.getFactory();
         for (int i = 0; i <= left.size(); i++) {
@@ -175,9 +175,9 @@ public final class CcTotalizer {
         }
     }
 
-    private static void adderALK(final EncodingResult result, final LNGVector<Variable> left,
-                                 final LNGVector<Variable> right,
-                                 final LNGVector<Variable> output) {
+    private static void adderAlk(final EncodingResult result, final LngVector<Variable> left,
+                                 final LngVector<Variable> right,
+                                 final LngVector<Variable> output) {
         assert output.size() == left.size() + right.size();
         final FormulaFactory f = result.getFactory();
         for (int i = 0; i <= left.size(); i++) {
@@ -197,20 +197,20 @@ public final class CcTotalizer {
     }
 
     private static final class TotalizerVars {
-        private final LNGVector<Variable> invars;
-        private final LNGVector<Variable> outvars;
+        private final LngVector<Variable> invars;
+        private final LngVector<Variable> outvars;
 
-        private TotalizerVars(final LNGVector<Variable> invars, final LNGVector<Variable> outvars) {
+        private TotalizerVars(final LngVector<Variable> invars, final LngVector<Variable> outvars) {
             this.invars = invars;
             this.outvars = outvars;
         }
 
         private TotalizerVars(final int length) {
-            invars = new LNGVector<>(length);
-            outvars = new LNGVector<>(length);
+            invars = new LngVector<>(length);
+            outvars = new LngVector<>(length);
         }
 
-        private TotalizerVars withNewOutvars(final LNGVector<Variable> newOutvars) {
+        private TotalizerVars withNewOutvars(final LngVector<Variable> newOutvars) {
             return new TotalizerVars(invars, newOutvars);
         }
     }

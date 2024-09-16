@@ -4,12 +4,12 @@
 
 package com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree;
 
-import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfSatSolver;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 
 import java.util.BitSet;
 import java.util.List;
@@ -111,7 +111,7 @@ public class DTreeNode extends DTree {
         localLeftVarSet = new BitSet(staticVariables[staticVariables.length - 1]);
         localRightVarSet = new BitSet(staticVariables[staticVariables.length - 1]);
 
-        final LNGIntVector lClauseContents = new LNGIntVector();
+        final LngIntVector lClauseContents = new LngIntVector();
         for (final DTreeLeaf leaf : leftLeafs) {
             for (final int i : leaf.literals()) {
                 lClauseContents.push(i);
@@ -119,7 +119,7 @@ public class DTreeNode extends DTree {
             lClauseContents.push(-leaf.getId() - 1);
         }
         leftClauseContents = lClauseContents.toArray();
-        final LNGIntVector rClauseContents = new LNGIntVector();
+        final LngIntVector rClauseContents = new LngIntVector();
         for (final DTreeLeaf leaf : rightLeafs) {
             for (final int i : leaf.literals()) {
                 rClauseContents.push(i);
@@ -166,7 +166,7 @@ public class DTreeNode extends DTree {
             if (!subsumed) {
                 for (int n = i; n < j; n++) {
                     if (solver.valueOf(clausesContents[n]) == Tristate.UNDEF) {
-                        localVarSet.set(LNGCoreSolver.var(clausesContents[n]));
+                        localVarSet.set(LngCoreSolver.var(clausesContents[n]));
                     }
                 }
             }
@@ -194,7 +194,7 @@ public class DTreeNode extends DTree {
                 key.set(-clauseContents[j] + 1 + numberOfVariables);
                 for (int n = i; n < j; n++) {
                     if (solver.valueOf(clauseContents[n]) == Tristate.UNDEF) {
-                        key.set(LNGCoreSolver.var(clauseContents[n]));
+                        key.set(LngCoreSolver.var(clauseContents[n]));
                     }
                 }
             }

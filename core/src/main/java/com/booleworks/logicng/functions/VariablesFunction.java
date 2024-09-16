@@ -10,11 +10,11 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.NAryOperator;
 import com.booleworks.logicng.formulas.Not;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.formulas.cache.FunctionCacheEntry;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.Collections;
@@ -50,10 +50,10 @@ public class VariablesFunction extends CacheableFormulaFunction<SortedSet<Variab
     }
 
     @Override
-    public LNGResult<SortedSet<Variable>> apply(final Formula formula, final ComputationHandler handler) {
+    public LngResult<SortedSet<Variable>> apply(final Formula formula, final ComputationHandler handler) {
         final SortedSet<Variable> cached = lookupCache(formula);
         if (cached != null) {
-            return LNGResult.of(cached);
+            return LngResult.of(cached);
         }
         SortedSet<Variable> result = new TreeSet<>();
         switch (formula.getType()) {
@@ -84,7 +84,7 @@ public class VariablesFunction extends CacheableFormulaFunction<SortedSet<Variab
                 }
                 break;
             case PBC:
-                final PBConstraint pbc = (PBConstraint) formula;
+                final PbConstraint pbc = (PbConstraint) formula;
                 result = FormulaHelper.variables(f, pbc.literals(f));
                 break;
             default:
@@ -92,6 +92,6 @@ public class VariablesFunction extends CacheableFormulaFunction<SortedSet<Variab
         }
         result = Collections.unmodifiableSortedSet(result);
         setCache(formula, result);
-        return LNGResult.of(result);
+        return LngResult.of(result);
     }
 }

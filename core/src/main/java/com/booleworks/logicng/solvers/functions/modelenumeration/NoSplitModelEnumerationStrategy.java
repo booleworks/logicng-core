@@ -5,7 +5,7 @@
 package com.booleworks.logicng.solvers.functions.modelenumeration;
 
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -43,7 +43,7 @@ public class NoSplitModelEnumerationStrategy implements ModelEnumerationStrategy
     }
 
     @Override
-    public SortedSet<Variable> splitVarsForRecursionDepth(final Collection<Variable> variables, final SATSolver solver,
+    public SortedSet<Variable> splitVarsForRecursionDepth(final Collection<Variable> variables, final SatSolver solver,
                                                           final int recursionDepth) {
         return Collections.emptySortedSet();
     }

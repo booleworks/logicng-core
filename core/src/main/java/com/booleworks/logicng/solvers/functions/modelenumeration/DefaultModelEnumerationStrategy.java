@@ -5,7 +5,7 @@
 package com.booleworks.logicng.solvers.functions.modelenumeration;
 
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.MostCommonVariablesProvider;
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.SplitVariableProvider;
 
@@ -76,7 +76,7 @@ public class DefaultModelEnumerationStrategy implements ModelEnumerationStrategy
     }
 
     @Override
-    public SortedSet<Variable> splitVarsForRecursionDepth(final Collection<Variable> variables, final SATSolver solver,
+    public SortedSet<Variable> splitVarsForRecursionDepth(final Collection<Variable> variables, final SatSolver solver,
                                                           final int recursionDepth) {
         if (recursionDepth == 0) {
             return splitVariableProvider.getSplitVars(solver, variables);

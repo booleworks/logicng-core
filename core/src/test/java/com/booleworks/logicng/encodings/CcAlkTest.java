@@ -13,7 +13,7 @@ import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
 import org.junit.jupiter.api.Test;
@@ -24,9 +24,9 @@ public class CcAlkTest implements LogicNGTest {
 
     public CcAlkTest() {
         configs = new EncoderConfig[3];
-        configs[0] = EncoderConfig.builder().alkEncoding(EncoderConfig.ALK_ENCODER.TOTALIZER).build();
-        configs[1] = EncoderConfig.builder().alkEncoding(EncoderConfig.ALK_ENCODER.MODULAR_TOTALIZER).build();
-        configs[2] = EncoderConfig.builder().alkEncoding(EncoderConfig.ALK_ENCODER.CARDINALITY_NETWORK).build();
+        configs[0] = EncoderConfig.builder().alkEncoding(EncoderConfig.AlkEncoder.TOTALIZER).build();
+        configs[1] = EncoderConfig.builder().alkEncoding(EncoderConfig.AlkEncoder.MODULAR_TOTALIZER).build();
+        configs[2] = EncoderConfig.builder().alkEncoding(EncoderConfig.AlkEncoder.CARDINALITY_NETWORK).build();
     }
 
     @Test
@@ -47,7 +47,7 @@ public class CcAlkTest implements LogicNGTest {
             testCC(f, 10, 9, 11);
             testCC(f, 10, 10, 1);
             testCC(f, 10, 12, 0);
-            assertThat(f.newCCVariable().getName()).endsWith("_" + counter++);
+            assertThat(f.newCcVariable().getName()).endsWith("_" + counter++);
         }
     }
 
@@ -56,7 +56,7 @@ public class CcAlkTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(f.cc(CType.GE, rhs, problemLits));
         if (expected != 0) {
             assertSolverSat(solver);

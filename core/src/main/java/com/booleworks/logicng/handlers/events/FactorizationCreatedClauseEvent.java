@@ -1,17 +1,17 @@
 package com.booleworks.logicng.handlers.events;
 
 import com.booleworks.logicng.formulas.Formula;
-import com.booleworks.logicng.transformations.cnf.CNFFactorization;
-import com.booleworks.logicng.transformations.dnf.DNFFactorization;
+import com.booleworks.logicng.transformations.cnf.CnfFactorization;
+import com.booleworks.logicng.transformations.dnf.DnfFactorization;
 
 /**
  * An event created when a factorization algorithm (e.g.
- * {@link DNFFactorization} or {@link CNFFactorization})
+ * {@link DnfFactorization} or {@link CnfFactorization})
  * creates a new clause.
  * @version 3.0.0
  * @since 3.0.0
  */
-public class FactorizationCreatedClauseEvent implements LNGEvent {
+public class FactorizationCreatedClauseEvent implements LngEvent {
 
     private final Formula clause;
 

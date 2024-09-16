@@ -10,7 +10,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.transformations.StatefulFormulaTransformation;
 
 import java.util.ArrayList;
@@ -27,12 +27,12 @@ import java.util.Map;
  * @version 3.0.0
  * @since 1.0
  */
-public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransformation<PlaistedGreenbaumTransformation.PGState> {
+public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransformation<PlaistedGreenbaumTransformation.PgState> {
 
     public static final int DEFAULT_BOUNDARY = 12;
 
     private final int boundaryForFactorization;
-    private final CNFFactorization factorization;
+    private final CnfFactorization factorization;
 
     /**
      * Constructor for a Plaisted &amp; Greenbaum transformation with conversion
@@ -53,7 +53,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
     public PlaistedGreenbaumTransformation(final FormulaFactory f, final int boundaryForFactorization) {
         super(f);
         this.boundaryForFactorization = boundaryForFactorization;
-        factorization = new CNFFactorization(f);
+        factorization = new CnfFactorization(f);
     }
 
     /**
@@ -62,7 +62,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
      * @param f     the formula factory to generate new formulas
      * @param state the mutable state for a PG transformation
      */
-    public PlaistedGreenbaumTransformation(final FormulaFactory f, final PGState state) {
+    public PlaistedGreenbaumTransformation(final FormulaFactory f, final PgState state) {
         this(f, DEFAULT_BOUNDARY, state);
     }
 
@@ -75,15 +75,15 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
      * @param state                    the mutable state for a PG transformation
      */
     public PlaistedGreenbaumTransformation(final FormulaFactory f, final int boundaryForFactorization,
-                                           final PGState state) {
+                                           final PgState state) {
         super(f, state);
         this.boundaryForFactorization = boundaryForFactorization;
-        factorization = new CNFFactorization(f);
+        factorization = new CnfFactorization(f);
     }
 
     @Override
-    protected PGState inititialState() {
-        return new PGState();
+    protected PgState inititialState() {
+        return new PgState();
     }
 
     /**
@@ -99,17 +99,17 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
         }
         Literal var = state.literal(formula);
         if (var == null) {
-            var = f.newCNFVariable();
+            var = f.newCnfVariable();
             state.literalMap.put(formula, var);
         }
         return var;
     }
 
     @Override
-    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+    public LngResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         final Formula nnf = formula.nnf(f);
-        if (nnf.isCNF(f)) {
-            return LNGResult.of(nnf);
+        if (nnf.isCnf(f)) {
+            return LngResult.of(nnf);
         }
         Formula pg;
         if (nnf.numberOfAtoms(f) < boundaryForFactorization) {
@@ -120,7 +120,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
             pg = pg.restrict(f, topLevel);
         }
         state.literalMap.put(formula, state.literal(nnf));
-        return LNGResult.of(pg);
+        return LngResult.of(pg);
     }
 
     private Formula computeTransformation(final Formula formula) {
@@ -177,16 +177,16 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
         return String.format("PlaistedGreenbaumTransformation{boundary=%d}", boundaryForFactorization);
     }
 
-    public static final class PGState {
+    public static final class PgState {
         private final Map<Formula, Formula> posMap;
         private final Map<Formula, Literal> literalMap;
 
-        public PGState() {
+        public PgState() {
             posMap = new HashMap<>();
             literalMap = new HashMap<>();
         }
 
-        public PGState(final Map<Formula, Formula> posMap, final Map<Formula, Literal> literalMap) {
+        public PgState(final Map<Formula, Formula> posMap, final Map<Formula, Literal> literalMap) {
             this.posMap = posMap;
             this.literalMap = literalMap;
         }

@@ -6,7 +6,7 @@ package com.booleworks.logicng.serialization;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.Dnnf;
-import com.booleworks.logicng.serialization.ProtoBufDnnf.PBDnnf;
+import com.booleworks.logicng.serialization.ProtoBufDnnf.PbDnnf;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -24,8 +24,8 @@ public interface Dnnfs {
      * @param dnnf the DNNF
      * @return the protocol buffer
      */
-    static PBDnnf serializeDnnf(final Dnnf dnnf) {
-        final PBDnnf.Builder builder = PBDnnf.newBuilder();
+    static PbDnnf serializeDnnf(final Dnnf dnnf) {
+        final PbDnnf.Builder builder = PbDnnf.newBuilder();
         builder.setFormula(Formulas.serializeFormula(dnnf.getFormula()));
         builder.addAllOriginalVariables(dnnf.getOriginalVariables().stream().map(Variable::getName).collect(Collectors.toList()));
         return builder.build();
@@ -37,7 +37,7 @@ public interface Dnnfs {
      * @param bin the protocol buffer
      * @return the DNNF
      */
-    static Dnnf deserializeDnnf(final FormulaFactory f, final PBDnnf bin) {
+    static Dnnf deserializeDnnf(final FormulaFactory f, final PbDnnf bin) {
         final SortedSet<Variable> vars = bin.getOriginalVariablesList().stream()
                 .map(f::variable)
                 .collect(Collectors.toCollection(TreeSet::new));

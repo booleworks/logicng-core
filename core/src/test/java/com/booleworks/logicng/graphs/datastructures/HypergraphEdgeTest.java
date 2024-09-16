@@ -37,7 +37,7 @@ public class HypergraphEdgeTest {
         final FormulaFactory f = FormulaFactory.caching();
         final PropositionalParser p = new PropositionalParser(f);
         final Hypergraph<Variable> hypergraph =
-                HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("A | B | ~C | D")));
+                HypergraphGenerator.fromCnf(f, Collections.singletonList(p.parse("A | B | ~C | D")));
         final HypergraphEdge<Variable> edge = hypergraph.getEdges().iterator().next();
         final Map<HypergraphNode<Variable>, Integer> ordering = new HashMap<>();
         ordering.put(new HypergraphNode<>(hypergraph, f.variable("A")), 1);
@@ -57,7 +57,7 @@ public class HypergraphEdgeTest {
         final FormulaFactory f = FormulaFactory.nonCaching();
         final PropositionalParser p = new PropositionalParser(f);
         final Hypergraph<Variable> hypergraph =
-                HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("A | B | ~C | D")));
+                HypergraphGenerator.fromCnf(f, Collections.singletonList(p.parse("A | B | ~C | D")));
         final HypergraphEdge<Variable> edge = hypergraph.getEdges().iterator().next();
         assertThatThrownBy(() -> edge.centerOfGravity(new HashMap<>())).isInstanceOf(IllegalStateException.class);
     }

@@ -4,18 +4,18 @@
 
 package com.booleworks.logicng.solvers.functions;
 
-import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.explanations.UNSATCore;
-import com.booleworks.logicng.explanations.drup.DRUPTrim;
+import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.collections.LngVector;
+import com.booleworks.logicng.explanations.UnsatCore;
+import com.booleworks.logicng.explanations.drup.DrupTrim;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.StandardProposition;
-import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +29,7 @@ import java.util.Map;
  * @version 2.0.0
  * @since 2.0.0
  */
-public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposition>> {
+public final class UnsatCoreFunction implements SolverFunction<UnsatCore<Proposition>> {
 
     private final static UnsatCoreFunction INSTANCE = new UnsatCoreFunction();
 
@@ -49,15 +49,15 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
     }
 
     @Override
-    public LNGResult<UNSATCore<Proposition>> apply(final SATSolver solver, final ComputationHandler handler) {
+    public LngResult<UnsatCore<Proposition>> apply(final SatSolver solver, final ComputationHandler handler) {
         if (!solver.getConfig().isProofGeneration()) {
             throw new IllegalStateException("Cannot generate an unsat core if proof generation is not turned on");
         }
-        final DRUPTrim trimmer = new DRUPTrim();
+        final DrupTrim trimmer = new DrupTrim();
 
         final Map<Formula, Proposition> clause2proposition = new HashMap<>();
-        final LNGVector<LNGIntVector> clauses = new LNGVector<>(solver.getUnderlyingSolver().pgOriginalClauses().size());
-        for (final LNGCoreSolver.ProofInformation pi : solver.getUnderlyingSolver().pgOriginalClauses()) {
+        final LngVector<LngIntVector> clauses = new LngVector<>(solver.getUnderlyingSolver().pgOriginalClauses().size());
+        for (final LngCoreSolver.ProofInformation pi : solver.getUnderlyingSolver().pgOriginalClauses()) {
             clauses.push(pi.getClause());
             final Formula clause = getFormulaForVector(solver, pi.getClause());
             Proposition proposition = pi.getProposition();
@@ -69,22 +69,22 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
 
         if (containsEmptyClause(clauses)) {
             final Proposition emptyClause = clause2proposition.get(solver.getFactory().falsum());
-            return LNGResult.of(new UNSATCore<>(Collections.singletonList(emptyClause), true));
+            return LngResult.of(new UnsatCore<>(Collections.singletonList(emptyClause), true));
         }
 
-        final DRUPTrim.DRUPResult result = trimmer.compute(clauses, solver.getUnderlyingSolver().pgProof());
+        final DrupTrim.DrupResult result = trimmer.compute(clauses, solver.getUnderlyingSolver().pgProof());
         if (result.isTrivialUnsat()) {
-            return LNGResult.of(handleTrivialCase(solver));
+            return LngResult.of(handleTrivialCase(solver));
         }
         final LinkedHashSet<Proposition> propositions = new LinkedHashSet<>();
-        for (final LNGIntVector vector : result.getUnsatCore()) {
+        for (final LngIntVector vector : result.getUnsatCore()) {
             propositions.add(clause2proposition.get(getFormulaForVector(solver, vector)));
         }
-        return LNGResult.of(new UNSATCore<>(new ArrayList<>(propositions), false));
+        return LngResult.of(new UnsatCore<>(new ArrayList<>(propositions), false));
     }
 
-    private UNSATCore<Proposition> handleTrivialCase(final SATSolver solver) {
-        final LNGVector<LNGCoreSolver.ProofInformation> clauses = solver.getUnderlyingSolver().pgOriginalClauses();
+    private UnsatCore<Proposition> handleTrivialCase(final SatSolver solver) {
+        final LngVector<LngCoreSolver.ProofInformation> clauses = solver.getUnderlyingSolver().pgOriginalClauses();
         for (int i = 0; i < clauses.size(); i++) {
             for (int j = i + 1; j < clauses.size(); j++) {
                 if (clauses.get(i).getClause().size() == 1 && clauses.get(j).getClause().size() == 1 &&
@@ -96,15 +96,15 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
                             : new StandardProposition(getFormulaForVector(solver, clauses.get(i).getClause())));
                     propositions.add(pj != null ? pj
                             : new StandardProposition(getFormulaForVector(solver, clauses.get(j).getClause())));
-                    return new UNSATCore<>(new ArrayList<>(propositions), false);
+                    return new UnsatCore<>(new ArrayList<>(propositions), false);
                 }
             }
         }
         throw new IllegalStateException("Should be a trivial unsat core, but did not found one.");
     }
 
-    private boolean containsEmptyClause(final LNGVector<LNGIntVector> clauses) {
-        for (final LNGIntVector clause : clauses) {
+    private boolean containsEmptyClause(final LngVector<LngIntVector> clauses) {
+        for (final LngIntVector clause : clauses) {
             if (clause.isEmpty()) {
                 return true;
             }
@@ -112,7 +112,7 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
         return false;
     }
 
-    private Formula getFormulaForVector(final SATSolver solver, final LNGIntVector vector) {
+    private Formula getFormulaForVector(final SatSolver solver, final LngIntVector vector) {
         final List<Literal> literals = new ArrayList<>(vector.size());
         for (int i = 0; i < vector.size(); i++) {
             final int lit = vector.get(i);

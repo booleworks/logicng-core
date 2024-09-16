@@ -6,7 +6,7 @@ package com.booleworks.logicng.solvers.maxsat;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.solvers.MaxSATSolver;
+import com.booleworks.logicng.solvers.MaxSatSolver;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -22,7 +22,7 @@ public class MaxSATReader {
      * @param fileName the file name to read
      * @throws IOException if something goes wrong
      */
-    static void readCnfToSolver(final MaxSATSolver solver, final String fileName) throws IOException {
+    static void readCnfToSolver(final MaxSatSolver solver, final String fileName) throws IOException {
         final FormulaFactory f = solver.getFactory();
         final BufferedReader reader = new BufferedReader(new FileReader(fileName));
         boolean pureMaxSat = false;

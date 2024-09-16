@@ -9,7 +9,7 @@ import static com.booleworks.logicng.knowledgecompilation.bdds.orderings.MinToMa
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
+import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -26,7 +26,7 @@ public interface VariableOrderingProvider {
     /**
      * Generates a variable ordering for a given formula. Such a variable
      * ordering can then be used for the initialization of the BDD Kernel in
-     * {@link BDDKernel#BDDKernel(FormulaFactory, List, int, int)}.
+     * {@link BddKernel#BddKernel(FormulaFactory, List, int, int)}.
      * @param f       the factory for caching and generating new formulas
      * @param formula the formula
      * @return the variable ordering

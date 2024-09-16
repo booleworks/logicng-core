@@ -17,10 +17,10 @@ package com.booleworks.logicng.formulas;
  * @version 3.0.0
  * @since 2.0.0
  */
-public interface CardinalityConstraint extends PBConstraint {
+public interface CardinalityConstraint extends PbConstraint {
 
     @Override
-    default boolean isCC() {
+    default boolean isCc() {
         return true;
     }
 

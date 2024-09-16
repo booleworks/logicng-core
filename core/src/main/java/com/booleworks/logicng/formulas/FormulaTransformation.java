@@ -5,7 +5,7 @@
 package com.booleworks.logicng.formulas;
 
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
 
 /**
@@ -22,7 +22,7 @@ public interface FormulaTransformation {
      * @param handler the computation handler
      * @return the LNGResult with the transformed formula
      */
-    LNGResult<Formula> apply(Formula formula, ComputationHandler handler);
+    LngResult<Formula> apply(Formula formula, ComputationHandler handler);
 
     /**
      * Performs the transformation.

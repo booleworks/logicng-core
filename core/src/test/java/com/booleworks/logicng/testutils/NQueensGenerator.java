@@ -24,7 +24,7 @@ public class NQueensGenerator {
 
     public NQueensGenerator(final FormulaFactory f) {
         this.f = f;
-        this.f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
+        this.f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.PURE).build());
     }
 
     public Formula generate(final int n) {

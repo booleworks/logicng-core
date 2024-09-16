@@ -13,7 +13,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -23,7 +23,7 @@ import java.util.Set;
 public class AssumeTest implements LogicNGTest {
 
     private final FormulaFactory f;
-    private final List<SATSolver> solvers;
+    private final List<SatSolver> solvers;
     private final PropositionalParser parser;
 
     public AssumeTest() {
@@ -43,7 +43,7 @@ public class AssumeTest implements LogicNGTest {
         final List<Literal> assumptions4 = Arrays.asList(f.literal("c", false), f.literal("d", true));
         final List<Literal> assumptions5 = Arrays.asList(f.literal("x", true), f.literal("x", false));
         final List<Literal> assumptions6 = Arrays.asList(f.literal("a", true), f.literal("a", false));
-        for (final SATSolver s : solvers) {
+        for (final SatSolver s : solvers) {
             s.add(parser.parse("~a"));
             s.add(parser.parse("b"));
             s.add(parser.parse("b => c"));

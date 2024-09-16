@@ -16,9 +16,9 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.SolverState;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -45,7 +45,7 @@ public class BackboneFunctionTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testConstants(final SATSolver solver, final String solverDescription) {
+    public void testConstants(final SatSolver solver, final String solverDescription) {
         final FormulaFactory f = solver.getFactory();
         final SolverState state = solver.saveState();
         solver.add(f.falsum());
@@ -61,7 +61,7 @@ public class BackboneFunctionTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testSimpleBackbones(final SATSolver solver, final String solverDescription) throws ParserException {
+    public void testSimpleBackbones(final SatSolver solver, final String solverDescription) throws ParserException {
         final FormulaFactory f = solver.getFactory();
         final SolverState state = solver.saveState();
         solver.add(f.parse("a & b & ~c"));
@@ -78,7 +78,7 @@ public class BackboneFunctionTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testSimpleFormulas(final SATSolver solver, final String solverDescription) throws ParserException {
+    public void testSimpleFormulas(final SatSolver solver, final String solverDescription) throws ParserException {
         final FormulaFactory f = solver.getFactory();
         solver.add(f.parse("(a => c | d) & (b => d | ~e) & (a | b)"));
         Backbone backbone = solver.backbone(v("a b c d e f", f));
@@ -96,7 +96,7 @@ public class BackboneFunctionTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testSimpleFormulasWithBuilderUsage(final SATSolver solver, final String solverDescription)
+    public void testSimpleFormulasWithBuilderUsage(final SatSolver solver, final String solverDescription)
             throws ParserException {
         final FormulaFactory f = solver.getFactory();
         solver.add(f.parse("(a => c | d) & (b => d | ~e) & (a | b)"));
@@ -118,7 +118,7 @@ public class BackboneFunctionTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     @LongRunningTag
-    public void testRealFormulaIncremental1(final SATSolver solver, final String solverDescription)
+    public void testRealFormulaIncremental1(final SatSolver solver, final String solverDescription)
             throws IOException, ParserException {
         final FormulaFactory f = solver.getFactory();
         final Formula formula =
@@ -162,7 +162,7 @@ public class BackboneFunctionTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     @LongRunningTag
-    public void testRealFormulaIncremental2(final SATSolver solver, final String solverDescription)
+    public void testRealFormulaIncremental2(final SatSolver solver, final String solverDescription)
             throws IOException, ParserException {
         final FormulaFactory f = solver.getFactory();
         final Formula formula =
@@ -206,7 +206,7 @@ public class BackboneFunctionTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     @LongRunningTag
-    public void testRealFormulaIncrementalDecremental1(final SATSolver solver, final String solverDescription)
+    public void testRealFormulaIncrementalDecremental1(final SatSolver solver, final String solverDescription)
             throws IOException, ParserException {
         final FormulaFactory f = solver.getFactory();
         final Formula formula =
@@ -261,7 +261,7 @@ public class BackboneFunctionTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     @LongRunningTag
-    public void testRealFormulaIncrementalDecremental2(final SATSolver solver, final String solverDescription)
+    public void testRealFormulaIncrementalDecremental2(final SatSolver solver, final String solverDescription)
             throws IOException, ParserException {
         final FormulaFactory f = solver.getFactory();
         final Formula formula =
@@ -316,7 +316,7 @@ public class BackboneFunctionTest {
     @Test
     public void testMiniCardSpecialCase() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SATSolver miniCard = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(true).build());
+        final SatSolver miniCard = SatSolver.newSolver(f, SatSolverConfig.builder().useAtMostClauses(true).build());
         miniCard.add(f.parse("v1 + v2 + v3 + v4 + v5 + v6 = 1"));
         miniCard.add(f.parse("v1234 + v50 + v60 = 1"));
         miniCard.add(

@@ -3,7 +3,7 @@ package com.booleworks.logicng.handlers.events;
 import com.booleworks.logicng.handlers.ComputationHandler;
 
 /**
- * A class for {@link LNGEvent}s which indicate the end of a computation.
+ * A class for {@link LngEvent}s which indicate the end of a computation.
  * By convention, these events are instantiated as {@code static final} fields
  * s.t. they can be checked in {@link ComputationHandler handlers} by using
  * referential equality.
@@ -12,7 +12,7 @@ import com.booleworks.logicng.handlers.ComputationHandler;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class ComputationFinishedEvent implements LNGEvent {
+public class ComputationFinishedEvent implements LngEvent {
 
     public static final ComputationFinishedEvent SAT_CALL_FINISHED = new ComputationFinishedEvent("SAT Call");
     public static final ComputationFinishedEvent MAX_SAT_CALL_FINISHED = new ComputationFinishedEvent("MaxSAT Call");

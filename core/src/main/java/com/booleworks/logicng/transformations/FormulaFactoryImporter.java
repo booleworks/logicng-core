@@ -13,9 +13,9 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.NAryOperator;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.Or;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -40,8 +40,8 @@ public final class FormulaFactoryImporter extends StatelessFormulaTransformation
     }
 
     @Override
-    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
-        return LNGResult.of(applyRec(formula));
+    public LngResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+        return LngResult.of(applyRec(formula));
     }
 
     private Formula applyRec(final Formula formula) {
@@ -74,7 +74,7 @@ public final class FormulaFactoryImporter extends StatelessFormulaTransformation
                 final And and = (And) formula;
                 return f.and(gatherAppliedOperands(and));
             case PBC:
-                final PBConstraint pbc = (PBConstraint) formula;
+                final PbConstraint pbc = (PbConstraint) formula;
                 final List<Literal> literals = new ArrayList<>(pbc.getOperands().size());
                 for (final Literal op : pbc.getOperands()) {
                     literals.add((Literal) apply(op));

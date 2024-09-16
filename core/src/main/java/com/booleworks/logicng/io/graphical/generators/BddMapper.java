@@ -5,8 +5,8 @@
 package com.booleworks.logicng.io.graphical.generators;
 
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDConstruction;
-import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
+import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddConstruction;
+import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel;
 
 /**
  * An abstract super class for mappers for a graphical representation of a BDD.
@@ -19,12 +19,12 @@ import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
  */
 public class BddMapper {
 
-    protected final BDDKernel kernel;
-    protected final BDDConstruction bddConstruction;
+    protected final BddKernel kernel;
+    protected final BddConstruction bddConstruction;
 
-    protected BddMapper(final BDDKernel kernel) {
+    protected BddMapper(final BddKernel kernel) {
         this.kernel = kernel;
-        bddConstruction = new BDDConstruction(kernel);
+        bddConstruction = new BddConstruction(kernel);
     }
 
     /**
@@ -42,7 +42,7 @@ public class BddMapper {
      * @return whether the index is the terminal FALSE node
      */
     protected boolean isFalse(final int index) {
-        return index == BDDKernel.BDD_FALSE;
+        return index == BddKernel.BDD_FALSE;
     }
 
     /**
@@ -51,6 +51,6 @@ public class BddMapper {
      * @return whether the index is the terminal TRUE node
      */
     protected boolean isTrue(final int index) {
-        return index == BDDKernel.BDD_TRUE;
+        return index == BddKernel.BDD_TRUE;
     }
 }

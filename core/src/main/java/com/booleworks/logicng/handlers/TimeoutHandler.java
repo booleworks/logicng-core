@@ -5,7 +5,7 @@
 package com.booleworks.logicng.handlers;
 
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
-import com.booleworks.logicng.handlers.events.LNGEvent;
+import com.booleworks.logicng.handlers.events.LngEvent;
 
 /**
  * A generic timeout handler.
@@ -57,7 +57,7 @@ public class TimeoutHandler implements ComputationHandler {
     }
 
     @Override
-    public boolean shouldResume(final LNGEvent event) {
+    public boolean shouldResume(final LngEvent event) {
         if (event instanceof ComputationStartedEvent) {
             if (type == TimerType.RESTARTING_TIMEOUT || designatedEnd == 0) {
                 designatedEnd = System.currentTimeMillis() + timeout;

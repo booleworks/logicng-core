@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.formulas.printer.UTF8StringRepresentation;
+import com.booleworks.logicng.formulas.printer.Utf8StringRepresentation;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.io.readers.FormulaReader;
@@ -116,7 +116,7 @@ public class FormulaWriterReaderTest {
         final File file = new File(fileName);
         final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E))");
-        FormulaWriter.write(fileName, p1, false, new UTF8StringRepresentation());
+        FormulaWriter.write(fileName, p1, false, new Utf8StringRepresentation());
         try (final BufferedReader reader =
                      new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
             assertThat(reader.readLine()).isEqualTo("A ∧ B ∧ ¬(C ∨ (D ⇒ ¬E))");
@@ -130,7 +130,7 @@ public class FormulaWriterReaderTest {
         final File file = new File(fileName);
         final FormulaFactory f = FormulaFactory.caching();
         final Formula p1 = new PropositionalParser(f).parse("A & B & ~(C | (D => ~E))");
-        FormulaWriter.write(fileName, p1, true, new UTF8StringRepresentation());
+        FormulaWriter.write(fileName, p1, true, new Utf8StringRepresentation());
         try (final BufferedReader reader =
                      new BufferedReader(new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
             assertThat(reader.readLine()).isEqualTo("A");

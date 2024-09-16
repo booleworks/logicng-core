@@ -11,10 +11,10 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.NAryOperator;
 import com.booleworks.logicng.formulas.Not;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.ArrayList;
@@ -36,8 +36,8 @@ public final class PureExpansionTransformation extends StatelessFormulaTransform
     }
 
     @Override
-    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
-        return LNGResult.of(expand(formula));
+    public LngResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+        return LngResult.of(expand(formula));
     }
 
     private Formula expand(final Formula formula) {
@@ -65,7 +65,7 @@ public final class PureExpansionTransformation extends StatelessFormulaTransform
                 final Formula newRight = apply(binary.getRight());
                 return f.binaryOperator(formula.getType(), newLeft, newRight);
             case PBC:
-                final PBConstraint pbc = (PBConstraint) formula;
+                final PbConstraint pbc = (PbConstraint) formula;
                 if (pbc.isAmo() || pbc.isExo()) {
                     final EncodingResult encodingResult = EncodingResult.resultForFormula(f);
                     final Variable[] vars = FormulaHelper.literalsAsVariables(pbc.getOperands());

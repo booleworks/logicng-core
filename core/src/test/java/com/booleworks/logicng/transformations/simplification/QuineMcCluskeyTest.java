@@ -15,7 +15,7 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -34,7 +34,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
         final Formula formula = _c.p
                 .parse("(~a & ~b & ~c) | (~a & ~b & c) | (~a & b & ~c) | (a & ~b & c) | (a & b & ~c) | (a & b & c)");
         final Formula dnf = formula.transform(new QuineMcCluskeySimplifier(_c.f));
-        assertThat(dnf.isDNF(_c.f)).isTrue();
+        assertThat(dnf.isDnf(_c.f)).isTrue();
         assertThat(_c.f.equivalence(formula, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
     }
 
@@ -43,7 +43,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     public void testSimple2(final FormulaContext _c) throws ParserException {
         final Formula formula = _c.p.parse("(~a & ~b & ~c) | (~a & b & ~c) | (a & ~b & c) | (a & b & c)");
         final Formula dnf = formula.transform(new QuineMcCluskeySimplifier(_c.f));
-        assertThat(dnf.isDNF(_c.f)).isTrue();
+        assertThat(dnf.isDnf(_c.f)).isTrue();
         assertThat(_c.f.equivalence(formula, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
     }
 
@@ -60,7 +60,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
         final Formula formula = _c.p.parse(
                 "~5 & ~4 & 3 & 2 & 1 | ~3 & ~7 & ~2 & 1 | ~6 & 1 & ~3 & 2 | ~9 & 6 & 8 & ~1 | 3 & 4 & 2 & 1 | ~2 & 7 & 1 | ~10 & ~8 & ~1");
         final Formula dnf = formula.transform(new QuineMcCluskeySimplifier(_c.f));
-        assertThat(dnf.isDNF(_c.f)).isTrue();
+        assertThat(dnf.isDnf(_c.f)).isTrue();
         assertThat(_c.f.equivalence(formula, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
         assertThat(formula.variables(_c.f)).containsAll(dnf.variables(_c.f));
     }
@@ -70,7 +70,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     public void testLarge1(final FormulaContext _c) throws ParserException {
         final Formula formula = _c.p.parse("A => B & ~((D | E | I | J) & ~K) & L");
         final Formula dnf = formula.transform(new QuineMcCluskeySimplifier(_c.f));
-        assertThat(dnf.isDNF(_c.f)).isTrue();
+        assertThat(dnf.isDnf(_c.f)).isTrue();
         assertThat(_c.f.equivalence(formula, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
     }
 
@@ -79,7 +79,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     public void testLarge2(final FormulaContext _c) throws ParserException, IOException {
         final Formula formula =
                 FormulaReader.readFormula(_c.f, "../test_files/formulas/large_formula.txt");
-        final SATSolver solver = SATSolver.newSolver(_c.f);
+        final SatSolver solver = SatSolver.newSolver(_c.f);
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(Arrays.asList(
                 _c.f.variable("v111"),
@@ -98,7 +98,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
         }
         final Formula canonicalDNF = _c.f.or(operands);
         final Formula dnf = canonicalDNF.transform(new QuineMcCluskeySimplifier(_c.f));
-        assertThat(dnf.isDNF(_c.f)).isTrue();
+        assertThat(dnf.isDnf(_c.f)).isTrue();
         assertThat(_c.f.equivalence(canonicalDNF, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
     }
 
@@ -107,7 +107,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
     public void testLarge3(final FormulaContext _c) throws ParserException, IOException {
         final Formula formula =
                 FormulaReader.readFormula(_c.f, "../test_files/formulas/large_formula.txt");
-        final SATSolver solver = SATSolver.newSolver(_c.f);
+        final SatSolver solver = SatSolver.newSolver(_c.f);
         solver.add(formula);
         final List<Model> models = solver.enumerateAllModels(Arrays.asList(
                 _c.f.variable("v111"),
@@ -130,7 +130,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
         }
         final Formula canonicalDNF = _c.f.or(operands);
         final Formula dnf = canonicalDNF.transform(new QuineMcCluskeySimplifier(_c.f));
-        assertThat(dnf.isDNF(_c.f)).isTrue();
+        assertThat(dnf.isDnf(_c.f)).isTrue();
         assertThat(_c.f.equivalence(canonicalDNF, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
     }
 
@@ -145,7 +145,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
             final List<Variable> variables = new ArrayList<>(formula.variables(_c.f));
             final List<Variable> projectedVars = variables.subList(0, Math.min(6, variables.size()));
 
-            final SATSolver solver = SATSolver.newSolver(_c.f);
+            final SatSolver solver = SatSolver.newSolver(_c.f);
             solver.add(formula);
             final List<Model> models = solver.enumerateAllModels(projectedVars);
             final List<Formula> operands = new ArrayList<>(models.size());
@@ -155,7 +155,7 @@ public class QuineMcCluskeyTest extends TestWithFormulaContext {
             final Formula canonicalDNF = _c.f.or(operands);
 
             final Formula dnf = canonicalDNF.transform(new QuineMcCluskeySimplifier(_c.f));
-            assertThat(dnf.isDNF(_c.f)).isTrue();
+            assertThat(dnf.isDnf(_c.f)).isTrue();
             assertThat(_c.f.equivalence(canonicalDNF, dnf).holds(new TautologyPredicate(_c.f))).isTrue();
         }
     }

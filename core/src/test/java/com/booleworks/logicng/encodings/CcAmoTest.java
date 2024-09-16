@@ -12,8 +12,8 @@ import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import org.junit.jupiter.api.Test;
 
 public class CcAmoTest implements LogicNGTest {
@@ -22,27 +22,27 @@ public class CcAmoTest implements LogicNGTest {
 
     public CcAmoTest() {
         configs = new EncoderConfig[14];
-        configs[0] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build();
-        configs[1] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.LADDER).build();
-        configs[2] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PRODUCT).build();
-        configs[3] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.BINARY).build();
-        configs[4] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.NESTED).build();
+        configs[0] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.PURE).build();
+        configs[1] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.LADDER).build();
+        configs[2] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.PRODUCT).build();
+        configs[3] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.BINARY).build();
+        configs[4] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.NESTED).build();
         configs[5] =
-                EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.COMMANDER).commanderGroupSize(3).build();
+                EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.COMMANDER).commanderGroupSize(3).build();
         configs[6] =
-                EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.COMMANDER).commanderGroupSize(7).build();
-        configs[7] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.BIMANDER)
-                .bimanderGroupSize(EncoderConfig.BIMANDER_GROUP_SIZE.FIXED).build();
-        configs[8] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.BIMANDER)
-                .bimanderGroupSize(EncoderConfig.BIMANDER_GROUP_SIZE.HALF).build();
-        configs[9] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.BIMANDER)
-                .bimanderGroupSize(EncoderConfig.BIMANDER_GROUP_SIZE.SQRT).build();
-        configs[10] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.BIMANDER)
-                .bimanderGroupSize(EncoderConfig.BIMANDER_GROUP_SIZE.FIXED).bimanderFixedGroupSize(2).build();
-        configs[11] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.NESTED).nestingGroupSize(5).build();
-        configs[12] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PRODUCT).productRecursiveBound(10)
+                EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.COMMANDER).commanderGroupSize(7).build();
+        configs[7] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.BIMANDER)
+                .bimanderGroupSize(EncoderConfig.BimanderGroupSize.FIXED).build();
+        configs[8] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.BIMANDER)
+                .bimanderGroupSize(EncoderConfig.BimanderGroupSize.HALF).build();
+        configs[9] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.BIMANDER)
+                .bimanderGroupSize(EncoderConfig.BimanderGroupSize.SQRT).build();
+        configs[10] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.BIMANDER)
+                .bimanderGroupSize(EncoderConfig.BimanderGroupSize.FIXED).bimanderFixedGroupSize(2).build();
+        configs[11] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.NESTED).nestingGroupSize(5).build();
+        configs[12] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.PRODUCT).productRecursiveBound(10)
                 .build();
-        configs[13] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.BEST).build();
+        configs[13] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.BEST).build();
     }
 
     @Test
@@ -59,7 +59,7 @@ public class CcAmoTest implements LogicNGTest {
         for (final EncoderConfig config : configs) {
             assertThat(CcEncoder.encode(f, cc, config)).isEmpty();
         }
-        assertThat(f.newCCVariable().getName()).endsWith("_0");
+        assertThat(f.newCcVariable().getName()).endsWith("_0");
     }
 
     @Test
@@ -75,7 +75,7 @@ public class CcAmoTest implements LogicNGTest {
                 testAMO(f, 100, false);
                 testAMO(f, 250, false);
                 testAMO(f, 500, false);
-                assertThat(f.newCCVariable().getName()).endsWith("_" + counter++);
+                assertThat(f.newCcVariable().getName()).endsWith("_" + counter++);
             }
         }
     }
@@ -88,7 +88,7 @@ public class CcAmoTest implements LogicNGTest {
         testAMO(f, 100, true);
         testAMO(f, 250, true);
         testAMO(f, 500, true);
-        assertThat(f.newCCVariable().getName()).endsWith("_0");
+        assertThat(f.newCcVariable().getName()).endsWith("_0");
     }
 
     private void testAMO(final FormulaFactory f, final int numLits, final boolean miniCard) {
@@ -96,7 +96,7 @@ public class CcAmoTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = SATSolver.newSolver(f, SATSolverConfig.builder().useAtMostClauses(miniCard).build());
+        final SatSolver solver = SatSolver.newSolver(f, SatSolverConfig.builder().useAtMostClauses(miniCard).build());
         solver.add(f.amo(problemLits));
         assertSolverSat(solver);
         assertThat(solver.enumerateAllModels(problemLits))

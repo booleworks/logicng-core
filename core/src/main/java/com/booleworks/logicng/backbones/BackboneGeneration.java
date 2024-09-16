@@ -8,11 +8,11 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.Collection;
@@ -45,16 +45,16 @@ public final class BackboneGeneration {
      * @param type      the type of backbone variables that should be computed
      * @param handler   a handler
      * @return the backbone or {@code null} if the computation was canceled by
-     *         the handler
+     * the handler
      */
-    public static LNGResult<Backbone> compute(final FormulaFactory f, final Collection<Formula> formulas,
+    public static LngResult<Backbone> compute(final FormulaFactory f, final Collection<Formula> formulas,
                                               final Collection<Variable> variables, final BackboneType type,
                                               final ComputationHandler handler) {
         if (formulas == null || formulas.isEmpty()) {
             throw new IllegalArgumentException("Provide at least one formula for backbone computation");
         }
-        final SATSolver solver = SATSolver.newSolver(f,
-                SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        final SatSolver solver = SatSolver.newSolver(f,
+                SatSolverConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.PG_ON_SOLVER).build());
         solver.add(formulas);
         return solver.execute(BackboneFunction.builder().variables(variables).type(type).build(), handler);
     }

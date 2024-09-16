@@ -9,7 +9,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.transformations.StatelessFormulaTransformation;
 
 import java.util.Arrays;
@@ -52,11 +52,11 @@ public final class ExistentialQuantifierElimination extends StatelessFormulaTran
     }
 
     @Override
-    public LNGResult<Formula> apply(final Formula formula, ComputationHandler handler) {
+    public LngResult<Formula> apply(final Formula formula, ComputationHandler handler) {
         Formula result = formula;
         for (final Variable var : elimination) {
             result = f.or(result.restrict(f, new Assignment(var)), result.restrict(f, new Assignment(var.negate(f))));
         }
-        return LNGResult.of(result);
+        return LngResult.of(result);
     }
 }

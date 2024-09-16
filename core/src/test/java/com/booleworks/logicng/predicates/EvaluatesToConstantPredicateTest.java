@@ -14,7 +14,7 @@ import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
@@ -262,12 +262,12 @@ public class EvaluatesToConstantPredicateTest extends TestWithFormulaContext {
     public void testPBCToFalse(final FormulaContext _c) {
         final var e = new Preds(_c);
 
-        final PBConstraint pbc01 = (PBConstraint) _c.f.pbc(CType.EQ, 2, new Literal[]{_c.a, _c.b}, new int[]{2, -4});
+        final PbConstraint pbc01 = (PbConstraint) _c.f.pbc(CType.EQ, 2, new Literal[]{_c.a, _c.b}, new int[]{2, -4});
         assertThat(pbc01.holds(e.emptyToFalse)).isFalse();
         assertThat(pbc01.holds(e.aToFalse)).isFalse();
         assertThat(pbc01.holds(e.aNotBToFalse)).isFalse();
 
-        final PBConstraint pbc02 = (PBConstraint) _c.f.pbc(CType.GT, 2, new Literal[]{_c.b, _c.c}, new int[]{2, 1});
+        final PbConstraint pbc02 = (PbConstraint) _c.f.pbc(CType.GT, 2, new Literal[]{_c.b, _c.c}, new int[]{2, 1});
         assertThat(pbc02.holds(e.emptyToFalse)).isFalse();
         assertThat(pbc02.holds(e.aToFalse)).isFalse();
         assertThat(pbc02.holds(e.aNotBToFalse)).isTrue();
@@ -550,12 +550,12 @@ public class EvaluatesToConstantPredicateTest extends TestWithFormulaContext {
     public void testPBCToTrue(final FormulaContext _c) {
         final var e = new Preds(_c);
 
-        final PBConstraint pbc01 = (PBConstraint) _c.f.pbc(CType.EQ, 2, new Literal[]{_c.a, _c.b}, new int[]{2, -4});
+        final PbConstraint pbc01 = (PbConstraint) _c.f.pbc(CType.EQ, 2, new Literal[]{_c.a, _c.b}, new int[]{2, -4});
         assertThat(pbc01.holds(e.emptyToTrue)).isFalse();
         assertThat(pbc01.holds(e.aToTrue)).isFalse();
         assertThat(pbc01.holds(e.aNotBToTrue)).isTrue();
 
-        final PBConstraint pbc02 = (PBConstraint) _c.f.pbc(CType.GT, 2, new Literal[]{_c.b, _c.c}, new int[]{2, 1});
+        final PbConstraint pbc02 = (PbConstraint) _c.f.pbc(CType.GT, 2, new Literal[]{_c.b, _c.c}, new int[]{2, 1});
         assertThat(pbc02.holds(e.emptyToTrue)).isFalse();
         assertThat(pbc02.holds(e.aToTrue)).isFalse();
         assertThat(pbc02.holds(e.aNotBToTrue)).isFalse();

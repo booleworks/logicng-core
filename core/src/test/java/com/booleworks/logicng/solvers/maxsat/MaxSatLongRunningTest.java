@@ -9,9 +9,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.solvers.MaxSATSolver;
-import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.solvers.MaxSatSolver;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -32,17 +32,17 @@ public class MaxSatLongRunningTest {
         final FormulaFactory f = FormulaFactory.caching();
         final File folder = new File("../test_files/longrunning/wms");
         final Map<String, Integer> result = readResult(new File("../test_files/longrunning/wms/result.txt"));
-        final List<Supplier<MaxSATSolver>> solvers = Arrays.asList(
-                () -> MaxSATSolver.oll(f),
-                () -> MaxSATSolver.incWBO(f, MaxSATConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.FACTORY_CNF)
-                        .weight(MaxSATConfig.WeightStrategy.DIVERSIFY).build()),
-                () -> MaxSATSolver.incWBO(f, MaxSATConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.FACTORY_CNF)
+        final List<Supplier<MaxSatSolver>> solvers = Arrays.asList(
+                () -> MaxSatSolver.oll(f),
+                () -> MaxSatSolver.incWbo(f, MaxSatConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.FACTORY_CNF)
+                        .weight(MaxSatConfig.WeightStrategy.DIVERSIFY).build()),
+                () -> MaxSatSolver.incWbo(f, MaxSatConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.FACTORY_CNF)
                         .build())
         );
-        for (final Supplier<MaxSATSolver> solverGenerator : solvers) {
+        for (final Supplier<MaxSatSolver> solverGenerator : solvers) {
             for (final File file : Objects.requireNonNull(folder.listFiles())) {
                 if (file.getName().endsWith("wcnf")) {
-                    final MaxSATSolver solver = solverGenerator.get();
+                    final MaxSatSolver solver = solverGenerator.get();
                     readCnfToSolver(solver, file.getAbsolutePath());
                     assertThat(solver.solve().getOptimum()).isEqualTo(result.get(file.getName()));
                 }

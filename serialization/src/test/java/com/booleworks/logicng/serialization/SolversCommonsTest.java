@@ -21,7 +21,7 @@ public class SolversCommonsTest {
         for (int i = 0; i < 1000; i++) {
             stack.push(random.nextInt());
         }
-        final ProtoBufCollections.PBIntVector serialized = serializeStack(stack);
+        final ProtoBufCollections.PbIntVector serialized = serializeStack(stack);
         final Stack<Integer> deserialized = deserializeStack(serialized);
 
         assertThat(deserialized).isEqualTo(stack);

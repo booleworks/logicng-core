@@ -11,7 +11,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.NAryOperator;
 import com.booleworks.logicng.formulas.Not;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 
 import java.util.List;
 
@@ -67,7 +67,7 @@ public abstract class FormulaStringRepresentation {
                 final String naryOp = formula.getType() == FType.AND ? and() : or();
                 return naryOperator(nary, naryOp);
             case PBC:
-                final PBConstraint pbc = (PBConstraint) formula;
+                final PbConstraint pbc = (PbConstraint) formula;
                 return pbLhs(pbc.getOperands(), pbc.getCoefficients()) + pbComparator(pbc.comparator()) + pbc.getRhs();
             default:
                 throw new IllegalArgumentException("Cannot print the unknown formula type " + formula.getType());

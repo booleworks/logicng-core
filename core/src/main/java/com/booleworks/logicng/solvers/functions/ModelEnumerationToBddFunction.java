@@ -8,19 +8,19 @@ import static com.booleworks.logicng.handlers.events.SimpleEvent.MODEL_ENUMERATI
 import static com.booleworks.logicng.handlers.events.SimpleEvent.MODEL_ENUMERATION_ROLLBACK;
 import static java.util.Arrays.asList;
 
-import com.booleworks.logicng.collections.LNGBooleanVector;
-import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.collections.LngBooleanVector;
+import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
-import com.booleworks.logicng.handlers.events.LNGEvent;
-import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
-import com.booleworks.logicng.knowledgecompilation.bdds.BDDFactory;
-import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.handlers.events.LngEvent;
+import com.booleworks.logicng.knowledgecompilation.bdds.Bdd;
+import com.booleworks.logicng.knowledgecompilation.bdds.BddFactory;
+import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.modelenumeration.AbstractModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.EnumerationCollector;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
@@ -43,7 +43,7 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunction<BDD> {
+public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunction<Bdd> {
 
     ModelEnumerationToBddFunction(final SortedSet<Variable> variables, final ModelEnumerationConfig config) {
         super(variables, Collections.emptySortedSet(), configuration(variables, config));
@@ -70,7 +70,7 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
     }
 
     @Override
-    protected EnumerationCollector<BDD> newCollector(final FormulaFactory f, final SortedSet<Variable> knownVariables,
+    protected EnumerationCollector<Bdd> newCollector(final FormulaFactory f, final SortedSet<Variable> knownVariables,
                                                      final SortedSet<Variable> dontCareVariablesNotOnSolver,
                                                      final SortedSet<Variable> additionalVariablesNotOnSolver) {
         return new BddModelEnumerationCollector(f, variables, knownVariables, dontCareVariablesNotOnSolver.size());
@@ -112,9 +112,9 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         }
     }
 
-    static class BddModelEnumerationCollector implements EnumerationCollector<BDD> {
-        private final BDDKernel kernel;
-        private BDD committedModels;
+    static class BddModelEnumerationCollector implements EnumerationCollector<Bdd> {
+        private final BddKernel kernel;
+        private Bdd committedModels;
         private final List<Model> uncommittedModels = new ArrayList<>();
         private final int dontCareFactor;
 
@@ -124,14 +124,14 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
             final List<Variable> sortedVariables =
                     variables != null ? new ArrayList<>(variables) : new ArrayList<>(knownVariables);
             final int numVars = sortedVariables.size();
-            kernel = new BDDKernel(f, sortedVariables, numVars * 30, numVars * 50);
-            committedModels = BDDFactory.build(f, f.falsum(), kernel);
+            kernel = new BddKernel(f, sortedVariables, numVars * 30, numVars * 50);
+            committedModels = BddFactory.build(f, f.falsum(), kernel);
             dontCareFactor = (int) Math.pow(2, numberDontCareVariablesNotOnSolver);
         }
 
         @Override
-        public LNGEvent addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver,
-                                 final LNGIntVector relevantAllIndices,
+        public LngEvent addModel(final LngBooleanVector modelFromSolver, final SatSolver solver,
+                                 final LngIntVector relevantAllIndices,
                                  final ComputationHandler handler) {
             final EnumerationFoundModelsEvent event = new EnumerationFoundModelsEvent(dontCareFactor);
             final Model model =
@@ -141,7 +141,7 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
         }
 
         @Override
-        public LNGEvent commit(final ComputationHandler handler) {
+        public LngEvent commit(final ComputationHandler handler) {
             for (final Model uncommittedModel : uncommittedModels) {
                 committedModels = committedModels.or(model2Bdd(uncommittedModel));
             }
@@ -149,29 +149,29 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
             return handler.shouldResume(MODEL_ENUMERATION_COMMIT) ? null : MODEL_ENUMERATION_COMMIT;
         }
 
-        private BDD model2Bdd(final Model model) {
-            BDD bdd = BDDFactory.build(kernel.factory(), kernel.factory().verum(), kernel);
+        private Bdd model2Bdd(final Model model) {
+            Bdd bdd = BddFactory.build(kernel.factory(), kernel.factory().verum(), kernel);
             for (final Literal literal : model.getLiterals()) {
-                bdd = bdd.and(BDDFactory.build(kernel.factory(), literal, kernel));
+                bdd = bdd.and(BddFactory.build(kernel.factory(), literal, kernel));
             }
             return bdd;
         }
 
         @Override
-        public LNGEvent rollback(final ComputationHandler handler) {
+        public LngEvent rollback(final ComputationHandler handler) {
             uncommittedModels.clear();
             return handler.shouldResume(MODEL_ENUMERATION_ROLLBACK) ? null : MODEL_ENUMERATION_ROLLBACK;
         }
 
         @Override
-        public List<Model> rollbackAndReturnModels(final SATSolver solver, final ComputationHandler handler) {
+        public List<Model> rollbackAndReturnModels(final SatSolver solver, final ComputationHandler handler) {
             final List<Model> modelsToReturn = new ArrayList<>(uncommittedModels);
             rollback(handler);
             return modelsToReturn;
         }
 
         @Override
-        public BDD getResult() {
+        public Bdd getResult() {
             return committedModels;
         }
     }

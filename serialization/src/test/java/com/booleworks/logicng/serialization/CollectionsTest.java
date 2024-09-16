@@ -3,12 +3,12 @@
 
 package com.booleworks.logicng.serialization;
 
-import com.booleworks.logicng.collections.LNGBooleanVector;
-import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.collections.LNGLongVector;
-import com.booleworks.logicng.serialization.ProtoBufCollections.PBBooleanVector;
-import com.booleworks.logicng.serialization.ProtoBufCollections.PBIntVector;
-import com.booleworks.logicng.serialization.ProtoBufCollections.PBLongVector;
+import com.booleworks.logicng.collections.LngBooleanVector;
+import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.collections.LngLongVector;
+import com.booleworks.logicng.serialization.ProtoBufCollections.PbBooleanVector;
+import com.booleworks.logicng.serialization.ProtoBufCollections.PbIntVector;
+import com.booleworks.logicng.serialization.ProtoBufCollections.PbLongVector;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -21,16 +21,16 @@ public class CollectionsTest {
     @Test
     public void testLngBooleanVector() {
         final Random random = new Random(42);
-        final List<LNGBooleanVector> vecs = new ArrayList<>();
+        final List<LngBooleanVector> vecs = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            final LNGBooleanVector vec = new LNGBooleanVector();
+            final LngBooleanVector vec = new LngBooleanVector();
             for (int j = 0; j < 500; j++) {
                 vec.push(random.nextBoolean());
             }
             vecs.add(vec);
         }
-        final List<PBBooleanVector> serialized = vecs.stream().map(Collections::serializeBoolVec).collect(Collectors.toList());
-        final List<LNGBooleanVector> deserialized = serialized.stream().map(Collections::deserializeBooVec).collect(Collectors.toList());
+        final List<PbBooleanVector> serialized = vecs.stream().map(Collections::serializeBoolVec).collect(Collectors.toList());
+        final List<LngBooleanVector> deserialized = serialized.stream().map(Collections::deserializeBooVec).collect(Collectors.toList());
         for (int i = 0; i < vecs.size(); i++) {
             CollectionComperator.assertBoolVecEquals(vecs.get(i), deserialized.get(i));
         }
@@ -39,16 +39,16 @@ public class CollectionsTest {
     @Test
     public void testLngIntVector() {
         final Random random = new Random(42);
-        final List<LNGIntVector> vecs = new ArrayList<>();
+        final List<LngIntVector> vecs = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            final LNGIntVector vec = new LNGIntVector();
+            final LngIntVector vec = new LngIntVector();
             for (int j = 0; j < 500; j++) {
                 vec.push(random.nextInt());
             }
             vecs.add(vec);
         }
-        final List<PBIntVector> serialized = vecs.stream().map(Collections::serializeIntVec).collect(Collectors.toList());
-        final List<LNGIntVector> deserialized = serialized.stream().map(Collections::deserializeIntVec).collect(Collectors.toList());
+        final List<PbIntVector> serialized = vecs.stream().map(Collections::serializeIntVec).collect(Collectors.toList());
+        final List<LngIntVector> deserialized = serialized.stream().map(Collections::deserializeIntVec).collect(Collectors.toList());
         for (int i = 0; i < vecs.size(); i++) {
             CollectionComperator.assertIntVecEquals(vecs.get(i), deserialized.get(i));
         }
@@ -57,16 +57,16 @@ public class CollectionsTest {
     @Test
     public void testLngLongVector() {
         final Random random = new Random(42);
-        final List<LNGLongVector> vecs = new ArrayList<>();
+        final List<LngLongVector> vecs = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            final LNGLongVector vec = new LNGLongVector();
+            final LngLongVector vec = new LngLongVector();
             for (int j = 0; j < 500; j++) {
                 vec.push(random.nextLong());
             }
             vecs.add(vec);
         }
-        final List<PBLongVector> serialized = vecs.stream().map(Collections::serializeLongVec).collect(Collectors.toList());
-        final List<LNGLongVector> deserialized = serialized.stream().map(Collections::deserializeLongVec).collect(Collectors.toList());
+        final List<PbLongVector> serialized = vecs.stream().map(Collections::serializeLongVec).collect(Collectors.toList());
+        final List<LngLongVector> deserialized = serialized.stream().map(Collections::deserializeLongVec).collect(Collectors.toList());
         for (int i = 0; i < vecs.size(); i++) {
             CollectionComperator.assertLongVecEquals(vecs.get(i), deserialized.get(i));
         }

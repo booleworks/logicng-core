@@ -8,15 +8,15 @@ import static com.booleworks.logicng.handlers.events.SimpleEvent.MODEL_ENUMERATI
 import static com.booleworks.logicng.handlers.events.SimpleEvent.MODEL_ENUMERATION_ROLLBACK;
 import static java.util.Arrays.asList;
 
-import com.booleworks.logicng.collections.LNGBooleanVector;
-import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.collections.LngBooleanVector;
+import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
-import com.booleworks.logicng.handlers.events.LNGEvent;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.handlers.events.LngEvent;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.modelenumeration.AbstractModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.EnumerationCollector;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
@@ -108,8 +108,8 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
 
     static class ModelCountCollector implements EnumerationCollector<BigInteger> {
         private BigInteger committedCount = BigInteger.ZERO;
-        private final List<LNGBooleanVector> uncommittedModels = new ArrayList<>(100);
-        private final List<LNGIntVector> uncommittedIndices = new ArrayList<>(100);
+        private final List<LngBooleanVector> uncommittedModels = new ArrayList<>(100);
+        private final List<LngIntVector> uncommittedIndices = new ArrayList<>(100);
         private final BigInteger dontCareFactor;
 
         public ModelCountCollector(final int numberDontCareVariablesNotOnSolver) {
@@ -117,8 +117,8 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
         }
 
         @Override
-        public LNGEvent addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver,
-                                 final LNGIntVector relevantAllIndices, final ComputationHandler handler) {
+        public LngEvent addModel(final LngBooleanVector modelFromSolver, final SatSolver solver,
+                                 final LngIntVector relevantAllIndices, final ComputationHandler handler) {
             final EnumerationFoundModelsEvent event = new EnumerationFoundModelsEvent(dontCareFactor.intValue());
             uncommittedModels.add(modelFromSolver);
             uncommittedIndices.add(relevantAllIndices);
@@ -126,20 +126,20 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
         }
 
         @Override
-        public LNGEvent commit(final ComputationHandler handler) {
+        public LngEvent commit(final ComputationHandler handler) {
             committedCount = committedCount.add(BigInteger.valueOf(uncommittedModels.size()).multiply(dontCareFactor));
             clearUncommitted();
             return handler.shouldResume(MODEL_ENUMERATION_COMMIT) ? null : MODEL_ENUMERATION_COMMIT;
         }
 
         @Override
-        public LNGEvent rollback(final ComputationHandler handler) {
+        public LngEvent rollback(final ComputationHandler handler) {
             clearUncommitted();
             return handler.shouldResume(MODEL_ENUMERATION_ROLLBACK) ? null : MODEL_ENUMERATION_ROLLBACK;
         }
 
         @Override
-        public List<Model> rollbackAndReturnModels(final SATSolver solver, final ComputationHandler handler) {
+        public List<Model> rollbackAndReturnModels(final SatSolver solver, final ComputationHandler handler) {
             final List<Model> modelsToReturn = new ArrayList<>(uncommittedModels.size());
             for (int i = 0; i < uncommittedModels.size(); i++) {
                 modelsToReturn.add(new Model(solver.getUnderlyingSolver().convertInternalModel(uncommittedModels.get(i),

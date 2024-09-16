@@ -14,7 +14,7 @@ import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import com.booleworks.logicng.util.Pair;
@@ -26,17 +26,17 @@ import java.util.Set;
 public class CcIncrementalFormulaTest implements LogicNGTest {
 
     private final FormulaFactory f = FormulaFactory.caching();
-    private final List<SATSolver> solvers;
+    private final List<SatSolver> solvers;
     private final EncoderConfig[] configs;
 
     public CcIncrementalFormulaTest() {
         configs = new EncoderConfig[3];
-        configs[0] = EncoderConfig.builder().amkEncoding(EncoderConfig.AMK_ENCODER.TOTALIZER)
-                .alkEncoding(EncoderConfig.ALK_ENCODER.TOTALIZER).build();
-        configs[1] = EncoderConfig.builder().amkEncoding(EncoderConfig.AMK_ENCODER.CARDINALITY_NETWORK)
-                .alkEncoding(EncoderConfig.ALK_ENCODER.CARDINALITY_NETWORK).build();
-        configs[2] = EncoderConfig.builder().amkEncoding(EncoderConfig.AMK_ENCODER.MODULAR_TOTALIZER)
-                .alkEncoding(EncoderConfig.ALK_ENCODER.MODULAR_TOTALIZER).build();
+        configs[0] = EncoderConfig.builder().amkEncoding(EncoderConfig.AmkEncoder.TOTALIZER)
+                .alkEncoding(EncoderConfig.AlkEncoder.TOTALIZER).build();
+        configs[1] = EncoderConfig.builder().amkEncoding(EncoderConfig.AmkEncoder.CARDINALITY_NETWORK)
+                .alkEncoding(EncoderConfig.AlkEncoder.CARDINALITY_NETWORK).build();
+        configs[2] = EncoderConfig.builder().amkEncoding(EncoderConfig.AmkEncoder.MODULAR_TOTALIZER)
+                .alkEncoding(EncoderConfig.AlkEncoder.MODULAR_TOTALIZER).build();
         solvers = SolverTestSet.solverTestSet(Set.of(USE_AT_MOST_CLAUSES), f);
     }
 
@@ -52,7 +52,7 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
                     CcEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LE, 9, vars), config);
             final CcIncrementalData incData = cc.getSecond();
 
-            final SATSolver solver = SATSolver.newSolver(f);
+            final SatSolver solver = SatSolver.newSolver(f);
             solver.add(CcEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 4, vars), config)); // >=
             // 4
             solver.add(CcEncoder.encode(f, (CardinalityConstraint) f.cc(CType.LE, 7, vars), config)); // <=
@@ -63,7 +63,7 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
             assertSolverSat(solver); // <= 9
             solver.add(incData.newUpperBound(8)); // <= 8
             assertSolverSat(solver);
-            assertThat(incData.getCurrentRHS()).isEqualTo(8);
+            assertThat(incData.getCurrentRhs()).isEqualTo(8);
             solver.add(incData.newUpperBound(7)); // <= 7
             assertSolverSat(solver);
             solver.add(incData.newUpperBound(6)); // <= 6
@@ -95,11 +95,11 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
             Pair<List<Formula>, CcIncrementalData> cc =
                     CcEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LT, 10, vars), config);
             CcIncrementalData incData = cc.getSecond();
-            assertThat(incData.toString()).contains("currentRHS=9");
+            assertThat(incData.toString()).contains("currentRhs=9");
 
             cc = CcEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GT, 1, vars), config);
             incData = cc.getSecond();
-            assertThat(incData.toString()).contains("currentRHS=2");
+            assertThat(incData.toString()).contains("currentRhs=2");
 
             cc = CcEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.LT, 1, vars), config);
             incData = cc.getSecond();
@@ -140,7 +140,7 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
                     CcEncoder.encodeIncremental(f, (CardinalityConstraint) f.cc(CType.GE, 2, vars), config);
             final CcIncrementalData incData = cc.getSecond();
 
-            final SATSolver solver = SATSolver.newSolver(f);
+            final SatSolver solver = SatSolver.newSolver(f);
             // >= 4
             solver.add(CcEncoder.encode(f, (CardinalityConstraint) f.cc(CType.GE, 4, vars), config));
             // <= 7
@@ -171,7 +171,7 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
 
     @Test
     public void testLargeTotalizerUpperBoundAMK() {
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             final EncoderConfig config = configs[0];
             final int numLits = 100;
             int currentBound = numLits - 1;
@@ -198,7 +198,7 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
 
     @Test
     public void testLargeTotalizerLowerBoundALK() {
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             final EncoderConfig config = configs[0];
             final int numLits = 100;
             int currentBound = 2;
@@ -226,7 +226,7 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
     @Test
     @LongRunningTag
     public void testLargeModularTotalizerAMK() {
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             final EncoderConfig config = configs[2];
             final int numLits = 100;
             int currentBound = numLits - 1;
@@ -255,7 +255,7 @@ public class CcIncrementalFormulaTest implements LogicNGTest {
     @Test
     @LongRunningTag
     public void testVeryLargeModularTotalizerAMK() {
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             final EncoderConfig config = configs[2];
             final int numLits = 300;
             int currentBound = numLits - 1;

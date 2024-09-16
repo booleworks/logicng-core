@@ -6,8 +6,8 @@ package com.booleworks.logicng.np;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.MaxSATResult;
-import com.booleworks.logicng.solvers.MaxSATSolver;
+import com.booleworks.logicng.solvers.MaxSatResult;
+import com.booleworks.logicng.solvers.MaxSatSolver;
 import com.booleworks.logicng.util.CollectionHelper;
 
 import java.util.ArrayList;
@@ -60,19 +60,19 @@ public final class SetCover {
                 elementOccurrences.computeIfAbsent(element, i -> new LinkedHashSet<>()).add(setVar);
             }
         }
-        final MaxSATSolver solver = MaxSATSolver.msu3(f);
+        final MaxSatSolver solver = MaxSatSolver.msu3(f);
         for (final Set<Variable> occurrences : elementOccurrences.values()) {
             solver.addHardFormula(f.or(occurrences));
         }
         for (final Variable setVar : setMap.keySet()) {
             solver.addSoftFormula(setVar.negate(f), 1);
         }
-        final MaxSATResult maxSATResult = solver.solve();
-        if (!maxSATResult.isSatisfiable()) {
+        final MaxSatResult maxSatResult = solver.solve();
+        if (!maxSatResult.isSatisfiable()) {
             throw new IllegalStateException("Internal optimization problem was not feasible.");
         }
         final ArrayList<Variable> minimumCover =
-                CollectionHelper.intersection(maxSATResult.getModel().positiveVariables(), setMap.keySet(), ArrayList::new);
+                CollectionHelper.intersection(maxSatResult.getModel().positiveVariables(), setMap.keySet(), ArrayList::new);
         final List<Set<T>> result = new ArrayList<>();
         for (final Variable setVar : minimumCover) {
             result.add(setMap.get(setVar));

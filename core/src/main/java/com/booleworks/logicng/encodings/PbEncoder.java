@@ -4,8 +4,8 @@
 
 package com.booleworks.logicng.encodings;
 
-import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.collections.LNGVector;
+import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.collections.LngVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.encodings.pbc.PbAdderNetwork;
@@ -15,7 +15,7 @@ import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +37,7 @@ public class PbEncoder {
      * @param constraint the pseudo-Boolean constraint
      * @return the CNF encoding of the pseudo-Boolean constraint
      */
-    public static List<Formula> encode(final FormulaFactory f, final PBConstraint constraint) {
+    public static List<Formula> encode(final FormulaFactory f, final PbConstraint constraint) {
         final EncodingResult result = EncodingResult.resultForFormula(f);
         encode(constraint, result, null);
         return Collections.unmodifiableList(result.getResult());
@@ -48,7 +48,7 @@ public class PbEncoder {
      * @param constraint the pseudo-Boolean constraint
      * @param result     the result of the encoding
      */
-    public static void encode(final PBConstraint constraint, final EncodingResult result) {
+    public static void encode(final PbConstraint constraint, final EncodingResult result) {
         encode(constraint, result, null);
     }
 
@@ -59,7 +59,7 @@ public class PbEncoder {
      * @param config     the encoder configuration
      * @return the CNF encoding of the pseudo-Boolean constraint
      */
-    public static List<Formula> encode(final FormulaFactory f, final PBConstraint constraint,
+    public static List<Formula> encode(final FormulaFactory f, final PbConstraint constraint,
                                        final EncoderConfig config) {
         final EncodingResult result = EncodingResult.resultForFormula(f);
         encode(constraint, result, config);
@@ -72,12 +72,12 @@ public class PbEncoder {
      * @param result     the result of the encoding
      * @param initConfig the encoder configuration
      */
-    public static void encode(final PBConstraint constraint, final EncodingResult result,
+    public static void encode(final PbConstraint constraint, final EncodingResult result,
                               final EncoderConfig initConfig) {
         final FormulaFactory f = result.getFactory();
         final EncoderConfig config =
                 initConfig != null ? initConfig : (EncoderConfig) f.configurationFor(ConfigurationType.ENCODER);
-        if (constraint.isCC()) {
+        if (constraint.isCc()) {
             CcEncoder.encode((CardinalityConstraint) constraint, result, config);
             return;
         }
@@ -90,8 +90,8 @@ public class PbEncoder {
                 result.addClause();
                 return;
             case PBC:
-                final PBConstraint pbc = (PBConstraint) normalized;
-                if (pbc.isCC()) {
+                final PbConstraint pbc = (PbConstraint) normalized;
+                if (pbc.isCc()) {
                     CcEncoder.encode((CardinalityConstraint) pbc, result, config);
                     return;
                 }
@@ -104,15 +104,15 @@ public class PbEncoder {
                             result.addClause();
                             continue;
                         case PBC:
-                            encode((PBConstraint) op, result, config);
+                            encode((PbConstraint) op, result, config);
                             continue;
                         default:
-                            throw new IllegalArgumentException("Illegal return value of PBConstraint.normalize");
+                            throw new IllegalArgumentException("Illegal return value of PbConstraint.normalize");
                     }
                 }
                 return;
             default:
-                throw new IllegalArgumentException("Illegal return value of PBConstraint.normalize");
+                throw new IllegalArgumentException("Illegal return value of PbConstraint.normalize");
         }
     }
 
@@ -138,8 +138,8 @@ public class PbEncoder {
             result.addClause();
             return;
         }
-        final LNGVector<Literal> simplifiedLits = new LNGVector<>();
-        final LNGIntVector simplifiedCoeffs = new LNGIntVector();
+        final LngVector<Literal> simplifiedLits = new LngVector<>();
+        final LngIntVector simplifiedCoeffs = new LngIntVector();
         if (rhs == 0) {
             for (final Literal lit : lits) {
                 result.addClause(lit.negate(f));
@@ -164,7 +164,7 @@ public class PbEncoder {
                 break;
             case BINARY_MERGE:
                 PbBinaryMerge.encode(result, simplifiedLits, simplifiedCoeffs, rhs,
-                        config.binaryMergeUseGAC, config.binaryMergeNoSupportForSingleBit,
+                        config.binaryMergeUseGac, config.binaryMergeNoSupportForSingleBit,
                         config.binaryMergeUseWatchDog);
                 break;
             case ADDER_NETWORKS:

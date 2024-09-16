@@ -10,7 +10,6 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.testutils.PigeonHoleGenerator;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -19,7 +18,7 @@ public class PredicatesTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testTrue(final FormulaContext _c) {
-        final var sat = new SATPredicate(_c.f);
+        final var sat = new SatPredicate(_c.f);
         final var ctr = new ContradictionPredicate(_c.f);
         final var tau = new TautologyPredicate(_c.f);
         final var con = new ContingencyPredicate(_c.f);
@@ -33,7 +32,7 @@ public class PredicatesTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testFalse(final FormulaContext _c) {
-        final var sat = new SATPredicate(_c.f);
+        final var sat = new SatPredicate(_c.f);
         final var ctr = new ContradictionPredicate(_c.f);
         final var tau = new TautologyPredicate(_c.f);
         final var con = new ContingencyPredicate(_c.f);
@@ -47,7 +46,7 @@ public class PredicatesTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLiterals(final FormulaContext _c) {
-        final var sat = new SATPredicate(_c.f);
+        final var sat = new SatPredicate(_c.f);
         final var ctr = new ContradictionPredicate(_c.f);
         final var tau = new TautologyPredicate(_c.f);
         final var con = new ContingencyPredicate(_c.f);
@@ -65,7 +64,7 @@ public class PredicatesTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testOther(final FormulaContext _c) {
-        final var sat = new SATPredicate(_c.f);
+        final var sat = new SatPredicate(_c.f);
         final var ctr = new ContradictionPredicate(_c.f);
         final var tau = new TautologyPredicate(_c.f);
         final var con = new ContingencyPredicate(_c.f);
@@ -83,7 +82,7 @@ public class PredicatesTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testTaut(final FormulaContext _c) {
-        final var sat = new SATPredicate(_c.f);
+        final var sat = new SatPredicate(_c.f);
         final var ctr = new ContradictionPredicate(_c.f);
         final var tau = new TautologyPredicate(_c.f);
         final var con = new ContingencyPredicate(_c.f);
@@ -98,7 +97,7 @@ public class PredicatesTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testCont(final FormulaContext _c) {
-        final var sat = new SATPredicate(_c.f);
+        final var sat = new SatPredicate(_c.f);
         final var ctr = new ContradictionPredicate(_c.f);
         final var tau = new TautologyPredicate(_c.f);
         final var con = new ContingencyPredicate(_c.f);
@@ -113,7 +112,7 @@ public class PredicatesTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSat(final FormulaContext _c) {
-        final var sat = new SATPredicate(_c.f);
+        final var sat = new SatPredicate(_c.f);
 
         assertThat(_c.and1.holds(sat)).isTrue();
         assertThat(_c.and2.holds(sat)).isTrue();

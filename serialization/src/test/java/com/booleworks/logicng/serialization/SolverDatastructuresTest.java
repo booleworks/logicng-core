@@ -5,23 +5,23 @@ package com.booleworks.logicng.serialization;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.collections.LNGLongVector;
+import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.collections.LngLongVector;
 import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PBBoundedIntQueue;
-import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PBBoundedLongQueue;
-import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PBClause;
-import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PBHeap;
-import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PBVariable;
-import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PBWatcher;
-import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.datastructures.LNGBoundedIntQueue;
-import com.booleworks.logicng.solvers.datastructures.LNGBoundedLongQueue;
-import com.booleworks.logicng.solvers.datastructures.LNGClause;
-import com.booleworks.logicng.solvers.datastructures.LNGHeap;
-import com.booleworks.logicng.solvers.datastructures.LNGVariable;
-import com.booleworks.logicng.solvers.datastructures.LNGWatcher;
+import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PbBoundedIntQueue;
+import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PbBoundedLongQueue;
+import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PbClause;
+import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PbHeap;
+import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PbVariable;
+import com.booleworks.logicng.serialization.ProtoBufSolverDatastructures.PbWatcher;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.datastructures.LngBoundedIntQueue;
+import com.booleworks.logicng.solvers.datastructures.LngBoundedLongQueue;
+import com.booleworks.logicng.solvers.datastructures.LngClause;
+import com.booleworks.logicng.solvers.datastructures.LngHeap;
+import com.booleworks.logicng.solvers.datastructures.LngVariable;
+import com.booleworks.logicng.solvers.datastructures.LngWatcher;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -33,25 +33,25 @@ public class SolverDatastructuresTest {
     @Test
     public void testLngHeap() {
         final FormulaFactory f = FormulaFactory.caching();
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
 
-        final LNGIntVector heapContent = new LNGIntVector(new int[]{1, 3, 5, -7, 9}, 5);
-        final LNGIntVector indices = new LNGIntVector(new int[]{42, 43, 44}, 3);
+        final LngIntVector heapContent = new LngIntVector(new int[]{1, 3, 5, -7, 9}, 5);
+        final LngIntVector indices = new LngIntVector(new int[]{42, 43, 44}, 3);
 
-        final LNGHeap heap = new LNGHeap(solver.getUnderlyingSolver(), heapContent, indices);
+        final LngHeap heap = new LngHeap(solver.getUnderlyingSolver(), heapContent, indices);
 
-        final PBHeap serialized = SolverDatastructures.serializeHeap(heap);
-        final LNGHeap deserialized = SolverDatastructures.deserializeHeap(serialized, solver.getUnderlyingSolver());
+        final PbHeap serialized = SolverDatastructures.serializeHeap(heap);
+        final LngHeap deserialized = SolverDatastructures.deserializeHeap(serialized, solver.getUnderlyingSolver());
         CollectionComperator.assertIntVecEquals(heap.getHeap(), deserialized.getHeap());
         CollectionComperator.assertIntVecEquals(heap.getIndices(), deserialized.getIndices());
     }
 
     @Test
     public void testLngClause() {
-        final LNGIntVector data = new LNGIntVector(new int[]{1, 3, 5, -7, 9}, 5);
-        final LNGClause clause = new LNGClause(data, 17, true, 3.3, true, 8990L, true, false, 7);
-        final PBClause serialized = SolverDatastructures.serializeClause(clause, 47);
-        final LNGClause deserialized = SolverDatastructures.deserializeClause(serialized);
+        final LngIntVector data = new LngIntVector(new int[]{1, 3, 5, -7, 9}, 5);
+        final LngClause clause = new LngClause(data, 17, true, 3.3, true, 8990L, true, false, 7);
+        final PbClause serialized = SolverDatastructures.serializeClause(clause, 47);
+        final LngClause deserialized = SolverDatastructures.deserializeClause(serialized);
 
         assertThat(deserialized.get(0)).isEqualTo(1);
         assertThat(deserialized.get(1)).isEqualTo(3);
@@ -72,21 +72,21 @@ public class SolverDatastructuresTest {
 
     @Test
     public void testMsVariable() {
-        final LNGIntVector data = new LNGIntVector(new int[]{1, 3, 5, -7, 9}, 5);
-        final LNGClause clause = new LNGClause(data, 17, true, 3.3, true, 8990L, true, false, 7);
-        final LNGVariable variable = new LNGVariable(true);
+        final LngIntVector data = new LngIntVector(new int[]{1, 3, 5, -7, 9}, 5);
+        final LngClause clause = new LngClause(data, 17, true, 3.3, true, 8990L, true, false, 7);
+        final LngVariable variable = new LngVariable(true);
         variable.assign(Tristate.UNDEF);
         variable.setLevel(42);
         variable.setReason(clause);
         variable.incrementActivity(23.3);
         variable.setDecision(true);
-        final IdentityHashMap<LNGClause, Integer> clauseMap = new IdentityHashMap<>();
+        final IdentityHashMap<LngClause, Integer> clauseMap = new IdentityHashMap<>();
         clauseMap.put(clause, 42);
-        final Map<Integer, LNGClause> reverseMap = new HashMap<>();
+        final Map<Integer, LngClause> reverseMap = new HashMap<>();
         reverseMap.put(42, clause);
 
-        final PBVariable serialized = SolverDatastructures.serializeVariable(variable, clauseMap);
-        final LNGVariable deserialized = SolverDatastructures.deserializeVariable(serialized, reverseMap);
+        final PbVariable serialized = SolverDatastructures.serializeVariable(variable, clauseMap);
+        final LngVariable deserialized = SolverDatastructures.deserializeVariable(serialized, reverseMap);
 
         assertThat(deserialized.assignment()).isEqualTo(Tristate.UNDEF);
         assertThat(deserialized.level()).isEqualTo(42);
@@ -97,16 +97,16 @@ public class SolverDatastructuresTest {
 
     @Test
     public void testLngWatcher() {
-        final LNGIntVector data = new LNGIntVector(new int[]{1, 3, 5, -7, 9}, 5);
-        final LNGClause clause = new LNGClause(data, 17, true, 3.3, true, 8990L, true, false, 7);
-        final LNGWatcher watcher = new LNGWatcher(clause, 42);
-        final IdentityHashMap<LNGClause, Integer> clauseMap = new IdentityHashMap<>();
+        final LngIntVector data = new LngIntVector(new int[]{1, 3, 5, -7, 9}, 5);
+        final LngClause clause = new LngClause(data, 17, true, 3.3, true, 8990L, true, false, 7);
+        final LngWatcher watcher = new LngWatcher(clause, 42);
+        final IdentityHashMap<LngClause, Integer> clauseMap = new IdentityHashMap<>();
         clauseMap.put(clause, 42);
-        final Map<Integer, LNGClause> reverseMap = new HashMap<>();
+        final Map<Integer, LngClause> reverseMap = new HashMap<>();
         reverseMap.put(42, clause);
 
-        final PBWatcher serialized = SolverDatastructures.serializeWatcher(watcher, clauseMap);
-        final LNGWatcher deserialized = SolverDatastructures.deserializeWatcher(serialized, reverseMap);
+        final PbWatcher serialized = SolverDatastructures.serializeWatcher(watcher, clauseMap);
+        final LngWatcher deserialized = SolverDatastructures.deserializeWatcher(serialized, reverseMap);
 
         assertThat(deserialized.blocker()).isEqualTo(42);
         assertThat(deserialized.clause().get(1)).isEqualTo(3);
@@ -126,9 +126,9 @@ public class SolverDatastructuresTest {
 
     @Test
     public void testLngBoundedIntQueue() {
-        final LNGBoundedIntQueue queue = new LNGBoundedIntQueue(new LNGIntVector(new int[]{1, 3, 5, 8}, 4), 1, 3, 5, 17, 42);
-        final PBBoundedIntQueue serialized = SolverDatastructures.serializeIntQueue(queue);
-        final LNGBoundedIntQueue deserialized = SolverDatastructures.deserializeIntQueue(serialized);
+        final LngBoundedIntQueue queue = new LngBoundedIntQueue(new LngIntVector(new int[]{1, 3, 5, 8}, 4), 1, 3, 5, 17, 42);
+        final PbBoundedIntQueue serialized = SolverDatastructures.serializeIntQueue(queue);
+        final LngBoundedIntQueue deserialized = SolverDatastructures.deserializeIntQueue(serialized);
 
         assertThat(deserialized.getElems().get(0)).isEqualTo(1);
         assertThat(deserialized.getElems().get(1)).isEqualTo(3);
@@ -144,9 +144,9 @@ public class SolverDatastructuresTest {
 
     @Test
     public void testLngBoundedLongQueue() {
-        final LNGBoundedLongQueue queue = new LNGBoundedLongQueue(new LNGLongVector(1, 3, 5, 8), 1, 3, 5, 17, 42);
-        final PBBoundedLongQueue serialized = SolverDatastructures.serializeLongQueue(queue);
-        final LNGBoundedLongQueue deserialized = SolverDatastructures.deserializeLongQueue(serialized);
+        final LngBoundedLongQueue queue = new LngBoundedLongQueue(new LngLongVector(1, 3, 5, 8), 1, 3, 5, 17, 42);
+        final PbBoundedLongQueue serialized = SolverDatastructures.serializeLongQueue(queue);
+        final LngBoundedLongQueue deserialized = SolverDatastructures.deserializeLongQueue(serialized);
 
         assertThat(deserialized.getElems().get(0)).isEqualTo(1);
         assertThat(deserialized.getElems().get(1)).isEqualTo(3);

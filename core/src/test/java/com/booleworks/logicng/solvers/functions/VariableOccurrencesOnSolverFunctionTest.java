@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -33,7 +33,7 @@ public class VariableOccurrencesOnSolverFunctionTest {
 
     @Test
     public void testWithEmptySolver() {
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         assertThat(solver.execute(new VariableOccurrencesOnSolverFunction())).isEmpty();
         final Map<Variable, Integer> countWithRelevantVariables = solver.execute(
                 new VariableOccurrencesOnSolverFunction(new HashSet<>(Arrays.asList(A, B, C))));
@@ -44,7 +44,7 @@ public class VariableOccurrencesOnSolverFunctionTest {
 
     @Test
     public void testWithAllVariables() throws ParserException {
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(f.parse("(a | b | c) & (~b | c) & (d | ~e) & x & (~a | e) & (a | d | b | g | h) & (~h | i) & y"));
         final Map<Variable, Integer> counts = solver.execute(new VariableOccurrencesOnSolverFunction());
         assertThat(counts).hasSize(10);
@@ -62,7 +62,7 @@ public class VariableOccurrencesOnSolverFunctionTest {
 
     @Test
     public void testWithRelevantVariables() throws ParserException {
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(f.parse("(a | b | c) & (~b | c) & (d | ~e) & x & (~a | e) & (a | d | b | g | h) & (~h | i) & y"));
         final Map<Variable, Integer> counts = solver.execute(
                 new VariableOccurrencesOnSolverFunction(new HashSet<>(Arrays.asList(A, C, X, J))));

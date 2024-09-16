@@ -10,7 +10,7 @@ import com.booleworks.logicng.LogicNGTest;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
 
 public class CcExkTest implements LogicNGTest {
@@ -19,8 +19,8 @@ public class CcExkTest implements LogicNGTest {
 
     public CcExkTest() {
         configs = new EncoderConfig[2];
-        configs[0] = EncoderConfig.builder().exkEncoding(EncoderConfig.EXK_ENCODER.TOTALIZER).build();
-        configs[1] = EncoderConfig.builder().exkEncoding(EncoderConfig.EXK_ENCODER.CARDINALITY_NETWORK).build();
+        configs[0] = EncoderConfig.builder().exkEncoding(EncoderConfig.ExkEncoder.TOTALIZER).build();
+        configs[1] = EncoderConfig.builder().exkEncoding(EncoderConfig.ExkEncoder.CARDINALITY_NETWORK).build();
     }
 
     @Test
@@ -40,7 +40,7 @@ public class CcExkTest implements LogicNGTest {
             testCC(f, 10, 9, 10);
             testCC(f, 10, 10, 1);
             testCC(f, 10, 12, 0);
-            assertThat(f.newCCVariable().getName()).endsWith("_" + counter++);
+            assertThat(f.newCcVariable().getName()).endsWith("_" + counter++);
         }
     }
 
@@ -49,7 +49,7 @@ public class CcExkTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(f.cc(CType.EQ, rhs, problemLits));
         if (expected != 0) {
             assertSolverSat(solver);
@@ -66,7 +66,7 @@ public class CcExkTest implements LogicNGTest {
         assertThat(configs[0].exkEncoder.toString()).isEqualTo("TOTALIZER");
         assertThat(configs[1].exkEncoder.toString()).isEqualTo("CARDINALITY_NETWORK");
 
-        assertThat(EncoderConfig.EXK_ENCODER.values())
-                .contains(EncoderConfig.EXK_ENCODER.valueOf("CARDINALITY_NETWORK"));
+        assertThat(EncoderConfig.ExkEncoder.values())
+                .contains(EncoderConfig.ExkEncoder.valueOf("CARDINALITY_NETWORK"));
     }
 }

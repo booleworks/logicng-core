@@ -1,13 +1,13 @@
 package com.booleworks.logicng.handlers.events;
 
-import com.booleworks.logicng.solvers.MaxSATSolver;
+import com.booleworks.logicng.solvers.MaxSatSolver;
 
 /**
- * An event created when a {@link MaxSATSolver} found a new lower bound.
+ * An event created when a {@link MaxSatSolver} found a new lower bound.
  * @version 3.0.0
  * @since 3.0.0
  */
-public class MaxSatNewLowerBoundEvent implements LNGEvent {
+public class MaxSatNewLowerBoundEvent implements LngEvent {
     private final int bound;
 
     /**

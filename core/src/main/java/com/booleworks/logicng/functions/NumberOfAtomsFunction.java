@@ -11,7 +11,7 @@ import com.booleworks.logicng.formulas.NAryOperator;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.cache.FunctionCacheEntry;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 
 import java.util.Map;
 
@@ -43,10 +43,10 @@ public class NumberOfAtomsFunction extends CacheableFormulaFunction<Long> {
     }
 
     @Override
-    public LNGResult<Long> apply(final Formula formula, final ComputationHandler handler) {
+    public LngResult<Long> apply(final Formula formula, final ComputationHandler handler) {
         final Long cached = lookupCache(formula);
         if (cached != null) {
-            return LNGResult.of(cached);
+            return LngResult.of(cached);
         }
         long result = 0L;
         switch (formula.getType()) {
@@ -76,6 +76,6 @@ public class NumberOfAtomsFunction extends CacheableFormulaFunction<Long> {
                 throw new IllegalStateException("Unknown formula type " + formula.getType());
         }
         setCache(formula, result);
-        return LNGResult.of(result);
+        return LngResult.of(result);
     }
 }

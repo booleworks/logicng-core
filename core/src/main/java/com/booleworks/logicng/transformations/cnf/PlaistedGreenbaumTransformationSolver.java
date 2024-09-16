@@ -4,16 +4,16 @@
 
 package com.booleworks.logicng.transformations.cnf;
 
-import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.generateClauseVector;
-import static com.booleworks.logicng.solvers.sat.LNGCoreSolver.solverLiteral;
+import static com.booleworks.logicng.solvers.sat.LngCoreSolver.generateClauseVector;
+import static com.booleworks.logicng.solvers.sat.LngCoreSolver.solverLiteral;
 
-import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.InternalAuxVarType;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.propositions.Proposition;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 
 /**
  * A Plaisted-Greenbaum CNF conversion which is performed directly on the
@@ -23,23 +23,23 @@ import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
  */
 public final class PlaistedGreenbaumTransformationSolver extends PlaistedGreenbaumCommon<Proposition> {
 
-    private final LNGCoreSolver solver;
+    private final LngCoreSolver solver;
 
     /**
      * Constructs a new transformation for a given SAT solver.
      * @param f          the formula factory to generate new formulas
-     * @param performNNF flag whether an NNF transformation should be
+     * @param performNnf flag whether an NNF transformation should be
      *                   performed on the input formula
      * @param solver     the solver
      */
-    public PlaistedGreenbaumTransformationSolver(final FormulaFactory f, final boolean performNNF,
-                                                 final LNGCoreSolver solver) {
-        super(f, performNNF);
+    public PlaistedGreenbaumTransformationSolver(final FormulaFactory f, final boolean performNnf,
+                                                 final LngCoreSolver solver) {
+        super(f, performNnf);
         this.solver = solver;
     }
 
     @Override
-    protected void addCNF(final Formula cnf, final Proposition proposition) {
+    protected void addCnf(final Formula cnf, final Proposition proposition) {
         switch (cnf.getType()) {
             case TRUE:
                 break;
@@ -67,7 +67,7 @@ public final class PlaistedGreenbaumTransformationSolver extends PlaistedGreenba
     }
 
     @Override
-    void addToSolver(final LNGIntVector clause, final Proposition addendum) {
+    void addToSolver(final LngIntVector clause, final Proposition addendum) {
         solver.addClause(clause, addendum);
     }
 

@@ -9,8 +9,8 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.util.FormulaHelper;
 
@@ -41,19 +41,19 @@ public abstract class CanonicalEnumeration extends StatelessFormulaTransformatio
      * @param cnf     {@code true} if the canonical CNF should be computed,
      *                {@code false} if the canonical DNF should be computed
      * @return the (potentially canceled) result with the canonical normal form
-     *         (CNF or DNF) of the formula
+     * (CNF or DNF) of the formula
      */
-    protected LNGResult<Formula> compute(final Formula formula, final ComputationHandler handler, final boolean cnf) {
-        final SATSolver solver = SATSolver.newSolver(f);
+    protected LngResult<Formula> compute(final Formula formula, final ComputationHandler handler, final boolean cnf) {
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(cnf ? formula.negate(f) : formula);
-        final LNGResult<List<Model>> enumerationResult = solver.execute(
+        final LngResult<List<Model>> enumerationResult = solver.execute(
                 ModelEnumerationFunction.builder(formula.variables(f)).build(), handler);
         if (!enumerationResult.isSuccess()) {
-            return LNGResult.canceled(enumerationResult.getCancelCause());
+            return LngResult.canceled(enumerationResult.getCancelCause());
         } else {
             final List<Model> enumeration = enumerationResult.getResult();
             if (enumeration.isEmpty()) {
-                return LNGResult.of(f.constant(cnf));
+                return LngResult.of(f.constant(cnf));
             }
             final List<Formula> ops = new ArrayList<>();
             for (final Model model : enumeration) {
@@ -62,7 +62,7 @@ public abstract class CanonicalEnumeration extends StatelessFormulaTransformatio
                         cnf ? f.or(FormulaHelper.negate(f, literals, ArrayList::new)) : f.and(model.getLiterals());
                 ops.add(term);
             }
-            return LNGResult.of(cnf ? f.and(ops) : f.or(ops));
+            return LngResult.of(cnf ? f.and(ops) : f.or(ops));
         }
     }
 }

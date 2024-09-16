@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import com.booleworks.logicng.testutils.PigeonHoleGenerator;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +40,7 @@ class TimeoutSATHandlerTest {
 
     private FormulaFactory f;
     private PigeonHoleGenerator pg;
-    private List<SATSolver> solvers;
+    private List<SatSolver> solvers;
 
     @BeforeEach
     public void init() {
@@ -60,7 +60,7 @@ class TimeoutSATHandlerTest {
 
     @Test
     public void testThatMethodsAreCalled() throws ParserException {
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             solver.add(f.parse("(x => y) & (~x => y) & (y => z) & (z => ~y)"));
             final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
             when(handler.shouldResume(any())).thenReturn(true);
@@ -73,14 +73,14 @@ class TimeoutSATHandlerTest {
 
     @Test
     public void testThatDetectedConflictIsHandledProperly() {
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             solver.add(pg.generate(10));
             final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
             final AtomicInteger count = new AtomicInteger(0);
             when(handler.shouldResume(any())).thenReturn(true);
             when(handler.shouldResume(eq(SAT_CONFLICT_DETECTED)))
                     .thenAnswer(invocationOnMock -> count.addAndGet(1) < 5);
-            final LNGResult<Boolean> result = solver.satCall().handler(handler).sat();
+            final LngResult<Boolean> result = solver.satCall().handler(handler).sat();
             assertThat(result.isSuccess()).isFalse();
             verify(handler, times(1)).shouldResume(eq(SAT_CALL_STARTED));
             verify(handler, times(5)).shouldResume(eq(SAT_CONFLICT_DETECTED));
@@ -90,20 +90,20 @@ class TimeoutSATHandlerTest {
 
     @Test
     public void testTimeoutHandlerSingleTimeout() {
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             solver.add(pg.generate(10));
             final TimeoutHandler handler = new TimeoutHandler(100L);
-            final LNGResult<Boolean> result = solver.satCall().handler(handler).sat();
+            final LngResult<Boolean> result = solver.satCall().handler(handler).sat();
             assertThat(result.isSuccess()).isFalse();
         }
     }
 
     @Test
     public void testTimeoutHandlerFixedEnd() {
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             solver.add(pg.generate(10));
             final TimeoutHandler handler = new TimeoutHandler(System.currentTimeMillis() + 100L, FIXED_END);
-            final LNGResult<Boolean> result = solver.satCall().handler(handler).sat();
+            final LngResult<Boolean> result = solver.satCall().handler(handler).sat();
             assertThat(result.isSuccess()).isFalse();
         }
     }

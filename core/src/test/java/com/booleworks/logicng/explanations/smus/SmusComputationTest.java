@@ -15,7 +15,7 @@ import com.booleworks.logicng.TestWithExampleFormulas;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.handlers.BoundedOptimizationHandler;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
@@ -273,7 +273,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
 
     private void testHandler(final ComputationHandler handler, final List<Formula> formulas,
                              final boolean expCanceled) {
-        final LNGResult<List<Formula>> result =
+        final LngResult<List<Formula>> result =
                 SmusComputation.computeSmusForFormulas(f, formulas, Collections.emptyList(), handler);
         assertThat(!result.isSuccess()).isEqualTo(expCanceled);
     }

@@ -12,7 +12,7 @@ import com.booleworks.logicng.formulas.Implication;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.cache.TransformationCacheEntry;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.transformations.CacheableFormulaTransformation;
 
 import java.util.LinkedHashMap;
@@ -37,10 +37,10 @@ public final class DistributiveSimplifier extends CacheableFormulaTransformation
     }
 
     @Override
-    public LNGResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
+    public LngResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         Formula result = lookupCache(formula);
         if (result != null) {
-            return LNGResult.of(result);
+            return LngResult.of(result);
         }
         switch (formula.getType()) {
             case FALSE:
@@ -70,7 +70,7 @@ public final class DistributiveSimplifier extends CacheableFormulaTransformation
                 throw new IllegalStateException("Unknown formula type: " + formula.getType());
         }
         setCache(formula, result);
-        return LNGResult.of(result);
+        return LngResult.of(result);
     }
 
     private Formula distributeNAry(final Formula formula) {

@@ -31,5 +31,5 @@ public interface Or extends NAryOperator {
         return false;
     }
 
-    boolean isCNFClause();
+    boolean isCnfClause();
 }

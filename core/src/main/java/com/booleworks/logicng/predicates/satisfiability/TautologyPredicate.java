@@ -28,6 +28,6 @@ public final class TautologyPredicate implements FormulaPredicate {
 
     @Override
     public boolean test(final Formula formula) {
-        return !formula.negate(f).holds(new SATPredicate(f));
+        return !formula.negate(f).holds(new SatPredicate(f));
     }
 }

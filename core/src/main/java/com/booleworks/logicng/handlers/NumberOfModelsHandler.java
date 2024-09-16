@@ -6,7 +6,7 @@ package com.booleworks.logicng.handlers;
 
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
-import com.booleworks.logicng.handlers.events.LNGEvent;
+import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.handlers.events.SimpleEvent;
 
 /**
@@ -44,7 +44,7 @@ public class NumberOfModelsHandler implements ComputationHandler {
     }
 
     @Override
-    public boolean shouldResume(final LNGEvent event) {
+    public boolean shouldResume(final LngEvent event) {
         if (event == ComputationStartedEvent.MODEL_ENUMERATION_STARTED) {
             countCommitted = 0;
             countUncommitted = 0;

@@ -10,7 +10,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.graphs.datastructures.Hypergraph;
 import com.booleworks.logicng.graphs.datastructures.HypergraphNode;
-import com.booleworks.logicng.predicates.CNFPredicate;
+import com.booleworks.logicng.predicates.CnfPredicate;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,8 +35,8 @@ public final class HypergraphGenerator {
      * @param cnf the list of clauses of the CNF for the hyper-graph
      * @return the hyper-graph for the CNF formula
      */
-    public static Hypergraph<Variable> fromCNF(final FormulaFactory f, final Formula... cnf) {
-        return fromCNF(f, Arrays.asList(cnf));
+    public static Hypergraph<Variable> fromCnf(final FormulaFactory f, final Formula... cnf) {
+        return fromCnf(f, Arrays.asList(cnf));
     }
 
     /**
@@ -47,7 +47,7 @@ public final class HypergraphGenerator {
      * @param cnf the list of clauses of the CNF for the hyper-graph
      * @return the hyper-graph for the CNF formula
      */
-    public static Hypergraph<Variable> fromCNF(final FormulaFactory f, final List<Formula> cnf) {
+    public static Hypergraph<Variable> fromCnf(final FormulaFactory f, final List<Formula> cnf) {
         final Hypergraph<Variable> hypergraph = new Hypergraph<>();
         final Map<Variable, HypergraphNode<Variable>> nodes = new HashMap<>();
         for (final Formula clause : cnf) {
@@ -76,8 +76,8 @@ public final class HypergraphGenerator {
      * @param cnf the CNF formula for the hyper-graph
      * @return the hyper-graph for the CNF formula
      */
-    public static Hypergraph<Variable> fromCNF(final FormulaFactory f, final Formula cnf) {
-        if (!cnf.holds(new CNFPredicate(cnf.getFactory(), null))) {
+    public static Hypergraph<Variable> fromCnf(final FormulaFactory f, final Formula cnf) {
+        if (!cnf.holds(new CnfPredicate(cnf.getFactory(), null))) {
             throw new IllegalArgumentException("Cannot generate a hypergraph from a non-cnf formula");
         }
         final Hypergraph<Variable> hypergraph = new Hypergraph<>();

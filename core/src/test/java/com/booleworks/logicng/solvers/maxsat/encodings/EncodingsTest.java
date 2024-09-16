@@ -7,20 +7,19 @@ package com.booleworks.logicng.solvers.maxsat.encodings;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
-import org.assertj.core.api.Assertions;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import org.junit.jupiter.api.Test;
 
 public class EncodingsTest {
 
     @Test
     public void testTotalizer() {
-        final Totalizer totalizer = new Totalizer(MaxSATConfig.IncrementalStrategy.ITERATIVE);
-        assertThat(totalizer.incremental()).isEqualTo(MaxSATConfig.IncrementalStrategy.ITERATIVE);
+        final Totalizer totalizer = new Totalizer(MaxSatConfig.IncrementalStrategy.ITERATIVE);
+        assertThat(totalizer.incremental()).isEqualTo(MaxSatConfig.IncrementalStrategy.ITERATIVE);
     }
 
     @Test
@@ -33,14 +32,14 @@ public class EncodingsTest {
     public void testSequentialWeightCounterExceptionalBehavior() {
         assertThatThrownBy(() -> {
             final SequentialWeightCounter swc = new SequentialWeightCounter();
-            swc.encode(new LNGCoreSolver(FormulaFactory.caching(), SATSolverConfig.builder().build()),
-                    new LNGIntVector(), new LNGIntVector(), Integer.MAX_VALUE);
+            swc.encode(new LngCoreSolver(FormulaFactory.caching(), SatSolverConfig.builder().build()),
+                    new LngIntVector(), new LngIntVector(), Integer.MAX_VALUE);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Overflow in the encoding.");
         assertThatThrownBy(() -> {
             final SequentialWeightCounter swc = new SequentialWeightCounter();
-            swc.encode(new LNGCoreSolver(FormulaFactory.caching(), SATSolverConfig.builder().build()),
-                    new LNGIntVector(), new LNGIntVector(), Integer.MAX_VALUE, new LNGIntVector(), 1);
+            swc.encode(new LngCoreSolver(FormulaFactory.caching(), SatSolverConfig.builder().build()),
+                    new LngIntVector(), new LngIntVector(), Integer.MAX_VALUE, new LngIntVector(), 1);
         }).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Overflow in the encoding.");
     }

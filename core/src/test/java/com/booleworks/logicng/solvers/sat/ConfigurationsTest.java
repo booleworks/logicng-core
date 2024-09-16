@@ -7,7 +7,7 @@ package com.booleworks.logicng.solvers.sat;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSATConfig;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
 import org.junit.jupiter.api.Test;
 
@@ -15,41 +15,41 @@ public class ConfigurationsTest {
 
     @Test
     public void testSolverConfigToString() {
-        final SATSolverLowLevelConfig config = SATSolverLowLevelConfig.builder()
+        final SatSolverLowLevelConfig config = SatSolverLowLevelConfig.builder()
                 .varDecay(1.2)
                 .varInc(1.3)
                 .restartFirst(200)
                 .restartInc(0.8)
                 .clauseDecay(0.92)
-                .lbLBDMinimizingClause(3)
-                .lbLBDFrozenClause(25)
+                .lbLbdMinimizingClause(3)
+                .lbLbdFrozenClause(25)
                 .lbSizeMinimizingClause(24)
-                .firstReduceDB(1999)
-                .specialIncReduceDB(999)
-                .incReduceDB(299)
+                .firstReduceDb(1999)
+                .specialIncReduceDb(999)
+                .incReduceDb(299)
                 .factorK(0.7)
                 .factorR(1.3)
-                .sizeLBDQueue(45)
+                .sizeLbdQueue(45)
                 .sizeTrailQueue(4999)
                 .reduceOnSize(true)
                 .reduceOnSizeSize(10)
                 .maxVarDecay(0.99)
                 .build();
-        final String expected = String.format("SATSolverLowLevelConfig{%n" +
+        final String expected = String.format("SatSolverLowLevelConfig{%n" +
                 "varDecay=1.2%n" +
                 "varInc=1.3%n" +
                 "restartFirst=200%n" +
                 "restartInc=0.8%n" +
                 "clauseDecay=0.92%n" +
-                "lbLBDMinimizingClause=3%n" +
-                "lbLBDFrozenClause=25%n" +
+                "lbLbdMinimizingClause=3%n" +
+                "lbLbdFrozenClause=25%n" +
                 "lbSizeMinimizingClause=24%n" +
-                "firstReduceDB=1999%n" +
-                "specialIncReduceDB=999%n" +
-                "incReduceDB=299%n" +
+                "firstReduceDb=1999%n" +
+                "specialIncReduceDb=999%n" +
+                "incReduceDb=299%n" +
                 "factorK=0.7%n" +
                 "factorR=1.3%n" +
-                "sizeLBDQueue=45%n" +
+                "sizeLbdQueue=45%n" +
                 "sizeTrailQueue=4999%n" +
                 "reduceOnSize=true%n" +
                 "reduceOnSizeSize=10%n" +
@@ -60,18 +60,18 @@ public class ConfigurationsTest {
 
     @Test
     public void testMaxSATConfigToString() {
-        final MaxSATConfig config = MaxSATConfig.builder()
-                .cnfMethod(SATSolverConfig.CNFMethod.FULL_PG_ON_SOLVER)
-                .incremental(MaxSATConfig.IncrementalStrategy.ITERATIVE)
-                .cardinality(MaxSATConfig.CardinalityEncoding.MTOTALIZER)
-                .weight(MaxSATConfig.WeightStrategy.DIVERSIFY)
-                .verbosity(MaxSATConfig.Verbosity.SOME)
+        final MaxSatConfig config = MaxSatConfig.builder()
+                .cnfMethod(SatSolverConfig.CnfMethod.FULL_PG_ON_SOLVER)
+                .incremental(MaxSatConfig.IncrementalStrategy.ITERATIVE)
+                .cardinality(MaxSatConfig.CardinalityEncoding.MTOTALIZER)
+                .weight(MaxSatConfig.WeightStrategy.DIVERSIFY)
+                .verbosity(MaxSatConfig.Verbosity.SOME)
                 .output(System.out)
                 .symmetry(false)
                 .limit(1000)
                 .bmo(false)
                 .build();
-        final String expected = String.format("MaxSATConfig{%n" +
+        final String expected = String.format("MaxSatConfig{%n" +
                 "cnfMethod=FULL_PG_ON_SOLVER%n" +
                 "incrementalStrategy=ITERATIVE%n" +
                 "pbEncoding=LADDER%n" +

@@ -7,7 +7,7 @@ package com.booleworks.logicng.solvers.functions.modelenumeration;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
-import com.booleworks.logicng.handlers.events.LNGEvent;
+import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.handlers.events.SimpleEvent;
 
 public final class EnumerationCollectorTestHandler implements ComputationHandler {
@@ -17,7 +17,7 @@ public final class EnumerationCollectorTestHandler implements ComputationHandler
     private int rollbackCalls;
 
     @Override
-    public boolean shouldResume(final LNGEvent event) {
+    public boolean shouldResume(final LngEvent event) {
         if (event == ComputationStartedEvent.MODEL_ENUMERATION_STARTED) {
             foundModels = 0;
         } else if (event instanceof EnumerationFoundModelsEvent) {

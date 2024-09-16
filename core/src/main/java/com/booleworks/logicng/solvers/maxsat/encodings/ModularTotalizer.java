@@ -22,9 +22,9 @@
 
 package com.booleworks.logicng.solvers.maxsat.encodings;
 
-import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSat;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 
 /**
  * Encodes that at most 'rhs' literals can be assigned value true. Uses the
@@ -38,22 +38,22 @@ public class ModularTotalizer extends Encoding {
     protected static final int LIT_ERROR = -2;
 
     protected final int h0;
-    protected final LNGIntVector cardinalityUpoutlits;
-    protected final LNGIntVector cardinalityLwoutlits;
+    protected final LngIntVector cardinalityUpoutlits;
+    protected final LngIntVector cardinalityLwoutlits;
     protected int modulo;
-    protected LNGIntVector cardinalityInlits;
+    protected LngIntVector cardinalityInlits;
     protected int currentCardinalityRhs;
 
     /**
      * Constructs a new modular totalizer.
      */
     ModularTotalizer() {
-        h0 = LNGCoreSolver.LIT_UNDEF;
+        h0 = LngCoreSolver.LIT_UNDEF;
         modulo = -1;
         currentCardinalityRhs = -1;
-        cardinalityInlits = new LNGIntVector();
-        cardinalityUpoutlits = new LNGIntVector();
-        cardinalityLwoutlits = new LNGIntVector();
+        cardinalityInlits = new LngIntVector();
+        cardinalityUpoutlits = new LngIntVector();
+        cardinalityLwoutlits = new LngIntVector();
     }
 
     /**
@@ -78,13 +78,13 @@ public class ModularTotalizer extends Encoding {
      * @param lits the literals of the constraint
      * @param rhs  the right-hand side of the constraint
      */
-    public void encode(final LNGCoreSolver s, final LNGIntVector lits, final int rhs) {
+    public void encode(final LngCoreSolver s, final LngIntVector lits, final int rhs) {
         hasEncoding = false;
         cardinalityUpoutlits.clear();
         cardinalityLwoutlits.clear();
         if (rhs == 0) {
             for (int i = 0; i < lits.size(); i++) {
-                addUnitClause(s, LNGCoreSolver.not(lits.get(i)));
+                addUnitClause(s, LngCoreSolver.not(lits.get(i)));
             }
             return;
         }
@@ -100,21 +100,21 @@ public class ModularTotalizer extends Encoding {
             mod = modulo;
         }
         for (int i = 0; i < lits.size() / mod; i++) {
-            final int p = LNGCoreSolver.mkLit(s.nVars(), false);
-            MaxSAT.newSATVariable(s);
+            final int p = LngCoreSolver.mkLit(s.nVars(), false);
+            MaxSat.newSatVariable(s);
             cardinalityUpoutlits.push(p);
         }
         for (int i = 0; i < mod - 1; i++) {
-            final int p = LNGCoreSolver.mkLit(s.nVars(), false);
-            MaxSAT.newSATVariable(s);
+            final int p = LngCoreSolver.mkLit(s.nVars(), false);
+            MaxSat.newSatVariable(s);
             cardinalityLwoutlits.push(p);
         }
-        cardinalityInlits = new LNGIntVector(lits);
+        cardinalityInlits = new LngIntVector(lits);
         currentCardinalityRhs = rhs + 1;
         if (cardinalityUpoutlits.size() == 0) {
             cardinalityUpoutlits.push(h0);
         }
-        toCNF(s, mod, cardinalityUpoutlits, cardinalityLwoutlits, lits.size());
+        toCnf(s, mod, cardinalityUpoutlits, cardinalityLwoutlits, lits.size());
         assert cardinalityInlits.size() == 0;
         update(s, rhs);
     }
@@ -124,14 +124,14 @@ public class ModularTotalizer extends Encoding {
      * @param s   the solver
      * @param rhs the new right-hand side
      */
-    public void update(final LNGCoreSolver s, final int rhs) {
+    public void update(final LngCoreSolver s, final int rhs) {
         assert currentCardinalityRhs != -1;
         assert hasEncoding;
         encodeOutput(s, rhs);
         currentCardinalityRhs = rhs + 1;
     }
 
-    protected void encodeOutput(final LNGCoreSolver s, final int rhs) {
+    protected void encodeOutput(final LngCoreSolver s, final int rhs) {
         assert hasEncoding;
         assert cardinalityUpoutlits.size() != 0 || cardinalityLwoutlits.size() != 0;
         final int mod = modulo;
@@ -140,31 +140,31 @@ public class ModularTotalizer extends Encoding {
         assert ulimit <= cardinalityUpoutlits.size();
         assert llimit <= cardinalityLwoutlits.size();
         for (int i = ulimit; i < cardinalityUpoutlits.size(); i++) {
-            addUnitClause(s, LNGCoreSolver.not(cardinalityUpoutlits.get(i)));
+            addUnitClause(s, LngCoreSolver.not(cardinalityUpoutlits.get(i)));
         }
         if (ulimit != 0 && llimit != 0) {
             for (int i = llimit - 1; i < cardinalityLwoutlits.size(); i++) {
-                addBinaryClause(s, LNGCoreSolver.not(cardinalityUpoutlits.get(ulimit - 1)),
-                        LNGCoreSolver.not(cardinalityLwoutlits.get(i)));
+                addBinaryClause(s, LngCoreSolver.not(cardinalityUpoutlits.get(ulimit - 1)),
+                        LngCoreSolver.not(cardinalityLwoutlits.get(i)));
             }
         } else {
             if (ulimit == 0) {
                 assert llimit != 0;
                 for (int i = llimit - 1; i < cardinalityLwoutlits.size(); i++) {
-                    addUnitClause(s, LNGCoreSolver.not(cardinalityLwoutlits.get(i)));
+                    addUnitClause(s, LngCoreSolver.not(cardinalityLwoutlits.get(i)));
                 }
             } else {
-                addUnitClause(s, LNGCoreSolver.not(cardinalityUpoutlits.get(ulimit - 1)));
+                addUnitClause(s, LngCoreSolver.not(cardinalityUpoutlits.get(ulimit - 1)));
             }
         }
     }
 
-    protected void toCNF(final LNGCoreSolver s, final int mod, final LNGIntVector ublits, final LNGIntVector lwlits,
+    protected void toCnf(final LngCoreSolver s, final int mod, final LngIntVector ublits, final LngIntVector lwlits,
                          final int rhs) {
-        final LNGIntVector lupper = new LNGIntVector();
-        final LNGIntVector llower = new LNGIntVector();
-        final LNGIntVector rupper = new LNGIntVector();
-        final LNGIntVector rlower = new LNGIntVector();
+        final LngIntVector lupper = new LngIntVector();
+        final LngIntVector llower = new LngIntVector();
+        final LngIntVector rupper = new LngIntVector();
+        final LngIntVector rlower = new LngIntVector();
         assert rhs > 1;
         final int split = rhs / 2;
         int left = 1;
@@ -177,8 +177,8 @@ public class ModularTotalizer extends Encoding {
         } else {
             left = split / mod;
             for (int i = 0; i < left; i++) {
-                final int p = LNGCoreSolver.mkLit(s.nVars(), false);
-                MaxSAT.newSATVariable(s);
+                final int p = LngCoreSolver.mkLit(s.nVars(), false);
+                MaxSat.newSatVariable(s);
                 lupper.push(p);
             }
             int limit = mod - 1;
@@ -186,8 +186,8 @@ public class ModularTotalizer extends Encoding {
                 limit = split;
             }
             for (int i = 0; i < limit; i++) {
-                final int p = LNGCoreSolver.mkLit(s.nVars(), false);
-                MaxSAT.newSATVariable(s);
+                final int p = LngCoreSolver.mkLit(s.nVars(), false);
+                MaxSat.newSatVariable(s);
                 llower.push(p);
             }
         }
@@ -199,8 +199,8 @@ public class ModularTotalizer extends Encoding {
         } else {
             right = (rhs - split) / mod;
             for (int i = 0; i < right; i++) {
-                final int p = LNGCoreSolver.mkLit(s.nVars(), false);
-                MaxSAT.newSATVariable(s);
+                final int p = LngCoreSolver.mkLit(s.nVars(), false);
+                MaxSat.newSatVariable(s);
                 rupper.push(p);
             }
             int limit = mod - 1;
@@ -208,8 +208,8 @@ public class ModularTotalizer extends Encoding {
                 limit = rhs - split;
             }
             for (int i = 0; i < limit; i++) {
-                final int p = LNGCoreSolver.mkLit(s.nVars(), false);
-                MaxSAT.newSATVariable(s);
+                final int p = LngCoreSolver.mkLit(s.nVars(), false);
+                MaxSat.newSatVariable(s);
                 rlower.push(p);
             }
         }
@@ -221,22 +221,22 @@ public class ModularTotalizer extends Encoding {
         }
         adder(s, mod, ublits, lwlits, rupper, rlower, lupper, llower);
         if (left * mod + split - left * mod > 1) {
-            toCNF(s, mod, lupper, llower, left * mod + split - left * mod);
+            toCnf(s, mod, lupper, llower, left * mod + split - left * mod);
         }
         if (right * mod + (rhs - split) - right * mod > 1) {
-            toCNF(s, mod, rupper, rlower, right * mod + (rhs - split) - right * mod);
+            toCnf(s, mod, rupper, rlower, right * mod + (rhs - split) - right * mod);
         }
     }
 
-    protected void adder(final LNGCoreSolver s, final int mod, final LNGIntVector upper, final LNGIntVector lower,
-                         final LNGIntVector lupper, final LNGIntVector llower, final LNGIntVector rupper,
-                         final LNGIntVector rlower) {
+    protected void adder(final LngCoreSolver s, final int mod, final LngIntVector upper, final LngIntVector lower,
+                         final LngIntVector lupper, final LngIntVector llower, final LngIntVector rupper,
+                         final LngIntVector rlower) {
         assert upper.size() != 0;
         assert lower.size() >= llower.size() && lower.size() >= rlower.size();
-        int carry = LNGCoreSolver.LIT_UNDEF;
+        int carry = LngCoreSolver.LIT_UNDEF;
         if (upper.get(0) != h0) {
-            carry = LNGCoreSolver.mkLit(s.nVars(), false);
-            MaxSAT.newSATVariable(s);
+            carry = LngCoreSolver.mkLit(s.nVars(), false);
+            MaxSat.newSatVariable(s);
         }
         for (int i = 0; i <= llower.size(); i++) {
             for (int j = 0; j <= rlower.size(); j++) {
@@ -246,34 +246,34 @@ public class ModularTotalizer extends Encoding {
                 if (i + j < mod) {
                     if (i == 0 && j != 0) {
                         if (upper.get(0) != h0) {
-                            addTernaryClause(s, LNGCoreSolver.not(rlower.get(j - 1)), lower.get(i + j - 1), carry);
+                            addTernaryClause(s, LngCoreSolver.not(rlower.get(j - 1)), lower.get(i + j - 1), carry);
                         } else {
-                            addBinaryClause(s, LNGCoreSolver.not(rlower.get(j - 1)), lower.get(i + j - 1));
+                            addBinaryClause(s, LngCoreSolver.not(rlower.get(j - 1)), lower.get(i + j - 1));
                         }
                     } else if (j == 0 && i != 0) {
                         if (upper.get(0) != h0) {
-                            addTernaryClause(s, LNGCoreSolver.not(llower.get(i - 1)), lower.get(i + j - 1), carry);
+                            addTernaryClause(s, LngCoreSolver.not(llower.get(i - 1)), lower.get(i + j - 1), carry);
                         } else {
-                            addBinaryClause(s, LNGCoreSolver.not(llower.get(i - 1)), lower.get(i + j - 1));
+                            addBinaryClause(s, LngCoreSolver.not(llower.get(i - 1)), lower.get(i + j - 1));
                         }
                     } else if (i != 0) {
                         if (upper.get(0) != h0) {
-                            addQuaternaryClause(s, LNGCoreSolver.not(llower.get(i - 1)),
-                                    LNGCoreSolver.not(rlower.get(j - 1)), lower.get(i + j - 1), carry);
+                            addQuaternaryClause(s, LngCoreSolver.not(llower.get(i - 1)),
+                                    LngCoreSolver.not(rlower.get(j - 1)), lower.get(i + j - 1), carry);
                         } else {
                             assert i + j - 1 < lower.size();
-                            addTernaryClause(s, LNGCoreSolver.not(llower.get(i - 1)),
-                                    LNGCoreSolver.not(rlower.get(j - 1)), lower.get(i + j - 1));
+                            addTernaryClause(s, LngCoreSolver.not(llower.get(i - 1)),
+                                    LngCoreSolver.not(rlower.get(j - 1)), lower.get(i + j - 1));
                         }
                     }
                 } else if (i + j > mod) {
                     assert i + j > 0;
-                    addTernaryClause(s, LNGCoreSolver.not(llower.get(i - 1)), LNGCoreSolver.not(rlower.get(j - 1)),
+                    addTernaryClause(s, LngCoreSolver.not(llower.get(i - 1)), LngCoreSolver.not(rlower.get(j - 1)),
                             lower.get((i + j) % mod - 1));
                 } else {
                     assert i + j == mod;
-                    assert carry != LNGCoreSolver.LIT_UNDEF;
-                    addTernaryClause(s, LNGCoreSolver.not(llower.get(i - 1)), LNGCoreSolver.not(rlower.get(j - 1)),
+                    assert carry != LngCoreSolver.LIT_UNDEF;
+                    addTernaryClause(s, LngCoreSolver.not(llower.get(i - 1)), LngCoreSolver.not(rlower.get(j - 1)),
                             carry);
                 }
             }
@@ -304,28 +304,28 @@ public class ModularTotalizer extends Encoding {
                     if (i + j < upper.size()) {
                         d = upper.get(i + j);
                     }
-                    if (c != LNGCoreSolver.LIT_UNDEF && c != LIT_ERROR) {
-                        final LNGIntVector clause = new LNGIntVector();
-                        if (a != LNGCoreSolver.LIT_UNDEF && a != LIT_ERROR) {
-                            clause.push(LNGCoreSolver.not(a));
+                    if (c != LngCoreSolver.LIT_UNDEF && c != LIT_ERROR) {
+                        final LngIntVector clause = new LngIntVector();
+                        if (a != LngCoreSolver.LIT_UNDEF && a != LIT_ERROR) {
+                            clause.push(LngCoreSolver.not(a));
                         }
-                        if (b != LNGCoreSolver.LIT_UNDEF && b != LIT_ERROR) {
-                            clause.push(LNGCoreSolver.not(b));
+                        if (b != LngCoreSolver.LIT_UNDEF && b != LIT_ERROR) {
+                            clause.push(LngCoreSolver.not(b));
                         }
                         clause.push(c);
                         if (clause.size() > 1) {
                             s.addClause(clause, null);
                         }
                     }
-                    final LNGIntVector clause = new LNGIntVector();
-                    clause.push(LNGCoreSolver.not(carry));
-                    if (a != LNGCoreSolver.LIT_UNDEF && a != LIT_ERROR) {
-                        clause.push(LNGCoreSolver.not(a));
+                    final LngIntVector clause = new LngIntVector();
+                    clause.push(LngCoreSolver.not(carry));
+                    if (a != LngCoreSolver.LIT_UNDEF && a != LIT_ERROR) {
+                        clause.push(LngCoreSolver.not(a));
                     }
-                    if (b != LNGCoreSolver.LIT_UNDEF && b != LIT_ERROR) {
-                        clause.push(LNGCoreSolver.not(b));
+                    if (b != LngCoreSolver.LIT_UNDEF && b != LIT_ERROR) {
+                        clause.push(LngCoreSolver.not(b));
                     }
-                    if (d != LIT_ERROR && d != LNGCoreSolver.LIT_UNDEF) {
+                    if (d != LIT_ERROR && d != LngCoreSolver.LIT_UNDEF) {
                         clause.push(d);
                     }
                     if (clause.size() > 1) {

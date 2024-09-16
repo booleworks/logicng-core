@@ -22,9 +22,9 @@
 
 package com.booleworks.logicng.solvers.maxsat.encodings;
 
-import com.booleworks.logicng.collections.LNGIntVector;
-import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSAT;
-import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
+import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSat;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 
 /**
  * Encodes that exactly one literal from 'lits' is assigned value true. Uses the
@@ -39,28 +39,28 @@ public class Ladder extends Encoding {
      * @param s    the solver
      * @param lits the literals for the constraint
      */
-    public void encode(final LNGCoreSolver s, final LNGIntVector lits) {
+    public void encode(final LngCoreSolver s, final LngIntVector lits) {
         assert lits.size() != 0;
         if (lits.size() == 1) {
             addUnitClause(s, lits.get(0));
         } else {
-            final LNGIntVector seqAuxiliary = new LNGIntVector();
+            final LngIntVector seqAuxiliary = new LngIntVector();
             for (int i = 0; i < lits.size() - 1; i++) {
-                seqAuxiliary.push(LNGCoreSolver.mkLit(s.nVars(), false));
-                MaxSAT.newSATVariable(s);
+                seqAuxiliary.push(LngCoreSolver.mkLit(s.nVars(), false));
+                MaxSat.newSatVariable(s);
             }
             for (int i = 0; i < lits.size(); i++) {
                 if (i == 0) {
-                    addBinaryClause(s, lits.get(i), LNGCoreSolver.not(seqAuxiliary.get(i)));
-                    addBinaryClause(s, LNGCoreSolver.not(lits.get(i)), seqAuxiliary.get(i));
+                    addBinaryClause(s, lits.get(i), LngCoreSolver.not(seqAuxiliary.get(i)));
+                    addBinaryClause(s, LngCoreSolver.not(lits.get(i)), seqAuxiliary.get(i));
                 } else if (i == lits.size() - 1) {
                     addBinaryClause(s, lits.get(i), seqAuxiliary.get(i - 1));
-                    addBinaryClause(s, LNGCoreSolver.not(lits.get(i)), LNGCoreSolver.not(seqAuxiliary.get(i - 1)));
+                    addBinaryClause(s, LngCoreSolver.not(lits.get(i)), LngCoreSolver.not(seqAuxiliary.get(i - 1)));
                 } else {
-                    addBinaryClause(s, LNGCoreSolver.not(seqAuxiliary.get(i - 1)), seqAuxiliary.get(i));
-                    addTernaryClause(s, lits.get(i), LNGCoreSolver.not(seqAuxiliary.get(i)), seqAuxiliary.get(i - 1));
-                    addBinaryClause(s, LNGCoreSolver.not(lits.get(i)), seqAuxiliary.get(i));
-                    addBinaryClause(s, LNGCoreSolver.not(lits.get(i)), LNGCoreSolver.not(seqAuxiliary.get(i - 1)));
+                    addBinaryClause(s, LngCoreSolver.not(seqAuxiliary.get(i - 1)), seqAuxiliary.get(i));
+                    addTernaryClause(s, lits.get(i), LngCoreSolver.not(seqAuxiliary.get(i)), seqAuxiliary.get(i - 1));
+                    addBinaryClause(s, LngCoreSolver.not(lits.get(i)), seqAuxiliary.get(i));
+                    addBinaryClause(s, LngCoreSolver.not(lits.get(i)), LngCoreSolver.not(seqAuxiliary.get(i - 1)));
                 }
             }
         }

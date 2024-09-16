@@ -10,7 +10,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
-import com.booleworks.logicng.serialization.ProtoBufFormulas.PBFormulas;
+import com.booleworks.logicng.serialization.ProtoBufFormulas.PbFormulas;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ public class FormulasTest {
 
         final FormulaFactory f2 = FormulaFactory.caching();
         final long t1 = System.currentTimeMillis();
-        final PBFormulas bin = Formulas.serializeFormulas(constraints);
+        final PbFormulas bin = Formulas.serializeFormulas(constraints);
         final long t2 = System.currentTimeMillis();
         bin.writeTo(Files.newOutputStream(PROTO));
         final long t3 = System.currentTimeMillis();
@@ -58,11 +58,11 @@ public class FormulasTest {
         final long t4 = System.currentTimeMillis();
 
         final FormulaFactory f3 = FormulaFactory.caching();
-        final PBFormulas binList = PBFormulas.newBuilder().mergeFrom(Files.newInputStream(PROTO)).build();
+        final PbFormulas binList = PbFormulas.newBuilder().mergeFrom(Files.newInputStream(PROTO)).build();
         final long t5 = System.currentTimeMillis();
         final List<Formula> deserialized = deserializeFormulaList(f2, binList);
         final long t6 = System.currentTimeMillis();
-        final PBFormulas zipList = PBFormulas.newBuilder().mergeFrom(new GZIPInputStream(Files.newInputStream(ZIP))).build();
+        final PbFormulas zipList = PbFormulas.newBuilder().mergeFrom(new GZIPInputStream(Files.newInputStream(ZIP))).build();
         final long t7 = System.currentTimeMillis();
         final List<Formula> deserializedZipped = deserializeFormulaList(f3, zipList);
 
@@ -101,7 +101,7 @@ public class FormulasTest {
         final FormulaRandomizer randomizer = new FormulaRandomizer(f, FormulaRandomizerConfig.builder().seed(42).build());
         for (int i = 0; i < 1000; i++) {
             final Formula original = randomizer.formula(5);
-            final PBFormulas serialized = Formulas.serializeFormula(original);
+            final PbFormulas serialized = Formulas.serializeFormula(original);
             Formula deserialized = Formulas.deserializeFormula(f, serialized);
             assertThat(deserialized).isEqualTo(original);
 

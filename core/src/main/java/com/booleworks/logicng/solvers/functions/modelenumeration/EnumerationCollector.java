@@ -4,12 +4,12 @@
 
 package com.booleworks.logicng.solvers.functions.modelenumeration;
 
-import com.booleworks.logicng.collections.LNGBooleanVector;
-import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.collections.LngBooleanVector;
+import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.events.LNGEvent;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.handlers.events.LngEvent;
+import com.booleworks.logicng.solvers.SatSolver;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ import java.util.List;
  * An interface for enumeration collectors.
  * <p>
  * An enumeration collector gathers the found models given by
- * {@link #addModel(LNGBooleanVector, SATSolver, LNGIntVector, ComputationHandler)}.
+ * {@link #addModel(LngBooleanVector, SatSolver, LngIntVector, ComputationHandler)}.
  * Added Models added can potentially be discarded later via
  * {@link #rollback(ComputationHandler)}. To prevent models from being
  * rolled back one can call {@link #commit(ComputationHandler)}. With
@@ -39,7 +39,7 @@ public interface EnumerationCollector<RESULT> {
      * @return an event if the handler canceled the computation,
      * otherwise {@code null}
      */
-    LNGEvent addModel(LNGBooleanVector modelFromSolver, SATSolver solver, LNGIntVector relevantAllIndices,
+    LngEvent addModel(LngBooleanVector modelFromSolver, SatSolver solver, LngIntVector relevantAllIndices,
                       ComputationHandler handler);
 
     /**
@@ -51,7 +51,7 @@ public interface EnumerationCollector<RESULT> {
      * @return an event if the handler canceled the computation,
      * otherwise {@code null}
      */
-    LNGEvent commit(ComputationHandler handler);
+    LngEvent commit(ComputationHandler handler);
 
     /**
      * All found models since the last commit should be discarded.
@@ -62,7 +62,7 @@ public interface EnumerationCollector<RESULT> {
      * @return an event if the handler canceled the computation,
      * otherwise {@code null}
      */
-    LNGEvent rollback(ComputationHandler handler);
+    LngEvent rollback(ComputationHandler handler);
 
     /**
      * All found models since the last commit will be discarded and returned.
@@ -72,7 +72,7 @@ public interface EnumerationCollector<RESULT> {
      * @param handler the computation handler
      * @return list of all discarded models
      */
-    List<Model> rollbackAndReturnModels(final SATSolver solver, ComputationHandler handler);
+    List<Model> rollbackAndReturnModels(final SatSolver solver, ComputationHandler handler);
 
     /**
      * Returns the currently committed state of the collector.

@@ -23,7 +23,7 @@ import java.util.Map;
  */
 public final class MaxToMinOrdering implements VariableOrderingProvider {
 
-    private final DFSOrdering dfsOrdering = new DFSOrdering();
+    private final DfsOrdering dfsOrdering = new DfsOrdering();
 
     @Override
     public List<Variable> getOrder(final FormulaFactory f, final Formula formula) {

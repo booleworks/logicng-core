@@ -7,7 +7,7 @@ package com.booleworks.logicng.transformations.simplification;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.transformations.StatelessFormulaTransformation;
 
 /**
@@ -30,7 +30,7 @@ public class QuineMcCluskeySimplifier extends StatelessFormulaTransformation {
     }
 
     @Override
-    public LNGResult<Formula> apply(final Formula formula, ComputationHandler handler) {
+    public LngResult<Formula> apply(final Formula formula, ComputationHandler handler) {
         final var qmcConfig = AdvancedSimplifierConfig.builder()
                 .factorOut(false)
                 .restrictBackbone(false)

@@ -10,7 +10,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.predicates.AIGPredicate;
+import com.booleworks.logicng.predicates.AigPredicate;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -19,9 +19,9 @@ public class AIGTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testConstants(final FormulaContext _c) {
-        final AIGPredicate aigPred = new AIGPredicate(_c.f);
+        final AigPredicate aigPred = new AigPredicate(_c.f);
 
-        final AIGTransformation aigCaching = new AIGTransformation(_c.f);
+        final AigTransformation aigCaching = new AigTransformation(_c.f);
 
         assertThat(_c.verum.transform(aigCaching)).isEqualTo(_c.verum);
         assertThat(_c.falsum.transform(aigCaching)).isEqualTo(_c.falsum);
@@ -32,8 +32,8 @@ public class AIGTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testLiterals(final FormulaContext _c) {
-        final AIGPredicate aigPred = new AIGPredicate(_c.f);
-        final AIGTransformation aigCaching = new AIGTransformation(_c.f);
+        final AigPredicate aigPred = new AigPredicate(_c.f);
+        final AigTransformation aigCaching = new AigTransformation(_c.f);
 
         assertThat(_c.a.transform(aigCaching)).isEqualTo(_c.a);
         assertThat(_c.na.transform(aigCaching)).isEqualTo(_c.na);
@@ -44,9 +44,9 @@ public class AIGTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testBinaryOperators(final FormulaContext _c) throws ParserException {
-        final AIGPredicate aigPred = new AIGPredicate(_c.f);
-        final AIGTransformation aigCaching = new AIGTransformation(_c.f);
-        final AIGTransformation aigNonCaching = new AIGTransformation(_c.f, null);
+        final AigPredicate aigPred = new AigPredicate(_c.f);
+        final AigTransformation aigCaching = new AigTransformation(_c.f);
+        final AigTransformation aigNonCaching = new AigTransformation(_c.f, null);
 
         assertThat(_c.imp1.transform(aigCaching)).isEqualTo(_c.p.parse("~(a & ~b)"));
         assertThat(_c.imp2.transform(aigCaching)).isEqualTo(_c.p.parse("~(~a & b)"));
@@ -72,9 +72,9 @@ public class AIGTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNAryOperators(final FormulaContext _c) throws ParserException {
-        final AIGPredicate aigPred = new AIGPredicate(_c.f);
-        final AIGTransformation aigCaching = new AIGTransformation(_c.f);
-        final AIGTransformation aigNonCaching = new AIGTransformation(_c.f, null);
+        final AigPredicate aigPred = new AigPredicate(_c.f);
+        final AigTransformation aigCaching = new AigTransformation(_c.f);
+        final AigTransformation aigNonCaching = new AigTransformation(_c.f, null);
 
         assertThat(_c.and1.transform(aigCaching)).isEqualTo(_c.and1);
         assertThat(_c.or1.transform(aigCaching)).isEqualTo(_c.p.parse("~(~x & ~y)"));
@@ -105,8 +105,8 @@ public class AIGTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNot(final FormulaContext _c) throws ParserException {
-        final AIGTransformation aigCaching = new AIGTransformation(_c.f);
-        final AIGTransformation aigNonCaching = new AIGTransformation(_c.f, null);
+        final AigTransformation aigCaching = new AigTransformation(_c.f);
+        final AigTransformation aigNonCaching = new AigTransformation(_c.f, null);
 
         assertThat(_c.p.parse("~a").transform(aigCaching)).isEqualTo(_c.p.parse("~a"));
         assertThat(_c.p.parse("~~a").transform(aigCaching)).isEqualTo(_c.p.parse("a"));
@@ -130,9 +130,9 @@ public class AIGTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testPBC(final FormulaContext _c) {
-        final AIGPredicate aigPred = new AIGPredicate(_c.f);
-        final AIGTransformation aigCaching = new AIGTransformation(_c.f);
-        final AIGTransformation aigNonCaching = new AIGTransformation(_c.f, null);
+        final AigPredicate aigPred = new AigPredicate(_c.f);
+        final AigTransformation aigCaching = new AigTransformation(_c.f);
+        final AigTransformation aigNonCaching = new AigTransformation(_c.f, null);
 
         assertThat(_c.pbc1.transform(aigCaching).holds(aigPred)).isTrue();
         assertThat(_c.pbc1.transform(aigNonCaching).holds(aigPred)).isTrue();

@@ -11,10 +11,10 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import com.booleworks.logicng.util.FormulaHelper;
 
 import java.util.ArrayList;
@@ -33,8 +33,8 @@ import java.util.TreeSet;
  */
 public final class NaivePrimeReduction {
 
-    private final SATSolver implicantSolver;
-    private final SATSolver implicateSolver;
+    private final SatSolver implicantSolver;
+    private final SatSolver implicateSolver;
 
     /**
      * Creates a new prime implicant computation for a given formula.
@@ -42,11 +42,11 @@ public final class NaivePrimeReduction {
      * @param formula the formula
      */
     public NaivePrimeReduction(final FormulaFactory f, final Formula formula) {
-        implicantSolver = SATSolver.newSolver(f,
-                SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        implicantSolver = SatSolver.newSolver(f,
+                SatSolverConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.PG_ON_SOLVER).build());
         implicantSolver.add(formula.negate(f));
-        implicateSolver = SATSolver.newSolver(f,
-                SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
+        implicateSolver = SatSolver.newSolver(f,
+                SatSolverConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.PG_ON_SOLVER).build());
         implicateSolver.add(formula);
     }
 
@@ -68,26 +68,26 @@ public final class NaivePrimeReduction {
      * @param implicant the implicant
      * @param handler   a SAT handler for the underlying SAT Solver
      * @return a prime implicant or null if the computation was canceled by the
-     *         handler
+     * handler
      */
-    public LNGResult<SortedSet<Literal>> reduceImplicant(final Collection<Literal> implicant,
+    public LngResult<SortedSet<Literal>> reduceImplicant(final Collection<Literal> implicant,
                                                          final ComputationHandler handler) {
         if (!handler.shouldResume(IMPLICANT_REDUCTION_STARTED)) {
-            return LNGResult.canceled(IMPLICANT_REDUCTION_STARTED);
+            return LngResult.canceled(IMPLICANT_REDUCTION_STARTED);
         }
         final SortedSet<Literal> primeImplicant = new TreeSet<>(implicant);
         for (final Literal lit : implicant) {
             primeImplicant.remove(lit);
-            final LNGResult<Boolean> sat =
+            final LngResult<Boolean> sat =
                     implicantSolver.satCall().handler(handler).addFormulas(primeImplicant).sat();
             if (!sat.isSuccess()) {
-                return LNGResult.canceled(sat.getCancelCause());
+                return LngResult.canceled(sat.getCancelCause());
             }
             if (sat.getResult()) {
                 primeImplicant.add(lit);
             }
         }
-        return LNGResult.of(primeImplicant);
+        return LngResult.of(primeImplicant);
     }
 
     /**
@@ -110,25 +110,25 @@ public final class NaivePrimeReduction {
      * @param implicate the implicate
      * @param handler   a SAT handler for the underlying SAT Solver
      * @return a prime implicate of null if the computation was canceled by the
-     *         handler
+     * handler
      */
-    public LNGResult<SortedSet<Literal>> reduceImplicate(final FormulaFactory f, final SortedSet<Literal> implicate,
+    public LngResult<SortedSet<Literal>> reduceImplicate(final FormulaFactory f, final SortedSet<Literal> implicate,
                                                          final ComputationHandler handler) {
         if (!handler.shouldResume(IMPLICATE_REDUCTION_STARTED)) {
-            return LNGResult.canceled(IMPLICATE_REDUCTION_STARTED);
+            return LngResult.canceled(IMPLICATE_REDUCTION_STARTED);
         }
         final SortedSet<Literal> primeImplicate = new TreeSet<>(implicate);
         for (final Literal lit : implicate) {
             primeImplicate.remove(lit);
             final List<Literal> assumptions = FormulaHelper.negateLiterals(f, primeImplicate, ArrayList::new);
-            final LNGResult<Boolean> sat = implicateSolver.satCall().handler(handler).addFormulas(assumptions).sat();
+            final LngResult<Boolean> sat = implicateSolver.satCall().handler(handler).addFormulas(assumptions).sat();
             if (!sat.isSuccess()) {
-                return LNGResult.canceled(sat.getCancelCause());
+                return LngResult.canceled(sat.getCancelCause());
             }
             if (sat.getResult()) {
                 primeImplicate.add(lit);
             }
         }
-        return LNGResult.of(primeImplicate);
+        return LngResult.of(primeImplicate);
     }
 }

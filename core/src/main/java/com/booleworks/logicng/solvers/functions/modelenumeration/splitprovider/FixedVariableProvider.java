@@ -5,7 +5,7 @@
 package com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider;
 
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 
 import java.util.Collection;
 import java.util.SortedSet;
@@ -30,7 +30,7 @@ public class FixedVariableProvider implements SplitVariableProvider {
     }
 
     @Override
-    public SortedSet<Variable> getSplitVars(final SATSolver solver, final Collection<Variable> variables) {
+    public SortedSet<Variable> getSplitVars(final SatSolver solver, final Collection<Variable> variables) {
         return splitVariables;
     }
 

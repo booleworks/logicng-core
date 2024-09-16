@@ -17,7 +17,7 @@ import com.booleworks.logicng.formulas.Implication;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.Or;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.functions.FormulaDepthFunction;
 import org.junit.jupiter.api.Test;
@@ -146,8 +146,8 @@ public class FormulaRandomizerTest {
                     numNeg++;
                 }
             } else {
-                final PBConstraint pbc = (PBConstraint) formula;
-                if (!pbc.isCC()) {
+                final PbConstraint pbc = (PbConstraint) formula;
+                if (!pbc.isCc()) {
                     numPbc++;
                 } else if (pbc.getRhs() == 1 && pbc.comparator() == CType.LE) {
                     numAmo++;
@@ -270,8 +270,8 @@ public class FormulaRandomizerTest {
         int eq = 0;
         for (int i = 0; i < 500; i++) {
             final Formula formula = random.pbc();
-            assertThat(formula).isInstanceOf(PBConstraint.class);
-            final PBConstraint pbc = (PBConstraint) formula;
+            assertThat(formula).isInstanceOf(PbConstraint.class);
+            final PbConstraint pbc = (PbConstraint) formula;
             int posSum = 0;
             int negSum = 0;
             for (final int coefficient : pbc.getCoefficients()) {
@@ -337,7 +337,7 @@ public class FormulaRandomizerTest {
             final Formula formula = random.cc();
             assertThat(formula).isInstanceOf(CardinalityConstraint.class);
             final CardinalityConstraint cc = (CardinalityConstraint) formula;
-            assertThat(cc.isCC()).isTrue();
+            assertThat(cc.isCc()).isTrue();
             assertThat(cc.numberOfOperands()).isLessThanOrEqualTo(10);
             if (cc.comparator() == CType.GT) {
                 assertThat(cc.getRhs()).isStrictlyBetween(-2, 11);
@@ -377,9 +377,9 @@ public class FormulaRandomizerTest {
                 .build());
         for (int i = 0; i < 100; i++) {
             final Formula formula = random.amo();
-            assertThat(formula).isInstanceOf(PBConstraint.class);
-            final PBConstraint amo = (PBConstraint) formula;
-            assertThat(amo.isCC()).isTrue();
+            assertThat(formula).isInstanceOf(PbConstraint.class);
+            final PbConstraint amo = (PbConstraint) formula;
+            assertThat(amo.isCc()).isTrue();
             assertThat(amo.getRhs()).isEqualTo(1);
             assertThat(amo.comparator()).isEqualTo(CType.LE);
         }
@@ -392,9 +392,9 @@ public class FormulaRandomizerTest {
                 .build());
         for (int i = 0; i < 100; i++) {
             final Formula formula = random.exo();
-            assertThat(formula).isInstanceOf(PBConstraint.class);
-            final PBConstraint amo = (PBConstraint) formula;
-            assertThat(amo.isCC()).isTrue();
+            assertThat(formula).isInstanceOf(PbConstraint.class);
+            final PbConstraint amo = (PbConstraint) formula;
+            assertThat(amo.isCc()).isTrue();
             assertThat(amo.getRhs()).isEqualTo(1);
             assertThat(amo.comparator()).isEqualTo(CType.EQ);
         }
@@ -496,8 +496,8 @@ public class FormulaRandomizerTest {
                 occurrences.merge("equiv", 1, Integer::sum);
                 break;
             case PBC:
-                final PBConstraint pbc = (PBConstraint) formula;
-                if (!pbc.isCC()) {
+                final PbConstraint pbc = (PbConstraint) formula;
+                if (!pbc.isCc()) {
                     occurrences.merge("pbc", 1, Integer::sum);
                 } else if (pbc.getRhs() == 1 && pbc.comparator() == CType.LE) {
                     occurrences.merge("amo", 1, Integer::sum);
@@ -561,7 +561,7 @@ public class FormulaRandomizerTest {
         for (int i = 0; i < 100; i++) {
             final Formula formula = random.pbc();
             assertThat(formula.getType()).isEqualTo(FType.PBC);
-            final PBConstraint pbc = (PBConstraint) formula;
+            final PbConstraint pbc = (PbConstraint) formula;
             assertThat(pbc.literals(f).size()).isLessThanOrEqualTo(10);
         }
     }

@@ -4,8 +4,8 @@
 
 package com.booleworks.logicng.io.graphical.generators;
 
-import static com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel.BDD_FALSE;
-import static com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel.BDD_TRUE;
+import static com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel.BDD_FALSE;
+import static com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel.BDD_TRUE;
 
 import com.booleworks.logicng.io.graphical.GraphicalColor;
 import com.booleworks.logicng.io.graphical.GraphicalEdge;
@@ -13,15 +13,15 @@ import com.booleworks.logicng.io.graphical.GraphicalEdgeStyle;
 import com.booleworks.logicng.io.graphical.GraphicalNode;
 import com.booleworks.logicng.io.graphical.GraphicalNodeStyle;
 import com.booleworks.logicng.io.graphical.GraphicalRepresentation;
-import com.booleworks.logicng.knowledgecompilation.bdds.BDD;
-import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDOperations;
+import com.booleworks.logicng.knowledgecompilation.bdds.Bdd;
+import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddOperations;
 
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
 
 /**
- * The graphical generator for representations of BDDs {@link BDD}.
+ * The graphical generator for representations of BDDs {@link Bdd}.
  * @version 2.4.0
  * @since 2.4.0
  */
@@ -63,7 +63,7 @@ public class BddGraphicalGenerator extends GraphicalGenerator<Integer> {
      * @param bdd the BDD
      * @return the graphical representation
      */
-    public GraphicalRepresentation translate(final BDD bdd) {
+    public GraphicalRepresentation translate(final Bdd bdd) {
         final Map<Integer, GraphicalNode> index2Node = new TreeMap<>();
         final GraphicalRepresentation graphicalRepresentation =
                 new GraphicalRepresentation(alignTerminals, true, backgroundColor);
@@ -79,12 +79,12 @@ public class BddGraphicalGenerator extends GraphicalGenerator<Integer> {
             graphicalRepresentation.addNode(trueNode);
             index2Node.put(BDD_TRUE, trueNode);
         }
-        for (final int[] internalNode : new BDDOperations(bdd.getUnderlyingKernel()).allNodes(bdd.getIndex())) {
+        for (final int[] internalNode : new BddOperations(bdd.getUnderlyingKernel()).allNodes(bdd.getIndex())) {
             final int index = internalNode[0];
             final String defaultLabel = bdd.getUnderlyingKernel().getVariableForIndex(internalNode[1]).getName();
             addNode(index, labelOrDefault(index, defaultLabel), graphicalRepresentation, index2Node);
         }
-        for (final int[] internalNode : new BDDOperations(bdd.getUnderlyingKernel()).allNodes(bdd.getIndex())) {
+        for (final int[] internalNode : new BddOperations(bdd.getUnderlyingKernel()).allNodes(bdd.getIndex())) {
             final int index = internalNode[0];
             final int lowIndex = internalNode[2];
             final int highIndex = internalNode[3];

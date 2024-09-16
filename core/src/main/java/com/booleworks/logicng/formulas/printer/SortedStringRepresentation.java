@@ -12,7 +12,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.NAryOperator;
 import com.booleworks.logicng.formulas.Not;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.Variable;
 
 import java.util.ArrayList;
@@ -120,7 +120,7 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
                 final String op = formula.getType() == FType.AND ? and() : or();
                 return naryOperator(nary, String.format("%s", op));
             case PBC:
-                final PBConstraint pbc = (PBConstraint) formula;
+                final PbConstraint pbc = (PbConstraint) formula;
                 return String.format("%s%s%d", pbLhs(pbc.getOperands(), pbc.getCoefficients()),
                         pbComparator(pbc.comparator()), pbc.getRhs());
             default:

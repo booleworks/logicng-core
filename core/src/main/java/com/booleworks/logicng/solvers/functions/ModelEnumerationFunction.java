@@ -10,16 +10,16 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
-import com.booleworks.logicng.collections.LNGBooleanVector;
-import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.collections.LngBooleanVector;
+import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
-import com.booleworks.logicng.handlers.events.LNGEvent;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.handlers.events.LngEvent;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.modelenumeration.AbstractModelEnumerationFunction;
 import com.booleworks.logicng.solvers.functions.modelenumeration.EnumerationCollector;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
@@ -149,8 +149,8 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         }
 
         @Override
-        public LNGEvent addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver,
-                                 final LNGIntVector relevantAllIndices, final ComputationHandler handler) {
+        public LngEvent addModel(final LngBooleanVector modelFromSolver, final SatSolver solver,
+                                 final LngIntVector relevantAllIndices, final ComputationHandler handler) {
             final Model model =
                     new Model(solver.getUnderlyingSolver().convertInternalModel(modelFromSolver, relevantAllIndices));
             final List<Literal> modelLiterals = new ArrayList<>(additionalVariablesNotOnSolver);
@@ -161,20 +161,20 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         }
 
         @Override
-        public LNGEvent commit(final ComputationHandler handler) {
+        public LngEvent commit(final ComputationHandler handler) {
             committedModels.addAll(expandUncommittedModels());
             uncommittedModels.clear();
             return !handler.shouldResume(MODEL_ENUMERATION_COMMIT) ? MODEL_ENUMERATION_COMMIT : null;
         }
 
         @Override
-        public LNGEvent rollback(final ComputationHandler handler) {
+        public LngEvent rollback(final ComputationHandler handler) {
             uncommittedModels.clear();
             return !handler.shouldResume(MODEL_ENUMERATION_ROLLBACK) ? MODEL_ENUMERATION_ROLLBACK : null;
         }
 
         @Override
-        public List<Model> rollbackAndReturnModels(final SATSolver solver, final ComputationHandler handler) {
+        public List<Model> rollbackAndReturnModels(final SatSolver solver, final ComputationHandler handler) {
             final List<Model> modelsToReturn = uncommittedModels.stream().map(Model::new).collect(Collectors.toList());
             rollback(handler);
             return modelsToReturn;

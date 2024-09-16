@@ -5,7 +5,7 @@
 package com.booleworks.logicng.handlers;
 
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
-import com.booleworks.logicng.handlers.events.LNGEvent;
+import com.booleworks.logicng.handlers.events.LngEvent;
 
 /**
  * Bounded optimization handler for testing purposes.
@@ -36,7 +36,7 @@ public class BoundedOptimizationHandler implements ComputationHandler {
     }
 
     @Override
-    public boolean shouldResume(final LNGEvent event) {
+    public boolean shouldResume(final LngEvent event) {
         if (event instanceof ComputationStartedEvent) {
             if (event == ComputationStartedEvent.SAT_CALL_STARTED) {
                 canceled |= satStartsLimit != -1 && ++numSatStarts >= satStartsLimit;

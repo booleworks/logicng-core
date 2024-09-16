@@ -14,12 +14,12 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.handlers.BoundedSatHandler;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
-import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.sat.SATCall;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.sat.SatCall;
 import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaHelper;
 import com.booleworks.logicng.util.FormulaRandomizer;
@@ -122,16 +122,16 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
 
     private void testFormula(final Formula formula, final ComputationHandler handler, final boolean expCanceled) {
         final FormulaFactory f = formula.getFactory();
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula.negate(f));
-        try (final SATCall call = solver.satCall().solve()) {
+        try (final SatCall call = solver.satCall().solve()) {
             if (!call.getSatResult().getResult()) {
                 return;
             }
             final SortedSet<Literal> falsifyingAssignment =
                     FormulaHelper.negateLiterals(f, call.model(formula.variables(f)).getLiterals(), TreeSet::new);
             final NaivePrimeReduction naive = new NaivePrimeReduction(f, formula);
-            final LNGResult<SortedSet<Literal>> primeImplicate = naive.reduceImplicate(f, falsifyingAssignment, handler);
+            final LngResult<SortedSet<Literal>> primeImplicate = naive.reduceImplicate(f, falsifyingAssignment, handler);
             if (expCanceled) {
                 assertThat(primeImplicate.isSuccess()).isFalse();
             } else {
@@ -143,7 +143,7 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
 
     public static void testPrimeImplicateProperty(final Formula formula, final SortedSet<Literal> primeImplicate) {
         final FormulaFactory f = formula.getFactory();
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final SortedSet<Literal> negatedLiterals = FormulaHelper.negateLiterals(f, primeImplicate, TreeSet::new);
         assertThat(solver.satCall().addFormulas(negatedLiterals).sat().getResult()).isFalse();

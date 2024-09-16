@@ -17,7 +17,7 @@ public final class EncoderConfig extends Configuration {
     /**
      * The encoder for at-most-one and exactly-one constraints.
      */
-    public enum AMO_ENCODER {
+    public enum AmoEncoder {
         PURE,
         LADDER,
         PRODUCT,
@@ -31,7 +31,7 @@ public final class EncoderConfig extends Configuration {
     /**
      * The encoder for at-most-k constraints.
      */
-    public enum AMK_ENCODER {
+    public enum AmkEncoder {
         TOTALIZER,
         MODULAR_TOTALIZER,
         CARDINALITY_NETWORK,
@@ -41,7 +41,7 @@ public final class EncoderConfig extends Configuration {
     /**
      * The encoder for at-least-k constraints.
      */
-    public enum ALK_ENCODER {
+    public enum AlkEncoder {
         TOTALIZER,
         MODULAR_TOTALIZER,
         CARDINALITY_NETWORK,
@@ -51,7 +51,7 @@ public final class EncoderConfig extends Configuration {
     /**
      * The encoder for exactly-k constraints.
      */
-    public enum EXK_ENCODER {
+    public enum ExkEncoder {
         TOTALIZER,
         CARDINALITY_NETWORK,
         BEST
@@ -60,7 +60,7 @@ public final class EncoderConfig extends Configuration {
     /**
      * The pseudo-Boolean encoder.
      */
-    public enum PB_ENCODER {
+    public enum PbEncoder {
         SWC,
         BINARY_MERGE,
         ADDER_NETWORKS,
@@ -70,25 +70,25 @@ public final class EncoderConfig extends Configuration {
     /**
      * The group size for the Bimander encoding.
      */
-    public enum BIMANDER_GROUP_SIZE {
+    public enum BimanderGroupSize {
         HALF,
         SQRT,
         FIXED
     }
 
-    final AMO_ENCODER amoEncoder;
-    final AMK_ENCODER amkEncoder;
-    final ALK_ENCODER alkEncoder;
-    final EXK_ENCODER exkEncoder;
-    final PB_ENCODER pbEncoder;
+    final AmoEncoder amoEncoder;
+    final AmkEncoder amkEncoder;
+    final AlkEncoder alkEncoder;
+    final ExkEncoder exkEncoder;
+    final PbEncoder pbEncoder;
 
-    final BIMANDER_GROUP_SIZE bimanderGroupSize;
+    final BimanderGroupSize bimanderGroupSize;
     final int bimanderFixedGroupSize;
     final int nestingGroupSize;
     final int productRecursiveBound;
     final int commanderGroupSize;
 
-    final boolean binaryMergeUseGAC;
+    final boolean binaryMergeUseGac;
     final boolean binaryMergeNoSupportForSingleBit;
     final boolean binaryMergeUseWatchDog;
 
@@ -118,7 +118,7 @@ public final class EncoderConfig extends Configuration {
         productRecursiveBound = builder.productRecursiveBound;
         commanderGroupSize = builder.commanderGroupSize;
 
-        binaryMergeUseGAC = builder.binaryMergeUseGAC;
+        binaryMergeUseGac = builder.binaryMergeUseGac;
         binaryMergeNoSupportForSingleBit = builder.binaryMergeNoSupportForSingleBit;
         binaryMergeUseWatchDog = builder.binaryMergeUseWatchDog;
     }
@@ -136,7 +136,7 @@ public final class EncoderConfig extends Configuration {
         sb.append("nestingGroupSize=").append(nestingGroupSize).append(System.lineSeparator());
         sb.append("productRecursiveBound=").append(productRecursiveBound).append(System.lineSeparator());
         sb.append("commanderGroupSize=").append(commanderGroupSize).append(System.lineSeparator());
-        sb.append("binaryMergeUseGAC=").append(binaryMergeUseGAC).append(System.lineSeparator());
+        sb.append("binaryMergeUseGac=").append(binaryMergeUseGac).append(System.lineSeparator());
         sb.append("binaryMergeNoSupportForSingleBit=").append(binaryMergeNoSupportForSingleBit)
                 .append(System.lineSeparator());
         sb.append("binaryMergeUseWatchDog=").append(binaryMergeUseWatchDog).append(System.lineSeparator());
@@ -148,19 +148,19 @@ public final class EncoderConfig extends Configuration {
      * The builder for an encoder configuration.
      */
     public static class Builder {
-        private AMO_ENCODER amoEncoder = AMO_ENCODER.BEST;
-        private AMK_ENCODER amkEncoder = AMK_ENCODER.BEST;
-        private ALK_ENCODER alkEncoder = ALK_ENCODER.BEST;
-        private EXK_ENCODER exkEncoder = EXK_ENCODER.BEST;
-        private PB_ENCODER pbEncoder = PB_ENCODER.BEST;
+        private AmoEncoder amoEncoder = AmoEncoder.BEST;
+        private AmkEncoder amkEncoder = AmkEncoder.BEST;
+        private AlkEncoder alkEncoder = AlkEncoder.BEST;
+        private ExkEncoder exkEncoder = ExkEncoder.BEST;
+        private PbEncoder pbEncoder = PbEncoder.BEST;
 
-        private BIMANDER_GROUP_SIZE bimanderGroupSize = BIMANDER_GROUP_SIZE.SQRT;
+        private BimanderGroupSize bimanderGroupSize = BimanderGroupSize.SQRT;
         private int bimanderFixedGroupSize = 3;
         private int nestingGroupSize = 4;
         private int productRecursiveBound = 20;
         private int commanderGroupSize = 3;
 
-        private boolean binaryMergeUseGAC = true;
+        private boolean binaryMergeUseGac = true;
         private boolean binaryMergeNoSupportForSingleBit = false;
         private boolean binaryMergeUseWatchDog = true;
 
@@ -174,7 +174,7 @@ public final class EncoderConfig extends Configuration {
          * @param amoEncoder the at-most-one encoder
          * @return the builder
          */
-        public Builder amoEncoding(final AMO_ENCODER amoEncoder) {
+        public Builder amoEncoding(final AmoEncoder amoEncoder) {
             this.amoEncoder = amoEncoder;
             return this;
         }
@@ -185,7 +185,7 @@ public final class EncoderConfig extends Configuration {
          * @param amkEncoder the at-most-k encoder
          * @return the builder
          */
-        public Builder amkEncoding(final AMK_ENCODER amkEncoder) {
+        public Builder amkEncoding(final AmkEncoder amkEncoder) {
             this.amkEncoder = amkEncoder;
             return this;
         }
@@ -196,7 +196,7 @@ public final class EncoderConfig extends Configuration {
          * @param alkEncoder the at-least-k encoder
          * @return the builder
          */
-        public Builder alkEncoding(final ALK_ENCODER alkEncoder) {
+        public Builder alkEncoding(final AlkEncoder alkEncoder) {
             this.alkEncoder = alkEncoder;
             return this;
         }
@@ -207,7 +207,7 @@ public final class EncoderConfig extends Configuration {
          * @param exkEncoder the exactly-k encoder
          * @return the builder
          */
-        public Builder exkEncoding(final EXK_ENCODER exkEncoder) {
+        public Builder exkEncoding(final ExkEncoder exkEncoder) {
             this.exkEncoder = exkEncoder;
             return this;
         }
@@ -218,7 +218,7 @@ public final class EncoderConfig extends Configuration {
          * @param pbEncoder the pseudo-Boolean encoder
          * @return the builder
          */
-        public Builder pbEncoding(final PB_ENCODER pbEncoder) {
+        public Builder pbEncoding(final PbEncoder pbEncoder) {
             this.pbEncoder = pbEncoder;
             return this;
         }
@@ -229,7 +229,7 @@ public final class EncoderConfig extends Configuration {
          * @param bimanderGroupSize the bimander encoding group size
          * @return the builder
          */
-        public Builder bimanderGroupSize(final BIMANDER_GROUP_SIZE bimanderGroupSize) {
+        public Builder bimanderGroupSize(final BimanderGroupSize bimanderGroupSize) {
             this.bimanderGroupSize = bimanderGroupSize;
             return this;
         }
@@ -282,12 +282,12 @@ public final class EncoderConfig extends Configuration {
          * Sets whether general arc consistency should be used in the binary
          * merge encoding. The default value is {@code
          * true}.
-         * @param binaryMergeUseGAC {@code true} if general arc consistency
+         * @param binaryMergeUseGac {@code true} if general arc consistency
          *                          should be used, {@code false} otherwise
          * @return the builder
          */
-        public Builder binaryMergeUseGAC(final boolean binaryMergeUseGAC) {
-            this.binaryMergeUseGAC = binaryMergeUseGAC;
+        public Builder binaryMergeUseGac(final boolean binaryMergeUseGac) {
+            this.binaryMergeUseGac = binaryMergeUseGac;
             return this;
         }
 

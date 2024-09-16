@@ -5,7 +5,7 @@
 package com.booleworks.logicng.solvers.functions.modelenumeration;
 
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 
 import java.util.Collection;
 import java.util.SortedSet;
@@ -61,7 +61,7 @@ public interface ModelEnumerationStrategy {
      *                       depth 1
      * @return the split variables which is a subset of the given variables
      */
-    SortedSet<Variable> splitVarsForRecursionDepth(Collection<Variable> variables, SATSolver solver,
+    SortedSet<Variable> splitVarsForRecursionDepth(Collection<Variable> variables, SatSolver solver,
                                                    int recursionDepth);
 
     /**

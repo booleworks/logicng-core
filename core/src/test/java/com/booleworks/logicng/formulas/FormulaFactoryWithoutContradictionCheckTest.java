@@ -9,13 +9,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.predicates.NNFPredicate;
+import com.booleworks.logicng.predicates.NnfPredicate;
 import com.booleworks.logicng.predicates.satisfiability.ContingencyPredicate;
 import com.booleworks.logicng.predicates.satisfiability.ContradictionPredicate;
-import com.booleworks.logicng.predicates.satisfiability.SATPredicate;
+import com.booleworks.logicng.predicates.satisfiability.SatPredicate;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
-import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.transformations.dnf.DNFFactorization;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.transformations.dnf.DnfFactorization;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -145,21 +145,21 @@ public class FormulaFactoryWithoutContradictionCheckTest {
         assertThat(_c.contradiction.nnf(_c.f)).isEqualTo(_c.contradiction);
         assertThat(_c.tautology.cnf(_c.f)).isEqualTo(_c.tautology);
         assertThat(_c.contradiction.cnf(_c.f)).isEqualTo(_c.contradiction);
-        assertThat(_c.tautology.transform(new DNFFactorization(_c.f))).isEqualTo(_c.tautology);
-        assertThat(_c.contradiction.transform(new DNFFactorization(_c.f))).isEqualTo(_c.contradiction);
+        assertThat(_c.tautology.transform(new DnfFactorization(_c.f))).isEqualTo(_c.tautology);
+        assertThat(_c.contradiction.transform(new DnfFactorization(_c.f))).isEqualTo(_c.contradiction);
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testPredicates(final FormulaContext _c) {
-        assertThat(_c.tautology.isCNF(_c.f)).isTrue();
-        assertThat(_c.contradiction.isCNF(_c.f)).isTrue();
-        assertThat(_c.tautology.holds(new NNFPredicate(_c.f))).isTrue();
-        assertThat(_c.contradiction.holds(new NNFPredicate(_c.f))).isTrue();
-        assertThat(_c.tautology.isDNF(_c.f)).isTrue();
-        assertThat(_c.contradiction.isDNF(_c.f)).isTrue();
-        assertThat(_c.tautology.holds(new SATPredicate(_c.f))).isTrue();
-        assertThat(_c.contradiction.holds(new SATPredicate(_c.f))).isFalse();
+        assertThat(_c.tautology.isCnf(_c.f)).isTrue();
+        assertThat(_c.contradiction.isCnf(_c.f)).isTrue();
+        assertThat(_c.tautology.holds(new NnfPredicate(_c.f))).isTrue();
+        assertThat(_c.contradiction.holds(new NnfPredicate(_c.f))).isTrue();
+        assertThat(_c.tautology.isDnf(_c.f)).isTrue();
+        assertThat(_c.contradiction.isDnf(_c.f)).isTrue();
+        assertThat(_c.tautology.holds(new SatPredicate(_c.f))).isTrue();
+        assertThat(_c.contradiction.holds(new SatPredicate(_c.f))).isFalse();
         assertThat(_c.tautology.holds(new TautologyPredicate(_c.f))).isTrue();
         assertThat(_c.contradiction.holds(new TautologyPredicate(_c.f))).isFalse();
         assertThat(_c.tautology.holds(new ContradictionPredicate(_c.f))).isFalse();
@@ -171,7 +171,7 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSatSolverWithTautologies(final FormulaContext _c) throws ParserException {
-        final SATSolver solver = SATSolver.newSolver(_c.f);
+        final SatSolver solver = SatSolver.newSolver(_c.f);
         solver.add(_c.f.parse("A"));
         solver.add(_c.f.parse("A => B"));
         solver.add(_c.f.parse("C | ~C"));
@@ -190,7 +190,7 @@ public class FormulaFactoryWithoutContradictionCheckTest {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSatSolverWithContradictions(final FormulaContext _c) throws ParserException {
-        final SATSolver solver = SATSolver.newSolver(_c.f);
+        final SatSolver solver = SatSolver.newSolver(_c.f);
         solver.add(_c.f.parse("A"));
         solver.add(_c.f.parse("A => B"));
         solver.add(_c.f.parse("C | ~C"));

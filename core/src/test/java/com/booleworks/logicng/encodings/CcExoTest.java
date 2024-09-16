@@ -11,7 +11,7 @@ import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.Collectors;
@@ -23,22 +23,22 @@ public class CcExoTest implements LogicNGTest {
 
     public CcExoTest() {
         configs = new EncoderConfig[11];
-        configs[0] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build();
-        configs[1] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.LADDER).build();
-        configs[2] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PRODUCT).build();
-        configs[3] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.BINARY).build();
-        configs[4] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.NESTED).build();
+        configs[0] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.PURE).build();
+        configs[1] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.LADDER).build();
+        configs[2] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.PRODUCT).build();
+        configs[3] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.BINARY).build();
+        configs[4] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.NESTED).build();
         configs[5] =
-                EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.COMMANDER).commanderGroupSize(3).build();
+                EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.COMMANDER).commanderGroupSize(3).build();
         configs[6] =
-                EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.COMMANDER).commanderGroupSize(7).build();
-        configs[7] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.BIMANDER)
-                .bimanderGroupSize(EncoderConfig.BIMANDER_GROUP_SIZE.FIXED).build();
-        configs[8] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.BIMANDER)
-                .bimanderGroupSize(EncoderConfig.BIMANDER_GROUP_SIZE.HALF).build();
-        configs[9] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.BIMANDER)
-                .bimanderGroupSize(EncoderConfig.BIMANDER_GROUP_SIZE.SQRT).build();
-        configs[10] = EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.BEST).build();
+                EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.COMMANDER).commanderGroupSize(7).build();
+        configs[7] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.BIMANDER)
+                .bimanderGroupSize(EncoderConfig.BimanderGroupSize.FIXED).build();
+        configs[8] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.BIMANDER)
+                .bimanderGroupSize(EncoderConfig.BimanderGroupSize.HALF).build();
+        configs[9] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.BIMANDER)
+                .bimanderGroupSize(EncoderConfig.BimanderGroupSize.SQRT).build();
+        configs[10] = EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.BEST).build();
     }
 
     @Test
@@ -55,7 +55,7 @@ public class CcExoTest implements LogicNGTest {
         for (final EncoderConfig config : configs) {
             assertThat(CcEncoder.encode(f, cc, config)).containsExactly(f.variable("v0"));
         }
-        assertThat(f.newCCVariable().getName()).endsWith("_0");
+        assertThat(f.newCcVariable().getName()).endsWith("_0");
     }
 
     @Test
@@ -70,7 +70,7 @@ public class CcExoTest implements LogicNGTest {
                 testEXO(f, 100);
                 testEXO(f, 250);
                 testEXO(f, 500);
-                assertThat(f.newCCVariable().getName()).endsWith("_" + counter++);
+                assertThat(f.newCcVariable().getName()).endsWith("_" + counter++);
             }
         }
     }
@@ -78,7 +78,7 @@ public class CcExoTest implements LogicNGTest {
     @Test
     public void testEncodingSetting() {
         final FormulaFactory f = FormulaFactory.caching();
-        f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AMO_ENCODER.PURE).build());
+        f.putConfiguration(EncoderConfig.builder().amoEncoding(EncoderConfig.AmoEncoder.PURE).build());
         final CardinalityConstraint exo = (CardinalityConstraint) f
                 .exo(IntStream.range(0, 100).mapToObj(i -> f.variable("v" + i)).collect(Collectors.toList()));
         assertThat(exo.cnf(f).variables(f)).hasSize(100);
@@ -101,7 +101,7 @@ public class CcExoTest implements LogicNGTest {
         for (int i = 0; i < numLits; i++) {
             problemLits[i] = f.variable("v" + i);
         }
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(f.exo(problemLits));
         assertSolverSat(solver);
         assertThat(solver.enumerateAllModels(problemLits))

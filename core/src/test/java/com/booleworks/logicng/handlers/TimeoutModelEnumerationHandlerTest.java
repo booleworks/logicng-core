@@ -22,7 +22,7 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
 import com.booleworks.logicng.io.parsers.ParserException;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.ModelEnumerationFunction;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import com.booleworks.logicng.testutils.PigeonHoleGenerator;
@@ -41,7 +41,7 @@ class TimeoutModelEnumerationHandlerTest {
 
     private FormulaFactory f;
     private PigeonHoleGenerator pg;
-    private List<SATSolver> solvers;
+    private List<SatSolver> solvers;
 
     @BeforeEach
     public void init() {
@@ -62,7 +62,7 @@ class TimeoutModelEnumerationHandlerTest {
     @Test
     public void testThatMethodsAreCalled() throws ParserException {
         final Formula formula = f.parse("A & B | C");
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             solver.add(formula);
             final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
             when(handler.shouldResume(any())).thenReturn(true);
@@ -76,7 +76,7 @@ class TimeoutModelEnumerationHandlerTest {
     @Test
     public void testThatSatHandlerIsHandledProperly() {
         final Formula formula = pg.generate(10).negate(f);
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             solver.add(formula);
             final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
             final AtomicInteger count = new AtomicInteger(0);
@@ -96,12 +96,12 @@ class TimeoutModelEnumerationHandlerTest {
     @Test
     public void testTimeoutHandlerSingleTimeout() {
         final Formula formula = pg.generate(10).negate(f);
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             solver.add(formula);
             final TimeoutHandler handler = new TimeoutHandler(20L);
             final ModelEnumerationFunction me = ModelEnumerationFunction.builder(formula.variables(f)).build();
 
-            final LNGResult<List<Model>> result = me.apply(solver, handler);
+            final LngResult<List<Model>> result = me.apply(solver, handler);
 
             assertThat(result.isSuccess()).isFalse();
             assertThatThrownBy(result::getResult).isInstanceOf(IllegalStateException.class);
@@ -111,12 +111,12 @@ class TimeoutModelEnumerationHandlerTest {
     @Test
     public void testTimeoutHandlerFixedEnd() {
         final Formula formula = pg.generate(10).negate(f);
-        for (final SATSolver solver : solvers) {
+        for (final SatSolver solver : solvers) {
             solver.add(formula);
             final TimeoutHandler handler = new TimeoutHandler(System.currentTimeMillis() + 100L, FIXED_END);
             final ModelEnumerationFunction me = ModelEnumerationFunction.builder(formula.variables(f)).build();
 
-            final LNGResult<List<Model>> result = me.apply(solver, handler);
+            final LngResult<List<Model>> result = me.apply(solver, handler);
 
             assertThat(result.isSuccess()).isFalse();
             assertThatThrownBy(result::getResult).isInstanceOf(IllegalStateException.class);

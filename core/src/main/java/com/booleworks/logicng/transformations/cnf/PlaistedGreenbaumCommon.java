@@ -1,6 +1,6 @@
 package com.booleworks.logicng.transformations.cnf;
 
-import com.booleworks.logicng.collections.LNGIntVector;
+import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.formulas.Equivalence;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
@@ -9,8 +9,8 @@ import com.booleworks.logicng.formulas.Implication;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Not;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
-import com.booleworks.logicng.predicates.ContainsPBCPredicate;
-import com.booleworks.logicng.transformations.NNFTransformation;
+import com.booleworks.logicng.predicates.ContainsPbcPredicate;
+import com.booleworks.logicng.transformations.NnfTransformation;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.HashMap;
@@ -18,31 +18,31 @@ import java.util.Map;
 
 public abstract class PlaistedGreenbaumCommon<T> {
     protected final FormulaFactory f;
-    protected final boolean performNNF;
+    protected final boolean performNnf;
     protected final Map<Formula, VarCacheEntry> variableCache;
-    protected final NNFTransformation nnfTransformation;
+    protected final NnfTransformation nnfTransformation;
 
-    protected PlaistedGreenbaumCommon(final FormulaFactory f, final boolean performNNF) {
+    protected PlaistedGreenbaumCommon(final FormulaFactory f, final boolean performNnf) {
         this.f = f;
-        this.performNNF = performNNF;
+        this.performNnf = performNnf;
         variableCache = new HashMap<>();
         if (f instanceof CachingFormulaFactory) {
-            nnfTransformation = new NNFTransformation(f);
+            nnfTransformation = new NnfTransformation(f);
         } else {
             final Map<Formula, Formula> nnfCache = new HashMap<>();
-            nnfTransformation = new NNFTransformation(f, nnfCache);
+            nnfTransformation = new NnfTransformation(f, nnfCache);
         }
     }
 
     abstract int newSolverVariable();
 
-    abstract void addToSolver(final LNGIntVector clause, T addendum);
+    abstract void addToSolver(final LngIntVector clause, T addendum);
 
     abstract int getLitFromSolver(final Literal lit);
 
-    abstract void addCNF(final Formula cnf, final T addendum);
+    abstract void addCnf(final Formula cnf, final T addendum);
 
-    private LNGIntVector computeTransformation(final Formula formula, final boolean polarity,
+    private LngIntVector computeTransformation(final Formula formula, final boolean polarity,
                                                final T addendum, final boolean topLevel) {
         switch (formula.getType()) {
             case LITERAL:
@@ -69,13 +69,13 @@ public abstract class PlaistedGreenbaumCommon<T> {
      * @param addendum the weight of the formula
      */
     public void addCnfToSolver(final Formula formula, final T addendum) {
-        final Formula workingFormula = performNNF ? formula.transform(nnfTransformation) : formula;
-        final Formula withoutPBCs = !performNNF && workingFormula.holds(ContainsPBCPredicate.get())
+        final Formula workingFormula = performNnf ? formula.transform(nnfTransformation) : formula;
+        final Formula withoutPbcs = !performNnf && workingFormula.holds(ContainsPbcPredicate.get())
                 ? workingFormula.nnf(f) : workingFormula;
-        if (withoutPBCs.isCNF(f)) {
-            addCNF(withoutPBCs, addendum);
+        if (withoutPbcs.isCnf(f)) {
+            addCnf(withoutPbcs, addendum);
         } else {
-            final LNGIntVector topLevelVars = computeTransformation(withoutPBCs, true, addendum, true);
+            final LngIntVector topLevelVars = computeTransformation(withoutPbcs, true, addendum, true);
             if (topLevelVars != null) {
                 addToSolver(topLevelVars, addendum);
             }
@@ -89,7 +89,7 @@ public abstract class PlaistedGreenbaumCommon<T> {
         variableCache.clear();
     }
 
-    private LNGIntVector handleImplication(final Implication formula, final boolean polarity,
+    private LngIntVector handleImplication(final Implication formula, final boolean polarity,
                                            final T addendum, final boolean topLevel) {
         final boolean skipPg = polarity || topLevel;
         final Pair<Boolean, Integer> pgVarResult = skipPg ? new Pair<>(false, null) : getPgVar(formula, polarity);
@@ -100,15 +100,15 @@ public abstract class PlaistedGreenbaumCommon<T> {
         if (polarity) {
             // pg => (~left | right) ~~> ~pg | ~left | right
             // Speed-Up: Skip pg var
-            final LNGIntVector leftPgVarNeg = computeTransformation(formula.getLeft(), false, addendum, false);
-            final LNGIntVector rightPgVarPos = computeTransformation(formula.getRight(), true, addendum, false);
+            final LngIntVector leftPgVarNeg = computeTransformation(formula.getLeft(), false, addendum, false);
+            final LngIntVector rightPgVarPos = computeTransformation(formula.getRight(), true, addendum, false);
             return vector(leftPgVarNeg, rightPgVarPos);
         } else {
             // (~left | right) => pg
             // ~~> (left & ~right) | pg
             // ~~> (left | pg) & (~right | pg)
-            final LNGIntVector leftPgVarPos = computeTransformation(formula.getLeft(), true, addendum, topLevel);
-            final LNGIntVector rightPgVarNeg = computeTransformation(formula.getRight(), false, addendum, topLevel);
+            final LngIntVector leftPgVarPos = computeTransformation(formula.getLeft(), true, addendum, topLevel);
+            final LngIntVector rightPgVarNeg = computeTransformation(formula.getRight(), false, addendum, topLevel);
             if (topLevel) {
                 if (leftPgVarPos != null) {
                     addToSolver(leftPgVarPos, addendum);
@@ -125,17 +125,17 @@ public abstract class PlaistedGreenbaumCommon<T> {
         }
     }
 
-    private LNGIntVector handleEquivalence(final Equivalence formula, final boolean polarity,
+    private LngIntVector handleEquivalence(final Equivalence formula, final boolean polarity,
                                            final T addendum, final boolean topLevel) {
         final Pair<Boolean, Integer> pgVarResult = topLevel ? new Pair<>(false, null) : getPgVar(formula, polarity);
         if (pgVarResult.getFirst()) {
             return polarity ? vector(pgVarResult.getSecond()) : vector(pgVarResult.getSecond() ^ 1);
         }
         final int pgVar = topLevel ? -1 : pgVarResult.getSecond();
-        final LNGIntVector leftPgVarPos = computeTransformation(formula.getLeft(), true, addendum, false);
-        final LNGIntVector leftPgVarNeg = computeTransformation(formula.getLeft(), false, addendum, false);
-        final LNGIntVector rightPgVarPos = computeTransformation(formula.getRight(), true, addendum, false);
-        final LNGIntVector rightPgVarNeg = computeTransformation(formula.getRight(), false, addendum, false);
+        final LngIntVector leftPgVarPos = computeTransformation(formula.getLeft(), true, addendum, false);
+        final LngIntVector leftPgVarNeg = computeTransformation(formula.getLeft(), false, addendum, false);
+        final LngIntVector rightPgVarPos = computeTransformation(formula.getRight(), true, addendum, false);
+        final LngIntVector rightPgVarNeg = computeTransformation(formula.getRight(), false, addendum, false);
         if (polarity) {
             // pg => (left => right) & (right => left)
             // ~~> (pg & left => right) & (pg & right => left)
@@ -165,7 +165,7 @@ public abstract class PlaistedGreenbaumCommon<T> {
         return polarity ? vector(pgVar) : vector(pgVar ^ 1);
     }
 
-    private LNGIntVector handleNary(final Formula formula, final boolean polarity, final T addendum,
+    private LngIntVector handleNary(final Formula formula, final boolean polarity, final T addendum,
                                     final boolean topLevel) {
         final boolean skipPg =
                 topLevel || formula.getType() == FType.AND && !polarity || formula.getType() == FType.OR && polarity;
@@ -179,7 +179,7 @@ public abstract class PlaistedGreenbaumCommon<T> {
                 if (polarity) {
                     // pg => (v1 & ... & vk) ~~> (~pg | v1) & ... & (~pg | vk)
                     for (final Formula op : formula) {
-                        final LNGIntVector opPgVars = computeTransformation(op, true, addendum, topLevel);
+                        final LngIntVector opPgVars = computeTransformation(op, true, addendum, topLevel);
                         if (topLevel) {
                             if (opPgVars != null) {
                                 addToSolver(opPgVars, addendum);
@@ -194,9 +194,9 @@ public abstract class PlaistedGreenbaumCommon<T> {
                 } else {
                     // (v1 & ... & vk) ~~> pg = ~v1 | ... | ~vk | pg
                     // Speed-Up: Skip pg var
-                    final LNGIntVector singleClause = new LNGIntVector();
+                    final LngIntVector singleClause = new LngIntVector();
                     for (final Formula op : formula) {
-                        final LNGIntVector opPgVars = computeTransformation(op, false, addendum, false);
+                        final LngIntVector opPgVars = computeTransformation(op, false, addendum, false);
                         for (int i = 0; i < opPgVars.size(); i++) {
                             singleClause.push(opPgVars.get(i));
                         }
@@ -209,9 +209,9 @@ public abstract class PlaistedGreenbaumCommon<T> {
                 if (polarity) {
                     // pg => (v1 | ... | vk) ~~> ~pg | v1 | ... | vk
                     // Speed-Up: Skip pg var
-                    final LNGIntVector singleClause = new LNGIntVector();
+                    final LngIntVector singleClause = new LngIntVector();
                     for (final Formula op : formula) {
-                        final LNGIntVector opPgVars = computeTransformation(op, true, addendum, false);
+                        final LngIntVector opPgVars = computeTransformation(op, true, addendum, false);
                         for (int i = 0; i < opPgVars.size(); i++) {
                             singleClause.push(opPgVars.get(i));
                         }
@@ -220,7 +220,7 @@ public abstract class PlaistedGreenbaumCommon<T> {
                 } else {
                     // (v1 | ... | vk) => pg ~~> (~v1 | pg) & ... & (~vk | pg)
                     for (final Formula op : formula) {
-                        final LNGIntVector opPgVars = computeTransformation(op, false, addendum, topLevel);
+                        final LngIntVector opPgVars = computeTransformation(op, false, addendum, topLevel);
                         if (topLevel) {
                             if (opPgVars != null) {
                                 addToSolver(opPgVars, addendum);
@@ -248,12 +248,12 @@ public abstract class PlaistedGreenbaumCommon<T> {
         return new Pair<>(wasCached, pgVar);
     }
 
-    protected static LNGIntVector vector(final int... elts) {
-        return LNGIntVector.of(elts);
+    protected static LngIntVector vector(final int... elts) {
+        return LngIntVector.of(elts);
     }
 
-    protected static LNGIntVector vector(final LNGIntVector a, final LNGIntVector b) {
-        final LNGIntVector result = new LNGIntVector(a.size() + b.size());
+    protected static LngIntVector vector(final LngIntVector a, final LngIntVector b) {
+        final LngIntVector result = new LngIntVector(a.size() + b.size());
         for (int i = 0; i < a.size(); i++) {
             result.unsafePush(a.get(i));
         }
@@ -263,8 +263,8 @@ public abstract class PlaistedGreenbaumCommon<T> {
         return result;
     }
 
-    protected static LNGIntVector vector(final int elt, final LNGIntVector a) {
-        final LNGIntVector result = new LNGIntVector(a.size() + 1);
+    protected static LngIntVector vector(final int elt, final LngIntVector a) {
+        final LngIntVector result = new LngIntVector(a.size() + 1);
         result.unsafePush(elt);
         for (int i = 0; i < a.size(); i++) {
             result.unsafePush(a.get(i));
@@ -272,8 +272,8 @@ public abstract class PlaistedGreenbaumCommon<T> {
         return result;
     }
 
-    protected static LNGIntVector vector(final int elt, final LNGIntVector a, final LNGIntVector b) {
-        final LNGIntVector result = new LNGIntVector(a.size() + b.size() + 1);
+    protected static LngIntVector vector(final int elt, final LngIntVector a, final LngIntVector b) {
+        final LngIntVector result = new LngIntVector(a.size() + b.size() + 1);
         result.unsafePush(elt);
         for (int i = 0; i < a.size(); i++) {
             result.unsafePush(a.get(i));

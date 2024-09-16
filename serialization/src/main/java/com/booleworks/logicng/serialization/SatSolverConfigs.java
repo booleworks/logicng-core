@@ -3,13 +3,13 @@
 
 package com.booleworks.logicng.serialization;
 
-import com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBClauseMinimization;
-import com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBCnfMethod;
-import com.booleworks.logicng.serialization.ProtoBufSolverCommons.PBSatSolverConfig;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig.CNFMethod;
-import com.booleworks.logicng.solvers.sat.SATSolverConfig.ClauseMinimization;
-import com.booleworks.logicng.solvers.sat.SATSolverLowLevelConfig;
+import com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbClauseMinimization;
+import com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbCnfMethod;
+import com.booleworks.logicng.serialization.ProtoBufSolverCommons.PbSatSolverConfig;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig.ClauseMinimization;
+import com.booleworks.logicng.solvers.sat.SatSolverConfig.CnfMethod;
+import com.booleworks.logicng.solvers.sat.SatSolverLowLevelConfig;
 
 /**
  * Serialization methods for SAT solver configurations.
@@ -23,8 +23,8 @@ public interface SatSolverConfigs {
      * @param config the configuration
      * @return the protocol buffer
      */
-    static PBSatSolverConfig serializeSatSolverConfig(final SATSolverConfig config) {
-        return PBSatSolverConfig.newBuilder()
+    static PbSatSolverConfig serializeSatSolverConfig(final SatSolverConfig config) {
+        return PbSatSolverConfig.newBuilder()
                 .setProofGeneration(config.isProofGeneration())
                 .setUseAtMostClauses(config.isUseAtMostClauses())
                 .setCnfMethod(serializeCnfMode(config.getCnfMethod()))
@@ -37,15 +37,15 @@ public interface SatSolverConfigs {
                 .setRestartInc(config.getLowLevelConfig().getRestartInc())
                 .setClauseDecay(config.getLowLevelConfig().getClauseDecay())
 
-                .setLbLBDMinimizingClause(config.getLowLevelConfig().getLbLBDMinimizingClause())
-                .setLbLBDFrozenClause(config.getLowLevelConfig().getLbLBDFrozenClause())
+                .setLbLbdMinimizingClause(config.getLowLevelConfig().getLbLbdMinimizingClause())
+                .setLbLbdFrozenClause(config.getLowLevelConfig().getLbLbdFrozenClause())
                 .setLbSizeMinimizingClause(config.getLowLevelConfig().getLbSizeMinimizingClause())
-                .setFirstReduceDB(config.getLowLevelConfig().getFirstReduceDB())
-                .setSpecialIncReduceDB(config.getLowLevelConfig().getSpecialIncReduceDB())
-                .setIncReduceDB(config.getLowLevelConfig().getIncReduceDB())
+                .setFirstReduceDb(config.getLowLevelConfig().getFirstReduceDb())
+                .setSpecialIncReduceDb(config.getLowLevelConfig().getSpecialIncReduceDb())
+                .setIncReduceDb(config.getLowLevelConfig().getIncReduceDb())
                 .setFactorK(config.getLowLevelConfig().getFactorK())
                 .setFactorR(config.getLowLevelConfig().getFactorR())
-                .setSizeLBDQueue(config.getLowLevelConfig().getSizeLBDQueue())
+                .setSizeLbdQueue(config.getLowLevelConfig().getSizeLbdQueue())
                 .setSizeTrailQueue(config.getLowLevelConfig().getSizeTrailQueue())
                 .setReduceOnSize(config.getLowLevelConfig().isReduceOnSize())
                 .setReduceOnSizeSize(config.getLowLevelConfig().getReduceOnSizeSize())
@@ -59,23 +59,23 @@ public interface SatSolverConfigs {
      * @param bin the protocol buffer
      * @return the configuration
      */
-    static SATSolverConfig deserializeSatSolverConfig(final PBSatSolverConfig bin) {
-        final var llConfig = SATSolverLowLevelConfig.builder()
+    static SatSolverConfig deserializeSatSolverConfig(final PbSatSolverConfig bin) {
+        final var llConfig = SatSolverLowLevelConfig.builder()
                 .varDecay(bin.getVarDecay())
                 .varInc(bin.getVarInc())
                 .restartFirst(bin.getRestartFirst())
                 .restartInc(bin.getRestartInc())
                 .clauseDecay(bin.getClauseDecay())
 
-                .lbLBDMinimizingClause(bin.getLbLBDMinimizingClause())
-                .lbLBDFrozenClause(bin.getLbLBDFrozenClause())
+                .lbLbdMinimizingClause(bin.getLbLbdMinimizingClause())
+                .lbLbdFrozenClause(bin.getLbLbdFrozenClause())
                 .lbSizeMinimizingClause(bin.getLbSizeMinimizingClause())
-                .firstReduceDB(bin.getFirstReduceDB())
-                .specialIncReduceDB(bin.getSpecialIncReduceDB())
-                .incReduceDB(bin.getIncReduceDB())
+                .firstReduceDb(bin.getFirstReduceDb())
+                .specialIncReduceDb(bin.getSpecialIncReduceDb())
+                .incReduceDb(bin.getIncReduceDb())
                 .factorK(bin.getFactorK())
                 .factorR(bin.getFactorR())
-                .sizeLBDQueue(bin.getSizeLBDQueue())
+                .sizeLbdQueue(bin.getSizeLbdQueue())
                 .sizeTrailQueue(bin.getSizeTrailQueue())
                 .reduceOnSize(bin.getReduceOnSize())
                 .reduceOnSizeSize(bin.getReduceOnSizeSize())
@@ -83,7 +83,7 @@ public interface SatSolverConfigs {
 
                 .build();
 
-        return SATSolverConfig.builder()
+        return SatSolverConfig.builder()
                 .proofGeneration(bin.getProofGeneration())
                 .useAtMostClauses(bin.getUseAtMostClauses())
                 .cnfMethod(deserializeCnfMode(bin.getCnfMethod()))
@@ -98,14 +98,14 @@ public interface SatSolverConfigs {
      * @param minimization the algorithm
      * @return the protocol buffer
      */
-    static PBClauseMinimization serializeMinMode(final ClauseMinimization minimization) {
+    static PbClauseMinimization serializeMinMode(final ClauseMinimization minimization) {
         switch (minimization) {
             case NONE:
-                return PBClauseMinimization.NONE;
+                return PbClauseMinimization.NONE;
             case BASIC:
-                return PBClauseMinimization.BASIC;
+                return PbClauseMinimization.BASIC;
             case DEEP:
-                return PBClauseMinimization.DEEP;
+                return PbClauseMinimization.DEEP;
             default:
                 throw new IllegalArgumentException("Unknown clause minimization: " + minimization);
         }
@@ -116,7 +116,7 @@ public interface SatSolverConfigs {
      * @param bin the protocol buffer
      * @return the algorithm
      */
-    static ClauseMinimization deserializeMinMode(final PBClauseMinimization bin) {
+    static ClauseMinimization deserializeMinMode(final PbClauseMinimization bin) {
         switch (bin) {
             case NONE:
                 return ClauseMinimization.NONE;
@@ -134,14 +134,14 @@ public interface SatSolverConfigs {
      * @param cnf the algorithm
      * @return the protocol buffer
      */
-    static PBCnfMethod serializeCnfMode(final CNFMethod cnf) {
+    static PbCnfMethod serializeCnfMode(final CnfMethod cnf) {
         switch (cnf) {
             case FACTORY_CNF:
-                return PBCnfMethod.FACTORY_CNF;
+                return PbCnfMethod.FACTORY_CNF;
             case PG_ON_SOLVER:
-                return PBCnfMethod.PG_ON_SOLVER;
+                return PbCnfMethod.PG_ON_SOLVER;
             case FULL_PG_ON_SOLVER:
-                return PBCnfMethod.FULL_PG_ON_SOLVER;
+                return PbCnfMethod.FULL_PG_ON_SOLVER;
             default:
                 throw new IllegalArgumentException("Unknown CNF method: " + cnf);
         }
@@ -152,14 +152,14 @@ public interface SatSolverConfigs {
      * @param bin the protocol buffer
      * @return the algorithm
      */
-    static CNFMethod deserializeCnfMode(final PBCnfMethod bin) {
+    static CnfMethod deserializeCnfMode(final PbCnfMethod bin) {
         switch (bin) {
             case FACTORY_CNF:
-                return CNFMethod.FACTORY_CNF;
+                return CnfMethod.FACTORY_CNF;
             case PG_ON_SOLVER:
-                return CNFMethod.PG_ON_SOLVER;
+                return CnfMethod.PG_ON_SOLVER;
             case FULL_PG_ON_SOLVER:
-                return CNFMethod.FULL_PG_ON_SOLVER;
+                return CnfMethod.FULL_PG_ON_SOLVER;
             default:
                 throw new IllegalArgumentException("Unknown CNF method: " + bin);
         }

@@ -14,11 +14,11 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.BoundedSatHandler;
 import com.booleworks.logicng.handlers.ComputationHandler;
-import com.booleworks.logicng.handlers.LNGResult;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.io.readers.FormulaReader;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.functions.BackboneFunction;
 import com.booleworks.logicng.util.FormulaHelper;
@@ -90,7 +90,7 @@ public class BackboneGenerationTest {
 
     @Test
     public void testSimpleBackbones() {
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
 
         final Literal x = f.literal("x", true);
         final Literal y = f.literal("y", true);
@@ -194,7 +194,7 @@ public class BackboneGenerationTest {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula =
                 FormulaReader.readFormula(f, "../test_files/formulas/small_formulas.txt");
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build());
         assertThat(verifyBackbone(backbone, formula, formula.variables(f))).isTrue();
@@ -205,7 +205,7 @@ public class BackboneGenerationTest {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula =
                 FormulaReader.readFormula(f, "../test_files/formulas/large_formula.txt");
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final Backbone backbone = solver.execute(BackboneFunction.builder().variables(formula.variables(f)).build());
         assertThat(verifyBackbone(backbone, formula, formula.variables(f))).isTrue();
@@ -213,7 +213,7 @@ public class BackboneGenerationTest {
 
     private boolean verifyBackbone(final Backbone backbone, final Formula formula,
                                    final Collection<Variable> variables) {
-        final SATSolver solver = SATSolver.newSolver(formula.getFactory());
+        final SatSolver solver = SatSolver.newSolver(formula.getFactory());
         solver.add(formula);
         for (final Variable bbVar : backbone.getPositiveBackbone()) {
             if (solver.satCall().addFormulas(bbVar.negate(f)).sat().getResult()) {
@@ -242,7 +242,7 @@ public class BackboneGenerationTest {
     @Test
     public void testBackboneType() {
         final FormulaFactory f = FormulaFactory.caching();
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
 
         final Literal x = f.literal("x", true);
         final Literal y = f.literal("y", true);
@@ -323,7 +323,7 @@ public class BackboneGenerationTest {
         final List<Formula> formulas = DimacsReader.readCNF(f, "../test_files/sat/term1_gr_rcs_w4.shuffled.cnf");
         for (int numStarts = 0; numStarts < 10; numStarts++) {
             final ComputationHandler handler = new BoundedSatHandler(numStarts);
-            final LNGResult<Backbone> result = BackboneGeneration.compute(f, formulas, FormulaHelper.variables(f, formulas),
+            final LngResult<Backbone> result = BackboneGeneration.compute(f, formulas, FormulaHelper.variables(f, formulas),
                     BackboneType.POSITIVE_AND_NEGATIVE, handler);
             assertThat(result.isSuccess()).isFalse();
         }

@@ -201,27 +201,27 @@ public class EquivalenceTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsNNF(final FormulaContext _c) {
-        assertThat(_c.eq1.isNNF(_c.f)).isFalse();
-        assertThat(_c.eq2.isNNF(_c.f)).isFalse();
-        assertThat(_c.eq3.isNNF(_c.f)).isFalse();
-        assertThat(_c.eq4.isNNF(_c.f)).isFalse();
+        assertThat(_c.eq1.isNnf(_c.f)).isFalse();
+        assertThat(_c.eq2.isNnf(_c.f)).isFalse();
+        assertThat(_c.eq3.isNnf(_c.f)).isFalse();
+        assertThat(_c.eq4.isNnf(_c.f)).isFalse();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsDNF(final FormulaContext _c) {
-        assertThat(_c.eq1.isDNF(_c.f)).isFalse();
-        assertThat(_c.eq2.isDNF(_c.f)).isFalse();
-        assertThat(_c.eq3.isDNF(_c.f)).isFalse();
-        assertThat(_c.eq4.isDNF(_c.f)).isFalse();
+        assertThat(_c.eq1.isDnf(_c.f)).isFalse();
+        assertThat(_c.eq2.isDnf(_c.f)).isFalse();
+        assertThat(_c.eq3.isDnf(_c.f)).isFalse();
+        assertThat(_c.eq4.isDnf(_c.f)).isFalse();
     }
 
     @ParameterizedTest
     @MethodSource("contexts")
     public void testIsCNF(final FormulaContext _c) {
-        assertThat(_c.eq1.isCNF(_c.f)).isFalse();
-        assertThat(_c.eq2.isCNF(_c.f)).isFalse();
-        assertThat(_c.eq3.isCNF(_c.f)).isFalse();
-        assertThat(_c.eq4.isCNF(_c.f)).isFalse();
+        assertThat(_c.eq1.isCnf(_c.f)).isFalse();
+        assertThat(_c.eq2.isCnf(_c.f)).isFalse();
+        assertThat(_c.eq3.isCnf(_c.f)).isFalse();
+        assertThat(_c.eq4.isCnf(_c.f)).isFalse();
     }
 }

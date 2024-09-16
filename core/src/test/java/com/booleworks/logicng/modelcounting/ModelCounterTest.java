@@ -15,14 +15,14 @@ import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.formulas.PBConstraint;
+import com.booleworks.logicng.formulas.PbConstraint;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.knowledgecompilation.bdds.orderings.ForceOrdering;
-import com.booleworks.logicng.solvers.SATSolver;
+import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.testutils.NQueensGenerator;
-import com.booleworks.logicng.transformations.cnf.CNFConfig;
+import com.booleworks.logicng.transformations.cnf.CnfConfig;
 import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaHelper;
 import com.booleworks.logicng.util.FormulaRandomizer;
@@ -129,7 +129,7 @@ public class ModelCounterTest extends TestWithFormulaContext {
         final FormulaCornerCases cornerCases = new FormulaCornerCases(_c.f);
         for (final Formula formula : cornerCases.cornerCases()) {
             if (formula.getType() == FType.PBC) {
-                final PBConstraint pbc = (PBConstraint) formula;
+                final PbConstraint pbc = (PbConstraint) formula;
                 if (!pbc.isAmo() && !pbc.isExo()) {
                     assertThatThrownBy(
                             () -> ModelCounter.count(_c.f, Collections.singletonList(formula), formula.variables(_c.f)))
@@ -148,7 +148,7 @@ public class ModelCounterTest extends TestWithFormulaContext {
     @RandomTag
     public void testRandom(final FormulaContext _c) {
         for (int i = 0; i < 500; i++) {
-            _c.f.putConfiguration(CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).build());
+            _c.f.putConfiguration(CnfConfig.builder().algorithm(CnfConfig.Algorithm.PLAISTED_GREENBAUM).build());
             final FormulaRandomizerConfig config = FormulaRandomizerConfig.builder()
                     .numVars(5)
                     .weightAmo(5)
@@ -168,7 +168,7 @@ public class ModelCounterTest extends TestWithFormulaContext {
     @RandomTag
     public void testRandomWithFormulaList(final FormulaContext _c) {
         for (int i = 0; i < 500; i++) {
-            _c.f.putConfiguration(CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).build());
+            _c.f.putConfiguration(CnfConfig.builder().algorithm(CnfConfig.Algorithm.PLAISTED_GREENBAUM).build());
             final FormulaRandomizerConfig config = FormulaRandomizerConfig.builder()
                     .numVars(5)
                     .weightAmo(5)
@@ -189,7 +189,7 @@ public class ModelCounterTest extends TestWithFormulaContext {
     @RandomTag
     public void testRandomWithFormulaListWithoutPBC(final FormulaContext _c) {
         for (int i = 0; i < 500; i++) {
-            _c.f.putConfiguration(CNFConfig.builder().algorithm(CNFConfig.Algorithm.PLAISTED_GREENBAUM).build());
+            _c.f.putConfiguration(CnfConfig.builder().algorithm(CnfConfig.Algorithm.PLAISTED_GREENBAUM).build());
             final FormulaRandomizerConfig config = FormulaRandomizerConfig.builder()
                     .numVars(5)
                     .weightPbc(0)
@@ -218,7 +218,7 @@ public class ModelCounterTest extends TestWithFormulaContext {
     }
 
     private static BigInteger enumerationBasedModelCount(final FormulaFactory f, final List<Formula> formulas) {
-        final SATSolver solver = SATSolver.newSolver(f);
+        final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formulas);
         final SortedSet<Variable> variables = FormulaHelper.variables(f, formulas);
         final List<Model> models = solver.enumerateAllModels(variables);
