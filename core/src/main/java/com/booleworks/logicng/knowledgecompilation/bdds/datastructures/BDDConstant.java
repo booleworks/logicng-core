@@ -15,7 +15,7 @@ import java.util.Set;
 
 /**
  * A terminal node in a BDD.
- * @version 1.4.0
+ * @version 3.0.0
  * @since 1.4.0
  */
 public final class BDDConstant implements BDDNode {
@@ -49,7 +49,7 @@ public final class BDDConstant implements BDDNode {
     }
 
     @Override
-    public Formula label() {
+    public Formula getLabel() {
         return value;
     }
 
@@ -59,12 +59,12 @@ public final class BDDConstant implements BDDNode {
     }
 
     @Override
-    public BDDNode low() {
+    public BDDNode getLow() {
         return null;
     }
 
     @Override
-    public BDDNode high() {
+    public BDDNode getHigh() {
         return null;
     }
 

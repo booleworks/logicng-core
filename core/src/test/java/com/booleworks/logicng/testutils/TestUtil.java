@@ -27,13 +27,13 @@ public final class TestUtil {
      * @param f2   second formula
      * @param vars the set of variables to which the models should be projected
      * @return {@code true} if the two formulas have the same models when
-     *         projected to the given set of variables, otherwise {@code false}
+     * projected to the given set of variables, otherwise {@code false}
      */
     public static boolean equivalentModels(final Formula f1, final Formula f2, final SortedSet<Variable> vars) {
-        final SATSolver s1 = SATSolver.newSolver(f1.factory());
+        final SATSolver s1 = SATSolver.newSolver(f1.getFactory());
         s1.add(f1);
         final List<Model> models1 = s1.enumerateAllModels(vars);
-        final SATSolver s2 = SATSolver.newSolver(f2.factory());
+        final SATSolver s2 = SATSolver.newSolver(f2.getFactory());
         s2.add(f2);
         final List<Model> models2 = s2.enumerateAllModels(vars);
         if (models1.size() != models2.size()) {

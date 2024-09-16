@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.booleworks.logicng.formulas.cache.FunctionCacheEntry;
 import com.booleworks.logicng.formulas.cache.PredicateCacheEntry;
 import com.booleworks.logicng.formulas.cache.TransformationCacheEntry;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -19,23 +18,23 @@ public class CacheTest {
 
     @Test
     public void testDescription() {
-        assertThat(TransformationCacheEntry.AIG.description())
+        assertThat(TransformationCacheEntry.AIG.getDescription())
                 .isEqualTo("TransformationCacheEntry{description=and-inverter graph}");
-        assertThat(TransformationCacheEntry.NNF.description())
+        assertThat(TransformationCacheEntry.NNF.getDescription())
                 .isEqualTo("TransformationCacheEntry{description=negation normal form}");
-        assertThat(TransformationCacheEntry.FACTORIZED_CNF.description())
+        assertThat(TransformationCacheEntry.FACTORIZED_CNF.getDescription())
                 .isEqualTo("TransformationCacheEntry{description=factorized conjunctive normal form}");
 
-        assertThat(PredicateCacheEntry.IS_AIG.description())
+        assertThat(PredicateCacheEntry.IS_AIG.getDescription())
                 .isEqualTo("PredicateCacheEntry{description=and-inverter graph}");
-        assertThat(PredicateCacheEntry.IS_CNF.description())
+        assertThat(PredicateCacheEntry.IS_CNF.getDescription())
                 .isEqualTo("PredicateCacheEntry{description=conjunctive normal form}");
 
-        assertThat(FunctionCacheEntry.LITPROFILE.description())
+        assertThat(FunctionCacheEntry.LITPROFILE.getDescription())
                 .isEqualTo("FunctionCacheEntry{description=literal profile}");
-        assertThat(FunctionCacheEntry.VARPROFILE.description())
+        assertThat(FunctionCacheEntry.VARPROFILE.getDescription())
                 .isEqualTo("FunctionCacheEntry{description=variable profile}");
-        assertThat(FunctionCacheEntry.SUBFORMULAS.description())
+        assertThat(FunctionCacheEntry.SUBFORMULAS.getDescription())
                 .isEqualTo("FunctionCacheEntry{description=sub-formulas}");
     }
 

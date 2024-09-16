@@ -67,10 +67,10 @@ public abstract class BDDNormalFormTransformation extends CacheableAndStatefulFo
      * @param formula the formula to transform
      * @param handler the computation handler
      * @return a (potentially canceled) LNGResult with the normal form (CNF or
-     *         DNF) of the formula
+     * DNF) of the formula
      */
     protected LNGResult<Formula> compute(final Formula formula, final ComputationHandler handler) {
-        if (formula.type().precedence() >= FType.LITERAL.precedence() || hasNormalForm(formula, cnf)) {
+        if (formula.getType().getPrecedence() >= FType.LITERAL.getPrecedence() || hasNormalForm(formula, cnf)) {
             return LNGResult.of(formula);
         }
         final Formula cached = lookupCache(formula);

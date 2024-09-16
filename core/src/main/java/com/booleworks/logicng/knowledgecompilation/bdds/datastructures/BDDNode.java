@@ -10,7 +10,7 @@ import java.util.Set;
 
 /**
  * A node in a BDD.
- * @version 1.4.0
+ * @version 3.0.0
  * @since 1.4.0
  */
 public interface BDDNode {
@@ -20,13 +20,13 @@ public interface BDDNode {
      * constant.
      * @return the label of the node
      */
-    Formula label();
+    Formula getLabel();
 
     /**
      * Returns {@code true} if this node is an inner node, {@code false} if it
      * is a terminal node.
      * @return {@code true} if this node is an inner node, {@code false} if it
-     *         is a terminal node
+     * is a terminal node
      */
     boolean isInnerNode();
 
@@ -34,13 +34,13 @@ public interface BDDNode {
      * Returns the node of the low edge or {@code null} for a terminal node.
      * @return the node of the low edge
      */
-    BDDNode low();
+    BDDNode getLow();
 
     /**
      * Returns the node of the high edge or {@code null} for a terminal node.
      * @return the node of the high edge
      */
-    BDDNode high();
+    BDDNode getHigh();
 
     /**
      * Returns all nodes of the sub-BDD starting at this node.

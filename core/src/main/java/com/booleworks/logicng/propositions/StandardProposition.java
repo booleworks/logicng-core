@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * A proposition in LogicNG. A proposition is a formula with an additional
  * textual description.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.0
  */
 public final class StandardProposition extends Proposition {
@@ -39,7 +39,7 @@ public final class StandardProposition extends Proposition {
     }
 
     @Override
-    public Formula formula() {
+    public Formula getFormula() {
         return formula;
     }
 
@@ -47,7 +47,7 @@ public final class StandardProposition extends Proposition {
      * Returns the backpack of this proposition.
      * @return the backpack of this proposition
      */
-    public String description() {
+    public String getDescription() {
         return description;
     }
 

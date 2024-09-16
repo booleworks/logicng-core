@@ -48,7 +48,7 @@ public final class LiteralSubstitution extends StatelessFormulaTransformation {
     }
 
     private Formula substitute(final Formula formula) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case TRUE:
             case FALSE:
             case PREDICATE:
@@ -59,34 +59,34 @@ public final class LiteralSubstitution extends StatelessFormulaTransformation {
                 if (lit != null) {
                     return lit;
                 }
-                if (!literal.phase()) {
+                if (!literal.getPhase()) {
                     lit = substitution.get(literal.variable());
                     return lit != null ? lit.negate(f) : formula;
                 }
                 return formula;
             case NOT:
-                return f.not(apply(((Not) formula).operand()));
+                return f.not(apply(((Not) formula).getOperand()));
             case EQUIV:
             case IMPL:
                 final BinaryOperator binOp = (BinaryOperator) formula;
-                return f.binaryOperator(formula.type(), apply(binOp.left()), apply(binOp.right()));
+                return f.binaryOperator(formula.getType(), apply(binOp.getLeft()), apply(binOp.getRight()));
             case OR:
             case AND:
                 final List<Formula> operands = new ArrayList<>();
                 for (final Formula op : formula) {
                     operands.add(apply(op));
                 }
-                return f.naryOperator(formula.type(), operands);
+                return f.naryOperator(formula.getType(), operands);
             case PBC:
                 final PBConstraint pbc = (PBConstraint) formula;
-                final List<Literal> originalOperands = pbc.operands();
+                final List<Literal> originalOperands = pbc.getOperands();
                 final List<Literal> literals = new ArrayList<>(originalOperands.size());
                 for (final Literal originalOperand : originalOperands) {
                     literals.add((Literal) apply(originalOperand));
                 }
-                return f.pbc(pbc.comparator(), pbc.rhs(), literals, pbc.coefficients());
+                return f.pbc(pbc.comparator(), pbc.getRhs(), literals, pbc.getCoefficients());
             default:
-                throw new IllegalArgumentException("Unknown formula type: " + formula.type());
+                throw new IllegalArgumentException("Unknown formula type: " + formula.getType());
         }
     }
 }

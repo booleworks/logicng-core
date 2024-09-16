@@ -18,12 +18,12 @@ public abstract class LngNativeFormula implements Formula {
     }
 
     @Override
-    public FType type() {
+    public FType getType() {
         return type;
     }
 
     @Override
-    public NonCachingFormulaFactory factory() {
+    public NonCachingFormulaFactory getFactory() {
         return f;
     }
 

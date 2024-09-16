@@ -135,7 +135,7 @@ public class ModelEnumerationToBddFunction extends AbstractModelEnumerationFunct
                                  final ComputationHandler handler) {
             final EnumerationFoundModelsEvent event = new EnumerationFoundModelsEvent(dontCareFactor);
             final Model model =
-                    new Model(solver.underlyingSolver().convertInternalModel(modelFromSolver, relevantAllIndices));
+                    new Model(solver.getUnderlyingSolver().convertInternalModel(modelFromSolver, relevantAllIndices));
             uncommittedModels.add(model);
             return handler.shouldResume(event) ? null : event;
         }

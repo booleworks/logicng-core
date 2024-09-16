@@ -45,8 +45,8 @@ public final class BDDModelEnumerationFunction extends BDDFunction<List<Model>> 
     @Override
     public List<Model> apply(final BDD bdd) {
         final Set<Model> res = new HashSet<>();
-        final BDDKernel kernel = bdd.underlyingKernel();
-        final List<byte[]> models = new BDDOperations(kernel).allSat(bdd.index());
+        final BDDKernel kernel = bdd.getUnderlyingKernel();
+        final List<byte[]> models = new BDDOperations(kernel).allSat(bdd.getIndex());
         final SortedSet<Integer> temp;
         if (variables == null) {
             temp = new TreeSet<>(kernel.var2idx().values());

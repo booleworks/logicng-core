@@ -91,10 +91,10 @@ public class ModelTest {
         final Formula formula = f.parse("(A|B|C) & (~A|~B|~C) & (A|~B|~C) & (~A|~B|C)");
         solver.add(formula);
         final Model model = solver.satCall().model(f.variables("A", "B", "C"));
-        assertThat(formula.evaluate(model.assignment())).isTrue();
+        assertThat(formula.evaluate(model.toAssignment())).isTrue();
         assertThat(solver.enumerateAllModels(f.variables("A", "B", "C"))).hasSize(4);
         for (final Model m : solver.enumerateAllModels(f.variables("A", "B", "C"))) {
-            assertThat(formula.evaluate(m.assignment())).isTrue();
+            assertThat(formula.evaluate(m.toAssignment())).isTrue();
         }
     }
 
@@ -105,15 +105,15 @@ public class ModelTest {
             throws ParserException {
         final SATSolver solver = solverSupplier.apply(f);
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
-        final Formula cnf = formula.transform(new TseitinTransformation(solver.factory(), 0));
+        final Formula cnf = formula.transform(new TseitinTransformation(solver.getFactory(), 0));
         solver.add(cnf);
         final Model model = solver.satCall().model(formula.variables(f));
-        assertThat(formula.evaluate(model.assignment())).isTrue();
+        assertThat(formula.evaluate(model.toAssignment())).isTrue();
         final List<Model> allModels = solver.enumerateAllModels(formula.variables(f));
         assertThat(allModels).hasSize(4);
         assertThat(model.formula(f).variables(f)).isEqualTo(formula.variables(f));
         for (final Model m : allModels) {
-            assertThat(formula.evaluate(m.assignment())).isTrue();
+            assertThat(formula.evaluate(m.toAssignment())).isTrue();
             assertThat(m.formula(f).variables(f)).isEqualTo(formula.variables(f));
         }
     }
@@ -127,11 +127,11 @@ public class ModelTest {
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solver.add(formula);
         final Model model = solver.satCall().model(formula.variables(f));
-        assertThat(formula.evaluate(model.assignment())).isTrue();
+        assertThat(formula.evaluate(model.toAssignment())).isTrue();
         final List<Model> allModels = solver.enumerateAllModels(formula.variables(f));
         assertThat(allModels).hasSize(4);
         for (final Model m : allModels) {
-            assertThat(formula.evaluate(m.assignment())).isTrue();
+            assertThat(formula.evaluate(m.toAssignment())).isTrue();
             assertThat(m.formula(f).variables(f)).isEqualTo(formula.variables(f));
         }
     }
@@ -145,12 +145,12 @@ public class ModelTest {
         final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solver.add(formula);
         final Model model = solver.satCall().model(formula.variables(f));
-        assertThat(formula.evaluate(model.assignment())).isTrue();
+        assertThat(formula.evaluate(model.toAssignment())).isTrue();
         assertThat(model.formula(f).variables(f)).isEqualTo(formula.variables(f));
         final List<Model> allModels = solver.enumerateAllModels(formula.variables(f));
         assertThat(allModels).hasSize(4);
         for (final Model m : allModels) {
-            assertThat(formula.evaluate(m.assignment())).isTrue();
+            assertThat(formula.evaluate(m.toAssignment())).isTrue();
             assertThat(m.formula(f).variables(f)).isEqualTo(formula.variables(f));
         }
     }

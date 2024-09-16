@@ -40,7 +40,7 @@ public abstract class EliminatingOrderDTreeGenerator implements DTreeGenerator {
 
         if (!cnf.isCNF(f) || cnf.isAtomicFormula()) {
             throw new IllegalArgumentException("Cannot generate DTree from a non-cnf formula or atomic formula");
-        } else if (cnf.type() != FType.AND) {
+        } else if (cnf.getType() != FType.AND) {
             return LNGResult.of(new DTreeLeaf(f, 0, cnf));
         }
 

@@ -20,7 +20,7 @@ public class EquivalenceTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testType(final FormulaContext _c) {
-        assertThat(_c.eq1.type()).isEqualTo(FType.EQUIV);
+        assertThat(_c.eq1.getType()).isEqualTo(FType.EQUIV);
     }
 
     @ParameterizedTest
@@ -41,8 +41,8 @@ public class EquivalenceTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testGetters(final FormulaContext _c) {
-        assertThat(((Equivalence) _c.eq2).left()).isEqualTo(_c.na);
-        assertThat(((Equivalence) _c.eq2).right()).isEqualTo(_c.nb);
+        assertThat(((Equivalence) _c.eq2).getLeft()).isEqualTo(_c.na);
+        assertThat(((Equivalence) _c.eq2).getRight()).isEqualTo(_c.nb);
     }
 
     @ParameterizedTest

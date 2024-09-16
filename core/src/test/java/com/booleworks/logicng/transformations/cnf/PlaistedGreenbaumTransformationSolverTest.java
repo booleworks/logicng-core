@@ -128,7 +128,7 @@ public class PlaistedGreenbaumTransformationSolverTest extends TestWithFormulaCo
     }
 
     private static void computeAndVerify(final Formula formula) {
-        final FormulaFactory f = formula.factory();
+        final FormulaFactory f = formula.getFactory();
         final SATSolver solver = SATSolver.newSolver(f,
                 SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.FULL_PG_ON_SOLVER).build());
         solver.add(formula);

@@ -20,7 +20,7 @@ public class NotTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testType(final FormulaContext _c) {
-        assertThat(_c.not1.type()).isEqualTo(FType.NOT);
+        assertThat(_c.not1.getType()).isEqualTo(FType.NOT);
     }
 
     @ParameterizedTest
@@ -37,8 +37,8 @@ public class NotTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testGetters(final FormulaContext _c) {
-        assertThat(((Not) _c.not1).operand()).isEqualTo(_c.and1);
-        assertThat(((Not) _c.not2).operand()).isEqualTo(_c.or1);
+        assertThat(((Not) _c.not1).getOperand()).isEqualTo(_c.and1);
+        assertThat(((Not) _c.not2).getOperand()).isEqualTo(_c.or1);
     }
 
     @ParameterizedTest

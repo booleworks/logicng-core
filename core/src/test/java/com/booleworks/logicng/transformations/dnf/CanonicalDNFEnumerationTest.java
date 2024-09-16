@@ -65,7 +65,7 @@ public class CanonicalDNFEnumerationTest extends TestWithFormulaContext {
     }
 
     private void test(final Formula formula) {
-        final FormulaFactory f = formula.factory();
+        final FormulaFactory f = formula.getFactory();
         final Formula dnf = new CanonicalDNFEnumeration(f).apply(formula);
         assertThat(dnf.holds(new DNFPredicate(f))).isTrue();
         assertThat(f.equivalence(formula, dnf).holds(new TautologyPredicate(f))).isTrue();
@@ -77,7 +77,7 @@ public class CanonicalDNFEnumerationTest extends TestWithFormulaContext {
     }
 
     private static boolean hasConstantTermSize(final Formula dnf) {
-        switch (dnf.type()) {
+        switch (dnf.getType()) {
             case LITERAL:
             case TRUE:
             case FALSE:
@@ -86,7 +86,7 @@ public class CanonicalDNFEnumerationTest extends TestWithFormulaContext {
             case OR:
                 return dnf.stream().map(Formula::numberOfOperands).distinct().count() == 1;
             default:
-                throw new IllegalStateException("Unexpected type: " + dnf.type());
+                throw new IllegalStateException("Unexpected type: " + dnf.getType());
         }
     }
 }

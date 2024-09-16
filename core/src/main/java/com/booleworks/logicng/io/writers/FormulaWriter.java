@@ -42,7 +42,7 @@ public final class FormulaWriter {
      */
     public static void write(final String fileName, final Formula formula, final boolean splitAndMultiline)
             throws IOException {
-        write(new File(fileName), formula, splitAndMultiline, formula.factory().stringRepresentation());
+        write(new File(fileName), formula, splitAndMultiline, formula.getFactory().getStringRepresentation());
     }
 
     /**
@@ -75,7 +75,7 @@ public final class FormulaWriter {
      */
     public static void write(final File file, final Formula formula, final boolean splitAndMultiline)
             throws IOException {
-        write(file, formula, splitAndMultiline, formula.factory().stringRepresentation());
+        write(file, formula, splitAndMultiline, formula.getFactory().getStringRepresentation());
     }
 
     /**
@@ -93,7 +93,7 @@ public final class FormulaWriter {
                              final FormulaStringRepresentation formatter)
             throws IOException {
         final StringBuilder sb = new StringBuilder();
-        if (splitAndMultiline && formula.type() == FType.AND) {
+        if (splitAndMultiline && formula.getType() == FType.AND) {
             for (final Formula f : formula) {
                 sb.append(formatter.toString(f)).append(System.lineSeparator());
             }

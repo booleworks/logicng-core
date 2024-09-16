@@ -7,7 +7,6 @@ package com.booleworks.logicng.knowledgecompilation.bdds.datastructures;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class BDDNodeTest {
@@ -21,15 +20,15 @@ public class BDDNodeTest {
         assertThat(verumNode.isInnerNode()).isFalse();
         assertThat(falsumNode.isInnerNode()).isFalse();
         assertThat(innerNode.isInnerNode()).isTrue();
-        assertThat(verumNode.label()).isEqualTo(f.verum());
-        assertThat(falsumNode.label()).isEqualTo(f.falsum());
-        assertThat(innerNode.label()).isEqualTo(f.variable("A"));
-        assertThat(verumNode.low()).isNull();
-        assertThat(verumNode.high()).isNull();
-        assertThat(falsumNode.low()).isNull();
-        assertThat(falsumNode.high()).isNull();
-        assertThat(innerNode.low()).isEqualTo(verumNode);
-        assertThat(innerNode.high()).isEqualTo(falsumNode);
+        assertThat(verumNode.getLabel()).isEqualTo(f.verum());
+        assertThat(falsumNode.getLabel()).isEqualTo(f.falsum());
+        assertThat(innerNode.getLabel()).isEqualTo(f.variable("A"));
+        assertThat(verumNode.getLow()).isNull();
+        assertThat(verumNode.getHigh()).isNull();
+        assertThat(falsumNode.getLow()).isNull();
+        assertThat(falsumNode.getHigh()).isNull();
+        assertThat(innerNode.getLow()).isEqualTo(verumNode);
+        assertThat(innerNode.getHigh()).isEqualTo(falsumNode);
     }
 
     @Test

@@ -33,11 +33,11 @@ final class EncodingAuxiliaryVariable extends LngNativeVariable {
 
     @Override
     public Literal negate(final FormulaFactory f) {
-        return new EncodingAuxiliaryVariable(name(), !negated);
+        return new EncodingAuxiliaryVariable(getName(), !negated);
     }
 
     @Override
     public String toString() {
-        return name();
+        return getName();
     }
 }

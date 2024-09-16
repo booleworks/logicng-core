@@ -32,7 +32,7 @@ public class ExtendedProposition<T extends PropositionBackpack> extends Proposit
     }
 
     @Override
-    public Formula formula() {
+    public Formula getFormula() {
         return formula;
     }
 
@@ -40,7 +40,7 @@ public class ExtendedProposition<T extends PropositionBackpack> extends Proposit
      * Returns the backpack of this proposition.
      * @return the backpack of this proposition
      */
-    public T backpack() {
+    public T getBackpack() {
         return backpack;
     }
 

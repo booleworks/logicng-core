@@ -69,7 +69,7 @@ public class CnfMethodComparisonTest {
         for (final String fileName : fileNames) {
             final String filePath = baseDir + fileName;
             final Backbone backboneReference = computeBackbone(filePath, CNFConfig.builder().build(),
-                    SATSolverConfig.builder().build().cnfMethod());
+                    SATSolverConfig.builder().build().getCnfMethod());
             final Backbone backbone = computeBackbone(filePath, cnfConfig, cnfMethod);
             assertThat(backboneReference).isEqualTo(backbone);
         }

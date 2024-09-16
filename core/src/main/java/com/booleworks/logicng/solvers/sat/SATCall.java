@@ -57,7 +57,7 @@ public class SATCall implements AutoCloseable {
     SATCall(final SATSolver solverWrapper, final ComputationHandler handler,
             final List<? extends Proposition> additionalPropositions, final List<? extends Literal> selectionOrder) {
         this.solverWrapper = solverWrapper;
-        solver = solverWrapper.underlyingSolver();
+        solver = solverWrapper.getUnderlyingSolver();
         initAndSolve(handler, additionalPropositions, selectionOrder);
     }
 
@@ -65,7 +65,8 @@ public class SATCall implements AutoCloseable {
         return new SATCallBuilder(solver);
     }
 
-    private void initAndSolve(final ComputationHandler handler, final List<? extends Proposition> additionalPropositions, final List<? extends Literal> selectionOrder) {
+    private void initAndSolve(final ComputationHandler handler, final List<? extends Proposition> additionalPropositions,
+                              final List<? extends Literal> selectionOrder) {
         solver.assertNotInSatCall();
         if (solver.config.proofGeneration) {
             pgOriginalClausesLength = solver.pgOriginalClauses.size();
@@ -91,8 +92,8 @@ public class SATCall implements AutoCloseable {
         final List<Proposition> propositionsForLiterals = new ArrayList<>();
         final List<Proposition> additionalFormulas = new ArrayList<>();
         for (final Proposition prop : additionalPropositions) {
-            if (prop.formula().type() == FType.LITERAL) {
-                additionalLiterals.add(((Literal) prop.formula()));
+            if (prop.getFormula().getType() == FType.LITERAL) {
+                additionalLiterals.add(((Literal) prop.getFormula()));
                 propositionsForLiterals.add(prop);
             } else {
                 additionalFormulas.add(prop);
@@ -129,7 +130,7 @@ public class SATCall implements AutoCloseable {
             final List<Literal> unknowns = new ArrayList<>();
             final LNGIntVector relevantIndices = new LNGIntVector(variables.size());
             for (final Variable var : variables) {
-                final int element = solver.idxForName(var.name());
+                final int element = solver.idxForName(var.getName());
                 if (element != -1) {
                     relevantIndices.push(element);
                 } else {
@@ -145,7 +146,7 @@ public class SATCall implements AutoCloseable {
     /**
      * Returns an unsat core of the current problem.
      * <p>
-     * {@link SATSolverConfig#proofGeneration() Proof generation} must be
+     * {@link SATSolverConfig#isProofGeneration() Proof generation} must be
      * enabled in order to use this method, otherwise an
      * {@link IllegalStateException} is thrown.
      * <p>
@@ -154,7 +155,7 @@ public class SATCall implements AutoCloseable {
      * @return the unsat core or {@code null} if the SAT call was satisfiable
      */
     public UNSATCore<Proposition> unsatCore() {
-        if (!solver.config().proofGeneration()) {
+        if (!solver.getConfig().isProofGeneration()) {
             throw new IllegalStateException("Cannot generate an unsat core if proof generation is not turned on");
         }
         if (!satResult.isSuccess() || satResult.getResult()) {

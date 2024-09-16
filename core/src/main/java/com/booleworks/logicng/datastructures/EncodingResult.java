@@ -6,9 +6,9 @@ package com.booleworks.logicng.datastructures;
 
 import com.booleworks.logicng.collections.LNGIntVector;
 import com.booleworks.logicng.collections.LNGVector;
-import com.booleworks.logicng.formulas.InternalAuxVarType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.formulas.InternalAuxVarType;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.propositions.Proposition;
@@ -16,7 +16,6 @@ import com.booleworks.logicng.solvers.sat.LNGCoreSolver;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * The result of an encoding.
@@ -28,7 +27,7 @@ import java.util.Objects;
  * can be used to connect an encoding directly with a SAT solver and therefore
  * introducing the variables only on the solver - not in the factory. When
  * working with many encodings, this can be a large performance gain.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.1
  */
 public final class EncodingResult {
@@ -104,16 +103,16 @@ public final class EncodingResult {
     }
 
     private void addLiteral(final LNGIntVector clauseVec, final Literal lit) {
-        int index = solver.idxForName(lit.name());
+        int index = solver.idxForName(lit.getName());
         if (index == -1) {
-            index = solver.newVar(!solver.config().initialPhase(), true);
-            solver.addName(lit.name(), index);
+            index = solver.newVar(!solver.getConfig().getInitialPhase(), true);
+            solver.addName(lit.getName(), index);
         }
         final int litNum;
         if (lit instanceof EncodingAuxiliaryVariable) {
             litNum = !((EncodingAuxiliaryVariable) lit).negated ? index * 2 : (index * 2) ^ 1;
         } else {
-            litNum = lit.phase() ? index * 2 : (index * 2) ^ 1;
+            litNum = lit.getPhase() ? index * 2 : (index * 2) ^ 1;
         }
         clauseVec.push(litNum);
     }
@@ -139,7 +138,7 @@ public final class EncodingResult {
         if (solver == null) {
             return f.newAuxVariable(auxType);
         } else {
-            final int index = solver.newVar(!solver.config().initialPhase(), true);
+            final int index = solver.newVar(!solver.getConfig().getInitialPhase(), true);
             final String name = "@AUX_" + auxType + "_SAT_SOLVER_" + index;
             solver.addName(name, index);
             return new EncodingAuxiliaryVariable(name, false);
@@ -147,7 +146,7 @@ public final class EncodingResult {
     }
 
     public Variable newVariable(final InternalAuxVarType auxType) {
-        return newVariable(auxType.prefix());
+        return newVariable(auxType.getPrefix());
     }
 
     /**
@@ -178,11 +177,11 @@ public final class EncodingResult {
      * Returns the result of this algorithm.
      * @return the result of this algorithm
      */
-    public List<Formula> result() {
+    public List<Formula> getResult() {
         return result;
     }
 
-    public FormulaFactory factory() {
+    public FormulaFactory getFactory() {
         return f;
     }
 }

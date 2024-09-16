@@ -47,12 +47,12 @@ public class ModelTest extends TestWithFormulaContext {
 
     @ParameterizedTest
     @MethodSource("contexts")
-    public void testAssignment(final FormulaContext _c) {
-        assertThat(new Model(Collections.emptyList()).assignment()).isEqualTo(new Assignment());
-        assertThat(new Model(Arrays.asList(_c.a, _c.nb, _c.x)).assignment())
+    public void testToAssignment(final FormulaContext _c) {
+        assertThat(new Model(Collections.emptyList()).toAssignment()).isEqualTo(new Assignment());
+        assertThat(new Model(Arrays.asList(_c.a, _c.nb, _c.x)).toAssignment())
                 .isEqualTo(new Assignment(_c.a, _c.nb, _c.x));
-        assertThat(new Model(Collections.emptyList()).assignment()).isEqualTo(new Assignment());
-        assertThat(new Model(Arrays.asList(_c.a, _c.nb, _c.x)).assignment())
+        assertThat(new Model(Collections.emptyList()).toAssignment()).isEqualTo(new Assignment());
+        assertThat(new Model(Arrays.asList(_c.a, _c.nb, _c.x)).toAssignment())
                 .isEqualTo(new Assignment(_c.a, _c.nb, _c.x));
     }
 

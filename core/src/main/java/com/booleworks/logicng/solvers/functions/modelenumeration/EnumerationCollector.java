@@ -25,7 +25,7 @@ import java.util.List;
  * retrieved.
  * @param <RESULT> The result type of the model enumeration function. Can be
  *                 e.g. a model count, a list of models, or a BDD.
- * @version 2.5.0
+ * @version 3.0.0
  * @since 2.5.0
  */
 public interface EnumerationCollector<RESULT> {
@@ -37,7 +37,7 @@ public interface EnumerationCollector<RESULT> {
      * @param relevantAllIndices the relevant indices
      * @param handler            the model enumeration handler
      * @return an event if the handler canceled the computation,
-     *         otherwise {@code null}
+     * otherwise {@code null}
      */
     LNGEvent addModel(LNGBooleanVector modelFromSolver, SATSolver solver, LNGIntVector relevantAllIndices,
                       ComputationHandler handler);
@@ -49,7 +49,7 @@ public interface EnumerationCollector<RESULT> {
      * Calls the {@code commit()} routine of {@code handler}.
      * @param handler the computation handler
      * @return an event if the handler canceled the computation,
-     *         otherwise {@code null}
+     * otherwise {@code null}
      */
     LNGEvent commit(ComputationHandler handler);
 
@@ -60,7 +60,7 @@ public interface EnumerationCollector<RESULT> {
      * cancels the computation.
      * @param handler the computation handler
      * @return an event if the handler canceled the computation,
-     *         otherwise {@code null}
+     * otherwise {@code null}
      */
     LNGEvent rollback(ComputationHandler handler);
 

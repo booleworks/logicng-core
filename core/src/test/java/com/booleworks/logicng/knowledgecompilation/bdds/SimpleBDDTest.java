@@ -15,7 +15,6 @@ import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.knowledgecompilation.bdds.datastructures.BDDConstant;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BDDKernel;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -34,7 +33,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.cnf()).isEqualTo(_c.f.verum());
         assertThat(bdd.dnf()).isEqualTo(_c.f.verum());
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.ONE);
-        assertThat(bdd.underlyingKernel().factory()).isSameAs(_c.f);
+        assertThat(bdd.getUnderlyingKernel().factory()).isSameAs(_c.f);
         assertThat(bdd.enumerateAllModels()).containsExactly(new Model());
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.ZERO);
         assertThat(bdd.toLngBdd()).isEqualTo(BDDConstant.getVerumNode(_c.f));
@@ -50,8 +49,8 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.cnf()).isEqualTo(_c.f.falsum());
         assertThat(bdd.dnf()).isEqualTo(_c.f.falsum());
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.ZERO);
-        assertThat(bdd.underlyingKernel()).isSameAs(kernel);
-        assertThat(bdd.underlyingKernel().factory()).isSameAs(_c.f);
+        assertThat(bdd.getUnderlyingKernel()).isSameAs(kernel);
+        assertThat(bdd.getUnderlyingKernel().factory()).isSameAs(_c.f);
         assertThat(bdd.enumerateAllModels()).isEmpty();
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.ONE);
         assertThat(bdd.toLngBdd()).isEqualTo(BDDConstant.getFalsumNode(_c.f));
@@ -66,7 +65,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.cnf()).isEqualTo(_c.f.literal("A", true));
         assertThat(bdd.dnf()).isEqualTo(_c.f.literal("A", true));
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.ONE);
-        assertThat(bdd.underlyingKernel().factory()).isSameAs(_c.f);
+        assertThat(bdd.getUnderlyingKernel().factory()).isSameAs(_c.f);
         assertThat(bdd.enumerateAllModels()).containsExactly(new Model(_c.f.literal("A", true)));
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.ONE);
         assertThat(bdd.toLngBdd().toString()).isEqualTo("<A | low=<$false> high=<$true>>");
@@ -81,7 +80,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.cnf()).isEqualTo(_c.f.literal("A", false));
         assertThat(bdd.dnf()).isEqualTo(_c.f.literal("A", false));
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.ONE);
-        assertThat(bdd.underlyingKernel().factory()).isSameAs(_c.f);
+        assertThat(bdd.getUnderlyingKernel().factory()).isSameAs(_c.f);
         assertThat(bdd.enumerateAllModels()).containsExactly(new Model(_c.f.literal("A", false)));
         assertThat(bdd.numberOfClausesCNF()).isEqualTo(BigInteger.ONE);
         assertThat(bdd.toLngBdd().toString()).isEqualTo("<A | low=<$true> high=<$false>>");
@@ -96,7 +95,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.cnf()).isEqualTo(_c.p.parse("~A | ~B"));
         assertThat(bdd.dnf()).isEqualTo(_c.p.parse("~A | A & ~B"));
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(3));
-        assertThat(bdd.underlyingKernel().factory()).isSameAs(_c.f);
+        assertThat(bdd.getUnderlyingKernel().factory()).isSameAs(_c.f);
         assertThat(bdd.enumerateAllModels()).containsExactlyInAnyOrder(
                 new Model(_c.f.literal("A", false), _c.f.literal("B", false)),
                 new Model(_c.f.literal("A", true), _c.f.literal("B", false)),
@@ -116,7 +115,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.cnf()).isEqualTo(_c.p.parse("(A | B) & (~A | ~B)"));
         assertThat(bdd.dnf()).isEqualTo(_c.p.parse("~A & B | A & ~B"));
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(2));
-        assertThat(bdd.underlyingKernel().factory()).isSameAs(_c.f);
+        assertThat(bdd.getUnderlyingKernel().factory()).isSameAs(_c.f);
         assertThat(bdd.enumerateAllModels()).containsExactlyInAnyOrder(
                 new Model(_c.f.literal("A", true), _c.f.literal("B", false)),
                 new Model(_c.f.literal("A", false), _c.f.literal("B", true))
@@ -135,7 +134,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.cnf()).isEqualTo(_c.p.parse("A | B | ~C"));
         assertThat(bdd.dnf()).isEqualTo(_c.p.parse("~A & ~B & ~C | ~A & B | A"));
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(7));
-        assertThat(bdd.underlyingKernel().factory()).isSameAs(_c.f);
+        assertThat(bdd.getUnderlyingKernel().factory()).isSameAs(_c.f);
         assertThat(bdd.enumerateAllModels()).containsExactlyInAnyOrder(
                 new Model(_c.f.literal("A", false), _c.f.literal("B", false), _c.f.literal("C", false)),
                 new Model(_c.f.literal("A", false), _c.f.literal("B", true), _c.f.literal("C", false)),
@@ -163,7 +162,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.cnf()).isEqualTo(parser.parse("A & (~A | B) & (~A | ~B | ~C)"));
         assertThat(bdd.dnf()).isEqualTo(parser.parse("A & B & ~C"));
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(1));
-        assertThat(bdd.underlyingKernel().factory()).isSameAs(f);
+        assertThat(bdd.getUnderlyingKernel().factory()).isSameAs(f);
         assertThat(bdd.enumerateAllModels()).containsExactlyInAnyOrder(
                 new Model(f.literal("A", true), f.literal("B", true), f.literal("C", false))
         );
@@ -183,7 +182,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.isTautology()).isFalse();
         assertThat(bdd.isContradiction()).isFalse();
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(6));
-        assertThat(bdd.underlyingKernel().factory()).isSameAs(f);
+        assertThat(bdd.getUnderlyingKernel().factory()).isSameAs(f);
         assertThat(bdd.enumerateAllModels()).hasSize(6);
         assertThat(bdd.enumerateAllModels(f.variable("A"))).hasSize(2);
         assertThat(bdd.hashCode())
@@ -203,7 +202,7 @@ public class SimpleBDDTest extends TestWithFormulaContext {
         assertThat(bdd.cnf()).isEqualTo(parser.parse("(A | B | C) & (A | ~B | ~C) & (~A | B | ~C) & (~A | ~B)"));
         assertThat(bdd.dnf()).isEqualTo(parser.parse("~A & ~B & C | ~A & B & ~C | A & ~B & ~C"));
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(3));
-        assertThat(bdd.underlyingKernel().factory()).isSameAs(f);
+        assertThat(bdd.getUnderlyingKernel().factory()).isSameAs(f);
         assertThat(bdd.enumerateAllModels()).containsExactlyInAnyOrder(
                 new Model(f.literal("A", true), f.literal("B", false), f.literal("C", false)),
                 new Model(f.literal("A", false), f.literal("B", true), f.literal("C", false)),

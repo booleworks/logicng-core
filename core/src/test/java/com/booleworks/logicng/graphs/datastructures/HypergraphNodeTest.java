@@ -16,9 +16,9 @@ public class HypergraphNodeTest {
         final HypergraphNode<String> node1 = new HypergraphNode<>(hypergraph, "A");
         final HypergraphNode<String> node2 = new HypergraphNode<>(hypergraph, "B");
         final HypergraphEdge<String> edge1 = new HypergraphEdge<>(node1, node2);
-        assertThat(node1.graph()).isEqualTo(hypergraph);
-        assertThat(node1.content()).isEqualTo("A");
-        assertThat(node1.edges()).containsExactlyInAnyOrder(edge1);
+        assertThat(node1.getGraph()).isEqualTo(hypergraph);
+        assertThat(node1.getContent()).isEqualTo("A");
+        assertThat(node1.getEdges()).containsExactlyInAnyOrder(edge1);
     }
 
     @Test

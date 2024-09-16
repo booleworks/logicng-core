@@ -12,7 +12,6 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.SATSolver;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.Collectors;
@@ -56,7 +55,7 @@ public class CcExoTest implements LogicNGTest {
         for (final EncoderConfig config : configs) {
             assertThat(CcEncoder.encode(f, cc, config)).containsExactly(f.variable("v0"));
         }
-        assertThat(f.newCCVariable().name()).endsWith("_0");
+        assertThat(f.newCCVariable().getName()).endsWith("_0");
     }
 
     @Test
@@ -71,7 +70,7 @@ public class CcExoTest implements LogicNGTest {
                 testEXO(f, 100);
                 testEXO(f, 250);
                 testEXO(f, 500);
-                assertThat(f.newCCVariable().name()).endsWith("_" + counter++);
+                assertThat(f.newCCVariable().getName()).endsWith("_" + counter++);
             }
         }
     }

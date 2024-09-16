@@ -324,7 +324,7 @@ public class MaxSATSolver {
      * @param weight  the weight of this CNF (or -1 for a hard constraint)
      */
     protected void addCNF(final Formula formula, final int weight) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case TRUE:
                 break;
             case FALSE:
@@ -373,7 +373,7 @@ public class MaxSATSolver {
      * Returns the stats of the underlying solver.
      * @return the stats of the underlying solver
      */
-    public MaxSAT.Stats stats() {
+    public MaxSAT.Stats getStats() {
         return solver.stats();
     }
 
@@ -389,7 +389,7 @@ public class MaxSATSolver {
      * Returns the formula factory for this solver.
      * @return the formula factory
      */
-    public FormulaFactory factory() {
+    public FormulaFactory getFactory() {
         return f;
     }
 

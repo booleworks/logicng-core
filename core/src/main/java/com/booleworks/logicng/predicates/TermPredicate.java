@@ -47,7 +47,7 @@ public final class TermPredicate implements FormulaPredicate {
 
     @Override
     public boolean test(final Formula formula) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case TRUE:
             case FALSE:
             case LITERAL:
@@ -69,13 +69,13 @@ public final class TermPredicate implements FormulaPredicate {
                 }
                 return onlyLiteralOperands((NAryOperator) formula);
             default:
-                throw new IllegalArgumentException("Unknown formula type: " + formula.type());
+                throw new IllegalArgumentException("Unknown formula type: " + formula.getType());
         }
     }
 
     private boolean onlyLiteralOperands(final NAryOperator nary) {
         for (final Formula op : nary) {
-            if (op.type() != FType.LITERAL) {
+            if (op.getType() != FType.LITERAL) {
                 return false;
             }
         }

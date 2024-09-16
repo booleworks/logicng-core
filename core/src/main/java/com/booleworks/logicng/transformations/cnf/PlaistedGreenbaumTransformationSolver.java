@@ -40,7 +40,7 @@ public final class PlaistedGreenbaumTransformationSolver extends PlaistedGreenba
 
     @Override
     protected void addCNF(final Formula cnf, final Proposition proposition) {
-        switch (cnf.type()) {
+        switch (cnf.getType()) {
             case TRUE:
                 break;
             case FALSE:
@@ -60,8 +60,8 @@ public final class PlaistedGreenbaumTransformationSolver extends PlaistedGreenba
 
     @Override
     protected int newSolverVariable() {
-        final int index = solver.newVar(!solver.config().initialPhase(), true);
-        final String name = InternalAuxVarType.CNF.prefix() + "SAT_SOLVER_" + index;
+        final int index = solver.newVar(!solver.getConfig().getInitialPhase(), true);
+        final String name = InternalAuxVarType.CNF.getPrefix() + "SAT_SOLVER_" + index;
         solver.addName(name, index);
         return index * 2;
     }

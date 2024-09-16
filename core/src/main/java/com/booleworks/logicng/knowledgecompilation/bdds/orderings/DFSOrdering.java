@@ -32,18 +32,18 @@ public final class DFSOrdering implements VariableOrderingProvider {
     }
 
     private void dfs(final Formula formula, final LinkedHashSet<Variable> variables) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case LITERAL:
                 variables.add(((Literal) formula).variable());
                 break;
             case NOT:
-                dfs(((Not) formula).operand(), variables);
+                dfs(((Not) formula).getOperand(), variables);
                 break;
             case IMPL:
             case EQUIV:
                 final BinaryOperator op = (BinaryOperator) formula;
-                dfs(op.left(), variables);
-                dfs(op.right(), variables);
+                dfs(op.getLeft(), variables);
+                dfs(op.getRight(), variables);
                 break;
             case AND:
             case OR:
@@ -53,7 +53,7 @@ public final class DFSOrdering implements VariableOrderingProvider {
                 break;
             case PBC:
                 final PBConstraint pbc = (PBConstraint) formula;
-                for (final Literal lit : pbc.operands()) {
+                for (final Literal lit : pbc.getOperands()) {
                     variables.add(lit.variable());
                 }
                 break;

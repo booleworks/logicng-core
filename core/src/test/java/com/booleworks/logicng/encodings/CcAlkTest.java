@@ -47,7 +47,7 @@ public class CcAlkTest implements LogicNGTest {
             testCC(f, 10, 9, 11);
             testCC(f, 10, 10, 1);
             testCC(f, 10, 12, 0);
-            assertThat(f.newCCVariable().name()).endsWith("_" + counter++);
+            assertThat(f.newCCVariable().getName()).endsWith("_" + counter++);
         }
     }
 

@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * A node in a hypergraph.
  * @param <T> the content type of the graph's nodes
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.4.0
  */
 public final class HypergraphNode<T> {
@@ -37,7 +37,7 @@ public final class HypergraphNode<T> {
      * Returns the hypergraph of this node.
      * @return the hypergraph of this node
      */
-    public Hypergraph<T> graph() {
+    public Hypergraph<T> getGraph() {
         return graph;
     }
 
@@ -45,7 +45,7 @@ public final class HypergraphNode<T> {
      * Returns the content of this node.
      * @return the content of this node
      */
-    public T content() {
+    public T getContent() {
         return content;
     }
 
@@ -53,7 +53,7 @@ public final class HypergraphNode<T> {
      * Returns the edges which are connected with this node.
      * @return the edges which are connected with this node
      */
-    public Set<HypergraphEdge<T>> edges() {
+    public Set<HypergraphEdge<T>> getEdges() {
         return edges;
     }
 

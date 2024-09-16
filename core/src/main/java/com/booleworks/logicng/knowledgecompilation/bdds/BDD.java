@@ -61,10 +61,10 @@ public class BDD {
      * Returns the index of this BDD.
      * <p>
      * The index marks the entry point of this BDD in the
-     * {@link #underlyingKernel() underlying kernel}.
+     * {@link #getUnderlyingKernel() underlying kernel}.
      * @return the index of this BDD
      */
-    public int index() {
+    public int getIndex() {
         return index;
     }
 
@@ -73,7 +73,7 @@ public class BDD {
      * accessed when you know, what you are doing.
      * @return the BDD Kernel
      */
-    public BDDKernel underlyingKernel() {
+    public BDDKernel getUnderlyingKernel() {
         return kernel;
     }
 
@@ -234,7 +234,7 @@ public class BDD {
      * Returns {@code true} if this BDD is a contradiction, {@code false}
      * otherwise.
      * @return {@code true} if this BDD is a contradiction, {@code false}
-     *         otherwise
+     * otherwise
      */
     public boolean isContradiction() {
         return index == BDDKernel.BDD_FALSE;
@@ -589,7 +589,7 @@ public class BDD {
     }
 
     /**
-     * Creates an model from a BDD.
+     * Creates a model from a BDD.
      * @param f        the formula factory to generate new formulas
      * @param modelBDD the BDD
      * @return the model

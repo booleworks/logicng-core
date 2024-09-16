@@ -41,7 +41,7 @@ public final class PureExpansionTransformation extends StatelessFormulaTransform
     }
 
     private Formula expand(final Formula formula) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
             case TRUE:
             case LITERAL:
@@ -49,7 +49,7 @@ public final class PureExpansionTransformation extends StatelessFormulaTransform
                 return formula;
             case NOT:
                 final Not not = (Not) formula;
-                return f.not(apply(not.operand()));
+                return f.not(apply(not.getOperand()));
             case OR:
             case AND:
                 final NAryOperator nary = (NAryOperator) formula;
@@ -57,20 +57,20 @@ public final class PureExpansionTransformation extends StatelessFormulaTransform
                 for (final Formula op : nary) {
                     newOps.add(apply(op));
                 }
-                return f.naryOperator(formula.type(), newOps);
+                return f.naryOperator(formula.getType(), newOps);
             case IMPL:
             case EQUIV:
                 final BinaryOperator binary = (BinaryOperator) formula;
-                final Formula newLeft = apply(binary.left());
-                final Formula newRight = apply(binary.right());
-                return f.binaryOperator(formula.type(), newLeft, newRight);
+                final Formula newLeft = apply(binary.getLeft());
+                final Formula newRight = apply(binary.getRight());
+                return f.binaryOperator(formula.getType(), newLeft, newRight);
             case PBC:
                 final PBConstraint pbc = (PBConstraint) formula;
                 if (pbc.isAmo() || pbc.isExo()) {
                     final EncodingResult encodingResult = EncodingResult.resultForFormula(f);
-                    final Variable[] vars = FormulaHelper.literalsAsVariables(pbc.operands());
+                    final Variable[] vars = FormulaHelper.literalsAsVariables(pbc.getOperands());
                     CcAmo.pure(encodingResult, vars);
-                    final List<Formula> encoding = encodingResult.result();
+                    final List<Formula> encoding = encodingResult.getResult();
                     if (pbc.isExo()) {
                         encoding.add(f.or(vars));
                     }
@@ -80,7 +80,7 @@ public final class PureExpansionTransformation extends StatelessFormulaTransform
                             "Pure encoding for a PBC of type other than AMO or EXO is currently not supported.");
                 }
             default:
-                throw new IllegalStateException("Unknown formula type: " + formula.type());
+                throw new IllegalStateException("Unknown formula type: " + formula.getType());
         }
     }
 }

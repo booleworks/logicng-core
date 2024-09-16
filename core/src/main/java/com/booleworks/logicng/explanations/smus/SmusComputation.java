@@ -56,7 +56,7 @@ public final class SmusComputation {
      * @param propositions          the propositions
      * @param additionalConstraints the additional constraints
      * @return the SMUS or {@code null} if the given propositions are
-     *         satisfiable or the handler canceled the computation
+     * satisfiable or the handler canceled the computation
      */
     public static <P extends Proposition> List<P> computeSmus(
             final FormulaFactory f, final List<P> propositions,
@@ -78,7 +78,7 @@ public final class SmusComputation {
      * @param additionalConstraints the additional constraints
      * @param handler               the handler, can be {@code null}
      * @return the SMUS or {@code null} if the given propositions are
-     *         satisfiable or the handler canceled the computation
+     * satisfiable or the handler canceled the computation
      */
     public static <P extends Proposition> LNGResult<List<P>> computeSmus(
             final FormulaFactory f, final List<P> propositions,
@@ -92,7 +92,7 @@ public final class SmusComputation {
         for (final P proposition : propositions) {
             final Variable selector = f.variable(PROPOSITION_SELECTOR + propositionMapping.size());
             propositionMapping.put(selector, proposition);
-            growSolver.add(f.equivalence(selector, proposition.formula()));
+            growSolver.add(f.equivalence(selector, proposition.getFormula()));
         }
         final LNGResult<Boolean> sat =
                 growSolver.satCall().handler(handler).addFormulas(propositionMapping.keySet()).sat();
@@ -126,7 +126,7 @@ public final class SmusComputation {
      * @param formulas              the formulas
      * @param additionalConstraints the additional constraints
      * @return the SMUS or {@code null} if the given propositions are
-     *         satisfiable or the handler canceled the computation
+     * satisfiable or the handler canceled the computation
      */
     public static List<Formula> computeSmusForFormulas(final FormulaFactory f, final List<Formula> formulas,
                                                        final List<Formula> additionalConstraints) {
@@ -141,7 +141,7 @@ public final class SmusComputation {
      * @param additionalConstraints the additional constraints
      * @param handler               the SMUS handler, can be {@code null}
      * @return the SMUS or {@code null} if the given propositions are
-     *         satisfiable or the handler canceled the computation
+     * satisfiable or the handler canceled the computation
      */
     public static LNGResult<List<Formula>> computeSmusForFormulas(
             final FormulaFactory f, final List<Formula> formulas,
@@ -151,7 +151,7 @@ public final class SmusComputation {
         if (!smus.isSuccess()) {
             return LNGResult.canceled(smus.getCancelCause());
         } else {
-            return LNGResult.of(smus.getResult().stream().map(Proposition::formula).collect(Collectors.toList()));
+            return LNGResult.of(smus.getResult().stream().map(Proposition::getFormula).collect(Collectors.toList()));
         }
     }
 

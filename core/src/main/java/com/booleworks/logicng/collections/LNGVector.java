@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 /**
  * A simple vector implementation (inspired by MiniSat, CleaneLing, Sat4J).
  * @param <T> the type of the elements
- * @version 1.0
+ * @version 3.0.0
  * @since 1.0
  */
 public final class LNGVector<T> implements Iterable<T> {
@@ -77,7 +77,7 @@ public final class LNGVector<T> implements Iterable<T> {
      * Returns whether the vector is empty or not.
      * @return {@code true} if the vector is empty, {@code false} otherwise
      */
-    public boolean empty() {
+    public boolean isEmpty() {
         return size == 0;
     }
 
@@ -209,7 +209,7 @@ public final class LNGVector<T> implements Iterable<T> {
      * element is compared by {@code equals}).
      * @param element the element to remove
      * @return {@code true} if the element was removed, {@code false} if the
-     *         element was not in the vector
+     * element was not in the vector
      */
     public boolean remove(final T element) {
         for (int i = 0; i < size; i++) {

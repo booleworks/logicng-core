@@ -51,7 +51,7 @@ public final class DnnfModelCountFunction implements DnnfFunction<BigInteger> {
     private BigInteger count(final Formula dnnf) {
         BigInteger c = cache.get(dnnf);
         if (c == null) {
-            switch (dnnf.type()) {
+            switch (dnnf.getType()) {
                 case LITERAL:
                 case TRUE:
                     c = BigInteger.ONE;

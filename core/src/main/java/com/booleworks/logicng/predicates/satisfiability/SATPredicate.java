@@ -48,7 +48,7 @@ public final class SATPredicate extends CacheableFormulaPredicate {
             return cached;
         }
         final boolean result;
-        if (formula.type() == FType.FALSE) {
+        if (formula.getType() == FType.FALSE) {
             result = false;
         } else {
             final var solver = SATSolver.newSolver(f);

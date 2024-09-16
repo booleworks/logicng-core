@@ -35,7 +35,7 @@ public class LngNativeImplication extends LngNativeBinaryOperator implements Imp
         }
         if (other instanceof Implication && hashCode() == other.hashCode()) {
             final Implication otherImp = (Implication) other;
-            return left.equals(otherImp.left()) && right.equals(otherImp.right());
+            return left.equals(otherImp.getLeft()) && right.equals(otherImp.getRight());
         }
         return false;
     }

@@ -95,11 +95,11 @@ public class FormulaAstGraphicalGeneratorTest {
         final GraphicalNodeStyle style4 = GraphicalNodeStyle.ellipse(GraphicalColor.BLACK, GraphicalColor.BLACK, null);
 
         final NodeStyleMapper<Formula> mapper = (formula) -> {
-            if (formula.type() == FType.PBC) {
+            if (formula.getType() == FType.PBC) {
                 return style1;
-            } else if (formula.type() == FType.LITERAL) {
+            } else if (formula.getType() == FType.LITERAL) {
                 final Literal lit = (Literal) formula;
-                return Character.isLowerCase(lit.name().charAt(0)) ? style2 : style3;
+                return Character.isLowerCase(lit.getName().charAt(0)) ? style2 : style3;
             } else {
                 return style4;
             }
@@ -122,7 +122,7 @@ public class FormulaAstGraphicalGeneratorTest {
         final GraphicalEdgeStyle style2 = GraphicalEdgeStyle.solid(GraphicalColor.BLACK);
 
         final EdgeStyleMapper<Formula> edgeMapper = (source, dest) -> {
-            if (source.type() == FType.PBC) {
+            if (source.getType() == FType.PBC) {
                 return style1;
             } else {
                 return style2;

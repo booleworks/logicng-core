@@ -69,7 +69,7 @@ public final class ConnectedComponentsComputation {
         final Map<Variable, Set<Node<Variable>>> varMap = new TreeMap<>();
         for (final Set<Node<Variable>> component : components) {
             for (final Node<Variable> variableNode : component) {
-                varMap.put(variableNode.content(), component);
+                varMap.put(variableNode.getContent(), component);
             }
         }
         for (final Formula formula : formulas) {
@@ -92,7 +92,7 @@ public final class ConnectedComponentsComputation {
                                             final Set<Node<T>> unmarkedNodes) {
         component.add(v);
         unmarkedNodes.remove(v);
-        for (final Node<T> neigh : v.neighbours()) {
+        for (final Node<T> neigh : v.getNeighbours()) {
             if (unmarkedNodes.contains(neigh)) {
                 deepFirstSearch(neigh, component, unmarkedNodes);
             }

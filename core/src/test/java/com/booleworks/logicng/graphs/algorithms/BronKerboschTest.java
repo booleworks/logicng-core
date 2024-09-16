@@ -36,7 +36,7 @@ public class BronKerboschTest {
         }
 
         final Node<Long> eleven = g.node(11L);
-        for (final Node<Long> nb : eleven.neighbours()) {
+        for (final Node<Long> nb : eleven.getNeighbours()) {
             g.disconnect(nb, eleven);
         }
 

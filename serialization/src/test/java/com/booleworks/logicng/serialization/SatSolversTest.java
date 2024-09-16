@@ -273,8 +273,8 @@ public class SatSolversTest {
         }
 
         static Function<Proposition, byte[]> serializer = proposition -> {
-            int integer = ((CustomBackpack) ((ExtendedProposition) proposition).backpack()).i;
-            byte[] formulaBytes = Formulas.serializeFormula(proposition.formula()).toByteArray();
+            int integer = ((CustomBackpack) ((ExtendedProposition) proposition).getBackpack()).i;
+            byte[] formulaBytes = Formulas.serializeFormula(proposition.getFormula()).toByteArray();
             ByteBuffer buffer = ByteBuffer.allocate(4 + formulaBytes.length);
             buffer.putInt(integer);
             buffer.put(formulaBytes);

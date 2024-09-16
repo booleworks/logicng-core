@@ -347,7 +347,7 @@ public class PartialWeightedMaxSATTest extends TestWithExampleFormulas {
                     f.variable("a"), f.variable("b"), f.variable("c")
             );
             assertThat(result.getOptimum()).isEqualTo(2);
-            assertThat(solver.factory()).isEqualTo(f);
+            assertThat(solver.getFactory()).isEqualTo(f);
         }
     }
 

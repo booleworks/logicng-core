@@ -40,10 +40,10 @@ public final class CNFSubsumption extends Subsumption {
         if (!formula.isCNF(f)) {
             throw new IllegalArgumentException("CNF subsumption can only be applied to formulas in CNF");
         }
-        if (formula.type().precedence() >= FType.LITERAL.precedence() || formula.type() == FType.OR) {
+        if (formula.getType().getPrecedence() >= FType.LITERAL.getPrecedence() || formula.getType() == FType.OR) {
             return LNGResult.of(formula);
         }
-        assert formula.type() == FType.AND;
+        assert formula.getType() == FType.AND;
         final LNGResult<UBTree<Literal>> ubTreeResult = generateSubsumedUBTree(formula, handler);
         if (!ubTreeResult.isSuccess()) {
             return LNGResult.canceled(ubTreeResult.getCancelCause());

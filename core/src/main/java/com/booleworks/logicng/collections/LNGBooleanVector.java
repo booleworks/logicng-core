@@ -14,7 +14,7 @@ import java.util.Arrays;
  * auto-boxing comes with such a large performance penalty that for the
  * mission-critical data structures of the SAT solvers we use this specialized
  * implementation.
- * @version 1.0
+ * @version 3.0.0
  * @since 1.0
  */
 public final class LNGBooleanVector {
@@ -75,7 +75,7 @@ public final class LNGBooleanVector {
      * Returns whether the vector is empty or not.
      * @return {@code true} if the vector is empty, {@code false} otherwise
      */
-    public boolean empty() {
+    public boolean isEmpty() {
         return size == 0;
     }
 

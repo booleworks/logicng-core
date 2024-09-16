@@ -84,7 +84,7 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
      */
     @Override
     public boolean test(final Formula formula) {
-        return innerTest(formula, true).type() == getConstantType(evaluatesToTrue);
+        return innerTest(formula, true).getType() == getConstantType(evaluatesToTrue);
     }
 
     /**
@@ -94,18 +94,18 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
      * @param formula  the formula
      * @param topLevel indicator if the formula is the top level operator
      * @return Falsum resp. Verum if the (partial) assignment resulted not to
-     *         the specified constant, otherwise the restricted and simplified
-     *         formula
+     * the specified constant, otherwise the restricted and simplified
+     * formula
      */
     private Formula innerTest(final Formula formula, final boolean topLevel) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case TRUE:
             case FALSE:
                 return formula;
             case LITERAL:
                 final Literal lit = (Literal) formula;
                 final Boolean found = mapping.get(lit.variable());
-                return found == null ? lit : f.constant(lit.phase() == found);
+                return found == null ? lit : f.constant(lit.getPhase() == found);
             case NOT:
                 return handleNot((Not) formula, topLevel);
             case IMPL:
@@ -122,12 +122,12 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
                 throw new UnsupportedOperationException(
                         "Cannot evaluate a formula with predicates with a boolean assignment");
             default:
-                throw new IllegalArgumentException("Unknown formula type " + formula.type());
+                throw new IllegalArgumentException("Unknown formula type " + formula.getType());
         }
     }
 
     private Formula handleNot(final Not formula, final boolean topLevel) {
-        final Formula opResult = innerTest(formula.operand(), false);
+        final Formula opResult = innerTest(formula.getOperand(), false);
         if (topLevel && !opResult.isConstantFormula()) {
             return f.constant(!evaluatesToTrue);
         }
@@ -135,8 +135,8 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     }
 
     private Formula handleImplication(final Implication formula, final boolean topLevel) {
-        final Formula left = formula.left();
-        final Formula right = formula.right();
+        final Formula left = formula.getLeft();
+        final Formula right = formula.getRight();
         final Formula leftResult = innerTest(left, false);
         if (leftResult.isConstantFormula()) {
             if (evaluatesToTrue) {
@@ -156,8 +156,8 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     }
 
     private Formula handleEquivalence(final Equivalence formula, final boolean topLevel) {
-        final Formula left = formula.left();
-        final Formula right = formula.right();
+        final Formula left = formula.getLeft();
+        final Formula right = formula.getRight();
         final Formula leftResult = innerTest(left, false);
         if (leftResult.isConstantFormula()) {
             return isVerum(leftResult) ? innerTest(right, topLevel) : innerTest(f.not(right), topLevel);
@@ -209,7 +209,7 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     private Formula handlePBC(final PBConstraint formula) {
         final Assignment assignment = new Assignment();
         for (final Map.Entry<Variable, Boolean> entry : mapping.entrySet()) {
-            assignment.addLiteral(f.literal(entry.getKey().name(), entry.getValue()));
+            assignment.addLiteral(f.literal(entry.getKey().getName(), entry.getValue()));
         }
         return formula.restrict(f, assignment);
     }
@@ -219,10 +219,10 @@ public final class EvaluatesToConstantPredicate implements FormulaPredicate {
     }
 
     private static boolean isFalsum(final Formula formula) {
-        return formula.type() == FType.FALSE;
+        return formula.getType() == FType.FALSE;
     }
 
     private static boolean isVerum(final Formula formula) {
-        return formula.type() == FType.TRUE;
+        return formula.getType() == FType.TRUE;
     }
 }

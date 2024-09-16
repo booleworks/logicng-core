@@ -152,7 +152,7 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         public LNGEvent addModel(final LNGBooleanVector modelFromSolver, final SATSolver solver,
                                  final LNGIntVector relevantAllIndices, final ComputationHandler handler) {
             final Model model =
-                    new Model(solver.underlyingSolver().convertInternalModel(modelFromSolver, relevantAllIndices));
+                    new Model(solver.getUnderlyingSolver().convertInternalModel(modelFromSolver, relevantAllIndices));
             final List<Literal> modelLiterals = new ArrayList<>(additionalVariablesNotOnSolver);
             modelLiterals.addAll(model.getLiterals());
             uncommittedModels.add(modelLiterals);
@@ -211,7 +211,7 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
                 final List<List<Literal>> extended = new ArrayList<>(result.size() * 2);
                 for (final List<Literal> literals : result) {
                     extended.add(extendedByLiteral(literals, var));
-                    extended.add(extendedByLiteral(literals, var.negate(var.factory())));
+                    extended.add(extendedByLiteral(literals, var.negate(var.getFactory())));
                 }
                 result = extended;
             }

@@ -18,7 +18,7 @@ import java.util.TreeSet;
 
 /**
  * An internal node in a DTree.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public class DTreeNode extends DTree {
@@ -27,11 +27,8 @@ public class DTreeNode extends DTree {
     protected final DTree right;
     protected final int size;
 
-    protected DnnfSatSolver solver;
-
     protected final SortedSet<Variable> staticVariableSet;
     protected final BitSet staticSeparatorBitSet;
-    protected final int[] staticClauseIds;
     protected final int depth;
     protected int widestSeparator;
 
@@ -103,8 +100,8 @@ public class DTreeNode extends DTree {
         this.solver = solver;
         left.initialize(solver);
         right.initialize(solver);
-        staticVarSet = left.staticVarSet();
-        staticVarSet.or(right.staticVarSet());
+        staticVarSet = left.getStaticVarSet();
+        staticVarSet.or(right.getStaticVarSet());
         staticVariables = toArray(staticVarSet);
         staticSeparator = sortedIntersect(left.staticVarSetArray(), right.staticVarSetArray());
         for (final int i : staticSeparator) {
@@ -175,11 +172,6 @@ public class DTreeNode extends DTree {
             }
             i = j + 1;
         }
-    }
-
-    @Override
-    public int[] staticClauseIds() {
-        return staticClauseIds;
     }
 
     /**

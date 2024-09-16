@@ -24,7 +24,7 @@ import java.util.TreeSet;
  * A simple immutable class representing a model of a formula. In contrast to an
  * {@link Assignment} a model just stores a simple list of literals and cannot
  * be used to evaluate or restrict a formula (because this would be very
- * inefficient). In this case you want to use the {@link #assignment()} method
+ * inefficient). In this case you want to use the {@link #toAssignment()} method
  * to convert the model to an assignment first.
  * <p>
  * The primary use case for models is to use them in the model enumeration
@@ -83,7 +83,7 @@ public class Model {
      * Converts this model to an assignment.
      * @return the assignment
      */
-    public Assignment assignment() {
+    public Assignment toAssignment() {
         return new Assignment(literals);
     }
 
@@ -104,7 +104,7 @@ public class Model {
     public SortedSet<Variable> positiveVariables() {
         final var set = new TreeSet<Variable>();
         for (final Literal literal : literals) {
-            if (literal.phase()) {
+            if (literal.getPhase()) {
                 set.add(literal.variable());
             }
         }
@@ -118,7 +118,7 @@ public class Model {
     public SortedSet<Literal> negativeLiterals() {
         final var set = new TreeSet<Literal>();
         for (final Literal literal : literals) {
-            if (!literal.phase()) {
+            if (!literal.getPhase()) {
                 set.add(literal);
             }
         }
@@ -132,7 +132,7 @@ public class Model {
     public SortedSet<Variable> negativeVariables() {
         final var set = new TreeSet<Variable>();
         for (final Literal lit : literals) {
-            if (!lit.phase()) {
+            if (!lit.getPhase()) {
                 set.add(lit.variable());
             }
         }

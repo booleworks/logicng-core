@@ -130,7 +130,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
             );
             final Formula formula = FormulaFactory.caching().parse("a & b | ~c & a");
             for (final TimeoutHandler handler : handlers) {
-                testHandler(handler, formula, compiler.first(), compiler.second(), false);
+                testHandler(handler, formula, compiler.getFirst(), compiler.getSecond(), false);
             }
         }
     }
@@ -152,7 +152,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
             final Formula formula =
                     FormulaReader.readFormula(f, "../test_files/formulas/large_formula.txt");
             for (final TimeoutHandler handler : handlers) {
-                testHandler(handler, formula, compiler.first(), compiler.second(), true);
+                testHandler(handler, formula, compiler.getFirst(), compiler.getSecond(), true);
             }
         }
     }
@@ -172,7 +172,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
                 for (int numSatHandlerStarts = 1; numSatHandlerStarts < 10; numSatHandlerStarts++) {
                     final BoundedOptimizationHandler handler =
                             new BoundedOptimizationHandler(numSatHandlerStarts, numOptimizationStarts);
-                    testHandler(handler, formula, compiler.first(), compiler.second(), true);
+                    testHandler(handler, formula, compiler.getFirst(), compiler.getSecond(), true);
                 }
             }
         }
@@ -208,7 +208,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
     }
 
     private void verifyImplicants(final List<SortedSet<Literal>> implicantSets, final Formula formula) {
-        final FormulaFactory f = formula.factory();
+        final FormulaFactory f = formula.getFactory();
         final List<Formula> implicants = new ArrayList<>();
         for (final SortedSet<Literal> implicant : implicantSets) {
             implicants.add(f.and(implicant));
@@ -220,7 +220,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
     }
 
     private void verifyImplicates(final List<SortedSet<Literal>> implicateSets, final Formula formula) {
-        final FormulaFactory f = formula.factory();
+        final FormulaFactory f = formula.getFactory();
         final List<Formula> implicates = new ArrayList<>();
         for (final SortedSet<Literal> implicate : implicateSets) {
             implicates.add(f.or(implicate));
@@ -233,7 +233,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
 
     private void testHandler(final ComputationHandler handler, final Formula formula, final PrimeCompiler compiler,
                              final PrimeResult.CoverageType coverageType, final boolean expCanceled) {
-        final LNGResult<PrimeResult> result = compiler.compute(formula.factory(), formula, coverageType, handler);
+        final LNGResult<PrimeResult> result = compiler.compute(formula.getFactory(), formula, coverageType, handler);
         assertThat(!result.isSuccess()).isEqualTo(expCanceled);
         if (expCanceled) {
             assertThatThrownBy(result::getResult).isInstanceOf(IllegalStateException.class);

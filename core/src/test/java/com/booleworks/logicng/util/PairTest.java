@@ -16,12 +16,12 @@ public class PairTest {
 
     @Test
     public void testGetters() {
-        assertThat(pair1.first()).isEqualTo("abc");
-        assertThat(pair2.first()).isEqualTo("cde");
-        assertThat(pair3.first()).isEqualTo("cde");
-        assertThat((int) pair1.second()).isEqualTo(12);
-        assertThat((int) pair2.second()).isEqualTo(12);
-        assertThat((int) pair3.second()).isEqualTo(42);
+        assertThat(pair1.getFirst()).isEqualTo("abc");
+        assertThat(pair2.getFirst()).isEqualTo("cde");
+        assertThat(pair3.getFirst()).isEqualTo("cde");
+        assertThat((int) pair1.getSecond()).isEqualTo(12);
+        assertThat((int) pair2.getSecond()).isEqualTo(12);
+        assertThat((int) pair3.getSecond()).isEqualTo(42);
     }
 
     @Test

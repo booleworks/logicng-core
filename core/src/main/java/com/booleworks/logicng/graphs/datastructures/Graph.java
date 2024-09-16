@@ -13,7 +13,7 @@ import java.util.Set;
  * A generic graph. Two graphs are only equal if they really are the same
  * object.
  * @param <T> the element type of the graph's nodes
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.2
  */
 public final class Graph<T> {
@@ -91,7 +91,7 @@ public final class Graph<T> {
      * Returns the name of the graph.
      * @return the name of the graph
      */
-    public String name() {
+    public String getName() {
         return name;
     }
 

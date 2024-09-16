@@ -30,8 +30,8 @@ public final class LngBDDFunction extends BDDFunction<BDDNode> {
 
     @Override
     public BDDNode apply(final BDD bdd) {
-        final BDDKernel kernel = bdd.underlyingKernel();
-        final int index = bdd.index();
+        final BDDKernel kernel = bdd.getUnderlyingKernel();
+        final int index = bdd.getIndex();
         final Map<Integer, int[]> kernelNodeMap = new BDDOperations(kernel).allNodes(index).stream()
                 .collect(Collectors.toMap(node -> node[0], node -> node));
         return buildBDDNode(index, kernel, kernelNodeMap, new HashMap<>());

@@ -54,15 +54,15 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
      */
     public VariableOccurrencesOnSolverFunction(final Set<Variable> relevantVariables) {
         this.relevantVariables = relevantVariables == null ? null
-                : relevantVariables.stream().map(Variable::name).collect(Collectors.toSet());
+                : relevantVariables.stream().map(Variable::getName).collect(Collectors.toSet());
     }
 
     @Override
     public LNGResult<Map<Variable, Integer>> apply(final SATSolver solver, final ComputationHandler handler) {
-        final FormulaFactory f = solver.factory();
-        final LNGCoreSolver underlyingSolver = solver.underlyingSolver();
+        final FormulaFactory f = solver.getFactory();
+        final LNGCoreSolver underlyingSolver = solver.getUnderlyingSolver();
         final Map<String, Integer> counts = initResultMap(underlyingSolver);
-        for (final LNGClause clause : underlyingSolver.clauses()) {
+        for (final LNGClause clause : underlyingSolver.getClauses()) {
             for (int i = 0; i < clause.size(); i++) {
                 final String key = underlyingSolver.nameForIdx(var(clause.get(i)));
                 counts.computeIfPresent(key, (u, old) -> old + 1);
@@ -76,7 +76,7 @@ public class VariableOccurrencesOnSolverFunction implements SolverFunction<Map<V
         // start with Strings to prevent repeated variable lookups in
         // FormulaFactory
         final Map<String, Integer> counts = new HashMap<>();
-        final LNGVector<LNGVariable> variables = underlyingSolver.variables();
+        final LNGVector<LNGVariable> variables = underlyingSolver.getVariables();
         for (int i = 0; i < variables.size(); i++) {
             final LNGVariable var = variables.get(i);
             final String name = underlyingSolver.nameForIdx(i);

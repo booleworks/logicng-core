@@ -23,25 +23,25 @@ public class UBTreeTest {
     public void testEmptySet() {
         final UBTree<String> tree = new UBTree<>();
         tree.addSet(new TreeSet<>());
-        assertThat(tree.rootNodes()).isEmpty();
+        assertThat(tree.getRootNodes()).isEmpty();
     }
 
     @Test
     public void testSingleSet() {
         final UBTree<String> tree = new UBTree<>();
         tree.addSet(set("A", "B", "C"));
-        assertThat(tree.rootNodes()).hasSize(1);
-        assertThat(tree.rootNodes().keySet()).containsExactly("A");
-        assertThat(tree.rootNodes().get("A").children()).hasSize(1);
-        assertThat(tree.rootNodes().get("A").isEndOfPath()).isFalse();
-        assertThat(tree.rootNodes().get("A").children().keySet()).containsExactly("B");
-        assertThat(tree.rootNodes().get("A").children().get("B").children()).hasSize(1);
-        assertThat(tree.rootNodes().get("A").children().get("B").isEndOfPath()).isFalse();
-        assertThat(tree.rootNodes().get("A").children().get("B").children().keySet()).containsExactly("C");
-        assertThat(tree.rootNodes().get("A").children().get("B").children().get("C").isEndOfPath()).isTrue();
-        assertThat(tree.rootNodes().get("A").children().get("B").children().get("C").set())
+        assertThat(tree.getRootNodes()).hasSize(1);
+        assertThat(tree.getRootNodes().keySet()).containsExactly("A");
+        assertThat(tree.getRootNodes().get("A").getChildren()).hasSize(1);
+        assertThat(tree.getRootNodes().get("A").isEndOfPath()).isFalse();
+        assertThat(tree.getRootNodes().get("A").getChildren().keySet()).containsExactly("B");
+        assertThat(tree.getRootNodes().get("A").getChildren().get("B").getChildren()).hasSize(1);
+        assertThat(tree.getRootNodes().get("A").getChildren().get("B").isEndOfPath()).isFalse();
+        assertThat(tree.getRootNodes().get("A").getChildren().get("B").getChildren().keySet()).containsExactly("C");
+        assertThat(tree.getRootNodes().get("A").getChildren().get("B").getChildren().get("C").isEndOfPath()).isTrue();
+        assertThat(tree.getRootNodes().get("A").getChildren().get("B").getChildren().get("C").getSet())
                 .isEqualTo(set("A", "B", "C"));
-        assertThat(tree.rootNodes().get("A").children().get("B").children().get("C").children()).isEmpty();
+        assertThat(tree.getRootNodes().get("A").getChildren().get("B").getChildren().get("C").getChildren()).isEmpty();
     }
 
     @Test
@@ -51,41 +51,41 @@ public class UBTreeTest {
         tree.addSet(set("e0", "e1", "e3"));
         tree.addSet(set("e0", "e1", "e2"));
         tree.addSet(set("e2", "e3"));
-        assertThat(tree.rootNodes()).hasSize(2);
-        assertThat(tree.rootNodes().keySet()).containsExactly("e0", "e2");
+        assertThat(tree.getRootNodes()).hasSize(2);
+        assertThat(tree.getRootNodes().keySet()).containsExactly("e0", "e2");
 
         // root nodes
-        final UBNode<String> e0 = tree.rootNodes().get("e0");
-        final UBNode<String> e2 = tree.rootNodes().get("e2");
+        final UBNode<String> e0 = tree.getRootNodes().get("e0");
+        final UBNode<String> e2 = tree.getRootNodes().get("e2");
         assertThat(e0.isEndOfPath()).isFalse();
-        assertThat(e0.children().keySet()).containsExactly("e1");
+        assertThat(e0.getChildren().keySet()).containsExactly("e1");
         assertThat(e2.isEndOfPath()).isFalse();
-        assertThat(e2.children().keySet()).containsExactly("e3");
+        assertThat(e2.getChildren().keySet()).containsExactly("e3");
 
         // first level
-        final UBNode<String> e0e1 = e0.children().get("e1");
-        final UBNode<String> e2e3 = e2.children().get("e3");
+        final UBNode<String> e0e1 = e0.getChildren().get("e1");
+        final UBNode<String> e2e3 = e2.getChildren().get("e3");
         assertThat(e0e1.isEndOfPath()).isFalse();
-        assertThat(e0e1.children().keySet()).containsExactly("e2", "e3");
+        assertThat(e0e1.getChildren().keySet()).containsExactly("e2", "e3");
         assertThat(e2e3.isEndOfPath()).isTrue();
-        assertThat(e2e3.set()).isEqualTo(set("e2", "e3"));
-        assertThat(e2e3.children().keySet()).isEmpty();
+        assertThat(e2e3.getSet()).isEqualTo(set("e2", "e3"));
+        assertThat(e2e3.getChildren().keySet()).isEmpty();
 
         // second level
-        final UBNode<String> e0e1e2 = e0e1.children().get("e2");
+        final UBNode<String> e0e1e2 = e0e1.getChildren().get("e2");
         assertThat(e0e1e2.isEndOfPath()).isTrue();
-        assertThat(e0e1e2.set()).isEqualTo(set("e0", "e1", "e2"));
-        assertThat(e0e1e2.children().keySet()).containsExactly("e3");
-        final UBNode<String> e0e1e3 = e0e1.children().get("e3");
+        assertThat(e0e1e2.getSet()).isEqualTo(set("e0", "e1", "e2"));
+        assertThat(e0e1e2.getChildren().keySet()).containsExactly("e3");
+        final UBNode<String> e0e1e3 = e0e1.getChildren().get("e3");
         assertThat(e0e1e3.isEndOfPath()).isTrue();
-        assertThat(e0e1e3.set()).isEqualTo(set("e0", "e1", "e3"));
-        assertThat(e0e1e3.children().keySet()).isEmpty();
+        assertThat(e0e1e3.getSet()).isEqualTo(set("e0", "e1", "e3"));
+        assertThat(e0e1e3.getChildren().keySet()).isEmpty();
 
         // third level
-        final UBNode<String> e0e1e2e3 = e0e1e2.children().get("e3");
+        final UBNode<String> e0e1e2e3 = e0e1e2.getChildren().get("e3");
         assertThat(e0e1e2e3.isEndOfPath()).isTrue();
-        assertThat(e0e1e2e3.set()).isEqualTo(set("e0", "e1", "e2", "e3"));
-        assertThat(e0e1e2e3.children().keySet()).isEmpty();
+        assertThat(e0e1e2e3.getSet()).isEqualTo(set("e0", "e1", "e2", "e3"));
+        assertThat(e0e1e2e3.getChildren().keySet()).isEmpty();
     }
 
     @Test

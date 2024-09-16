@@ -100,7 +100,7 @@ public final class OptimizationFunction implements SolverFunction<Model> {
         if (!handler.shouldResume(OPTIMIZATION_FUNCTION_STARTED)) {
             return LNGResult.canceled(OPTIMIZATION_FUNCTION_STARTED);
         }
-        final FormulaFactory f = solver.factory();
+        final FormulaFactory f = solver.getFactory();
         final Map<Variable, Literal> selectorMap = new TreeMap<>();
         for (final Literal lit : literals) {
             final Variable selVar = f.variable(SEL_PREFIX + selectorMap.size());

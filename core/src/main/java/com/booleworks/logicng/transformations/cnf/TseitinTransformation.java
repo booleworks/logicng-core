@@ -101,7 +101,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
         if (nnf.numberOfAtoms(f) < boundaryForFactorization) {
             tseitin = nnf.transform(factorization);
         } else {
-            for (final Formula formula1 : nnf.apply(f.subformulaFunction())) {
+            for (final Formula formula1 : nnf.apply(f.getSubformulaFunction())) {
                 computeTseitin(formula1);
             }
             final Assignment topLevel = new Assignment(state.literal(nnf));
@@ -120,7 +120,7 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
         if (state.formula(formula) != null) {
             return;
         }
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case LITERAL:
                 state.formulaMap.put(formula, formula);
                 state.literalMap.put(formula, (Literal) formula);
@@ -151,14 +151,14 @@ public final class TseitinTransformation extends StatefulFormulaTransformation<T
                 state.formulaMap.put(formula, f.and(nops));
                 break;
             default:
-                throw new IllegalArgumentException("Could not process the formula type " + formula.type());
+                throw new IllegalArgumentException("Could not process the formula type " + formula.getType());
         }
     }
 
     private void handleNary(final Formula formula, final List<Formula> nops, final List<Formula> operands,
                             final List<Formula> negOperands) {
         for (final Formula op : formula) {
-            if (op.type() != FType.LITERAL) {
+            if (op.getType() != FType.LITERAL) {
                 computeTseitin(op);
                 nops.add(state.formula(op));
             }

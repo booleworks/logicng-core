@@ -67,7 +67,8 @@ public class DnnfCompiler {
      * @param nonUnitClauses the non-unit clauses of the cnf
      * @param maxClauseSize  the maximum clause size of the non-unit clauses
      */
-    protected DnnfCompiler(final FormulaFactory f, final Formula originalCnf, final Formula unitClauses, final Formula nonUnitClauses, final int maxClauseSize) {
+    protected DnnfCompiler(final FormulaFactory f, final Formula originalCnf, final Formula unitClauses, final Formula nonUnitClauses,
+                           final int maxClauseSize) {
         this.f = f;
         this.originalCnf = originalCnf;
         this.unitClauses = unitClauses;
@@ -111,8 +112,8 @@ public class DnnfCompiler {
         final Formula simplifiedFormula = simplified.getResult();
 
         final Pair<Formula, Formula> unitAndNonUnitClauses = splitCnfClauses(simplifiedFormula, f);
-        final Formula unitClauses = unitAndNonUnitClauses.first();
-        final Formula nonUnitClauses = unitAndNonUnitClauses.second();
+        final Formula unitClauses = unitAndNonUnitClauses.getFirst();
+        final Formula nonUnitClauses = unitAndNonUnitClauses.getSecond();
         if (nonUnitClauses.isAtomicFormula()) {
             return LNGResult.of(new Dnnf(originalVariables, simplifiedFormula));
         }
@@ -142,7 +143,7 @@ public class DnnfCompiler {
     protected static Pair<Formula, Formula> splitCnfClauses(final Formula originalCnf, final FormulaFactory f) {
         final List<Formula> units = new ArrayList<>();
         final List<Formula> nonUnits = new ArrayList<>();
-        switch (originalCnf.type()) {
+        switch (originalCnf.getType()) {
             case AND:
                 for (final Formula clause : originalCnf) {
                     if (clause.isAtomicFormula()) {
@@ -162,7 +163,7 @@ public class DnnfCompiler {
     }
 
     protected static int computeMaxClauseSize(final Formula cnf) {
-        switch (cnf.type()) {
+        switch (cnf.getType()) {
             case OR:
                 return cnf.numberOfOperands();
             case AND:
@@ -213,7 +214,7 @@ public class DnnfCompiler {
 
     protected LNGResult<Formula> cnf2Ddnnf(final DTree tree, final int currentShannons, final ComputationHandler handler) {
         final BitSet separator = tree.dynamicSeparator();
-        final Formula implied = newlyImpliedLiterals(tree.staticVarSet());
+        final Formula implied = newlyImpliedLiterals(tree.getStaticVarSet());
 
         if (separator.isEmpty()) {
             if (tree instanceof DTreeLeaf) {
@@ -341,7 +342,7 @@ public class DnnfCompiler {
         int index = 0;
         while (literals.hasNext()) {
             lit = literals.next();
-            switch (solver.valueOf(LNGCoreSolver.mkLit(solver.variableIndex(lit), !lit.phase()))) {
+            switch (solver.valueOf(LNGCoreSolver.mkLit(solver.variableIndex(lit), !lit.getPhase()))) {
                 case TRUE:
                     return f.verum();
                 case UNDEF:

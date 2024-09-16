@@ -4,16 +4,12 @@
 
 package com.booleworks.logicng.solvers.functions;
 
-import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BACKBONE_COMPUTATION_STARTED;
-
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LNGResult;
-import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.solvers.SATSolver;
-import com.booleworks.logicng.solvers.SolverState;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,8 +40,8 @@ public final class BackboneFunction implements SolverFunction<Backbone> {
     }
 
     @Override
-    public LNGResult<Backbone> apply(final SATSolver solver, ComputationHandler handler) {
-        return solver.underlyingSolver().computeBackbone(variables, type, handler);
+    public LNGResult<Backbone> apply(final SATSolver solver, final ComputationHandler handler) {
+        return solver.getUnderlyingSolver().computeBackbone(variables, type, handler);
     }
 
     /**

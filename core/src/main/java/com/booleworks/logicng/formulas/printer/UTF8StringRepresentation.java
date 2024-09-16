@@ -80,9 +80,9 @@ public final class UTF8StringRepresentation extends FormulaStringRepresentation 
 
     @Override
     protected String toInnerString(final Formula formula) {
-        if (formula.type() == FType.LITERAL) {
+        if (formula.getType() == FType.LITERAL) {
             final Literal lit = (Literal) formula;
-            return lit.phase() ? utf8Name(lit.name()) : negation() + utf8Name(lit.name());
+            return lit.getPhase() ? utf8Name(lit.getName()) : negation() + utf8Name(lit.getName());
         }
         return super.toInnerString(formula);
     }

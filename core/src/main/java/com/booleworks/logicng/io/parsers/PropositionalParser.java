@@ -47,7 +47,7 @@ import java.io.StringReader;
  * {@code c_1 * l_1 + ... + c_n * l_n R k} where the {@code c_i} are
  * coefficients, {@code l_i} are literals, and {@code R} is one of
  * {@code =, >, >=, <, <=}.
- * @version 2.4.1
+ * @version 3.0.0
  * @since 1.0
  */
 public final class PropositionalParser implements FormulaParser {
@@ -94,7 +94,7 @@ public final class PropositionalParser implements FormulaParser {
     }
 
     @Override
-    public FormulaFactory factory() {
+    public FormulaFactory getFactory() {
         return parser.getFactory();
     }
 }

@@ -43,7 +43,7 @@ public final class CcCardinalityNetwork {
     }
 
     public static void amk(final EncodingResult result, final Variable[] vars, final int rhs) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         final LNGVector<Literal> input = new LNGVector<>();
         final LNGVector<Literal> output = new LNGVector<>();
         if (rhs > vars.length / 2) {
@@ -67,7 +67,7 @@ public final class CcCardinalityNetwork {
 
     public static CcIncrementalData amkForIncremental(final EncodingResult result, final Variable[] vars,
                                                       final int rhs) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         final LNGVector<Literal> input = new LNGVector<>();
         final LNGVector<Literal> output = new LNGVector<>();
         for (final Variable var : vars) {
@@ -80,7 +80,7 @@ public final class CcCardinalityNetwork {
     }
 
     public static void alk(final EncodingResult result, final Variable[] vars, final int rhs) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         final LNGVector<Literal> input = new LNGVector<>();
         final LNGVector<Literal> output = new LNGVector<>();
         final int newRHS = vars.length - rhs;
@@ -105,7 +105,7 @@ public final class CcCardinalityNetwork {
 
     public static CcIncrementalData alkForIncremental(final EncodingResult result, final Variable[] vars,
                                                       final int rhs) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         final LNGVector<Literal> input = new LNGVector<>();
         final LNGVector<Literal> output = new LNGVector<>();
         for (final Variable var : vars) {
@@ -119,7 +119,7 @@ public final class CcCardinalityNetwork {
     }
 
     public static void exk(final EncodingResult result, final Variable[] vars, final int rhs) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         final LNGVector<Literal> input = new LNGVector<>();
         final LNGVector<Literal> output = new LNGVector<>();
         for (final Variable var : vars) {

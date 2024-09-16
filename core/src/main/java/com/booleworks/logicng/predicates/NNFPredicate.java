@@ -44,7 +44,7 @@ public final class NNFPredicate extends CacheableFormulaPredicate {
             return cached;
         }
         boolean result;
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
             case TRUE:
             case LITERAL:
@@ -68,7 +68,7 @@ public final class NNFPredicate extends CacheableFormulaPredicate {
                 result = false;
                 break;
             default:
-                throw new IllegalArgumentException("Cannot compute NNF predicate on " + formula.type());
+                throw new IllegalArgumentException("Cannot compute NNF predicate on " + formula.getType());
         }
         setCache(formula, result);
         return result;

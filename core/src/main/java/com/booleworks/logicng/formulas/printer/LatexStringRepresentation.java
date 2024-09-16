@@ -39,9 +39,9 @@ public final class LatexStringRepresentation extends FormulaStringRepresentation
 
     @Override
     public String toInnerString(final Formula formula) {
-        if (formula.type() == FType.LITERAL) {
+        if (formula.getType() == FType.LITERAL) {
             final Literal lit = (Literal) formula;
-            return lit.phase() ? latexName(lit.name()) : negation() + " " + latexName(lit.name());
+            return lit.getPhase() ? latexName(lit.getName()) : negation() + " " + latexName(lit.getName());
         }
         return super.toInnerString(formula);
     }

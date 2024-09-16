@@ -44,7 +44,7 @@ public class GraphTest {
         final Node<Long> d2 = g.node(4L);
 
         g.connect(d, d2);
-        assertThat(d.neighbours().contains(d2)).isFalse();
+        assertThat(d.getNeighbours().contains(d2)).isFalse();
 
         g.connect(a, b);
         g.connect(a, c);
@@ -52,11 +52,11 @@ public class GraphTest {
         g.connect(b, c);
 
         d.connectTo(d2);
-        assertThat(d2.neighbours().contains(d)).isFalse();
+        assertThat(d2.getNeighbours().contains(d)).isFalse();
 
-        assertThat(a.neighbours().size()).isEqualTo(3);
-        assertThat(c.neighbours().contains(a)).isTrue();
-        assertThat(c.neighbours().contains(b)).isTrue();
+        assertThat(a.getNeighbours().size()).isEqualTo(3);
+        assertThat(c.getNeighbours().contains(a)).isTrue();
+        assertThat(c.getNeighbours().contains(b)).isTrue();
 
         assertThat(a.toString()).isEqualTo("Node{content=1, neighbours:2,3,4}");
     }
@@ -76,15 +76,15 @@ public class GraphTest {
         g.connect(aNbn, an);
         g.connect(aNbn, bn);
 
-        assertThat(aNbn.neighbours().size()).isEqualTo(2);
-        assertThat(an.neighbours().contains(aNbn)).isTrue();
-        assertThat(bn.neighbours().contains(aNbn)).isTrue();
+        assertThat(aNbn.getNeighbours().size()).isEqualTo(2);
+        assertThat(an.getNeighbours().contains(aNbn)).isTrue();
+        assertThat(bn.getNeighbours().contains(aNbn)).isTrue();
 
-        assertThat(an.graph().name()).isEqualTo(g.name());
+        assertThat(an.getGraph().getName()).isEqualTo(g.getName());
 
         g.disconnect(aNbn, an);
 
-        assertThat(an.neighbours().isEmpty()).isTrue();
+        assertThat(an.getNeighbours().isEmpty()).isTrue();
 
         assertThat(g.nodes().size()).isEqualTo(3);
     }
@@ -98,7 +98,7 @@ public class GraphTest {
         final Node<String> b = g2.node("B");
 
         g1.disconnect(a, b);
-        assertThat(a.neighbours().isEmpty()).isTrue();
+        assertThat(a.getNeighbours().isEmpty()).isTrue();
         assertThatThrownBy(() -> g1.connect(a, b)).isInstanceOf(IllegalArgumentException.class);
     }
 

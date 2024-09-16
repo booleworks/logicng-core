@@ -64,8 +64,8 @@ public interface PBConstraint extends Formula {
      * @param rhs        the right-hand-side
      * @param comparator the comparator
      * @return {@link Tristate#TRUE} if the constraint is true,
-     *         {@link Tristate#FALSE} if it is false and {@link Tristate#UNDEF}
-     *         if both are still possible
+     * {@link Tristate#FALSE} if it is false and {@link Tristate#UNDEF}
+     * if both are still possible
      */
     static Tristate evaluateCoeffs(final int minValue, final int maxValue, final int rhs, final CType comparator) {
         int status = 0;
@@ -102,13 +102,13 @@ public interface PBConstraint extends Formula {
      * Returns the literals of this constraint.
      * @return the literals of this constraint
      */
-    List<Literal> operands();
+    List<Literal> getOperands();
 
     /**
      * Returns the coefficients of this constraint.
      * @return the coefficients of this constraint
      */
-    List<Integer> coefficients();
+    List<Integer> getCoefficients();
 
     /**
      * Returns the comparator of this constraint.
@@ -120,7 +120,7 @@ public interface PBConstraint extends Formula {
      * Returns the right-hand side of this constraint.
      * @return the right-hand side of this constraint
      */
-    int rhs();
+    int getRhs();
 
     /**
      * Returns {@code true} if this constraint is a cardinality constraint,
@@ -135,7 +135,7 @@ public interface PBConstraint extends Formula {
      * Returns {@code true} if this constraint is an at-most-one cardinality
      * constraint, {@code false} otherwise.
      * @return {@code true} if this constraint is an at-most-one cardinality
-     *         constraint
+     * constraint
      */
     default boolean isAmo() {
         return false;
@@ -145,7 +145,7 @@ public interface PBConstraint extends Formula {
      * Returns {@code true} if this constraint is an exactly-one cardinality
      * constraint, {@code false} otherwise.
      * @return {@code true} if this constraint is an exactly-one cardinality
-     *         constraint
+     * constraint
      */
     default boolean isExo() {
         return false;
@@ -163,41 +163,41 @@ public interface PBConstraint extends Formula {
      * @return the normalized constraint
      */
     default Formula normalize(final FormulaFactory f) {
-        final LNGVector<Literal> normPs = new LNGVector<>(operands().size());
-        final LNGIntVector normCs = new LNGIntVector(operands().size());
+        final LNGVector<Literal> normPs = new LNGVector<>(getOperands().size());
+        final LNGIntVector normCs = new LNGIntVector(getOperands().size());
         int normRhs;
         switch (comparator()) {
             case EQ:
-                for (int i = 0; i < operands().size(); i++) {
-                    normPs.push(operands().get(i));
-                    normCs.push(coefficients().get(i));
+                for (int i = 0; i < getOperands().size(); i++) {
+                    normPs.push(getOperands().get(i));
+                    normCs.push(getCoefficients().get(i));
                 }
-                normRhs = rhs();
+                normRhs = getRhs();
                 final Formula f1 = normalize(f, normPs, normCs, normRhs);
                 normPs.clear();
                 normCs.clear();
-                for (int i = 0; i < operands().size(); i++) {
-                    normPs.push(operands().get(i));
-                    normCs.push(-coefficients().get(i));
+                for (int i = 0; i < getOperands().size(); i++) {
+                    normPs.push(getOperands().get(i));
+                    normCs.push(-getCoefficients().get(i));
                 }
-                normRhs = -rhs();
+                normRhs = -getRhs();
                 final Formula f2 = normalize(f, normPs, normCs, normRhs);
                 return f.and(f1, f2);
             case LT:
             case LE:
-                for (int i = 0; i < operands().size(); i++) {
-                    normPs.push(operands().get(i));
-                    normCs.push(coefficients().get(i));
+                for (int i = 0; i < getOperands().size(); i++) {
+                    normPs.push(getOperands().get(i));
+                    normCs.push(getCoefficients().get(i));
                 }
-                normRhs = comparator() == CType.LE ? rhs() : rhs() - 1;
+                normRhs = comparator() == CType.LE ? getRhs() : getRhs() - 1;
                 return normalize(f, normPs, normCs, normRhs);
             case GT:
             case GE:
-                for (int i = 0; i < operands().size(); i++) {
-                    normPs.push(operands().get(i));
-                    normCs.push(-coefficients().get(i));
+                for (int i = 0; i < getOperands().size(); i++) {
+                    normPs.push(getOperands().get(i));
+                    normCs.push(-getCoefficients().get(i));
                 }
-                normRhs = comparator() == CType.GE ? -rhs() : -rhs() - 1;
+                normRhs = comparator() == CType.GE ? -getRhs() : -getRhs() - 1;
                 return normalize(f, normPs, normCs, normRhs);
             default:
                 throw new IllegalStateException("Unknown pseudo-Boolean comparator: " + comparator());
@@ -234,20 +234,20 @@ public interface PBConstraint extends Formula {
             if (consts == null) {
                 consts = new Pair<>(0, 0);
             }
-            if (!ps.get(i).phase()) {
-                var2consts.put(x, new Pair<>(consts.first() + cs.get(i), consts.second()));
+            if (!ps.get(i).getPhase()) {
+                var2consts.put(x, new Pair<>(consts.getFirst() + cs.get(i), consts.getSecond()));
             } else {
-                var2consts.put(x, new Pair<>(consts.first(), consts.second() + cs.get(i)));
+                var2consts.put(x, new Pair<>(consts.getFirst(), consts.getSecond() + cs.get(i)));
             }
         }
         final LNGVector<Pair<Integer, Literal>> csps = new LNGVector<>(var2consts.size());
         for (final Map.Entry<Literal, Pair<Integer, Integer>> all : var2consts.entrySet()) {
-            if (all.getValue().first() < all.getValue().second()) {
-                c -= all.getValue().first();
-                csps.push(new Pair<>(all.getValue().second() - all.getValue().first(), all.getKey()));
+            if (all.getValue().getFirst() < all.getValue().getSecond()) {
+                c -= all.getValue().getFirst();
+                csps.push(new Pair<>(all.getValue().getSecond() - all.getValue().getFirst(), all.getKey()));
             } else {
-                c -= all.getValue().second();
-                csps.push(new Pair<>(all.getValue().first() - all.getValue().second(), all.getKey().negate(f)));
+                c -= all.getValue().getSecond();
+                csps.push(new Pair<>(all.getValue().getFirst() - all.getValue().getSecond(), all.getKey().negate(f)));
             }
         }
         int sum = 0;
@@ -255,9 +255,9 @@ public interface PBConstraint extends Formula {
         cs.clear();
         ps.clear();
         for (final Pair<Integer, Literal> pair : csps) {
-            if (pair.first() != 0) {
-                cs.push(pair.first());
-                ps.push(pair.second());
+            if (pair.getFirst() != 0) {
+                cs.push(pair.getFirst());
+                ps.push(pair.getSecond());
                 sum += cs.back();
             } else {
                 zeros++;
@@ -317,7 +317,7 @@ public interface PBConstraint extends Formula {
 
     @Override
     default boolean containsVariable(final Variable variable) {
-        for (final Literal lit : operands()) {
+        for (final Literal lit : getOperands()) {
             if (lit.containsVariable(variable)) {
                 return true;
             }
@@ -338,19 +338,19 @@ public interface PBConstraint extends Formula {
         int lhsFixed = 0;
         int minValue = 0;
         int maxValue = 0;
-        for (int i = 0; i < operands().size(); i++) {
-            final Formula restriction = assignment.restrictLit(f, operands().get(i));
-            if (restriction.type() == FType.LITERAL) {
-                newLits.add(operands().get(i));
-                final int coeff = coefficients().get(i);
+        for (int i = 0; i < getOperands().size(); i++) {
+            final Formula restriction = assignment.restrictLit(f, getOperands().get(i));
+            if (restriction.getType() == FType.LITERAL) {
+                newLits.add(getOperands().get(i));
+                final int coeff = getCoefficients().get(i);
                 newCoeffs.add(coeff);
                 if (coeff > 0) {
                     maxValue += coeff;
                 } else {
                     minValue += coeff;
                 }
-            } else if (restriction.type() == FType.TRUE) {
-                lhsFixed += coefficients().get(i);
+            } else if (restriction.getType() == FType.TRUE) {
+                lhsFixed += getCoefficients().get(i);
             }
         }
 
@@ -358,7 +358,7 @@ public interface PBConstraint extends Formula {
             return f.constant(evaluateComparator(lhsFixed));
         }
 
-        final int newRHS = rhs() - lhsFixed;
+        final int newRHS = getRhs() - lhsFixed;
         if (comparator() != CType.EQ) {
             final Tristate fixed = evaluateCoeffs(minValue, maxValue, newRHS, comparator());
             if (fixed == Tristate.TRUE) {
@@ -375,8 +375,8 @@ public interface PBConstraint extends Formula {
         if (this == formula || equals(formula)) {
             return true;
         }
-        if (formula.type() == FType.LITERAL) {
-            for (final Literal lit : operands()) {
+        if (formula.getType() == FType.LITERAL) {
+            for (final Literal lit : getOperands()) {
                 if (lit.equals(formula) || lit.variable().equals(formula)) {
                     return true;
                 }
@@ -391,26 +391,26 @@ public interface PBConstraint extends Formula {
         final List<Literal> newLits = new ArrayList<>();
         final List<Integer> newCoeffs = new ArrayList<>();
         int lhsFixed = 0;
-        for (int i = 0; i < operands().size(); i++) {
-            final Formula subst = substitution.getSubstitution(operands().get(i).variable());
+        for (int i = 0; i < getOperands().size(); i++) {
+            final Formula subst = substitution.getSubstitution(getOperands().get(i).variable());
             if (subst == null) {
-                newLits.add(operands().get(i));
-                newCoeffs.add(coefficients().get(i));
+                newLits.add(getOperands().get(i));
+                newCoeffs.add(getCoefficients().get(i));
             } else {
-                switch (subst.type()) {
+                switch (subst.getType()) {
                     case TRUE:
-                        if (operands().get(i).phase()) {
-                            lhsFixed += coefficients().get(i);
+                        if (getOperands().get(i).getPhase()) {
+                            lhsFixed += getCoefficients().get(i);
                         }
                         break;
                     case FALSE:
-                        if (!operands().get(i).phase()) {
-                            lhsFixed += coefficients().get(i);
+                        if (!getOperands().get(i).getPhase()) {
+                            lhsFixed += getCoefficients().get(i);
                         }
                         break;
                     case LITERAL:
-                        newLits.add(operands().get(i).phase() ? (Literal) subst : ((Literal) subst).negate(f));
-                        newCoeffs.add(coefficients().get(i));
+                        newLits.add(getOperands().get(i).getPhase() ? (Literal) subst : ((Literal) subst).negate(f));
+                        newCoeffs.add(getCoefficients().get(i));
                         break;
                     default:
                         throw new IllegalArgumentException(
@@ -419,23 +419,23 @@ public interface PBConstraint extends Formula {
             }
         }
         return newLits.isEmpty() ? evaluateComparator(lhsFixed) ? f.verum() : f.falsum()
-                : f.pbc(comparator(), rhs() - lhsFixed, newLits, newCoeffs);
+                : f.pbc(comparator(), getRhs() - lhsFixed, newLits, newCoeffs);
     }
 
     @Override
     default Formula negate(final FormulaFactory f) {
         switch (comparator()) {
             case EQ:
-                return f.or(f.pbc(CType.LT, rhs(), operands(), coefficients()),
-                        f.pbc(CType.GT, rhs(), operands(), coefficients()));
+                return f.or(f.pbc(CType.LT, getRhs(), getOperands(), getCoefficients()),
+                        f.pbc(CType.GT, getRhs(), getOperands(), getCoefficients()));
             case LE:
-                return f.pbc(CType.GT, rhs(), operands(), coefficients());
+                return f.pbc(CType.GT, getRhs(), getOperands(), getCoefficients());
             case LT:
-                return f.pbc(CType.GE, rhs(), operands(), coefficients());
+                return f.pbc(CType.GE, getRhs(), getOperands(), getCoefficients());
             case GE:
-                return f.pbc(CType.LT, rhs(), operands(), coefficients());
+                return f.pbc(CType.LT, getRhs(), getOperands(), getCoefficients());
             case GT:
-                return f.pbc(CType.LE, rhs(), operands(), coefficients());
+                return f.pbc(CType.LE, getRhs(), getOperands(), getCoefficients());
             default:
                 throw new IllegalStateException("Unknown pseudo-Boolean comparator");
         }
@@ -448,9 +448,9 @@ public interface PBConstraint extends Formula {
      */
     private int evaluateLHS(final Assignment assignment) {
         int lhs = 0;
-        for (int i = 0; i < operands().size(); i++) {
-            if (operands().get(i).evaluate(assignment)) {
-                lhs += coefficients().get(i);
+        for (int i = 0; i < getOperands().size(); i++) {
+            if (getOperands().get(i).evaluate(assignment)) {
+                lhs += getCoefficients().get(i);
             }
         }
         return lhs;
@@ -461,30 +461,30 @@ public interface PBConstraint extends Formula {
      * side.
      * @param lhs the left-hand side
      * @return {@code true} if the comparator evaluates to true, {@code false}
-     *         otherwise
+     * otherwise
      */
     private boolean evaluateComparator(final int lhs) {
         switch (comparator()) {
             case EQ:
-                return lhs == rhs();
+                return lhs == getRhs();
             case LE:
-                return lhs <= rhs();
+                return lhs <= getRhs();
             case LT:
-                return lhs < rhs();
+                return lhs < getRhs();
             case GE:
-                return lhs >= rhs();
+                return lhs >= getRhs();
             case GT:
-                return lhs > rhs();
+                return lhs > getRhs();
             default:
                 throw new IllegalStateException("Unknown pseudo-Boolean comparator");
         }
     }
 
     default int computeHash() {
-        int hashCode = comparator().hashCode() + rhs();
-        for (int i = 0; i < operands().size(); i++) {
-            hashCode += 11 * operands().get(i).hashCode();
-            hashCode += 13 * coefficients().get(i);
+        int hashCode = comparator().hashCode() + getRhs();
+        for (int i = 0; i < getOperands().size(); i++) {
+            hashCode += 11 * getOperands().get(i).hashCode();
+            hashCode += 13 * getCoefficients().get(i);
         }
         return hashCode;
     }

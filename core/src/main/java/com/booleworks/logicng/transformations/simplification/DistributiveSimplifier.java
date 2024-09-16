@@ -42,7 +42,7 @@ public final class DistributiveSimplifier extends CacheableFormulaTransformation
         if (result != null) {
             return LNGResult.of(result);
         }
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
             case TRUE:
             case LITERAL:
@@ -52,22 +52,22 @@ public final class DistributiveSimplifier extends CacheableFormulaTransformation
                 break;
             case EQUIV:
                 final Equivalence equiv = (Equivalence) formula;
-                result = f.equivalence(apply(equiv.left()), apply(equiv.right()));
+                result = f.equivalence(apply(equiv.getLeft()), apply(equiv.getRight()));
                 break;
             case IMPL:
                 final Implication impl = (Implication) formula;
-                result = f.implication(apply(impl.left()), apply(impl.right()));
+                result = f.implication(apply(impl.getLeft()), apply(impl.getRight()));
                 break;
             case NOT:
                 final Not not = (Not) formula;
-                result = f.not(apply(not.operand()));
+                result = f.not(apply(not.getOperand()));
                 break;
             case OR:
             case AND:
                 result = distributeNAry(formula);
                 break;
             default:
-                throw new IllegalStateException("Unknown formula type: " + formula.type());
+                throw new IllegalStateException("Unknown formula type: " + formula.getType());
         }
         setCache(formula, result);
         return LNGResult.of(result);
@@ -75,7 +75,7 @@ public final class DistributiveSimplifier extends CacheableFormulaTransformation
 
     private Formula distributeNAry(final Formula formula) {
         final Formula result;
-        final FType outerType = formula.type();
+        final FType outerType = formula.getType();
         final FType innerType = FType.dual(outerType);
         final Set<Formula> operands = new LinkedHashSet<>();
         for (final Formula op : formula) {
@@ -85,7 +85,7 @@ public final class DistributiveSimplifier extends CacheableFormulaTransformation
         Formula mostCommon = null;
         int mostCommonAmount = 0;
         for (final Formula op : operands) {
-            if (op.type() == innerType) {
+            if (op.getType() == innerType) {
                 for (final Formula part : op) {
                     final Set<Formula> partOperands = part2Operands.computeIfAbsent(part, k -> new LinkedHashSet<>());
                     partOperands.add(op);

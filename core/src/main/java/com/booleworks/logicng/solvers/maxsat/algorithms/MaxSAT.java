@@ -248,7 +248,7 @@ public abstract class MaxSAT {
         final List<Literal> mdl = new ArrayList<>();
         for (int i = 0; i < model.size(); i++) {
             final Variable var = varForIndex(i);
-            if (var != null && !var.name().startsWith(SEL_PREFIX)) {
+            if (var != null && !var.getName().startsWith(SEL_PREFIX)) {
                 mdl.add(model.get(i) ? var : var.negate(f));
             }
         }
@@ -322,7 +322,7 @@ public abstract class MaxSAT {
                 index2var.put(index, lit.variable());
                 assert var2index.size() == index2var.size();
             }
-            final int litNum = lit.phase() ? index * 2 : (index * 2) ^ 1;
+            final int litNum = lit.getPhase() ? index * 2 : (index * 2) ^ 1;
             clauseVec.push(litNum);
         }
         addClause(clauseVec, weight);
@@ -351,7 +351,7 @@ public abstract class MaxSAT {
             var2index.put(variable, index);
             index2var.put(index, variable);
         }
-        return lit.phase() ? index * 2 : (index * 2) ^ 1;
+        return lit.getPhase() ? index * 2 : (index * 2) ^ 1;
     }
 
     /**

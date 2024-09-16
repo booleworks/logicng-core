@@ -119,7 +119,7 @@ Formula comparison() : {
   Token t;
 }
 {
-  ( LOOKAHEAD(2) e = add() c = comperator() t = <NUMBER>  {formula = f.pbc(c, Integer.parseInt(t.image), e.first(), e.second()); }
+  ( LOOKAHEAD(2) e = add() c = comperator() t = <NUMBER>  {formula = f.pbc(c, Integer.parseInt(t.image), e.getFirst(), e.getSecond()); }
   | t = <NUMBER>  { formula = (t.image.startsWith("~") ? f.literal(t.image.substring(1), false) : f.literal(t.image, true)); }
   | t = <LITERAL> { formula = (t.image.startsWith("~") ? f.literal(t.image.substring(1), false) : f.literal(t.image, true)); }
   )
@@ -144,7 +144,7 @@ Pair<List<Literal>, List<Integer>> add() : {
     Token a;
 }
 {
-  m1 = mul() { lits.add(m1.first()); coeffs.add(m1.second()); } (a = <ADD> m2 = mul() { lits.add(m2.first()); coeffs.add (a.image.equals("+") ? m2.second() : -m2.second()); })*
+  m1 = mul() { lits.add(m1.getFirst()); coeffs.add(m1.getSecond()); } (a = <ADD> m2 = mul() { lits.add(m2.getFirst()); coeffs.add (a.image.equals("+") ? m2.getSecond() : -m2.getSecond()); })*
   { return new Pair<>(lits, coeffs); }
 }
 

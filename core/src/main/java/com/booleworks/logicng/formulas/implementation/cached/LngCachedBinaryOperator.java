@@ -29,12 +29,12 @@ public abstract class LngCachedBinaryOperator extends LngCachedFormula implement
     }
 
     @Override
-    public Formula left() {
+    public Formula getLeft() {
         return left;
     }
 
     @Override
-    public Formula right() {
+    public Formula getRight() {
         return right;
     }
 }

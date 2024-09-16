@@ -27,16 +27,16 @@ public class LNGVectorTest {
     public void testVectorCreation() {
         final LNGVector<String> v1 = new LNGVector<>();
         assertThat(v1.size()).isEqualTo(0);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         final LNGVector<String> v2 = new LNGVector<>(10);
         assertThat(v2.size()).isEqualTo(0);
-        assertThat(v2.empty()).isTrue();
+        assertThat(v2.isEmpty()).isTrue();
         final LNGVector<String> v3 = new LNGVector<>(10, "string");
         assertThat(v3.size()).isEqualTo(10);
         for (int i = 0; i < v3.size(); i++) {
             assertThat(v3.get(i)).isEqualTo("string");
         }
-        assertThat(v3.empty()).isFalse();
+        assertThat(v3.isEmpty()).isFalse();
         final LNGVector<String> v4 = new LNGVector<>("s1", "s2", "s3", "s4", "s5");
         assertThat(v4.size()).isEqualTo(5);
         int count = 1;
@@ -57,52 +57,52 @@ public class LNGVectorTest {
     @Test
     public void testVectorAddElements() {
         final LNGVector<String> v1 = new LNGVector<>();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push("s" + i);
             assertThat(v1.size()).isEqualTo(i + 1);
             assertThat(v1.back()).isEqualTo("s" + i);
             assertThat(v1.get(i)).isEqualTo("s" + i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         v1.clear();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
     public void testRelease() {
         final LNGVector<String> v1 = new LNGVector<>();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push("s" + i);
             assertThat(v1.size()).isEqualTo(i + 1);
             assertThat(v1.back()).isEqualTo("s" + i);
             assertThat(v1.get(i)).isEqualTo("s" + i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         v1.release();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
     public void legalUnsafePush() {
         final LNGVector<String> v1 = new LNGVector<>(1000);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.unsafePush("s" + i);
             assertThat(v1.size()).isEqualTo(i + 1);
             assertThat(v1.back()).isEqualTo("s" + i);
             assertThat(v1.get(i)).isEqualTo("s" + i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         v1.clear();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
     public void illegalUnsafePush() {
         final LNGVector<String> v1 = new LNGVector<>(100);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         assertThatThrownBy(() -> {
             for (int i = 0; i < 1000; i++) {
                 v1.unsafePush("s" + i);
@@ -129,11 +129,11 @@ public class LNGVectorTest {
     @Test
     public void testVectorShrink() {
         final LNGVector<String> v1 = new LNGVector<>();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push("s" + i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         final int beforeSize = v1.size();
         v1.shrinkTo(v1.size() + 50);
         assertThat(beforeSize).isEqualTo(v1.size());
@@ -146,11 +146,11 @@ public class LNGVectorTest {
     @Test
     public void testGrowToWithPad() {
         final LNGVector<String> v1 = new LNGVector<>();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push("s" + i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         for (int i = 0; i < 1001; i += 10) {
             v1.growTo(1000 + i, "string");
             assertThat(v1.size()).isEqualTo(1000 + i);
@@ -175,12 +175,12 @@ public class LNGVectorTest {
     @Test
     public void testGrowTo() {
         final LNGVector<String> v1 = new LNGVector<>();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 2000; i++) {
             v1.push("s" + i);
         }
         v1.shrinkTo(1000);
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         for (int i = 0; i < 1001; i += 10) {
             v1.growTo(1000 + i);
             assertThat(v1.size()).isEqualTo(1000 + i);
@@ -205,11 +205,11 @@ public class LNGVectorTest {
     @Test
     public void testRemoveElements() {
         final LNGVector<String> v1 = new LNGVector<>();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push("s" + i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         for (int i = 0; i < 9; i++) {
             v1.removeElements(100);
             assertThat(v1.size()).isEqualTo(1000 - (i + 1) * 100);
@@ -217,7 +217,7 @@ public class LNGVectorTest {
         }
         assertThat(v1.size()).isEqualTo(100);
         v1.removeElements(100);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
@@ -275,7 +275,7 @@ public class LNGVectorTest {
         }
         final LNGVector<String> v3 = new LNGVector<>(1000);
         v3.manualSort(stringComparator);
-        assertThat(v3.empty()).isTrue();
+        assertThat(v3.isEmpty()).isTrue();
     }
 
     @Test
@@ -298,7 +298,7 @@ public class LNGVectorTest {
         }
         final LNGVector<String> v3 = new LNGVector<>(1000);
         v3.sort(stringComparator);
-        assertThat(v3.empty()).isTrue();
+        assertThat(v3.isEmpty()).isTrue();
     }
 
     @Test
@@ -321,13 +321,13 @@ public class LNGVectorTest {
         }
         final LNGVector<String> v3 = new LNGVector<>(1000);
         v3.sortReverse(stringComparator);
-        assertThat(v3.empty()).isTrue();
+        assertThat(v3.isEmpty()).isTrue();
     }
 
     @Test
     public void testRemove() {
         final LNGVector<String> v1 = new LNGVector<>();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push("s" + i);
         }
@@ -377,7 +377,7 @@ public class LNGVectorTest {
     @Test
     public void testIterator() {
         final LNGVector<String> v1 = new LNGVector<>();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push("s" + i);
         }
@@ -390,7 +390,7 @@ public class LNGVectorTest {
     @Test
     public void testIllegalIteratorRemoval() {
         final LNGVector<String> v1 = new LNGVector<>();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push("s" + i);
         }
@@ -403,7 +403,7 @@ public class LNGVectorTest {
     @Test
     public void testIllegalIteratorTraversal() {
         final LNGVector<String> v1 = new LNGVector<>();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push("s" + i);
         }

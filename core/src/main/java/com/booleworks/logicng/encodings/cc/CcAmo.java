@@ -45,7 +45,7 @@ public final class CcAmo {
      * @param vars   the variables for the at-most-one constraint
      */
     public static void pure(final EncodingResult result, final Variable... vars) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         for (int i = 0; i < vars.length; i++) {
             for (int j = i + 1; j < vars.length; j++) {
                 result.addClause(vars[i].negate(f), vars[j].negate(f));
@@ -59,7 +59,7 @@ public final class CcAmo {
      * @param vars   the variables for the at-most-one constraint
      */
     public static void ladder(final EncodingResult result, final Variable... vars) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         final Variable[] seqAuxiliary = new Variable[vars.length - 1];
         for (int i = 0; i < vars.length - 1; i++) {
             seqAuxiliary[i] = result.newCCVariable();
@@ -84,7 +84,7 @@ public final class CcAmo {
      * @param vars           the variables for the at-most-one constraint
      */
     public static void product(final EncodingResult result, final int recursiveBound, final Variable... vars) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         final int n = vars.length;
         final int p = (int) Math.ceil(Math.sqrt(n));
         final int q = (int) Math.ceil((double) n / (double) p);
@@ -123,7 +123,7 @@ public final class CcAmo {
      * @param vars   the variables for the at-most-one constraint
      */
     public static void binary(final EncodingResult result, final Variable... vars) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         final int numberOfBits = (int) Math.ceil(Math.log(vars.length) / Math.log(2));
         final int twoPowNBits = (int) Math.pow(2, numberOfBits);
         final int k = (twoPowNBits - vars.length) * 2;
@@ -177,7 +177,7 @@ public final class CcAmo {
 
     private static void commanderRec(final EncodingResult result, final int groupSize,
                                      final LNGVector<Literal> currentLiterals) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         boolean isExactlyOne = false;
         while (currentLiterals.size() > groupSize) {
             final LNGVector<Literal> literals = new LNGVector<>();
@@ -217,7 +217,7 @@ public final class CcAmo {
     }
 
     private static void nestedRec(final EncodingResult result, final int groupSize, final LNGVector<Literal> vars) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         if (vars.size() <= groupSize) {
             for (int i = 0; i + 1 < vars.size(); i++) {
                 for (int j = i + 1; j < vars.size(); j++) {
@@ -285,12 +285,12 @@ public final class CcAmo {
                                        final int grayCode, final int index, final int j) {
         if ((grayCode & (1 << j)) != 0) {
             for (int p = 0; p < groups.get(index).size(); ++p) {
-                result.addClause(groups.get(index).get(p).negate(result.factory()), bits.bits.get(j));
+                result.addClause(groups.get(index).get(p).negate(result.getFactory()), bits.bits.get(j));
             }
         } else {
             for (int p = 0; p < groups.get(index).size(); ++p) {
-                result.addClause(groups.get(index).get(p).negate(result.factory()),
-                        bits.bits.get(j).negate(result.factory()));
+                result.addClause(groups.get(index).get(p).negate(result.getFactory()),
+                        bits.bits.get(j).negate(result.getFactory()));
             }
         }
     }
@@ -333,7 +333,7 @@ public final class CcAmo {
     }
 
     private static void pure(final EncodingResult result, final LNGVector<Literal> vars) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         for (int i = 0; i < vars.size(); i++) {
             for (int j = i + 1; j < vars.size(); j++) {
                 result.addClause(vars.get(i).negate(f), vars.get(j).negate(f));

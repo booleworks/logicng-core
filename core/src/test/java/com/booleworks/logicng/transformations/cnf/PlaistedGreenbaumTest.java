@@ -12,7 +12,6 @@ import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.io.parsers.ParserException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -136,9 +135,12 @@ public class PlaistedGreenbaumTest extends TestWithFormulaContext {
         assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").transform(pg))
                 .isEqualTo(_c.p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
         assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").transform(pg)).isEqualTo(_c.p.parse(
-                String.format("(d | @AUX_%1$s_CC_1 | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_3 | @AUX_%1$s_CC_1 | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_3 | d | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_4 |" +
-                        "@AUX_%1$s_CC_0) & (~@AUX_%1$s_CC_2 | @AUX_%1$s_CC_0) & (~@AUX_%1$s_CC_4 | ~@AUX_%1$s_CC_2) & (c | @AUX_%1$s_CC_3 | @AUX_%1$s_CC_5) & (b | @AUX_%1$s_CC_3" +
-                        " | @AUX_%1$s_CC_5) & (b | c | @AUX_%1$s_CC_5) & (~@AUX_%1$s_CC_5 | @AUX_%1$s_CC_2) & ~@AUX_%1$s_CC_0", _c.f.name())));
+                String.format(
+                        "(d | @AUX_%1$s_CC_1 | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_3 | @AUX_%1$s_CC_1 | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_3 | d | @AUX_%1$s_CC_4)" +
+                                " & (~@AUX_%1$s_CC_4 |" +
+                                "@AUX_%1$s_CC_0) & (~@AUX_%1$s_CC_2 | @AUX_%1$s_CC_0) & (~@AUX_%1$s_CC_4 | ~@AUX_%1$s_CC_2) & (c | @AUX_%1$s_CC_3 | " +
+                                "@AUX_%1$s_CC_5) & (b | @AUX_%1$s_CC_3" +
+                                " | @AUX_%1$s_CC_5) & (b | c | @AUX_%1$s_CC_5) & (~@AUX_%1$s_CC_5 | @AUX_%1$s_CC_2) & ~@AUX_%1$s_CC_0", _c.f.getName())));
     }
 
     @ParameterizedTest
@@ -151,16 +153,16 @@ public class PlaistedGreenbaumTest extends TestWithFormulaContext {
         final Formula f3 = _c.p.parse("d & ((a | b) => c)");
         final Formula f4 = _c.p.parse("d & ((a | b) => c) | ~x & ~y");
         assertThat(f1.transform(pg))
-                .isEqualTo(_c.p.parse(String.format("(@AUX_%1$s_CNF_1 | c) & (~@AUX_%1$s_CNF_1 | ~a) & (~@AUX_%1$s_CNF_1 | ~b)", _c.f.name())));
+                .isEqualTo(_c.p.parse(String.format("(@AUX_%1$s_CNF_1 | c) & (~@AUX_%1$s_CNF_1 | ~a) & (~@AUX_%1$s_CNF_1 | ~b)", _c.f.getName())));
         assertThat(f2.transform(pg)).isEqualTo(_c.p.parse("~x & ~y"));
         assertThat(f3.transform(pg))
                 .isEqualTo(_c.p.parse(String.format("d & @AUX_%1$s_CNF_0 & (~@AUX_%1$s_CNF_0 | @AUX_%1$s_CNF_1 | c) & " +
-                        "(~@AUX_%1$s_CNF_1 | ~a) & (~@AUX_%1$s_CNF_1 | ~b)", _c.f.name())));
+                        "(~@AUX_%1$s_CNF_1 | ~a) & (~@AUX_%1$s_CNF_1 | ~b)", _c.f.getName())));
         assertThat(f4.transform(pg))
                 .isEqualTo(_c.p.parse(String.format("(@AUX_%1$s_CNF_2 | @AUX_%1$s_CNF_4) & (~@AUX_%1$s_CNF_2 | d) & " +
                         "(~@AUX_%1$s_CNF_2 | @AUX_%1$s_CNF_0) & (~@AUX_%1$s_CNF_0 | @AUX_%1$s_CNF_1 | c) & " +
                         "(~@AUX_%1$s_CNF_1 | ~a) & (~@AUX_%1$s_CNF_1 | ~b) & (~@AUX_%1$s_CNF_4 | ~x) & " +
-                        "(~@AUX_%1$s_CNF_4 | ~y)", _c.f.name())));
+                        "(~@AUX_%1$s_CNF_4 | ~y)", _c.f.getName())));
         assertThat(f1.transform(pg).isCNF(_c.f)).isTrue();
         assertThat(equivalentModels(f1, f1.transform(pg), f1.variables(_c.f))).isTrue();
         assertThat(f2.transform(pg).isCNF(_c.f)).isTrue();

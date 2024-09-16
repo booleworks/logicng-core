@@ -25,7 +25,7 @@ public class LngNativeNot extends LngNativeFormula implements Not {
     }
 
     @Override
-    public Formula operand() {
+    public Formula getOperand() {
         return operand;
     }
 
@@ -44,7 +44,7 @@ public class LngNativeNot extends LngNativeFormula implements Not {
         }
         if (other instanceof Not && hashCode() == other.hashCode()) {
             final Not otherNot = (Not) other;
-            return operand.equals(otherNot.operand());
+            return operand.equals(otherNot.getOperand());
         }
         return false;
     }

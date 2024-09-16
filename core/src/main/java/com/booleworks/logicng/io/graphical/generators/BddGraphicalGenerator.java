@@ -79,12 +79,12 @@ public class BddGraphicalGenerator extends GraphicalGenerator<Integer> {
             graphicalRepresentation.addNode(trueNode);
             index2Node.put(BDD_TRUE, trueNode);
         }
-        for (final int[] internalNode : new BDDOperations(bdd.underlyingKernel()).allNodes(bdd.index())) {
+        for (final int[] internalNode : new BDDOperations(bdd.getUnderlyingKernel()).allNodes(bdd.getIndex())) {
             final int index = internalNode[0];
-            final String defaultLabel = bdd.underlyingKernel().getVariableForIndex(internalNode[1]).name();
+            final String defaultLabel = bdd.getUnderlyingKernel().getVariableForIndex(internalNode[1]).getName();
             addNode(index, labelOrDefault(index, defaultLabel), graphicalRepresentation, index2Node);
         }
-        for (final int[] internalNode : new BDDOperations(bdd.underlyingKernel()).allNodes(bdd.index())) {
+        for (final int[] internalNode : new BDDOperations(bdd.getUnderlyingKernel()).allNodes(bdd.getIndex())) {
             final int index = internalNode[0];
             final int lowIndex = internalNode[2];
             final int highIndex = internalNode[3];

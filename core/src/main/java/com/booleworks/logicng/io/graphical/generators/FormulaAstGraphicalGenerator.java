@@ -54,7 +54,7 @@ public class FormulaAstGraphicalGenerator extends GraphicalGenerator<Formula> {
     }
 
     private GraphicalNode walkFormula(final Formula formula, final GraphicalRepresentation graphicalRepresentation) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
             case TRUE:
             case LITERAL:
@@ -71,20 +71,20 @@ public class FormulaAstGraphicalGenerator extends GraphicalGenerator<Formula> {
             case OR:
                 return walkNaryFormula((NAryOperator) formula, graphicalRepresentation);
             default:
-                throw new IllegalArgumentException("Encountered unknown formula type " + formula.type());
+                throw new IllegalArgumentException("Encountered unknown formula type " + formula.getType());
         }
     }
 
     private GraphicalNode walkAtomicFormula(final Formula formula,
                                             final GraphicalRepresentation graphicalRepresentation) {
-        final String label = formula.type() == FType.LITERAL ? litString((Literal) formula) : formula.toString();
+        final String label = formula.getType() == FType.LITERAL ? litString((Literal) formula) : formula.toString();
         return addNode(formula, label, true, graphicalRepresentation);
     }
 
     private GraphicalNode walkPBConstraint(final PBConstraint pbc,
                                            final GraphicalRepresentation graphicalRepresentation) {
         final GraphicalNode pbNode = addNode(pbc, pbc.toString(), false, graphicalRepresentation);
-        for (final Literal operand : pbc.operands()) {
+        for (final Literal operand : pbc.getOperands()) {
             final GraphicalNode literalNode = addNode(operand, litString(operand), true, graphicalRepresentation);
             graphicalRepresentation.addEdge(new GraphicalEdge(pbNode, literalNode, edgeStyle(pbc, operand)));
         }
@@ -93,28 +93,28 @@ public class FormulaAstGraphicalGenerator extends GraphicalGenerator<Formula> {
 
     private GraphicalNode walkNotFormula(final Not not, final GraphicalRepresentation graphicalRepresentation) {
         final GraphicalNode node = addNode(not, "¬", false, graphicalRepresentation);
-        final GraphicalNode operandNode = walkFormula(not.operand(), graphicalRepresentation);
-        graphicalRepresentation.addEdge(new GraphicalEdge(node, operandNode, edgeStyle(not, not.operand())));
+        final GraphicalNode operandNode = walkFormula(not.getOperand(), graphicalRepresentation);
+        graphicalRepresentation.addEdge(new GraphicalEdge(node, operandNode, edgeStyle(not, not.getOperand())));
         return node;
     }
 
     private GraphicalNode walkBinaryFormula(final BinaryOperator op,
                                             final GraphicalRepresentation graphicalRepresentation) {
-        final boolean isImpl = op.type() == FType.IMPL;
+        final boolean isImpl = op.getType() == FType.IMPL;
         final String label = isImpl ? "⇒" : "⇔";
         final GraphicalNode node = addNode(op, label, false, graphicalRepresentation);
-        final GraphicalNode leftNode = walkFormula(op.left(), graphicalRepresentation);
-        final GraphicalNode rightNode = walkFormula(op.right(), graphicalRepresentation);
+        final GraphicalNode leftNode = walkFormula(op.getLeft(), graphicalRepresentation);
+        final GraphicalNode rightNode = walkFormula(op.getRight(), graphicalRepresentation);
         graphicalRepresentation
-                .addEdge(new GraphicalEdge(node, leftNode, isImpl ? "l" : null, edgeStyle(op, op.left())));
+                .addEdge(new GraphicalEdge(node, leftNode, isImpl ? "l" : null, edgeStyle(op, op.getLeft())));
         graphicalRepresentation
-                .addEdge(new GraphicalEdge(node, rightNode, isImpl ? "r" : null, edgeStyle(op, op.right())));
+                .addEdge(new GraphicalEdge(node, rightNode, isImpl ? "r" : null, edgeStyle(op, op.getRight())));
         return node;
     }
 
     private GraphicalNode walkNaryFormula(final NAryOperator op,
                                           final GraphicalRepresentation graphicalRepresentation) {
-        final String label = op.type() == FType.AND ? "∧" : "∨";
+        final String label = op.getType() == FType.AND ? "∧" : "∨";
         final GraphicalNode node = addNode(op, label, false, graphicalRepresentation);
         for (final Formula operand : op) {
             final GraphicalNode operandNode = walkFormula(operand, graphicalRepresentation);
@@ -133,6 +133,6 @@ public class FormulaAstGraphicalGenerator extends GraphicalGenerator<Formula> {
     }
 
     private static String litString(final Literal literal) {
-        return (literal.phase() ? "" : "¬") + literal.name();
+        return (literal.getPhase() ? "" : "¬") + literal.getName();
     }
 }

@@ -15,8 +15,8 @@ public class LiteralTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testType(final FormulaContext _c) {
-        assertThat(_c.a.type()).isEqualTo(FType.LITERAL);
-        assertThat(_c.na.type()).isEqualTo(FType.LITERAL);
+        assertThat(_c.a.getType()).isEqualTo(FType.LITERAL);
+        assertThat(_c.na.getType()).isEqualTo(FType.LITERAL);
     }
 
     @ParameterizedTest
@@ -36,10 +36,10 @@ public class LiteralTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testGetters(final FormulaContext _c) {
-        assertThat(_c.a.name()).isEqualTo("a");
-        assertThat(_c.na.name()).isEqualTo("a");
-        assertThat(_c.a.phase()).isEqualTo(true);
-        assertThat(_c.na.phase()).isEqualTo(false);
+        assertThat(_c.a.getName()).isEqualTo("a");
+        assertThat(_c.na.getName()).isEqualTo("a");
+        assertThat(_c.a.getPhase()).isEqualTo(true);
+        assertThat(_c.na.getPhase()).isEqualTo(false);
     }
 
     @ParameterizedTest

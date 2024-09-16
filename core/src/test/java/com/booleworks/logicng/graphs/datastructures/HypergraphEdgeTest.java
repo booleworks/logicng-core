@@ -29,7 +29,7 @@ public class HypergraphEdgeTest {
         final HypergraphNode<String> node1 = new HypergraphNode<>(hypergraph, "A");
         final HypergraphNode<String> node2 = new HypergraphNode<>(hypergraph, "B");
         final HypergraphEdge<String> edge1 = new HypergraphEdge<>(node1, node2);
-        assertThat(edge1.nodes()).containsExactlyInAnyOrder(node1, node2);
+        assertThat(edge1.getNodes()).containsExactlyInAnyOrder(node1, node2);
     }
 
     @Test
@@ -38,7 +38,7 @@ public class HypergraphEdgeTest {
         final PropositionalParser p = new PropositionalParser(f);
         final Hypergraph<Variable> hypergraph =
                 HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("A | B | ~C | D")));
-        final HypergraphEdge<Variable> edge = hypergraph.edges().iterator().next();
+        final HypergraphEdge<Variable> edge = hypergraph.getEdges().iterator().next();
         final Map<HypergraphNode<Variable>, Integer> ordering = new HashMap<>();
         ordering.put(new HypergraphNode<>(hypergraph, f.variable("A")), 1);
         ordering.put(new HypergraphNode<>(hypergraph, f.variable("B")), 2);
@@ -58,7 +58,7 @@ public class HypergraphEdgeTest {
         final PropositionalParser p = new PropositionalParser(f);
         final Hypergraph<Variable> hypergraph =
                 HypergraphGenerator.fromCNF(f, Collections.singletonList(p.parse("A | B | ~C | D")));
-        final HypergraphEdge<Variable> edge = hypergraph.edges().iterator().next();
+        final HypergraphEdge<Variable> edge = hypergraph.getEdges().iterator().next();
         assertThatThrownBy(() -> edge.centerOfGravity(new HashMap<>())).isInstanceOf(IllegalStateException.class);
     }
 

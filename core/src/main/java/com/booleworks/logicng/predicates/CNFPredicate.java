@@ -45,7 +45,7 @@ public final class CNFPredicate extends CacheableFormulaPredicate {
         if (cached != null) {
             return cached;
         }
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
             case TRUE:
             case LITERAL:
@@ -65,12 +65,12 @@ public final class CNFPredicate extends CacheableFormulaPredicate {
                 setCache(formula, andIsCnf);
                 return andIsCnf;
             default:
-                throw new IllegalArgumentException("Cannot compute CNF predicate on " + formula.type());
+                throw new IllegalArgumentException("Cannot compute CNF predicate on " + formula.getType());
         }
     }
 
     private boolean isClause(final Formula formula) {
-        return formula.type() == FType.LITERAL ||
-                formula.type() == FType.OR && ((Or) formula).isCNFClause();
+        return formula.getType() == FType.LITERAL ||
+                formula.getType() == FType.OR && ((Or) formula).isCNFClause();
     }
 }

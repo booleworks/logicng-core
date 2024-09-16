@@ -247,7 +247,7 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         final MaxSATResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
         assertThat(result.getOptimum()).isEqualTo(26);
-        final MaxSAT.Stats stats = solver.stats();
+        final MaxSAT.Stats stats = solver.getStats();
         assertThat(stats.bestSolution()).isEqualTo(26);
         assertThat(stats.unsatCalls()).isEqualTo(26);
         assertThat(stats.satCalls()).isEqualTo(2);
@@ -280,9 +280,9 @@ public class PureMaxSATTest extends TestWithExampleFormulas {
         final Model model = result.getModel();
         assertThat(model.size()).isEqualTo(8);
         assertThat(model.positiveVariables()).hasSize(1);
-        assertThat(model.positiveVariables()).extracting(Variable::name).containsExactlyInAnyOrder("y");
+        assertThat(model.positiveVariables()).extracting(Variable::getName).containsExactlyInAnyOrder("y");
         assertThat(model.negativeLiterals()).hasSize(7);
-        assertThat(model.negativeVariables()).extracting(Variable::name).containsExactlyInAnyOrder("a", "b",
+        assertThat(model.negativeVariables()).extracting(Variable::getName).containsExactlyInAnyOrder("a", "b",
                 "c", "d", "e", "x", "z");
     }
 

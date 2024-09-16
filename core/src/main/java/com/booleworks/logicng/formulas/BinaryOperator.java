@@ -21,13 +21,13 @@ public interface BinaryOperator extends Formula {
      * Returns the left-hand side operator.
      * @return the left-hand side operator
      */
-    Formula left();
+    Formula getLeft();
 
     /**
      * Returns the right-hand side operator.
      * @return the right-hand side operator
      */
-    Formula right();
+    Formula getRight();
 
     @Override
     default int numberOfOperands() {
@@ -46,17 +46,17 @@ public interface BinaryOperator extends Formula {
 
     @Override
     default boolean containsVariable(final Variable variable) {
-        return left().containsVariable(variable) || right().containsVariable(variable);
+        return getLeft().containsVariable(variable) || getRight().containsVariable(variable);
     }
 
     @Override
     default boolean containsNode(final Formula formula) {
-        return this == formula || equals(formula) || left().containsNode(formula) || right().containsNode(formula);
+        return this == formula || equals(formula) || getLeft().containsNode(formula) || getRight().containsNode(formula);
     }
 
     @Override
     default Formula substitute(final FormulaFactory f, final Substitution substitution) {
-        return f.binaryOperator(type(), left().substitute(f, substitution), right().substitute(f, substitution));
+        return f.binaryOperator(getType(), getLeft().substitute(f, substitution), getRight().substitute(f, substitution));
     }
 
     @Override
@@ -78,10 +78,10 @@ public interface BinaryOperator extends Formula {
             public Formula next() {
                 if (count == 0) {
                     count++;
-                    return left();
+                    return getLeft();
                 } else if (count == 1) {
                     count++;
-                    return right();
+                    return getRight();
                 }
                 throw new NoSuchElementException();
             }
@@ -95,6 +95,6 @@ public interface BinaryOperator extends Formula {
 
     @Override
     default Stream<Formula> stream() {
-        return Stream.of(left(), right());
+        return Stream.of(getLeft(), getRight());
     }
 }

@@ -41,13 +41,13 @@ public interface Formula extends Iterable<Formula> {
      * Returns the type of this formula.
      * @return the type of this formula
      */
-    FType type();
+    FType getType();
 
     /**
      * Returns the factory of this formula.
      * @return the factory of this formula
      */
-    FormulaFactory factory();
+    FormulaFactory getFactory();
 
     /**
      * Returns the number of atomic formulas of this formula. An atomic formula
@@ -79,13 +79,13 @@ public interface Formula extends Iterable<Formula> {
      * @return the number of internal nodes of this formula.
      */
     default long numberOfInternalNodes() {
-        return factory().numberOfNodes(this);
+        return getFactory().numberOfNodes(this);
     }
 
     /**
      * Returns whether this formula is a constant formula ("True" or "False").
      * @return {@code true} if this formula is a constant formula, {@code false}
-     *         otherwise
+     * otherwise
      */
     boolean isConstantFormula();
 
@@ -93,7 +93,7 @@ public interface Formula extends Iterable<Formula> {
      * Returns whether this formula is an atomic formula (constant, literal,
      * pseudo Boolean constraint), or not.
      * @return {@code true} if this formula is an atomic formula, {@code false}
-     *         otherwise
+     * otherwise
      */
     boolean isAtomicFormula();
 
@@ -256,7 +256,7 @@ public interface Formula extends Iterable<Formula> {
      * {@link SATSolver} on your own.
      * @param f the formula factory to use for caching
      * @return {@code true} when this formula is satisfiable, {@code false}
-     *         otherwise
+     * otherwise
      */
     default boolean isSatisfiable(final FormulaFactory f) {
         return holds(new SATPredicate(f));
@@ -270,7 +270,7 @@ public interface Formula extends Iterable<Formula> {
      * must create and use a {@link SATSolver} on your own.
      * @param f the formula factory to use for caching
      * @return {@code true} when this formula is a tautology, {@code false}
-     *         otherwise
+     * otherwise
      */
     default boolean isTautology(final FormulaFactory f) {
         return holds(new TautologyPredicate(f));
@@ -284,7 +284,7 @@ public interface Formula extends Iterable<Formula> {
      * configuration) you must create and use a {@link SATSolver} on your own.
      * @param f the formula factory to use for caching
      * @return {@code true} when this formula is a contradiction, {@code false}
-     *         otherwise
+     * otherwise
      */
     default boolean isContradiction(final FormulaFactory f) {
         return holds(new ContradictionPredicate(f));
@@ -300,7 +300,7 @@ public interface Formula extends Iterable<Formula> {
      * @param other the formula which should be checked if it is implied by this
      *              formula
      * @return {@code true} when this formula implies the given other formula,
-     *         {@code false} otherwise
+     * {@code false} otherwise
      */
     default boolean implies(final FormulaFactory f, final Formula other) {
         return f.implication(this, other).holds(new TautologyPredicate(f));
@@ -316,7 +316,7 @@ public interface Formula extends Iterable<Formula> {
      * @param other the formula which should be checked if it implies this
      *              formula
      * @return {@code true} when this formula is implied by the given other
-     *         formula, {@code false} otherwise
+     * formula, {@code false} otherwise
      */
     default boolean isImpliedBy(final FormulaFactory f, final Formula other) {
         return f.implication(other, this).holds(new TautologyPredicate(f));
@@ -332,7 +332,7 @@ public interface Formula extends Iterable<Formula> {
      * @param other the formula which should be checked if it is equivalent with
      *              this formula
      * @return {@code true} when this formula is equivalent to the given other
-     *         formula, {@code false} otherwise
+     * formula, {@code false} otherwise
      */
     default boolean isEquivalentTo(final FormulaFactory f, final Formula other) {
         return f.equivalence(this, other).holds(new TautologyPredicate(f));
@@ -388,7 +388,7 @@ public interface Formula extends Iterable<Formula> {
      * @param transformation the formula transformation
      * @param handler        the computation handler
      * @return the result of the transformation which may have been canceled by
-     *         the computation handler
+     * the computation handler
      */
     default LNGResult<Formula> transform(final FormulaTransformation transformation, final ComputationHandler handler) {
         return transformation.apply(this, handler);

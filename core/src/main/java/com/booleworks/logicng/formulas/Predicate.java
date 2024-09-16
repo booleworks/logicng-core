@@ -26,7 +26,7 @@ public interface Predicate extends Formula {
     };
 
     @Override
-    default FType type() {
+    default FType getType() {
         return FType.PREDICATE;
     }
 

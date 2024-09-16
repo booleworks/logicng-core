@@ -135,7 +135,7 @@ public final class CcIncrementalData {
      */
     public List<Formula> newUpperBound(final int rhs) {
         computeUBConstraint(result, rhs);
-        return result.result();
+        return result.getResult();
     }
 
     /**
@@ -151,7 +151,7 @@ public final class CcIncrementalData {
     }
 
     private void computeUBConstraint(final EncodingResult result, final int rhs) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         if (rhs >= currentRHS) {
             throw new IllegalArgumentException(
                     "New upper bound " + rhs + " + does not tighten the current bound of " + currentRHS);
@@ -208,7 +208,7 @@ public final class CcIncrementalData {
      */
     public List<Formula> newLowerBound(final int rhs) {
         computeLBConstraint(result, rhs);
-        return result.result();
+        return result.getResult();
     }
 
     /**
@@ -224,7 +224,7 @@ public final class CcIncrementalData {
     }
 
     private void computeLBConstraint(final EncodingResult result, final int rhs) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         if (rhs <= currentRHS) {
             throw new IllegalArgumentException(
                     "New lower bound " + rhs + " + does not tighten the current bound of " + currentRHS);
@@ -279,7 +279,7 @@ public final class CcIncrementalData {
      * Returns the current right-hand side of this CCIncrementalData.
      * @return the current right-hand side of this CCIncrementalData.
      */
-    public int currentRHS() {
+    public int getCurrentRHS() {
         return currentRHS;
     }
 

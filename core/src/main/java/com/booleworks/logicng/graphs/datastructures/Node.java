@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * A generic node of a graph.
  * @param <T> the element type of the node
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.2
  */
 public final class Node<T> {
@@ -58,7 +58,7 @@ public final class Node<T> {
      * Returns the content of the node.
      * @return the content of the node
      */
-    public T content() {
+    public T getContent() {
         return content;
     }
 
@@ -66,7 +66,7 @@ public final class Node<T> {
      * Returns the neighbours of the node.
      * @return the neighbours of the node
      */
-    public Set<Node<T>> neighbours() {
+    public Set<Node<T>> getNeighbours() {
         return new LinkedHashSet<>(neighbours);
     }
 
@@ -74,7 +74,7 @@ public final class Node<T> {
      * Returns the graph to which the node belongs.
      * @return the node's graph
      */
-    public Graph<T> graph() {
+    public Graph<T> getGraph() {
         return graph;
     }
 
@@ -102,7 +102,7 @@ public final class Node<T> {
         final StringBuilder sb = new StringBuilder();
         sb.append("Node{content=").append(content).append(", neighbours:");
         for (final Node<T> neighbour : neighbours) {
-            sb.append(neighbour.content()).append(",");
+            sb.append(neighbour.getContent()).append(",");
         }
         sb.deleteCharAt(sb.length() - 1);
         sb.append("}");

@@ -99,11 +99,11 @@ public final class CcSorting {
             final Variable o1 = result.newCCVariable();
             if (m2 == 2) {
                 final Variable o2 = result.newCCVariable();
-                comparator(result.factory(), input.get(0), input.get(1), o1, o2, result, direction);
+                comparator(result.getFactory(), input.get(0), input.get(1), o1, o2, result, direction);
                 output.push(o1);
                 output.push(o2);
             } else {
-                comparator(result.factory(), input.get(0), input.get(1), o1, result, direction);
+                comparator(result.getFactory(), input.get(0), input.get(1), o1, result, direction);
                 output.push(o1);
             }
             return;
@@ -196,7 +196,7 @@ public final class CcSorting {
 
     private static void counterSorter(final int k, final LNGVector<Literal> x, final EncodingResult result,
                                       final LNGVector<Literal> output, final ImplicationDirection direction) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         final LNGVector<LNGVector<Literal>> auxVars = new LNGVector<>();
         final int n = x.size();
         for (int i = 0; i < n; i++) {
@@ -252,7 +252,7 @@ public final class CcSorting {
                     if (count > m) {
                         break;
                     }
-                    clause.push(input.get(i).negate(result.factory()));
+                    clause.push(input.get(i).negate(result.getFactory()));
                 }
             }
             assert count > 0;

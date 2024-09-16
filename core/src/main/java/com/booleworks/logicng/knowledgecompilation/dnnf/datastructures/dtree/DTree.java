@@ -15,7 +15,7 @@ import java.util.SortedSet;
 /**
  * Super class for a Decomposition Tree (DTree) for the DNNF Compiler This is
  * either a {@link DTreeNode} or a {@link DTreeLeaf}.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public abstract class DTree {
@@ -23,6 +23,8 @@ public abstract class DTree {
     protected int[] staticVariables;
     protected BitSet staticVarSet;
     protected int[] staticSeparator;
+    protected int[] staticClauseIds;
+    protected DnnfSatSolver solver;
 
     /**
      * Initializes the DTree.
@@ -54,7 +56,7 @@ public abstract class DTree {
      * operation.
      * @return all variables of this DTree
      */
-    public BitSet staticVarSet() {
+    public BitSet getStaticVarSet() {
         return staticVarSet;
     }
 
@@ -79,7 +81,9 @@ public abstract class DTree {
      * The ids clauses in this DTree.
      * @return The clause ids
      */
-    abstract int[] staticClauseIds();
+    public int[] staticClauseIds() {
+        return staticClauseIds;
+    }
 
     /**
      * Counts the number of unsubsumed occurrences for each variable in

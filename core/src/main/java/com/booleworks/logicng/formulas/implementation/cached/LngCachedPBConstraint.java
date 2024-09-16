@@ -57,12 +57,12 @@ public class LngCachedPBConstraint extends LngCachedFormula implements PBConstra
     }
 
     @Override
-    public List<Literal> operands() {
+    public List<Literal> getOperands() {
         return literals;
     }
 
     @Override
-    public List<Integer> coefficients() {
+    public List<Integer> getCoefficients() {
         return coefficients;
     }
 
@@ -72,7 +72,7 @@ public class LngCachedPBConstraint extends LngCachedFormula implements PBConstra
     }
 
     @Override
-    public int rhs() {
+    public int getRhs() {
         return rhs;
     }
 
@@ -87,7 +87,7 @@ public class LngCachedPBConstraint extends LngCachedFormula implements PBConstra
         encoding = f.pbEncodingCache.get(this);
         if (encoding == null) {
             encoding = PbEncoder.encode(generatingFactory, this);
-            if (generatingFactory == factory()) {
+            if (generatingFactory == getFactory()) {
                 f.pbEncodingCache.put(this, encoding);
             }
         }
@@ -107,14 +107,14 @@ public class LngCachedPBConstraint extends LngCachedFormula implements PBConstra
         if (this == other) {
             return true;
         }
-        if (other instanceof Formula && f == ((Formula) other).factory()) {
+        if (other instanceof Formula && f == ((Formula) other).getFactory()) {
             // the caching formula factory would have produced the same object
             return false;
         }
         if (other instanceof PBConstraint && hashCode() == other.hashCode()) {
             final PBConstraint o = (PBConstraint) other;
-            return rhs == o.rhs() && comparator == o.comparator() && coefficients.equals(o.coefficients()) &&
-                    literals.equals(o.operands());
+            return rhs == o.getRhs() && comparator == o.comparator() && coefficients.equals(o.getCoefficients()) &&
+                    literals.equals(o.getOperands());
         }
         return false;
     }

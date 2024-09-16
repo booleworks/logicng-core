@@ -26,11 +26,11 @@ public interface CardinalityConstraint extends PBConstraint {
 
     @Override
     default boolean isAmo() {
-        return comparator() == CType.LE && rhs() == 1 || comparator() == CType.LT && rhs() == 2;
+        return comparator() == CType.LE && getRhs() == 1 || comparator() == CType.LT && getRhs() == 2;
     }
 
     @Override
     default boolean isExo() {
-        return comparator() == CType.EQ && rhs() == 1;
+        return comparator() == CType.EQ && getRhs() == 1;
     }
 }

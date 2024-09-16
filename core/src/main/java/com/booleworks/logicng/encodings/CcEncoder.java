@@ -66,7 +66,7 @@ public class CcEncoder {
                                        final EncoderConfig config) {
         final EncodingResult result = EncodingResult.resultForFormula(f);
         encodeConstraint(cc, result, config);
-        return Collections.unmodifiableList(result.result());
+        return Collections.unmodifiableList(result.getResult());
     }
 
     /**
@@ -98,7 +98,7 @@ public class CcEncoder {
                                                                            final CardinalityConstraint cc) {
         final EncodingResult result = EncodingResult.resultForFormula(f);
         final CcIncrementalData incData = encodeIncremental(cc, result);
-        return new Pair<>(Collections.unmodifiableList(result.result()), incData);
+        return new Pair<>(Collections.unmodifiableList(result.getResult()), incData);
     }
 
     /**
@@ -109,10 +109,10 @@ public class CcEncoder {
      * @return the encoding of the constraint and the incremental data
      */
     public static Pair<List<Formula>, CcIncrementalData>
-            encodeIncremental(final FormulaFactory f, final CardinalityConstraint cc, final EncoderConfig config) {
+    encodeIncremental(final FormulaFactory f, final CardinalityConstraint cc, final EncoderConfig config) {
         final EncodingResult result = EncodingResult.resultForFormula(f);
         final CcIncrementalData incData = encodeIncremental(cc, result, config);
-        return new Pair<>(Collections.unmodifiableList(result.result()), incData);
+        return new Pair<>(Collections.unmodifiableList(result.getResult()), incData);
     }
 
     /**
@@ -141,20 +141,20 @@ public class CcEncoder {
                                                                    final EncodingResult result,
                                                                    final EncoderConfig initConfig) {
         final var config = initConfig != null ? initConfig
-                : (EncoderConfig) result.factory().configurationFor(ConfigurationType.ENCODER);
-        final Variable[] ops = FormulaHelper.literalsAsVariables(cc.operands());
+                : (EncoderConfig) result.getFactory().configurationFor(ConfigurationType.ENCODER);
+        final Variable[] ops = FormulaHelper.literalsAsVariables(cc.getOperands());
         if (cc.isAmo()) {
             throw new IllegalArgumentException("Incremental encodings are not supported for at-most-one constraints");
         }
         switch (cc.comparator()) {
             case LE:
-                return amkIncremental(result, config, ops, cc.rhs());
+                return amkIncremental(result, config, ops, cc.getRhs());
             case LT:
-                return amkIncremental(result, config, ops, cc.rhs() - 1);
+                return amkIncremental(result, config, ops, cc.getRhs() - 1);
             case GE:
-                return alkIncremental(result, config, ops, cc.rhs());
+                return alkIncremental(result, config, ops, cc.getRhs());
             case GT:
-                return alkIncremental(result, config, ops, cc.rhs() + 1);
+                return alkIncremental(result, config, ops, cc.getRhs() + 1);
             default:
                 throw new IllegalArgumentException(
                         "Incremental encodings are only supported for at-most-k and at-least k constraints.");
@@ -164,34 +164,34 @@ public class CcEncoder {
     protected static void encodeConstraint(final CardinalityConstraint cc, final EncodingResult result,
                                            final EncoderConfig initConfig) {
         final var config = initConfig != null ? initConfig
-                : (EncoderConfig) result.factory().configurationFor(ConfigurationType.ENCODER);
-        final Variable[] ops = FormulaHelper.literalsAsVariables(cc.operands());
+                : (EncoderConfig) result.getFactory().configurationFor(ConfigurationType.ENCODER);
+        final Variable[] ops = FormulaHelper.literalsAsVariables(cc.getOperands());
         switch (cc.comparator()) {
             case LE:
-                if (cc.rhs() == 1) {
+                if (cc.getRhs() == 1) {
                     amo(result, config, ops);
                 } else {
-                    amk(result, config, ops, cc.rhs());
+                    amk(result, config, ops, cc.getRhs());
                 }
                 break;
             case LT:
-                if (cc.rhs() == 2) {
+                if (cc.getRhs() == 2) {
                     amo(result, config, ops);
                 } else {
-                    amk(result, config, ops, cc.rhs() - 1);
+                    amk(result, config, ops, cc.getRhs() - 1);
                 }
                 break;
             case GE:
-                alk(result, config, ops, cc.rhs());
+                alk(result, config, ops, cc.getRhs());
                 break;
             case GT:
-                alk(result, config, ops, cc.rhs() + 1);
+                alk(result, config, ops, cc.getRhs() + 1);
                 break;
             case EQ:
-                if (cc.rhs() == 1) {
+                if (cc.getRhs() == 1) {
                     exo(result, config, ops);
                 } else {
-                    exk(result, config, ops, cc.rhs());
+                    exk(result, config, ops, cc.getRhs());
                 }
                 break;
             default:
@@ -256,7 +256,7 @@ public class CcEncoder {
         }
         if (rhs == 0) { // no variable can be true
             for (final Variable var : vars) {
-                result.addClause(var.negate(result.factory()));
+                result.addClause(var.negate(result.getFactory()));
             }
             return;
         }
@@ -286,7 +286,7 @@ public class CcEncoder {
         }
         if (rhs == 0) { // no variable can be true
             for (final Variable var : vars) {
-                result.addClause(var.negate(result.factory()));
+                result.addClause(var.negate(result.getFactory()));
             }
             return null;
         }
@@ -387,7 +387,7 @@ public class CcEncoder {
         }
         if (rhs == 0) {
             for (final Variable var : vars) {
-                result.addClause(var.negate(result.factory()));
+                result.addClause(var.negate(result.getFactory()));
             }
             return;
         }

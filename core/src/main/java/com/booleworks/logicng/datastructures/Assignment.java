@@ -130,7 +130,7 @@ public final class Assignment {
      * @param lit the literal
      */
     public void addLiteral(final Literal lit) {
-        if (lit.phase()) {
+        if (lit.getPhase()) {
             pos.add(lit.variable());
         } else {
             neg.add(lit);
@@ -145,7 +145,7 @@ public final class Assignment {
      * @return the evaluation of the literal
      */
     public boolean evaluateLit(final Literal lit) {
-        return lit.phase() ? pos.contains(lit.variable()) : neg.contains(lit) || !pos.contains(lit.variable());
+        return lit.getPhase() ? pos.contains(lit.variable()) : neg.contains(lit) || !pos.contains(lit.variable());
     }
 
     /**
@@ -154,15 +154,15 @@ public final class Assignment {
      * @param f   the formula factory to create the restricted formula
      * @param lit the literal
      * @return the restriction of the literal or the literal itself, if the
-     *         literal's variable is not known
+     * literal's variable is not known
      */
     public Formula restrictLit(final FormulaFactory f, final Literal lit) {
         final Variable var = lit.variable();
         if (pos.contains(var)) {
-            return f.constant(lit.phase());
+            return f.constant(lit.getPhase());
         }
         if (neg.contains(var.negate(f))) {
-            return f.constant(!lit.phase());
+            return f.constant(!lit.getPhase());
         }
         return lit;
     }
@@ -180,7 +180,7 @@ public final class Assignment {
      * Converts this assignment to a model.
      * @return the model
      */
-    public Model model() {
+    public Model toModel() {
         return new Model(this);
     }
 

@@ -128,12 +128,12 @@ public class ModelCounterTest extends TestWithFormulaContext {
     public void testCornerCases(final FormulaContext _c) {
         final FormulaCornerCases cornerCases = new FormulaCornerCases(_c.f);
         for (final Formula formula : cornerCases.cornerCases()) {
-            if (formula.type() == FType.PBC) {
+            if (formula.getType() == FType.PBC) {
                 final PBConstraint pbc = (PBConstraint) formula;
                 if (!pbc.isAmo() && !pbc.isExo()) {
                     assertThatThrownBy(
                             () -> ModelCounter.count(_c.f, Collections.singletonList(formula), formula.variables(_c.f)))
-                                    .isInstanceOf(UnsupportedOperationException.class);
+                            .isInstanceOf(UnsupportedOperationException.class);
                     continue;
                 }
             }
@@ -213,7 +213,7 @@ public class ModelCounterTest extends TestWithFormulaContext {
     private void testQueens(final FormulaFactory f, final NQueensGenerator generator, final int size,
                             final int models) {
         final Formula queens = generator.generate(size);
-        assertThat(ModelCounter.count(queens.factory(), Collections.singletonList(queens), queens.variables(f)))
+        assertThat(ModelCounter.count(queens.getFactory(), Collections.singletonList(queens), queens.variables(f)))
                 .isEqualTo(BigInteger.valueOf(models));
     }
 

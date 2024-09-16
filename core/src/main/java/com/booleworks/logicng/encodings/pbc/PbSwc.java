@@ -43,7 +43,7 @@ public final class PbSwc {
 
     private static void generateConstraint(final EncodingResult result, final int rhs, final LNGVector<Literal> lits,
                                            final LNGIntVector coeffs) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         final int n = lits.size();
         final LNGVector<LNGVector<Literal>> seqAuxiliary = new LNGVector<>(n + 1);
         for (int i = 0; i < n + 1; i++) {

@@ -12,7 +12,6 @@ import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.io.parsers.ParserException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -131,8 +130,11 @@ public class TseitinTest extends TestWithFormulaContext {
         assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").transform(ts))
                 .isEqualTo(_c.p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
         assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").transform(ts)).isEqualTo(_c.p.parse(String.format(
-                "(d | @AUX_%1$s_CC_1 | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_3 | @AUX_%1$s_CC_1 | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_3 | d | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_4 | @AUX_%1$s_CC_0) & (~@AUX_%1$s_CC_2 | @AUX_%1$s_CC_0) & (~@AUX_%1$s_CC_4 | ~@AUX_%1$s_CC_2) & (c | @AUX_%1$s_CC_3 | @AUX_%1$s_CC_5) & (b | @AUX_%1$s_CC_3 | @AUX_%1$s_CC_5) & (b | c | @AUX_%1$s_CC_5) & (~@AUX_%1$s_CC_5 | @AUX_%1$s_CC_2) & ~@AUX_%1$s_CC_0",
-                _c.f.name())));
+                "(d | @AUX_%1$s_CC_1 | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_3 | @AUX_%1$s_CC_1 | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_3 | d | @AUX_%1$s_CC_4) & " +
+                        "(~@AUX_%1$s_CC_4 | @AUX_%1$s_CC_0) & (~@AUX_%1$s_CC_2 | @AUX_%1$s_CC_0) & (~@AUX_%1$s_CC_4 | ~@AUX_%1$s_CC_2) & (c | @AUX_%1$s_CC_3 " +
+                        "| @AUX_%1$s_CC_5) & (b | @AUX_%1$s_CC_3 | @AUX_%1$s_CC_5) & (b | c | @AUX_%1$s_CC_5) & (~@AUX_%1$s_CC_5 | @AUX_%1$s_CC_2) & " +
+                        "~@AUX_%1$s_CC_0",
+                _c.f.getName())));
     }
 
     @Test

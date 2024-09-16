@@ -44,25 +44,25 @@ public class NumberOfNodesFunction extends CacheableFormulaFunction<Long> {
     }
 
     @Override
-    public LNGResult<Long> apply(final Formula formula, ComputationHandler handler) {
+    public LNGResult<Long> apply(final Formula formula, final ComputationHandler handler) {
         final Long cached = lookupCache(formula);
         if (cached != null) {
             return LNGResult.of(cached);
         }
         long result;
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
             case TRUE:
             case LITERAL:
                 result = 1L;
                 break;
             case NOT:
-                result = apply(((Not) formula).operand()) + 1L;
+                result = apply(((Not) formula).getOperand()) + 1L;
                 break;
             case IMPL:
             case EQUIV:
                 final BinaryOperator binary = (BinaryOperator) formula;
-                result = apply(binary.left()) + apply(binary.right()) + 1L;
+                result = apply(binary.getLeft()) + apply(binary.getRight()) + 1L;
                 break;
             case OR:
             case AND:
@@ -74,13 +74,13 @@ public class NumberOfNodesFunction extends CacheableFormulaFunction<Long> {
                 break;
             case PBC:
                 final PBConstraint pbc = (PBConstraint) formula;
-                result = 1L + pbc.operands().size();
+                result = 1L + pbc.getOperands().size();
                 break;
             case PREDICATE:
                 result = formula.numberOfNodes(f);
                 break;
             default:
-                throw new IllegalStateException("Unknown formula type " + formula.type());
+                throw new IllegalStateException("Unknown formula type " + formula.getType());
         }
         setCache(formula, result);
         return LNGResult.of(result);

@@ -89,7 +89,7 @@ public class CNFEncoder {
                 throw new IllegalStateException(
                         "Invalid fallback CNF encoding algorithm: " + config.fallbackAlgorithmForAdvancedEncoding);
         }
-        if (formula.type() == FType.AND) {
+        if (formula.getType() == FType.AND) {
             final List<Formula> operands = new ArrayList<>(formula.numberOfOperands());
             for (final Formula op : formula) {
                 operands.add(singleAdvancedEncoding(op, advancedFactorization, factorizationHandler, fallbackTransformation));

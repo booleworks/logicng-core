@@ -76,7 +76,7 @@ public class LargeBDDTest {
         final TimeoutHandler handler = new TimeoutHandler(2000L);
         final LNGResult<BDD> bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(bdd.isSuccess()).isTrue();
-        assertThat(bdd.getResult().index()).isNotEqualTo(BDDKernel.BDD_ABORT);
+        assertThat(bdd.getResult().getIndex()).isNotEqualTo(BDDKernel.BDD_ABORT);
     }
 
     @Test
@@ -100,7 +100,7 @@ public class LargeBDDTest {
         final NumberOfNodesBDDHandler handler = new NumberOfNodesBDDHandler(1000);
         final LNGResult<BDD> bdd = BDDFactory.build(f, queens, kernel, handler);
         assertThat(bdd.isSuccess()).isTrue();
-        assertThat(bdd.getResult().index()).isNotEqualTo(BDDKernel.BDD_ABORT);
+        assertThat(bdd.getResult().getIndex()).isNotEqualTo(BDDKernel.BDD_ABORT);
     }
 
     @Test

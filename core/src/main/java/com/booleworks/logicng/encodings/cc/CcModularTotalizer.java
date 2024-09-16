@@ -49,7 +49,7 @@ public final class CcModularTotalizer {
      * @return the incremental data for this constraint
      */
     public static CcIncrementalData amk(final EncodingResult result, final Variable[] vars, final int rhs) {
-        final var state = new State(result.factory());
+        final var state = new State(result.getFactory());
         final int mod = initialize(result, rhs, vars.length, state);
         for (final Variable var : vars) {
             state.inlits.push(var);
@@ -71,11 +71,11 @@ public final class CcModularTotalizer {
      * @return the incremental data for this constraint
      */
     public static CcIncrementalData alk(final EncodingResult result, final Variable[] vars, final int rhs) {
-        final var state = new State(result.factory());
+        final var state = new State(result.getFactory());
         final int newRHS = vars.length - rhs;
         final int mod = initialize(result, newRHS, vars.length, state);
         for (final Variable var : vars) {
-            state.inlits.push(var.negate(result.factory()));
+            state.inlits.push(var.negate(result.getFactory()));
         }
         toCNF(result, mod, state.cardinalityUpOutvars, state.cardinalityLwOutvars, vars.length, state);
         assert state.inlits.size() == 0;
@@ -106,7 +106,7 @@ public final class CcModularTotalizer {
 
     private static void encodeOutput(final EncodingResult result, final int rhs, final int mod, final State state) {
         assert state.cardinalityUpOutvars.size() != 0 || state.cardinalityLwOutvars.size() != 0;
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         final int ulimit = (rhs + 1) / mod;
         final int llimit = (rhs + 1) - ulimit * mod;
         assert ulimit <= state.cardinalityUpOutvars.size();
@@ -202,7 +202,7 @@ public final class CcModularTotalizer {
                               final LNGVector<Literal> rlower, final State state) {
         assert upper.size() != 0;
         assert lower.size() >= llower.size() && lower.size() >= rlower.size();
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         Variable carry = state.varUndef;
         // != is ok here - we are within the same formula factory
         if (upper.get(0) != state.h0) {
@@ -255,7 +255,7 @@ public final class CcModularTotalizer {
     private static void finalAdder(final EncodingResult result, final int mod, final LNGVector<Literal> upper,
                                    final LNGVector<Literal> lupper,
                                    final LNGVector<Literal> rupper, final Variable carry, final State state) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         for (int i = 0; i <= lupper.size(); i++) {
             for (int j = 0; j <= rupper.size(); j++) {
                 Literal a = state.varError;

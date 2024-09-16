@@ -35,7 +35,7 @@ public final class PlaistedGreenbaumTransformationMaxSATSolver extends PlaistedG
 
     @Override
     void addCNF(final Formula cnf, final Integer weight) {
-        switch (cnf.type()) {
+        switch (cnf.getType()) {
             case TRUE:
                 break;
             case FALSE:

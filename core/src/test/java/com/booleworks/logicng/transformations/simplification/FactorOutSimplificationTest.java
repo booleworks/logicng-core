@@ -75,7 +75,7 @@ public class FactorOutSimplificationTest extends TestWithFormulaContext {
 
     private void computeAndVerify(final FormulaFactory f, final Formula formula) {
         final Formula simplified = formula.transform(new FactorOutSimplifier(f));
-        assertThat(formula.factory().equivalence(formula, simplified).holds(new TautologyPredicate(f))).isTrue();
+        assertThat(formula.getFactory().equivalence(formula, simplified).holds(new TautologyPredicate(f))).isTrue();
         assertThat(simplified.toString().length()).isLessThanOrEqualTo(formula.toString().length());
     }
 }

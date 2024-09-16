@@ -19,7 +19,7 @@ import java.util.SortedSet;
 
 /**
  * A leaf in a DTree.
- * @version 2.0.0
+ * @version 3.0.0
  * @since 2.0.0
  */
 public class DTreeLeaf extends DTree {
@@ -27,13 +27,8 @@ public class DTreeLeaf extends DTree {
     protected final int id;
     protected final Formula clause;
     protected final int clauseSize;
-
     protected int[] literals;
-
     protected final BitSet separatorBitSet = new BitSet();
-
-    protected DnnfSatSolver solver;
-    protected final int[] staticClauseIds;
 
     /**
      * Constructs a new leaf with the given id and clause.
@@ -63,7 +58,7 @@ public class DTreeLeaf extends DTree {
             final int var = solver.variableIndex(literal);
             staticVarSet.set(var);
             staticVariables[i] = var;
-            literals[i] = LNGCoreSolver.mkLit(var, !literal.phase());
+            literals[i] = LNGCoreSolver.mkLit(var, !literal.getPhase());
             i++;
         }
     }
@@ -81,11 +76,6 @@ public class DTreeLeaf extends DTree {
     @Override
     public BitSet dynamicSeparator() {
         return separatorBitSet;
-    }
-
-    @Override
-    public int[] staticClauseIds() {
-        return staticClauseIds;
     }
 
     protected boolean isSubsumed() {

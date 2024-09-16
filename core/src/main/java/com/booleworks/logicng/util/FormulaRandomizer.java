@@ -88,7 +88,7 @@ public final class FormulaRandomizer {
      * @return the random literal
      */
     public Literal literal() {
-        return f.literal(variables[random.nextInt(variables.length)].name(), random.nextDouble() < phaseProbability);
+        return f.literal(variables[random.nextInt(variables.length)].getName(), random.nextDouble() < phaseProbability);
     }
 
     /**
@@ -123,7 +123,7 @@ public final class FormulaRandomizer {
             return atom();
         }
         final Formula not = f.not(formula(maxDepth - 1));
-        if (maxDepth >= 2 && not.type() != FType.NOT) {
+        if (maxDepth >= 2 && not.getType() != FType.NOT) {
             return not(maxDepth);
         }
         return not;
@@ -139,7 +139,7 @@ public final class FormulaRandomizer {
             return atom();
         }
         final Formula implication = f.implication(formula(maxDepth - 1), formula(maxDepth - 1));
-        if (implication.type() != FType.IMPL) {
+        if (implication.getType() != FType.IMPL) {
             return impl(maxDepth);
         }
         return implication;
@@ -155,7 +155,7 @@ public final class FormulaRandomizer {
             return atom();
         }
         final Formula equiv = f.equivalence(formula(maxDepth - 1), formula(maxDepth - 1));
-        if (equiv.type() != FType.EQUIV) {
+        if (equiv.getType() != FType.EQUIV) {
             return equiv(maxDepth);
         }
         return equiv;
@@ -175,7 +175,7 @@ public final class FormulaRandomizer {
             operands[i] = formula(maxDepth - 1);
         }
         final Formula formula = f.and(operands);
-        if (formula.type() != FType.AND) {
+        if (formula.getType() != FType.AND) {
             return and(maxDepth);
         }
         return formula;
@@ -195,7 +195,7 @@ public final class FormulaRandomizer {
             operands[i] = formula(maxDepth - 1);
         }
         final Formula formula = f.or(operands);
-        if (formula.type() != FType.OR) {
+        if (formula.getType() != FType.OR) {
             return or(maxDepth);
         }
         return formula;

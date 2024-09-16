@@ -52,7 +52,7 @@ public final class VariableProfileFunction extends CacheableFormulaFunction<Map<
     }
 
     @Override
-    public LNGResult<Map<Variable, Integer>> apply(final Formula formula, ComputationHandler handler) {
+    public LNGResult<Map<Variable, Integer>> apply(final Formula formula, final ComputationHandler handler) {
         return LNGResult.of(hasCache() ? cachingVariableProfile(formula) : nonCachingVariableProfile(formula));
     }
 
@@ -75,10 +75,10 @@ public final class VariableProfileFunction extends CacheableFormulaFunction<Map<
      * @param map     the variable profile
      */
     private void nonCachingRecursion(final Formula formula, final Map<Variable, Integer> map) {
-        if (formula.type() == FType.LITERAL) {
+        if (formula.getType() == FType.LITERAL) {
             final Literal lit = (Literal) formula;
             map.merge(lit.variable(), 1, Integer::sum);
-        } else if (formula.type() == FType.PBC) {
+        } else if (formula.getType() == FType.PBC) {
             for (final Literal l : formula.literals(f)) {
                 nonCachingRecursion(l.variable(), map);
             }
@@ -101,9 +101,9 @@ public final class VariableProfileFunction extends CacheableFormulaFunction<Map<
             return cached;
         }
         final Map<Variable, Integer> result = new HashMap<>();
-        if (formula.type() == FType.LITERAL) {
+        if (formula.getType() == FType.LITERAL) {
             result.put(((Literal) formula).variable(), 1);
-        } else if (formula.type() == FType.PBC) {
+        } else if (formula.getType() == FType.PBC) {
             for (final Literal l : formula.literals(f)) {
                 result.put(l.variable(), 1);
             }

@@ -35,8 +35,8 @@ public class LngNativeEquivalence extends LngNativeBinaryOperator implements Equ
         }
         if (other instanceof Equivalence && hashCode() == other.hashCode()) {
             final Equivalence otherEq = (Equivalence) other;
-            return left.equals(otherEq.left()) && right.equals(otherEq.right()) ||
-                    left.equals(otherEq.right()) && right.equals(otherEq.left());
+            return left.equals(otherEq.getLeft()) && right.equals(otherEq.getRight()) ||
+                    left.equals(otherEq.getRight()) && right.equals(otherEq.getLeft());
         }
         return false;
     }

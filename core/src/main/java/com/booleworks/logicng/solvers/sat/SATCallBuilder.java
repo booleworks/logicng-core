@@ -153,7 +153,7 @@ public class SATCallBuilder {
      * If the formula is UNSAT, {@code null} will be returned.
      * @param variables the set of variables
      * @return a model of the current formula or {@code null} if the SAT call
-     *         was unsatisfiable
+     * was unsatisfiable
      * @throws IllegalArgumentException if the given variables are {@code null}
      */
     public Model model(final Collection<Variable> variables) {
@@ -165,7 +165,7 @@ public class SATCallBuilder {
     /**
      * Directly computes an unsat core of the current problem.
      * <p>
-     * {@link SATSolverConfig#proofGeneration() Proof generation} must be
+     * {@link SATSolverConfig#isProofGeneration() Proof generation} must be
      * enabled in order to use this method, otherwise an
      * {@link IllegalStateException} is thrown.
      * <p>

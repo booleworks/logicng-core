@@ -24,7 +24,7 @@ public abstract class Configuration {
      * Returns the type of this configuration.
      * @return the type of this configuration
      */
-    public ConfigurationType type() {
+    public ConfigurationType getType() {
         return type;
     }
 }

@@ -125,7 +125,7 @@ public class BddGraphicalGeneratorTest {
                 return trueStyle;
             } else {
                 final Variable variable = variable(index);
-                if (variable.name().equals("B")) {
+                if (variable.getName().equals("B")) {
                     return bStyle;
                 } else {
                     return otherStyle;
@@ -148,10 +148,10 @@ public class BddGraphicalGeneratorTest {
                 return "wahr";
             } else {
                 final Variable variable = variable(index);
-                if (variable.name().equals("B")) {
+                if (variable.getName().equals("B")) {
                     return "B!!";
                 } else {
-                    return variable.name();
+                    return variable.getName();
                 }
             }
         }
@@ -168,7 +168,7 @@ public class BddGraphicalGeneratorTest {
 
         @Override
         public GraphicalEdgeStyle computeStyle(final Integer source, final Integer destination) {
-            return variable(source).name().equals("B") ? style2 : style1;
+            return variable(source).getName().equals("B") ? style2 : style1;
         }
     }
 
@@ -183,7 +183,7 @@ public class BddGraphicalGeneratorTest {
 
         @Override
         public GraphicalEdgeStyle computeStyle(final Integer source, final Integer destination) {
-            return variable(source).name().equals("B") ? style2 : style1;
+            return variable(source).getName().equals("B") ? style2 : style1;
         }
     }
 }

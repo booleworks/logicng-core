@@ -10,7 +10,6 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.propositions.StandardProposition;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -43,8 +42,8 @@ public class UNSATCoreTest {
 
     @Test
     public void testGetters() {
-        assertThat(core1.propositions()).isEqualTo(props1);
-        assertThat(core2.propositions()).isEqualTo(props2);
+        assertThat(core1.getPropositions()).isEqualTo(props1);
+        assertThat(core2.getPropositions()).isEqualTo(props2);
         assertThat(core1.isMUS()).isTrue();
         assertThat(core2.isMUS()).isFalse();
     }

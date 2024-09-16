@@ -30,12 +30,12 @@ public abstract class LngNativeBinaryOperator extends LngNativeFormula implement
     }
 
     @Override
-    public Formula left() {
+    public Formula getLeft() {
         return left;
     }
 
     @Override
-    public Formula right() {
+    public Formula getRight() {
         return right;
     }
 }

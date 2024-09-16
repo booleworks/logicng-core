@@ -21,7 +21,7 @@ public class OrTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testType(final FormulaContext _c) {
-        assertThat(_c.or1.type()).isEqualTo(FType.OR);
+        assertThat(_c.or1.getType()).isEqualTo(FType.OR);
     }
 
     @ParameterizedTest
@@ -45,7 +45,7 @@ public class OrTest extends TestWithFormulaContext {
         assertThat(_c.f.or(_c.f.or(_c.a, _c.b), _c.f.or(_c.x, _c.y))).isEqualTo(_c.f.or(_c.a, _c.b, _c.x, _c.y));
         assertThat(_c.f.or(_c.f.and(_c.a, _c.b),
                 _c.f.or(_c.f.and(_c.f.and(_c.na, _c.nb)), _c.f.and(_c.f.or(_c.na, _c.falsum), _c.nb))))
-                        .isEqualTo(_c.or3);
+                .isEqualTo(_c.or3);
         assertThat(_c.f.naryOperator(FType.OR, Arrays.asList(_c.x, _c.y, _c.x, _c.y, _c.x))).isEqualTo(_c.or1);
     }
 

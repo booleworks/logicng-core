@@ -96,11 +96,11 @@ public class FormulaDagGraphicalGeneratorTest {
                 GraphicalNodeStyle.ellipse(GraphicalColor.BLACK, GraphicalColor.BLACK, GraphicalColor.WHITE);
 
         final NodeStyleMapper<Formula> mapper = (formula) -> {
-            if (formula.type() == FType.PBC) {
+            if (formula.getType() == FType.PBC) {
                 return style1;
-            } else if (formula.type() == FType.LITERAL) {
+            } else if (formula.getType() == FType.LITERAL) {
                 final Literal lit = (Literal) formula;
-                return Character.isLowerCase(lit.name().charAt(0)) ? style2 : style3;
+                return Character.isLowerCase(lit.getName().charAt(0)) ? style2 : style3;
             } else {
                 return style4;
             }
@@ -109,7 +109,7 @@ public class FormulaDagGraphicalGeneratorTest {
         final FormulaDagGraphicalGenerator generator = FormulaDagGraphicalGenerator.builder()
                 .defaultEdgeStyle(GraphicalEdgeStyle.solid(GraphicalColor.PURPLE))
                 .nodeStyleMapper(mapper)
-                .labelMapper((f) -> "Formula Type: " + f.type())
+                .labelMapper((f) -> "Formula Type: " + f.getType())
                 .build();
 
         testFiles("f9", f9, generator);
@@ -122,7 +122,7 @@ public class FormulaDagGraphicalGeneratorTest {
         final GraphicalEdgeStyle style1 = GraphicalEdgeStyle.dotted(GraphicalColor.GRAY_DARK);
 
         final EdgeStyleMapper<Formula> edgeMapper = (source, dest) -> {
-            if (source.type() == FType.PBC) {
+            if (source.getType() == FType.PBC) {
                 return style1;
             } else {
                 return GraphicalEdgeStyle.noStyle();

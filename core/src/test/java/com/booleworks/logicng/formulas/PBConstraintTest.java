@@ -10,7 +10,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Substitution;
 import com.booleworks.logicng.datastructures.Tristate;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -35,14 +34,14 @@ public class PBConstraintTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testType(final FormulaContext _c) {
-        assertThat(_c.pb1.type()).isEqualTo(FType.PBC);
-        assertThat(_c.pb2.type()).isEqualTo(FType.PBC);
-        assertThat(_c.cc1.type()).isEqualTo(FType.PBC);
-        assertThat(_c.cc2.type()).isEqualTo(FType.PBC);
-        assertThat(_c.amo1.type()).isEqualTo(FType.PBC);
-        assertThat(_c.amo2.type()).isEqualTo(FType.PBC);
-        assertThat(_c.exo1.type()).isEqualTo(FType.PBC);
-        assertThat(_c.exo2.type()).isEqualTo(FType.PBC);
+        assertThat(_c.pb1.getType()).isEqualTo(FType.PBC);
+        assertThat(_c.pb2.getType()).isEqualTo(FType.PBC);
+        assertThat(_c.cc1.getType()).isEqualTo(FType.PBC);
+        assertThat(_c.cc2.getType()).isEqualTo(FType.PBC);
+        assertThat(_c.amo1.getType()).isEqualTo(FType.PBC);
+        assertThat(_c.amo2.getType()).isEqualTo(FType.PBC);
+        assertThat(_c.exo1.getType()).isEqualTo(FType.PBC);
+        assertThat(_c.exo2.getType()).isEqualTo(FType.PBC);
     }
 
     @ParameterizedTest
@@ -57,73 +56,73 @@ public class PBConstraintTest extends TestWithFormulaContext {
         final Integer[] coeffsCC1 = new Integer[]{1};
         final Integer[] coeffsCC2 = new Integer[]{1, 1, 1};
 
-        assertThat(_c.pb1.operands()).containsExactly(lits1);
-        assertThat(_c.pb1.coefficients()).containsExactly(coeffs1);
+        assertThat(_c.pb1.getOperands()).containsExactly(lits1);
+        assertThat(_c.pb1.getCoefficients()).containsExactly(coeffs1);
         assertThat(_c.pb1.comparator()).isEqualTo(CType.LE);
-        assertThat(_c.pb1.rhs()).isEqualTo(2);
+        assertThat(_c.pb1.getRhs()).isEqualTo(2);
         assertThat(_c.pb1.isCC()).isFalse();
         assertThat(_c.pb1.isAmo()).isFalse();
         assertThat(_c.pb1.isExo()).isFalse();
         assertThat(_c.pb1.maxWeight()).isEqualTo(3);
 
-        assertThat(_c.pb2.operands()).containsExactly(lits2);
-        assertThat(_c.pb2.coefficients()).containsExactly(coeffs2);
+        assertThat(_c.pb2.getOperands()).containsExactly(lits2);
+        assertThat(_c.pb2.getCoefficients()).containsExactly(coeffs2);
         assertThat(_c.pb2.comparator()).isEqualTo(CType.LE);
-        assertThat(_c.pb2.rhs()).isEqualTo(8);
+        assertThat(_c.pb2.getRhs()).isEqualTo(8);
         assertThat(_c.pb2.isCC()).isFalse();
         assertThat(_c.pb2.isAmo()).isFalse();
         assertThat(_c.pb2.isExo()).isFalse();
         assertThat(_c.pb2.maxWeight()).isEqualTo(7);
 
-        assertThat(_c.cc1.operands()).containsExactly(lits1);
-        assertThat(_c.cc1.coefficients()).containsExactly(coeffsCC1);
+        assertThat(_c.cc1.getOperands()).containsExactly(lits1);
+        assertThat(_c.cc1.getCoefficients()).containsExactly(coeffsCC1);
         assertThat(_c.cc1.comparator()).isEqualTo(CType.LT);
-        assertThat(_c.cc1.rhs()).isEqualTo(1);
+        assertThat(_c.cc1.getRhs()).isEqualTo(1);
         assertThat(_c.cc1.isCC()).isTrue();
         assertThat(_c.cc1.isAmo()).isFalse();
         assertThat(_c.cc1.isExo()).isFalse();
         assertThat(_c.cc1.maxWeight()).isEqualTo(1);
 
-        assertThat(_c.cc2.operands()).containsExactly(litsCC2);
-        assertThat(_c.cc2.coefficients()).containsExactly(coeffsCC2);
+        assertThat(_c.cc2.getOperands()).containsExactly(litsCC2);
+        assertThat(_c.cc2.getCoefficients()).containsExactly(coeffsCC2);
         assertThat(_c.cc2.comparator()).isEqualTo(CType.GE);
-        assertThat(_c.cc2.rhs()).isEqualTo(2);
+        assertThat(_c.cc2.getRhs()).isEqualTo(2);
         assertThat(_c.cc2.isCC()).isTrue();
         assertThat(_c.cc2.isAmo()).isFalse();
         assertThat(_c.cc2.isExo()).isFalse();
         assertThat(_c.cc2.maxWeight()).isEqualTo(1);
 
-        assertThat(_c.amo1.operands()).containsExactly(lits1);
-        assertThat(_c.amo1.coefficients()).containsExactly(coeffsCC1);
+        assertThat(_c.amo1.getOperands()).containsExactly(lits1);
+        assertThat(_c.amo1.getCoefficients()).containsExactly(coeffsCC1);
         assertThat(_c.amo1.comparator()).isEqualTo(CType.LE);
-        assertThat(_c.amo1.rhs()).isEqualTo(1);
+        assertThat(_c.amo1.getRhs()).isEqualTo(1);
         assertThat(_c.amo1.isCC()).isTrue();
         assertThat(_c.amo1.isAmo()).isTrue();
         assertThat(_c.amo1.isExo()).isFalse();
         assertThat(_c.amo1.maxWeight()).isEqualTo(1);
 
-        assertThat(_c.amo2.operands()).containsExactly(litsCC2);
-        assertThat(_c.amo2.coefficients()).containsExactly(coeffsCC2);
+        assertThat(_c.amo2.getOperands()).containsExactly(litsCC2);
+        assertThat(_c.amo2.getCoefficients()).containsExactly(coeffsCC2);
         assertThat(_c.amo2.comparator()).isEqualTo(CType.LE);
-        assertThat(_c.amo2.rhs()).isEqualTo(1);
+        assertThat(_c.amo2.getRhs()).isEqualTo(1);
         assertThat(_c.amo2.isCC()).isTrue();
         assertThat(_c.amo2.isAmo()).isTrue();
         assertThat(_c.amo2.isExo()).isFalse();
         assertThat(_c.amo2.maxWeight()).isEqualTo(1);
 
-        assertThat(_c.exo1.operands()).containsExactly(lits1);
-        assertThat(_c.exo1.coefficients()).containsExactly(coeffsCC1);
+        assertThat(_c.exo1.getOperands()).containsExactly(lits1);
+        assertThat(_c.exo1.getCoefficients()).containsExactly(coeffsCC1);
         assertThat(_c.exo1.comparator()).isEqualTo(CType.EQ);
-        assertThat(_c.exo1.rhs()).isEqualTo(1);
+        assertThat(_c.exo1.getRhs()).isEqualTo(1);
         assertThat(_c.exo1.isCC()).isTrue();
         assertThat(_c.exo1.isAmo()).isFalse();
         assertThat(_c.exo1.isExo()).isTrue();
         assertThat(_c.exo1.maxWeight()).isEqualTo(1);
 
-        assertThat(_c.exo2.operands()).containsExactly(litsCC2);
-        assertThat(_c.exo2.coefficients()).containsExactly(coeffsCC2);
+        assertThat(_c.exo2.getOperands()).containsExactly(litsCC2);
+        assertThat(_c.exo2.getCoefficients()).containsExactly(coeffsCC2);
         assertThat(_c.exo2.comparator()).isEqualTo(CType.EQ);
-        assertThat(_c.exo2.rhs()).isEqualTo(1);
+        assertThat(_c.exo2.getRhs()).isEqualTo(1);
         assertThat(_c.exo2.isCC()).isTrue();
         assertThat(_c.exo2.isAmo()).isFalse();
         assertThat(_c.exo2.isExo()).isTrue();

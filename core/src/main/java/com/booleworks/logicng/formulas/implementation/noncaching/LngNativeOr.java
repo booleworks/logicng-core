@@ -28,7 +28,7 @@ public class LngNativeOr extends LngNativeNAryOperator implements Or {
      */
     @Override
     public boolean isCNFClause() {
-        return operands.stream().allMatch(op -> op.type() == FType.LITERAL);
+        return operands.stream().allMatch(op -> op.getType() == FType.LITERAL);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class LngNativeOr extends LngNativeNAryOperator implements Or {
             return true;
         }
         if (other instanceof Or && hashCode() == other.hashCode()) {
-            return compareOperands(((Or) other).operands());
+            return compareOperands(((Or) other).getOperands());
         }
         return false;
     }

@@ -30,7 +30,7 @@ public class IncDecTest implements LogicNGTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     public void testIncDec(final SATSolver s, final String solverDescription) {
-        final var f = s.factory();
+        final var f = s.getFactory();
         final PigeonHoleGenerator pg = new PigeonHoleGenerator(f);
         s.add(f.variable("a"));
         final SolverState state1 = s.saveState();
@@ -58,7 +58,7 @@ public class IncDecTest implements LogicNGTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     public void testIncDecDeep(final SATSolver s, final String solverDescription) {
-        final var f = s.factory();
+        final var f = s.getFactory();
         s.add(f.variable("a"));
         final SolverState state1 = s.saveState();
         s.add(f.variable("b"));

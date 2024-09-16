@@ -20,22 +20,22 @@ public class LNGDoubleVectorTest {
     public void testVectorCreation() {
         final LNGDoubleVector v1 = new LNGDoubleVector();
         assertThat(v1.size()).isEqualTo(0);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         final LNGDoubleVector v2 = new LNGDoubleVector(10);
         assertThat(v2.size()).isEqualTo(0);
-        assertThat(v2.empty()).isTrue();
+        assertThat(v2.isEmpty()).isTrue();
         final LNGDoubleVector v3 = new LNGDoubleVector(10, 42.0);
         assertThat(v3.size()).isEqualTo(10);
         for (int i = 0; i < v3.size(); i++) {
             assertThat(v3.get(i)).isEqualTo(42.0);
         }
-        assertThat(v3.empty()).isFalse();
+        assertThat(v3.isEmpty()).isFalse();
         final LNGDoubleVector v4 = new LNGDoubleVector(v3);
         assertThat(v4.size()).isEqualTo(10);
         for (int i = 0; i < v4.size(); i++) {
             assertThat(v4.get(i)).isEqualTo(42.0);
         }
-        assertThat(v4.empty()).isFalse();
+        assertThat(v4.isEmpty()).isFalse();
         final LNGDoubleVector v5 = new LNGDoubleVector(0.0, 1.0, 2.0, 3.0, 4.0);
         assertThat(v5.size()).isEqualTo(5);
         for (int i = 0; i < 5; i++) {
@@ -46,37 +46,37 @@ public class LNGDoubleVectorTest {
     @Test
     public void testVectorAddElements() {
         final LNGDoubleVector v1 = new LNGDoubleVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push(i);
             assertThat(v1.size()).isEqualTo(i + 1);
             assertThat(v1.back()).isEqualTo(i);
             assertThat(v1.get(i)).isEqualTo(i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         v1.clear();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
     public void legalUnsafePush() {
         final LNGDoubleVector v1 = new LNGDoubleVector(1000);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.unsafePush(i);
             assertThat(v1.size()).isEqualTo(i + 1);
             assertThat(v1.back()).isEqualTo(i);
             assertThat(v1.get(i)).isEqualTo(i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         v1.clear();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
     public void illegalUnsafePush() {
         final LNGDoubleVector v1 = new LNGDoubleVector(100);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         assertThatThrownBy(() -> {
             for (int i = 0; i < 1000; i++) {
                 v1.unsafePush(i);
@@ -103,11 +103,11 @@ public class LNGDoubleVectorTest {
     @Test
     public void testVectorShrink() {
         final LNGDoubleVector v1 = new LNGDoubleVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push(i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         for (int i = 500; i > 0; i--) {
             v1.shrinkTo(i);
             assertThat(v1.back()).isEqualTo((i - 1));
@@ -117,11 +117,11 @@ public class LNGDoubleVectorTest {
     @Test
     public void testGrowTo() {
         final LNGDoubleVector v1 = new LNGDoubleVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push(i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         for (int i = 0; i < 1001; i += 10) {
             v1.growTo(1000 + i, 1001.0);
             assertThat(v1.size()).isEqualTo(1000 + i);
@@ -146,11 +146,11 @@ public class LNGDoubleVectorTest {
     @Test
     public void testRemoveElements() {
         final LNGDoubleVector v1 = new LNGDoubleVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push(i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         for (int i = 0; i < 9; i++) {
             v1.removeElements(100);
             assertThat(v1.size()).isEqualTo(1000 - (i + 1) * 100);
@@ -158,7 +158,7 @@ public class LNGDoubleVectorTest {
         }
         assertThat(v1.size()).isEqualTo(100);
         v1.removeElements(100);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
@@ -181,7 +181,7 @@ public class LNGDoubleVectorTest {
         }
         final LNGDoubleVector v3 = new LNGDoubleVector(1000);
         v3.sort();
-        assertThat(v3.empty()).isTrue();
+        assertThat(v3.isEmpty()).isTrue();
     }
 
     @Test
@@ -204,7 +204,7 @@ public class LNGDoubleVectorTest {
         }
         final LNGDoubleVector v3 = new LNGDoubleVector(1000);
         v3.sortReverse();
-        assertThat(v3.empty()).isTrue();
+        assertThat(v3.isEmpty()).isTrue();
     }
 
     @Test

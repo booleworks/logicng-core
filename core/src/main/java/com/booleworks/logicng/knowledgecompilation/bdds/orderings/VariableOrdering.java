@@ -10,7 +10,6 @@ package com.booleworks.logicng.knowledgecompilation.bdds.orderings;
  * @since 1.4.0
  */
 public enum VariableOrdering {
-
     DFS,
     BFS,
     MIN2MAX,

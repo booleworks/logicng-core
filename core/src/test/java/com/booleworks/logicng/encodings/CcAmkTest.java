@@ -15,7 +15,6 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.solvers.sat.SATSolverConfig;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class CcAmkTest implements LogicNGTest {
@@ -47,7 +46,7 @@ public class CcAmkTest implements LogicNGTest {
             testCC(f, 10, 9, 1023, false);
             testCC(f, 10, 10, 1024, false);
             testCC(f, 10, 15, 1024, false);
-            assertThat(f.newCCVariable().name()).endsWith("_" + counter++);
+            assertThat(f.newCCVariable().getName()).endsWith("_" + counter++);
         }
     }
 
@@ -66,7 +65,7 @@ public class CcAmkTest implements LogicNGTest {
         testCC(f, 10, 9, 1023, true);
         testCC(f, 10, 10, 1024, true);
         testCC(f, 10, 15, 1024, true);
-        assertThat(f.newCCVariable().name()).endsWith("_0");
+        assertThat(f.newCCVariable().getName()).endsWith("_0");
     }
 
     @Test
@@ -77,7 +76,7 @@ public class CcAmkTest implements LogicNGTest {
         for (final EncoderConfig config : configs) {
             f.putConfiguration(config);
             testCC(f, 150, 2, 1 + 150 + 11175, false);
-            assertThat(f.newCCVariable().name()).endsWith("_" + counter++);
+            assertThat(f.newCCVariable().getName()).endsWith("_" + counter++);
         }
     }
 
@@ -85,7 +84,7 @@ public class CcAmkTest implements LogicNGTest {
     public void testLargeAMKMiniCard() {
         final FormulaFactory f = FormulaFactory.caching();
         testCC(f, 150, 2, 1 + 150 + 11175, true);
-        assertThat(f.newCCVariable().name()).endsWith("_0");
+        assertThat(f.newCCVariable().getName()).endsWith("_0");
     }
 
     private void testCC(final FormulaFactory f, final int numLits, final int rhs, final int expected,

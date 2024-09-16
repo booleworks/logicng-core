@@ -34,12 +34,12 @@ public class LngCachedLiteral extends LngCachedFormula implements Literal {
     }
 
     @Override
-    public String name() {
+    public String getName() {
         return name;
     }
 
     @Override
-    public boolean phase() {
+    public boolean getPhase() {
         return phase;
     }
 
@@ -54,7 +54,7 @@ public class LngCachedLiteral extends LngCachedFormula implements Literal {
             return negated;
         }
         final Literal lit = f.literal(name, !phase);
-        if (f == factory()) {
+        if (f == getFactory()) {
             negated = lit;
         }
         return lit;
@@ -73,13 +73,13 @@ public class LngCachedLiteral extends LngCachedFormula implements Literal {
         if (other == this) {
             return true;
         }
-        if (other instanceof Formula && factory() == ((Formula) other).factory()) {
+        if (other instanceof Formula && getFactory() == ((Formula) other).getFactory()) {
             // the caching formula factory would have produced the same object
             return false;
         }
         if (other instanceof Literal && hashCode() == other.hashCode()) {
             final Literal otherLit = (Literal) other;
-            return phase() == otherLit.phase() && name().equals(otherLit.name());
+            return getPhase() == otherLit.getPhase() && getName().equals(otherLit.getName());
         }
         return false;
     }

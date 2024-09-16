@@ -18,12 +18,12 @@ public abstract class LngCachedFormula implements Formula {
     }
 
     @Override
-    public FType type() {
+    public FType getType() {
         return type;
     }
 
     @Override
-    public CachingFormulaFactory factory() {
+    public CachingFormulaFactory getFactory() {
         return f;
     }
 

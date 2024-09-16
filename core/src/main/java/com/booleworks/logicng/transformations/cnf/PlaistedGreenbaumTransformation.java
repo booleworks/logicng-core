@@ -94,7 +94,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
      * @return the old or new auxiliary variable
      */
     private Literal pgVariable(final Formula formula) {
-        if (formula.type() == FType.LITERAL) {
+        if (formula.getType() == FType.LITERAL) {
             return (Literal) formula;
         }
         Literal var = state.literal(formula);
@@ -124,7 +124,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
     }
 
     private Formula computeTransformation(final Formula formula) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case LITERAL:
                 return f.verum();
             case OR:
@@ -136,7 +136,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
                 }
                 return f.and(nops);
             default:
-                throw new IllegalArgumentException("Could not process the formula type " + formula.type());
+                throw new IllegalArgumentException("Could not process the formula type " + formula.getType());
         }
     }
 
@@ -146,7 +146,7 @@ public final class PlaistedGreenbaumTransformation extends StatefulFormulaTransf
             return result;
         }
         final Literal pgVar = pgVariable(formula);
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case AND: {
                 final List<Formula> nops = new ArrayList<>();
                 for (final Formula op : formula) {

@@ -127,8 +127,11 @@ public class CNFTest extends TestWithFormulaContext {
         assertThat(_c.p.parse("(1 * b + 1 * c + 1 * d <= 1)").cnf(_c.f))
                 .isEqualTo(_c.p.parse("(~b | ~c) & (~b | ~d) & (~c | ~d)"));
         assertThat(_c.p.parse("~(1 * b + 1 * c + 1 * d <= 1)").cnf(_c.f)).isEqualTo(_c.p.parse(String.format(
-                "(d | @AUX_%1$s_CC_1 | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_3 | @AUX_%1$s_CC_1 | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_3 | d | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_4 | @AUX_%1$s_CC_0) & (~@AUX_%1$s_CC_2 | @AUX_%1$s_CC_0) & (~@AUX_%1$s_CC_4 | ~@AUX_%1$s_CC_2) & (c | @AUX_%1$s_CC_3 | @AUX_%1$s_CC_5) & (b | @AUX_%1$s_CC_3 | @AUX_%1$s_CC_5) & (b | c | @AUX_%1$s_CC_5) & (~@AUX_%1$s_CC_5 | @AUX_%1$s_CC_2) & ~@AUX_%1$s_CC_0",
-                _c.f.name())));
+                "(d | @AUX_%1$s_CC_1 | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_3 | @AUX_%1$s_CC_1 | @AUX_%1$s_CC_4) & (~@AUX_%1$s_CC_3 | d | @AUX_%1$s_CC_4) & " +
+                        "(~@AUX_%1$s_CC_4 | @AUX_%1$s_CC_0) & (~@AUX_%1$s_CC_2 | @AUX_%1$s_CC_0) & (~@AUX_%1$s_CC_4 | ~@AUX_%1$s_CC_2) & (c | @AUX_%1$s_CC_3 " +
+                        "| @AUX_%1$s_CC_5) & (b | @AUX_%1$s_CC_3 | @AUX_%1$s_CC_5) & (b | c | @AUX_%1$s_CC_5) & (~@AUX_%1$s_CC_5 | @AUX_%1$s_CC_2) & " +
+                        "~@AUX_%1$s_CC_0",
+                _c.f.getName())));
     }
 
     @ParameterizedTest
@@ -182,7 +185,7 @@ public class CNFTest extends TestWithFormulaContext {
             } else if (event instanceof FactorizationCreatedClauseEvent) {
                 final Formula clause = ((FactorizationCreatedClauseEvent) event).getClause();
                 clauseCount++;
-                longestClause = Math.max(clause.numberOfAtoms(clause.factory()), longestClause);
+                longestClause = Math.max(clause.numberOfAtoms(clause.getFactory()), longestClause);
             }
             return true;
         }

@@ -49,7 +49,7 @@ public class NumberOfAtomsFunction extends CacheableFormulaFunction<Long> {
             return LNGResult.of(cached);
         }
         long result = 0L;
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
             case TRUE:
             case LITERAL:
@@ -58,12 +58,12 @@ public class NumberOfAtomsFunction extends CacheableFormulaFunction<Long> {
                 result = 1L;
                 break;
             case NOT:
-                result = apply(((Not) formula).operand());
+                result = apply(((Not) formula).getOperand());
                 break;
             case IMPL:
             case EQUIV:
                 final BinaryOperator binary = (BinaryOperator) formula;
-                result = apply(binary.left()) + apply(binary.right());
+                result = apply(binary.getLeft()) + apply(binary.getRight());
                 break;
             case OR:
             case AND:
@@ -73,7 +73,7 @@ public class NumberOfAtomsFunction extends CacheableFormulaFunction<Long> {
                 }
                 break;
             default:
-                throw new IllegalStateException("Unknown formula type " + formula.type());
+                throw new IllegalStateException("Unknown formula type " + formula.getType());
         }
         setCache(formula, result);
         return LNGResult.of(result);

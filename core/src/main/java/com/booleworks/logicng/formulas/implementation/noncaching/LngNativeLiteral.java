@@ -30,12 +30,12 @@ public class LngNativeLiteral extends LngNativeFormula implements Literal {
     }
 
     @Override
-    public String name() {
+    public String getName() {
         return name;
     }
 
     @Override
-    public boolean phase() {
+    public boolean getPhase() {
         return phase;
     }
 
@@ -64,7 +64,7 @@ public class LngNativeLiteral extends LngNativeFormula implements Literal {
         }
         if (other instanceof Literal && hashCode() == other.hashCode()) {
             final Literal otherLit = (Literal) other;
-            return phase() == otherLit.phase() && name().equals(otherLit.name());
+            return getPhase() == otherLit.getPhase() && getName().equals(otherLit.getName());
         }
         return false;
     }

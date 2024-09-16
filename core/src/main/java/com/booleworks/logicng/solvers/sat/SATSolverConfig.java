@@ -68,7 +68,7 @@ public final class SATSolverConfig extends Configuration {
      * Returns whether proof generation should be performed or not.
      * @return whether proof generation should be performed or not
      */
-    public boolean proofGeneration() {
+    public boolean isProofGeneration() {
         return proofGeneration;
     }
 
@@ -78,7 +78,7 @@ public final class SATSolverConfig extends Configuration {
      * @return whether at most clauses should be used to encode cardinality
      * constraints or not
      */
-    public boolean useAtMostClauses() {
+    public boolean isUseAtMostClauses() {
         return useAtMostClauses;
     }
 
@@ -86,7 +86,7 @@ public final class SATSolverConfig extends Configuration {
      * Returns the CNF method which should be used.
      * @return the CNF method
      */
-    public CNFMethod cnfMethod() {
+    public CNFMethod getCnfMethod() {
         return cnfMethod;
     }
 
@@ -94,7 +94,7 @@ public final class SATSolverConfig extends Configuration {
      * Returns the kind of clause minimization to be applied.
      * @return the kind of clause minimization to be applied
      */
-    public ClauseMinimization clauseMinimization() {
+    public ClauseMinimization getClauseMinimization() {
         return clauseMinimization;
     }
 
@@ -102,7 +102,7 @@ public final class SATSolverConfig extends Configuration {
      * Returns the initial phase of the solver.
      * @return the initial phase of the solver
      */
-    public boolean initialPhase() {
+    public boolean getInitialPhase() {
         return initialPhase;
     }
 
@@ -110,7 +110,7 @@ public final class SATSolverConfig extends Configuration {
      * Returns the low level configuration of the solver.
      * @return the low level configuration of the solver
      */
-    public SATSolverLowLevelConfig lowLevelConfig() {
+    public SATSolverLowLevelConfig getLowLevelConfig() {
         return lowLevelConfig;
     }
 
@@ -210,7 +210,7 @@ public final class SATSolverConfig extends Configuration {
         /**
          * Sets whether the information for generating a proof with DRUP should
          * be recorded or not. The default value is {@code false}. Activating
-         * proof generation will always disable {@link #useAtMostClauses() at
+         * proof generation will always disable {@link #isUseAtMostClauses() at
          * most clauses}.
          * @param proofGeneration {@code true} if proof generating information
          *                        should be recorded, {@code false} otherwise

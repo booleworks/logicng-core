@@ -43,7 +43,7 @@ public final class NegationSimplifier extends StatelessFormulaTransformation {
     }
 
     private MinimizationResult minimize(final Formula formula, final boolean topLevel) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case LITERAL:
                 final Literal lit = (Literal) formula;
                 return new MinimizationResult(lit, lit.negate(f));
@@ -61,9 +61,9 @@ public final class NegationSimplifier extends StatelessFormulaTransformation {
                     negativeOpResults.add(result.negativeResult);
                 }
                 final Formula smallestPositive =
-                        findSmallestPositive(formula.type(), positiveOpResults, negativeOpResults, topLevel, f);
+                        findSmallestPositive(formula.getType(), positiveOpResults, negativeOpResults, topLevel, f);
                 final Formula smallestNegative =
-                        findSmallestNegative(formula.type(), negativeOpResults, smallestPositive, topLevel, f);
+                        findSmallestNegative(formula.getType(), negativeOpResults, smallestPositive, topLevel, f);
                 return new MinimizationResult(smallestPositive, smallestNegative);
             case FALSE:
             case TRUE:
@@ -72,9 +72,9 @@ public final class NegationSimplifier extends StatelessFormulaTransformation {
             case IMPL:
             case PBC:
             case PREDICATE:
-                throw new IllegalStateException("Unexpected LogicNG formula type: " + formula.type());
+                throw new IllegalStateException("Unexpected LogicNG formula type: " + formula.getType());
             default:
-                throw new IllegalArgumentException("Unknown LogicNG formula type: " + formula.type());
+                throw new IllegalArgumentException("Unknown LogicNG formula type: " + formula.getType());
         }
     }
 
@@ -114,7 +114,7 @@ public final class NegationSimplifier extends StatelessFormulaTransformation {
 
     private int formattedLength(final Formula formula, final boolean topLevel) {
         final int length = formula.toString().length();
-        if (!topLevel && formula.type() == FType.OR) {
+        if (!topLevel && formula.getType() == FType.OR) {
             return length + 2;
         } else {
             return length;

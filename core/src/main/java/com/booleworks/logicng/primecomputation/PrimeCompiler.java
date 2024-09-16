@@ -104,7 +104,7 @@ public final class PrimeCompiler {
      * @param type    the coverage type
      * @param handler an optimization handler, can be {@code null}
      * @return the prime result or null if the computation was canceled by the
-     *         handler
+     * handler
      */
     public LNGResult<PrimeResult> compute(final FormulaFactory f, final Formula formula,
                                           final PrimeResult.CoverageType type, final ComputationHandler handler) {
@@ -120,8 +120,8 @@ public final class PrimeCompiler {
         }
         final Pair<List<SortedSet<Literal>>, List<SortedSet<Literal>>> result = genericResult.getResult();
         return LNGResult.of(new PrimeResult(
-                completeImplicants ? result.first() : negateAll(f, result.second()),
-                completeImplicants ? result.second() : negateAll(f, result.first()),
+                completeImplicants ? result.getFirst() : negateAll(f, result.getSecond()),
+                completeImplicants ? result.getSecond() : negateAll(f, result.getFirst()),
                 type));
     }
 
@@ -191,10 +191,10 @@ public final class PrimeCompiler {
         final Map<Literal, Literal> substitution = new HashMap<>();
         final List<Formula> constraintOps = new ArrayList<>();
         for (final Variable variable : formula.variables(f)) {
-            final Variable posVar = f.variable(variable.name() + POS);
+            final Variable posVar = f.variable(variable.getName() + POS);
             newVar2oldLit.put(posVar, variable);
             substitution.put(variable, posVar);
-            final Variable negVar = f.variable(variable.name() + NEG);
+            final Variable negVar = f.variable(variable.getName() + NEG);
             newVar2oldLit.put(negVar, variable.negate(f));
             substitution.put(variable.negate(f), negVar);
             constraintOps.add(f.amo(posVar, negVar));

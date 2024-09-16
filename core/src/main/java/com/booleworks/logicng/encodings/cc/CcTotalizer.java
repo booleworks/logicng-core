@@ -60,7 +60,7 @@ public final class CcTotalizer {
         toCNF(result, tv, rhs, Bound.UPPER);
         assert tv.invars.size() == 0;
         for (int i = rhs; i < tv.outvars.size(); i++) {
-            result.addClause(tv.outvars.get(i).negate(result.factory()));
+            result.addClause(tv.outvars.get(i).negate(result.getFactory()));
         }
         return new CcIncrementalData(result, EncoderConfig.AMK_ENCODER.TOTALIZER, rhs, tv.outvars);
     }
@@ -100,7 +100,7 @@ public final class CcTotalizer {
             result.addClause(tv.outvars.get(i));
         }
         for (int i = rhs; i < tv.outvars.size(); i++) {
-            result.addClause(tv.outvars.get(i).negate(result.factory()));
+            result.addClause(tv.outvars.get(i).negate(result.getFactory()));
         }
     }
 
@@ -155,7 +155,7 @@ public final class CcTotalizer {
                                  final LNGVector<Variable> right,
                                  final LNGVector<Variable> output, final int rhs) {
         assert output.size() == left.size() + right.size();
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         for (int i = 0; i <= left.size(); i++) {
             for (int j = 0; j <= right.size(); j++) {
                 if (i == 0 && j == 0) {
@@ -179,7 +179,7 @@ public final class CcTotalizer {
                                  final LNGVector<Variable> right,
                                  final LNGVector<Variable> output) {
         assert output.size() == left.size() + right.size();
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         for (int i = 0; i <= left.size(); i++) {
             for (int j = 0; j <= right.size(); j++) {
                 if (i == 0 && j == 0) {

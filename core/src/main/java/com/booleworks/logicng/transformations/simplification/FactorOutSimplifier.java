@@ -63,17 +63,17 @@ public final class FactorOutSimplifier extends StatelessFormulaTransformation {
     }
 
     private Formula applyRec(final Formula formula) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case OR:
             case AND:
                 final List<Formula> newOps = new ArrayList<>();
                 for (final Formula op : formula) {
                     newOps.add(apply(op));
                 }
-                final Formula newFormula = f.naryOperator(formula.type(), newOps);
+                final Formula newFormula = f.naryOperator(formula.getType(), newOps);
                 return newFormula instanceof NAryOperator ? simplify((NAryOperator) newFormula) : newFormula;
             case NOT:
-                return apply(((Not) formula).operand()).negate(f);
+                return apply(((Not) formula).getOperand()).negate(f);
             case FALSE:
             case TRUE:
             case LITERAL:
@@ -83,7 +83,7 @@ public final class FactorOutSimplifier extends StatelessFormulaTransformation {
             case PREDICATE:
                 return formula;
             default:
-                throw new IllegalStateException("Unknown formula type: " + formula.type());
+                throw new IllegalStateException("Unknown formula type: " + formula.getType());
         }
     }
 
@@ -99,17 +99,17 @@ public final class FactorOutSimplifier extends StatelessFormulaTransformation {
         if (factorOutFormula == null) {
             return null;
         }
-        final FType type = formula.type();
+        final FType type = formula.getType();
         final List<Formula> formulasWithRemoved = new ArrayList<>();
         final List<Formula> unchangedFormulas = new ArrayList<>();
         for (final Formula operand : formula) {
-            if (operand.type() == FType.LITERAL) {
+            if (operand.getType() == FType.LITERAL) {
                 if (operand.equals(factorOutFormula)) {
                     formulasWithRemoved.add(f.constant(type == FType.OR));
                 } else {
                     unchangedFormulas.add(operand);
                 }
-            } else if (operand.type() == FType.AND || operand.type() == FType.OR) {
+            } else if (operand.getType() == FType.AND || operand.getType() == FType.OR) {
                 boolean removed = false;
                 final List<Formula> newOps = new ArrayList<>();
                 for (final Formula op : operand) {
@@ -119,7 +119,7 @@ public final class FactorOutSimplifier extends StatelessFormulaTransformation {
                         removed = true;
                     }
                 }
-                (removed ? formulasWithRemoved : unchangedFormulas).add(f.naryOperator(operand.type(), newOps));
+                (removed ? formulasWithRemoved : unchangedFormulas).add(f.naryOperator(operand.getType(), newOps));
             } else {
                 unchangedFormulas.add(operand);
             }
@@ -131,9 +131,9 @@ public final class FactorOutSimplifier extends StatelessFormulaTransformation {
     private static Formula computeMaxOccurringSubformula(final NAryOperator formula) {
         final Map<Formula, Integer> formulaCounts = new HashMap<>();
         for (final Formula operand : formula) {
-            if (operand.type() == FType.LITERAL) {
+            if (operand.getType() == FType.LITERAL) {
                 formulaCounts.merge(operand, 1, Integer::sum);
-            } else if (operand.type() == FType.AND || operand.type() == FType.OR) {
+            } else if (operand.getType() == FType.AND || operand.getType() == FType.OR) {
                 for (final Formula subOperand : operand) {
                     formulaCounts.merge(subOperand, 1, Integer::sum);
                 }
@@ -143,6 +143,6 @@ public final class FactorOutSimplifier extends StatelessFormulaTransformation {
                 .max(Comparator.comparingInt(Map.Entry::getValue))
                 .map(e -> new Pair<>(e.getKey(), e.getValue()))
                 .orElse(new Pair<>(null, 0));
-        return max.second() < 2 ? null : max.first();
+        return max.getSecond() < 2 ? null : max.getFirst();
     }
 }

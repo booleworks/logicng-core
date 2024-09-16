@@ -46,7 +46,7 @@ public final class AIGPredicate extends CacheableFormulaPredicate {
             return cached;
         }
         boolean result;
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
             case TRUE:
             case LITERAL:
@@ -60,7 +60,7 @@ public final class AIGPredicate extends CacheableFormulaPredicate {
                 result = false;
                 break;
             case NOT:
-                result = test(((Not) formula).operand());
+                result = test(((Not) formula).getOperand());
                 break;
             case AND:
                 result = true;
@@ -72,7 +72,7 @@ public final class AIGPredicate extends CacheableFormulaPredicate {
                 }
                 break;
             default:
-                throw new IllegalArgumentException("Cannot compute AIG predicate on " + formula.type());
+                throw new IllegalArgumentException("Cannot compute AIG predicate on " + formula.getType());
         }
         setCache(formula, result);
         return result;

@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.parsers.PropositionalParser;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
@@ -29,11 +28,11 @@ public class ExtendedPropositionTest {
 
     @Test
     public void testGetters() throws ParserException {
-        assertThat(prop1.formula()).isEqualTo(p.parse("a & b"));
-        assertThat(prop2.formula()).isEqualTo(p.parse("a & b & ~c"));
+        assertThat(prop1.getFormula()).isEqualTo(p.parse("a & b"));
+        assertThat(prop2.getFormula()).isEqualTo(p.parse("a & b & ~c"));
 
-        assertThat(prop1.backpack().description).isEqualTo("prop1");
-        assertThat(prop2.backpack().description).isEqualTo("prop2");
+        assertThat(prop1.getBackpack().description).isEqualTo("prop1");
+        assertThat(prop2.getBackpack().description).isEqualTo("prop2");
     }
 
     @Test

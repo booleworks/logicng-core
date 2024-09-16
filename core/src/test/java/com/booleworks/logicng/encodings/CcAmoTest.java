@@ -59,7 +59,7 @@ public class CcAmoTest implements LogicNGTest {
         for (final EncoderConfig config : configs) {
             assertThat(CcEncoder.encode(f, cc, config)).isEmpty();
         }
-        assertThat(f.newCCVariable().name()).endsWith("_0");
+        assertThat(f.newCCVariable().getName()).endsWith("_0");
     }
 
     @Test
@@ -75,7 +75,7 @@ public class CcAmoTest implements LogicNGTest {
                 testAMO(f, 100, false);
                 testAMO(f, 250, false);
                 testAMO(f, 500, false);
-                assertThat(f.newCCVariable().name()).endsWith("_" + counter++);
+                assertThat(f.newCCVariable().getName()).endsWith("_" + counter++);
             }
         }
     }
@@ -88,7 +88,7 @@ public class CcAmoTest implements LogicNGTest {
         testAMO(f, 100, true);
         testAMO(f, 250, true);
         testAMO(f, 500, true);
-        assertThat(f.newCCVariable().name()).endsWith("_0");
+        assertThat(f.newCCVariable().getName()).endsWith("_0");
     }
 
     private void testAMO(final FormulaFactory f, final int numLits, final boolean miniCard) {

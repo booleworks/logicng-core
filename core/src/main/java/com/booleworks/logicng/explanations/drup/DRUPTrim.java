@@ -38,7 +38,7 @@ import java.util.Map;
 /**
  * Implementation of the DRUP-trim tool to check satisfiability proofs and
  * perform trimming.
- * @version 1.3
+ * @version 3.0.0
  * @since 1.3
  */
 public final class DRUPTrim {
@@ -71,21 +71,15 @@ public final class DRUPTrim {
      * and the generated proof.
      * @param originalProblem the clauses of the original problem
      * @param proof           the clauses of the proof
-     * @return the result of the DRUP execution from which the UNSAT core can be
-     * generated
+     * @return the result of the DRUP execution from which the unsatisfiable
+     * core can be generated
      */
     public DRUPResult compute(final LNGVector<LNGIntVector> originalProblem, final LNGVector<LNGIntVector> proof) {
-        final DRUPResult result = new DRUPResult();
         final Solver s = new Solver(originalProblem, proof);
         final boolean parseReturnValue = s.parse();
-        if (!parseReturnValue) {
-            result.trivialUnsat = true;
-            result.unsatCore = new LNGVector<>();
-        } else {
-            result.trivialUnsat = false;
-            result.unsatCore = s.verify();
-        }
-        return result;
+        return parseReturnValue
+                ? new DRUPResult(false, s.verify())
+                : new DRUPResult(true, new LNGVector<>());
     }
 
     private static class Solver {
@@ -358,7 +352,7 @@ public final class DRUPTrim {
                     clauseNr = 0;
                     currentFile = proof;
                 }
-                if (clauseNr > currentFile.size() && fileSwitchFlag && !currentFile.empty()) {
+                if (clauseNr > currentFile.size() && fileSwitchFlag && !currentFile.isEmpty()) {
                     break;
                 }
                 final int hash = getHash(marks, ++mark, buffer);
@@ -393,7 +387,7 @@ public final class DRUPTrim {
                     adlemmas = adlist.size() - 1;
                 }
                 if (nZeros > 0) {
-                    if (buffer.empty() || ((buffer.size() == 1) && internalFalse[index(DB.get(clausePtr))] != 0)) {
+                    if (buffer.isEmpty() || ((buffer.size() == 1) && internalFalse[index(DB.get(clausePtr))] != 0)) {
                         return false;
                     } else if (buffer.size() == 1) {
                         if (internalFalse[index(-DB.get(clausePtr))] == 0) {
@@ -404,7 +398,7 @@ public final class DRUPTrim {
                         addWatch(clausePtr, 0);
                         addWatch(clausePtr, 1);
                     }
-                } else if (buffer.empty()) {
+                } else if (buffer.isEmpty()) {
                     break;
                 }
                 buffer.clear();
@@ -480,7 +474,7 @@ public final class DRUPTrim {
                     if (flag) {
                         continue; // Clause is already satisfied
                     }
-                    if (buffer.empty()) {
+                    if (buffer.isEmpty()) {
                         throw new IllegalStateException("Conflict claimed, but not detected");
                     }
 
@@ -616,22 +610,32 @@ public final class DRUPTrim {
      * The result of an DRUP execution.
      */
     public static class DRUPResult {
-        private boolean trivialUnsat;
-        private LNGVector<LNGIntVector> unsatCore;
+        private final boolean trivialUnsat;
+        private final LNGVector<LNGIntVector> unsatCore;
+
+        /**
+         * Constructs a new DRUP result
+         * @param trivialUnsat a flag whether the formula is trivially unsatisfiable
+         * @param unsatCore    the unsatisfiable core
+         */
+        public DRUPResult(final boolean trivialUnsat, final LNGVector<LNGIntVector> unsatCore) {
+            this.trivialUnsat = trivialUnsat;
+            this.unsatCore = unsatCore;
+        }
 
         /**
          * Returns {@code true} if the formula was trivially unsatisfiable.
          * @return {@code true} if the formula was trivially unsatisfiable
          */
-        public boolean trivialUnsat() {
+        public boolean isTrivialUnsat() {
             return trivialUnsat;
         }
 
         /**
-         * Returns the unsat core of the formula.
-         * @return the unsat core of the formula
+         * Returns the unsatisfiable core of the formula.
+         * @return the unsatisfiable core of the formula
          */
-        public LNGVector<LNGIntVector> unsatCore() {
+        public LNGVector<LNGIntVector> getUnsatCore() {
             return unsatCore;
         }
     }

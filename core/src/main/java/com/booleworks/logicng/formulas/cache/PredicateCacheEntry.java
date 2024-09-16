@@ -6,7 +6,7 @@ package com.booleworks.logicng.formulas.cache;
 
 /**
  * The pre-defined predicate cache entries.
- * @version 1.5.1
+ * @version 3.0.0
  * @since 1.0
  */
 public enum PredicateCacheEntry implements CacheEntry {
@@ -27,7 +27,7 @@ public enum PredicateCacheEntry implements CacheEntry {
     }
 
     @Override
-    public String description() {
+    public String getDescription() {
         return "PredicateCacheEntry{description=" + description + "}";
     }
 }

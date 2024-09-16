@@ -169,12 +169,12 @@ public interface Formulas {
         if (formulas.isEmpty()) {
             maps = new Pair<>(Map.of(), Map.of());
         } else {
-            maps = computeMappings(formulas.iterator().next().factory(), formulas);
+            maps = computeMappings(formulas.iterator().next().getFactory(), formulas);
         }
-        final List<Integer> ids = formulas.stream().map(maps.first()::get).collect(Collectors.toList());
+        final List<Integer> ids = formulas.stream().map(maps.getFirst()::get).collect(Collectors.toList());
         return PBFormulas.newBuilder()
                 .addAllId(ids)
-                .setMapping(PBFormulaMapping.newBuilder().putAllMapping(maps.second()).build())
+                .setMapping(PBFormulaMapping.newBuilder().putAllMapping(maps.getSecond()).build())
                 .build();
     }
 
@@ -212,34 +212,34 @@ public interface Formulas {
      */
     static PBInternalFormula serialize(final Formula formula, final Map<Formula, Integer> formula2id) {
         final PBInternalFormula.Builder builder = PBInternalFormula.newBuilder();
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
             case TRUE:
                 builder.setType(PBFormulaType.CONST);
-                builder.setValue(formula.type() == FType.TRUE);
+                builder.setValue(formula.getType() == FType.TRUE);
                 break;
             case LITERAL:
                 builder.setType(PBFormulaType.LITERAL);
                 final Literal lit = (Literal) formula;
-                builder.setValue(lit.phase());
-                builder.setVariable(lit.name());
+                builder.setValue(lit.getPhase());
+                builder.setVariable(lit.getName());
                 break;
             case NOT:
                 builder.setType(PBFormulaType.NOT);
                 final Not not = (Not) formula;
-                builder.addOperand(formula2id.get(not.operand()));
+                builder.addOperand(formula2id.get(not.getOperand()));
                 break;
             case EQUIV:
                 builder.setType(PBFormulaType.EQUIV);
                 final Equivalence eq = (Equivalence) formula;
-                builder.addOperand(formula2id.get(eq.left()));
-                builder.addOperand(formula2id.get(eq.right()));
+                builder.addOperand(formula2id.get(eq.getLeft()));
+                builder.addOperand(formula2id.get(eq.getRight()));
                 break;
             case IMPL:
                 builder.setType(PBFormulaType.IMPL);
                 final Implication impl = (Implication) formula;
-                builder.addOperand(formula2id.get(impl.left()));
-                builder.addOperand(formula2id.get(impl.right()));
+                builder.addOperand(formula2id.get(impl.getLeft()));
+                builder.addOperand(formula2id.get(impl.getRight()));
                 break;
             case OR:
                 builder.setType(PBFormulaType.OR);
@@ -259,10 +259,10 @@ public interface Formulas {
                 builder.setType(PBFormulaType.PBC);
                 final PBConstraint pbc = (PBConstraint) formula;
                 final PBInternalPseudoBooleanConstraint.Builder pbBuilder = PBInternalPseudoBooleanConstraint.newBuilder();
-                pbBuilder.setRhs(pbc.rhs());
+                pbBuilder.setRhs(pbc.getRhs());
                 pbBuilder.setComparator(serializeCType(pbc.comparator()));
-                pbc.coefficients().forEach(pbBuilder::addCoefficient);
-                pbc.operands().forEach(it -> pbBuilder.addLiteral(it.toString()));
+                pbc.getCoefficients().forEach(pbBuilder::addCoefficient);
+                pbc.getOperands().forEach(it -> pbBuilder.addLiteral(it.toString()));
                 builder.setPbConstraint(pbBuilder.build());
                 break;
         }

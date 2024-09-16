@@ -40,7 +40,7 @@ public class PbEncoder {
     public static List<Formula> encode(final FormulaFactory f, final PBConstraint constraint) {
         final EncodingResult result = EncodingResult.resultForFormula(f);
         encode(constraint, result, null);
-        return Collections.unmodifiableList(result.result());
+        return Collections.unmodifiableList(result.getResult());
     }
 
     /**
@@ -63,7 +63,7 @@ public class PbEncoder {
                                        final EncoderConfig config) {
         final EncodingResult result = EncodingResult.resultForFormula(f);
         encode(constraint, result, config);
-        return Collections.unmodifiableList(result.result());
+        return Collections.unmodifiableList(result.getResult());
     }
 
     /**
@@ -74,7 +74,7 @@ public class PbEncoder {
      */
     public static void encode(final PBConstraint constraint, final EncodingResult result,
                               final EncoderConfig initConfig) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         final EncoderConfig config =
                 initConfig != null ? initConfig : (EncoderConfig) f.configurationFor(ConfigurationType.ENCODER);
         if (constraint.isCC()) {
@@ -82,7 +82,7 @@ public class PbEncoder {
             return;
         }
         final Formula normalized = constraint.normalize(f);
-        switch (normalized.type()) {
+        switch (normalized.getType()) {
             case TRUE:
                 // do nothing
                 return;
@@ -95,11 +95,11 @@ public class PbEncoder {
                     CcEncoder.encode((CardinalityConstraint) pbc, result, config);
                     return;
                 }
-                encode(result, pbc.operands(), pbc.coefficients(), pbc.rhs(), config);
+                encode(result, pbc.getOperands(), pbc.getCoefficients(), pbc.getRhs(), config);
                 return;
             case AND:
                 for (final Formula op : normalized) {
-                    switch (op.type()) {
+                    switch (op.getType()) {
                         case FALSE:
                             result.addClause();
                             continue;
@@ -130,7 +130,7 @@ public class PbEncoder {
      */
     protected static void encode(final EncodingResult result, final List<Literal> lits, final List<Integer> coeffs,
                                  final int rhs, final EncoderConfig config) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         if (rhs == Integer.MAX_VALUE) {
             throw new IllegalArgumentException("Overflow in the Encoding");
         }

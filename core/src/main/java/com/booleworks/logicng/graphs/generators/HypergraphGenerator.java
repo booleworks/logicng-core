@@ -51,7 +51,7 @@ public final class HypergraphGenerator {
         final Hypergraph<Variable> hypergraph = new Hypergraph<>();
         final Map<Variable, HypergraphNode<Variable>> nodes = new HashMap<>();
         for (final Formula clause : cnf) {
-            switch (clause.type()) {
+            switch (clause.getType()) {
                 case PBC:
                 case EQUIV:
                 case IMPL:
@@ -77,12 +77,12 @@ public final class HypergraphGenerator {
      * @return the hyper-graph for the CNF formula
      */
     public static Hypergraph<Variable> fromCNF(final FormulaFactory f, final Formula cnf) {
-        if (!cnf.holds(new CNFPredicate(cnf.factory(), null))) {
+        if (!cnf.holds(new CNFPredicate(cnf.getFactory(), null))) {
             throw new IllegalArgumentException("Cannot generate a hypergraph from a non-cnf formula");
         }
         final Hypergraph<Variable> hypergraph = new Hypergraph<>();
         final Map<Variable, HypergraphNode<Variable>> nodes = new HashMap<>();
-        switch (cnf.type()) {
+        switch (cnf.getType()) {
             case PBC:
             case EQUIV:
             case IMPL:
@@ -104,7 +104,7 @@ public final class HypergraphGenerator {
 
     private static void addClause(final FormulaFactory f, final Formula formula, final Hypergraph<Variable> hypergraph,
                                   final Map<Variable, HypergraphNode<Variable>> nodes) {
-        assert formula.type() == FType.LITERAL || formula.type() == FType.OR;
+        assert formula.getType() == FType.LITERAL || formula.getType() == FType.OR;
         final SortedSet<Variable> variables = formula.variables(f);
         final Set<HypergraphNode<Variable>> clause = new LinkedHashSet<>();
         for (final Variable variable : variables) {

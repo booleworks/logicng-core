@@ -6,7 +6,7 @@ package com.booleworks.logicng.formulas.cache;
 
 /**
  * The pre-defined function cache entries.
- * @version 2.2.0
+ * @version 3.0.0
  * @since 1.0
  */
 public enum FunctionCacheEntry implements CacheEntry {
@@ -31,7 +31,7 @@ public enum FunctionCacheEntry implements CacheEntry {
     }
 
     @Override
-    public String description() {
+    public String getDescription() {
         return "FunctionCacheEntry{description=" + description + "}";
     }
 }

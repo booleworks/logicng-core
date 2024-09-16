@@ -45,11 +45,11 @@ public final class UpZeroLiteralsFunction implements SolverFunction<SortedSet<Li
         if (!solver.sat()) {
             return LNGResult.of(new TreeSet<>());
         }
-        final LNGIntVector literals = solver.underlyingSolver().upZeroLiterals();
+        final LNGIntVector literals = solver.getUnderlyingSolver().upZeroLiterals();
         final SortedSet<Literal> upZeroLiterals = new TreeSet<>();
         for (int i = 0; i < literals.size(); ++i) {
             final int lit = literals.get(i);
-            upZeroLiterals.add(solver.factory().literal(solver.underlyingSolver().nameForIdx(LNGCoreSolver.var(lit)),
+            upZeroLiterals.add(solver.getFactory().literal(solver.getUnderlyingSolver().nameForIdx(LNGCoreSolver.var(lit)),
                     !LNGCoreSolver.sign(lit)));
         }
         return LNGResult.of(upZeroLiterals);

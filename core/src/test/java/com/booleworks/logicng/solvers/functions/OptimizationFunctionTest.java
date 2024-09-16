@@ -187,7 +187,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
 
     private static SortedSet<Literal> randomTargetLiterals(final FormulaFactory f, final Random random,
                                                            final Collection<Variable> variables) {
-        return variables.stream().map(var -> f.literal(var.name(), random.nextBoolean()))
+        return variables.stream().map(var -> f.literal(var.getName(), random.nextBoolean()))
                 .collect(toCollection(TreeSet::new));
     }
 
@@ -425,7 +425,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     private int solveMaxSat(final List<Formula> formulas, final SortedSet<Variable> variables,
                             final MaxSATSolver solver) {
         formulas.forEach(solver::addHardFormula);
-        variables.forEach(v -> solver.addSoftFormula(v.negate(formulas.iterator().next().factory()), 1));
+        variables.forEach(v -> solver.addSoftFormula(v.negate(formulas.iterator().next().getFactory()), 1));
         return solver.solve().getOptimum();
     }
 
@@ -465,7 +465,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
     private void testOptimumModel(final Formula formula, final LNGResult<Model> optimumModel,
                                   final Collection<? extends Literal> literals, final boolean maximize) {
         assertThat(optimumModel.isSuccess()).isTrue();
-        final FormulaFactory f = formula.factory();
+        final FormulaFactory f = formula.getFactory();
         final List<Literal> optimumLiterals = optimumModel.getResult().getLiterals();
         if (literals.isEmpty()) {
             assertThat(optimumLiterals).isEmpty();

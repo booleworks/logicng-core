@@ -13,7 +13,7 @@ import java.util.Set;
 
 /**
  * A node in a BDD.
- * @version 1.4.0
+ * @version 3.0.0
  * @since 1.4.0
  */
 public final class BDDInnerNode implements BDDNode {
@@ -35,7 +35,7 @@ public final class BDDInnerNode implements BDDNode {
     }
 
     @Override
-    public Variable label() {
+    public Variable getLabel() {
         return var;
     }
 
@@ -45,12 +45,12 @@ public final class BDDInnerNode implements BDDNode {
     }
 
     @Override
-    public BDDNode low() {
+    public BDDNode getLow() {
         return low;
     }
 
     @Override
-    public BDDNode high() {
+    public BDDNode getHigh() {
         return high;
     }
 

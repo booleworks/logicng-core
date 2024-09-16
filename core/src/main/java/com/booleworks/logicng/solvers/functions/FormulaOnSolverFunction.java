@@ -64,13 +64,13 @@ public final class FormulaOnSolverFunction implements SolverFunction<Set<Formula
 
     @Override
     public LNGResult<Set<Formula>> apply(final SATSolver solver, final ComputationHandler handler) {
-        final FormulaFactory f = solver.factory();
+        final FormulaFactory f = solver.getFactory();
         final Set<Formula> formulas = new LinkedHashSet<>();
-        for (final LNGClause clause : solver.underlyingSolver().clauses()) {
+        for (final LNGClause clause : solver.getUnderlyingSolver().getClauses()) {
             final List<Literal> lits = new ArrayList<>();
             for (int i = 0; i < clause.size(); i++) {
                 final int litInt = clause.get(i);
-                lits.add(f.literal(solver.underlyingSolver().nameForIdx(litInt >> 1), (litInt & 1) != 1));
+                lits.add(f.literal(solver.getUnderlyingSolver().nameForIdx(litInt >> 1), (litInt & 1) != 1));
             }
             if (!clause.isAtMost()) {
                 formulas.add(f.clause(lits));
@@ -83,14 +83,14 @@ public final class FormulaOnSolverFunction implements SolverFunction<Set<Formula
                 formulas.add(f.cc(CType.LE, rhs, vars));
             }
         }
-        final LNGVector<LNGVariable> variables = solver.underlyingSolver().variables();
+        final LNGVector<LNGVariable> variables = solver.getUnderlyingSolver().getVariables();
         for (int i = 0; i < variables.size(); i++) {
             final LNGVariable var = variables.get(i);
             if (var.level() == 0) {
-                formulas.add(f.literal(solver.underlyingSolver().nameForIdx(i), var.assignment() == TRUE));
+                formulas.add(f.literal(solver.getUnderlyingSolver().nameForIdx(i), var.assignment() == TRUE));
             }
         }
-        if (!solver.underlyingSolver().ok()) {
+        if (!solver.getUnderlyingSolver().ok()) {
             formulas.add(f.falsum());
         }
         return LNGResult.of(formulas);

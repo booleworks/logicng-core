@@ -75,8 +75,8 @@ public class FormulaRandomizerTest {
         int numC = 0;
         for (int i = 0; i < 100; i++) {
             final Variable variable = random.variable();
-            assertThat(variable.name()).isIn("A", "B", "C");
-            switch (variable.name()) {
+            assertThat(variable.getName()).isIn("A", "B", "C");
+            switch (variable.getName()) {
                 case "A":
                     numA++;
                     break;
@@ -115,7 +115,7 @@ public class FormulaRandomizerTest {
         int numPos = 0;
         for (int i = 0; i < 100; i++) {
             final Literal literal = random.literal();
-            if (literal.phase()) {
+            if (literal.getPhase()) {
                 numPos++;
             }
         }
@@ -139,8 +139,8 @@ public class FormulaRandomizerTest {
             assertThat(formula.isAtomicFormula()).isTrue();
             if (formula.isConstantFormula()) {
                 numConst++;
-            } else if (formula.type() == FType.LITERAL) {
-                if (((Literal) formula).phase()) {
+            } else if (formula.getType() == FType.LITERAL) {
+                if (((Literal) formula).getPhase()) {
                     numPos++;
                 } else {
                     numNeg++;
@@ -149,9 +149,9 @@ public class FormulaRandomizerTest {
                 final PBConstraint pbc = (PBConstraint) formula;
                 if (!pbc.isCC()) {
                     numPbc++;
-                } else if (pbc.rhs() == 1 && pbc.comparator() == CType.LE) {
+                } else if (pbc.getRhs() == 1 && pbc.comparator() == CType.LE) {
                     numAmo++;
-                } else if (pbc.rhs() == 1 && pbc.comparator() == CType.EQ) {
+                } else if (pbc.getRhs() == 1 && pbc.comparator() == CType.EQ) {
                     numExo++;
                 } else {
                     numCc++;
@@ -167,7 +167,7 @@ public class FormulaRandomizerTest {
         final FormulaRandomizer randomOnlyLiterals = new FormulaRandomizer(f, FormulaRandomizerConfig.builder()
                 .weightConstant(0).weightPositiveLiteral(3).weightNegativeLiteral(6).seed(42).build());
         for (int i = 0; i < 100; i++) {
-            assertThat(randomOnlyLiterals.atom().type()).isEqualTo(FType.LITERAL);
+            assertThat(randomOnlyLiterals.atom().getType()).isEqualTo(FType.LITERAL);
         }
     }
 
@@ -274,7 +274,7 @@ public class FormulaRandomizerTest {
             final PBConstraint pbc = (PBConstraint) formula;
             int posSum = 0;
             int negSum = 0;
-            for (final int coefficient : pbc.coefficients()) {
+            for (final int coefficient : pbc.getCoefficients()) {
                 if (coefficient > 0) {
                     posCoeff++;
                     posSum += coefficient;
@@ -284,9 +284,9 @@ public class FormulaRandomizerTest {
                 }
             }
             assertThat(pbc.numberOfOperands()).isLessThanOrEqualTo(10);
-            assertThat(pbc.rhs()).isStrictlyBetween(negSum - 1, posSum + 1);
+            assertThat(pbc.getRhs()).isStrictlyBetween(negSum - 1, posSum + 1);
             for (final Literal literal : pbc.literals(f)) {
-                if (literal.phase()) {
+                if (literal.getPhase()) {
                     posLit++;
                 } else {
                     negLit++;
@@ -340,11 +340,11 @@ public class FormulaRandomizerTest {
             assertThat(cc.isCC()).isTrue();
             assertThat(cc.numberOfOperands()).isLessThanOrEqualTo(10);
             if (cc.comparator() == CType.GT) {
-                assertThat(cc.rhs()).isStrictlyBetween(-2, 11);
+                assertThat(cc.getRhs()).isStrictlyBetween(-2, 11);
             } else if (cc.comparator() == CType.LT) {
-                assertThat(cc.rhs()).isStrictlyBetween(0, 11);
+                assertThat(cc.getRhs()).isStrictlyBetween(0, 11);
             } else {
-                assertThat(cc.rhs()).isStrictlyBetween(-1, 11);
+                assertThat(cc.getRhs()).isStrictlyBetween(-1, 11);
             }
             switch (cc.comparator()) {
                 case LE:
@@ -380,7 +380,7 @@ public class FormulaRandomizerTest {
             assertThat(formula).isInstanceOf(PBConstraint.class);
             final PBConstraint amo = (PBConstraint) formula;
             assertThat(amo.isCC()).isTrue();
-            assertThat(amo.rhs()).isEqualTo(1);
+            assertThat(amo.getRhs()).isEqualTo(1);
             assertThat(amo.comparator()).isEqualTo(CType.LE);
         }
     }
@@ -395,7 +395,7 @@ public class FormulaRandomizerTest {
             assertThat(formula).isInstanceOf(PBConstraint.class);
             final PBConstraint amo = (PBConstraint) formula;
             assertThat(amo.isCC()).isTrue();
-            assertThat(amo.rhs()).isEqualTo(1);
+            assertThat(amo.getRhs()).isEqualTo(1);
             assertThat(amo.comparator()).isEqualTo(CType.EQ);
         }
     }
@@ -468,13 +468,13 @@ public class FormulaRandomizerTest {
 
     private void countOccurrences(final Formula formula, final Map<String, Integer> occurrences,
                                   final int remainingDepth) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case TRUE:
             case FALSE:
                 occurrences.merge("constant", 1, Integer::sum);
                 return;
             case LITERAL:
-                if (((Literal) formula).phase()) {
+                if (((Literal) formula).getPhase()) {
                     occurrences.merge("posLit", 1, Integer::sum);
                 } else {
                     occurrences.merge("negLit", 1, Integer::sum);
@@ -499,9 +499,9 @@ public class FormulaRandomizerTest {
                 final PBConstraint pbc = (PBConstraint) formula;
                 if (!pbc.isCC()) {
                     occurrences.merge("pbc", 1, Integer::sum);
-                } else if (pbc.rhs() == 1 && pbc.comparator() == CType.LE) {
+                } else if (pbc.getRhs() == 1 && pbc.comparator() == CType.LE) {
                     occurrences.merge("amo", 1, Integer::sum);
-                } else if (pbc.rhs() == 1 && pbc.comparator() == CType.EQ) {
+                } else if (pbc.getRhs() == 1 && pbc.comparator() == CType.EQ) {
                     occurrences.merge("exo", 1, Integer::sum);
                 } else {
                     occurrences.merge("cc", 1, Integer::sum);
@@ -536,7 +536,7 @@ public class FormulaRandomizerTest {
                 new FormulaRandomizer(f, FormulaRandomizerConfig.builder().maximumOperandsAnd(10).seed(42).build());
         for (int i = 0; i < 100; i++) {
             final Formula formula = random.and(1);
-            assertThat(formula.type()).isEqualTo(FType.AND);
+            assertThat(formula.getType()).isEqualTo(FType.AND);
             final And and = (And) formula;
             assertThat(and.numberOfOperands()).isLessThanOrEqualTo(10);
         }
@@ -548,7 +548,7 @@ public class FormulaRandomizerTest {
                 new FormulaRandomizer(f, FormulaRandomizerConfig.builder().maximumOperandsOr(10).seed(42).build());
         for (int i = 0; i < 100; i++) {
             final Formula formula = random.or(1);
-            assertThat(formula.type()).isEqualTo(FType.OR);
+            assertThat(formula.getType()).isEqualTo(FType.OR);
             final Or or = (Or) formula;
             assertThat(or.numberOfOperands()).isLessThanOrEqualTo(10);
         }
@@ -560,7 +560,7 @@ public class FormulaRandomizerTest {
                 new FormulaRandomizer(f, FormulaRandomizerConfig.builder().maximumOperandsPbc(10).seed(42).build());
         for (int i = 0; i < 100; i++) {
             final Formula formula = random.pbc();
-            assertThat(formula.type()).isEqualTo(FType.PBC);
+            assertThat(formula.getType()).isEqualTo(FType.PBC);
             final PBConstraint pbc = (PBConstraint) formula;
             assertThat(pbc.literals(f).size()).isLessThanOrEqualTo(10);
         }
@@ -572,7 +572,7 @@ public class FormulaRandomizerTest {
                 new FormulaRandomizer(f, FormulaRandomizerConfig.builder().maximumOperandsOr(10).seed(42).build());
         for (int i = 0; i < 100; i++) {
             final Formula formula = random.cc();
-            assertThat(formula.type()).isEqualTo(FType.PBC);
+            assertThat(formula.getType()).isEqualTo(FType.PBC);
             final CardinalityConstraint cc = (CardinalityConstraint) formula;
             assertThat(cc.literals(f).size()).isLessThanOrEqualTo(10);
         }

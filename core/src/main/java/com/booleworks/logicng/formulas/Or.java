@@ -23,7 +23,7 @@ public interface Or extends NAryOperator {
 
     @Override
     default boolean evaluate(final Assignment assignment) {
-        for (final Formula op : operands()) {
+        for (final Formula op : getOperands()) {
             if (op.evaluate(assignment)) {
                 return true;
             }

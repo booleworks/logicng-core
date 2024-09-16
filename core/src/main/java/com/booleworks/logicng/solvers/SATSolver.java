@@ -73,7 +73,7 @@ public class SATSolver {
      */
     public SATSolver(final FormulaFactory f, final LNGCoreSolver underlyingSolver) {
         this.f = f;
-        config = underlyingSolver.config();
+        config = underlyingSolver.getConfig();
         solver = underlyingSolver;
         pgTransformation = new PlaistedGreenbaumTransformationSolver(f, true, underlyingSolver);
         fullPgTransformation = new PlaistedGreenbaumTransformationSolver(f, false, underlyingSolver);
@@ -113,20 +113,20 @@ public class SATSolver {
      * @param proposition the proposition of this formula
      */
     public void add(final Formula formula, final Proposition proposition) {
-        if (formula.type() == FType.PBC) {
+        if (formula.getType() == FType.PBC) {
             final PBConstraint constraint = (PBConstraint) formula;
             if (constraint.isCC()) {
-                if (config.useAtMostClauses()) {
+                if (config.isUseAtMostClauses()) {
                     if (constraint.comparator() == CType.LE) {
-                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver),
-                                constraint.rhs());
-                    } else if (constraint.comparator() == CType.LT && constraint.rhs() > 3) {
-                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver),
-                                constraint.rhs() - 1);
-                    } else if (constraint.comparator() == CType.EQ && constraint.rhs() == 1) {
-                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.operands(), solver),
-                                constraint.rhs());
-                        solver.addClause(LNGCoreSolver.generateClauseVector(constraint.operands(), solver),
+                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.getOperands(), solver),
+                                constraint.getRhs());
+                    } else if (constraint.comparator() == CType.LT && constraint.getRhs() > 3) {
+                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.getOperands(), solver),
+                                constraint.getRhs() - 1);
+                    } else if (constraint.comparator() == CType.EQ && constraint.getRhs() == 1) {
+                        solver.addAtMost(LNGCoreSolver.generateClauseVector(constraint.getOperands(), solver),
+                                constraint.getRhs());
+                        solver.addClause(LNGCoreSolver.generateClauseVector(constraint.getOperands(), solver),
                                 proposition);
                     } else {
                         CcEncoder.encode((CardinalityConstraint) constraint,
@@ -170,7 +170,7 @@ public class SATSolver {
      * @param proposition the proposition
      */
     public void add(final Proposition proposition) {
-        add(proposition.formula(), proposition);
+        add(proposition.getFormula(), proposition);
     }
 
     /**
@@ -238,7 +238,7 @@ public class SATSolver {
      * @param formula     the formula in CNF
      */
     void addClauseSet(final Formula formula, final Proposition proposition) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case TRUE:
                 break;
             case FALSE:
@@ -402,7 +402,7 @@ public class SATSolver {
      * Returns the formula factory for this solver.
      * @return the formula factory
      */
-    public FormulaFactory factory() {
+    public FormulaFactory getFactory() {
         return f;
     }
 
@@ -410,7 +410,7 @@ public class SATSolver {
      * Returns the initial phase of literals of this solver.
      * @return the initial phase of literals of this solver
      */
-    public SATSolverConfig config() {
+    public SATSolverConfig getConfig() {
         return config;
     }
 
@@ -421,19 +421,19 @@ public class SATSolver {
      * things up completely! You should really know what you are doing.
      * @return the underlying core solver
      */
-    public LNGCoreSolver underlyingSolver() {
+    public LNGCoreSolver getUnderlyingSolver() {
         return solver;
     }
 
     protected void addFormulaAsCNF(final Formula formula, final Proposition proposition) {
-        if (config.cnfMethod() == SATSolverConfig.CNFMethod.FACTORY_CNF) {
+        if (config.getCnfMethod() == SATSolverConfig.CNFMethod.FACTORY_CNF) {
             addClauseSet(formula.cnf(f), proposition);
-        } else if (config.cnfMethod() == SATSolverConfig.CNFMethod.PG_ON_SOLVER) {
+        } else if (config.getCnfMethod() == SATSolverConfig.CNFMethod.PG_ON_SOLVER) {
             pgTransformation.addCnfToSolver(formula, proposition);
-        } else if (config.cnfMethod() == SATSolverConfig.CNFMethod.FULL_PG_ON_SOLVER) {
+        } else if (config.getCnfMethod() == SATSolverConfig.CNFMethod.FULL_PG_ON_SOLVER) {
             fullPgTransformation.addCnfToSolver(formula, proposition);
         } else {
-            throw new IllegalStateException("Unknown Solver CNF method: " + config.cnfMethod());
+            throw new IllegalStateException("Unknown Solver CNF method: " + config.getCnfMethod());
         }
     }
 }

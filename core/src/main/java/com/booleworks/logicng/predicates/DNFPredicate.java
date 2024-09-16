@@ -46,7 +46,7 @@ public final class DNFPredicate extends CacheableFormulaPredicate {
             return cached;
         }
         boolean result;
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
             case TRUE:
             case LITERAL:
@@ -69,7 +69,7 @@ public final class DNFPredicate extends CacheableFormulaPredicate {
                 result = minterm().test(formula);
                 break;
             default:
-                throw new IllegalArgumentException("Cannot compute DNF predicate on " + formula.type());
+                throw new IllegalArgumentException("Cannot compute DNF predicate on " + formula.getType());
         }
         setCache(formula, result);
         return result;

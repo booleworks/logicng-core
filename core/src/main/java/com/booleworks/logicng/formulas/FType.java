@@ -35,7 +35,7 @@ public enum FType {
      * Returns the precedence of this formula type.
      * @return the precedence of this formula type
      */
-    public byte precedence() {
+    public byte getPrecedence() {
         return precedence;
     }
 

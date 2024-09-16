@@ -24,7 +24,7 @@ public final class ComparablePair<A extends Comparable<A>, B extends Comparable<
 
     @Override
     public int compareTo(final ComparablePair<A, B> o) {
-        final int compare = a.compareTo(o.a);
-        return compare != 0 ? compare : b.compareTo(o.b);
+        final int compare = first.compareTo(o.first);
+        return compare != 0 ? compare : second.compareTo(o.second);
     }
 }

@@ -325,7 +325,7 @@ public class PbSolvingTest implements LogicNGTest {
                 solver.add(PbEncoder.encode(f, pbc, config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(45)
-                        .allMatch(m -> pbc.evaluate(m.assignment()));
+                        .allMatch(m -> pbc.evaluate(m.toAssignment()));
                 solver = solverSupplier.apply(f);
 
                 coeffs10 = new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, -2};
@@ -333,7 +333,7 @@ public class PbSolvingTest implements LogicNGTest {
                 solver.add(PbEncoder.encode(f, pbc2, config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(120)
-                        .allMatch(m -> pbc2.evaluate(m.assignment()));
+                        .allMatch(m -> pbc2.evaluate(m.toAssignment()));
                 solver = solverSupplier.apply(f);
 
                 coeffs10 = new int[]{2, 2, -3, 2, -7, 2, 2, 2, 2, -2};
@@ -341,7 +341,7 @@ public class PbSolvingTest implements LogicNGTest {
                 solver.add(PbEncoder.encode(f, pbc3, config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(57)
-                        .allMatch(m -> pbc3.evaluate(m.assignment()));
+                        .allMatch(m -> pbc3.evaluate(m.toAssignment()));
                 solver = solverSupplier.apply(f);
 
                 coeffs10 = new int[]{2, 2, -3, 2, -7, 2, 2, 2, 2, -2};
@@ -349,7 +349,7 @@ public class PbSolvingTest implements LogicNGTest {
                 solver.add(PbEncoder.encode(f, pbc4, config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(8)
-                        .allMatch(m -> pbc4.evaluate(m.assignment()));
+                        .allMatch(m -> pbc4.evaluate(m.toAssignment()));
                 solver = solverSupplier.apply(f);
 
                 coeffs10 = new int[]{2, 2, -4, 2, -6, 2, 2, 2, 2, -2};
@@ -357,7 +357,7 @@ public class PbSolvingTest implements LogicNGTest {
                 solver.add(PbEncoder.encode(f, pbc5, config));
                 assertSolverSat(solver);
                 assertThat(solver.enumerateAllModels(literals10)).hasSize(1)
-                        .allMatch(m -> pbc5.evaluate(m.assignment()));
+                        .allMatch(m -> pbc5.evaluate(m.toAssignment()));
             }
         }
     }
@@ -378,7 +378,7 @@ public class PbSolvingTest implements LogicNGTest {
                 final PBConstraint pbc = (PBConstraint) f.pbc(CType.GE, 5000, lits, coeffs);
                 solver.add(PbEncoder.encode(f, pbc, config));
                 assertSolverSat(solver);
-                assertThat(pbc.evaluate(solver.satCall().model(Arrays.asList(lits)).assignment())).isTrue();
+                assertThat(pbc.evaluate(solver.satCall().model(Arrays.asList(lits)).toAssignment())).isTrue();
             }
         }
     }

@@ -97,19 +97,19 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
      */
     @Override
     public String toInnerString(final Formula formula) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
                 return falsum();
             case TRUE:
                 return verum();
             case LITERAL:
                 final Literal lit = (Literal) formula;
-                return lit.phase() ? lit.name() : negation() + lit.name();
+                return lit.getPhase() ? lit.getName() : negation() + lit.getName();
             case PREDICATE:
                 return formula.toString();
             case NOT:
                 final Not not = (Not) formula;
-                return negation() + bracket(not.operand());
+                return negation() + bracket(not.getOperand());
             case IMPL:
                 return binaryOperator((BinaryOperator) formula, implication());
             case EQUIV:
@@ -117,14 +117,14 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
             case AND:
             case OR:
                 final NAryOperator nary = (NAryOperator) formula;
-                final String op = formula.type() == FType.AND ? and() : or();
+                final String op = formula.getType() == FType.AND ? and() : or();
                 return naryOperator(nary, String.format("%s", op));
             case PBC:
                 final PBConstraint pbc = (PBConstraint) formula;
-                return String.format("%s%s%d", pbLhs(pbc.operands(), pbc.coefficients()),
-                        pbComparator(pbc.comparator()), pbc.rhs());
+                return String.format("%s%s%d", pbLhs(pbc.getOperands(), pbc.getCoefficients()),
+                        pbComparator(pbc.comparator()), pbc.getRhs());
             default:
-                throw new IllegalArgumentException("Cannot print the unknown formula type " + formula.type());
+                throw new IllegalArgumentException("Cannot print the unknown formula type " + formula.getType());
         }
     }
 
@@ -149,12 +149,12 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
             if (++count == size) {
                 last = op;
             } else {
-                sb.append(operator.type().precedence() < op.type().precedence() ? toInnerString(op) : bracket(op));
+                sb.append(operator.getType().getPrecedence() < op.getType().getPrecedence() ? toInnerString(op) : bracket(op));
                 sb.append(opString);
             }
         }
         if (last != null) {
-            sb.append(operator.type().precedence() < last.type().precedence() ? toInnerString(last) : bracket(last));
+            sb.append(operator.getType().getPrecedence() < last.getType().getPrecedence() ? toInnerString(last) : bracket(last));
         }
         return sb.toString();
     }
@@ -213,17 +213,17 @@ public final class SortedStringRepresentation extends DefaultStringRepresentatio
     private String sortedEquivalence(final Equivalence equivalence) {
         final Formula right;
         final Formula left;
-        if (comparator.compare(equivalence.left(), equivalence.right()) <= 0) {
-            right = equivalence.right();
-            left = equivalence.left();
+        if (comparator.compare(equivalence.getLeft(), equivalence.getRight()) <= 0) {
+            right = equivalence.getRight();
+            left = equivalence.getLeft();
         } else {
-            right = equivalence.left();
-            left = equivalence.right();
+            right = equivalence.getLeft();
+            left = equivalence.getRight();
         }
         final String leftString =
-                FType.EQUIV.precedence() < left.type().precedence() ? toInnerString(left) : bracket(left);
+                FType.EQUIV.getPrecedence() < left.getType().getPrecedence() ? toInnerString(left) : bracket(left);
         final String rightString =
-                FType.EQUIV.precedence() < right.type().precedence() ? toInnerString(right) : bracket(right);
+                FType.EQUIV.getPrecedence() < right.getType().getPrecedence() ? toInnerString(right) : bracket(right);
         return String.format("%s%s%s", leftString, equivalence(), rightString);
     }
 

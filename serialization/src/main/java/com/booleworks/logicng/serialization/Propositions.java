@@ -24,8 +24,8 @@ public interface Propositions {
      */
     static PBStandardProposition serializePropositions(final StandardProposition prop) {
         final PBStandardProposition.Builder builder = PBStandardProposition.newBuilder();
-        builder.setFormula(Formulas.serializeFormula(prop.formula()));
-        return builder.setDescription(prop.description()).build();
+        builder.setFormula(Formulas.serializeFormula(prop.getFormula()));
+        return builder.setDescription(prop.getDescription()).build();
     }
 
     /**

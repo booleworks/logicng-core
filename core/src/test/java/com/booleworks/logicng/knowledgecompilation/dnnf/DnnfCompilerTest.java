@@ -100,7 +100,7 @@ public class DnnfCompilerTest {
     @Test
     public void testDnnfProperties() throws ParserException {
         final Dnnf dnnf = DnnfCompiler.compile(f, parser.parse("a | ((b & ~c) | (c & (~d | ~a & b)) & e)"));
-        assertThat(dnnf.getOriginalVariables()).extracting(Variable::name)
+        assertThat(dnnf.getOriginalVariables()).extracting(Variable::getName)
                 .containsExactlyInAnyOrder("a", "b", "c", "d", "e");
     }
 
@@ -160,21 +160,21 @@ public class DnnfCompilerTest {
     private void testFormula(final FormulaFactory f, final Formula formula) {
         final Dnnf dnnf = DnnfCompiler.compile(f, formula);
         final BigInteger dnnfCount = dnnf.execute(new DnnfModelCountFunction(f));
-        final Formula equivalence = f.equivalence(formula, dnnf.formula());
-        assertThat(equivalence.holds(new TautologyPredicate(formula.factory()))).isTrue();
+        final Formula equivalence = f.equivalence(formula, dnnf.getFormula());
+        assertThat(equivalence.holds(new TautologyPredicate(formula.getFactory()))).isTrue();
         final BigInteger bddCount = countWithBdd(formula);
         assertThat(dnnfCount).isEqualTo(bddCount);
     }
 
     private BigInteger countWithBdd(final Formula formula) {
-        if (formula.type() == FType.TRUE) {
+        if (formula.getType() == FType.TRUE) {
             return BigInteger.ONE;
-        } else if (formula.type() == FType.FALSE) {
+        } else if (formula.getType() == FType.FALSE) {
             return BigInteger.ZERO;
         }
-        final BDDKernel kernel = new BDDKernel(formula.factory(),
-                new ForceOrdering().getOrder(formula.factory(), formula), 100000, 1000000);
-        final BDD bdd = BDDFactory.build(formula.factory(), formula, kernel);
+        final BDDKernel kernel = new BDDKernel(formula.getFactory(),
+                new ForceOrdering().getOrder(formula.getFactory(), formula), 100000, 1000000);
+        final BDD bdd = BDDFactory.build(formula.getFactory(), formula, kernel);
         return bdd.modelCount();
     }
 

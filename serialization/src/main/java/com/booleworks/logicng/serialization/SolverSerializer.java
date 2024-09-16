@@ -185,7 +185,7 @@ public class SolverSerializer {
     }
 
     PBSatSolver serialize(final SATSolver solver) {
-        final var core = solver.underlyingSolver();
+        final var core = solver.getUnderlyingSolver();
         final LNGVector<LNGClause> clauses = getField(core, "clauses");
         final LNGVector<LNGClause> learnts = getField(core, "learnts");
         final IdentityHashMap<LNGClause, Integer> clauseMap = generateClauseMap(clauses, learnts);
@@ -442,9 +442,9 @@ public class SolverSerializer {
     }
 
     private PBProofInformation serialize(final ProofInformation pi) {
-        final PBProofInformation.Builder builder = PBProofInformation.newBuilder().setClause(serializeIntVec(pi.clause()));
-        if (pi.proposition() != null) {
-            builder.setProposition(ByteString.copyFrom(serializer.apply(pi.proposition())));
+        final PBProofInformation.Builder builder = PBProofInformation.newBuilder().setClause(serializeIntVec(pi.getClause()));
+        if (pi.getProposition() != null) {
+            builder.setProposition(ByteString.copyFrom(serializer.apply(pi.getProposition())));
         }
         return builder.build();
     }

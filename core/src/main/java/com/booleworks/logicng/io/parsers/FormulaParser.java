@@ -47,5 +47,5 @@ public interface FormulaParser {
      * Returns the factory of this parser.
      * @return the factory of this parser
      */
-    FormulaFactory factory();
+    FormulaFactory getFactory();
 }

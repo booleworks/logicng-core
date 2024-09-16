@@ -21,7 +21,7 @@ public enum InternalAuxVarType {
      * Returns the prefix of this type.
      * @return the prefix of this type
      */
-    public String prefix() {
+    public String getPrefix() {
         return prefix;
     }
 }

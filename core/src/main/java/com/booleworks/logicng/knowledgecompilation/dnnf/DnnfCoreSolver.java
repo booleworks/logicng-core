@@ -58,7 +58,7 @@ public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
 
     @Override
     public int variableIndex(final Literal lit) {
-        return idxForName(lit.name());
+        return idxForName(lit.getName());
     }
 
     @Override
@@ -79,7 +79,7 @@ public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
      * Returns the phase of the given solver literal.
      * @param lit the solver literal
      * @return {@code true} if the literal has a positive phase, {@code false}
-     *         if the literal has a negative phase (literal is negated)
+     * if the literal has a negative phase (literal is negated)
      */
     public static boolean phase(final int lit) {
         return !sign(lit);
@@ -93,7 +93,7 @@ public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
     @Override
     public void add(final Formula formula) {
         final Formula cnf = formula.cnf(f);
-        switch (cnf.type()) {
+        switch (cnf.getType()) {
             case TRUE:
                 break;
             case FALSE:
@@ -159,7 +159,7 @@ public class DnnfCoreSolver extends LNGCoreSolver implements DnnfSatSolver {
     public Formula newlyImplied(final BitSet knownVariables) {
         impliedOperands.clear();
         if (newlyImpliedDirty) {
-            final int limit = trailLim.empty() ? -1 : trailLim.back();
+            final int limit = trailLim.isEmpty() ? -1 : trailLim.back();
             for (int i = trail.size() - 1; i > limit; i--) {
                 final int lit = trail.get(i);
                 if (knownVariables.get(var(lit))) {

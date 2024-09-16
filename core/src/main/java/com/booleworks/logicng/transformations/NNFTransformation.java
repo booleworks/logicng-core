@@ -60,7 +60,7 @@ public class NNFTransformation extends CacheableFormulaTransformation {
                 return nnf;
             }
         }
-        final FType type = formula.type();
+        final FType type = formula.getType();
         switch (type) {
             case TRUE:
             case FALSE:
@@ -69,28 +69,28 @@ public class NNFTransformation extends CacheableFormulaTransformation {
                 nnf = polarity ? formula : formula.negate(f);
                 break;
             case NOT:
-                nnf = applyRec(((Not) formula).operand(), !polarity);
+                nnf = applyRec(((Not) formula).getOperand(), !polarity);
                 break;
             case OR:
             case AND:
-                nnf = applyRec(f, formula.iterator(), formula.type(), polarity);
+                nnf = applyRec(f, formula.iterator(), formula.getType(), polarity);
                 break;
             case EQUIV:
                 final Equivalence equiv = (Equivalence) formula;
                 if (polarity) {
-                    nnf = f.and(f.or(applyRec(equiv.left(), false), applyRec(equiv.right(), true)),
-                            f.or(applyRec(equiv.left(), true), applyRec(equiv.right(), false)));
+                    nnf = f.and(f.or(applyRec(equiv.getLeft(), false), applyRec(equiv.getRight(), true)),
+                            f.or(applyRec(equiv.getLeft(), true), applyRec(equiv.getRight(), false)));
                 } else {
-                    nnf = f.and(f.or(applyRec(equiv.left(), false), applyRec(equiv.right(), false)),
-                            f.or(applyRec(equiv.left(), true), applyRec(equiv.right(), true)));
+                    nnf = f.and(f.or(applyRec(equiv.getLeft(), false), applyRec(equiv.getRight(), false)),
+                            f.or(applyRec(equiv.getLeft(), true), applyRec(equiv.getRight(), true)));
                 }
                 break;
             case IMPL:
                 final Implication impl = (Implication) formula;
                 if (polarity) {
-                    nnf = f.or(applyRec(impl.left(), false), applyRec(impl.right(), true));
+                    nnf = f.or(applyRec(impl.getLeft(), false), applyRec(impl.getRight(), true));
                 } else {
-                    nnf = f.and(applyRec(impl.left(), true), applyRec(impl.right(), false));
+                    nnf = f.and(applyRec(impl.getLeft(), true), applyRec(impl.getRight(), false));
                 }
                 break;
             case PBC:

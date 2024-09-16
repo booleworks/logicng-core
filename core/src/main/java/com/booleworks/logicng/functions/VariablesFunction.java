@@ -50,13 +50,13 @@ public class VariablesFunction extends CacheableFormulaFunction<SortedSet<Variab
     }
 
     @Override
-    public LNGResult<SortedSet<Variable>> apply(final Formula formula, ComputationHandler handler) {
+    public LNGResult<SortedSet<Variable>> apply(final Formula formula, final ComputationHandler handler) {
         final SortedSet<Variable> cached = lookupCache(formula);
         if (cached != null) {
             return LNGResult.of(cached);
         }
         SortedSet<Variable> result = new TreeSet<>();
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
             case TRUE:
             case PREDICATE:
@@ -68,13 +68,13 @@ public class VariablesFunction extends CacheableFormulaFunction<SortedSet<Variab
                 break;
             case NOT:
                 final Not not = (Not) formula;
-                result = apply(not.operand());
+                result = apply(not.getOperand());
                 break;
             case IMPL:
             case EQUIV:
                 final BinaryOperator binary = (BinaryOperator) formula;
-                result.addAll(apply(binary.left()));
-                result.addAll(apply(binary.right()));
+                result.addAll(apply(binary.getLeft()));
+                result.addAll(apply(binary.getRight()));
                 break;
             case OR:
             case AND:
@@ -88,7 +88,7 @@ public class VariablesFunction extends CacheableFormulaFunction<SortedSet<Variab
                 result = FormulaHelper.variables(f, pbc.literals(f));
                 break;
             default:
-                throw new IllegalStateException("Unknown formula type " + formula.type());
+                throw new IllegalStateException("Unknown formula type " + formula.getType());
         }
         result = Collections.unmodifiableSortedSet(result);
         setCache(formula, result);

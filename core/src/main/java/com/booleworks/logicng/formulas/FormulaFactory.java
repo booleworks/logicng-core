@@ -126,7 +126,7 @@ public abstract class FormulaFactory {
         }
         auxVarCounters.clear();
         for (final InternalAuxVarType auxType : InternalAuxVarType.values()) {
-            auxVarCounters.put(auxType.prefix(), new AtomicInteger(0));
+            auxVarCounters.put(auxType.getPrefix(), new AtomicInteger(0));
         }
     }
 
@@ -160,7 +160,7 @@ public abstract class FormulaFactory {
      * Returns the name of this formula factory.
      * @return the name of this formula factory
      */
-    public String name() {
+    public String getName() {
         return name;
     }
 
@@ -190,18 +190,18 @@ public abstract class FormulaFactory {
         if (readOnly) {
             throwReadOnlyException();
         }
-        if (configuration.type() == ConfigurationType.FORMULA_FACTORY) {
+        if (configuration.getType() == ConfigurationType.FORMULA_FACTORY) {
             throw new IllegalArgumentException(
                     "Configurations for the formula factory itself can only be passed in the constructor.");
         }
-        configurations.put(configuration.type(), configuration);
+        configurations.put(configuration.getType(), configuration);
     }
 
     /**
      * Returns a function to compute the sub-formulas.
      * @return a function to compute the sub-formulas
      */
-    public SubNodeFunction subformulaFunction() {
+    public SubNodeFunction getSubformulaFunction() {
         return subformulaFunction;
     }
 
@@ -264,13 +264,13 @@ public abstract class FormulaFactory {
         }
         final Formula left = importOrPanic(leftIn);
         final Formula right = importOrPanic(rightIn);
-        if (left.type() == FType.FALSE || right.type() == FType.TRUE) {
+        if (left.getType() == FType.FALSE || right.getType() == FType.TRUE) {
             return verum();
         }
-        if (left.type() == FType.TRUE) {
+        if (left.getType() == FType.TRUE) {
             return right;
         }
-        if (right.type() == FType.FALSE) {
+        if (right.getType() == FType.FALSE) {
             return not(left);
         }
         if (left.equals(right)) {
@@ -296,16 +296,16 @@ public abstract class FormulaFactory {
         }
         final Formula left = importOrPanic(leftIn);
         final Formula right = importOrPanic(rightIn);
-        if (left.type() == FType.TRUE) {
+        if (left.getType() == FType.TRUE) {
             return right;
         }
-        if (right.type() == FType.TRUE) {
+        if (right.getType() == FType.TRUE) {
             return left;
         }
-        if (left.type() == FType.FALSE) {
+        if (left.getType() == FType.FALSE) {
             return not(right);
         }
-        if (right.type() == FType.FALSE) {
+        if (right.getType() == FType.FALSE) {
             return not(left);
         }
         if (left.equals(right)) {
@@ -332,8 +332,8 @@ public abstract class FormulaFactory {
             throwReadOnlyException();
         }
         final Formula operand = importOrPanic(formula);
-        if (operand.type() == FType.LITERAL || operand.type() == FType.FALSE || operand.type() == FType.TRUE ||
-                operand.type() == FType.NOT) {
+        if (operand.getType() == FType.LITERAL || operand.getType() == FType.FALSE || operand.getType() == FType.TRUE ||
+                operand.getType() == FType.NOT) {
             return operand.negate(this);
         }
         return internalNot(operand);
@@ -732,7 +732,7 @@ public abstract class FormulaFactory {
     private static boolean isCC(final CType comparator, final int rhs, final Collection<? extends Literal> literals,
                                 final List<Integer> coefficients) {
         for (final Literal lit : literals) {
-            if (!lit.phase()) {
+            if (!lit.getPhase()) {
                 return false;
             }
         }
@@ -794,7 +794,8 @@ public abstract class FormulaFactory {
                 if ((t.length() <= existingType.length() && existingType.startsWith(t))
                         || (t.length() > existingType.length() && t.startsWith(existingType))
                 ) {
-                    throw new IllegalArgumentException(String.format("Can not add new auxiliary variable type \"%s\" collides with existing type \"%s\"", type, existingType));
+                    throw new IllegalArgumentException(
+                            String.format("Can not add new auxiliary variable type \"%s\" collides with existing type \"%s\"", type, existingType));
                 }
             }
             return new AtomicInteger(0);
@@ -804,7 +805,7 @@ public abstract class FormulaFactory {
     }
 
     public Variable newAuxVariable(final InternalAuxVarType type) {
-        return newAuxVariable(type.prefix());
+        return newAuxVariable(type.getPrefix());
     }
 
     /**
@@ -849,8 +850,8 @@ public abstract class FormulaFactory {
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>();
         cnfCheck = true;
         for (final Formula form : operands) {
-            if (form.type() == FType.OR) {
-                for (final Formula op : ((NAryOperator) form).operands()) {
+            if (form.getType() == FType.OR) {
+                for (final Formula op : ((NAryOperator) form).getOperands()) {
                     final byte ret = addFormulaOr(ops, op);
                     if (ret == 0x00) {
                         return null;
@@ -881,8 +882,8 @@ public abstract class FormulaFactory {
         final LinkedHashSet<Formula> ops = new LinkedHashSet<>();
         cnfCheck = true;
         for (final Formula form : operands) {
-            if (form.type() == FType.AND) {
-                for (final Formula op : ((NAryOperator) form).operands()) {
+            if (form.getType() == FType.AND) {
+                for (final Formula op : ((NAryOperator) form).getOperands()) {
                     final byte ret = addFormulaAnd(ops, op);
                     if (ret == 0x00) {
                         return null;
@@ -946,13 +947,13 @@ public abstract class FormulaFactory {
      * @param formula the formula
      */
     private byte addFormulaOr(final LinkedHashSet<Formula> ops, final Formula formula) {
-        if (formula.type() == FType.FALSE) {
+        if (formula.getType() == FType.FALSE) {
             return 0x01;
-        } else if (formula.type() == FType.TRUE || containsComplement(ops, formula)) {
+        } else if (formula.getType() == FType.TRUE || containsComplement(ops, formula)) {
             return 0x00;
         } else {
             ops.add(formula);
-            return (byte) (formula.type() == FType.LITERAL ? 0x01 : 0x02);
+            return (byte) (formula.getType() == FType.LITERAL ? 0x01 : 0x02);
         }
     }
 
@@ -966,14 +967,14 @@ public abstract class FormulaFactory {
      * @param formula the formula
      */
     private byte addFormulaAnd(final LinkedHashSet<Formula> ops, final Formula formula) {
-        if (formula.type() == FType.TRUE) {
+        if (formula.getType() == FType.TRUE) {
             return 0x01;
-        } else if (formula.type() == FType.FALSE || containsComplement(ops, formula)) {
+        } else if (formula.getType() == FType.FALSE || containsComplement(ops, formula)) {
             return 0x00;
         } else {
             ops.add(formula);
-            return (byte) (formula.type() == FType.LITERAL ||
-                    formula.type() == FType.OR && ((Or) formula).isCNFClause() ? 0x01 : 0x02);
+            return (byte) (formula.getType() == FType.LITERAL ||
+                    formula.getType() == FType.OR && ((Or) formula).isCNFClause() ? 0x01 : 0x02);
         }
     }
 
@@ -1034,7 +1035,7 @@ public abstract class FormulaFactory {
      *                                       {@link FormulaFactoryConfig.FormulaMergeStrategy#PANIC}.
      */
     private Formula importOrPanic(final Formula formula) {
-        if (formula.factory() == this) {
+        if (formula.getFactory() == this) {
             return formula;
         }
         switch (formulaMergeStrategy) {
@@ -1067,7 +1068,7 @@ public abstract class FormulaFactory {
         }
         boolean foundAnotherFormulaFactory = false;
         for (final Formula formula : formulas) {
-            if (formula.factory() != this) {
+            if (formula.getFactory() != this) {
                 foundAnotherFormulaFactory = true;
                 break;
             }
@@ -1079,7 +1080,7 @@ public abstract class FormulaFactory {
             case IMPORT:
                 final LinkedHashSet<Formula> result = new LinkedHashSet<>();
                 for (final Formula formula : formulas) {
-                    result.add(formula.factory() != this ? importFormula(formula) : formula);
+                    result.add(formula.getFactory() != this ? importFormula(formula) : formula);
                 }
                 return result;
             case PANIC:
@@ -1108,7 +1109,7 @@ public abstract class FormulaFactory {
         }
         boolean foundAnotherFormulaFactory = false;
         for (final Literal lit : literals) {
-            if (lit.factory() != this) {
+            if (lit.getFactory() != this) {
                 foundAnotherFormulaFactory = true;
                 break;
             }
@@ -1120,7 +1121,7 @@ public abstract class FormulaFactory {
             case IMPORT:
                 final List<Literal> result = new ArrayList<>(literals.size());
                 for (final Literal lit : literals) {
-                    result.add(lit.factory() != this ? literal(lit.name(), lit.phase()) : lit);
+                    result.add(lit.getFactory() != this ? literal(lit.getName(), lit.getPhase()) : lit);
                 }
                 return result;
             case PANIC:
@@ -1155,7 +1156,7 @@ public abstract class FormulaFactory {
      * Returns the formula formatter of this factory.
      * @return the formula formatter of this factory
      */
-    public FormulaStringRepresentation stringRepresentation() {
+    public FormulaStringRepresentation getStringRepresentation() {
         return stringRepresentation;
     }
 

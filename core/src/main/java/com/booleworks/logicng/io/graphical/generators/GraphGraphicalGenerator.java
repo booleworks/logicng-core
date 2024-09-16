@@ -54,11 +54,11 @@ public class GraphGraphicalGenerator<T> extends GraphicalGenerator<T> {
                 new GraphicalRepresentation(false, false, backgroundColor);
         for (final Node<T> node : graph.nodes()) {
             final GraphicalNode graphicalNode = addNode(node, graphicalRepresentation, nodes);
-            for (final Node<T> neighbour : node.neighbours()) {
+            for (final Node<T> neighbour : node.getNeighbours()) {
                 final GraphicalNode graphicalNeighbourNode = addNode(neighbour, graphicalRepresentation, nodes);
                 if (!visited.contains(neighbour)) {
                     graphicalRepresentation.addEdge(new GraphicalEdge(graphicalNode, graphicalNeighbourNode,
-                            edgeStyle(node.content(), neighbour.content())));
+                            edgeStyle(node.getContent(), neighbour.getContent())));
                 }
             }
             visited.add(node);
@@ -71,7 +71,7 @@ public class GraphGraphicalGenerator<T> extends GraphicalGenerator<T> {
         GraphicalNode graphicalNode = nodes.get(node);
         if (graphicalNode == null) {
             graphicalNode = new GraphicalNode(ID + nodes.size(),
-                    labelOrDefault(node.content(), node.content().toString()), nodeStyle(node.content()));
+                    labelOrDefault(node.getContent(), node.getContent().toString()), nodeStyle(node.getContent()));
             graphicalRepresentation.addNode(graphicalNode);
             nodes.put(node, graphicalNode);
         }

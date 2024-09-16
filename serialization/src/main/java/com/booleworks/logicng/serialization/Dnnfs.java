@@ -26,8 +26,8 @@ public interface Dnnfs {
      */
     static PBDnnf serializeDnnf(final Dnnf dnnf) {
         final PBDnnf.Builder builder = PBDnnf.newBuilder();
-        builder.setFormula(Formulas.serializeFormula(dnnf.formula()));
-        builder.addAllOriginalVariables(dnnf.getOriginalVariables().stream().map(Variable::name).collect(Collectors.toList()));
+        builder.setFormula(Formulas.serializeFormula(dnnf.getFormula()));
+        builder.addAllOriginalVariables(dnnf.getOriginalVariables().stream().map(Variable::getName).collect(Collectors.toList()));
         return builder.build();
     }
 

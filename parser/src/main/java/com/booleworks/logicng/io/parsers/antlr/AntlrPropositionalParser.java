@@ -122,7 +122,7 @@ public final class AntlrPropositionalParser implements FormulaParser {
      * @return the factory of this parser
      */
     @Override
-    public FormulaFactory factory() {
+    public FormulaFactory getFactory() {
         return f;
     }
 }

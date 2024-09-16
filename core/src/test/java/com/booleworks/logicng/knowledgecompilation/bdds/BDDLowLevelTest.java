@@ -36,7 +36,7 @@ public class BDDLowLevelTest {
 
     @Test
     public void testStatistics() {
-        final BDDKernel.BDDStatistics statistics = bdd.underlyingKernel().statistics();
+        final BDDKernel.BDDStatistics statistics = bdd.getUnderlyingKernel().statistics();
         assertThat(statistics.cachesize()).isEqualTo(1000);
         assertThat(statistics.freenum()).isEqualTo(993);
         assertThat(statistics.gbcollectnum()).isEqualTo(0);
@@ -49,7 +49,7 @@ public class BDDLowLevelTest {
 
     @Test
     public void kernelTests() {
-        final BDDConstruction kernel = new BDDConstruction(bdd.underlyingKernel());
+        final BDDConstruction kernel = new BDDConstruction(bdd.getUnderlyingKernel());
         assertThat(kernel.ithVar(0)).isEqualTo(2);
         assertThat(kernel.nithVar(0)).isEqualTo(3);
         assertThat(kernel.bddVar(2)).isEqualTo(0);
@@ -60,31 +60,31 @@ public class BDDLowLevelTest {
 
     @Test
     public void illegalKernel1() {
-        final BDDConstruction kernel = new BDDConstruction(bdd.underlyingKernel());
+        final BDDConstruction kernel = new BDDConstruction(bdd.getUnderlyingKernel());
         assertThatThrownBy(() -> kernel.ithVar(-1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void illegalKernel2() {
-        final BDDConstruction kernel = new BDDConstruction(bdd.underlyingKernel());
+        final BDDConstruction kernel = new BDDConstruction(bdd.getUnderlyingKernel());
         assertThatThrownBy(() -> kernel.nithVar(-1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void illegalKernel3() {
-        final BDDConstruction kernel = new BDDConstruction(bdd.underlyingKernel());
+        final BDDConstruction kernel = new BDDConstruction(bdd.getUnderlyingKernel());
         assertThatThrownBy(() -> kernel.bddVar(1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void illegalKernel4() {
-        final BDDConstruction kernel = new BDDConstruction(bdd.underlyingKernel());
+        final BDDConstruction kernel = new BDDConstruction(bdd.getUnderlyingKernel());
         assertThatThrownBy(() -> kernel.bddLow(1)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     public void illegalKernel5() {
-        final BDDConstruction kernel = new BDDConstruction(bdd.underlyingKernel());
+        final BDDConstruction kernel = new BDDConstruction(bdd.getUnderlyingKernel());
         assertThatThrownBy(() -> kernel.bddHigh(1)).isInstanceOf(IllegalArgumentException.class);
     }
 

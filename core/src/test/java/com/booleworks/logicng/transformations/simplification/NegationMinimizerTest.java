@@ -92,7 +92,7 @@ public class NegationMinimizerTest extends TestWithFormulaContext {
     }
 
     private static void computeAndVerify(final Formula formula) {
-        final FormulaFactory f = formula.factory();
+        final FormulaFactory f = formula.getFactory();
         final Formula simplified = formula.transform(new NegationSimplifier(f));
         final SortedSet<Variable> originalVariables = formula.variables(f);
         final SATSolver sat1 = SATSolver.newSolver(f);

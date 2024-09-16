@@ -29,7 +29,7 @@ public interface Not extends Formula {
      * Returns the operand of this negation.
      * @return the operand of this negation
      */
-    Formula operand();
+    Formula getOperand();
 
     @Override
     default int numberOfOperands() {
@@ -48,32 +48,32 @@ public interface Not extends Formula {
 
     @Override
     default boolean containsVariable(final Variable variable) {
-        return operand().containsVariable(variable);
+        return getOperand().containsVariable(variable);
     }
 
     @Override
     default boolean evaluate(final Assignment assignment) {
-        return !operand().evaluate(assignment);
+        return !getOperand().evaluate(assignment);
     }
 
     @Override
     default Formula restrict(final FormulaFactory f, final Assignment assignment) {
-        return f.not(operand().restrict(f, assignment));
+        return f.not(getOperand().restrict(f, assignment));
     }
 
     @Override
     default boolean containsNode(final Formula formula) {
-        return this == formula || equals(formula) || operand().containsNode(formula);
+        return this == formula || equals(formula) || getOperand().containsNode(formula);
     }
 
     @Override
     default Formula substitute(final FormulaFactory f, final Substitution substitution) {
-        return f.not(operand().substitute(f, substitution));
+        return f.not(getOperand().substitute(f, substitution));
     }
 
     @Override
     default Formula negate(final FormulaFactory f) {
-        return operand();
+        return getOperand();
     }
 
     @Override
@@ -90,7 +90,7 @@ public interface Not extends Formula {
             public Formula next() {
                 if (!iterated) {
                     iterated = true;
-                    return operand();
+                    return getOperand();
                 }
                 throw new NoSuchElementException();
             }
@@ -104,6 +104,6 @@ public interface Not extends Formula {
 
     @Override
     default Stream<Formula> stream() {
-        return Stream.of(operand());
+        return Stream.of(getOperand());
     }
 }

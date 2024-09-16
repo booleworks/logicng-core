@@ -21,7 +21,7 @@ public class ImplicationTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testType(final FormulaContext _c) {
-        assertThat(_c.imp1.type()).isEqualTo(FType.IMPL);
+        assertThat(_c.imp1.getType()).isEqualTo(FType.IMPL);
     }
 
     @ParameterizedTest
@@ -49,8 +49,8 @@ public class ImplicationTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testGetters(final FormulaContext _c) {
-        assertThat(((Implication) _c.imp2).left()).isEqualTo(_c.na);
-        assertThat(((Implication) _c.imp2).right()).isEqualTo(_c.nb);
+        assertThat(((Implication) _c.imp2).getLeft()).isEqualTo(_c.na);
+        assertThat(((Implication) _c.imp2).getRight()).isEqualTo(_c.nb);
     }
 
     @ParameterizedTest

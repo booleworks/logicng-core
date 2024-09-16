@@ -277,7 +277,7 @@ public class AntlrPropositionalParserTest {
     }
 
     @Test
-    public void testAsFactoryParser() throws ParserException {
+    public void testAsGetFactoryParser() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         f.setParser(new AntlrPropositionalParser(f));
         final Formula pbc = f.pbc(CType.GT, -6, new Literal[]{f.variable("a"), f.literal("b", false), f.literal("c", false)}, new int[]{6, -6, 12});

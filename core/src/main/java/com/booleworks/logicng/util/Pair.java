@@ -10,43 +10,43 @@ import java.util.Objects;
  * Data structure for a pair.
  * @param <A> the type parameter of the first entry
  * @param <B> the type parameter of the second entry
- * @version 1.2
+ * @version 3.0.0
  * @since 1.0
  */
 public class Pair<A, B> {
 
-    protected final A a;
-    protected final B b;
+    protected final A first;
+    protected final B second;
 
     /**
      * Constructs a new pair.
-     * @param a the first entry
-     * @param b the second entry
+     * @param first  the first entry
+     * @param second the second entry
      */
-    public Pair(final A a, final B b) {
-        this.a = a;
-        this.b = b;
+    public Pair(final A first, final B second) {
+        this.first = first;
+        this.second = second;
     }
 
     /**
      * Returns the first entry of this pair.
      * @return the first entry
      */
-    public A first() {
-        return a;
+    public A getFirst() {
+        return first;
     }
 
     /**
      * Returns the second entry of this pair.
      * @return the second entry
      */
-    public B second() {
-        return b;
+    public B getSecond() {
+        return second;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(a, b);
+        return Objects.hash(first, second);
     }
 
     @Override
@@ -56,13 +56,13 @@ public class Pair<A, B> {
         }
         if (other instanceof Pair) {
             final Pair<?, ?> o = (Pair<?, ?>) other;
-            return Objects.equals(b, o.b) && Objects.equals(a, o.a);
+            return Objects.equals(second, o.second) && Objects.equals(first, o.first);
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return String.format("<%s, %s>", a, b);
+        return String.format("<%s, %s>", first, second);
     }
 }

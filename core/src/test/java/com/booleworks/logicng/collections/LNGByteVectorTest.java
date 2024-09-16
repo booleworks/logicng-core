@@ -15,22 +15,22 @@ public class LNGByteVectorTest {
     public void testVectorCreation() {
         final LNGByteVector v1 = new LNGByteVector();
         assertThat(v1.size()).isEqualTo(0);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         final LNGByteVector v2 = new LNGByteVector(10);
         assertThat(v2.size()).isEqualTo(0);
-        assertThat(v2.empty()).isTrue();
+        assertThat(v2.isEmpty()).isTrue();
         final LNGByteVector v3 = new LNGByteVector(10, (byte) 42);
         assertThat(v3.size()).isEqualTo(10);
         for (int i = 0; i < v3.size(); i++) {
             assertThat(v3.get(i)).isEqualTo((byte) 42);
         }
-        assertThat(v3.empty()).isFalse();
+        assertThat(v3.isEmpty()).isFalse();
         final LNGByteVector v4 = new LNGByteVector(v3);
         assertThat(v4.size()).isEqualTo(10);
         for (int i = 0; i < v4.size(); i++) {
             assertThat(v4.get(i)).isEqualTo((byte) 42);
         }
-        assertThat(v4.empty()).isFalse();
+        assertThat(v4.isEmpty()).isFalse();
         final LNGByteVector v5 = new LNGByteVector((byte) 0, (byte) 1, (byte) 2, (byte) 3, (byte) 4);
         assertThat(v5.size()).isEqualTo(5);
         for (int i = 0; i < 5; i++) {
@@ -41,37 +41,37 @@ public class LNGByteVectorTest {
     @Test
     public void testVectorAddElements() {
         final LNGByteVector v1 = new LNGByteVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 100; i++) {
             v1.push((byte) i);
             assertThat(v1.size()).isEqualTo(i + 1);
             assertThat(v1.back()).isEqualTo(i);
             assertThat(v1.get(i)).isEqualTo((byte) i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         v1.clear();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
     public void legalUnsafePush() {
         final LNGByteVector v1 = new LNGByteVector(100);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 100; i++) {
             v1.unsafePush((byte) i);
             assertThat(v1.size()).isEqualTo(i + 1);
             assertThat(v1.back()).isEqualTo(i);
             assertThat(v1.get(i)).isEqualTo((byte) i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         v1.clear();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
     public void illegalUnsafePush() {
         final LNGByteVector v1 = new LNGByteVector(100);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         assertThatThrownBy(() -> {
             for (int i = 0; i < 1000; i++) {
                 v1.unsafePush((byte) i);
@@ -98,11 +98,11 @@ public class LNGByteVectorTest {
     @Test
     public void testVectorShrink() {
         final LNGByteVector v1 = new LNGByteVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 100; i++) {
             v1.push((byte) i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         final int beforeSize = v1.size();
         v1.shrinkTo(v1.size() + 50);
         assertThat(beforeSize).isEqualTo(v1.size());
@@ -115,11 +115,11 @@ public class LNGByteVectorTest {
     @Test
     public void testGrowTo() {
         final LNGByteVector v1 = new LNGByteVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 50; i++) {
             v1.push((byte) i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         for (int i = 0; i < 51; i += 10) {
             v1.growTo(50 + i, (byte) 51);
             assertThat(v1.size()).isEqualTo(50 + i);
@@ -144,11 +144,11 @@ public class LNGByteVectorTest {
     @Test
     public void testRemoveElements() {
         final LNGByteVector v1 = new LNGByteVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 100; i++) {
             v1.push((byte) i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         for (int i = 0; i < 9; i++) {
             v1.removeElements(10);
             assertThat(v1.size()).isEqualTo(100 - (i + 1) * 10);
@@ -156,7 +156,7 @@ public class LNGByteVectorTest {
         }
         assertThat(v1.size()).isEqualTo(10);
         v1.removeElements(10);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
@@ -179,7 +179,7 @@ public class LNGByteVectorTest {
         }
         final LNGByteVector v3 = new LNGByteVector(100);
         v3.sort();
-        assertThat(v3.empty()).isTrue();
+        assertThat(v3.isEmpty()).isTrue();
     }
 
     @Test
@@ -202,7 +202,7 @@ public class LNGByteVectorTest {
         }
         final LNGByteVector v3 = new LNGByteVector(100);
         v3.sortReverse();
-        assertThat(v3.empty()).isTrue();
+        assertThat(v3.isEmpty()).isTrue();
     }
 
     @Test

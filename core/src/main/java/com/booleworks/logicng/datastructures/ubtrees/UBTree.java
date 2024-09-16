@@ -39,7 +39,7 @@ public final class UBTree<T extends Comparable<T>> {
         UBNode<T> node = null;
         for (final T element : set) {
             node = nodes.computeIfAbsent(element, UBNode::new);
-            nodes = node.children();
+            nodes = node.getChildren();
         }
         if (node != null) {
             node.setEndSet(set);
@@ -89,7 +89,7 @@ public final class UBTree<T extends Comparable<T>> {
         final List<UBNode<T>> allEndOfPathNodes = getAllEndOfPathNodes(rootNodes);
         final Set<SortedSet<T>> allSets = new LinkedHashSet<>();
         for (final UBNode<T> endOfPathNode : allEndOfPathNodes) {
-            allSets.add(endOfPathNode.set());
+            allSets.add(endOfPathNode.getSet());
         }
         return allSets;
     }
@@ -98,7 +98,7 @@ public final class UBTree<T extends Comparable<T>> {
      * Returns all root nodes of this UBTree.
      * @return all root nodes of this UBTree
      */
-    SortedMap<T, UBNode<T>> rootNodes() {
+    SortedMap<T, UBNode<T>> getRootNodes() {
         return rootNodes;
     }
 
@@ -110,11 +110,11 @@ public final class UBTree<T extends Comparable<T>> {
                 return foundSubset;
             }
             if (node.isEndOfPath()) {
-                return node.set();
+                return node.getSet();
             }
             final SortedSet<T> remainingSet = new TreeSet<>(set);
             remainingSet.remove(set.first());
-            foundSubset = firstSubset(remainingSet, node.children());
+            foundSubset = firstSubset(remainingSet, node.getChildren());
         }
         return foundSubset;
     }
@@ -124,11 +124,11 @@ public final class UBTree<T extends Comparable<T>> {
         final Set<UBNode<T>> nodes = getAllNodesContainingElements(set, forest);
         for (final UBNode<T> node : nodes) {
             if (node.isEndOfPath()) {
-                subsets.add(node.set());
+                subsets.add(node.getSet());
             }
             final SortedSet<T> remainingSet = new TreeSet<>(set);
             remainingSet.remove(set.first());
-            allSubsets(remainingSet, node.children(), subsets);
+            allSubsets(remainingSet, node.getChildren(), subsets);
         }
     }
 
@@ -136,21 +136,21 @@ public final class UBTree<T extends Comparable<T>> {
                               final Set<SortedSet<T>> supersets) {
         final Set<UBNode<T>> nodes = getAllNodesContainingElementsLessThan(forest, set.first());
         for (final UBNode<T> node : nodes) {
-            allSupersets(set, node.children(), supersets);
+            allSupersets(set, node.getChildren(), supersets);
         }
         for (final UBNode<T> node : forest.values()) {
-            if (node.element().equals(set.first())) {
+            if (node.getElement().equals(set.first())) {
                 final SortedSet<T> remainingSet = new TreeSet<>(set);
                 remainingSet.remove(set.first());
                 if (!remainingSet.isEmpty()) {
-                    allSupersets(remainingSet, node.children(), supersets);
+                    allSupersets(remainingSet, node.getChildren(), supersets);
                 } else {
-                    final List<UBNode<T>> allEndOfPathNodes = getAllEndOfPathNodes(node.children());
+                    final List<UBNode<T>> allEndOfPathNodes = getAllEndOfPathNodes(node.getChildren());
                     if (node.isEndOfPath()) {
                         allEndOfPathNodes.add(node);
                     }
                     for (final UBNode<T> endOfPathNode : allEndOfPathNodes) {
-                        supersets.add(endOfPathNode.set());
+                        supersets.add(endOfPathNode.getSet());
                     }
                 }
             }
@@ -172,7 +172,7 @@ public final class UBTree<T extends Comparable<T>> {
                                                                  final T element) {
         final Set<UBNode<T>> nodes = new LinkedHashSet<>();
         for (final UBNode<T> node : forest.values()) {
-            if (node != null && node.element().compareTo(element) < 0) {
+            if (node != null && node.getElement().compareTo(element) < 0) {
                 nodes.add(node);
             }
         }
@@ -190,7 +190,7 @@ public final class UBTree<T extends Comparable<T>> {
             if (node.isEndOfPath()) {
                 endOfPathNodes.add(node);
             }
-            getAllEndOfPathNodes(node.children(), endOfPathNodes);
+            getAllEndOfPathNodes(node.getChildren(), endOfPathNodes);
         }
     }
 }

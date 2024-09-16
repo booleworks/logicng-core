@@ -213,7 +213,7 @@ public class BackboneGenerationTest {
 
     private boolean verifyBackbone(final Backbone backbone, final Formula formula,
                                    final Collection<Variable> variables) {
-        final SATSolver solver = SATSolver.newSolver(formula.factory());
+        final SATSolver solver = SATSolver.newSolver(formula.getFactory());
         solver.add(formula);
         for (final Variable bbVar : backbone.getPositiveBackbone()) {
             if (solver.satCall().addFormulas(bbVar.negate(f)).sat().getResult()) {

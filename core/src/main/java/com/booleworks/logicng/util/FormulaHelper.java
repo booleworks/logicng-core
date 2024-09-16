@@ -142,10 +142,10 @@ public final class FormulaHelper {
      * Splits the top level {@link And} if possible.
      * @param formula the formula
      * @return list of the operands if the formula is a {@link And}, otherwise
-     *         the formula itself
+     * the formula itself
      */
     public static List<Formula> splitTopLevelAnd(final Formula formula) {
-        if (formula.type() == FType.AND) {
+        if (formula.getType() == FType.AND) {
             final List<Formula> ops = new ArrayList<>();
             for (final Formula op : formula) {
                 ops.add(op);
@@ -219,7 +219,7 @@ public final class FormulaHelper {
         }
         final SortedSet<String> strings = new TreeSet<>();
         for (final Variable variable : variables) {
-            strings.add(variable.name());
+            strings.add(variable.getName());
         }
         return strings;
     }
@@ -234,7 +234,7 @@ public final class FormulaHelper {
      *                       {@code null}
      * @param negationPrefix the negation prefix
      * @return the list of literal names with a leading {@code negationPrefix}
-     *         if the phase is negative
+     * if the phase is negative
      */
     public static SortedSet<String> literals2strings(final Collection<Literal> literals, final String negationPrefix) {
         if (CollectionHelper.nullOrEmpty(literals)) {
@@ -242,7 +242,7 @@ public final class FormulaHelper {
         }
         final SortedSet<String> strings = new TreeSet<>();
         for (final Literal lit : literals) {
-            strings.add(lit.phase() ? lit.name() : negationPrefix + lit.name());
+            strings.add(lit.getPhase() ? lit.getName() : negationPrefix + lit.getName());
         }
         return strings;
     }

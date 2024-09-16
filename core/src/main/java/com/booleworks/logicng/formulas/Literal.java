@@ -63,7 +63,7 @@ public interface Literal extends Formula, Comparable<Literal> {
 
     @Override
     default boolean containsVariable(final Variable variable) {
-        return variable.name().equals(name());
+        return variable.getName().equals(getName());
     }
 
     @Override
@@ -84,20 +84,20 @@ public interface Literal extends Formula, Comparable<Literal> {
     @Override
     default Formula substitute(final FormulaFactory f, final Substitution substitution) {
         final Formula subst = substitution.getSubstitution(variable());
-        return subst == null ? this : (phase() ? subst : subst.negate(f));
+        return subst == null ? this : (getPhase() ? subst : subst.negate(f));
     }
 
     /**
      * Returns the name of the literal.
      * @return the name of the literal
      */
-    String name();
+    String getName();
 
     /**
      * Returns the phase of the literal.
      * @return the phase of the literal.
      */
-    boolean phase();
+    boolean getPhase();
 
     /**
      * Returns a positive version of this literal (aka a variable).
@@ -113,9 +113,9 @@ public interface Literal extends Formula, Comparable<Literal> {
         if (this == lit) {
             return 0;
         }
-        final int res = name().compareTo(lit.name());
-        if (res == 0 && phase() != lit.phase()) {
-            return phase() ? -1 : 1;
+        final int res = getName().compareTo(lit.getName());
+        if (res == 0 && getPhase() != lit.getPhase()) {
+            return getPhase() ? -1 : 1;
         }
         return res;
     }

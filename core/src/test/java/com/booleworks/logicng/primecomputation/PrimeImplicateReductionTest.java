@@ -121,7 +121,7 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
     }
 
     private void testFormula(final Formula formula, final ComputationHandler handler, final boolean expCanceled) {
-        final FormulaFactory f = formula.factory();
+        final FormulaFactory f = formula.getFactory();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula.negate(f));
         try (final SATCall call = solver.satCall().solve()) {
@@ -142,7 +142,7 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
     }
 
     public static void testPrimeImplicateProperty(final Formula formula, final SortedSet<Literal> primeImplicate) {
-        final FormulaFactory f = formula.factory();
+        final FormulaFactory f = formula.getFactory();
         final SATSolver solver = SATSolver.newSolver(f);
         solver.add(formula);
         final SortedSet<Literal> negatedLiterals = FormulaHelper.negateLiterals(f, primeImplicate, TreeSet::new);

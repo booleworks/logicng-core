@@ -23,7 +23,7 @@ public class AndTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testType(final FormulaContext _c) {
-        assertThat(_c.and1.type()).isEqualTo(FType.AND);
+        assertThat(_c.and1.getType()).isEqualTo(FType.AND);
     }
 
     @ParameterizedTest
@@ -49,7 +49,7 @@ public class AndTest extends TestWithFormulaContext {
         assertThat(_c.f.and(_c.f.and(_c.a, _c.b), _c.f.and(_c.x, _c.y))).isEqualTo(_c.f.and(_c.a, _c.b, _c.x, _c.y));
         assertThat(_c.f.cnf(_c.f.clause(_c.x, _c.y),
                 _c.f.and(_c.f.or(_c.f.and(_c.nx, _c.nx), _c.ny), _c.f.or(_c.f.and(_c.nx, _c.verum), _c.ny))))
-                        .isEqualTo(_c.and3);
+                .isEqualTo(_c.and3);
         assertThat(_c.f.naryOperator(FType.AND, _c.a, _c.b, _c.a, _c.b, _c.a)).isEqualTo(_c.and1);
         assertThat(_c.f.naryOperator(FType.AND, Arrays.asList(_c.a, _c.b, _c.a, _c.b, _c.a))).isEqualTo(_c.and1);
     }
@@ -116,8 +116,8 @@ public class AndTest extends TestWithFormulaContext {
         assertThat(_c.and2).isEqualTo(_c.and2);
         assertThat(_c.f.and(_c.f.or(_c.f.literal("y", false), _c.f.variable("x")),
                 _c.f.or(_c.f.variable("b"), _c.f.variable("a"))))
-                        .isEqualTo(_c.f.and(_c.f.or(_c.f.variable("a"), _c.f.variable("b")),
-                                _c.f.or(_c.f.variable("x"), _c.f.literal("y", false))));
+                .isEqualTo(_c.f.and(_c.f.or(_c.f.variable("a"), _c.f.variable("b")),
+                        _c.f.or(_c.f.variable("x"), _c.f.literal("y", false))));
         assertThat(_c.f.and(_c.nx, _c.a, _c.nb, _c.or1)).isEqualTo(_c.f.and(_c.a, _c.nb, _c.or1, _c.nx));
         assertThat(_c.and2).isNotEqualTo(_c.and1);
         assertThat(_c.f.and(_c.a, _c.b, _c.c)).isNotEqualTo(_c.and1);
@@ -135,7 +135,7 @@ public class AndTest extends TestWithFormulaContext {
                         _c.f.or(_c.f.variable("x"), _c.f.literal("y", false))));
         assertThat(g.and(g.literal("x", false), g.variable("a"), g.literal("b", false),
                 g.or(g.variable("x"), g.variable("y"))))
-                        .isEqualTo(_c.f.and(_c.a, _c.nb, _c.or1, _c.nx));
+                .isEqualTo(_c.f.and(_c.a, _c.nb, _c.or1, _c.nx));
         assertThat(g.and(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.and1);
         assertThat(g.and(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.and1);
         assertThat(_c.f.and(_c.a, _c.b, _c.f.variable("c"))).isNotEqualTo(_c.and1);
@@ -149,7 +149,7 @@ public class AndTest extends TestWithFormulaContext {
                         _c.f.or(_c.f.variable("x"), _c.f.literal("y", false))));
         assertThat(g.and(g.literal("x", false), g.variable("a"), g.literal("b", false),
                 g.or(g.variable("x"), g.variable("y"))))
-                        .isEqualTo(_c.f.and(_c.a, _c.nb, _c.or1, _c.nx));
+                .isEqualTo(_c.f.and(_c.a, _c.nb, _c.or1, _c.nx));
         assertThat(g.and(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.and1);
         assertThat(g.and(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.and1);
         assertThat(_c.f.and(_c.a, _c.b, _c.f.variable("c"))).isNotEqualTo(_c.and1);
@@ -163,7 +163,7 @@ public class AndTest extends TestWithFormulaContext {
                         _c.f.or(_c.f.variable("x"), _c.f.literal("y", false))));
         assertThat(g.and(g.literal("x", false), g.variable("a"), g.literal("b", false),
                 g.or(g.variable("x"), g.variable("y"))))
-                        .isEqualTo(_c.f.and(_c.a, _c.nb, _c.or1, _c.nx));
+                .isEqualTo(_c.f.and(_c.a, _c.nb, _c.or1, _c.nx));
         assertThat(g.and(g.literal("a", false), g.variable("b"))).isNotEqualTo(_c.and1);
         assertThat(g.and(g.variable("a"), g.literal("b", false))).isNotEqualTo(_c.and1);
         assertThat(_c.f.and(_c.a, _c.b, _c.f.variable("c"))).isNotEqualTo(_c.and1);

@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * An edge in a hypergraph.
  * @param <T> the content type of the graph's nodes
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.4.0
  */
 public final class HypergraphEdge<T> {
@@ -45,7 +45,7 @@ public final class HypergraphEdge<T> {
      * Returns the nodes connected by this edge.
      * @return the nodes connected by this edge
      */
-    public Set<HypergraphNode<T>> nodes() {
+    public Set<HypergraphNode<T>> getNodes() {
         return nodes;
     }
 

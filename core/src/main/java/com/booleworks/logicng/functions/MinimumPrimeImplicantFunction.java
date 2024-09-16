@@ -44,7 +44,7 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<Sort
         final Map<Variable, Literal> newVar2oldLit = new HashMap<>();
         final Map<Literal, Literal> substitution = new HashMap<>();
         for (final Literal literal : nnf.literals(f)) {
-            final Variable newVar = f.variable(literal.name() + (literal.phase() ? POS : NEG));
+            final Variable newVar = f.variable(literal.getName() + (literal.getPhase() ? POS : NEG));
             newVar2oldLit.put(newVar, literal);
             substitution.put(literal, newVar);
         }
@@ -54,8 +54,8 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<Sort
                 SATSolverConfig.builder().cnfMethod(SATSolverConfig.CNFMethod.PG_ON_SOLVER).build());
         solver.add(substituted);
         for (final Literal literal : newVar2oldLit.values()) {
-            if (literal.phase() && newVar2oldLit.containsValue(literal.negate(f))) {
-                solver.add(f.amo(f.variable(literal.name() + POS), f.variable(literal.name() + NEG)));
+            if (literal.getPhase() && newVar2oldLit.containsValue(literal.negate(f))) {
+                solver.add(f.amo(f.variable(literal.getName() + POS), f.variable(literal.getName() + NEG)));
             }
         }
         if (!solver.sat()) {

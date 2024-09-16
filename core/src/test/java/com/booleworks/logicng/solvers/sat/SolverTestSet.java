@@ -76,22 +76,22 @@ public interface SolverTestSet {
     }
 
     static String solverDescription(final SATSolver s, final Collection<SATSolverConfigParam> variance) {
-        final SATSolverConfig config = s.config();
+        final SATSolverConfig config = s.getConfig();
         final List<String> elements = new ArrayList<>();
         if (variance.contains(SATSolverConfigParam.PROOF_GENERATION)) {
-            elements.add((config.proofGeneration() ? "+" : "-") + "PROOF");
+            elements.add((config.isProofGeneration() ? "+" : "-") + "PROOF");
         }
         if (variance.contains(SATSolverConfigParam.USE_AT_MOST_CLAUSES)) {
-            elements.add((config.useAtMostClauses() ? "+" : "-") + "AT_MOST");
+            elements.add((config.isUseAtMostClauses() ? "+" : "-") + "AT_MOST");
         }
         if (variance.contains(SATSolverConfigParam.CNF_METHOD)) {
-            elements.add(config.cnfMethod().name());
+            elements.add(config.getCnfMethod().name());
         }
         if (variance.contains(SATSolverConfigParam.INITIAL_PHASE)) {
-            elements.add((config.initialPhase() ? "+" : "-") + "INITIAL_PHASE");
+            elements.add((config.getInitialPhase() ? "+" : "-") + "INITIAL_PHASE");
         }
         if (variance.contains(SATSolverConfigParam.CLAUSE_MINIMIZATION)) {
-            elements.add(config.clauseMinimization().name());
+            elements.add(config.getClauseMinimization().name());
         }
         return String.join(" ", elements);
     }

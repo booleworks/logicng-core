@@ -73,7 +73,7 @@ public final class ModelCounter {
      * @param variables the relevant variables
      * @param handler   the computation handler
      * @return the model count of the formulas for the variables or {@code null}
-     *         if the DNNF handler canceled the DNNF computation
+     * if the DNNF handler canceled the DNNF computation
      */
     public static LNGResult<BigInteger> count(final FormulaFactory f, final Collection<Formula> formulas,
                                               final SortedSet<Variable> variables, final ComputationHandler handler) {
@@ -82,7 +82,7 @@ public final class ModelCounter {
         }
         if (variables.isEmpty()) {
             final List<Formula> remainingConstants =
-                    formulas.stream().filter(formula -> formula.type() != FType.TRUE).collect(Collectors.toList());
+                    formulas.stream().filter(formula -> formula.getType() != FType.TRUE).collect(Collectors.toList());
             return LNGResult.of(remainingConstants.isEmpty() ? BigInteger.ONE : BigInteger.ZERO);
         }
         final List<Formula> cnfs = encodeAsCnf(f, formulas);
@@ -111,7 +111,7 @@ public final class ModelCounter {
         final Assignment simpleBackbone = new Assignment();
         final SortedSet<Variable> backboneVariables = new TreeSet<>();
         for (final Formula formula : formulas) {
-            if (formula.type() == FType.LITERAL) {
+            if (formula.getType() == FType.LITERAL) {
                 final Literal lit = (Literal) formula;
                 simpleBackbone.addLiteral(lit);
                 backboneVariables.add(lit.variable());
@@ -120,7 +120,7 @@ public final class ModelCounter {
         final List<Formula> simplified = new ArrayList<>();
         for (final Formula formula : formulas) {
             final Formula restrict = formula.restrict(f, simpleBackbone);
-            if (restrict.type() != FType.TRUE) {
+            if (restrict.getType() != FType.TRUE) {
                 simplified.add(restrict);
             }
         }
@@ -149,7 +149,7 @@ public final class ModelCounter {
         private final FormulaFactory f;
 
         private SimplificationResult(final FormulaFactory f, final SortedSet<Variable> backboneVariables,
-                                    final List<Formula> simplifiedFormulas) {
+                                     final List<Formula> simplifiedFormulas) {
             this.simplifiedFormulas = simplifiedFormulas;
             this.backboneVariables = backboneVariables;
             this.f = f;

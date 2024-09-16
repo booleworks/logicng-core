@@ -56,12 +56,12 @@ public class LngNativePBConstraint extends LngNativeFormula implements PBConstra
     }
 
     @Override
-    public List<Literal> operands() {
+    public List<Literal> getOperands() {
         return literals;
     }
 
     @Override
-    public List<Integer> coefficients() {
+    public List<Integer> getCoefficients() {
         return coefficients;
     }
 
@@ -71,7 +71,7 @@ public class LngNativePBConstraint extends LngNativeFormula implements PBConstra
     }
 
     @Override
-    public int rhs() {
+    public int getRhs() {
         return rhs;
     }
 
@@ -100,8 +100,8 @@ public class LngNativePBConstraint extends LngNativeFormula implements PBConstra
         }
         if (other instanceof PBConstraint && hashCode() == other.hashCode()) {
             final PBConstraint o = (PBConstraint) other;
-            return rhs == o.rhs() && comparator == o.comparator() && coefficients.equals(o.coefficients()) &&
-                    literals.equals(o.operands());
+            return rhs == o.getRhs() && comparator == o.comparator() && coefficients.equals(o.getCoefficients()) &&
+                    literals.equals(o.getOperands());
         }
         return false;
     }

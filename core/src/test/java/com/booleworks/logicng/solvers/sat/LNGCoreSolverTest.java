@@ -11,7 +11,6 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.SATSolver;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -35,7 +34,7 @@ public class LNGCoreSolverTest {
 
     @Test
     public void testConfig() {
-        assertThat(SATSolverConfig.builder().build().type().toString()).isEqualTo("SAT");
+        assertThat(SATSolverConfig.builder().build().getType().toString()).isEqualTo("SAT");
         assertThat(Arrays.asList(SATSolverConfig.ClauseMinimization.values())
                 .contains(SATSolverConfig.ClauseMinimization.valueOf("DEEP"))).isTrue();
     }

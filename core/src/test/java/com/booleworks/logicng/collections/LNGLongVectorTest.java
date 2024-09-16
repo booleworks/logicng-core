@@ -15,22 +15,22 @@ public class LNGLongVectorTest {
     public void testVectorCreation() {
         final LNGLongVector v1 = new LNGLongVector();
         assertThat(v1.size()).isEqualTo(0);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         final LNGLongVector v2 = new LNGLongVector(10);
         assertThat(v2.size()).isEqualTo(0);
-        assertThat(v2.empty()).isTrue();
+        assertThat(v2.isEmpty()).isTrue();
         final LNGLongVector v3 = new LNGLongVector(10, 42);
         assertThat(v3.size()).isEqualTo(10);
         for (int i = 0; i < v3.size(); i++) {
             assertThat(v3.get(i)).isEqualTo(42);
         }
-        assertThat(v3.empty()).isFalse();
+        assertThat(v3.isEmpty()).isFalse();
         final LNGLongVector v4 = new LNGLongVector(v3);
         assertThat(v4.size()).isEqualTo(10);
         for (int i = 0; i < v4.size(); i++) {
             assertThat(v4.get(i)).isEqualTo(42);
         }
-        assertThat(v4.empty()).isFalse();
+        assertThat(v4.isEmpty()).isFalse();
         final LNGLongVector v5 = new LNGLongVector(0, 1, 2, 3, 4);
         assertThat(v5.size()).isEqualTo(5);
         for (int i = 0; i < 5; i++) {
@@ -41,37 +41,37 @@ public class LNGLongVectorTest {
     @Test
     public void testVectorAddElements() {
         final LNGLongVector v1 = new LNGLongVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push(i);
             assertThat(v1.size()).isEqualTo(i + 1);
             assertThat(v1.back()).isEqualTo(i);
             assertThat(v1.get(i)).isEqualTo(i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         v1.clear();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
     public void legalUnsafePush() {
         final LNGLongVector v1 = new LNGLongVector(1000);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.unsafePush(i);
             assertThat(v1.size()).isEqualTo(i + 1);
             assertThat(v1.back()).isEqualTo(i);
             assertThat(v1.get(i)).isEqualTo(i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         v1.clear();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
     public void illegalUnsafePush() {
         final LNGLongVector v1 = new LNGLongVector(100);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         assertThatThrownBy(() -> {
             for (int i = 0; i < 1000; i++) {
                 v1.unsafePush(i);
@@ -98,11 +98,11 @@ public class LNGLongVectorTest {
     @Test
     public void testVectorShrink() {
         final LNGLongVector v1 = new LNGLongVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push(i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         final int beforeSize = v1.size();
         v1.shrinkTo(v1.size() + 50);
         assertThat(beforeSize).isEqualTo(v1.size());
@@ -115,11 +115,11 @@ public class LNGLongVectorTest {
     @Test
     public void testGrowTo() {
         final LNGLongVector v1 = new LNGLongVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push(i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         for (int i = 0; i < 1001; i += 10) {
             v1.growTo(1000 + i, 1001);
             assertThat(v1.size()).isEqualTo(1000 + i);
@@ -144,11 +144,11 @@ public class LNGLongVectorTest {
     @Test
     public void testRemoveElements() {
         final LNGLongVector v1 = new LNGLongVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push(i);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         for (int i = 0; i < 9; i++) {
             v1.removeElements(100);
             assertThat(v1.size()).isEqualTo(1000 - (i + 1) * 100);
@@ -156,7 +156,7 @@ public class LNGLongVectorTest {
         }
         assertThat(v1.size()).isEqualTo(100);
         v1.removeElements(100);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
@@ -179,7 +179,7 @@ public class LNGLongVectorTest {
         }
         final LNGLongVector v3 = new LNGLongVector(1000);
         v3.sort();
-        assertThat(v3.empty()).isTrue();
+        assertThat(v3.isEmpty()).isTrue();
     }
 
     @Test
@@ -202,7 +202,7 @@ public class LNGLongVectorTest {
         }
         final LNGLongVector v3 = new LNGLongVector(1000);
         v3.sortReverse();
-        assertThat(v3.empty()).isTrue();
+        assertThat(v3.isEmpty()).isTrue();
     }
 
     @Test

@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * An unsatisfiable core (can be a minimal unsatisfiable sub-formula).
  * @param <T> the type of the core's propositions
- * @version 1.3
+ * @version 3.0.0
  * @since 1.1
  */
 public final class UNSATCore<T extends Proposition> {
@@ -35,7 +35,7 @@ public final class UNSATCore<T extends Proposition> {
      * Returns the propositions of this MUS.
      * @return the propositions of this MUS
      */
-    public List<T> propositions() {
+    public List<T> getPropositions() {
         return propositions;
     }
 
@@ -44,7 +44,7 @@ public final class UNSATCore<T extends Proposition> {
      * unknown whether it is a MUS. Note, if set to {@code false} this core
      * might be a MUS, but it is not yet verified.
      * @return {@code true} if this core is a MUS and {@code false} if it is
-     *         unknown whether it is a MUS.
+     * unknown whether it is a MUS.
      */
     public boolean isMUS() {
         return isMUS;

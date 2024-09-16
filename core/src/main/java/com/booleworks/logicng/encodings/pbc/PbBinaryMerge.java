@@ -42,7 +42,7 @@ public final class PbBinaryMerge {
     public static void encode(final EncodingResult result, final LNGVector<Literal> lts, final LNGIntVector cffs,
                               final int rhs, final boolean useGac, final boolean noSuppoertSingleBit,
                               final boolean useWatchDog) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         final LNGVector<Literal> lits = new LNGVector<>(lts.size());
         for (final Literal lit : lts) {
             lits.push(lit);
@@ -116,7 +116,7 @@ public final class PbBinaryMerge {
                                     final LNGIntVector coefficients, final int leq,
                                     final int maxWeight, final int n, final Literal gac_lit,
                                     final boolean useWatchDog) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         final int lessThen = leq + 1;
         final int p = (int) Math.floor(Math.log(maxWeight) / Math.log(2));
         final int m = (int) Math.ceil(lessThen / Math.pow(2, p));
@@ -212,7 +212,7 @@ public final class PbBinaryMerge {
             u_x.push(x.get(0));
         } else {
             for (int i = 0; i < x.size(); i++) {
-                u_x.push(result.factory().newPBVariable());
+                u_x.push(result.getFactory().newPBVariable());
             }
             final LNGVector<Literal> x_1 = new LNGVector<>();
             final LNGVector<Literal> x_2 = new LNGVector<>();
@@ -233,7 +233,7 @@ public final class PbBinaryMerge {
 
     private static void unary_adder(final EncodingResult result, final LNGVector<Literal> u, final LNGVector<Literal> v,
                                     final LNGVector<Literal> w) {
-        final FormulaFactory f = result.factory();
+        final FormulaFactory f = result.getFactory();
         w.clear();
         if (u.size() == 0) {
             for (int i = 0; i < v.size(); i++) {

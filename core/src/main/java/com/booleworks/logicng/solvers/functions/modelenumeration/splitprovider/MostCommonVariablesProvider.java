@@ -15,7 +15,7 @@ import java.util.SortedSet;
  * particularly often in the formulas on the solver. The variables occurring in
  * the formulas are sorted by their occurrence. This provider returns those
  * variables with the biggest occurrence.
- * @version 2.5.0
+ * @version 3.0.0
  * @since 2.5.0
  */
 public class MostCommonVariablesProvider extends SplitVariableProviderWithTakeRate {

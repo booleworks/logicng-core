@@ -144,12 +144,12 @@ public class PureExpansionTransformationTest extends TestWithFormulaContext {
 
         final FormulaCornerCases cornerCases = new FormulaCornerCases(_c.f);
         for (final Formula formula : cornerCases.cornerCases()) {
-            if (formula.type() == FType.PBC) {
+            if (formula.getType() == FType.PBC) {
                 final PBConstraint pbc = (PBConstraint) formula;
                 if (!pbc.isAmo() && !pbc.isExo()) {
                     assertThatThrownBy(
                             () -> ModelCounter.count(_c.f, Collections.singletonList(formula), formula.variables(_c.f)))
-                                    .isInstanceOf(UnsupportedOperationException.class);
+                            .isInstanceOf(UnsupportedOperationException.class);
                     continue;
                 }
             }
@@ -178,19 +178,19 @@ public class PureExpansionTransformationTest extends TestWithFormulaContext {
     }
 
     private static void verify(final Formula formula, final Formula expandedFormula) {
-        final FormulaFactory f = formula.factory();
+        final FormulaFactory f = formula.getFactory();
         assertThat(f.equivalence(formula, expandedFormula).holds(new TautologyPredicate(f))).isTrue();
         assertThat(isFreeOfPBCs(expandedFormula)).isTrue();
     }
 
     private static boolean isFreeOfPBCs(final Formula formula) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
             case TRUE:
             case LITERAL:
                 return true;
             case NOT:
-                return isFreeOfPBCs(((Not) formula).operand());
+                return isFreeOfPBCs(((Not) formula).getOperand());
             case OR:
             case AND:
                 for (final Formula op : formula) {
@@ -202,11 +202,11 @@ public class PureExpansionTransformationTest extends TestWithFormulaContext {
             case IMPL:
             case EQUIV:
                 final BinaryOperator binary = (BinaryOperator) formula;
-                return isFreeOfPBCs(binary.left()) && isFreeOfPBCs(binary.right());
+                return isFreeOfPBCs(binary.getLeft()) && isFreeOfPBCs(binary.getRight());
             case PBC:
                 return false;
             default:
-                throw new IllegalStateException("Unknown formula type: " + formula.type());
+                throw new IllegalStateException("Unknown formula type: " + formula.getType());
         }
     }
 }

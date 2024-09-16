@@ -77,7 +77,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
          */
         public void add(final Formula formula) {
             final Formula cnf = formula.cnf(f);
-            switch (cnf.type()) {
+            switch (cnf.getType()) {
                 case TRUE:
                     break;
                 case FALSE:
@@ -91,7 +91,7 @@ public final class UnitPropagation extends CacheableFormulaTransformation {
                     }
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected formula type in CNF: " + cnf.type());
+                    throw new IllegalStateException("Unexpected formula type in CNF: " + cnf.getType());
             }
         }
 

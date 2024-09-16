@@ -210,7 +210,7 @@ public class LNGCoreSolver {
      */
     public static LNGIntVector generateClauseVector(final Collection<? extends Literal> literals,
                                                     final LNGCoreSolver solver) {
-        return generateClauseVector(literals, solver, solver.config().initialPhase(), true);
+        return generateClauseVector(literals, solver, solver.getConfig().getInitialPhase(), true);
     }
 
     /**
@@ -226,18 +226,18 @@ public class LNGCoreSolver {
      */
     public static int solverLiteral(final Literal lit, final LNGCoreSolver solver, final boolean initialPhase,
                                     final boolean decisionVar) {
-        int index = solver.idxForName(lit.name());
+        int index = solver.idxForName(lit.getName());
         if (index == -1) {
             index = solver.newVar(!initialPhase, decisionVar);
-            solver.addName(lit.name(), index);
+            solver.addName(lit.getName(), index);
         }
-        return lit.phase() ? index * 2 : (index * 2) ^ 1;
+        return lit.getPhase() ? index * 2 : (index * 2) ^ 1;
     }
 
     /**
      * Returns or creates the internal index for the given literal on the given
      * solver. If it is unknown, it will be created with the given initial phase
-     * specified by the {@link SATSolverConfig#initialPhase() configuration of
+     * specified by the {@link SATSolverConfig#getInitialPhase() configuration of
      * the solver} and with {@code decisionVar == true}.
      * @param lit    the literal
      * @param solver the solver
@@ -463,7 +463,7 @@ public class LNGCoreSolver {
             pgProof.push(vec);
         }
 
-        if (ps.empty()) {
+        if (ps.isEmpty()) {
             ok = false;
             if (config.proofGeneration) {
                 pgProof.push(LNGIntVector.of(0));
@@ -513,7 +513,7 @@ public class LNGCoreSolver {
 
         final boolean result = status.getResult() == TRUE;
 
-        if (config.proofGeneration && assumptions.empty() && !result) {
+        if (config.proofGeneration && assumptions.isEmpty() && !result) {
             pgProof.push(LNGIntVector.of(0));
         }
 
@@ -522,7 +522,7 @@ public class LNGCoreSolver {
             for (final LNGVariable v : vars) {
                 model.push(v.assignment() == TRUE);
             }
-        } else if (assumptionsConflict.empty()) {
+        } else if (assumptionsConflict.isEmpty()) {
             ok = false;
         }
         cancelUntil(0);
@@ -1686,7 +1686,7 @@ public class LNGCoreSolver {
          * Returns the clause.
          * @return the clause
          */
-        public LNGIntVector clause() {
+        public LNGIntVector getClause() {
             return clause;
         }
 
@@ -1694,7 +1694,7 @@ public class LNGCoreSolver {
          * Returns the proposition.
          * @return the proposition
          */
-        public Proposition proposition() {
+        public Proposition getProposition() {
             return proposition;
         }
 
@@ -1784,7 +1784,7 @@ public class LNGCoreSolver {
     protected List<Integer> getRelevantVarIndices(final Collection<Variable> variables) {
         final List<Integer> relevantVarIndices = new ArrayList<>(variables.size());
         for (final Variable var : variables) {
-            final Integer idx = name2idx.get(var.name());
+            final Integer idx = name2idx.get(var.getName());
             // Note: Unknown variables are variables added to the solver yet.
             // Thus, these are optional variables and can
             // be left out for the backbone computation.
@@ -1895,7 +1895,7 @@ public class LNGCoreSolver {
         final SortedSet<Variable> negBackboneVars = isBothOrNegativeType(type) ? new TreeSet<>() : null;
         final SortedSet<Variable> optionalVars = isBothType(type) ? new TreeSet<>() : null;
         for (final Variable var : variables) {
-            final Integer idx = name2idx.get(var.name());
+            final Integer idx = name2idx.get(var.getName());
             if (idx == null) {
                 if (isBothType(type)) {
                     optionalVars.add(var);
@@ -2019,7 +2019,7 @@ public class LNGCoreSolver {
      * Returns the clauses loaded on the solver.
      * @return the clauses loaded on the solver
      */
-    public LNGVector<LNGClause> clauses() {
+    public LNGVector<LNGClause> getClauses() {
         return clauses;
     }
 
@@ -2027,7 +2027,7 @@ public class LNGCoreSolver {
      * Returns the variables known by the solver.
      * @return the variables
      */
-    public LNGVector<LNGVariable> variables() {
+    public LNGVector<LNGVariable> getVariables() {
         return vars;
     }
 
@@ -2045,14 +2045,14 @@ public class LNGCoreSolver {
     public void setSelectionOrder(final List<? extends Literal> selectionOrder) {
         this.selectionOrder.clear();
         for (final Literal literal : selectionOrder) {
-            final Integer var = name2idx.get(literal.name());
+            final Integer var = name2idx.get(literal.getName());
             if (var != null) {
-                this.selectionOrder.push(mkLit(var, !literal.phase()));
+                this.selectionOrder.push(mkLit(var, !literal.getPhase()));
             }
         }
     }
 
-    public SATSolverConfig config() {
+    public SATSolverConfig getConfig() {
         return config;
     }
 }

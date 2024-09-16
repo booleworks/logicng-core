@@ -67,7 +67,7 @@ public class CanonicalCNFEnumerationTest extends TestWithFormulaContext {
     }
 
     private void test(final Formula formula) {
-        final FormulaFactory f = formula.factory();
+        final FormulaFactory f = formula.getFactory();
         final Formula cnf = new CanonicalCNFEnumeration(f).apply(formula);
         assertThat(cnf.holds(new CNFPredicate(f))).isTrue();
         assertThat(f.equivalence(formula, cnf).holds(new TautologyPredicate(f))).isTrue();
@@ -79,7 +79,7 @@ public class CanonicalCNFEnumerationTest extends TestWithFormulaContext {
     }
 
     private static boolean hasConstantTermSize(final Formula cnf) {
-        switch (cnf.type()) {
+        switch (cnf.getType()) {
             case LITERAL:
             case TRUE:
             case FALSE:
@@ -88,7 +88,7 @@ public class CanonicalCNFEnumerationTest extends TestWithFormulaContext {
             case AND:
                 return cnf.stream().map(Formula::numberOfOperands).distinct().count() == 1L;
             default:
-                throw new IllegalStateException("Unexpected type: " + cnf.type());
+                throw new IllegalStateException("Unexpected type: " + cnf.getType());
         }
     }
 }

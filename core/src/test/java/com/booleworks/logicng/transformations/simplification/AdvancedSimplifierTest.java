@@ -153,15 +153,15 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
     }
 
     private void computeAndVerify(final Formula formula) {
-        final Formula simplified = formula.transform(new AdvancedSimplifier(formula.factory()));
-        assertThat(formula.factory().equivalence(formula, simplified).holds(new TautologyPredicate(formula.factory())))
+        final Formula simplified = formula.transform(new AdvancedSimplifier(formula.getFactory()));
+        assertThat(formula.getFactory().equivalence(formula, simplified).holds(new TautologyPredicate(formula.getFactory())))
                 .as("Minimized formula is equivalent to original Formula")
                 .isTrue();
     }
 
     private void testHandler(final ComputationHandler handler, final Formula formula, final boolean expCanceled) {
         final AdvancedSimplifier simplifierWithHandler =
-                new AdvancedSimplifier(formula.factory(), AdvancedSimplifierConfig.builder().build());
+                new AdvancedSimplifier(formula.getFactory(), AdvancedSimplifierConfig.builder().build());
         final LNGResult<Formula> simplified = formula.transform(simplifierWithHandler, handler);
         assertThat(simplified.isSuccess()).isEqualTo(!expCanceled);
         if (expCanceled) {

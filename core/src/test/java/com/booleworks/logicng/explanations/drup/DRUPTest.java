@@ -114,7 +114,7 @@ public class DRUPTest implements LogicNGTest {
         solver.addPropositions(propositions);
         assertThat(solver.sat()).isFalse();
         final UNSATCore<Proposition> unsatCore = solver.satCall().unsatCore();
-        assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(propositions.get(0), propositions.get(1),
+        assertThat(unsatCore.getPropositions()).containsExactlyInAnyOrder(propositions.get(0), propositions.get(1),
                 propositions.get(2), propositions.get(3), propositions.get(4), propositions.get(5));
     }
 
@@ -141,32 +141,32 @@ public class DRUPTest implements LogicNGTest {
 
         assertThat(solver.sat()).isFalse();
         UNSATCore<Proposition> unsatCore = solver.satCall().unsatCore();
-        assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p5, p6);
+        assertThat(unsatCore.getPropositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p5, p6);
 
         solver.loadState(state2);
         assertThat(solver.sat()).isFalse();
         unsatCore = solver.satCall().unsatCore();
-        assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p5, p6);
+        assertThat(unsatCore.getPropositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p5, p6);
 
         solver.loadState(state1);
         solver.add(p9);
         assertThat(solver.sat()).isFalse();
         unsatCore = solver.satCall().unsatCore();
-        assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p9);
+        assertThat(unsatCore.getPropositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p9);
 
         solver.loadState(state1);
         solver.add(p5);
         solver.add(p6);
         assertThat(solver.sat()).isFalse();
         unsatCore = solver.satCall().unsatCore();
-        assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p5, p6);
+        assertThat(unsatCore.getPropositions()).containsExactlyInAnyOrder(p1, p2, p3, p4, p5, p6);
 
         solver.loadState(state1);
         solver.add(p10);
         solver.add(p11);
         assertThat(solver.sat()).isFalse();
         unsatCore = solver.satCall().unsatCore();
-        assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p4, p11);
+        assertThat(unsatCore.getPropositions()).containsExactlyInAnyOrder(p4, p11);
     }
 
     @Test
@@ -177,7 +177,7 @@ public class DRUPTest implements LogicNGTest {
         solver1.add(p1);
         assertSolverUnsat(solver1);
         UNSATCore<Proposition> unsatCore = solver1.satCall().unsatCore();
-        assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1);
+        assertThat(unsatCore.getPropositions()).containsExactlyInAnyOrder(p1);
 
         final SATSolver solver2 = solverSupplier.get();
         assertSolverSat(solver2);
@@ -188,13 +188,13 @@ public class DRUPTest implements LogicNGTest {
         solver2.add(p3);
         assertSolverUnsat(solver2);
         unsatCore = solver2.satCall().unsatCore();
-        assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p2, p3);
+        assertThat(unsatCore.getPropositions()).containsExactlyInAnyOrder(p2, p3);
     }
 
     @Test
     public void testCoreAndAssumptions() throws ParserException {
         final SATSolver solver = solverSupplier.get();
-        final FormulaFactory f = solver.factory();
+        final FormulaFactory f = solver.getFactory();
         final StandardProposition p1 = new StandardProposition(f.parse("A => B"));
         final StandardProposition p2 = new StandardProposition(f.parse("A & B => G"));
         final StandardProposition p3 = new StandardProposition(f.or(f.literal("X", false), f.literal("A", true)));
@@ -213,13 +213,13 @@ public class DRUPTest implements LogicNGTest {
         solver.add(p6);
         solver.sat();
         final UNSATCore<Proposition> unsatCore = solver.satCall().unsatCore();
-        assertThat(unsatCore.propositions()).containsExactlyInAnyOrder(p1, p2, p5, p6);
+        assertThat(unsatCore.getPropositions()).containsExactlyInAnyOrder(p1, p2, p5, p6);
     }
 
     @Test
     public void testCoreAndAssumptions2() throws ParserException {
         final SATSolver solver = solverSupplier.get();
-        final FormulaFactory f = solver.factory();
+        final FormulaFactory f = solver.getFactory();
         solver.add(f.parse("~C => D"));
         solver.add(f.parse("C => D"));
         solver.add(f.parse("D => B | A"));
@@ -237,7 +237,7 @@ public class DRUPTest implements LogicNGTest {
         // Unit test for DRUP issue which led to
         // java.lang.ArrayIndexOutOfBoundsException: -1
         final SATSolver solver = solverSupplier.get();
-        final FormulaFactory f = solver.factory();
+        final FormulaFactory f = solver.getFactory();
         solver.add(f.parse("X => Y"));
         solver.add(f.parse("X => Z"));
         solver.add(f.parse("C => E"));
@@ -299,7 +299,7 @@ public class DRUPTest implements LogicNGTest {
         solver.add(p3);
         solver.add(p4);
         assertThat(solver.sat()).isFalse();
-        assertThat(solver.satCall().unsatCore().propositions()).containsExactlyInAnyOrder(p1, p2, p3);
+        assertThat(solver.satCall().unsatCore().getPropositions()).containsExactlyInAnyOrder(p1, p2, p3);
     }
 
     @Test
@@ -321,7 +321,7 @@ public class DRUPTest implements LogicNGTest {
         assertThat(solver.sat()).isTrue();
         solver.add(f.variable("a"));
         assertThat(solver.sat()).isFalse();
-        assertThat(solver.satCall().unsatCore().propositions()).contains(p1, p2, p4, p5, p6, p7, p8, p9, p10,
+        assertThat(solver.satCall().unsatCore().getPropositions()).contains(p1, p2, p4, p5, p6, p7, p8, p9, p10,
                 p11);
     }
 
@@ -332,9 +332,9 @@ public class DRUPTest implements LogicNGTest {
      * @param cnf          the original problem
      */
     private void verifyCore(final UNSATCore<Proposition> originalCore, final List<Formula> cnf) {
-        final List<Formula> core = new ArrayList<>(originalCore.propositions().size());
-        for (final Proposition prop : originalCore.propositions()) {
-            core.add(prop.formula());
+        final List<Formula> core = new ArrayList<>(originalCore.getPropositions().size());
+        for (final Proposition prop : originalCore.getPropositions()) {
+            core.add(prop.getFormula());
         }
         final SoftAssertions softly = new SoftAssertions();
         softly.assertThat(cnf).as("Core contains only original clauses").containsAll(core);

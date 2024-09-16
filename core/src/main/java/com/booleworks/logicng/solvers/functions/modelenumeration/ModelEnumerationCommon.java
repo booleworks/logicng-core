@@ -74,7 +74,7 @@ public interface ModelEnumerationCommon {
         final LNGIntVector relevantIndices;
         relevantIndices = new LNGIntVector(variables.size());
         for (final Variable var : variables) {
-            relevantIndices.push(solver.underlyingSolver().idxForName(var.name()));
+            relevantIndices.push(solver.getUnderlyingSolver().idxForName(var.getName()));
         }
         return relevantIndices;
     }
@@ -108,7 +108,7 @@ public interface ModelEnumerationCommon {
                     relevantAllIndices.push(relevantIndices.get(i));
                 }
                 for (final Variable var : uniqueAdditionalVariables) {
-                    final int idx = solver.underlyingSolver().idxForName(var.name());
+                    final int idx = solver.getUnderlyingSolver().idxForName(var.getName());
                     if (idx != -1) {
                         relevantAllIndices.push(idx);
                     }

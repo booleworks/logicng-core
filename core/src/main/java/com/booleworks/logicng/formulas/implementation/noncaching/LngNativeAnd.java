@@ -32,7 +32,7 @@ public class LngNativeAnd extends LngNativeNAryOperator implements And {
             return true;
         }
         if (other instanceof And && hashCode() == other.hashCode()) {
-            return compareOperands(((And) other).operands());
+            return compareOperands(((And) other).getOperands());
         }
         return false;
     }

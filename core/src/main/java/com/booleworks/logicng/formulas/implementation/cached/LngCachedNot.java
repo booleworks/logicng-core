@@ -25,7 +25,7 @@ public class LngCachedNot extends LngCachedFormula implements Not {
     }
 
     @Override
-    public Formula operand() {
+    public Formula getOperand() {
         return operand;
     }
 
@@ -42,13 +42,13 @@ public class LngCachedNot extends LngCachedFormula implements Not {
         if (other == this) {
             return true;
         }
-        if (other instanceof Formula && f == ((Formula) other).factory()) {
+        if (other instanceof Formula && f == ((Formula) other).getFactory()) {
             // the caching formula factory would have produced the same object
             return false;
         }
         if (other instanceof Not && hashCode() == other.hashCode()) {
             final Not otherNot = (Not) other;
-            return operand.equals(otherNot.operand());
+            return operand.equals(otherNot.getOperand());
         }
         return false;
     }

@@ -16,7 +16,6 @@ import com.booleworks.logicng.predicates.satisfiability.SATPredicate;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
 import com.booleworks.logicng.solvers.SATSolver;
 import com.booleworks.logicng.transformations.dnf.DNFFactorization;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -101,8 +100,8 @@ public class FormulaFactoryWithoutContradictionCheckTest {
         assertThat(_c.contradiction.numberOfAtoms(_c.f)).isEqualTo(2);
         assertThat(_c.tautology.numberOfNodes(_c.f)).isEqualTo(3);
         assertThat(_c.contradiction.numberOfNodes(_c.f)).isEqualTo(3);
-        assertThat(_c.tautology.type()).isEqualTo(FType.OR);
-        assertThat(_c.contradiction.type()).isEqualTo(FType.AND);
+        assertThat(_c.tautology.getType()).isEqualTo(FType.OR);
+        assertThat(_c.contradiction.getType()).isEqualTo(FType.AND);
         assertThat(_c.tautology.variables(_c.f)).containsExactly(_c.a);
         assertThat(_c.contradiction.variables(_c.f)).containsExactly(_c.a);
         assertThat(_c.tautology.literals(_c.f)).containsExactlyInAnyOrder(_c.a, _c.na);

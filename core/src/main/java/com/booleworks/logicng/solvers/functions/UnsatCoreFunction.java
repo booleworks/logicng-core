@@ -49,18 +49,18 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
     }
 
     @Override
-    public LNGResult<UNSATCore<Proposition>> apply(final SATSolver solver, ComputationHandler handler) {
-        if (!solver.config().proofGeneration()) {
+    public LNGResult<UNSATCore<Proposition>> apply(final SATSolver solver, final ComputationHandler handler) {
+        if (!solver.getConfig().isProofGeneration()) {
             throw new IllegalStateException("Cannot generate an unsat core if proof generation is not turned on");
         }
         final DRUPTrim trimmer = new DRUPTrim();
 
         final Map<Formula, Proposition> clause2proposition = new HashMap<>();
-        final LNGVector<LNGIntVector> clauses = new LNGVector<>(solver.underlyingSolver().pgOriginalClauses().size());
-        for (final LNGCoreSolver.ProofInformation pi : solver.underlyingSolver().pgOriginalClauses()) {
-            clauses.push(pi.clause());
-            final Formula clause = getFormulaForVector(solver, pi.clause());
-            Proposition proposition = pi.proposition();
+        final LNGVector<LNGIntVector> clauses = new LNGVector<>(solver.getUnderlyingSolver().pgOriginalClauses().size());
+        for (final LNGCoreSolver.ProofInformation pi : solver.getUnderlyingSolver().pgOriginalClauses()) {
+            clauses.push(pi.getClause());
+            final Formula clause = getFormulaForVector(solver, pi.getClause());
+            Proposition proposition = pi.getProposition();
             if (proposition == null) {
                 proposition = new StandardProposition(clause);
             }
@@ -68,34 +68,34 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
         }
 
         if (containsEmptyClause(clauses)) {
-            final Proposition emptyClause = clause2proposition.get(solver.factory().falsum());
+            final Proposition emptyClause = clause2proposition.get(solver.getFactory().falsum());
             return LNGResult.of(new UNSATCore<>(Collections.singletonList(emptyClause), true));
         }
 
-        final DRUPTrim.DRUPResult result = trimmer.compute(clauses, solver.underlyingSolver().pgProof());
-        if (result.trivialUnsat()) {
+        final DRUPTrim.DRUPResult result = trimmer.compute(clauses, solver.getUnderlyingSolver().pgProof());
+        if (result.isTrivialUnsat()) {
             return LNGResult.of(handleTrivialCase(solver));
         }
         final LinkedHashSet<Proposition> propositions = new LinkedHashSet<>();
-        for (final LNGIntVector vector : result.unsatCore()) {
+        for (final LNGIntVector vector : result.getUnsatCore()) {
             propositions.add(clause2proposition.get(getFormulaForVector(solver, vector)));
         }
         return LNGResult.of(new UNSATCore<>(new ArrayList<>(propositions), false));
     }
 
     private UNSATCore<Proposition> handleTrivialCase(final SATSolver solver) {
-        final LNGVector<LNGCoreSolver.ProofInformation> clauses = solver.underlyingSolver().pgOriginalClauses();
+        final LNGVector<LNGCoreSolver.ProofInformation> clauses = solver.getUnderlyingSolver().pgOriginalClauses();
         for (int i = 0; i < clauses.size(); i++) {
             for (int j = i + 1; j < clauses.size(); j++) {
-                if (clauses.get(i).clause().size() == 1 && clauses.get(j).clause().size() == 1 &&
-                        clauses.get(i).clause().get(0) + clauses.get(j).clause().get(0) == 0) {
+                if (clauses.get(i).getClause().size() == 1 && clauses.get(j).getClause().size() == 1 &&
+                        clauses.get(i).getClause().get(0) + clauses.get(j).getClause().get(0) == 0) {
                     final LinkedHashSet<Proposition> propositions = new LinkedHashSet<>();
-                    final Proposition pi = clauses.get(i).proposition();
-                    final Proposition pj = clauses.get(j).proposition();
+                    final Proposition pi = clauses.get(i).getProposition();
+                    final Proposition pj = clauses.get(j).getProposition();
                     propositions.add(pi != null ? pi
-                            : new StandardProposition(getFormulaForVector(solver, clauses.get(i).clause())));
+                            : new StandardProposition(getFormulaForVector(solver, clauses.get(i).getClause())));
                     propositions.add(pj != null ? pj
-                            : new StandardProposition(getFormulaForVector(solver, clauses.get(j).clause())));
+                            : new StandardProposition(getFormulaForVector(solver, clauses.get(j).getClause())));
                     return new UNSATCore<>(new ArrayList<>(propositions), false);
                 }
             }
@@ -105,7 +105,7 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
 
     private boolean containsEmptyClause(final LNGVector<LNGIntVector> clauses) {
         for (final LNGIntVector clause : clauses) {
-            if (clause.empty()) {
+            if (clause.isEmpty()) {
                 return true;
             }
         }
@@ -116,9 +116,9 @@ public final class UnsatCoreFunction implements SolverFunction<UNSATCore<Proposi
         final List<Literal> literals = new ArrayList<>(vector.size());
         for (int i = 0; i < vector.size(); i++) {
             final int lit = vector.get(i);
-            final String varName = solver.underlyingSolver().nameForIdx(Math.abs(lit) - 1);
-            literals.add(solver.factory().literal(varName, lit > 0));
+            final String varName = solver.getUnderlyingSolver().nameForIdx(Math.abs(lit) - 1);
+            literals.add(solver.getFactory().literal(varName, lit > 0));
         }
-        return solver.factory().or(literals);
+        return solver.getFactory().or(literals);
     }
 }

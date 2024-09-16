@@ -344,14 +344,14 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
     }
 
     private void compareModels(final Formula formula, final Collection<Variable> variables, final BDD bdd) {
-        final FormulaFactory factory = formula.factory();
+        final FormulaFactory factory = formula.getFactory();
         final SATSolver solver = SATSolver.newSolver(factory);
         solver.add(formula);
         final Variable taut = factory.variable("@TAUT");
         for (final Variable variable : variables) {
-            solver.add(factory.or(taut.negate(formula.factory()), variable));
+            solver.add(factory.or(taut.negate(formula.getFactory()), variable));
         }
-        solver.add(taut.negate(formula.factory()));
+        solver.add(taut.negate(formula.getFactory()));
         final List<Model> formulaModels = solver.enumerateAllModels(variables);
         final List<Model> bddModels = bdd.enumerateAllModels(variables);
         assertThat(formulaModels).containsExactlyInAnyOrderElementsOf(bddModels);

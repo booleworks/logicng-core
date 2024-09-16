@@ -638,12 +638,12 @@ public class EvaluatesToConstantPredicateTest extends TestWithFormulaContext {
             assignment.addLiteral(_c.f.literal("v2", true));
             assignment.addLiteral(_c.f.literal("v3", true));
             final EvaluatesToConstantPredicate falseEvaluation = new EvaluatesToConstantPredicate(_c.f, false,
-                    assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::phase)));
+                    assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::getPhase)));
             final EvaluatesToConstantPredicate trueEvaluation = new EvaluatesToConstantPredicate(_c.f, true,
-                    assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::phase)));
+                    assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::getPhase)));
             final Formula restricted = formula.restrict(_c.f, assignment);
-            assertThat(restricted.type() == FType.FALSE).isEqualTo(formula.holds(falseEvaluation));
-            assertThat(restricted.type() == FType.TRUE).isEqualTo(formula.holds(trueEvaluation));
+            assertThat(restricted.getType() == FType.FALSE).isEqualTo(formula.holds(falseEvaluation));
+            assertThat(restricted.getType() == FType.TRUE).isEqualTo(formula.holds(trueEvaluation));
         }
     }
 
@@ -658,15 +658,15 @@ public class EvaluatesToConstantPredicateTest extends TestWithFormulaContext {
             assignment.addLiteral(_c.f.literal("v2", true));
             assignment.addLiteral(_c.f.literal("v3", true));
             final EvaluatesToConstantPredicate falseEvaluation = new EvaluatesToConstantPredicate(_c.f, false,
-                    assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::phase)));
+                    assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::getPhase)));
             final EvaluatesToConstantPredicate trueEvaluation = new EvaluatesToConstantPredicate(_c.f, true,
-                    assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::phase)));
+                    assignment.literals().stream().collect(Collectors.toMap(Literal::variable, Literal::getPhase)));
             final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f,
                     FormulaRandomizerConfig.builder().numVars(10).weightPbc(1).seed(i * 42).build());
             final Formula formula = randomizer.formula(6);
             final Formula restricted = formula.restrict(_c.f, assignment);
-            assertThat(restricted.type() == FType.FALSE).isEqualTo(formula.holds(falseEvaluation));
-            assertThat(restricted.type() == FType.TRUE).isEqualTo(formula.holds(trueEvaluation));
+            assertThat(restricted.getType() == FType.FALSE).isEqualTo(formula.holds(falseEvaluation));
+            assertThat(restricted.getType() == FType.TRUE).isEqualTo(formula.holds(trueEvaluation));
         }
     }
 

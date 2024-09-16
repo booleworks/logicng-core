@@ -46,7 +46,7 @@ public class BackboneFunctionTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     public void testConstants(final SATSolver solver, final String solverDescription) {
-        final FormulaFactory f = solver.factory();
+        final FormulaFactory f = solver.getFactory();
         final SolverState state = solver.saveState();
         solver.add(f.falsum());
         Backbone backbone = solver.backbone(v("a b c", f));
@@ -62,7 +62,7 @@ public class BackboneFunctionTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     public void testSimpleBackbones(final SATSolver solver, final String solverDescription) throws ParserException {
-        final FormulaFactory f = solver.factory();
+        final FormulaFactory f = solver.getFactory();
         final SolverState state = solver.saveState();
         solver.add(f.parse("a & b & ~c"));
         Backbone backbone = solver.backbone(v("a b c", f));
@@ -79,7 +79,7 @@ public class BackboneFunctionTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
     public void testSimpleFormulas(final SATSolver solver, final String solverDescription) throws ParserException {
-        final FormulaFactory f = solver.factory();
+        final FormulaFactory f = solver.getFactory();
         solver.add(f.parse("(a => c | d) & (b => d | ~e) & (a | b)"));
         Backbone backbone = solver.backbone(v("a b c d e f", f));
         assertThat(backbone.isSat()).isTrue();
@@ -98,7 +98,7 @@ public class BackboneFunctionTest {
     @MethodSource("solvers")
     public void testSimpleFormulasWithBuilderUsage(final SATSolver solver, final String solverDescription)
             throws ParserException {
-        final FormulaFactory f = solver.factory();
+        final FormulaFactory f = solver.getFactory();
         solver.add(f.parse("(a => c | d) & (b => d | ~e) & (a | b)"));
         Backbone backbone = solver.execute(BackboneFunction.builder().variables(
                         f.variable("a"), f.variable("b"), f.variable("c"), f.variable("d"), f.variable("e"), f.variable("f"))
@@ -120,7 +120,7 @@ public class BackboneFunctionTest {
     @LongRunningTag
     public void testRealFormulaIncremental1(final SATSolver solver, final String solverDescription)
             throws IOException, ParserException {
-        final FormulaFactory f = solver.factory();
+        final FormulaFactory f = solver.getFactory();
         final Formula formula =
                 FormulaReader.readFormula(f, "../test_files/formulas/large_formula.txt");
         solver.add(formula);
@@ -164,7 +164,7 @@ public class BackboneFunctionTest {
     @LongRunningTag
     public void testRealFormulaIncremental2(final SATSolver solver, final String solverDescription)
             throws IOException, ParserException {
-        final FormulaFactory f = solver.factory();
+        final FormulaFactory f = solver.getFactory();
         final Formula formula =
                 FormulaReader.readFormula(f, "../test_files/formulas/small_formulas.txt");
         solver.add(formula);
@@ -208,7 +208,7 @@ public class BackboneFunctionTest {
     @LongRunningTag
     public void testRealFormulaIncrementalDecremental1(final SATSolver solver, final String solverDescription)
             throws IOException, ParserException {
-        final FormulaFactory f = solver.factory();
+        final FormulaFactory f = solver.getFactory();
         final Formula formula =
                 FormulaReader.readFormula(f, "../test_files/formulas/large_formula.txt");
         solver.add(formula);
@@ -263,7 +263,7 @@ public class BackboneFunctionTest {
     @LongRunningTag
     public void testRealFormulaIncrementalDecremental2(final SATSolver solver, final String solverDescription)
             throws IOException, ParserException {
-        final FormulaFactory f = solver.factory();
+        final FormulaFactory f = solver.getFactory();
         final Formula formula =
                 FormulaReader.readFormula(f, "../test_files/formulas/small_formulas.txt");
         solver.add(formula);
@@ -323,7 +323,7 @@ public class BackboneFunctionTest {
                 f.parse("(v1 => v1234) & (v2 => v1234) & (v3 => v1234) & (v4 => v1234) & (v5 => v50) & (v6 => v60)"));
         miniCard.add(f.parse("~v6"));
         final Backbone backboneMC = miniCard.backbone(Arrays.asList(f.variable("v6"), f.variable("v60")));
-        assertThat(backboneMC.getNegativeBackbone()).extracting(Variable::name)
+        assertThat(backboneMC.getNegativeBackbone()).extracting(Variable::getName)
                 .containsExactlyInAnyOrder("v6", "v60");
     }
 

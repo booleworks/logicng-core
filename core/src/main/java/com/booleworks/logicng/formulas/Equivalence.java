@@ -22,11 +22,11 @@ public interface Equivalence extends BinaryOperator {
 
     @Override
     default boolean evaluate(final Assignment assignment) {
-        return left().evaluate(assignment) == right().evaluate(assignment);
+        return getLeft().evaluate(assignment) == getRight().evaluate(assignment);
     }
 
     @Override
     default Formula restrict(final FormulaFactory f, final Assignment assignment) {
-        return f.equivalence(left().restrict(f, assignment), right().restrict(f, assignment));
+        return f.equivalence(getLeft().restrict(f, assignment), getRight().restrict(f, assignment));
     }
 }

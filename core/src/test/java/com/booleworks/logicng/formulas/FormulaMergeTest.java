@@ -85,32 +85,32 @@ public class FormulaMergeTest {
         final Variable a2 = g.variable("A");
         final Variable b2 = g.variable("B");
         final Variable c2 = g.variable("C");
-        assertThat(_c.f.not(a2)).isEqualTo(g.not(a2)).allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.and(a2, b1)).isEqualTo(g.and(a2, b2)).allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.and(a2, b2)).isEqualTo(g.and(a2, b2)).allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.and(a1, b1, c2)).isEqualTo(g.and(a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.or(a2, b1)).isEqualTo(g.or(a2, b2)).allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.or(a2, b2)).isEqualTo(g.or(a2, b2)).allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.or(a1, b1, c2)).isEqualTo(g.or(a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.clause(a2, b1)).isEqualTo(g.clause(a2, b2)).allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.clause(a2, b2)).isEqualTo(g.clause(a2, b2)).allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.clause(a1, b1, c2)).isEqualTo(g.clause(a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
+        assertThat(_c.f.not(a2)).isEqualTo(g.not(a2)).allMatch(it -> it.getFactory() == _c.f);
+        assertThat(_c.f.and(a2, b1)).isEqualTo(g.and(a2, b2)).allMatch(it -> it.getFactory() == _c.f);
+        assertThat(_c.f.and(a2, b2)).isEqualTo(g.and(a2, b2)).allMatch(it -> it.getFactory() == _c.f);
+        assertThat(_c.f.and(a1, b1, c2)).isEqualTo(g.and(a2, b2, c2)).allMatch(it -> it.getFactory() == _c.f);
+        assertThat(_c.f.or(a2, b1)).isEqualTo(g.or(a2, b2)).allMatch(it -> it.getFactory() == _c.f);
+        assertThat(_c.f.or(a2, b2)).isEqualTo(g.or(a2, b2)).allMatch(it -> it.getFactory() == _c.f);
+        assertThat(_c.f.or(a1, b1, c2)).isEqualTo(g.or(a2, b2, c2)).allMatch(it -> it.getFactory() == _c.f);
+        assertThat(_c.f.clause(a2, b1)).isEqualTo(g.clause(a2, b2)).allMatch(it -> it.getFactory() == _c.f);
+        assertThat(_c.f.clause(a2, b2)).isEqualTo(g.clause(a2, b2)).allMatch(it -> it.getFactory() == _c.f);
+        assertThat(_c.f.clause(a1, b1, c2)).isEqualTo(g.clause(a2, b2, c2)).allMatch(it -> it.getFactory() == _c.f);
         assertThat(_c.f.cnf(_c.f.clause(a1, b1), _c.f.clause(a1, c1), c2)).isNotNull()
-                .allMatch(it -> it.factory() == _c.f);
+                .allMatch(it -> it.getFactory() == _c.f);
         assertThat(_c.f.cnf(_c.f.clause(a1, b1), g.clause(a2, c2), c1)).isNotNull()
-                .allMatch(it -> it.factory() == _c.f);
+                .allMatch(it -> it.getFactory() == _c.f);
         assertThat(_c.f.pbc(CType.GE, 1, new Literal[]{a1, b2.negate(g), c1}, new int[]{1, 2, 3})).isNotNull()
-                .allMatch(it -> it.factory() == _c.f);
+                .allMatch(it -> it.getFactory() == _c.f);
         assertThat(_c.f.pbc(CType.GE, 1, new Literal[]{a2, b2, c2.negate(g)}, new int[]{1, 2, 3})).isNotNull()
-                .allMatch(it -> it.factory() == _c.f);
+                .allMatch(it -> it.getFactory() == _c.f);
         assertThat(_c.f.cc(CType.GE, 1, a1, b2, c1)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2))
-                .allMatch(it -> it.factory() == _c.f);
+                .allMatch(it -> it.getFactory() == _c.f);
         assertThat(_c.f.cc(CType.GE, 1, a2, b2, c2)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2))
-                .allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.amo(a1, b2, c1)).isEqualTo(g.amo(a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.amo(a2, b2, c2)).isEqualTo(g.amo(a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.exo(a1, b2, c1)).isEqualTo(g.exo(a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
-        assertThat(_c.f.exo(a2, b2, c2)).isEqualTo(g.exo(a2, b2, c2)).allMatch(it -> it.factory() == _c.f);
+                .allMatch(it -> it.getFactory() == _c.f);
+        assertThat(_c.f.amo(a1, b2, c1)).isEqualTo(g.amo(a2, b2, c2)).allMatch(it -> it.getFactory() == _c.f);
+        assertThat(_c.f.amo(a2, b2, c2)).isEqualTo(g.amo(a2, b2, c2)).allMatch(it -> it.getFactory() == _c.f);
+        assertThat(_c.f.exo(a1, b2, c1)).isEqualTo(g.exo(a2, b2, c2)).allMatch(it -> it.getFactory() == _c.f);
+        assertThat(_c.f.exo(a2, b2, c2)).isEqualTo(g.exo(a2, b2, c2)).allMatch(it -> it.getFactory() == _c.f);
     }
 
     @Test
@@ -126,44 +126,44 @@ public class FormulaMergeTest {
         final Variable a2 = g.variable("A");
         final Variable b2 = g.variable("B");
         final Variable c2 = g.variable("C");
-        assertThat(f.not(a2).factory()).isEqualTo(f);
-        assertThat(f.not(a2)).isEqualTo(g.not(a2)).allMatch(it -> it.factory() == g);
+        assertThat(f.not(a2).getFactory()).isEqualTo(f);
+        assertThat(f.not(a2)).isEqualTo(g.not(a2)).allMatch(it -> it.getFactory() == g);
         assertThat(f.and(a2, b1)).isEqualTo(g.and(a2, b2));
-        assertThat(f.and(a2, b1).factory()).isEqualTo(f);
-        assertThat(f.and(a2, b2)).isEqualTo(g.and(a2, b2)).allMatch(it -> it.factory() == g);
-        assertThat(f.and(a2, b2).factory()).isEqualTo(f);
+        assertThat(f.and(a2, b1).getFactory()).isEqualTo(f);
+        assertThat(f.and(a2, b2)).isEqualTo(g.and(a2, b2)).allMatch(it -> it.getFactory() == g);
+        assertThat(f.and(a2, b2).getFactory()).isEqualTo(f);
         assertThat(f.and(a1, b1, c2)).isEqualTo(g.and(a2, b2, c2));
-        assertThat(f.and(a1, b1, c2).factory()).isEqualTo(f);
-        assertThat(((And) f.and(a1, b1, c2)).operands().get(0).factory()).isEqualTo(f);
-        assertThat(((And) f.and(a1, b1, c2)).operands().get(1).factory()).isEqualTo(f);
-        assertThat(((And) f.and(a1, b1, c2)).operands().get(2).factory()).isEqualTo(g);
-        assertThat(f.and(a2, b2, c2)).isEqualTo(g.and(a2, b2, c2)).allMatch(it -> it.factory() == g);
+        assertThat(f.and(a1, b1, c2).getFactory()).isEqualTo(f);
+        assertThat(((And) f.and(a1, b1, c2)).getOperands().get(0).getFactory()).isEqualTo(f);
+        assertThat(((And) f.and(a1, b1, c2)).getOperands().get(1).getFactory()).isEqualTo(f);
+        assertThat(((And) f.and(a1, b1, c2)).getOperands().get(2).getFactory()).isEqualTo(g);
+        assertThat(f.and(a2, b2, c2)).isEqualTo(g.and(a2, b2, c2)).allMatch(it -> it.getFactory() == g);
         assertThat(f.or(a2, b1)).isEqualTo(g.or(a2, b2));
-        assertThat(f.or(a2, b1).factory()).isEqualTo(f);
-        assertThat(f.or(a2, b2)).isEqualTo(g.or(a2, b2)).allMatch(it -> it.factory() == g);
+        assertThat(f.or(a2, b1).getFactory()).isEqualTo(f);
+        assertThat(f.or(a2, b2)).isEqualTo(g.or(a2, b2)).allMatch(it -> it.getFactory() == g);
         assertThat(f.or(a1, b1, c2)).isEqualTo(g.or(a2, b2, c2));
-        assertThat(f.or(a1, b1, c2).factory()).isEqualTo(f);
-        assertThat(f.or(a2, b2, c2)).isEqualTo(g.or(a2, b2, c2)).allMatch(it -> it.factory() == g);
+        assertThat(f.or(a1, b1, c2).getFactory()).isEqualTo(f);
+        assertThat(f.or(a2, b2, c2)).isEqualTo(g.or(a2, b2, c2)).allMatch(it -> it.getFactory() == g);
         assertThat(f.clause(a2, b1)).isEqualTo(g.clause(a2, b2));
-        assertThat(f.clause(a2, b1).factory()).isEqualTo(f);
-        assertThat(f.clause(a2, b2)).isEqualTo(g.clause(a2, b2)).allMatch(it -> it.factory() == g);
-        assertThat(f.clause(a2, b2).factory()).isEqualTo(f);
+        assertThat(f.clause(a2, b1).getFactory()).isEqualTo(f);
+        assertThat(f.clause(a2, b2)).isEqualTo(g.clause(a2, b2)).allMatch(it -> it.getFactory() == g);
+        assertThat(f.clause(a2, b2).getFactory()).isEqualTo(f);
         assertThat(f.clause(a1, b1, c2)).isEqualTo(g.clause(a2, b2, c2));
         assertThat(f.cnf(f.clause(a1, b1), f.clause(a1, c1), c2)).isNotNull();
-        assertThat(f.cnf(g.clause(a2, b2), g.clause(a2, c2), c2)).isNotNull().allMatch(it -> it.factory() == g);
-        assertThat(f.cnf(g.clause(a2, b2), g.clause(a2, c2), c2).factory()).isEqualTo(f);
+        assertThat(f.cnf(g.clause(a2, b2), g.clause(a2, c2), c2)).isNotNull().allMatch(it -> it.getFactory() == g);
+        assertThat(f.cnf(g.clause(a2, b2), g.clause(a2, c2), c2).getFactory()).isEqualTo(f);
         assertThat(f.cnf(f.clause(a1, b1), g.clause(a2, c2), c1)).isNotNull();
         assertThat(f.pbc(CType.GE, 1, new Literal[]{a1, b2.negate(g), c1}, new int[]{1, 2, 3})).isNotNull()
-                .allMatch(it -> it.factory() == g);
+                .allMatch(it -> it.getFactory() == g);
         assertThat(f.pbc(CType.GE, 1, new Literal[]{a2, b2, c2.negate(g)}, new int[]{1, 2, 3})).isNotNull()
-                .allMatch(it -> it.factory() == g);
+                .allMatch(it -> it.getFactory() == g);
         assertThat(f.cc(CType.GE, 1, a1, b2, c1)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2))
-                .allMatch(it -> it.factory() == g);
+                .allMatch(it -> it.getFactory() == g);
         assertThat(f.cc(CType.GE, 1, a2, b2, c2)).isEqualTo(g.cc(CType.GE, 1, a2, b2, c2))
-                .allMatch(it -> it.factory() == g);
-        assertThat(f.amo(a1, b2, c1)).isEqualTo(g.amo(a2, b2, c2)).allMatch(it -> it.factory() == g);
-        assertThat(f.amo(a2, b2, c2)).isEqualTo(g.amo(a2, b2, c2)).allMatch(it -> it.factory() == g);
-        assertThat(f.exo(a1, b2, c1)).isEqualTo(g.exo(a2, b2, c2)).allMatch(it -> it.factory() == g);
-        assertThat(f.exo(a2, b2, c2)).isEqualTo(g.exo(a2, b2, c2)).allMatch(it -> it.factory() == g);
+                .allMatch(it -> it.getFactory() == g);
+        assertThat(f.amo(a1, b2, c1)).isEqualTo(g.amo(a2, b2, c2)).allMatch(it -> it.getFactory() == g);
+        assertThat(f.amo(a2, b2, c2)).isEqualTo(g.amo(a2, b2, c2)).allMatch(it -> it.getFactory() == g);
+        assertThat(f.exo(a1, b2, c1)).isEqualTo(g.exo(a2, b2, c2)).allMatch(it -> it.getFactory() == g);
+        assertThat(f.exo(a2, b2, c2)).isEqualTo(g.exo(a2, b2, c2)).allMatch(it -> it.getFactory() == g);
     }
 }

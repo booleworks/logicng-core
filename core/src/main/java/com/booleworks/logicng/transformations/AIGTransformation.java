@@ -52,7 +52,7 @@ public final class AIGTransformation extends CacheableFormulaTransformation {
     }
 
     private Formula transform(final Formula formula) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
             case TRUE:
             case LITERAL:
@@ -71,14 +71,14 @@ public final class AIGTransformation extends CacheableFormulaTransformation {
             case PBC:
                 return transform(formula.cnf(f));
             default:
-                throw new IllegalArgumentException("Could not process the formula type " + formula.type());
+                throw new IllegalArgumentException("Could not process the formula type " + formula.getType());
         }
     }
 
     private Formula transformNot(final Not not) {
         Formula aig = lookupCache(not);
         if (aig == null) {
-            aig = f.not(apply(not.operand()));
+            aig = f.not(apply(not.getOperand()));
             setCache(not, aig);
         }
         return aig;
@@ -87,7 +87,7 @@ public final class AIGTransformation extends CacheableFormulaTransformation {
     private Formula transformImplication(final Implication impl) {
         Formula aig = lookupCache(impl);
         if (aig == null) {
-            aig = f.not(f.and(apply(impl.left()), f.not(apply(impl.right()))));
+            aig = f.not(f.and(apply(impl.getLeft()), f.not(apply(impl.getRight()))));
             setCache(impl, aig);
         }
         return aig;
@@ -96,8 +96,8 @@ public final class AIGTransformation extends CacheableFormulaTransformation {
     private Formula transformEquivalence(final Equivalence equiv) {
         Formula aig = lookupCache(equiv);
         if (aig == null) {
-            aig = f.and(f.not(f.and(apply(equiv.left()), f.not(apply(equiv.right())))),
-                    f.not(f.and(f.not(equiv.left()), equiv.right())));
+            aig = f.and(f.not(f.and(apply(equiv.getLeft()), f.not(apply(equiv.getRight())))),
+                    f.not(f.and(f.not(equiv.getLeft()), equiv.getRight())));
             setCache(equiv, aig);
         }
         return aig;

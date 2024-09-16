@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LogicNGTest;
 import com.booleworks.logicng.LongRunningTag;
-import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
@@ -38,7 +37,7 @@ public class CcPerformanceTest implements LogicNGTest {
             final FormulaFactory f = FormulaFactory.caching();
             f.putConfiguration(config);
             buildAMK(f, 10_000, false);
-            assertThat(f.newCCVariable().name()).endsWith("_0");
+            assertThat(f.newCCVariable().getName()).endsWith("_0");
         }
     }
 
@@ -46,7 +45,7 @@ public class CcPerformanceTest implements LogicNGTest {
     public void testAMKPerformanceMiniCard() {
         final FormulaFactory f = FormulaFactory.caching();
         buildAMK(f, 10_000, true);
-        assertThat(f.newCCVariable().name()).endsWith("_0");
+        assertThat(f.newCCVariable().getName()).endsWith("_0");
     }
 
     private void buildAMK(final FormulaFactory f, final int numLits, final boolean miniCard) {
@@ -61,7 +60,7 @@ public class CcPerformanceTest implements LogicNGTest {
             solver.add(cc);
             assertSolverSat(solver);
             final Model model = solver.satCall().model(Arrays.asList(problemLits));
-            assertThat(cc.evaluate(model.assignment())).isTrue();
+            assertThat(cc.evaluate(model.toAssignment())).isTrue();
         }
     }
 }

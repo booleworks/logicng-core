@@ -88,7 +88,7 @@ public final class FormulaReader {
      * @throws ParserException if there was a problem parsing the formulas
      */
     public static Formula readFormula(final FormulaParser parser, final String fileName) throws IOException, ParserException {
-        return parser.factory().and(readFormulas(parser, fileName));
+        return parser.getFactory().and(readFormulas(parser, fileName));
     }
 
     /**
@@ -100,7 +100,7 @@ public final class FormulaReader {
      * @throws ParserException if there was a problem parsing the formulas
      */
     public static Formula readFormula(final FormulaParser parser, final File file) throws IOException, ParserException {
-        return parser.factory().and(readFormulas(parser, file));
+        return parser.getFactory().and(readFormulas(parser, file));
     }
 
     /**

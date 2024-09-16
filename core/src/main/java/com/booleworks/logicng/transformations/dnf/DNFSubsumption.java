@@ -36,10 +36,10 @@ public final class DNFSubsumption extends Subsumption {
         if (!formula.isDNF(f)) {
             throw new IllegalArgumentException("DNF subsumption can only be applied to formulas in DNF");
         }
-        if (formula.type().precedence() >= FType.LITERAL.precedence() || formula.type() == FType.AND) {
+        if (formula.getType().getPrecedence() >= FType.LITERAL.getPrecedence() || formula.getType() == FType.AND) {
             return LNGResult.of(formula);
         }
-        assert formula.type() == FType.OR;
+        assert formula.getType() == FType.OR;
         final LNGResult<UBTree<Literal>> ubTreeResult = generateSubsumedUBTree(formula, handler);
         if (!ubTreeResult.isSuccess()) {
             return LNGResult.canceled(ubTreeResult.getCancelCause());

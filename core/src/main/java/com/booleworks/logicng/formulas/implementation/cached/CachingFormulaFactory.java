@@ -396,12 +396,12 @@ public class CachingFormulaFactory extends FormulaFactory {
 
     @Override
     protected Formula negateOrNull(final Formula formula) {
-        if (formula.type() == FType.FALSE || formula.type() == FType.TRUE || formula.type() == FType.NOT) {
+        if (formula.getType() == FType.FALSE || formula.getType() == FType.TRUE || formula.getType() == FType.NOT) {
             return formula.negate(this);
-        } else if (formula.type() == FType.LITERAL) {
+        } else if (formula.getType() == FType.LITERAL) {
             final Literal lit = (Literal) formula;
-            final String name = lit.name();
-            return lit.phase() ? negLiterals.get(name) : posLiterals.get(name);
+            final String name = lit.getName();
+            return lit.getPhase() ? negLiterals.get(name) : posLiterals.get(name);
         } else {
             return nots.get(formula);
         }
@@ -456,9 +456,9 @@ public class CachingFormulaFactory extends FormulaFactory {
         statistics.disjunctionsN = orsN.size();
         statistics.pbcs = pbConstraints.size();
         statistics.ccs = cardinalityConstraints.size();
-        statistics.ccCounter = auxVarCounters.get(InternalAuxVarType.CC.prefix()).get();
-        statistics.pbCounter = auxVarCounters.get(InternalAuxVarType.PBC.prefix()).get();
-        statistics.cnfCounter = auxVarCounters.get(InternalAuxVarType.CNF.prefix()).get();
+        statistics.ccCounter = auxVarCounters.get(InternalAuxVarType.CC.getPrefix()).get();
+        statistics.pbCounter = auxVarCounters.get(InternalAuxVarType.PBC.getPrefix()).get();
+        statistics.cnfCounter = auxVarCounters.get(InternalAuxVarType.CNF.getPrefix()).get();
         return statistics;
     }
 

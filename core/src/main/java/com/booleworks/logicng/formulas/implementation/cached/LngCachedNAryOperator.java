@@ -30,7 +30,7 @@ public abstract class LngCachedNAryOperator extends LngCachedFormula implements 
     }
 
     @Override
-    public List<Formula> operands() {
+    public List<Formula> getOperands() {
         return operands;
     }
 

@@ -12,7 +12,7 @@ import java.util.TreeMap;
 /**
  * A node in a UBTree, holding a comparable element.
  * @param <T> The element type of the node, must be comparable
- * @version 2.0.0
+ * @version 3.0.0
  * @since 1.5.0
  */
 public final class UBNode<T extends Comparable<T>> {
@@ -34,7 +34,7 @@ public final class UBNode<T extends Comparable<T>> {
      * Returns the element of this node.
      * @return the element of this node.
      */
-    T element() {
+    T getElement() {
         return element;
     }
 
@@ -43,18 +43,18 @@ public final class UBNode<T extends Comparable<T>> {
      * set of the UB Tree. In this case these methods returns this set,
      * otherwise it returns {@code null}.
      * @return the set of this node if it is a terminal node, {@code null}
-     *         otherwise
+     * otherwise
      */
-    SortedSet<T> set() {
+    SortedSet<T> getSet() {
         return set;
     }
 
     /**
      * Returns all children of this node.
      * @return a mapping from element to its node - all of which are children of
-     *         the current node
+     * the current node
      */
-    SortedMap<T, UBNode<T>> children() {
+    SortedMap<T, UBNode<T>> getChildren() {
         return children;
     }
 

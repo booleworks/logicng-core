@@ -21,8 +21,8 @@ import com.booleworks.logicng.solvers.sat.LNGCoreSolver.ProofInformation;
 public class SolverComparator {
 
     public static void compareSolverStates(final SATSolver solver1, final SATSolver solver2) {
-        final LNGCoreSolver s1 = solver1.underlyingSolver();
-        final LNGCoreSolver s2 = solver2.underlyingSolver();
+        final LNGCoreSolver s1 = solver1.getUnderlyingSolver();
+        final LNGCoreSolver s2 = solver2.getUnderlyingSolver();
 
         assertFieldEqual(s1, s2, "config");
         assertFieldEqual(s1, s2, "llConfig");
@@ -99,8 +99,8 @@ public class SolverComparator {
         for (int i = 0; i < pg1.size(); i++) {
             final ProofInformation pi1 = pg1.get(i);
             final ProofInformation pi2 = pg2.get(i);
-            assertIntVecEquals(pi1.clause(), pi2.clause());
-            assertThat(pi1.proposition()).isEqualTo(pi2.proposition());
+            assertIntVecEquals(pi1.getClause(), pi2.getClause());
+            assertThat(pi1.getProposition()).isEqualTo(pi2.getProposition());
         }
 
         final LNGVector<LNGIntVector> proof1 = getField(s1, "pgProof");

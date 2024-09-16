@@ -39,17 +39,17 @@ public abstract class PlaistedGreenbaumCommon<T> {
     abstract void addToSolver(final LNGIntVector clause, T addendum);
 
     abstract int getLitFromSolver(final Literal lit);
-   
+
     abstract void addCNF(final Formula cnf, final T addendum);
 
     private LNGIntVector computeTransformation(final Formula formula, final boolean polarity,
                                                final T addendum, final boolean topLevel) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case LITERAL:
                 final Literal lit = (Literal) formula;
                 return polarity ? vector(getLitFromSolver(lit)) : vector(getLitFromSolver(lit) ^ 1);
             case NOT:
-                return computeTransformation(((Not) formula).operand(), !polarity, addendum, topLevel);
+                return computeTransformation(((Not) formula).getOperand(), !polarity, addendum, topLevel);
             case OR:
             case AND:
                 return handleNary(formula, polarity, addendum, topLevel);
@@ -58,7 +58,7 @@ public abstract class PlaistedGreenbaumCommon<T> {
             case EQUIV:
                 return handleEquivalence((Equivalence) formula, polarity, addendum, topLevel);
             default:
-                throw new IllegalArgumentException("Could not process the formula type " + formula.type());
+                throw new IllegalArgumentException("Could not process the formula type " + formula.getType());
         }
     }
 
@@ -93,22 +93,22 @@ public abstract class PlaistedGreenbaumCommon<T> {
                                            final T addendum, final boolean topLevel) {
         final boolean skipPg = polarity || topLevel;
         final Pair<Boolean, Integer> pgVarResult = skipPg ? new Pair<>(false, null) : getPgVar(formula, polarity);
-        if (pgVarResult.first()) {
-            return polarity ? vector(pgVarResult.second()) : vector(pgVarResult.second() ^ 1);
+        if (pgVarResult.getFirst()) {
+            return polarity ? vector(pgVarResult.getSecond()) : vector(pgVarResult.getSecond() ^ 1);
         }
-        final int pgVar = skipPg ? -1 : pgVarResult.second();
+        final int pgVar = skipPg ? -1 : pgVarResult.getSecond();
         if (polarity) {
             // pg => (~left | right) ~~> ~pg | ~left | right
             // Speed-Up: Skip pg var
-            final LNGIntVector leftPgVarNeg = computeTransformation(formula.left(), false, addendum, false);
-            final LNGIntVector rightPgVarPos = computeTransformation(formula.right(), true, addendum, false);
+            final LNGIntVector leftPgVarNeg = computeTransformation(formula.getLeft(), false, addendum, false);
+            final LNGIntVector rightPgVarPos = computeTransformation(formula.getRight(), true, addendum, false);
             return vector(leftPgVarNeg, rightPgVarPos);
         } else {
             // (~left | right) => pg
             // ~~> (left & ~right) | pg
             // ~~> (left | pg) & (~right | pg)
-            final LNGIntVector leftPgVarPos = computeTransformation(formula.left(), true, addendum, topLevel);
-            final LNGIntVector rightPgVarNeg = computeTransformation(formula.right(), false, addendum, topLevel);
+            final LNGIntVector leftPgVarPos = computeTransformation(formula.getLeft(), true, addendum, topLevel);
+            final LNGIntVector rightPgVarNeg = computeTransformation(formula.getRight(), false, addendum, topLevel);
             if (topLevel) {
                 if (leftPgVarPos != null) {
                     addToSolver(leftPgVarPos, addendum);
@@ -128,14 +128,14 @@ public abstract class PlaistedGreenbaumCommon<T> {
     private LNGIntVector handleEquivalence(final Equivalence formula, final boolean polarity,
                                            final T addendum, final boolean topLevel) {
         final Pair<Boolean, Integer> pgVarResult = topLevel ? new Pair<>(false, null) : getPgVar(formula, polarity);
-        if (pgVarResult.first()) {
-            return polarity ? vector(pgVarResult.second()) : vector(pgVarResult.second() ^ 1);
+        if (pgVarResult.getFirst()) {
+            return polarity ? vector(pgVarResult.getSecond()) : vector(pgVarResult.getSecond() ^ 1);
         }
-        final int pgVar = topLevel ? -1 : pgVarResult.second();
-        final LNGIntVector leftPgVarPos = computeTransformation(formula.left(), true, addendum, false);
-        final LNGIntVector leftPgVarNeg = computeTransformation(formula.left(), false, addendum, false);
-        final LNGIntVector rightPgVarPos = computeTransformation(formula.right(), true, addendum, false);
-        final LNGIntVector rightPgVarNeg = computeTransformation(formula.right(), false, addendum, false);
+        final int pgVar = topLevel ? -1 : pgVarResult.getSecond();
+        final LNGIntVector leftPgVarPos = computeTransformation(formula.getLeft(), true, addendum, false);
+        final LNGIntVector leftPgVarNeg = computeTransformation(formula.getLeft(), false, addendum, false);
+        final LNGIntVector rightPgVarPos = computeTransformation(formula.getRight(), true, addendum, false);
+        final LNGIntVector rightPgVarNeg = computeTransformation(formula.getRight(), false, addendum, false);
         if (polarity) {
             // pg => (left => right) & (right => left)
             // ~~> (pg & left => right) & (pg & right => left)
@@ -168,13 +168,13 @@ public abstract class PlaistedGreenbaumCommon<T> {
     private LNGIntVector handleNary(final Formula formula, final boolean polarity, final T addendum,
                                     final boolean topLevel) {
         final boolean skipPg =
-                topLevel || formula.type() == FType.AND && !polarity || formula.type() == FType.OR && polarity;
+                topLevel || formula.getType() == FType.AND && !polarity || formula.getType() == FType.OR && polarity;
         final Pair<Boolean, Integer> pgVarResult = skipPg ? new Pair<>(false, null) : getPgVar(formula, polarity);
-        if (pgVarResult.first()) {
-            return polarity ? vector(pgVarResult.second()) : vector(pgVarResult.second() ^ 1);
+        if (pgVarResult.getFirst()) {
+            return polarity ? vector(pgVarResult.getSecond()) : vector(pgVarResult.getSecond() ^ 1);
         }
-        final int pgVar = skipPg ? -1 : pgVarResult.second();
-        switch (formula.type()) {
+        final int pgVar = skipPg ? -1 : pgVarResult.getSecond();
+        switch (formula.getType()) {
             case AND: {
                 if (polarity) {
                     // pg => (v1 & ... & vk) ~~> (~pg | v1) & ... & (~pg | vk)
@@ -236,7 +236,7 @@ public abstract class PlaistedGreenbaumCommon<T> {
                 break;
             }
             default:
-                throw new IllegalArgumentException("Unexpected type: " + formula.type());
+                throw new IllegalArgumentException("Unexpected type: " + formula.getType());
         }
         return polarity ? vector(pgVar) : vector(pgVar ^ 1);
     }

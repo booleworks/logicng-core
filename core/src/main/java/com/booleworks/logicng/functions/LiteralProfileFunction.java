@@ -51,7 +51,7 @@ public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<L
     }
 
     @Override
-    public LNGResult<Map<Literal, Integer>> apply(final Formula formula, ComputationHandler handler) {
+    public LNGResult<Map<Literal, Integer>> apply(final Formula formula, final ComputationHandler handler) {
         return LNGResult.of(hasCache() ? cachingLiteralProfile(formula) : nonCachingLiteralProfile(formula));
     }
 
@@ -74,10 +74,10 @@ public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<L
      * @param map     the literal profile
      */
     private void nonCachingRecursion(final Formula formula, final Map<Literal, Integer> map) {
-        if (formula.type() == FType.LITERAL) {
+        if (formula.getType() == FType.LITERAL) {
             final Literal lit = (Literal) formula;
             map.merge(lit, 1, Integer::sum);
-        } else if (formula.type() == FType.PBC) {
+        } else if (formula.getType() == FType.PBC) {
             for (final Literal l : formula.literals(f)) {
                 nonCachingRecursion(l, map);
             }
@@ -100,9 +100,9 @@ public final class LiteralProfileFunction extends CacheableFormulaFunction<Map<L
             return cached;
         }
         final Map<Literal, Integer> result = new HashMap<>();
-        if (formula.type() == FType.LITERAL) {
+        if (formula.getType() == FType.LITERAL) {
             result.put((Literal) formula, 1);
-        } else if (formula.type() == FType.PBC) {
+        } else if (formula.getType() == FType.PBC) {
             for (final Literal l : formula.literals(f)) {
                 result.put(l, 1);
             }

@@ -6,7 +6,6 @@ package com.booleworks.logicng.formulas;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -15,7 +14,7 @@ public class CFalseTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testType(final FormulaContext _c) {
-        assertThat(_c.falsum.type()).isEqualTo(FType.FALSE);
+        assertThat(_c.falsum.getType()).isEqualTo(FType.FALSE);
     }
 
     @ParameterizedTest

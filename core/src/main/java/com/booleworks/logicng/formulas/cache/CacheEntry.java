@@ -6,7 +6,7 @@ package com.booleworks.logicng.formulas.cache;
 
 /**
  * Interface for a cache entry in the formula cache.
- * @version 1.0
+ * @version 3.0.0
  * @since 1.0
  */
 public interface CacheEntry {
@@ -14,5 +14,5 @@ public interface CacheEntry {
      * Returns the description for this entry.
      * @return the description for this entry
      */
-    String description();
+    String getDescription();
 }

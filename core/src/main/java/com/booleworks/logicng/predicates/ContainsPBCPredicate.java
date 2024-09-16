@@ -36,7 +36,7 @@ public final class ContainsPBCPredicate implements FormulaPredicate {
 
     @Override
     public boolean test(final Formula formula) {
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case FALSE:
             case TRUE:
             case LITERAL:
@@ -51,15 +51,15 @@ public final class ContainsPBCPredicate implements FormulaPredicate {
                 }
                 return false;
             case NOT:
-                return test(((Not) formula).operand());
+                return test(((Not) formula).getOperand());
             case IMPL:
             case EQUIV:
                 final BinaryOperator binary = (BinaryOperator) formula;
-                return test(binary.left()) || test(binary.right());
+                return test(binary.getLeft()) || test(binary.getRight());
             case PBC:
                 return true;
             default:
-                throw new IllegalArgumentException("Unknown formula type " + formula.type());
+                throw new IllegalArgumentException("Unknown formula type " + formula.getType());
         }
     }
 }

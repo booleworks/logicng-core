@@ -53,7 +53,7 @@ public final class DNFFactorization extends CacheableFormulaTransformation {
     }
 
     private LNGResult<Formula> applyRec(final Formula formula, final ComputationHandler handler) {
-        if (formula.type().precedence() >= FType.LITERAL.precedence()) {
+        if (formula.getType().getPrecedence() >= FType.LITERAL.getPrecedence()) {
             return LNGResult.of(formula);
         }
         final Formula cached = lookupCache(formula);
@@ -61,7 +61,7 @@ public final class DNFFactorization extends CacheableFormulaTransformation {
             return LNGResult.of(cached);
         }
         final Formula computed;
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case NOT:
             case IMPL:
             case EQUIV:
@@ -108,7 +108,7 @@ public final class DNFFactorization extends CacheableFormulaTransformation {
                 computed = currentResult;
                 break;
             default:
-                throw new IllegalArgumentException("Could not process the formula type " + formula.type());
+                throw new IllegalArgumentException("Could not process the formula type " + formula.getType());
         }
         setCache(formula, computed);
         return LNGResult.of(computed);
@@ -125,10 +125,10 @@ public final class DNFFactorization extends CacheableFormulaTransformation {
         if (!handler.shouldResume(DISTRIBUTION_PERFORMED)) {
             return LNGResult.canceled(DISTRIBUTION_PERFORMED);
         }
-        if (f1.type() == FType.OR || f2.type() == FType.OR) {
+        if (f1.getType() == FType.OR || f2.getType() == FType.OR) {
             final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
-            for (final Formula op : f1.type() == FType.OR ? f1 : f2) {
-                final LNGResult<Formula> distributed = distribute(op, f1.type() == FType.OR ? f2 : f1, handler);
+            for (final Formula op : f1.getType() == FType.OR ? f1 : f2) {
+                final LNGResult<Formula> distributed = distribute(op, f1.getType() == FType.OR ? f2 : f1, handler);
                 if (distributed.isSuccess()) {
                     nops.add(distributed.getResult());
                 } else {

@@ -30,7 +30,7 @@ public enum TransformationCacheEntry implements CacheEntry {
     }
 
     @Override
-    public String description() {
+    public String getDescription() {
         return "TransformationCacheEntry{description=" + description + "}";
     }
 }

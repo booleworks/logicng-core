@@ -35,7 +35,7 @@ public final class BronKerbosch<T extends Comparable<T>> {
      */
     public BronKerbosch(final Graph<T> g) {
         this.g = g;
-        nodeComparator = Comparator.comparing(Node::content);
+        nodeComparator = Comparator.comparing(Node::getContent);
         cliques = new LinkedHashSet<>();
     }
 
@@ -63,14 +63,14 @@ public final class BronKerbosch<T extends Comparable<T>> {
         final Node<T> u = pvx.last();
         final SortedSet<Node<T>> pwnu = new TreeSet<>(nodeComparator);
         pwnu.addAll(p);
-        pwnu.removeAll(u.neighbours());
+        pwnu.removeAll(u.getNeighbours());
         for (final Node<T> v : pwnu) {
             final SortedSet<Node<T>> nr = new TreeSet<>(nodeComparator);
             nr.addAll(r);
             nr.add(v);
             final SortedSet<Node<T>> np = new TreeSet<>(nodeComparator);
             final SortedSet<Node<T>> nx = new TreeSet<>(nodeComparator);
-            for (final Node<T> neigh : v.neighbours()) {
+            for (final Node<T> neigh : v.getNeighbours()) {
                 if (p.contains(neigh)) {
                     np.add(neigh);
                 }
@@ -94,7 +94,7 @@ public final class BronKerbosch<T extends Comparable<T>> {
         for (final Set<Node<T>> clique : cliques) {
             final List<T> curList = new ArrayList<>();
             for (final Node<T> node : clique) {
-                curList.add(node.content());
+                curList.add(node.getContent());
             }
             result.add(curList);
         }
@@ -110,9 +110,9 @@ public final class BronKerbosch<T extends Comparable<T>> {
 
         @Override
         public int compare(final Node<T> n1, final Node<T> n2) {
-            if (n1.neighbours().size() > n2.neighbours().size()) {
+            if (n1.getNeighbours().size() > n2.getNeighbours().size()) {
                 return 1;
-            } else if (n1.neighbours().size() < n2.neighbours().size()) {
+            } else if (n1.getNeighbours().size() < n2.getNeighbours().size()) {
                 return -1;
             } else {
                 return nodeComparator.compare(n1, n2);

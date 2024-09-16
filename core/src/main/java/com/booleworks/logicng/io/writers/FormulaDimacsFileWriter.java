@@ -57,19 +57,19 @@ public final class FormulaDimacsFileWriter {
      */
     public static void write(final String fileName, final Formula formula, final boolean writeMapping)
             throws IOException {
-        final LiteralsFunction lf = new LiteralsFunction(formula.factory(), null);
-        final VariablesFunction vf = new VariablesFunction(formula.factory(), null);
+        final LiteralsFunction lf = new LiteralsFunction(formula.getFactory(), null);
+        final VariablesFunction vf = new VariablesFunction(formula.getFactory(), null);
         final File file = new File(fileName.endsWith(CNF_EXTENSION) ? fileName : fileName + CNF_EXTENSION);
         final SortedMap<Variable, Long> var2id = new TreeMap<>();
         long i = 1;
         for (final Variable var : new TreeSet<>(formula.apply(vf))) {
             var2id.put(var, i++);
         }
-        if (!formula.holds(new CNFPredicate(formula.factory(), null))) {
+        if (!formula.holds(new CNFPredicate(formula.getFactory(), null))) {
             throw new IllegalArgumentException("Cannot write a non-CNF formula to dimacs.  Convert to CNF first.");
         }
         final List<Formula> parts = new ArrayList<>();
-        if (formula.type() == FType.LITERAL || formula.type() == FType.OR) {
+        if (formula.getType() == FType.LITERAL || formula.getType() == FType.OR) {
             parts.add(formula);
         } else {
             for (final Formula part : formula) {
@@ -77,16 +77,16 @@ public final class FormulaDimacsFileWriter {
             }
         }
         final StringBuilder sb = new StringBuilder("p cnf ");
-        final int partsSize = formula.type() == FType.FALSE ? 1 : parts.size();
+        final int partsSize = formula.getType() == FType.FALSE ? 1 : parts.size();
         sb.append(var2id.size()).append(" ").append(partsSize).append(System.lineSeparator());
 
         for (final Formula part : parts) {
             for (final Literal lit : part.apply(lf)) {
-                sb.append(lit.phase() ? "" : "-").append(var2id.get(lit.variable())).append(" ");
+                sb.append(lit.getPhase() ? "" : "-").append(var2id.get(lit.variable())).append(" ");
             }
             sb.append(String.format(" 0%n"));
         }
-        if (formula.type().equals(FType.FALSE)) {
+        if (formula.getType().equals(FType.FALSE)) {
             sb.append(String.format("0%n"));
         }
         try (final BufferedWriter writer = new BufferedWriter(

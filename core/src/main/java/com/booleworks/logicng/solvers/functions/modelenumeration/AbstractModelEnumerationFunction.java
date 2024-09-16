@@ -61,12 +61,12 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         if (!handler.shouldResume(MODEL_ENUMERATION_STARTED)) {
             return LNGResult.canceled(MODEL_ENUMERATION_STARTED);
         }
-        final SortedSet<Variable> knownVariables = solver.underlyingSolver().knownVariables();
+        final SortedSet<Variable> knownVariables = solver.getUnderlyingSolver().knownVariables();
         final SortedSet<Variable> additionalVarsNotOnSolver =
                 difference(additionalVariables, knownVariables, TreeSet::new);
         final SortedSet<Variable> dontCareVariablesNotOnSolver = difference(variables, knownVariables, TreeSet::new);
         final EnumerationCollector<RESULT> collector =
-                newCollector(solver.factory(), knownVariables, dontCareVariablesNotOnSolver, additionalVarsNotOnSolver);
+                newCollector(solver.getFactory(), knownVariables, dontCareVariablesNotOnSolver, additionalVarsNotOnSolver);
         final SortedSet<Variable> enumerationVars =
                 knownVariables.stream().filter(variables::contains).collect(Collectors.toCollection(TreeSet::new));
         final SortedSet<Variable> initialSplitVars =
@@ -163,7 +163,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
         int foundModels = 0;
         LNGEvent cancelCause = null;
         while (modelEnumerationSATCall(solver, handler)) {
-            final LNGBooleanVector modelFromSolver = solver.underlyingSolver().model();
+            final LNGBooleanVector modelFromSolver = solver.getUnderlyingSolver().model();
             if (++foundModels >= maxModels) {
                 solver.loadState(stateBeforeEnumeration);
                 return LNGResult.of(false);
@@ -171,7 +171,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
             cancelCause = collector.addModel(modelFromSolver, solver, relevantAllIndices, handler);
             if (cancelCause == null && modelFromSolver.size() > 0) {
                 final LNGIntVector blockingClause = generateBlockingClause(modelFromSolver, relevantIndices);
-                solver.underlyingSolver().addClause(blockingClause, null);
+                solver.getUnderlyingSolver().addClause(blockingClause, null);
             } else {
                 break;
             }
@@ -186,7 +186,7 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
     }
 
     protected static FormulaFactory factory(final SortedSet<Variable> variables) {
-        return variables == null || variables.isEmpty() ? FormulaFactory.caching() : variables.first().factory();
+        return variables == null || variables.isEmpty() ? FormulaFactory.caching() : variables.first().getFactory();
     }
 
     protected static ModelEnumerationConfig configuration(final SortedSet<Variable> variables,

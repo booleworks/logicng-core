@@ -27,7 +27,6 @@ import com.booleworks.logicng.predicates.satisfiability.SATPredicate;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -174,12 +173,12 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables(f)), 1000, 10000);
         final BDD bdd = BDDFactory.build(f, formula, kernel);
         final BigInteger count = bdd.modelCount();
-        final int usedBefore = new BDDOperations(kernel).nodeCount(bdd.index());
+        final int usedBefore = new BDDOperations(kernel).nodeCount(bdd.getIndex());
         final long start = System.currentTimeMillis();
         addVariableBlocks(formula.variables(f).size(), withBlocks, kernel);
         kernel.getReordering().reorder(reorderMethod);
         final long duration = System.currentTimeMillis() - start;
-        final int usedAfter = new BDDOperations(kernel).nodeCount(bdd.index());
+        final int usedAfter = new BDDOperations(kernel).nodeCount(bdd.getIndex());
         assertThat(verifyBddConsistency(f, formula, bdd, count)).isTrue();
         verifyVariableBlocks(f, formula, withBlocks, bdd);
         if (reorderMethod != BDDReorderingMethod.BDD_REORDER_RANDOM) {
@@ -222,7 +221,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
                 }
                 final BDDKernel kernel = new BDDKernel(f, new ArrayList<>(formula.variables(f)), 1000, 10000);
                 final BDD bdd = BDDFactory.build(f, formula, kernel);
-                final int nodeCount = new BDDOperations(kernel).nodeCount(bdd.index());
+                final int nodeCount = new BDDOperations(kernel).nodeCount(bdd.getIndex());
                 final BigInteger modelCount = bdd.modelCount();
                 for (final BDDReorderingMethod method : REORDER_METHODS) {
                     reorderOnBuild(f, formula, method, modelCount, nodeCount, true, verbose);
@@ -243,7 +242,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         final long start = System.currentTimeMillis();
         final BDD bdd = BDDFactory.build(f, formula, kernel);
         final long duration = System.currentTimeMillis() - start;
-        final int usedAfter = new BDDOperations(kernel).nodeCount(bdd.index());
+        final int usedAfter = new BDDOperations(kernel).nodeCount(bdd.getIndex());
         verifyVariableBlocks(f, formula, withBlocks, bdd);
         verifyBddConsistency(f, formula, bdd, originalCount);
         final double reduction = (originalUsedNodes - usedAfter) / (double) originalUsedNodes * 100;
@@ -255,11 +254,11 @@ public class BDDReorderingTest extends TestWithFormulaContext {
 
     private boolean verifyBddConsistency(final FormulaFactory f, final Formula f1, final BDD bdd,
                                          final BigInteger modelCount) {
-        final BDDVerification verification = new BDDVerification(bdd.underlyingKernel());
-        if (!verification.verify(bdd.index())) {
+        final BDDVerification verification = new BDDVerification(bdd.getUnderlyingKernel());
+        if (!verification.verify(bdd.getIndex())) {
             return false;
         }
-        final long nodes = verification.verifyTree(bdd.index());
+        final long nodes = verification.verifyTree(bdd.getIndex());
         if (nodes < 0) {
             return false;
         }
@@ -313,10 +312,10 @@ public class BDDReorderingTest extends TestWithFormulaContext {
     private boolean findSequence(final BDD bdd, final Set<String> vars) {
         final Iterator<Variable> it = bdd.getVariableOrder().iterator();
         while (it.hasNext()) {
-            if (vars.contains(it.next().name())) {
+            if (vars.contains(it.next().getName())) {
                 int numFound = 1;
                 while (numFound < vars.size()) {
-                    if (!vars.contains(it.next().name())) {
+                    if (!vars.contains(it.next().getName())) {
                         return false;
                     } else {
                         numFound++;
@@ -336,7 +335,7 @@ public class BDDReorderingTest extends TestWithFormulaContext {
         private long maxBddSize = 0; // num nodes without caching
 
         public void newFormula(final Formula formula) {
-            maxFormulaSize = Math.max(maxFormulaSize, formula.numberOfNodes(formula.factory()));
+            maxFormulaSize = Math.max(maxFormulaSize, formula.numberOfNodes(formula.getFactory()));
         }
 
         public void newBdd(final BDD bdd) {

@@ -71,7 +71,7 @@ public class BDDModelEnumerationTest {
             final Set<Model> models = new HashSet<>(bdd.enumerateAllModels());
             assertThat(models.size()).isEqualTo(expected[i].intValue());
             for (final Model model : models) {
-                assertThat(formulas.get(i).evaluate(model.assignment())).isTrue();
+                assertThat(formulas.get(i).evaluate(model.toAssignment())).isTrue();
             }
         }
     }

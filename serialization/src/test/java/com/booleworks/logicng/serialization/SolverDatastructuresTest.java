@@ -38,10 +38,10 @@ public class SolverDatastructuresTest {
         final LNGIntVector heapContent = new LNGIntVector(new int[]{1, 3, 5, -7, 9}, 5);
         final LNGIntVector indices = new LNGIntVector(new int[]{42, 43, 44}, 3);
 
-        final LNGHeap heap = new LNGHeap(solver.underlyingSolver(), heapContent, indices);
+        final LNGHeap heap = new LNGHeap(solver.getUnderlyingSolver(), heapContent, indices);
 
         final PBHeap serialized = SolverDatastructures.serializeHeap(heap);
-        final LNGHeap deserialized = SolverDatastructures.deserializeHeap(serialized, solver.underlyingSolver());
+        final LNGHeap deserialized = SolverDatastructures.deserializeHeap(serialized, solver.getUnderlyingSolver());
         CollectionComperator.assertIntVecEquals(heap.getHeap(), deserialized.getHeap());
         CollectionComperator.assertIntVecEquals(heap.getIndices(), deserialized.getIndices());
     }

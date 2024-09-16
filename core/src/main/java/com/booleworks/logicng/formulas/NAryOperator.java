@@ -24,11 +24,11 @@ public interface NAryOperator extends Formula {
 
     int BOUNDARY_SET_CREATION_EQUALS = 20;
 
-    List<Formula> operands();
+    List<Formula> getOperands();
 
     @Override
     default int numberOfOperands() {
-        return operands().size();
+        return getOperands().size();
     }
 
     @Override
@@ -43,7 +43,7 @@ public interface NAryOperator extends Formula {
 
     @Override
     default boolean containsVariable(final Variable variable) {
-        for (final Formula op : operands()) {
+        for (final Formula op : getOperands()) {
             if (op.containsVariable(variable)) {
                 return true;
             }
@@ -54,10 +54,10 @@ public interface NAryOperator extends Formula {
     @Override
     default Formula restrict(final FormulaFactory f, final Assignment assignment) {
         final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
-        for (final Formula op : operands()) {
+        for (final Formula op : getOperands()) {
             nops.add(op.restrict(f, assignment));
         }
-        return f.naryOperator(type(), nops);
+        return f.naryOperator(getType(), nops);
     }
 
     @Override
@@ -65,8 +65,8 @@ public interface NAryOperator extends Formula {
         if (equals(formula)) {
             return true;
         }
-        if (type() != formula.type()) {
-            for (final Formula op : operands()) {
+        if (getType() != formula.getType()) {
+            for (final Formula op : getOperands()) {
                 if (op.containsNode(formula)) {
                     return true;
                 }
@@ -77,7 +77,7 @@ public interface NAryOperator extends Formula {
         for (final Formula op : formula) {
             fOps.add(op);
         }
-        for (final Formula op : operands()) {
+        for (final Formula op : getOperands()) {
             fOps.remove(op);
             if (op.containsNode(formula)) {
                 return true;
@@ -89,10 +89,10 @@ public interface NAryOperator extends Formula {
     @Override
     default Formula substitute(final FormulaFactory f, final Substitution substitution) {
         final LinkedHashSet<Formula> nops = new LinkedHashSet<>();
-        for (final Formula op : operands()) {
+        for (final Formula op : getOperands()) {
             nops.add(op.substitute(f, substitution));
         }
-        return f.naryOperator(type(), nops);
+        return f.naryOperator(getType(), nops);
     }
 
     @Override
@@ -101,18 +101,18 @@ public interface NAryOperator extends Formula {
     }
 
     default boolean compareOperands(final List<Formula> other) {
-        if (operands().size() != other.size()) {
+        if (getOperands().size() != other.size()) {
             return false;
         }
-        if (operands().size() > BOUNDARY_SET_CREATION_EQUALS) {
+        if (getOperands().size() > BOUNDARY_SET_CREATION_EQUALS) {
             final HashSet<Formula> otherSet = new HashSet<>(other);
-            for (final Formula op : operands()) {
+            for (final Formula op : getOperands()) {
                 if (!otherSet.contains(op)) {
                     return false;
                 }
             }
         } else {
-            for (final Formula op1 : operands()) {
+            for (final Formula op1 : getOperands()) {
                 boolean found = false;
                 for (final Formula op2 : other) {
                     if (op1.equals(op2)) {
@@ -135,15 +135,15 @@ public interface NAryOperator extends Formula {
 
             @Override
             public boolean hasNext() {
-                return i < operands().size();
+                return i < getOperands().size();
             }
 
             @Override
             public Formula next() {
-                if (i == operands().size()) {
+                if (i == getOperands().size()) {
                     throw new NoSuchElementException();
                 }
-                return operands().get(i++);
+                return getOperands().get(i++);
             }
 
             @Override
@@ -155,12 +155,12 @@ public interface NAryOperator extends Formula {
 
     @Override
     default Stream<Formula> stream() {
-        return operands().stream();
+        return getOperands().stream();
     }
 
     default int computeHash(final int shift) {
         int hashcode = 1;
-        for (final Formula formula : operands()) {
+        for (final Formula formula : getOperands()) {
             hashcode += formula.hashCode();
         }
         hashcode *= shift;

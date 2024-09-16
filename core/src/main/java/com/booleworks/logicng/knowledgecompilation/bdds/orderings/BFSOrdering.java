@@ -37,23 +37,23 @@ public final class BFSOrdering implements VariableOrderingProvider {
         queue.add(formula);
         while (!queue.isEmpty()) {
             final Formula current = queue.remove();
-            switch (current.type()) {
+            switch (current.getType()) {
                 case LITERAL:
                     final Literal lit = (Literal) current;
-                    if (lit.phase()) {
+                    if (lit.getPhase()) {
                         variables.add(lit.variable());
                     } else {
                         queue.add(lit.variable());
                     }
                     break;
                 case NOT:
-                    queue.add(((Not) current).operand());
+                    queue.add(((Not) current).getOperand());
                     break;
                 case IMPL:
                 case EQUIV:
                     final BinaryOperator op = (BinaryOperator) current;
-                    queue.add(op.left());
-                    queue.add(op.right());
+                    queue.add(op.getLeft());
+                    queue.add(op.getRight());
                     break;
                 case AND:
                 case OR:
@@ -63,7 +63,7 @@ public final class BFSOrdering implements VariableOrderingProvider {
                     break;
                 case PBC:
                     final PBConstraint pbc = (PBConstraint) current;
-                    for (final Literal literal : pbc.operands()) {
+                    for (final Literal literal : pbc.getOperands()) {
                         variables.add(literal.variable());
                     }
                     break;

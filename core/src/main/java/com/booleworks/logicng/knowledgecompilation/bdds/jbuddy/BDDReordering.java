@@ -428,8 +428,8 @@ public class BDDReordering {
 
         while (thisTree.getNext() != null) {
             final Pair<BDDTree, BDDTree> swapResult = reorderSwapwin3(thisTree);
-            thisTree = swapResult.first();
-            first = swapResult.second() != null ? swapResult.second() : first;
+            thisTree = swapResult.getFirst();
+            first = swapResult.getSecond() != null ? swapResult.getSecond() : first;
         }
 
         return first;
@@ -450,8 +450,8 @@ public class BDDReordering {
 
             while (thisTree.getNext() != null && thisTree.getNext().getNext() != null) {
                 final Pair<BDDTree, BDDTree> swapResult = reorderSwapwin3(thisTree);
-                thisTree = swapResult.first();
-                first = swapResult.second() != null ? swapResult.second() : first;
+                thisTree = swapResult.getFirst();
+                first = swapResult.getSecond() != null ? swapResult.getSecond() : first;
             }
         } while (reorderNodenum() != lastsize);
         return first;

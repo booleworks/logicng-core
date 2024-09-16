@@ -15,22 +15,22 @@ public class LNGBooleanVectorTest {
     public void testVectorCreation() {
         final LNGBooleanVector v1 = new LNGBooleanVector();
         assertThat(v1.size()).isEqualTo(0);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         final LNGBooleanVector v2 = new LNGBooleanVector(10);
         assertThat(v2.size()).isEqualTo(0);
-        assertThat(v2.empty()).isTrue();
+        assertThat(v2.isEmpty()).isTrue();
         final LNGBooleanVector v3 = new LNGBooleanVector(10, true);
         assertThat(v3.size()).isEqualTo(10);
         for (int i = 0; i < v3.size(); i++) {
             assertThat(v3.get(i)).isTrue();
         }
-        assertThat(v3.empty()).isFalse();
+        assertThat(v3.isEmpty()).isFalse();
         final LNGBooleanVector v4 = new LNGBooleanVector(v3);
         assertThat(v4.size()).isEqualTo(10);
         for (int i = 0; i < v4.size(); i++) {
             assertThat(v4.get(i)).isTrue();
         }
-        assertThat(v4.empty()).isFalse();
+        assertThat(v4.isEmpty()).isFalse();
         final LNGBooleanVector v5 = new LNGBooleanVector(true, true, true, false, false);
         assertThat(v5.size()).isEqualTo(5);
         for (int i = 0; i < 5; i++) {
@@ -45,37 +45,37 @@ public class LNGBooleanVectorTest {
     @Test
     public void testVectorAddElements() {
         final LNGBooleanVector v1 = new LNGBooleanVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push(i % 2 == 0);
             assertThat(v1.size()).isEqualTo(i + 1);
             assertThat(v1.back()).isEqualTo(i % 2 == 0);
             assertThat(v1.get(i)).isEqualTo(i % 2 == 0);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         v1.clear();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
     public void legalUnsafePush() {
         final LNGBooleanVector v1 = new LNGBooleanVector(1000);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.unsafePush(i % 2 == 0);
             assertThat(v1.size()).isEqualTo(i + 1);
             assertThat(v1.back()).isEqualTo(i % 2 == 0);
             assertThat(v1.get(i)).isEqualTo(i % 2 == 0);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         v1.clear();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test
     public void illegalUnsafePush() {
         final LNGBooleanVector v1 = new LNGBooleanVector(100);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         assertThatThrownBy(() -> {
             for (int i = 0; i < 1000; i++) {
                 v1.unsafePush(i % 2 == 0);
@@ -102,11 +102,11 @@ public class LNGBooleanVectorTest {
     @Test
     public void testVectorShrink() {
         final LNGBooleanVector v1 = new LNGBooleanVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push(i % 2 == 0);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         final int beforeSize = v1.size();
         v1.shrinkTo(v1.size() + 50);
         assertThat(beforeSize).isEqualTo(v1.size());
@@ -119,11 +119,11 @@ public class LNGBooleanVectorTest {
     @Test
     public void testGrowTo() {
         final LNGBooleanVector v1 = new LNGBooleanVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push(i % 2 == 0);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         for (int i = 0; i < 1001; i += 10) {
             v1.growTo(1000 + i, true);
             assertThat(v1.size()).isEqualTo(1000 + i);
@@ -148,11 +148,11 @@ public class LNGBooleanVectorTest {
     @Test
     public void testRemoveElements() {
         final LNGBooleanVector v1 = new LNGBooleanVector();
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
         for (int i = 0; i < 1000; i++) {
             v1.push(i % 2 == 0);
         }
-        assertThat(v1.empty()).isFalse();
+        assertThat(v1.isEmpty()).isFalse();
         for (int i = 0; i < 9; i++) {
             v1.removeElements(100);
             assertThat(v1.size()).isEqualTo(1000 - (i + 1) * 100);
@@ -160,7 +160,7 @@ public class LNGBooleanVectorTest {
         }
         assertThat(v1.size()).isEqualTo(100);
         v1.removeElements(100);
-        assertThat(v1.empty()).isTrue();
+        assertThat(v1.isEmpty()).isTrue();
     }
 
     @Test

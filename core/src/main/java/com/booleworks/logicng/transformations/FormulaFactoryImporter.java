@@ -45,28 +45,28 @@ public final class FormulaFactoryImporter extends StatelessFormulaTransformation
     }
 
     private Formula applyRec(final Formula formula) {
-        if (formula.factory() == f) {
+        if (formula.getFactory() == f) {
             return formula;
         }
-        switch (formula.type()) {
+        switch (formula.getType()) {
             case TRUE:
                 return f.verum();
             case FALSE:
                 return f.falsum();
             case LITERAL:
                 final Literal literal = (Literal) formula;
-                return f.literal(literal.name(), literal.phase());
+                return f.literal(literal.getName(), literal.getPhase());
             case PREDICATE:
                 throw new UnsupportedOperationException("Cannot import a predicate in a Boolean formula factory");
             case NOT:
                 final Not not = (Not) formula;
-                return f.not(apply(not.operand()));
+                return f.not(apply(not.getOperand()));
             case IMPL:
                 final Implication implication = (Implication) formula;
-                return f.implication(apply(implication.left()), apply(implication.right()));
+                return f.implication(apply(implication.getLeft()), apply(implication.getRight()));
             case EQUIV:
                 final Equivalence equivalence = (Equivalence) formula;
-                return f.equivalence(apply(equivalence.left()), apply(equivalence.right()));
+                return f.equivalence(apply(equivalence.getLeft()), apply(equivalence.getRight()));
             case OR:
                 final Or or = (Or) formula;
                 return f.or(gatherAppliedOperands(or));
@@ -75,13 +75,13 @@ public final class FormulaFactoryImporter extends StatelessFormulaTransformation
                 return f.and(gatherAppliedOperands(and));
             case PBC:
                 final PBConstraint pbc = (PBConstraint) formula;
-                final List<Literal> literals = new ArrayList<>(pbc.operands().size());
-                for (final Literal op : pbc.operands()) {
+                final List<Literal> literals = new ArrayList<>(pbc.getOperands().size());
+                for (final Literal op : pbc.getOperands()) {
                     literals.add((Literal) apply(op));
                 }
-                return f.pbc(pbc.comparator(), pbc.rhs(), literals, pbc.coefficients());
+                return f.pbc(pbc.comparator(), pbc.getRhs(), literals, pbc.getCoefficients());
             default:
-                throw new IllegalArgumentException("Unknown LogicNG formula type: " + formula.type());
+                throw new IllegalArgumentException("Unknown LogicNG formula type: " + formula.getType());
         }
     }
 
