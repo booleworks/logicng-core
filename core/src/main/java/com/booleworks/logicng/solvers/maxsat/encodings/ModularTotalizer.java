@@ -111,11 +111,11 @@ public class ModularTotalizer extends Encoding {
         }
         cardinalityInlits = new LngIntVector(lits);
         currentCardinalityRhs = rhs + 1;
-        if (cardinalityUpoutlits.size() == 0) {
+        if (cardinalityUpoutlits.isEmpty()) {
             cardinalityUpoutlits.push(h0);
         }
         toCnf(s, mod, cardinalityUpoutlits, cardinalityLwoutlits, lits.size());
-        assert cardinalityInlits.size() == 0;
+        assert cardinalityInlits.isEmpty();
         update(s, rhs);
     }
 
@@ -133,7 +133,7 @@ public class ModularTotalizer extends Encoding {
 
     protected void encodeOutput(final LngCoreSolver s, final int rhs) {
         assert hasEncoding;
-        assert cardinalityUpoutlits.size() != 0 || cardinalityLwoutlits.size() != 0;
+        assert !cardinalityUpoutlits.isEmpty() || !cardinalityLwoutlits.isEmpty();
         final int mod = modulo;
         final int ulimit = (rhs + 1) / mod;
         final int llimit = (rhs + 1) - ulimit * mod;
@@ -170,7 +170,7 @@ public class ModularTotalizer extends Encoding {
         int left = 1;
         int right = 1;
         if (split == 1) {
-            assert cardinalityInlits.size() > 0;
+            assert !cardinalityInlits.isEmpty();
             lupper.push(h0);
             llower.push(cardinalityInlits.back());
             cardinalityInlits.pop();
@@ -192,7 +192,7 @@ public class ModularTotalizer extends Encoding {
             }
         }
         if (rhs - split == 1) {
-            assert cardinalityInlits.size() > 0;
+            assert !cardinalityInlits.isEmpty();
             rupper.push(h0);
             rlower.push(cardinalityInlits.back());
             cardinalityInlits.pop();
@@ -213,10 +213,10 @@ public class ModularTotalizer extends Encoding {
                 rlower.push(p);
             }
         }
-        if (lupper.size() == 0) {
+        if (lupper.isEmpty()) {
             lupper.push(h0);
         }
-        if (rupper.size() == 0) {
+        if (rupper.isEmpty()) {
             rupper.push(h0);
         }
         adder(s, mod, ublits, lwlits, rupper, rlower, lupper, llower);
@@ -231,7 +231,7 @@ public class ModularTotalizer extends Encoding {
     protected void adder(final LngCoreSolver s, final int mod, final LngIntVector upper, final LngIntVector lower,
                          final LngIntVector lupper, final LngIntVector llower, final LngIntVector rupper,
                          final LngIntVector rlower) {
-        assert upper.size() != 0;
+        assert !upper.isEmpty();
         assert lower.size() >= llower.size() && lower.size() >= rlower.size();
         int carry = LngCoreSolver.LIT_UNDEF;
         if (upper.get(0) != h0) {

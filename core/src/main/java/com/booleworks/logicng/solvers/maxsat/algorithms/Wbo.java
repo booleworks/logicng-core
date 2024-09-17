@@ -235,7 +235,7 @@ public class Wbo extends MaxSat {
     }
 
     protected void encodeEo(final LngIntVector lits) {
-        assert lits.size() != 0;
+        assert !lits.isEmpty();
         final LngIntVector clause = new LngIntVector();
         if (lits.size() == 1) {
             clause.push(lits.get(0));
@@ -288,7 +288,7 @@ public class Wbo extends MaxSat {
     }
 
     protected void relaxCore(final LngIntVector conflict, final int weightCore, final LngIntVector assumps) {
-        assert conflict.size() > 0;
+        assert !conflict.isEmpty();
         assert weightCore > 0;
         final LngIntVector lits = new LngIntVector();
         for (int i = 0; i < conflict.size(); i++) {
@@ -326,7 +326,7 @@ public class Wbo extends MaxSat {
     }
 
     int computeCostCore(final LngIntVector conflict) {
-        assert conflict.size() != 0;
+        assert !conflict.isEmpty();
         if (problemType == ProblemType.UNWEIGHTED) {
             return 1;
         }
@@ -362,7 +362,7 @@ public class Wbo extends MaxSat {
     }
 
     protected void symmetryBreaking() {
-        if (indexSoftCore.size() != 0 && nbSymmetryClauses < symmetryBreakingLimit) {
+        if (!indexSoftCore.isEmpty() && nbSymmetryClauses < symmetryBreakingLimit) {
             final LngIntVector[] coreIntersection = new LngIntVector[nbCores];
             final LngIntVector[] coreIntersectionCurrent = new LngIntVector[nbCores];
             for (int i = 0; i < nbCores; i++) {
@@ -376,7 +376,7 @@ public class Wbo extends MaxSat {
                 for (int j = 0; j < softMapping.get(p).size() - 1; j++) {
                     final int core = softMapping.get(p).get(j);
                     addCores.push(core);
-                    if (coreIntersection[core].size() == 0) {
+                    if (coreIntersection[core].isEmpty()) {
                         coreList.push(core);
                     }
                     assert j < relaxationMapping.get(p).size();
@@ -431,7 +431,7 @@ public class Wbo extends MaxSat {
     }
 
     LngResult<Boolean> unsatSearch(final ComputationHandler handler) {
-        assert assumptions.size() == 0;
+        assert assumptions.isEmpty();
         solver = rebuildHardSolver();
         final LngResult<Boolean> res = searchSatSolver(solver, handler, assumptions);
         if (!res.isSuccess()) {
@@ -469,7 +469,7 @@ public class Wbo extends MaxSat {
                 return LngResult.canceled(res.getCancelCause());
             } else if (!res.getResult()) {
                 nbCores++;
-                assert solver.assumptionsConflict().size() > 0;
+                assert !solver.assumptionsConflict().isEmpty();
                 final int coreCost = computeCostCore(solver.assumptionsConflict());
                 lbCost += coreCost;
                 if (verbosity != Verbosity.NONE) {
@@ -538,7 +538,7 @@ public class Wbo extends MaxSat {
                 return LngResult.canceled(res.getCancelCause());
             } else if (!res.getResult()) {
                 nbCores++;
-                assert solver.assumptionsConflict().size() > 0;
+                assert !solver.assumptionsConflict().isEmpty();
                 final int coreCost = computeCostCore(solver.assumptionsConflict());
                 lbCost += coreCost;
                 if (verbosity != Verbosity.NONE) {

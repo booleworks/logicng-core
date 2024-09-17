@@ -141,7 +141,7 @@ public class IncWbo extends Wbo {
     }
 
     protected void relaxCore(final LngIntVector conflict, final int weightCore) {
-        assert conflict.size() > 0;
+        assert !conflict.isEmpty();
         assert weightCore > 0;
         final LngIntVector lits = new LngIntVector();
         for (int i = 0; i < conflict.size(); i++) {
@@ -237,7 +237,7 @@ public class IncWbo extends Wbo {
 
     @Override
     protected void symmetryBreaking() {
-        if (indexSoftCore.size() != 0 && nbSymmetryClauses < symmetryBreakingLimit) {
+        if (!indexSoftCore.isEmpty() && nbSymmetryClauses < symmetryBreakingLimit) {
             final LngIntVector[] coreIntersection = new LngIntVector[nbCores];
             final LngIntVector[] coreIntersectionCurrent = new LngIntVector[nbCores];
             for (int i = 0; i < nbCores; i++) {
@@ -251,7 +251,7 @@ public class IncWbo extends Wbo {
                 for (int j = 0; j < softMapping.get(p).size() - 1; j++) {
                     final int core = softMapping.get(p).get(j);
                     addCores.push(core);
-                    if (coreIntersection[core].size() == 0) {
+                    if (coreIntersection[core].isEmpty()) {
                         coreList.push(core);
                     }
                     assert j < relaxationMapping.get(p).size();
@@ -331,7 +331,7 @@ public class IncWbo extends Wbo {
                 return LngResult.canceled(res.getCancelCause());
             } else if (!res.getResult()) {
                 nbCores++;
-                assert solver.assumptionsConflict().size() > 0;
+                assert !solver.assumptionsConflict().isEmpty();
                 final int coreCost = computeCostCore(solver.assumptionsConflict());
                 lbCost += coreCost;
                 if (verbosity != MaxSatConfig.Verbosity.NONE) {
@@ -433,7 +433,7 @@ public class IncWbo extends Wbo {
                 return LngResult.canceled(res.getCancelCause());
             } else if (!res.getResult()) {
                 nbCores++;
-                assert solver.assumptionsConflict().size() > 0;
+                assert !solver.assumptionsConflict().isEmpty();
                 final int coreCost = computeCostCore(solver.assumptionsConflict());
                 lbCost += coreCost;
                 if (verbosity != MaxSatConfig.Verbosity.NONE) {

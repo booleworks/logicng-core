@@ -208,10 +208,10 @@ public class Encoder {
         assert incrementalStrategy == IncrementalStrategy.ITERATIVE;
         switch (cardinalityEncoding) {
             case TOTALIZER:
-                if (join.size() > 0) {
+                if (!join.isEmpty()) {
                     totalizer.join(s, join, rhs);
                 }
-                assert lits.size() > 0;
+                assert !lits.isEmpty();
                 totalizer.update(s, rhs, assumptions);
                 break;
             default:

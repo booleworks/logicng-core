@@ -40,7 +40,7 @@ public class Ladder extends Encoding {
      * @param lits the literals for the constraint
      */
     public void encode(final LngCoreSolver s, final LngIntVector lits) {
-        assert lits.size() != 0;
+        assert !lits.isEmpty();
         if (lits.size() == 1) {
             addUnitClause(s, lits.get(0));
         } else {

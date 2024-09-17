@@ -58,7 +58,7 @@ public final class CcTotalizer {
     public static CcIncrementalData amk(final EncodingResult result, final Variable[] vars, final int rhs) {
         final TotalizerVars tv = initializeConstraint(result, vars);
         toCnf(result, tv, rhs, Bound.UPPER);
-        assert tv.invars.size() == 0;
+        assert tv.invars.isEmpty();
         for (int i = rhs; i < tv.outvars.size(); i++) {
             result.addClause(tv.outvars.get(i).negate(result.getFactory()));
         }
@@ -77,7 +77,7 @@ public final class CcTotalizer {
     public static CcIncrementalData alk(final EncodingResult result, final Variable[] vars, final int rhs) {
         final TotalizerVars tv = initializeConstraint(result, vars);
         toCnf(result, tv, rhs, Bound.LOWER);
-        assert tv.invars.size() == 0;
+        assert tv.invars.isEmpty();
         for (int i = 0; i < rhs; i++) {
             result.addClause(tv.outvars.get(i));
         }
@@ -95,7 +95,7 @@ public final class CcTotalizer {
     public static void exk(final EncodingResult result, final Variable[] vars, final int rhs) {
         final TotalizerVars tv = initializeConstraint(result, vars);
         toCnf(result, tv, rhs, Bound.BOTH);
-        assert tv.invars.size() == 0;
+        assert tv.invars.isEmpty();
         for (int i = 0; i < rhs; i++) {
             result.addClause(tv.outvars.get(i));
         }
@@ -121,7 +121,7 @@ public final class CcTotalizer {
         for (int i = 0; i < tv.outvars.size(); i++) {
             if (i < split) {
                 if (split == 1) {
-                    assert tv.invars.size() > 0;
+                    assert !tv.invars.isEmpty();
                     left.push(tv.invars.back());
                     tv.invars.pop();
                 } else {
@@ -129,7 +129,7 @@ public final class CcTotalizer {
                 }
             } else {
                 if (tv.outvars.size() - split == 1) {
-                    assert tv.invars.size() > 0;
+                    assert !tv.invars.isEmpty();
                     right.push(tv.invars.back());
                     tv.invars.pop();
                 } else {

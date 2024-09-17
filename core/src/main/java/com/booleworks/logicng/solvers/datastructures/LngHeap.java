@@ -94,7 +94,7 @@ public final class LngHeap {
      * @return {@code true} if the heap ist empty
      */
     public boolean empty() {
-        return heap.size() == 0;
+        return heap.isEmpty();
     }
 
     /**

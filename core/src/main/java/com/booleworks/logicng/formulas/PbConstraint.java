@@ -274,7 +274,7 @@ public interface PbConstraint extends Formula {
             if (sum <= c) {
                 return f.verum();
             }
-            assert cs.size() > 0;
+            assert !cs.isEmpty();
             int div = c;
             for (int i = 0; i < cs.size(); i++) {
                 div = gcd(div, cs.get(i));

@@ -188,7 +188,7 @@ public final class CcAmo {
                     pure(result, literals);
                     literals.push(result.newCcVariable());
                     nextLiterals.push(literals.back().negate(f));
-                    if (isExactlyOne && literals.size() > 0) {
+                    if (isExactlyOne && !literals.isEmpty()) {
                         result.addClause(literals);
                     }
                     for (int j = 0; j < literals.size() - 1; j++) {
@@ -201,7 +201,7 @@ public final class CcAmo {
             isExactlyOne = true;
         }
         pure(result, currentLiterals);
-        if (isExactlyOne && currentLiterals.size() > 0) {
+        if (isExactlyOne && !currentLiterals.isEmpty()) {
             result.addClause(currentLiterals);
         }
     }

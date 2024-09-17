@@ -178,7 +178,7 @@ public class Oll extends MaxSat {
                 }
 
                 assert softRelax.size() + cardinalityRelax.size() > 0;
-                if (softRelax.size() == 1 && cardinalityRelax.size() == 0) {
+                if (softRelax.size() == 1 && cardinalityRelax.isEmpty()) {
                     solver.addClause(softRelax.get(0), null);
                 }
 
@@ -430,7 +430,7 @@ public class Oll extends MaxSat {
                     }
                 }
                 assert softRelax.size() + cardinalityRelax.size() > 0;
-                if (softRelax.size() == 1 && cardinalityRelax.size() == 0) {
+                if (softRelax.size() == 1 && cardinalityRelax.isEmpty()) {
                     solver.addClause(softRelax.get(0), null);
                 }
                 if (softRelax.size() + cardinalityRelax.size() > 1) {

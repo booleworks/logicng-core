@@ -156,7 +156,7 @@ public final class CcSorting {
                                         final LngVector<Literal> input, final EncodingResult result,
                                         final LngVector<Literal> output, final ImplicationDirection direction) {
         final int n = input.size();
-        assert output.size() == 0;
+        assert output.isEmpty();
         assert n > 1;
         assert m <= n;
         final LngVector<Literal> tmpLitsA = new LngVector<>();
@@ -186,7 +186,7 @@ public final class CcSorting {
                                         final EncodingResult result,
                                         final LngVector<Literal> output, final ImplicationDirection direction) {
         assert m > 0;
-        assert input.size() > 0;
+        assert !input.isEmpty();
         output.clear();
         final int n = input.size();
         assert n > 1;
@@ -308,8 +308,8 @@ public final class CcSorting {
                                         final int a, final LngVector<Literal> inputB, final int b,
                                         final EncodingResult formula, final LngVector<Literal> output,
                                         final ImplicationDirection direction) {
-        assert inputA.size() > 0;
-        assert inputB.size() > 0;
+        assert !inputA.isEmpty();
+        assert !inputB.isEmpty();
         assert c > 0;
         output.clear();
         int a2 = a;
@@ -358,7 +358,7 @@ public final class CcSorting {
         merge(f, c / 2 + 1, tmpLitsOddA, tmpLitsOddB, formula, oddMerge, direction);
         merge(f, c / 2, tmpLitsEvenA, tmpLitsEvenB, formula, evenMerge, direction);
 
-        assert oddMerge.size() > 0;
+        assert !oddMerge.isEmpty();
 
         output.push(oddMerge.get(0));
 

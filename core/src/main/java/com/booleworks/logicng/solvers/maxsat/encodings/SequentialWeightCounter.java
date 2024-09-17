@@ -106,7 +106,7 @@ public class SequentialWeightCounter extends Encoding {
             addUnitClause(s, LngCoreSolver.not(lits.get(0)));
             return;
         }
-        if (lits.size() == 0) {
+        if (lits.isEmpty()) {
             return;
         }
         final int n = lits.size();
@@ -197,7 +197,7 @@ public class SequentialWeightCounter extends Encoding {
             unitCoeffs.push(coeffs.get(0));
             return;
         }
-        if (lits.size() == 0) {
+        if (lits.isEmpty()) {
             for (int i = 0; i < unitLits.size(); i++) {
                 assumptions.push(LngCoreSolver.not(unitLits.get(i)));
             }
@@ -359,7 +359,7 @@ public class SequentialWeightCounter extends Encoding {
             return;
         }
         final int n = litsInc.size();
-        assert seqAuxiliaryInc.get(lhsJoin).size() > 0;
+        assert !seqAuxiliaryInc.get(lhsJoin).isEmpty();
         for (int i = lhsJoin + 1; i <= n; i++) {
             seqAuxiliaryInc.set(i, new LngIntVector());
             seqAuxiliaryInc.get(i).growTo(rhs + 1, -1);

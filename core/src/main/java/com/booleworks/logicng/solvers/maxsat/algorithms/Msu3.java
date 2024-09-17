@@ -231,7 +231,7 @@ public class Msu3 extends MaxSat {
                     return optimum();
                 }
                 sumSizeCores += solver.assumptionsConflict().size();
-                if (solver.assumptionsConflict().size() == 0) {
+                if (solver.assumptionsConflict().isEmpty()) {
                     return unsat();
                 }
                 final LngEvent lowerBoundEvent = foundLowerBound(lbCost, handler);

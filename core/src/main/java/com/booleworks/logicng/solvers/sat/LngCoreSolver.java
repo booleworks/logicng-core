@@ -719,7 +719,7 @@ public class LngCoreSolver {
      * @return the literal or -1 if there are no unassigned literals left
      */
     protected int pickBranchLit() {
-        if (selectionOrder.size() > 0 && selectionOrderIdx < selectionOrder.size()) {
+        if (!selectionOrder.isEmpty() && selectionOrderIdx < selectionOrder.size()) {
             while (selectionOrderIdx < selectionOrder.size()) {
                 final int lit = selectionOrder.get(selectionOrderIdx++);
                 final int var = var(lit);
@@ -993,7 +993,7 @@ public class LngCoreSolver {
         final LngIntVector analyzeStack = new LngIntVector();
         analyzeStack.push(p);
         final int top = analyzeToClear.size();
-        while (analyzeStack.size() > 0) {
+        while (!analyzeStack.isEmpty()) {
             assert v(analyzeStack.back()).reason() != null;
             final LngClause c = v(analyzeStack.back()).reason();
             analyzeStack.pop();
@@ -1220,7 +1220,7 @@ public class LngCoreSolver {
                     cancelUntil(0);
                     return LngResult.of(UNDEF);
                 }
-                if (conflicts >= (curRestart * nbClausesBeforeReduce) && learnts.size() > 0) {
+                if (conflicts >= (curRestart * nbClausesBeforeReduce) && !learnts.isEmpty()) {
                     curRestart = (conflicts / nbClausesBeforeReduce) + 1;
                     reduceDb();
                     nbClausesBeforeReduce += llConfig.incReduceDb;

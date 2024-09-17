@@ -367,7 +367,7 @@ public class Wmsu3 extends MaxSat {
                             return LngResult.canceled(upperBoundEvent);
                         }
                     }
-                    assert orderWeights.size() > 0;
+                    assert !orderWeights.isEmpty();
                     assert orderWeights.get(0) > 1;
                     minWeight = orderWeights.get(orderWeights.size() - 1);
                     currentWeight = orderWeights.get(0);
@@ -389,7 +389,7 @@ public class Wmsu3 extends MaxSat {
                         posWeight++;
                         assert posWeight < orderWeights.size();
                         currentWeight = orderWeights.get(posWeight);
-                        if (objFunction.size() > 0) {
+                        if (!objFunction.isEmpty()) {
                             functions.set(functions.size() - 1, new LngIntVector(objFunction));
                         }
                         functions.push(new LngIntVector());

@@ -162,7 +162,7 @@ public final class CcIncrementalData {
         }
         switch (amkEncoder) {
             case MODULAR_TOTALIZER:
-                assert vector1.size() != 0 || vector2.size() != 0;
+                assert !vector1.isEmpty() || !vector2.isEmpty();
                 final int ulimit = (rhs + 1) / mod;
                 final int llimit = (rhs + 1) - ulimit * mod;
                 assert ulimit <= vector1.size();
@@ -241,7 +241,7 @@ public final class CcIncrementalData {
                 break;
             case MODULAR_TOTALIZER:
                 int newRhs = nVars - rhs;
-                assert vector1.size() != 0 || vector2.size() != 0;
+                assert !vector1.isEmpty() || !vector2.isEmpty();
                 final int ulimit = (newRhs + 1) / mod;
                 final int llimit = (newRhs + 1) - ulimit * mod;
                 assert ulimit <= vector1.size();

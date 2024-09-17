@@ -468,7 +468,7 @@ public abstract class MaxSat {
      * criterion
      */
     public boolean isBmo(final boolean cache) {
-        assert orderWeights.size() == 0;
+        assert orderWeights.isEmpty();
         boolean bmo = true;
         final SortedSet<Integer> partitionWeights = new TreeSet<>();
         final SortedMap<Integer, Integer> nbPartitionWeights = new TreeMap<>();
@@ -562,7 +562,7 @@ public abstract class MaxSat {
         protected final int nbSc;
 
         protected Stats() {
-            ubC = model.size() == 0 ? -1 : ubCost;
+            ubC = model.isEmpty() ? -1 : ubCost;
             nbS = nbSatisfiable;
             nbC = nbCores;
             avgCs = nbCores != 0 ? (double) sumSizeCores / nbCores : 0.0;

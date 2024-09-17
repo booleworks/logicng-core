@@ -189,7 +189,7 @@ public class Totalizer extends Encoding {
         cardinalityInlits = new LngIntVector(lits);
         currentCardinalityRhs = rhs;
         toCnf(s, cardinalityOutlits);
-        assert cardinalityInlits.size() == 0;
+        assert cardinalityInlits.isEmpty();
         if (!joinMode) {
             joinMode = true;
         }
@@ -205,7 +205,7 @@ public class Totalizer extends Encoding {
         for (int i = 0; i < lits.size(); i++) {
             if (i < split) {
                 if (split == 1) {
-                    assert cardinalityInlits.size() > 0;
+                    assert !cardinalityInlits.isEmpty();
                     left.push(cardinalityInlits.back());
                     cardinalityInlits.pop();
                 } else {
@@ -215,7 +215,7 @@ public class Totalizer extends Encoding {
                 }
             } else {
                 if (lits.size() - split == 1) {
-                    assert cardinalityInlits.size() > 0;
+                    assert !cardinalityInlits.isEmpty();
                     right.push(cardinalityInlits.back());
                     cardinalityInlits.pop();
                 } else {

@@ -98,7 +98,7 @@ public class LinearSu extends MaxSat {
     }
 
     protected LngResult<MaxSatResult> bmoSearch(final ComputationHandler handler) {
-        assert orderWeights.size() > 0;
+        assert !orderWeights.isEmpty();
         initRelaxation();
         int currentWeight = orderWeights.get(0);
         final int minWeight = orderWeights.get(orderWeights.size() - 1);
@@ -156,7 +156,7 @@ public class LinearSu extends MaxSat {
             } else {
                 nbCores++;
                 if (currentWeight == minWeight) {
-                    if (model.size() == 0) {
+                    if (model.isEmpty()) {
                         assert nbSatisfiable == 0;
                         return unsat();
                     } else {
@@ -221,7 +221,7 @@ public class LinearSu extends MaxSat {
                 }
             } else {
                 nbCores++;
-                if (model.size() == 0) {
+                if (model.isEmpty()) {
                     assert nbSatisfiable == 0;
                     return unsat();
                 } else {

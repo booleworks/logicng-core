@@ -58,7 +58,7 @@ public abstract class Encoding {
      * @param blocking the blocking literal
      */
     private void addUnitClause(final LngCoreSolver s, final int a, final int blocking) {
-        assert clause.size() == 0;
+        assert clause.isEmpty();
         assert a != LngCoreSolver.LIT_UNDEF;
         assert LngCoreSolver.var(a) < s.nVars();
         clause.push(a);
@@ -87,7 +87,7 @@ public abstract class Encoding {
      * @param blocking the blocking literal
      */
     void addBinaryClause(final LngCoreSolver s, final int a, final int b, final int blocking) {
-        assert clause.size() == 0;
+        assert clause.isEmpty();
         assert a != LngCoreSolver.LIT_UNDEF && b != LngCoreSolver.LIT_UNDEF;
         assert LngCoreSolver.var(a) < s.nVars() && LngCoreSolver.var(b) < s.nVars();
         clause.push(a);
@@ -119,7 +119,7 @@ public abstract class Encoding {
      * @param blocking the blocking literal
      */
     void addTernaryClause(final LngCoreSolver s, final int a, final int b, final int c, final int blocking) {
-        assert clause.size() == 0;
+        assert clause.isEmpty();
         assert a != LngCoreSolver.LIT_UNDEF && b != LngCoreSolver.LIT_UNDEF && c != LngCoreSolver.LIT_UNDEF;
         assert LngCoreSolver.var(a) < s.nVars() && LngCoreSolver.var(b) < s.nVars() && LngCoreSolver.var(c) < s.nVars();
         clause.push(a);
@@ -155,7 +155,7 @@ public abstract class Encoding {
      */
     private void addQuaternaryClause(final LngCoreSolver s, final int a, final int b, final int c, final int d,
                                      final int blocking) {
-        assert clause.size() == 0;
+        assert clause.isEmpty();
         assert a != LngCoreSolver.LIT_UNDEF && b != LngCoreSolver.LIT_UNDEF && c != LngCoreSolver.LIT_UNDEF &&
                 d != LngCoreSolver.LIT_UNDEF;
         assert LngCoreSolver.var(a) < s.nVars() && LngCoreSolver.var(b) < s.nVars() &&

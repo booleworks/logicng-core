@@ -55,7 +55,7 @@ public final class CcModularTotalizer {
             state.inlits.push(var);
         }
         toCnf(result, mod, state.cardinalityUpOutvars, state.cardinalityLwOutvars, vars.length, state);
-        assert state.inlits.size() == 0;
+        assert state.inlits.isEmpty();
         encodeOutput(result, rhs, mod, state);
         state.currentCardinalityRhs = rhs + 1;
         return new CcIncrementalData(result, EncoderConfig.AmkEncoder.MODULAR_TOTALIZER, rhs,
@@ -98,14 +98,14 @@ public final class CcModularTotalizer {
         }
         state.inlits = new LngVector<>(n);
         state.currentCardinalityRhs = rhs + 1;
-        if (state.cardinalityUpOutvars.size() == 0) {
+        if (state.cardinalityUpOutvars.isEmpty()) {
             state.cardinalityUpOutvars.push(state.h0);
         }
         return mod;
     }
 
     private static void encodeOutput(final EncodingResult result, final int rhs, final int mod, final State state) {
-        assert state.cardinalityUpOutvars.size() != 0 || state.cardinalityLwOutvars.size() != 0;
+        assert !state.cardinalityUpOutvars.isEmpty() || !state.cardinalityLwOutvars.isEmpty();
         final FormulaFactory f = result.getFactory();
         final int ulimit = (rhs + 1) / mod;
         final int llimit = (rhs + 1) - ulimit * mod;
@@ -143,7 +143,7 @@ public final class CcModularTotalizer {
         int left = 1;
         int right = 1;
         if (split == 1) {
-            assert state.inlits.size() > 0;
+            assert !state.inlits.isEmpty();
             lupper.push(state.h0);
             llower.push(state.inlits.back());
             state.inlits.pop();
@@ -161,7 +161,7 @@ public final class CcModularTotalizer {
             }
         }
         if (rhs - split == 1) {
-            assert state.inlits.size() > 0;
+            assert !state.inlits.isEmpty();
             rupper.push(state.h0);
             rlower.push(state.inlits.back());
             state.inlits.pop();
@@ -178,10 +178,10 @@ public final class CcModularTotalizer {
                 rlower.push(result.newCcVariable());
             }
         }
-        if (lupper.size() == 0) {
+        if (lupper.isEmpty()) {
             lupper.push(state.h0);
         }
-        if (rupper.size() == 0) {
+        if (rupper.isEmpty()) {
             rupper.push(state.h0);
         }
         adder(result, mod, ubvars, lwvars, rupper, rlower, lupper, llower, state);
@@ -200,7 +200,7 @@ public final class CcModularTotalizer {
                               final LngVector<Literal> lupper, final LngVector<Literal> llower,
                               final LngVector<Literal> rupper,
                               final LngVector<Literal> rlower, final State state) {
-        assert upper.size() != 0;
+        assert !upper.isEmpty();
         assert lower.size() >= llower.size() && lower.size() >= rlower.size();
         final FormulaFactory f = result.getFactory();
         Variable carry = state.varUndef;
