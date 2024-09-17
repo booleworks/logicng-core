@@ -23,6 +23,7 @@ import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.solvers.MaxSatResult;
 import com.booleworks.logicng.solvers.MaxSatSolver;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
 import com.booleworks.logicng.testutils.PigeonHoleGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,13 +45,13 @@ class TimeoutMaxSatHandlerTest {
     public void init() {
         f = FormulaFactory.caching();
         solvers = Arrays.asList(
-                MaxSatSolver.incWbo(f),
-                MaxSatSolver.wbo(f),
-                MaxSatSolver.linearSu(f),
-                MaxSatSolver.linearUs(f),
-                MaxSatSolver.msu3(f),
-                MaxSatSolver.wmsu3(f),
-                MaxSatSolver.oll(f)
+                MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_INC_WBO),
+                MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WBO),
+                MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_LINEAR_SU),
+                MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_LINEAR_US),
+                MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_MSU3),
+                MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WMSU3),
+                MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_OLL)
         );
     }
 
@@ -75,7 +76,7 @@ class TimeoutMaxSatHandlerTest {
     @Test
     public void testThatMethodsAreCalled() throws ParserException {
         for (final MaxSatSolver solver : solvers) {
-            final int weight = solver.isWeighted() ? 2 : 1;
+            final int weight = solver.supportsWeighted() ? 2 : 1;
             solver.addHardFormula(f.parse("A&B"));
             solver.addSoftFormula(f.parse("~A"), weight);
             solver.addSoftFormula(f.parse("~B"), weight);
@@ -93,7 +94,7 @@ class TimeoutMaxSatHandlerTest {
         final List<Formula> formulas =
                 DimacsReader.readCNF(f, "../test_files/sat/too_large_gr_rcs_w5.shuffled.cnf");
         for (final MaxSatSolver solver : solvers) {
-            final int weight = solver.isWeighted() ? 2 : 1;
+            final int weight = solver.supportsWeighted() ? 2 : 1;
             formulas.forEach(c -> solver.addSoftFormula(c, weight));
             final TimeoutHandler handler = new TimeoutHandler(10L);
             final LngResult<MaxSatResult> solve = solver.solve(handler);
@@ -105,7 +106,7 @@ class TimeoutMaxSatHandlerTest {
     public void testTimeoutHandlerFixedEnd() {
         final Formula ph = new PigeonHoleGenerator(f).generate(10);
         for (final MaxSatSolver solver : solvers) {
-            final int weight = solver.isWeighted() ? 2 : 1;
+            final int weight = solver.supportsWeighted() ? 2 : 1;
             ph.forEach(c -> solver.addSoftFormula(c, weight));
             final TimeoutHandler handler = new TimeoutHandler(System.currentTimeMillis() + 100L, FIXED_END);
             final LngResult<MaxSatResult> solve = solver.solve(handler);

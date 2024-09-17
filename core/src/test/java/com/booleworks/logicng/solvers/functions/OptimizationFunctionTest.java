@@ -37,6 +37,7 @@ import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.predicates.satisfiability.SatPredicate;
 import com.booleworks.logicng.solvers.MaxSatSolver;
 import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
 import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import com.booleworks.logicng.util.FormulaCornerCases;
@@ -353,11 +354,11 @@ public class OptimizationFunctionTest implements LogicNGTest {
             variables.addAll(parsed.variables(f));
         }
         final int expected = 25;
-        assertThat(solveMaxSat(formulas, variables, MaxSatSolver.incWbo(f))).isEqualTo(expected);
-        assertThat(solveMaxSat(formulas, variables, MaxSatSolver.linearSu(f))).isEqualTo(expected);
-        assertThat(solveMaxSat(formulas, variables, MaxSatSolver.linearUs(f))).isEqualTo(expected);
-        assertThat(solveMaxSat(formulas, variables, MaxSatSolver.msu3(f))).isEqualTo(expected);
-        assertThat(solveMaxSat(formulas, variables, MaxSatSolver.wbo(f))).isEqualTo(expected);
+        assertThat(solveMaxSat(formulas, variables, MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_INC_WBO))).isEqualTo(expected);
+        assertThat(solveMaxSat(formulas, variables, MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_LINEAR_SU))).isEqualTo(expected);
+        assertThat(solveMaxSat(formulas, variables, MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_LINEAR_US))).isEqualTo(expected);
+        assertThat(solveMaxSat(formulas, variables, MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_MSU3))).isEqualTo(expected);
+        assertThat(solveMaxSat(formulas, variables, MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WBO))).isEqualTo(expected);
         assertThat(satisfiedLiterals(optimize(formulas, variables, Collections.emptyList(), false,
                 SatSolver.newSolver(f, SatSolverConfig.builder().useAtMostClauses(false).build()),
                 NopHandler.get()), variables).size())
@@ -471,7 +472,7 @@ public class OptimizationFunctionTest implements LogicNGTest {
             assertThat(optimumLiterals).isEmpty();
         } else {
             final int actualNumSatisfied = satisfiedLiterals(optimumModel, literals).size();
-            final MaxSatSolver solver = MaxSatSolver.oll(f);
+            final MaxSatSolver solver = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_OLL);
             solver.addHardFormula(formula);
             literals.forEach(l -> solver.addSoftFormula(maximize ? l : l.negate(f), 1));
             final int numSatisfiedOll = satisfiedLiterals(LngResult.of(solver.solve().getModel()), literals).size();

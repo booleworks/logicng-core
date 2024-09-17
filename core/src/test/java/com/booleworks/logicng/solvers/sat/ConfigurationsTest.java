@@ -72,6 +72,7 @@ public class ConfigurationsTest {
                 .bmo(false)
                 .build();
         final String expected = String.format("MaxSatConfig{%n" +
+                "algorithm=OLL%n" +
                 "cnfMethod=FULL_PG_ON_SOLVER%n" +
                 "incrementalStrategy=ITERATIVE%n" +
                 "pbEncoding=LADDER%n" +

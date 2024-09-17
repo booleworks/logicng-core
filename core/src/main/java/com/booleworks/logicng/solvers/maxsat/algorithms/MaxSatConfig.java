@@ -17,6 +17,36 @@ import java.io.PrintStream;
  */
 public final class MaxSatConfig extends Configuration {
 
+    public static final MaxSatConfig CONFIG_WBO = MaxSatConfig.builder().algorithm(Algorithm.WBO).build();
+    public static final MaxSatConfig CONFIG_INC_WBO = MaxSatConfig.builder().algorithm(Algorithm.INC_WBO).build();
+    public static final MaxSatConfig CONFIG_LINEAR_US = MaxSatConfig.builder().algorithm(Algorithm.LINEAR_US).build();
+    public static final MaxSatConfig CONFIG_MSU3 = MaxSatConfig.builder().algorithm(Algorithm.MSU3).build();
+    public static final MaxSatConfig CONFIG_LINEAR_SU = MaxSatConfig.builder()
+            .algorithm(Algorithm.LINEAR_SU)
+            .cardinality(CardinalityEncoding.MTOTALIZER)
+            .build();
+    public static final MaxSatConfig CONFIG_WMSU3 = MaxSatConfig.builder()
+            .algorithm(Algorithm.WMSU3)
+            .incremental(IncrementalStrategy.ITERATIVE)
+            .build();
+    public static final MaxSatConfig CONFIG_OLL = MaxSatConfig.builder()
+            .algorithm(Algorithm.OLL)
+            .incremental(IncrementalStrategy.ITERATIVE)
+            .build();
+
+    /**
+     * The MaxSAT algorithm
+     */
+    public enum Algorithm {
+        WBO,
+        INC_WBO,
+        LINEAR_SU,
+        LINEAR_US,
+        MSU3,
+        WMSU3,
+        OLL
+    }
+
     /**
      * The incremental strategy for cardinality and pseudo-boolean constraints.
      */
@@ -64,6 +94,7 @@ public final class MaxSatConfig extends Configuration {
         SOME
     }
 
+    final Algorithm algorithm;
     final SatSolverConfig.CnfMethod cnfMethod;
     final IncrementalStrategy incrementalStrategy;
     final AmoEncoding amoEncoding;
@@ -82,6 +113,7 @@ public final class MaxSatConfig extends Configuration {
      */
     private MaxSatConfig(final Builder builder) {
         super(ConfigurationType.MAXSAT);
+        algorithm = builder.algorithm;
         cnfMethod = builder.cnfMethod;
         incrementalStrategy = builder.incrementalStrategy;
         amoEncoding = builder.amoEncoding;
@@ -102,6 +134,7 @@ public final class MaxSatConfig extends Configuration {
      */
     public MaxSatConfig(final MaxSatConfig config, final CardinalityEncoding cardinalityEncoding) {
         super(ConfigurationType.MAXSAT);
+        algorithm = config.algorithm;
         cnfMethod = config.cnfMethod;
         incrementalStrategy = config.incrementalStrategy;
         amoEncoding = config.amoEncoding;
@@ -122,6 +155,7 @@ public final class MaxSatConfig extends Configuration {
      */
     public MaxSatConfig(final MaxSatConfig config, final IncrementalStrategy incrementalStrategy) {
         super(ConfigurationType.MAXSAT);
+        algorithm = config.algorithm;
         cnfMethod = config.cnfMethod;
         this.incrementalStrategy = incrementalStrategy;
         amoEncoding = config.amoEncoding;
@@ -144,6 +178,14 @@ public final class MaxSatConfig extends Configuration {
     }
 
     /**
+     * Returns the algorithm.
+     * @return the algorithm
+     */
+    public Algorithm getAlgorithm() {
+        return algorithm;
+    }
+
+    /**
      * Returns a new builder for the configuration.
      * @return the builder
      */
@@ -154,6 +196,7 @@ public final class MaxSatConfig extends Configuration {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("MaxSatConfig{").append(System.lineSeparator());
+        sb.append("algorithm=").append(algorithm).append(System.lineSeparator());
         sb.append("cnfMethod=").append(cnfMethod).append(System.lineSeparator());
         sb.append("incrementalStrategy=").append(incrementalStrategy).append(System.lineSeparator());
         sb.append("pbEncoding=").append(amoEncoding).append(System.lineSeparator());
@@ -172,6 +215,7 @@ public final class MaxSatConfig extends Configuration {
      * The builder for a MaxSAT configuration.
      */
     public static class Builder {
+        private Algorithm algorithm = Algorithm.OLL;
         private final AmoEncoding amoEncoding;
         private final PbEncoding pbEncoding;
         private SatSolverConfig.CnfMethod cnfMethod = SatSolverConfig.CnfMethod.PG_ON_SOLVER;
@@ -190,6 +234,16 @@ public final class MaxSatConfig extends Configuration {
         private Builder() {
             amoEncoding = AmoEncoding.LADDER;
             pbEncoding = PbEncoding.SWC;
+        }
+
+        /**
+         * Sets the MaxSAT algorithm. The default value is {@link Algorithm#OLL}
+         * @param algorithm the algorithm
+         * @return the builder
+         */
+        public Builder algorithm(final Algorithm algorithm) {
+            this.algorithm = algorithm;
+            return this;
         }
 
         /**

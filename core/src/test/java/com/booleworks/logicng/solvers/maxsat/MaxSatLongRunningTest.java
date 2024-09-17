@@ -33,11 +33,17 @@ public class MaxSatLongRunningTest {
         final File folder = new File("../test_files/longrunning/wms");
         final Map<String, Integer> result = readResult(new File("../test_files/longrunning/wms/result.txt"));
         final List<Supplier<MaxSatSolver>> solvers = Arrays.asList(
-                () -> MaxSatSolver.oll(f),
-                () -> MaxSatSolver.incWbo(f, MaxSatConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.FACTORY_CNF)
-                        .weight(MaxSatConfig.WeightStrategy.DIVERSIFY).build()),
-                () -> MaxSatSolver.incWbo(f, MaxSatConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.FACTORY_CNF)
-                        .build())
+                () -> MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_OLL),
+                () -> MaxSatSolver.newSolver(f,
+                        MaxSatConfig.builder()
+                                .algorithm(MaxSatConfig.Algorithm.INC_WBO)
+                                .cnfMethod(SatSolverConfig.CnfMethod.FACTORY_CNF)
+                                .weight(MaxSatConfig.WeightStrategy.DIVERSIFY).build()),
+                () -> MaxSatSolver.newSolver(f,
+                        MaxSatConfig.builder()
+                                .algorithm(MaxSatConfig.Algorithm.INC_WBO)
+                                .cnfMethod(SatSolverConfig.CnfMethod.FACTORY_CNF)
+                                .build())
         );
         for (final Supplier<MaxSatSolver> solverGenerator : solvers) {
             for (final File file : Objects.requireNonNull(folder.listFiles())) {

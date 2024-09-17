@@ -60,7 +60,7 @@ public final class SetCover {
                 elementOccurrences.computeIfAbsent(element, i -> new LinkedHashSet<>()).add(setVar);
             }
         }
-        final MaxSatSolver solver = MaxSatSolver.msu3(f);
+        final MaxSatSolver solver = MaxSatSolver.newSolver(f);
         for (final Set<Variable> occurrences : elementOccurrences.values()) {
             solver.addHardFormula(f.or(occurrences));
         }

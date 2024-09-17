@@ -1,14 +1,25 @@
 package com.booleworks.logicng.solvers.maxsat;
 
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.Algorithm.INC_WBO;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.Algorithm.LINEAR_SU;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.Algorithm.LINEAR_US;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.Algorithm.MSU3;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.Algorithm.WBO;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.Algorithm.WMSU3;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_INC_WBO;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_OLL;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_WBO;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CardinalityEncoding.MTOTALIZER;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CardinalityEncoding.TOTALIZER;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.IncrementalStrategy.ITERATIVE;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.IncrementalStrategy.NONE;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.builder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.TestWithExampleFormulas;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.MaxSatSolver;
-import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
-import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CardinalityEncoding;
-import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.IncrementalStrategy;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.WeightStrategy;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatState;
 import org.junit.jupiter.api.Test;
@@ -18,19 +29,19 @@ public class MaxSatDecrementalTest extends TestWithExampleFormulas {
     @Test
     public void testDecrementalityPartial() throws ParserException {
         final MaxSatSolver[] solvers = new MaxSatSolver[]{
-                MaxSatSolver.wbo(f),
-                MaxSatSolver.incWbo(f),
-                MaxSatSolver.oll(f),
-                MaxSatSolver.linearSu(f, MaxSatConfig.builder().cardinality(CardinalityEncoding.TOTALIZER).bmo(false).build()),
-                MaxSatSolver.linearSu(f, MaxSatConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER).bmo(false).build()),
-                MaxSatSolver.linearSu(f, MaxSatConfig.builder().cardinality(CardinalityEncoding.TOTALIZER).bmo(true).build()),
-                MaxSatSolver.linearSu(f, MaxSatConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER).bmo(true).build()),
-                MaxSatSolver.linearUs(f, MaxSatConfig.builder().incremental(IncrementalStrategy.NONE).cardinality(CardinalityEncoding.TOTALIZER).build()),
-                MaxSatSolver.linearUs(f, MaxSatConfig.builder().incremental(IncrementalStrategy.NONE).cardinality(CardinalityEncoding.MTOTALIZER).build()),
-                MaxSatSolver.linearUs(f, MaxSatConfig.builder().incremental(IncrementalStrategy.ITERATIVE).cardinality(CardinalityEncoding.TOTALIZER).build()),
-                MaxSatSolver.msu3(f, MaxSatConfig.builder().incremental(IncrementalStrategy.NONE).cardinality(CardinalityEncoding.TOTALIZER).build()),
-                MaxSatSolver.msu3(f, MaxSatConfig.builder().incremental(IncrementalStrategy.NONE).cardinality(CardinalityEncoding.MTOTALIZER).build()),
-                MaxSatSolver.msu3(f, MaxSatConfig.builder().incremental(IncrementalStrategy.ITERATIVE).cardinality(CardinalityEncoding.TOTALIZER).build())
+                MaxSatSolver.newSolver(f, CONFIG_WBO),
+                MaxSatSolver.newSolver(f, CONFIG_INC_WBO),
+                MaxSatSolver.newSolver(f, CONFIG_OLL),
+                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(TOTALIZER).bmo(false).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(MTOTALIZER).bmo(false).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(TOTALIZER).bmo(true).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(MTOTALIZER).bmo(true).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_US).incremental(NONE).cardinality(TOTALIZER).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_US).incremental(NONE).cardinality(MTOTALIZER).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_US).incremental(ITERATIVE).cardinality(TOTALIZER).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(MSU3).incremental(NONE).cardinality(TOTALIZER).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(MSU3).incremental(NONE).cardinality(MTOTALIZER).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(MSU3).incremental(ITERATIVE).cardinality(TOTALIZER).build())
         };
         for (final MaxSatSolver solver : solvers) {
             assertThat(solver.solve().getOptimum()).isEqualTo(0);
@@ -84,25 +95,21 @@ public class MaxSatDecrementalTest extends TestWithExampleFormulas {
     @Test
     public void testDecrementalityWeighted() throws ParserException {
         final MaxSatSolver[] solvers = new MaxSatSolver[]{
-                MaxSatSolver.wbo(f, MaxSatConfig.builder().weight(WeightStrategy.NONE).build()),
-                MaxSatSolver.wbo(f, MaxSatConfig.builder().weight(WeightStrategy.NORMAL).build()),
-                MaxSatSolver.wbo(f, MaxSatConfig.builder().weight(WeightStrategy.DIVERSIFY).build()),
-                MaxSatSolver.incWbo(f, MaxSatConfig.builder().weight(WeightStrategy.NONE).build()),
-                MaxSatSolver.incWbo(f, MaxSatConfig.builder().weight(WeightStrategy.NORMAL).build()),
-                MaxSatSolver.incWbo(f, MaxSatConfig.builder().weight(WeightStrategy.DIVERSIFY).build()),
-                MaxSatSolver.linearSu(f, MaxSatConfig.builder().cardinality(CardinalityEncoding.TOTALIZER).bmo(false).build()),
-                MaxSatSolver.linearSu(f, MaxSatConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER).bmo(false).build()),
-                MaxSatSolver.linearSu(f, MaxSatConfig.builder().cardinality(CardinalityEncoding.TOTALIZER).bmo(true).build()),
-                MaxSatSolver.linearSu(f, MaxSatConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER).bmo(true).build()),
-                MaxSatSolver.wmsu3(f,
-                        MaxSatConfig.builder().incremental(IncrementalStrategy.NONE).cardinality(CardinalityEncoding.TOTALIZER).bmo(false).build()),
-                MaxSatSolver.wmsu3(f,
-                        MaxSatConfig.builder().incremental(IncrementalStrategy.NONE).cardinality(CardinalityEncoding.MTOTALIZER).bmo(false).build()),
-                MaxSatSolver.wmsu3(f,
-                        MaxSatConfig.builder().incremental(IncrementalStrategy.ITERATIVE).cardinality(CardinalityEncoding.TOTALIZER).bmo(false).build()),
-                MaxSatSolver.wmsu3(f,
-                        MaxSatConfig.builder().incremental(IncrementalStrategy.ITERATIVE).cardinality(CardinalityEncoding.TOTALIZER).bmo(true).build()),
-                MaxSatSolver.oll(f)
+                MaxSatSolver.newSolver(f, builder().algorithm(WBO).weight(WeightStrategy.NONE).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(WBO).weight(WeightStrategy.NORMAL).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(WBO).weight(WeightStrategy.DIVERSIFY).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(INC_WBO).weight(WeightStrategy.NONE).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(INC_WBO).weight(WeightStrategy.NORMAL).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(INC_WBO).weight(WeightStrategy.DIVERSIFY).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(TOTALIZER).bmo(false).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(MTOTALIZER).bmo(false).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(TOTALIZER).bmo(true).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(MTOTALIZER).bmo(true).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(WMSU3).incremental(NONE).cardinality(TOTALIZER).bmo(false).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(WMSU3).incremental(NONE).cardinality(MTOTALIZER).bmo(false).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(WMSU3).incremental(ITERATIVE).cardinality(TOTALIZER).bmo(false).build()),
+                MaxSatSolver.newSolver(f, builder().algorithm(WMSU3).incremental(ITERATIVE).cardinality(TOTALIZER).bmo(true).build()),
+                MaxSatSolver.newSolver(f, CONFIG_OLL)
         };
         for (final MaxSatSolver solver : solvers) {
             solver.addSoftFormula(X, 2);

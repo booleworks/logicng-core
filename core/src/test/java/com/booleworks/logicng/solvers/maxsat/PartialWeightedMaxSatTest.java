@@ -57,14 +57,15 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @Test
     public void testExceptionalBehaviorForWMSU3() {
         assertThatThrownBy(() -> {
-            final MaxSatSolver solver = MaxSatSolver.wmsu3(f);
+            final MaxSatSolver solver = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WMSU3);
             solver.addHardFormula(f.parse("a | b"));
             solver.addSoftFormula(A, 1);
             solver.solve();
         }).isInstanceOf(IllegalStateException.class)
                 .hasMessage("Error: Currently algorithm WMSU3 does not support unweighted MaxSAT instances.");
         assertThatThrownBy(() -> {
-            final MaxSatSolver solver = MaxSatSolver.wmsu3(f, MaxSatConfig.builder()
+            final MaxSatSolver solver = MaxSatSolver.newSolver(f, MaxSatConfig.builder()
+                    .algorithm(MaxSatConfig.Algorithm.WMSU3)
                     .bmo(true)
                     .incremental(MaxSatConfig.IncrementalStrategy.ITERATIVE)
                     .cardinality(MaxSatConfig.CardinalityEncoding.MTOTALIZER)
@@ -79,15 +80,21 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @Test
     public void testWBO() throws IOException {
         final MaxSatConfig[] configs = new MaxSatConfig[3];
-        configs[0] = MaxSatConfig.builder().weight(MaxSatConfig.WeightStrategy.NONE)
+        configs[0] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.WBO)
+                .weight(MaxSatConfig.WeightStrategy.NONE)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[1] = MaxSatConfig.builder().weight(MaxSatConfig.WeightStrategy.NORMAL)
+        configs[1] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.WBO)
+                .weight(MaxSatConfig.WeightStrategy.NORMAL)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[2] = MaxSatConfig.builder().weight(MaxSatConfig.WeightStrategy.DIVERSIFY)
+        configs[2] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.WBO)
+                .weight(MaxSatConfig.WeightStrategy.DIVERSIFY)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSatConfig config : configs) {
             for (int i = 0; i < files.length; i++) {
-                final MaxSatSolver solver = MaxSatSolver.wbo(f, config);
+                final MaxSatSolver solver = MaxSatSolver.newSolver(f, config);
                 readCnfToSolver(solver, "../test_files/partialweightedmaxsat/" + files[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
@@ -100,15 +107,21 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @LongRunningTag
     public void testIncWBO() throws IOException {
         final MaxSatConfig[] configs = new MaxSatConfig[3];
-        configs[0] = MaxSatConfig.builder().weight(MaxSatConfig.WeightStrategy.NONE)
+        configs[0] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.INC_WBO)
+                .weight(MaxSatConfig.WeightStrategy.NONE)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[1] = MaxSatConfig.builder().weight(MaxSatConfig.WeightStrategy.NORMAL)
+        configs[1] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.INC_WBO)
+                .weight(MaxSatConfig.WeightStrategy.NORMAL)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[2] = MaxSatConfig.builder().weight(MaxSatConfig.WeightStrategy.DIVERSIFY)
+        configs[2] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.INC_WBO)
+                .weight(MaxSatConfig.WeightStrategy.DIVERSIFY)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSatConfig config : configs) {
             for (int i = 0; i < files.length; i++) {
-                final MaxSatSolver solver = MaxSatSolver.incWbo(f, config);
+                final MaxSatSolver solver = MaxSatSolver.newSolver(f, config);
                 readCnfToSolver(solver, "../test_files/partialweightedmaxsat/" + files[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
@@ -122,16 +135,18 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     public void testLinearSU() throws IOException {
         final MaxSatConfig[] configs = new MaxSatConfig[2];
         configs[0] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.LINEAR_SU)
                 .cnfMethod(SatSolverConfig.CnfMethod.FACTORY_CNF)
                 .cardinality(MaxSatConfig.CardinalityEncoding.TOTALIZER).bmo(false)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
         configs[1] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.LINEAR_SU)
                 .cnfMethod(SatSolverConfig.CnfMethod.FACTORY_CNF)
                 .cardinality(MaxSatConfig.CardinalityEncoding.MTOTALIZER).bmo(false)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSatConfig config : configs) {
             for (int i = 0; i < files.length; i++) {
-                final MaxSatSolver solver = MaxSatSolver.linearSu(f, config);
+                final MaxSatSolver solver = MaxSatSolver.newSolver(f, config);
                 readCnfToSolver(solver, "../test_files/partialweightedmaxsat/" + files[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
@@ -144,18 +159,24 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @LongRunningTag
     public void testWMSU3() throws IOException {
         final MaxSatConfig[] configs = new MaxSatConfig[3];
-        configs[0] = MaxSatConfig.builder().incremental(MaxSatConfig.IncrementalStrategy.NONE)
+        configs[0] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.WMSU3)
+                .incremental(MaxSatConfig.IncrementalStrategy.NONE)
                 .cardinality(MaxSatConfig.CardinalityEncoding.TOTALIZER).bmo(false)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[1] = MaxSatConfig.builder().incremental(MaxSatConfig.IncrementalStrategy.NONE)
+        configs[1] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.WMSU3)
+                .incremental(MaxSatConfig.IncrementalStrategy.NONE)
                 .cardinality(MaxSatConfig.CardinalityEncoding.MTOTALIZER).bmo(false)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[2] = MaxSatConfig.builder().incremental(MaxSatConfig.IncrementalStrategy.ITERATIVE)
+        configs[2] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.WMSU3)
+                .incremental(MaxSatConfig.IncrementalStrategy.ITERATIVE)
                 .cardinality(MaxSatConfig.CardinalityEncoding.TOTALIZER).bmo(false)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSatConfig config : configs) {
             for (int i = 0; i < files.length; i++) {
-                final MaxSatSolver solver = MaxSatSolver.wmsu3(f, config);
+                final MaxSatSolver solver = MaxSatSolver.newSolver(f, config);
                 readCnfToSolver(solver, "../test_files/partialweightedmaxsat/" + files[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
@@ -167,12 +188,14 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @Test
     public void testWMSU3BMO() throws IOException {
         final MaxSatConfig[] configs = new MaxSatConfig[1];
-        configs[0] = MaxSatConfig.builder().incremental(MaxSatConfig.IncrementalStrategy.ITERATIVE)
+        configs[0] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.WMSU3)
+                .incremental(MaxSatConfig.IncrementalStrategy.ITERATIVE)
                 .cardinality(MaxSatConfig.CardinalityEncoding.TOTALIZER).bmo(true)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSatConfig config : configs) {
             for (int i = 0; i < bmoFiles.length; i++) {
-                final MaxSatSolver solver = MaxSatSolver.wmsu3(f, config);
+                final MaxSatSolver solver = MaxSatSolver.newSolver(f, config);
                 readCnfToSolver(solver, "../test_files/partialweightedmaxsat/bmo/" + bmoFiles[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
@@ -184,13 +207,17 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @Test
     public void testLinearSUBMO() throws IOException {
         final MaxSatConfig[] configs = new MaxSatConfig[2];
-        configs[0] = MaxSatConfig.builder().cardinality(MaxSatConfig.CardinalityEncoding.TOTALIZER).bmo(true)
+        configs[0] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.LINEAR_SU)
+                .cardinality(MaxSatConfig.CardinalityEncoding.TOTALIZER).bmo(true)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[1] = MaxSatConfig.builder().cardinality(MaxSatConfig.CardinalityEncoding.MTOTALIZER).bmo(true)
+        configs[1] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.LINEAR_SU)
+                .cardinality(MaxSatConfig.CardinalityEncoding.MTOTALIZER).bmo(true)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSatConfig config : configs) {
             for (int i = 0; i < bmoFiles.length; i++) {
-                final MaxSatSolver solver = MaxSatSolver.linearSu(f, config);
+                final MaxSatSolver solver = MaxSatSolver.newSolver(f, config);
                 readCnfToSolver(solver, "../test_files/partialweightedmaxsat/bmo/" + bmoFiles[i]);
                 final MaxSatResult result = solver.solve();
                 assertThat(result.isSatisfiable()).isTrue();
@@ -202,14 +229,14 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @Test
     public void testOLL() throws IOException {
         for (int i = 0; i < bmoFiles.length; i++) {
-            final MaxSatSolver solver = MaxSatSolver.oll(f);
+            final MaxSatSolver solver = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_OLL);
             readCnfToSolver(solver, "../test_files/partialweightedmaxsat/bmo/" + bmoFiles[i]);
             final MaxSatResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getOptimum()).isEqualTo(bmoResults[i]);
         }
         for (int i = 0; i < files.length; i++) {
-            final MaxSatSolver solver = MaxSatSolver.oll(f);
+            final MaxSatSolver solver = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_OLL);
             readCnfToSolver(solver, "../test_files/partialweightedmaxsat/" + files[i]);
             final MaxSatResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
@@ -220,7 +247,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @Test
     @LongRunningTag
     public void testLargeOLL1() throws IOException {
-        final MaxSatSolver solver = MaxSatSolver.oll(f);
+        final MaxSatSolver solver = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_OLL);
         readCnfToSolver(solver, "../test_files/partialweightedmaxsat/large/large_industrial.wcnf");
         final MaxSatResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
@@ -230,7 +257,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @Test
     @LongRunningTag
     public void testLargeOLL2() throws IOException {
-        final MaxSatSolver solver = MaxSatSolver.oll(f);
+        final MaxSatSolver solver = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_OLL);
         readCnfToSolver(solver, "../test_files/partialweightedmaxsat/large/t3g3-5555.spn.wcnf");
         final MaxSatResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
@@ -240,7 +267,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @Test
     @LongRunningTag
     public void testOLLWithLargeWeights() throws IOException {
-        final MaxSatSolver solver = MaxSatSolver.oll(f);
+        final MaxSatSolver solver = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_OLL);
         readCnfToSolver(solver, "../test_files/partialweightedmaxsat/large/large_weights.wcnf");
         final MaxSatResult result = solver.solve();
         assertThat(result.isSatisfiable()).isTrue();
@@ -251,14 +278,20 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @LongRunningTag
     public void testTimeoutHandlerWBO() {
         final MaxSatConfig[] configs = new MaxSatConfig[3];
-        configs[0] = MaxSatConfig.builder().weight(MaxSatConfig.WeightStrategy.NONE)
+        configs[0] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.WBO)
+                .weight(MaxSatConfig.WeightStrategy.NONE)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[1] = MaxSatConfig.builder().weight(MaxSatConfig.WeightStrategy.NORMAL)
+        configs[1] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.WBO)
+                .weight(MaxSatConfig.WeightStrategy.NORMAL)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[2] = MaxSatConfig.builder().weight(MaxSatConfig.WeightStrategy.DIVERSIFY)
+        configs[2] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.WBO)
+                .weight(MaxSatConfig.WeightStrategy.DIVERSIFY)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSatConfig config : configs) {
-            testTimeoutHandler(() -> MaxSatSolver.wbo(f, config));
+            testTimeoutHandler(() -> MaxSatSolver.newSolver(f, config));
         }
     }
 
@@ -266,26 +299,36 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @LongRunningTag
     public void testTimeoutHandlerIncWBO() {
         final MaxSatConfig[] configs = new MaxSatConfig[3];
-        configs[0] = MaxSatConfig.builder().weight(MaxSatConfig.WeightStrategy.NONE)
+        configs[0] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.INC_WBO)
+                .weight(MaxSatConfig.WeightStrategy.NONE)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[1] = MaxSatConfig.builder().weight(MaxSatConfig.WeightStrategy.NORMAL)
+        configs[1] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.INC_WBO)
+                .weight(MaxSatConfig.WeightStrategy.NORMAL)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[2] = MaxSatConfig.builder().weight(MaxSatConfig.WeightStrategy.DIVERSIFY)
+        configs[2] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.INC_WBO)
+                .weight(MaxSatConfig.WeightStrategy.DIVERSIFY)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSatConfig config : configs) {
-            testTimeoutHandler(() -> MaxSatSolver.wbo(f, config));
+            testTimeoutHandler(() -> MaxSatSolver.newSolver(f, config));
         }
     }
 
     @Test
     public void testTimeoutHandlerLinearSU() {
         final MaxSatConfig[] configs = new MaxSatConfig[2];
-        configs[0] = MaxSatConfig.builder().cardinality(MaxSatConfig.CardinalityEncoding.TOTALIZER).bmo(false)
+        configs[0] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.LINEAR_SU)
+                .cardinality(MaxSatConfig.CardinalityEncoding.TOTALIZER).bmo(false)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[1] = MaxSatConfig.builder().cardinality(MaxSatConfig.CardinalityEncoding.MTOTALIZER).bmo(false)
+        configs[1] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.LINEAR_SU)
+                .cardinality(MaxSatConfig.CardinalityEncoding.MTOTALIZER).bmo(false)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSatConfig config : configs) {
-            testTimeoutHandler(() -> MaxSatSolver.wbo(f, config));
+            testTimeoutHandler(() -> MaxSatSolver.newSolver(f, config));
         }
     }
 
@@ -293,17 +336,23 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @LongRunningTag
     public void testTimeoutHandlerWMSU3() {
         final MaxSatConfig[] configs = new MaxSatConfig[3];
-        configs[0] = MaxSatConfig.builder().incremental(MaxSatConfig.IncrementalStrategy.NONE)
+        configs[0] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.WMSU3)
+                .incremental(MaxSatConfig.IncrementalStrategy.NONE)
                 .cardinality(MaxSatConfig.CardinalityEncoding.TOTALIZER).bmo(false)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[1] = MaxSatConfig.builder().incremental(MaxSatConfig.IncrementalStrategy.NONE)
+        configs[1] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.WMSU3)
+                .incremental(MaxSatConfig.IncrementalStrategy.NONE)
                 .cardinality(MaxSatConfig.CardinalityEncoding.MTOTALIZER).bmo(false)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[2] = MaxSatConfig.builder().incremental(MaxSatConfig.IncrementalStrategy.ITERATIVE)
+        configs[2] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.WMSU3)
+                .incremental(MaxSatConfig.IncrementalStrategy.ITERATIVE)
                 .cardinality(MaxSatConfig.CardinalityEncoding.TOTALIZER).bmo(false)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSatConfig config : configs) {
-            testTimeoutHandler(() -> MaxSatSolver.wbo(f, config));
+            testTimeoutHandler(() -> MaxSatSolver.newSolver(f, config));
         }
     }
 
@@ -311,33 +360,39 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @LongRunningTag
     public void testTimeoutHandlerWMSU3BMO() {
         final MaxSatConfig[] configs = new MaxSatConfig[1];
-        configs[0] = MaxSatConfig.builder().incremental(MaxSatConfig.IncrementalStrategy.ITERATIVE)
+        configs[0] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.WBO)
+                .incremental(MaxSatConfig.IncrementalStrategy.ITERATIVE)
                 .cardinality(MaxSatConfig.CardinalityEncoding.TOTALIZER).bmo(true)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSatConfig config : configs) {
-            testTimeoutHandler(() -> MaxSatSolver.wbo(f, config));
+            testTimeoutHandler(() -> MaxSatSolver.newSolver(f, config));
         }
     }
 
     @Test
     public void testTimeoutHandlerLinearSUBMO() {
         final MaxSatConfig[] configs = new MaxSatConfig[2];
-        configs[0] = MaxSatConfig.builder().cardinality(MaxSatConfig.CardinalityEncoding.TOTALIZER).bmo(true)
+        configs[0] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.LINEAR_SU)
+                .cardinality(MaxSatConfig.CardinalityEncoding.TOTALIZER).bmo(true)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
-        configs[1] = MaxSatConfig.builder().cardinality(MaxSatConfig.CardinalityEncoding.MTOTALIZER).bmo(true)
+        configs[1] = MaxSatConfig.builder()
+                .algorithm(MaxSatConfig.Algorithm.LINEAR_SU)
+                .cardinality(MaxSatConfig.CardinalityEncoding.MTOTALIZER).bmo(true)
                 .verbosity(MaxSatConfig.Verbosity.SOME).output(logStream).build();
         for (final MaxSatConfig config : configs) {
-            testTimeoutHandler(() -> MaxSatSolver.wbo(f, config));
+            testTimeoutHandler(() -> MaxSatSolver.newSolver(f, config));
         }
     }
 
     @Test
     public void testWeightedNonClauseSoftConstraints() throws ParserException {
         final MaxSatSolver[] solvers = new MaxSatSolver[4];
-        solvers[0] = MaxSatSolver.incWbo(f);
-        solvers[1] = MaxSatSolver.linearSu(f);
-        solvers[2] = MaxSatSolver.wbo(f);
-        solvers[3] = MaxSatSolver.wmsu3(f);
+        solvers[0] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_INC_WBO);
+        solvers[1] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_LINEAR_SU);
+        solvers[2] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WBO);
+        solvers[3] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WMSU3);
         for (final MaxSatSolver solver : solvers) {
             solver.addHardFormula(f.parse("a & b & c"));
             solver.addSoftFormula(f.parse("~a & ~b & ~c"), 2);
@@ -354,10 +409,10 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @Test
     public void testWeightedSoftConstraintsCornerCaseVerum() throws ParserException {
         final MaxSatSolver[] solvers = new MaxSatSolver[4];
-        solvers[0] = MaxSatSolver.incWbo(f);
-        solvers[1] = MaxSatSolver.linearSu(f);
-        solvers[2] = MaxSatSolver.wbo(f);
-        solvers[3] = MaxSatSolver.wmsu3(f);
+        solvers[0] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_INC_WBO);
+        solvers[1] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_LINEAR_SU);
+        solvers[2] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WBO);
+        solvers[3] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WMSU3);
         for (final MaxSatSolver solver : solvers) {
             solver.addHardFormula(f.parse("a & b & c"));
             solver.addSoftFormula(f.parse("$true"), 2);
@@ -374,10 +429,10 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     @Test
     public void testWeightedSoftConstraintsCornerCaseFalsum() throws ParserException {
         final MaxSatSolver[] solvers = new MaxSatSolver[4];
-        solvers[0] = MaxSatSolver.incWbo(f);
-        solvers[1] = MaxSatSolver.linearSu(f);
-        solvers[2] = MaxSatSolver.wbo(f);
-        solvers[3] = MaxSatSolver.wmsu3(f);
+        solvers[0] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_INC_WBO);
+        solvers[1] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_LINEAR_SU);
+        solvers[2] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WBO);
+        solvers[3] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WMSU3);
         for (final MaxSatSolver solver : solvers) {
             solver.addHardFormula(f.parse("a & b & c"));
             solver.addSoftFormula(f.parse("$false"), 2);
