@@ -31,10 +31,6 @@ public final class CnfSubsumption extends Subsumption {
         super(f);
     }
 
-    public CnfSubsumption(final FormulaFactory f, final ComputationHandler handler) {
-        super(f);
-    }
-
     @Override
     public LngResult<Formula> apply(final Formula formula, final ComputationHandler handler) {
         if (!formula.isCnf(f)) {
