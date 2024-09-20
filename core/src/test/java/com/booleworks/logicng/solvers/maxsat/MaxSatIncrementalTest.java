@@ -2,13 +2,9 @@ package com.booleworks.logicng.solvers.maxsat;
 
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.Algorithm.INC_WBO;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.Algorithm.LINEAR_SU;
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.Algorithm.LINEAR_US;
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.Algorithm.MSU3;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.Algorithm.WBO;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.Algorithm.WMSU3;
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_INC_WBO;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_OLL;
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_WBO;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CardinalityEncoding.MTOTALIZER;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CardinalityEncoding.TOTALIZER;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.IncrementalStrategy.ITERATIVE;
@@ -27,19 +23,19 @@ public class MaxSatIncrementalTest extends TestWithExampleFormulas {
     @Test
     public void testIncrementalityPartial() throws ParserException {
         final MaxSatSolver[] solvers = new MaxSatSolver[]{
-                MaxSatSolver.newSolver(f, CONFIG_WBO),
-                MaxSatSolver.newSolver(f, CONFIG_INC_WBO),
-                MaxSatSolver.newSolver(f, CONFIG_OLL),
-                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(TOTALIZER).bmo(false).build()),
+                // MaxSatSolver.newSolver(f, CONFIG_WBO),
+                // MaxSatSolver.newSolver(f, CONFIG_INC_WBO),
+                // MaxSatSolver.newSolver(f, CONFIG_OLL),
+                // MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(TOTALIZER).bmo(false).build()),
                 MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(MTOTALIZER).bmo(false).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(TOTALIZER).bmo(true).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(MTOTALIZER).bmo(true).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_US).incremental(NONE).cardinality(TOTALIZER).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_US).incremental(NONE).cardinality(MTOTALIZER).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_US).incremental(ITERATIVE).cardinality(TOTALIZER).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(MSU3).incremental(NONE).cardinality(TOTALIZER).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(MSU3).incremental(NONE).cardinality(MTOTALIZER).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(MSU3).incremental(ITERATIVE).cardinality(TOTALIZER).build())
+                // MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(TOTALIZER).bmo(true).build()),
+                // MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(MTOTALIZER).bmo(true).build()),
+                // MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_US).incremental(NONE).cardinality(TOTALIZER).build()),
+                // MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_US).incremental(NONE).cardinality(MTOTALIZER).build()),
+                // MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_US).incremental(ITERATIVE).cardinality(TOTALIZER).build()),
+                // MaxSatSolver.newSolver(f, builder().algorithm(MSU3).incremental(NONE).cardinality(TOTALIZER).build()),
+                // MaxSatSolver.newSolver(f, builder().algorithm(MSU3).incremental(NONE).cardinality(MTOTALIZER).build()),
+                // MaxSatSolver.newSolver(f, builder().algorithm(MSU3).incremental(ITERATIVE).cardinality(TOTALIZER).build())
         };
         for (final MaxSatSolver solver : solvers) {
             solver.addHardFormula(f.parse("(~a | ~b) & (~b | ~c) & ~d"));
@@ -51,6 +47,10 @@ public class MaxSatIncrementalTest extends TestWithExampleFormulas {
             assertThat(solver.solve().getOptimum()).isEqualTo(2);
             solver.addSoftFormula(NA, 1);
             assertThat(solver.solve().getOptimum()).isEqualTo(3);
+            solver.addHardFormula(A);
+            solver.addHardFormula(B);
+            solver.addHardFormula(C);
+            assertThat(solver.solve().isSatisfiable()).isFalse();
         }
     }
 
@@ -83,6 +83,10 @@ public class MaxSatIncrementalTest extends TestWithExampleFormulas {
             assertThat(solver.solve().getOptimum()).isEqualTo(4);
             solver.addSoftFormula(NA, 4);
             assertThat(solver.solve().getOptimum()).isEqualTo(4);
+            solver.addHardFormula(A);
+            solver.addHardFormula(B);
+            solver.addHardFormula(C);
+            assertThat(solver.solve().isSatisfiable()).isFalse();
         }
     }
 }

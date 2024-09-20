@@ -44,9 +44,11 @@ import com.booleworks.logicng.handlers.events.MaxSatNewUpperBoundEvent;
 import com.booleworks.logicng.solvers.MaxSatResult;
 import com.booleworks.logicng.solvers.datastructures.LngHardClause;
 import com.booleworks.logicng.solvers.datastructures.LngSoftClause;
+import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -72,14 +74,17 @@ public abstract class MaxSat {
     }
 
     protected final FormulaFactory f;
+    protected Encoder encoder;
     protected final MaxSatConfig config;
+    protected final MaxSatConfig.IncrementalStrategy incrementalStrategy;
+    protected final PrintStream output;
+    protected final Verbosity verbosity;
     protected final LngBooleanVector model;
     protected SortedMap<Variable, Integer> var2index;
     protected SortedMap<Integer, Variable> index2var;
     final LngVector<LngSoftClause> softClauses;
     final LngVector<LngHardClause> hardClauses;
     final LngIntVector orderWeights;
-    protected Verbosity verbosity;
     final int hardWeight;
     ProblemType problemType;
     int nbVars;
@@ -105,6 +110,9 @@ public abstract class MaxSat {
     protected MaxSat(final FormulaFactory f, final MaxSatConfig config) {
         this.f = f;
         this.config = config;
+        output = config.output;
+        verbosity = config.verbosity;
+        incrementalStrategy = config.incrementalStrategy;
         var2index = new TreeMap<>();
         index2var = new TreeMap<>();
         hardClauses = new LngVector<>();
@@ -238,6 +246,7 @@ public abstract class MaxSat {
             clause.setWeight(state.softWeights[i]);
             clause.setAssumptionVar(LIT_UNDEF);
         }
+        model.clear();
     }
 
     /**

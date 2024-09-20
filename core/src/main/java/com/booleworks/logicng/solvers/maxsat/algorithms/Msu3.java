@@ -36,7 +36,6 @@ import com.booleworks.logicng.solvers.MaxSatResult;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 
-import java.io.PrintStream;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -47,18 +46,6 @@ import java.util.TreeMap;
  */
 public class Msu3 extends MaxSat {
 
-    protected Encoder encoder;
-    protected final IncrementalStrategy incrementalStrategy;
-    protected final PrintStream output;
-
-    /**
-     * Constructs a new solver with default values.
-     * @param f the formula factory
-     */
-    public Msu3(final FormulaFactory f) {
-        this(f, MaxSatConfig.builder().build());
-    }
-
     /**
      * Constructs a new solver with a given configuration.
      * @param f      the formula factory
@@ -66,9 +53,6 @@ public class Msu3 extends MaxSat {
      */
     public Msu3(final FormulaFactory f, final MaxSatConfig config) {
         super(f, config);
-        verbosity = config.verbosity;
-        incrementalStrategy = config.incrementalStrategy;
-        output = config.output;
     }
 
     @Override

@@ -28,10 +28,9 @@ import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.solvers.MaxSatResult;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.IncrementalStrategy;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LngCoreSolver;
-
-import java.io.PrintStream;
 
 /**
  * Linear search solver.
@@ -40,18 +39,6 @@ import java.io.PrintStream;
  */
 public class LinearUs extends MaxSat {
 
-    protected Encoder encoder;
-    protected final MaxSatConfig.IncrementalStrategy incrementalStrategy;
-    protected final PrintStream output;
-
-    /**
-     * Constructs a new solver with default values.
-     * @param f the formula factory
-     */
-    public LinearUs(final FormulaFactory f) {
-        this(f, MaxSatConfig.builder().build());
-    }
-
     /**
      * Constructs a new solver with a given configuration.
      * @param f      the formula factory
@@ -59,9 +46,6 @@ public class LinearUs extends MaxSat {
      */
     public LinearUs(final FormulaFactory f, final MaxSatConfig config) {
         super(f, config);
-        verbosity = config.verbosity;
-        incrementalStrategy = config.incrementalStrategy;
-        output = config.output;
     }
 
     @Override
@@ -90,7 +74,7 @@ public class LinearUs extends MaxSat {
         initRelaxation(objFunction);
         LngCoreSolver solver = rebuildSolver();
         final LngIntVector assumptions = new LngIntVector();
-        encoder.setIncremental(MaxSatConfig.IncrementalStrategy.NONE);
+        encoder.setIncremental(IncrementalStrategy.NONE);
         while (true) {
             final LngResult<Boolean> res = searchSatSolver(solver, handler, assumptions);
             if (!res.isSuccess()) {
@@ -150,7 +134,7 @@ public class LinearUs extends MaxSat {
         initRelaxation(objFunction);
         final LngCoreSolver solver = rebuildSolver();
         final LngIntVector assumptions = new LngIntVector();
-        encoder.setIncremental(MaxSatConfig.IncrementalStrategy.ITERATIVE);
+        encoder.setIncremental(IncrementalStrategy.ITERATIVE);
         while (true) {
             final LngResult<Boolean> res = searchSatSolver(solver, handler, assumptions);
             if (!res.isSuccess()) {

@@ -35,7 +35,6 @@ import com.booleworks.logicng.solvers.MaxSatResult;
 import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 import com.booleworks.logicng.util.Pair;
 
-import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedMap;
@@ -50,7 +49,6 @@ import java.util.TreeSet;
  */
 public class Wbo extends MaxSat {
 
-    protected final PrintStream output;
     protected LngCoreSolver solver;
     protected int nbCurrentSoft;
     protected WeightStrategy weightStrategy;
@@ -64,14 +62,6 @@ public class Wbo extends MaxSat {
     protected int symmetryBreakingLimit;
 
     /**
-     * Constructs a new solver with default values.
-     * @param f the formula factory
-     */
-    public Wbo(final FormulaFactory f) {
-        this(f, MaxSatConfig.builder().build());
-    }
-
-    /**
      * Constructs a new solver with a given configuration.
      * @param f      the formula factory
      * @param config the configuration
@@ -79,7 +69,6 @@ public class Wbo extends MaxSat {
     public Wbo(final FormulaFactory f, final MaxSatConfig config) {
         super(f, config);
         solver = null;
-        verbosity = config.verbosity;
         nbCurrentSoft = 0;
         weightStrategy = config.weightStrategy;
         symmetryStrategy = config.symmetry;
@@ -90,7 +79,6 @@ public class Wbo extends MaxSat {
         softMapping = new LngVector<>();
         relaxationMapping = new LngVector<>();
         duplicatedSymmetryClauses = new HashSet<>();
-        output = config.output;
     }
 
     @Override

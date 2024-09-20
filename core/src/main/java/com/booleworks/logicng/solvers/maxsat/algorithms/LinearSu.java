@@ -22,7 +22,6 @@
 
 package com.booleworks.logicng.solvers.maxsat.algorithms;
 
-import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CardinalityEncoding;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.Verbosity;
 
 import com.booleworks.logicng.collections.LngBooleanVector;
@@ -37,30 +36,12 @@ import com.booleworks.logicng.solvers.datastructures.LngSoftClause;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 
-import java.io.PrintStream;
-
 /**
  * Linear search solver with Boolean Multilevel Optimization (BMO)
  * @version 3.0.0
  * @since 1.0
  */
 public class LinearSu extends MaxSat {
-
-    protected Encoder encoder;
-    protected final boolean bmoMode; // Enables BMO mode.
-    protected final LngIntVector objFunction;
-    protected final LngIntVector coeffs;
-    protected final PrintStream output;
-    protected LngCoreSolver solver;
-    protected boolean isBmo; // Stores if the formula is BMO or not.
-
-    /**
-     * Constructs a new solver with default values.
-     * @param f the formula factory
-     */
-    public LinearSu(final FormulaFactory f) {
-        this(f, MaxSatConfig.builder().cardinality(CardinalityEncoding.MTOTALIZER).build());
-    }
 
     /**
      * Constructs a new solver with a given configuration.
@@ -69,13 +50,6 @@ public class LinearSu extends MaxSat {
      */
     public LinearSu(final FormulaFactory f, final MaxSatConfig config) {
         super(f, config);
-        solver = null;
-        verbosity = config.verbosity;
-        bmoMode = config.bmo;
-        isBmo = false;
-        objFunction = new LngIntVector();
-        coeffs = new LngIntVector();
-        output = config.output;
     }
 
     @Override
@@ -83,11 +57,8 @@ public class LinearSu extends MaxSat {
         encoder = new Encoder(config.cardinalityEncoding);
         encoder.setPbEncoding(config.pbEncoding);
         nbInitialVariables = nVars();
-        objFunction.clear();
-        coeffs.clear();
         if (problemType == ProblemType.WEIGHTED) {
-            isBmo = isBmo(true);
-            if (bmoMode && isBmo) {
+            if (config.bmo && isBmo(true)) {
                 return bmoSearch(handler);
             } else {
                 return normalSearch(handler);
@@ -99,13 +70,15 @@ public class LinearSu extends MaxSat {
 
     protected LngResult<MaxSatResult> bmoSearch(final ComputationHandler handler) {
         assert !orderWeights.isEmpty();
-        initRelaxation();
+        final LngIntVector objFunction = new LngIntVector();
+        final LngIntVector coeffs = new LngIntVector();
+        initRelaxation(objFunction, coeffs);
         int currentWeight = orderWeights.get(0);
         final int minWeight = orderWeights.get(orderWeights.size() - 1);
         int posWeight = 0;
         final LngVector<LngIntVector> functions = new LngVector<>();
         final LngIntVector weights = new LngIntVector();
-        solver = rebuildBmo(functions, weights, currentWeight);
+        LngCoreSolver solver = rebuildBmo(functions, weights, currentWeight, objFunction, coeffs);
         int localCost = 0;
         ubCost = 0;
         while (true) {
@@ -140,7 +113,7 @@ public class LinearSu extends MaxSat {
                         weights.push(0);
                         posWeight++;
                         currentWeight = orderWeights.get(posWeight);
-                        solver = rebuildBmo(functions, weights, currentWeight);
+                        solver = rebuildBmo(functions, weights, currentWeight, objFunction, coeffs);
                         if (verbosity != Verbosity.NONE) {
                             output.println("c LB : " + lbCost);
                         }
@@ -156,8 +129,7 @@ public class LinearSu extends MaxSat {
             } else {
                 nbCores++;
                 if (currentWeight == minWeight) {
-                    if (model.isEmpty()) {
-                        assert nbSatisfiable == 0;
+                    if (nbSatisfiable == 0) {
                         return unsat();
                     } else {
                         return optimum();
@@ -173,7 +145,7 @@ public class LinearSu extends MaxSat {
                     if (lowerBoundEvent != null) {
                         return LngResult.canceled(lowerBoundEvent);
                     }
-                    solver = rebuildBmo(functions, weights, currentWeight);
+                    solver = rebuildBmo(functions, weights, currentWeight, objFunction, coeffs);
                     if (verbosity != Verbosity.NONE) {
                         output.println("c LB : " + lbCost);
                     }
@@ -183,8 +155,10 @@ public class LinearSu extends MaxSat {
     }
 
     protected LngResult<MaxSatResult> normalSearch(final ComputationHandler handler) {
-        initRelaxation();
-        solver = rebuildSolver(1);
+        final LngIntVector objFunction = new LngIntVector();
+        final LngIntVector coeffs = new LngIntVector();
+        initRelaxation(objFunction, coeffs);
+        final LngCoreSolver solver = rebuildSolver(1);
         while (true) {
             final LngResult<Boolean> res = searchSatSolver(solver, handler);
             if (!res.isSuccess()) {
@@ -221,8 +195,7 @@ public class LinearSu extends MaxSat {
                 }
             } else {
                 nbCores++;
-                if (model.isEmpty()) {
-                    assert nbSatisfiable == 0;
+                if (nbSatisfiable == 0) {
                     return unsat();
                 } else {
                     return optimum();
@@ -266,8 +239,12 @@ public class LinearSu extends MaxSat {
      * @param currentWeight the current weight
      * @return the rebuilt solver
      */
-    protected LngCoreSolver rebuildBmo(final LngVector<LngIntVector> functions, final LngIntVector rhs,
-                                       final int currentWeight) {
+    protected LngCoreSolver rebuildBmo(
+            final LngVector<LngIntVector> functions,
+            final LngIntVector rhs,
+            final int currentWeight,
+            final LngIntVector objFunction,
+            final LngIntVector coeffs) {
         assert functions.size() == rhs.size();
         final LngCoreSolver s = rebuildSolver(currentWeight);
         objFunction.clear();
@@ -288,7 +265,7 @@ public class LinearSu extends MaxSat {
      * Initializes the relaxation variables by adding a fresh variable to the
      * 'relaxationVars' of each soft clause.
      */
-    protected void initRelaxation() {
+    protected void initRelaxation(final LngIntVector objFunction, final LngIntVector coeffs) {
         for (final LngSoftClause softClause : softClauses) {
             final int l = newLiteral(false);
             softClause.relaxationVars().push(l);

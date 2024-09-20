@@ -34,7 +34,6 @@ import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 import com.booleworks.logicng.util.Pair;
 
-import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.TreeMap;
 
@@ -45,18 +44,8 @@ import java.util.TreeMap;
  */
 public class IncWbo extends Wbo {
 
-    protected Encoder encoder;
     protected final LngBooleanVector incSoft;
-    protected final PrintStream output;
     protected boolean firstBuild;
-
-    /**
-     * Constructs a new solver with default values.
-     * @param f the formula factory
-     */
-    public IncWbo(final FormulaFactory f) {
-        this(f, MaxSatConfig.builder().build());
-    }
 
     /**
      * Constructs a new solver with a given configuration.
@@ -66,7 +55,6 @@ public class IncWbo extends Wbo {
     public IncWbo(final FormulaFactory f, final MaxSatConfig config) {
         super(f, config);
         solver = null;
-        verbosity = config.verbosity;
         nbCurrentSoft = 0;
         weightStrategy = config.weightStrategy;
         symmetryStrategy = config.symmetry;
@@ -79,7 +67,6 @@ public class IncWbo extends Wbo {
         relaxationMapping = new LngVector<>();
         duplicatedSymmetryClauses = new HashSet<>();
         incSoft = new LngBooleanVector();
-        output = config.output;
     }
 
     @Override

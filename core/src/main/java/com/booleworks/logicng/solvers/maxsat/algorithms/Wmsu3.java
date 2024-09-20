@@ -33,7 +33,6 @@ import com.booleworks.logicng.solvers.MaxSatResult;
 import com.booleworks.logicng.solvers.maxsat.encodings.Encoder;
 import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 
-import java.io.PrintStream;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -44,19 +43,6 @@ import java.util.TreeMap;
  */
 public class Wmsu3 extends MaxSat {
 
-    protected final boolean bmoStrategy;
-    protected Encoder encoder;
-    protected final MaxSatConfig.IncrementalStrategy incrementalStrategy;
-    protected final PrintStream output;
-
-    /**
-     * Constructs a new solver with default values.
-     * @param f the formula factory
-     */
-    public Wmsu3(final FormulaFactory f) {
-        this(f, MaxSatConfig.builder().incremental(MaxSatConfig.IncrementalStrategy.ITERATIVE).build());
-    }
-
     /**
      * Constructs a new solver with a given configuration.
      * @param f      the formula factory
@@ -64,10 +50,6 @@ public class Wmsu3 extends MaxSat {
      */
     public Wmsu3(final FormulaFactory f, final MaxSatConfig config) {
         super(f, config);
-        verbosity = config.verbosity;
-        incrementalStrategy = config.incrementalStrategy;
-        bmoStrategy = config.bmo;
-        output = config.output;
     }
 
     protected static boolean subsetSum(final LngIntVector set, final int sum) {
@@ -101,7 +83,7 @@ public class Wmsu3 extends MaxSat {
         }
         encoder = new Encoder(config.cardinalityEncoding);
         encoder.setPbEncoding(config.pbEncoding);
-        final boolean isBmo = bmoStrategy && isBmo(true);
+        final boolean isBmo = config.bmo && isBmo(true);
         if (!isBmo) {
             currentWeight = 1;
         }

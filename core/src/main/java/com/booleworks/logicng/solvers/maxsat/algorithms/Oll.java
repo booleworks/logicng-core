@@ -28,15 +28,6 @@ import java.util.TreeMap;
  * @since 2.4.0
  */
 public class Oll extends MaxSat {
-    private Encoder encoder;
-
-    /**
-     * Constructs a new solver with default values.
-     * @param f the formula factory
-     */
-    public Oll(final FormulaFactory f) {
-        this(f, MaxSatConfig.builder().build());
-    }
 
     /**
      * Constructs a new solver with a given configuration.
@@ -45,7 +36,6 @@ public class Oll extends MaxSat {
      */
     public Oll(final FormulaFactory f, final MaxSatConfig config) {
         super(f, config);
-        verbosity = config.verbosity;
         if (config.cardinalityEncoding != MaxSatConfig.CardinalityEncoding.TOTALIZER) {
             throw new IllegalStateException("Error: Currently OLL only supports the totalizer encoding.");
         }
