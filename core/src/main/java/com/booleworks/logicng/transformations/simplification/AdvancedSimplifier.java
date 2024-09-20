@@ -11,7 +11,7 @@ import com.booleworks.logicng.backbones.BackboneGeneration;
 import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.explanations.smus.SmusComputation;
+import com.booleworks.logicng.explanations.smus.Smus;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -127,9 +127,10 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
             return LngResult.canceled(primeResult.getCancelCause());
         }
         final List<SortedSet<Literal>> primeImplicants = primeResult.getResult().getPrimeImplicants();
-        final LngResult<List<Formula>> minimizedPisResult =
-                SmusComputation.computeSmusForFormulas(f, negateAllLiterals(f, primeImplicants),
-                        Collections.singletonList(simplified), handler);
+        final LngResult<List<Formula>> minimizedPisResult = Smus.builder(f)
+                .additionalConstraints(List.of(simplified))
+                .build()
+                .computeForFormulas(negateAllLiterals(f, primeImplicants), handler);
         if (!minimizedPisResult.isSuccess()) {
             return LngResult.canceled(minimizedPisResult.getCancelCause());
         } else {

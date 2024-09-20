@@ -20,35 +20,57 @@ import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.io.readers.FormulaReader;
+import com.booleworks.logicng.propositions.Proposition;
+import com.booleworks.logicng.propositions.StandardProposition;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class SmusComputationTest extends TestWithExampleFormulas {
 
-    @Test
-    public void testFromPaper() throws ParserException {
-        final List<Formula> input = Arrays.asList(
-                f.parse("~s"),
-                f.parse("s|~p"),
-                f.parse("p"),
-                f.parse("~p|m"),
-                f.parse("~m|n"),
-                f.parse("~n"),
-                f.parse("~m|l"),
-                f.parse("~l")
-        );
-        final List<Formula> result =
-                SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList());
-        assertThat(result).containsExactlyInAnyOrder(f.parse("~s"), f.parse("s|~p"), f.parse("p"));
+    public static Collection<Object[]> configs() {
+        final List<Object[]> configs = new ArrayList<>();
+        configs.add(new Object[]{MaxSatConfig.CONFIG_INC_WBO, "INCWBO"});
+        configs.add(new Object[]{MaxSatConfig.CONFIG_LINEAR_SU, "LINEAR_SU"});
+        configs.add(new Object[]{MaxSatConfig.CONFIG_LINEAR_US, "LINEAR_US"});
+        configs.add(new Object[]{MaxSatConfig.CONFIG_MSU3, "MSU3"});
+        configs.add(new Object[]{MaxSatConfig.CONFIG_OLL, "OLL"});
+        configs.add(new Object[]{MaxSatConfig.CONFIG_WBO, "WBO"});
+        return configs;
     }
 
-    @Test
-    public void testWithAdditionalConstraint() throws ParserException {
+
+    @ParameterizedTest
+    @MethodSource("configs")
+    public void testFromPaper(final MaxSatConfig config) throws ParserException {
+        final List<Proposition> input = Arrays.asList(
+                new StandardProposition(f.parse("~s")),
+                new StandardProposition(f.parse("s|~p")),
+                new StandardProposition(f.parse("p")),
+                new StandardProposition(f.parse("~p|m")),
+                new StandardProposition(f.parse("~m|n")),
+                new StandardProposition(f.parse("~n")),
+                new StandardProposition(f.parse("~m|l")),
+                new StandardProposition(f.parse("~l"))
+        );
+        final List<Proposition> result = Smus.builder(f).maxSatConfig(config).build().compute(input);
+        assertThat(result).containsExactlyInAnyOrder(
+                new StandardProposition(f.parse("~s")),
+                new StandardProposition(f.parse("s|~p")),
+                new StandardProposition(f.parse("p")));
+    }
+
+    @ParameterizedTest
+    @MethodSource("configs")
+    public void testWithAdditionalConstraint(final MaxSatConfig config) throws ParserException {
         final List<Formula> input = Arrays.asList(
                 f.parse("~s"),
                 f.parse("s|~p"),
@@ -59,13 +81,17 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~m|l"),
                 f.parse("~l")
         );
-        final List<Formula> result =
-                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
+        final List<Formula> result = Smus.builder(f)
+                .additionalConstraints(List.of(f.parse("n|l")))
+                .maxSatConfig(config)
+                .build()
+                .computeForFormulas(input);
         assertThat(result).containsExactlyInAnyOrder(f.parse("~n"), f.parse("~l"));
     }
 
-    @Test
-    public void testSatisfiable() throws ParserException {
+    @ParameterizedTest
+    @MethodSource("configs")
+    public void testSatisfiable(final MaxSatConfig config) throws ParserException {
         final List<Formula> input = Arrays.asList(
                 f.parse("~s"),
                 f.parse("s|~p"),
@@ -74,13 +100,17 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~n"),
                 f.parse("~m|l")
         );
-        assertThatThrownBy(() -> SmusComputation
-                .computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l"))))
+        assertThatThrownBy(() -> Smus.builder(f)
+                .additionalConstraints(List.of(f.parse("n|l")))
+                .maxSatConfig(config)
+                .build()
+                .computeForFormulas(input))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test
-    public void testUnsatisfiableAdditionalConstraints() throws ParserException {
+    @ParameterizedTest
+    @MethodSource("configs")
+    public void testUnsatisfiableAdditionalConstraints(final MaxSatConfig config) throws ParserException {
         final List<Formula> input = Arrays.asList(
                 f.parse("~s"),
                 f.parse("s|~p"),
@@ -88,13 +118,17 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~m|n"),
                 f.parse("~n|s")
         );
-        final List<Formula> result =
-                SmusComputation.computeSmusForFormulas(f, input, Arrays.asList(f.parse("~a&b"), f.parse("a|~b")));
+        final List<Formula> result = Smus.builder(f)
+                .maxSatConfig(config)
+                .additionalConstraints(List.of(f.parse("~a&b"), f.parse("a|~b")))
+                .build()
+                .computeForFormulas(input);
         assertThat(result).isEmpty();
     }
 
-    @Test
-    public void testTrivialUnsatFormula() throws ParserException {
+    @ParameterizedTest
+    @MethodSource("configs")
+    public void testTrivialUnsatFormula(final MaxSatConfig config) throws ParserException {
         final List<Formula> input = Arrays.asList(
                 f.parse("~s"),
                 f.parse("s|~p"),
@@ -106,13 +140,17 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~l"),
                 f.parse("a&~a")
         );
-        final List<Formula> result =
-                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
+        final List<Formula> result = Smus.builder(f)
+                .additionalConstraints(List.of(f.parse("n|l")))
+                .maxSatConfig(config)
+                .build()
+                .computeForFormulas(input);
         assertThat(result).containsExactly(f.falsum());
     }
 
-    @Test
-    public void testUnsatFormula() throws ParserException {
+    @ParameterizedTest
+    @MethodSource("configs")
+    public void testUnsatFormula(final MaxSatConfig config) throws ParserException {
         final List<Formula> input = Arrays.asList(
                 f.parse("~s"),
                 f.parse("s|~p"),
@@ -124,13 +162,17 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~l"),
                 f.parse("(a<=>b)&(~a<=>b)")
         );
-        final List<Formula> result =
-                SmusComputation.computeSmusForFormulas(f, input, Collections.singletonList(f.parse("n|l")));
+        final List<Formula> result = Smus.builder(f)
+                .maxSatConfig(config)
+                .additionalConstraints(List.of(f.parse("n|l")))
+                .build()
+                .computeForFormulas(input);
         assertThat(result).containsExactly(f.parse("(a<=>b)&(~a<=>b)"));
     }
 
-    @Test
-    public void testShorterConflict() throws ParserException {
+    @ParameterizedTest
+    @MethodSource("configs")
+    public void testShorterConflict(final MaxSatConfig config) throws ParserException {
         final List<Formula> input = Arrays.asList(
                 f.parse("~s"),
                 f.parse("s|~p"),
@@ -142,12 +184,13 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~m|l"),
                 f.parse("~l")
         );
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList());
+        final List<Formula> result = Smus.builder(f).maxSatConfig(config).build().computeForFormulas(input);
         assertThat(result).containsExactlyInAnyOrder(f.parse("s|~p"), f.parse("p&~s"));
     }
 
-    @Test
-    public void testCompleteConflict() throws ParserException {
+    @ParameterizedTest
+    @MethodSource("configs")
+    public void testCompleteConflict(final MaxSatConfig config) throws ParserException {
         final List<Formula> input = Arrays.asList(
                 f.parse("~s"),
                 f.parse("s|~p"),
@@ -156,12 +199,13 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("n|~l"),
                 f.parse("l|s")
         );
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList());
+        final List<Formula> result = Smus.builder(f).maxSatConfig(config).build().computeForFormulas(input);
         assertThat(result).containsExactlyInAnyOrderElementsOf(input);
     }
 
-    @Test
-    public void testLongConflictWithShortcut() throws ParserException {
+    @ParameterizedTest
+    @MethodSource("configs")
+    public void testLongConflictWithShortcut(final MaxSatConfig config) throws ParserException {
         final List<Formula> input = Arrays.asList(
                 f.parse("~s"),
                 f.parse("s|~p"),
@@ -171,7 +215,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("l|s"),
                 f.parse("n|s")
         );
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList());
+        final List<Formula> result = Smus.builder(f).maxSatConfig(config).build().computeForFormulas(input);
         assertThat(result).containsExactlyInAnyOrder(f.parse("~s"),
                 f.parse("s|~p"),
                 f.parse("p|~m"),
@@ -179,8 +223,9 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("n|s"));
     }
 
-    @Test
-    public void testManyConflicts() throws ParserException {
+    @ParameterizedTest
+    @MethodSource("configs")
+    public void testManyConflicts(final MaxSatConfig config) throws ParserException {
         final List<Formula> input = Arrays.asList(
                 f.parse("a"),
                 f.parse("~a|b"),
@@ -202,12 +247,13 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("x&~y"),
                 f.parse("x=>y")
         );
-        final List<Formula> result = SmusComputation.computeSmusForFormulas(f, input, Collections.emptyList());
+        final List<Formula> result = Smus.builder(f).maxSatConfig(config).build().computeForFormulas(input);
         assertThat(result).containsExactlyInAnyOrder(f.parse("x&~y"), f.parse("x=>y"));
     }
 
-    @Test
-    public void testTimeoutHandlerSmall() throws ParserException {
+    @ParameterizedTest
+    @MethodSource("configs")
+    public void testTimeoutHandlerSmall(final MaxSatConfig config) throws ParserException {
         final List<TimeoutHandler> handlers = Arrays.asList(
                 new TimeoutHandler(5_000L, SINGLE_TIMEOUT),
                 new TimeoutHandler(5_000L, RESTARTING_TIMEOUT),
@@ -218,22 +264,22 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~a")
         );
         for (final TimeoutHandler handler : handlers) {
-            testHandler(handler, formulas, false);
+            testHandler(handler, formulas, config, false);
         }
     }
 
-    @Test
-    public void testTimeoutHandlerLarge() throws ParserException, IOException {
+    @ParameterizedTest
+    @MethodSource("configs")
+    public void testTimeoutHandlerLarge(final MaxSatConfig config) throws ParserException, IOException {
         final List<TimeoutHandler> handlers = Arrays.asList(
                 new TimeoutHandler(1L, SINGLE_TIMEOUT),
                 new TimeoutHandler(1L, RESTARTING_TIMEOUT),
                 new TimeoutHandler(System.currentTimeMillis() + 1L, FIXED_END)
         );
-        final Formula formula =
-                FormulaReader.readFormula(f, "../test_files/formulas/large_formula.txt");
+        final Formula formula = FormulaReader.readFormula(f, "../test_files/formulas/large_formula.txt");
         final List<Formula> formulas = formula.stream().collect(Collectors.toList());
         for (final TimeoutHandler handler : handlers) {
-            testHandler(handler, formulas, true);
+            testHandler(handler, formulas, config, true);
         }
     }
 
@@ -245,7 +291,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
             for (int numSatHandlerStarts = 1; numSatHandlerStarts < 10; numSatHandlerStarts++) {
                 final ComputationHandler handler =
                         new BoundedOptimizationHandler(numSatHandlerStarts, numOptimizationStarts);
-                testHandler(handler, formulas, true);
+                testHandler(handler, formulas, MaxSatConfig.CONFIG_OLL, true);
             }
         }
     }
@@ -257,7 +303,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("a"),
                 f.parse("~a")
         );
-        testHandler(handler, formulas, true);
+        testHandler(handler, formulas, MaxSatConfig.CONFIG_OLL, true);
     }
 
     @Test
@@ -268,13 +314,15 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 f.parse("~a"),
                 f.parse("c")
         );
-        testHandler(handler, formulas, true);
+        testHandler(handler, formulas, MaxSatConfig.CONFIG_OLL, true);
     }
 
     private void testHandler(final ComputationHandler handler, final List<Formula> formulas,
-                             final boolean expCanceled) {
-        final LngResult<List<Formula>> result =
-                SmusComputation.computeSmusForFormulas(f, formulas, Collections.emptyList(), handler);
+                             final MaxSatConfig config, final boolean expCanceled) {
+        final LngResult<List<Formula>> result = Smus.builder(f)
+                .maxSatConfig(config)
+                .build()
+                .computeForFormulas(formulas, handler);
         assertThat(!result.isSuccess()).isEqualTo(expCanceled);
     }
 }
