@@ -19,10 +19,10 @@ import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
-import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.propositions.StandardProposition;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
+import com.booleworks.logicng.testutils.PigeonHoleGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -276,7 +276,7 @@ public class SmusComputationTest extends TestWithExampleFormulas {
                 new TimeoutHandler(1L, RESTARTING_TIMEOUT),
                 new TimeoutHandler(System.currentTimeMillis() + 1L, FIXED_END)
         );
-        final Formula formula = FormulaReader.readFormula(f, "../test_files/formulas/large_formula.txt");
+        final Formula formula = new PigeonHoleGenerator(f).generate(15);
         final List<Formula> formulas = formula.stream().collect(Collectors.toList());
         for (final TimeoutHandler handler : handlers) {
             testHandler(handler, formulas, config, true);

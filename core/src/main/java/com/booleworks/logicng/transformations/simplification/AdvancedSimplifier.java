@@ -121,8 +121,8 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
 
     private LngResult<Formula> computeMinDnf(final FormulaFactory f, final Formula simplified,
                                              final ComputationHandler handler) {
-        final LngResult<PrimeResult> primeResult = PrimeCompiler.getWithMinimization()
-                .compute(f, simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE, handler);
+        final LngResult<PrimeResult> primeResult = new PrimeCompiler(f, false)
+                .compute(simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE, handler);
         if (!primeResult.isSuccess()) {
             return LngResult.canceled(primeResult.getCancelCause());
         }
