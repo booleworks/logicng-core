@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.booleworks.logicng.FormulaCornerCases;
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FType;
@@ -23,7 +24,6 @@ import com.booleworks.logicng.knowledgecompilation.bdds.orderings.ForceOrdering;
 import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.testutils.NQueensGenerator;
 import com.booleworks.logicng.transformations.cnf.CnfConfig;
-import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaHelper;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;

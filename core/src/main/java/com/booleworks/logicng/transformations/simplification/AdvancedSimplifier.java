@@ -119,9 +119,11 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
         return LngResult.of(simplified);
     }
 
-    private LngResult<Formula> computeMinDnf(final FormulaFactory f, final Formula simplified,
-                                             final ComputationHandler handler) {
-        final LngResult<PrimeResult> primeResult = new PrimeCompiler(f, false)
+    private LngResult<Formula> computeMinDnf(
+            final FormulaFactory f,
+            final Formula simplified,
+            final ComputationHandler handler) {
+        final LngResult<PrimeResult> primeResult = new PrimeCompiler(f, false, config.maxSatConfig)
                 .compute(simplified, PrimeResult.CoverageType.IMPLICANTS_COMPLETE, handler);
         if (!primeResult.isSuccess()) {
             return LngResult.canceled(primeResult.getCancelCause());
@@ -129,6 +131,7 @@ public final class AdvancedSimplifier extends StatelessFormulaTransformation {
         final List<SortedSet<Literal>> primeImplicants = primeResult.getResult().getPrimeImplicants();
         final LngResult<List<Formula>> minimizedPisResult = Smus.builder(f)
                 .additionalConstraints(List.of(simplified))
+                .maxSatConfig(config.maxSatConfig)
                 .build()
                 .computeForFormulas(negateAllLiterals(f, primeImplicants), handler);
         if (!minimizedPisResult.isSuccess()) {

@@ -6,6 +6,7 @@ package com.booleworks.logicng.primecomputation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.booleworks.logicng.FormulaCornerCases;
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaContext;
@@ -20,7 +21,6 @@ import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.sat.SatCall;
-import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaHelper;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;

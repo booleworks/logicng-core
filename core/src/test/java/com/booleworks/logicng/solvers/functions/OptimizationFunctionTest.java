@@ -13,6 +13,7 @@ import static java.util.stream.Collectors.toCollection;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.booleworks.logicng.FormulaCornerCases;
 import com.booleworks.logicng.LogicNGTest;
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.RandomTag;
@@ -40,7 +41,6 @@ import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
 import com.booleworks.logicng.solvers.sat.SatSolverConfig;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
-import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
 import org.junit.jupiter.api.Test;

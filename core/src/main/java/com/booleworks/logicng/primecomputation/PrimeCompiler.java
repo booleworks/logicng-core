@@ -18,7 +18,6 @@ import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.solvers.MaxSatResult;
 import com.booleworks.logicng.solvers.MaxSatSolver;
 import com.booleworks.logicng.solvers.SatSolver;
-import com.booleworks.logicng.solvers.functions.OptimizationFunction;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
 import com.booleworks.logicng.solvers.sat.SatCall;
 import com.booleworks.logicng.transformations.LiteralSubstitution;
@@ -108,11 +107,8 @@ public final class PrimeCompiler {
      * Computes prime implicants and prime implicates for a given formula. The
      * coverage type specifies if the implicants or the implicates will be
      * complete, the other one will still be a cover of the given formula.
-     * <p>
-     * The prime compiler can be called with an {@link ComputationHandler}. The
-     * given handler instance will be used for every subsequent
-     * {@link OptimizationFunction} call and the handler's SAT handler is used
-     * for every subsequent SAT call.
+     * The given {@link ComputationHandler} can be used to abort the computation.
+     * {@link MaxSatSolver} call.
      * @param formula the formula
      * @param type    the coverage type
      * @param handler an optimization handler, can be {@code null}

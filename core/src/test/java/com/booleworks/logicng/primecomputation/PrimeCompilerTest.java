@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 
+import com.booleworks.logicng.FormulaCornerCases;
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.formulas.Formula;
@@ -32,7 +33,6 @@ import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
 import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
-import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
 import com.booleworks.logicng.util.Pair;

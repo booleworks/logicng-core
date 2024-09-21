@@ -7,6 +7,7 @@ package com.booleworks.logicng.transformations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.booleworks.logicng.FormulaCornerCases;
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.formulas.BinaryOperator;
 import com.booleworks.logicng.formulas.FType;
@@ -19,7 +20,6 @@ import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.modelcounting.ModelCounter;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
-import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
 import org.junit.jupiter.params.ParameterizedTest;

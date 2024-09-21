@@ -4,9 +4,14 @@
 
 package com.booleworks.logicng.transformations.simplification;
 
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_INC_WBO;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_LINEAR_SU;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_OLL;
+import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_WBO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.booleworks.logicng.FormulaCornerCases;
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.formulas.Formula;
@@ -20,7 +25,7 @@ import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
-import com.booleworks.logicng.util.FormulaCornerCases;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
 import org.junit.jupiter.api.Test;
@@ -28,36 +33,56 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class AdvancedSimplifierTest extends TestWithFormulaContext {
 
-    @ParameterizedTest
-    @MethodSource("contexts")
-    public void testConstants(final FormulaContext _c) {
-        final AdvancedSimplifier simplifier = new AdvancedSimplifier(_c.f);
-
-        assertThat(_c.f.falsum().transform(simplifier)).isEqualTo(_c.f.falsum());
-        assertThat(_c.f.verum().transform(simplifier)).isEqualTo(_c.f.verum());
+    public static Collection<Object[]> configs() {
+        final List<Object[]> configs = new ArrayList<>();
+        configs.add(new Object[]{CONFIG_INC_WBO, "INCWBO"});
+        configs.add(new Object[]{CONFIG_LINEAR_SU, "LINEAR_SU"});
+        configs.add(new Object[]{CONFIG_OLL, "OLL"});
+        configs.add(new Object[]{CONFIG_WBO, "WBO"});
+        return configs;
     }
 
     @ParameterizedTest
-    @MethodSource("contexts")
-    public void testCornerCases(final FormulaContext _c) {
-        final FormulaCornerCases cornerCases = new FormulaCornerCases(_c.f);
-        cornerCases.cornerCases().forEach(this::computeAndVerify);
+    @MethodSource("configs")
+    public void testConstants(final MaxSatConfig config) {
+        final var f = FormulaFactory.caching();
+        final var cfg = AdvancedSimplifierConfig.builder().maxSatConfig(config).build();
+        final AdvancedSimplifier simplifier = new AdvancedSimplifier(f, cfg);
+
+        assertThat(f.falsum().transform(simplifier)).isEqualTo(f.falsum());
+        assertThat(f.verum().transform(simplifier)).isEqualTo(f.verum());
     }
 
     @ParameterizedTest
-    @MethodSource("contexts")
+    @MethodSource("configs")
+    public void testCornerCases(final MaxSatConfig config) {
+        final var fc = FormulaFactory.caching();
+        final var fn = FormulaFactory.nonCaching();
+        final var cfg = AdvancedSimplifierConfig.builder().maxSatConfig(config).build();
+        FormulaCornerCases cornerCases = new FormulaCornerCases(fc);
+        cornerCases.cornerCases().forEach(it -> computeAndVerify(it, cfg));
+        cornerCases = new FormulaCornerCases(fn);
+        cornerCases.cornerCases().forEach(it -> computeAndVerify(it, cfg));
+    }
+
+    @ParameterizedTest
+    @MethodSource("configs")
     @RandomTag
-    public void testRandomized(final FormulaContext _c) {
+    public void testRandomized(final MaxSatConfig config) {
+        final var f = FormulaFactory.caching();
+        final var cfg = AdvancedSimplifierConfig.builder().maxSatConfig(config).build();
         for (int i = 0; i < 100; i++) {
-            final FormulaRandomizer randomizer = new FormulaRandomizer(_c.f,
+            final FormulaRandomizer randomizer = new FormulaRandomizer(f,
                     FormulaRandomizerConfig.builder().numVars(8).weightPbc(2).seed(i * 42).build());
             final Formula formula = randomizer.formula(5);
-            computeAndVerify(formula);
+            computeAndVerify(formula, cfg);
         }
     }
 
@@ -152,8 +177,8 @@ public class AdvancedSimplifierTest extends TestWithFormulaContext {
         }
     }
 
-    private void computeAndVerify(final Formula formula) {
-        final Formula simplified = formula.transform(new AdvancedSimplifier(formula.getFactory()));
+    private void computeAndVerify(final Formula formula, final AdvancedSimplifierConfig config) {
+        final Formula simplified = formula.transform(new AdvancedSimplifier(formula.getFactory(), config));
         assertThat(formula.getFactory().equivalence(formula, simplified).holds(new TautologyPredicate(formula.getFactory())))
                 .as("Minimized formula is equivalent to original Formula")
                 .isTrue();

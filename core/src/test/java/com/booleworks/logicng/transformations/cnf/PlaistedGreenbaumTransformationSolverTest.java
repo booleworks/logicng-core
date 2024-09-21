@@ -7,6 +7,7 @@ package com.booleworks.logicng.transformations.cnf;
 import static com.booleworks.logicng.util.FormulaHelper.variables;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.booleworks.logicng.FormulaCornerCases;
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
@@ -19,7 +20,6 @@ import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
 import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.SolverState;
 import com.booleworks.logicng.solvers.sat.SatSolverConfig;
-import com.booleworks.logicng.util.FormulaCornerCases;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
 import org.junit.jupiter.api.Test;

@@ -6,6 +6,7 @@ package com.booleworks.logicng.transformations.simplification;
 
 import com.booleworks.logicng.configurations.Configuration;
 import com.booleworks.logicng.configurations.ConfigurationType;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
 
 /**
  * The configuration object for the {@link AdvancedSimplifier}.
@@ -20,6 +21,7 @@ public class AdvancedSimplifierConfig extends Configuration {
     final boolean simplifyNegations;
     final boolean useRatingFunction;
     final RatingFunction<?> ratingFunction;
+    final MaxSatConfig maxSatConfig;
 
     @Override
     public String toString() {
@@ -29,6 +31,7 @@ public class AdvancedSimplifierConfig extends Configuration {
                 ", simplifyNegations=" + simplifyNegations +
                 ", useRatingFunction=" + useRatingFunction +
                 ", ratingFunction=" + ratingFunction +
+                ", maxSatConfig=" + maxSatConfig +
                 '}';
     }
 
@@ -43,6 +46,7 @@ public class AdvancedSimplifierConfig extends Configuration {
         simplifyNegations = builder.simplifyNegations;
         useRatingFunction = builder.useRatingFunction;
         ratingFunction = builder.ratingFunction;
+        maxSatConfig = builder.maxSatConfig;
     }
 
     /**
@@ -58,11 +62,12 @@ public class AdvancedSimplifierConfig extends Configuration {
      */
     public static class Builder {
 
-        boolean restrictBackbone = true;
-        boolean factorOut = true;
-        boolean simplifyNegations = true;
-        boolean useRatingFunction = true;
+        private boolean restrictBackbone = true;
+        private boolean factorOut = true;
+        private boolean simplifyNegations = true;
+        private boolean useRatingFunction = true;
         private RatingFunction<?> ratingFunction = DefaultRatingFunction.get();
+        private MaxSatConfig maxSatConfig = MaxSatConfig.CONFIG_OLL;
 
         private Builder() {
             // Initialize only via factory
@@ -122,6 +127,18 @@ public class AdvancedSimplifierConfig extends Configuration {
          */
         public Builder ratingFunction(final RatingFunction<?> ratingFunction) {
             this.ratingFunction = ratingFunction;
+            return this;
+        }
+
+        /**
+         * Sets the configuration for the underlying MaxSAT solver which is
+         * used to compute the minimum DNF via prime implicants and SMUS.
+         * The default is the OLL algorithm.
+         * @param maxSatConfig the MaxSAT solver configuration
+         * @return the current builder
+         */
+        public Builder maxSatConfig(final MaxSatConfig maxSatConfig) {
+            this.maxSatConfig = maxSatConfig;
             return this;
         }
 

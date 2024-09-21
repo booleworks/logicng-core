@@ -2,7 +2,7 @@
 // Copyright 2015-2023 Christoph Zengler
 // Copyright 2023-20xx BooleWorks GmbH
 
-package com.booleworks.logicng.util;
+package com.booleworks.logicng;
 
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.FType;

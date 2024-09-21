@@ -4,7 +4,6 @@
 
 package com.booleworks.logicng.functions;
 
-import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaFunction;
@@ -12,9 +11,9 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
-import com.booleworks.logicng.solvers.SatSolver;
-import com.booleworks.logicng.solvers.functions.OptimizationFunction;
-import com.booleworks.logicng.solvers.sat.SatSolverConfig;
+import com.booleworks.logicng.solvers.MaxSatResult;
+import com.booleworks.logicng.solvers.MaxSatSolver;
+import com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig;
 import com.booleworks.logicng.transformations.LiteralSubstitution;
 
 import java.util.HashMap;
@@ -33,9 +32,24 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<Sort
     private static final String POS = "_POS";
     private static final String NEG = "_NEG";
     private final FormulaFactory f;
+    private final MaxSatConfig config;
 
+    /**
+     * Constructs a new function which computes a minimum-size prime implicant.
+     * @param f the formula factory
+     */
     public MinimumPrimeImplicantFunction(final FormulaFactory f) {
+        this(f, MaxSatConfig.CONFIG_OLL);
+    }
+
+    /**
+     * Constructs a new function which computes a minimum-size prime implicant.
+     * @param f      the formula factory
+     * @param config the configuration for the underlying MaxSAT solver
+     */
+    public MinimumPrimeImplicantFunction(final FormulaFactory f, final MaxSatConfig config) {
         this.f = f;
+        this.config = config;
     }
 
     @Override
@@ -50,25 +64,28 @@ public final class MinimumPrimeImplicantFunction implements FormulaFunction<Sort
         }
         final LiteralSubstitution substTransformation = new LiteralSubstitution(f, substitution);
         final Formula substituted = nnf.transform(substTransformation);
-        final SatSolver solver = SatSolver.newSolver(f,
-                SatSolverConfig.builder().cnfMethod(SatSolverConfig.CnfMethod.PG_ON_SOLVER).build());
-        solver.add(substituted);
+        final MaxSatSolver solver = MaxSatSolver.newSolver(f, config);
+        solver.addHardFormula(substituted);
         for (final Literal literal : newVar2oldLit.values()) {
             if (literal.getPhase() && newVar2oldLit.containsValue(literal.negate(f))) {
-                solver.add(f.amo(f.variable(literal.getName() + POS), f.variable(literal.getName() + NEG)));
+                final Formula amo = f.amo(f.variable(literal.getName() + POS), f.variable(literal.getName() + NEG));
+                solver.addHardFormula(amo);
             }
         }
-        if (!solver.sat()) {
+        for (final Variable v : newVar2oldLit.keySet()) {
+            solver.addSoftFormula(v.negate(f), 1);
+        }
+        final LngResult<MaxSatResult> res = solver.solve(handler);
+        if (!res.isSuccess()) {
+            return LngResult.canceled(res.getCancelCause());
+        }
+
+        if (!res.getResult().isSatisfiable()) {
             throw new IllegalArgumentException("The given formula must be satisfiable");
         }
 
-        final LngResult<Model> minimumModel =
-                solver.execute(OptimizationFunction.minimize(newVar2oldLit.keySet()), handler);
-        if (!minimumModel.isSuccess()) {
-            return LngResult.canceled(minimumModel.getCancelCause());
-        }
         final SortedSet<Literal> primeImplicant = new TreeSet<>();
-        for (final Variable variable : minimumModel.getResult().positiveVariables()) {
+        for (final Variable variable : res.getResult().getModel().positiveVariables()) {
             final Literal literal = newVar2oldLit.get(variable);
             if (literal != null) {
                 primeImplicant.add(literal);
