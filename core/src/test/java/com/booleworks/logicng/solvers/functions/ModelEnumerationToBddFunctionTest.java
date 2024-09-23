@@ -319,7 +319,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
         assertThat(handler.getRollbackCalls()).isEqualTo(1);
 
         collector.addModel(modelFromSolver2, solver, relevantIndices, handler);
-        final List<Model> rollbackModels = collector.rollbackAndReturnModels(solver, handler);
+        final List<Model> rollbackModels = collector.rollbackAndReturnModels(solver, handler).getResult();
         assertThat(rollbackModels).containsExactly(expectedModel2);
         assertThat(collector.getResult()).isEqualTo(result1);
         assertThat(handler.getFoundModels()).isEqualTo(3);
@@ -337,7 +337,7 @@ public class ModelEnumerationToBddFunctionTest extends TestWithFormulaContext {
 
         collector.rollback(handler);
         assertThat(collector.getResult()).isEqualTo(result2);
-        assertThat(collector.rollbackAndReturnModels(solver, handler)).isEmpty();
+        assertThat(collector.rollbackAndReturnModels(solver, handler).getResult()).isEmpty();
         assertThat(handler.getFoundModels()).isEqualTo(4);
         assertThat(handler.getCommitCalls()).isEqualTo(2);
         assertThat(handler.getRollbackCalls()).isEqualTo(4);

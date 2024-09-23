@@ -8,6 +8,7 @@ import com.booleworks.logicng.collections.LngBooleanVector;
 import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.solvers.SatSolver;
 
@@ -37,7 +38,7 @@ public interface EnumerationCollector<RESULT> {
      * @param relevantAllIndices the relevant indices
      * @param handler            the model enumeration handler
      * @return an event if the handler canceled the computation,
-     * otherwise {@code null}
+     *         otherwise {@code null}
      */
     LngEvent addModel(LngBooleanVector modelFromSolver, SatSolver solver, LngIntVector relevantAllIndices,
                       ComputationHandler handler);
@@ -49,7 +50,7 @@ public interface EnumerationCollector<RESULT> {
      * Calls the {@code commit()} routine of {@code handler}.
      * @param handler the computation handler
      * @return an event if the handler canceled the computation,
-     * otherwise {@code null}
+     *         otherwise {@code null}
      */
     LngEvent commit(ComputationHandler handler);
 
@@ -60,7 +61,7 @@ public interface EnumerationCollector<RESULT> {
      * cancels the computation.
      * @param handler the computation handler
      * @return an event if the handler canceled the computation,
-     * otherwise {@code null}
+     *         otherwise {@code null}
      */
     LngEvent rollback(ComputationHandler handler);
 
@@ -70,9 +71,10 @@ public interface EnumerationCollector<RESULT> {
      * Calls the {@code rollback} routine of {@code handler}.
      * @param solver  solver used for the enumeration
      * @param handler the computation handler
-     * @return list of all discarded models
+     * @return the LNG result with a list of all discarded models or a canceled
+     *         result if the rollback was canceled by the handler
      */
-    List<Model> rollbackAndReturnModels(final SatSolver solver, ComputationHandler handler);
+    LngResult<List<Model>> rollbackAndReturnModels(final SatSolver solver, ComputationHandler handler);
 
     /**
      * Returns the currently committed state of the collector.

@@ -118,13 +118,8 @@ class TimeoutModelEnumerationHandlerTest {
 
             final LngResult<List<Model>> result = me.apply(solver, handler);
 
-            if (result.isSuccess()) {
-                System.out.println(result.getResult());
-            }
             assertThat(result.isSuccess()).isFalse();
             assertThatThrownBy(result::getResult).isInstanceOf(IllegalStateException.class);
         }
     }
-
-    // TODO test partial results (does not seem to work well with negated Pigeon Hole)
 }

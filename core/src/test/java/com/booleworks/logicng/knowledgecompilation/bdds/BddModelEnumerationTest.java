@@ -5,14 +5,21 @@
 package com.booleworks.logicng.knowledgecompilation.bdds;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.CallLimitComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.functions.ModelCountingFunction;
 import com.booleworks.logicng.testutils.NQueensGenerator;
+import com.booleworks.logicng.testutils.PigeonHoleGenerator;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
@@ -104,6 +111,20 @@ public class BddModelEnumerationTest {
         final Bdd bdd = BddFactory.build(f, constraint, kernel);
         assertThat(bdd.modelCount()).isEqualTo(BigInteger.valueOf(221));
         assertThat(bdd.enumerateAllModels(generateVariables(f, 100))).hasSize(101);
+    }
+
+    @Test
+    @LongRunningTag
+    public void testComputationHandlerExitPoints() {
+        final Formula formula = new PigeonHoleGenerator(f).generate(10).negate(f);
+        final SatSolver solver = SatSolver.newSolver(f);
+        solver.add(formula);
+        for (int callLimit = 0; callLimit < 5000; callLimit++) {
+            final ModelCountingFunction me = ModelCountingFunction.builder(formula.variables(f)).build();
+            final LngResult<BigInteger> result = me.apply(solver, new CallLimitComputationHandler(callLimit));
+            assertThat(result.isSuccess()).isFalse();
+            assertThatThrownBy(result::getResult).isInstanceOf(IllegalStateException.class);
+        }
     }
 
     private List<Variable> generateVariables(final FormulaFactory f, final int n) {

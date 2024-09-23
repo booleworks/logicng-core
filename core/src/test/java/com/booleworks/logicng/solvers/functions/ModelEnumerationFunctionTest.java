@@ -10,6 +10,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySortedSet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.RandomTag;
@@ -23,6 +24,7 @@ import com.booleworks.logicng.formulas.FormulaFactoryConfig;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.CallLimitComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
@@ -37,6 +39,7 @@ import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.L
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.MostCommonVariablesProvider;
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.SplitVariableProvider;
 import com.booleworks.logicng.solvers.sat.SatSolverConfig;
+import com.booleworks.logicng.testutils.PigeonHoleGenerator;
 import com.booleworks.logicng.util.FormulaHelper;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
@@ -50,6 +53,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -507,8 +511,8 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
         assertThat(handler.getRollbackCalls()).isEqualTo(1);
 
         collector.addModel(modelFromSolver2, solver, relevantIndices, handler);
-        final List<Model> rollbackModels = collector.rollbackAndReturnModels(solver, handler);
-        assertThat(rollbackModels).containsExactly(expectedModel2);
+        final LngResult<List<Model>> rollbackModels = collector.rollbackAndReturnModels(solver, handler);
+        assertThat(rollbackModels.getResult()).containsExactly(expectedModel2);
         assertThat(collector.getResult()).isEqualTo(result1);
         assertThat(handler.getFoundModels()).isEqualTo(3);
         assertThat(handler.getCommitCalls()).isEqualTo(1);
@@ -524,7 +528,7 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
 
         collector.rollback(handler);
         assertThat(collector.getResult()).isEqualTo(result2);
-        assertThat(collector.rollbackAndReturnModels(solver, handler)).isEmpty();
+        assertThat(collector.rollbackAndReturnModels(solver, handler).getResult()).isEmpty();
         assertThat(handler.getFoundModels()).isEqualTo(4);
         assertThat(handler.getCommitCalls()).isEqualTo(2);
         assertThat(handler.getRollbackCalls()).isEqualTo(4);
@@ -590,6 +594,39 @@ public class ModelEnumerationFunctionTest extends TestWithFormulaContext {
         assertThat(models).hasSize(2);
         assertThat(models.get(0).getLiterals()).contains(a);
         assertThat(models.get(0).getLiterals()).contains(a);
+    }
+
+    @Test
+    @LongRunningTag
+    public void testPartialResults() {
+        final Map<Integer, Integer> callLimitToExpectedModels = Map.of(1, 0, 3, 1, 9, 3, 29, 9, 222, 73, 420, 139);
+        final Formula formula = new PigeonHoleGenerator(f).generate(10).negate(f);
+        for (final Map.Entry<Integer, Integer> callLimitAndExpectedModels : callLimitToExpectedModels.entrySet()) {
+            final SatSolver solver = SatSolver.newSolver(f);
+            solver.add(formula);
+            final Integer callLimit = callLimitAndExpectedModels.getKey();
+            final Integer expectedModels = callLimitAndExpectedModels.getValue();
+            final ModelEnumerationFunction me = ModelEnumerationFunction.builder(formula.variables(f)).build();
+            final LngResult<List<Model>> result = me.apply(solver, new CallLimitComputationHandler(callLimit));
+            assertThat(result.isSuccess()).isFalse();
+            assertThat(result.getCancelCause()).isNotNull();
+            assertThat(result.getPartialResult().size()).isEqualTo(expectedModels);
+            assertThatThrownBy(result::getResult).isInstanceOf(IllegalStateException.class);
+        }
+    }
+
+    @Test
+    @LongRunningTag
+    public void testComputationHandlerExitPoints() {
+        final Formula formula = new PigeonHoleGenerator(f).generate(10).negate(f);
+        final SatSolver solver = SatSolver.newSolver(f);
+        solver.add(formula);
+        for (int callLimit = 0; callLimit < 5000; callLimit++) {
+            final ModelEnumerationFunction me = ModelEnumerationFunction.builder(formula.variables(f)).build();
+            final LngResult<List<Model>> result = me.apply(solver, new CallLimitComputationHandler(callLimit));
+            assertThat(result.isSuccess()).isFalse();
+            assertThatThrownBy(result::getResult).isInstanceOf(IllegalStateException.class);
+        }
     }
 
     private static List<Set<Literal>> modelsToSets(final List<Model> models) {

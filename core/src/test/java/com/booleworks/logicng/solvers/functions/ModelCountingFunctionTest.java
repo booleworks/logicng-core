@@ -5,7 +5,9 @@
 package com.booleworks.logicng.solvers.functions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.collections.LngBooleanVector;
 import com.booleworks.logicng.collections.LngIntVector;
@@ -15,6 +17,7 @@ import com.booleworks.logicng.formulas.FormulaContext;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.CallLimitComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
@@ -27,6 +30,7 @@ import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.F
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.LeastCommonVariablesProvider;
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.MostCommonVariablesProvider;
 import com.booleworks.logicng.solvers.functions.modelenumeration.splitprovider.SplitVariableProvider;
+import com.booleworks.logicng.testutils.PigeonHoleGenerator;
 import com.booleworks.logicng.util.FormulaRandomizer;
 import com.booleworks.logicng.util.FormulaRandomizerConfig;
 import org.junit.jupiter.api.BeforeEach;
@@ -187,12 +191,8 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
                 ModelEnumerationConfig.builder().strategy(DefaultModelEnumerationStrategy.builder()
                         .splitVariableProvider(splitProvider).maxNumberOfModels(3).build()).build();
         final SatSolver solver = SatSolver.newSolver(f);
-        final Formula formula = f.parse("A | B | (X & ~X)"); // X will be
-        // simplified out
-        // and become a
-        // don't care
-        // variable unknown
-        // by the solver
+        // X will be simplified out and become a don't care variable unknown by the solver
+        final Formula formula = f.parse("A | B | (X & ~X)");
         solver.add(formula);
         final SortedSet<Variable> variables = new TreeSet<>(f.variables("A", "B", "X"));
         final BigInteger numberOfModels = solver.execute(ModelCountingFunction.builder(variables)
@@ -300,7 +300,7 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
         assertThat(handler.getRollbackCalls()).isEqualTo(1);
 
         collector.addModel(modelFromSolver2, solver, relevantIndices, handler);
-        final List<Model> rollbackModels = collector.rollbackAndReturnModels(solver, handler);
+        final List<Model> rollbackModels = collector.rollbackAndReturnModels(solver, handler).getResult();
         assertThat(rollbackModels).containsExactly(expectedModel2);
         assertThat(collector.getResult()).isEqualTo(result1);
         assertThat(handler.getFoundModels()).isEqualTo(3);
@@ -317,9 +317,23 @@ public class ModelCountingFunctionTest extends TestWithFormulaContext {
 
         collector.rollback(handler);
         assertThat(collector.getResult()).isEqualTo(result2);
-        assertThat(collector.rollbackAndReturnModels(solver, handler)).isEmpty();
+        assertThat(collector.rollbackAndReturnModels(solver, handler).getResult()).isEmpty();
         assertThat(handler.getFoundModels()).isEqualTo(4);
         assertThat(handler.getCommitCalls()).isEqualTo(2);
         assertThat(handler.getRollbackCalls()).isEqualTo(4);
+    }
+
+    @Test
+    @LongRunningTag
+    public void testComputationHandlerExitPoints() {
+        final Formula formula = new PigeonHoleGenerator(f).generate(10).negate(f);
+        final SatSolver solver = SatSolver.newSolver(f);
+        solver.add(formula);
+        for (int callLimit = 0; callLimit < 5000; callLimit++) {
+            final ModelCountingFunction me = ModelCountingFunction.builder(formula.variables(f)).build();
+            final LngResult<BigInteger> result = me.apply(solver, new CallLimitComputationHandler(callLimit));
+            assertThat(result.isSuccess()).isFalse();
+            assertThatThrownBy(result::getResult).isInstanceOf(IllegalStateException.class);
+        }
     }
 }

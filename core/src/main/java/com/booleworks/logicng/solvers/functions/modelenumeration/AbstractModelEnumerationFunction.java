@@ -126,10 +126,14 @@ public abstract class AbstractModelEnumerationFunction<RESULT> implements Solver
                 remainingVars.remove(literal.variable());
             }
 
-            final List<Model> newSplitAssignments = collector.rollbackAndReturnModels(solver, handler);
+            final LngResult<List<Model>> newSplitResult = collector.rollbackAndReturnModels(solver, handler);
+            if (!newSplitResult.isSuccess()) {
+                solver.loadState(state);
+                return newSplitResult.getCancelCause();
+            }
             final SortedSet<Variable> recursiveSplitVars =
                     strategy.splitVarsForRecursionDepth(remainingVars, solver, recursionDepth + 1);
-            for (final Model newSplitAssignment : newSplitAssignments) {
+            for (final Model newSplitAssignment : newSplitResult.getPartialResult()) {
                 final SortedSet<Literal> recursiveSplitModel = new TreeSet<>(newSplitAssignment.getLiterals());
                 recursiveSplitModel.addAll(splitModel);
                 enumerateRecursive(collector, solver, recursiveSplitModel, enumerationVars, recursiveSplitVars,

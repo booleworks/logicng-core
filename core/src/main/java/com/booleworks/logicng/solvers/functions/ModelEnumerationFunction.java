@@ -17,6 +17,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
 import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.solvers.SatSolver;
@@ -174,10 +175,10 @@ public class ModelEnumerationFunction extends AbstractModelEnumerationFunction<L
         }
 
         @Override
-        public List<Model> rollbackAndReturnModels(final SatSolver solver, final ComputationHandler handler) {
+        public LngResult<List<Model>> rollbackAndReturnModels(final SatSolver solver, final ComputationHandler handler) {
             final List<Model> modelsToReturn = uncommittedModels.stream().map(Model::new).collect(Collectors.toList());
-            rollback(handler);
-            return modelsToReturn;
+            final LngEvent cancelCause = rollback(handler);
+            return cancelCause == null ? LngResult.of(modelsToReturn) : LngResult.canceled(cancelCause);
         }
 
         @Override

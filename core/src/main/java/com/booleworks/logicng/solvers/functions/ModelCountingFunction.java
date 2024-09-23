@@ -14,6 +14,7 @@ import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
 import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.solvers.SatSolver;
@@ -139,14 +140,14 @@ public class ModelCountingFunction extends AbstractModelEnumerationFunction<BigI
         }
 
         @Override
-        public List<Model> rollbackAndReturnModels(final SatSolver solver, final ComputationHandler handler) {
+        public LngResult<List<Model>> rollbackAndReturnModels(final SatSolver solver, final ComputationHandler handler) {
             final List<Model> modelsToReturn = new ArrayList<>(uncommittedModels.size());
             for (int i = 0; i < uncommittedModels.size(); i++) {
                 modelsToReturn.add(new Model(solver.getUnderlyingSolver().convertInternalModel(uncommittedModels.get(i),
                         uncommittedIndices.get(i))));
             }
-            rollback(handler);
-            return modelsToReturn;
+            final LngEvent cancelCause = rollback(handler);
+            return cancelCause == null ? LngResult.of(modelsToReturn) : LngResult.canceled(cancelCause);
         }
 
         @Override
