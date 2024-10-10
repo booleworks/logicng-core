@@ -18,6 +18,7 @@
     <module>core</module>
     <module>parser</module>
     <module>serialization</module>
+    <module>csp</module>
   </modules>
 
   <licenses>
