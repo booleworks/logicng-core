@@ -107,6 +107,10 @@
           <useSystemClassLoader>false</useSystemClassLoader>
           <trimStackTrace>false</trimStackTrace>
           <argLine>-Xmx2g</argLine>
+          <properties>
+            <!-- Only execute standard unit tests without tag -->
+            <groups>none()</groups>
+          </properties>
         </configuration>
       </plugin>
     </plugins>
