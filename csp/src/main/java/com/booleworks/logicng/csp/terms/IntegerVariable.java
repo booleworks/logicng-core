@@ -158,7 +158,7 @@ public final class IntegerVariable extends Term implements IntegerHolder {
     public String toString() {
         final String s = "\"" + name + "\"";
         if (aux) {
-            return s + ":[" + domain.lb() + "," + domain.ub() + "]";
+            return s + ":" + domain;
         } else {
             return s;
         }

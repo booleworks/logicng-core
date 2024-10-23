@@ -175,6 +175,11 @@ class IntegerRangeDomain extends IntegerDomain {
         return ub == that.ub && lb == that.lb;
     }
 
+    @Override
+    public String toString() {
+        return "[" + lb + "," + ub + "]";
+    }
+
     /**
      * Iterator for a range domain
      */

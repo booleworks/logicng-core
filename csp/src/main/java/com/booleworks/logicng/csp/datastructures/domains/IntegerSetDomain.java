@@ -333,5 +333,17 @@ class IntegerSetDomain extends IntegerDomain {
     public int hashCode() {
         return values != null ? values.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder b = new StringBuilder();
+        b.append('{');
+        for (final int v : values) {
+            b.append(v);
+            b.append(',');
+        }
+        b.setCharAt(b.length() - 1, '}');
+        return b.toString();
+    }
 }
 
