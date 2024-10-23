@@ -35,6 +35,12 @@ public class CspDecomposition {
     private static void decomposeRecursive(final Formula formula, final CspFactory cf,
                                            final Set<CspPredicate.Decomposition> decompositions) {
         switch (formula.getType()) {
+            case FALSE:
+                decompositions.add(CspPredicate.Decomposition.emptyClause());
+                break;
+            case TRUE:
+                decompositions.add(CspPredicate.Decomposition.empty());
+                break;
             case AND:
                 for (final Formula op : formula) {
                     decomposeRecursive(op, cf, decompositions);

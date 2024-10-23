@@ -99,6 +99,7 @@ public class AllDifferentPredicateTest extends ParameterizedCspTest {
         final IntegerVariable b = cf.variable("b", 0, 2);
         final IntegerVariable c = cf.variable("c", 0, 2);
         final IntegerVariable d = cf.variable("d", 0, 2);
+        final CspPredicate.Decomposition pred0 = cf.allDifferent(List.of()).decompose(cf);
         final CspPredicate.Decomposition pred1 = cf.allDifferent(List.of(cf.zero(), cf.one(), a)).decompose(cf);
         final CspPredicate.Decomposition pred2 = cf.allDifferent(List.of(a, b, c)).decompose(cf);
         final CspPredicate.Decomposition pred3 = cf.allDifferent(List.of(a, b, c, d)).decompose(cf);
@@ -122,6 +123,7 @@ public class AllDifferentPredicateTest extends ParameterizedCspTest {
         coefsCD.put(c, 1);
         coefsCD.put(d, -1);
 
+        assertThat(pred0.getClauses()).isEmpty();
         assertThat(pred1.getClauses()).hasSize(3);
         assertThat(pred1.getClauses()).containsExactlyInAnyOrder(
                 new IntegerClause(new LinearLiteral(new LinearExpression(-1, a, 1), LinearLiteral.Operator.NE)),

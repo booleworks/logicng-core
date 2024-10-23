@@ -62,22 +62,24 @@ public class AllDifferentPredicate extends CspPredicate {
                 decomps.add(cf.ne(terms.get(i), terms.get(j)).decompose(cf));
             }
         }
-        int lb = Integer.MAX_VALUE;
-        int ub = Integer.MIN_VALUE;
-        for (final Term term : terms) {
-            final Term.Decomposition decompositionResult = term.decompose(cf);
-            final IntegerDomain d = decompositionResult.getLinearExpression().getDomain();
-            lb = Math.min(lb, d.lb());
-            ub = Math.max(ub, d.ub());
+        if (!decomps.isEmpty()) {
+            int lb = Integer.MAX_VALUE;
+            int ub = Integer.MIN_VALUE;
+            for (final Term term : terms) {
+                final Term.Decomposition decompositionResult = term.decompose(cf);
+                final IntegerDomain d = decompositionResult.getLinearExpression().getDomain();
+                lb = Math.min(lb, d.lb());
+                ub = Math.max(ub, d.ub());
+            }
+            final Set<CspPredicate> xs1 = new LinkedHashSet<>();
+            final Set<CspPredicate> xs2 = new LinkedHashSet<>();
+            for (int i = 0; i < terms.size(); i++) {
+                xs1.add(cf.ge(terms.get(i), cf.constant(lb + terms.size() - 1)));
+                xs2.add(cf.le(terms.get(i), cf.constant(ub - terms.size() + 1)));
+            }
+            decomps.add(cf.decompose(f.or(xs1)));
+            decomps.add(cf.decompose(f.or(xs2)));
         }
-        final Set<CspPredicate> xs1 = new LinkedHashSet<>();
-        final Set<CspPredicate> xs2 = new LinkedHashSet<>();
-        for (int i = 0; i < terms.size(); i++) {
-            xs1.add(cf.ge(terms.get(i), cf.constant(lb + terms.size() - 1)));
-            xs2.add(cf.le(terms.get(i), cf.constant(ub - terms.size() + 1)));
-        }
-        decomps.add(cf.decompose(f.or(xs1)));
-        decomps.add(cf.decompose(f.or(xs2)));
         return Decomposition.merge(decomps);
     }
 
