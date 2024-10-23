@@ -1,0 +1,438 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
+//noinspection UnreachableCode
+options {
+    STATIC = false;
+}
+
+PARSER_BEGIN(CspFormulaParser)
+package com.booleworks.logicng.csp.io.javacc;
+
+import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.formulas.*;
+import com.booleworks.logicng.csp.terms.*;
+import com.booleworks.logicng.csp.predicates.*;
+import com.booleworks.logicng.csp.datastructures.domains.*;
+import com.booleworks.logicng.util.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.TreeSet;
+
+public class CspFormulaParser {
+
+    private CspFactory cf;
+    private FormulaFactory f;
+
+    public void setFactory(final CspFactory cf) {
+        this.cf = cf;
+        this.f = cf.getFormulaFactory();
+    }
+
+    public CspFactory getFactory() {
+        return this.cf;
+    }
+}
+
+PARSER_END(CspFormulaParser)
+
+SKIP : { " " | "\t" | "\n" | "\r" }
+
+TOKEN :
+{
+    <NUMBER : (["-"])? (["0"-"9"])+ >
+  | <NEGATIVE_IDENTIFIER: "~"(["A"-"Z", "a"-"z", "0"-"9", "_", "@", "#"])+>
+  | <IDENTIFIER : (["A"-"Z", "a"-"z", "0"-"9", "_", "@", "#"])+ >
+  | <DELIMITER: ",">
+  | <MUL:     "*">
+  | <DIV:     "/">
+  | <MOD:     "%">
+  | <MINUS:   "-">
+  | <ADD:     "+">
+  | <LBR:     "(">
+  | <RBR:     ")">
+  | <LSQBR:   "[">
+  | <RSQBR:   "]">
+  | <LCBR:    "{">
+  | <RCBR:    "}">
+  | <IMPL:    "=>">
+  | <EQUIV:  "<=>">
+  | <EQ:      "=">
+  | <NE:      "!=">
+  | <LE:      "<=">
+  | <LT:      "<">
+  | <GE:      ">=">
+  | <GT:      ">">
+  | <NOT:     "~">
+  | <AND:     "&">
+  | <OR:      "|">
+  | <TRUE:    "$true">
+  | <FALSE:   "$false">
+}
+
+Pair<IntegerVariable, Formula> declaration_or_formula() : {
+        IntegerVariable v = null;
+        Formula formula = null;
+}
+{
+    (LOOKAHEAD(2) v = declaration() <EOF>
+    | formula = formula()) {
+    return new Pair<>(v, formula);
+    }
+}
+
+IntegerVariable declaration() : {
+    IntegerDomain d;
+    Token a, b;
+}
+{
+    a = <IDENTIFIER> { if(!a.image.equals("int")) throw new ParseException("Expect keyword \"int\""); } b = <IDENTIFIER> (
+        (<LCBR> d = setDomain() <RCBR>)
+        | (<LSQBR> d = rangeDomain() <RSQBR> )
+    ) { return cf.variable(b.image, d); }
+}
+
+IntegerDomain setDomain() : {
+    int a, b;
+    TreeSet<Integer> vs = new TreeSet<>();
+}
+{
+    a = integer() {vs.add(a);} (<DELIMITER> b = integer() {vs.add(b);})*
+    { return IntegerDomain.of(vs); }
+}
+
+IntegerDomain rangeDomain() : {
+    int lb, ub;
+}
+{
+    lb = integer() <DELIMITER> ub = integer()
+    { return IntegerDomain.of(lb, ub); }
+}
+
+int integer() : { Token c; }
+{
+    c = <NUMBER> { return Integer.parseInt(c.image); }
+}
+
+Formula formula() : { Formula formula; }
+{
+  ( <EOF> { formula = f.verum(); }
+  |  formula = equiv() <EOF>
+  )
+  { return formula;}
+}
+
+Formula equiv() : {
+  Formula left;
+  Formula right = null;
+}
+{
+  left = impl() (<EQUIV> right = equiv() )? { return right == null ? left : f.equivalence(left, right); }
+}
+
+Formula impl() : {
+  Formula left;
+  Formula right = null;
+}
+{
+  left = disj() (<IMPL> right = impl())? { return right == null ? left : f.implication(left, right); }
+}
+
+Formula disj() : {
+  Formula a, b;
+  LinkedHashSet<Formula> conjs = new LinkedHashSet<>();
+}
+{
+  a = conj() { conjs.add(a); } (<OR> b = conj() { conjs.add(b); })* { return f.or(conjs); }
+}
+
+Formula conj() : {
+  Formula a, b;
+  LinkedHashSet<Formula> lits = new LinkedHashSet<>();
+}
+{
+  a = lit() { lits.add(a); } (<AND> b = lit() { lits.add(b); })* { return f.and(lits); }
+}
+
+Formula lit() : { Formula formula, op; }
+{
+   ( <NOT> op = lit() { formula = f.not(op); }
+   | formula = simp()
+   )
+   { return formula; }
+}
+
+Formula simp() : { Formula formula; }
+{
+    ( LOOKAHEAD(2) formula = prefix_predicate()
+    | formula = comparison()
+    | formula = constant_formula()
+    | <LBR> formula = equiv() <RBR>
+    | <LSQBR> formula = infix_predicate() <RSQBR>
+    )
+    { return formula; }
+}
+
+Formula comparison() : {
+  Formula formula;
+  Pair<List<Literal>, List<Integer>> e;
+  CType c;
+  Token t;
+}
+{
+  ( LOOKAHEAD(2) e = add() c = comperator() t = <NUMBER>  {formula = f.pbc(c, Integer.parseInt(t.image), e.getFirst(), e.getSecond()); }
+  | t = <NUMBER>  { formula = (t.image.startsWith("~") ? f.literal(t.image.substring(1), false) : f.literal(t.image, true)); }
+  | formula = literal()
+  )
+  { return formula; }
+}
+
+CType comperator() : {}
+{
+    <EQ> { return CType.EQ; }
+    | <LE> { return CType.LE; }
+    | <LT> { return CType.LT; }
+    | <GE> { return CType.GE; }
+    | <GT> { return CType.GT; }
+}
+
+Pair<List<Literal>, List<Integer>> add() : {
+    Pair<Literal, Integer> m1, m2;
+    List<Literal> lits = new ArrayList<>();
+    List<Integer> coeffs = new ArrayList<>();
+    Token a;
+}
+{
+  m1 = mul() { lits.add(m1.getFirst()); coeffs.add(m1.getSecond()); } (a = <ADD> m2 = mul() { lits.add(m2.getFirst()); coeffs.add (a.image.equals("+") ? m2.getSecond() : -m2.getSecond()); })*
+  { return new Pair<>(lits, coeffs); }
+}
+
+Pair<Literal, Integer> mul() : {
+  Token n, l, m;
+  Literal lit;
+  int c = 1;
+}
+{
+  ( LOOKAHEAD(3) n = <NUMBER> <MUL> lit = literal() { c = Integer.parseInt(n.image); }
+  | LOOKAHEAD(3) n = <NUMBER> <MUL> l = <NUMBER>  {lit = f.literal(l.image, true); c = Integer.parseInt(n.image); }
+  | lit = literal()
+  | n = <NUMBER>  { lit = f.literal(n.image, true); }
+  )
+  { return new Pair<>(lit, c); }
+}
+
+Literal literal() : {
+    Token l;
+}
+{
+    l = <IDENTIFIER> { return f.literal(l.image, true); }
+    | l = <NEGATIVE_IDENTIFIER> {return f.literal(l.image.substring(1), false); }
+}
+
+Formula constant_formula() : {}
+{
+  <TRUE>  { return f.verum(); }
+  | <FALSE> { return f.falsum(); }
+}
+
+
+CspPredicate predicate() throws ParseException : { CspPredicate predicate; }
+{
+  (LOOKAHEAD(2) predicate = infix_predicate() | predicate = prefix_predicate()) <EOF>
+  { return predicate;}
+}
+
+CspPredicate prefix_predicate() throws ParseException : {
+    CspPredicate predicate;
+    List<Term> args = null;
+    CspPredicate.Type type;
+}
+{
+    type = prefixPredicateType() <LSQBR> (args = termList())? <RSQBR> {
+        if(args == null) {
+            args = new ArrayList<>();
+        }
+        switch(type) {
+            case ALLDIFFERENT:
+                return cf.allDifferent(args);
+            case LE:
+                if(args.size() != 2) throw new ParseException("\"LE\" expects 2 arguments, got " + args.size());
+                return cf.le(args.get(0), args.get(1));
+            case LT:
+                if(args.size() != 2) throw new ParseException("\"LT\" expects 2 arguments, got " + args.size());
+                return cf.lt(args.get(0), args.get(1));
+            case GE:
+                if(args.size() != 2) throw new ParseException("\"GE\" expects 2 arguments, got " + args.size());
+                return cf.ge(args.get(0), args.get(1));
+            case GT:
+                if(args.size() != 2) throw new ParseException("\"GT\" expects 2 arguments, got " + args.size());
+                return cf.gt(args.get(0), args.get(1));
+            case EQ:
+                if(args.size() != 2) throw new ParseException("\"EQ\" expects 2 arguments, got " + args.size());
+                return cf.eq(args.get(0), args.get(1));
+            case NE:
+                if(args.size() != 2) throw new ParseException("\"NE\" expects 2 arguments, got " + args.size());
+                return cf.ne(args.get(0), args.get(1));
+            default: throw new ParseException("Unsupported predicate: " + type);
+        }
+    }
+}
+
+CspPredicate infix_predicate() throws ParseException : {
+  Term left;
+  Term right;
+  CspPredicate.Type type;
+}
+{
+  left = term() type = predicateTypeBin() right = term() {
+  switch (type) {
+      case EQ: return cf.eq(left, right);
+      case NE: return cf.ne(left, right);
+      case LE: return cf.le(left, right);
+      case LT: return cf.lt(left, right);
+      case GE: return cf.ge(left, right);
+      case GT: return cf.gt(left, right);
+      default: throw new ParseException("Unsupported predicate: " + type);
+  }
+}
+}
+
+CspPredicate.Type predicateTypeBin() : {}
+{
+    <EQ> {return CspPredicate.Type.EQ; }
+    | <NE> {return CspPredicate.Type.NE; }
+    | <LE> {return CspPredicate.Type.LE; }
+    | <LT> {return CspPredicate.Type.LT; }
+    | <GE> {return CspPredicate.Type.GE; }
+    | <GT> {return CspPredicate.Type.GT; }
+}
+
+CspPredicate.Type prefixPredicateType() : {
+    Token t;
+}
+{
+    t = <IDENTIFIER> {
+        switch(t.image) {
+            case "ALLDIFFERENT": return CspPredicate.Type.ALLDIFFERENT;
+            case "LE": return CspPredicate.Type.LE;
+            case "LT": return CspPredicate.Type.LT;
+            case "GE": return CspPredicate.Type.GE;
+            case "GT": return CspPredicate.Type.GT;
+            case "EQ": return CspPredicate.Type.EQ;
+            case "NE": return CspPredicate.Type.NE;
+            default: throw new ParseException("Unsupported predicate: " + t.image);
+        }
+    }
+}
+
+Term term() throws ParseException : {
+  Term a;
+  Token minus = null;
+}
+{
+    (minus = <MINUS>)? (
+      a = constant()
+      | LOOKAHEAD(2) a = function()
+      | LOOKAHEAD(2) a = intVar()
+      | <LBR> a = inlineList() <RBR>
+    ) { return minus == null ? a : cf.minus(a); }
+}
+
+Term function() throws ParseException : {
+  List<Term> args;
+  Term.Type funcType;
+}
+{
+    funcType = functionType() <LBR> args = termList() <RBR> {
+      switch(funcType) {
+        case MIN:
+            if(args.size() != 2) throw new ParseException("\"min\" expects 2 arguments, got " + args.size());
+            return cf.min(args.get(0), args.get(1));
+        case MAX:
+            if(args.size() != 2) throw new ParseException("\"max\" expects 2 arguments, got " + args.size());
+            return cf.max(args.get(0), args.get(1));
+        case ABS:
+            if(args.size() != 1) throw new ParseException("\"abs\" expects 1 argument, got " + args.size());
+            return cf.abs(args.get(0));
+        case ADD:
+            return cf.add(args);
+        case SUB:
+            if(args.size() != 2) throw new ParseException("\"sub\" expects 2 arguments, got " + args.size());
+            return cf.sub(args.get(0), args.get(1));
+        case MUL:
+            if(args.size() != 2) throw new ParseException("\"mul\" expects 2 arguments, got " + args.size());
+            return cf.mul(args.get(0), args.get(1));
+        case DIV:
+            if(args.size() != 2) throw new ParseException("\"div\" expects 2 arguments, got " + args.size());
+            if(!(args.get(1) instanceof IntegerConstant)) throw new ParseException("\"div\" expects second argument to be a constant");
+            return cf.div(args.get(0), (IntegerConstant) args.get(1));
+        case MOD:
+            if(args.size() != 2) throw new ParseException("\"mod\" expects 2 arguments, got " + args.size());
+            if(!(args.get(1) instanceof IntegerConstant)) throw new ParseException("\"mod\" expects second argument to be a constant");
+            return cf.mod(args.get(0), (IntegerConstant) args.get(1));
+        case NEG:
+            if(args.size() != 1) throw new ParseException("\"neg\" expects 1 argument, got " + args.size());
+            return cf.minus(args.get(0));
+        default:
+            throw new ParseException("Unsupported function type " + funcType);
+      }
+    }
+}
+
+Term.Type functionType() throws ParseException : {Token id;} {
+    id = <IDENTIFIER> { switch(id.image) {
+        case "min": return Term.Type.MIN;
+        case "max": return Term.Type.MAX;
+        case "abs": return Term.Type.ABS;
+        case "add": return Term.Type.ADD;
+        case "sub": return Term.Type.SUB;
+        case "mul": return Term.Type.MUL;
+        case "div": return Term.Type.DIV;
+        case "mod": return Term.Type.MOD;
+        case "neg": return Term.Type.NEG;
+        default: throw new ParseException("\"" + id.image + "\" is not a function");
+        }
+    }
+}
+
+Term inlineList() throws ParseException : {
+  Term a, b, res = null;
+  IntegerConstant c;
+  List<Term> terms = new ArrayList<>();
+}
+{
+    a = term() { terms.add(a); } (
+        (<ADD> b = term() { terms.add(b); })+  { res = cf.add(terms); }
+        | <MINUS> b = term() { res = cf.sub(a, b); }
+        | <MUL> b = term() { res = cf.mul(a, b); }
+        | <DIV> c = constant() { res = cf.div(a, c); }
+        | <MOD> c = constant() { res = cf.mod(a, c); }
+    )? {return res == null ? a : res; }
+}
+
+List<Term> termList() : {
+    Term a, b;
+    List<Term> terms = new ArrayList<>();
+}
+{
+    a = term() {terms.add(a);} (<DELIMITER> b = term() {terms.add(b);})* { return terms; }
+}
+
+IntegerConstant constant() : { Token c; }
+{
+    c = <NUMBER> { return cf.constant(Integer.parseInt(c.image)); }
+}
+
+IntegerVariable intVar() : {Token v; IntegerVariable va; } {
+    v = <IDENTIFIER> {
+        va = cf.getVariable(v.image);
+        if(va == null) {
+            throw new ParseException("Undefined variable: " + v.image);
+        } else {
+            return va;
+        }
+    }
+}
+

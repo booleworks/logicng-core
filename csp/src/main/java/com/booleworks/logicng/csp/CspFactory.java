@@ -13,6 +13,7 @@ import com.booleworks.logicng.csp.encodings.OrderEncoding;
 import com.booleworks.logicng.csp.encodings.OrderEncodingContext;
 import com.booleworks.logicng.csp.functions.CspDecomposition;
 import com.booleworks.logicng.csp.functions.IntegerVariablesFunction;
+import com.booleworks.logicng.csp.io.parsers.CspParser;
 import com.booleworks.logicng.csp.predicates.AllDifferentPredicate;
 import com.booleworks.logicng.csp.predicates.ComparisonPredicate;
 import com.booleworks.logicng.csp.predicates.CspPredicate;
@@ -33,6 +34,7 @@ import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.Arrays;
@@ -77,6 +79,7 @@ public class CspFactory {
     private final Map<Pair<Term, Term>, ComparisonPredicate> gtPredicates;
     private final Map<LinkedHashSet<Term>, AllDifferentPredicate> allDifferentPredicates;
     private final Map<String, Integer> auxVarCounters;
+    private final CspParser parser;
 
     /**
      * Constructs a new factory for CSP related constructs. It uses a {@link FormulaFactory} as basis.
@@ -107,6 +110,7 @@ public class CspFactory {
         this.one = new IntegerConstant(1);
         this.integerConstants.put(0, this.zero);
         this.integerConstants.put(1, this.one);
+        this.parser = new CspParser(this);
     }
 
     /**
@@ -139,6 +143,7 @@ public class CspFactory {
         this.one = new IntegerConstant(1);
         this.integerConstants.put(0, this.zero);
         this.integerConstants.put(1, this.one);
+        this.parser = new CspParser(this);
     }
 
     /**
@@ -214,12 +219,22 @@ public class CspFactory {
             throw new IllegalArgumentException("Cannot create a variable with an empty domain");
         }
         final IntegerVariable existingVar = integerVariables.get(name);
-        if (existingVar != null) {
-            throw new IllegalArgumentException("Variable \"" + name + "\" already exists in this CSP factory");
+        if (existingVar != null && !existingVar.getDomain().equals(domain)) {
+            throw new IllegalArgumentException(
+                    "Variable \"" + name + "\" already exists in this CSP factory with another domain.");
         }
         final IntegerVariable newVariable = new IntegerVariable(name, domain, aux);
         integerVariables.put(name, newVariable);
         return newVariable;
+    }
+
+    /**
+     * Returns the cached variable for a given name. If the variable does not exist {@code null} is returned.
+     * @param name the name of the variable
+     * @return the cached variable for a given name. If the variable does not exist {@code null} is returned.
+     */
+    public IntegerVariable getVariable(final String name) {
+        return integerVariables.get(name);
     }
 
     /**
@@ -899,6 +914,28 @@ public class CspFactory {
                 throw new UnsupportedOperationException(
                         "Unsupported csp encoding algorithm: " + context.getAlgorithm());
         }
+    }
+
+    /**
+     * Parses and constructs a {@link CspPredicate} from a string.
+     * <li>Infix Example: {@code a < b}</li>
+     * <li>Prefix Example: {@code LE[a, b]}</li>
+     * @param input input string
+     * @return the parsed predicate
+     * @throws ParserException if parsing is not successful
+     */
+    public CspPredicate parsePredicate(final String input) throws ParserException {
+        return parser.parsePredicate(input);
+    }
+
+    /**
+     * Parses and constructs a formula with {@link CspPredicate}s from a string.
+     * @param input input string
+     * @return the parsed formula
+     * @throws ParserException if parsing is not successful
+     */
+    public Formula parseFormula(final String input) throws ParserException {
+        return parser.parseFormula(input);
     }
 }
 

@@ -16,6 +16,20 @@
 
   <build>
     <plugins>
+      <!-- Parser Generation  -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>javacc-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>javacc</id>
+            <goals>
+              <goal>javacc</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- Store POM version in application manifest and set Jigsaw module name-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
