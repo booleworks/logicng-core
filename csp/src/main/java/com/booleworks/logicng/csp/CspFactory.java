@@ -917,9 +917,11 @@ public class CspFactory {
     }
 
     /**
-     * Parses and constructs a {@link CspPredicate} from a string.
+     * Parses and constructs a {@code CspPredicate} from a string.
+     * <ul>
      * <li>Infix Example: {@code a < b}</li>
      * <li>Prefix Example: {@code LE[a, b]}</li>
+     * </ul>
      * @param input input string
      * @return the parsed predicate
      * @throws ParserException if parsing is not successful

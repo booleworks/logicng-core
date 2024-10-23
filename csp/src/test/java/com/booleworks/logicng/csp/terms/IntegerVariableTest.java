@@ -1,14 +1,14 @@
 package com.booleworks.logicng.csp.terms;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.ParameterizedCspTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class IntegerVariableTest extends ParameterizedCspTest {
     @ParameterizedTest
@@ -36,7 +36,8 @@ public class IntegerVariableTest extends ParameterizedCspTest {
         assertThat(c.getDomain().isContiguous()).isTrue();
         assertThat(c.getDomain().isEmpty()).isFalse();
 
-        assertThatThrownBy(() -> cf.variable("a", 0, 10)).isInstanceOf(IllegalArgumentException.class);
+        assertThat(cf.variable("a", 0, 10)).isEqualTo(a);
+        assertThatThrownBy(() -> cf.variable("a", 0, 2)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @ParameterizedTest
