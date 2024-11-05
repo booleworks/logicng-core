@@ -156,12 +156,7 @@ public final class IntegerVariable extends Term implements IntegerHolder {
 
     @Override
     public String toString() {
-        final String s = "\"" + name + "\"";
-        if (aux) {
-            return s + ":" + domain;
-        } else {
-            return s;
-        }
+        return name;
     }
 
     /**

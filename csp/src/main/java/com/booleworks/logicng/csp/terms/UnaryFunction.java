@@ -40,6 +40,9 @@ public abstract class UnaryFunction extends Function {
         if (other == this) {
             return true;
         }
+        if (other == null) {
+            return false;
+        }
         if (getClass() == other.getClass()) {
             return Objects.equals(operand, ((UnaryFunction) other).operand);
         }
@@ -53,11 +56,9 @@ public abstract class UnaryFunction extends Function {
 
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(type);
-        builder.append('<');
-        builder.append(operand);
-        builder.append('>');
-        return builder.toString();
+        return Type.toPrefixIdentifier(type)
+                + '('
+                + operand
+                + ')';
     }
 }

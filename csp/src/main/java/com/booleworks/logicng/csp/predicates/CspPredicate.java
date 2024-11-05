@@ -128,7 +128,11 @@ public abstract class CspPredicate implements Predicate {
         /**
          * All different values.
          */
-        ALLDIFFERENT
+        ALLDIFFERENT;
+
+        public static String toPrefixIdentifier(final Type t) {
+            return String.valueOf(t);
+        }
     }
 
     /**

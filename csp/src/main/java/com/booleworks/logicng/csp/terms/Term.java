@@ -146,7 +146,32 @@ public abstract class Term {
         /**
          * Absolute
          */
-        ABS
+        ABS;
+
+        static String toPrefixIdentifier(final Type t) {
+            switch (t) {
+                case NEG:
+                    return "neg";
+                case ADD:
+                    return "add";
+                case SUB:
+                    return "sub";
+                case MUL:
+                    return "mul";
+                case MOD:
+                    return "mod";
+                case DIV:
+                    return "div";
+                case MAX:
+                    return "max";
+                case MIN:
+                    return "min";
+                case ABS:
+                    return "abs";
+                default:
+                    throw new RuntimeException("No a function: " + String.valueOf(t));
+            }
+        }
     }
 
     /**

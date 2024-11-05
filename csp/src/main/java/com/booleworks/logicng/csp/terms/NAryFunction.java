@@ -46,6 +46,9 @@ public abstract class NAryFunction extends Function {
         if (other == this) {
             return true;
         }
+        if (other == null) {
+            return false;
+        }
         if (getClass() == other.getClass()) {
             return Objects.equals(operands, ((NAryFunction) other).operands);
         }
@@ -59,9 +62,9 @@ public abstract class NAryFunction extends Function {
 
     @Override
     public String toString() {
-        return String.valueOf(type) +
-                '<' +
+        return Term.Type.toPrefixIdentifier(type) +
+                '(' +
                 operands.stream().map(Object::toString).collect(Collectors.joining(", ")) +
-                '>';
+                ')';
     }
 }

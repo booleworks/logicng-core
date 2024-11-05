@@ -55,6 +55,9 @@ public abstract class BinaryPredicate extends CspPredicate {
         if (other == this) {
             return true;
         }
+        if (other == null) {
+            return false;
+        }
         if (getClass() == other.getClass()) {
             final BinaryPredicate that = (BinaryPredicate) other;
             return type == that.type && Objects.equals(left, that.left) && Objects.equals(right, that.right);
@@ -69,6 +72,6 @@ public abstract class BinaryPredicate extends CspPredicate {
 
     @Override
     public String toString() {
-        return type + "(" + left + ", " + right + ")";
+        return Type.toPrefixIdentifier(type) + "[" + left + ", " + right + "]";
     }
 }

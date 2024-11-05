@@ -104,6 +104,6 @@ public class AllDifferentPredicate extends CspPredicate {
 
     @Override
     public String toString() {
-        return type + "(" + terms.stream().map(Object::toString).collect(Collectors.joining(", ")) + ")";
+        return type + "[" + terms.stream().map(Object::toString).collect(Collectors.joining(", ")) + "]";
     }
 }

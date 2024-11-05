@@ -73,13 +73,11 @@ public abstract class BinaryFunction extends Function {
 
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(type);
-        builder.append('<');
-        builder.append(left);
-        builder.append(", ");
-        builder.append(right);
-        builder.append('>');
-        return builder.toString();
+        return Term.Type.toPrefixIdentifier(type)
+                + '('
+                + left
+                + ", "
+                + right
+                + ')';
     }
 }
