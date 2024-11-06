@@ -11,10 +11,12 @@ import com.booleworks.logicng.csp.predicates.CspPredicate;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,7 +26,7 @@ public class CompactOrderEncodingTest extends ParameterizedCspTest {
     @ParameterizedTest
     @MethodSource("cspFactories")
     @LongRunningTag
-    public void compareModelsWithOrderLong(final CspFactory cf) {
+    public void compareModelsWithOrderLong(final CspFactory cf) throws ParserException, IOException {
         final IntegerVariable a = cf.variable("a", -10, 2);
         final IntegerVariable b = cf.variable("b", 2, 100);
         final IntegerVariable c = cf.variable("c", -100, -15);

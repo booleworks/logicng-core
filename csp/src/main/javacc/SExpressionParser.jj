@@ -1,0 +1,226 @@
+// SPDX-License-Identifier: Apache-2.0 and MIT
+// Copyright 2023-20xx BooleWorks GmbH
+
+//noinspection UnreachableCode
+options {
+    STATIC = false;
+}
+
+PARSER_BEGIN(SExpressionParser)
+package com.booleworks.logicng.csp.io.javacc;
+
+import com.booleworks.logicng.csp.CspFactory;
+import com.booleworks.logicng.formulas.*;
+import com.booleworks.logicng.csp.terms.*;
+import com.booleworks.logicng.csp.predicates.*;
+import com.booleworks.logicng.util.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SExpressionParser {
+
+    private CspFactory cf;
+    private FormulaFactory f;
+
+    public void setFactory(final CspFactory cf) {
+        this.cf = cf;
+        this.f = cf.getFormulaFactory();
+    }
+
+    public CspFactory getFactory() {
+        return this.cf;
+    }
+}
+
+PARSER_END(SExpressionParser)
+
+SKIP : { " " | "\t" | "\n" | "\r" }
+
+TOKEN :
+{
+  <OP_ADD: "+">
+  | <OP_SUB: "-">
+  | <OP_MUL: "*">
+  | <OP_DIV: "/">
+  | <OP_MOD: "%">
+  | <LBR:     "(">
+  | <RBR:     ")">
+  | <OP_OR: "or">
+  | <OP_IMP: "imp">
+  | <OP_IF: "if">
+  | <OP_NE: "!=">
+  | <OP_NOT: "!">
+  | <OP_EQ: "=">
+  | <OP_LE: "<=">
+  | <OP_LT: "<">
+  | <OP_GE: ">=">
+  | <OP_GT: ">">
+  | <KEY_INT: "int">
+  | <KEY_BOOL: "bool">
+  | <OP_ALLDIFFERENT: "alldifferent">
+  | <OP_MIN: "min">
+  | <OP_MAX: "max">
+  | <KEY_OBJECTIVE: "objective">
+  | <NUMBER : (["-"])? (["0"-"9"])+ >
+  | <IDENTIFIER : (["A"-"Z", "a"-"z", "0"-"9", "_", "@", "#"])+ >
+}
+
+List<Pair<Pair<Variable, IntegerVariable>, Formula>> lines() : {
+    List<Pair<Pair<Variable, IntegerVariable>, Formula>> ls = new ArrayList<>();
+    Pair<Pair<Variable, IntegerVariable>, Formula> l;
+} {
+    (l = line() { ls.add(l); })* {return ls;}
+}
+
+Pair<Pair<Variable, IntegerVariable>, Formula> line() : {
+    Variable v = null;
+    IntegerVariable iv = null;
+    Formula formula = null;
+} {
+    (LOOKAHEAD(2) v = declaration_bool()
+    | LOOKAHEAD(2) iv = declaration_int()
+    | LOOKAHEAD(2) objective()
+    | LOOKAHEAD(2) formula = predicate()
+    | formula = bool_app())
+    { return new Pair<>(new Pair<>(v, iv), formula); }
+}
+
+IntegerVariable declaration_int() : {
+    int lb, ub;
+    Token a;
+}
+{
+    <LBR> <KEY_INT> a = <IDENTIFIER> lb = number() ub = number() <RBR> {
+        return cf.variable(a.image, lb, ub);
+    }
+}
+
+Variable declaration_bool() : {Token a;} {
+    <LBR> <KEY_BOOL> a = <IDENTIFIER> <RBR> {return f.variable(a.image); }
+}
+
+Pair<String, IntegerVariable> objective() : {
+    IntegerVariable v;
+    Token t;
+}
+{
+    <LBR> <KEY_OBJECTIVE> t = <IDENTIFIER> v = intVar() <RBR> {
+        return new Pair<>(t.image, v);
+    }
+}
+
+Formula bool_app() : {
+    String ty;
+    Formula formula;
+    List<Formula> fs = new ArrayList<>();
+} {
+    <LBR> ty = bool_ty() (formula = bool_f() {fs.add(formula);})* <RBR> {
+        switch(ty) {
+            case "imp":
+                assert fs.size() == 2;
+                return f.implication(fs.get(0), fs.get(1));
+            case "or":
+                return f.or(fs);
+        }
+    }
+}
+
+String bool_ty() : { Token t; } {
+  (t = <OP_IMP> | t = <OP_OR>)
+  { return t.image; }
+}
+
+
+Formula bool_f() : {
+    Token t;
+    Formula formula;
+} {
+    t = <IDENTIFIER> { return f.variable(t.image);}
+    | LOOKAHEAD(2) formula = bool_app() {return formula;}
+    | formula = predicate() {return formula; }
+}
+
+Formula predicate() : {
+    String ty;
+    Term term;
+    List<Term> ts = new ArrayList<>();
+} {
+    <LBR> ty = pred_op() (term = term() {ts.add(term);})* <RBR> {
+        switch(ty) {
+            case "alldifferent":
+                return cf.allDifferent(ts);
+            case "!=":
+                return cf.ne(ts.get(0), ts.get(1));
+            case "=":
+                return cf.eq(ts.get(0), ts.get(1));
+            case "<=":
+                return cf.le(ts.get(0), ts.get(1));
+            case "<":
+                return cf.lt(ts.get(0), ts.get(1));
+            case ">=":
+                return cf.ge(ts.get(0), ts.get(1));
+            case ">":
+                return cf.gt(ts.get(0), ts.get(1));
+        }
+        return null;
+    }
+}
+
+String pred_op() : { Token t; } {
+  (t = <OP_ALLDIFFERENT> | t = <OP_NE> | t = <OP_EQ> | t = <OP_LE> | t = <OP_LT> | t = <OP_GE> | t = <OP_GT>)
+  { return t.image; }
+}
+
+Term term(): {
+    int val;
+    Term t;
+} {
+    val = number() {return cf.constant(val);}
+    | t = intVar() {return t;}
+    | t = term_app() {return t;}
+}
+
+Term term_app(): {
+    String ty;
+    Term term;
+    List<Term> terms = new ArrayList<>();
+} {
+    <LBR> ty = func_op() (term = term() {terms.add(term);})* <RBR> {
+        switch(ty) {
+            case "+":
+                return cf.add(terms);
+            case "-":
+                return cf.sub(terms.get(0), terms.get(1));
+            case "*":
+                return cf.mul(terms.get(0), terms.get(1));
+            case "/":
+                return cf.div(terms.get(0), (IntegerConstant) terms.get(1));
+            case "%":
+                return cf.mod(terms.get(0), (IntegerConstant) terms.get(1));
+            case "min":
+                return cf.min(terms.get(0), terms.get(1));
+            case "max":
+                return cf.max(terms.get(0), terms.get(1));
+        }
+    }
+}
+
+String func_op() : { Token t; } {
+  (t = <OP_ADD> | t = <OP_SUB> | t = <OP_MUL> | t = <OP_DIV> | t = <OP_MOD> | t = <OP_MIN> | t = <OP_MAX>)
+  { return t.image; }
+}
+
+IntegerVariable intVar() : {
+    Token t;
+}
+{
+    t = <IDENTIFIER> {return cf.getVariable(t.image);}
+}
+
+int number(): {
+    Token t;
+}
+{
+    t = <NUMBER> {return Integer.parseInt(t.image);}
+}

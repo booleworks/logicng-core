@@ -1,0 +1,10 @@
+int min [0,10]
+int a [0,10]
+A & B
+int b {0,1,2,10}
+A & [min(a, b) <= min]
+int max [0, 2]
+A & [min(a,b) < min] & [max (a,b) <= (a + max + b)]
+[max (a,b) <= add(a, max, b)]
+A & ALLDIFFERENT[a, b, max, min] & LE
+LE[a, b] & B

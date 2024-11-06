@@ -250,10 +250,7 @@ CspPredicate prefix_predicate() throws ParseException : {
     CspPredicate.Type type;
 }
 {
-    type = prefixPredicateType() <LSQBR> (args = termList())? <RSQBR> {
-        if(args == null) {
-            args = new ArrayList<>();
-        }
+    type = prefixPredicateType() <LSQBR> args = termList() <RSQBR> {
         switch(type) {
             case ALLDIFFERENT:
                 return cf.allDifferent(args);
@@ -328,15 +325,64 @@ CspPredicate.Type prefixPredicateType() : {
 }
 
 Term term() throws ParseException : {
-  Term a;
-  Token minus = null;
+    Token t1, t2, t3;
+    Formula cond;
+    Term t;
+}
+{
+    t = term2() {return t;}
+}
+
+Term term2() throws ParseException : {
+    List<Term> ts = new ArrayList();
+    Term t;
+    int i;
+} {
+    t = term1() { ts.add(t); } (
+        (<ADD> t = term1() { ts.add(t); })+ { t = cf.add(ts); }
+        | (<MINUS> t = term1() { ts.add(t); })+ {
+            t = ts.get(0);
+            for(i = 1; i < ts.size(); ++i)
+                t = cf.sub(t, ts.get(i));
+        }
+    )? { return t; }
+}
+
+Term term1() throws ParseException : {
+    List<Term> ts = new ArrayList();
+    Term t;
+    int i;
+}
+{
+    t = term0() { ts.add(t); } (
+        (<MUL> t = term0() { ts.add(t); })+ {
+            t = ts.get(0);
+            for(i = 1; i < ts.size(); ++i)
+                t = cf.mul(t, ts.get(i));
+         }
+        | (<DIV> t = constant() { ts.add(t); })+ {
+            t = ts.get(0);
+            for(i = 1; i < ts.size(); ++i)
+                t = cf.div(t, (IntegerConstant) ts.get(i));
+        }
+        | (<MOD> t = constant() { ts.add(t); })+ {
+            t = ts.get(0);
+            for(i = 1; i < ts.size(); ++i)
+                t = cf.mod(t, (IntegerConstant) ts.get(i));
+        }
+    )? { return t; }
+}
+
+Term term0() throws ParseException : {
+    Token minus = null;
+    Term a;
 }
 {
     (minus = <MINUS>)? (
-      a = constant()
-      | LOOKAHEAD(2) a = function()
-      | LOOKAHEAD(2) a = intVar()
-      | <LBR> a = inlineList() <RBR>
+        a = constant()
+        | LOOKAHEAD(2) a = function()
+        | LOOKAHEAD(2) a = intVar()
+        | <LBR> a = term() <RBR>
     ) { return minus == null ? a : cf.minus(a); }
 }
 
@@ -397,27 +443,12 @@ Term.Type functionType() throws ParseException : {Token id;} {
     }
 }
 
-Term inlineList() throws ParseException : {
-  Term a, b, res = null;
-  IntegerConstant c;
-  List<Term> terms = new ArrayList<>();
-}
-{
-    a = term() { terms.add(a); } (
-        (<ADD> b = term() { terms.add(b); })+  { res = cf.add(terms); }
-        | <MINUS> b = term() { res = cf.sub(a, b); }
-        | <MUL> b = term() { res = cf.mul(a, b); }
-        | <DIV> c = constant() { res = cf.div(a, c); }
-        | <MOD> c = constant() { res = cf.mod(a, c); }
-    )? {return res == null ? a : res; }
-}
-
 List<Term> termList() : {
     Term a, b;
     List<Term> terms = new ArrayList<>();
 }
 {
-    a = term() {terms.add(a);} (<DELIMITER> b = term() {terms.add(b);})* { return terms; }
+    (a = term() {terms.add(a);} (<DELIMITER> b = term() {terms.add(b);})*)? { return terms; }
 }
 
 IntegerConstant constant() : { Token c; }
