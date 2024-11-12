@@ -269,7 +269,7 @@ public class CompactCSPReduction {
 
                 // -s(i+1) or (z(i) + B*c(i+1) <= x(i) + y(i) + c(i)) (when 0 <= i < m - 1)
                 for (int i = 0; i < m - 1; i++) {
-                    ret.add(new IntegerClause(s[i + 1].negate(cf.getFormulaFactory()), le(lhs[i], rhs[i])));
+                    ret.add(new IntegerClause(s[i + 1].negate(cf.getFormulaFactory()), ge(lhs[i], rhs[i])));
                 }
                 // z(i) >= x(i) + y(i) + c(i) (when i == m - 1)
                 ret.add(new IntegerClause(ge(lhs[m - 1], rhs[m - 1])));
