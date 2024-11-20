@@ -6,8 +6,6 @@ import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * Represents a relation with a linear sum:
@@ -104,7 +102,7 @@ public class LinearLiteral implements ArithmeticLiteral {
 
     @Override
     public LinearLiteral substitute(final IntegerVariableSubstitution assignment) {
-        final SortedMap<IntegerVariable, Integer> newCoefs = new TreeMap<>();
+        final LinearExpression.Builder le = new LinearExpression.Builder(sum.getB());
         int replaced = 0;
         for (final IntegerVariable key : sum.getCoef().keySet()) {
             if (assignment.containsKey(key)) {
@@ -113,13 +111,13 @@ public class LinearLiteral implements ArithmeticLiteral {
                     return null;
                 }
                 ++replaced;
-                newCoefs.put(assignment.get(key), sum.getCoef().get(key));
+                le.setA(sum.getCoef().get(key), assignment.get(key));
             } else {
-                newCoefs.put(key, sum.getCoef().get(key));
+                le.setA(sum.getCoef().get(key), key);
             }
         }
         if (replaced > 0) {
-            return new LinearLiteral(new LinearExpression(newCoefs, sum.getB()), op);
+            return new LinearLiteral(le.build(), op);
         } else {
             return this;
         }

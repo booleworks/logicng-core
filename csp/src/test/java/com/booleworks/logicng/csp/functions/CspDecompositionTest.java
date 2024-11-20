@@ -17,8 +17,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -70,24 +68,17 @@ public class CspDecompositionTest extends ParameterizedCspTest {
     }
 
     private static LinearLiteral lt(final int c0, final IntegerVariable a0) {
-        final SortedMap<IntegerVariable, Integer> coefs = new TreeMap<>();
-        coefs.put(a0, c0);
-        return new LinearLiteral(new LinearExpression(coefs, 0), LinearLiteral.Operator.EQ);
+        return new LinearLiteral(new LinearExpression(c0, a0, 0), LinearLiteral.Operator.EQ);
     }
 
     private static LinearLiteral lt(final int c0, final IntegerVariable a0, final int c1, final IntegerVariable a1) {
-        final SortedMap<IntegerVariable, Integer> coefs = new TreeMap<>();
-        coefs.put(a0, c0);
-        coefs.put(a1, c1);
-        return new LinearLiteral(new LinearExpression(coefs, 0), LinearLiteral.Operator.EQ);
+        final LinearExpression le = new LinearExpression.Builder(0).setA(c0, a0).setA(c1, a1).build();
+        return new LinearLiteral(le, LinearLiteral.Operator.EQ);
     }
 
     private static LinearLiteral lt(final int c0, final IntegerVariable a0, final int c1, final IntegerVariable a1,
                                     final int c2, final IntegerVariable a2) {
-        final SortedMap<IntegerVariable, Integer> coefs = new TreeMap<>();
-        coefs.put(a0, c0);
-        coefs.put(a1, c1);
-        coefs.put(a2, c2);
-        return new LinearLiteral(new LinearExpression(coefs, 0), LinearLiteral.Operator.EQ);
+        final LinearExpression le = new LinearExpression.Builder(0).setA(c0, a0).setA(c1, a1).setA(c2, a2).build();
+        return new LinearLiteral(le, LinearLiteral.Operator.EQ);
     }
 }

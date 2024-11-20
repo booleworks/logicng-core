@@ -122,7 +122,7 @@ public class CompactOrderReduction {
                         for (final Map.Entry<IntegerVariable, Integer> es : ls.getCoef().entrySet()) {
                             b += context.getOffset(es.getKey()) * es.getValue();
                         }
-                        final LinearExpression newLs = new LinearExpression(ls.getCoef(), b);
+                        final LinearExpression newLs = new LinearExpression.Builder(ls).setB(b).build();
                         final LinearLiteral newLl = new LinearLiteral(newLs, ll.getOperator());
                         newClause.addArithmeticLiteral(newLl);
                     } else if (lit instanceof ProductLiteral) {

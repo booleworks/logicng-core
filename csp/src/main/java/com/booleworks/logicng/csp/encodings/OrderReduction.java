@@ -17,8 +17,6 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * A class grouping functions for reducing a problem for the order encoding.
@@ -187,20 +185,16 @@ public class OrderReduction {
             final LinearLiteral xgea =
                     new LinearLiteral(new LinearExpression(-1, sv, a + 1), LinearLiteral.Operator.LE);
 
-            final SortedMap<IntegerVariable, Integer> ls1Coefs = new TreeMap<>();
-            ls1Coefs.put(v, -1);
-            ls1Coefs.put(lv, a);
-            final LinearLiteral ls1 = new LinearLiteral(new LinearExpression(ls1Coefs, 0), LinearLiteral.Operator.LE);
+            final LinearExpression le1 = new LinearExpression.Builder(0).setA(-1, v).setA(a, lv).build();
+            final LinearLiteral ls1 = new LinearLiteral(le1, LinearLiteral.Operator.LE);
             final IntegerClause.Builder cls1 = new IntegerClause.Builder();
             cls1.addBooleanLiterals(boolLiterals);
             cls1.addArithmeticLiterals(simpleLiterals);
             cls1.addArithmeticLiterals(ls1, xlea, xgea);
             ret.add(cls1.build());
 
-            final SortedMap<IntegerVariable, Integer> ls2Coefs = new TreeMap<>();
-            ls2Coefs.put(v, 1);
-            ls2Coefs.put(lv, -a);
-            final LinearLiteral ls2 = new LinearLiteral(new LinearExpression(ls2Coefs, 0), LinearLiteral.Operator.LE);
+            final LinearExpression le2 = new LinearExpression.Builder(0).setA(1, v).setA(-a, lv).build();
+            final LinearLiteral ls2 = new LinearLiteral(le2, LinearLiteral.Operator.LE);
             final IntegerClause.Builder cls2 = new IntegerClause.Builder();
             cls2.addBooleanLiterals(boolLiterals);
             cls2.addArithmeticLiterals(simpleLiterals);

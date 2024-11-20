@@ -16,8 +16,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -104,24 +102,12 @@ public class AllDifferentPredicateTest extends ParameterizedCspTest {
         final CspPredicate.Decomposition pred2 = cf.allDifferent(List.of(a, b, c)).decompose(cf);
         final CspPredicate.Decomposition pred3 = cf.allDifferent(List.of(a, b, c, d)).decompose(cf);
 
-        final SortedMap<IntegerVariable, Integer> coefsAB = new TreeMap<>();
-        final SortedMap<IntegerVariable, Integer> coefsAC = new TreeMap<>();
-        final SortedMap<IntegerVariable, Integer> coefsAD = new TreeMap<>();
-        final SortedMap<IntegerVariable, Integer> coefsBC = new TreeMap<>();
-        final SortedMap<IntegerVariable, Integer> coefsBD = new TreeMap<>();
-        final SortedMap<IntegerVariable, Integer> coefsCD = new TreeMap<>();
-        coefsAB.put(a, 1);
-        coefsAB.put(b, -1);
-        coefsAC.put(a, 1);
-        coefsAC.put(c, -1);
-        coefsAD.put(a, 1);
-        coefsAD.put(d, -1);
-        coefsBC.put(b, 1);
-        coefsBC.put(c, -1);
-        coefsBD.put(b, 1);
-        coefsBD.put(d, -1);
-        coefsCD.put(c, 1);
-        coefsCD.put(d, -1);
+        final LinearExpression leAB = new LinearExpression.Builder(0).setA(1, a).setA(-1, b).build();
+        final LinearExpression leAC = new LinearExpression.Builder(0).setA(1, a).setA(-1, c).build();
+        final LinearExpression leAD = new LinearExpression.Builder(0).setA(1, a).setA(-1, d).build();
+        final LinearExpression leBC = new LinearExpression.Builder(0).setA(1, b).setA(-1, c).build();
+        final LinearExpression leBD = new LinearExpression.Builder(0).setA(1, b).setA(-1, d).build();
+        final LinearExpression leCD = new LinearExpression.Builder(0).setA(1, c).setA(-1, d).build();
 
         assertThat(pred0.getClauses()).isEmpty();
         assertThat(pred1.getClauses()).hasSize(3);
@@ -134,9 +120,9 @@ public class AllDifferentPredicateTest extends ParameterizedCspTest {
         assertThat(pred1.getAuxiliaryIntegerVariables()).isEmpty();
         assertThat(pred2.getClauses()).hasSize(5);
         assertThat(pred2.getClauses()).containsExactlyInAnyOrder(
-                new IntegerClause(new LinearLiteral(new LinearExpression(coefsAB, 0), LinearLiteral.Operator.NE)),
-                new IntegerClause(new LinearLiteral(new LinearExpression(coefsAC, 0), LinearLiteral.Operator.NE)),
-                new IntegerClause(new LinearLiteral(new LinearExpression(coefsBC, 0), LinearLiteral.Operator.NE)),
+                new IntegerClause(new LinearLiteral(leAB, LinearLiteral.Operator.NE)),
+                new IntegerClause(new LinearLiteral(leAC, LinearLiteral.Operator.NE)),
+                new IntegerClause(new LinearLiteral(leBC, LinearLiteral.Operator.NE)),
                 new IntegerClause(Collections.emptySet(), Common.setFrom(
                         new LinearLiteral(new LinearExpression(-1, a, 2), LinearLiteral.Operator.LE),
                         new LinearLiteral(new LinearExpression(-1, b, 2), LinearLiteral.Operator.LE),
@@ -152,12 +138,12 @@ public class AllDifferentPredicateTest extends ParameterizedCspTest {
         assertThat(pred3.getClauses()).hasSize(7);
         assertThat(pred3.getClauses()).containsExactlyInAnyOrder(
                 new IntegerClause(),
-                new IntegerClause(new LinearLiteral(new LinearExpression(coefsAB, 0), LinearLiteral.Operator.NE)),
-                new IntegerClause(new LinearLiteral(new LinearExpression(coefsAC, 0), LinearLiteral.Operator.NE)),
-                new IntegerClause(new LinearLiteral(new LinearExpression(coefsAD, 0), LinearLiteral.Operator.NE)),
-                new IntegerClause(new LinearLiteral(new LinearExpression(coefsBC, 0), LinearLiteral.Operator.NE)),
-                new IntegerClause(new LinearLiteral(new LinearExpression(coefsBD, 0), LinearLiteral.Operator.NE)),
-                new IntegerClause(new LinearLiteral(new LinearExpression(coefsCD, 0), LinearLiteral.Operator.NE))
+                new IntegerClause(new LinearLiteral(leAB, LinearLiteral.Operator.NE)),
+                new IntegerClause(new LinearLiteral(leAC, LinearLiteral.Operator.NE)),
+                new IntegerClause(new LinearLiteral(leAD, LinearLiteral.Operator.NE)),
+                new IntegerClause(new LinearLiteral(leBC, LinearLiteral.Operator.NE)),
+                new IntegerClause(new LinearLiteral(leBD, LinearLiteral.Operator.NE)),
+                new IntegerClause(new LinearLiteral(leCD, LinearLiteral.Operator.NE))
         );
         assertThat(pred3.getAuxiliaryBooleanVariables()).isEmpty();
         assertThat(pred3.getAuxiliaryIntegerVariables()).isEmpty();

@@ -10,9 +10,6 @@ import com.booleworks.logicng.csp.terms.Term;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComparisonPredicateTest extends ParameterizedCspTest {
@@ -157,11 +154,9 @@ public class ComparisonPredicateTest extends ParameterizedCspTest {
         assertThat(pred2.getAuxiliaryBooleanVariables()).isEmpty();
         assertThat(pred2.getAuxiliaryIntegerVariables()).isEmpty();
         assertThat(pred3.getClauses()).hasSize(1);
-        final SortedMap<IntegerVariable, Integer> coef3 = new TreeMap<>();
-        coef3.put(a, -1);
-        coef3.put(b, -1);
+        final LinearExpression le3 = new LinearExpression.Builder(19).setA(-1, a).setA(-1, b).build();
         assertThat(pred3.getClauses().iterator().next()).isEqualTo(
-                new IntegerClause(new LinearLiteral(new LinearExpression(coef3, 19), LinearLiteral.Operator.LE)));
+                new IntegerClause(new LinearLiteral(le3, LinearLiteral.Operator.LE)));
         assertThat(pred3.getAuxiliaryBooleanVariables()).isEmpty();
         assertThat(pred3.getAuxiliaryIntegerVariables()).isEmpty();
         assertThat(pred4.getClauses()).isEmpty();
@@ -171,11 +166,9 @@ public class ComparisonPredicateTest extends ParameterizedCspTest {
         assertThat(pred5.getAuxiliaryBooleanVariables()).isEmpty();
         assertThat(pred5.getAuxiliaryIntegerVariables()).isEmpty();
         assertThat(pred6.getClauses()).hasSize(1);
-        final SortedMap<IntegerVariable, Integer> coef6 = new TreeMap<>();
-        coef6.put(a, 1);
-        coef6.put(b, 1);
+        final LinearExpression le6 = new LinearExpression.Builder(-20).setA(1, a).setA(1, b).build();
         assertThat(pred6.getClauses().iterator().next()).isEqualTo(
-                new IntegerClause(new LinearLiteral(new LinearExpression(coef6, -20), LinearLiteral.Operator.NE)));
+                new IntegerClause(new LinearLiteral(le6, LinearLiteral.Operator.NE)));
         assertThat(pred6.getAuxiliaryBooleanVariables()).isEmpty();
         assertThat(pred6.getAuxiliaryIntegerVariables()).isEmpty();
     }

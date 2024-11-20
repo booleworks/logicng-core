@@ -52,17 +52,6 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     /**
-     * Construct a linear expression from a map of variables and coefficients and a constant offset.
-     * @param coef the map of variables and coefficients
-     * @param b    the constant offset
-     */
-    public LinearExpression(final SortedMap<IntegerVariable, Integer> coef, final int b) {
-        this.coef = new TreeMap<>(coef);
-        this.coef.entrySet().removeIf(e -> e.getValue() == 0);
-        this.b = b;
-    }
-
-    /**
      * Copy a linear expression from an existing linear expression.
      * @param e the existing linear expression
      */
@@ -360,15 +349,6 @@ public class LinearExpression implements Comparable<LinearExpression> {
          */
         public Builder(final LinearExpression e) {
             expression = new LinearExpression(e);
-        }
-
-        /**
-         * Construct a builder from a map of variables and coefficients and a constant offset.
-         * @param coef the map of variables and coefficients
-         * @param b    the constant offset
-         */
-        public Builder(final SortedMap<IntegerVariable, Integer> coef, final int b) {
-            expression = new LinearExpression(coef, b);
         }
 
         /**
