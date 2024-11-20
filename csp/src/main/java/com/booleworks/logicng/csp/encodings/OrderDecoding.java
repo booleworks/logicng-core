@@ -12,7 +12,6 @@ import com.booleworks.logicng.formulas.Variable;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 
 /**
  * Class grouping functions for decoding problems encoded with the order encoding.
@@ -122,14 +121,14 @@ public class OrderDecoding {
         final int lb = domain.lb();
         final int ub = domain.ub();
         int value = ub;
-        final Map<Integer, Variable> varMap = context.getVariableMap().get(var);
+        final Variable[] varMap = context.getVariableMap().get(var);
         if (varMap == null) {
             return value;
         }
         int index = 0;
         for (int c = lb; c < ub; c++) {
             if (domain.contains(c)) {
-                final Variable satVar = varMap.get(index);
+                final Variable satVar = varMap[index];
                 if (satVar != null && model.positiveVariables().contains(satVar)) {
                     value = c;
                     break;

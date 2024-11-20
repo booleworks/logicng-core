@@ -50,14 +50,17 @@ public class OrderEncoding {
                                       final EncodingResult result, final CspFactory cf) {
         final FormulaFactory f = cf.getFormulaFactory();
         final IntegerDomain domain = v.getDomain();
+
+        context.allocateVariable(v, domain.size());
+
         final Formula[] clause = new Formula[2];
-        int a0 = domain.lb();
-        for (int a = a0 + 1; a <= domain.ub(); ++a) {
+        Formula last_var = createOrGetCodeLE(v, domain.lb(), context, cf.getFormulaFactory());
+        for (int a = domain.lb() + 1; a <= domain.ub(); ++a) {
             if (domain.contains(a)) {
-                clause[0] = getCodeLE(v, a0, context, result, cf.getFormulaFactory()).negate(f);
-                clause[1] = getCodeLE(v, a, context, result, cf.getFormulaFactory());
+                clause[0] = last_var.negate(f);
+                clause[1] = createOrGetCodeLE(v, a, context, cf.getFormulaFactory());
                 writeClause(clause, result);
-                a0 = a;
+                last_var = clause[1];
             }
         }
     }
@@ -106,7 +109,7 @@ public class OrderEncoding {
         }
         for (final ArithmeticLiteral literal : cl.getArithmeticLiterals()) {
             if (isSimpleLiteral(literal)) {
-                clause[i] = getCode((LinearLiteral) literal, context, result, cf.getFormulaFactory());
+                clause[i] = getCode((LinearLiteral) literal, context, cf.getFormulaFactory());
                 i++;
             } else {
                 lit = (LinearLiteral) literal;
@@ -126,7 +129,7 @@ public class OrderEncoding {
         }
         if (isSimpleLiteral(lit)) {
             clause = expandArray(clause, 1);
-            clause[0] = getCode(lit, context, result, cf.getFormulaFactory());
+            clause[0] = getCode(lit, context, cf.getFormulaFactory());
             writeClause(clause, result);
         } else {
             final LinearExpression ls = lit.getSum();
@@ -144,7 +147,7 @@ public class OrderEncoding {
                                                final CspFactory cf) {
         if (i >= vs.length - 1) {
             final int a = exp.getA(vs[i]);
-            clause[i] = getCodeLE(vs[i], a, -s, context, result, cf.getFormulaFactory());
+            clause[i] = getCodeLE(vs[i], a, -s, context, cf.getFormulaFactory());
             writeClause(clause, result);
         } else {
             int lb0 = s;
@@ -168,10 +171,10 @@ public class OrderEncoding {
                 }
                 for (final Iterator<Integer> it = domain.values(lb, ub); it.hasNext(); ) {
                     final int c = it.next();
-                    clause[i] = getCodeLE(vs[i], c - 1, context, result, cf.getFormulaFactory());
+                    clause[i] = getCodeLE(vs[i], c - 1, context, cf.getFormulaFactory());
                     encodeLinearExpression(exp, vs, i + 1, s + a * c, clause, context, result, cf);
                 }
-                clause[i] = getCodeLE(vs[i], ub, context, result, cf.getFormulaFactory());
+                clause[i] = getCodeLE(vs[i], ub, context, cf.getFormulaFactory());
                 encodeLinearExpression(exp, vs, i + 1, s + a * (ub + 1), clause, context, result, cf);
             } else {
                 if (-lb0 >= 0) {
@@ -179,21 +182,21 @@ public class OrderEncoding {
                 } else {
                     lb = Math.max(lb, (-lb0 + a + 1) / a);
                 }
-                clause[i] = getCodeLE(vs[i], lb - 1, context, result, cf.getFormulaFactory()).negate(
+                clause[i] = getCodeLE(vs[i], lb - 1, context, cf.getFormulaFactory()).negate(
                         cf.getFormulaFactory());
                 encodeLinearExpression(exp, vs, i + 1, s + a * (lb - 1), clause, context, result, cf);
                 for (final Iterator<Integer> it = domain.values(lb, ub); it.hasNext(); ) {
                     final int c = it.next();
                     clause[i] =
-                            getCodeLE(vs[i], c, context, result, cf.getFormulaFactory()).negate(cf.getFormulaFactory());
+                            getCodeLE(vs[i], c, context, cf.getFormulaFactory()).negate(cf.getFormulaFactory());
                     encodeLinearExpression(exp, vs, i + 1, s + a * c, clause, context, result, cf);
                 }
             }
         }
     }
 
-    private static Formula getCodeLE(final IntegerVariable left, final int right, final OrderEncodingContext context,
-                                     final EncodingResult result, final FormulaFactory f) {
+    private static Formula createOrGetCodeLE(final IntegerVariable left, final int right,
+                                             final OrderEncodingContext context, final FormulaFactory f) {
         final IntegerDomain domain = left.getDomain();
         if (right < domain.lb()) {
             return f.falsum();
@@ -201,12 +204,24 @@ public class OrderEncoding {
             return f.verum();
         }
         final int index = sizeLE(domain, right) - 1;
-        return context.intVariableInstance(left, index, f);
+        return context.newVariableInstance(left, index, f);
+    }
+
+    private static Formula getCodeLE(final IntegerVariable left, final int right, final OrderEncodingContext context,
+                                     final FormulaFactory f) {
+        final IntegerDomain domain = left.getDomain();
+        if (right < domain.lb()) {
+            return f.falsum();
+        } else if (right >= domain.ub()) {
+            return f.verum();
+        }
+        final int index = sizeLE(domain, right) - 1;
+        return context.getVariableInstance(left, index);
     }
 
     private static Formula getCodeLE(final IntegerVariable left, final int a, final int b,
                                      final OrderEncodingContext context,
-                                     final EncodingResult result, final FormulaFactory f) {
+                                     final FormulaFactory f) {
         if (a >= 0) {
             final int c;
             if (b >= 0) {
@@ -214,7 +229,7 @@ public class OrderEncoding {
             } else {
                 c = (b - a + 1) / a;
             }
-            return getCodeLE(left, c, context, result, f);
+            return getCodeLE(left, c, context, f);
         } else {
             final int c;
             if (b >= 0) {
@@ -222,12 +237,11 @@ public class OrderEncoding {
             } else {
                 c = (b + a + 1) / a - 1;
             }
-            return getCodeLE(left, c, context, result, f).negate(f);
+            return getCodeLE(left, c, context, f).negate(f);
         }
     }
 
     private static Formula getCode(final LinearLiteral lit, final OrderEncodingContext context,
-                                   final EncodingResult result,
                                    final FormulaFactory f) {
         if (!isSimpleLiteral(lit)) {
             throw new IllegalArgumentException("Encountered non-simple literal in order encoding " + lit.toString());
@@ -242,7 +256,7 @@ public class OrderEncoding {
         } else {
             final IntegerVariable v = sum.getCoef().firstKey();
             final int a = sum.getA(v);
-            return getCodeLE(v, a, -b, context, result, f);
+            return getCodeLE(v, a, -b, context, f);
         }
     }
 
