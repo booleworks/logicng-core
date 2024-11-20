@@ -114,7 +114,7 @@ public final class EncodingResult {
         } else {
             litNum = lit.getPhase() ? index * 2 : (index * 2) ^ 1;
         }
-        clauseVec.push(litNum);
+        clauseVec.unsafePush(litNum);
     }
 
     /**

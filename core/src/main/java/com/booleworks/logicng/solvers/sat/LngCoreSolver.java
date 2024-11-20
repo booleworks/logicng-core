@@ -22,14 +22,6 @@
 
 package com.booleworks.logicng.solvers.sat;
 
-import static com.booleworks.logicng.datastructures.Tristate.FALSE;
-import static com.booleworks.logicng.datastructures.Tristate.TRUE;
-import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
-import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.SAT_CALL_FINISHED;
-import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BACKBONE_COMPUTATION_STARTED;
-import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SAT_CALL_STARTED;
-import static com.booleworks.logicng.handlers.events.SimpleEvent.SAT_CONFLICT_DETECTED;
-
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.collections.LngBooleanVector;
@@ -60,8 +52,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.Stack;
-import java.util.TreeMap;
 import java.util.TreeSet;
+
+import static com.booleworks.logicng.datastructures.Tristate.FALSE;
+import static com.booleworks.logicng.datastructures.Tristate.TRUE;
+import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
+import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.SAT_CALL_FINISHED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BACKBONE_COMPUTATION_STARTED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SAT_CALL_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.SAT_CONFLICT_DETECTED;
 
 /**
  * The core SAT Solver of LogicNG. Heavily inspired by MiniSat, Glucose, and
@@ -104,8 +103,8 @@ public class LngCoreSolver {
     protected boolean inSatCall;
 
     // mapping of variable names to variable indices
-    protected Map<String, Integer> name2idx = new TreeMap<>();
-    protected Map<Integer, String> idx2name = new TreeMap<>();
+    protected Map<String, Integer> name2idx = new HashMap<>();
+    protected Map<Integer, String> idx2name = new HashMap<>();
 
     // bookkeeping of solver states
     protected LngIntVector validStates = new LngIntVector();
@@ -1814,7 +1813,8 @@ public class LngCoreSolver {
      * @param type      the type of the backbone
      * @param handler   the handler
      */
-    protected LngEvent computeBackbone(final List<Integer> variables, final BackboneType type, final ComputationHandler handler) {
+    protected LngEvent computeBackbone(final List<Integer> variables, final BackboneType type,
+                                       final ComputationHandler handler) {
         createInitialCandidates(variables, type);
         while (!backboneCandidates.isEmpty()) {
             final int lit = backboneCandidates.pop();
