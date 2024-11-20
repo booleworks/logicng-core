@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A class grouping functions for reducing a problem for the order encoding.
@@ -66,17 +64,18 @@ public class OrderReduction {
                                             final CspFactory cf) {
         final Set<IntegerClause> newClauses = new LinkedHashSet<>();
         for (final IntegerClause c : clauses) {
-            final Set<ArithmeticLiteral> newArithLits = c.getArithmeticLiterals().stream().map(al -> {
+            final Set<ArithmeticLiteral> newArithLits = new LinkedHashSet<>();
+            for (final ArithmeticLiteral al : c.getArithmeticLiterals()) {
                 if (al instanceof LinearLiteral) {
                     final LinearLiteral ll = (LinearLiteral) al;
                     final LinearExpression sum =
                             simplifyLinearExpression(new LinearExpression.Builder(ll.getSum()), true,
                                     newClauses, newFrontierAuxVars, context, cf).build();
-                    return new LinearLiteral(sum, ll.getOperator());
+                    newArithLits.add(new LinearLiteral(sum, ll.getOperator()));
                 } else {
-                    return al;
+                    newArithLits.add(al);
                 }
-            }).collect(Collectors.toCollection(LinkedHashSet::new));
+            }
             newClauses.add(new IntegerClause(c.getBoolLiterals(), newArithLits));
         }
         return newClauses;
@@ -84,22 +83,25 @@ public class OrderReduction {
 
     private static Set<IntegerClause> simplify(final Set<IntegerClause> clauses, final OrderEncodingContext context,
                                                final FormulaFactory f) {
-        return clauses.stream().flatMap(clause -> {
+        final Set<IntegerClause> newClauses = new LinkedHashSet<>();
+        for (final IntegerClause clause : clauses) {
             if (clause.isValid()) {
-                return null;
+                continue;
             } else if (OrderEncoding.isSimpleClause(clause)) {
-                return Stream.of(clause);
+                newClauses.add(clause);
             } else {
-                return simplifyClause(clause, clause.getBoolLiterals(), context, f).stream();
+                newClauses.addAll(simplifyClause(clause, clause.getBoolLiterals(), context, f));
             }
-        }).collect(Collectors.toSet());
+        }
+        return newClauses;
     }
 
     private static Set<IntegerClause> toLinearLe(final Set<IntegerClause> clauses, final OrderEncodingContext context,
                                                  final FormulaFactory f) {
-        return clauses.stream().flatMap(c -> {
+        final Set<IntegerClause> newClauses = new LinkedHashSet<>();
+        for (final IntegerClause c : clauses) {
             if (c.size() == OrderEncoding.simpleClauseSize(c)) {
-                return Stream.of(c);
+                newClauses.add(c);
             } else {
                 assert c.size() == OrderEncoding.simpleClauseSize(c) + 1;
                 final Set<ArithmeticLiteral> simpleLiterals = new LinkedHashSet<>();
@@ -113,17 +115,18 @@ public class OrderReduction {
                 }
                 assert nonSimpleLiteral != null;
                 if (nonSimpleLiteral instanceof LinearLiteral) {
-                    return reduceLinearLiteralToLinearLE((LinearLiteral) nonSimpleLiteral, simpleLiterals,
-                            c.getBoolLiterals(), context, f).stream();
+                    newClauses.addAll(reduceLinearLiteralToLinearLE((LinearLiteral) nonSimpleLiteral, simpleLiterals,
+                            c.getBoolLiterals(), context, f));
                 } else if (nonSimpleLiteral instanceof ProductLiteral) {
-                    return reduceProductLiteralToLinearLE((ProductLiteral) nonSimpleLiteral, simpleLiterals,
-                            c.getBoolLiterals(), context, f).stream();
+                    newClauses.addAll(reduceProductLiteralToLinearLE((ProductLiteral) nonSimpleLiteral, simpleLiterals,
+                            c.getBoolLiterals(), context, f));
                 } else {
                     throw new IllegalArgumentException(
                             "Invalid literal for order encoding reduction: " + nonSimpleLiteral.getClass());
                 }
             }
-        }).collect(Collectors.toSet());
+        }
+        return newClauses;
     }
 
     private static Set<IntegerClause> reduceLinearLiteralToLinearLE(final LinearLiteral literal,
