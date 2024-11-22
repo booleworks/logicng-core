@@ -300,11 +300,11 @@ public class DnnfCompiler {
             return LngResult.of(f.falsum());
         }
         final LngResult<Formula> left = cnfAux(tree.left(), currentShannons, handler);
-        if (left.getResult() == null || left.getResult() == f.falsum()) {
+        if (!left.isSuccess() || left.getResult() == f.falsum()) {
             return left;
         }
         final LngResult<Formula> right = cnfAux(tree.right(), currentShannons, handler);
-        if (right.getResult() == null || right.getResult() == f.falsum()) {
+        if (!right.isSuccess() || right.getResult() == f.falsum()) {
             return right;
         }
         return LngResult.of(f.and(implied, left.getResult(), right.getResult()));
@@ -319,7 +319,7 @@ public class DnnfCompiler {
                 return LngResult.of(cache.get(key));
             } else {
                 final LngResult<Formula> dnnf = cnf2Ddnnf(tree, handler);
-                if (dnnf.getResult() != null && dnnf.getResult() != f.falsum()) {
+                if (dnnf.isSuccess() && dnnf.getResult() != f.falsum()) {
                     cache.put((BitSet) key.clone(), dnnf.getResult());
                 }
                 return dnnf;
