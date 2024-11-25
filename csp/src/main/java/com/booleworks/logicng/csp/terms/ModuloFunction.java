@@ -59,4 +59,13 @@ public class ModuloFunction extends BinaryFunction {
         return (IntegerConstant) super.getRight();
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        return equals(o, true);
+    }
+
+    @Override
+    public int hashCode() {
+        return hashCode(true);
+    }
 }

@@ -64,4 +64,14 @@ public class MaxFunction extends BinaryFunction {
         final Decomposition newTerm = new Decomposition(new LinearExpression(x), constraints, intVars, boolVars);
         return Term.Decomposition.merge(newTerm, List.of(d1, d2, d3));
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        return equals(o, false);
+    }
+
+    @Override
+    public int hashCode() {
+        return hashCode(false);
+    }
 }
