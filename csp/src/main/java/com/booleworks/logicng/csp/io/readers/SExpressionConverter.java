@@ -33,7 +33,6 @@ public class SExpressionConverter {
                 if (l.startsWith(";") || l.isBlank()) {
                     continue;
                 }
-                System.out.println(l);
                 parser.ReInit(new StringReader(l));
                 final Pair<Pair<Variable, IntegerVariable>, Formula> line = parser.line();
                 if (line.getSecond() != null) {
@@ -94,7 +93,6 @@ public class SExpressionConverter {
                     parser.setFactory(cf);
                     final Path dest_path = Paths.get(dest.getAbsolutePath(), file.getName());
                     final File dest_file = new File(dest_path.toString());
-                    System.out.println(dest_file.toString());
                     if (dest_file.createNewFile()) {
                         convertFile(parser, file, dest_file);
                     } else {
