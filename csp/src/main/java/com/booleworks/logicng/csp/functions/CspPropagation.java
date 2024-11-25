@@ -9,10 +9,9 @@ import com.booleworks.logicng.csp.literals.ArithmeticLiteral;
 import com.booleworks.logicng.csp.literals.LinearLiteral;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -100,14 +99,11 @@ public class CspPropagation {
 
     private static IntegerClause rebuildClause(final IntegerClause clause,
                                                final IntegerVariableSubstitution assignment) {
-        final TreeSet<ArithmeticLiteral> newLits = clause.getArithmeticLiterals().stream()
+        final LinkedHashSet<ArithmeticLiteral> newLits = clause.getArithmeticLiterals().stream()
                 .map(l -> l.substitute(assignment))
                 .filter(Objects::nonNull)
                 .filter(l -> !l.isUnsat())
-                .collect(Collector.of(TreeSet::new, TreeSet::add, (left, right) -> {
-                    left.addAll(right);
-                    return left;
-                }));
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         if (newLits.equals(clause.getArithmeticLiterals())) {
             return clause;
         } else {
