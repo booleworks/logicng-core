@@ -3,10 +3,13 @@ package com.booleworks.logicng.csp.encodings;
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.datastructures.IntegerVariableSubstitution;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
+import com.booleworks.logicng.csp.handlers.CspEvent;
+import com.booleworks.logicng.csp.handlers.CspHandlerException;
 import com.booleworks.logicng.csp.terms.IntegerConstant;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -263,10 +266,16 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
 
     /**
      * Creates and stores new auxiliary boolean variable for adjusting variables
-     * @param f the factory
+     * @param f       the factory
+     * @param handler handler for processing encoding events
      * @return the auxiliary variable
+     * @throws CspHandlerException if the computation was aborted by the handler
      */
-    Variable newAdjustedBoolVariable(final FormulaFactory f) {
+    Variable newAdjustedBoolVariable(final FormulaFactory f, final ComputationHandler handler)
+            throws CspHandlerException {
+        if (!handler.shouldResume(CspEvent.CSP_ENCODING_VAR_CREATED)) {
+            throw new CspHandlerException(CspEvent.CSP_ENCODING_VAR_CREATED);
+        }
         final Variable var = f.newAuxVariable(CSP_AUX_LNG_VARIABLE);
         adjustedBoolVariables.add(var);
         return var;
@@ -342,10 +351,15 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
 
     /**
      * Create and store a boolean auxiliary variable for CCSP clauses.
-     * @param f the factory
+     * @param f       the factory
+     * @param handler handler for processing encoding events
      * @return new auxiliary variable
+     * @throws CspHandlerException if the computation was aborted by the handler
      */
-    Variable newCCSPBoolVariable(final FormulaFactory f) {
+    Variable newCCSPBoolVariable(final FormulaFactory f, final ComputationHandler handler) throws CspHandlerException {
+        if (!handler.shouldResume(CspEvent.CSP_ENCODING_VAR_CREATED)) {
+            throw new CspHandlerException(CspEvent.CSP_ENCODING_VAR_CREATED);
+        }
         final Variable v = f.newAuxVariable(CSP_AUX_LNG_VARIABLE);
         ccspBoolVariables.add(v);
         return v;

@@ -2,9 +2,12 @@ package com.booleworks.logicng.csp.encodings;
 
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
+import com.booleworks.logicng.csp.handlers.CspEvent;
+import com.booleworks.logicng.csp.handlers.CspHandlerException;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,10 +66,16 @@ public class OrderEncodingContext implements CspEncodingContext {
 
     /**
      * Creates and stores a new boolean auxiliary variable for simplifying arithmetic clauses.
-     * @param f the factory
+     * @param f       the factory
+     * @param handler for processing encoding events
      * @return new auxiliary variable
+     * @throws CspHandlerException if the computation was aborted by the handler
      */
-    Variable newSimplifyBooleanVariable(final FormulaFactory f) {
+    Variable newSimplifyBooleanVariable(final FormulaFactory f, final ComputationHandler handler)
+            throws CspHandlerException {
+        if (!handler.shouldResume(CspEvent.CSP_ENCODING_VAR_CREATED)) {
+            throw new CspHandlerException(CspEvent.CSP_ENCODING_VAR_CREATED);
+        }
         final Variable var = f.newAuxVariable(CSP_AUX_LNG_VARIABLE);
         this.simplifyBoolVariables.add(var);
         return var;
@@ -84,15 +93,21 @@ public class OrderEncodingContext implements CspEncodingContext {
     /**
      * Create a boolean variable representing of a certain index of an integer variable. If an instance already exists,
      * no new instance is created and the existing one is returned.
-     * @param group the integer variable
-     * @param index the queried index
-     * @param f     the formula factory
+     * @param group   the integer variable
+     * @param index   the queried index
+     * @param f       the formula factory
+     * @param handler for processing encoding events
      * @return the boolean variable
+     * @throws CspHandlerException if the computation was aborted by the handler
      */
-    Variable newVariableInstance(final IntegerVariable group, final int index, final FormulaFactory f) {
+    Variable newVariableInstance(final IntegerVariable group, final int index, final FormulaFactory f, final
+    ComputationHandler handler) throws CspHandlerException {
         final Variable[] intMap = this.variableMap.get(group);
         assert index < intMap.length;
         if (intMap[index] == null) {
+            if (!handler.shouldResume(CspEvent.CSP_ENCODING_VAR_CREATED)) {
+                throw new CspHandlerException(CspEvent.CSP_ENCODING_VAR_CREATED);
+            }
             intMap[index] = f.newAuxVariable(CSP_AUX_LNG_VARIABLE);
         }
         return intMap[index];

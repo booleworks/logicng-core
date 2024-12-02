@@ -4,6 +4,7 @@ import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.datastructures.IntegerClause;
 import com.booleworks.logicng.csp.datastructures.LinearExpression;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
+import com.booleworks.logicng.csp.handlers.CspHandlerException;
 import com.booleworks.logicng.csp.literals.ArithmeticLiteral;
 import com.booleworks.logicng.csp.literals.EqMul;
 import com.booleworks.logicng.csp.literals.LinearLiteral;
@@ -16,6 +17,7 @@ import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,8 +27,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A class grouping functions for reducing a problem for the compact order encoding.
@@ -62,37 +62,41 @@ public class CompactOrderReduction {
      * @param integerVariables the integer variables
      * @param context          the encoding context
      * @param cf               the factory
+     * @param handler          handler for processing encoding events
      * @return the reduced problem
+     * @throws CspHandlerException if the computation was aborted by the handler
      */
     static ReductionResult reduce(final Set<IntegerClause> clauses, final Set<IntegerVariable> integerVariables,
                                   final CompactOrderEncodingContext context,
-                                  final CspFactory cf) {
-        final ReductionResult resultVars = reduceVariables(integerVariables, context, cf);
-        final ReductionResult resultClauses = reduceClauses(clauses, context, cf);
+                                  final CspFactory cf, final ComputationHandler handler) throws CspHandlerException {
+        final ReductionResult resultVars = reduceVariables(integerVariables, context, cf, handler);
+        final ReductionResult resultClauses = reduceClauses(clauses, context, cf, handler);
         return ReductionResult.merge(List.of(resultVars, resultClauses));
     }
 
     static ReductionResult reduceVariables(final Collection<IntegerVariable> variables,
                                            final CompactOrderEncodingContext context,
-                                           final CspFactory cf) {
+                                           final CspFactory cf, final ComputationHandler handler)
+            throws CspHandlerException {
         final ReductionResult resultAdjust = new ReductionResult(new LinkedHashSet<>(), new ArrayList<>());
         for (final IntegerVariable v : variables) {
-            adjustVariable(v, resultAdjust, context, cf);
+            adjustVariable(v, resultAdjust, context, cf, handler);
         }
         final ReductionResult resultCcsp =
-                CompactCSPReduction.variablesToCCSP(resultAdjust.getFrontierAuxiliaryVariables(), context, cf);
-        final ReductionResult resultClauses = reduceClauses(resultAdjust.getClauses(), context, cf);
+                CompactCSPReduction.variablesToCCSP(resultAdjust.getFrontierAuxiliaryVariables(), context, cf, handler);
+        final ReductionResult resultClauses = reduceClauses(resultAdjust.getClauses(), context, cf, handler);
 
         return ReductionResult.merge(List.of(resultCcsp, resultClauses));
     }
 
     static ReductionResult reduceClauses(final Set<IntegerClause> clauses, final CompactOrderEncodingContext context,
-                                         final CspFactory cf) {
+                                         final CspFactory cf, final ComputationHandler handler)
+            throws CspHandlerException {
         final ReductionResult adjustedResult = adjustClauses(clauses, context, cf);
-        final ReductionResult toTernaryResult = toTernary(adjustedResult.getClauses(), context, cf);
+        final ReductionResult toTernaryResult = toTernary(adjustedResult.getClauses(), context, cf, handler);
         final ReductionResult toRcspResult = toRcsp(toTernaryResult.getClauses(), context, cf);
         final Set<IntegerClause> simplificationResult = simplify(toRcspResult.getClauses(), context,
-                cf.getFormulaFactory());
+                cf.getFormulaFactory(), handler);
 
         final int size = adjustedResult.getFrontierAuxiliaryVariables().size()
                 + toTernaryResult.getFrontierAuxiliaryVariables().size()
@@ -101,7 +105,7 @@ public class CompactOrderReduction {
         currentVariables.addAll(adjustedResult.getFrontierAuxiliaryVariables());
         currentVariables.addAll(toTernaryResult.getFrontierAuxiliaryVariables());
         currentVariables.addAll(toRcspResult.getFrontierAuxiliaryVariables());
-        return CompactCSPReduction.toCCSP(simplificationResult, currentVariables, context, cf);
+        return CompactCSPReduction.toCCSP(simplificationResult, currentVariables, context, cf, handler);
     }
 
     private static ReductionResult adjustClauses(final Set<IntegerClause> clauses,
@@ -166,13 +170,15 @@ public class CompactOrderReduction {
     }
 
     private static void adjustVariable(final IntegerVariable v, final ReductionResult destination,
-                                       final CompactOrderEncodingContext context, final CspFactory cf) {
+                                       final CompactOrderEncodingContext context, final CspFactory cf,
+                                       final ComputationHandler handler) throws CspHandlerException {
         final IntegerVariable adjustedVar;
         if (context.hasAdjustedVariable(v)) {
             adjustedVar = context.getAdjustedVariable(v);
         } else {
             adjustedVar =
-                    createAdjustedVariable(v.getDomain(), AUX_ADJUST, true, destination.getClauses(), context, cf);
+                    createAdjustedVariable(v.getDomain(), AUX_ADJUST, true, destination.getClauses(), context, cf,
+                            handler);
             context.addAdjustedVariable(v, adjustedVar);
         }
         destination.getFrontierAuxiliaryVariables().add(adjustedVar);
@@ -182,7 +188,8 @@ public class CompactOrderReduction {
                                                           final boolean useOffset,
                                                           final Set<IntegerClause> additionalClauses,
                                                           final CompactOrderEncodingContext context,
-                                                          final CspFactory cf) {
+                                                          final CspFactory cf, final ComputationHandler handler)
+            throws CspHandlerException {
         final int offset = d.lb();
         final IntegerVariable newVar;
         if (useOffset) {
@@ -207,7 +214,7 @@ public class CompactOrderReduction {
                             new LinearLiteral(new LinearExpression(1, newVar, -(lst + 1)), LinearLiteral.Operator.NE));
                     additionalClauses.add(c);
                 } else if (lst + 1 != i) {
-                    final Variable b = context.newAdjustedBoolVariable(cf.getFormulaFactory());
+                    final Variable b = context.newAdjustedBoolVariable(cf.getFormulaFactory(), handler);
                     final IntegerClause clause1 = new IntegerClause(
                             b.negate(cf.getFormulaFactory()),
                             new LinearLiteral(new LinearExpression(1, newVar, -lst), LinearLiteral.Operator.LE)
@@ -227,7 +234,8 @@ public class CompactOrderReduction {
     }
 
     private static ReductionResult toTernary(final Set<IntegerClause> clauses,
-                                             final CompactOrderEncodingContext context, final CspFactory cf) {
+                                             final CompactOrderEncodingContext context, final CspFactory cf,
+                                             final ComputationHandler handler) throws CspHandlerException {
         final Set<IntegerClause> newClauses = new LinkedHashSet<>();
         final List<IntegerVariable> auxiliaryVariables = new ArrayList<>();
         for (final IntegerClause c : clauses) {
@@ -239,7 +247,7 @@ public class CompactOrderReduction {
                         final LinearExpression.Builder ls =
                                 simplifyToTernary(new LinearExpression.Builder(ll.getSum()), newClauses,
                                         auxiliaryVariables,
-                                        context, cf);
+                                        context, cf, handler);
                         newClause.addArithmeticLiteral(new LinearLiteral(ls.build(), ll.getOperator()));
                     } else {
                         newClause.addArithmeticLiteral(ll);
@@ -257,7 +265,8 @@ public class CompactOrderReduction {
                                                               final Set<IntegerClause> clauses,
                                                               final List<IntegerVariable> auxiliaryVariables,
                                                               final CompactOrderEncodingContext context,
-                                                              final CspFactory cf) {
+                                                              final CspFactory cf, final ComputationHandler handler)
+            throws CspHandlerException {
         if (exp.size() <= 3) {
             return exp;
         }
@@ -289,13 +298,13 @@ public class CompactOrderReduction {
         final LinearExpression.Builder e = new LinearExpression.Builder(b);
         for (final LinearExpression.Builder ei : OrderReduction.split(lhs.build(), lhs_len)) {
             final LinearExpression.Builder simplified =
-                    simplifyToTernaryExpression(ei, clauses, auxiliaryVariables, context, cf);
+                    simplifyToTernaryExpression(ei, clauses, auxiliaryVariables, context, cf, handler);
             e.add(simplified.build());
         }
 
         for (final LinearExpression.Builder ei : OrderReduction.split(rhs.build(), rhs_len)) {
             final LinearExpression.Builder simplified =
-                    simplifyToTernaryExpression(ei, clauses, auxiliaryVariables, context, cf);
+                    simplifyToTernaryExpression(ei, clauses, auxiliaryVariables, context, cf, handler);
             simplified.multiply(-1);
             e.add(simplified.build());
         }
@@ -307,13 +316,16 @@ public class CompactOrderReduction {
                                                                         final Set<IntegerClause> clauses,
                                                                         final List<IntegerVariable> auxiliaryVariables,
                                                                         final CompactOrderEncodingContext context,
-                                                                        final CspFactory cf) {
+                                                                        final CspFactory cf,
+                                                                        final ComputationHandler handler)
+            throws CspHandlerException {
         final int factor = exp.factor();
         final LinearExpression.Builder normalized = exp.normalize();
-        LinearExpression.Builder simplified = simplifyToTernary(normalized, clauses, auxiliaryVariables, context, cf);
+        LinearExpression.Builder simplified =
+                simplifyToTernary(normalized, clauses, auxiliaryVariables, context, cf, handler);
         if (simplified.size() > 1) {
             final IntegerVariable v =
-                    createAdjustedVariable(simplified.getDomain(), AUX_TERNARY, false, clauses, context, cf);
+                    createAdjustedVariable(simplified.getDomain(), AUX_TERNARY, false, clauses, context, cf, handler);
             auxiliaryVariables.add(v);
             final LinearExpression.Builder ls = new LinearExpression.Builder(v);
             ls.subtract(simplified.build());
@@ -541,16 +553,19 @@ public class CompactOrderReduction {
 
     private static Set<IntegerClause> simplify(final Set<IntegerClause> clauses,
                                                final CompactOrderEncodingContext context,
-                                               final FormulaFactory f) {
-        return clauses.stream().flatMap(clause -> {
+                                               final FormulaFactory f, final ComputationHandler handler)
+            throws CspHandlerException {
+        final LinkedHashSet<IntegerClause> newClauses = new LinkedHashSet<>();
+        for (final IntegerClause clause : clauses) {
             if (clause.isValid()) {
-                return null;
             } else if (CompactOrderEncoding.isSimpleClause(clause, context)) {
-                return Stream.of(clause);
+                newClauses.add(clause);
             } else {
-                return simplifyClause(clause, context, f).stream();
+                newClauses.addAll(simplifyClause(clause, context, f, handler));
             }
-        }).collect(Collectors.toCollection(LinkedHashSet::new));
+
+        }
+        return newClauses;
     }
 
     /**
@@ -561,14 +576,15 @@ public class CompactOrderReduction {
      * @return simplified clauses
      */
     static Set<IntegerClause> simplifyClause(final IntegerClause clause, final CompactOrderEncodingContext context,
-                                             final FormulaFactory f) {
+                                             final FormulaFactory f, final ComputationHandler handler)
+            throws CspHandlerException {
         final Set<IntegerClause> newClauses = new LinkedHashSet<>();
         final IntegerClause.Builder c = IntegerClause.Builder.cloneOnlyBool(clause);
         for (final ArithmeticLiteral literal : clause.getArithmeticLiterals()) {
             if (CompactOrderEncoding.isSimpleLiteral(literal, context)) {
                 c.addArithmeticLiteral(literal);
             } else {
-                final Variable p = context.getOrderContext().newSimplifyBooleanVariable(f);
+                final Variable p = context.getOrderContext().newSimplifyBooleanVariable(f, handler);
                 final Literal notP = p.negate(f);
                 final IntegerClause newClause = new IntegerClause(notP, literal);
                 newClauses.add(newClause);

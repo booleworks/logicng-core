@@ -6,6 +6,8 @@ import com.booleworks.logicng.csp.datastructures.Csp;
 import com.booleworks.logicng.csp.datastructures.IntegerClause;
 import com.booleworks.logicng.csp.datastructures.LinearExpression;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
+import com.booleworks.logicng.csp.handlers.CspEvent;
+import com.booleworks.logicng.csp.handlers.CspHandlerException;
 import com.booleworks.logicng.csp.literals.ArithmeticLiteral;
 import com.booleworks.logicng.csp.literals.LinearLiteral;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
@@ -13,6 +15,8 @@ import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -26,63 +30,106 @@ public class OrderEncoding {
 
     /**
      * Encodes a CSP problem using the order encoding.
+     * <p>
+     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
+     * the handler.
      * @param csp     the problem
      * @param context the encoding context
      * @param result  destination for the result
      * @param cf      the factory
+     * @param handler handler for processing encoding events
+     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
+     * aborted the computation
      */
-    public static void encode(final Csp csp, final OrderEncodingContext context, final EncodingResult result,
-                              final CspFactory cf) {
-        for (final IntegerVariable v : csp.getInternalIntegerVariables()) {
-            encodeVariable(v, context, result, cf);
+    public static LngResult<EncodingResult> encode(final Csp csp, final OrderEncodingContext context,
+                                                   final EncodingResult result,
+                                                   final CspFactory cf, final ComputationHandler handler) {
+        if (!handler.shouldResume(CspEvent.CSP_ENCODING_STARTED)) {
+            return LngResult.canceled(CspEvent.CSP_ENCODING_STARTED);
         }
-        encodeClauses(csp.getClauses(), context, result, cf);
+        LngResult<EncodingResult> r;
+        for (final IntegerVariable v : csp.getInternalIntegerVariables()) {
+            r = encodeVariable(v, context, result, cf, handler);
+            if (!r.isSuccess()) {
+                return r;
+            }
+        }
+        return encodeClauses(csp.getClauses(), context, result, cf, handler);
     }
 
     /**
      * Encodes a single integer variable using the order encoding.
+     * <p>
+     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
+     * the handler.
      * @param v       the integer variable
      * @param context the encoding context
      * @param result  destination for the result
      * @param cf      the factory
+     * @param handler handler for processing encoding events
+     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
+     * aborted the computation
      */
-    public static void encodeVariable(final IntegerVariable v, final OrderEncodingContext context,
-                                      final EncodingResult result, final CspFactory cf) {
-        final FormulaFactory f = cf.getFormulaFactory();
-        final IntegerDomain domain = v.getDomain();
+    public static LngResult<EncodingResult> encodeVariable(final IntegerVariable v, final OrderEncodingContext context,
+                                                           final EncodingResult result, final CspFactory cf,
+                                                           final ComputationHandler handler) {
+        try {
+            final FormulaFactory f = cf.getFormulaFactory();
+            final IntegerDomain domain = v.getDomain();
 
-        context.allocateVariable(v, domain.size());
+            context.allocateVariable(v, domain.size());
 
-        final Formula[] clause = new Formula[2];
-        Formula last_var = createOrGetCodeLE(v, domain.lb(), context, cf.getFormulaFactory());
-        for (int a = domain.lb() + 1; a <= domain.ub(); ++a) {
-            if (domain.contains(a)) {
-                clause[0] = last_var.negate(f);
-                clause[1] = createOrGetCodeLE(v, a, context, cf.getFormulaFactory());
-                writeClause(clause, result);
-                last_var = clause[1];
+            final Formula[] clause = new Formula[2];
+            Formula last_var = createOrGetCodeLE(v, domain.lb(), context, cf.getFormulaFactory(), handler);
+            for (int a = domain.lb() + 1; a <= domain.ub(); ++a) {
+                if (domain.contains(a)) {
+                    clause[0] = last_var.negate(f);
+                    clause[1] = createOrGetCodeLE(v, a, context, cf.getFormulaFactory(), handler);
+                    writeClause(clause, result, handler);
+                    last_var = clause[1];
+                }
             }
+        } catch (final CspHandlerException e) {
+            return LngResult.canceled(e.getReason());
         }
+        return LngResult.of(result);
     }
 
     /**
-     * Encodes a set of arithmetic clauses using the order encoding
+     * Encodes a set of arithmetic clauses using the order encoding.
+     * <p>
+     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
+     * the handler.
      * @param clauses the set of clauses
      * @param context the encoding context
      * @param result  destination for the result
      * @param cf      the factory
+     * @param handler handler for processing encoding events
+     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
+     * aborted the computation
      */
-    public static void encodeClauses(final Set<IntegerClause> clauses, final OrderEncodingContext context,
-                                     final EncodingResult result, final CspFactory cf) {
-        final ReductionResult reduced = OrderReduction.reduce(clauses, context, cf);
-        for (final IntegerVariable v : reduced.getFrontierAuxiliaryVariables()) {
-            encodeVariable(v, context, result, cf);
-        }
-        for (final IntegerClause c : reduced.getClauses()) {
-            if (!c.isValid()) {
-                encodeClause(c, context, result, cf);
+    public static LngResult<EncodingResult> encodeClauses(final Set<IntegerClause> clauses,
+                                                          final OrderEncodingContext context,
+                                                          final EncodingResult result, final CspFactory cf,
+                                                          final ComputationHandler handler) {
+        try {
+            final ReductionResult reduced = OrderReduction.reduce(clauses, context, cf, handler);
+            LngResult<EncodingResult> r;
+            for (final IntegerVariable v : reduced.getFrontierAuxiliaryVariables()) {
+                r = encodeVariable(v, context, result, cf, handler);
+                if (!r.isSuccess()) {
+                    return r;
+                }
             }
+            for (final IntegerClause c : reduced.getClauses()) {
+                if (!c.isValid()) {
+                    encodeClause(c, context, result, cf, handler);
+                }
+            }
+        } catch (final CspHandlerException e) {
+            return LngResult.canceled(e.getReason());
         }
+        return LngResult.of(result);
     }
 
     /**
@@ -91,9 +138,11 @@ public class OrderEncoding {
      * @param context the encoding context
      * @param result  destination for the result
      * @param cf      the factory
+     * @param handler handler for processing encoding events
+     * @throws CspHandlerException if the computation was aborted by the handler
      */
     static void encodeClause(final IntegerClause cl, final OrderEncodingContext context, final EncodingResult result,
-                             final CspFactory cf) {
+                             final CspFactory cf, final ComputationHandler handler) throws CspHandlerException {
         if (!isSimpleClause(cl)) {
             throw new IllegalArgumentException("Cannot encode non-simple clause " + cl);
         }
@@ -116,39 +165,40 @@ public class OrderEncoding {
             }
         }
         if (lit == null) {
-            writeClause(clause, result);
+            writeClause(clause, result, handler);
         } else {
-            encodeLitClause(lit, clause, context, result, cf);
+            encodeLitClause(lit, clause, context, result, cf, handler);
         }
     }
 
     private static void encodeLitClause(final LinearLiteral lit, Formula[] clause, final OrderEncodingContext context,
-                                        final EncodingResult result, final CspFactory cf) {
+                                        final EncodingResult result, final CspFactory cf,
+                                        final ComputationHandler handler)
+            throws CspHandlerException {
         if (lit.getOperator() == LinearLiteral.Operator.EQ || lit.getOperator() == LinearLiteral.Operator.NE) {
             throw new RuntimeException("Invalid operator for order encoding " + lit);
         }
         if (isSimpleLiteral(lit)) {
             clause = expandArray(clause, 1);
             clause[0] = getCode(lit, context, cf.getFormulaFactory());
-            writeClause(clause, result);
+            writeClause(clause, result, handler);
         } else {
             final LinearExpression ls = lit.getSum();
             final IntegerVariable[] vs = lit.getSum().getVariablesSorted();
             final int n = ls.size();
             clause = expandArray(clause, n);
-            encodeLinearExpression(ls, vs, 0, lit.getSum().getB(), clause, context, result, cf);
+            encodeLinearExpression(ls, vs, 0, lit.getSum().getB(), clause, context, result, cf, handler);
         }
     }
 
     private static void encodeLinearExpression(final LinearExpression exp, final IntegerVariable[] vs, final int i,
-                                               final int s,
-                                               final Formula[] clause,
-                                               final OrderEncodingContext context, final EncodingResult result,
-                                               final CspFactory cf) {
+                                               final int s, final Formula[] clause, final OrderEncodingContext context,
+                                               final EncodingResult result, final CspFactory cf,
+                                               final ComputationHandler handler) throws CspHandlerException {
         if (i >= vs.length - 1) {
             final int a = exp.getA(vs[i]);
             clause[i] = getCodeLE(vs[i], a, -s, context, cf.getFormulaFactory());
-            writeClause(clause, result);
+            writeClause(clause, result, handler);
         } else {
             int lb0 = s;
             for (int j = i + 1; j < vs.length; ++j) {
@@ -172,10 +222,10 @@ public class OrderEncoding {
                 for (final Iterator<Integer> it = domain.values(lb, ub); it.hasNext(); ) {
                     final int c = it.next();
                     clause[i] = getCodeLE(vs[i], c - 1, context, cf.getFormulaFactory());
-                    encodeLinearExpression(exp, vs, i + 1, s + a * c, clause, context, result, cf);
+                    encodeLinearExpression(exp, vs, i + 1, s + a * c, clause, context, result, cf, handler);
                 }
                 clause[i] = getCodeLE(vs[i], ub, context, cf.getFormulaFactory());
-                encodeLinearExpression(exp, vs, i + 1, s + a * (ub + 1), clause, context, result, cf);
+                encodeLinearExpression(exp, vs, i + 1, s + a * (ub + 1), clause, context, result, cf, handler);
             } else {
                 if (-lb0 >= 0) {
                     lb = Math.max(lb, -lb0 / a);
@@ -184,19 +234,20 @@ public class OrderEncoding {
                 }
                 clause[i] = getCodeLE(vs[i], lb - 1, context, cf.getFormulaFactory()).negate(
                         cf.getFormulaFactory());
-                encodeLinearExpression(exp, vs, i + 1, s + a * (lb - 1), clause, context, result, cf);
+                encodeLinearExpression(exp, vs, i + 1, s + a * (lb - 1), clause, context, result, cf, handler);
                 for (final Iterator<Integer> it = domain.values(lb, ub); it.hasNext(); ) {
                     final int c = it.next();
                     clause[i] =
                             getCodeLE(vs[i], c, context, cf.getFormulaFactory()).negate(cf.getFormulaFactory());
-                    encodeLinearExpression(exp, vs, i + 1, s + a * c, clause, context, result, cf);
+                    encodeLinearExpression(exp, vs, i + 1, s + a * c, clause, context, result, cf, handler);
                 }
             }
         }
     }
 
     private static Formula createOrGetCodeLE(final IntegerVariable left, final int right,
-                                             final OrderEncodingContext context, final FormulaFactory f) {
+                                             final OrderEncodingContext context, final FormulaFactory f,
+                                             final ComputationHandler handler) throws CspHandlerException {
         final IntegerDomain domain = left.getDomain();
         if (right < domain.lb()) {
             return f.falsum();
@@ -204,7 +255,7 @@ public class OrderEncoding {
             return f.verum();
         }
         final int index = sizeLE(domain, right) - 1;
-        return context.newVariableInstance(left, index, f);
+        return context.newVariableInstance(left, index, f, handler);
     }
 
     private static Formula getCodeLE(final IntegerVariable left, final int right, final OrderEncodingContext context,
@@ -322,7 +373,9 @@ public class OrderEncoding {
         return clause;
     }
 
-    private static void writeClause(final Formula[] clause, final EncodingResult result) {
+    private static void writeClause(final Formula[] clause, final EncodingResult result,
+                                    final ComputationHandler handler)
+            throws CspHandlerException {
         final LngVector<Literal> vec = new LngVector<>();
         for (final Formula literal : clause) {
             switch (literal.getType()) {
@@ -337,6 +390,9 @@ public class OrderEncoding {
                     throw new IllegalArgumentException(
                             "Unsupported formula type in order encoding:" + literal.getType());
             }
+        }
+        if (!handler.shouldResume(CspEvent.CSP_ENCODING_CLAUSE_CREATED)) {
+            throw new CspHandlerException(CspEvent.CSP_ENCODING_CLAUSE_CREATED);
         }
         result.addClause(vec);
     }

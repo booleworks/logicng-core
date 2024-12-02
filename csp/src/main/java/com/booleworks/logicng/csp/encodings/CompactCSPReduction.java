@@ -4,6 +4,7 @@ import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.datastructures.IntegerClause;
 import com.booleworks.logicng.csp.datastructures.LinearExpression;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
+import com.booleworks.logicng.csp.handlers.CspHandlerException;
 import com.booleworks.logicng.csp.literals.ArithmeticLiteral;
 import com.booleworks.logicng.csp.literals.EqMul;
 import com.booleworks.logicng.csp.literals.LinearLiteral;
@@ -14,6 +15,7 @@ import com.booleworks.logicng.csp.terms.IntegerConstant;
 import com.booleworks.logicng.csp.terms.IntegerHolder;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,12 +46,14 @@ public class CompactCSPReduction {
      * @param variables all variables used in {@code clauses}
      * @param context   the encoding context
      * @param cf        the factory
+     * @param handler   handler for processing encoding events
      * @return reduced clauses and relevant variables
+     * @throws CspHandlerException if the computation is aborted by the handler
      */
     static ReductionResult toCCSP(final Set<IntegerClause> clauses, final List<IntegerVariable> variables,
                                   final CompactOrderEncodingContext context,
-                                  final CspFactory cf) {
-        final ReductionResult result = variablesToCCSP(variables, context, cf);
+                                  final CspFactory cf, final ComputationHandler handler) throws CspHandlerException {
+        final ReductionResult result = variablesToCCSP(variables, context, cf, handler);
         for (final IntegerClause clause : clauses) {
             if (clause.getArithmeticLiterals().isEmpty()) {
                 result.getClauses().add(clause);
@@ -61,7 +65,7 @@ public class CompactCSPReduction {
                 for (final ArithmeticLiteral al : clause.getArithmeticLiterals()) {
                     final RCSPLiteral ll = (RCSPLiteral) al;
                     final Set<IntegerClause> ccsp =
-                            convertToCCSP(ll, result.getFrontierAuxiliaryVariables(), context, cf);
+                            convertToCCSP(ll, result.getFrontierAuxiliaryVariables(), context, cf, handler);
                     if (CompactOrderEncoding.isSimpleLiteral(ll, context)) {
                         assert ccsp.size() == 1;
                         final IntegerClause c = ccsp.iterator().next();
@@ -88,7 +92,8 @@ public class CompactCSPReduction {
     }
 
     static ReductionResult variablesToCCSP(final Collection<IntegerVariable> variables,
-                                           final CompactOrderEncodingContext context, final CspFactory cf) {
+                                           final CompactOrderEncodingContext context, final CspFactory cf,
+                                           final ComputationHandler handler) throws CspHandlerException {
         final Set<IntegerClause> newClauses = new LinkedHashSet<>();
         final List<IntegerVariable> frontierVariables = new ArrayList<>();
         for (final IntegerVariable v : variables) {
@@ -104,10 +109,10 @@ public class CompactCSPReduction {
             final int ub = v.getDomain().ub();
             final int m = context.getDigits(v).size();
             if (m > 1 || ub <= Math.pow(context.getBase(), m) - 1) {
-                newClauses.addAll(convertToCCSP(new OpXY(OpXY.Operator.LE, v, cf.constant(ub)), context, cf));
+                newClauses.addAll(convertToCCSP(new OpXY(OpXY.Operator.LE, v, cf.constant(ub)), context, cf, handler));
             }
             if (m > 1 && lb != 0) {
-                newClauses.addAll(convertToCCSP(new OpXY(OpXY.Operator.LE, cf.constant(lb), v), context, cf));
+                newClauses.addAll(convertToCCSP(new OpXY(OpXY.Operator.LE, cf.constant(lb), v), context, cf, handler));
             }
         }
         return new ReductionResult(newClauses, frontierVariables);
@@ -116,20 +121,22 @@ public class CompactCSPReduction {
     private static Set<IntegerClause> convertToCCSP(final RCSPLiteral literal,
                                                     final List<IntegerVariable> frontierVariables,
                                                     final CompactOrderEncodingContext context,
-                                                    final CspFactory cf) {
+                                                    final CspFactory cf, final ComputationHandler handler)
+            throws CspHandlerException {
         if (literal instanceof EqMul) {
-            return convertToCCSP((EqMul) literal, frontierVariables, context, cf);
+            return convertToCCSP((EqMul) literal, frontierVariables, context, cf, handler);
         } else if (literal instanceof OpAdd) {
-            return convertToCCSP((OpAdd) literal, frontierVariables, context, cf);
+            return convertToCCSP((OpAdd) literal, frontierVariables, context, cf, handler);
         } else if (literal instanceof OpXY) {
-            return convertToCCSP((OpXY) literal, context, cf);
+            return convertToCCSP((OpXY) literal, context, cf, handler);
         } else {
             throw new RuntimeException("Unknown RCSP Literal: " + literal.getClass());
         }
     }
 
     private static Set<IntegerClause> convertToCCSP(final OpXY lit, final CompactOrderEncodingContext context,
-                                                    final CspFactory cf) {
+                                                    final CspFactory cf, final ComputationHandler handler)
+            throws CspHandlerException {
         final Set<IntegerClause> ret = new LinkedHashSet<>();
         final IntegerHolder x = lit.getX();
         final IntegerHolder y = lit.getY();
@@ -149,7 +156,7 @@ public class CompactCSPReduction {
                 } else {
                     final Variable[] s = new Variable[m];
                     for (int i = 1; i < m; ++i) {
-                        s[i] = context.newCCSPBoolVariable(cf.getFormulaFactory());
+                        s[i] = context.newCCSPBoolVariable(cf.getFormulaFactory(), handler);
                     }
                     // -s(i+1) or x(i) <= y(i) (when 0 <= i < m - 1)
                     for (int i = 0; i < m - 1; ++i) {
@@ -189,7 +196,8 @@ public class CompactCSPReduction {
                     newClause.addArithmeticLiterals(le(nth(x, i, context), sub(nth(y, i, context), 1)));
                     newClause.addArithmeticLiterals(ge(sub(nth(x, i, context), 1), nth(y, i, context)));
                 }
-                ret.addAll(CompactOrderReduction.simplifyClause(newClause.build(), context, cf.getFormulaFactory()));
+                ret.addAll(CompactOrderReduction.simplifyClause(newClause.build(), context, cf.getFormulaFactory(),
+                        handler));
                 break;
         }
         return ret;
@@ -197,7 +205,8 @@ public class CompactCSPReduction {
 
     private static Set<IntegerClause> convertToCCSP(final OpAdd lit, final List<IntegerVariable> frontierVariables,
                                                     final CompactOrderEncodingContext context,
-                                                    final CspFactory cf) {
+                                                    final CspFactory cf, final ComputationHandler handler)
+            throws CspHandlerException {
         final Set<IntegerClause> ret = new LinkedHashSet<>();
         final int b = context.getBase();
         final IntegerHolder x = lit.getX();
@@ -228,7 +237,7 @@ public class CompactCSPReduction {
             case LE: {
                 final Variable[] s = new Variable[m];
                 for (int i = 1; i < m; ++i) {
-                    s[i] = context.newCCSPBoolVariable(cf.getFormulaFactory());
+                    s[i] = context.newCCSPBoolVariable(cf.getFormulaFactory(), handler);
                 }
 
                 // -s(i+1) or (z(i) + B*c(i+1) <= x(i) + y(i) + c(i)) (when 0 <= i < m - 1)
@@ -264,7 +273,7 @@ public class CompactCSPReduction {
             case GE: {
                 final Variable[] s = new Variable[m];
                 for (int i = 1; i < m; i++) {
-                    s[i] = context.newCCSPBoolVariable(cf.getFormulaFactory());
+                    s[i] = context.newCCSPBoolVariable(cf.getFormulaFactory(), handler);
                 }
 
                 // -s(i+1) or (z(i) + B*c(i+1) <= x(i) + y(i) + c(i)) (when 0 <= i < m - 1)
@@ -311,7 +320,8 @@ public class CompactCSPReduction {
                             ge(sub(lhs[i], 1), rhs[i])
                     );
                 }
-                ret.addAll(CompactOrderReduction.simplifyClause(newClause.build(), context, cf.getFormulaFactory()));
+                ret.addAll(CompactOrderReduction.simplifyClause(newClause.build(), context, cf.getFormulaFactory(),
+                        handler));
 
                 for (int i = 0; i < m - 1; i++) {
                     // carry(i+1) <= 0 or x(i)+y(i)+carry(i) >= B
@@ -328,7 +338,8 @@ public class CompactCSPReduction {
 
     private static Set<IntegerClause> convertToCCSP(final EqMul lit, final List<IntegerVariable> frontierVariables,
                                                     final CompactOrderEncodingContext context,
-                                                    final CspFactory cf) {
+                                                    final CspFactory cf, final ComputationHandler handler)
+            throws CspHandlerException {
         final int b = context.getBase();
         final IntegerHolder x = lit.getX();
         final IntegerVariable y = lit.getY();
@@ -339,9 +350,9 @@ public class CompactCSPReduction {
         if (x instanceof IntegerConstant && ((IntegerConstant) x).getValue() < b) {
             if (((IntegerConstant) x).getValue() == 0) {
                 assert z instanceof IntegerVariable;
-                return convertToCCSP(new OpXY(OpXY.Operator.LE, z, cf.constant(0)), context, cf);
+                return convertToCCSP(new OpXY(OpXY.Operator.LE, z, cf.constant(0)), context, cf, handler);
             } else if (((IntegerConstant) x).getValue() == 1) {
-                return convertToCCSP(new OpXY(OpXY.Operator.EQ, z, y), context, cf);
+                return convertToCCSP(new OpXY(OpXY.Operator.EQ, z, y), context, cf, handler);
             }
             final IntegerHolder[] v = new IntegerHolder[m];
             final int a = ((IntegerConstant) x).getValue();
@@ -403,7 +414,7 @@ public class CompactCSPReduction {
             if (x instanceof IntegerConstant) {
                 for (int i = 0; i < m; ++i) {
                     final EqMul newLit = new EqMul(w[i], cf.constant(nthValue((IntegerConstant) x, i, context)), y);
-                    ret.addAll(convertToCCSP(newLit, frontierVariables, context, cf));
+                    ret.addAll(convertToCCSP(newLit, frontierVariables, context, cf, handler));
                 }
             } else {
                 final IntegerVariable[] ya = new IntegerVariable[b];
@@ -419,7 +430,7 @@ public class CompactCSPReduction {
                         );
 
                         final OpXY newLit = new OpXY(OpXY.Operator.EQ, w[i], ya[a]);
-                        for (final IntegerClause c : convertToCCSP(newLit, context, cf)) {
+                        for (final IntegerClause c : convertToCCSP(newLit, context, cf, handler)) {
                             final IntegerClause.Builder newClause = new IntegerClause.Builder(c);
                             newClause.addArithmeticLiterals(als);
                             ret.add(newClause.build());
@@ -429,7 +440,7 @@ public class CompactCSPReduction {
 
                 for (int a = 0; a < b; ++a) {
                     final EqMul newLit = new EqMul(ya[a], cf.constant(a), y);
-                    ret.addAll(convertToCCSP(newLit, frontierVariables, context, cf));
+                    ret.addAll(convertToCCSP(newLit, frontierVariables, context, cf, handler));
                 }
             }
 

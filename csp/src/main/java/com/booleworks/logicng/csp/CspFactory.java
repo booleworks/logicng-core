@@ -34,6 +34,9 @@ import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.util.Pair;
 
@@ -764,16 +767,44 @@ public class CspFactory {
      * Encodes a CSP problem as a CNF.
      * @param csp     the CSP problem
      * @param context the encoding context
+     * @param handler handler for precessing encoding events
+     * @return the encoded CNF or the handler event that aborted the computation
+     */
+    public LngResult<List<Formula>> encodeCsp(final Csp csp, final CspEncodingContext context,
+                                              final ComputationHandler handler) {
+        final EncodingResult result = EncodingResult.resultForFormula(formulaFactory);
+        return encodeCsp(csp, context, result, handler).map(EncodingResult::getResult);
+    }
+
+    /**
+     * Encodes a CSP problem as a CNF.
+     * @param csp     the CSP problem
+     * @param context the encoding context
      * @param result  the destination for the encoding
      */
     public void encodeCsp(final Csp csp, final CspEncodingContext context, final EncodingResult result) {
+        encodeCsp(csp, context, result, NopHandler.get());
+    }
+
+    /**
+     * Encodes a CSP problem as a CNF.
+     * <p>
+     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
+     * the handler.
+     * @param csp     the CSP problem
+     * @param context the encoding context
+     * @param result  the destination for the encoding
+     * @param handler handler for processing encoding events
+     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
+     * aborted the computation
+     */
+    public LngResult<EncodingResult> encodeCsp(final Csp csp, final CspEncodingContext context,
+                                               final EncodingResult result, final ComputationHandler handler) {
         switch (context.getAlgorithm()) {
             case Order:
-                OrderEncoding.encode(csp, (OrderEncodingContext) context, result, this);
-                break;
+                return OrderEncoding.encode(csp, (OrderEncodingContext) context, result, this, handler);
             case CompactOrder:
-                CompactOrderEncoding.encode(csp, (CompactOrderEncodingContext) context, result, this);
-                break;
+                return CompactOrderEncoding.encode(csp, (CompactOrderEncodingContext) context, result, this, handler);
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported csp encoding algorithm: " + context.getAlgorithm());
@@ -793,6 +824,19 @@ public class CspFactory {
     }
 
     /**
+     * Encodes an integer variable as a CNF.
+     * @param variable the integer variable
+     * @param context  the encoding context
+     * @param handler  handler for processing encoding event
+     * @return the encoded CNF or the handler event that aborted the computation
+     */
+    public LngResult<List<Formula>> encodeVariable(final IntegerVariable variable, final CspEncodingContext context,
+                                                   final ComputationHandler handler) {
+        final EncodingResult result = EncodingResult.resultForFormula(formulaFactory);
+        return encodeVariable(variable, context, result, handler).map(EncodingResult::getResult);
+    }
+
+    /**
      * Encodes a integer variable as a CNF.
      * @param variable the integer variable
      * @param context  the encoding context
@@ -800,13 +844,29 @@ public class CspFactory {
      */
     public void encodeVariable(final IntegerVariable variable, final CspEncodingContext context,
                                final EncodingResult result) {
+        encodeVariable(variable, context, result, NopHandler.get());
+    }
+
+    /**
+     * Encodes an integer variable as a CNF.
+     * <p>
+     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
+     * the handler.
+     * @param variable the integer variable
+     * @param context  the encoding context
+     * @param result   the destination for the encoding
+     * @param handler  handler for processing encoding events
+     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
+     * aborted the computation
+     */
+    public LngResult<EncodingResult> encodeVariable(final IntegerVariable variable, final CspEncodingContext context,
+                                                    final EncodingResult result, final ComputationHandler handler) {
         switch (context.getAlgorithm()) {
             case Order:
-                OrderEncoding.encodeVariable(variable, (OrderEncodingContext) context, result, this);
-                break;
+                return OrderEncoding.encodeVariable(variable, (OrderEncodingContext) context, result, this, handler);
             case CompactOrder:
-                CompactOrderEncoding.encodeVariable(variable, (CompactOrderEncodingContext) context, result, this);
-                break;
+                return CompactOrderEncoding.encodeVariable(variable, (CompactOrderEncodingContext) context, result,
+                        this, handler);
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported csp encoding algorithm: " + context.getAlgorithm());
@@ -829,24 +889,60 @@ public class CspFactory {
      * Encodes a CSP predicate as a CNF.
      * @param predicate the predicate
      * @param context   the encoding context
+     * @param handler   handler for processing encoding events
+     * @return a result containing the encoded CNF or the handler event that aborted the computation
+     */
+    public LngResult<List<Formula>> encodeConstraint(final CspPredicate predicate, final CspEncodingContext context,
+                                                     final ComputationHandler handler) {
+        final EncodingResult result = EncodingResult.resultForFormula(formulaFactory);
+        return encodeConstraint(predicate, context, result, handler).map(EncodingResult::getResult);
+    }
+
+    /**
+     * Encodes a CSP predicate as a CNF.
+     * @param predicate the predicate
+     * @param context   the encoding context
      * @param result    the destination for the encoding
      */
     public void encodeConstraint(final CspPredicate predicate, final CspEncodingContext context,
                                  final EncodingResult result) {
+        encodeConstraint(predicate, context, result, NopHandler.get());
+    }
+
+    /**
+     * Encodes a CSP predicate as a CNF.
+     * <p>
+     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
+     * the handler.
+     * @param predicate the predicate
+     * @param context   the encoding context
+     * @param result    the destination for the encoding
+     * @param handler   handler for processing encoding events
+     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
+     * aborted the computation
+     */
+    public LngResult<EncodingResult> encodeConstraint(final CspPredicate predicate, final CspEncodingContext context,
+                                                      final EncodingResult result, final ComputationHandler handler) {
         final CspPredicate.Decomposition decomp = predicate.decompose(this);
+        LngResult<EncodingResult> r;
         switch (context.getAlgorithm()) {
             case Order:
                 for (final IntegerVariable auxVar : decomp.getAuxiliaryIntegerVariables()) {
-                    OrderEncoding.encodeVariable(auxVar, (OrderEncodingContext) context, result, this);
+                    r = OrderEncoding.encodeVariable(auxVar, (OrderEncodingContext) context, result, this, handler);
+                    if (!r.isSuccess()) {
+                        return r;
+                    }
                 }
-                OrderEncoding.encodeClauses(decomp.getClauses(), (OrderEncodingContext) context, result, this);
-                break;
+                return OrderEncoding.encodeClauses(decomp.getClauses(), (OrderEncodingContext) context, result, this,
+                        handler);
             case CompactOrder:
-                CompactOrderEncoding.encodeVariables(decomp.getAuxiliaryIntegerVariables(),
-                        (CompactOrderEncodingContext) context, result, this);
-                CompactOrderEncoding.encodeClauses(decomp.getClauses(), (CompactOrderEncodingContext) context, result,
-                        this);
-                break;
+                r = CompactOrderEncoding.encodeVariables(decomp.getAuxiliaryIntegerVariables(),
+                        (CompactOrderEncodingContext) context, result, this, handler);
+                if (!r.isSuccess()) {
+                    return r;
+                }
+                return CompactOrderEncoding.encodeClauses(decomp.getClauses(), (CompactOrderEncodingContext) context,
+                        result, this, handler);
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported csp encoding algorithm: " + context.getAlgorithm());

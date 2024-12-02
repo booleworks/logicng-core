@@ -3,6 +3,7 @@ package com.booleworks.logicng.csp.encodings;
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.datastructures.IntegerClause;
 import com.booleworks.logicng.csp.datastructures.LinearExpression;
+import com.booleworks.logicng.csp.handlers.CspHandlerException;
 import com.booleworks.logicng.csp.literals.ArithmeticLiteral;
 import com.booleworks.logicng.csp.literals.LinearLiteral;
 import com.booleworks.logicng.csp.literals.ProductLiteral;
@@ -10,6 +11,7 @@ import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,14 +47,17 @@ public class OrderReduction {
      * @param clauses the clauses
      * @param context the encoding context
      * @param cf      the factory
+     * @param handler for processing encoding events
      * @return the reduced problem
+     * @throws CspHandlerException if the computation was aborted by the handler
      */
     static ReductionResult reduce(final Set<IntegerClause> clauses, final OrderEncodingContext context,
-                                  final CspFactory cf) {
+                                  final CspFactory cf, final ComputationHandler handler) throws CspHandlerException {
         final List<IntegerVariable> auxVars = new ArrayList<>();
         final Set<IntegerClause> newClauses =
-                toLinearLe(simplify(split(clauses, auxVars, context, cf), context, cf.getFormulaFactory()), context,
-                        cf.getFormulaFactory());
+                toLinearLe(simplify(split(clauses, auxVars, context, cf), context, cf.getFormulaFactory(), handler),
+                        context,
+                        cf.getFormulaFactory(), handler);
         return new ReductionResult(newClauses, auxVars);
     }
 
@@ -80,7 +85,8 @@ public class OrderReduction {
     }
 
     private static Set<IntegerClause> simplify(final Set<IntegerClause> clauses, final OrderEncodingContext context,
-                                               final FormulaFactory f) {
+                                               final FormulaFactory f, final ComputationHandler handler)
+            throws CspHandlerException {
         final Set<IntegerClause> newClauses = new LinkedHashSet<>();
         for (final IntegerClause clause : clauses) {
             if (clause.isValid()) {
@@ -88,14 +94,15 @@ public class OrderReduction {
             } else if (OrderEncoding.isSimpleClause(clause)) {
                 newClauses.add(clause);
             } else {
-                newClauses.addAll(simplifyClause(clause, clause.getBoolLiterals(), context, f));
+                newClauses.addAll(simplifyClause(clause, clause.getBoolLiterals(), context, f, handler));
             }
         }
         return newClauses;
     }
 
     private static Set<IntegerClause> toLinearLe(final Set<IntegerClause> clauses, final OrderEncodingContext context,
-                                                 final FormulaFactory f) {
+                                                 final FormulaFactory f, final ComputationHandler handler)
+            throws CspHandlerException {
         final Set<IntegerClause> newClauses = new LinkedHashSet<>();
         for (final IntegerClause c : clauses) {
             if (c.size() == OrderEncoding.simpleClauseSize(c)) {
@@ -114,7 +121,7 @@ public class OrderReduction {
                 assert nonSimpleLiteral != null;
                 if (nonSimpleLiteral instanceof LinearLiteral) {
                     newClauses.addAll(reduceLinearLiteralToLinearLE((LinearLiteral) nonSimpleLiteral, simpleLiterals,
-                            c.getBoolLiterals(), context, f));
+                            c.getBoolLiterals(), context, f, handler));
                 } else if (nonSimpleLiteral instanceof ProductLiteral) {
                     newClauses.addAll(reduceProductLiteralToLinearLE((ProductLiteral) nonSimpleLiteral, simpleLiterals,
                             c.getBoolLiterals(), context, f));
@@ -131,7 +138,9 @@ public class OrderReduction {
                                                                     final Set<ArithmeticLiteral> simpleLiterals,
                                                                     final Set<Literal> boolLiterals,
                                                                     final OrderEncodingContext context,
-                                                                    final FormulaFactory f) {
+                                                                    final FormulaFactory f,
+                                                                    final ComputationHandler handler)
+            throws CspHandlerException {
         switch (literal.getOperator()) {
             case LE:
                 final Set<ArithmeticLiteral> lits = new LinkedHashSet<>(simpleLiterals);
@@ -157,7 +166,7 @@ public class OrderReduction {
                 litsNe.add(new LinearLiteral(ls1.build(), LinearLiteral.Operator.LE));
                 litsNe.add(new LinearLiteral(ls2.build(), LinearLiteral.Operator.LE));
                 final IntegerClause newClause = new IntegerClause(Collections.emptySortedSet(), litsNe);
-                return simplifyClause(newClause, boolLiterals, context, f);
+                return simplifyClause(newClause, boolLiterals, context, f, handler);
             default:
                 throw new IllegalArgumentException(
                         "Invalid operator of linear expression for order encoding reduction: " + literal.getOperator());
@@ -205,8 +214,8 @@ public class OrderReduction {
     }
 
     private static Set<IntegerClause> simplifyClause(final IntegerClause clause, final Set<Literal> initBoolLiterals,
-                                                     final OrderEncodingContext context,
-                                                     final FormulaFactory f) {
+                                                     final OrderEncodingContext context, final FormulaFactory f,
+                                                     final ComputationHandler handler) throws CspHandlerException {
         final Set<IntegerClause> newClauses = new LinkedHashSet<>();
         final Set<ArithmeticLiteral> newArithLiterals = new LinkedHashSet<>();
         final Set<Literal> newBoolLiterals = new LinkedHashSet<>(initBoolLiterals);
@@ -214,7 +223,7 @@ public class OrderReduction {
             if (OrderEncoding.isSimpleLiteral(literal)) {
                 newArithLiterals.add(literal);
             } else {
-                final Variable p = context.newSimplifyBooleanVariable(f);
+                final Variable p = context.newSimplifyBooleanVariable(f, handler);
                 final Literal notP = p.negate(f);
                 final Set<Literal> boolLiterals = new LinkedHashSet<>();
                 final Set<ArithmeticLiteral> arithLiterals = new LinkedHashSet<>();
