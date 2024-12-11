@@ -8,8 +8,8 @@ import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
-import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.datastructures.Model;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
 import com.booleworks.logicng.encodings.CcEncoder;
 import com.booleworks.logicng.encodings.CcIncrementalData;
 import com.booleworks.logicng.encodings.PbEncoder;
@@ -130,14 +130,14 @@ public class SatSolver {
                                 proposition);
                     } else {
                         CcEncoder.encode((CardinalityConstraint) constraint,
-                                EncodingResult.resultForSatSolver(f, solver, proposition));
+                                EncodingResult.forSatSolver(f, solver, proposition));
                     }
                 } else {
                     CcEncoder.encode((CardinalityConstraint) constraint,
-                            EncodingResult.resultForSatSolver(f, solver, proposition));
+                            EncodingResult.forSatSolver(f, solver, proposition));
                 }
             } else {
-                PbEncoder.encode(constraint, EncodingResult.resultForSatSolver(f, solver, proposition));
+                PbEncoder.encode(constraint, EncodingResult.forSatSolver(f, solver, proposition));
             }
         } else {
             addFormulaAsCnf(formula, proposition);
@@ -228,7 +228,7 @@ public class SatSolver {
      * right-hand side of cc is 1
      */
     public CcIncrementalData addIncrementalCc(final CardinalityConstraint cc) {
-        final EncodingResult result = EncodingResult.resultForSatSolver(f, solver, null);
+        final EncodingResult result = EncodingResult.forSatSolver(f, solver, null);
         return CcEncoder.encodeIncremental(cc, result);
     }
 

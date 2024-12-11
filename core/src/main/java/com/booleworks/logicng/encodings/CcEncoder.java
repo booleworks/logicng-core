@@ -5,7 +5,8 @@
 package com.booleworks.logicng.encodings;
 
 import com.booleworks.logicng.configurations.ConfigurationType;
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultFF;
 import com.booleworks.logicng.encodings.cc.CcAmo;
 import com.booleworks.logicng.encodings.cc.CcCardinalityNetwork;
 import com.booleworks.logicng.encodings.cc.CcModularTotalizer;
@@ -64,7 +65,7 @@ public class CcEncoder {
      */
     public static List<Formula> encode(final FormulaFactory f, final CardinalityConstraint cc,
                                        final EncoderConfig config) {
-        final EncodingResult result = EncodingResult.resultForFormula(f);
+        final EncodingResultFF result = EncodingResult.forFormulaFactory(f);
         encodeConstraint(cc, result, config);
         return Collections.unmodifiableList(result.getResult());
     }
@@ -96,7 +97,7 @@ public class CcEncoder {
      */
     public static Pair<List<Formula>, CcIncrementalData> encodeIncremental(final FormulaFactory f,
                                                                            final CardinalityConstraint cc) {
-        final EncodingResult result = EncodingResult.resultForFormula(f);
+        final EncodingResultFF result = EncodingResult.forFormulaFactory(f);
         final CcIncrementalData incData = encodeIncremental(cc, result);
         return new Pair<>(Collections.unmodifiableList(result.getResult()), incData);
     }
@@ -110,7 +111,7 @@ public class CcEncoder {
      */
     public static Pair<List<Formula>, CcIncrementalData>
     encodeIncremental(final FormulaFactory f, final CardinalityConstraint cc, final EncoderConfig config) {
-        final EncodingResult result = EncodingResult.resultForFormula(f);
+        final EncodingResultFF result = EncodingResult.forFormulaFactory(f);
         final CcIncrementalData incData = encodeIncremental(cc, result, config);
         return new Pair<>(Collections.unmodifiableList(result.getResult()), incData);
     }
@@ -141,7 +142,8 @@ public class CcEncoder {
                                                                    final EncodingResult result,
                                                                    final EncoderConfig initConfig) {
         final var config = initConfig != null ? initConfig
-                : (EncoderConfig) result.getFactory().configurationFor(ConfigurationType.ENCODER);
+                                              : (EncoderConfig) result.getFactory()
+                                                      .configurationFor(ConfigurationType.ENCODER);
         final Variable[] ops = FormulaHelper.literalsAsVariables(cc.getOperands());
         if (cc.isAmo()) {
             throw new IllegalArgumentException("Incremental encodings are not supported for at-most-one constraints");
@@ -164,7 +166,8 @@ public class CcEncoder {
     protected static void encodeConstraint(final CardinalityConstraint cc, final EncodingResult result,
                                            final EncoderConfig initConfig) {
         final var config = initConfig != null ? initConfig
-                : (EncoderConfig) result.getFactory().configurationFor(ConfigurationType.ENCODER);
+                                              : (EncoderConfig) result.getFactory()
+                                                      .configurationFor(ConfigurationType.ENCODER);
         final Variable[] ops = FormulaHelper.literalsAsVariables(cc.getOperands());
         switch (cc.comparator()) {
             case LE:

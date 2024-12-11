@@ -30,7 +30,7 @@ import com.booleworks.logicng.csp.terms.NegationFunction;
 import com.booleworks.logicng.csp.terms.SubtractionFunction;
 import com.booleworks.logicng.csp.terms.Term;
 import com.booleworks.logicng.datastructures.Assignment;
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
@@ -758,7 +758,7 @@ public class CspFactory {
      * @return the encoded CNF
      */
     public List<Formula> encodeCsp(final Csp csp, final CspEncodingContext context) {
-        final EncodingResult result = EncodingResult.resultForFormula(formulaFactory);
+        final EncodingResult result = EncodingResult.forFormulaFactory(formulaFactory);
         encodeCsp(csp, context, result);
         return result.getResult();
     }
@@ -772,7 +772,7 @@ public class CspFactory {
      */
     public LngResult<List<Formula>> encodeCsp(final Csp csp, final CspEncodingContext context,
                                               final ComputationHandler handler) {
-        final EncodingResult result = EncodingResult.resultForFormula(formulaFactory);
+        final EncodingResult result = EncodingResult.forFormulaFactory(formulaFactory);
         return encodeCsp(csp, context, result, handler).map(EncodingResult::getResult);
     }
 
@@ -818,7 +818,7 @@ public class CspFactory {
      * @return the encoded CNF
      */
     public List<Formula> encodeVariable(final IntegerVariable variable, final CspEncodingContext context) {
-        final EncodingResult result = EncodingResult.resultForFormula(formulaFactory);
+        final EncodingResult result = EncodingResult.forFormulaFactory(formulaFactory);
         encodeVariable(variable, context, result);
         return result.getResult();
     }
@@ -832,7 +832,7 @@ public class CspFactory {
      */
     public LngResult<List<Formula>> encodeVariable(final IntegerVariable variable, final CspEncodingContext context,
                                                    final ComputationHandler handler) {
-        final EncodingResult result = EncodingResult.resultForFormula(formulaFactory);
+        final EncodingResult result = EncodingResult.forFormulaFactory(formulaFactory);
         return encodeVariable(variable, context, result, handler).map(EncodingResult::getResult);
     }
 
@@ -880,7 +880,7 @@ public class CspFactory {
      * @return the encoded CNF
      */
     public List<Formula> encodeConstraint(final CspPredicate predicate, final CspEncodingContext context) {
-        final EncodingResult result = EncodingResult.resultForFormula(formulaFactory);
+        final EncodingResult result = EncodingResult.forFormulaFactory(formulaFactory);
         encodeConstraint(predicate, context, result);
         return result.getResult();
     }
@@ -894,7 +894,7 @@ public class CspFactory {
      */
     public LngResult<List<Formula>> encodeConstraint(final CspPredicate predicate, final CspEncodingContext context,
                                                      final ComputationHandler handler) {
-        final EncodingResult result = EncodingResult.resultForFormula(formulaFactory);
+        final EncodingResult result = EncodingResult.forFormulaFactory(formulaFactory);
         return encodeConstraint(predicate, context, result, handler).map(EncodingResult::getResult);
     }
 

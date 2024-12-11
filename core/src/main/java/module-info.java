@@ -10,6 +10,7 @@ module logicng.core {
     exports com.booleworks.logicng.configurations;
 
     exports com.booleworks.logicng.datastructures;
+    exports com.booleworks.logicng.datastructures.encodingresult;
     exports com.booleworks.logicng.datastructures.ubtrees;
 
     exports com.booleworks.logicng.explanations;

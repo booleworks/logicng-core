@@ -23,7 +23,7 @@
 package com.booleworks.logicng.encodings.cc;
 
 import com.booleworks.logicng.collections.LngVector;
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
 import com.booleworks.logicng.encodings.CcIncrementalData;
 import com.booleworks.logicng.encodings.EncoderConfig;
 import com.booleworks.logicng.formulas.FormulaFactory;
