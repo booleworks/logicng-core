@@ -12,6 +12,7 @@ import com.booleworks.logicng.csp.functions.CspModelEnumeration;
 import com.booleworks.logicng.csp.predicates.CspPredicate;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultSolver;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.SatSolver;
@@ -70,7 +71,7 @@ public class CompactOrderEncodingTest extends ParameterizedCspTest {
     private List<CspAssignment> enumerate(final Csp csp, final CspEncodingContext context, final CspFactory cf) {
         final SatSolver solver = SatSolver.newSolver(cf.getFormulaFactory());
         final EncodingResult result =
-                EncodingResult.forSatSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
+                new EncodingResultSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
         return CspModelEnumeration.enumerate(solver, csp, context, cf);
     }
@@ -79,7 +80,7 @@ public class CompactOrderEncodingTest extends ParameterizedCspTest {
                                                final CspFactory cf) {
         final SatSolver solver = SatSolver.newSolver(cf.getFormulaFactory());
         final CspEncodingContext context = CspEncodingContext.order();
-        final EncodingResult result = EncodingResult.forSatSolver(cf.getFormulaFactory(),
+        final EncodingResult result = new EncodingResultSolver(cf.getFormulaFactory(),
                 solver.getUnderlyingSolver(), null);
         final Csp expectedCsp = cf.buildCsp(p);
         cf.encodeCsp(expectedCsp, context, result);
@@ -107,7 +108,7 @@ public class CompactOrderEncodingTest extends ParameterizedCspTest {
         for (final CspPredicate p : formulas) {
             final SatSolver solver = SatSolver.newSolver(cf.getFormulaFactory());
             final EncodingResult result =
-                    EncodingResult.forSatSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
+                    new EncodingResultSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
             for (final IntegerVariable v : p.variables()) {
                 cf.encodeVariable(v, context, result);
             }

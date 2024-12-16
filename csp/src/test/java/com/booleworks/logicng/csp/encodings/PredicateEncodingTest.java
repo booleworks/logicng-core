@@ -1,5 +1,8 @@
 package com.booleworks.logicng.csp.encodings;
 
+import static com.booleworks.logicng.csp.Common.assignmentFrom;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.ParameterizedCspTest;
 import com.booleworks.logicng.csp.datastructures.Csp;
@@ -8,15 +11,13 @@ import com.booleworks.logicng.csp.functions.CspModelEnumeration;
 import com.booleworks.logicng.csp.predicates.CspPredicate;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultSolver;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
-
-import static com.booleworks.logicng.csp.Common.assignmentFrom;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class PredicateEncodingTest extends ParameterizedCspTest {
 
@@ -184,7 +185,7 @@ public class PredicateEncodingTest extends ParameterizedCspTest {
         final Csp csp = cf.buildCsp(formula);
         final SatSolver solver = SatSolver.newSolver(cf.getFormulaFactory());
         final EncodingResult result =
-                EncodingResult.forSatSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
+                new EncodingResultSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
         final List<CspAssignment> models = CspModelEnumeration.enumerate(solver, csp, context, cf);
         assertThat(models).containsExactlyInAnyOrderElementsOf(expected);
