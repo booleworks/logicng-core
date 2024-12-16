@@ -39,7 +39,7 @@ public class PbEncoder {
      * @return the CNF encoding of the pseudo-Boolean constraint
      */
     public static List<Formula> encode(final FormulaFactory f, final PbConstraint constraint) {
-        final EncodingResultFF result = EncodingResult.forFormulaFactory(f);
+        final EncodingResultFF result = new EncodingResultFF(f);
         encode(constraint, result, null);
         return Collections.unmodifiableList(result.getResult());
     }
@@ -62,7 +62,7 @@ public class PbEncoder {
      */
     public static List<Formula> encode(final FormulaFactory f, final PbConstraint constraint,
                                        final EncoderConfig config) {
-        final EncodingResult result = EncodingResult.forFormulaFactory(f);
+        final EncodingResultFF result = new EncodingResultFF(f);
         encode(constraint, result, config);
         return Collections.unmodifiableList(result.getResult());
     }

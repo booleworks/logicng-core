@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LogicNGTest;
 import com.booleworks.logicng.LongRunningTag;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultSolver;
 import com.booleworks.logicng.formulas.CType;
 import com.booleworks.logicng.formulas.CardinalityConstraint;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -54,7 +55,8 @@ public class CcIncrementalSolverTest implements LogicNGTest {
 
             f.putConfiguration(config);
 
-            final CcIncrementalData incData = solver.addIncrementalCc((CardinalityConstraint) f.cc(CType.LE, 9, vars));
+            final CcIncrementalData<EncodingResultSolver> incData =
+                    solver.addIncrementalCc((CardinalityConstraint) f.cc(CType.LE, 9, vars));
             assertSolverSat(solver); // <= 9
             incData.newUpperBoundForSolver(8); // <= 8
             assertSolverSat(solver);
@@ -95,7 +97,7 @@ public class CcIncrementalSolverTest implements LogicNGTest {
 
                 f.putConfiguration(config);
 
-                final CcIncrementalData incData =
+                final CcIncrementalData<EncodingResultSolver> incData =
                         solver.addIncrementalCc((CardinalityConstraint) f.cc(CType.GE, 2, vars));
                 assertSolverSat(solver); // >=2
                 incData.newLowerBoundForSolver(3); // >= 3
@@ -133,7 +135,7 @@ public class CcIncrementalSolverTest implements LogicNGTest {
         for (final SatSolver solver : solvers) {
             solver.add(f.cc(CType.GE, 42, vars)); // >= 42
             f.putConfiguration(configs[0]);
-            final CcIncrementalData incData =
+            final CcIncrementalData<EncodingResultSolver> incData =
                     solver.addIncrementalCc((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
             // search the lower bound
             while (solver.sat()) {
@@ -157,7 +159,7 @@ public class CcIncrementalSolverTest implements LogicNGTest {
         }
         solver.add(f.cc(CType.LE, 87, vars));
         f.putConfiguration(configs[0]);
-        final CcIncrementalData incData =
+        final CcIncrementalData<EncodingResultSolver> incData =
                 solver.addIncrementalCc((CardinalityConstraint) f.cc(CType.GE, currentBound, vars));
         // search the lower bound
         while (solver.sat()) {
@@ -178,7 +180,7 @@ public class CcIncrementalSolverTest implements LogicNGTest {
                 vars[i] = f.variable("v" + i);
             }
             solver.add(f.cc(CType.GE, 42, vars)); // >= 42
-            final CcIncrementalData incData =
+            final CcIncrementalData<EncodingResultSolver> incData =
                     solver.addIncrementalCc((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
             // search the lower bound
             while (solver.sat()) {
@@ -202,7 +204,7 @@ public class CcIncrementalSolverTest implements LogicNGTest {
                 vars[i] = f.variable("v" + i);
             }
             solver.add(f.cc(CType.GE, 234, vars));
-            final CcIncrementalData incData =
+            final CcIncrementalData<EncodingResultSolver> incData =
                     solver.addIncrementalCc((CardinalityConstraint) f.cc(CType.LE, currentBound, vars));
             // search the lower bound
             while (solver.sat()) {

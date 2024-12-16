@@ -9,7 +9,7 @@ import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.datastructures.Model;
-import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultSolver;
 import com.booleworks.logicng.encodings.CcEncoder;
 import com.booleworks.logicng.encodings.CcIncrementalData;
 import com.booleworks.logicng.encodings.PbEncoder;
@@ -130,14 +130,14 @@ public class SatSolver {
                                 proposition);
                     } else {
                         CcEncoder.encode((CardinalityConstraint) constraint,
-                                EncodingResult.forSatSolver(f, solver, proposition));
+                                new EncodingResultSolver(f, solver, proposition));
                     }
                 } else {
                     CcEncoder.encode((CardinalityConstraint) constraint,
-                            EncodingResult.forSatSolver(f, solver, proposition));
+                            new EncodingResultSolver(f, solver, proposition));
                 }
             } else {
-                PbEncoder.encode(constraint, EncodingResult.forSatSolver(f, solver, proposition));
+                PbEncoder.encode(constraint, new EncodingResultSolver(f, solver, proposition));
             }
         } else {
             addFormulaAsCnf(formula, proposition);
@@ -227,8 +227,8 @@ public class SatSolver {
      * @return the incremental data of this constraint, or null if the
      * right-hand side of cc is 1
      */
-    public CcIncrementalData addIncrementalCc(final CardinalityConstraint cc) {
-        final EncodingResult result = EncodingResult.forSatSolver(f, solver, null);
+    public CcIncrementalData<EncodingResultSolver> addIncrementalCc(final CardinalityConstraint cc) {
+        final EncodingResultSolver result = new EncodingResultSolver(f, solver, null);
         return CcEncoder.encodeIncremental(cc, result);
     }
 

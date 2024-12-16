@@ -2,15 +2,11 @@ package com.booleworks.logicng.datastructures.encodingresult;
 
 import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.collections.LngVector;
-import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.sat.LngCoreSolver;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * An encoding result that writes the encoding directly to a solver.
@@ -25,7 +21,7 @@ public final class EncodingResultSolver implements EncodingResult {
      * @param solver      the solver instance
      * @param proposition the original proposition
      */
-    EncodingResultSolver(final FormulaFactory f, final LngCoreSolver solver, final Proposition proposition) {
+    public EncodingResultSolver(final FormulaFactory f, final LngCoreSolver solver, final Proposition proposition) {
         this.f = f;
         this.solver = solver;
         this.proposition = proposition;
@@ -75,11 +71,6 @@ public final class EncodingResultSolver implements EncodingResult {
     @Override
     public FormulaFactory getFactory() {
         return f;
-    }
-
-    @Override
-    public List<Formula> getResult() {
-        return new ArrayList<>();
     }
 
     /**

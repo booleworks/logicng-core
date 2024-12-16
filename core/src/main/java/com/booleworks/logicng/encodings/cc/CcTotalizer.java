@@ -55,14 +55,15 @@ public final class CcTotalizer {
      * @throws IllegalArgumentException if the right-hand side of the constraint
      *                                  was negative
      */
-    public static CcIncrementalData amk(final EncodingResult result, final Variable[] vars, final int rhs) {
+    public static <T extends EncodingResult> CcIncrementalData<T> amk(final T result, final Variable[] vars,
+                                                                      final int rhs) {
         final TotalizerVars tv = initializeConstraint(result, vars);
         toCnf(result, tv, rhs, Bound.UPPER);
         assert tv.invars.isEmpty();
         for (int i = rhs; i < tv.outvars.size(); i++) {
             result.addClause(tv.outvars.get(i).negate(result.getFactory()));
         }
-        return new CcIncrementalData(result, EncoderConfig.AmkEncoder.TOTALIZER, rhs, tv.outvars);
+        return new CcIncrementalData<>(result, EncoderConfig.AmkEncoder.TOTALIZER, rhs, tv.outvars);
     }
 
     /**
@@ -74,14 +75,15 @@ public final class CcTotalizer {
      * @throws IllegalArgumentException if the right-hand side of the constraint
      *                                  was negative
      */
-    public static CcIncrementalData alk(final EncodingResult result, final Variable[] vars, final int rhs) {
+    public static <T extends EncodingResult> CcIncrementalData<T> alk(final T result,
+                                                                      final Variable[] vars, final int rhs) {
         final TotalizerVars tv = initializeConstraint(result, vars);
         toCnf(result, tv, rhs, Bound.LOWER);
         assert tv.invars.isEmpty();
         for (int i = 0; i < rhs; i++) {
             result.addClause(tv.outvars.get(i));
         }
-        return new CcIncrementalData(result, EncoderConfig.AlkEncoder.TOTALIZER, rhs, vars.length, tv.outvars);
+        return new CcIncrementalData<>(result, EncoderConfig.AlkEncoder.TOTALIZER, rhs, vars.length, tv.outvars);
     }
 
     /**

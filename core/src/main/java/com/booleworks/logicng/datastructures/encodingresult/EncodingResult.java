@@ -5,15 +5,10 @@
 package com.booleworks.logicng.datastructures.encodingresult;
 
 import com.booleworks.logicng.collections.LngVector;
-import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.InternalAuxVarType;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.propositions.Proposition;
-import com.booleworks.logicng.solvers.sat.LngCoreSolver;
-
-import java.util.List;
 
 /**
  * The result of an encoding.
@@ -87,34 +82,4 @@ public interface EncodingResult {
      * @return the {@link FormulaFactory}
      */
     FormulaFactory getFactory();
-
-    /**
-     * Returns the result. The result might not be complete if the encoding
-     * result materialize its input as formulas on the formula factory only
-     * partially. E.g. the encoding result for a SAT Solver does not materialize
-     * any formulas.
-     * @return the result
-     */
-    List<Formula> getResult();
-
-    /**
-     * Constructs a new result which stores the result in a formula.
-     * @param f the formula factory
-     * @return the result
-     */
-    static EncodingResultFF forFormulaFactory(final FormulaFactory f) {
-        return new EncodingResultFF(f);
-    }
-
-    /**
-     * Constructs a new result which adds the result directly to a given solver.
-     * @param solver      the solver
-     * @param proposition the original proposition of the cardinality constraint
-     * @return the result
-     */
-    static EncodingResultSolver forSatSolver(final FormulaFactory f, final LngCoreSolver solver,
-                                             final Proposition proposition) {
-        return new EncodingResultSolver(f, solver, proposition);
-    }
-
 }

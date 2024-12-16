@@ -48,7 +48,8 @@ public final class CcModularTotalizer {
      * @param rhs    the right-hand side of the constraint
      * @return the incremental data for this constraint
      */
-    public static CcIncrementalData amk(final EncodingResult result, final Variable[] vars, final int rhs) {
+    public static <T extends EncodingResult> CcIncrementalData<T> amk(final T result, final Variable[] vars,
+                                                                      final int rhs) {
         final var state = new State(result.getFactory());
         final int mod = initialize(result, rhs, vars.length, state);
         for (final Variable var : vars) {
@@ -58,7 +59,7 @@ public final class CcModularTotalizer {
         assert state.inlits.isEmpty();
         encodeOutput(result, rhs, mod, state);
         state.currentCardinalityRhs = rhs + 1;
-        return new CcIncrementalData(result, EncoderConfig.AmkEncoder.MODULAR_TOTALIZER, rhs,
+        return new CcIncrementalData<>(result, EncoderConfig.AmkEncoder.MODULAR_TOTALIZER, rhs,
                 state.cardinalityUpOutvars,
                 state.cardinalityLwOutvars, mod);
     }
@@ -70,7 +71,8 @@ public final class CcModularTotalizer {
      * @param rhs    the right-hand side of the constraint
      * @return the incremental data for this constraint
      */
-    public static CcIncrementalData alk(final EncodingResult result, final Variable[] vars, final int rhs) {
+    public static <T extends EncodingResult> CcIncrementalData<T> alk(final T result, final Variable[] vars,
+                                                                      final int rhs) {
         final var state = new State(result.getFactory());
         final int newRhs = vars.length - rhs;
         final int mod = initialize(result, newRhs, vars.length, state);
@@ -81,7 +83,7 @@ public final class CcModularTotalizer {
         assert state.inlits.isEmpty();
         encodeOutput(result, newRhs, mod, state);
         state.currentCardinalityRhs = newRhs + 1;
-        return new CcIncrementalData(result, EncoderConfig.AlkEncoder.MODULAR_TOTALIZER, rhs, vars.length,
+        return new CcIncrementalData<>(result, EncoderConfig.AlkEncoder.MODULAR_TOTALIZER, rhs, vars.length,
                 state.cardinalityUpOutvars, state.cardinalityLwOutvars, mod);
     }
 

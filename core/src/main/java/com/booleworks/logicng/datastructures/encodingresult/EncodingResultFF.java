@@ -23,7 +23,7 @@ public final class EncodingResultFF implements EncodingResult {
      * {@link FormulaFactory}.
      * @param f the formula factory
      */
-    EncodingResultFF(final FormulaFactory f) {
+    public EncodingResultFF(final FormulaFactory f) {
         this.f = f;
         result = new ArrayList<>();
     }
@@ -47,7 +47,6 @@ public final class EncodingResultFF implements EncodingResult {
         return f.newAuxVariable(auxType);
     }
 
-    @Override
     public List<Formula> getResult() {
         return result;
     }
