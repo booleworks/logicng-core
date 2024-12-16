@@ -16,6 +16,13 @@ public abstract class ParameterizedCspTest {
         return factories;
     }
 
+    public static Collection<CspEncodingContext> algorithms() {
+        final List<CspEncodingContext> contexts = new ArrayList<>();
+        contexts.add(CspEncodingContext.order());
+        contexts.add(CspEncodingContext.compactOrder(5));
+        return contexts;
+    }
+
     public static Collection<Arguments> algorithmsAndFactories() {
         final List<Arguments> args = new ArrayList<>();
         args.add(Arguments.arguments(new CspFactory(FormulaFactory.caching()), CspEncodingContext.order()));

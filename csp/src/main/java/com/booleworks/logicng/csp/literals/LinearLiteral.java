@@ -65,6 +65,20 @@ public class LinearLiteral implements ArithmeticLiteral {
         return op;
     }
 
+    public LinearLiteral negate() {
+        switch (op) {
+            case LE:
+                return new LinearLiteral(new LinearExpression.Builder(sum).setB(sum.getB() - 1).multiply(-1).build(),
+                        Operator.LE);
+            case EQ:
+                return new LinearLiteral(sum, Operator.NE);
+            case NE:
+                return new LinearLiteral(sum, Operator.EQ);
+            default:
+                throw new RuntimeException("Unreachable code");
+        }
+    }
+
     @Override
     public Set<IntegerVariable> getVariables() {
         return sum.getVariables();

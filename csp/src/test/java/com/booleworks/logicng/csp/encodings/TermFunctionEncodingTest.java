@@ -22,6 +22,35 @@ public class TermFunctionEncodingTest extends ParameterizedCspTest {
 
     @ParameterizedTest
     @MethodSource("algorithmsAndFactories")
+    public void testVariables(final CspFactory cf, final CspEncodingContext context) {
+        final IntegerVariable a = cf.variable("A", 0, 5);
+        final IntegerVariable b = cf.variable("B", 2, 10);
+        final CspPredicate p = cf.eq(a, b);
+
+        checkModels(p, cf, context, List.of(
+                assignmentFrom(a, 2, b, 2),
+                assignmentFrom(a, 3, b, 3),
+                assignmentFrom(a, 4, b, 4),
+                assignmentFrom(a, 5, b, 5)
+        ));
+    }
+
+    @ParameterizedTest
+    @MethodSource("algorithmsAndFactories")
+    public void testVariables2(final CspFactory cf, final CspEncodingContext context) {
+        final IntegerVariable a = cf.variable("A", 0, 5);
+        final IntegerVariable b = cf.variable("B", List.of(0, 2, 4));
+        final CspPredicate p = cf.eq(a, b);
+
+        checkModels(p, cf, context, List.of(
+                assignmentFrom(a, 0, b, 0),
+                assignmentFrom(a, 2, b, 2),
+                assignmentFrom(a, 4, b, 4)
+        ));
+    }
+
+    @ParameterizedTest
+    @MethodSource("algorithmsAndFactories")
     public void testAdd(final CspFactory cf, final CspEncodingContext context) {
         final IntegerVariable a = cf.variable("A", 2, 4);
         final IntegerVariable b = cf.variable("B", -2, 1);

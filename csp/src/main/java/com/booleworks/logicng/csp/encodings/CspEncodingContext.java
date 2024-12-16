@@ -45,7 +45,16 @@ public interface CspEncodingContext {
      * @return a new context for order encoding
      */
     static OrderEncodingContext order() {
-        return new OrderEncodingContext();
+        return new OrderEncodingContext(false);
+    }
+
+    /**
+     * Returns a new context for order encoding. This variant of the order encoding adds additional clauses to ensure
+     * that the model count is preserved.
+     * @return a new context for order encoding
+     */
+    static OrderEncodingContext order_model_count() {
+        return new OrderEncodingContext(true);
     }
 
     /**

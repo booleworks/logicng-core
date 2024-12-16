@@ -225,13 +225,16 @@ public class OrderReduction {
             } else {
                 final Variable p = context.newSimplifyBooleanVariable(f, handler);
                 final Literal notP = p.negate(f);
-                final Set<Literal> boolLiterals = new LinkedHashSet<>();
-                final Set<ArithmeticLiteral> arithLiterals = new LinkedHashSet<>();
-                boolLiterals.add(notP);
-                arithLiterals.add(literal);
-                final IntegerClause newClause = new IntegerClause(boolLiterals, arithLiterals);
+                final IntegerClause newClause =
+                        new IntegerClause.Builder().addBooleanLiteral(notP).addArithmeticLiteral(literal).build();
                 newClauses.add(newClause);
                 newBoolLiterals.add(p);
+                if (context.is_preserve_model_count()) {
+                    final LinearLiteral notL = ((LinearLiteral) literal).negate();
+                    final IntegerClause newClause2 =
+                            new IntegerClause.Builder().addBooleanLiteral(p).addArithmeticLiteral(notL).build();
+                    newClauses.add(newClause2);
+                }
             }
         }
         final IntegerClause c = new IntegerClause(newBoolLiterals, newArithLiterals);
