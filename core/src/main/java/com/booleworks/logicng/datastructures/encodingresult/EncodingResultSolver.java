@@ -8,6 +8,8 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.propositions.Proposition;
 import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 
+import java.util.Collection;
+
 /**
  * An encoding result that writes the encoding directly to a solver.
  */
@@ -33,6 +35,15 @@ public final class EncodingResultSolver implements EncodingResult {
         final LngIntVector clauseVec = new LngIntVector(literals.length);
         for (final Literal literal : literals) {
             addLiteral(clauseVec, literal);
+        }
+        solver.addClause(clauseVec, proposition);
+    }
+
+    @Override
+    public void addClause(final Collection<Literal> literals) {
+        final LngIntVector clauseVec = new LngIntVector(literals.size());
+        for (final Literal l : literals) {
+            addLiteral(clauseVec, l);
         }
         solver.addClause(clauseVec, proposition);
     }

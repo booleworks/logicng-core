@@ -7,6 +7,7 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -30,6 +31,11 @@ public final class EncodingResultFF implements EncodingResult {
 
     @Override
     public void addClause(final Literal... literals) {
+        result.add(f.clause(literals));
+    }
+
+    @Override
+    public void addClause(final Collection<Literal> literals) {
         result.add(f.clause(literals));
     }
 

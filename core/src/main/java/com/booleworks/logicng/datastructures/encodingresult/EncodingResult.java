@@ -10,6 +10,8 @@ import com.booleworks.logicng.formulas.InternalAuxVarType;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 
+import java.util.Collection;
+
 /**
  * The result of an encoding.
  * <p>
@@ -30,6 +32,12 @@ public interface EncodingResult {
      * @param literals the literals of the clause
      */
     void addClause(final Literal... literals);
+
+    /**
+     * Adds a clause to the result
+     * @param literals the literals of the clause
+     */
+    void addClause(final Collection<Literal> literals);
 
     /**
      * Adds a clause to the result
