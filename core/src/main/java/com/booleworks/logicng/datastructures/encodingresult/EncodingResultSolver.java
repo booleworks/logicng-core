@@ -18,6 +18,7 @@ public final class EncodingResultSolver implements EncodingResult {
 
     /**
      * Constructs a new encoding result that writes the result directly to a solver.
+     * @param f           the factory
      * @param solver      the solver instance
      * @param proposition the original proposition
      */
