@@ -53,8 +53,9 @@ public class MaxSatSolver {
         this.configuration = configuration;
         solver = initSolver(configuration);
         pgTransformation = configuration.getCnfMethod() == FACTORY_CNF
-                ? null
-                : new PlaistedGreenbaumTransformationMaxSatSolver(f, configuration.getCnfMethod() == PG_ON_SOLVER, solver);
+                           ? null
+                           : new PlaistedGreenbaumTransformationMaxSatSolver(f,
+                                   configuration.getCnfMethod() == PG_ON_SOLVER, solver);
     }
 
     private MaxSat initSolver(final MaxSatConfig configuration) {
@@ -220,6 +221,19 @@ public class MaxSatSolver {
     }
 
     /**
+     * Erases the cached result.
+     * <p>
+     * The result of the last computation is cached and reused if the state of
+     * the solver does not change. However, it does not recognize manipulation
+     * of the underlying solver. It is necessary to reset the solver's result
+     * manually in those cases. It is not necessary to manually reset the
+     * solver's result in all other cases.
+     */
+    public void resetResult() {
+        result = null;
+    }
+
+    /**
      * Returns the stats of the underlying solver.
      * @return the stats of the underlying solver
      */
@@ -241,6 +255,17 @@ public class MaxSatSolver {
      */
     public FormulaFactory getFactory() {
         return f;
+    }
+
+    /**
+     * Returns the underlying MaxSat solver.
+     * <p>
+     * ATTENTION: by influencing the underlying solver directly, you can mess
+     * things up completely! You should really know what you are doing.
+     * @return the underlying solver
+     */
+    public MaxSat getUnderlyingSolver() {
+        return solver;
     }
 
     @Override

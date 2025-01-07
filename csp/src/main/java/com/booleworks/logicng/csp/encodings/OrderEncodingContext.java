@@ -27,14 +27,16 @@ public class OrderEncodingContext implements CspEncodingContext {
     private final Map<IntegerVariable, Variable[]> variableMap;
     private final List<Variable> simplifyBoolVariables;
     private final List<IntegerVariable> simplifyIntVariables;
+    private final boolean preserve_model_count;
 
     /**
      * Constructs a new encoding context for order encoding.
      */
-    OrderEncodingContext() {
+    OrderEncodingContext(final boolean preserve_model_count) {
         this.variableMap = new LinkedHashMap<>();
         this.simplifyBoolVariables = new ArrayList<>();
         this.simplifyIntVariables = new ArrayList<>();
+        this.preserve_model_count = preserve_model_count;
     }
 
     /**
@@ -45,11 +47,16 @@ public class OrderEncodingContext implements CspEncodingContext {
         this.variableMap = new LinkedHashMap<>(context.variableMap);
         this.simplifyBoolVariables = new ArrayList<>(context.simplifyBoolVariables);
         this.simplifyIntVariables = new ArrayList<>(context.simplifyIntVariables);
+        this.preserve_model_count = context.preserve_model_count;
     }
 
     @Override
     public CspEncodingAlgorithm getAlgorithm() {
         return CspEncodingAlgorithm.Order;
+    }
+
+    public boolean is_preserve_model_count() {
+        return preserve_model_count;
     }
 
     /**

@@ -542,14 +542,14 @@ public class CompactCSPReduction {
                                                            final CompactOrderEncodingContext context,
                                                            final CspFactory cf) {
         if (!context.hasConstDigits(c)) {
-            context.addConstDigits(c, intToDigits(c, context.getBase()));
+            context.addConstDigits(c, intToDigits(c.getValue(), context.getBase()));
         }
         return context.getConstDigits(c);
     }
 
-    private static List<Integer> intToDigits(final IntegerConstant c, final int b) {
-        final int m = (int) Math.ceil(Math.log(c.getValue() + 1) / Math.log(b));
-        int ub = c.getValue();
+    static List<Integer> intToDigits(final int c, final int b) {
+        final int m = (int) Math.ceil(Math.log(c + 1) / Math.log(b));
+        int ub = c;
         final List<Integer> digits = new ArrayList<>(m);
         for (int i = 0; i < m; i++) {
             digits.add(ub % b);
