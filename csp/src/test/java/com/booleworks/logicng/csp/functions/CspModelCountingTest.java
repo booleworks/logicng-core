@@ -6,7 +6,8 @@ import com.booleworks.logicng.csp.datastructures.CspAssignment;
 import com.booleworks.logicng.csp.encodings.CspEncodingContext;
 import com.booleworks.logicng.csp.encodings.OrderEncodingContext;
 import com.booleworks.logicng.csp.io.readers.CspReader;
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultSolver;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.NopHandler;
@@ -34,7 +35,7 @@ public class CspModelCountingTest {
         final OrderEncodingContext context = CspEncodingContext.order();
         final SatSolver solver = SatSolver.newSolver(cf.getFormulaFactory());
         final EncodingResult result =
-                EncodingResult.resultForSatSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
+                new EncodingResultSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
         final List<CspAssignment> models = CspModelEnumeration.enumerate(solver, csp, context, cf);
         System.out.println(models.size());

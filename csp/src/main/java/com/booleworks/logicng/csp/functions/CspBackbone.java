@@ -5,7 +5,7 @@ import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.datastructures.Csp;
 import com.booleworks.logicng.csp.encodings.CspEncodingContext;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.solvers.SatSolver;
 

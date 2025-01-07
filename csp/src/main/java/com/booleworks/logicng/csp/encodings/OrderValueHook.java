@@ -1,9 +1,11 @@
 package com.booleworks.logicng.csp.encodings;
 
+import static com.booleworks.logicng.csp.encodings.CspEncodingContext.CSP_AUX_LNG_VARIABLE;
+
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
@@ -11,8 +13,6 @@ import com.booleworks.logicng.formulas.Variable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.booleworks.logicng.csp.encodings.CspEncodingContext.CSP_AUX_LNG_VARIABLE;
 
 public class OrderValueHook {
 

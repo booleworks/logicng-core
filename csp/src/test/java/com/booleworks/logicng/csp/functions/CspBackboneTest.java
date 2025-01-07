@@ -7,7 +7,8 @@ import com.booleworks.logicng.csp.ParameterizedCspTest;
 import com.booleworks.logicng.csp.datastructures.Csp;
 import com.booleworks.logicng.csp.encodings.CspEncodingContext;
 import com.booleworks.logicng.csp.io.readers.CspReader;
-import com.booleworks.logicng.datastructures.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResult;
+import com.booleworks.logicng.datastructures.encodingresult.EncodingResultSolver;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
@@ -28,7 +29,7 @@ public class CspBackboneTest extends ParameterizedCspTest {
         final Csp csp = cf.buildCsp(formula);
 
         final SatSolver solver = SatSolver.newSolver(f);
-        final EncodingResult result = EncodingResult.resultForSatSolver(f, solver.getUnderlyingSolver(), null);
+        final EncodingResult result = new EncodingResultSolver(f, solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
 
         final CspBackbone backbone = CspBackbone.calculateBackbone(solver, csp, context, result, cf);
