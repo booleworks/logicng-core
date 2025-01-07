@@ -8,6 +8,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.FormulaFactoryConfig;
 import com.booleworks.logicng.formulas.InternalAuxVarType;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.solvers.MaxSatResult;
+import com.booleworks.logicng.solvers.MaxSatSolver;
 import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.datastructures.LngClause;
 import com.booleworks.logicng.solvers.sat.LngCoreSolver;
@@ -43,6 +45,23 @@ public class EncodingResultTest {
     }
 
     @Test
+    public void testEncodingResultSolverIncremental() {
+        final FormulaFactory f = FormulaFactory.caching();
+        final SatSolver solver = SatSolver.newSolver(f);
+        final EncodingResultSolver result = new EncodingResultSolver(f, solver.getUnderlyingSolver(), null);
+
+        final Variable a = f.variable("A");
+        final Variable v = result.newVariable(InternalAuxVarType.CC);
+        assertThat(v.getName()).isEqualTo("@AUX_CC_SAT_SOLVER_0");
+
+        result.addClause(a, v);
+        assertThat(solver.enumerateAllModels(List.of(a, v))).hasSize(3);
+
+        result.addClause(v.negate(f));
+        assertThat(solver.enumerateAllModels(List.of(a, v))).hasSize(1);
+    }
+
+    @Test
     public void testEncodingResultFF() {
         final FormulaFactory f = FormulaFactory.caching(FormulaFactoryConfig.builder().name("ABC").build());
         final EncodingResultFF result = new EncodingResultFF(f);
@@ -58,5 +77,32 @@ public class EncodingResultTest {
         assertThat(cls).isEqualTo(f.or(f.variable("A"), v));
 
         assertThat(result.getFactory()).isEqualTo(f);
+    }
+
+    @Test
+    public void testEncodingResultMaxSat() {
+        final FormulaFactory f = FormulaFactory.caching();
+        final MaxSatSolver solver = MaxSatSolver.newSolver(f);
+        final EncodingResultMaxSat result = new EncodingResultMaxSat(f, solver);
+
+        final Variable v = result.newVariable(InternalAuxVarType.CC);
+        assertThat(v.getName()).isEqualTo("@AUX_CC_MAX_SAT_SOLVER_0");
+
+        result.addClause(f.variable("A"), v);
+        result.addSoftClause(2, f.literal("A", false));
+        result.addSoftClause(3, v.negate(f));
+        final MaxSatResult r = solver.solve();
+        assertThat(solver.getUnderlyingSolver().nVars()).isEqualTo(2);
+        assertThat(r.isSatisfiable()).isTrue();
+        assertThat(r.getOptimum()).isEqualTo(2);
+        assertThat(r.getModel().getLiterals()).containsExactlyInAnyOrder(v.negate(f), f.variable("A"));
+
+        result.addSoftClause(2, f.literal("A", false));
+        final MaxSatResult r2 = solver.solve();
+        assertThat(r2.isSatisfiable()).isTrue();
+        assertThat(r2.getOptimum()).isEqualTo(3);
+
+        assertThat(result.getFactory()).isEqualTo(f);
+        assertThat(result.getSolver()).isEqualTo(solver);
     }
 }
