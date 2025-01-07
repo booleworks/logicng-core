@@ -23,7 +23,7 @@ public class LngNativeLiteral extends LngNativeFormula implements Literal {
      *              the literature)
      * @param f     the factory which created this literal
      */
-    LngNativeLiteral(final String name, final boolean phase, final NonCachingFormulaFactory f) {
+    protected LngNativeLiteral(final String name, final boolean phase, final NonCachingFormulaFactory f) {
         super(FType.LITERAL, f);
         this.name = name;
         this.phase = phase;

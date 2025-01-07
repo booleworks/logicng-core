@@ -6,7 +6,8 @@ package com.booleworks.logicng.datastructures.encodingresult;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.formulas.implementation.noncaching.LngNativeVariable;
+import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.formulas.implementation.noncaching.LngNativeLiteral;
 
 /**
  * An auxiliary variable for encoding results.
@@ -16,9 +17,7 @@ import com.booleworks.logicng.formulas.implementation.noncaching.LngNativeVariab
  * @version 3.0.0
  * @since 1.1
  */
-final class EncodingAuxiliaryVariable extends LngNativeVariable {
-
-    final boolean negated;
+final class EncodingAuxiliaryVariable extends LngNativeLiteral implements Variable {
 
     /**
      * Constructs a new auxiliary variable
@@ -27,13 +26,22 @@ final class EncodingAuxiliaryVariable extends LngNativeVariable {
      *                otherwise
      */
     EncodingAuxiliaryVariable(final String name, final boolean negated) {
-        super(name, null);
-        this.negated = negated;
+        super(name, !negated, null);
+    }
+
+    @Override
+    public EncodingAuxiliaryVariable variable() {
+        if (getPhase()) {
+            return this;
+        } else {
+            return new EncodingAuxiliaryVariable(getName(), false);
+        }
     }
 
     @Override
     public Literal negate(final FormulaFactory f) {
-        return new EncodingAuxiliaryVariable(getName(), !negated);
+        //negated = !phase
+        return new EncodingAuxiliaryVariable(getName(), getPhase());
     }
 
     @Override

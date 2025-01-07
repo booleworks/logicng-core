@@ -64,11 +64,7 @@ public final class EncodingResultSolver implements EncodingResult {
             solver.addName(lit.getName(), index);
         }
         final int litNum;
-        if (lit instanceof EncodingAuxiliaryVariable) {
-            litNum = !((EncodingAuxiliaryVariable) lit).negated ? index * 2 : (index * 2) ^ 1;
-        } else {
-            litNum = lit.getPhase() ? index * 2 : (index * 2) ^ 1;
-        }
+        litNum = lit.getPhase() ? index * 2 : (index * 2) ^ 1;
         clauseVec.unsafePush(litNum);
     }
 
