@@ -1,5 +1,7 @@
 package com.booleworks.logicng.csp.encodings;
 
+import static com.booleworks.logicng.csp.encodings.CspEncodingContext.CSP_AUX_LNG_VARIABLE;
+
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.datastructures.domains.IntegerDomain;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
@@ -12,10 +14,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.booleworks.logicng.csp.encodings.CspEncodingContext.CSP_AUX_LNG_VARIABLE;
-
+/**
+ * Value hook and value projection for order encoding.
+ */
 public class OrderValueHook {
+    private OrderValueHook() {
+    }
 
+    /**
+     * Encodes values hooks for the given variable.
+     * @param v       the variable
+     * @param context the encoding context
+     * @param result  the destination for the hooks
+     * @param cf      the factory
+     * @return a mapping of boolean variables to integer value they represent
+     */
     public static Map<Variable, Integer> encodeValueHooks(final IntegerVariable v, final OrderEncodingContext context,
                                                           final EncodingResult result, final CspFactory cf) {
         final FormulaFactory f = cf.getFormulaFactory();
@@ -61,6 +74,14 @@ public class OrderValueHook {
         return map;
     }
 
+    /**
+     * Returns an assignment of boolean variables that represent a specific integer value of an integer variable.
+     * @param v       the integer variable
+     * @param value   the value
+     * @param context the encoding context
+     * @param cf      the factory
+     * @return assignment of boolean variables representing the given value for the given integer variable
+     */
     public static List<Literal> calculateValueProjection(final IntegerVariable v, final int value,
                                                          final OrderEncodingContext context, final CspFactory cf) {
         final FormulaFactory f = cf.getFormulaFactory();

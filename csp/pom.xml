@@ -58,6 +58,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <excludePackageNames>com.booleworks.logicng.csp.io.javacc</excludePackageNames>
+        </configuration>
       </plugin>
 
       <!-- JaCoCo (Test Coverage)  -->

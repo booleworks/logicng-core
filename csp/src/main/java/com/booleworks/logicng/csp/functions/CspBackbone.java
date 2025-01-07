@@ -19,6 +19,18 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+/**
+ * A backbone for CSPs storing mandatory and forbidden integer assignments and a boolean backbone.
+ * <p>
+ * The integer assignments are represented in a compressed manner. First there is a mapping for mandatory assignments
+ * that assigns a mandatory integer value to an integer variable. Conversely, this means that all other values for this
+ * variable are forbidden. (They are not stored in the map for forbidden values)
+ * Variables that have no mandatory value, can have assignments in the mapping for forbidden values, which maps integer
+ * variables to the set of forbidden variables, i.e., there is no model that assigns this integer variable to those
+ * values.
+ * <p>
+ * Boolean variables are stored in a {@link Backbone}
+ */
 public class CspBackbone {
     private static final CspBackbone UNSAT_BACKBONE = new CspBackbone(null, null, Backbone.unsatBackbone());
 
@@ -33,41 +45,94 @@ public class CspBackbone {
         this.booleanBackbone = booleanBackbone;
     }
 
+    /**
+     * Constructs a new backbone from a map of mandatory and forbidden assignments and a boolean backbone.
+     * @param mandatory       mapping for mandatory assignments
+     * @param forbidden       mapping for forbidden assignments
+     * @param booleanBackbone boolean backbone
+     * @return new backbone
+     */
     public static CspBackbone satBackbone(final Map<IntegerVariable, Integer> mandatory,
                                           final Map<IntegerVariable, SortedSet<Integer>> forbidden,
                                           final Backbone booleanBackbone) {
         return new CspBackbone(mandatory, forbidden, booleanBackbone);
     }
 
+    /**
+     * Returns an unsatisfiable backbone.
+     * @return an unsatisfiable backbone
+     */
     public static CspBackbone unsatBackbone() {
         return UNSAT_BACKBONE;
     }
 
+    /**
+     * Returns whether a variable value pair is mandatory
+     * @param v     the integer variable
+     * @param value the value
+     * @return whether the variable value pair is mandatory
+     */
     public boolean isMandatory(final IntegerVariable v, final int value) {
         return mandatory.get(v) == value;
     }
 
+    /**
+     * Returns whether a variable value pair is forbidden
+     * @param v     the integer variable
+     * @param value the value
+     * @return whether the variable value pair is forbidden
+     */
     public boolean isForbidden(final IntegerVariable v, final int value) {
         return (mandatory.containsKey(v) && mandatory.get(v) != value)
                 || (forbidden.containsKey(v) && forbidden.get(v).contains(value));
     }
 
+    /**
+     * Returns whether a variable value pair is optional
+     * @param v     the integer variable
+     * @param value the value
+     * @return whether the variable value pair is optional
+     */
     public boolean isOptional(final IntegerVariable v, final int value) {
         return !isMandatory(v, value) && !isForbidden(v, value);
     }
 
+    /**
+     * Returns the map for mandatory assignments
+     * @return the map for mandatory assignments
+     */
     public Map<IntegerVariable, Integer> getMandatory() {
         return Collections.unmodifiableMap(mandatory);
     }
 
+    /**
+     * Returns the map for forbidden assignments
+     * @return the map for forbidden assignments
+     */
     public Map<IntegerVariable, SortedSet<Integer>> getForbidden() {
         return Collections.unmodifiableMap(forbidden);
     }
 
+    /**
+     * Returns the boolean backbone.
+     * @return the boolean backbone
+     */
     public Backbone getBooleanBackbone() {
         return booleanBackbone;
     }
 
+    /**
+     * Calculates the backbone of a CSP that is encoded on the solver.
+     * <p>
+     * This function adds new value hooks to the solver. There are alternative functions that take existing value hooks
+     * as argument.
+     * @param solver  the solver with the csp on it
+     * @param csp     the csp
+     * @param context the encoding context
+     * @param cf      the factory
+     * @param result  the destination for the new value hooks
+     * @return the backbone
+     */
     public static CspBackbone calculateBackbone(final SatSolver solver,
                                                 final Csp csp,
                                                 final CspEncodingContext context,
@@ -76,6 +141,19 @@ public class CspBackbone {
                 result, cf);
     }
 
+    /**
+     * Calculates the backbone of a CSP that is encoded on the solver.
+     * <p>
+     * This function adds new value hooks to the solver. There are alternative functions that take existing value hooks
+     * as argument.
+     * @param solver           the solver with the csp on it
+     * @param integerVariables the relevant integer variables for the backbone
+     * @param booleanVariables the relevant boolean variables for the backbone
+     * @param context          the encoding context
+     * @param result           the destination for the new value hooks
+     * @param cf               the factory
+     * @return the backbone
+     */
     public static CspBackbone calculateBackbone(final SatSolver solver,
                                                 final Collection<IntegerVariable> integerVariables,
                                                 final Collection<Variable> booleanVariables,
@@ -86,6 +164,17 @@ public class CspBackbone {
         return calculateBackbone(solver, integerVariables, booleanVariables, context, valueHooks, cf);
     }
 
+    /**
+     * Calculates the backbone of a CSP that is encoded on the solver.
+     * <p>
+     * It assumes that the necessary value hooks are already encoded on the solver.
+     * @param solver     the solver with the csp on it
+     * @param csp        the csp
+     * @param context    the encoding context
+     * @param valueHooks the value hooks
+     * @param cf         the factory
+     * @return the backbone
+     */
     public static CspBackbone calculateBackbone(final SatSolver solver,
                                                 final Csp csp,
                                                 final CspEncodingContext context,
@@ -95,6 +184,18 @@ public class CspBackbone {
                 valueHooks, cf);
     }
 
+    /**
+     * Calculates the backbone of a CSP that is encoded on the solver.
+     * <p>
+     * It assumes that the necessary value hooks are already encoded on the solver.
+     * @param solver           the solver with the csp on it
+     * @param integerVariables the relevant integer variables for the backbone
+     * @param booleanVariables the relevant boolean variables for the backbone
+     * @param context          the encoding context
+     * @param valueHooks       the value hooks
+     * @param cf               the factory
+     * @return the backbone
+     */
     public static CspBackbone calculateBackbone(final SatSolver solver,
                                                 final Collection<IntegerVariable> integerVariables,
                                                 final Collection<Variable> booleanVariables,
@@ -132,7 +233,6 @@ public class CspBackbone {
             }
         }
         return cspBackbone;
-
     }
 
     private static Backbone filterBackbone(final Backbone backbone, final Collection<Variable> relevantVariables) {

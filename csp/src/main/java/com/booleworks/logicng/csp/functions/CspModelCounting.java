@@ -19,7 +19,16 @@ import java.util.TreeSet;
  * Class grouping functions for counting models of CSP problems.
  */
 public class CspModelCounting {
+    private CspModelCounting() {
+    }
 
+    /**
+     * Counts the model of a CSP.
+     * @param csp     the csp
+     * @param cf      the factory
+     * @param handler handler for processing encoding events
+     * @return the model count or the abortion reason produced by the handler
+     */
     public static LngResult<BigInteger> count(final Csp csp, final CspFactory cf, final ComputationHandler handler) {
         final OrderEncodingContext context = CspEncodingContext.order_model_count();
 

@@ -55,6 +55,10 @@ public class OrderEncodingContext implements CspEncodingContext {
         return CspEncodingAlgorithm.Order;
     }
 
+    /**
+     * Returns whether the model count should be preserved in this context.
+     * @return whether the model count should be preserved in this context
+     */
     public boolean is_preserve_model_count() {
         return preserve_model_count;
     }

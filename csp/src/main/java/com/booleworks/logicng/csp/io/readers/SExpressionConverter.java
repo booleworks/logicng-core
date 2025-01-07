@@ -22,7 +22,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+/**
+ * Converts files using the common S-expression format to the LNG format for CSP.
+ * <p>
+ * This converter is not tested and does not support all features.
+ * It is not supposed to be used without a manual validation afterward.
+ */
 public class SExpressionConverter {
+    private SExpressionConverter() {
+    }
+
     private static void convertFile(final SExpressionParser parser, final File src, final File dest)
             throws IOException, ParserException {
         final BufferedReader br = new BufferedReader(new FileReader(src));

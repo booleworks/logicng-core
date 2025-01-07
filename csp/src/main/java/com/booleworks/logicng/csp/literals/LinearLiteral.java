@@ -65,6 +65,10 @@ public class LinearLiteral implements ArithmeticLiteral {
         return op;
     }
 
+    /**
+     * Returns a new linear literal that is the negation of this literal.
+     * @return a new linear literal that is the negation of this literal
+     */
     public LinearLiteral negate() {
         switch (op) {
             case LE:

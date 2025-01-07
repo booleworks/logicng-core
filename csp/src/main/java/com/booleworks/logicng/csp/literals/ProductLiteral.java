@@ -7,25 +7,48 @@ import com.booleworks.logicng.csp.terms.IntegerVariable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * Represents an equality with a multiplication of two variables:
+ * <p>
+ * {@code v = v2 * v2}
+ */
 public class ProductLiteral implements ArithmeticLiteral {
     private final IntegerVariable v;
     private final IntegerVariable v1;
     private final IntegerVariable v2;
 
+    /**
+     * Construct new product literal: {@code v = v1 * v2}
+     * @param v  argument for v
+     * @param v1 argument for v1
+     * @param v2 arguments for v2
+     */
     public ProductLiteral(final IntegerVariable v, final IntegerVariable v1, final IntegerVariable v2) {
         this.v = v;
         this.v1 = v1;
         this.v2 = v2;
     }
 
+    /**
+     * Returns v.
+     * @return v
+     */
     public IntegerVariable getV() {
         return v;
     }
 
+    /**
+     * Returns v1.
+     * @return v1
+     */
     public IntegerVariable getV1() {
         return v1;
     }
 
+    /**
+     * Returns v2.
+     * @return v2
+     */
     public IntegerVariable getV2() {
         return v2;
     }

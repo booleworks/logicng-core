@@ -9,7 +9,6 @@ import com.booleworks.logicng.csp.io.readers.CspReader;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
@@ -26,7 +25,6 @@ public class CspModelCountingTest {
         final Formula formula = CspReader.readCsp(cf, "../test_files/csp/simple2.csp");
         final Csp csp = cf.buildCsp(formula);
 
-        System.out.println(CspModelCounting.count(csp, cf, NopHandler.get()).getResult());
         models(csp, cf);
     }
 
@@ -37,6 +35,5 @@ public class CspModelCountingTest {
                 EncodingResult.resultForSatSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
         final List<CspAssignment> models = CspModelEnumeration.enumerate(solver, csp, context, cf);
-        System.out.println(models.size());
     }
 }

@@ -16,7 +16,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Value hook and value projection for compact order encoding.
+ */
 public class CompactOrderValueHook {
+    private CompactOrderValueHook() {
+    }
+
+    /**
+     * Encodes values hooks for the given variable.
+     * @param v       the variable
+     * @param context the encoding context
+     * @param result  the destination for the hooks
+     * @param cf      the factory
+     * @return a mapping of boolean variables to integer value they represent
+     */
     public static Map<Variable, Integer> encodeValueHooks(final IntegerVariable v,
                                                           final CompactOrderEncodingContext context,
                                                           final EncodingResult result, final CspFactory cf) {
@@ -63,6 +77,14 @@ public class CompactOrderValueHook {
         return map;
     }
 
+    /**
+     * Returns an assignment of boolean variables that represent a specific integer value of an integer variable.
+     * @param v       the integer variable
+     * @param value   the value
+     * @param context the encoding context
+     * @param cf      the factory
+     * @return assignment of boolean variables representing the given value for the given integer variable
+     */
     public static List<Literal> calculateValueProjection(final IntegerVariable v, final int value,
                                                          final CompactOrderEncodingContext context,
                                                          final CspFactory cf) {

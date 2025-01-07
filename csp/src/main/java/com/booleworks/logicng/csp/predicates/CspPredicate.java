@@ -130,6 +130,11 @@ public abstract class CspPredicate implements Predicate {
          */
         ALLDIFFERENT;
 
+        /**
+         * Returns the prefix identifier of a type
+         * @param t the type
+         * @return the identifier
+         */
         public static String toPrefixIdentifier(final Type t) {
             return String.valueOf(t);
         }

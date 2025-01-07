@@ -62,6 +62,15 @@ public class IntegerVariablesFunction {
         return variables;
     }
 
+    /**
+     * Returns the subset of passed integer variables that are represented in a set of boolean variables, i.e., at least
+     * one boolean variable that belongs
+     * to the encoding of the variable is on the solver.
+     * @param solverVariables boolean variables on the solver
+     * @param variables       input integer variables
+     * @param context         the encoding context
+     * @return the subset of integer variables on the solver
+     */
     public static SortedSet<IntegerVariable> getVariablesOnSolver(final Set<Variable> solverVariables,
                                                                   final Collection<IntegerVariable> variables,
                                                                   final CspEncodingContext context) {
