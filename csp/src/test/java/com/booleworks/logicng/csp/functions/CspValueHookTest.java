@@ -122,6 +122,19 @@ public class CspValueHookTest extends ParameterizedCspTest {
         }
     }
 
+    @ParameterizedTest
+    @MethodSource("algorithms")
+    public void testRestrictedSolving(final CspEncodingContext context)
+            throws ParserException, IOException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final CspFactory cf = new CspFactory(f);
+        final Formula formula = CspReader.readCsp(cf, "../test_files/csp/simple3.csp");
+        final Csp csp = cf.buildCsp(formula);
+        final Map<IntegerVariable, Integer> restr = Map.of(cf.getVariable("c"), 7, cf.getVariable("b"), 5);
+        final CspAssignment model = CspSolving.model(csp, restr, context, cf);
+        System.out.println(model);
+    }
+
     public Map<IntegerVariable, Set<Integer>> getAllowedValues(final Csp csp, final CspFactory cf) {
         final FormulaFactory f = cf.getFormulaFactory();
         final CspEncodingContext context = CspEncodingContext.order();
