@@ -24,7 +24,7 @@ public class EncodingBenchmark {
 
     @Test
     public void encodingPerformance() throws ParserException, IOException {
-        System.out.println("File, Time Enc, Vars, Clauses");
+        System.out.println("File, Time Enc, Vars, Clauses, Memory(MB)");
         for (final File file : Objects.requireNonNull(new File("../test_files/csp/azucar").listFiles())) {
             if (SKIP.contains(file.getName())) {
                 continue;
@@ -35,20 +35,24 @@ public class EncodingBenchmark {
             final var coe10 = encode(file, CspEncodingContext.compactOrder(10));
             final var coe50 = encode(file, CspEncodingContext.compactOrder(50));
             final var coe100 = encode(file, CspEncodingContext.compactOrder(100));
-            System.out.println(
-                    "(OE) " + file.getName() + ": " + order.timeEnc + ", " + order.vars + ", " + order.clauses);
-            System.out.println(
-                    "(COE2) " + file.getName() + ": " + coe2.timeEnc + ", " + coe2.vars + ", " + coe2.clauses);
-            System.out.println(
-                    "(COE5) " + file.getName() + ": " + coe5.timeEnc + ", " + coe5.vars + ", " + coe5.clauses);
-            System.out.println(
-                    "(COE10) " + file.getName() + ": " + coe10.timeEnc + ", " + coe10.vars + ", " + coe10.clauses);
-            System.out.println(
-                    "(COE50) " + file.getName() + ": " + coe50.timeEnc + ", " + coe50.vars + ", " + coe50.clauses);
-            System.out.println(
-                    "(COE100) " + file.getName() + ": " + coe100.timeEnc + ", " + coe100.vars + ", " + coe100.clauses);
+            System.out.printf("(OE) %s: %d, %d, %d, %.3f\n",
+                    file.getName(), order.timeEnc, order.vars, order.clauses, convMem(order.memUsage));
+            System.out.printf("(COE2) %s: %d, %d, %d, %.3f\n",
+                    file.getName(), coe2.timeEnc, coe2.vars, coe2.clauses, convMem(coe2.memUsage));
+            System.out.printf("(COE5) %s: %d, %d, %d, %.3f\n",
+                    file.getName(), coe5.timeEnc, coe5.vars, coe5.clauses, convMem(coe5.memUsage));
+            System.out.printf("(COE10) %s: %d, %d, %d, %.3f\n",
+                    file.getName(), coe10.timeEnc, coe10.vars, coe10.clauses, convMem(coe10.memUsage));
+            System.out.printf("(COE50) %s: %d, %d, %d, %.3f\n",
+                    file.getName(), coe50.timeEnc, coe50.vars, coe50.clauses, convMem(coe50.memUsage));
+            System.out.printf("(COE100) %s: %d, %d, %d, %.3f\n",
+                    file.getName(), coe100.timeEnc, coe100.vars, coe100.clauses, convMem(coe100.memUsage));
             System.out.println();
         }
+    }
+
+    private float convMem(final long memUsage) {
+        return memUsage / ((float) 1_000_000);
     }
 
     @Test
@@ -111,6 +115,10 @@ public class EncodingBenchmark {
 
     private EncodeStats encode(final File file, final CspEncodingContext context)
             throws ParserException, IOException {
+        final Runtime runtime = Runtime.getRuntime();
+        System.gc();
+        final long memoryBefore = runtime.totalMemory() - runtime.freeMemory();
+
         final FormulaFactory f = FormulaFactory.caching();
         final CspFactory cf = new CspFactory(f);
         final CspParser p = new CspParser(cf);
@@ -124,13 +132,20 @@ public class EncodingBenchmark {
         cf.encodeCsp(csp, context, result);
         final long endEncoding = System.currentTimeMillis();
 
+        System.gc();
+        final long memoryAfterEncode = runtime.totalMemory() - runtime.freeMemory();
+
         final int vars = solver.getUnderlyingSolver().nVars();
         final int cls = solver.getUnderlyingSolver().getClauses().size();
-        return new EncodeStats(endEncoding - startEncoding, 0, cls, vars);
+        return new EncodeStats(endEncoding - startEncoding, 0, cls, vars, memoryAfterEncode - memoryBefore);
     }
 
     private EncodeStats propagateAndEncode(final File file, final CspEncodingContext context)
             throws ParserException, IOException {
+        final Runtime runtime = Runtime.getRuntime();
+        System.gc();
+        final long memoryBefore = runtime.totalMemory() - runtime.freeMemory();
+
         final FormulaFactory f = FormulaFactory.caching();
         final CspFactory cf = new CspFactory(f);
         final CspParser p = new CspParser(cf);
@@ -148,9 +163,13 @@ public class EncodingBenchmark {
         cf.encodeCsp(propCsp, context, result);
         final long endEncoding = System.currentTimeMillis();
 
+        System.gc();
+        final long memoryAfterEncode = runtime.totalMemory() - runtime.freeMemory();
+
         final int vars = solver.getUnderlyingSolver().nVars();
         final int cls = solver.getUnderlyingSolver().getClauses().size();
-        return new EncodeStats(endEncoding - startEncoding, endProp - startProp, cls, vars);
+        return new EncodeStats(endEncoding - startEncoding, endProp - startProp, cls, vars,
+                memoryAfterEncode - memoryBefore);
     }
 
     private long encodeAndSolve(final File file, final CspEncodingContext context) throws ParserException, IOException {
@@ -179,14 +198,17 @@ public class EncodingBenchmark {
     private static class EncodeStats {
         long timeEnc;
         long timeProp;
+        long memUsage;
         int clauses;
         int vars;
 
-        public EncodeStats(final long timeEnc, final long timeProp, final int clauses, final int vars) {
+        public EncodeStats(final long timeEnc, final long timeProp, final int clauses, final int vars,
+                           final long memUsage) {
             this.timeEnc = timeEnc;
             this.timeProp = timeProp;
             this.clauses = clauses;
             this.vars = vars;
+            this.memUsage = memUsage;
         }
     }
 }
