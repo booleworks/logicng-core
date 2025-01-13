@@ -1,11 +1,11 @@
 package com.booleworks.logicng.csp.terms;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.ParameterizedCspTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class MultiplicationFunctionTest extends ParameterizedCspTest {
     @ParameterizedTest
@@ -40,7 +40,7 @@ public class MultiplicationFunctionTest extends ParameterizedCspTest {
         assertThat(cf.mul(c, a)).isEqualTo(new MultiplicationFunction(c, a));
         assertThat(cf.mul(c, cf.add(a, b, c))).isEqualTo(new MultiplicationFunction(c, cf.add(a, b, c)));
         assertThat(cf.mul(c, cf.sub(a, b))).isEqualTo(new MultiplicationFunction(c, cf.sub(a, b)));
-        assertThat(cf.mul(c, cf.mul(c, a))).isEqualTo(new MultiplicationFunction(c, cf.mul(c, a)));
+        assertThat(cf.mul(c, cf.mul(c, a))).isEqualTo(new MultiplicationFunction(cf.constant(10), a));
         assertThat(cf.mul(c, cf.minus(a))).isEqualTo(new MultiplicationFunction(c, cf.minus(a)));
     }
 

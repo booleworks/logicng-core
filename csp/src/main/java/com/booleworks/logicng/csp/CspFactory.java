@@ -367,13 +367,15 @@ public class CspFactory {
         return compactifiedTerms;
     }
 
-    private void addOperand(final Term op, final LinkedHashMap<Term, Integer> compactifiedTerms) {
+    private void addOperand(final Term op, final Map<Term, Integer> compactifiedTerms) {
         if (op instanceof MultiplicationFunction
                 && ((MultiplicationFunction) op).getLeft() instanceof IntegerConstant) {
-            final MultiplicationFunction mop = (MultiplicationFunction) op;
-            if (mop.getLeft() instanceof IntegerConstant) {
-                final int newValue = ((IntegerConstant) mop.getLeft()).getValue();
-                compactifiedTerms.compute(mop.getRight(), (k, v) -> v == null ? newValue : newValue + v);
+            final IntegerConstant c = ((IntegerConstant) ((MultiplicationFunction) op).getLeft());
+            final Term t = ((MultiplicationFunction) op).getRight();
+            if (compactifiedTerms.containsKey(t)) {
+                compactifiedTerms.put(t, compactifiedTerms.get(t) + c.getValue());
+            } else {
+                compactifiedTerms.put(t, c.getValue());
             }
         } else {
             compactifiedTerms.compute(op, (k, v) -> v == null ? 1 : v + 1);
@@ -442,6 +444,13 @@ public class CspFactory {
             return constant(((IntegerConstant) left).getValue() * ((IntegerConstant) right).getValue());
         } else if (right instanceof IntegerConstant) {
             return mul(right, left);
+        } else if (left instanceof IntegerConstant && right instanceof MultiplicationFunction) {
+            final MultiplicationFunction mulFunc = ((MultiplicationFunction) right);
+            if (mulFunc.getLeft() instanceof IntegerConstant) {
+                final int mergedCoefficient =
+                        ((IntegerConstant) left).getValue() + ((IntegerConstant) mulFunc.getLeft()).getValue();
+                return mul(mergedCoefficient, mulFunc.getRight());
+            }
         }
         final LinkedHashSet<Term> operands = new LinkedHashSet<>(Arrays.asList(left, right));
         return mulTerms.computeIfAbsent(operands, o -> new MultiplicationFunction(left, right));
