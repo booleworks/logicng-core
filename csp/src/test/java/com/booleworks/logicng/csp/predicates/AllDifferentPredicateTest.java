@@ -1,5 +1,7 @@
 package com.booleworks.logicng.csp.predicates;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booleworks.logicng.csp.Common;
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.ParameterizedCspTest;
@@ -16,8 +18,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collections;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class AllDifferentPredicateTest extends ParameterizedCspTest {
     @ParameterizedTest
@@ -41,13 +41,13 @@ public class AllDifferentPredicateTest extends ParameterizedCspTest {
         final AllDifferentPredicate pred3 =
                 cf.allDifferent(List.of(term1, term2, cf.zero(), cf.one(), cf.constant(20)));
 
-        assertThat(pred1.terms).containsExactlyInAnyOrder(cf.zero(), cf.one());
+        assertThat(pred1.getTerms()).containsExactlyInAnyOrder(cf.zero(), cf.one());
         assertThat(pred1.type).isEqualTo(CspPredicate.Type.ALLDIFFERENT);
 
-        assertThat(pred2.terms).containsExactlyInAnyOrder(term1, term2);
+        assertThat(pred2.getTerms()).containsExactlyInAnyOrder(term1, term2);
         assertThat(pred2.type).isEqualTo(CspPredicate.Type.ALLDIFFERENT);
 
-        assertThat(pred3.terms).containsExactlyInAnyOrder(term1, term2, cf.zero(), cf.one(), cf.constant(20));
+        assertThat(pred3.getTerms()).containsExactlyInAnyOrder(term1, term2, cf.zero(), cf.one(), cf.constant(20));
         assertThat(pred3.type).isEqualTo(CspPredicate.Type.ALLDIFFERENT);
     }
 

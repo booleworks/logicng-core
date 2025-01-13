@@ -3,6 +3,7 @@ package com.booleworks.logicng.csp.datastructures;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +91,14 @@ public final class IntegerVariableSubstitution {
      */
     public List<IntegerVariable> getAllOrSelf(final Collection<IntegerVariable> originals) {
         return originals.stream().map(v -> substitutions.getOrDefault(v, v)).collect(Collectors.toList());
+    }
+
+    /**
+     * Return the substitutions as unmodifiable map.
+     * @return the substitutions as unmodifiable map
+     */
+    public Map<IntegerVariable, IntegerVariable> getMap() {
+        return Collections.unmodifiableMap(substitutions);
     }
 
     @Override

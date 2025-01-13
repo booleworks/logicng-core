@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  */
 public class AllDifferentPredicate extends CspPredicate {
 
-    List<Term> terms;
+    final private List<Term> terms;
 
     /**
      * Constructs a new all-different predicate.
@@ -81,6 +81,14 @@ public class AllDifferentPredicate extends CspPredicate {
             decomps.add(cf.decompose(f.or(xs2)));
         }
         return Decomposition.merge(decomps);
+    }
+
+    /**
+     * Returns the terms of this predicate.
+     * @return the terms of this predicate
+     */
+    public List<Term> getTerms() {
+        return terms;
     }
 
     @Override
