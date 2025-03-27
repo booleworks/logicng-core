@@ -1,0 +1,346 @@
+package com.booleworks.logicng.knowledgecompilation.sdd.functions;
+
+
+import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+
+public class SddDotExport implements SddFunction<Boolean> {
+    private static final String DOT = "&#9210;";
+    private static final String TOP = "&#8868;";
+    private static final String BOT = "&#8869;";
+    private static final String NOT = "&not;";
+
+    private final SddNode node;
+    private final VTreeRoot root;
+    private final Writer writer;
+    private final HashMap<SddNode, GraphVTreeNode> nodeCache = new HashMap<>();
+    private final HashMap<SddElement, GraphVTreeGroup> groupCache = new HashMap<>();
+    GraphSdd result;
+
+    public SddDotExport(final SddNode node, final VTreeRoot root, final Writer writer) {
+        this.node = node;
+        this.root = root;
+        this.writer = writer;
+    }
+
+    @Override
+    public Boolean apply(final SddFactory sf) {
+        nodeCache.clear();
+        groupCache.clear();
+        result = new GraphSdd();
+        final BufferedWriter writer = new BufferedWriter(this.writer);
+        irSddNode(node, 0, null);
+        try {
+            result.write(writer);
+            writer.flush();
+            writer.close();
+        } catch (final IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+    private GraphVTreeNode irSddNode(final SddNode currentNode, final int rank, GraphVTreeGroup parentGroup) {
+        final VTree vtree = root.getVTree(currentNode);
+        final GraphVTreeNode newVTreeNode = GraphVTreeNode.fromSddNode(currentNode, vtree, parentGroup);
+        result.vtrees.add(newVTreeNode);
+        if (parentGroup == null) {
+            parentGroup = new GraphVTreeGroup("group_root", currentNode.getId());
+        }
+        parentGroup.nodes.add(newVTreeNode);
+        if (!result.ranks.containsKey(rank)) {
+            result.ranks.put(rank, new GraphVTreeRank(rank));
+        }
+        final GraphVTreeRank vRank = (GraphVTreeRank) result.ranks.get(rank);
+        vRank.groups.add(parentGroup);
+
+        final int elementRank = rank + 1;
+        if (currentNode.isDecomposition()) {
+            final SddNodeDecomposition decomp = currentNode.asDecomposition();
+            for (final SddElement element : decomp.getElements()) {
+                final GraphSddElement elementNode = irSddElement(element, elementRank, currentNode.getId());
+                addNewElementNode(elementNode, elementRank, newVTreeNode);
+            }
+        } else {
+            // This only happens if the SDD consists of only a terminal
+            final String sddId = String.format("root_%d", currentNode.getId());
+            final String prime = terminalToUTF8(currentNode.asTerminal().getTerminal());
+            final GraphSddElement sddNode = new GraphSddElement(
+                    sddId, GraphSddElementLabel.terminal(prime), GraphSddElementLabel.terminal(TOP));
+            addNewElementNode(sddNode, elementRank, newVTreeNode);
+        }
+        return newVTreeNode;
+    }
+
+    private void addNewElementNode(final GraphSddElement newNode, final int rank, final GraphVTreeNode parentVTree) {
+        parentVTree.nodes.add(newNode);
+        result.elements.add(newNode);
+        if (!result.ranks.containsKey(rank)) {
+            result.ranks.put(rank, new GraphSddRank(rank));
+        }
+        final GraphSddRank sRank = (GraphSddRank) result.ranks.get(rank);
+        sRank.elements.add(newNode);
+    }
+
+    private GraphSddElement irSddElement(final SddElement element, final int rank, final int parentId) {
+        if (!groupCache.containsKey(element)) {
+            final GraphVTreeGroup newGroup = GraphVTreeGroup.fromElement(element, parentId);
+            groupCache.put(element, newGroup);
+        }
+        final GraphVTreeGroup elementGroup = groupCache.get(element);
+        final GraphSddElementLabel primeLabel = irPrimeSub(element.getPrime(), rank + 1, elementGroup);
+        final GraphSddElementLabel subLabel = irPrimeSub(element.getSub(), rank + 1, elementGroup);
+        return GraphSddElement.fromElement(element, primeLabel, subLabel);
+    }
+
+    private GraphSddElementLabel irPrimeSub(final SddNode currentNode, final int rank,
+                                            final GraphVTreeGroup parentGroup) {
+        if (currentNode.isDecomposition()) {
+            if (!nodeCache.containsKey(currentNode)) {
+                nodeCache.put(currentNode, irSddNode(currentNode, rank, parentGroup));
+            }
+            return GraphSddElementLabel.reference(nodeCache.get(currentNode));
+        } else {
+            final String label = terminalToUTF8(currentNode.asTerminal().getTerminal());
+            return GraphSddElementLabel.terminal(label);
+        }
+    }
+
+    private static String terminalToUTF8(final Formula formula) {
+        switch (formula.getType()) {
+            case LITERAL:
+                final Literal l = (Literal) formula;
+                if (l.getPhase()) {
+                    return l.getName();
+                } else {
+                    return String.format("%s%s", NOT, l.getName());
+                }
+            case TRUE:
+                return TOP;
+            case FALSE:
+                return BOT;
+            default:
+                return formula.toString();
+        }
+    }
+
+    private static class GraphSddElementLabel {
+        final GraphVTreeNode vTree;
+        final String terminal;
+
+        private GraphSddElementLabel(final GraphVTreeNode vTree, final String terminal) {
+            this.vTree = vTree;
+            this.terminal = terminal;
+        }
+
+        public static GraphSddElementLabel reference(final GraphVTreeNode vTree) {
+            return new GraphSddElementLabel(vTree, null);
+        }
+
+        public static GraphSddElementLabel terminal(final String terminal) {
+            return new GraphSddElementLabel(null, terminal);
+        }
+
+        public boolean isReference() {
+            return vTree != null;
+        }
+
+        @Override
+        public String toString() {
+            return isReference() ? DOT : terminal;
+        }
+    }
+
+    private static class GraphSddElement {
+        final String id;
+        final GraphSddElementLabel prime;
+        final GraphSddElementLabel sub;
+
+        GraphSddElement(final String id, final GraphSddElementLabel prime, final GraphSddElementLabel sub) {
+            this.id = id;
+            this.prime = prime;
+            this.sub = sub;
+        }
+
+        public static GraphSddElement fromElement(final SddElement element, final GraphSddElementLabel prime,
+                                                  final GraphSddElementLabel sub) {
+            final String id = String.format("sdd_%d_%d", element.getPrime().getId(), element.getSub().getId());
+            return new GraphSddElement(id, prime, sub);
+        }
+
+        String getId() {
+            return id;
+        }
+
+        public void writeDeclaration(final BufferedWriter writer) throws IOException {
+            writer.write(String.format("%s [label=\"<prime> %s |<sub> %s\"];", id, prime, sub));
+        }
+    }
+
+    private static class GraphVTreeNode {
+        final String id;
+        final String label;
+        final ArrayList<GraphSddElement> nodes = new ArrayList<>();
+
+        GraphVTreeNode(final String id, final String label) {
+            this.id = id;
+            this.label = label;
+        }
+
+        public static GraphVTreeNode fromSddNode(final SddNode n, final VTree vTree,
+                                                 final GraphVTreeGroup parentGroup) {
+            final String id = String.format("vtree_%d_%s", n.getId(),
+                    parentGroup == null ? "none" : String.valueOf(parentGroup.parentId));
+            return new GraphVTreeNode(id, String.valueOf(vTree.getId()));
+        }
+
+        String getId() {
+            return id;
+        }
+
+        public void writeDeclaration(final BufferedWriter writer) throws IOException {
+            writer.write(String.format("%s [label=\"%s\"];", id, label));
+        }
+    }
+
+    private static class GraphVTreeGroup {
+        final String id;
+        final int parentId;
+        final ArrayList<GraphVTreeNode> nodes = new ArrayList<>();
+
+        public GraphVTreeGroup(final String id, final int parentId) {
+            this.id = id;
+            this.parentId = parentId;
+        }
+
+        public static GraphVTreeGroup fromElement(final SddElement element, final int parentId) {
+            final String id = String.format("group_%d_%d", element.getPrime().getId(), element.getSub().getId());
+            return new GraphVTreeGroup(id, parentId);
+        }
+
+        public void write(final BufferedWriter writer) throws IOException {
+            writer.write(String.format("subgraph cluster_%s {", id));
+            writer.newLine();
+            for (final GraphVTreeNode node : nodes) {
+                writer.write(String.format("%s;", node.getId()));
+            }
+            writer.newLine();
+            writer.write('}');
+        }
+    }
+
+    private interface IRRank {
+        void write(final BufferedWriter writer) throws IOException;
+    }
+
+    private static class GraphSddRank implements IRRank {
+        final int rank;
+        final LinkedHashSet<GraphSddElement> elements = new LinkedHashSet<>();
+
+        public GraphSddRank(final int rank) {
+            this.rank = rank;
+        }
+
+        @Override
+        public void write(final BufferedWriter writer) throws IOException {
+            writer.write(String.format("subgraph cluster_rank%d {", rank));
+            writer.newLine();
+            for (final GraphSddElement elem : elements) {
+                writer.write(String.format("%s;", elem.getId()));
+            }
+            writer.newLine();
+            writer.write('}');
+        }
+    }
+
+    private static class GraphVTreeRank implements IRRank {
+        final int rank;
+        final LinkedHashSet<GraphVTreeGroup> groups = new LinkedHashSet<>();
+
+        public GraphVTreeRank(final int rank) {
+            this.rank = rank;
+        }
+
+        @Override
+        public void write(final BufferedWriter writer) throws IOException {
+            writer.write(String.format("subgraph cluster_rank%d {", rank));
+            writer.newLine();
+            writer.write("style = invis;");
+            writer.newLine();
+            writer.write("rank = same;");
+            writer.newLine();
+            for (final GraphVTreeGroup group : groups) {
+                group.write(writer);
+                writer.newLine();
+            }
+            writer.write('}');
+        }
+    }
+
+    private static class GraphSdd {
+        LinkedHashSet<GraphVTreeNode> vtrees = new LinkedHashSet<>();
+        LinkedHashSet<GraphSddElement> elements = new LinkedHashSet<>();
+        HashMap<Integer, IRRank> ranks = new HashMap<>();
+
+        public GraphSdd() {
+        }
+
+        public void write(final BufferedWriter writer) throws IOException {
+            writer.write("digraph G {");
+            writer.newLine();
+            writer.write("graph [style = invis, rank = same]");
+            writer.newLine();
+            writer.write("node [shape = record]");
+            writer.newLine();
+            for (final GraphSddElement element : elements) {
+                element.writeDeclaration(writer);
+                writer.newLine();
+            }
+            writer.write("node [shape = circle, fontsize = 10, width = 0.32, margin = 0]");
+            writer.newLine();
+            for (final GraphVTreeNode vTree : vtrees) {
+                vTree.writeDeclaration(writer);
+                writer.newLine();
+            }
+            for (int i = ranks.size() - 1; i >= 0; --i) {
+                ranks.get(i).write(writer);
+                writer.newLine();
+            }
+            writeEdges(writer);
+            writer.write('}');
+        }
+
+        public void writeEdges(final BufferedWriter writer) throws IOException {
+            for (final GraphSddElement element : elements) {
+                if (element.prime.isReference()) {
+                    writer.write(
+                            String.format("%s:prime:c -> %s [tailclip=false];", element.id, element.prime.vTree.id));
+                    writer.newLine();
+                }
+                if (element.sub.isReference()) {
+                    writer.write(String.format("%s:sub:c -> %s [tailclip=false];", element.id, element.sub.vTree.id));
+                    writer.newLine();
+                }
+            }
+            for (final GraphVTreeNode vtree : vtrees) {
+                for (final GraphSddElement node : vtree.nodes) {
+                    writer.write(String.format("%s -> %s", vtree.id, node.id));
+                    writer.newLine();
+                }
+            }
+        }
+    }
+}
