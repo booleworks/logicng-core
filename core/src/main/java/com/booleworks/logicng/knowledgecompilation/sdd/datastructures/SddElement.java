@@ -1,7 +1,5 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
-import org.jetbrains.annotations.NotNull;
-
 public class SddElement implements Comparable<SddElement> {
     private final SddNode prime;
     private final SddNode sub;
@@ -21,7 +19,7 @@ public class SddElement implements Comparable<SddElement> {
     }
 
     @Override
-    public int compareTo(@NotNull final SddElement o) {
+    public int compareTo(final SddElement o) {
         final int cSub = sub.compareTo(o.sub);
         if (cSub != 0) {
             return cSub;

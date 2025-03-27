@@ -1,7 +1,5 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
-import org.jetbrains.annotations.NotNull;
-
 public abstract class SddNode implements Comparable<SddNode> {
     final int id;
 
@@ -32,7 +30,7 @@ public abstract class SddNode implements Comparable<SddNode> {
     }
 
     @Override
-    public int compareTo(@NotNull final SddNode o) {
+    public int compareTo(final SddNode o) {
         return id - o.id;
     }
 }
