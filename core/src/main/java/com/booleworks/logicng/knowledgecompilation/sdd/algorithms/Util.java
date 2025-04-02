@@ -22,7 +22,7 @@ public class Util {
     public static void pushNewElement(final SddNode prime, final SddNode sub, final VTree currentVTree,
                                       final VTreeRoot root, final Collection<SddElement> target) {
         assert !prime.isFalse();
-        assert sub.isTrue() || root.isSubtree(root.getVTree(prime), ((VTreeInternal) currentVTree).getLeft());
+        assert prime.isTrue() || root.isSubtree(root.getVTree(prime), ((VTreeInternal) currentVTree).getLeft());
         assert sub.isTrivial() || root.isSubtree(root.getVTree(sub), ((VTreeInternal) currentVTree).getRight());
         target.add(new SddElement(prime, sub));
     }

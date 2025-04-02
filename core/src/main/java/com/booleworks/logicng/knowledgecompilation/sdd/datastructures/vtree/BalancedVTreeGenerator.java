@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import java.util.Set;
 
 public class BalancedVTreeGenerator implements VTreeGenerator {
+    private final static BalancedVTreeGenerator INSTANCE = new BalancedVTreeGenerator();
+
+    public static BalancedVTreeGenerator get() {
+        return INSTANCE;
+    }
+
     @Override
     public VTree generate(final SddFactory sf, final Set<Variable> variables) {
         if (variables.isEmpty()) {

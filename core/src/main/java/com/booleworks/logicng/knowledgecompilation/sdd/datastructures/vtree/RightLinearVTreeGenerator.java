@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import java.util.Set;
 
 public class RightLinearVTreeGenerator implements VTreeGenerator {
+    private final static RightLinearVTreeGenerator INSTANCE = new RightLinearVTreeGenerator();
+
+    public static RightLinearVTreeGenerator get() {
+        return INSTANCE;
+    }
+
     @Override
     public VTree generate(final SddFactory sf, final Set<Variable> variables) {
         if (variables.isEmpty()) {

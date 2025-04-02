@@ -1,17 +1,18 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
-import java.util.TreeSet;
+import java.util.Collections;
+import java.util.SortedSet;
 
 public class SddNodeDecomposition extends SddNode {
-    private final TreeSet<SddElement> elements;
+    private final SortedSet<SddElement> elements;
 
-    public SddNodeDecomposition(final int id, final TreeSet<SddElement> elements) {
+    public SddNodeDecomposition(final int id, final SortedSet<SddElement> elements) {
         super(id);
         this.elements = elements;
     }
 
-    public TreeSet<SddElement> getElements() {
-        return elements;
+    public SortedSet<SddElement> getElements() {
+        return Collections.unmodifiableSortedSet(elements);
     }
 
     @Override
@@ -43,4 +44,6 @@ public class SddNodeDecomposition extends SddNode {
     public String toString() {
         return "(" + id + ": " + elements + " )";
     }
+
+
 }

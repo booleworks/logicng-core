@@ -31,4 +31,21 @@ public class SddElement implements Comparable<SddElement> {
     public String toString() {
         return "<" + prime + "," + sub + ">";
     }
+
+    @Override
+    public final boolean equals(final Object o) {
+        if (!(o instanceof SddElement)) {
+            return false;
+        }
+
+        final SddElement element = (SddElement) o;
+        return prime.equals(element.prime) && sub.equals(element.sub);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = prime.hashCode();
+        result = 31 * result + sub.hashCode();
+        return result;
+    }
 }

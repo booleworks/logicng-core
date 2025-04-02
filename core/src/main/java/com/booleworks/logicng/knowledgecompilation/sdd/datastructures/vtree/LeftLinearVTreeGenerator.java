@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import java.util.Set;
 
 public class LeftLinearVTreeGenerator implements VTreeGenerator {
+    private final static LeftLinearVTreeGenerator INSTANCE = new LeftLinearVTreeGenerator();
+
+    public static LeftLinearVTreeGenerator get() {
+        return INSTANCE;
+    }
+
     @Override
     public VTree generate(final SddFactory sf, final Set<Variable> variables) {
         if (variables.isEmpty()) {

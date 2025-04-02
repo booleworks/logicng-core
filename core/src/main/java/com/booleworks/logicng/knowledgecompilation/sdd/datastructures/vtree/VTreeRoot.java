@@ -170,4 +170,19 @@ public class VTreeRoot {
                 ", root=" + root +
                 '}';
     }
+
+    @Override
+    public final boolean equals(final Object o) {
+        if (!(o instanceof VTreeRoot)) {
+            return false;
+        }
+
+        final VTreeRoot vTreeRoot = (VTreeRoot) o;
+        return root.equals(vTreeRoot.root);
+    }
+
+    @Override
+    public int hashCode() {
+        return root.hashCode();
+    }
 }

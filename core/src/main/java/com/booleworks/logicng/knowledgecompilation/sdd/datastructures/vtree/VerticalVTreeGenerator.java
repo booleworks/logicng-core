@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import java.util.Set;
 
 public class VerticalVTreeGenerator implements VTreeGenerator {
+    private final static VerticalVTreeGenerator INSTANCE = new VerticalVTreeGenerator();
+
+    public static VerticalVTreeGenerator get() {
+        return INSTANCE;
+    }
+
     @Override
     public VTree generate(final SddFactory sf, final Set<Variable> variables) {
         if (variables.isEmpty()) {

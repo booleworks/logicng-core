@@ -1,7 +1,7 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
 public abstract class SddNode implements Comparable<SddNode> {
-    final int id;
+    final protected int id;
 
     public SddNode(final int id) {
         this.id = id;
@@ -32,5 +32,20 @@ public abstract class SddNode implements Comparable<SddNode> {
     @Override
     public int compareTo(final SddNode o) {
         return id - o.id;
+    }
+
+    @Override
+    public final boolean equals(final Object o) {
+        if (!(o instanceof SddNode)) {
+            return false;
+        }
+
+        final SddNode sddNode = (SddNode) o;
+        return id == sddNode.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 }

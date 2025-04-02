@@ -1,7 +1,7 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
 public abstract class VTree {
-    private final int id;
+    protected final int id;
 
     public VTreeInternal asInternal() {
         return (VTreeInternal) this;
@@ -22,6 +22,21 @@ public abstract class VTree {
     public abstract VTree getLast();
 
     public int getId() {
+        return id;
+    }
+
+    @Override
+    public final boolean equals(final Object o) {
+        if (!(o instanceof VTree)) {
+            return false;
+        }
+
+        final VTree vTree = (VTree) o;
+        return id == vTree.id;
+    }
+
+    @Override
+    public int hashCode() {
         return id;
     }
 }

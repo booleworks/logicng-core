@@ -99,6 +99,15 @@ public class SddFactory {
         final SddNodeTerminal newNode = new SddNodeTerminal(currentSddId++, terminal);
         sddTerminals.put(terminal, newNode);
         registerSddNode(newNode, vTree, root);
+
+        final Literal negTerminal = terminal.negate(f);
+        final SddNodeTerminal newNodeNeg = new SddNodeTerminal(currentSddId++, negTerminal);
+        sddTerminals.put(negTerminal, newNodeNeg);
+        registerSddNode(newNodeNeg, vTree, root);
+
+        negations.put(newNode, newNodeNeg);
+        negations.put(newNodeNeg, newNode);
+
         return newNode;
     }
 
@@ -111,8 +120,9 @@ public class SddFactory {
             return cached;
         }
         assert Util.elementsCompressed(elements);
-        final SddNodeDecomposition newNode = new SddNodeDecomposition(currentSddId++, elements);
-        sddDecompositions.put(elements, newNode);
+        final TreeSet<SddElement> elementsCopy = new TreeSet<>(elements);
+        final SddNodeDecomposition newNode = new SddNodeDecomposition(currentSddId++, elementsCopy);
+        sddDecompositions.put(elementsCopy, newNode);
         registerSddNode(newNode, vTree, root);
         return newNode;
     }
@@ -326,6 +336,10 @@ public class SddFactory {
 
     public <RESULT> RESULT apply(final SddFunction<RESULT> function) {
         return function.apply(this);
+    }
+
+    public int getSddNodeCount() {
+        return sddTerminals.size() + sddDecompositions.size();
     }
 
     public FormulaFactory getFactory() {
