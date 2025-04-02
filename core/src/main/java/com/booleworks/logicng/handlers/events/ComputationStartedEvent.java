@@ -18,19 +18,32 @@ import com.booleworks.logicng.handlers.TimeoutHandler;
 public class ComputationStartedEvent implements LngEvent {
 
     public static final ComputationStartedEvent FACTORIZATION_STARTED = new ComputationStartedEvent("Factorization");
-    public static final ComputationStartedEvent BDD_COMPUTATION_STARTED = new ComputationStartedEvent("BDD Computation");
-    public static final ComputationStartedEvent DNNF_COMPUTATION_STARTED = new ComputationStartedEvent("DNNF Computation");
+    public static final ComputationStartedEvent BDD_COMPUTATION_STARTED =
+            new ComputationStartedEvent("BDD Computation");
+    public static final ComputationStartedEvent DNNF_COMPUTATION_STARTED =
+            new ComputationStartedEvent("DNNF Computation");
+    public static final ComputationStartedEvent SDD_COMPUTATION_STARTED =
+            new ComputationStartedEvent("SDD Computation");
     public static final ComputationStartedEvent SAT_CALL_STARTED = new ComputationStartedEvent("SAT Call");
     public static final ComputationStartedEvent MAX_SAT_CALL_STARTED = new ComputationStartedEvent("MaxSAT Call");
-    public static final ComputationStartedEvent BACKBONE_COMPUTATION_STARTED = new ComputationStartedEvent("Backbone Computation");
-    public static final ComputationStartedEvent ADVANCED_SIMPLIFICATION_STARTED = new ComputationStartedEvent("Advanced Simplification");
-    public static final ComputationStartedEvent PRIME_COMPUTATION_STARTED = new ComputationStartedEvent("Prime Computation");
-    public static final ComputationStartedEvent IMPLICANT_REDUCTION_STARTED = new ComputationStartedEvent("Implicant Reduction");
-    public static final ComputationStartedEvent IMPLICATE_REDUCTION_STARTED = new ComputationStartedEvent("Implicate Reduction");
-    public static final ComputationStartedEvent MUS_COMPUTATION_STARTED = new ComputationStartedEvent("MUS Computation");
-    public static final ComputationStartedEvent SMUS_COMPUTATION_STARTED = new ComputationStartedEvent("SMUS Computation");
-    public static final ComputationStartedEvent OPTIMIZATION_FUNCTION_STARTED = new ComputationStartedEvent("Optimization Function");
-    public static final ComputationStartedEvent MODEL_ENUMERATION_STARTED = new ComputationStartedEvent("Model Enumeration");
+    public static final ComputationStartedEvent BACKBONE_COMPUTATION_STARTED =
+            new ComputationStartedEvent("Backbone Computation");
+    public static final ComputationStartedEvent ADVANCED_SIMPLIFICATION_STARTED =
+            new ComputationStartedEvent("Advanced Simplification");
+    public static final ComputationStartedEvent PRIME_COMPUTATION_STARTED =
+            new ComputationStartedEvent("Prime Computation");
+    public static final ComputationStartedEvent IMPLICANT_REDUCTION_STARTED =
+            new ComputationStartedEvent("Implicant Reduction");
+    public static final ComputationStartedEvent IMPLICATE_REDUCTION_STARTED =
+            new ComputationStartedEvent("Implicate Reduction");
+    public static final ComputationStartedEvent MUS_COMPUTATION_STARTED =
+            new ComputationStartedEvent("MUS Computation");
+    public static final ComputationStartedEvent SMUS_COMPUTATION_STARTED =
+            new ComputationStartedEvent("SMUS Computation");
+    public static final ComputationStartedEvent OPTIMIZATION_FUNCTION_STARTED =
+            new ComputationStartedEvent("Optimization Function");
+    public static final ComputationStartedEvent MODEL_ENUMERATION_STARTED =
+            new ComputationStartedEvent("Model Enumeration");
 
     private final String computationType;
 

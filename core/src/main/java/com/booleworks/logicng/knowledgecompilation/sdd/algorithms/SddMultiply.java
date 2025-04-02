@@ -1,6 +1,9 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
 
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
@@ -12,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class SddMultiply {
@@ -36,11 +40,11 @@ public class SddMultiply {
      * the above observations are used to skip some conjoin operations whose result
      * can be predicted upfront
      **/
-    public static TreeSet<SddElement> multiplyDecompositions(final TreeSet<SddElement> elements1,
-                                                             final TreeSet<SddElement> elements2,
-                                                             final SddApplyOperation op, final VTree vTree,
-                                                             final VTreeRoot root,
-                                                             final SddFactory sf) {
+    public static LngResult<TreeSet<SddElement>> multiplyDecompositions(final SortedSet<SddElement> elements1,
+                                                                        final SortedSet<SddElement> elements2,
+                                                                        final SddApplyOperation op, final VTree vTree,
+                                                                        final VTreeRoot root, final SddFactory sf,
+                                                                        final ComputationHandler handler) {
         final ArrayList<SddElement> e1Common = new ArrayList<>();
         final ArrayList<SddElement> e1Other = new ArrayList<>();
         final ArrayList<SddElement> e2Common = new ArrayList<>();
@@ -89,9 +93,12 @@ public class SddMultiply {
                         final SddElement element2 = e2Common.get(j);
                         if (element1.getPrime() == element2.getPrime()) {
                             final SddNode prime = element1.getPrime();
-                            final SddNode sub =
-                                    SddApply.apply(element1.getSub(), element2.getSub(), op, root, sf);
-                            Util.pushNewElement(prime, sub, vTree, root, newElements);
+                            final LngResult<SddNode> sub =
+                                    SddApply.apply(element1.getSub(), element2.getSub(), op, root, sf, handler);
+                            if (!sub.isSuccess()) {
+                                return LngResult.canceled(sub.getCancelCause());
+                            }
+                            Util.pushNewElement(prime, sub.getResult(), vTree, root, newElements);
                             ++jStart;
                             break;
                         }
@@ -106,23 +113,37 @@ public class SddMultiply {
                 for (final SddElement element : e1Common) {
                     if (multiplySub.containsKey(element.getPrime())) {
                         final SddNode prime = element.getPrime();
-                        final SddNode sub =
-                                SddApply.apply(element.getSub(), multiplySub.get(element.getPrime()), op, root, sf);
-                        Util.pushNewElement(prime, sub, vTree, root, newElements);
+                        final LngResult<SddNode> sub =
+                                SddApply.apply(element.getSub(), multiplySub.get(element.getPrime()), op, root, sf,
+                                        handler);
+                        if (!sub.isSuccess()) {
+                            return LngResult.canceled(sub.getCancelCause());
+                        }
+                        Util.pushNewElement(prime, sub.getResult(), vTree, root, newElements);
                     }
                 }
             }
 
+            final SortedSet<SddElement> elements2Copy = new TreeSet<>(e2Other);
             for (final SddElement element1 : e1Other) {
-                final Iterator<SddElement> iter2 = elements2.iterator();
+                final Iterator<SddElement> iter2 = elements2Copy.iterator();
                 while (iter2.hasNext()) {
                     final SddElement element2 = iter2.next();
-                    final SddNode prime =
-                            SddApply.apply(element1.getPrime(), element2.getPrime(), SddApplyOperation.CONJUNCTION,
-                                    root, sf);
+                    final LngResult<SddNode> primeResult =
+                            SddApply.apply(element1.getPrime(), element2.getPrime(), SddApplyOperation
+                                            .CONJUNCTION,
+                                    root, sf, handler);
+                    if (!primeResult.isSuccess()) {
+                        return LngResult.canceled(primeResult.getCancelCause());
+                    }
+                    final SddNode prime = primeResult.getResult();
                     if (!prime.isFalse()) {
-                        final SddNode sub = SddApply.apply(element1.getSub(), element2.getSub(), op, root, sf);
-                        Util.pushNewElement(prime, sub, vTree, root, newElements);
+                        final LngResult<SddNode> sub =
+                                SddApply.apply(element1.getSub(), element2.getSub(), op, root, sf, handler);
+                        if (!sub.isSuccess()) {
+                            return LngResult.canceled(sub.getCancelCause());
+                        }
+                        Util.pushNewElement(prime, sub.getResult(), vTree, root, newElements);
                     }
                     if (prime == element1.getPrime()) {
                         break;
@@ -135,27 +156,36 @@ public class SddMultiply {
         } else {
             //p1 and p2 are complementary: p1 in e1 and p2 in e2
             //multiply has LINEAR complexity in this case
-            for (int i = 0; i < e1Common.size() + e1Other.size(); ++i) {
-                final SddElement element = i < e1Common.size() ? e1Common.get(i) : e1Other.get(i);
-                if (element.getPrime() == p1) {
-                    continue;
-                }
-                final SddNode prime = element.getPrime();
-                final SddNode sub = SddApply.apply(element.getSub(), s2, op, root, sf);
-                Util.pushNewElement(prime, sub, vTree, root, newElements);
+            LngEvent event;
+            event = linearMultiply(p1, s2, op, vTree, root, e1Common, e1Other, sf, handler, newElements);
+            if (event != null) {
+                return LngResult.canceled(event);
             }
-
-            for (int i = 0; i < e2Common.size() + e2Other.size(); ++i) {
-                final SddElement element = i < e2Common.size() ? e2Common.get(i) : e2Other.get(i);
-                if (element.getPrime() == p2) {
-                    continue;
-                }
-                final SddNode prime = element.getPrime();
-                final SddNode sub = SddApply.apply(element.getSub(), s1, op, root, sf);
-                Util.pushNewElement(prime, sub, vTree, root, newElements);
+            event = linearMultiply(p2, s1, op, vTree, root, e2Common, e2Other, sf, handler, newElements);
+            if (event != null) {
+                return LngResult.canceled(event);
             }
         }
-        return newElements;
+        return LngResult.of(newElements);
     }
 
+    private static LngEvent linearMultiply(final SddNode prime, final SddNode complementarySub,
+                                           final SddApplyOperation op,
+                                           final VTree vTree, final VTreeRoot root, final ArrayList<SddElement> list1,
+                                           final ArrayList<SddElement> list2, final SddFactory sf,
+                                           final ComputationHandler handler, final TreeSet<SddElement> destination) {
+        for (int i = 0; i < list1.size() + list2.size(); ++i) {
+            final SddElement element = i < list1.size() ? list1.get(i) : list2.get(i - list1.size());
+            if (element.getPrime() == prime) {
+                continue;
+            }
+            final SddNode newPrime = element.getPrime();
+            final LngResult<SddNode> newSub = SddApply.apply(element.getSub(), complementarySub, op, root, sf, handler);
+            if (!newSub.isSuccess()) {
+                return newSub.getCancelCause();
+            }
+            Util.pushNewElement(newPrime, newSub.getResult(), vTree, root, destination);
+        }
+        return null;
+    }
 }

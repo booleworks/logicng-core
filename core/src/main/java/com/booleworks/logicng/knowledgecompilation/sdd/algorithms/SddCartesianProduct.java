@@ -1,5 +1,7 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
@@ -14,30 +16,44 @@ public class SddCartesianProduct {
     private SddCartesianProduct() {
     }
 
-    public static TreeSet<SddElement> cartesianProduct(final Collection<TreeSet<SddElement>> sets,
-                                                       final boolean compress, final VTree vTree, final VTreeRoot root,
-                                                       final SddFactory sf) {
+    public static LngResult<TreeSet<SddElement>> cartesianProduct(final Collection<TreeSet<SddElement>> sets,
+                                                                  final boolean compress, final VTree vTree,
+                                                                  final VTreeRoot root,
+                                                                  final SddFactory sf,
+                                                                  final ComputationHandler handler) {
         TreeSet<SddElement> res = new TreeSet<>();
         Util.pushNewElement(sf.verum(), sf.falsum(), vTree, root, res);
         for (final TreeSet<SddElement> set : sets) {
-            res = cartesianProduct(res, set, compress, vTree, root, sf);
+            final LngResult<TreeSet<SddElement>> resResult =
+                    cartesianProduct(res, set, compress, vTree, root, sf, handler);
+            if (!resResult.isSuccess()) {
+                return resResult;
+            }
+            res = resResult.getResult();
         }
-        return res;
+        return LngResult.of(res);
     }
 
-    private static TreeSet<SddElement> cartesianProduct(final TreeSet<SddElement> left, final TreeSet<SddElement> right,
-                                                        final boolean compress, final VTree vTree, final VTreeRoot root,
-                                                        final SddFactory sf) {
-        final TreeSet<SddElement> product =
-                SddMultiply.multiplyDecompositions(left, right, SddApplyOperation.DISJUNCTION, vTree, root, sf);
+    private static LngResult<TreeSet<SddElement>> cartesianProduct(final TreeSet<SddElement> left,
+                                                                   final TreeSet<SddElement> right,
+                                                                   final boolean compress, final VTree vTree,
+                                                                   final VTreeRoot root,
+                                                                   final SddFactory sf,
+                                                                   final ComputationHandler handler) {
+        final LngResult<TreeSet<SddElement>> product =
+                SddMultiply.multiplyDecompositions(left, right, SddApplyOperation.DISJUNCTION, vTree, root, sf,
+                        handler);
+        if (!product.isSuccess()) {
+            return product;
+        }
         if (compress) {
-            return compress(product, root, sf);
+            return compress(product.getResult(), root, sf, handler);
         }
         return product;
     }
 
-    private static TreeSet<SddElement> compress(final TreeSet<SddElement> product, final VTreeRoot root,
-                                                final SddFactory sf) {
+    private static LngResult<TreeSet<SddElement>> compress(final TreeSet<SddElement> product, final VTreeRoot root,
+                                                           final SddFactory sf, final ComputationHandler handler) {
         final TreeSet<SddElement> compressed = new TreeSet<>();
         SddNode prevPrime = null;
         SddNode prevSub = null;
@@ -50,7 +66,12 @@ public class SddCartesianProduct {
                 continue;
             }
             if (current.getSub() == prevSub) {
-                prevPrime = SddApply.apply(current.getPrime(), prevPrime, SddApplyOperation.DISJUNCTION, root, sf);
+                final LngResult<SddNode> prevPrimeRes =
+                        SddApply.apply(current.getPrime(), prevPrime, SddApplyOperation.DISJUNCTION, root, sf, handler);
+                if (!prevPrimeRes.isSuccess()) {
+                    return LngResult.canceled(prevPrimeRes.getCancelCause());
+                }
+                prevPrime = prevPrimeRes.getResult();
                 prev = null;
             } else {
                 if (prev != null) {
@@ -63,6 +84,6 @@ public class SddCartesianProduct {
                 prev = current;
             }
         }
-        return compressed;
+        return LngResult.of(compressed);
     }
 }
