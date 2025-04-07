@@ -1,13 +1,18 @@
 package com.booleworks.logicng.csp.functions;
 
 import com.booleworks.logicng.backbones.Backbone;
+import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.datastructures.Csp;
 import com.booleworks.logicng.csp.encodings.CspEncodingContext;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.datastructures.EncodingResult;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.functions.BackboneFunction;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -127,18 +132,40 @@ public class CspBackbone {
      * This function adds new value hooks to the solver. There are alternative functions that take existing value hooks
      * as argument.
      * @param solver  the solver with the csp on it
+     * @param type    the backbone type
      * @param csp     the csp
      * @param context the encoding context
-     * @param cf      the factory
      * @param result  the destination for the new value hooks
+     * @param cf      the factory
      * @return the backbone
      */
-    public static CspBackbone calculateBackbone(final SatSolver solver,
-                                                final Csp csp,
-                                                final CspEncodingContext context,
+    public static CspBackbone calculateBackbone(final SatSolver solver, final BackboneType type,
+                                                final Csp csp, final CspEncodingContext context,
                                                 final EncodingResult result, final CspFactory cf) {
-        return calculateBackbone(solver, csp.getVisibleIntegerVariables(), csp.getVisibleBooleanVariables(), context,
-                result, cf);
+        return calculateBackbone(solver, type, csp.getVisibleIntegerVariables(), csp.getVisibleBooleanVariables(),
+                context, result, cf);
+    }
+
+    /**
+     * Calculates the backbone of a CSP that is encoded on the solver.
+     * <p>
+     * This function adds new value hooks to the solver. There are alternative functions that take existing value hooks
+     * as argument.
+     * @param solver  the solver with the csp on it
+     * @param type    the backbone type
+     * @param csp     the csp
+     * @param context the encoding context
+     * @param result  the destination for the new value hooks
+     * @param cf      the factory
+     * @param handler handler for processing events
+     * @return the backbone
+     */
+    public static LngResult<CspBackbone> calculateBackbone(final SatSolver solver, final BackboneType type,
+                                                           final Csp csp, final CspEncodingContext context,
+                                                           final EncodingResult result, final CspFactory cf,
+                                                           final ComputationHandler handler) {
+        return calculateBackbone(solver, type, csp.getVisibleIntegerVariables(), csp.getVisibleBooleanVariables(),
+                context, result, cf, handler);
     }
 
     /**
@@ -147,6 +174,7 @@ public class CspBackbone {
      * This function adds new value hooks to the solver. There are alternative functions that take existing value hooks
      * as argument.
      * @param solver           the solver with the csp on it
+     * @param type             the backbone type
      * @param integerVariables the relevant integer variables for the backbone
      * @param booleanVariables the relevant boolean variables for the backbone
      * @param context          the encoding context
@@ -154,14 +182,40 @@ public class CspBackbone {
      * @param cf               the factory
      * @return the backbone
      */
-    public static CspBackbone calculateBackbone(final SatSolver solver,
+    public static CspBackbone calculateBackbone(final SatSolver solver, final BackboneType type,
                                                 final Collection<IntegerVariable> integerVariables,
                                                 final Collection<Variable> booleanVariables,
                                                 final CspEncodingContext context,
                                                 final EncodingResult result, final CspFactory cf) {
         final Map<IntegerVariable, Map<Variable, Integer>> valueHooks =
                 CspValueHook.encodeValueHooks(integerVariables, context, result, cf);
-        return calculateBackbone(solver, integerVariables, booleanVariables, context, valueHooks, cf);
+        return calculateBackbone(solver, type, integerVariables, booleanVariables, context, valueHooks, cf);
+    }
+
+    /**
+     * Calculates the backbone of a CSP that is encoded on the solver.
+     * <p>
+     * This function adds new value hooks to the solver. There are alternative functions that take existing value hooks
+     * as argument.
+     * @param solver           the solver with the csp on it
+     * @param type             the backbone type
+     * @param integerVariables the relevant integer variables for the backbone
+     * @param booleanVariables the relevant boolean variables for the backbone
+     * @param context          the encoding context
+     * @param result           the destination for the new value hooks
+     * @param cf               the factory
+     * @param handler          handler for processing events
+     * @return the backbone
+     */
+    public static LngResult<CspBackbone> calculateBackbone(final SatSolver solver, final BackboneType type,
+                                                           final Collection<IntegerVariable> integerVariables,
+                                                           final Collection<Variable> booleanVariables,
+                                                           final CspEncodingContext context,
+                                                           final EncodingResult result, final CspFactory cf,
+                                                           final ComputationHandler handler) {
+        final Map<IntegerVariable, Map<Variable, Integer>> valueHooks =
+                CspValueHook.encodeValueHooks(integerVariables, context, result, cf);
+        return calculateBackbone(solver, type, integerVariables, booleanVariables, context, valueHooks, cf, handler);
     }
 
     /**
@@ -169,26 +223,50 @@ public class CspBackbone {
      * <p>
      * It assumes that the necessary value hooks are already encoded on the solver.
      * @param solver     the solver with the csp on it
+     * @param type       the backbone type
      * @param csp        the csp
      * @param context    the encoding context
      * @param valueHooks the value hooks
      * @param cf         the factory
      * @return the backbone
      */
-    public static CspBackbone calculateBackbone(final SatSolver solver,
-                                                final Csp csp,
+    public static CspBackbone calculateBackbone(final SatSolver solver, final BackboneType type, final Csp csp,
                                                 final CspEncodingContext context,
                                                 final Map<IntegerVariable, Map<Variable, Integer>> valueHooks,
                                                 final CspFactory cf) {
-        return calculateBackbone(solver, csp.getVisibleIntegerVariables(), csp.getVisibleBooleanVariables(), context,
-                valueHooks, cf);
+        return calculateBackbone(solver, type, csp.getVisibleIntegerVariables(), csp.getVisibleBooleanVariables(),
+                context, valueHooks, cf);
     }
 
     /**
      * Calculates the backbone of a CSP that is encoded on the solver.
      * <p>
      * It assumes that the necessary value hooks are already encoded on the solver.
+     * @param solver     the solver with the csp on it
+     * @param type       the backbone type
+     * @param csp        the csp
+     * @param context    the encoding context
+     * @param valueHooks the value hooks
+     * @param cf         the factory
+     * @param handler    handler for processing events
+     * @return the backbone
+     */
+    public static LngResult<CspBackbone> calculateBackbone(final SatSolver solver,
+                                                           final BackboneType type, final Csp csp,
+                                                           final CspEncodingContext context,
+                                                           final Map<IntegerVariable, Map<Variable, Integer>> valueHooks,
+                                                           final CspFactory cf, final ComputationHandler handler) {
+        return calculateBackbone(solver, type, csp.getVisibleIntegerVariables(), csp.getVisibleBooleanVariables(),
+                context, valueHooks, cf, handler);
+    }
+
+
+    /**
+     * Calculates the backbone of a CSP that is encoded on the solver.
+     * <p>
+     * It assumes that the necessary value hooks are already encoded on the solver.
      * @param solver           the solver with the csp on it
+     * @param type             the backbone type
      * @param integerVariables the relevant integer variables for the backbone
      * @param booleanVariables the relevant boolean variables for the backbone
      * @param context          the encoding context
@@ -197,18 +275,50 @@ public class CspBackbone {
      * @return the backbone
      */
     public static CspBackbone calculateBackbone(final SatSolver solver,
+                                                final BackboneType type,
                                                 final Collection<IntegerVariable> integerVariables,
                                                 final Collection<Variable> booleanVariables,
                                                 final CspEncodingContext context,
                                                 final Map<IntegerVariable, Map<Variable, Integer>> valueHooks,
                                                 final CspFactory cf) {
+        return calculateBackbone(solver, type, integerVariables, booleanVariables, context, valueHooks, cf,
+                NopHandler.get()).getResult();
+    }
+
+    /**
+     * Calculates the backbone of a CSP that is encoded on the solver.
+     * <p>
+     * It assumes that the necessary value hooks are already encoded on the solver.
+     * @param solver           the solver with the csp on it
+     * @param type             the backbone type
+     * @param integerVariables the relevant integer variables for the backbone
+     * @param booleanVariables the relevant boolean variables for the backbone
+     * @param context          the encoding context
+     * @param valueHooks       the value hooks
+     * @param cf               the factory
+     * @param handler          handler for processing events
+     * @return the backbone
+     */
+    public static LngResult<CspBackbone> calculateBackbone(final SatSolver solver,
+                                                           final BackboneType type,
+                                                           final Collection<IntegerVariable> integerVariables,
+                                                           final Collection<Variable> booleanVariables,
+                                                           final CspEncodingContext context,
+                                                           final Map<IntegerVariable, Map<Variable, Integer>> valueHooks,
+                                                           final CspFactory cf, final ComputationHandler handler) {
         final List<Variable> hookVariables = valueHooks.values().stream()
                 .flatMap(m -> m.keySet().stream()).collect(Collectors.toList());
         final List<Variable> relevantVariables = new ArrayList<>(booleanVariables);
         relevantVariables.addAll(hookVariables);
-        final Backbone backbone = solver.backbone(relevantVariables);
+        final BackboneFunction backboneFunction =
+                BackboneFunction.builder().variables(relevantVariables).type(type).build();
+        final LngResult<Backbone> backboneResult = solver.execute(backboneFunction, handler);
+        if (!backboneResult.isSuccess()) {
+            return LngResult.canceled(backboneResult.getCancelCause());
+        }
+        final Backbone backbone = backboneResult.getResult();
         if (!backbone.isSat()) {
-            return CspBackbone.unsatBackbone();
+            return LngResult.of(CspBackbone.unsatBackbone());
         }
         final Backbone filteredBackbone = filterBackbone(backbone, booleanVariables);
         final CspBackbone cspBackbone = new CspBackbone(new LinkedHashMap<>(), new LinkedHashMap<>(), filteredBackbone);
@@ -232,7 +342,7 @@ public class CspBackbone {
                 }
             }
         }
-        return cspBackbone;
+        return LngResult.of(cspBackbone);
     }
 
     private static Backbone filterBackbone(final Backbone backbone, final Collection<Variable> relevantVariables) {
