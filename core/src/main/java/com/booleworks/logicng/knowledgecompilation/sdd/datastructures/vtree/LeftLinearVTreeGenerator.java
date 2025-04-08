@@ -1,20 +1,22 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 
 import java.util.ArrayList;
 import java.util.Set;
 
 public class LeftLinearVTreeGenerator implements VTreeGenerator {
-    private final static LeftLinearVTreeGenerator INSTANCE = new LeftLinearVTreeGenerator();
+    private final Set<Variable> variables;
 
-    public static LeftLinearVTreeGenerator get() {
-        return INSTANCE;
+    public LeftLinearVTreeGenerator(final Set<Variable> variables) {
+        this.variables = variables;
     }
 
     @Override
-    public VTree generate(final SddFactory sf, final Set<Variable> variables) {
+    public LngResult<VTree> generate(final SddFactory sf, final ComputationHandler handler) {
         if (variables.isEmpty()) {
             throw new IllegalArgumentException("Cannot construct VTree from a empty set of variables");
         }
@@ -30,6 +32,6 @@ public class LeftLinearVTreeGenerator implements VTreeGenerator {
                 left = sf.vTreeInternal(left, right);
             }
         }
-        return left;
+        return LngResult.of(left);
     }
 }

@@ -1,0 +1,61 @@
+package com.booleworks.logicng.knowledgecompilation.sdd.compilers;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.io.parsers.ParserException;
+import com.booleworks.logicng.io.readers.DimacsReader;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
+import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddExportFormula;
+import com.booleworks.logicng.modelcounting.ModelCounter;
+import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.List;
+
+public class SddCompilerTopDownTest {
+    private final static List<String> FILES = List.of(
+            "../test_files/sdd/compile_example1.cnf",
+            "../test_files/sdd/compile_example2.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_1.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_2.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_3.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_4.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_5.cnf"
+    );
+
+    @Test
+    public void testComp() throws ParserException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final SddFactory sf = new SddFactory(f);
+        final Formula formula = f.parse("(Y | ~Z) & (~X | Z) & (X | ~Y) & (X | Q)");
+        final SddCompilationResult result = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+        final Formula exported = sf.apply(new SddExportFormula(result.getSdd()));
+        verifyResult(formula, exported, f);
+    }
+
+    @Test
+    public void testFormulas() throws ParserException, IOException {
+        for (final String file : FILES) {
+            final FormulaFactory f = FormulaFactory.caching();
+            final SddFactory sf = new SddFactory(f);
+            final Formula formula = f.and(DimacsReader.readCNF(f, file));
+            final SddCompilationResult result =
+                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+            final Formula exported = sf.apply(new SddExportFormula(result.getSdd()));
+            verifyResult(formula, exported, f);
+        }
+    }
+
+    public void verifyResult(final Formula input, final Formula output, final FormulaFactory f) {
+        f.equivalence(input, output).holds(new TautologyPredicate(f));
+        final BigInteger ic = ModelCounter.count(f, List.of(input), input.variables(f));
+        final BigInteger oc = ModelCounter.count(f, List.of(input), input.variables(f));
+        assertThat(ic).isEqualTo(oc);
+    }
+}

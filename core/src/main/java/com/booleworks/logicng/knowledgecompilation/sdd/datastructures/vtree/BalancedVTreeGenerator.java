@@ -1,25 +1,27 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 
 import java.util.ArrayList;
 import java.util.Set;
 
 public class BalancedVTreeGenerator implements VTreeGenerator {
-    private final static BalancedVTreeGenerator INSTANCE = new BalancedVTreeGenerator();
+    private final Set<Variable> variables;
 
-    public static BalancedVTreeGenerator get() {
-        return INSTANCE;
+    public BalancedVTreeGenerator(final Set<Variable> variables) {
+        this.variables = variables;
     }
 
     @Override
-    public VTree generate(final SddFactory sf, final Set<Variable> variables) {
+    public LngResult<VTree> generate(final SddFactory sf, final ComputationHandler handler) {
         if (variables.isEmpty()) {
             throw new IllegalArgumentException("Cannot construct VTree from a empty set of variables");
         }
         final ArrayList<Variable> varSet = new ArrayList<>(variables);
-        return generateRec(sf, varSet, 0, varSet.size() - 1);
+        return LngResult.of(generateRec(sf, varSet, 0, varSet.size() - 1));
     }
 
     private VTree generateRec(final SddFactory sf, final ArrayList<Variable> variables, final int first,

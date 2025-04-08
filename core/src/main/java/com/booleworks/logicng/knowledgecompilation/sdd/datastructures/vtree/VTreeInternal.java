@@ -27,6 +27,10 @@ public class VTreeInternal extends VTree {
         return false;
     }
 
+    public boolean isShannon() {
+        return left.isLeaf();
+    }
+
     @Override
     public VTree getFirst() {
         return first;
