@@ -111,15 +111,15 @@ public class SddFactory {
         return newNode;
     }
 
-    public SddNodeDecomposition decomposition(final TreeSet<SddElement> elements, final VTree vTree,
-                                              final VTreeRoot root) {
+    public SddNodeDecomposition decomposition(final TreeSet<SddElement> elements, final VTreeRoot root) {
         final SddNodeDecomposition cached = sddDecompositions.get(elements);
         if (cached != null) {
-            assert vTree == Util.lcaOfCompressedElements(elements, root);
+            final VTree vTree = Util.lcaOfCompressedElements(elements, root);
             registerSddNode(cached, vTree, root);
             return cached;
         }
         assert Util.elementsCompressed(elements);
+        final VTree vTree = Util.lcaOfCompressedElements(elements, root);
         final TreeSet<SddElement> elementsCopy = new TreeSet<>(elements);
         final SddNodeDecomposition newNode = new SddNodeDecomposition(currentSddId++, elementsCopy);
         sddDecompositions.put(elementsCopy, newNode);
@@ -320,7 +320,7 @@ public class SddFactory {
                 final SddNode subNeg = negate(element.getSub(), root);
                 Util.pushNewElement(element.getPrime(), subNeg, vTree, root, newElements);
             }
-            nodeNeg = decomposition(newElements, vTree, root);
+            nodeNeg = decomposition(newElements, root);
         } else {
             final SddNodeTerminal t = node.asTerminal();
             nodeNeg = terminal((Literal) t.getTerminal().negate(f), root);

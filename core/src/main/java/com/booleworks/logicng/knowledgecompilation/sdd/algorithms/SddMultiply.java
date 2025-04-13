@@ -31,11 +31,11 @@ public class SddMultiply {
      * <p>
      * when computing a product of two decompositions: (p11 p12 ... p1n) x (p21 p22 ... p2m)
      * --observation 1:
-     * if p1i = p2j, then p1k x p2j = false for all k<>i
+     * if p1i = p2j, then p1k x p2j = false for all k != i
      * --observation 2:
-     * if p1i = !p2j, then p1k x p2j = p1k for all k<>i
+     * if p1i = !p2j, then p1k x p2j = p1k for all k != i
      * --observation 3:
-     * if p1i*p2j=p2j, then pik x p2j = false for all k<>i
+     * if p1i*p2j=p2j, then pik x p2j = false for all k != i
      * <p>
      * the above observations are used to skip some conjoin operations whose result
      * can be predicted upfront

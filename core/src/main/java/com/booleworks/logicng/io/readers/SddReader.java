@@ -80,7 +80,6 @@ public class SddReader {
                                 null);
                     }
                     final int nodeId = Integer.parseInt(comps[1]);
-                    final VTree vTree = root.getVTreeAtPosition(Integer.parseInt(comps[2]));
                     final int elementCount = Integer.parseInt(comps[3]);
                     if (comps.length < elementCount * 2 + 4) {
                         throw new ParserException(
@@ -93,7 +92,7 @@ public class SddReader {
                         final SddNode sub = sddNodes.get(Integer.parseInt(comps[i + 1]));
                         elements.add(new SddElement(prime, sub));
                     }
-                    final SddNode node = sf.decomposition(elements, vTree, root);
+                    final SddNode node = sf.decomposition(elements, root);
                     sddNodes.put(nodeId, node);
                     last = node;
                 }

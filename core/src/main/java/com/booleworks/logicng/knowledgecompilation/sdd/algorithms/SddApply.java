@@ -172,7 +172,7 @@ public class SddApply {
         final TreeSet<SddElement> newElements = new TreeSet<>();
         Util.pushNewElement(left, leftSub.getResult(), vTree, root, newElements);
         Util.pushNewElement(leftNeg, leftNegSub.getResult(), vTree, root, newElements);
-        return LngResult.of(sf.decomposition(newElements, vTree, root));
+        return LngResult.of(sf.decomposition(newElements, root));
     }
 
     private static LngResult<SddNode> getNodeOfPartition(final TreeSet<SddElement> newElements, final VTree vTree,
@@ -186,7 +186,7 @@ public class SddApply {
         if (res.getResult().getFirst() != null) {
             return LngResult.of(res.getResult().getFirst());
         } else {
-            return LngResult.of(sf.decomposition(res.getResult().getSecond(), vTree, root));
+            return LngResult.of(sf.decomposition(res.getResult().getSecond(), root));
         }
     }
 

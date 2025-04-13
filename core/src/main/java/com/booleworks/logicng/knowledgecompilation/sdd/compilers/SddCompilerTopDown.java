@@ -5,6 +5,7 @@ import static com.booleworks.logicng.handlers.events.SimpleEvent.SDD_SHANNON_EXP
 import static com.booleworks.logicng.knowledgecompilation.dnnf.DnnfCoreSolver.var;
 
 import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
@@ -81,6 +82,9 @@ public class SddCompilerTopDown {
         final Formula unitClauses = unitAndNonUnitClauses.getFirst();
         final Formula nonUnitClauses = unitAndNonUnitClauses.getSecond();
 
+        if (simplifiedFormula.getType() == FType.TRUE) {
+            return LngResult.of(new SddCompilationResult(sf.verum(), null));
+        }
         if (!simplifiedFormula.holds(new SatPredicate(sf.getFactory()))) {
             return LngResult.of(new SddCompilationResult(sf.falsum(), null));
         }
@@ -138,26 +142,32 @@ public class SddCompilerTopDown {
                 varsOnlyInUnitClauses.add(v);
             }
         }
-        final LngResult<DTree> dTreeResult =
-                new MinFillDTreeGenerator().generate(sf.getFactory(), nonUnitClauses, handler);
-        if (!dTreeResult.isSuccess()) {
-            return LngResult.canceled(dTreeResult.getCancelCause());
-        }
-        final DTree dTree = dTreeResult.getResult();
-        dTree.initialize(solver);
-        final VTree vTree;
-        final LngResult<VTree> dvTree = new DecisionVTreeGenerator(nonUnitClauses, dTree, solver).generate(sf, handler);
-        if (!dvTree.isSuccess()) {
-            return dvTree;
-        }
-        if (varsOnlyInUnitClauses.isEmpty()) {
+        VTree vTree = null;
+        if (!nonUnitVars.isEmpty()) {
+            final LngResult<DTree> dTreeResult =
+                    new MinFillDTreeGenerator().generate(sf.getFactory(), nonUnitClauses, handler);
+            if (!dTreeResult.isSuccess()) {
+                return LngResult.canceled(dTreeResult.getCancelCause());
+            }
+            final DTree dTree = dTreeResult.getResult();
+            dTree.initialize(solver);
+            final LngResult<VTree> dvTree =
+                    new DecisionVTreeGenerator(nonUnitClauses, dTree, solver).generate(sf, handler);
+            if (!dvTree.isSuccess()) {
+                return dvTree;
+            }
             vTree = dvTree.getResult();
-        } else {
+        }
+        if (!varsOnlyInUnitClauses.isEmpty()) {
             final LngResult<VTree> unitTree = new BalancedVTreeGenerator(varsOnlyInUnitClauses).generate(sf, handler);
             if (!unitTree.isSuccess()) {
                 return unitTree;
             }
-            vTree = sf.vTreeInternal(unitTree.getResult(), dvTree.getResult());
+            if (vTree == null) {
+                vTree = unitTree.getResult();
+            } else {
+                vTree = sf.vTreeInternal(unitTree.getResult(), vTree);
+            }
         }
         // generateVarMasks(vTree, caches, solver);
         // generateContextMaps(vTree, dTree, caches, solver);
@@ -266,7 +276,7 @@ public class SddCompilerTopDown {
             // invalidateCache(treeInternal);
             return subResult;
         }
-        return LngResult.of(unique(prime, sub, sf.negate(prime, root), sf.falsum(), treeInternal));
+        return LngResult.of(unique(prime, sub, sf.negate(prime, root), sf.falsum()));
     }
 
     protected LngResult<SddNode> cnf2sddShannon(final VTreeInternal treeInternal,
@@ -292,7 +302,7 @@ public class SddCompilerTopDown {
             if (sub.isFalse()) {
                 return subResult;
             }
-            return LngResult.of(unique(prime, sub, sf.negate(prime, root), sf.falsum(), treeInternal));
+            return LngResult.of(unique(prime, sub, sf.negate(prime, root), sf.falsum()));
         }
         final SddNode positive;
         if (solver.decide(varIdx, true)) {
@@ -335,7 +345,7 @@ public class SddCompilerTopDown {
         }
         final SddNode lit = sf.terminal(var, root);
         final SddNode litNeg = sf.terminal(var.negate(f), root);
-        final SddNode alpha = unique(lit, positive, litNeg, negative, treeInternal);
+        final SddNode alpha = unique(lit, positive, litNeg, negative);
         // addToCache(treeInternal, alpha);
         return LngResult.of(alpha);
     }
@@ -386,7 +396,7 @@ public class SddCompilerTopDown {
         return impliedBitSet;
     }
 
-    protected SddNode unique(final SddNode p1, final SddNode s1, final SddNode p2, final SddNode s2, final VTree tree) {
+    protected SddNode unique(final SddNode p1, final SddNode s1, final SddNode p2, final SddNode s2) {
         if (!p1.isFalse() && !p2.isFalse() && s1 == s2) {
             return s1;
         } else if (p1.isFalse() && p2.isTrue()) {
@@ -405,7 +415,7 @@ public class SddCompilerTopDown {
         if (!p2.isFalse()) {
             elements.add(new SddElement(p2, s2));
         }
-        return sf.decomposition(elements, tree, root);
+        return sf.decomposition(elements, root);
     }
 
     protected static class Caches {

@@ -87,7 +87,7 @@ public class SddWriterTest {
         final TreeSet<SddElement> elems = new TreeSet<>();
         elems.add(new SddElement(terminal1, terminal3));
         elems.add(new SddElement(terminal2, sf.verum()));
-        final SddNode decomp1 = sf.decomposition(elems, root.getRoot(), root);
+        final SddNode decomp1 = sf.decomposition(elems, root);
         testSddFile("sdd_simple1", terminal1, root);
         testSddFile("sdd_simple2", decomp1, root);
     }
