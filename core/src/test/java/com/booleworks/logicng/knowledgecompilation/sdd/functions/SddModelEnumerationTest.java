@@ -1,0 +1,56 @@
+package com.booleworks.logicng.knowledgecompilation.sdd.functions;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
+import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.io.parsers.ParserException;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+import com.booleworks.logicng.solvers.SatSolver;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class SddModelEnumerationTest {
+    @Test
+    public void test() throws ParserException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final SddFactory sf = new SddFactory(f);
+        final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
+        final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+        final List<Model> models =
+                sf.apply(new SddModelEnumeration(f.variables("A", "B", "C", "D", "E"), res.getSdd(), res.getVTree()));
+        final SatSolver solver = SatSolver.newSolver(f);
+        solver.add(formula);
+        final List<Model> expected = solver.enumerateAllModels(f.variables("A", "B", "C", "D", "E"));
+        final List<Assignment> expectedAssignments =
+                expected.stream().map(Model::toAssignment).collect(Collectors.toList());
+        assertThat(models.stream().map(Model::toAssignment)).containsExactlyInAnyOrderElementsOf(expectedAssignments);
+    }
+
+    @Test
+    public void testSubtree() throws ParserException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final SddFactory sf = new SddFactory(f);
+        final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
+        final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+        final SddNode descendant = res.getSdd().asDecomposition().getElements().first().getSub();
+        final Formula subformula = sf.apply(new SddExportFormula(descendant));
+        final List<Model> models =
+                sf.apply(new SddModelEnumeration(subformula.variables(f), descendant, res.getVTree()));
+
+        final SatSolver solver = SatSolver.newSolver(f);
+        solver.add(subformula);
+        final List<Model> expected = solver.enumerateAllModels(subformula.variables(f));
+        final List<Assignment> expectedAssignments =
+                expected.stream().map(Model::toAssignment).collect(Collectors.toList());
+        assertThat(models.stream().map(Model::toAssignment)).containsExactlyInAnyOrderElementsOf(expectedAssignments);
+    }
+}

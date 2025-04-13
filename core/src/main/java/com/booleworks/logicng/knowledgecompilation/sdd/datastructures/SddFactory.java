@@ -4,6 +4,8 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
@@ -16,6 +18,8 @@ import com.booleworks.logicng.util.Pair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
@@ -37,6 +41,7 @@ public class SddFactory {
     private final HashMap<SddNode, SddNode> negations;
     private final HashMap<Pair<SddNode, SddNode>, SddNode> conjunctions;
     private final HashMap<Pair<SddNode, SddNode>, SddNode> disjunctions;
+    private final HashMap<SddNode, SortedSet<Variable>> variables;
 
     public SddFactory(final FormulaFactory f) {
         this.f = f;
@@ -56,6 +61,7 @@ public class SddFactory {
         disjunctions = new HashMap<>();
         verumNode = new SddNodeTerminal(0, f.verum());
         falsumNode = new SddNodeTerminal(1, f.falsum());
+        variables = new HashMap<>();
         negations.put(verumNode, falsumNode);
         negations.put(falsumNode, verumNode);
     }
@@ -334,8 +340,16 @@ public class SddFactory {
         return negations.get(node);
     }
 
+    public Map<SddNode, SortedSet<Variable>> getVariablesCache() {
+        return variables;
+    }
+
     public <RESULT> RESULT apply(final SddFunction<RESULT> function) {
         return function.apply(this);
+    }
+
+    public <RESULT> LngResult<RESULT> apply(final SddFunction<RESULT> function, final ComputationHandler handler) {
+        return function.apply(this, handler);
     }
 
     public int getSddNodeCount() {

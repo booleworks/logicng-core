@@ -2,6 +2,8 @@ package com.booleworks.logicng.knowledgecompilation.sdd.functions;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
@@ -17,8 +19,8 @@ public class SddExportFormula implements SddFunction<Formula> {
     }
 
     @Override
-    public Formula apply(final SddFactory sf) {
-        return applyRec(sdd, sf);
+    public LngResult<Formula> apply(final SddFactory sf, final ComputationHandler handler) {
+        return LngResult.of(applyRec(sdd, sf));
     }
 
     public Formula applyRec(final SddNode node, final SddFactory sf) {

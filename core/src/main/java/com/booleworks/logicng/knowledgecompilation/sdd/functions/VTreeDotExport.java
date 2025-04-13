@@ -1,5 +1,7 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.functions;
 
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.io.graphical.GraphicalColor;
 import com.booleworks.logicng.io.graphical.GraphicalEdge;
 import com.booleworks.logicng.io.graphical.GraphicalEdgeStyle;
@@ -22,10 +24,10 @@ public class VTreeDotExport implements SddFunction<GraphicalRepresentation> {
     }
 
     @Override
-    public GraphicalRepresentation apply(final SddFactory sf) {
+    public LngResult<GraphicalRepresentation> apply(final SddFactory sf, final ComputationHandler handler) {
         final GraphicalRepresentation gr = new GraphicalRepresentation(false, false);
         drawRec(vTree, null, gr);
-        return gr;
+        return LngResult.of(gr);
     }
 
     private void drawRec(final VTree vTree, final GraphicalNode parent, final GraphicalRepresentation gr) {

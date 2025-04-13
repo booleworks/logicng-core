@@ -3,6 +3,8 @@ package com.booleworks.logicng.knowledgecompilation.sdd.functions;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
@@ -37,7 +39,7 @@ public class SddDotExport implements SddFunction<Boolean> {
     }
 
     @Override
-    public Boolean apply(final SddFactory sf) {
+    public LngResult<Boolean> apply(final SddFactory sf, final ComputationHandler handler) {
         nodeCache.clear();
         groupCache.clear();
         result = new GraphSdd();
@@ -48,9 +50,9 @@ public class SddDotExport implements SddFunction<Boolean> {
             writer.flush();
             writer.close();
         } catch (final IOException e) {
-            return false;
+            return LngResult.of(false);
         }
-        return true;
+        return LngResult.of(true);
     }
 
     private GraphVTreeNode irSddNode(final SddNode currentNode, final int rank, GraphVTreeGroup parentGroup) {
