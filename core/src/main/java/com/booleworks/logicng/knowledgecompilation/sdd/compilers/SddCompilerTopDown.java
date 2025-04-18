@@ -55,7 +55,6 @@ public class SddCompilerTopDown {
         this.sf = sf;
         this.f = sf.getFactory();
         this.caches = caches;
-        final int variableCount = root.getVariables().size();
         this.solver = solver;
         solver.add(cnf);
     }
@@ -143,13 +142,14 @@ public class SddCompilerTopDown {
             }
         }
         VTree vTree = null;
+        DTree dTree = null;
         if (!nonUnitVars.isEmpty()) {
             final LngResult<DTree> dTreeResult =
                     new MinFillDTreeGenerator().generate(sf.getFactory(), nonUnitClauses, handler);
             if (!dTreeResult.isSuccess()) {
                 return LngResult.canceled(dTreeResult.getCancelCause());
             }
-            final DTree dTree = dTreeResult.getResult();
+            dTree = dTreeResult.getResult();
             dTree.initialize(solver);
             final LngResult<VTree> dvTree =
                     new DecisionVTreeGenerator(nonUnitClauses, dTree, solver).generate(sf, handler);
@@ -169,8 +169,10 @@ public class SddCompilerTopDown {
                 vTree = sf.vTreeInternal(unitTree.getResult(), vTree);
             }
         }
-        // generateVarMasks(vTree, caches, solver);
-        // generateContextMaps(vTree, dTree, caches, solver);
+        if (vTree != null) {
+            generateVarMasks(vTree, caches, solver);
+        }
+        generateContextMaps(vTree, dTree, caches);
         return LngResult.of(vTree);
     }
 
@@ -191,8 +193,7 @@ public class SddCompilerTopDown {
         }
     }
 
-    protected static void generateContextMaps(final VTree vTree, final DTree dTree, final Caches caches,
-                                              final SddCoreSolver solver) {
+    protected static void generateContextMaps(final VTree vTree, final DTree dTree, final Caches caches) {
         final List<DTreeLeaf> leaves;
         if (dTree instanceof DTreeNode) {
             leaves = ((DTreeNode) dTree).leafs();
@@ -204,7 +205,7 @@ public class SddCompilerTopDown {
         while (!stack.isEmpty()) {
             final VTree parent = stack.pop();
             final BitSet contextClauseMask = new BitSet();
-            final BitSet contextVarMask = new BitSet();
+            final BitSet contextVarMask = (BitSet) caches.varMasks.get(parent).clone();
             for (int i = 0; i < leaves.size(); ++i) {
                 final BitSet varMask = (BitSet) caches.varMasks.get(parent).clone();
                 varMask.and(leaves.get(i).getStaticVarSet());
@@ -213,7 +214,6 @@ public class SddCompilerTopDown {
                     contextVarMask.or(leaves.get(i).getStaticVarSet());
                 }
             }
-            contextVarMask.and(caches.varMasks.get(parent));
             caches.contextCMaps.put(parent, contextClauseMask);
             caches.contextVarMasks.put(parent, contextVarMask);
             if (!parent.isLeaf()) {
@@ -264,7 +264,7 @@ public class SddCompilerTopDown {
         }
         final SddNode prime = primeResult.getResult();
         if (prime.isFalse()) {
-            // invalidateCache(treeInternal.getLeft());
+            invalidateCache(treeInternal.getLeft());
             return primeResult;
         }
         final LngResult<SddNode> subResult = cnf2sdd(treeInternal.getRight(), handler);
@@ -273,7 +273,7 @@ public class SddCompilerTopDown {
         }
         final SddNode sub = subResult.getResult();
         if (sub.isFalse()) {
-            // invalidateCache(treeInternal);
+            invalidateCache(treeInternal);
             return subResult;
         }
         return LngResult.of(unique(prime, sub, sf.negate(prime, root), sf.falsum()));
@@ -281,10 +281,10 @@ public class SddCompilerTopDown {
 
     protected LngResult<SddNode> cnf2sddShannon(final VTreeInternal treeInternal,
                                                 final ComputationHandler handler) {
-        //        final SddNode cached = lookup(treeInternal);
-        //        if (cached != null) {
-        //            return LngResult.of(cached);
-        //        }
+        final SddNode cached = lookup(treeInternal);
+        if (cached != null) {
+            return LngResult.of(cached);
+        }
         if (!handler.shouldResume(SDD_SHANNON_EXPANSION)) {
             return LngResult.canceled(SDD_SHANNON_EXPANSION);
         }
@@ -346,7 +346,7 @@ public class SddCompilerTopDown {
         final SddNode lit = sf.terminal(var, root);
         final SddNode litNeg = sf.terminal(var.negate(f), root);
         final SddNode alpha = unique(lit, positive, litNeg, negative);
-        // addToCache(treeInternal, alpha);
+        addToCache(treeInternal, alpha);
         return LngResult.of(alpha);
     }
 
@@ -375,7 +375,8 @@ public class SddCompilerTopDown {
         if (level2 == null) {
             return null;
         } else {
-            return level2.get(key2(vTree));
+            final BitSet key2 = key2(vTree);
+            return level2.get(key2);
         }
     }
 
@@ -385,12 +386,20 @@ public class SddCompilerTopDown {
 
     protected BitSet key2(final VTree vTree) {
         final BitSet contextVarsMap = caches.contextVarMasks.get(vTree);
+        //final BitSet varMap = caches.varMasks.get(vTree);
+        //contextVarsMap.or(varMap);
         final LngIntVector implied = solver.getImplied();
-        final BitSet impliedBitSet = new BitSet(implied.size());
+        final BitSet impliedBitSet = new BitSet();
         for (int i = 0; i < implied.size(); ++i) {
             final int literal = implied.get(i);
             if (contextVarsMap.get(var(literal))) {
                 impliedBitSet.set(literal);
+            }
+        }
+        for (int i = contextVarsMap.nextSetBit(0); i != -1; i = contextVarsMap.nextSetBit(i + 1)) {
+            if (!impliedBitSet.get(2 * i) && !impliedBitSet.get(2 * i + 1)) {
+                impliedBitSet.set(2 * i);
+                impliedBitSet.set(2 * i + 1);
             }
         }
         return impliedBitSet;
