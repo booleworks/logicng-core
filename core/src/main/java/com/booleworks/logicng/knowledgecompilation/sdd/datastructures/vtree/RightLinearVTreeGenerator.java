@@ -3,6 +3,7 @@ package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.Set;
 public class RightLinearVTreeGenerator implements VTreeGenerator {
     private final Set<Variable> variables;
 
-    public RightLinearVTreeGenerator(Set<Variable> variables) {
+    public RightLinearVTreeGenerator(final Set<Variable> variables) {
         this.variables = variables;
     }
 
@@ -20,6 +21,9 @@ public class RightLinearVTreeGenerator implements VTreeGenerator {
     public LngResult<VTree> generate(final SddFactory sf, final ComputationHandler handler) {
         if (variables.isEmpty()) {
             throw new IllegalArgumentException("Cannot construct VTree from a empty set of variables");
+        }
+        if (!handler.shouldResume(ComputationStartedEvent.VTREE_GENERATION_STARTED)) {
+            return LngResult.canceled(ComputationStartedEvent.VTREE_GENERATION_STARTED);
         }
         return LngResult.of(generateRightLinear(sf, new ArrayList<>(variables), null));
     }

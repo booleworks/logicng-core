@@ -14,6 +14,7 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +34,9 @@ public class MinFillDTreeGenerator extends EliminatingOrderDTreeGenerator {
 
     @Override
     public LngResult<DTree> generate(final FormulaFactory f, final Formula cnf, final ComputationHandler handler) {
+        if (!handler.shouldResume(ComputationStartedEvent.DTREE_GENERATION_STARTED)) {
+            return LngResult.canceled(ComputationStartedEvent.DTREE_GENERATION_STARTED);
+        }
         final Graph graph = new Graph(f, cnf);
         if (!handler.shouldResume(DNNF_DTREE_MIN_FILL_GRAPH_INITIALIZED)) {
             return LngResult.canceled(DNNF_DTREE_MIN_FILL_GRAPH_INITIALIZED);
