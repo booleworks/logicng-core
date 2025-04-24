@@ -1,0 +1,116 @@
+package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.datastructures.Model;
+import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.io.parsers.ParserException;
+import com.booleworks.logicng.io.readers.DimacsReader;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerBottomUp;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
+import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelCountFunction;
+import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelEnumeration;
+import com.booleworks.logicng.solvers.SatSolver;
+import com.booleworks.logicng.solvers.functions.ModelCountingFunction;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
+public class SddQuantificationTest {
+    private final static List<String> FILES = List.of(
+            "../test_files/sdd/compile_example1.cnf",
+            "../test_files/sdd/compile_example2.cnf"
+    );
+    private final static List<List<Integer>> QUANTIFY_VARS = List.of(
+            List.of(26, 11, 2, 13, 10, 19, 25, 24, 9, 4, 2, 12, 15),
+            List.of(14, 23, 17, 14, 11, 22, 19, 10, 1, 5, 4, 18)
+    );
+
+    @Test
+    public void testSingleQuantificationSimple() throws ParserException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final SddFactory sf = new SddFactory(f);
+        final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
+        final VTreeRoot root = sf.constructRoot(vtree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, root, sf, NopHandler.get()).getResult();
+        final SddNode quantified =
+                SddQuantification.existsSingle(f.variable("C"), node, root, sf, NopHandler.get()).getResult();
+        checkProjectedModels(List.of(f.variable("C")), quantified, formula, root, sf);
+    }
+
+    @Test
+    public void testMultipleQuantificationSimple() throws ParserException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final SddFactory sf = new SddFactory(f);
+        final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
+        final VTreeRoot root = sf.constructRoot(vtree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, root, sf, NopHandler.get()).getResult();
+        final SddNode quantified =
+                SddQuantification.exists(f.variables("B", "C"), node, root, sf, NopHandler.get()).getResult();
+        checkProjectedModels(f.variables("B", "C"), quantified, formula, root, sf);
+    }
+
+    @Test
+    public void testFilesQuantifyMultiple() throws IOException {
+        int fileIndex = 0;
+        for (final String file : FILES) {
+            final FormulaFactory f = FormulaFactory.caching();
+            final SddFactory sf = new SddFactory(f);
+            final Formula formula = f.and(DimacsReader.readCNF(f, file));
+            final SddCompilationResult result =
+                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+            SddNode node = result.getSdd();
+            final VTreeRoot root = result.getVTree();
+            final List<Variable> vars = new ArrayList<>(formula.variables(f));
+            final Set<Variable> quantifyVars =
+                    QUANTIFY_VARS.get(fileIndex).stream().map(vars::get).collect(Collectors.toSet());
+            final List<Variable> remainingVars =
+                    vars.stream().filter(v -> !quantifyVars.contains(v)).collect(Collectors.toList());
+            node = SddQuantification.exists(quantifyVars, node, root, sf, NopHandler.get()).getResult();
+            checkPMC(remainingVars, node, formula, root, sf);
+            fileIndex++;
+        }
+    }
+
+    private static void checkPMC(final Collection<Variable> remainingVars, final SddNode node,
+                                 final Formula originalFormula, final VTreeRoot root, final SddFactory sf) {
+        final BigInteger actual = sf.apply(new SddModelCountFunction(remainingVars, node, root));
+        final SatSolver solver = SatSolver.newSolver(sf.getFactory());
+        solver.add(originalFormula);
+        final BigInteger expected = solver.execute(ModelCountingFunction.builder(remainingVars).build());
+        assertThat(expected).isEqualTo(actual);
+    }
+
+    private static void checkProjectedModels(final Collection<Variable> quantified, final SddNode node,
+                                             final Formula originalFormula,
+                                             final VTreeRoot root, final SddFactory sf) {
+        final Set<Variable> variables = new TreeSet<>(originalFormula.variables(sf.getFactory()));
+        variables.removeAll(quantified);
+        final SatSolver solver = SatSolver.newSolver(sf.getFactory());
+        solver.add(originalFormula);
+        final List<Model> expectedModels = solver.enumerateAllModels(variables);
+        final List<Model> actualModels = sf.apply(new SddModelEnumeration(variables, node, root));
+        final Set<Assignment> expected = expectedModels.stream().map(Model::toAssignment).collect(Collectors.toSet());
+        final Set<Assignment> actual = actualModels.stream().map(Model::toAssignment).collect(Collectors.toSet());
+        assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
+    }
+}
