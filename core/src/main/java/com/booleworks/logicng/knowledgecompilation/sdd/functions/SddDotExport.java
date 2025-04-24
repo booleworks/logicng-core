@@ -44,7 +44,22 @@ public class SddDotExport implements SddFunction<Boolean> {
         groupCache.clear();
         result = new GraphSdd();
         final BufferedWriter writer = new BufferedWriter(this.writer);
-        irSddNode(node, 0, null);
+        if (node.isFalse()) {
+            final GraphSddRank rank = new GraphSddRank(0);
+            rank.elements.add(new GraphSddElement("root_falsum", GraphSddElementLabel.terminal(TOP),
+                    GraphSddElementLabel.terminal(BOT)));
+            result.ranks.put(0, rank);
+        } else if (node.isTrue()) {
+            final GraphSddRank rank = new GraphSddRank(0);
+            final GraphSddElement elem =
+                    new GraphSddElement("root_verum", GraphSddElementLabel.terminal(TOP),
+                            GraphSddElementLabel.terminal(TOP));
+            result.elements.add(elem);
+            rank.elements.add(elem);
+            result.ranks.put(0, rank);
+        } else {
+            irSddNode(node, 0, null);
+        }
         try {
             result.write(writer);
             writer.flush();

@@ -122,7 +122,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         private final NodePC prime;
         private final NodePC sub;
         private final List<NodePC> consumers = new ArrayList<>();
-        private List<List<Literal>> allPrimeResults = null;
+        private List<List<Literal>> allPrimeResults = new ArrayList<>();
         private List<List<Literal>> currentSubResults = new ArrayList<>();
 
         public ElementPC(final NodePC prime, final NodePC sub, final VTree primeVTree, final VTree subVTree,
@@ -165,11 +165,8 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
                 push(allPrimeResults);
                 allPrimeResults = new ArrayList<>();
             } else {
-                if (allPrimeResults == null) {
-                    allPrimeResults = new ArrayList<>();
-                    while (!prime.isDone()) {
-                        prime.produce();
-                    }
+                while (!prime.isDone()) {
+                    prime.produce();
                 }
                 assert !allPrimeResults.isEmpty();
                 if (currentSubResults.isEmpty()) {
@@ -177,11 +174,11 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
                 }
                 final List<List<Literal>> models = new ArrayList<>();
                 for (final List<Literal> subRes : currentSubResults) {
-                    final List<Literal> model = new ArrayList<>(subRes);
                     for (final List<Literal> primeRes : allPrimeResults) {
+                        final List<Literal> model = new ArrayList<>(subRes);
                         model.addAll(primeRes);
+                        models.add(model);
                     }
-                    models.add(model);
                 }
                 currentSubResults = new ArrayList<>();
                 if (sub.isDone()) {
@@ -192,7 +189,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         }
 
         private boolean isDone() {
-            return (prime == null || prime.isDone()) && (sub == null || sub.isDone());
+            return (prime == null || prime.isDone()) && (sub == null || (currentSubResults.isEmpty() && sub.isDone()));
         }
 
         private void push(final List<List<Literal>> models) {
@@ -229,7 +226,10 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
                 currentProducer = 1;
             } else {
                 final ElementPC p = producers.get(currentProducer);
-                p.produce();
+                if (currentModels.isEmpty()) {
+                    assert !p.isDone();
+                    p.produce();
+                }
                 while (currentProducer < producers.size() && producers.get(currentProducer).isDone()) {
                     ++currentProducer;
                 }
