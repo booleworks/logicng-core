@@ -17,7 +17,6 @@ import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.Stack;
@@ -30,12 +29,8 @@ public class SddFactory {
     private final HashMap<Pair<VTree, VTree>, VTreeInternal> internalVTreeNodes;
     private final HashMap<Variable, VTreeLeaf> leafVTreeNodes;
     private final HashMap<VTree, VTreeRoot> vTreeRoots;
-    private final HashMap<VTree, Integer> vTreeUsages;
-    private final HashMap<VTree, Integer> vTreeRootUsages;
     private final HashMap<TreeSet<SddElement>, SddNodeDecomposition> sddDecompositions;
     private final HashMap<Formula, SddNodeTerminal> sddTerminals;
-    private final HashMap<SddNode, Integer> sddNodeUsages;
-    private final HashMap<VTree, HashSet<SddNode>> vTreeToSddNodes;
     private final SddNodeTerminal verumNode;
     private final SddNodeTerminal falsumNode;
     private final HashMap<SddNode, SddNode> negations;
@@ -49,13 +44,9 @@ public class SddFactory {
         currentSddId = 2;
         internalVTreeNodes = new HashMap<>();
         leafVTreeNodes = new HashMap<>();
-        vTreeUsages = new HashMap<>();
-        vTreeRootUsages = new HashMap<>();
         vTreeRoots = new HashMap<>();
         sddDecompositions = new HashMap<>();
         sddTerminals = new HashMap<>();
-        sddNodeUsages = new HashMap<>();
-        vTreeToSddNodes = new HashMap<>();
         negations = new HashMap<>();
         conjunctions = new HashMap<>();
         disjunctions = new HashMap<>();
@@ -100,6 +91,7 @@ public class SddFactory {
         final VTreeLeaf vTree = root.getLeaf(terminal.variable());
         if (cached != null) {
             registerSddNode(cached, vTree, root);
+            registerSddNode(negations.get(cached), vTree, root);
             return cached;
         }
         final SddNodeTerminal newNode = new SddNodeTerminal(currentSddId++, terminal);
@@ -120,8 +112,7 @@ public class SddFactory {
     public SddNodeDecomposition decomposition(final TreeSet<SddElement> elements, final VTreeRoot root) {
         final SddNodeDecomposition cached = sddDecompositions.get(elements);
         if (cached != null) {
-            final VTree vTree = Util.lcaOfCompressedElements(elements, root);
-            registerSddNode(cached, vTree, root);
+            deepRegisterNode(cached, root);
             return cached;
         }
         assert Util.elementsCompressed(elements);
@@ -171,34 +162,54 @@ public class SddFactory {
         }
     }
 
-    private void registerSddNode(final SddNode node, final VTree vTree, final VTreeRoot root) {
-        final HashSet<SddNode> nodes = vTreeToSddNodes.get(vTree);
-        if (nodes == null) {
-            final HashSet<SddNode> set = new HashSet<>();
-            set.add(node);
-            vTreeToSddNodes.put(vTree, set);
-            if (sddNodeUsages.containsKey(node)) {
-                sddNodeUsages.put(node, sddNodeUsages.get(node) + 1);
-            } else {
-                sddNodeUsages.put(node, 1);
-            }
-        } else {
-            if (!nodes.contains(node)) {
-                nodes.add(node);
-                if (sddNodeUsages.containsKey(node)) {
-                    sddNodeUsages.put(node, sddNodeUsages.get(node) + 1);
+    public void deepRegisterNode(final SddNode node, final VTreeRoot root) {
+        registerRecursive(node, root);
+    }
+
+
+    private VTree registerRecursive(final SddNode node, final VTreeRoot root) {
+        final VTree cached = root.getVTree(node);
+        if (cached != null) {
+            return cached;
+        }
+        if (node.isDecomposition()) {
+            VTree lca = null;
+            for (final SddElement e : node.asDecomposition().getElements()) {
+                final VTree pvt = registerRecursive(e.getPrime(), root);
+                final VTree svt = registerRecursive(e.getSub(), root);
+                final VTree localLca;
+                if (pvt == null && svt == null) {
+                    localLca = null;
+                } else if (pvt == null) {
+                    localLca = svt;
+                } else if (svt == null) {
+                    localLca = pvt;
                 } else {
-                    sddNodeUsages.put(node, 1);
+                    localLca = root.lcaOf(pvt, svt);
+                }
+                if (lca == null) {
+                    lca = localLca;
+                } else if (localLca != null) {
+                    lca = root.lcaOf(lca, localLca);
                 }
             }
+            registerSddNode(node, lca, root);
+            return lca;
+        } else if (node.isLiteral()) {
+            terminal((Literal) node.asTerminal().getTerminal(), root);
+            return root.getVTree(node);
+        } else {
+            return null;
         }
+    }
+
+    private void registerSddNode(final SddNode node, final VTree vTree, final VTreeRoot root) {
         root.addNode(node, vTree);
     }
 
     public VTreeRoot constructRoot(final VTree rootNode) {
         final VTreeRoot cached = vTreeRoots.get(rootNode);
         if (cached != null) {
-            vTreeRootUsages.put(cached.getRoot(), vTreeRootUsages.get(cached.getRoot()) + 1);
             return cached;
         }
 
@@ -209,11 +220,6 @@ public class SddFactory {
         stack.push(rootNode);
         while (!stack.isEmpty()) {
             final VTree current = stack.pop();
-            if (vTreeUsages.containsKey(current)) {
-                vTreeUsages.put(current, vTreeUsages.get(current) + 1);
-            } else {
-                vTreeUsages.put(current, 1);
-            }
             if (current instanceof VTreeInternal) {
                 final VTree left = ((VTreeInternal) current).getLeft();
                 final VTree right = ((VTreeInternal) current).getRight();
@@ -231,7 +237,6 @@ public class SddFactory {
         calculateInorder(rootNode, 0, positions, pos2vtree);
         final VTreeRoot newRoot = new VTreeRoot(parents, rootNode, variables, positions, pos2vtree, variableToLeaf);
         vTreeRoots.put(rootNode, newRoot);
-        vTreeRootUsages.put(newRoot.getRoot(), 1);
         return newRoot;
     }
 
@@ -250,81 +255,24 @@ public class SddFactory {
     }
 
     public void deregisterVTree(final VTreeRoot vTree) {
-        if (!vTreeRootUsages.containsKey(vTree.getRoot())) {
-            return;
-        }
-        final int newRootRef = vTreeRootUsages.get(vTree.getRoot()) - 1;
-        if (newRootRef > 0) {
-            vTreeRootUsages.put(vTree.getRoot(), newRootRef);
-            return;
-        }
-
-        vTreeRootUsages.remove(vTree.getRoot());
         vTreeRoots.remove(vTree.getRoot());
-
-        final Stack<VTree> stack = new Stack<>();
-        stack.push(vTree.getRoot());
-        while (!stack.isEmpty()) {
-            final VTree current = stack.pop();
-            final int newRef = vTreeUsages.get(current) - 1;
-            if (newRef <= 0 && !vTreeRootUsages.containsKey(current)) {
-                vTreeUsages.remove(current);
-                freeVTree(current);
-            } else {
-                vTreeUsages.put(current, newRef);
-            }
-            if (current instanceof VTreeInternal) {
-                stack.push(((VTreeInternal) current).getLeft());
-                stack.push(((VTreeInternal) current).getRight());
-            }
-        }
     }
-
-    private void freeVTree(final VTree vTree) {
-        if (vTree instanceof VTreeInternal) {
-            internalVTreeNodes.entrySet().removeIf(e -> e.getValue() == vTree);
-        } else {
-            leafVTreeNodes.entrySet().removeIf(e -> e.getValue() == vTree);
-        }
-        final HashSet<SddNode> normalizedSddNodes = vTreeToSddNodes.remove(vTree);
-        if (normalizedSddNodes != null) {
-            for (final SddNode node : normalizedSddNodes) {
-                final int newRef = sddNodeUsages.get(node) - 1;
-                if (newRef == 0) {
-                    freeSddNode(node);
-                    sddNodeUsages.remove(node);
-                } else {
-                    sddNodeUsages.put(node, newRef);
-                }
-            }
-        }
-    }
-
-    private void freeSddNode(final SddNode node) {
-        if (node instanceof SddNodeDecomposition) {
-            sddDecompositions.entrySet().removeIf(e -> e.getValue() == node);
-        } else {
-            sddTerminals.entrySet().removeIf(e -> e.getValue() == node);
-        }
-    }
-
 
     public SddNode negate(final SddNode node, final VTreeRoot root) {
         final SddNode cached = negations.get(node);
         if (cached != null) {
+            deepRegisterNode(cached, root);
             return cached;
         }
 
         final SddNode nodeNeg;
         if (node instanceof SddNodeDecomposition) {
             final SddNodeDecomposition decomp = node.asDecomposition();
-            final VTree vTree = root.getVTree(node);
-
             //Note: compression is not possible here
             final TreeSet<SddElement> newElements = new TreeSet<>();
             for (final SddElement element : decomp.getElements()) {
                 final SddNode subNeg = negate(element.getSub(), root);
-                Util.pushNewElement(element.getPrime(), subNeg, vTree, root, newElements);
+                Util.pushNewElement(element.getPrime(), subNeg, newElements);
             }
             nodeNeg = decomposition(newElements, root);
         } else {
@@ -368,12 +316,8 @@ public class SddFactory {
                 "\ninternalVTreeNodes=" + internalVTreeNodes +
                 "\nleafVTreeNodes=" + leafVTreeNodes +
                 "\nvTreeRoots=" + vTreeRoots +
-                "\nvTreeUsages=" + vTreeUsages +
-                "\nvTreeRootUsages=" + vTreeRootUsages +
                 "\nsddDecompositions=" + sddDecompositions +
                 "\nsddTerminals=" + sddTerminals +
-                "\nsddNodeUsages=" + sddNodeUsages +
-                "\nvTreeToSddNodes=" + vTreeToSddNodes +
                 "\n}";
     }
 }

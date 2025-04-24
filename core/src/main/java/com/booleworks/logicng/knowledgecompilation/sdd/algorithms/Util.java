@@ -3,10 +3,13 @@ package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeUtil;
 import com.booleworks.logicng.util.Pair;
@@ -16,14 +19,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class Util {
 
-    public static void pushNewElement(final SddNode prime, final SddNode sub, final VTree currentVTree,
-                                      final VTreeRoot root, final Collection<SddElement> target) {
+    public static void pushNewElement(final SddNode prime, final SddNode sub, final Collection<SddElement> target) {
         assert !prime.isFalse();
-        assert prime.isTrue() || root.isSubtree(root.getVTree(prime), ((VTreeInternal) currentVTree).getLeft());
-        assert sub.isTrivial() || root.isSubtree(root.getVTree(sub), ((VTreeInternal) currentVTree).getRight());
         target.add(new SddElement(prime, sub));
     }
 
@@ -66,7 +67,7 @@ public class Util {
             assert pVTree != null;
 
             lLca = lLca == null ? pVTree : root.lcaOf(pVTree, lLca);
-            if (sVTree != null & rLca != null) {
+            if (sVTree != null && rLca != null) {
                 rLca = root.lcaOf(sVTree, rLca);
             } else if (sVTree != null) {
                 rLca = sVTree;
@@ -133,4 +134,88 @@ public class Util {
         return sorted;
     }
 
+
+    public static LngResult<SddNode> getNodeOfPartition(final TreeSet<SddElement> newElements, final VTreeRoot root,
+                                                        final SddFactory sf, final ComputationHandler handler) {
+        final LngResult<Pair<SddNode, TreeSet<SddElement>>> res =
+                Util.compressAndTrim(newElements, root, sf, handler);
+        if (!res.isSuccess()) {
+            LngResult.canceled(res.getCancelCause());
+        }
+        if (res.getResult().getFirst() != null) {
+            return LngResult.of(res.getResult().getFirst());
+        } else {
+            return LngResult.of(sf.decomposition(res.getResult().getSecond(), root));
+        }
+    }
+
+    private static LngResult<Pair<SddNode, TreeSet<SddElement>>> compressAndTrim(final TreeSet<SddElement> elements,
+                                                                                 final VTreeRoot root,
+                                                                                 final SddFactory sf,
+                                                                                 final ComputationHandler handler) {
+        assert !elements.isEmpty();
+
+        final SddNode firstSub = elements.first().getSub();
+        final SddNode lastSub = elements.last().getSub();
+
+        if (firstSub == lastSub) {
+            return LngResult.of(new Pair<>(firstSub, null));
+        }
+
+        // Trimming rule: node has form prime.T + ~prime.F, return prime
+        if (firstSub.isTrue() && lastSub.isFalse()) {
+            SddNode prime = sf.falsum();
+            for (final SddElement element : elements) {
+                if (!element.getSub().isTrue()) {
+                    break;
+                }
+                final LngResult<SddNode> primeRes =
+                        SddApply.apply(element.getPrime(), prime, SddApplyOperation.DISJUNCTION, root, sf, handler);
+                if (!primeRes.isSuccess()) {
+                    return LngResult.canceled(primeRes.getCancelCause());
+                }
+                prime = primeRes.getResult();
+                assert !prime.isTrivial();
+            }
+            return LngResult.of(new Pair<>(prime, null));
+        }
+
+        //no trimming
+        //pop uncompressed elements, compressing and placing compressed elements on element_stack
+        SddNode cPrime = elements.first().getPrime();
+        SddNode cSub = elements.first().getSub();
+        SddElement cElement = elements.first();
+        final TreeSet<SddElement> compressedElements = new TreeSet<>();
+        boolean first = true;
+        for (final SddElement element : elements) {
+            if (first) {
+                first = false;
+                continue;
+            }
+            if (element.getSub() == cSub) { //compress
+                final LngResult<SddNode> cPrimeRes =
+                        SddApply.apply(element.getPrime(), cPrime, SddApplyOperation.DISJUNCTION, root, sf, handler);
+                if (!cPrimeRes.isSuccess()) {
+                    return LngResult.canceled(cPrimeRes.getCancelCause());
+                }
+                cPrime = cPrimeRes.getResult();
+                cElement = null;
+            } else {
+                if (cElement == null) {
+                    compressedElements.add(new SddElement(cPrime, cSub));
+                } else {
+                    compressedElements.add(cElement);
+                }
+                cPrime = element.getPrime();
+                cSub = element.getSub();
+                cElement = element;
+            }
+        }
+        if (cElement == null) {
+            compressedElements.add(new SddElement(cPrime, cSub));
+        } else {
+            compressedElements.add(cElement);
+        }
+        return LngResult.of(new Pair<>(null, compressedElements));
+    }
 }

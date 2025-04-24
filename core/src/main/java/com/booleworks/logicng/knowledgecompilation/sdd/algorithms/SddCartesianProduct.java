@@ -6,7 +6,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
 import java.util.Collection;
@@ -17,15 +16,14 @@ public class SddCartesianProduct {
     }
 
     public static LngResult<TreeSet<SddElement>> cartesianProduct(final Collection<TreeSet<SddElement>> sets,
-                                                                  final boolean compress, final VTree vTree,
-                                                                  final VTreeRoot root,
+                                                                  final boolean compress, final VTreeRoot root,
                                                                   final SddFactory sf,
                                                                   final ComputationHandler handler) {
         TreeSet<SddElement> res = new TreeSet<>();
-        Util.pushNewElement(sf.verum(), sf.falsum(), vTree, root, res);
+        Util.pushNewElement(sf.verum(), sf.falsum(), res);
         for (final TreeSet<SddElement> set : sets) {
             final LngResult<TreeSet<SddElement>> resResult =
-                    cartesianProduct(res, set, compress, vTree, root, sf, handler);
+                    cartesianProduct(res, set, compress, root, sf, handler);
             if (!resResult.isSuccess()) {
                 return resResult;
             }
@@ -36,13 +34,11 @@ public class SddCartesianProduct {
 
     private static LngResult<TreeSet<SddElement>> cartesianProduct(final TreeSet<SddElement> left,
                                                                    final TreeSet<SddElement> right,
-                                                                   final boolean compress, final VTree vTree,
-                                                                   final VTreeRoot root,
+                                                                   final boolean compress, final VTreeRoot root,
                                                                    final SddFactory sf,
                                                                    final ComputationHandler handler) {
         final LngResult<TreeSet<SddElement>> product =
-                SddMultiply.multiplyDecompositions(left, right, SddApplyOperation.DISJUNCTION, vTree, root, sf,
-                        handler);
+                SddMultiply.multiplyDecompositions(left, right, SddApplyOperation.DISJUNCTION, root, sf, handler);
         if (!product.isSuccess()) {
             return product;
         }

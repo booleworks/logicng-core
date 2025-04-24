@@ -8,7 +8,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.util.Pair;
 
@@ -42,6 +41,7 @@ public class SddApply {
 
         final SddNode cached = sf.lookupApplyComputation(left, right, op);
         if (cached != null) {
+            sf.deepRegisterNode(cached, root);
             return LngResult.of(cached);
         }
 
@@ -58,16 +58,16 @@ public class SddApply {
         final LngResult<SddNode> result;
         switch (lca.getSecond()) {
             case EQUALS:
-                result = sddApplyEqual(l, r, op, lca.getFirst(), root, sf, handler);
+                result = sddApplyEqual(l, r, op, root, sf, handler);
                 break;
             case LEFT_SUBTREE:
-                result = sddApplyLeft(l, r, op, lca.getFirst(), root, sf, handler);
+                result = sddApplyLeft(l, r, op, root, sf, handler);
                 break;
             case RIGHT_SUBTREE:
-                result = sddApplyRight(l, r, op, lca.getFirst(), root, sf, handler);
+                result = sddApplyRight(l, r, op, root, sf, handler);
                 break;
             case INCOMPARABLE:
-                result = sddApplyIncomparable(l, r, op, lca.getFirst(), root, sf, handler);
+                result = sddApplyIncomparable(l, r, op, root, sf, handler);
                 break;
             default:
                 throw new RuntimeException("Unknown ApplyType");
@@ -80,37 +80,33 @@ public class SddApply {
 
 
     private static LngResult<SddNode> sddApplyEqual(final SddNode left, final SddNode right, final SddApplyOperation op,
-                                                    final VTree vTree, final VTreeRoot root, final SddFactory sf,
+                                                    final VTreeRoot root, final SddFactory sf,
                                                     final ComputationHandler handler) {
         assert left != null;
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
-        assert root.getVTree(left) == vTree;
-        assert root.getVTree(right) == vTree;
         final LngResult<TreeSet<SddElement>> newElements =
                 SddMultiply.multiplyDecompositions(left.asDecomposition().getElements(),
-                        right.asDecomposition().getElements(), op, vTree, root, sf, handler);
+                        right.asDecomposition().getElements(), op, root, sf, handler);
         if (!newElements.isSuccess()) {
             return LngResult.canceled(newElements.getCancelCause());
         }
-        return getNodeOfPartition(newElements.getResult(), vTree, root, sf, handler);
+        return Util.getNodeOfPartition(newElements.getResult(), root, sf, handler);
     }
 
     private static LngResult<SddNode> sddApplyLeft(final SddNode left, final SddNode right, final SddApplyOperation op,
-                                                   final VTree vTree, final VTreeRoot root, final SddFactory sf,
+                                                   final VTreeRoot root, final SddFactory sf,
                                                    final ComputationHandler handler) {
         assert left != null;
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
         assert root.getPosition(root.getVTree(left)) < root.getPosition(root.getVTree(right));
-        assert root.getVTree(right) == vTree;
-        assert root.isSubtree(root.getVTree(left), ((VTreeInternal) vTree).getLeft());
 
         final TreeSet<SddElement> newElements = new TreeSet<>();
         final SddNode n = op == SddApplyOperation.CONJUNCTION ? left : sf.negate(left, root);
-        Util.pushNewElement(sf.negate(n, root), op.zero(sf), vTree, root, newElements);
+        Util.pushNewElement(sf.negate(n, root), op.zero(sf), newElements);
         for (final SddElement element : right.asDecomposition().getElements()) {
             final LngResult<SddNode> newPrime =
                     apply(element.getPrime(), n, SddApplyOperation.CONJUNCTION, root, sf, handler);
@@ -118,22 +114,20 @@ public class SddApply {
                 return newPrime;
             }
             if (!newPrime.getResult().isFalse()) {
-                Util.pushNewElement(newPrime.getResult(), element.getSub(), vTree, root, newElements);
+                Util.pushNewElement(newPrime.getResult(), element.getSub(), newElements);
             }
         }
-        return getNodeOfPartition(newElements, vTree, root, sf, handler);
+        return Util.getNodeOfPartition(newElements, root, sf, handler);
     }
 
     private static LngResult<SddNode> sddApplyRight(final SddNode left, final SddNode right, final SddApplyOperation op,
-                                                    final VTree vTree, final VTreeRoot root, final SddFactory sf,
+                                                    final VTreeRoot root, final SddFactory sf,
                                                     final ComputationHandler handler) {
         assert left != null;
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
         assert root.getPosition(root.getVTree(left)) < root.getPosition(root.getVTree(right));
-        assert root.getVTree(left) == vTree;
-        assert root.isSubtree(root.getVTree(right), ((VTreeInternal) vTree).getRight());
 
         final TreeSet<SddElement> newElements = new TreeSet<>();
         for (final SddElement element : left.asDecomposition().getElements()) {
@@ -141,22 +135,19 @@ public class SddApply {
             if (!newSub.isSuccess()) {
                 return newSub;
             }
-            Util.pushNewElement(element.getPrime(), newSub.getResult(), vTree, root, newElements);
+            Util.pushNewElement(element.getPrime(), newSub.getResult(), newElements);
         }
-        return getNodeOfPartition(newElements, vTree, root, sf, handler);
+        return Util.getNodeOfPartition(newElements, root, sf, handler);
     }
 
     private static LngResult<SddNode> sddApplyIncomparable(final SddNode left, final SddNode right,
-                                                           final SddApplyOperation op,
-                                                           final VTree vTree, final VTreeRoot root, final SddFactory sf,
-                                                           final ComputationHandler handler) {
+                                                           final SddApplyOperation op, final VTreeRoot root,
+                                                           final SddFactory sf, final ComputationHandler handler) {
         assert left != null;
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
         assert root.getPosition(root.getVTree(left)) < root.getPosition(root.getVTree(right));
-        assert root.isSubtree(root.getVTree(left), vTree);
-        assert root.isSubtree(root.getVTree(right), vTree);
         assert !root.isSubtree(root.getVTree(left), root.getVTree(right));
         assert !root.isSubtree(root.getVTree(right), root.getVTree(left));
 
@@ -170,101 +161,35 @@ public class SddApply {
             return leftNegSub;
         }
         final TreeSet<SddElement> newElements = new TreeSet<>();
-        Util.pushNewElement(left, leftSub.getResult(), vTree, root, newElements);
-        Util.pushNewElement(leftNeg, leftNegSub.getResult(), vTree, root, newElements);
+        Util.pushNewElement(left, leftSub.getResult(), newElements);
+        Util.pushNewElement(leftNeg, leftNegSub.getResult(), newElements);
         return LngResult.of(sf.decomposition(newElements, root));
     }
 
-    private static LngResult<SddNode> getNodeOfPartition(final TreeSet<SddElement> newElements, final VTree vTree,
-                                                         final VTreeRoot root,
-                                                         final SddFactory sf, final ComputationHandler handler) {
-        final LngResult<Pair<SddNode, TreeSet<SddElement>>> res =
-                compressAndTrim(newElements, vTree, root, sf, handler);
-        if (!res.isSuccess()) {
-            LngResult.canceled(res.getCancelCause());
+    public static SddNode conjoinUnsafe(final SddNode left, final SddNode right, final VTreeRoot root,
+                                        final SddFactory sf) {
+        assert left != null && right != null;
+        if (left.isFalse() || right.isFalse()) {
+            return sf.falsum();
         }
-        if (res.getResult().getFirst() != null) {
-            return LngResult.of(res.getResult().getFirst());
-        } else {
-            return LngResult.of(sf.decomposition(res.getResult().getSecond(), root));
+        if (left.isTrue()) {
+            return right;
         }
-    }
-
-    private static LngResult<Pair<SddNode, TreeSet<SddElement>>> compressAndTrim(final TreeSet<SddElement> elements,
-                                                                                 final VTree vTree,
-                                                                                 final VTreeRoot root,
-                                                                                 final SddFactory sf,
-                                                                                 final ComputationHandler handler) {
-        assert !elements.isEmpty();
-
-        final SddNode firstSub = elements.first().getSub();
-        final SddNode lastSub = elements.last().getSub();
-
-        if (firstSub == lastSub) {
-            return LngResult.of(new Pair<>(firstSub, null));
+        if (right.isTrue()) {
+            return left;
         }
 
-        // Trimming rule: node has form prime.T + ~prime.F, return prime
-        if (firstSub.isTrue() && lastSub.isFalse()) {
-            SddNode prime = sf.falsum();
-            for (final SddElement element : elements) {
-                if (!element.getSub().isTrue()) {
-                    break;
-                }
-                final LngResult<SddNode> primeRes =
-                        apply(element.getPrime(), prime, SddApplyOperation.DISJUNCTION, root, sf, handler);
-                if (!primeRes.isSuccess()) {
-                    return LngResult.canceled(primeRes.getCancelCause());
-                }
-                prime = primeRes.getResult();
-                assert !prime.isTrivial();
-                assert root.isSubtree(root.getVTree(prime), ((VTreeInternal) vTree).getLeft());
-            }
-            return LngResult.of(new Pair<>(prime, null));
+        final SddNode cached = sf.lookupApplyComputation(left, right, SddApplyOperation.CONJUNCTION);
+        if (cached != null) {
+            sf.deepRegisterNode(cached, root);
+            return cached;
         }
 
-        //no trimming
-        //pop uncompressed elements, compressing and placing compressed elements on element_stack
-        SddNode cPrime = elements.first().getPrime();
-        SddNode cSub = elements.first().getSub();
-        SddElement cElement = elements.first();
-        assert root.isOkPrimeIn(cPrime, vTree);
-        final TreeSet<SddElement> compressedElements = new TreeSet<>();
-        boolean first = true;
-        for (final SddElement element : elements) {
-            if (first) {
-                first = false;
-                continue;
-            }
-            assert root.isOkPrimeIn(element.getPrime(), vTree);
-            assert root.isOkSubIn(element.getSub(), vTree);
-            if (element.getSub() == cSub) { //compress
-                final LngResult<SddNode> cPrimeRes =
-                        apply(element.getPrime(), cPrime, SddApplyOperation.DISJUNCTION, root, sf, handler);
-                if (!cPrimeRes.isSuccess()) {
-                    return LngResult.canceled(cPrimeRes.getCancelCause());
-                }
-                cPrime = cPrimeRes.getResult();
-                cElement = null;
-                assert root.isOkPrimeIn(cPrime, vTree);
-            } else {
-                assert root.isOkPrimeIn(cPrime, vTree);
-                assert root.isOkSubIn(cSub, vTree);
-                if (cElement == null) {
-                    compressedElements.add(new SddElement(cPrime, cSub));
-                } else {
-                    compressedElements.add(cElement);
-                }
-                cPrime = element.getPrime();
-                cSub = element.getSub();
-                cElement = element;
-            }
-        }
-        if (cElement == null) {
-            compressedElements.add(new SddElement(cPrime, cSub));
-        } else {
-            compressedElements.add(cElement);
-        }
-        return LngResult.of(new Pair<>(null, compressedElements));
+        final TreeSet<SddElement> newElements = new TreeSet<>();
+        newElements.add(new SddElement(left, right));
+        newElements.add(new SddElement(sf.negate(left, root), sf.falsum()));
+        final SddNode newNode = sf.decomposition(newElements, root);
+        sf.cacheApplyComputation(left, right, newNode, SddApplyOperation.CONJUNCTION);
+        return newNode;
     }
 }

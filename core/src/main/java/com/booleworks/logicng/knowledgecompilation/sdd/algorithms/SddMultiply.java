@@ -8,10 +8,10 @@ import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,7 +42,7 @@ public class SddMultiply {
      **/
     public static LngResult<TreeSet<SddElement>> multiplyDecompositions(final SortedSet<SddElement> elements1,
                                                                         final SortedSet<SddElement> elements2,
-                                                                        final SddApplyOperation op, final VTree vTree,
+                                                                        final SddApplyOperation op,
                                                                         final VTreeRoot root, final SddFactory sf,
                                                                         final ComputationHandler handler) {
         final ArrayList<SddElement> e1Common = new ArrayList<>();
@@ -50,7 +50,7 @@ public class SddMultiply {
         final ArrayList<SddElement> e2Common = new ArrayList<>();
         final ArrayList<SddElement> e2Other = new ArrayList<>();
         final TreeSet<SddElement> newElements = new TreeSet<>();
-        SddNode p1 = null, p2 = null, s1 = null, s2 = null;
+        SddNode complementPrime1 = null, complementPrime2 = null, complementSub1 = null, complementSub2 = null;
 
         final HashSet<SddNode> elements1Primes = new HashSet<>();
         for (final SddElement element : elements1) {
@@ -67,8 +67,8 @@ public class SddMultiply {
             }
             final SddNode cachedNegation = sf.getNegationIfCached(element.getPrime());
             if (cachedNegation != null && !commonPrimes.contains(cachedNegation)) {
-                p2 = element.getPrime();
-                s2 = element.getSub();
+                complementPrime2 = element.getPrime();
+                complementSub2 = element.getSub();
             }
         }
 
@@ -78,33 +78,20 @@ public class SddMultiply {
             } else {
                 e1Other.add(element);
             }
-            if (p2 != null && element.getPrime() == sf.getNegationIfCached(p2)) {
-                p1 = element.getPrime();
-                s1 = element.getSub();
+            if (complementPrime2 != null && element.getPrime() == sf.getNegationIfCached(complementPrime2)) {
+                complementPrime1 = element.getPrime();
+                complementSub1 = element.getSub();
             }
         }
 
-        if (p1 == null) {
+        if (complementPrime1 == null) {
             //Multiply common elements the following fragment is quadratic in size1 and size2
             if (e1Common.size() * e2Common.size() <= 64) {
-                int jStart = 0;
-                for (final SddElement element1 : e1Common) {
-                    for (int j = jStart; j < e2Common.size(); ++j) {
-                        final SddElement element2 = e2Common.get(j);
-                        if (element1.getPrime() == element2.getPrime()) {
-                            final SddNode prime = element1.getPrime();
-                            final LngResult<SddNode> sub =
-                                    SddApply.apply(element1.getSub(), element2.getSub(), op, root, sf, handler);
-                            if (!sub.isSuccess()) {
-                                return LngResult.canceled(sub.getCancelCause());
-                            }
-                            Util.pushNewElement(prime, sub.getResult(), vTree, root, newElements);
-                            ++jStart;
-                            break;
-                        }
-                    }
+                final LngEvent cancelCause =
+                        quadraticMultiplyCommonPrimes(e1Common, e2Common, op, root, sf, handler, newElements);
+                if (cancelCause != null) {
+                    return LngResult.canceled(cancelCause);
                 }
-                //multiply common elements the following fragment is linear in size1 and size2
             } else {
                 final HashMap<SddNode, SddNode> multiplySub = new HashMap<>();
                 for (final SddElement element : e2Common) {
@@ -119,49 +106,26 @@ public class SddMultiply {
                         if (!sub.isSuccess()) {
                             return LngResult.canceled(sub.getCancelCause());
                         }
-                        Util.pushNewElement(prime, sub.getResult(), vTree, root, newElements);
+                        Util.pushNewElement(prime, sub.getResult(), newElements);
                     }
                 }
             }
 
-            final SortedSet<SddElement> elements2Copy = new TreeSet<>(e2Other);
-            for (final SddElement element1 : e1Other) {
-                final Iterator<SddElement> iter2 = elements2Copy.iterator();
-                while (iter2.hasNext()) {
-                    final SddElement element2 = iter2.next();
-                    final LngResult<SddNode> primeResult =
-                            SddApply.apply(element1.getPrime(), element2.getPrime(), SddApplyOperation
-                                            .CONJUNCTION,
-                                    root, sf, handler);
-                    if (!primeResult.isSuccess()) {
-                        return LngResult.canceled(primeResult.getCancelCause());
-                    }
-                    final SddNode prime = primeResult.getResult();
-                    if (!prime.isFalse()) {
-                        final LngResult<SddNode> sub =
-                                SddApply.apply(element1.getSub(), element2.getSub(), op, root, sf, handler);
-                        if (!sub.isSuccess()) {
-                            return LngResult.canceled(sub.getCancelCause());
-                        }
-                        Util.pushNewElement(prime, sub.getResult(), vTree, root, newElements);
-                    }
-                    if (prime == element1.getPrime()) {
-                        break;
-                    }
-                    if (prime == element2.getPrime()) {
-                        iter2.remove();
-                    }
-                }
+            final LngEvent cancelCause = quadraticMultiply(e1Other, e2Other, op, root, sf, handler, newElements);
+            if (cancelCause != null) {
+                return LngResult.canceled(cancelCause);
             }
         } else {
             //p1 and p2 are complementary: p1 in e1 and p2 in e2
             //multiply has LINEAR complexity in this case
             LngEvent event;
-            event = linearMultiply(p1, s2, op, vTree, root, e1Common, e1Other, sf, handler, newElements);
+            event = linearMultiply(complementPrime1, complementSub2, op, root, e1Common, e1Other, sf, handler,
+                    newElements);
             if (event != null) {
                 return LngResult.canceled(event);
             }
-            event = linearMultiply(p2, s1, op, vTree, root, e2Common, e2Other, sf, handler, newElements);
+            event = linearMultiply(complementPrime2, complementSub1, op, root, e2Common, e2Other, sf, handler,
+                    newElements);
             if (event != null) {
                 return LngResult.canceled(event);
             }
@@ -169,11 +133,75 @@ public class SddMultiply {
         return LngResult.of(newElements);
     }
 
+    /// Will remove elements from e2
+    private static LngEvent quadraticMultiplyCommonPrimes(final Collection<SddElement> e1,
+                                                          final Collection<SddElement> e2,
+                                                          final SddApplyOperation op, final VTreeRoot root,
+                                                          final SddFactory sf,
+                                                          final ComputationHandler handler,
+                                                          final TreeSet<SddElement> destination) {
+        for (final SddElement element1 : e1) {
+            final Iterator<SddElement> e2Iter = e2.iterator();
+            while (e2Iter.hasNext()) {
+                final SddElement element2 = e2Iter.next();
+                if (element1.getPrime() == element2.getPrime()) {
+                    final SddNode prime = element1.getPrime();
+                    final LngResult<SddNode> sub =
+                            SddApply.apply(element1.getSub(), element2.getSub(), op, root, sf, handler);
+                    if (!sub.isSuccess()) {
+                        return sub.getCancelCause();
+                    }
+                    Util.pushNewElement(prime, sub.getResult(), destination);
+                    e2Iter.remove();
+                    break;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static LngEvent quadraticMultiply(final Collection<SddElement> e1,
+                                              final Collection<SddElement> e2,
+                                              final SddApplyOperation op, final VTreeRoot root,
+                                              final SddFactory sf,
+                                              final ComputationHandler handler,
+                                              final TreeSet<SddElement> destination) {
+        for (final SddElement element1 : e1) {
+            final Iterator<SddElement> iter2 = e2.iterator();
+            while (iter2.hasNext()) {
+                final SddElement element2 = iter2.next();
+                final LngResult<SddNode> primeResult =
+                        SddApply.apply(element1.getPrime(), element2.getPrime(), SddApplyOperation
+                                        .CONJUNCTION,
+                                root, sf, handler);
+                if (!primeResult.isSuccess()) {
+                    return primeResult.getCancelCause();
+                }
+                final SddNode prime = primeResult.getResult();
+                if (!prime.isFalse()) {
+                    final LngResult<SddNode> sub =
+                            SddApply.apply(element1.getSub(), element2.getSub(), op, root, sf, handler);
+                    if (!sub.isSuccess()) {
+                        return sub.getCancelCause();
+                    }
+                    Util.pushNewElement(prime, sub.getResult(), destination);
+                }
+                if (prime == element1.getPrime()) {
+                    break;
+                }
+                if (prime == element2.getPrime()) {
+                    iter2.remove();
+                }
+            }
+        }
+        return null;
+    }
+
     private static LngEvent linearMultiply(final SddNode prime, final SddNode complementarySub,
-                                           final SddApplyOperation op,
-                                           final VTree vTree, final VTreeRoot root, final ArrayList<SddElement> list1,
-                                           final ArrayList<SddElement> list2, final SddFactory sf,
-                                           final ComputationHandler handler, final TreeSet<SddElement> destination) {
+                                           final SddApplyOperation op, final VTreeRoot root,
+                                           final ArrayList<SddElement> list1, final ArrayList<SddElement> list2,
+                                           final SddFactory sf, final ComputationHandler handler,
+                                           final TreeSet<SddElement> destination) {
         for (int i = 0; i < list1.size() + list2.size(); ++i) {
             final SddElement element = i < list1.size() ? list1.get(i) : list2.get(i - list1.size());
             if (element.getPrime() == prime) {
@@ -184,7 +212,7 @@ public class SddMultiply {
             if (!newSub.isSuccess()) {
                 return newSub.getCancelCause();
             }
-            Util.pushNewElement(newPrime, newSub.getResult(), vTree, root, destination);
+            Util.pushNewElement(newPrime, newSub.getResult(), destination);
         }
         return null;
     }
