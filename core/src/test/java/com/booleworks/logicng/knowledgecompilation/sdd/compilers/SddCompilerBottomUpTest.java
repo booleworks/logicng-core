@@ -3,7 +3,6 @@ package com.booleworks.logicng.knowledgecompilation.sdd.compilers;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
@@ -55,16 +54,4 @@ public class SddCompilerBottomUpTest {
             SddTestUtil.validateExport(node, cnf, sf);
         }
     }
-
-
-    @Test
-    public void profile() throws IOException {
-        final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
-        final Formula cnf = f.and(DimacsReader.readCNF(f, "../test_files/dnnf/both_bdd_dnnf_1.cnf"));
-        final VTree vTree = new BalancedVTreeGenerator(cnf.variables(f)).generate(sf);
-        final VTreeRoot root = sf.constructRoot(vTree);
-        SddCompilerBottomUp.cnfToSdd(cnf, root, sf, new TimeoutHandler(5000));
-    }
-
 }
