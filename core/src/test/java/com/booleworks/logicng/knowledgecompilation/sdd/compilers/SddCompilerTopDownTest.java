@@ -1,21 +1,16 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.compilers;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
+import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
-import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddExportFormula;
-import com.booleworks.logicng.modelcounting.ModelCounter;
-import com.booleworks.logicng.predicates.satisfiability.TautologyPredicate;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.List;
 
 public class SddCompilerTopDownTest {
@@ -35,8 +30,8 @@ public class SddCompilerTopDownTest {
         final SddFactory sf = new SddFactory(f);
         final Formula formula = f.parse("(Y | ~Z) & (~X | Z) & (X | ~Y) & (X | Q)");
         final SddCompilationResult result = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-        final Formula exported = sf.apply(new SddExportFormula(result.getSdd()));
-        verifyResult(formula, exported, f);
+        SddTestUtil.validateMC(result.getSdd(), result.getVTree(), formula, sf);
+        SddTestUtil.validateExport(result.getSdd(), formula, sf);
     }
 
     @Test
@@ -47,15 +42,8 @@ public class SddCompilerTopDownTest {
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult result =
                     SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-            final Formula exported = sf.apply(new SddExportFormula(result.getSdd()));
-            verifyResult(formula, exported, f);
+            SddTestUtil.validateMC(result.getSdd(), result.getVTree(), formula, sf);
+            SddTestUtil.validateExport(result.getSdd(), formula, sf);
         }
-    }
-
-    public void verifyResult(final Formula input, final Formula output, final FormulaFactory f) {
-        f.equivalence(input, output).holds(new TautologyPredicate(f));
-        final BigInteger ic = ModelCounter.count(f, List.of(input), input.variables(f));
-        final BigInteger oc = ModelCounter.count(f, List.of(input), input.variables(f));
-        assertThat(ic).isEqualTo(oc);
     }
 }
