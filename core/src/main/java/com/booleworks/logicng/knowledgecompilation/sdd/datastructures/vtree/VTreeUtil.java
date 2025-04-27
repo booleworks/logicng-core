@@ -10,6 +10,14 @@ public class VTreeUtil {
     private VTreeUtil() {
     }
 
+    public static boolean isLeftFragment(final VTree vtree) {
+        return !vtree.isLeaf() && !vtree.asInternal().getLeft().isLeaf();
+    }
+
+    public static boolean isRightFragment(final VTree vtree) {
+        return !vtree.isLeaf() && !vtree.asInternal().getRight().isLeaf();
+    }
+
     public static VTree substituteNode(final VTree root, final VTree oldNode, final VTree newNode,
                                        final SddFactory sf) {
         if (root == oldNode) {
