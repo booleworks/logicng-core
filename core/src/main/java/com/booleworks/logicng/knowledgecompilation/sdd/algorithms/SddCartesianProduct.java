@@ -5,7 +5,6 @@ import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
 import java.util.Collection;
@@ -43,43 +42,8 @@ public class SddCartesianProduct {
             return product;
         }
         if (compress) {
-            return compress(product.getResult(), root, sf, handler);
+            return Util.compress(product.getResult(), root, sf, handler);
         }
         return product;
-    }
-
-    private static LngResult<TreeSet<SddElement>> compress(final TreeSet<SddElement> product, final VTreeRoot root,
-                                                           final SddFactory sf, final ComputationHandler handler) {
-        final TreeSet<SddElement> compressed = new TreeSet<>();
-        SddNode prevPrime = null;
-        SddNode prevSub = null;
-        SddElement prev = null;
-        for (final SddElement current : product) {
-            if (prevPrime == null) {
-                prevPrime = current.getPrime();
-                prevSub = current.getSub();
-                prev = current;
-                continue;
-            }
-            if (current.getSub() == prevSub) {
-                final LngResult<SddNode> prevPrimeRes =
-                        SddApply.apply(current.getPrime(), prevPrime, SddApplyOperation.DISJUNCTION, root, sf, handler);
-                if (!prevPrimeRes.isSuccess()) {
-                    return LngResult.canceled(prevPrimeRes.getCancelCause());
-                }
-                prevPrime = prevPrimeRes.getResult();
-                prev = null;
-            } else {
-                if (prev != null) {
-                    compressed.add(prev);
-                } else {
-                    compressed.add(new SddElement(prevPrime, prevSub));
-                }
-                prevPrime = current.getPrime();
-                prevSub = current.getSub();
-                prev = current;
-            }
-        }
-        return LngResult.of(compressed);
     }
 }

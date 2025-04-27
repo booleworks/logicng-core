@@ -182,40 +182,47 @@ public class Util {
 
         //no trimming
         //pop uncompressed elements, compressing and placing compressed elements on element_stack
-        SddNode cPrime = elements.first().getPrime();
-        SddNode cSub = elements.first().getSub();
-        SddElement cElement = elements.first();
-        final TreeSet<SddElement> compressedElements = new TreeSet<>();
-        boolean first = true;
-        for (final SddElement element : elements) {
-            if (first) {
-                first = false;
+        final LngResult<TreeSet<SddElement>> compressedElements = compress(elements, root, sf, handler);
+        return LngResult.of(new Pair<>(null, compressedElements.getResult()));
+    }
+
+    public static LngResult<TreeSet<SddElement>> compress(final TreeSet<SddElement> product, final VTreeRoot root,
+                                                          final SddFactory sf, final ComputationHandler handler) {
+        final TreeSet<SddElement> compressed = new TreeSet<>();
+        SddNode prevPrime = null;
+        SddNode prevSub = null;
+        SddElement prev = null;
+        for (final SddElement current : product) {
+            if (prevPrime == null) {
+                prevPrime = current.getPrime();
+                prevSub = current.getSub();
+                prev = current;
                 continue;
             }
-            if (element.getSub() == cSub) { //compress
-                final LngResult<SddNode> cPrimeRes =
-                        SddApply.apply(element.getPrime(), cPrime, SddApplyOperation.DISJUNCTION, root, sf, handler);
-                if (!cPrimeRes.isSuccess()) {
-                    return LngResult.canceled(cPrimeRes.getCancelCause());
+            if (current.getSub() == prevSub) {
+                final LngResult<SddNode> prevPrimeRes =
+                        SddApply.apply(current.getPrime(), prevPrime, SddApplyOperation.DISJUNCTION, root, sf, handler);
+                if (!prevPrimeRes.isSuccess()) {
+                    return LngResult.canceled(prevPrimeRes.getCancelCause());
                 }
-                cPrime = cPrimeRes.getResult();
-                cElement = null;
+                prevPrime = prevPrimeRes.getResult();
+                prev = null;
             } else {
-                if (cElement == null) {
-                    compressedElements.add(new SddElement(cPrime, cSub));
+                if (prev != null) {
+                    compressed.add(prev);
                 } else {
-                    compressedElements.add(cElement);
+                    compressed.add(new SddElement(prevPrime, prevSub));
                 }
-                cPrime = element.getPrime();
-                cSub = element.getSub();
-                cElement = element;
+                prevPrime = current.getPrime();
+                prevSub = current.getSub();
+                prev = current;
             }
         }
-        if (cElement == null) {
-            compressedElements.add(new SddElement(cPrime, cSub));
+        if (prev == null) {
+            compressed.add(new SddElement(prevPrime, prevSub));
         } else {
-            compressedElements.add(cElement);
+            compressed.add(prev);
         }
-        return LngResult.of(new Pair<>(null, compressedElements));
+        return LngResult.of(compressed);
     }
 }
