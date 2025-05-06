@@ -36,6 +36,22 @@ public class SddModelEnumerationTest {
     }
 
     @Test
+    public void testProjected() throws ParserException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final SddFactory sf = new SddFactory(f);
+        final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
+        final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+        final List<Model> models =
+                sf.apply(new SddProjectedModelEnumeration(f.variables("A", "D", "X"), res.getSdd(), res.getVTree()));
+        final SatSolver solver = SatSolver.newSolver(f);
+        solver.add(formula);
+        final List<Model> expected = solver.enumerateAllModels(f.variables("A", "D", "X"));
+        final List<Assignment> expectedAssignments =
+                expected.stream().map(Model::toAssignment).collect(Collectors.toList());
+        assertThat(models.stream().map(Model::toAssignment)).containsExactlyInAnyOrderElementsOf(expectedAssignments);
+    }
+
+    @Test
     public void testSubtree() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final SddFactory sf = new SddFactory(f);
