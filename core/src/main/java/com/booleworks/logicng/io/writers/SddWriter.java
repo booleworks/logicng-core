@@ -28,7 +28,7 @@ public class SddWriter {
     public static void writeSdd(final File sddDesitination, final File vTreeDesitionation, final SddNode sdd,
                                 final VTreeRoot root) throws IOException {
         final SddExportState state = new SddExportState();
-        writeVTree(vTreeDesitionation, root.getVTree(sdd), state.vState);
+        writeVTree(vTreeDesitionation, sdd.getVTree(), state.vState);
         exportSdd(sdd, root, state);
         try (
                 final BufferedWriter writer = new BufferedWriter(
@@ -59,7 +59,7 @@ public class SddWriter {
                 children.add(sub);
             }
             final int id = state.nodeId++;
-            final int vTreeId = root.getPosition(root.getVTree(sdd));
+            final int vTreeId = root.getPosition(sdd.getVTree());
             final StringBuilder sb = new StringBuilder();
             sb.append(String.format("D %d %d %d", id, vTreeId, decomp.getElements().size()));
             for (final int cId : children) {
@@ -78,7 +78,7 @@ public class SddWriter {
             } else if (terminal.getTerminal().getType() == FType.TRUE) {
                 state.lines.add(String.format("T %d", id));
             } else {
-                final int vTreeId = root.getPosition(root.getVTree(sdd));
+                final int vTreeId = root.getPosition(sdd.getVTree());
                 final int variableId = state.vState.varToId.get(((Literal) terminal.getTerminal()).variable());
                 final int literalId = ((Literal) terminal.getTerminal()).getPhase() ? variableId : -variableId;
                 state.lines.add(String.format("L %d %d %d", id, vTreeId, literalId));

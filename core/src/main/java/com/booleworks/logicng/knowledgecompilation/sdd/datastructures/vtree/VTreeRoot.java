@@ -13,7 +13,6 @@ public class VTreeRoot {
     private final ArrayList<Variable> variables;
     private final HashMap<VTree, Integer> positions;
     private final HashMap<Integer, VTree> position2VTree;
-    private final HashMap<SddNode, VTree> nodes;
     private final HashMap<Variable, VTreeLeaf> variableToLeaf;
 
     public VTreeRoot(final HashMap<VTree, VTreeInternal> parents, final VTree root,
@@ -25,7 +24,6 @@ public class VTreeRoot {
         this.positions = positions;
         this.position2VTree = position2VTree;
         this.variableToLeaf = variableToLeaf;
-        nodes = new HashMap<>();
     }
 
     public boolean isSubtree(final VTree subtree, final VTree of) {
@@ -33,11 +31,11 @@ public class VTreeRoot {
     }
 
     public boolean isOkPrimeIn(final SddNode prime, final VTree vTree) {
-        return !prime.isTrivial() && !vTree.isLeaf() && isSubtree(getVTree(prime), vTree.asInternal().getLeft());
+        return !prime.isTrivial() && !vTree.isLeaf() && isSubtree(prime.getVTree(), vTree.asInternal().getLeft());
     }
 
     public boolean isOkSubIn(final SddNode sub, final VTree vTree) {
-        return sub.isTrivial() || (!vTree.isLeaf() && isSubtree(getVTree(sub), vTree.asInternal().getRight()));
+        return sub.isTrivial() || (!vTree.isLeaf() && isSubtree(sub.getVTree(), vTree.asInternal().getRight()));
     }
 
     public VTree lcaOf(final VTree vTree1, final VTree vTree2) {
@@ -133,14 +131,6 @@ public class VTreeRoot {
 
     public VTree getVTreeAtPosition(final int pos) {
         return position2VTree.get(pos);
-    }
-
-    public boolean addNode(final SddNode node, final VTree vtree) {
-        return nodes.put(node, vtree) == null;
-    }
-
-    public VTree getVTree(final SddNode node) {
-        return nodes.get(node);
     }
 
     public VTree getNext(final VTree vTree) {

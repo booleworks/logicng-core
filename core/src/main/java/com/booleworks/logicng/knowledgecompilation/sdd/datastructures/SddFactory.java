@@ -50,8 +50,8 @@ public class SddFactory {
         negations = new HashMap<>();
         conjunctions = new HashMap<>();
         disjunctions = new HashMap<>();
-        verumNode = new SddNodeTerminal(0, f.verum());
-        falsumNode = new SddNodeTerminal(1, f.falsum());
+        verumNode = new SddNodeTerminal(0, null, f.verum());
+        falsumNode = new SddNodeTerminal(1, null, f.falsum());
         variables = new HashMap<>();
         negations.put(verumNode, falsumNode);
         negations.put(falsumNode, verumNode);
@@ -90,18 +90,14 @@ public class SddFactory {
         final SddNodeTerminal cached = sddTerminals.get(terminal);
         final VTreeLeaf vTree = root.getLeaf(terminal.variable());
         if (cached != null) {
-            registerSddNode(cached, vTree, root);
-            registerSddNode(negations.get(cached), vTree, root);
             return cached;
         }
-        final SddNodeTerminal newNode = new SddNodeTerminal(currentSddId++, terminal);
+        final SddNodeTerminal newNode = new SddNodeTerminal(currentSddId++, vTree, terminal);
         sddTerminals.put(terminal, newNode);
-        registerSddNode(newNode, vTree, root);
 
         final Literal negTerminal = terminal.negate(f);
-        final SddNodeTerminal newNodeNeg = new SddNodeTerminal(currentSddId++, negTerminal);
+        final SddNodeTerminal newNodeNeg = new SddNodeTerminal(currentSddId++, vTree, negTerminal);
         sddTerminals.put(negTerminal, newNodeNeg);
-        registerSddNode(newNodeNeg, vTree, root);
 
         negations.put(newNode, newNodeNeg);
         negations.put(newNodeNeg, newNode);
@@ -112,15 +108,15 @@ public class SddFactory {
     public SddNodeDecomposition decomposition(final TreeSet<SddElement> elements, final VTreeRoot root) {
         final SddNodeDecomposition cached = sddDecompositions.get(elements);
         if (cached != null) {
-            deepRegisterNode(cached, root);
+            final VTree lca = Util.lcaOfCompressedElements(elements, root);
+            cached.setVTree(lca);
             return cached;
         }
         assert Util.elementsCompressed(elements);
         final VTree vTree = Util.lcaOfCompressedElements(elements, root);
         final TreeSet<SddElement> elementsCopy = new TreeSet<>(elements);
-        final SddNodeDecomposition newNode = new SddNodeDecomposition(currentSddId++, elementsCopy);
+        final SddNodeDecomposition newNode = new SddNodeDecomposition(currentSddId++, vTree, elementsCopy);
         sddDecompositions.put(elementsCopy, newNode);
-        registerSddNode(newNode, vTree, root);
         return newNode;
     }
 
@@ -160,51 +156,6 @@ public class SddFactory {
             default:
                 throw new RuntimeException("Unknown operation type");
         }
-    }
-
-    public void deepRegisterNode(final SddNode node, final VTreeRoot root) {
-        registerRecursive(node, root);
-    }
-
-
-    private VTree registerRecursive(final SddNode node, final VTreeRoot root) {
-        final VTree cached = root.getVTree(node);
-        if (cached != null) {
-            return cached;
-        }
-        if (node.isDecomposition()) {
-            VTree lca = null;
-            for (final SddElement e : node.asDecomposition().getElements()) {
-                final VTree pvt = registerRecursive(e.getPrime(), root);
-                final VTree svt = registerRecursive(e.getSub(), root);
-                final VTree localLca;
-                if (pvt == null && svt == null) {
-                    localLca = null;
-                } else if (pvt == null) {
-                    localLca = svt;
-                } else if (svt == null) {
-                    localLca = pvt;
-                } else {
-                    localLca = root.lcaOf(pvt, svt);
-                }
-                if (lca == null) {
-                    lca = localLca;
-                } else if (localLca != null) {
-                    lca = root.lcaOf(lca, localLca);
-                }
-            }
-            registerSddNode(node, lca, root);
-            return lca;
-        } else if (node.isLiteral()) {
-            terminal((Literal) node.asTerminal().getTerminal(), root);
-            return root.getVTree(node);
-        } else {
-            return null;
-        }
-    }
-
-    private void registerSddNode(final SddNode node, final VTree vTree, final VTreeRoot root) {
-        root.addNode(node, vTree);
     }
 
     public VTreeRoot constructRoot(final VTree rootNode) {
@@ -261,7 +212,6 @@ public class SddFactory {
     public SddNode negate(final SddNode node, final VTreeRoot root) {
         final SddNode cached = negations.get(node);
         if (cached != null) {
-            deepRegisterNode(cached, root);
             return cached;
         }
 

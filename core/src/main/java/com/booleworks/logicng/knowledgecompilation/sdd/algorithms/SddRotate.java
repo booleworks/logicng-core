@@ -1,6 +1,5 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
-import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
@@ -68,12 +67,12 @@ public class SddRotate {
                                                            final SddFactory sf,
                                                            final ComputationHandler handler,
                                                            final Map<SddNode, SddNode> cache) {
-        final SddNode cached = cache.get(node);
-        if (cached != null) {
-            return LngResult.of(cached);
-        }
         if (node.isDecomposition()) {
-            final VTree vt = root.getVTree(node);
+            final SddNode cached = cache.get(node);
+            if (cached != null) {
+                return LngResult.of(cached);
+            }
+            final VTree vt = node.getVTree();
             if (vt == parentInner) {
                 final LngResult<TreeSet<SddElement>> rotatedElements =
                         rotateRightPartition(node.asDecomposition(), leftInner, root, newRoot, sf, handler);
@@ -88,7 +87,7 @@ public class SddRotate {
                 cache.put(node, newNode.getResult());
                 return LngResult.of(newNode.getResult());
             } else if (root.isSubtree(vt, parentInner)) {
-                sf.deepRegisterNode(node, newRoot);
+                cache.put(node, node);
                 return LngResult.of(node);
             } else {
                 final boolean moveInPrime = root.isSubtree(parentInner, vt.asInternal().getLeft());
@@ -98,20 +97,17 @@ public class SddRotate {
                     SddNode prime = element.getPrime();
                     SddNode sub = element.getSub();
                     if (moveInPrime && !element.getPrime().isTrivial()
-                            && root.isSubtree(parentInner, root.getVTree(element.getPrime()))) {
+                            && root.isSubtree(parentInner, element.getPrime().getVTree())) {
                         final LngResult<SddNode> res =
                                 rotateRightRecursive(element.getPrime(), parentInner, leftInner, root, newRoot,
-                                        sf,
-                                        handler, cache);
+                                        sf, handler, cache);
                         if (!res.isSuccess()) {
                             return res;
                         }
                         prime = res.getResult();
-                    } else {
-                        sf.deepRegisterNode(element.getPrime(), newRoot);
                     }
                     if (moveInSub && !element.getSub().isTrivial()
-                            && root.isSubtree(parentInner, root.getVTree(element.getSub()))) {
+                            && root.isSubtree(parentInner, element.getSub().getVTree())) {
                         final LngResult<SddNode> res =
                                 rotateRightRecursive(element.getSub(), parentInner, leftInner, root, newRoot, sf,
                                         handler, cache);
@@ -119,8 +115,6 @@ public class SddRotate {
                             return res;
                         }
                         sub = res.getResult();
-                    } else {
-                        sf.deepRegisterNode(element.getSub(), newRoot);
                     }
                     if (sub == element.getSub() && prime == element.getPrime()) {
                         elements.add(element);
@@ -133,9 +127,7 @@ public class SddRotate {
                 return LngResult.of(newNode);
             }
         } else {
-            final SddNode newNode = sf.terminal((Literal) node.asTerminal().getTerminal(), newRoot);
-            cache.put(node, newNode);
-            return LngResult.of(newNode);
+            return LngResult.of(node);
         }
     }
 
@@ -147,14 +139,12 @@ public class SddRotate {
         final ArrayList<TreeSet<SddElement>> sets = new ArrayList<>();
         for (final SddElement e1 : node.getElements()) {
             final TreeSet<SddElement> newElements = new TreeSet<>();
-            sf.deepRegisterNode(e1.getPrime(), newRoot);
-            sf.deepRegisterNode(e1.getSub(), newRoot);
-            if (root.getVTree(e1.getPrime()) == leftInner) {
+            if (e1.getPrime().getVTree() == leftInner) {
                 for (final SddElement e2 : e1.getPrime().asDecomposition().getElements()) {
                     final SddNode bc = SddApply.conjoinUnsafe(e2.getSub(), e1.getSub(), newRoot, sf);
                     newElements.add(new SddElement(e2.getPrime(), bc));
                 }
-            } else if (root.isSubtree(root.getVTree(e1.getPrime()), leftInner.getRight())) {
+            } else if (root.isSubtree(e1.getPrime().getVTree(), leftInner.getRight())) {
                 final SddNode a = sf.verum();
                 final SddNode bc = SddApply.conjoinUnsafe(e1.getPrime(), e1.getSub(), newRoot, sf);
                 newElements.add(new SddElement(a, bc));
@@ -175,12 +165,12 @@ public class SddRotate {
                                                           final VTreeRoot newRoot, final SddFactory sf,
                                                           final ComputationHandler handler,
                                                           final Map<SddNode, SddNode> cache) {
-        final SddNode cached = cache.get(node);
-        if (cached != null) {
-            return LngResult.of(cached);
-        }
         if (node.isDecomposition()) {
-            final VTree vt = root.getVTree(node);
+            final SddNode cached = cache.get(node);
+            if (cached != null) {
+                return LngResult.of(cached);
+            }
+            final VTree vt = node.getVTree();
             if (vt == parentInner) {
                 final LngResult<SddNode> rotated =
                         rotateLeftPartition(node.asDecomposition(), rightInner, root, newRoot, sf, handler);
@@ -190,7 +180,7 @@ public class SddRotate {
                 cache.put(node, rotated.getResult());
                 return LngResult.of(rotated.getResult());
             } else if (root.isSubtree(vt, parentInner)) {
-                sf.deepRegisterNode(node, newRoot);
+                cache.put(node, node);
                 return LngResult.of(node);
             } else {
                 final boolean moveInPrime = root.isSubtree(parentInner, vt.asInternal().getLeft());
@@ -200,7 +190,7 @@ public class SddRotate {
                     SddNode prime = element.getPrime();
                     SddNode sub = element.getSub();
                     if (moveInPrime && !element.getPrime().isTrivial()
-                            && root.isSubtree(parentInner, root.getVTree(element.getPrime()))) {
+                            && root.isSubtree(parentInner, element.getPrime().getVTree())) {
                         final LngResult<SddNode> res =
                                 rotateLeftRecursive(element.getPrime(), parentInner, rightInner, root, newRoot,
                                         sf, handler, cache);
@@ -208,11 +198,9 @@ public class SddRotate {
                             return res;
                         }
                         prime = res.getResult();
-                    } else {
-                        sf.deepRegisterNode(element.getPrime(), newRoot);
                     }
                     if (moveInSub && !element.getSub().isTrivial()
-                            && root.isSubtree(parentInner, root.getVTree(element.getSub()))) {
+                            && root.isSubtree(parentInner, element.getSub().getVTree())) {
                         final LngResult<SddNode> res =
                                 rotateLeftRecursive(element.getSub(), parentInner, rightInner, root, newRoot, sf,
                                         handler, cache);
@@ -220,8 +208,6 @@ public class SddRotate {
                             return res;
                         }
                         sub = res.getResult();
-                    } else {
-                        sf.deepRegisterNode(element.getSub(), newRoot);
                     }
                     if (sub == element.getSub() && prime == element.getPrime()) {
                         elements.add(element);
@@ -234,9 +220,7 @@ public class SddRotate {
                 return LngResult.of(newNode);
             }
         } else {
-            final SddNode newNode = sf.terminal((Literal) node.asTerminal().getTerminal(), newRoot);
-            cache.put(node, newNode);
-            return LngResult.of(newNode);
+            return LngResult.of(node);
         }
     }
 
@@ -247,16 +231,14 @@ public class SddRotate {
                                                           final ComputationHandler handler) {
         final TreeSet<SddElement> newElements = new TreeSet<>();
         for (final SddElement e1 : node.getElements()) {
-            sf.deepRegisterNode(e1.getPrime(), newRoot);
-            sf.deepRegisterNode(e1.getSub(), newRoot);
             if (e1.getSub().isTrivial()) {
                 newElements.add(e1);
-            } else if (root.getVTree(e1.getSub()) == rightInner) {
+            } else if (e1.getSub().getVTree() == rightInner) {
                 for (final SddElement e2 : e1.getSub().asDecomposition().getElements()) {
                     final SddNode ab = SddApply.conjoinUnsafe(e1.getPrime(), e2.getPrime(), newRoot, sf);
                     newElements.add(new SddElement(ab, e2.getSub()));
                 }
-            } else if (root.getPosition(root.getVTree(e1.getSub())) > root.getPosition(rightInner)) {
+            } else if (root.getPosition(e1.getSub().getVTree()) > root.getPosition(rightInner)) {
                 newElements.add(e1);
             } else {
                 final SddNode ab = SddApply.conjoinUnsafe(e1.getPrime(), e1.getSub(), newRoot, sf);

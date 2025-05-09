@@ -24,7 +24,7 @@ public class Validation {
             return false;
         }
         if (node.isDecomposition()) {
-            final VTree actual = root.getVTree(node);
+            final VTree actual = node.getVTree();
             if (actual.isLeaf()) {
                 return false;
             }
@@ -39,7 +39,7 @@ public class Validation {
     }
 
     private static boolean checkVTree(final SddNode node, final VTree expected, final VTreeRoot root) {
-        final VTree actual = root.getVTree(node);
+        final VTree actual = node.getVTree();
         if ((node.isTrivial() && actual != null) || (!node.isTrivial() && actual == null)) {
             return false;
         }

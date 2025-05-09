@@ -60,17 +60,17 @@ public class SddBackboneFunction implements SddFunction<Backbone> {
     public void applyRec(final SddNode node, final Map<Variable, Tristate> backbone) {
         if (node.isDecomposition()) {
             final Set<Variable> gapVars = new HashSet<>();
-            final VTreeInternal targetVTree = root.getVTree(node).asInternal();
+            final VTreeInternal targetVTree = node.getVTree().asInternal();
             for (final SddElement element : node.asDecomposition().getElements()) {
                 if (!element.getSub().isFalse()) {
                     applyRec(element.getPrime(), backbone);
                     applyRec(element.getSub(), backbone);
-                    VTreeUtil.gapVars(targetVTree.getLeft(), root.getVTree(element.getPrime()), root, variables,
+                    VTreeUtil.gapVars(targetVTree.getLeft(), element.getPrime().getVTree(), root, variables,
                             gapVars);
                     if (element.getSub().isTrue()) {
                         VTreeUtil.vars(targetVTree.getRight(), variables, gapVars);
                     } else {
-                        VTreeUtil.gapVars(targetVTree.getRight(), root.getVTree(element.getSub()), root, variables,
+                        VTreeUtil.gapVars(targetVTree.getRight(), element.getSub().getVTree(), root, variables,
                                 gapVars);
                     }
                 }

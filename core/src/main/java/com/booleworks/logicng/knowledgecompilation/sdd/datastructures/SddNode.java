@@ -1,10 +1,14 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
+
 public abstract class SddNode implements Comparable<SddNode> {
     final protected int id;
+    protected VTree vTree;
 
-    public SddNode(final int id) {
+    public SddNode(final int id, final VTree vTree) {
         this.id = id;
+        this.vTree = vTree;
     }
 
     public int getId() {
@@ -27,6 +31,14 @@ public abstract class SddNode implements Comparable<SddNode> {
 
     public SddNodeTerminal asTerminal() {
         return (SddNodeTerminal) this;
+    }
+
+    public VTree getVTree() {
+        return vTree;
+    }
+
+    public void setVTree(final VTree vTree) {
+        this.vTree = vTree;
     }
 
     @Override

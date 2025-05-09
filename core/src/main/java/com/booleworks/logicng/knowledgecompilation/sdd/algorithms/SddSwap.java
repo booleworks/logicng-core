@@ -1,6 +1,5 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
-import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
@@ -43,12 +42,12 @@ public class SddSwap {
                                                     final SddFactory sf,
                                                     final ComputationHandler handler,
                                                     final Map<SddNode, SddNode> cache) {
-        final SddNode cached = cache.get(node);
-        if (cached != null) {
-            return LngResult.of(cached);
-        }
         if (node.isDecomposition()) {
-            final VTree vt = root.getVTree(node);
+            final SddNode cached = cache.get(node);
+            if (cached != null) {
+                return LngResult.of(cached);
+            }
+            final VTree vt = node.getVTree();
             if (vt == vtree) {
                 final LngResult<TreeSet<SddElement>> elements =
                         swapPartition(node.asDecomposition(), newRoot, sf, handler);
@@ -66,26 +65,22 @@ public class SddSwap {
                     SddNode prime = element.getPrime();
                     SddNode sub = element.getSub();
                     if (moveInPrime && !element.getPrime().isTrivial()
-                            && root.isSubtree(vtree, root.getVTree(element.getPrime()))) {
+                            && root.isSubtree(vtree, element.getPrime().getVTree())) {
                         final LngResult<SddNode> res =
                                 swapRecursive(element.getPrime(), vtree, root, newRoot, sf, handler, cache);
                         if (!res.isSuccess()) {
                             return res;
                         }
                         prime = res.getResult();
-                    } else {
-                        sf.deepRegisterNode(element.getPrime(), newRoot);
                     }
                     if (moveInSub && !element.getSub().isTrivial()
-                            && root.isSubtree(vtree, root.getVTree(element.getSub()))) {
+                            && root.isSubtree(vtree, element.getSub().getVTree())) {
                         final LngResult<SddNode> res =
                                 swapRecursive(element.getSub(), vtree, root, newRoot, sf, handler, cache);
                         if (!res.isSuccess()) {
                             return res;
                         }
                         sub = res.getResult();
-                    } else {
-                        sf.deepRegisterNode(element.getSub(), newRoot);
                     }
                     if (sub == element.getSub() && prime == element.getPrime()) {
                         elements.add(element);
@@ -98,9 +93,7 @@ public class SddSwap {
                 return LngResult.of(newNode);
             }
         } else {
-            final SddNode newNode = sf.terminal((Literal) node.asTerminal().getTerminal(), newRoot);
-            cache.put(node, newNode);
-            return LngResult.of(newNode);
+            return LngResult.of(node);
         }
     }
 
@@ -109,8 +102,6 @@ public class SddSwap {
                                                                 final ComputationHandler handler) {
         final ArrayList<TreeSet<SddElement>> sets = new ArrayList<>();
         for (final SddElement element : node.getElements()) {
-            sf.deepRegisterNode(element.getPrime(), newRoot);
-            sf.deepRegisterNode(element.getSub(), newRoot);
             final SddNode negSub = sf.negate(element.getSub(), newRoot);
             final TreeSet<SddElement> newElements = new TreeSet<>();
             if (!element.getSub().isFalse()) {

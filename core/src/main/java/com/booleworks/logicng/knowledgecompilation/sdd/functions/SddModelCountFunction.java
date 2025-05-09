@@ -67,7 +67,7 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
             return cached;
         }
         final SddNodeDecomposition decomp = node.asDecomposition();
-        final VTreeInternal vTree = root.getVTree(node).asInternal();
+        final VTreeInternal vTree = node.getVTree().asInternal();
         BigInteger modelCount = BigInteger.ZERO;
         for (final SddElement element : decomp.getElements()) {
             final BigInteger prime = applyRec(element.getPrime(), cache);
@@ -78,13 +78,13 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
                 final VTree right = vTree.getRight();
                 final BigInteger primeMc =
                         prime.multiply(BigInteger.TWO.pow(
-                                VTreeUtil.gapVarCount(left, root.getVTree(element.getPrime()), root, sddVariables)));
+                                VTreeUtil.gapVarCount(left, element.getPrime().getVTree(), root, sddVariables)));
                 final BigInteger subMc;
                 if (element.getSub().isTrue()) {
                     subMc = BigInteger.TWO.pow(VTreeUtil.varCount(vTree.getRight(), sddVariables));
                 } else {
                     subMc = sub.multiply(BigInteger.TWO.pow(
-                            VTreeUtil.gapVarCount(right, root.getVTree(element.getSub()), root, sddVariables)));
+                            VTreeUtil.gapVarCount(right, element.getSub().getVTree(), root, sddVariables)));
                 }
                 modelCount = modelCount.add(primeMc.multiply(subMc));
             }

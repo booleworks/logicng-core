@@ -2,12 +2,14 @@ package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 
 public class SddNodeTerminal extends SddNode {
     private final Formula terminal;
 
-    public SddNodeTerminal(final int id, final Formula terminal) {
-        super(id);
+    public SddNodeTerminal(final int id, final VTree vtree, final Formula terminal) {
+        super(id, vtree);
+        assert vtree == null || vtree.isLeaf();
         this.terminal = terminal;
     }
 

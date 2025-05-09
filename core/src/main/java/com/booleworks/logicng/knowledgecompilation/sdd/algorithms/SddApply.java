@@ -21,7 +21,7 @@ public class SddApply {
                                            final VTreeRoot root, final SddFactory sf,
                                            final ComputationHandler handler) {
         if (!handler.shouldResume(SimpleEvent.SDD_APPLY)) {
-            LngResult.canceled(SimpleEvent.SDD_APPLY);
+            return LngResult.canceled(SimpleEvent.SDD_APPLY);
         }
         if (left == right) {
             return LngResult.of(left);
@@ -41,20 +41,19 @@ public class SddApply {
 
         final SddNode cached = sf.lookupApplyComputation(left, right, op);
         if (cached != null) {
-            sf.deepRegisterNode(cached, root);
             return LngResult.of(cached);
         }
 
         final SddNode l;
         final SddNode r;
-        if (root.getPosition(root.getVTree(left)) <= root.getPosition(root.getVTree(right))) {
+        if (root.getPosition(left.getVTree()) <= root.getPosition(right.getVTree())) {
             l = left;
             r = right;
         } else {
             l = right;
             r = left;
         }
-        final Pair<VTree, VTreeRoot.CmpType> lca = root.cmpVTrees(root.getVTree(l), root.getVTree(r));
+        final Pair<VTree, VTreeRoot.CmpType> lca = root.cmpVTrees(l.getVTree(), r.getVTree());
         final LngResult<SddNode> result;
         switch (lca.getSecond()) {
             case EQUALS:
@@ -102,7 +101,7 @@ public class SddApply {
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
-        assert root.getPosition(root.getVTree(left)) < root.getPosition(root.getVTree(right));
+        assert root.getPosition(left.getVTree()) < root.getPosition(right.getVTree());
 
         final TreeSet<SddElement> newElements = new TreeSet<>();
         final SddNode n = op == SddApplyOperation.CONJUNCTION ? left : sf.negate(left, root);
@@ -127,7 +126,7 @@ public class SddApply {
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
-        assert root.getPosition(root.getVTree(left)) < root.getPosition(root.getVTree(right));
+        assert root.getPosition(left.getVTree()) < root.getPosition(right.getVTree());
 
         final TreeSet<SddElement> newElements = new TreeSet<>();
         for (final SddElement element : left.asDecomposition().getElements()) {
@@ -147,9 +146,9 @@ public class SddApply {
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
-        assert root.getPosition(root.getVTree(left)) < root.getPosition(root.getVTree(right));
-        assert !root.isSubtree(root.getVTree(left), root.getVTree(right));
-        assert !root.isSubtree(root.getVTree(right), root.getVTree(left));
+        assert root.getPosition(left.getVTree()) < root.getPosition(right.getVTree());
+        assert !root.isSubtree(left.getVTree(), right.getVTree());
+        assert !root.isSubtree(right.getVTree(), left.getVTree());
 
         final SddNode leftNeg = sf.negate(left, root);
         final LngResult<SddNode> leftSub = apply(right, sf.verum(), op, root, sf, handler);
@@ -181,7 +180,6 @@ public class SddApply {
 
         final SddNode cached = sf.lookupApplyComputation(left, right, SddApplyOperation.CONJUNCTION);
         if (cached != null) {
-            sf.deepRegisterNode(cached, root);
             return cached;
         }
 

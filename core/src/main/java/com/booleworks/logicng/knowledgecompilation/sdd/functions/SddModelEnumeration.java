@@ -68,7 +68,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         }
 
         final SortedSet<Variable> variablesInVTree = new TreeSet<>();
-        VTreeUtil.vars(root.getVTree(originalNode), variables, variablesInVTree);
+        VTreeUtil.vars(originalNode.getVTree(), variables, variablesInVTree);
         final Set<Variable> variablesNotInVTree = variables
                 .stream()
                 .filter(v -> !variablesInVTree.contains(v))
@@ -124,12 +124,12 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         } else {
             sub = buildPCNode(element.getSub(), nodeCache, elementCache);
         }
-        final VTree primeTree = root.getVTree(prime.node);
+        final VTree primeTree = prime.node.getVTree();
         final ElementPC elementPC;
         if (sub == null) {
             elementPC = new ElementPC(prime, null, primeTree, null, primeTree);
         } else {
-            final VTreeInternal lca = root.lcaOf(primeTree, root.getVTree(sub.node)).asInternal();
+            final VTreeInternal lca = root.lcaOf(primeTree, sub.node.getVTree()).asInternal();
             elementPC = new ElementPC(prime, sub, lca.getLeft(), lca.getRight(), lca);
         }
         prime.consumersAsPrime.add(elementPC);
@@ -238,7 +238,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         }
 
         private void consume(final List<CompactModel> models, final VTree producerVTree) {
-            final List<CompactModel> extended = extendModels(models, producerVTree, root.getVTree(node));
+            final List<CompactModel> extended = extendModels(models, producerVTree, node.getVTree());
             currentModels.addAll(extended);
         }
 
@@ -275,10 +275,10 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
                 consumerRoot.addAll(models);
             }
             for (final ElementPC consumer : consumersAsPrime) {
-                consumer.consumePrime(models, root.getVTree(node));
+                consumer.consumePrime(models, node.getVTree());
             }
             for (final ElementPC consumer : consumersAsSub) {
-                consumer.consumeSub(models, root.getVTree(node));
+                consumer.consumeSub(models, node.getVTree());
             }
         }
     }

@@ -187,9 +187,9 @@ public class SddRotateTest {
     public void testFilesRotateLeftManyRandom() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final SddFactory sf = new SddFactory(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             for (final List<Integer> vtreeSeq : VTREE_POSISTIONS) {
+                final SddFactory sf = new SddFactory(f);
                 final SddCompilationResult result =
                         SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
                 SddNode node = result.getSdd();
@@ -215,9 +215,9 @@ public class SddRotateTest {
     public void testFilesRotateRightManyRandom() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final SddFactory sf = new SddFactory(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             for (final List<Integer> vtreeSeq : VTREE_POSISTIONS) {
+                final SddFactory sf = new SddFactory(f);
                 final SddCompilationResult result =
                         SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
                 SddNode node = result.getSdd();

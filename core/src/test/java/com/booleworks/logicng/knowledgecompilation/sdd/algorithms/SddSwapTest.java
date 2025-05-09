@@ -120,9 +120,9 @@ public class SddSwapTest {
     public void testFilesSwapManyRandom2() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final SddFactory sf = new SddFactory(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             for (final List<Integer> vtreeSeq : VTREE_POSISTIONS) {
+                final SddFactory sf = new SddFactory(f);
                 final SddCompilationResult result =
                         SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
                 SddNode node = result.getSdd();

@@ -76,7 +76,7 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
             return cached;
         }
         final SddNodeDecomposition decomp = node.asDecomposition();
-        final VTreeInternal vTree = root.getVTree(node).asInternal();
+        final VTreeInternal vTree = node.getVTree().asInternal();
         int cardinality = -1;
         for (final SddElement element : decomp.getElements()) {
             if (element.getSub().isFalse()) {
@@ -88,13 +88,13 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
             if (maximize) {
                 final VTree left = vTree.getLeft();
                 final VTree right = vTree.getRight();
-                final int primeGap = VTreeUtil.gapVarCount(left, root.getVTree(element.getPrime()), root,
+                final int primeGap = VTreeUtil.gapVarCount(left, element.getPrime().getVTree(), root,
                         sddVariables);
                 final int subGap;
                 if (element.getSub().isTrue()) {
                     subGap = VTreeUtil.varCount(vTree.getRight(), sddVariables);
                 } else {
-                    subGap = VTreeUtil.gapVarCount(right, root.getVTree(element.getSub()), root,
+                    subGap = VTreeUtil.gapVarCount(right, element.getSub().getVTree(), root,
                             sddVariables);
                 }
                 final int c = prime + sub + primeGap + subGap;

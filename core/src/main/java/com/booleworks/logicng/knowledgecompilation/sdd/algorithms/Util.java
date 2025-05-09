@@ -62,8 +62,8 @@ public class Util {
         VTree rLca = null;
 
         for (final SddElement element : elements) {
-            final VTree pVTree = root.getVTree(element.getPrime());
-            final VTree sVTree = root.getVTree(element.getSub());
+            final VTree pVTree = element.getPrime().getVTree();
+            final VTree sVTree = element.getSub().getVTree();
             assert pVTree != null;
 
             lLca = lLca == null ? pVTree : root.lcaOf(pVTree, lLca);
