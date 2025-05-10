@@ -1,16 +1,14 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
-import com.booleworks.logicng.formulas.Variable;
-
 public class VTreeLeaf extends VTree {
-    private final Variable variable;
+    private final int variable;
 
-    public VTreeLeaf(final int id, final Variable variable) {
+    public VTreeLeaf(final int id, final int variable) {
         super(id);
         this.variable = variable;
     }
 
-    public Variable getVariable() {
+    public int getVariable() {
         return variable;
     }
 

@@ -9,8 +9,8 @@ import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.OptimizationFunction;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ public class SddCardinalityFunctionTest {
     @Test
     public void testMax() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
         final int cardinality =
@@ -39,7 +39,7 @@ public class SddCardinalityFunctionTest {
     @Test
     public void testMin() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
         final int cardinality =
@@ -67,7 +67,7 @@ public class SddCardinalityFunctionTest {
     public void testFilesMax() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final SddFactory sf = new SddFactory(f);
+            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult res =
                     SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
@@ -87,7 +87,7 @@ public class SddCardinalityFunctionTest {
     public void testFilesMin() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final SddFactory sf = new SddFactory(f);
+            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult res =
                     SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();

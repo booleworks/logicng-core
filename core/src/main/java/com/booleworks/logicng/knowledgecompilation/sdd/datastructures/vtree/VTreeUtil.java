@@ -1,7 +1,6 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
-import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 
 import java.util.Collection;
 import java.util.Set;
@@ -19,7 +18,7 @@ public class VTreeUtil {
     }
 
     public static VTree substituteNode(final VTree root, final VTree oldNode, final VTree newNode,
-                                       final SddFactory sf) {
+                                       final Sdd sf) {
         if (root == oldNode) {
             return newNode;
         }
@@ -33,19 +32,19 @@ public class VTreeUtil {
         }
     }
 
-    public static VTree lcaFromVariables(final Collection<Variable> variables, final VTreeRoot root) {
+    public static VTree lcaFromVariables(final Collection<Integer> variables, final VTreeRoot root, final Sdd sdd) {
         int posMax = Integer.MIN_VALUE;
         int posMin = Integer.MAX_VALUE;
-        for (final Variable variable : variables) {
-            final int pos = root.getPosition(root.getLeaf(variable));
+        for (final int variable : variables) {
+            final int pos = root.getPosition(sdd.vTreeLeaf(variable));
             posMax = Math.max(posMax, pos);
             posMin = Math.min(posMin, pos);
         }
         return root.lcaOf(posMin, posMax);
     }
 
-    public static void gapVars(final VTree vtree, final VTree subtree, final VTreeRoot root, final Set<Variable> filter,
-                               final Set<Variable> result) {
+    public static void gapVars(final VTree vtree, final VTree subtree, final VTreeRoot root, final Set<Integer> filter,
+                               final Set<Integer> result) {
         if (vtree == subtree) {
             return;
         }
@@ -58,7 +57,7 @@ public class VTreeUtil {
         }
     }
 
-    public static void vars(final VTree vtree, final Set<Variable> filter, final Set<Variable> result) {
+    public static void vars(final VTree vtree, final Set<Integer> filter, final Set<Integer> result) {
         if (vtree.isLeaf()) {
             if (filter == null || filter.contains(vtree.asLeaf().getVariable())) {
                 result.add(vtree.asLeaf().getVariable());
@@ -70,7 +69,7 @@ public class VTreeUtil {
     }
 
     public static int gapVarCount(final VTree vtree, final VTree subtree, final VTreeRoot root,
-                                  final Set<Variable> filter) {
+                                  final Set<Integer> filter) {
         if (vtree == subtree) {
             return 0;
         }
@@ -83,7 +82,7 @@ public class VTreeUtil {
         }
     }
 
-    public static int varCount(final VTree vtree, final Set<Variable> filter) {
+    public static int varCount(final VTree vtree, final Set<Integer> filter) {
         if (vtree.isLeaf()) {
             if (filter.contains(vtree.asLeaf().getVariable())) {
                 return 1;

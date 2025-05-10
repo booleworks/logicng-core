@@ -9,8 +9,8 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ public class SddModelEnumerationTest {
     @Test
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
         final List<Model> models =
@@ -38,7 +38,7 @@ public class SddModelEnumerationTest {
     @Test
     public void testProjected() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
         final List<Model> models =
@@ -54,7 +54,7 @@ public class SddModelEnumerationTest {
     @Test
     public void testSubtree() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
         final SddNode descendant = res.getSdd().asDecomposition().getElements().first().getSub();

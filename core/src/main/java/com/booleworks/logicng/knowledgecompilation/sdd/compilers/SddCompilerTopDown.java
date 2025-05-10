@@ -3,12 +3,12 @@ package com.booleworks.logicng.knowledgecompilation.sdd.compilers;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SDD_COMPUTATION_STARTED;
 import static com.booleworks.logicng.handlers.events.SimpleEvent.SDD_SHANNON_EXPANSION;
 import static com.booleworks.logicng.knowledgecompilation.dnnf.DnnfCoreSolver.var;
+import static com.booleworks.logicng.solvers.sat.LngCoreSolver.sign;
 
 import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
@@ -16,9 +16,9 @@ import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTr
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeNode;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.MinFillDTreeGenerator;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.DecisionVTreeGenerator;
@@ -43,14 +43,14 @@ import java.util.TreeSet;
 
 public class SddCompilerTopDown {
     protected final VTreeRoot root;
-    protected final SddFactory sf;
+    protected final Sdd sf;
     protected final FormulaFactory f;
 
     protected final Caches caches; // TODO: Fix and enable caching!
     protected final SddCoreSolver solver;
 
     protected SddCompilerTopDown(final Formula cnf, final VTreeRoot root, final Caches caches,
-                                 final SddCoreSolver solver, final SddFactory sf) {
+                                 final SddCoreSolver solver, final Sdd sf) {
         this.root = root;
         this.sf = sf;
         this.f = sf.getFactory();
@@ -59,14 +59,12 @@ public class SddCompilerTopDown {
         solver.add(cnf);
     }
 
-    public static LngResult<SddCompilationResult> compile(final Formula formula, final SddFactory sf,
+    public static LngResult<SddCompilationResult> compile(final Formula formula, final Sdd sf,
                                                           final ComputationHandler handler) {
-
         return prepareAndStartComputation(formula, sf, handler);
     }
 
-    protected static LngResult<SddCompilationResult> prepareAndStartComputation(final Formula formula,
-                                                                                final SddFactory sf,
+    protected static LngResult<SddCompilationResult> prepareAndStartComputation(final Formula formula, final Sdd sf,
                                                                                 final ComputationHandler handler) {
         final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables(sf.getFactory()));
         final Formula cnf = formula.cnf(sf.getFactory());
@@ -133,7 +131,7 @@ public class SddCompilerTopDown {
 
     protected static LngResult<VTree> generateVTree(final Formula nonUnitClauses, final Formula unitClauses,
                                                     final Caches caches, final SddCoreSolver solver,
-                                                    final SddFactory sf, final ComputationHandler handler) {
+                                                    final Sdd sf, final ComputationHandler handler) {
         final Set<Variable> nonUnitVars = nonUnitClauses.variables(sf.getFactory());
         final Set<Variable> varsOnlyInUnitClauses = new TreeSet<>();
         for (final Variable v : unitClauses.variables(sf.getFactory())) {
@@ -170,23 +168,25 @@ public class SddCompilerTopDown {
             }
         }
         if (vTree != null) {
-            generateVarMasks(vTree, caches, solver);
+            generateVarMasks(vTree, caches, solver, sf);
         }
         generateContextMaps(vTree, dTree, caches);
         return LngResult.of(vTree);
     }
 
-    protected static BitSet generateVarMasks(final VTree vTree, final Caches caches, final SddCoreSolver solver) {
+    protected static BitSet generateVarMasks(final VTree vTree, final Caches caches, final SddCoreSolver solver,
+                                             final Sdd sdd) {
         if (vTree.isLeaf()) {
             final VTreeLeaf leaf = vTree.asLeaf();
+            final int solverIdx = solver.idxForName(sdd.indexToVariable(leaf.getVariable()).getName());
             final BitSet varMask = new BitSet();
-            varMask.set(solver.variableIndex(leaf.getVariable()));
+            varMask.set(solverIdx);
             caches.varMasks.put(leaf, varMask);
             return varMask;
         } else {
             final VTreeInternal internal = vTree.asInternal();
-            final BitSet left = (BitSet) generateVarMasks(internal.getLeft(), caches, solver).clone();
-            final BitSet right = generateVarMasks(internal.getRight(), caches, solver);
+            final BitSet left = (BitSet) generateVarMasks(internal.getLeft(), caches, solver, sdd).clone();
+            final BitSet right = generateVarMasks(internal.getRight(), caches, solver, sdd);
             left.or(right);
             caches.varMasks.put(internal, left);
             return left;
@@ -248,10 +248,10 @@ public class SddCompilerTopDown {
     }
 
     protected LngResult<SddNode> cnf2sddLeaf(final VTreeLeaf leaf, final ComputationHandler handler) {
-        final int leafVarIdx = solver.variableIndex(leaf.getVariable());
-        final Literal implied = solver.isImplied(leafVarIdx);
-        if (implied != null) {
-            return LngResult.of(sf.terminal(implied, root));
+        final int solverVarIdx = solver.idxForName(sf.indexToVariable(leaf.getVariable()).getName());
+        final int implied = solver.isImplied(solverVarIdx);
+        if (implied != -1) {
+            return LngResult.of(sf.terminal(leaf, !sign(implied), root));
         } else {
             return LngResult.of(sf.verum());
         }
@@ -288,12 +288,12 @@ public class SddCompilerTopDown {
         if (!handler.shouldResume(SDD_SHANNON_EXPANSION)) {
             return LngResult.canceled(SDD_SHANNON_EXPANSION);
         }
-        final Variable var = treeInternal.getLeft().asLeaf().getVariable();
-        final int varIdx = solver.variableIndex(var);
-        final Literal implied = solver.isImplied(varIdx);
+        final VTreeLeaf varLeaf = treeInternal.getLeft().asLeaf();
+        final int solverVarIdx = solver.idxForName(sf.indexToVariable(varLeaf.getVariable()).getName());
+        final int implied = solver.isImplied(solverVarIdx);
 
-        if (implied != null) {
-            final SddNode prime = sf.terminal(implied, root);
+        if (implied != -1) {
+            final SddNode prime = sf.terminal(varLeaf, !sign(implied), root);
             final LngResult<SddNode> subResult = cnf2sdd(treeInternal.getRight(), handler);
             if (!subResult.isSuccess()) {
                 return subResult;
@@ -305,17 +305,17 @@ public class SddCompilerTopDown {
             return LngResult.of(unique(prime, sub, sf.negate(prime, root), sf.falsum()));
         }
         final SddNode positive;
-        if (solver.decide(varIdx, true)) {
+        if (solver.decide(solverVarIdx, true)) {
             final LngResult<SddNode> positiveResult = cnf2sdd(treeInternal.getRight(), handler);
             if (!positiveResult.isSuccess()) {
-                solver.undoDecide(varIdx);
+                solver.undoDecide(solverVarIdx);
                 return positiveResult;
             }
             positive = positiveResult.getResult();
         } else {
             positive = sf.falsum();
         }
-        solver.undoDecide(varIdx);
+        solver.undoDecide(solverVarIdx);
         if (positive.isFalse()) {
             if (solver.atAssertionLevel() && solver.assertCdLiteral()) {
                 return cnf2sdd(treeInternal, handler);
@@ -325,17 +325,17 @@ public class SddCompilerTopDown {
         }
 
         final SddNode negative;
-        if (solver.decide(varIdx, false)) {
+        if (solver.decide(solverVarIdx, false)) {
             final LngResult<SddNode> negativeResult = cnf2sdd(treeInternal.getRight(), handler);
             if (!negativeResult.isSuccess()) {
-                solver.undoDecide(varIdx);
+                solver.undoDecide(solverVarIdx);
                 return negativeResult;
             }
             negative = negativeResult.getResult();
         } else {
             negative = sf.falsum();
         }
-        solver.undoDecide(varIdx);
+        solver.undoDecide(solverVarIdx);
         if (negative.isFalse()) {
             if (solver.atAssertionLevel() && solver.assertCdLiteral()) {
                 return cnf2sdd(treeInternal, handler);
@@ -343,8 +343,8 @@ public class SddCompilerTopDown {
                 return LngResult.of(negative);
             }
         }
-        final SddNode lit = sf.terminal(var, root);
-        final SddNode litNeg = sf.terminal(var.negate(f), root);
+        final SddNode lit = sf.terminal(varLeaf, true, root);
+        final SddNode litNeg = sf.terminal(varLeaf, false, root);
         final SddNode alpha = unique(lit, positive, litNeg, negative);
         addToCache(treeInternal, alpha);
         return LngResult.of(alpha);

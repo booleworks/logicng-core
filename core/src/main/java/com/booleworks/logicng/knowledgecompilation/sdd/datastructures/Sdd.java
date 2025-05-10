@@ -1,13 +1,14 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
-import com.booleworks.logicng.formulas.Formula;
+import static com.booleworks.logicng.solvers.sat.LngCoreSolver.mkLit;
+
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCoreSolver;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
@@ -17,29 +18,32 @@ import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
-public class SddFactory {
+public class Sdd {
     private final FormulaFactory f;
     private int currentVTreeId;
     private int currentSddId;
     private final HashMap<Pair<VTree, VTree>, VTreeInternal> internalVTreeNodes;
-    private final HashMap<Variable, VTreeLeaf> leafVTreeNodes;
+    private final HashMap<Integer, VTreeLeaf> leafVTreeNodes;
     private final HashMap<VTree, VTreeRoot> vTreeRoots;
     private final HashMap<TreeSet<SddElement>, SddNodeDecomposition> sddDecompositions;
-    private final HashMap<Formula, SddNodeTerminal> sddTerminals;
+    private final HashMap<Integer, SddNodeTerminal> sddTerminals;
     private final SddNodeTerminal verumNode;
     private final SddNodeTerminal falsumNode;
     private final HashMap<SddNode, SddNode> negations;
     private final HashMap<Pair<SddNode, SddNode>, SddNode> conjunctions;
     private final HashMap<Pair<SddNode, SddNode>, SddNode> disjunctions;
-    private final HashMap<SddNode, SortedSet<Variable>> variables;
+    private final HashMap<SddNode, SortedSet<Integer>> variables;
+    private final SddCoreSolver solver;
+    private final HashMap<Variable, Integer> var2idx;
+    private final ArrayList<Variable> idx2var;
 
-    public SddFactory(final FormulaFactory f) {
+    private Sdd(final FormulaFactory f, final SddCoreSolver solver) {
         this.f = f;
+        this.solver = solver;
         currentVTreeId = 0;
         currentSddId = 2;
         internalVTreeNodes = new HashMap<>();
@@ -50,14 +54,66 @@ public class SddFactory {
         negations = new HashMap<>();
         conjunctions = new HashMap<>();
         disjunctions = new HashMap<>();
-        verumNode = new SddNodeTerminal(0, null, f.verum());
-        falsumNode = new SddNodeTerminal(1, null, f.falsum());
+        verumNode = new SddNodeTerminal(0, null, true);
+        falsumNode = new SddNodeTerminal(1, null, false);
         variables = new HashMap<>();
+        var2idx = new HashMap<>();
+        idx2var = new ArrayList<>();
         negations.put(verumNode, falsumNode);
         negations.put(falsumNode, verumNode);
     }
 
+    public static Sdd solverBased(final SddCoreSolver solver) {
+        return new Sdd(solver.f(), solver);
+    }
+
+    public static Sdd independent(final FormulaFactory f) {
+        return new Sdd(f, null);
+    }
+
+    public Variable indexToVariable(final int index) {
+        if (solver == null) {
+            if (index < idx2var.size()) {
+                return idx2var.get(index);
+            } else {
+                return null;
+            }
+        } else {
+            return f.variable(solver.nameForIdx(index));
+        }
+    }
+
+    public int variableToIndex(final Variable variable) {
+        if (solver == null) {
+            final Integer idx = var2idx.get(variable);
+            if (idx == null) {
+                final int newIdx = idx2var.size();
+                idx2var.add(variable);
+                var2idx.put(variable, newIdx);
+                return newIdx;
+            } else {
+                return idx;
+            }
+        } else {
+            final int idx = solver.idxForName(variable.getName());
+            assert idx != -1;
+            return idx;
+        }
+    }
+
+    public boolean knows(final Variable variable) {
+        if (solver == null) {
+            return var2idx.containsKey(variable);
+        } else {
+            return solver.idxForName(variable.getName()) != -1;
+        }
+    }
+
     public VTreeLeaf vTreeLeaf(final Variable variable) {
+        return vTreeLeaf(variableToIndex(variable));
+    }
+
+    public VTreeLeaf vTreeLeaf(final int variable) {
         final VTreeLeaf cached = leafVTreeNodes.get(variable);
         if (cached != null) {
             return cached;
@@ -86,17 +142,17 @@ public class SddFactory {
         return falsumNode;
     }
 
-    public SddNodeTerminal terminal(final Literal terminal, final VTreeRoot root) {
-        final SddNodeTerminal cached = sddTerminals.get(terminal);
-        final VTreeLeaf vTree = root.getLeaf(terminal.variable());
+    public SddNodeTerminal terminal(final VTreeLeaf terminal, final boolean phase, final VTreeRoot root) {
+        final int litIdx = mkLit(terminal.getVariable(), !phase);
+        final SddNodeTerminal cached = sddTerminals.get(litIdx);
         if (cached != null) {
             return cached;
         }
-        final SddNodeTerminal newNode = new SddNodeTerminal(currentSddId++, vTree, terminal);
-        sddTerminals.put(terminal, newNode);
+        final SddNodeTerminal newNode = new SddNodeTerminal(currentSddId++, terminal, phase);
+        sddTerminals.put(litIdx, newNode);
 
-        final Literal negTerminal = terminal.negate(f);
-        final SddNodeTerminal newNodeNeg = new SddNodeTerminal(currentSddId++, vTree, negTerminal);
+        final int negTerminal = mkLit(terminal.getVariable(), phase);
+        final SddNodeTerminal newNodeNeg = new SddNodeTerminal(currentSddId++, terminal, !phase);
         sddTerminals.put(negTerminal, newNodeNeg);
 
         negations.put(newNode, newNodeNeg);
@@ -165,8 +221,6 @@ public class SddFactory {
         }
 
         final HashMap<VTree, VTreeInternal> parents = new HashMap<>();
-        final HashMap<Variable, VTreeLeaf> variableToLeaf = new HashMap<>();
-        final ArrayList<Variable> variables = new ArrayList<>();
         final Stack<VTree> stack = new Stack<>();
         stack.push(rootNode);
         while (!stack.isEmpty()) {
@@ -178,15 +232,12 @@ public class SddFactory {
                 parents.put(right, (VTreeInternal) current);
                 stack.push(left);
                 stack.push(right);
-            } else {
-                variables.add(((VTreeLeaf) current).getVariable());
-                variableToLeaf.put(((VTreeLeaf) current).getVariable(), (VTreeLeaf) current);
             }
         }
         final HashMap<VTree, Integer> positions = new HashMap<>();
         final HashMap<Integer, VTree> pos2vtree = new HashMap<>();
         calculateInorder(rootNode, 0, positions, pos2vtree);
-        final VTreeRoot newRoot = new VTreeRoot(parents, rootNode, variables, positions, pos2vtree, variableToLeaf);
+        final VTreeRoot newRoot = new VTreeRoot(parents, rootNode, positions, pos2vtree);
         vTreeRoots.put(rootNode, newRoot);
         return newRoot;
     }
@@ -216,7 +267,7 @@ public class SddFactory {
         }
 
         final SddNode nodeNeg;
-        if (node instanceof SddNodeDecomposition) {
+        if (node.isDecomposition()) {
             final SddNodeDecomposition decomp = node.asDecomposition();
             //Note: compression is not possible here
             final TreeSet<SddElement> newElements = new TreeSet<>();
@@ -225,21 +276,38 @@ public class SddFactory {
                 Util.pushNewElement(element.getPrime(), subNeg, newElements);
             }
             nodeNeg = decomposition(newElements, root);
+        } else if (node.isLiteral()) {
+            final SddNodeTerminal t = node.asTerminal();
+            nodeNeg = terminal(t.getVTree().asLeaf(), !t.getPhase(), root);
         } else {
             final SddNodeTerminal t = node.asTerminal();
-            nodeNeg = terminal((Literal) t.getTerminal().negate(f), root);
+            nodeNeg = t.getPhase() ? falsum() : verum();
         }
         negations.put(node, nodeNeg);
         negations.put(nodeNeg, node);
         return nodeNeg;
     }
 
-    public SddNode getNegationIfCached(final SddNode node) {
-        return negations.get(node);
+    public SortedSet<Integer> variables(final SddNode node) {
+        final SortedSet<Integer> cached = this.variables.get(node);
+        if (cached != null) {
+            return cached;
+        }
+        final SortedSet<Integer> variables = new TreeSet<>();
+        if (node.isDecomposition()) {
+            for (final SddElement element : node.asDecomposition().getElements()) {
+                variables.addAll(variables(element.getPrime()));
+                variables.addAll(variables(element.getSub()));
+            }
+        } else if (node.isLiteral()) {
+            variables.add(node.asTerminal().getVTree().getVariable());
+        }
+        this.variables.put(node, variables);
+        return variables;
     }
 
-    public Map<SddNode, SortedSet<Variable>> getVariablesCache() {
-        return variables;
+    public SddNode getNegationIfCached(final SddNode node) {
+        return negations.get(node);
     }
 
     public <RESULT> RESULT apply(final SddFunction<RESULT> function) {

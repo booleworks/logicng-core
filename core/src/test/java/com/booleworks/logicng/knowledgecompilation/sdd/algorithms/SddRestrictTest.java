@@ -14,8 +14,8 @@ import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerBottomUp;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
@@ -54,35 +54,39 @@ public class SddRestrictTest {
     @Test
     public void testRestrictSimple() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
         final VTreeRoot root = sf.constructRoot(vtree);
         final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, root, sf, NopHandler.get()).getResult();
+        final int cIdx = sf.variableToIndex(f.variable("C"));
         SddNode restricted =
-                SddRestrict.restrict(f.literal("C", true), node, root, sf, NopHandler.get()).getResult();
+                SddRestrict.restrict(cIdx, true, node, root, sf, NopHandler.get()).getResult();
         checkRestrictedModel(f.literal("C", true), restricted, node, root, sf);
         restricted =
-                SddRestrict.restrict(f.literal("C", false), node, root, sf, NopHandler.get()).getResult();
+                SddRestrict.restrict(cIdx, false, node, root, sf, NopHandler.get()).getResult();
         checkRestrictedModel(f.literal("C", false), restricted, node, root, sf);
     }
 
     @Test
     public void testRestrictMultiple() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
         final VTreeRoot root = sf.constructRoot(vtree);
         final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, root, sf, NopHandler.get()).getResult();
+        final int aIdx = sf.variableToIndex(f.variable("A"));
+        final int bIdx = sf.variableToIndex(f.variable("B"));
+        final int dIdx = sf.variableToIndex(f.variable("D"));
         final SddNode restricted =
-                SddRestrict.restrict(f.literal("A", true), node, root, sf, NopHandler.get()).getResult();
+                SddRestrict.restrict(aIdx, true, node, root, sf, NopHandler.get()).getResult();
         checkRestrictedModel(f.literal("A", true), restricted, node, root, sf);
         final SddNode restricted2 =
-                SddRestrict.restrict(f.literal("D", false), restricted, root, sf, NopHandler.get()).getResult();
+                SddRestrict.restrict(dIdx, false, restricted, root, sf, NopHandler.get()).getResult();
         checkRestrictedModel(f.literal("D", false), restricted2, restricted, root, sf);
         final SddNode restricted3 =
-                SddRestrict.restrict(f.literal("B", false), restricted2, root, sf, NopHandler.get()).getResult();
+                SddRestrict.restrict(bIdx, false, restricted2, root, sf, NopHandler.get()).getResult();
         assertThat(restricted3.isFalse()).isTrue();
     }
 
@@ -91,7 +95,7 @@ public class SddRestrictTest {
         int fileIndex = 0;
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final SddFactory sf = new SddFactory(f);
+            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult result =
                     SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
@@ -103,7 +107,8 @@ public class SddRestrictTest {
                             .collect(Collectors.toList());
             final Assignment rs = new Assignment();
             for (final Literal r : restrictVars) {
-                node = SddRestrict.restrict(r, node, root, sf, NopHandler.get()).getResult();
+                final int litIdx = sf.variableToIndex(r.variable());
+                node = SddRestrict.restrict(litIdx, r.getPhase(), node, root, sf, NopHandler.get()).getResult();
                 rs.addLiteral(r);
             }
             SddTestUtil.validateExport(node, formula.restrict(f, rs), sf);
@@ -112,7 +117,7 @@ public class SddRestrictTest {
     }
 
     private static void checkRestrictedModel(final Literal lit, final SddNode restricted, final SddNode original,
-                                             final VTreeRoot root, final SddFactory sf) {
+                                             final VTreeRoot root, final Sdd sf) {
         final Set<Variable> originalVariables = sf.apply(new SddVariablesFunction(original));
         final Set<Variable> restrictedVariables = new TreeSet<>(originalVariables);
         restrictedVariables.remove(lit.variable());

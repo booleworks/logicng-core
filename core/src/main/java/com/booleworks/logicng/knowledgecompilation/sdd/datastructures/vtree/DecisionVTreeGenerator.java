@@ -8,7 +8,7 @@ import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfSatSolver;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTree;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -26,7 +26,7 @@ public class DecisionVTreeGenerator implements VTreeGenerator {
     }
 
     @Override
-    public LngResult<VTree> generate(final SddFactory sf, final ComputationHandler handler) {
+    public LngResult<VTree> generate(final Sdd sf, final ComputationHandler handler) {
         if (!handler.shouldResume(ComputationStartedEvent.VTREE_GENERATION_STARTED)) {
             return LngResult.canceled(ComputationStartedEvent.VTREE_GENERATION_STARTED);
         }
@@ -37,7 +37,7 @@ public class DecisionVTreeGenerator implements VTreeGenerator {
         return LngResult.of(vTree);
     }
 
-    private VTree vTreeFromCutSet(final DTree dTree, final HashMap<DTree, BitSet> cutSets, final SddFactory sf) {
+    private VTree vTreeFromCutSet(final DTree dTree, final HashMap<DTree, BitSet> cutSets, final Sdd sf) {
         final VTree subtree;
         if (dTree instanceof DTreeNode) {
             final VTree l = vTreeFromCutSet(((DTreeNode) dTree).left(), cutSets, sf);

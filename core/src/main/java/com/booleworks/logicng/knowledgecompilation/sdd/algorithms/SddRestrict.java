@@ -1,11 +1,11 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
-import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
@@ -18,19 +18,17 @@ public class SddRestrict {
     private SddRestrict() {
     }
 
-    public static LngResult<SddNode> restrict(final Literal lit, final SddNode node, final VTreeRoot root,
-                                              final SddFactory sf, final ComputationHandler handler) {
-        if (root.getLeaf(lit.variable()) == null) {
-            return LngResult.of(node);
-        }
+    public static LngResult<SddNode> restrict(final int variable, final boolean phase, final SddNode node,
+                                              final VTreeRoot root,
+                                              final Sdd sf, final ComputationHandler handler) {
         if (node.isTrivial()) {
             return LngResult.of(node);
         }
-        return restrictRec(lit, node, root, sf, handler, new HashMap<>());
+        return restrictRec(variable, phase, node, root, sf, handler, new HashMap<>());
     }
 
-    private static LngResult<SddNode> restrictRec(final Literal lit, final SddNode node, final VTreeRoot root,
-                                                  final SddFactory sf, final ComputationHandler handler,
+    private static LngResult<SddNode> restrictRec(final int var, final boolean phase, final SddNode node,
+                                                  final VTreeRoot root, final Sdd sf, final ComputationHandler handler,
                                                   final Map<SddNode, SddNode> cache) {
         final SddNode cached = cache.get(node);
         if (cached != null) {
@@ -40,22 +38,23 @@ public class SddRestrict {
         if (node.isTrivial()) {
             return LngResult.of(node);
         } else if (node.isLiteral()) {
-            final Literal l = (Literal) node.asTerminal().getTerminal();
-            if (l == lit) {
+            final SddNodeTerminal t = node.asTerminal();
+            if (t.getVTree().getVariable() == var && t.getPhase() == phase) {
                 return LngResult.of(sf.verum());
-            } else if (l.negate(sf.getFactory()) == lit) {
+            } else if (t.getVTree().getVariable() == var && t.getPhase() != phase) {
                 return LngResult.of(sf.falsum());
             } else {
                 return LngResult.of(node);
             }
         } else {
             final VTreeInternal vtree = node.getVTree().asInternal();
-            final VTreeLeaf leaf = root.getLeaf(lit.variable());
+            final VTreeLeaf leaf = sf.vTreeLeaf(var);
             final SddNode restricted;
             if (root.isSubtree(leaf, vtree.getLeft())) {
                 final TreeSet<SddElement> elements = new TreeSet<>();
                 for (final SddElement element : node.asDecomposition().getElements()) {
-                    final LngResult<SddNode> prime = restrictRec(lit, element.getPrime(), root, sf, handler, cache);
+                    final LngResult<SddNode> prime =
+                            restrictRec(var, phase, element.getPrime(), root, sf, handler, cache);
                     if (!prime.isSuccess()) {
                         return prime;
                     }
@@ -67,7 +66,7 @@ public class SddRestrict {
             } else if (root.isSubtree(leaf, vtree.getRight())) {
                 final TreeSet<SddElement> elements = new TreeSet<>();
                 for (final SddElement element : node.asDecomposition().getElements()) {
-                    final LngResult<SddNode> sub = restrictRec(lit, element.getSub(), root, sf, handler, cache);
+                    final LngResult<SddNode> sub = restrictRec(var, phase, element.getSub(), root, sf, handler, cache);
                     if (!sub.isSuccess()) {
                         return sub;
                     }

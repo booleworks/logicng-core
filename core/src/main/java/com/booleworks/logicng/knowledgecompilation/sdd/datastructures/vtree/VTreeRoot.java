@@ -1,41 +1,25 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
-import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.util.Pair;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class VTreeRoot {
     private final HashMap<VTree, VTreeInternal> parents;
     private final VTree root;
-    private final ArrayList<Variable> variables;
     private final HashMap<VTree, Integer> positions;
     private final HashMap<Integer, VTree> position2VTree;
-    private final HashMap<Variable, VTreeLeaf> variableToLeaf;
 
     public VTreeRoot(final HashMap<VTree, VTreeInternal> parents, final VTree root,
-                     final ArrayList<Variable> variables, final HashMap<VTree, Integer> positions,
-                     final HashMap<Integer, VTree> position2VTree, final HashMap<Variable, VTreeLeaf> variableToLeaf) {
+                     final HashMap<VTree, Integer> positions, final HashMap<Integer, VTree> position2VTree) {
         this.parents = parents;
         this.root = root;
-        this.variables = variables;
         this.positions = positions;
         this.position2VTree = position2VTree;
-        this.variableToLeaf = variableToLeaf;
     }
 
     public boolean isSubtree(final VTree subtree, final VTree of) {
         return getPosition(subtree) >= getPosition(of.getFirst()) && getPosition(subtree) <= getPosition(of.getLast());
-    }
-
-    public boolean isOkPrimeIn(final SddNode prime, final VTree vTree) {
-        return !prime.isTrivial() && !vTree.isLeaf() && isSubtree(prime.getVTree(), vTree.asInternal().getLeft());
-    }
-
-    public boolean isOkSubIn(final SddNode sub, final VTree vTree) {
-        return sub.isTrivial() || (!vTree.isLeaf() && isSubtree(sub.getVTree(), vTree.asInternal().getRight()));
     }
 
     public VTree lcaOf(final VTree vTree1, final VTree vTree2) {
@@ -121,10 +105,6 @@ public class VTreeRoot {
         return root;
     }
 
-    public ArrayList<Variable> getVariables() {
-        return variables;
-    }
-
     public int getPosition(final VTree vTree) {
         return positions.get(vTree);
     }
@@ -145,10 +125,6 @@ public class VTreeRoot {
         return getVTreeAtPosition(pos - 1);
     }
 
-    public VTreeLeaf getLeaf(final Variable variable) {
-        return variableToLeaf.get(variable);
-    }
-
     public int getId() {
         return root.getId();
     }
@@ -156,8 +132,7 @@ public class VTreeRoot {
     @Override
     public String toString() {
         return "VTreeRoot{" +
-                "variables=" + variables +
-                ", root=" + root +
+                "root=" + root +
                 '}';
     }
 

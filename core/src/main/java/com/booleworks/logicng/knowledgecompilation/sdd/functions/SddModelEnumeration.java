@@ -5,9 +5,10 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.CompactModel;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
@@ -28,6 +29,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
     private final SddNode originalNode;
     private final VTreeRoot root;
     private final Set<Variable> variables;
+    private Set<Integer> variableIdxs;
 
     public SddModelEnumeration(final Collection<Variable> variables, final SddNode originalNode, final VTreeRoot root) {
         this.originalNode = originalNode;
@@ -36,7 +38,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
     }
 
     @Override
-    public LngResult<List<Model>> apply(final SddFactory sf, final ComputationHandler handler) {
+    public LngResult<List<Model>> apply(final Sdd sf, final ComputationHandler handler) {
         final LngResult<List<CompactModel>> compactResult = applyNoExpand(sf, handler);
         if (!compactResult.isSuccess()) {
             return LngResult.canceled(compactResult.getCancelCause());
@@ -49,14 +51,10 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         return LngResult.of(expanded);
     }
 
-    public LngResult<List<CompactModel>> applyNoExpand(final SddFactory sf, final ComputationHandler handler) {
-        final LngResult<SortedSet<Variable>> sddVariablesResult =
-                sf.apply(new SddVariablesFunction(originalNode), handler);
-        if (!sddVariablesResult.isSuccess()) {
-            return LngResult.canceled(sddVariablesResult.getCancelCause());
-        }
-        final SortedSet<Variable> sddVariables = sddVariablesResult.getResult();
-        if (!variables.containsAll(sddVariables)) {
+    public LngResult<List<CompactModel>> applyNoExpand(final Sdd sdd, final ComputationHandler handler) {
+        variableIdxs = Util.varsToIndices(variables, sdd, new HashSet<>());
+        final SortedSet<Integer> sddVariables = sdd.variables(originalNode);
+        if (!variableIdxs.containsAll(sddVariables)) {
             throw new IllegalArgumentException(
                     "Model Counting variables must be a superset of the variables contained on the SDD");
         }
@@ -67,18 +65,18 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
             return LngResult.of(List.of());
         }
 
-        final SortedSet<Variable> variablesInVTree = new TreeSet<>();
-        VTreeUtil.vars(originalNode.getVTree(), variables, variablesInVTree);
+        final SortedSet<Integer> variablesInVTree = new TreeSet<>();
+        VTreeUtil.vars(originalNode.getVTree(), variableIdxs, variablesInVTree);
         final Set<Variable> variablesNotInVTree = variables
                 .stream()
-                .filter(v -> !variablesInVTree.contains(v))
+                .filter(v -> !sdd.knows(v) || !variablesInVTree.contains(sdd.variableToIndex(v)))
                 .collect(Collectors.toSet());
 
         final NodePC producer = buildPCNode(originalNode, new HashMap<>(), new HashMap<>());
         final List<CompactModel> models = new ArrayList<>();
         producer.consumerRoot = models;
         while (!producer.isDone()) {
-            producer.produce();
+            producer.produce(sdd);
         }
         final List<CompactModel> modelsWithDontCares = new ArrayList<>(models.size());
         for (final CompactModel model : models) {
@@ -163,39 +161,39 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
             }
         }
 
-        private void consumePrime(final List<CompactModel> models, final VTree producerVTree) {
-            final List<CompactModel> extended = extendModels(models, producerVTree, primeVTree);
+        private void consumePrime(final List<CompactModel> models, final VTree producerVTree, final Sdd sdd) {
+            final List<CompactModel> extended = extendModels(models, producerVTree, primeVTree, sdd);
             allPrimeResults.addAll(extended);
         }
 
-        private void consumeSub(final List<CompactModel> models, final VTree producerVTree) {
-            final List<CompactModel> extended = extendModels(models, producerVTree, subVTree);
+        private void consumeSub(final List<CompactModel> models, final VTree producerVTree, final Sdd sdd) {
+            final List<CompactModel> extended = extendModels(models, producerVTree, subVTree, sdd);
             currentSubResults.addAll(extended);
         }
 
-        private void produce() {
+        private void produce(final Sdd sdd) {
             if (isDone()) {
                 throw new IllegalStateException("Producer called after it was done");
             }
             if (prime == null) {
                 if (currentSubResults.isEmpty()) {
-                    sub.produce();
+                    sub.produce(sdd);
                 }
-                push(currentSubResults);
+                push(currentSubResults, sdd);
                 currentSubResults = new ArrayList<>();
             } else if (sub == null) {
                 if (allPrimeResults.isEmpty()) {
-                    prime.produce();
+                    prime.produce(sdd);
                 }
-                push(allPrimeResults);
+                push(allPrimeResults, sdd);
                 allPrimeResults = new ArrayList<>();
             } else {
                 while (!prime.isDone()) {
-                    prime.produce();
+                    prime.produce(sdd);
                 }
                 assert !allPrimeResults.isEmpty();
                 if (currentSubResults.isEmpty()) {
-                    sub.produce();
+                    sub.produce(sdd);
                 }
                 final List<CompactModel> models = new ArrayList<>();
                 for (final CompactModel subRes : currentSubResults) {
@@ -209,7 +207,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
                 if (sub.isDone()) {
                     allPrimeResults = null;
                 }
-                push(models);
+                push(models, sdd);
             }
         }
 
@@ -217,9 +215,9 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
             return (prime == null || prime.isDone()) && (sub == null || (currentSubResults.isEmpty() && sub.isDone()));
         }
 
-        private void push(final List<CompactModel> models) {
+        private void push(final List<CompactModel> models, final Sdd sdd) {
             for (final NodePC consumer : consumers) {
-                consumer.consume(models, targetVTree);
+                consumer.consume(models, targetVTree, sdd);
             }
         }
     }
@@ -237,30 +235,30 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
             this.node = node;
         }
 
-        private void consume(final List<CompactModel> models, final VTree producerVTree) {
-            final List<CompactModel> extended = extendModels(models, producerVTree, node.getVTree());
+        private void consume(final List<CompactModel> models, final VTree producerVTree, final Sdd sdd) {
+            final List<CompactModel> extended = extendModels(models, producerVTree, node.getVTree(), sdd);
             currentModels.addAll(extended);
         }
 
-        private void produce() {
+        private void produce(final Sdd sdd) {
             if (isDone()) {
                 throw new IllegalStateException("Producer called after it was done");
             }
             if (node.isLiteral()) {
-                final CompactModel model =
-                        new CompactModel(List.of((Literal) node.asTerminal().getTerminal()), List.of());
-                push(List.of(model));
+                final Literal lit = (Literal) node.asTerminal().toFormula(sdd);
+                final CompactModel model = new CompactModel(List.of(lit), List.of());
+                push(List.of(model), sdd);
                 currentProducer = 1;
             } else {
                 final ElementPC p = producers.get(currentProducer);
                 if (currentModels.isEmpty()) {
                     assert !p.isDone();
-                    p.produce();
+                    p.produce(sdd);
                 }
                 while (currentProducer < producers.size() && producers.get(currentProducer).isDone()) {
                     ++currentProducer;
                 }
-                push(currentModels);
+                push(currentModels, sdd);
                 currentModels = new ArrayList<>();
             }
         }
@@ -270,26 +268,27 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
                     && currentProducer == 1);
         }
 
-        private void push(final List<CompactModel> models) {
+        private void push(final List<CompactModel> models, final Sdd sdd) {
             if (consumerRoot != null) {
                 consumerRoot.addAll(models);
             }
             for (final ElementPC consumer : consumersAsPrime) {
-                consumer.consumePrime(models, node.getVTree());
+                consumer.consumePrime(models, node.getVTree(), sdd);
             }
             for (final ElementPC consumer : consumersAsSub) {
-                consumer.consumeSub(models, node.getVTree());
+                consumer.consumeSub(models, node.getVTree(), sdd);
             }
         }
     }
 
     private List<CompactModel> extendModels(final List<CompactModel> models, final VTree usedVTree,
-                                            final VTree targetVTree) {
-        final SortedSet<Variable> gapVars = new TreeSet<>();
-        VTreeUtil.gapVars(targetVTree, usedVTree, root, variables, gapVars);
+                                            final VTree targetVTree, final Sdd sdd) {
+        final SortedSet<Integer> gapVars = new TreeSet<>();
+        VTreeUtil.gapVars(targetVTree, usedVTree, root, variableIdxs, gapVars);
         final List<CompactModel> extended = new ArrayList<>(models.size());
         for (final CompactModel model : models) {
-            extended.add(model.withDontCare(gapVars));
+            final List<Variable> dontCareVariables = Util.indicesToVars(gapVars, sdd, new ArrayList<>());
+            extended.add(model.withDontCare(dontCareVariables));
         }
         return extended;
     }

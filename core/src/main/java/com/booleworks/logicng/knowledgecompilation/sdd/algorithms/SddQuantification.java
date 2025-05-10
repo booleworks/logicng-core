@@ -1,14 +1,13 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
-import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
 import java.util.HashMap;
@@ -17,42 +16,42 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class SddQuantification {
-    public static LngResult<SddNode> existsSingle(final Variable var, final SddNode node, final VTreeRoot root,
-                                                  final SddFactory sf, final ComputationHandler handler) {
-        final LngResult<SddNode> pCond = SddRestrict.restrict(var, node, root, sf, handler);
+    public static LngResult<SddNode> existsSingle(final int var, final SddNode node, final VTreeRoot root,
+                                                  final Sdd sf, final ComputationHandler handler) {
+        final LngResult<SddNode> pCond = SddRestrict.restrict(var, true, node, root, sf, handler);
         if (!pCond.isSuccess()) {
             return pCond;
         }
-        final LngResult<SddNode> nCond = SddRestrict.restrict(var.negate(sf.getFactory()), node, root, sf, handler);
+        final LngResult<SddNode> nCond = SddRestrict.restrict(var, false, node, root, sf, handler);
         if (!nCond.isSuccess()) {
             return nCond;
         }
         return SddApply.apply(pCond.getResult(), nCond.getResult(), SddApplyOperation.DISJUNCTION, root, sf, handler);
     }
 
-    public static LngResult<SddNode> forallSingle(final Variable var, final SddNode node, final VTreeRoot root,
-                                                  final SddFactory sf, final ComputationHandler handler) {
-        final LngResult<SddNode> pCond = SddRestrict.restrict(var, node, root, sf, handler);
+    public static LngResult<SddNode> forallSingle(final int var, final SddNode node, final VTreeRoot root,
+                                                  final Sdd sf, final ComputationHandler handler) {
+        final LngResult<SddNode> pCond = SddRestrict.restrict(var, true, node, root, sf, handler);
         if (!pCond.isSuccess()) {
             return pCond;
         }
-        final LngResult<SddNode> nCond = SddRestrict.restrict(var.negate(sf.getFactory()), node, root, sf, handler);
+        final LngResult<SddNode> nCond = SddRestrict.restrict(var, false, node, root, sf, handler);
         if (!nCond.isSuccess()) {
             return nCond;
         }
         return SddApply.apply(pCond.getResult(), nCond.getResult(), SddApplyOperation.CONJUNCTION, root, sf, handler);
     }
 
-    public static LngResult<SddNode> exists(final Set<Variable> vars, final SddNode node, final VTreeRoot root,
-                                            final SddFactory sf, final ComputationHandler handler) {
+    public static LngResult<SddNode> exists(final Set<Integer> vars, final SddNode node, final VTreeRoot root,
+                                            final Sdd sf, final ComputationHandler handler) {
         if (node.isTrivial()) {
             return LngResult.of(node);
         }
         return existsRec(vars, node, root, sf, handler, new HashMap<>());
     }
 
-    private static LngResult<SddNode> existsRec(final Set<Variable> vars, final SddNode node,
-                                                final VTreeRoot root, final SddFactory sf,
+    private static LngResult<SddNode> existsRec(final Set<Integer> vars, final SddNode node,
+                                                final VTreeRoot root, final Sdd sf,
                                                 final ComputationHandler handler, final Map<SddNode, SddNode> cache) {
         final SddNode cached = cache.get(node);
         if (cached != null) {
@@ -62,8 +61,8 @@ public class SddQuantification {
             cache.put(node, node);
             return LngResult.of(node);
         } else if (node.isLiteral()) {
-            final Literal lit = (Literal) node.asTerminal().getTerminal();
-            if (vars.contains(lit.variable())) {
+            final SddNodeTerminal t = node.asTerminal();
+            if (vars.contains(t.getVTree().getVariable())) {
                 cache.put(node, sf.verum());
                 return LngResult.of(sf.verum());
             } else {

@@ -2,8 +2,8 @@ package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
@@ -24,7 +24,7 @@ public class SddSwap {
 
     public static LngResult<Pair<SddNode, VTreeShadow>> swap(final SddNode node, final VTreeInternal vTree,
                                                              final VTreeShadow root,
-                                                             final SddFactory sf,
+                                                             final Sdd sf,
                                                              final ComputationHandler handler) {
         final VTreeShadow swappedRoot = root.transform(VTreeOperation.SWAP, vTree, sf);
         final LngResult<SddNode> swapped =
@@ -39,7 +39,7 @@ public class SddSwap {
 
     private static LngResult<SddNode> swapRecursive(final SddNode node, final VTree vtree, final VTreeRoot root,
                                                     final VTreeRoot newRoot,
-                                                    final SddFactory sf,
+                                                    final Sdd sf,
                                                     final ComputationHandler handler,
                                                     final Map<SddNode, SddNode> cache) {
         if (node.isDecomposition()) {
@@ -98,7 +98,7 @@ public class SddSwap {
     }
 
     private static LngResult<TreeSet<SddElement>> swapPartition(final SddNodeDecomposition node,
-                                                                final VTreeRoot newRoot, final SddFactory sf,
+                                                                final VTreeRoot newRoot, final Sdd sf,
                                                                 final ComputationHandler handler) {
         final ArrayList<TreeSet<SddElement>> sets = new ArrayList<>();
         for (final SddElement element : node.getElements()) {

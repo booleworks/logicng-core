@@ -3,8 +3,8 @@ package com.booleworks.logicng.io.writers;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.SddReader;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
@@ -24,7 +24,7 @@ public class SddWriterTest {
     @Test
     public void testSimpleVTree() throws IOException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final VTreeLeaf l1 = sf.vTreeLeaf(f.variable("A"));
         testVTreeFile("simple1", l1);
         final VTreeLeaf l2 = sf.vTreeLeaf(f.variable("B"));
@@ -35,7 +35,7 @@ public class SddWriterTest {
     @Test
     public void testVTree() throws IOException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final VTreeLeaf l1 = sf.vTreeLeaf(f.variable("v1"));
         final VTreeLeaf l10 = sf.vTreeLeaf(f.variable("v10"));
         final VTreeLeaf l11 = sf.vTreeLeaf(f.variable("v11"));
@@ -61,7 +61,7 @@ public class SddWriterTest {
     @Test
     public void testVTreeImportExport() throws ParserException, IOException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final VTree vTree = SddReader.readVTree(new File("../test_files/sdd/big-swap.vtree"), sf);
         SddWriter.writeVTree(new File("../test_files/writers/temp/big-swap.vtree"), vTree);
         final VTree vTree2 = SddReader.readVTree(new File("../test_files/writers/temp/big-swap.vtree"), sf);
@@ -78,12 +78,14 @@ public class SddWriterTest {
     @Test
     public void testSimpleSdd() throws ParserException, IOException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final VTreeRoot root =
                 sf.constructRoot(SddReader.readVTree(new File("../test_files/sdd/big-swap.vtree"), sf));
-        final SddNode terminal1 = sf.terminal(f.variable("v1"), root);
-        final SddNode terminal2 = sf.terminal(f.variable("v1").negate(f), root);
-        final SddNode terminal3 = sf.terminal(f.variable("v8"), root);
+        final VTreeLeaf v1Leaf = sf.vTreeLeaf(f.variable("v1"));
+        final VTreeLeaf v8Leaf = sf.vTreeLeaf(f.variable("v8"));
+        final SddNode terminal1 = sf.terminal(v1Leaf, true, root);
+        final SddNode terminal2 = sf.terminal(v1Leaf, false, root);
+        final SddNode terminal3 = sf.terminal(v8Leaf, true, root);
         final TreeSet<SddElement> elems = new TreeSet<>();
         elems.add(new SddElement(terminal1, terminal3));
         elems.add(new SddElement(terminal2, sf.verum()));
@@ -95,7 +97,7 @@ public class SddWriterTest {
     @Test
     public void testSddImportExport() throws ParserException, IOException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final Pair<SddNode, VTreeRoot> imp = SddReader.readSdd(new File("../test_files/sdd/big-swap.sdd"),
                 new File("../test_files/sdd/big-swap.vtree"), sf);
         SddWriter.writeSdd(new File("../test_files/writers/temp/big-swap.sdd"),

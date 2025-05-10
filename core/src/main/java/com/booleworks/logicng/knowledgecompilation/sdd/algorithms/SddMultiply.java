@@ -5,8 +5,8 @@ import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
@@ -43,7 +43,7 @@ public class SddMultiply {
     public static LngResult<TreeSet<SddElement>> multiplyDecompositions(final SortedSet<SddElement> elements1,
                                                                         final SortedSet<SddElement> elements2,
                                                                         final SddApplyOperation op,
-                                                                        final VTreeRoot root, final SddFactory sf,
+                                                                        final VTreeRoot root, final Sdd sf,
                                                                         final ComputationHandler handler) {
         final ArrayList<SddElement> e1Common = new ArrayList<>();
         final ArrayList<SddElement> e1Other = new ArrayList<>();
@@ -137,7 +137,7 @@ public class SddMultiply {
     private static LngEvent quadraticMultiplyCommonPrimes(final Collection<SddElement> e1,
                                                           final Collection<SddElement> e2,
                                                           final SddApplyOperation op, final VTreeRoot root,
-                                                          final SddFactory sf,
+                                                          final Sdd sf,
                                                           final ComputationHandler handler,
                                                           final TreeSet<SddElement> destination) {
         for (final SddElement element1 : e1) {
@@ -163,7 +163,7 @@ public class SddMultiply {
     private static LngEvent quadraticMultiply(final Collection<SddElement> e1,
                                               final Collection<SddElement> e2,
                                               final SddApplyOperation op, final VTreeRoot root,
-                                              final SddFactory sf,
+                                              final Sdd sf,
                                               final ComputationHandler handler,
                                               final TreeSet<SddElement> destination) {
         for (final SddElement element1 : e1) {
@@ -200,7 +200,7 @@ public class SddMultiply {
     private static LngEvent linearMultiply(final SddNode prime, final SddNode complementarySub,
                                            final SddApplyOperation op, final VTreeRoot root,
                                            final ArrayList<SddElement> list1, final ArrayList<SddElement> list2,
-                                           final SddFactory sf, final ComputationHandler handler,
+                                           final Sdd sf, final ComputationHandler handler,
                                            final TreeSet<SddElement> destination) {
         for (int i = 0; i < list1.size() + list2.size(); ++i) {
             final SddElement element = i < list1.size() ? list1.get(i) : list2.get(i - list1.size());

@@ -10,8 +10,8 @@ import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +25,7 @@ public class SddBackboneFunctionTest {
     @Test
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(~C & ~B & A) | (A & ~B & (C => D))");
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
         final Backbone backbone =
@@ -50,7 +50,7 @@ public class SddBackboneFunctionTest {
     public void testFiles() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final SddFactory sf = new SddFactory(f);
+            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SortedSet<Variable> variables = formula.variables(f);
             final SddCompilationResult result =
@@ -68,7 +68,7 @@ public class SddBackboneFunctionTest {
     public void testFilesLimited() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final SddFactory sf = new SddFactory(f);
+            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SortedSet<Variable> variables = formula.variables(f)
                     .stream()

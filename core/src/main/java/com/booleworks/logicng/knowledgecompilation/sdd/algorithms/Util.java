@@ -1,13 +1,12 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
 import com.booleworks.logicng.formulas.Formula;
-import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
@@ -26,6 +25,25 @@ public class Util {
     public static void pushNewElement(final SddNode prime, final SddNode sub, final Collection<SddElement> target) {
         assert !prime.isFalse();
         target.add(new SddElement(prime, sub));
+    }
+
+    public static <C extends Collection<Integer>> C varsToIndices(final Set<Variable> variables, final Sdd sdd,
+                                                                  final C dst) {
+        for (final Variable var : variables) {
+            final int idx = sdd.variableToIndex(var);
+            if (idx != -1) {
+                dst.add(idx);
+            }
+        }
+        return dst;
+    }
+
+    public static <C extends Collection<Variable>> C indicesToVars(final Set<Integer> indices, final Sdd sdd,
+                                                                   final C dst) {
+        for (final int idx : indices) {
+            dst.add(sdd.indexToVariable(idx));
+        }
+        return dst;
     }
 
     public static <T> void reverseSlice(final List<T> list, final int start, final int end) {
@@ -86,10 +104,12 @@ public class Util {
     }
 
     public static ArrayList<Formula> sortLitsetsByLca(final Collection<Formula> litsets, final VTreeRoot root,
-                                                      final FormulaFactory f) {
+                                                      final Sdd sdd) {
         final ArrayList<Pair<VTree, Formula>> vTrees = new ArrayList<>(litsets.size());
         for (final Formula litset : litsets) {
-            vTrees.add(new Pair<>(VTreeUtil.lcaFromVariables(litset.variables(f), root), litset));
+            final List<Integer> varIdxs =
+                    Util.varsToIndices(litset.variables(sdd.getFactory()), sdd, new ArrayList<>());
+            vTrees.add(new Pair<>(VTreeUtil.lcaFromVariables(varIdxs, root, sdd), litset));
         }
         vTrees.sort((o1, o2) -> {
             final VTree vTree1 = o1.getFirst();
@@ -106,8 +126,8 @@ public class Util {
                     && pos1 < pos2))) {
                 return -1;
             } else {
-                final Set<Variable> ls1 = o1.getSecond().variables(f);
-                final Set<Variable> ls2 = o2.getSecond().variables(f);
+                final Set<Variable> ls1 = o1.getSecond().variables(sdd.getFactory());
+                final Set<Variable> ls2 = o2.getSecond().variables(sdd.getFactory());
                 if (ls1.size() > ls2.size()) {
                     return 1;
                 } else if (ls1.size() < ls2.size()) {
@@ -136,7 +156,7 @@ public class Util {
 
 
     public static LngResult<SddNode> getNodeOfPartition(final TreeSet<SddElement> newElements, final VTreeRoot root,
-                                                        final SddFactory sf, final ComputationHandler handler) {
+                                                        final Sdd sf, final ComputationHandler handler) {
         final LngResult<Pair<SddNode, TreeSet<SddElement>>> res =
                 Util.compressAndTrim(newElements, root, sf, handler);
         if (!res.isSuccess()) {
@@ -151,7 +171,7 @@ public class Util {
 
     private static LngResult<Pair<SddNode, TreeSet<SddElement>>> compressAndTrim(final TreeSet<SddElement> elements,
                                                                                  final VTreeRoot root,
-                                                                                 final SddFactory sf,
+                                                                                 final Sdd sf,
                                                                                  final ComputationHandler handler) {
         assert !elements.isEmpty();
 
@@ -187,7 +207,7 @@ public class Util {
     }
 
     public static LngResult<TreeSet<SddElement>> compress(final TreeSet<SddElement> product, final VTreeRoot root,
-                                                          final SddFactory sf, final ComputationHandler handler) {
+                                                          final Sdd sf, final ComputationHandler handler) {
         final TreeSet<SddElement> compressed = new TreeSet<>();
         SddNode prevPrime = null;
         SddNode prevSub = null;

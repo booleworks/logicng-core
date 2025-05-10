@@ -2,7 +2,7 @@ package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeRotate;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeSwap;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 
 public class VTreeShadow {
     private final VTreeShadow previous;
@@ -19,7 +19,7 @@ public class VTreeShadow {
         return new VTreeShadow(root, null, null);
     }
 
-    public VTreeShadow transform(final VTreeOperation operation, final VTreeInternal node, final SddFactory sf) {
+    public VTreeShadow transform(final VTreeOperation operation, final VTreeInternal node, final Sdd sf) {
         final VTree newNode;
         switch (operation) {
             case ROTATE_LEFT:
@@ -38,7 +38,7 @@ public class VTreeShadow {
         return new VTreeShadow(newRoot, this, operation);
     }
 
-    public VTreeRoot apply(final SddFactory sf) {
+    public VTreeRoot apply(final Sdd sf) {
         VTreeShadow prev = previous;
         while (prev != null) {
             sf.deregisterVTree(prev.getCurrent());
@@ -47,12 +47,12 @@ public class VTreeShadow {
         return this.getCurrent();
     }
 
-    public VTreeShadow rollback(final SddFactory sf) {
+    public VTreeShadow rollback(final Sdd sf) {
         sf.deregisterVTree(current);
         return previous;
     }
 
-    public VTreeRoot rollbackAll(final SddFactory sf) {
+    public VTreeRoot rollbackAll(final Sdd sf) {
         VTreeShadow c = this;
         while (c.getPrevious() != null) {
             sf.deregisterVTree(c.getCurrent());

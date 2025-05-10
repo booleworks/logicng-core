@@ -4,7 +4,8 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddQuantification;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
@@ -27,16 +28,12 @@ public class SddProjectedModelCounting implements SddFunction<BigInteger> {
     }
 
     @Override
-    public LngResult<BigInteger> apply(final SddFactory sf, final ComputationHandler handler) {
-        final LngResult<SortedSet<Variable>> originalSddVariablesResult =
-                sf.apply(new SddVariablesFunction(node), handler);
-        if (!originalSddVariablesResult.isSuccess()) {
-            return LngResult.canceled(originalSddVariablesResult.getCancelCause());
-        }
-        final SortedSet<Variable> originalSddVariables = originalSddVariablesResult.getResult();
-        final Set<Variable> notProjectedVariables = new TreeSet<>();
-        for (final Variable variable : originalSddVariables) {
-            if (!variables.contains(variable)) {
+    public LngResult<BigInteger> apply(final Sdd sf, final ComputationHandler handler) {
+        final Set<Integer> variableIdxs = Util.varsToIndices(variables, sf, new HashSet<>());
+        final SortedSet<Integer> originalSddVariables = sf.variables(node);
+        final Set<Integer> notProjectedVariables = new TreeSet<>();
+        for (final Integer variable : originalSddVariables) {
+            if (!variableIdxs.contains(variable)) {
                 notProjectedVariables.add(variable);
             }
         }
@@ -46,11 +43,6 @@ public class SddProjectedModelCounting implements SddFunction<BigInteger> {
             return LngResult.canceled(projectedResult.getCancelCause());
         }
         final SddNode projected = projectedResult.getResult();
-        final LngResult<SortedSet<Variable>> projectedSddVariablesResult =
-                sf.apply(new SddVariablesFunction(projected), handler);
-        if (!projectedSddVariablesResult.isSuccess()) {
-            return LngResult.canceled(projectedSddVariablesResult.getCancelCause());
-        }
         return sf.apply(new SddModelCountFunction(variables, projected, root), handler);
     }
 }

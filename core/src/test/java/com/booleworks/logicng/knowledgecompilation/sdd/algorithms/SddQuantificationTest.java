@@ -12,8 +12,8 @@ import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerBottomUp;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
@@ -46,26 +46,29 @@ public class SddQuantificationTest {
     @Test
     public void testSingleQuantificationSimple() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
         final VTreeRoot root = sf.constructRoot(vtree);
         final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, root, sf, NopHandler.get()).getResult();
+        final int cIdx = sf.variableToIndex(f.variable("C"));
         final SddNode quantified =
-                SddQuantification.existsSingle(f.variable("C"), node, root, sf, NopHandler.get()).getResult();
+                SddQuantification.existsSingle(cIdx, node, root, sf, NopHandler.get()).getResult();
         checkProjectedModels(List.of(f.variable("C")), quantified, formula, root, sf);
     }
 
     @Test
     public void testMultipleQuantificationSimple() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
         final VTreeRoot root = sf.constructRoot(vtree);
         final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, root, sf, NopHandler.get()).getResult();
+        final int bIdx = sf.variableToIndex(f.variable("B"));
+        final int cIdx = sf.variableToIndex(f.variable("C"));
         final SddNode quantified =
-                SddQuantification.exists(f.variables("B", "C"), node, root, sf, NopHandler.get()).getResult();
+                SddQuantification.exists(Set.of(bIdx, cIdx), node, root, sf, NopHandler.get()).getResult();
         checkProjectedModels(f.variables("B", "C"), quantified, formula, root, sf);
     }
 
@@ -74,7 +77,7 @@ public class SddQuantificationTest {
         int fileIndex = 0;
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final SddFactory sf = new SddFactory(f);
+            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult result =
                     SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
@@ -83,16 +86,18 @@ public class SddQuantificationTest {
             final List<Variable> vars = new ArrayList<>(formula.variables(f));
             final Set<Variable> quantifyVars =
                     QUANTIFY_VARS.get(fileIndex).stream().map(vars::get).collect(Collectors.toSet());
+            final Set<Integer> quantifyVarIdxs =
+                    quantifyVars.stream().map(sf::variableToIndex).collect(Collectors.toSet());
             final List<Variable> remainingVars =
                     vars.stream().filter(v -> !quantifyVars.contains(v)).collect(Collectors.toList());
-            node = SddQuantification.exists(quantifyVars, node, root, sf, NopHandler.get()).getResult();
+            node = SddQuantification.exists(quantifyVarIdxs, node, root, sf, NopHandler.get()).getResult();
             checkPMC(remainingVars, node, formula, root, sf);
             fileIndex++;
         }
     }
 
     private static void checkPMC(final Collection<Variable> remainingVars, final SddNode node,
-                                 final Formula originalFormula, final VTreeRoot root, final SddFactory sf) {
+                                 final Formula originalFormula, final VTreeRoot root, final Sdd sf) {
         final BigInteger actual = sf.apply(new SddModelCountFunction(remainingVars, node, root));
         final SatSolver solver = SatSolver.newSolver(sf.getFactory());
         solver.add(originalFormula);
@@ -102,7 +107,7 @@ public class SddQuantificationTest {
 
     private static void checkProjectedModels(final Collection<Variable> quantified, final SddNode node,
                                              final Formula originalFormula,
-                                             final VTreeRoot root, final SddFactory sf) {
+                                             final VTreeRoot root, final Sdd sf) {
         final Set<Variable> variables = new TreeSet<>(originalFormula.variables(sf.getFactory()));
         variables.removeAll(quantified);
         final SatSolver solver = SatSolver.newSolver(sf.getFactory());

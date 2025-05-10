@@ -5,8 +5,9 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddQuantification;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.CompactModel;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
@@ -31,7 +32,7 @@ public class SddProjectedModelEnumeration implements SddFunction<List<Model>> {
     }
 
     @Override
-    public LngResult<List<Model>> apply(final SddFactory sf, final ComputationHandler handler) {
+    public LngResult<List<Model>> apply(final Sdd sf, final ComputationHandler handler) {
         final LngResult<List<CompactModel>> compactResult = applyNoExpand(sf, handler);
         if (!compactResult.isSuccess()) {
             return LngResult.canceled(compactResult.getCancelCause());
@@ -44,16 +45,12 @@ public class SddProjectedModelEnumeration implements SddFunction<List<Model>> {
         return LngResult.of(expanded);
     }
 
-    public LngResult<List<CompactModel>> applyNoExpand(final SddFactory sf, final ComputationHandler handler) {
-        final LngResult<SortedSet<Variable>> originalSddVariablesResult =
-                sf.apply(new SddVariablesFunction(originalNode), handler);
-        if (!originalSddVariablesResult.isSuccess()) {
-            return LngResult.canceled(originalSddVariablesResult.getCancelCause());
-        }
-        final SortedSet<Variable> originalSddVariables = originalSddVariablesResult.getResult();
-        final Set<Variable> notProjectedVariables = new TreeSet<>();
-        for (final Variable variable : originalSddVariables) {
-            if (!variables.contains(variable)) {
+    public LngResult<List<CompactModel>> applyNoExpand(final Sdd sf, final ComputationHandler handler) {
+        final Set<Integer> variableIdxs = Util.varsToIndices(variables, sf, new HashSet<>());
+        final SortedSet<Integer> originalSddVariables = sf.variables(originalNode);
+        final Set<Integer> notProjectedVariables = new TreeSet<>();
+        for (final int variable : originalSddVariables) {
+            if (!variableIdxs.contains(variable)) {
                 notProjectedVariables.add(variable);
             }
         }

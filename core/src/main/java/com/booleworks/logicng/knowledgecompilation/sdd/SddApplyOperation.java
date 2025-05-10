@@ -1,7 +1,6 @@
 package com.booleworks.logicng.knowledgecompilation.sdd;
 
-import com.booleworks.logicng.formulas.FType;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
 
@@ -9,7 +8,7 @@ public enum SddApplyOperation {
     CONJUNCTION,
     DISJUNCTION;
 
-    public SddNodeTerminal zero(final SddFactory sf) {
+    public SddNodeTerminal zero(final Sdd sf) {
         switch (this) {
             case CONJUNCTION:
                 return sf.falsum();
@@ -19,7 +18,7 @@ public enum SddApplyOperation {
         throw new RuntimeException("Unsupported operation");
     }
 
-    public SddNodeTerminal one(final SddFactory sf) {
+    public SddNodeTerminal one(final Sdd sf) {
         switch (this) {
             case CONJUNCTION:
                 return sf.verum();
@@ -33,10 +32,10 @@ public enum SddApplyOperation {
         switch (this) {
             case CONJUNCTION:
                 return node instanceof SddNodeTerminal
-                        && ((SddNodeTerminal) node).getTerminal().getType() == FType.FALSE;
+                        && node.isFalse();
             case DISJUNCTION:
                 return node instanceof SddNodeTerminal
-                        && ((SddNodeTerminal) node).getTerminal().getType() == FType.TRUE;
+                        && node.isTrue();
         }
         throw new RuntimeException("Unsupported operation");
     }
@@ -45,10 +44,10 @@ public enum SddApplyOperation {
         switch (this) {
             case CONJUNCTION:
                 return node instanceof SddNodeTerminal
-                        && ((SddNodeTerminal) node).getTerminal().getType() == FType.TRUE;
+                        && node.isTrue();
             case DISJUNCTION:
                 return node instanceof SddNodeTerminal
-                        && ((SddNodeTerminal) node).getTerminal().getType() == FType.FALSE;
+                        && node.isFalse();
         }
         throw new RuntimeException("Unsupported operation");
     }

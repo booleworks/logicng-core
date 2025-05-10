@@ -4,8 +4,8 @@ import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.SimpleEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
@@ -18,7 +18,7 @@ public class SddApply {
     }
 
     public static LngResult<SddNode> apply(final SddNode left, final SddNode right, final SddApplyOperation op,
-                                           final VTreeRoot root, final SddFactory sf,
+                                           final VTreeRoot root, final Sdd sf,
                                            final ComputationHandler handler) {
         if (!handler.shouldResume(SimpleEvent.SDD_APPLY)) {
             return LngResult.canceled(SimpleEvent.SDD_APPLY);
@@ -79,7 +79,7 @@ public class SddApply {
 
 
     private static LngResult<SddNode> sddApplyEqual(final SddNode left, final SddNode right, final SddApplyOperation op,
-                                                    final VTreeRoot root, final SddFactory sf,
+                                                    final VTreeRoot root, final Sdd sf,
                                                     final ComputationHandler handler) {
         assert left != null;
         assert right != null;
@@ -95,7 +95,7 @@ public class SddApply {
     }
 
     private static LngResult<SddNode> sddApplyLeft(final SddNode left, final SddNode right, final SddApplyOperation op,
-                                                   final VTreeRoot root, final SddFactory sf,
+                                                   final VTreeRoot root, final Sdd sf,
                                                    final ComputationHandler handler) {
         assert left != null;
         assert right != null;
@@ -120,7 +120,7 @@ public class SddApply {
     }
 
     private static LngResult<SddNode> sddApplyRight(final SddNode left, final SddNode right, final SddApplyOperation op,
-                                                    final VTreeRoot root, final SddFactory sf,
+                                                    final VTreeRoot root, final Sdd sf,
                                                     final ComputationHandler handler) {
         assert left != null;
         assert right != null;
@@ -141,7 +141,7 @@ public class SddApply {
 
     private static LngResult<SddNode> sddApplyIncomparable(final SddNode left, final SddNode right,
                                                            final SddApplyOperation op, final VTreeRoot root,
-                                                           final SddFactory sf, final ComputationHandler handler) {
+                                                           final Sdd sf, final ComputationHandler handler) {
         assert left != null;
         assert right != null;
         assert !left.isTrivial();
@@ -166,7 +166,7 @@ public class SddApply {
     }
 
     public static SddNode conjoinUnsafe(final SddNode left, final SddNode right, final VTreeRoot root,
-                                        final SddFactory sf) {
+                                        final Sdd sf) {
         assert left != null && right != null;
         if (left.isFalse() || right.isFalse()) {
             return sf.falsum();

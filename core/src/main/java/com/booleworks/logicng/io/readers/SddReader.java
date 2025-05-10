@@ -1,12 +1,12 @@
 package com.booleworks.logicng.io.readers;
 
-import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.util.Pair;
 
@@ -21,14 +21,14 @@ public class SddReader {
     private SddReader() {
     }
 
-    public static Pair<SddNode, VTreeRoot> readSdd(final File sddInput, final File vTreeInput, final SddFactory sf)
+    public static Pair<SddNode, VTreeRoot> readSdd(final File sddInput, final File vTreeInput, final Sdd sf)
             throws ParserException, IOException {
         final VTreeRoot root = sf.constructRoot(readVTree(vTreeInput, sf));
         final SddNode node = readSdd(sddInput, root, sf);
         return new Pair<>(node, root);
     }
 
-    public static SddNode readSdd(final File sddInput, final VTreeRoot root, final SddFactory sf)
+    public static SddNode readSdd(final File sddInput, final VTreeRoot root, final Sdd sf)
             throws IOException, ParserException {
         final HashMap<Integer, SddNode> sddNodes = new HashMap<>();
         SddNode last = null;
@@ -46,8 +46,8 @@ public class SddReader {
                     final int nodeId = Integer.parseInt(comps[1]);
                     final int varId = Integer.parseInt(comps[3]);
                     final Variable variable = sf.getFactory().variable(String.format("v%d", Math.abs(varId)));
-                    final Literal terminal = varId > 0 ? variable : variable.negate(sf.getFactory());
-                    final SddNode node = sf.terminal(terminal, root);
+                    final VTreeLeaf leaf = sf.vTreeLeaf(variable);
+                    final SddNode node = sf.terminal(leaf, varId > 0, root);
                     sddNodes.put(nodeId, node);
                     last = node;
                 } else if (line.startsWith("T ")) {
@@ -102,7 +102,7 @@ public class SddReader {
         return last;
     }
 
-    public static VTree readVTree(final File file, final SddFactory sf)
+    public static VTree readVTree(final File file, final Sdd sf)
             throws IOException, ParserException {
         final HashMap<Integer, VTree> fileIdToVtree = new HashMap<>();
         VTree last = null;

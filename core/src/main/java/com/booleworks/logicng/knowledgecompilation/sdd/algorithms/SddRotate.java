@@ -2,8 +2,8 @@ package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
@@ -24,7 +24,7 @@ public class SddRotate {
     }
 
     public static LngResult<Pair<SddNode, VTreeShadow>> rotateRight(final SddNode node, final VTreeInternal vtree,
-                                                                    final VTreeShadow root, final SddFactory sf,
+                                                                    final VTreeShadow root, final Sdd sf,
                                                                     final ComputationHandler handler) {
         if (!VTreeUtil.isLeftFragment(vtree)) {
             throw new IllegalArgumentException("Expected left linear vtree fragment for right rotate");
@@ -43,7 +43,7 @@ public class SddRotate {
     }
 
     public static LngResult<Pair<SddNode, VTreeShadow>> rotateLeft(final SddNode node, final VTreeInternal vtree,
-                                                                   final VTreeShadow root, final SddFactory sf,
+                                                                   final VTreeShadow root, final Sdd sf,
                                                                    final ComputationHandler handler) {
         if (!VTreeUtil.isRightFragment(vtree)) {
             throw new IllegalArgumentException("Expected right linear vtree fragment for left rotate");
@@ -64,7 +64,7 @@ public class SddRotate {
     private static LngResult<SddNode> rotateRightRecursive(final SddNode node, final VTreeInternal parentInner,
                                                            final VTreeInternal leftInner, final VTreeRoot root,
                                                            final VTreeRoot newRoot,
-                                                           final SddFactory sf,
+                                                           final Sdd sf,
                                                            final ComputationHandler handler,
                                                            final Map<SddNode, SddNode> cache) {
         if (node.isDecomposition()) {
@@ -134,7 +134,7 @@ public class SddRotate {
     private static LngResult<TreeSet<SddElement>> rotateRightPartition(final SddNodeDecomposition node,
                                                                        final VTreeInternal leftInner,
                                                                        final VTreeRoot root, final VTreeRoot newRoot,
-                                                                       final SddFactory sf,
+                                                                       final Sdd sf,
                                                                        final ComputationHandler handler) {
         final ArrayList<TreeSet<SddElement>> sets = new ArrayList<>();
         for (final SddElement e1 : node.getElements()) {
@@ -162,7 +162,7 @@ public class SddRotate {
 
     private static LngResult<SddNode> rotateLeftRecursive(final SddNode node, final VTreeInternal parentInner,
                                                           final VTreeInternal rightInner, final VTreeRoot root,
-                                                          final VTreeRoot newRoot, final SddFactory sf,
+                                                          final VTreeRoot newRoot, final Sdd sf,
                                                           final ComputationHandler handler,
                                                           final Map<SddNode, SddNode> cache) {
         if (node.isDecomposition()) {
@@ -227,7 +227,7 @@ public class SddRotate {
     private static LngResult<SddNode> rotateLeftPartition(final SddNodeDecomposition node,
                                                           final VTreeInternal rightInner,
                                                           final VTreeRoot root, final VTreeRoot newRoot,
-                                                          final SddFactory sf,
+                                                          final Sdd sf,
                                                           final ComputationHandler handler) {
         final TreeSet<SddElement> newElements = new TreeSet<>();
         for (final SddElement e1 : node.getElements()) {

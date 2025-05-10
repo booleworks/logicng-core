@@ -3,8 +3,9 @@ package com.booleworks.logicng.knowledgecompilation.sdd.functions;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
@@ -23,7 +24,7 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
     private final SddNode node;
     private final VTreeRoot root;
     private final Set<Variable> variables;
-    private SortedSet<Variable> sddVariables;
+    private SortedSet<Integer> sddVariables;
 
     public SddModelCountFunction(final Collection<Variable> variables, final SddNode node, final VTreeRoot root) {
         this.node = node;
@@ -32,18 +33,17 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
     }
 
     @Override
-    public LngResult<BigInteger> apply(final SddFactory sf, final ComputationHandler handler) {
-        final LngResult<SortedSet<Variable>> sddVariablesResult = sf.apply(new SddVariablesFunction(node), handler);
-        if (!sddVariablesResult.isSuccess()) {
-            return LngResult.canceled(sddVariablesResult.getCancelCause());
-        }
-        sddVariables = sddVariablesResult.getResult();
-        if (!variables.containsAll(sddVariablesResult.getResult())) {
+    public LngResult<BigInteger> apply(final Sdd sf, final ComputationHandler handler) {
+        final Set<Integer> variableIdxs = Util.varsToIndices(variables, sf, new HashSet<>());
+        sddVariables = sf.variables(node);
+        if (!variableIdxs.containsAll(sddVariables)) {
             throw new IllegalArgumentException(
                     "Model Counting variables must be a superset of the variables contained on the SDD");
         }
-        final long variablesNotInSdd =
-                variables.stream().filter(v -> !sddVariables.contains(v)).count();
+        final long variablesNotInSdd = variables
+                .stream()
+                .filter(v -> !sf.knows(v) || !sddVariables.contains(sf.variableToIndex(v)))
+                .count();
         final BigInteger count;
         if (node.isFalse()) {
             count = BigInteger.ZERO;

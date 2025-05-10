@@ -6,8 +6,8 @@ import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class SddCompilerTopDownTest {
     @Test
     public void testComp() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(Y | ~Z) & (~X | Z) & (X | ~Y) & (X | Q)");
         final SddCompilationResult result = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
         SddTestUtil.validateMC(result.getSdd(), result.getVTree(), formula, sf);
@@ -38,7 +38,7 @@ public class SddCompilerTopDownTest {
     public void testFormulas() throws ParserException, IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final SddFactory sf = new SddFactory(f);
+            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult result =
                     SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();

@@ -1,14 +1,14 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.functions;
 
 
-import com.booleworks.logicng.formulas.Formula;
-import com.booleworks.logicng.formulas.Literal;
+import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
@@ -39,7 +39,7 @@ public class SddDotExport implements SddFunction<Boolean> {
     }
 
     @Override
-    public LngResult<Boolean> apply(final SddFactory sf, final ComputationHandler handler) {
+    public LngResult<Boolean> apply(final Sdd sf, final ComputationHandler handler) {
         nodeCache.clear();
         groupCache.clear();
         result = new GraphSdd();
@@ -58,7 +58,7 @@ public class SddDotExport implements SddFunction<Boolean> {
             rank.elements.add(elem);
             result.ranks.put(0, rank);
         } else {
-            irSddNode(node, 0, null);
+            irSddNode(node, 0, null, sf);
         }
         try {
             result.write(writer);
@@ -70,7 +70,8 @@ public class SddDotExport implements SddFunction<Boolean> {
         return LngResult.of(true);
     }
 
-    private GraphVTreeNode irSddNode(final SddNode currentNode, final int rank, GraphVTreeGroup parentGroup) {
+    private GraphVTreeNode irSddNode(final SddNode currentNode, final int rank, GraphVTreeGroup parentGroup,
+                                     final Sdd sdd) {
         final VTree vtree = currentNode.getVTree();
         final GraphVTreeNode newVTreeNode = GraphVTreeNode.fromSddNode(currentNode, vtree, parentGroup);
         result.vtrees.add(newVTreeNode);
@@ -88,13 +89,13 @@ public class SddDotExport implements SddFunction<Boolean> {
         if (currentNode.isDecomposition()) {
             final SddNodeDecomposition decomp = currentNode.asDecomposition();
             for (final SddElement element : decomp.getElements()) {
-                final GraphSddElement elementNode = irSddElement(element, elementRank, currentNode.getId());
+                final GraphSddElement elementNode = irSddElement(element, elementRank, currentNode.getId(), sdd);
                 addNewElementNode(elementNode, elementRank, newVTreeNode);
             }
         } else {
             // This only happens if the SDD consists of only a terminal
             final String sddId = String.format("root_%d", currentNode.getId());
-            final String prime = terminalToUTF8(currentNode.asTerminal().getTerminal());
+            final String prime = terminalToUTF8(currentNode.asTerminal(), sdd);
             final GraphSddElement sddNode = new GraphSddElement(
                     sddId, GraphSddElementLabel.terminal(prime), GraphSddElementLabel.terminal(TOP));
             addNewElementNode(sddNode, elementRank, newVTreeNode);
@@ -112,45 +113,42 @@ public class SddDotExport implements SddFunction<Boolean> {
         sRank.elements.add(newNode);
     }
 
-    private GraphSddElement irSddElement(final SddElement element, final int rank, final int parentId) {
+    private GraphSddElement irSddElement(final SddElement element, final int rank, final int parentId, final Sdd sdd) {
         if (!groupCache.containsKey(element)) {
             final GraphVTreeGroup newGroup = GraphVTreeGroup.fromElement(element, parentId);
             groupCache.put(element, newGroup);
         }
         final GraphVTreeGroup elementGroup = groupCache.get(element);
-        final GraphSddElementLabel primeLabel = irPrimeSub(element.getPrime(), rank + 1, elementGroup);
-        final GraphSddElementLabel subLabel = irPrimeSub(element.getSub(), rank + 1, elementGroup);
+        final GraphSddElementLabel primeLabel = irPrimeSub(element.getPrime(), rank + 1, elementGroup, sdd);
+        final GraphSddElementLabel subLabel = irPrimeSub(element.getSub(), rank + 1, elementGroup, sdd);
         return GraphSddElement.fromElement(element, primeLabel, subLabel);
     }
 
     private GraphSddElementLabel irPrimeSub(final SddNode currentNode, final int rank,
-                                            final GraphVTreeGroup parentGroup) {
+                                            final GraphVTreeGroup parentGroup, final Sdd sdd) {
         if (currentNode.isDecomposition()) {
             if (!nodeCache.containsKey(currentNode)) {
-                nodeCache.put(currentNode, irSddNode(currentNode, rank, parentGroup));
+                nodeCache.put(currentNode, irSddNode(currentNode, rank, parentGroup, sdd));
             }
             return GraphSddElementLabel.reference(nodeCache.get(currentNode));
         } else {
-            final String label = terminalToUTF8(currentNode.asTerminal().getTerminal());
+            final String label = terminalToUTF8(currentNode.asTerminal(), sdd);
             return GraphSddElementLabel.terminal(label);
         }
     }
 
-    private static String terminalToUTF8(final Formula formula) {
-        switch (formula.getType()) {
-            case LITERAL:
-                final Literal l = (Literal) formula;
-                if (l.getPhase()) {
-                    return l.getName();
-                } else {
-                    return String.format("%s%s", NOT, l.getName());
-                }
-            case TRUE:
-                return TOP;
-            case FALSE:
-                return BOT;
-            default:
-                return formula.toString();
+    private static String terminalToUTF8(final SddNodeTerminal terminal, final Sdd sdd) {
+        if (terminal.isLiteral()) {
+            final Variable v = sdd.indexToVariable(terminal.getVTree().getVariable());
+            if (terminal.getPhase()) {
+                return v.getName();
+            } else {
+                return String.format("%s%s", NOT, v.getName());
+            }
+        } else if (terminal.isTrue()) {
+            return TOP;
+        } else {
+            return BOT;
         }
     }
 

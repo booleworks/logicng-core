@@ -1,8 +1,5 @@
 package com.booleworks.logicng.io.writers;
 
-import com.booleworks.logicng.formulas.FType;
-import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
@@ -73,14 +70,14 @@ public class SddWriter {
         } else {
             final SddNodeTerminal terminal = sdd.asTerminal();
             final int id = state.nodeId++;
-            if (terminal.getTerminal().getType() == FType.FALSE) {
+            if (terminal.isFalse()) {
                 state.lines.add(String.format("F %d", id));
-            } else if (terminal.getTerminal().getType() == FType.TRUE) {
+            } else if (terminal.isTrue()) {
                 state.lines.add(String.format("T %d", id));
             } else {
                 final int vTreeId = root.getPosition(sdd.getVTree());
-                final int variableId = state.vState.varToId.get(((Literal) terminal.getTerminal()).variable());
-                final int literalId = ((Literal) terminal.getTerminal()).getPhase() ? variableId : -variableId;
+                final int variableId = state.vState.varToId.get(terminal.getVTree().getVariable());
+                final int literalId = terminal.getPhase() ? variableId : -variableId;
                 state.lines.add(String.format("L %d %d %d", id, vTreeId, literalId));
             }
             state.size++;
@@ -152,7 +149,7 @@ public class SddWriter {
         int varId = 1;
         int nodeId = 0;
         int size = 0;
-        HashMap<Variable, Integer> varToId = new HashMap<>();
+        HashMap<Integer, Integer> varToId = new HashMap<>();
         ArrayList<String> leafLines = new ArrayList<>();
         ArrayList<String> nodeLines = new ArrayList<>();
     }

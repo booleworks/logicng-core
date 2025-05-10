@@ -8,7 +8,7 @@ import com.booleworks.logicng.io.graphical.GraphicalEdgeStyle;
 import com.booleworks.logicng.io.graphical.GraphicalNode;
 import com.booleworks.logicng.io.graphical.GraphicalNodeStyle;
 import com.booleworks.logicng.io.graphical.GraphicalRepresentation;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 
 public class VTreeDotExport implements SddFunction<GraphicalRepresentation> {
@@ -24,16 +24,18 @@ public class VTreeDotExport implements SddFunction<GraphicalRepresentation> {
     }
 
     @Override
-    public LngResult<GraphicalRepresentation> apply(final SddFactory sf, final ComputationHandler handler) {
+    public LngResult<GraphicalRepresentation> apply(final Sdd sf, final ComputationHandler handler) {
         final GraphicalRepresentation gr = new GraphicalRepresentation(false, false);
-        drawRec(vTree, null, gr);
+        drawRec(vTree, null, gr, sf);
         return LngResult.of(gr);
     }
 
-    private void drawRec(final VTree vTree, final GraphicalNode parent, final GraphicalRepresentation gr) {
+    private void drawRec(final VTree vTree, final GraphicalNode parent, final GraphicalRepresentation gr,
+                         final Sdd sdd) {
         final String id = String.valueOf(vTree.getId());
         final GraphicalNode current = vTree.isLeaf() ?
-                                      new GraphicalNode(id, vTree.asLeaf().getVariable().toString(), true,
+                                      new GraphicalNode(id,
+                                              sdd.indexToVariable(vTree.asLeaf().getVariable()).toString(), true,
                                               LEAF_NODE_STYLE)
                                                      : new GraphicalNode(id, id, false, INNER_NODE_STYLE);
         gr.addNode(current);
@@ -42,8 +44,8 @@ public class VTreeDotExport implements SddFunction<GraphicalRepresentation> {
             gr.addEdge(edge);
         }
         if (!vTree.isLeaf()) {
-            drawRec(vTree.asInternal().getLeft(), current, gr);
-            drawRec(vTree.asInternal().getRight(), current, gr);
+            drawRec(vTree.asInternal().getLeft(), current, gr, sdd);
+            drawRec(vTree.asInternal().getRight(), current, gr, sdd);
         }
     }
 }

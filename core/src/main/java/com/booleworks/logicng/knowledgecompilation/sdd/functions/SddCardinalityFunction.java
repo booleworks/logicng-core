@@ -1,11 +1,11 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.functions;
 
-import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
@@ -23,7 +23,7 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
     private final SddNode node;
     private final VTreeRoot root;
     private final Set<Variable> variables;
-    private SortedSet<Variable> sddVariables;
+    private SortedSet<Integer> sddVariables;
     private final boolean maximize;
 
     public SddCardinalityFunction(final boolean maximize, final Collection<Variable> variables, final SddNode node,
@@ -35,38 +35,35 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
     }
 
     @Override
-    public LngResult<Integer> apply(final SddFactory sf, final ComputationHandler handler) {
-        final LngResult<SortedSet<Variable>> sddVariablesResult = sf.apply(new SddVariablesFunction(node), handler);
-        if (!sddVariablesResult.isSuccess()) {
-            return LngResult.canceled(sddVariablesResult.getCancelCause());
-        }
-        sddVariables = sddVariablesResult.getResult();
-        if (!variables.containsAll(sddVariablesResult.getResult())) {
-            throw new IllegalArgumentException(
-                    "Model Counting variables must be a superset of the variables contained on the SDD");
-        }
+    public LngResult<Integer> apply(final Sdd sf, final ComputationHandler handler) {
+        sddVariables = sf.variables(node);
+        final Set<Integer> variableIdxs = Util.varsToIndices(variables, sf, new HashSet<>());
         final int variablesNotInSdd =
-                (int) variables.stream().filter(v -> !sddVariables.contains(v)).count();
+                (int) variableIdxs.stream().filter(v -> !sddVariables.contains(v)).count();
         final int cardinality;
         if (node.isFalse()) {
             return LngResult.of(-1);
         } else if (node.isTrue()) {
             cardinality = 0;
         } else {
-            cardinality = applyRec(node, new HashMap<>());
+            cardinality = applyRec(node, variableIdxs, new HashMap<>());
         }
         return LngResult.of(maximize ? variablesNotInSdd + cardinality : cardinality);
     }
 
-    private int applyRec(final SddNode node, final HashMap<SddNode, Integer> cache) {
+    private int applyRec(final SddNode node, final Set<Integer> relevantVariables,
+                         final HashMap<SddNode, Integer> cache) {
         assert !node.isFalse();
         if (node.isTrue()) {
             return 0;
         }
         if (node.isLiteral()) {
-            final Literal lit = (Literal) node.asTerminal().getTerminal();
-            if (lit.getPhase()) {
-                return 1;
+            if (relevantVariables.contains(node.asTerminal().getVTree().getVariable())) {
+                if (node.asTerminal().getPhase()) {
+                    return 1;
+                } else {
+                    return 0;
+                }
             } else {
                 return 0;
             }
@@ -82,8 +79,8 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
             if (element.getSub().isFalse()) {
                 continue;
             }
-            final int prime = applyRec(element.getPrime(), cache);
-            final int sub = applyRec(element.getSub(), cache);
+            final int prime = applyRec(element.getPrime(), relevantVariables, cache);
+            final int sub = applyRec(element.getSub(), relevantVariables, cache);
 
             if (maximize) {
                 final VTree left = vTree.getLeft();

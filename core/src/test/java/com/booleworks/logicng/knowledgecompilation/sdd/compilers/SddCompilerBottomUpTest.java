@@ -6,7 +6,7 @@ import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
@@ -31,7 +31,7 @@ public class SddCompilerBottomUpTest {
     @Test
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final SddFactory sf = new SddFactory(f);
+        final Sdd sf = Sdd.independent(f);
 
         final Formula formula = f.parse("(A | C | D) & (A | B)");
         final VTree vTree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
@@ -45,7 +45,7 @@ public class SddCompilerBottomUpTest {
     public void testFiles() throws IOException {
         final FormulaFactory f = FormulaFactory.caching();
         for (final String file : FILES) {
-            final SddFactory sf = new SddFactory(f);
+            final Sdd sf = Sdd.independent(f);
             final Formula cnf = f.and(DimacsReader.readCNF(f, file));
             final VTree vTree = new BalancedVTreeGenerator(cnf.variables(f)).generate(sf);
             final VTreeRoot root = sf.constructRoot(vTree);

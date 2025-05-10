@@ -2,13 +2,14 @@ package com.booleworks.logicng.knowledgecompilation.sdd.functions;
 
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.datastructures.Tristate;
-import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddFactory;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeUtil;
@@ -32,17 +33,18 @@ public class SddBackboneFunction implements SddFunction<Backbone> {
     }
 
     @Override
-    public LngResult<Backbone> apply(final SddFactory sf, final ComputationHandler handler) {
-        final HashMap<Variable, Tristate> backboneMap = new HashMap<>();
+    public LngResult<Backbone> apply(final Sdd sf, final ComputationHandler handler) {
+        final Set<Integer> variableIdxs = Util.varsToIndices(variables, sf, new HashSet<>());
+        final HashMap<Integer, Tristate> backboneMap = new HashMap<>();
         if (originalNode.isFalse()) {
             return LngResult.of(Backbone.unsatBackbone());
         }
-        applyRec(originalNode, backboneMap);
+        applyRec(originalNode, variableIdxs, backboneMap);
         final SortedSet<Variable> posVars = new TreeSet<>();
         final SortedSet<Variable> negVars = new TreeSet<>();
         final SortedSet<Variable> optVars = new TreeSet<>();
         for (final Variable var : variables) {
-            final Tristate state = backboneMap.get(var);
+            final Tristate state = backboneMap.get(sf.variableToIndex(var));
             if (state == null) {
                 optVars.add(var);
             } else if (state == Tristate.TRUE) {
@@ -57,16 +59,15 @@ public class SddBackboneFunction implements SddFunction<Backbone> {
         return LngResult.of(backbone);
     }
 
-    public void applyRec(final SddNode node, final Map<Variable, Tristate> backbone) {
+    public void applyRec(final SddNode node, final Set<Integer> variables, final Map<Integer, Tristate> backbone) {
         if (node.isDecomposition()) {
-            final Set<Variable> gapVars = new HashSet<>();
+            final Set<Integer> gapVars = new HashSet<>();
             final VTreeInternal targetVTree = node.getVTree().asInternal();
             for (final SddElement element : node.asDecomposition().getElements()) {
                 if (!element.getSub().isFalse()) {
-                    applyRec(element.getPrime(), backbone);
-                    applyRec(element.getSub(), backbone);
-                    VTreeUtil.gapVars(targetVTree.getLeft(), element.getPrime().getVTree(), root, variables,
-                            gapVars);
+                    applyRec(element.getPrime(), variables, backbone);
+                    applyRec(element.getSub(), variables, backbone);
+                    VTreeUtil.gapVars(targetVTree.getLeft(), element.getPrime().getVTree(), root, variables, gapVars);
                     if (element.getSub().isTrue()) {
                         VTreeUtil.vars(targetVTree.getRight(), variables, gapVars);
                     } else {
@@ -75,18 +76,18 @@ public class SddBackboneFunction implements SddFunction<Backbone> {
                     }
                 }
             }
-            for (final Variable var : gapVars) {
+            for (final int var : gapVars) {
                 backbone.put(var, Tristate.UNDEF);
             }
         } else if (node.isLiteral()) {
-            final Literal lit = (Literal) node.asTerminal().getTerminal();
-            if (variables.contains(lit.variable())) {
-                addToBackbone(lit.variable(), lit.getPhase(), backbone);
+            final SddNodeTerminal t = node.asTerminal();
+            if (variables.contains(t.getVTree().getVariable())) {
+                addToBackbone(t.getVTree().getVariable(), t.getPhase(), backbone);
             }
         }
     }
 
-    private void addToBackbone(final Variable var, final boolean phase, final Map<Variable, Tristate> backbone) {
+    private void addToBackbone(final int var, final boolean phase, final Map<Integer, Tristate> backbone) {
         Tristate state = backbone.get(var);
         if (state == null) {
             state = Tristate.fromBool(phase);
