@@ -34,7 +34,7 @@ public class SddBackboneFunction implements SddFunction<Backbone> {
 
     @Override
     public LngResult<Backbone> apply(final Sdd sf, final ComputationHandler handler) {
-        final Set<Integer> variableIdxs = Util.varsToIndices(variables, sf, new HashSet<>());
+        final Set<Integer> variableIdxs = Util.varsToIndicesOnlyKnown(variables, sf, new HashSet<>());
         final HashMap<Integer, Tristate> backboneMap = new HashMap<>();
         if (originalNode.isFalse()) {
             return LngResult.of(Backbone.unsatBackbone());

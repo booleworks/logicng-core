@@ -18,6 +18,7 @@ import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -86,18 +87,9 @@ public class Sdd {
     public int variableToIndex(final Variable variable) {
         if (solver == null) {
             final Integer idx = var2idx.get(variable);
-            if (idx == null) {
-                final int newIdx = idx2var.size();
-                idx2var.add(variable);
-                var2idx.put(variable, newIdx);
-                return newIdx;
-            } else {
-                return idx;
-            }
+            return Objects.requireNonNullElse(idx, -1);
         } else {
-            final int idx = solver.idxForName(variable.getName());
-            assert idx != -1;
-            return idx;
+            return solver.idxForName(variable.getName());
         }
     }
 
@@ -110,6 +102,12 @@ public class Sdd {
     }
 
     public VTreeLeaf vTreeLeaf(final Variable variable) {
+        int idx = variableToIndex(variable);
+        if (idx == -1) {
+            idx = idx2var.size();
+            idx2var.add(variable);
+            var2idx.put(variable, idx);
+        }
         return vTreeLeaf(variableToIndex(variable));
     }
 

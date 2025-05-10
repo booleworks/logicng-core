@@ -22,11 +22,11 @@ public class SddModelEnumerationTest {
     @Test
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final Sdd sdd = res.getSdd();
         final List<Model> models =
-                sf.apply(new SddModelEnumeration(f.variables("A", "B", "C", "D", "E"), res.getSdd(), res.getVTree()));
+                sdd.apply(new SddModelEnumeration(f.variables("A", "B", "C", "D", "E"), res.getNode(), res.getVTree()));
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final List<Model> expected = solver.enumerateAllModels(f.variables("A", "B", "C", "D", "E"));
@@ -38,11 +38,11 @@ public class SddModelEnumerationTest {
     @Test
     public void testProjected() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final Sdd sdd = res.getSdd();
         final List<Model> models =
-                sf.apply(new SddProjectedModelEnumeration(f.variables("A", "D", "X"), res.getSdd(), res.getVTree()));
+                sdd.apply(new SddProjectedModelEnumeration(f.variables("A", "D", "X"), res.getNode(), res.getVTree()));
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final List<Model> expected = solver.enumerateAllModels(f.variables("A", "D", "X"));
@@ -54,13 +54,13 @@ public class SddModelEnumerationTest {
     @Test
     public void testSubtree() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-        final SddNode descendant = res.getSdd().asDecomposition().getElements().first().getSub();
-        final Formula subformula = sf.apply(new SddExportFormula(descendant));
+        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final Sdd sdd = res.getSdd();
+        final SddNode descendant = res.getNode().asDecomposition().getElements().first().getSub();
+        final Formula subformula = sdd.apply(new SddExportFormula(descendant));
         final List<Model> models =
-                sf.apply(new SddModelEnumeration(subformula.variables(f), descendant, res.getVTree()));
+                sdd.apply(new SddModelEnumeration(subformula.variables(f), descendant, res.getVTree()));
 
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(subformula);

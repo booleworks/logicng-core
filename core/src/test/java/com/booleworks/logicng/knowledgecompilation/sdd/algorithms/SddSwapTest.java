@@ -71,18 +71,18 @@ public class SddSwapTest {
     public void testFilesSwapRoot() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-            final SddNode node = result.getSdd();
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Sdd sdd = result.getSdd();
+            final SddNode node = result.getNode();
             final VTreeRoot root = result.getVTree();
             final VTreeInternal rootNode = root.getRoot().asInternal();
             final Pair<SddNode, VTreeShadow> swapped =
-                    SddSwap.swap(node, rootNode, VTreeShadow.fromRoot(root), sf, NopHandler.get()).getResult();
+                    SddSwap.swap(node, rootNode, VTreeShadow.fromRoot(root), sdd, NopHandler.get()).getResult();
             assert Validation.validVTree(swapped.getFirst(), swapped.getSecond().getCurrent());
-            SddTestUtil.validateMC(swapped.getFirst(), swapped.getSecond().getCurrent(), formula, sf);
-            SddTestUtil.validateExport(swapped.getFirst(), formula, sf);
+            SddTestUtil.validateMC(swapped.getFirst(), swapped.getSecond().getCurrent(), formula, sdd);
+            SddTestUtil.validateExport(swapped.getFirst(), formula, sdd);
         }
     }
 
@@ -91,13 +91,13 @@ public class SddSwapTest {
         int i = 0;
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final List<Integer> vtreeSeq = VTREE_POSISTIONS.get(i);
             i++;
             final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-            SddNode node = result.getSdd();
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Sdd sdd = result.getSdd();
+            SddNode node = result.getNode();
             VTreeShadow root = VTreeShadow.fromRoot(result.getVTree());
             for (int j = 0; j < 5; ++j) {
                 final int position = vtreeSeq.get(j);
@@ -106,9 +106,9 @@ public class SddSwapTest {
                     continue;
                 }
                 final Pair<SddNode, VTreeShadow> swapped =
-                        SddSwap.swap(node, current.asInternal(), root, sf, NopHandler.get()).getResult();
+                        SddSwap.swap(node, current.asInternal(), root, sdd, NopHandler.get()).getResult();
                 assert Validation.validVTree(swapped.getFirst(), swapped.getSecond().getCurrent());
-                SddTestUtil.validateMC(swapped.getFirst(), swapped.getSecond().getCurrent(), formula, sf);
+                SddTestUtil.validateMC(swapped.getFirst(), swapped.getSecond().getCurrent(), formula, sdd);
                 node = swapped.getFirst();
                 root = swapped.getSecond();
             }
@@ -122,10 +122,10 @@ public class SddSwapTest {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             for (final List<Integer> vtreeSeq : VTREE_POSISTIONS) {
-                final Sdd sf = Sdd.independent(f);
                 final SddCompilationResult result =
-                        SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-                SddNode node = result.getSdd();
+                        SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+                final Sdd sdd = result.getSdd();
+                SddNode node = result.getNode();
                 VTreeShadow root = VTreeShadow.fromRoot(result.getVTree());
                 for (final int position : vtreeSeq) {
                     final VTree current = root.getCurrent().getVTreeAtPosition(position);
@@ -133,9 +133,9 @@ public class SddSwapTest {
                         continue;
                     }
                     final Pair<SddNode, VTreeShadow> swapped =
-                            SddSwap.swap(node, current.asInternal(), root, sf, NopHandler.get()).getResult();
+                            SddSwap.swap(node, current.asInternal(), root, sdd, NopHandler.get()).getResult();
                     assert Validation.validVTree(swapped.getFirst(), swapped.getSecond().getCurrent());
-                    SddTestUtil.validateMC(swapped.getFirst(), swapped.getSecond().getCurrent(), formula, sf);
+                    SddTestUtil.validateMC(swapped.getFirst(), swapped.getSecond().getCurrent(), formula, sdd);
                     node = swapped.getFirst();
                     root = swapped.getSecond();
                 }

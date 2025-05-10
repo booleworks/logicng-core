@@ -27,23 +27,23 @@ public class SddCompilerTopDownTest {
     @Test
     public void testComp() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(Y | ~Z) & (~X | Z) & (X | ~Y) & (X | Q)");
-        final SddCompilationResult result = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-        SddTestUtil.validateMC(result.getSdd(), result.getVTree(), formula, sf);
-        SddTestUtil.validateExport(result.getSdd(), formula, sf);
+        final SddCompilationResult result = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final Sdd sdd = result.getSdd();
+        SddTestUtil.validateMC(result.getNode(), result.getVTree(), formula, sdd);
+        SddTestUtil.validateExport(result.getNode(), formula, sdd);
     }
 
     @Test
     public void testFormulas() throws ParserException, IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-            SddTestUtil.validateMC(result.getSdd(), result.getVTree(), formula, sf);
-            SddTestUtil.validateExport(result.getSdd(), formula, sf);
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Sdd sdd = result.getSdd();
+            SddTestUtil.validateMC(result.getNode(), result.getVTree(), formula, sdd);
+            SddTestUtil.validateExport(result.getNode(), formula, sdd);
         }
     }
 }

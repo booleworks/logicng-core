@@ -59,43 +59,46 @@ public class SddCompilerTopDown {
         solver.add(cnf);
     }
 
-    public static LngResult<SddCompilationResult> compile(final Formula formula, final Sdd sf,
+    public static LngResult<SddCompilationResult> compile(final Formula formula, final FormulaFactory f,
                                                           final ComputationHandler handler) {
-        return prepareAndStartComputation(formula, sf, handler);
+        return prepareAndStartComputation(formula, f, handler);
     }
 
-    protected static LngResult<SddCompilationResult> prepareAndStartComputation(final Formula formula, final Sdd sf,
+    protected static LngResult<SddCompilationResult> prepareAndStartComputation(final Formula formula,
+                                                                                final FormulaFactory f,
                                                                                 final ComputationHandler handler) {
-        final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables(sf.getFactory()));
-        final Formula cnf = formula.cnf(sf.getFactory());
-        originalVariables.addAll(cnf.variables(sf.getFactory()));
-        final LngResult<Formula> simplified = simplifyFormula(sf.getFactory(), cnf, handler);
+        final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables(f));
+        final Formula cnf = formula.cnf(f);
+        originalVariables.addAll(cnf.variables(f));
+        final LngResult<Formula> simplified = simplifyFormula(f, cnf, handler);
         if (!simplified.isSuccess()) {
             return LngResult.canceled(simplified.getCancelCause());
         }
         final Formula simplifiedFormula = simplified.getResult();
 
-        final Pair<Formula, Formula> unitAndNonUnitClauses = splitCnfClauses(simplifiedFormula, sf.getFactory());
+        final Pair<Formula, Formula> unitAndNonUnitClauses = splitCnfClauses(simplifiedFormula, f);
         final Formula unitClauses = unitAndNonUnitClauses.getFirst();
         final Formula nonUnitClauses = unitAndNonUnitClauses.getSecond();
 
+        final SddCoreSolver solver = new SddCoreSolver(f, originalVariables.size());
+        final Sdd sdd = Sdd.solverBased(solver);
+
         if (simplifiedFormula.getType() == FType.TRUE) {
-            return LngResult.of(new SddCompilationResult(sf.verum(), null));
+            return LngResult.of(new SddCompilationResult(sdd.verum(), null, sdd));
         }
-        if (!simplifiedFormula.holds(new SatPredicate(sf.getFactory()))) {
-            return LngResult.of(new SddCompilationResult(sf.falsum(), null));
+        if (!simplifiedFormula.holds(new SatPredicate(f))) {
+            return LngResult.of(new SddCompilationResult(sdd.falsum(), null, sdd));
         }
 
         final Caches caches = new Caches();
-        final SddCoreSolver solver = new SddCoreSolver(sf.getFactory(), originalVariables.size());
         solver.add(simplifiedFormula);
-        final LngResult<VTree> vTreeResult = generateVTree(nonUnitClauses, unitClauses, caches, solver, sf, handler);
+        final LngResult<VTree> vTreeResult = generateVTree(nonUnitClauses, unitClauses, caches, solver, sdd, handler);
         if (!vTreeResult.isSuccess()) {
             return LngResult.canceled(vTreeResult.getCancelCause());
         }
-        final VTreeRoot root = sf.constructRoot(vTreeResult.getResult());
-        final LngResult<SddNode> sdd = new SddCompilerTopDown(cnf, root, caches, solver, sf).start(handler);
-        return sdd.map(s -> new SddCompilationResult(s, root));
+        final VTreeRoot root = sdd.constructRoot(vTreeResult.getResult());
+        final LngResult<SddNode> compiled = new SddCompilerTopDown(cnf, root, caches, solver, sdd).start(handler);
+        return compiled.map(node -> new SddCompilationResult(node, root, sdd));
     }
 
     protected static LngResult<Formula> simplifyFormula(final FormulaFactory f, final Formula formula,
@@ -178,7 +181,7 @@ public class SddCompilerTopDown {
                                              final Sdd sdd) {
         if (vTree.isLeaf()) {
             final VTreeLeaf leaf = vTree.asLeaf();
-            final int solverIdx = solver.idxForName(sdd.indexToVariable(leaf.getVariable()).getName());
+            final int solverIdx = leaf.getVariable();
             final BitSet varMask = new BitSet();
             varMask.set(solverIdx);
             caches.varMasks.put(leaf, varMask);
@@ -248,7 +251,7 @@ public class SddCompilerTopDown {
     }
 
     protected LngResult<SddNode> cnf2sddLeaf(final VTreeLeaf leaf, final ComputationHandler handler) {
-        final int solverVarIdx = solver.idxForName(sf.indexToVariable(leaf.getVariable()).getName());
+        final int solverVarIdx = leaf.getVariable();
         final int implied = solver.isImplied(solverVarIdx);
         if (implied != -1) {
             return LngResult.of(sf.terminal(leaf, !sign(implied), root));
@@ -289,7 +292,7 @@ public class SddCompilerTopDown {
             return LngResult.canceled(SDD_SHANNON_EXPANSION);
         }
         final VTreeLeaf varLeaf = treeInternal.getLeft().asLeaf();
-        final int solverVarIdx = solver.idxForName(sf.indexToVariable(varLeaf.getVariable()).getName());
+        final int solverVarIdx = varLeaf.getVariable();
         final int implied = solver.isImplied(solverVarIdx);
 
         if (implied != -1) {

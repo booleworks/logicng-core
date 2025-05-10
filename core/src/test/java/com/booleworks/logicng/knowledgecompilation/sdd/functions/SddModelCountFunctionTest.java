@@ -22,11 +22,11 @@ public class SddModelCountFunctionTest {
     @Test
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-        final BigInteger modelCount =
-                sf.apply(new SddModelCountFunction(f.variables("A", "B", "C", "D", "E"), res.getSdd(), res.getVTree()));
+        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final Sdd sdd = res.getSdd();
+        final BigInteger modelCount = sdd.apply(
+                new SddModelCountFunction(f.variables("A", "B", "C", "D", "E"), res.getNode(), res.getVTree()));
         final BigInteger modelCountExpected =
                 ModelCounter.count(f, List.of(formula), f.variables("A", "B", "C", "D", "E"));
         assertThat(modelCount).isEqualTo(modelCountExpected);
@@ -35,13 +35,13 @@ public class SddModelCountFunctionTest {
     @Test
     public void testSubtree() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-        final SddNode descendant = res.getSdd().asDecomposition().getElements().first().getSub();
-        final Formula subformula = sf.apply(new SddExportFormula(descendant));
+        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final Sdd sdd = res.getSdd();
+        final SddNode descendant = res.getNode().asDecomposition().getElements().first().getSub();
+        final Formula subformula = sdd.apply(new SddExportFormula(descendant));
         final BigInteger models =
-                sf.apply(new SddModelCountFunction(subformula.variables(f), descendant, res.getVTree()));
+                sdd.apply(new SddModelCountFunction(subformula.variables(f), descendant, res.getVTree()));
         final BigInteger expected = ModelCounter.count(f, List.of(subformula), subformula.variables(f));
         assertThat(models).isEqualTo(expected);
     }
@@ -60,12 +60,12 @@ public class SddModelCountFunctionTest {
     public void testFiles() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Sdd sdd = result.getSdd();
             final BigInteger sddCount =
-                    sf.apply(new SddModelCountFunction(formula.variables(f), result.getSdd(), result.getVTree()));
+                    sdd.apply(new SddModelCountFunction(formula.variables(f), result.getNode(), result.getVTree()));
             final BigInteger formulaCount = ModelCounter.count(f, List.of(formula), formula.variables(f));
             assertThat(sddCount).isEqualTo(formulaCount);
         }

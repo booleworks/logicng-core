@@ -77,21 +77,21 @@ public class SddQuantificationTest {
         int fileIndex = 0;
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-            SddNode node = result.getSdd();
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Sdd sdd = result.getSdd();
+            SddNode node = result.getNode();
             final VTreeRoot root = result.getVTree();
             final List<Variable> vars = new ArrayList<>(formula.variables(f));
             final Set<Variable> quantifyVars =
                     QUANTIFY_VARS.get(fileIndex).stream().map(vars::get).collect(Collectors.toSet());
             final Set<Integer> quantifyVarIdxs =
-                    quantifyVars.stream().map(sf::variableToIndex).collect(Collectors.toSet());
+                    quantifyVars.stream().map(sdd::variableToIndex).collect(Collectors.toSet());
             final List<Variable> remainingVars =
                     vars.stream().filter(v -> !quantifyVars.contains(v)).collect(Collectors.toList());
-            node = SddQuantification.exists(quantifyVarIdxs, node, root, sf, NopHandler.get()).getResult();
-            checkPMC(remainingVars, node, formula, root, sf);
+            node = SddQuantification.exists(quantifyVarIdxs, node, root, sdd, NopHandler.get()).getResult();
+            checkPMC(remainingVars, node, formula, root, sdd);
             fileIndex++;
         }
     }

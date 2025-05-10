@@ -25,11 +25,11 @@ public class SddBackboneFunctionTest {
     @Test
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(~C & ~B & A) | (A & ~B & (C => D))");
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final Sdd sdd = res.getSdd();
         final Backbone backbone =
-                sf.apply(new SddBackboneFunction(f.variables("A", "B", "C", "D", "E"), res.getSdd(), res.getVTree()));
+                sdd.apply(new SddBackboneFunction(f.variables("A", "B", "C", "D", "E"), res.getNode(), res.getVTree()));
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final Backbone expected = solver.backbone(f.variables("A", "B", "C", "D", "E"));
@@ -50,13 +50,13 @@ public class SddBackboneFunctionTest {
     public void testFiles() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SortedSet<Variable> variables = formula.variables(f);
             final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Sdd sdd = result.getSdd();
             final Backbone backbone =
-                    sf.apply(new SddBackboneFunction(variables, result.getSdd(), result.getVTree()));
+                    sdd.apply(new SddBackboneFunction(variables, result.getNode(), result.getVTree()));
             final SatSolver solver = SatSolver.newSolver(f);
             solver.add(formula);
             final Backbone expected = solver.backbone(variables);
@@ -68,16 +68,16 @@ public class SddBackboneFunctionTest {
     public void testFilesLimited() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SortedSet<Variable> variables = formula.variables(f)
                     .stream()
                     .limit(30)
                     .collect(Collectors.toCollection(TreeSet::new));
             final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Sdd sdd = result.getSdd();
             final Backbone backbone =
-                    sf.apply(new SddBackboneFunction(variables, result.getSdd(), result.getVTree()));
+                    sdd.apply(new SddBackboneFunction(variables, result.getNode(), result.getVTree()));
             final SatSolver solver = SatSolver.newSolver(f);
             solver.add(formula);
             final Backbone expected = solver.backbone(variables);

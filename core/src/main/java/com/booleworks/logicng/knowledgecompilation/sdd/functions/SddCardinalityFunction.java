@@ -37,9 +37,11 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
     @Override
     public LngResult<Integer> apply(final Sdd sf, final ComputationHandler handler) {
         sddVariables = sf.variables(node);
-        final Set<Integer> variableIdxs = Util.varsToIndices(variables, sf, new HashSet<>());
-        final int variablesNotInSdd =
-                (int) variableIdxs.stream().filter(v -> !sddVariables.contains(v)).count();
+        final Set<Integer> variableIdxs = Util.varsToIndicesOnlyKnown(variables, sf, new HashSet<>());
+        final int variablesNotInSdd = (int) variables
+                .stream()
+                .filter(v -> !sf.knows(v) || !sddVariables.contains(sf.variableToIndex(v)))
+                .count();
         final int cardinality;
         if (node.isFalse()) {
             return LngResult.of(-1);

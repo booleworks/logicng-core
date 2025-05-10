@@ -90,18 +90,18 @@ public class SddRotateTest {
     public void testFilesRotateLeftRoot() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-            final SddNode node = result.getSdd();
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Sdd sdd = result.getSdd();
+            final SddNode node = result.getNode();
             final VTreeRoot root = result.getVTree();
             final VTreeInternal rootNode = root.getRoot().asInternal();
             final Pair<SddNode, VTreeShadow> rotated =
-                    SddRotate.rotateLeft(node, rootNode, VTreeShadow.fromRoot(root), sf, NopHandler.get()).getResult();
+                    SddRotate.rotateLeft(node, rootNode, VTreeShadow.fromRoot(root), sdd, NopHandler.get()).getResult();
             assert Validation.validVTree(rotated.getFirst(), rotated.getSecond().getCurrent());
-            SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sf);
-            SddTestUtil.validateExport(rotated.getFirst(), formula, sf);
+            SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sdd);
+            SddTestUtil.validateExport(rotated.getFirst(), formula, sdd);
         }
     }
 
@@ -109,18 +109,19 @@ public class SddRotateTest {
     public void testFilesRotateRightRoot() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-            final SddNode node = result.getSdd();
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Sdd sdd = result.getSdd();
+            final SddNode node = result.getNode();
             final VTreeRoot root = result.getVTree();
             final VTreeInternal rootNode = root.getRoot().asInternal();
             final Pair<SddNode, VTreeShadow> rotated =
-                    SddRotate.rotateRight(node, rootNode, VTreeShadow.fromRoot(root), sf, NopHandler.get()).getResult();
+                    SddRotate.rotateRight(node, rootNode, VTreeShadow.fromRoot(root), sdd, NopHandler.get())
+                            .getResult();
             assert Validation.validVTree(rotated.getFirst(), rotated.getSecond().getCurrent());
-            SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sf);
-            SddTestUtil.validateExport(rotated.getFirst(), formula, sf);
+            SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sdd);
+            SddTestUtil.validateExport(rotated.getFirst(), formula, sdd);
         }
     }
 
@@ -129,13 +130,13 @@ public class SddRotateTest {
         int i = 0;
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final List<Integer> vtreeSeq = VTREE_POSISTIONS.get(i);
             i++;
             final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-            SddNode node = result.getSdd();
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Sdd sdd = result.getSdd();
+            SddNode node = result.getNode();
             VTreeShadow root = VTreeShadow.fromRoot(result.getVTree());
             for (int j = 0; j < 5; ++j) {
                 final int position = vtreeSeq.get(j);
@@ -144,9 +145,9 @@ public class SddRotateTest {
                     continue;
                 }
                 final Pair<SddNode, VTreeShadow> rotated =
-                        SddRotate.rotateLeft(node, current.asInternal(), root, sf, NopHandler.get()).getResult();
+                        SddRotate.rotateLeft(node, current.asInternal(), root, sdd, NopHandler.get()).getResult();
                 assert Validation.validVTree(rotated.getFirst(), rotated.getSecond().getCurrent());
-                SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sf);
+                SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sdd);
                 node = rotated.getFirst();
                 root = rotated.getSecond();
             }
@@ -158,13 +159,13 @@ public class SddRotateTest {
         int i = 0;
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final List<Integer> vtreeSeq = VTREE_POSISTIONS.get(i);
             i++;
             final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-            SddNode node = result.getSdd();
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Sdd sdd = result.getSdd();
+            SddNode node = result.getNode();
             VTreeShadow root = VTreeShadow.fromRoot(result.getVTree());
             for (int j = 0; j < 5; ++j) {
                 final int position = vtreeSeq.get(j);
@@ -173,9 +174,9 @@ public class SddRotateTest {
                     continue;
                 }
                 final Pair<SddNode, VTreeShadow> rotated =
-                        SddRotate.rotateRight(node, current.asInternal(), root, sf, NopHandler.get()).getResult();
+                        SddRotate.rotateRight(node, current.asInternal(), root, sdd, NopHandler.get()).getResult();
                 assert Validation.validVTree(rotated.getFirst(), rotated.getSecond().getCurrent());
-                SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sf);
+                SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sdd);
                 node = rotated.getFirst();
                 root = rotated.getSecond();
             }
@@ -189,10 +190,10 @@ public class SddRotateTest {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             for (final List<Integer> vtreeSeq : VTREE_POSISTIONS) {
-                final Sdd sf = Sdd.independent(f);
                 final SddCompilationResult result =
-                        SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-                SddNode node = result.getSdd();
+                        SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+                final Sdd sdd = result.getSdd();
+                SddNode node = result.getNode();
                 VTreeShadow root = VTreeShadow.fromRoot(result.getVTree());
                 for (final int position : vtreeSeq) {
                     final VTree current = root.getCurrent().getVTreeAtPosition(position);
@@ -200,9 +201,9 @@ public class SddRotateTest {
                         continue;
                     }
                     final Pair<SddNode, VTreeShadow> rotated =
-                            SddRotate.rotateLeft(node, current.asInternal(), root, sf, NopHandler.get()).getResult();
+                            SddRotate.rotateLeft(node, current.asInternal(), root, sdd, NopHandler.get()).getResult();
                     assert Validation.validVTree(rotated.getFirst(), rotated.getSecond().getCurrent());
-                    SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sf);
+                    SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sdd);
                     node = rotated.getFirst();
                     root = rotated.getSecond();
                 }
@@ -217,10 +218,10 @@ public class SddRotateTest {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             for (final List<Integer> vtreeSeq : VTREE_POSISTIONS) {
-                final Sdd sf = Sdd.independent(f);
                 final SddCompilationResult result =
-                        SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-                SddNode node = result.getSdd();
+                        SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+                final Sdd sdd = result.getSdd();
+                SddNode node = result.getNode();
                 VTreeShadow root = VTreeShadow.fromRoot(result.getVTree());
                 for (final int position : vtreeSeq) {
                     final VTree current = root.getCurrent().getVTreeAtPosition(position);
@@ -228,9 +229,9 @@ public class SddRotateTest {
                         continue;
                     }
                     final Pair<SddNode, VTreeShadow> rotated =
-                            SddRotate.rotateRight(node, current.asInternal(), root, sf, NopHandler.get()).getResult();
+                            SddRotate.rotateRight(node, current.asInternal(), root, sdd, NopHandler.get()).getResult();
                     assert Validation.validVTree(rotated.getFirst(), rotated.getSecond().getCurrent());
-                    SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sf);
+                    SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sdd);
                     node = rotated.getFirst();
                     root = rotated.getSecond();
                 }

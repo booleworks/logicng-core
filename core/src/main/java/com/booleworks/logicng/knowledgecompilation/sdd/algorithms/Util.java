@@ -27,11 +27,25 @@ public class Util {
         target.add(new SddElement(prime, sub));
     }
 
-    public static <C extends Collection<Integer>> C varsToIndices(final Set<Variable> variables, final Sdd sdd,
-                                                                  final C dst) {
+    public static <C extends Collection<Integer>> C varsToIndicesOnlyKnown(final Set<Variable> variables, final Sdd sdd,
+                                                                           final C dst) {
         for (final Variable var : variables) {
             final int idx = sdd.variableToIndex(var);
             if (idx != -1) {
+                dst.add(idx);
+            }
+        }
+        return dst;
+    }
+
+    public static <C extends Collection<Integer>> C varsToIndicesExpectKnown(final Set<Variable> variables,
+                                                                             final Sdd sdd,
+                                                                             final C dst) {
+        for (final Variable var : variables) {
+            final int idx = sdd.variableToIndex(var);
+            if (idx == -1) {
+                throw new IllegalArgumentException("Variable is not known to SDD: " + var);
+            } else {
                 dst.add(idx);
             }
         }
@@ -108,7 +122,7 @@ public class Util {
         final ArrayList<Pair<VTree, Formula>> vTrees = new ArrayList<>(litsets.size());
         for (final Formula litset : litsets) {
             final List<Integer> varIdxs =
-                    Util.varsToIndices(litset.variables(sdd.getFactory()), sdd, new ArrayList<>());
+                    Util.varsToIndicesExpectKnown(litset.variables(sdd.getFactory()), sdd, new ArrayList<>());
             vTrees.add(new Pair<>(VTreeUtil.lcaFromVariables(varIdxs, root, sdd), litset));
         }
         vTrees.sort((o1, o2) -> {

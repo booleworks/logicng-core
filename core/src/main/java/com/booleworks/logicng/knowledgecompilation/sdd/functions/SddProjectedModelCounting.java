@@ -29,7 +29,7 @@ public class SddProjectedModelCounting implements SddFunction<BigInteger> {
 
     @Override
     public LngResult<BigInteger> apply(final Sdd sf, final ComputationHandler handler) {
-        final Set<Integer> variableIdxs = Util.varsToIndices(variables, sf, new HashSet<>());
+        final Set<Integer> variableIdxs = Util.varsToIndicesOnlyKnown(variables, sf, new HashSet<>());
         final SortedSet<Integer> originalSddVariables = sf.variables(node);
         final Set<Integer> notProjectedVariables = new TreeSet<>();
         for (final Integer variable : originalSddVariables) {

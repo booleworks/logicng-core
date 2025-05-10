@@ -95,11 +95,11 @@ public class SddRestrictTest {
         int fileIndex = 0;
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
-            SddNode node = result.getSdd();
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Sdd sdd = result.getSdd();
+            SddNode node = result.getNode();
             final VTreeRoot root = result.getVTree();
             final List<Variable> vars = new ArrayList<>(formula.variables(f));
             final List<Literal> restrictVars =
@@ -107,11 +107,11 @@ public class SddRestrictTest {
                             .collect(Collectors.toList());
             final Assignment rs = new Assignment();
             for (final Literal r : restrictVars) {
-                final int litIdx = sf.variableToIndex(r.variable());
-                node = SddRestrict.restrict(litIdx, r.getPhase(), node, root, sf, NopHandler.get()).getResult();
+                final int litIdx = sdd.variableToIndex(r.variable());
+                node = SddRestrict.restrict(litIdx, r.getPhase(), node, root, sdd, NopHandler.get()).getResult();
                 rs.addLiteral(r);
             }
-            SddTestUtil.validateExport(node, formula.restrict(f, rs), sf);
+            SddTestUtil.validateExport(node, formula.restrict(f, rs), sdd);
             fileIndex++;
         }
     }

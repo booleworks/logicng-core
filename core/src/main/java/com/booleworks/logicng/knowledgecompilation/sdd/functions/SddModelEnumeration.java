@@ -52,7 +52,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
     }
 
     public LngResult<List<CompactModel>> applyNoExpand(final Sdd sdd, final ComputationHandler handler) {
-        variableIdxs = Util.varsToIndices(variables, sdd, new HashSet<>());
+        variableIdxs = Util.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
         final SortedSet<Integer> sddVariables = sdd.variables(originalNode);
         if (!variableIdxs.containsAll(sddVariables)) {
             throw new IllegalArgumentException(

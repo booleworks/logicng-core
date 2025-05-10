@@ -22,11 +22,11 @@ public class SddCardinalityFunctionTest {
     @Test
     public void testMax() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final Sdd sdd = res.getSdd();
         final int cardinality =
-                sf.apply(new SddCardinalityFunction(true, f.variables("A", "B", "C", "D", "E"), res.getSdd(),
+                sdd.apply(new SddCardinalityFunction(true, f.variables("A", "B", "C", "D", "E"), res.getNode(),
                         res.getVTree()));
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
@@ -39,11 +39,11 @@ public class SddCardinalityFunctionTest {
     @Test
     public void testMin() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final Sdd sdd = res.getSdd();
         final int cardinality =
-                sf.apply(new SddCardinalityFunction(false, f.variables("A", "B", "C", "D", "E"), res.getSdd(),
+                sdd.apply(new SddCardinalityFunction(false, f.variables("A", "B", "C", "D", "E"), res.getNode(),
                         res.getVTree()));
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
@@ -67,13 +67,12 @@ public class SddCardinalityFunctionTest {
     public void testFilesMax() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult res =
-                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Sdd sdd = res.getSdd();
             final int cardinality =
-                    sf.apply(new SddCardinalityFunction(true, formula.variables(f), res.getSdd(),
-                            res.getVTree()));
+                    sdd.apply(new SddCardinalityFunction(true, formula.variables(f), res.getNode(), res.getVTree()));
             final SatSolver solver = SatSolver.newSolver(f);
             solver.add(formula);
             final List<Literal> opt =
@@ -87,13 +86,12 @@ public class SddCardinalityFunctionTest {
     public void testFilesMin() throws IOException {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
-            final Sdd sf = Sdd.independent(f);
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult res =
-                    SddCompilerTopDown.compile(formula, sf, NopHandler.get()).getResult();
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Sdd sdd = res.getSdd();
             final int cardinality =
-                    sf.apply(new SddCardinalityFunction(false, formula.variables(f), res.getSdd(),
-                            res.getVTree()));
+                    sdd.apply(new SddCardinalityFunction(false, formula.variables(f), res.getNode(), res.getVTree()));
             final SatSolver solver = SatSolver.newSolver(f);
             solver.add(formula);
             final List<Literal> opt =
