@@ -2,13 +2,20 @@ package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 
+import java.util.BitSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 public abstract class SddNode implements Comparable<SddNode> {
     final protected int id;
     protected VTree vTree;
+    protected final BitSet variableMask;
+    protected SddNode negation = null;
 
-    public SddNode(final int id, final VTree vTree) {
+    public SddNode(final int id, final VTree vTree, final BitSet variableMask) {
         this.id = id;
         this.vTree = vTree;
+        this.variableMask = variableMask;
     }
 
     public int getId() {
@@ -39,6 +46,26 @@ public abstract class SddNode implements Comparable<SddNode> {
 
     public void setVTree(final VTree vTree) {
         this.vTree = vTree;
+    }
+
+    SddNode getNegation() {
+        return negation;
+    }
+
+    void setNegation(final SddNode negation) {
+        this.negation = negation;
+    }
+
+    public BitSet getVariableMask() {
+        return variableMask;
+    }
+
+    public SortedSet<Integer> variables() {
+        final TreeSet<Integer> variables = new TreeSet<>();
+        for (int i = variableMask.nextSetBit(0); i != -1; i = variableMask.nextSetBit(i + 1)) {
+            variables.add(i);
+        }
+        return variables;
     }
 
     @Override

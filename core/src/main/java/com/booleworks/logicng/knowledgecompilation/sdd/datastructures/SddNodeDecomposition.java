@@ -2,7 +2,9 @@ package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 
+import java.util.BitSet;
 import java.util.Collections;
+import java.util.Set;
 import java.util.SortedSet;
 
 public class SddNodeDecomposition extends SddNode {
@@ -10,8 +12,17 @@ public class SddNodeDecomposition extends SddNode {
 
     public SddNodeDecomposition(final int id, final VTree vTree,
                                 final SortedSet<SddElement> elements) {
-        super(id, vTree);
+        super(id, vTree, calculateVariableMask(elements));
         this.elements = elements;
+    }
+
+    private static BitSet calculateVariableMask(final Set<SddElement> elements) {
+        final BitSet variableMask = new BitSet();
+        for (final SddElement element : elements) {
+            variableMask.or(element.getPrime().getVariableMask());
+            variableMask.or(element.getSub().getVariableMask());
+        }
+        return variableMask;
     }
 
     public SortedSet<SddElement> getElements() {

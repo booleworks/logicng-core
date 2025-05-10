@@ -19,7 +19,6 @@ import com.booleworks.logicng.util.Pair;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
@@ -34,10 +33,8 @@ public class Sdd {
     private final HashMap<Integer, SddNodeTerminal> sddTerminals;
     private final SddNodeTerminal verumNode;
     private final SddNodeTerminal falsumNode;
-    private final HashMap<SddNode, SddNode> negations;
     private final HashMap<Pair<SddNode, SddNode>, SddNode> conjunctions;
     private final HashMap<Pair<SddNode, SddNode>, SddNode> disjunctions;
-    private final HashMap<SddNode, SortedSet<Integer>> variables;
     private final SddCoreSolver solver;
     private final HashMap<Variable, Integer> var2idx;
     private final ArrayList<Variable> idx2var;
@@ -52,16 +49,14 @@ public class Sdd {
         vTreeRoots = new HashMap<>();
         sddDecompositions = new HashMap<>();
         sddTerminals = new HashMap<>();
-        negations = new HashMap<>();
         conjunctions = new HashMap<>();
         disjunctions = new HashMap<>();
         verumNode = new SddNodeTerminal(0, null, true);
         falsumNode = new SddNodeTerminal(1, null, false);
-        variables = new HashMap<>();
         var2idx = new HashMap<>();
         idx2var = new ArrayList<>();
-        negations.put(verumNode, falsumNode);
-        negations.put(falsumNode, verumNode);
+        verumNode.setNegation(falsumNode);
+        falsumNode.setNegation(verumNode);
     }
 
     public static Sdd solverBased(final SddCoreSolver solver) {
@@ -153,9 +148,8 @@ public class Sdd {
         final SddNodeTerminal newNodeNeg = new SddNodeTerminal(currentSddId++, terminal, !phase);
         sddTerminals.put(negTerminal, newNodeNeg);
 
-        negations.put(newNode, newNodeNeg);
-        negations.put(newNodeNeg, newNode);
-
+        newNode.setNegation(newNodeNeg);
+        newNodeNeg.setNegation(newNode);
         return newNode;
     }
 
@@ -259,7 +253,7 @@ public class Sdd {
     }
 
     public SddNode negate(final SddNode node, final VTreeRoot root) {
-        final SddNode cached = negations.get(node);
+        final SddNode cached = node.getNegation();
         if (cached != null) {
             return cached;
         }
@@ -281,31 +275,13 @@ public class Sdd {
             final SddNodeTerminal t = node.asTerminal();
             nodeNeg = t.getPhase() ? falsum() : verum();
         }
-        negations.put(node, nodeNeg);
-        negations.put(nodeNeg, node);
+        node.setNegation(nodeNeg);
+        nodeNeg.setNegation(node);
         return nodeNeg;
     }
 
-    public SortedSet<Integer> variables(final SddNode node) {
-        final SortedSet<Integer> cached = this.variables.get(node);
-        if (cached != null) {
-            return cached;
-        }
-        final SortedSet<Integer> variables = new TreeSet<>();
-        if (node.isDecomposition()) {
-            for (final SddElement element : node.asDecomposition().getElements()) {
-                variables.addAll(variables(element.getPrime()));
-                variables.addAll(variables(element.getSub()));
-            }
-        } else if (node.isLiteral()) {
-            variables.add(node.asTerminal().getVTree().getVariable());
-        }
-        this.variables.put(node, variables);
-        return variables;
-    }
-
     public SddNode getNegationIfCached(final SddNode node) {
-        return negations.get(node);
+        return node.getNegation();
     }
 
     public <RESULT> RESULT apply(final SddFunction<RESULT> function) {

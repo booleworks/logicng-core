@@ -47,7 +47,7 @@ public class SddProjectedModelEnumeration implements SddFunction<List<Model>> {
 
     public LngResult<List<CompactModel>> applyNoExpand(final Sdd sf, final ComputationHandler handler) {
         final Set<Integer> variableIdxs = Util.varsToIndicesOnlyKnown(variables, sf, new HashSet<>());
-        final SortedSet<Integer> originalSddVariables = sf.variables(originalNode);
+        final SortedSet<Integer> originalSddVariables = originalNode.variables();
         final Set<Integer> notProjectedVariables = new TreeSet<>();
         for (final int variable : originalSddVariables) {
             if (!variableIdxs.contains(variable)) {

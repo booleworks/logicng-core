@@ -35,7 +35,7 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
     @Override
     public LngResult<BigInteger> apply(final Sdd sf, final ComputationHandler handler) {
         final Set<Integer> variableIdxs = Util.varsToIndicesOnlyKnown(variables, sf, new HashSet<>());
-        sddVariables = sf.variables(node);
+        sddVariables = node.variables();
         if (!variableIdxs.containsAll(sddVariables)) {
             throw new IllegalArgumentException(
                     "Model Counting variables must be a superset of the variables contained on the SDD");

@@ -36,7 +36,7 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
 
     @Override
     public LngResult<Integer> apply(final Sdd sf, final ComputationHandler handler) {
-        sddVariables = sf.variables(node);
+        sddVariables = node.variables();
         final Set<Integer> variableIdxs = Util.varsToIndicesOnlyKnown(variables, sf, new HashSet<>());
         final int variablesNotInSdd = (int) variables
                 .stream()

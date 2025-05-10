@@ -19,7 +19,7 @@ public class SddVariablesFunction implements SddFunction<SortedSet<Variable>> {
 
     @Override
     public LngResult<SortedSet<Variable>> apply(final Sdd sf, final ComputationHandler handler) {
-        final SortedSet<Integer> variableIdxs = sf.variables(node);
+        final SortedSet<Integer> variableIdxs = node.variables();
         return LngResult.of(Util.indicesToVars(variableIdxs, sf, new TreeSet<>()));
     }
 }

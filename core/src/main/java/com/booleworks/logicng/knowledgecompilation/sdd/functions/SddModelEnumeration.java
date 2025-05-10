@@ -53,7 +53,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
 
     public LngResult<List<CompactModel>> applyNoExpand(final Sdd sdd, final ComputationHandler handler) {
         variableIdxs = Util.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
-        final SortedSet<Integer> sddVariables = sdd.variables(originalNode);
+        final SortedSet<Integer> sddVariables = originalNode.variables();
         if (!variableIdxs.containsAll(sddVariables)) {
             throw new IllegalArgumentException(
                     "Model Counting variables must be a superset of the variables contained on the SDD");
