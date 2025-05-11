@@ -49,14 +49,12 @@ public class SddCompilerTopDown {
     protected final Caches caches; // TODO: Fix and enable caching!
     protected final SddCoreSolver solver;
 
-    protected SddCompilerTopDown(final Formula cnf, final VTreeRoot root, final Caches caches,
-                                 final SddCoreSolver solver, final Sdd sf) {
+    protected SddCompilerTopDown(final VTreeRoot root, final Caches caches, final SddCoreSolver solver, final Sdd sf) {
         this.root = root;
         this.sf = sf;
         this.f = sf.getFactory();
         this.caches = caches;
         this.solver = solver;
-        solver.add(cnf);
     }
 
     public static LngResult<SddCompilationResult> compile(final Formula formula, final FormulaFactory f,
