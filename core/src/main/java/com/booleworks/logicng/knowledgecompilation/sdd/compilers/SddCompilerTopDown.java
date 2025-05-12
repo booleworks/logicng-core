@@ -12,6 +12,7 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTree;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeNode;
@@ -57,6 +58,10 @@ public class SddCompilerTopDown {
         this.solver = solver;
     }
 
+    public static SddCompilationResult compile(final Formula formula, final FormulaFactory f) {
+        return prepareAndStartComputation(formula, f, NopHandler.get()).getResult();
+    }
+
     public static LngResult<SddCompilationResult> compile(final Formula formula, final FormulaFactory f,
                                                           final ComputationHandler handler) {
         return prepareAndStartComputation(formula, f, handler);
@@ -95,7 +100,7 @@ public class SddCompilerTopDown {
             return LngResult.canceled(vTreeResult.getCancelCause());
         }
         final VTreeRoot root = sdd.constructRoot(vTreeResult.getResult());
-        final LngResult<SddNode> compiled = new SddCompilerTopDown(cnf, root, caches, solver, sdd).start(handler);
+        final LngResult<SddNode> compiled = new SddCompilerTopDown(root, caches, solver, sdd).start(handler);
         return compiled.map(node -> new SddCompilationResult(node, root, sdd));
     }
 

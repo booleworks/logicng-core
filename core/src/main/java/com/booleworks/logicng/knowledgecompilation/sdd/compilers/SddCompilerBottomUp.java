@@ -7,8 +7,8 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Or;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddApply;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
@@ -18,6 +18,10 @@ import java.util.Collection;
 import java.util.List;
 
 public class SddCompilerBottomUp {
+    public static SddNode cnfToSdd(final Formula cnf, final VTreeRoot vTree, final Sdd sf) {
+        return cnfToSdd(cnf, vTree, sf, NopHandler.get()).getResult();
+    }
+
     public static LngResult<SddNode> cnfToSdd(final Formula cnf, final VTreeRoot vTree, final Sdd sf,
                                               final ComputationHandler handler) {
         final List<Formula> operands;
