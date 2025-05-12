@@ -39,11 +39,6 @@ public class SddApply {
             return LngResult.of(left);
         }
 
-        final SddNode cached = sf.lookupApplyComputation(left, right, op);
-        if (cached != null) {
-            return LngResult.of(cached);
-        }
-
         final SddNode l;
         final SddNode r;
         if (root.getPosition(left.getVTree()) <= root.getPosition(right.getVTree())) {
@@ -70,9 +65,6 @@ public class SddApply {
                 break;
             default:
                 throw new RuntimeException("Unknown ApplyType");
-        }
-        if (result.isSuccess()) {
-            sf.cacheApplyComputation(l, r, result.getResult(), op);
         }
         return result;
     }
@@ -163,31 +155,5 @@ public class SddApply {
         Util.pushNewElement(left, leftSub.getResult(), newElements);
         Util.pushNewElement(leftNeg, leftNegSub.getResult(), newElements);
         return LngResult.of(sf.decomposition(newElements, root));
-    }
-
-    public static SddNode conjoinUnsafe(final SddNode left, final SddNode right, final VTreeRoot root,
-                                        final Sdd sf) {
-        assert left != null && right != null;
-        if (left.isFalse() || right.isFalse()) {
-            return sf.falsum();
-        }
-        if (left.isTrue()) {
-            return right;
-        }
-        if (right.isTrue()) {
-            return left;
-        }
-
-        final SddNode cached = sf.lookupApplyComputation(left, right, SddApplyOperation.CONJUNCTION);
-        if (cached != null) {
-            return cached;
-        }
-
-        final TreeSet<SddElement> newElements = new TreeSet<>();
-        newElements.add(new SddElement(left, right));
-        newElements.add(new SddElement(sf.negate(left, root), sf.falsum()));
-        final SddNode newNode = sf.decomposition(newElements, root);
-        sf.cacheApplyComputation(left, right, newNode, SddApplyOperation.CONJUNCTION);
-        return newNode;
     }
 }

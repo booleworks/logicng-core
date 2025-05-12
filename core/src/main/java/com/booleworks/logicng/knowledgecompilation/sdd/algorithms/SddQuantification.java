@@ -2,7 +2,6 @@ package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
@@ -26,7 +25,7 @@ public class SddQuantification {
         if (!nCond.isSuccess()) {
             return nCond;
         }
-        return SddApply.apply(pCond.getResult(), nCond.getResult(), SddApplyOperation.DISJUNCTION, root, sf, handler);
+        return sf.disjunction(pCond.getResult(), nCond.getResult(), root, handler);
     }
 
     public static LngResult<SddNode> forallSingle(final int var, final SddNode node, final VTreeRoot root,
@@ -39,7 +38,7 @@ public class SddQuantification {
         if (!nCond.isSuccess()) {
             return nCond;
         }
-        return SddApply.apply(pCond.getResult(), nCond.getResult(), SddApplyOperation.CONJUNCTION, root, sf, handler);
+        return sf.conjunction(pCond.getResult(), nCond.getResult(), root, handler);
     }
 
     public static LngResult<SddNode> exists(final Set<Integer> vars, final SddNode node, final VTreeRoot root,
@@ -107,15 +106,11 @@ public class SddQuantification {
             } else {
                 LngResult<SddNode> newNode = LngResult.of(sf.falsum());
                 for (final SddElement element : newElements) {
-                    final LngResult<SddNode> e =
-                            SddApply.apply(element.getPrime(), element.getSub(), SddApplyOperation.CONJUNCTION, root,
-                                    sf, handler);
+                    final LngResult<SddNode> e = sf.conjunction(element.getPrime(), element.getSub(), root, handler);
                     if (!e.isSuccess()) {
                         return e;
                     }
-                    newNode =
-                            SddApply.apply(e.getResult(), newNode.getResult(), SddApplyOperation.DISJUNCTION, root, sf,
-                                    handler);
+                    newNode = sf.disjunction(e.getResult(), newNode.getResult(), root, handler);
                     if (!newNode.isSuccess()) {
                         return newNode;
                     }

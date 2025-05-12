@@ -4,7 +4,6 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
@@ -203,8 +202,7 @@ public class Util {
                 if (!element.getSub().isTrue()) {
                     break;
                 }
-                final LngResult<SddNode> primeRes =
-                        SddApply.apply(element.getPrime(), prime, SddApplyOperation.DISJUNCTION, root, sf, handler);
+                final LngResult<SddNode> primeRes = sf.disjunction(element.getPrime(), prime, root, handler);
                 if (!primeRes.isSuccess()) {
                     return LngResult.canceled(primeRes.getCancelCause());
                 }
@@ -234,8 +232,7 @@ public class Util {
                 continue;
             }
             if (current.getSub() == prevSub) {
-                final LngResult<SddNode> prevPrimeRes =
-                        SddApply.apply(current.getPrime(), prevPrime, SddApplyOperation.DISJUNCTION, root, sf, handler);
+                final LngResult<SddNode> prevPrimeRes = sf.disjunction(current.getPrime(), prevPrime, root, handler);
                 if (!prevPrimeRes.isSuccess()) {
                     return LngResult.canceled(prevPrimeRes.getCancelCause());
                 }

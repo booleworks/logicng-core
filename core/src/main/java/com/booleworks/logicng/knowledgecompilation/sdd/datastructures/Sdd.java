@@ -6,7 +6,9 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddApply;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCoreSolver;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
@@ -168,7 +170,69 @@ public class Sdd {
         return newNode;
     }
 
-    public SddNode lookupApplyComputation(final SddNode left, final SddNode right, final SddApplyOperation op) {
+    public LngResult<SddNode> conjunction(final SddNode left, final SddNode right, final VTreeRoot root,
+                                          final ComputationHandler handler) {
+        return binaryOperation(left, right, SddApplyOperation.CONJUNCTION, root, handler);
+    }
+
+    public SddNode conjunction(final SddNode left, final SddNode right, final VTreeRoot root) {
+        return conjunction(left, right, root, NopHandler.get()).getResult();
+    }
+
+    public SddNode conjunctionUnsafe(final SddNode left, final SddNode right, final VTreeRoot root) {
+        assert left != null && right != null;
+        if (left.isFalse() || right.isFalse()) {
+            return falsum();
+        }
+        if (left.isTrue()) {
+            return right;
+        }
+        if (right.isTrue()) {
+            return left;
+        }
+
+        final SddNode cached = lookupApplyComputation(left, right, SddApplyOperation.CONJUNCTION);
+        if (cached != null) {
+            return cached;
+        }
+
+        final TreeSet<SddElement> newElements = new TreeSet<>();
+        newElements.add(new SddElement(left, right));
+        newElements.add(new SddElement(negate(left, root), falsum()));
+        final SddNode newNode = decomposition(newElements, root);
+        cacheApplyComputation(left, right, newNode, SddApplyOperation.CONJUNCTION);
+        return newNode;
+    }
+
+    public LngResult<SddNode> disjunction(final SddNode left, final SddNode right, final VTreeRoot root,
+                                          final ComputationHandler handler) {
+        return binaryOperation(left, right, SddApplyOperation.DISJUNCTION, root, handler);
+    }
+
+    public SddNode disjunction(final SddNode left, final SddNode right, final VTreeRoot root) {
+        return disjunction(left, right, root, NopHandler.get()).getResult();
+    }
+
+    public LngResult<SddNode> binaryOperation(final SddNode left, final SddNode right, final SddApplyOperation op,
+                                              final VTreeRoot root, final ComputationHandler handler) {
+        final SddNode cached = lookupApplyComputation(left, right, op);
+        if (cached != null) {
+            return LngResult.of(cached);
+        }
+        final LngResult<SddNode> result = SddApply.apply(left, right, op, root, this, handler);
+        if (!result.isSuccess()) {
+            return result;
+        }
+        cacheApplyComputation(left, right, result.getResult(), op);
+        return result;
+    }
+
+    public SddNode binaryOperation(final SddNode left, final SddNode right, final VTreeRoot root,
+                                   final SddApplyOperation op) {
+        return binaryOperation(left, right, op, root, NopHandler.get()).getResult();
+    }
+
+    private SddNode lookupApplyComputation(final SddNode left, final SddNode right, final SddApplyOperation op) {
         switch (op) {
             case CONJUNCTION: {
                 final Pair<SddNode, SddNode> key =
@@ -185,8 +249,8 @@ public class Sdd {
         }
     }
 
-    public void cacheApplyComputation(final SddNode left, final SddNode right, final SddNode result,
-                                      final SddApplyOperation op) {
+    private void cacheApplyComputation(final SddNode left, final SddNode right, final SddNode result,
+                                       final SddApplyOperation op) {
         switch (op) {
             case CONJUNCTION: {
                 final Pair<SddNode, SddNode>

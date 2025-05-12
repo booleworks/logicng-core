@@ -51,7 +51,7 @@ public class SddCompilerBottomUp {
                 l = lRes.getResult();
             }
             final LngResult<SddNode> nodeRes =
-                    SddApply.apply(l, node, SddApplyOperation.CONJUNCTION, vTree, sf, handler);
+                    sf.binaryOperation(l, node, SddApplyOperation.CONJUNCTION, vTree, handler);
             if (!nodeRes.isSuccess()) {
                 return nodeRes;
             }
@@ -67,7 +67,7 @@ public class SddCompilerBottomUp {
         for (final Formula formula : lits) {
             final Literal lit = (Literal) formula;
             final SddNode l = sf.terminal(sf.vTreeLeaf(lit.variable()), lit.getPhase(), root);
-            final LngResult<SddNode> s = SddApply.apply(node, l, SddApplyOperation.DISJUNCTION, root, sf, handler);
+            final LngResult<SddNode> s = sf.binaryOperation(node, l, SddApplyOperation.DISJUNCTION, root, handler);
             if (!s.isSuccess()) {
                 return s;
             }

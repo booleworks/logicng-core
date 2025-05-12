@@ -141,12 +141,12 @@ public class SddRotate {
             final TreeSet<SddElement> newElements = new TreeSet<>();
             if (e1.getPrime().getVTree() == leftInner) {
                 for (final SddElement e2 : e1.getPrime().asDecomposition().getElements()) {
-                    final SddNode bc = SddApply.conjoinUnsafe(e2.getSub(), e1.getSub(), newRoot, sf);
+                    final SddNode bc = sf.conjunctionUnsafe(e2.getSub(), e1.getSub(), newRoot);
                     newElements.add(new SddElement(e2.getPrime(), bc));
                 }
             } else if (root.isSubtree(e1.getPrime().getVTree(), leftInner.getRight())) {
                 final SddNode a = sf.verum();
-                final SddNode bc = SddApply.conjoinUnsafe(e1.getPrime(), e1.getSub(), newRoot, sf);
+                final SddNode bc = sf.conjunctionUnsafe(e1.getPrime(), e1.getSub(), newRoot);
                 newElements.add(new SddElement(a, bc));
             } else { //root.isSubTree(root.getVTree(e1.getPrime()), leftInner.getLeft())
                 final SddNode a = e1.getPrime();
@@ -235,16 +235,16 @@ public class SddRotate {
                 newElements.add(e1);
             } else if (e1.getSub().getVTree() == rightInner) {
                 for (final SddElement e2 : e1.getSub().asDecomposition().getElements()) {
-                    final SddNode ab = SddApply.conjoinUnsafe(e1.getPrime(), e2.getPrime(), newRoot, sf);
+                    final SddNode ab = sf.conjunctionUnsafe(e1.getPrime(), e2.getPrime(), newRoot);
                     newElements.add(new SddElement(ab, e2.getSub()));
                 }
             } else if (root.getPosition(e1.getSub().getVTree()) > root.getPosition(rightInner)) {
                 newElements.add(e1);
             } else {
-                final SddNode ab = SddApply.conjoinUnsafe(e1.getPrime(), e1.getSub(), newRoot, sf);
+                final SddNode ab = sf.conjunctionUnsafe(e1.getPrime(), e1.getSub(), newRoot);
                 newElements.add(new SddElement(ab, sf.verum()));
                 final SddNode bNeg = sf.negate(e1.getSub(), newRoot);
-                final SddNode abNeg = SddApply.conjoinUnsafe(e1.getPrime(), bNeg, newRoot, sf);
+                final SddNode abNeg = sf.conjunctionUnsafe(e1.getPrime(), bNeg, newRoot);
                 newElements.add(new SddElement(abNeg, sf.falsum()));
             }
         }

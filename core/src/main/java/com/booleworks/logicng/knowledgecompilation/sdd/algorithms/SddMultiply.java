@@ -101,7 +101,7 @@ public class SddMultiply {
                     if (multiplySub.containsKey(element.getPrime())) {
                         final SddNode prime = element.getPrime();
                         final LngResult<SddNode> sub =
-                                SddApply.apply(element.getSub(), multiplySub.get(element.getPrime()), op, root, sf,
+                                sf.binaryOperation(element.getSub(), multiplySub.get(element.getPrime()), op, root,
                                         handler);
                         if (!sub.isSuccess()) {
                             return LngResult.canceled(sub.getCancelCause());
@@ -147,7 +147,7 @@ public class SddMultiply {
                 if (element1.getPrime() == element2.getPrime()) {
                     final SddNode prime = element1.getPrime();
                     final LngResult<SddNode> sub =
-                            SddApply.apply(element1.getSub(), element2.getSub(), op, root, sf, handler);
+                            sf.binaryOperation(element1.getSub(), element2.getSub(), op, root, handler);
                     if (!sub.isSuccess()) {
                         return sub.getCancelCause();
                     }
@@ -171,16 +171,14 @@ public class SddMultiply {
             while (iter2.hasNext()) {
                 final SddElement element2 = iter2.next();
                 final LngResult<SddNode> primeResult =
-                        SddApply.apply(element1.getPrime(), element2.getPrime(), SddApplyOperation
-                                        .CONJUNCTION,
-                                root, sf, handler);
+                        sf.conjunction(element1.getPrime(), element2.getPrime(), root, handler);
                 if (!primeResult.isSuccess()) {
                     return primeResult.getCancelCause();
                 }
                 final SddNode prime = primeResult.getResult();
                 if (!prime.isFalse()) {
                     final LngResult<SddNode> sub =
-                            SddApply.apply(element1.getSub(), element2.getSub(), op, root, sf, handler);
+                            sf.binaryOperation(element1.getSub(), element2.getSub(), op, root, handler);
                     if (!sub.isSuccess()) {
                         return sub.getCancelCause();
                     }
@@ -208,7 +206,7 @@ public class SddMultiply {
                 continue;
             }
             final SddNode newPrime = element.getPrime();
-            final LngResult<SddNode> newSub = SddApply.apply(element.getSub(), complementarySub, op, root, sf, handler);
+            final LngResult<SddNode> newSub = sf.binaryOperation(element.getSub(), complementarySub, op, root, handler);
             if (!newSub.isSuccess()) {
                 return newSub.getCancelCause();
             }
