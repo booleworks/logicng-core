@@ -39,23 +39,16 @@ public class VTreeShadow {
     }
 
     public VTreeRoot apply(final Sdd sf) {
-        VTreeShadow prev = previous;
-        while (prev != null) {
-            sf.deregisterVTree(prev.getCurrent());
-            prev = previous.getPrevious();
-        }
         return this.getCurrent();
     }
 
     public VTreeShadow rollback(final Sdd sf) {
-        sf.deregisterVTree(current);
         return previous;
     }
 
     public VTreeRoot rollbackAll(final Sdd sf) {
         VTreeShadow c = this;
         while (c.getPrevious() != null) {
-            sf.deregisterVTree(c.getCurrent());
             c = c.getPrevious();
         }
         return c.getCurrent();

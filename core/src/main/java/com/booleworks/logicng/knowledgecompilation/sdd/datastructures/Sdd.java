@@ -18,11 +18,17 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTre
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddFunction;
 import com.booleworks.logicng.util.Pair;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Stack;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class Sdd {
     private final FormulaFactory f;
@@ -30,7 +36,6 @@ public class Sdd {
     private int currentSddId;
     private final HashMap<Pair<VTree, VTree>, VTreeInternal> internalVTreeNodes;
     private final HashMap<Integer, VTreeLeaf> leafVTreeNodes;
-    private final HashMap<VTree, VTreeRoot> vTreeRoots;
     private final HashMap<TreeSet<SddElement>, SddNodeDecomposition> sddDecompositions;
     private final HashMap<Integer, SddNodeTerminal> sddTerminals;
     private final SddNodeTerminal verumNode;
@@ -48,7 +53,6 @@ public class Sdd {
         currentSddId = 2;
         internalVTreeNodes = new HashMap<>();
         leafVTreeNodes = new HashMap<>();
-        vTreeRoots = new HashMap<>();
         sddDecompositions = new HashMap<>();
         sddTerminals = new HashMap<>();
         conjunctions = new HashMap<>();
@@ -271,11 +275,6 @@ public class Sdd {
     }
 
     public VTreeRoot constructRoot(final VTree rootNode) {
-        final VTreeRoot cached = vTreeRoots.get(rootNode);
-        if (cached != null) {
-            return cached;
-        }
-
         final HashMap<VTree, VTreeInternal> parents = new HashMap<>();
         final Stack<VTree> stack = new Stack<>();
         stack.push(rootNode);
@@ -293,9 +292,7 @@ public class Sdd {
         final HashMap<VTree, Integer> positions = new HashMap<>();
         final HashMap<Integer, VTree> pos2vtree = new HashMap<>();
         calculateInorder(rootNode, 0, positions, pos2vtree);
-        final VTreeRoot newRoot = new VTreeRoot(parents, rootNode, positions, pos2vtree);
-        vTreeRoots.put(rootNode, newRoot);
-        return newRoot;
+        return new VTreeRoot(parents, rootNode, positions, pos2vtree);
     }
 
     private int calculateInorder(final VTree vTree, final int base, final HashMap<VTree, Integer> positions,
@@ -310,10 +307,6 @@ public class Sdd {
             pos2vtree.put(base, vTree);
             return base;
         }
-    }
-
-    public void deregisterVTree(final VTreeRoot vTree) {
-        vTreeRoots.remove(vTree.getRoot());
     }
 
     public SddNode negate(final SddNode node, final VTreeRoot root) {
@@ -356,6 +349,55 @@ public class Sdd {
         return function.apply(this, handler);
     }
 
+    public void pin(final SddNode node) {
+        if (node.isDecomposition()) {
+            node.asDecomposition().ref();
+        }
+    }
+
+    public void unpin(final SddNode node) {
+        if (node.isDecomposition()) {
+            final SddNodeDecomposition decomp = node.asDecomposition();
+            decomp.deref();
+        }
+    }
+
+    public void garbageCollectAll() {
+        final List<SddNode> unusedNodes = sddDecompositions.values().stream()
+                .filter(d -> d.getRefs() == 0)
+                .collect(Collectors.toList());
+        garbageCollectFrom(unusedNodes);
+    }
+
+    public void garbageCollectFrom(final Collection<SddNode> nodes) {
+        final HashSet<Integer> idsToRemove = new HashSet<>();
+        final Queue<SddNode> children = new ArrayDeque<>(nodes);
+        while (!children.isEmpty()) {
+            final SddNode node = children.poll();
+            if (node.isDecomposition() && node.asDecomposition().getRefs() == 0) {
+                node.asDecomposition().free();
+                idsToRemove.add(node.getId());
+                for (final SddElement element : node.asDecomposition().getElements()) {
+                    final SddNode prime = element.getPrime();
+                    final SddNode sub = element.getSub();
+                    if (prime.isDecomposition() && prime.asDecomposition().getRefs() == 0) {
+                        children.add(prime.asDecomposition());
+                    }
+                    if (sub.isDecomposition() && sub.asDecomposition().getRefs() == 0) {
+                        children.add(sub.asDecomposition());
+                    }
+                }
+            }
+        }
+        sddDecompositions.entrySet().removeIf(e -> idsToRemove.contains(e.getValue().id));
+        conjunctions.entrySet().removeIf(
+                e -> idsToRemove.contains(e.getValue().id) || idsToRemove.contains(e.getKey().getFirst().id)
+                        || idsToRemove.contains(e.getKey().getSecond().id));
+        disjunctions.entrySet().removeIf(
+                e -> idsToRemove.contains(e.getValue().id) || idsToRemove.contains(e.getKey().getFirst().id)
+                        || idsToRemove.contains(e.getKey().getSecond().id));
+    }
+
     public int getSddNodeCount() {
         return sddTerminals.size() + sddDecompositions.size();
     }
@@ -371,7 +413,6 @@ public class Sdd {
                 "\ncurrentSddId=" + currentSddId +
                 "\ninternalVTreeNodes=" + internalVTreeNodes +
                 "\nleafVTreeNodes=" + leafVTreeNodes +
-                "\nvTreeRoots=" + vTreeRoots +
                 "\nsddDecompositions=" + sddDecompositions +
                 "\nsddTerminals=" + sddTerminals +
                 "\n}";

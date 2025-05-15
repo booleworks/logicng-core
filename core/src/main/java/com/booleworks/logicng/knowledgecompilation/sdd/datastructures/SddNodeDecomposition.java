@@ -9,11 +9,21 @@ import java.util.SortedSet;
 
 public class SddNodeDecomposition extends SddNode {
     private final SortedSet<SddElement> elements;
+    private int referenceCounter;
 
     public SddNodeDecomposition(final int id, final VTree vTree,
                                 final SortedSet<SddElement> elements) {
         super(id, vTree, calculateVariableMask(elements));
         this.elements = elements;
+        this.referenceCounter = 0;
+        for (final SddElement element : elements) {
+            if (element.getPrime().isDecomposition()) {
+                element.getPrime().asDecomposition().ref();
+            }
+            if (element.getSub().isDecomposition()) {
+                element.getSub().asDecomposition().ref();
+            }
+        }
     }
 
     private static BitSet calculateVariableMask(final Set<SddElement> elements) {
@@ -23,6 +33,36 @@ public class SddNodeDecomposition extends SddNode {
             variableMask.or(element.getSub().getVariableMask());
         }
         return variableMask;
+    }
+
+    public void ref() {
+        assert referenceCounter >= 0;
+        referenceCounter++;
+    }
+
+    public void deref() {
+        referenceCounter--;
+        assert referenceCounter >= 0;
+    }
+
+    public int getRefs() {
+        return referenceCounter;
+    }
+
+    public void free() {
+        referenceCounter = -1;
+        for (final SddElement element : elements) {
+            if (element.getPrime().isDecomposition()) {
+                element.getPrime().asDecomposition().deref();
+            }
+            if (element.getSub().isDecomposition()) {
+                element.getSub().asDecomposition().deref();
+            }
+        }
+        if (negation != null) {
+            negation.setNegation(null);
+            negation = null;
+        }
     }
 
     public SortedSet<SddElement> getElements() {
