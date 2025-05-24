@@ -4,12 +4,9 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfCoreSolver;
-import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTree;
-import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.MinFillDTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.DecisionVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
@@ -26,10 +23,17 @@ public class DecisionVTreeGeneratorTest {
         final DnnfCoreSolver solver = new DnnfCoreSolver(f, formula.variables(f).size());
         solver.add(formula);
 
-        final DTree dTree =
-                new MinFillDTreeGenerator().generate(sf.getFactory(), formula, NopHandler.get()).getResult();
-        dTree.initialize(solver);
-        final VTree tree = new DecisionVTreeGenerator(formula, dTree, solver).generate(sf);
+        final VTree tree = new DecisionVTreeGenerator(formula, solver).generate(sf);
+        assert !tree.isLeaf();
+        assert isDecisionVTreeFor(tree.asInternal(), formula, sf);
+    }
+
+    @Test
+    public void testWithoutSolver() throws ParserException, IOException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final Sdd sf = Sdd.independent(f);
+        final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
+        final VTree tree = new DecisionVTreeGenerator(formula).generate(sf);
         assert !tree.isLeaf();
         assert isDecisionVTreeFor(tree.asInternal(), formula, sf);
     }

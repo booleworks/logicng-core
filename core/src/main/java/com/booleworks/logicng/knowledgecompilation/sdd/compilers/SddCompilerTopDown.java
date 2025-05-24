@@ -16,28 +16,23 @@ import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTree;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeNode;
-import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.MinFillDTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.DecisionVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.predicates.satisfiability.SatPredicate;
 import com.booleworks.logicng.transformations.cnf.CnfSubsumption;
 import com.booleworks.logicng.transformations.simplification.BackboneSimplifier;
 import com.booleworks.logicng.util.Pair;
 
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -77,29 +72,35 @@ public class SddCompilerTopDown {
         }
         final Formula simplifiedFormula = simplified.getResult();
 
-        final Pair<Formula, Formula> unitAndNonUnitClauses = splitCnfClauses(simplifiedFormula, f);
-        final Formula unitClauses = unitAndNonUnitClauses.getFirst();
-        final Formula nonUnitClauses = unitAndNonUnitClauses.getSecond();
-
         final SddCoreSolver solver = new SddCoreSolver(f, originalVariables.size());
         final Sdd sdd = Sdd.solverBased(solver);
 
         if (simplifiedFormula.getType() == FType.TRUE) {
-            return LngResult.of(new SddCompilationResult(sdd.verum(), null, sdd));
+            //TODO: Should we define an empty VTree?
+            return LngResult.of(new SddCompilationResult(sdd.verum(), sdd));
         }
         if (!simplifiedFormula.holds(new SatPredicate(f))) {
-            return LngResult.of(new SddCompilationResult(sdd.falsum(), null, sdd));
+            //TODO: Should we define an empty VTree?
+            return LngResult.of(new SddCompilationResult(sdd.falsum(), sdd));
         }
 
         final Caches caches = new Caches();
         solver.add(simplifiedFormula);
-        final LngResult<VTree> vTreeResult = generateVTree(nonUnitClauses, unitClauses, caches, solver, sdd, handler);
+        final LngResult<Pair<DTree, VTree>> vTreeResult =
+                DecisionVTreeGenerator.generateDecisionVTree(simplifiedFormula, solver, sdd, handler);
         if (!vTreeResult.isSuccess()) {
             return LngResult.canceled(vTreeResult.getCancelCause());
         }
-        final VTreeRoot root = sdd.constructRoot(vTreeResult.getResult());
-        final LngResult<SddNode> compiled = new SddCompilerTopDown(root, caches, solver, sdd).start(handler);
-        return compiled.map(node -> new SddCompilationResult(node, root, sdd));
+        final DTree dTree = vTreeResult.getResult().getFirst();
+        final VTree vTree = vTreeResult.getResult().getSecond();
+
+        if (vTree != null) { //TODO: Why should it be null?
+            generateVarMasks(vTree, caches, solver, sdd);
+        }
+        generateContextMaps(vTree, dTree, caches);
+        sdd.defineVTree(vTree);
+        final LngResult<SddNode> compiled = new SddCompilerTopDown(caches, solver, sdd).start(handler);
+        return compiled.map(node -> new SddCompilationResult(node, sdd));
     }
 
     protected static LngResult<Formula> simplifyFormula(final FormulaFactory f, final Formula formula,
@@ -109,73 +110,6 @@ public class SddCompilerTopDown {
             return LngResult.canceled(backboneSimplified.getCancelCause());
         }
         return backboneSimplified.getResult().transform(new CnfSubsumption(f), handler);
-    }
-
-    protected static Pair<Formula, Formula> splitCnfClauses(final Formula originalCnf, final FormulaFactory f) {
-        final List<Formula> units = new ArrayList<>();
-        final List<Formula> nonUnits = new ArrayList<>();
-        switch (originalCnf.getType()) {
-            case AND:
-                for (final Formula clause : originalCnf) {
-                    if (clause.isAtomicFormula()) {
-                        units.add(clause);
-                    } else {
-                        nonUnits.add(clause);
-                    }
-                }
-                break;
-            case OR:
-                nonUnits.add(originalCnf);
-                break;
-            default:
-                units.add(originalCnf);
-        }
-        return new Pair<>(f.and(units), f.and(nonUnits));
-    }
-
-    protected static LngResult<VTree> generateVTree(final Formula nonUnitClauses, final Formula unitClauses,
-                                                    final Caches caches, final SddCoreSolver solver,
-                                                    final Sdd sf, final ComputationHandler handler) {
-        final Set<Variable> nonUnitVars = nonUnitClauses.variables(sf.getFactory());
-        final Set<Variable> varsOnlyInUnitClauses = new TreeSet<>();
-        for (final Variable v : unitClauses.variables(sf.getFactory())) {
-            if (!nonUnitVars.contains(v)) {
-                varsOnlyInUnitClauses.add(v);
-            }
-        }
-        VTree vTree = null;
-        DTree dTree = null;
-        if (!nonUnitVars.isEmpty()) {
-            final LngResult<DTree> dTreeResult =
-                    new MinFillDTreeGenerator().generate(sf.getFactory(), nonUnitClauses, handler);
-            if (!dTreeResult.isSuccess()) {
-                return LngResult.canceled(dTreeResult.getCancelCause());
-            }
-            dTree = dTreeResult.getResult();
-            dTree.initialize(solver);
-            final LngResult<VTree> dvTree =
-                    new DecisionVTreeGenerator(nonUnitClauses, dTree, solver).generate(sf, handler);
-            if (!dvTree.isSuccess()) {
-                return dvTree;
-            }
-            vTree = dvTree.getResult();
-        }
-        if (!varsOnlyInUnitClauses.isEmpty()) {
-            final LngResult<VTree> unitTree = new BalancedVTreeGenerator(varsOnlyInUnitClauses).generate(sf, handler);
-            if (!unitTree.isSuccess()) {
-                return unitTree;
-            }
-            if (vTree == null) {
-                vTree = unitTree.getResult();
-            } else {
-                vTree = sf.vTreeInternal(unitTree.getResult(), vTree);
-            }
-        }
-        if (vTree != null) {
-            generateVarMasks(vTree, caches, solver, sf);
-        }
-        generateContextMaps(vTree, dTree, caches);
-        return LngResult.of(vTree);
     }
 
     protected static BitSet generateVarMasks(final VTree vTree, final Caches caches, final SddCoreSolver solver,
@@ -199,7 +133,9 @@ public class SddCompilerTopDown {
 
     protected static void generateContextMaps(final VTree vTree, final DTree dTree, final Caches caches) {
         final List<DTreeLeaf> leaves;
-        if (dTree instanceof DTreeNode) {
+        if (dTree == null) {
+            leaves = List.of();
+        } else if (dTree instanceof DTreeNode) {
             leaves = ((DTreeNode) dTree).leafs();
         } else {
             leaves = List.of((DTreeLeaf) dTree);
