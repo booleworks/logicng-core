@@ -24,12 +24,10 @@ import java.util.TreeSet;
 public class SddBackboneFunction implements SddFunction<Backbone> {
     private final SortedSet<Variable> variables;
     private final SddNode originalNode;
-    private final VTreeRoot root;
 
-    public SddBackboneFunction(final SortedSet<Variable> variables, final SddNode originalNode, final VTreeRoot root) {
+    public SddBackboneFunction(final SortedSet<Variable> variables, final SddNode originalNode) {
         this.variables = variables;
         this.originalNode = originalNode;
-        this.root = root;
     }
 
     @Override
@@ -39,7 +37,7 @@ public class SddBackboneFunction implements SddFunction<Backbone> {
         if (originalNode.isFalse()) {
             return LngResult.of(Backbone.unsatBackbone());
         }
-        applyRec(originalNode, variableIdxs, backboneMap);
+        applyRec(originalNode, variableIdxs, backboneMap, sf.getVTree());
         final SortedSet<Variable> posVars = new TreeSet<>();
         final SortedSet<Variable> negVars = new TreeSet<>();
         final SortedSet<Variable> optVars = new TreeSet<>();
@@ -59,14 +57,15 @@ public class SddBackboneFunction implements SddFunction<Backbone> {
         return LngResult.of(backbone);
     }
 
-    public void applyRec(final SddNode node, final Set<Integer> variables, final Map<Integer, Tristate> backbone) {
+    public void applyRec(final SddNode node, final Set<Integer> variables, final Map<Integer, Tristate> backbone,
+                         final VTreeRoot root) {
         if (node.isDecomposition()) {
             final Set<Integer> gapVars = new HashSet<>();
             final VTreeInternal targetVTree = node.getVTree().asInternal();
             for (final SddElement element : node.asDecomposition().getElements()) {
                 if (!element.getSub().isFalse()) {
-                    applyRec(element.getPrime(), variables, backbone);
-                    applyRec(element.getSub(), variables, backbone);
+                    applyRec(element.getPrime(), variables, backbone, root);
+                    applyRec(element.getSub(), variables, backbone, root);
                     VTreeUtil.gapVars(targetVTree.getLeft(), element.getPrime().getVTree(), root, variables, gapVars);
                     if (element.getSub().isTrue()) {
                         VTreeUtil.vars(targetVTree.getRight(), variables, gapVars);

@@ -15,13 +15,11 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeShadow;
-import com.booleworks.logicng.util.Pair;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class SddSwapTest {
     private final static List<String> FILES = List.of(
@@ -36,20 +34,21 @@ public class SddSwapTest {
     private final static List<List<Integer>> VTREE_POSISTIONS = List.of(
             List.of(25, 28, 16, 1, 35, 41),
             List.of(18, 0, 22, 20, 22, 13),
-            List.of(382, 363, 12, 195, 428, 403, 246, 140, 203, 91, 377, 25, 376, 311, 42, 49, 275, 295, 418, 123, 248,
-                    384, 389, 197, 353, 400, 233, 45, 102, 306, 235, 263, 309, 108, 146, 130, 278, 239, 188, 175, 19,
-                    40, 386, 172),
-            List.of(267, 298, 2, 336, 221, 30, 43, 147, 207, 365, 379, 395, 239, 264, 275, 51, 40, 110, 337, 63, 264,
-                    142, 474, 308, 399, 117, 459, 402, 94, 238, 14, 355, 57, 267, 175, 330, 211, 109, 370, 143, 399,
-                    249, 31, 130, 303, 166, 379, 274, 290),
-            List.of(186, 401, 465, 81, 57, 24, 137, 461, 340, 228, 335, 105, 117, 289, 272, 487, 52, 88, 133, 34, 3,
-                    192, 338, 74, 462, 300, 389, 431, 371, 25, 121, 458, 179, 41, 133, 431, 460, 58, 33, 423, 463, 159,
-                    372, 156, 147, 108, 70, 69, 480),
-            List.of(287, 260, 378, 69, 157, 225, 219, 477, 432, 418, 179, 317, 336, 50, 47, 357, 484, 377, 288, 277,
-                    260, 335, 310, 381, 127, 407, 497, 38, 210, 89, 2, 106, 203, 152, 185, 184, 341, 215, 324, 249, 355,
-                    508, 265, 14, 252, 256, 276, 8, 245, 45, 462, 494),
-            List.of(308, 241, 103, 74, 404, 377, 201, 384, 124, 252, 334, 232, 138, 287, 122, 322, 227, 60, 110, 0, 380,
-                    138, 201, 227, 194, 315, 45, 68, 392, 25, 398, 213, 118, 229, 64, 234, 54, 133, 357, 399, 302, 323)
+            List.of(382, 363, 12, 195, 428, 403, 246, 140, 203, 91, 377, 25, 376, 311, 42, 49, 275, 295, 418,
+                    123, 248, 384, 389, 197, 353, 400, 233, 45, 102, 306, 235, 263, 309, 108, 146, 130, 278, 239, 188,
+                    175, 19, 40, 386, 172),
+            List.of(267, 298, 2, 336, 221, 30, 43, 147, 207, 365, 379, 395, 239, 264, 275, 51, 40, 110, 337,
+                    63, 264, 142, 474, 308, 399, 117, 459, 402, 94, 238, 14, 355, 57, 267, 175, 330, 211, 109, 370, 143,
+                    399, 249, 31, 130, 303, 166, 379, 274, 290),
+            List.of(186, 401, 465, 81, 57, 24, 137, 461, 340, 228, 335, 105, 117, 289, 272, 487, 52, 88, 133,
+                    34, 3, 192, 338, 74, 462, 300, 389, 431, 371, 25, 121, 458, 179, 41, 133, 431, 460, 58, 33, 423,
+                    463, 159, 372, 156, 147, 108, 70, 69, 480),
+            List.of(287, 260, 378, 69, 157, 225, 219, 477, 432, 418, 179, 317, 336, 50, 47, 357, 484, 377, 288,
+                    277, 260, 335, 310, 381, 127, 407, 497, 38, 210, 89, 2, 106, 203, 152, 185, 184, 341, 215, 324,
+                    249, 355, 508, 265, 14, 252, 256, 276, 8, 245, 45, 462, 494),
+            List.of(308, 241, 103, 74, 404, 377, 201, 384, 124, 252, 334, 232, 138, 287, 122, 322, 227, 60,
+                    110, 0, 380, 138, 201, 227, 194, 315, 45, 68, 392, 25, 398, 213, 118, 229, 64, 234, 54, 133, 357,
+                    399, 302, 323)
     );
 
     @Test
@@ -58,13 +57,15 @@ public class SddSwapTest {
         final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A | C) & (B | C | D)");
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
-        final VTreeRoot root = sf.constructRoot(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, root, sf, NopHandler.get()).getResult();
-        final Pair<SddNode, VTreeShadow> swapped =
-                SddSwap.swap(node, vtree.asInternal(), VTreeShadow.fromRoot(root), sf, NopHandler.get()).getResult();
-        assert Validation.validVTree(swapped.getFirst(), swapped.getSecond().getCurrent());
-        SddTestUtil.validateMC(swapped.getFirst(), swapped.getSecond().getCurrent(), formula, sf);
-        SddTestUtil.validateExport(swapped.getFirst(), formula, sf);
+        sf.defineVTree(vtree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
+        sf.pin(node);
+        final Map<SddNode, SddNode> translations =
+                SddGlobalTransformations.swap(vtree.asInternal(), sf, NopHandler.get()).getResult();
+        final SddNode swapped = translations.get(node);
+        assert Validation.validVTree(swapped, sf.getVTree());
+        SddTestUtil.validateMC(swapped, formula, sf);
+        SddTestUtil.validateExport(swapped, formula, sf);
     }
 
     @Test
@@ -72,17 +73,17 @@ public class SddSwapTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
             final SddNode node = result.getNode();
-            final VTreeRoot root = result.getVTree();
-            final VTreeInternal rootNode = root.getRoot().asInternal();
-            final Pair<SddNode, VTreeShadow> swapped =
-                    SddSwap.swap(node, rootNode, VTreeShadow.fromRoot(root), sdd, NopHandler.get()).getResult();
-            assert Validation.validVTree(swapped.getFirst(), swapped.getSecond().getCurrent());
-            SddTestUtil.validateMC(swapped.getFirst(), swapped.getSecond().getCurrent(), formula, sdd);
-            SddTestUtil.validateExport(swapped.getFirst(), formula, sdd);
+            final VTreeInternal rootNode = sdd.getVTree().getRoot().asInternal();
+            sdd.pin(node);
+            final Map<SddNode, SddNode> translations =
+                    SddGlobalTransformations.swap(rootNode, sdd, NopHandler.get()).getResult();
+            final SddNode swapped = translations.get(node);
+            assert Validation.validVTree(swapped, sdd.getVTree());
+            SddTestUtil.validateMC(swapped, formula, sdd);
+            SddTestUtil.validateExport(swapped, formula, sdd);
         }
     }
 
@@ -94,23 +95,23 @@ public class SddSwapTest {
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final List<Integer> vtreeSeq = VTREE_POSISTIONS.get(i);
             i++;
-            final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
             SddNode node = result.getNode();
-            VTreeShadow root = VTreeShadow.fromRoot(result.getVTree());
             for (int j = 0; j < 5; ++j) {
                 final int position = vtreeSeq.get(j);
-                final VTree current = root.getCurrent().getVTreeAtPosition(position);
+                final VTree current = sdd.getVTree().getVTreeAtPosition(position);
                 if (current == null || current.isLeaf()) {
                     continue;
                 }
-                final Pair<SddNode, VTreeShadow> swapped =
-                        SddSwap.swap(node, current.asInternal(), root, sdd, NopHandler.get()).getResult();
-                assert Validation.validVTree(swapped.getFirst(), swapped.getSecond().getCurrent());
-                SddTestUtil.validateMC(swapped.getFirst(), swapped.getSecond().getCurrent(), formula, sdd);
-                node = swapped.getFirst();
-                root = swapped.getSecond();
+                sdd.pin(node);
+                final Map<SddNode, SddNode> translations =
+                        SddGlobalTransformations.swap(current.asInternal(), sdd, NopHandler.get()).getResult();
+                final SddNode swapped = translations.get(node);
+                sdd.unpin(swapped);
+                assert Validation.validVTree(swapped, sdd.getVTree());
+                SddTestUtil.validateMC(swapped, formula, sdd);
+                node = swapped;
             }
         }
     }
@@ -126,18 +127,19 @@ public class SddSwapTest {
                         SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
                 final Sdd sdd = result.getSdd();
                 SddNode node = result.getNode();
-                VTreeShadow root = VTreeShadow.fromRoot(result.getVTree());
                 for (final int position : vtreeSeq) {
-                    final VTree current = root.getCurrent().getVTreeAtPosition(position);
+                    final VTree current = sdd.getVTree().getVTreeAtPosition(position);
                     if (current == null || current.isLeaf()) {
                         continue;
                     }
-                    final Pair<SddNode, VTreeShadow> swapped =
-                            SddSwap.swap(node, current.asInternal(), root, sdd, NopHandler.get()).getResult();
-                    assert Validation.validVTree(swapped.getFirst(), swapped.getSecond().getCurrent());
-                    SddTestUtil.validateMC(swapped.getFirst(), swapped.getSecond().getCurrent(), formula, sdd);
-                    node = swapped.getFirst();
-                    root = swapped.getSecond();
+                    sdd.pin(node);
+                    final Map<SddNode, SddNode> translations =
+                            SddGlobalTransformations.swap(current.asInternal(), sdd, NopHandler.get()).getResult();
+                    final SddNode swapped = translations.get(node);
+                    sdd.unpin(swapped);
+                    assert Validation.validVTree(swapped, sdd.getVTree());
+                    SddTestUtil.validateMC(swapped, formula, sdd);
+                    node = swapped;
                 }
             }
         }

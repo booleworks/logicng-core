@@ -7,7 +7,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,42 +14,41 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class SddQuantification {
-    public static LngResult<SddNode> existsSingle(final int var, final SddNode node, final VTreeRoot root,
+    public static LngResult<SddNode> existsSingle(final int var, final SddNode node,
                                                   final Sdd sf, final ComputationHandler handler) {
-        final LngResult<SddNode> pCond = SddRestrict.restrict(var, true, node, root, sf, handler);
+        final LngResult<SddNode> pCond = SddRestrict.restrict(var, true, node, sf, handler);
         if (!pCond.isSuccess()) {
             return pCond;
         }
-        final LngResult<SddNode> nCond = SddRestrict.restrict(var, false, node, root, sf, handler);
+        final LngResult<SddNode> nCond = SddRestrict.restrict(var, false, node, sf, handler);
         if (!nCond.isSuccess()) {
             return nCond;
         }
-        return sf.disjunction(pCond.getResult(), nCond.getResult(), root, handler);
+        return sf.disjunction(pCond.getResult(), nCond.getResult(), handler);
     }
 
-    public static LngResult<SddNode> forallSingle(final int var, final SddNode node, final VTreeRoot root,
+    public static LngResult<SddNode> forallSingle(final int var, final SddNode node,
                                                   final Sdd sf, final ComputationHandler handler) {
-        final LngResult<SddNode> pCond = SddRestrict.restrict(var, true, node, root, sf, handler);
+        final LngResult<SddNode> pCond = SddRestrict.restrict(var, true, node, sf, handler);
         if (!pCond.isSuccess()) {
             return pCond;
         }
-        final LngResult<SddNode> nCond = SddRestrict.restrict(var, false, node, root, sf, handler);
+        final LngResult<SddNode> nCond = SddRestrict.restrict(var, false, node, sf, handler);
         if (!nCond.isSuccess()) {
             return nCond;
         }
-        return sf.conjunction(pCond.getResult(), nCond.getResult(), root, handler);
+        return sf.conjunction(pCond.getResult(), nCond.getResult(), handler);
     }
 
-    public static LngResult<SddNode> exists(final Set<Integer> vars, final SddNode node, final VTreeRoot root,
+    public static LngResult<SddNode> exists(final Set<Integer> vars, final SddNode node,
                                             final Sdd sf, final ComputationHandler handler) {
         if (node.isTrivial()) {
             return LngResult.of(node);
         }
-        return existsRec(vars, node, root, sf, handler, new HashMap<>());
+        return existsRec(vars, node, sf, handler, new HashMap<>());
     }
 
-    private static LngResult<SddNode> existsRec(final Set<Integer> vars, final SddNode node,
-                                                final VTreeRoot root, final Sdd sf,
+    private static LngResult<SddNode> existsRec(final Set<Integer> vars, final SddNode node, final Sdd sf,
                                                 final ComputationHandler handler, final Map<SddNode, SddNode> cache) {
         final SddNode cached = cache.get(node);
         if (cached != null) {
@@ -73,11 +71,11 @@ public class SddQuantification {
             boolean isPartition = true;
             boolean isChanged = false;
             for (final SddElement element : node.asDecomposition().getElements()) {
-                final LngResult<SddNode> prime = existsRec(vars, element.getPrime(), root, sf, handler, cache);
+                final LngResult<SddNode> prime = existsRec(vars, element.getPrime(), sf, handler, cache);
                 if (!prime.isSuccess()) {
                     return prime;
                 }
-                final LngResult<SddNode> sub = existsRec(vars, element.getSub(), root, sf, handler, cache);
+                final LngResult<SddNode> sub = existsRec(vars, element.getSub(), sf, handler, cache);
                 if (!sub.isSuccess()) {
                     return sub;
                 }
@@ -97,7 +95,7 @@ public class SddQuantification {
 
             final TreeSet<SddElement> newElements = getQuantifiedElements(node.asDecomposition(), cache);
             if (isPartition) {
-                final LngResult<SddNode> newNode = Util.getNodeOfPartition(newElements, root, sf, handler);
+                final LngResult<SddNode> newNode = Util.getNodeOfPartition(newElements, sf, handler);
                 if (!newNode.isSuccess()) {
                     return newNode;
                 }
@@ -106,11 +104,11 @@ public class SddQuantification {
             } else {
                 LngResult<SddNode> newNode = LngResult.of(sf.falsum());
                 for (final SddElement element : newElements) {
-                    final LngResult<SddNode> e = sf.conjunction(element.getPrime(), element.getSub(), root, handler);
+                    final LngResult<SddNode> e = sf.conjunction(element.getPrime(), element.getSub(), handler);
                     if (!e.isSuccess()) {
                         return e;
                     }
-                    newNode = sf.disjunction(e.getResult(), newNode.getResult(), root, handler);
+                    newNode = sf.disjunction(e.getResult(), newNode.getResult(), handler);
                     if (!newNode.isSuccess()) {
                         return newNode;
                     }

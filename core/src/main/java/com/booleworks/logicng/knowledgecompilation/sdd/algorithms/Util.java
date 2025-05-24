@@ -116,17 +116,17 @@ public class Util {
         return lca.getFirst();
     }
 
-    public static ArrayList<Formula> sortLitsetsByLca(final Collection<Formula> litsets, final VTreeRoot root,
-                                                      final Sdd sdd) {
+    public static ArrayList<Formula> sortLitsetsByLca(final Collection<Formula> litsets, final Sdd sdd) {
         final ArrayList<Pair<VTree, Formula>> vTrees = new ArrayList<>(litsets.size());
         for (final Formula litset : litsets) {
             final List<Integer> varIdxs =
                     Util.varsToIndicesExpectKnown(litset.variables(sdd.getFactory()), sdd, new ArrayList<>());
-            vTrees.add(new Pair<>(VTreeUtil.lcaFromVariables(varIdxs, root, sdd), litset));
+            vTrees.add(new Pair<>(VTreeUtil.lcaFromVariables(varIdxs, sdd), litset));
         }
         vTrees.sort((o1, o2) -> {
             final VTree vTree1 = o1.getFirst();
             final VTree vTree2 = o2.getFirst();
+            final VTreeRoot root = sdd.getVTree();
             final int pos1 = root.getPosition(o1.getFirst());
             final int pos2 = root.getPosition(o2.getFirst());
             if (o1.getSecond() == o2.getSecond()) {
@@ -168,22 +168,21 @@ public class Util {
     }
 
 
-    public static LngResult<SddNode> getNodeOfPartition(final TreeSet<SddElement> newElements, final VTreeRoot root,
-                                                        final Sdd sf, final ComputationHandler handler) {
+    public static LngResult<SddNode> getNodeOfPartition(final TreeSet<SddElement> newElements, final Sdd sf,
+                                                        final ComputationHandler handler) {
         final LngResult<Pair<SddNode, TreeSet<SddElement>>> res =
-                Util.compressAndTrim(newElements, root, sf, handler);
+                Util.compressAndTrim(newElements, sf, handler);
         if (!res.isSuccess()) {
             LngResult.canceled(res.getCancelCause());
         }
         if (res.getResult().getFirst() != null) {
             return LngResult.of(res.getResult().getFirst());
         } else {
-            return LngResult.of(sf.decomposition(res.getResult().getSecond(), root));
+            return LngResult.of(sf.decomposition(res.getResult().getSecond()));
         }
     }
 
     private static LngResult<Pair<SddNode, TreeSet<SddElement>>> compressAndTrim(final TreeSet<SddElement> elements,
-                                                                                 final VTreeRoot root,
                                                                                  final Sdd sf,
                                                                                  final ComputationHandler handler) {
         assert !elements.isEmpty();
@@ -202,7 +201,7 @@ public class Util {
                 if (!element.getSub().isTrue()) {
                     break;
                 }
-                final LngResult<SddNode> primeRes = sf.disjunction(element.getPrime(), prime, root, handler);
+                final LngResult<SddNode> primeRes = sf.disjunction(element.getPrime(), prime, handler);
                 if (!primeRes.isSuccess()) {
                     return LngResult.canceled(primeRes.getCancelCause());
                 }
@@ -214,12 +213,12 @@ public class Util {
 
         //no trimming
         //pop uncompressed elements, compressing and placing compressed elements on element_stack
-        final LngResult<TreeSet<SddElement>> compressedElements = compress(elements, root, sf, handler);
+        final LngResult<TreeSet<SddElement>> compressedElements = compress(elements, sf, handler);
         return LngResult.of(new Pair<>(null, compressedElements.getResult()));
     }
 
-    public static LngResult<TreeSet<SddElement>> compress(final TreeSet<SddElement> product, final VTreeRoot root,
-                                                          final Sdd sf, final ComputationHandler handler) {
+    public static LngResult<TreeSet<SddElement>> compress(final TreeSet<SddElement> product, final Sdd sf,
+                                                          final ComputationHandler handler) {
         final TreeSet<SddElement> compressed = new TreeSet<>();
         SddNode prevPrime = null;
         SddNode prevSub = null;
@@ -232,7 +231,7 @@ public class Util {
                 continue;
             }
             if (current.getSub() == prevSub) {
-                final LngResult<SddNode> prevPrimeRes = sf.disjunction(current.getPrime(), prevPrime, root, handler);
+                final LngResult<SddNode> prevPrimeRes = sf.disjunction(current.getPrime(), prevPrime, handler);
                 if (!prevPrimeRes.isSuccess()) {
                     return LngResult.canceled(prevPrimeRes.getCancelCause());
                 }

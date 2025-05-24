@@ -9,7 +9,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.CompactModel;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,13 +20,10 @@ import java.util.TreeSet;
 
 public class SddProjectedModelEnumeration implements SddFunction<List<Model>> {
     private final SddNode originalNode;
-    private final VTreeRoot root;
     private final Set<Variable> variables;
 
-    public SddProjectedModelEnumeration(final Collection<Variable> variables, final SddNode originalNode,
-                                        final VTreeRoot root) {
+    public SddProjectedModelEnumeration(final Collection<Variable> variables, final SddNode originalNode) {
         this.originalNode = originalNode;
-        this.root = root;
         this.variables = new HashSet<>(variables);
     }
 
@@ -55,11 +51,11 @@ public class SddProjectedModelEnumeration implements SddFunction<List<Model>> {
             }
         }
         final LngResult<SddNode> projectedResult =
-                SddQuantification.exists(notProjectedVariables, originalNode, root, sf, handler);
+                SddQuantification.exists(notProjectedVariables, originalNode, sf, handler);
         if (!projectedResult.isSuccess()) {
             return LngResult.canceled(projectedResult.getCancelCause());
         }
         final SddNode projectedNode = projectedResult.getResult();
-        return new SddModelEnumeration(variables, projectedNode, root).applyNoExpand(sf, handler);
+        return new SddModelEnumeration(variables, projectedNode).applyNoExpand(sf, handler);
     }
 }

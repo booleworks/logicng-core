@@ -15,6 +15,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTre
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeStack;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddFunction;
 import com.booleworks.logicng.util.Pair;
 
@@ -26,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -36,7 +38,8 @@ public class Sdd {
     private int currentSddId;
     private final HashMap<Pair<VTree, VTree>, VTreeInternal> internalVTreeNodes;
     private final HashMap<Integer, VTreeLeaf> leafVTreeNodes;
-    private final HashMap<TreeSet<SddElement>, SddNodeDecomposition> sddDecompositions;
+    private final VTreeStack vTree;
+    private final HashMap<SortedSet<SddElement>, SddNodeDecomposition> sddDecompositions;
     private final HashMap<Integer, SddNodeTerminal> sddTerminals;
     private final SddNodeTerminal verumNode;
     private final SddNodeTerminal falsumNode;
@@ -57,6 +60,7 @@ public class Sdd {
         sddTerminals = new HashMap<>();
         conjunctions = new HashMap<>();
         disjunctions = new HashMap<>();
+        vTree = new VTreeStack();
         verumNode = new SddNodeTerminal(0, null, true);
         falsumNode = new SddNodeTerminal(1, null, false);
         var2idx = new HashMap<>();
@@ -141,7 +145,7 @@ public class Sdd {
         return falsumNode;
     }
 
-    public SddNodeTerminal terminal(final VTreeLeaf terminal, final boolean phase, final VTreeRoot root) {
+    public SddNodeTerminal terminal(final VTreeLeaf terminal, final boolean phase) {
         final int litIdx = mkLit(terminal.getVariable(), !phase);
         final SddNodeTerminal cached = sddTerminals.get(litIdx);
         if (cached != null) {
@@ -159,31 +163,30 @@ public class Sdd {
         return newNode;
     }
 
-    public SddNodeDecomposition decomposition(final TreeSet<SddElement> elements, final VTreeRoot root) {
+    public SddNodeDecomposition decomposition(final SortedSet<SddElement> elements) {
+        assert Util.elementsCompressed(elements);
         final SddNodeDecomposition cached = sddDecompositions.get(elements);
         if (cached != null) {
-            final VTree lca = Util.lcaOfCompressedElements(elements, root);
-            cached.setVTree(lca);
+            final VTree lca = Util.lcaOfCompressedElements(elements, getVTree());
+            cached.updateVTree(lca);
             return cached;
         }
-        assert Util.elementsCompressed(elements);
-        final VTree vTree = Util.lcaOfCompressedElements(elements, root);
+        final VTree vTree = Util.lcaOfCompressedElements(elements, getVTree());
         final TreeSet<SddElement> elementsCopy = new TreeSet<>(elements);
         final SddNodeDecomposition newNode = new SddNodeDecomposition(currentSddId++, vTree, elementsCopy);
         sddDecompositions.put(elementsCopy, newNode);
         return newNode;
     }
 
-    public LngResult<SddNode> conjunction(final SddNode left, final SddNode right, final VTreeRoot root,
-                                          final ComputationHandler handler) {
-        return binaryOperation(left, right, SddApplyOperation.CONJUNCTION, root, handler);
+    public LngResult<SddNode> conjunction(final SddNode left, final SddNode right, final ComputationHandler handler) {
+        return binaryOperation(left, right, SddApplyOperation.CONJUNCTION, handler);
     }
 
-    public SddNode conjunction(final SddNode left, final SddNode right, final VTreeRoot root) {
-        return conjunction(left, right, root, NopHandler.get()).getResult();
+    public SddNode conjunction(final SddNode left, final SddNode right) {
+        return conjunction(left, right, NopHandler.get()).getResult();
     }
 
-    public SddNode conjunctionUnsafe(final SddNode left, final SddNode right, final VTreeRoot root) {
+    public SddNode conjunctionUnsafe(final SddNode left, final SddNode right) {
         assert left != null && right != null;
         if (left.isFalse() || right.isFalse()) {
             return falsum();
@@ -202,28 +205,27 @@ public class Sdd {
 
         final TreeSet<SddElement> newElements = new TreeSet<>();
         newElements.add(new SddElement(left, right));
-        newElements.add(new SddElement(negate(left, root), falsum()));
-        final SddNode newNode = decomposition(newElements, root);
+        newElements.add(new SddElement(negate(left), falsum()));
+        final SddNode newNode = decomposition(newElements);
         cacheApplyComputation(left, right, newNode, SddApplyOperation.CONJUNCTION);
         return newNode;
     }
 
-    public LngResult<SddNode> disjunction(final SddNode left, final SddNode right, final VTreeRoot root,
-                                          final ComputationHandler handler) {
-        return binaryOperation(left, right, SddApplyOperation.DISJUNCTION, root, handler);
+    public LngResult<SddNode> disjunction(final SddNode left, final SddNode right, final ComputationHandler handler) {
+        return binaryOperation(left, right, SddApplyOperation.DISJUNCTION, handler);
     }
 
-    public SddNode disjunction(final SddNode left, final SddNode right, final VTreeRoot root) {
-        return disjunction(left, right, root, NopHandler.get()).getResult();
+    public SddNode disjunction(final SddNode left, final SddNode right) {
+        return disjunction(left, right, NopHandler.get()).getResult();
     }
 
     public LngResult<SddNode> binaryOperation(final SddNode left, final SddNode right, final SddApplyOperation op,
-                                              final VTreeRoot root, final ComputationHandler handler) {
+                                              final ComputationHandler handler) {
         final SddNode cached = lookupApplyComputation(left, right, op);
         if (cached != null) {
             return LngResult.of(cached);
         }
-        final LngResult<SddNode> result = SddApply.apply(left, right, op, root, this, handler);
+        final LngResult<SddNode> result = SddApply.apply(left, right, op, this, handler);
         if (!result.isSuccess()) {
             return result;
         }
@@ -231,9 +233,8 @@ public class Sdd {
         return result;
     }
 
-    public SddNode binaryOperation(final SddNode left, final SddNode right, final VTreeRoot root,
-                                   final SddApplyOperation op) {
-        return binaryOperation(left, right, op, root, NopHandler.get()).getResult();
+    public SddNode binaryOperation(final SddNode left, final SddNode right, final SddApplyOperation op) {
+        return binaryOperation(left, right, op, NopHandler.get()).getResult();
     }
 
     private SddNode lookupApplyComputation(final SddNode left, final SddNode right, final SddApplyOperation op) {
@@ -274,6 +275,11 @@ public class Sdd {
         }
     }
 
+    public void defineVTree(final VTree vTree) {
+        final VTreeRoot root = constructRoot(vTree);
+        this.vTree.initialize(root);
+    }
+
     public VTreeRoot constructRoot(final VTree rootNode) {
         final HashMap<VTree, VTreeInternal> parents = new HashMap<>();
         final Stack<VTree> stack = new Stack<>();
@@ -309,7 +315,15 @@ public class Sdd {
         }
     }
 
-    public SddNode negate(final SddNode node, final VTreeRoot root) {
+    public VTreeRoot getVTree() {
+        return vTree.getActive();
+    }
+
+    public VTreeStack getVTreeStack() {
+        return vTree;
+    }
+
+    public SddNode negate(final SddNode node) {
         final SddNode cached = node.getNegation();
         if (cached != null) {
             return cached;
@@ -321,13 +335,13 @@ public class Sdd {
             //Note: compression is not possible here
             final TreeSet<SddElement> newElements = new TreeSet<>();
             for (final SddElement element : decomp.getElements()) {
-                final SddNode subNeg = negate(element.getSub(), root);
+                final SddNode subNeg = negate(element.getSub());
                 Util.pushNewElement(element.getPrime(), subNeg, newElements);
             }
-            nodeNeg = decomposition(newElements, root);
+            nodeNeg = decomposition(newElements);
         } else if (node.isLiteral()) {
             final SddNodeTerminal t = node.asTerminal();
-            nodeNeg = terminal(t.getVTree().asLeaf(), !t.getPhase(), root);
+            nodeNeg = terminal(t.getVTree().asLeaf(), !t.getPhase());
         } else {
             final SddNodeTerminal t = node.asTerminal();
             nodeNeg = t.getPhase() ? falsum() : verum();
@@ -352,13 +366,14 @@ public class Sdd {
     public void pin(final SddNode node) {
         if (node.isDecomposition()) {
             node.asDecomposition().ref();
+            vTree.getActive().pin(node);
         }
     }
 
     public void unpin(final SddNode node) {
         if (node.isDecomposition()) {
-            final SddNodeDecomposition decomp = node.asDecomposition();
-            decomp.deref();
+            node.asDecomposition().deref();
+            vTree.getActive().unpin(node);
         }
     }
 
@@ -366,10 +381,10 @@ public class Sdd {
         final List<SddNode> unusedNodes = sddDecompositions.values().stream()
                 .filter(d -> d.getRefs() == 0)
                 .collect(Collectors.toList());
-        garbageCollectFrom(unusedNodes);
+        garbageCollectSelection(unusedNodes);
     }
 
-    public void garbageCollectFrom(final Collection<SddNode> nodes) {
+    public void garbageCollectSelection(final Collection<SddNode> nodes) {
         final HashSet<Integer> idsToRemove = new HashSet<>();
         final Queue<SddNode> children = new ArrayDeque<>(nodes);
         while (!children.isEmpty()) {
@@ -400,6 +415,14 @@ public class Sdd {
 
     public int getSddNodeCount() {
         return sddTerminals.size() + sddDecompositions.size();
+    }
+
+    public int getTerminalCount() {
+        return sddTerminals.size();
+    }
+
+    public int getDecompositionCount() {
+        return sddDecompositions.size();
     }
 
     public FormulaFactory getFactory() {

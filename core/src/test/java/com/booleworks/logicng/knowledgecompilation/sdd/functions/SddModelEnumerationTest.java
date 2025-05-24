@@ -26,7 +26,7 @@ public class SddModelEnumerationTest {
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
         final List<Model> models =
-                sdd.apply(new SddModelEnumeration(f.variables("A", "B", "C", "D", "E"), res.getNode(), res.getVTree()));
+                sdd.apply(new SddModelEnumeration(f.variables("A", "B", "C", "D", "E"), res.getNode()));
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final List<Model> expected = solver.enumerateAllModels(f.variables("A", "B", "C", "D", "E"));
@@ -42,7 +42,7 @@ public class SddModelEnumerationTest {
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
         final List<Model> models =
-                sdd.apply(new SddProjectedModelEnumeration(f.variables("A", "D", "X"), res.getNode(), res.getVTree()));
+                sdd.apply(new SddProjectedModelEnumeration(f.variables("A", "D", "X"), res.getNode()));
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final List<Model> expected = solver.enumerateAllModels(f.variables("A", "D", "X"));
@@ -60,7 +60,7 @@ public class SddModelEnumerationTest {
         final SddNode descendant = res.getNode().asDecomposition().getElements().first().getSub();
         final Formula subformula = sdd.apply(new SddExportFormula(descendant));
         final List<Model> models =
-                sdd.apply(new SddModelEnumeration(subformula.variables(f), descendant, res.getVTree()));
+                sdd.apply(new SddModelEnumeration(subformula.variables(f), descendant));
 
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(subformula);

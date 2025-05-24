@@ -27,13 +27,11 @@ import java.util.stream.Collectors;
 
 public class SddModelEnumeration implements SddFunction<List<Model>> {
     private final SddNode originalNode;
-    private final VTreeRoot root;
     private final Set<Variable> variables;
     private Set<Integer> variableIdxs;
 
-    public SddModelEnumeration(final Collection<Variable> variables, final SddNode originalNode, final VTreeRoot root) {
+    public SddModelEnumeration(final Collection<Variable> variables, final SddNode originalNode) {
         this.originalNode = originalNode;
-        this.root = root;
         this.variables = new HashSet<>(variables);
     }
 
@@ -72,7 +70,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
                 .filter(v -> !sdd.knows(v) || !variablesInVTree.contains(sdd.variableToIndex(v)))
                 .collect(Collectors.toSet());
 
-        final NodePC producer = buildPCNode(originalNode, new HashMap<>(), new HashMap<>());
+        final NodePC producer = buildPCNode(originalNode, sdd.getVTree(), new HashMap<>(), new HashMap<>());
         final List<CompactModel> models = new ArrayList<>();
         producer.consumerRoot = models;
         while (!producer.isDone()) {
@@ -85,7 +83,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         return LngResult.of(modelsWithDontCares);
     }
 
-    private NodePC buildPCNode(final SddNode node, final HashMap<SddNode, NodePC> nodeCache,
+    private NodePC buildPCNode(final SddNode node, final VTreeRoot root, final HashMap<SddNode, NodePC> nodeCache,
                                final HashMap<SddElement, ElementPC> elementCache) {
         final NodePC cached = nodeCache.get(node);
         if (cached != null) {
@@ -94,7 +92,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         final NodePC nodePC = new NodePC(node);
         if (node.isDecomposition()) {
             for (final SddElement element : node.asDecomposition().getElements()) {
-                final ElementPC pc = buildPCElement(element, nodeCache, elementCache);
+                final ElementPC pc = buildPCElement(element, nodeCache, root, elementCache);
                 if (pc != null) {
                     nodePC.producers.add(pc);
                     pc.consumers.add(nodePC);
@@ -107,7 +105,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
     }
 
     private ElementPC buildPCElement(final SddElement element, final HashMap<SddNode, NodePC> nodeCache,
-                                     final HashMap<SddElement, ElementPC> elementCache) {
+                                     final VTreeRoot root, final HashMap<SddElement, ElementPC> elementCache) {
         final ElementPC cached = elementCache.get(element);
         if (cached != null) {
             return cached;
@@ -115,12 +113,12 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         if (element.getSub().isFalse()) {
             return null;
         }
-        final NodePC prime = buildPCNode(element.getPrime(), nodeCache, elementCache);
+        final NodePC prime = buildPCNode(element.getPrime(), root, nodeCache, elementCache);
         final NodePC sub;
         if (element.getSub().isTrue()) {
             sub = null;
         } else {
-            sub = buildPCNode(element.getSub(), nodeCache, elementCache);
+            sub = buildPCNode(element.getSub(), root, nodeCache, elementCache);
         }
         final VTree primeTree = prime.node.getVTree();
         final ElementPC elementPC;
@@ -284,7 +282,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
     private List<CompactModel> extendModels(final List<CompactModel> models, final VTree usedVTree,
                                             final VTree targetVTree, final Sdd sdd) {
         final SortedSet<Integer> gapVars = new TreeSet<>();
-        VTreeUtil.gapVars(targetVTree, usedVTree, root, variableIdxs, gapVars);
+        VTreeUtil.gapVars(targetVTree, usedVTree, sdd.getVTree(), variableIdxs, gapVars);
         final List<CompactModel> extended = new ArrayList<>(models.size());
         for (final CompactModel model : models) {
             final List<Variable> dontCareVariables = Util.indicesToVars(gapVars, sdd, new ArrayList<>());

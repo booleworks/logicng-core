@@ -1,5 +1,6 @@
 package com.booleworks.logicng.io.readers;
 
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
@@ -7,7 +8,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.util.Pair;
 
 import java.io.BufferedReader;
@@ -21,14 +21,15 @@ public class SddReader {
     private SddReader() {
     }
 
-    public static Pair<SddNode, VTreeRoot> readSdd(final File sddInput, final File vTreeInput, final Sdd sf)
+    public static Pair<SddNode, Sdd> readSdd(final File sddInput, final File vTreeInput, final FormulaFactory f)
             throws ParserException, IOException {
-        final VTreeRoot root = sf.constructRoot(readVTree(vTreeInput, sf));
-        final SddNode node = readSdd(sddInput, root, sf);
-        return new Pair<>(node, root);
+        final Sdd sdd = Sdd.independent(f);
+        sdd.defineVTree(readVTree(vTreeInput, sdd));
+        final SddNode node = readSdd(sddInput, sdd);
+        return new Pair<>(node, sdd);
     }
 
-    public static SddNode readSdd(final File sddInput, final VTreeRoot root, final Sdd sf)
+    public static SddNode readSdd(final File sddInput, final Sdd sf)
             throws IOException, ParserException {
         final HashMap<Integer, SddNode> sddNodes = new HashMap<>();
         SddNode last = null;
@@ -47,7 +48,7 @@ public class SddReader {
                     final int varId = Integer.parseInt(comps[3]);
                     final Variable variable = sf.getFactory().variable(String.format("v%d", Math.abs(varId)));
                     final VTreeLeaf leaf = sf.vTreeLeaf(variable);
-                    final SddNode node = sf.terminal(leaf, varId > 0, root);
+                    final SddNode node = sf.terminal(leaf, varId > 0);
                     sddNodes.put(nodeId, node);
                     last = node;
                 } else if (line.startsWith("T ")) {
@@ -92,7 +93,7 @@ public class SddReader {
                         final SddNode sub = sddNodes.get(Integer.parseInt(comps[i + 1]));
                         elements.add(new SddElement(prime, sub));
                     }
-                    final SddNode node = sf.decomposition(elements, root);
+                    final SddNode node = sf.decomposition(elements);
                     sddNodes.put(nodeId, node);
                     last = node;
                 }

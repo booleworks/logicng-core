@@ -15,14 +15,12 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeShadow;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeUtil;
-import com.booleworks.logicng.util.Pair;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class SddRotateTest {
     private final static List<String> FILES = List.of(
@@ -60,14 +58,15 @@ public class SddRotateTest {
         final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A | C) & (B | C | D)");
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
-        final VTreeRoot root = sf.constructRoot(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, root, sf, NopHandler.get()).getResult();
-        final Pair<SddNode, VTreeShadow> rotated =
-                SddRotate.rotateLeft(node, vtree.asInternal(), VTreeShadow.fromRoot(root), sf, NopHandler.get())
-                        .getResult();
-        assert Validation.validVTree(rotated.getFirst(), rotated.getSecond().getCurrent());
-        SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sf);
-        SddTestUtil.validateExport(rotated.getFirst(), formula, sf);
+        sf.defineVTree(vtree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
+        sf.pin(node);
+        final Map<SddNode, SddNode> translation =
+                SddGlobalTransformations.rotateLeft(vtree.asInternal(), sf, NopHandler.get()).getResult();
+        final SddNode rotated = translation.get(node);
+        assert Validation.validVTree(rotated, sf.getVTree());
+        SddTestUtil.validateMC(rotated, formula, sf);
+        SddTestUtil.validateExport(rotated, formula, sf);
     }
 
     @Test
@@ -76,14 +75,15 @@ public class SddRotateTest {
         final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A | C) & (B | C | D)");
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
-        final VTreeRoot root = sf.constructRoot(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, root, sf, NopHandler.get()).getResult();
-        final Pair<SddNode, VTreeShadow> rotated =
-                SddRotate.rotateRight(node, vtree.asInternal(), VTreeShadow.fromRoot(root), sf, NopHandler.get())
-                        .getResult();
-        assert Validation.validVTree(rotated.getFirst(), rotated.getSecond().getCurrent());
-        SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sf);
-        SddTestUtil.validateExport(rotated.getFirst(), formula, sf);
+        sf.defineVTree(vtree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
+        sf.pin(node);
+        final Map<SddNode, SddNode> translations =
+                SddGlobalTransformations.rotateRight(vtree.asInternal(), sf, NopHandler.get()).getResult();
+        final SddNode rotated = translations.get(node);
+        assert Validation.validVTree(rotated, sf.getVTree());
+        SddTestUtil.validateMC(rotated, formula, sf);
+        SddTestUtil.validateExport(rotated, formula, sf);
     }
 
     @Test
@@ -95,13 +95,14 @@ public class SddRotateTest {
                     SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
             final SddNode node = result.getNode();
-            final VTreeRoot root = result.getVTree();
-            final VTreeInternal rootNode = root.getRoot().asInternal();
-            final Pair<SddNode, VTreeShadow> rotated =
-                    SddRotate.rotateLeft(node, rootNode, VTreeShadow.fromRoot(root), sdd, NopHandler.get()).getResult();
-            assert Validation.validVTree(rotated.getFirst(), rotated.getSecond().getCurrent());
-            SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sdd);
-            SddTestUtil.validateExport(rotated.getFirst(), formula, sdd);
+            final VTreeInternal rootNode = sdd.getVTree().getRoot().asInternal();
+            sdd.pin(node);
+            final Map<SddNode, SddNode> translation =
+                    SddGlobalTransformations.rotateLeft(rootNode, sdd, NopHandler.get()).getResult();
+            final SddNode rotated = translation.get(node);
+            assert Validation.validVTree(rotated, sdd.getVTree());
+            SddTestUtil.validateMC(rotated, formula, sdd);
+            SddTestUtil.validateExport(rotated, formula, sdd);
         }
     }
 
@@ -114,14 +115,14 @@ public class SddRotateTest {
                     SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
             final SddNode node = result.getNode();
-            final VTreeRoot root = result.getVTree();
-            final VTreeInternal rootNode = root.getRoot().asInternal();
-            final Pair<SddNode, VTreeShadow> rotated =
-                    SddRotate.rotateRight(node, rootNode, VTreeShadow.fromRoot(root), sdd, NopHandler.get())
-                            .getResult();
-            assert Validation.validVTree(rotated.getFirst(), rotated.getSecond().getCurrent());
-            SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sdd);
-            SddTestUtil.validateExport(rotated.getFirst(), formula, sdd);
+            sdd.pin(node);
+            final VTreeInternal rootNode = sdd.getVTree().getRoot().asInternal();
+            final Map<SddNode, SddNode> translations =
+                    SddGlobalTransformations.rotateRight(rootNode, sdd, NopHandler.get()).getResult();
+            final SddNode rotated = translations.get(node);
+            assert Validation.validVTree(rotated, sdd.getVTree());
+            SddTestUtil.validateMC(rotated, formula, sdd);
+            SddTestUtil.validateExport(rotated, formula, sdd);
         }
     }
 
@@ -137,19 +138,19 @@ public class SddRotateTest {
                     SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
             SddNode node = result.getNode();
-            VTreeShadow root = VTreeShadow.fromRoot(result.getVTree());
             for (int j = 0; j < 5; ++j) {
                 final int position = vtreeSeq.get(j);
-                final VTree current = root.getCurrent().getVTreeAtPosition(position);
+                final VTree current = sdd.getVTree().getVTreeAtPosition(position);
                 if (current == null || !VTreeUtil.isRightFragment(current)) {
                     continue;
                 }
-                final Pair<SddNode, VTreeShadow> rotated =
-                        SddRotate.rotateLeft(node, current.asInternal(), root, sdd, NopHandler.get()).getResult();
-                assert Validation.validVTree(rotated.getFirst(), rotated.getSecond().getCurrent());
-                SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sdd);
-                node = rotated.getFirst();
-                root = rotated.getSecond();
+                sdd.pin(node);
+                final Map<SddNode, SddNode> translation =
+                        SddGlobalTransformations.rotateLeft(current.asInternal(), sdd, NopHandler.get()).getResult();
+                final SddNode rotated = translation.get(node);
+                assert Validation.validVTree(rotated, sdd.getVTree());
+                SddTestUtil.validateMC(rotated, formula, sdd);
+                node = rotated;
             }
         }
     }
@@ -166,19 +167,20 @@ public class SddRotateTest {
                     SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
             SddNode node = result.getNode();
-            VTreeShadow root = VTreeShadow.fromRoot(result.getVTree());
             for (int j = 0; j < 5; ++j) {
                 final int position = vtreeSeq.get(j);
-                final VTree current = root.getCurrent().getVTreeAtPosition(position);
+                final VTree current = sdd.getVTree().getVTreeAtPosition(position);
                 if (current == null || !VTreeUtil.isLeftFragment(current)) {
                     continue;
                 }
-                final Pair<SddNode, VTreeShadow> rotated =
-                        SddRotate.rotateRight(node, current.asInternal(), root, sdd, NopHandler.get()).getResult();
-                assert Validation.validVTree(rotated.getFirst(), rotated.getSecond().getCurrent());
-                SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sdd);
-                node = rotated.getFirst();
-                root = rotated.getSecond();
+                sdd.pin(node);
+                final Map<SddNode, SddNode> translations =
+                        SddGlobalTransformations.rotateRight(current.asInternal(), sdd, NopHandler.get()).getResult();
+                final SddNode rotated = translations.get(node);
+                sdd.unpin(rotated);
+                assert Validation.validVTree(rotated, sdd.getVTree());
+                SddTestUtil.validateMC(rotated, formula, sdd);
+                node = rotated;
             }
         }
     }
@@ -194,18 +196,19 @@ public class SddRotateTest {
                         SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
                 final Sdd sdd = result.getSdd();
                 SddNode node = result.getNode();
-                VTreeShadow root = VTreeShadow.fromRoot(result.getVTree());
+                sdd.pin(node);
                 for (final int position : vtreeSeq) {
-                    final VTree current = root.getCurrent().getVTreeAtPosition(position);
+                    final VTree current = sdd.getVTree().getVTreeAtPosition(position);
                     if (current == null || !VTreeUtil.isRightFragment(current)) {
                         continue;
                     }
-                    final Pair<SddNode, VTreeShadow> rotated =
-                            SddRotate.rotateLeft(node, current.asInternal(), root, sdd, NopHandler.get()).getResult();
-                    assert Validation.validVTree(rotated.getFirst(), rotated.getSecond().getCurrent());
-                    SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sdd);
-                    node = rotated.getFirst();
-                    root = rotated.getSecond();
+                    final Map<SddNode, SddNode> translation =
+                            SddGlobalTransformations.rotateLeft(current.asInternal(), sdd, NopHandler.get())
+                                    .getResult();
+                    final SddNode rotated = translation.get(node);
+                    assert Validation.validVTree(rotated, sdd.getVTree());
+                    SddTestUtil.validateMC(rotated, formula, sdd);
+                    node = rotated;
                 }
             }
         }
@@ -222,18 +225,20 @@ public class SddRotateTest {
                         SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
                 final Sdd sdd = result.getSdd();
                 SddNode node = result.getNode();
-                VTreeShadow root = VTreeShadow.fromRoot(result.getVTree());
+                sdd.pin(node);
                 for (final int position : vtreeSeq) {
-                    final VTree current = root.getCurrent().getVTreeAtPosition(position);
+                    final VTree current = sdd.getVTree().getVTreeAtPosition(position);
                     if (current == null || !VTreeUtil.isLeftFragment(current)) {
                         continue;
                     }
-                    final Pair<SddNode, VTreeShadow> rotated =
-                            SddRotate.rotateRight(node, current.asInternal(), root, sdd, NopHandler.get()).getResult();
-                    assert Validation.validVTree(rotated.getFirst(), rotated.getSecond().getCurrent());
-                    SddTestUtil.validateMC(rotated.getFirst(), rotated.getSecond().getCurrent(), formula, sdd);
-                    node = rotated.getFirst();
-                    root = rotated.getSecond();
+                    final Map<SddNode, SddNode> translations =
+                            SddGlobalTransformations.rotateRight(current.asInternal(), sdd, NopHandler.get())
+                                    .getResult();
+                    sdd.garbageCollectAll();
+                    final SddNode rotated = translations.get(node);
+                    assert Validation.validVTree(rotated, sdd.getVTree());
+                    SddTestUtil.validateMC(rotated, formula, sdd);
+                    node = rotated;
                 }
             }
         }

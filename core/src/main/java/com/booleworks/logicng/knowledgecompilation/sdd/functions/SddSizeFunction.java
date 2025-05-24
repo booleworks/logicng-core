@@ -1,0 +1,43 @@
+package com.booleworks.logicng.knowledgecompilation.sdd.functions;
+
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
+
+public class SddSizeFunction implements SddFunction<Long> {
+    final SddNode node;
+
+    public SddSizeFunction(final SddNode node) {
+        this.node = node;
+    }
+
+    @Override
+    public LngResult<Long> apply(final Sdd sf, final ComputationHandler handler) {
+        final Set<SddNode> visited = new HashSet<>();
+        final Stack<SddNode> stack = new Stack<>();
+        stack.push(node);
+        visited.add(node);
+        long size = 0;
+        while (!stack.isEmpty()) {
+            final SddNode current = stack.pop();
+            size += 1;
+            if (current.isDecomposition()) {
+                for (final SddElement element : current.asDecomposition().getElements()) {
+                    if (visited.add(element.getPrime())) {
+                        stack.push(element.getPrime());
+                    }
+                    if (visited.add(element.getSub())) {
+                        stack.push(element.getSub());
+                    }
+                }
+            }
+        }
+        return LngResult.of(size);
+    }
+}

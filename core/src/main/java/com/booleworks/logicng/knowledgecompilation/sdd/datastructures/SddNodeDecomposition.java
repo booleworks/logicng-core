@@ -41,6 +41,7 @@ public class SddNodeDecomposition extends SddNode {
     }
 
     public void deref() {
+        assert referenceCounter >= 0;
         referenceCounter--;
         assert referenceCounter >= 0;
     }

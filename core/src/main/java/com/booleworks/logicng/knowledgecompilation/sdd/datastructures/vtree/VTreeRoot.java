@@ -1,14 +1,19 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.util.Pair;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class VTreeRoot {
     private final HashMap<VTree, VTreeInternal> parents;
     private final VTree root;
     private final HashMap<VTree, Integer> positions;
     private final HashMap<Integer, VTree> position2VTree;
+    private final ArrayList<SddNode> pinnedNodes;
+    private final HashMap<SddNode, Integer> pinCount;
 
     public VTreeRoot(final HashMap<VTree, VTreeInternal> parents, final VTree root,
                      final HashMap<VTree, Integer> positions, final HashMap<Integer, VTree> position2VTree) {
@@ -16,6 +21,29 @@ public class VTreeRoot {
         this.root = root;
         this.positions = positions;
         this.position2VTree = position2VTree;
+        this.pinnedNodes = new ArrayList<>();
+        this.pinCount = new HashMap<>();
+    }
+
+    public void pin(final SddNode node) {
+        final Integer count = pinCount.get(node);
+        if (count == null) {
+            pinnedNodes.add(node);
+            pinCount.put(node, 1);
+        } else {
+            pinCount.put(node, pinCount.get(node) + 1);
+        }
+    }
+
+    public void unpin(final SddNode node) {
+        final Integer count = pinCount.get(node);
+        assert count != null;
+        if (count == 1) {
+            pinnedNodes.remove(node);
+            pinCount.remove(node);
+        } else {
+            pinCount.put(node, pinCount.get(node) - 1);
+        }
     }
 
     public boolean isSubtree(final VTree subtree, final VTree of) {
@@ -123,6 +151,10 @@ public class VTreeRoot {
         assert positions.containsKey(vTree);
         final int pos = getPosition(vTree);
         return getVTreeAtPosition(pos - 1);
+    }
+
+    public List<SddNode> getPinnedNodes() {
+        return pinnedNodes;
     }
 
     public int getId() {

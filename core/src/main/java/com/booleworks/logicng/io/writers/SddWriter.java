@@ -1,5 +1,6 @@
 package com.booleworks.logicng.io.writers;
 
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
@@ -23,10 +24,10 @@ public class SddWriter {
     }
 
     public static void writeSdd(final File sddDesitination, final File vTreeDesitionation, final SddNode sdd,
-                                final VTreeRoot root) throws IOException {
+                                final Sdd sf) throws IOException {
         final SddExportState state = new SddExportState();
         writeVTree(vTreeDesitionation, sdd.getVTree(), state.vState);
-        exportSdd(sdd, root, state);
+        exportSdd(sdd, sf.getVTree(), state);
         try (
                 final BufferedWriter writer = new BufferedWriter(
                         new OutputStreamWriter(Files.newOutputStream(sddDesitination.toPath()), StandardCharsets.UTF_8))

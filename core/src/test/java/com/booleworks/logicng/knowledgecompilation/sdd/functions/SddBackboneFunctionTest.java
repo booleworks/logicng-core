@@ -29,7 +29,7 @@ public class SddBackboneFunctionTest {
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
         final Backbone backbone =
-                sdd.apply(new SddBackboneFunction(f.variables("A", "B", "C", "D", "E"), res.getNode(), res.getVTree()));
+                sdd.apply(new SddBackboneFunction(f.variables("A", "B", "C", "D", "E"), res.getNode()));
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final Backbone expected = solver.backbone(f.variables("A", "B", "C", "D", "E"));
@@ -56,7 +56,7 @@ public class SddBackboneFunctionTest {
                     SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
             final Backbone backbone =
-                    sdd.apply(new SddBackboneFunction(variables, result.getNode(), result.getVTree()));
+                    sdd.apply(new SddBackboneFunction(variables, result.getNode()));
             final SatSolver solver = SatSolver.newSolver(f);
             solver.add(formula);
             final Backbone expected = solver.backbone(variables);
@@ -77,7 +77,7 @@ public class SddBackboneFunctionTest {
                     SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
             final Backbone backbone =
-                    sdd.apply(new SddBackboneFunction(variables, result.getNode(), result.getVTree()));
+                    sdd.apply(new SddBackboneFunction(variables, result.getNode()));
             final SatSolver solver = SatSolver.newSolver(f);
             solver.add(formula);
             final Backbone expected = solver.backbone(variables);

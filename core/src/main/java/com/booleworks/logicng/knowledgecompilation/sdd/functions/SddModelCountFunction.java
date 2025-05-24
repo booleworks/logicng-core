@@ -22,13 +22,11 @@ import java.util.SortedSet;
 
 public class SddModelCountFunction implements SddFunction<BigInteger> {
     private final SddNode node;
-    private final VTreeRoot root;
     private final Set<Variable> variables;
     private SortedSet<Integer> sddVariables;
 
-    public SddModelCountFunction(final Collection<Variable> variables, final SddNode node, final VTreeRoot root) {
+    public SddModelCountFunction(final Collection<Variable> variables, final SddNode node) {
         this.node = node;
-        this.root = root;
         this.variables = new HashSet<>(variables);
     }
 
@@ -50,12 +48,12 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
         } else if (node.isTrue()) {
             count = BigInteger.ONE;
         } else {
-            count = applyRec(node, new HashMap<>());
+            count = applyRec(node, sf.getVTree(), new HashMap<>());
         }
         return LngResult.of(BigInteger.TWO.pow((int) variablesNotInSdd).multiply(count));
     }
 
-    private BigInteger applyRec(final SddNode node, final HashMap<SddNode, BigInteger> cache) {
+    private BigInteger applyRec(final SddNode node, final VTreeRoot root, final HashMap<SddNode, BigInteger> cache) {
         if (node.isFalse()) {
             return BigInteger.ZERO;
         }
@@ -70,8 +68,8 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
         final VTreeInternal vTree = node.getVTree().asInternal();
         BigInteger modelCount = BigInteger.ZERO;
         for (final SddElement element : decomp.getElements()) {
-            final BigInteger prime = applyRec(element.getPrime(), cache);
-            final BigInteger sub = applyRec(element.getSub(), cache);
+            final BigInteger prime = applyRec(element.getPrime(), root, cache);
+            final BigInteger sub = applyRec(element.getSub(), root, cache);
 
             if (!element.getSub().isFalse()) {
                 final VTree left = vTree.getLeft();

@@ -19,7 +19,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompila
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelEnumeration;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddVariablesFunction;
 import org.junit.jupiter.api.Test;
@@ -57,15 +56,15 @@ public class SddRestrictTest {
         final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
-        final VTreeRoot root = sf.constructRoot(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, root, sf, NopHandler.get()).getResult();
+        sf.defineVTree(vtree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
         final int cIdx = sf.variableToIndex(f.variable("C"));
         SddNode restricted =
-                SddRestrict.restrict(cIdx, true, node, root, sf, NopHandler.get()).getResult();
-        checkRestrictedModel(f.literal("C", true), restricted, node, root, sf);
+                SddRestrict.restrict(cIdx, true, node, sf, NopHandler.get()).getResult();
+        checkRestrictedModel(f.literal("C", true), restricted, node, sf);
         restricted =
-                SddRestrict.restrict(cIdx, false, node, root, sf, NopHandler.get()).getResult();
-        checkRestrictedModel(f.literal("C", false), restricted, node, root, sf);
+                SddRestrict.restrict(cIdx, false, node, sf, NopHandler.get()).getResult();
+        checkRestrictedModel(f.literal("C", false), restricted, node, sf);
     }
 
     @Test
@@ -74,19 +73,19 @@ public class SddRestrictTest {
         final Sdd sf = Sdd.independent(f);
         final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
-        final VTreeRoot root = sf.constructRoot(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, root, sf, NopHandler.get()).getResult();
+        sf.defineVTree(vtree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
         final int aIdx = sf.variableToIndex(f.variable("A"));
         final int bIdx = sf.variableToIndex(f.variable("B"));
         final int dIdx = sf.variableToIndex(f.variable("D"));
         final SddNode restricted =
-                SddRestrict.restrict(aIdx, true, node, root, sf, NopHandler.get()).getResult();
-        checkRestrictedModel(f.literal("A", true), restricted, node, root, sf);
+                SddRestrict.restrict(aIdx, true, node, sf, NopHandler.get()).getResult();
+        checkRestrictedModel(f.literal("A", true), restricted, node, sf);
         final SddNode restricted2 =
-                SddRestrict.restrict(dIdx, false, restricted, root, sf, NopHandler.get()).getResult();
-        checkRestrictedModel(f.literal("D", false), restricted2, restricted, root, sf);
+                SddRestrict.restrict(dIdx, false, restricted, sf, NopHandler.get()).getResult();
+        checkRestrictedModel(f.literal("D", false), restricted2, restricted, sf);
         final SddNode restricted3 =
-                SddRestrict.restrict(bIdx, false, restricted2, root, sf, NopHandler.get()).getResult();
+                SddRestrict.restrict(bIdx, false, restricted2, sf, NopHandler.get()).getResult();
         assertThat(restricted3.isFalse()).isTrue();
     }
 
@@ -100,7 +99,6 @@ public class SddRestrictTest {
                     SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
             SddNode node = result.getNode();
-            final VTreeRoot root = result.getVTree();
             final List<Variable> vars = new ArrayList<>(formula.variables(f));
             final List<Literal> restrictVars =
                     RESTRICT_VARS.get(fileIndex).stream().map(i -> i % 2 == 0 ? vars.get(i) : vars.get(i).negate(f))
@@ -108,7 +106,7 @@ public class SddRestrictTest {
             final Assignment rs = new Assignment();
             for (final Literal r : restrictVars) {
                 final int litIdx = sdd.variableToIndex(r.variable());
-                node = SddRestrict.restrict(litIdx, r.getPhase(), node, root, sdd, NopHandler.get()).getResult();
+                node = SddRestrict.restrict(litIdx, r.getPhase(), node, sdd, NopHandler.get()).getResult();
                 rs.addLiteral(r);
             }
             SddTestUtil.validateExport(node, formula.restrict(f, rs), sdd);
@@ -117,14 +115,14 @@ public class SddRestrictTest {
     }
 
     private static void checkRestrictedModel(final Literal lit, final SddNode restricted, final SddNode original,
-                                             final VTreeRoot root, final Sdd sf) {
+                                             final Sdd sf) {
         final Set<Variable> originalVariables = sf.apply(new SddVariablesFunction(original));
         final Set<Variable> restrictedVariables = new TreeSet<>(originalVariables);
         restrictedVariables.remove(lit.variable());
         final List<Model> originalModels =
-                sf.apply(new SddModelEnumeration(originalVariables, original, root));
+                sf.apply(new SddModelEnumeration(originalVariables, original));
         final List<Model> restrictedModels =
-                sf.apply(new SddModelEnumeration(restrictedVariables, restricted, root));
+                sf.apply(new SddModelEnumeration(restrictedVariables, restricted));
         final Set<Assignment> restrictedModelsWithA = restrictedModels
                 .stream()
                 .map(Model::toAssignment)

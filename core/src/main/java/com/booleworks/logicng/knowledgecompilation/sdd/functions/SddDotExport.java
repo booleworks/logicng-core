@@ -10,7 +10,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -26,15 +25,13 @@ public class SddDotExport implements SddFunction<Boolean> {
     private static final String NOT = "&not;";
 
     private final SddNode node;
-    private final VTreeRoot root;
     private final Writer writer;
     private final HashMap<SddNode, GraphVTreeNode> nodeCache = new HashMap<>();
     private final HashMap<SddElement, GraphVTreeGroup> groupCache = new HashMap<>();
     GraphSdd result;
 
-    public SddDotExport(final SddNode node, final VTreeRoot root, final Writer writer) {
+    public SddDotExport(final SddNode node, final Writer writer) {
         this.node = node;
-        this.root = root;
         this.writer = writer;
     }
 

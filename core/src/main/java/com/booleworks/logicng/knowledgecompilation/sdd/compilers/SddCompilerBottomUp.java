@@ -12,18 +12,30 @@ import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
 import java.util.Collection;
 import java.util.List;
 
 public class SddCompilerBottomUp {
-    public static SddNode cnfToSdd(final Formula cnf, final VTreeRoot vTree, final Sdd sf) {
-        return cnfToSdd(cnf, vTree, sf, NopHandler.get()).getResult();
+    protected final Formula cnf;
+    protected final Sdd sdd;
+
+    public SddCompilerBottomUp(final Formula cnf, final Sdd sdd) {
+        this.cnf = cnf;
+        this.sdd = sdd;
     }
 
-    public static LngResult<SddNode> cnfToSdd(final Formula cnf, final VTreeRoot vTree, final Sdd sf,
+    public static SddNode cnfToSdd(final Formula cnf, final Sdd sf) {
+        return cnfToSdd(cnf, sf, NopHandler.get()).getResult();
+    }
+
+    public static LngResult<SddNode> cnfToSdd(final Formula cnf, final Sdd sf,
                                               final ComputationHandler handler) {
+        final SddCompilerBottomUp compiler = new SddCompilerBottomUp(cnf, sf);
+        return compiler.cnfToSdd(handler);
+    }
+
+    public LngResult<SddNode> cnfToSdd(final ComputationHandler handler) {
         final List<Formula> operands;
         switch (cnf.getType()) {
             case OR:
@@ -34,28 +46,30 @@ public class SddCompilerBottomUp {
                 operands = ((And) cnf).getOperands();
                 break;
             case TRUE:
-                return LngResult.of(sf.verum());
+                return LngResult.of(sdd.verum());
             case FALSE:
-                return LngResult.of(sf.falsum());
+                return LngResult.of(sdd.falsum());
             default:
                 throw new IllegalArgumentException("Expected formula in cnf");
         }
         SddNode node = sf.verum();
         final List<Formula> sorted = Util.sortLitsetsByLca(operands, vTree, sf);
+        SddNode node = sdd.verum();
+        final List<Formula> sorted = Util.sortLitsetsByLca(operands, sdd);
         for (final Formula op : sorted) {
             final SddNode l;
             if (op.getType() == FType.LITERAL) {
                 final Literal lit = (Literal) op;
-                l = sf.terminal(sf.vTreeLeaf(lit.variable()), lit.getPhase(), vTree);
+                l = sdd.terminal(sdd.vTreeLeaf(lit.variable()), lit.getPhase());
             } else {
-                final LngResult<SddNode> lRes = applyClause(((Or) op).getOperands(), vTree, sf, handler);
+                final LngResult<SddNode> lRes = applyClause(((Or) op).getOperands(), handler);
                 if (!lRes.isSuccess()) {
                     return lRes;
                 }
                 l = lRes.getResult();
             }
             final LngResult<SddNode> nodeRes =
-                    sf.binaryOperation(l, node, SddApplyOperation.CONJUNCTION, vTree, handler);
+                    sdd.binaryOperation(l, node, SddApplyOperation.CONJUNCTION, handler);
             if (!nodeRes.isSuccess()) {
                 return nodeRes;
             }
@@ -64,14 +78,12 @@ public class SddCompilerBottomUp {
         return LngResult.of(node);
     }
 
-    public static LngResult<SddNode> applyClause(final Collection<Formula> lits, final VTreeRoot root,
-                                                 final Sdd sf,
-                                                 final ComputationHandler handler) {
-        SddNode node = sf.falsum();
+    public LngResult<SddNode> applyClause(final Collection<Formula> lits, final ComputationHandler handler) {
+        SddNode node = sdd.falsum();
         for (final Formula formula : lits) {
             final Literal lit = (Literal) formula;
-            final SddNode l = sf.terminal(sf.vTreeLeaf(lit.variable()), lit.getPhase(), root);
-            final LngResult<SddNode> s = sf.binaryOperation(node, l, SddApplyOperation.DISJUNCTION, root, handler);
+            final SddNode l = sdd.terminal(sdd.vTreeLeaf(lit.variable()), lit.getPhase());
+            final LngResult<SddNode> s = sdd.binaryOperation(node, l, SddApplyOperation.DISJUNCTION, handler);
             if (!s.isSuccess()) {
                 return s;
             }

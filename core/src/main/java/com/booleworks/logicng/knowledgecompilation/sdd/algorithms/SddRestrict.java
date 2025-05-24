@@ -8,7 +8,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,17 +18,15 @@ public class SddRestrict {
     }
 
     public static LngResult<SddNode> restrict(final int variable, final boolean phase, final SddNode node,
-                                              final VTreeRoot root,
                                               final Sdd sf, final ComputationHandler handler) {
         if (node.isTrivial()) {
             return LngResult.of(node);
         }
-        return restrictRec(variable, phase, node, root, sf, handler, new HashMap<>());
+        return restrictRec(variable, phase, node, sf, handler, new HashMap<>());
     }
 
-    private static LngResult<SddNode> restrictRec(final int var, final boolean phase, final SddNode node,
-                                                  final VTreeRoot root, final Sdd sf, final ComputationHandler handler,
-                                                  final Map<SddNode, SddNode> cache) {
+    private static LngResult<SddNode> restrictRec(final int var, final boolean phase, final SddNode node, final Sdd sf,
+                                                  final ComputationHandler handler, final Map<SddNode, SddNode> cache) {
         final SddNode cached = cache.get(node);
         if (cached != null) {
             return LngResult.of(cached);
@@ -50,11 +47,11 @@ public class SddRestrict {
             final VTreeInternal vtree = node.getVTree().asInternal();
             final VTreeLeaf leaf = sf.vTreeLeaf(var);
             final SddNode restricted;
-            if (root.isSubtree(leaf, vtree.getLeft())) {
+            if (sf.getVTree().isSubtree(leaf, vtree.getLeft())) {
                 final TreeSet<SddElement> elements = new TreeSet<>();
                 for (final SddElement element : node.asDecomposition().getElements()) {
                     final LngResult<SddNode> prime =
-                            restrictRec(var, phase, element.getPrime(), root, sf, handler, cache);
+                            restrictRec(var, phase, element.getPrime(), sf, handler, cache);
                     if (!prime.isSuccess()) {
                         return prime;
                     }
@@ -62,17 +59,17 @@ public class SddRestrict {
                         elements.add(new SddElement(prime.getResult(), element.getSub()));
                     }
                 }
-                return Util.getNodeOfPartition(elements, root, sf, handler);
-            } else if (root.isSubtree(leaf, vtree.getRight())) {
+                return Util.getNodeOfPartition(elements, sf, handler);
+            } else if (sf.getVTree().isSubtree(leaf, vtree.getRight())) {
                 final TreeSet<SddElement> elements = new TreeSet<>();
                 for (final SddElement element : node.asDecomposition().getElements()) {
-                    final LngResult<SddNode> sub = restrictRec(var, phase, element.getSub(), root, sf, handler, cache);
+                    final LngResult<SddNode> sub = restrictRec(var, phase, element.getSub(), sf, handler, cache);
                     if (!sub.isSuccess()) {
                         return sub;
                     }
                     elements.add(new SddElement(element.getPrime(), sub.getResult()));
                 }
-                return Util.getNodeOfPartition(elements, root, sf, handler);
+                return Util.getNodeOfPartition(elements, sf, handler);
             } else {
                 restricted = node;
             }

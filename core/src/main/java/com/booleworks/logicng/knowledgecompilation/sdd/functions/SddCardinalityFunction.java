@@ -21,15 +21,12 @@ import java.util.SortedSet;
 
 public class SddCardinalityFunction implements SddFunction<Integer> {
     private final SddNode node;
-    private final VTreeRoot root;
     private final Set<Variable> variables;
     private SortedSet<Integer> sddVariables;
     private final boolean maximize;
 
-    public SddCardinalityFunction(final boolean maximize, final Collection<Variable> variables, final SddNode node,
-                                  final VTreeRoot root) {
+    public SddCardinalityFunction(final boolean maximize, final Collection<Variable> variables, final SddNode node) {
         this.node = node;
-        this.root = root;
         this.variables = new HashSet<>(variables);
         this.maximize = maximize;
     }
@@ -48,13 +45,13 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
         } else if (node.isTrue()) {
             cardinality = 0;
         } else {
-            cardinality = applyRec(node, variableIdxs, new HashMap<>());
+            cardinality = applyRec(node, variableIdxs, new HashMap<>(), sf.getVTree());
         }
         return LngResult.of(maximize ? variablesNotInSdd + cardinality : cardinality);
     }
 
     private int applyRec(final SddNode node, final Set<Integer> relevantVariables,
-                         final HashMap<SddNode, Integer> cache) {
+                         final HashMap<SddNode, Integer> cache, final VTreeRoot root) {
         assert !node.isFalse();
         if (node.isTrue()) {
             return 0;
@@ -81,8 +78,8 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
             if (element.getSub().isFalse()) {
                 continue;
             }
-            final int prime = applyRec(element.getPrime(), relevantVariables, cache);
-            final int sub = applyRec(element.getSub(), relevantVariables, cache);
+            final int prime = applyRec(element.getPrime(), relevantVariables, cache, root);
+            final int sub = applyRec(element.getSub(), relevantVariables, cache, root);
 
             if (maximize) {
                 final VTree left = vTree.getLeft();

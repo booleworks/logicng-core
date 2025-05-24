@@ -44,7 +44,7 @@ public abstract class SddNode implements Comparable<SddNode> {
         return vTree;
     }
 
-    public void setVTree(final VTree vTree) {
+    public void updateVTree(final VTree vTree) {
         this.vTree = vTree;
     }
 

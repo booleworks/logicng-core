@@ -10,7 +10,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -35,9 +34,9 @@ public class SddCompilerBottomUpTest {
 
         final Formula formula = f.parse("(A | C | D) & (A | B)");
         final VTree vTree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
-        final VTreeRoot root = sf.constructRoot(vTree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, root, sf, NopHandler.get()).getResult();
-        SddTestUtil.validateMC(node, root, formula, sf);
+        sf.defineVTree(vTree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
+        SddTestUtil.validateMC(node, formula, sf);
         SddTestUtil.validateExport(node, formula, sf);
     }
 
@@ -48,9 +47,9 @@ public class SddCompilerBottomUpTest {
             final Sdd sf = Sdd.independent(f);
             final Formula cnf = f.and(DimacsReader.readCNF(f, file));
             final VTree vTree = new BalancedVTreeGenerator(cnf.variables(f)).generate(sf);
-            final VTreeRoot root = sf.constructRoot(vTree);
-            final SddNode node = SddCompilerBottomUp.cnfToSdd(cnf, root, sf, NopHandler.get()).getResult();
             SddTestUtil.validateMC(node, root, cnf, sf);
+            sf.defineVTree(vTree);
+            final SddNode node = SddCompilerBottomUp.cnfToSdd(cnf, sf, NopHandler.get()).getResult();
             SddTestUtil.validateExport(node, cnf, sf);
         }
     }

@@ -17,30 +17,28 @@ public class VTreeUtil {
         return !vtree.isLeaf() && !vtree.asInternal().getRight().isLeaf();
     }
 
-    public static VTree substituteNode(final VTree root, final VTree oldNode, final VTree newNode,
-                                       final Sdd sf) {
+    public static VTree substituteNode(final VTree root, final VTree oldNode, final VTree newNode, final Sdd sf) {
         if (root == oldNode) {
             return newNode;
         }
         if (root instanceof VTreeInternal) {
             return sf.vTreeInternal(
                     substituteNode(((VTreeInternal) root).getLeft(), oldNode, newNode, sf),
-                    substituteNode((((VTreeInternal) root).getRight()), oldNode, newNode, sf)
-            );
+                    substituteNode((((VTreeInternal) root).getRight()), oldNode, newNode, sf));
         } else {
             return root;
         }
     }
 
-    public static VTree lcaFromVariables(final Collection<Integer> variables, final VTreeRoot root, final Sdd sdd) {
+    public static VTree lcaFromVariables(final Collection<Integer> variables, final Sdd sdd) {
         int posMax = Integer.MIN_VALUE;
         int posMin = Integer.MAX_VALUE;
         for (final int variable : variables) {
-            final int pos = root.getPosition(sdd.vTreeLeaf(variable));
+            final int pos = sdd.getVTree().getPosition(sdd.vTreeLeaf(variable));
             posMax = Math.max(posMax, pos);
             posMin = Math.min(posMin, pos);
         }
-        return root.lcaOf(posMin, posMax);
+        return sdd.getVTree().lcaOf(posMin, posMax);
     }
 
     public static void gapVars(final VTree vtree, final VTree subtree, final VTreeRoot root, final Set<Integer> filter,

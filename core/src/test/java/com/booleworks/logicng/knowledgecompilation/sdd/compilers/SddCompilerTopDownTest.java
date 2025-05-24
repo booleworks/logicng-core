@@ -30,7 +30,7 @@ public class SddCompilerTopDownTest {
         final Formula formula = f.parse("(Y | ~Z) & (~X | Z) & (X | ~Y) & (X | Q)");
         final SddCompilationResult result = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = result.getSdd();
-        SddTestUtil.validateMC(result.getNode(), result.getVTree(), formula, sdd);
+        SddTestUtil.validateMC(result.getNode(), formula, sdd);
         SddTestUtil.validateExport(result.getNode(), formula, sdd);
     }
 
@@ -42,7 +42,7 @@ public class SddCompilerTopDownTest {
             final SddCompilationResult result =
                     SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
-            SddTestUtil.validateMC(result.getNode(), result.getVTree(), formula, sdd);
+            SddTestUtil.validateMC(result.getNode(), formula, sdd);
             SddTestUtil.validateExport(result.getNode(), formula, sdd);
         }
     }

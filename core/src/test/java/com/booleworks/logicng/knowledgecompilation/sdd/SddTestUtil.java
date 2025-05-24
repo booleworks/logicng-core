@@ -8,7 +8,6 @@ import com.booleworks.logicng.io.graphical.GraphicalRepresentation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddDotExport;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddExportFormula;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelCountFunction;
@@ -20,10 +19,9 @@ import java.math.BigInteger;
 import java.util.List;
 
 public class SddTestUtil {
-    public static void validateMC(final SddNode node, final VTreeRoot root, final Formula originalFormula,
-                                  final Sdd sf) {
+    public static void validateMC(final SddNode node, final Formula originalFormula, final Sdd sf) {
         final BigInteger models =
-                new SddModelCountFunction(originalFormula.variables(sf.getFactory()), node, root).apply(sf);
+                new SddModelCountFunction(originalFormula.variables(sf.getFactory()), node).apply(sf);
         final BigInteger expected = ModelCounter.count(sf.getFactory(), List.of(originalFormula),
                 originalFormula.variables(sf.getFactory()));
         assertThat(models).isEqualTo(expected);
@@ -34,9 +32,9 @@ public class SddTestUtil {
         assertThat(sf.getFactory().equivalence(originalFormula, exported).isTautology(sf.getFactory())).isTrue();
     }
 
-    public static void printGraph(final SddNode node, final VTreeRoot root, final Sdd sf) {
+    public static void printGraph(final SddNode node, final Sdd sf) {
         final StringWriter sw = new StringWriter();
-        sf.apply(new SddDotExport(node, root, sw));
+        sf.apply(new SddDotExport(node, sw));
         sw.flush();
         System.out.println(sw);
     }
