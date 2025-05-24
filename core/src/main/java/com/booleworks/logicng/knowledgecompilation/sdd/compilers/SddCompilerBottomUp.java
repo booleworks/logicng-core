@@ -52,11 +52,18 @@ public class SddCompilerBottomUp {
             default:
                 throw new IllegalArgumentException("Expected formula in cnf");
         }
-        SddNode node = sf.verum();
-        final List<Formula> sorted = Util.sortLitsetsByLca(operands, vTree, sf);
         SddNode node = sdd.verum();
+        int nodeThreshold = 1000;
         final List<Formula> sorted = Util.sortLitsetsByLca(operands, sdd);
         for (final Formula op : sorted) {
+            if (sdd.getDecompositionCount() >= nodeThreshold) {
+                sdd.pin(node);
+                sdd.garbageCollectAll();
+                sdd.unpin(node);
+                if (sdd.getDecompositionCount() >= (int) (((double) nodeThreshold) * 0.8)) {
+                    nodeThreshold = Math.min((int) ((double) sdd.getDecompositionCount() * 1.5), 1_000_000);
+                }
+            }
             final SddNode l;
             if (op.getType() == FType.LITERAL) {
                 final Literal lit = (Literal) op;
@@ -64,6 +71,7 @@ public class SddCompilerBottomUp {
             } else {
                 final LngResult<SddNode> lRes = applyClause(((Or) op).getOperands(), handler);
                 if (!lRes.isSuccess()) {
+                    sdd.unpin(node);
                     return lRes;
                 }
                 l = lRes.getResult();
@@ -75,6 +83,9 @@ public class SddCompilerBottomUp {
             }
             node = nodeRes.getResult();
         }
+        sdd.pin(node);
+        sdd.garbageCollectAll();
+        sdd.unpin(node);
         return LngResult.of(node);
     }
 
