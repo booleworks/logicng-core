@@ -61,7 +61,7 @@ public class SddSwapTest {
         final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
         sf.pin(node);
         final Map<SddNode, SddNode> translations =
-                SddGlobalTransformations.swap(vtree.asInternal(), sf, NopHandler.get()).getResult();
+                SddGlobalTransformations.swap(vtree.asInternal(), sf, NopHandler.get()).getResult().getTranslations();
         final SddNode swapped = translations.get(node);
         assert Validation.validVTree(swapped, sf.getVTree());
         SddTestUtil.validateMC(swapped, formula, sf);
@@ -79,7 +79,7 @@ public class SddSwapTest {
             final VTreeInternal rootNode = sdd.getVTree().getRoot().asInternal();
             sdd.pin(node);
             final Map<SddNode, SddNode> translations =
-                    SddGlobalTransformations.swap(rootNode, sdd, NopHandler.get()).getResult();
+                    SddGlobalTransformations.swap(rootNode, sdd, NopHandler.get()).getResult().getTranslations();
             final SddNode swapped = translations.get(node);
             assert Validation.validVTree(swapped, sdd.getVTree());
             SddTestUtil.validateMC(swapped, formula, sdd);
@@ -106,7 +106,8 @@ public class SddSwapTest {
                 }
                 sdd.pin(node);
                 final Map<SddNode, SddNode> translations =
-                        SddGlobalTransformations.swap(current.asInternal(), sdd, NopHandler.get()).getResult();
+                        SddGlobalTransformations.swap(current.asInternal(), sdd, NopHandler.get()).getResult()
+                                .getTranslations();
                 final SddNode swapped = translations.get(node);
                 sdd.unpin(swapped);
                 assert Validation.validVTree(swapped, sdd.getVTree());
@@ -134,7 +135,8 @@ public class SddSwapTest {
                     }
                     sdd.pin(node);
                     final Map<SddNode, SddNode> translations =
-                            SddGlobalTransformations.swap(current.asInternal(), sdd, NopHandler.get()).getResult();
+                            SddGlobalTransformations.swap(current.asInternal(), sdd, NopHandler.get()).getResult()
+                                    .getTranslations();
                     final SddNode swapped = translations.get(node);
                     sdd.unpin(swapped);
                     assert Validation.validVTree(swapped, sdd.getVTree());

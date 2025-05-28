@@ -17,6 +17,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTre
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeStack;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddFunction;
+import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddSizeFunction;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayDeque;
@@ -167,8 +168,10 @@ public class Sdd {
         assert Util.elementsCompressed(elements);
         final SddNodeDecomposition cached = sddDecompositions.get(elements);
         if (cached != null) {
-            final VTree lca = Util.lcaOfCompressedElements(elements, getVTree());
-            cached.updateVTree(lca);
+            if (!getVTree().contains(cached.getVTree())) {
+                final VTree lca = Util.lcaOfCompressedElements(elements, getVTree());
+                cached.updateVTree(lca);
+            }
             return cached;
         }
         final VTree vTree = Util.lcaOfCompressedElements(elements, getVTree());
@@ -199,7 +202,7 @@ public class Sdd {
         }
 
         final SddNode cached = lookupApplyComputation(left, right, SddApplyOperation.CONJUNCTION);
-        if (cached != null) {
+        if (cached != null && getVTree().contains(cached.getVTree())) {
             return cached;
         }
 
@@ -222,14 +225,15 @@ public class Sdd {
     public LngResult<SddNode> binaryOperation(final SddNode left, final SddNode right, final SddApplyOperation op,
                                               final ComputationHandler handler) {
         final SddNode cached = lookupApplyComputation(left, right, op);
-        if (cached != null) {
+        if (cached != null && getVTree().contains(cached.getVTree())) {
             return LngResult.of(cached);
         }
         final LngResult<SddNode> result = SddApply.apply(left, right, op, this, handler);
         if (!result.isSuccess()) {
             return result;
         }
-        cacheApplyComputation(left, right, result.getResult(), op);
+        final SddNode newNode = result.getResult();
+        cacheApplyComputation(left, right, newNode, op);
         return result;
     }
 
@@ -315,6 +319,33 @@ public class Sdd {
         }
     }
 
+    public void recalculateVTrees() {
+        for (final SddNode pinnedNode : getVTree().getPinnedNodes()) {
+            recalculateVTrees(pinnedNode);
+        }
+    }
+
+    private VTree recalculateVTrees(final SddNode node) {
+        if (node.isDecomposition()) {
+            if (getVTree().contains(node.getVTree())) {
+                for (final SddElement element : node.asDecomposition().getElements()) {
+                    recalculateVTrees(element.getPrime());
+                    recalculateVTrees(element.getSub());
+                }
+            } else {
+                VTree lca = null;
+                for (final SddElement element : node.asDecomposition().getElements()) {
+                    final VTree prime = recalculateVTrees(element.getPrime());
+                    final VTree sub = recalculateVTrees(element.getSub());
+                    final VTree elementLca = getVTree().lcaOf(prime, sub);
+                    lca = getVTree().lcaOf(lca, elementLca);
+                }
+                node.updateVTree(lca);
+            }
+        }
+        return node.getVTree();
+    }
+
     public VTreeRoot getVTree() {
         return vTree.getActive();
     }
@@ -325,7 +356,7 @@ public class Sdd {
 
     public SddNode negate(final SddNode node) {
         final SddNode cached = node.getNegation();
-        if (cached != null) {
+        if (cached != null && getVTree().contains(cached.getVTree())) {
             return cached;
         }
 
@@ -352,7 +383,15 @@ public class Sdd {
     }
 
     public SddNode getNegationIfCached(final SddNode node) {
-        return node.getNegation();
+        if (node.getNegation() == null) {
+            return null;
+        } else if (getVTree().contains(node.getNegation().getVTree())) {
+            return node.getNegation();
+        } else {
+            node.getNegation().setNegation(null);
+            node.setNegation(null);
+            return null;
+        }
     }
 
     public <RESULT> RESULT apply(final SddFunction<RESULT> function) {
@@ -365,15 +404,13 @@ public class Sdd {
 
     public void pin(final SddNode node) {
         if (node.isDecomposition()) {
-            node.asDecomposition().ref();
-            vTree.getActive().pin(node);
+            vTree.getActive().pin(node.asDecomposition());
         }
     }
 
     public void unpin(final SddNode node) {
         if (node.isDecomposition()) {
-            node.asDecomposition().deref();
-            vTree.getActive().unpin(node);
+            vTree.getActive().unpin(node.asDecomposition());
         }
     }
 
@@ -413,6 +450,27 @@ public class Sdd {
                         || idsToRemove.contains(e.getKey().getSecond().id));
     }
 
+    private void assertValidVTree(final SddNode node) {
+        assert node.isTrivial() || getVTree().contains(node.getVTree());
+    }
+
+    private void assertValidVTreeAll(final SddNode node) {
+        assertValidVTree(node);
+        if (node.isDecomposition()) {
+            for (final SddElement element : node.asDecomposition().getElements()) {
+                assertValidVTreeAll(element.getPrime());
+                assertValidVTreeAll(element.getSub());
+            }
+        }
+    }
+
+    public int getActiveSize() {
+        if (vTree.isEmpty()) {
+            return 0;
+        }
+        return apply(new SddSizeFunction(getVTree().getPinnedNodes()));
+    }
+
     public int getSddNodeCount() {
         return sddTerminals.size() + sddDecompositions.size();
     }
@@ -427,17 +485,5 @@ public class Sdd {
 
     public FormulaFactory getFactory() {
         return f;
-    }
-
-    @Override
-    public String toString() {
-        return "SddFactory{" +
-                "\ncurrentVTreeId=" + currentVTreeId +
-                "\ncurrentSddId=" + currentSddId +
-                "\ninternalVTreeNodes=" + internalVTreeNodes +
-                "\nleafVTreeNodes=" + leafVTreeNodes +
-                "\nsddDecompositions=" + sddDecompositions +
-                "\nsddTerminals=" + sddTerminals +
-                "\n}";
     }
 }

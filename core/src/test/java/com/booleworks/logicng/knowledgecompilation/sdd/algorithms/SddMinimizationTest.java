@@ -1,0 +1,152 @@
+package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
+
+import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.io.parsers.ParserException;
+import com.booleworks.logicng.io.readers.DimacsReader;
+import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerBottomUp;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.TransformationResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
+public class SddMinimizationTest {
+    @Test
+    public void testLocalOptimumSimple() throws ParserException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final Sdd sdd = Sdd.independent(f);
+        final Formula formula = f.parse("(A | C) & (B | C | D)");
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
+        sdd.defineVTree(vtree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        sdd.pin(node);
+        final TransformationResult res =
+                SddMinimization.bestLocalState(new SddMinimization.SearchState(vtree, sdd), NopHandler::get,
+                        NopHandler.get()).getResult();
+        final SddNode mini = res.getTranslations().get(node);
+        SddTestUtil.validateExport(mini, formula, sdd);
+    }
+
+    @Test
+    public void testLocalOptimumFile() throws IOException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final Sdd sdd = Sdd.independent(f);
+        final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
+        sdd.defineVTree(vtree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        sdd.pin(node);
+        final TransformationResult res =
+                SddMinimization.bestLocalState(new SddMinimization.SearchState(vtree, sdd), NopHandler::get,
+                        NopHandler.get()).getResult();
+        final SddNode mini = res.getTranslations().get(node);
+        SddTestUtil.validateExport(mini, formula, sdd);
+    }
+
+    @Test
+    public void testLocalOptimumFileInner() throws IOException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final Sdd sdd = Sdd.independent(f);
+        final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
+        sdd.defineVTree(vtree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        sdd.pin(node);
+        final TransformationResult res = SddMinimization.bestLocalState(
+                new SddMinimization.SearchState(vtree.asInternal().getLeft().asInternal().getRight(), sdd),
+                NopHandler::get, NopHandler.get()).getResult();
+        final SddNode mini = res.getTranslations().get(node);
+        SddTestUtil.validateExport(mini, formula, sdd);
+    }
+
+    @Test
+    public void testSinglePassSimple() throws ParserException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final Sdd sdd = Sdd.independent(f);
+        final Formula formula = f.parse("(A | C) & (B | C | D)");
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
+        sdd.defineVTree(vtree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        sdd.pin(node);
+        final TransformationResult res =
+                SddMinimization.localSearchPass(sdd, NopHandler::get, NopHandler.get()).getResult();
+        final SddNode mini = res.getTranslations().get(node);
+        SddTestUtil.validateExport(mini, formula, sdd);
+    }
+
+    @Test
+    public void testSinglePassFile() throws IOException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final Sdd sdd = Sdd.independent(f);
+        final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
+        sdd.defineVTree(vtree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        sdd.pin(node);
+        final TransformationResult res =
+                SddMinimization.localSearchPass(sdd, NopHandler::get, NopHandler.get()).getResult();
+        final SddNode mini = res.getTranslations().get(node);
+        SddTestUtil.validateExport(mini, formula, sdd);
+    }
+
+
+    @Test
+    public void testMinimizeSimple() throws ParserException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final Sdd sdd = Sdd.independent(f);
+        final Formula formula = f.parse("(A | C) & (B | C | D)");
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
+        sdd.defineVTree(vtree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        sdd.pin(node);
+        final TransformationResult res = SddMinimization.minimize(sdd, NopHandler::get, NopHandler.get()).getResult();
+        final SddNode mini = res.getTranslations().get(node);
+        SddTestUtil.validateExport(mini, formula, sdd);
+    }
+
+    @Test
+    public void testMinimizeFile() throws IOException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final Sdd sdd = Sdd.independent(f);
+        final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
+        sdd.defineVTree(vtree);
+        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        sdd.pin(node);
+        final TransformationResult res = SddMinimization.minimize(sdd, NopHandler::get, NopHandler.get()).getResult();
+        final SddNode mini = res.getTranslations().get(node);
+        SddTestUtil.validateExport(mini, formula, sdd);
+    }
+
+    //    private final static List<String> FILES = List.of(
+    //            "../test_files/sdd/compile_example1.cnf",
+    //            "../test_files/dnnf/both_bdd_dnnf_1.cnf",
+    //            "../test_files/dnnf/both_bdd_dnnf_2.cnf",
+    //            "../test_files/dnnf/both_bdd_dnnf_3.cnf",
+    //            "../test_files/dnnf/both_bdd_dnnf_4.cnf",
+    //            "../test_files/dnnf/both_bdd_dnnf_5.cnf"
+    //    );
+    //
+    //    @Test
+    //    @LongRunningTag
+    //    public void testMinimizeFiles() throws IOException {
+    //        for (final String file : FILES) {
+    //            final FormulaFactory f = FormulaFactory.caching();
+    //            final Formula formula = f.and(DimacsReader.readCNF(f, file));
+    //            final SddCompilationResult comp = SddCompilerTopDown.compile(formula, f, NopHandler.get())
+    //            .getResult();
+    //            comp.getSdd().pin(comp.getNode());
+    //            final Supplier<ComputationHandler> fragmentHandlers = () -> new TimeoutHandler(1000);
+    //            final TransformationResult res =
+    //                    SddMinimization.minimize(comp.getSdd(), fragmentHandlers, NopHandler.get()).getResult();
+    //            final SddNode mini = res.getTranslations().get(comp.getNode());
+    //            SddTestUtil.validateMC(mini, formula, comp.getSdd());
+    //        }
+    //    }
+}

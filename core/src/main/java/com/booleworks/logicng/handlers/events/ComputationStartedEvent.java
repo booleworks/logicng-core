@@ -28,6 +28,7 @@ public class ComputationStartedEvent implements LngEvent {
             new ComputationStartedEvent("SDD Computation");
     public static final ComputationStartedEvent VTREE_GENERATION_STARTED =
             new ComputationStartedEvent("VTREE Computation");
+    public static final ComputationStartedEvent SDD_MINIMIZATION = new ComputationStartedEvent("SDD Minimization");
     public static final ComputationStartedEvent SAT_CALL_STARTED = new ComputationStartedEvent("SAT Call");
     public static final ComputationStartedEvent MAX_SAT_CALL_STARTED = new ComputationStartedEvent("MaxSAT Call");
     public static final ComputationStartedEvent BACKBONE_COMPUTATION_STARTED =

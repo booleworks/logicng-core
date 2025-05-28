@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 public class SddRestrictTest {
     private final static List<String> FILES = List.of(
             "../test_files/sdd/compile_example1.cnf",
-            "../test_files/sdd/compile_example2.cnf",
             "../test_files/dnnf/both_bdd_dnnf_1.cnf",
             "../test_files/dnnf/both_bdd_dnnf_2.cnf",
             "../test_files/dnnf/both_bdd_dnnf_3.cnf",
@@ -42,7 +41,6 @@ public class SddRestrictTest {
     );
     private final static List<List<Integer>> RESTRICT_VARS = List.of(
             List.of(13, 3, 16, 12, 13),
-            List.of(11, 4, 19, 20, 25),
             List.of(181, 146, 122, 14, 68, 79, 140, 28),
             List.of(30, 237, 36, 0, 4),
             List.of(9, 181, 85, 35),

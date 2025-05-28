@@ -44,6 +44,30 @@ public class VTreeStack {
         levels.push(nextLevel++);
     }
 
+    public void pop() {
+        assert !vTrees.isEmpty();
+        assert !levels.isEmpty();
+        getActive().unpinAll();
+        vTrees.remove(vTrees.size() - 1);
+        levels.removeElements(1);
+    }
+
+    public void stashTop() {
+        assert !vTrees.isEmpty();
+        assert !levels.isEmpty();
+        vTrees.remove(vTrees.size() - 1);
+        levels.removeElements(1);
+    }
+
+    public void removeInactive(final int count) {
+        final VTreeRoot active = getActive();
+        stashTop();
+        for (int i = 0; !isEmpty() && i < count; i++) {
+            pop();
+        }
+        push(active);
+    }
+
     public boolean isEmpty() {
         return vTrees.isEmpty();
     }

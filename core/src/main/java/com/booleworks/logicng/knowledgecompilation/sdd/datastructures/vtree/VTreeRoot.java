@@ -1,6 +1,7 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
@@ -25,33 +26,63 @@ public class VTreeRoot {
         this.pinCount = new HashMap<>();
     }
 
-    public void pin(final SddNode node) {
+    public VTreeRoot(final VTreeRoot root) {
+        this.parents = new HashMap<>(root.parents);
+        this.root = root.root;
+        this.positions = new HashMap<>(root.positions);
+        this.position2VTree = new HashMap<>(root.position2VTree);
+        this.pinnedNodes = new ArrayList<>(root.pinnedNodes);
+        this.pinCount = new HashMap<>(root.pinCount);
+        for (final SddNode pinnedNode : root.pinnedNodes) {
+            pinnedNode.asDecomposition().ref();
+        }
+    }
+
+    public void pin(final SddNodeDecomposition node) {
         final Integer count = pinCount.get(node);
         if (count == null) {
             pinnedNodes.add(node);
             pinCount.put(node, 1);
+            node.ref();
         } else {
             pinCount.put(node, pinCount.get(node) + 1);
         }
     }
 
-    public void unpin(final SddNode node) {
+    public void unpin(final SddNodeDecomposition node) {
         final Integer count = pinCount.get(node);
         assert count != null;
         if (count == 1) {
             pinnedNodes.remove(node);
             pinCount.remove(node);
+            node.asDecomposition().deref();
         } else {
             pinCount.put(node, pinCount.get(node) - 1);
         }
+    }
+
+    public void unpinAll() {
+        for (final SddNode pinnedNode : pinnedNodes) {
+            pinnedNode.asDecomposition().deref();
+        }
+        pinnedNodes.clear();
+        pinCount.clear();
     }
 
     public boolean isSubtree(final VTree subtree, final VTree of) {
         return getPosition(subtree) >= getPosition(of.getFirst()) && getPosition(subtree) <= getPosition(of.getLast());
     }
 
+    public boolean contains(final VTree subtree) {
+        return positions.containsKey(subtree);
+    }
+
     public VTree lcaOf(final VTree vTree1, final VTree vTree2) {
         if (vTree1 == vTree2) {
+            return vTree1;
+        } else if (vTree1 == null) {
+            return vTree2;
+        } else if (vTree2 == null) {
             return vTree1;
         } else if (getParent(vTree1) == getParent(vTree2)) {
             return getParent(vTree1);

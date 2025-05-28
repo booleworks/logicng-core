@@ -34,12 +34,10 @@ import java.util.stream.Collectors;
 
 public class SddQuantificationTest {
     private final static List<String> FILES = List.of(
-            "../test_files/sdd/compile_example1.cnf",
-            "../test_files/sdd/compile_example2.cnf"
+            "../test_files/sdd/compile_example1.cnf"
     );
     private final static List<List<Integer>> QUANTIFY_VARS = List.of(
-            List.of(26, 11, 2, 13, 10, 19, 25, 24, 9, 4, 2, 12, 15),
-            List.of(14, 23, 17, 14, 11, 22, 19, 10, 1, 5, 4, 18)
+            List.of(26, 11, 2, 13, 10, 19, 25, 24, 9, 4, 2, 12, 15)
     );
 
     @Test

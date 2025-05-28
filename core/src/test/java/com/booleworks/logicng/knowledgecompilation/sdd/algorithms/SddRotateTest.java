@@ -62,7 +62,8 @@ public class SddRotateTest {
         final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
         sf.pin(node);
         final Map<SddNode, SddNode> translation =
-                SddGlobalTransformations.rotateLeft(vtree.asInternal(), sf, NopHandler.get()).getResult();
+                SddGlobalTransformations.rotateLeft(vtree.asInternal(), sf, NopHandler.get()).getResult()
+                        .getTranslations();
         final SddNode rotated = translation.get(node);
         assert Validation.validVTree(rotated, sf.getVTree());
         SddTestUtil.validateMC(rotated, formula, sf);
@@ -79,7 +80,8 @@ public class SddRotateTest {
         final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
         sf.pin(node);
         final Map<SddNode, SddNode> translations =
-                SddGlobalTransformations.rotateRight(vtree.asInternal(), sf, NopHandler.get()).getResult();
+                SddGlobalTransformations.rotateRight(vtree.asInternal(), sf, NopHandler.get()).getResult()
+                        .getTranslations();
         final SddNode rotated = translations.get(node);
         assert Validation.validVTree(rotated, sf.getVTree());
         SddTestUtil.validateMC(rotated, formula, sf);
@@ -91,14 +93,13 @@ public class SddRotateTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
             final SddNode node = result.getNode();
             final VTreeInternal rootNode = sdd.getVTree().getRoot().asInternal();
             sdd.pin(node);
             final Map<SddNode, SddNode> translation =
-                    SddGlobalTransformations.rotateLeft(rootNode, sdd, NopHandler.get()).getResult();
+                    SddGlobalTransformations.rotateLeft(rootNode, sdd, NopHandler.get()).getResult().getTranslations();
             final SddNode rotated = translation.get(node);
             assert Validation.validVTree(rotated, sdd.getVTree());
             SddTestUtil.validateMC(rotated, formula, sdd);
@@ -111,14 +112,13 @@ public class SddRotateTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
             final SddNode node = result.getNode();
             sdd.pin(node);
             final VTreeInternal rootNode = sdd.getVTree().getRoot().asInternal();
             final Map<SddNode, SddNode> translations =
-                    SddGlobalTransformations.rotateRight(rootNode, sdd, NopHandler.get()).getResult();
+                    SddGlobalTransformations.rotateRight(rootNode, sdd, NopHandler.get()).getResult().getTranslations();
             final SddNode rotated = translations.get(node);
             assert Validation.validVTree(rotated, sdd.getVTree());
             SddTestUtil.validateMC(rotated, formula, sdd);
@@ -134,8 +134,7 @@ public class SddRotateTest {
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final List<Integer> vtreeSeq = VTREE_POSISTIONS.get(i);
             i++;
-            final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
             SddNode node = result.getNode();
             for (int j = 0; j < 5; ++j) {
@@ -146,7 +145,8 @@ public class SddRotateTest {
                 }
                 sdd.pin(node);
                 final Map<SddNode, SddNode> translation =
-                        SddGlobalTransformations.rotateLeft(current.asInternal(), sdd, NopHandler.get()).getResult();
+                        SddGlobalTransformations.rotateLeft(current.asInternal(), sdd, NopHandler.get()).getResult()
+                                .getTranslations();
                 final SddNode rotated = translation.get(node);
                 assert Validation.validVTree(rotated, sdd.getVTree());
                 SddTestUtil.validateMC(rotated, formula, sdd);
@@ -163,8 +163,7 @@ public class SddRotateTest {
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final List<Integer> vtreeSeq = VTREE_POSISTIONS.get(i);
             i++;
-            final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
             SddNode node = result.getNode();
             for (int j = 0; j < 5; ++j) {
@@ -175,7 +174,8 @@ public class SddRotateTest {
                 }
                 sdd.pin(node);
                 final Map<SddNode, SddNode> translations =
-                        SddGlobalTransformations.rotateRight(current.asInternal(), sdd, NopHandler.get()).getResult();
+                        SddGlobalTransformations.rotateRight(current.asInternal(), sdd, NopHandler.get()).getResult()
+                                .getTranslations();
                 final SddNode rotated = translations.get(node);
                 sdd.unpin(rotated);
                 assert Validation.validVTree(rotated, sdd.getVTree());
@@ -204,7 +204,7 @@ public class SddRotateTest {
                     }
                     final Map<SddNode, SddNode> translation =
                             SddGlobalTransformations.rotateLeft(current.asInternal(), sdd, NopHandler.get())
-                                    .getResult();
+                                    .getResult().getTranslations();
                     final SddNode rotated = translation.get(node);
                     assert Validation.validVTree(rotated, sdd.getVTree());
                     SddTestUtil.validateMC(rotated, formula, sdd);
@@ -233,7 +233,7 @@ public class SddRotateTest {
                     }
                     final Map<SddNode, SddNode> translations =
                             SddGlobalTransformations.rotateRight(current.asInternal(), sdd, NopHandler.get())
-                                    .getResult();
+                                    .getResult().getTranslations();
                     sdd.garbageCollectAll();
                     final SddNode rotated = translations.get(node);
                     assert Validation.validVTree(rotated, sdd.getVTree());

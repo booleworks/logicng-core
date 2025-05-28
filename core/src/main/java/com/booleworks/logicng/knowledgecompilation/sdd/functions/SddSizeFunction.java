@@ -6,24 +6,33 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
-public class SddSizeFunction implements SddFunction<Long> {
-    final SddNode node;
+public class SddSizeFunction implements SddFunction<Integer> {
+    final Collection<SddNode> nodes;
 
     public SddSizeFunction(final SddNode node) {
-        this.node = node;
+        this.nodes = List.of(node);
+    }
+
+    public SddSizeFunction(final Collection<SddNode> nodes) {
+        this.nodes = nodes;
     }
 
     @Override
-    public LngResult<Long> apply(final Sdd sf, final ComputationHandler handler) {
+    public LngResult<Integer> apply(final Sdd sf, final ComputationHandler handler) {
         final Set<SddNode> visited = new HashSet<>();
         final Stack<SddNode> stack = new Stack<>();
-        stack.push(node);
-        visited.add(node);
-        long size = 0;
+        for (final SddNode node : nodes) {
+            if (visited.add(node)) {
+                stack.push(node);
+            }
+        }
+        int size = 0;
         while (!stack.isEmpty()) {
             final SddNode current = stack.pop();
             size += 1;

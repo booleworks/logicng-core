@@ -6,6 +6,7 @@ import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.TransformationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
@@ -34,23 +35,25 @@ public class SddGlobalTransformations {
         translations = new HashMap<>();
     }
 
-    public static LngResult<Map<SddNode, SddNode>> rotateRight(final VTreeInternal rotationPoint, final Sdd sdd,
-                                                               final ComputationHandler handler) {
+    public static LngResult<TransformationResult> rotateRight(final VTreeInternal rotationPoint,
+                                                              final Sdd sdd,
+                                                              final ComputationHandler handler) {
         return new SddGlobalTransformations(sdd).rotateRight(rotationPoint, handler);
     }
 
-    public static LngResult<Map<SddNode, SddNode>> rotateLeft(final VTreeInternal rotationPoint, final Sdd sdd,
-                                                              final ComputationHandler handler) {
+    public static LngResult<TransformationResult> rotateLeft(final VTreeInternal rotationPoint,
+                                                             final Sdd sdd,
+                                                             final ComputationHandler handler) {
         return new SddGlobalTransformations(sdd).rotateLeft(rotationPoint, handler);
     }
 
-    public static LngResult<Map<SddNode, SddNode>> swap(final VTreeInternal swapPoint, final Sdd sdd,
-                                                        final ComputationHandler handler) {
+    public static LngResult<TransformationResult> swap(final VTreeInternal swapPoint, final Sdd sdd,
+                                                       final ComputationHandler handler) {
         return new SddGlobalTransformations(sdd).swap(swapPoint, handler);
     }
 
-    private LngResult<Map<SddNode, SddNode>> rotateRight(final VTreeInternal rotationPoint,
-                                                         final ComputationHandler handler) {
+    private LngResult<TransformationResult> rotateRight(final VTreeInternal rotationPoint,
+                                                        final ComputationHandler handler) {
         if (!VTreeUtil.isLeftFragment(rotationPoint)) {
             throw new IllegalArgumentException("Expected left linear vtree fragment for right rotation");
         }
@@ -67,13 +70,13 @@ public class SddGlobalTransformations {
         if (event != null) {
             return LngResult.canceled(event);
         }
-        return LngResult.of(translations);
+        return LngResult.of(new TransformationResult(translations, rotatedVTreeNode, rotatedRoot));
     }
 
-    private LngResult<Map<SddNode, SddNode>> rotateLeft(final VTreeInternal rotationPoint,
-                                                        final ComputationHandler handler) {
+    private LngResult<TransformationResult> rotateLeft(final VTreeInternal rotationPoint,
+                                                       final ComputationHandler handler) {
         if (!VTreeUtil.isRightFragment(rotationPoint)) {
-            throw new IllegalArgumentException("Expected left linear vtree fragment for right rotation");
+            throw new IllegalArgumentException("Expected right linear vtree fragment for left rotation");
         }
         final VTreeInternal parentInner = rotationPoint.asInternal();
         final VTreeInternal rightInner = parentInner.getRight().asInternal();
@@ -88,10 +91,11 @@ public class SddGlobalTransformations {
         if (event != null) {
             return LngResult.canceled(event);
         }
-        return LngResult.of(translations);
+        return LngResult.of(new TransformationResult(translations, rotatedVTreeNode, rotatedRoot));
     }
 
-    private LngResult<Map<SddNode, SddNode>> swap(final VTreeInternal swapPoint, final ComputationHandler handler) {
+    private LngResult<TransformationResult> swap(final VTreeInternal swapPoint,
+                                                 final ComputationHandler handler) {
         final List<SddNode> pinnedNodes = sdd.getVTree().getPinnedNodes();
         precomputePlanSwap(pinnedNodes, swapPoint);
         final VTree swappedVTreeNode = VTreeSwap.swapChildren(swapPoint, sdd);
@@ -103,7 +107,7 @@ public class SddGlobalTransformations {
         if (event != null) {
             return LngResult.canceled(event);
         }
-        return LngResult.of(translations);
+        return LngResult.of(new TransformationResult(translations, swappedVTreeNode, swappedRoot));
     }
 
     private LngEvent executePlan(final Collection<SddNode> nodes, final ComputationHandler handler) {
