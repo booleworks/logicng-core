@@ -23,11 +23,11 @@ public class SddWriter {
     private SddWriter() {
     }
 
-    public static void writeSdd(final File sddDesitination, final File vTreeDesitionation, final SddNode sdd,
-                                final Sdd sf) throws IOException {
+    public static void writeSdd(final File sddDesitination, final File vTreeDesitionation, final SddNode node,
+                                final Sdd sdd) throws IOException {
         final SddExportState state = new SddExportState();
-        writeVTree(vTreeDesitionation, sdd.getVTree(), state.vState);
-        exportSdd(sdd, sf.getVTree(), state);
+        writeVTree(vTreeDesitionation, sdd.vTreeOf(node), state.vState);
+        exportSdd(node, sdd, state);
         try (
                 final BufferedWriter writer = new BufferedWriter(
                         new OutputStreamWriter(Files.newOutputStream(sddDesitination.toPath()), StandardCharsets.UTF_8))
@@ -42,22 +42,23 @@ public class SddWriter {
         }
     }
 
-    private static int exportSdd(final SddNode sdd, final VTreeRoot root, final SddExportState state)
+    private static int exportSdd(final SddNode node, final Sdd sdd, final SddExportState state)
             throws IOException {
-        if (state.nodeToId.containsKey(sdd)) {
-            return state.nodeToId.get(sdd);
+        final VTreeRoot root = sdd.getVTree();
+        if (state.nodeToId.containsKey(node)) {
+            return state.nodeToId.get(node);
         }
-        if (sdd.isDecomposition()) {
-            final SddNodeDecomposition decomp = sdd.asDecomposition();
+        if (node.isDecomposition()) {
+            final SddNodeDecomposition decomp = node.asDecomposition();
             final List<Integer> children = new ArrayList<>(decomp.getElements().size() * 2);
             for (final SddElement element : decomp.getElements()) {
-                final int prime = exportSdd(element.getPrime(), root, state);
-                final int sub = exportSdd(element.getSub(), root, state);
+                final int prime = exportSdd(element.getPrime(), sdd, state);
+                final int sub = exportSdd(element.getSub(), sdd, state);
                 children.add(prime);
                 children.add(sub);
             }
             final int id = state.nodeId++;
-            final int vTreeId = root.getPosition(sdd.getVTree());
+            final int vTreeId = root.getPosition(sdd.vTreeOf(node));
             final StringBuilder sb = new StringBuilder();
             sb.append(String.format("D %d %d %d", id, vTreeId, decomp.getElements().size()));
             for (final int cId : children) {
@@ -66,23 +67,23 @@ public class SddWriter {
             }
             state.lines.add(sb.toString());
             state.size++;
-            state.nodeToId.put(sdd, id);
+            state.nodeToId.put(node, id);
             return id;
         } else {
-            final SddNodeTerminal terminal = sdd.asTerminal();
+            final SddNodeTerminal terminal = node.asTerminal();
             final int id = state.nodeId++;
             if (terminal.isFalse()) {
                 state.lines.add(String.format("F %d", id));
             } else if (terminal.isTrue()) {
                 state.lines.add(String.format("T %d", id));
             } else {
-                final int vTreeId = root.getPosition(sdd.getVTree());
+                final int vTreeId = root.getPosition(sdd.vTreeOf(node));
                 final int variableId = state.vState.varToId.get(terminal.getVTree().getVariable());
                 final int literalId = terminal.getPhase() ? variableId : -variableId;
                 state.lines.add(String.format("L %d %d %d", id, vTreeId, literalId));
             }
             state.size++;
-            state.nodeToId.put(sdd, id);
+            state.nodeToId.put(node, id);
             return id;
         }
     }

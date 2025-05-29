@@ -10,7 +10,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeUtil;
 
 import java.util.Collection;
@@ -45,13 +44,13 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
         } else if (node.isTrue()) {
             cardinality = 0;
         } else {
-            cardinality = applyRec(node, variableIdxs, new HashMap<>(), sf.getVTree());
+            cardinality = applyRec(node, variableIdxs, new HashMap<>(), sf);
         }
         return LngResult.of(maximize ? variablesNotInSdd + cardinality : cardinality);
     }
 
     private int applyRec(final SddNode node, final Set<Integer> relevantVariables,
-                         final HashMap<SddNode, Integer> cache, final VTreeRoot root) {
+                         final HashMap<SddNode, Integer> cache, final Sdd sdd) {
         assert !node.isFalse();
         if (node.isTrue()) {
             return 0;
@@ -72,26 +71,25 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
             return cached;
         }
         final SddNodeDecomposition decomp = node.asDecomposition();
-        final VTreeInternal vTree = node.getVTree().asInternal();
+        final VTreeInternal vTree = sdd.vTreeOf(node).asInternal();
         int cardinality = -1;
         for (final SddElement element : decomp.getElements()) {
             if (element.getSub().isFalse()) {
                 continue;
             }
-            final int prime = applyRec(element.getPrime(), relevantVariables, cache, root);
-            final int sub = applyRec(element.getSub(), relevantVariables, cache, root);
+            final int prime = applyRec(element.getPrime(), relevantVariables, cache, sdd);
+            final int sub = applyRec(element.getSub(), relevantVariables, cache, sdd);
 
             if (maximize) {
                 final VTree left = vTree.getLeft();
                 final VTree right = vTree.getRight();
-                final int primeGap = VTreeUtil.gapVarCount(left, element.getPrime().getVTree(), root,
-                        sddVariables);
+                final int primeGap =
+                        VTreeUtil.gapVarCount(left, sdd.vTreeOf(element.getPrime()), sdd.getVTree(), sddVariables);
                 final int subGap;
                 if (element.getSub().isTrue()) {
                     subGap = VTreeUtil.varCount(vTree.getRight(), sddVariables);
                 } else {
-                    subGap = VTreeUtil.gapVarCount(right, element.getSub().getVTree(), root,
-                            sddVariables);
+                    subGap = VTreeUtil.gapVarCount(right, sdd.vTreeOf(element.getSub()), sdd.getVTree(), sddVariables);
                 }
                 final int c = prime + sub + primeGap + subGap;
                 if (cardinality == -1 || c > cardinality) {

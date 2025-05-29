@@ -108,7 +108,7 @@ public class VTreeFragment {
             sdd.getVTreeStack().pop();
             transformations.remove(transformations.size() - 1);
         }
-        sdd.recalculateVTrees();
+        sdd.getVTreeStack().bumpGeneration();
     }
 
     public TransformationResult apply() {

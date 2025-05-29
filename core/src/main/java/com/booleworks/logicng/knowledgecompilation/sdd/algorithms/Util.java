@@ -86,15 +86,16 @@ public class Util {
         return true;
     }
 
-    public static VTree lcaOfCompressedElements(final Collection<SddElement> elements, final VTreeRoot root) {
+    public static VTree lcaOfCompressedElements(final Collection<SddElement> elements, final Sdd sdd) {
         assert !elements.isEmpty();
 
+        final VTreeRoot root = sdd.getVTree();
         VTree lLca = null;
         VTree rLca = null;
 
         for (final SddElement element : elements) {
-            final VTree pVTree = element.getPrime().getVTree();
-            final VTree sVTree = element.getSub().getVTree();
+            final VTree pVTree = sdd.vTreeOf(element.getPrime());
+            final VTree sVTree = sdd.vTreeOf(element.getSub());
             assert pVTree != null;
 
             lLca = lLca == null ? pVTree : root.lcaOf(pVTree, lLca);

@@ -37,7 +37,7 @@ public class SddBackboneFunction implements SddFunction<Backbone> {
         if (originalNode.isFalse()) {
             return LngResult.of(Backbone.unsatBackbone());
         }
-        applyRec(originalNode, variableIdxs, backboneMap, sf.getVTree());
+        applyRec(originalNode, variableIdxs, backboneMap, sf);
         final SortedSet<Variable> posVars = new TreeSet<>();
         final SortedSet<Variable> negVars = new TreeSet<>();
         final SortedSet<Variable> optVars = new TreeSet<>();
@@ -58,19 +58,20 @@ public class SddBackboneFunction implements SddFunction<Backbone> {
     }
 
     public void applyRec(final SddNode node, final Set<Integer> variables, final Map<Integer, Tristate> backbone,
-                         final VTreeRoot root) {
+                         final Sdd sdd) {
         if (node.isDecomposition()) {
+            final VTreeRoot root = sdd.getVTree();
             final Set<Integer> gapVars = new HashSet<>();
-            final VTreeInternal targetVTree = node.getVTree().asInternal();
+            final VTreeInternal targetVTree = sdd.vTreeOf(node).asInternal();
             for (final SddElement element : node.asDecomposition().getElements()) {
                 if (!element.getSub().isFalse()) {
-                    applyRec(element.getPrime(), variables, backbone, root);
-                    applyRec(element.getSub(), variables, backbone, root);
-                    VTreeUtil.gapVars(targetVTree.getLeft(), element.getPrime().getVTree(), root, variables, gapVars);
+                    applyRec(element.getPrime(), variables, backbone, sdd);
+                    applyRec(element.getSub(), variables, backbone, sdd);
+                    VTreeUtil.gapVars(targetVTree.getLeft(), sdd.vTreeOf(element.getPrime()), root, variables, gapVars);
                     if (element.getSub().isTrue()) {
                         VTreeUtil.vars(targetVTree.getRight(), variables, gapVars);
                     } else {
-                        VTreeUtil.gapVars(targetVTree.getRight(), element.getSub().getVTree(), root, variables,
+                        VTreeUtil.gapVars(targetVTree.getRight(), sdd.vTreeOf(element.getSub()), root, variables,
                                 gapVars);
                     }
                 }

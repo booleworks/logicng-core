@@ -48,12 +48,12 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
         } else if (node.isTrue()) {
             count = BigInteger.ONE;
         } else {
-            count = applyRec(node, sf.getVTree(), new HashMap<>());
+            count = applyRec(node, sf, new HashMap<>());
         }
         return LngResult.of(BigInteger.TWO.pow((int) variablesNotInSdd).multiply(count));
     }
 
-    private BigInteger applyRec(final SddNode node, final VTreeRoot root, final HashMap<SddNode, BigInteger> cache) {
+    private BigInteger applyRec(final SddNode node, final Sdd sdd, final HashMap<SddNode, BigInteger> cache) {
         if (node.isFalse()) {
             return BigInteger.ZERO;
         }
@@ -64,25 +64,26 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
         if (cached != null) {
             return cached;
         }
+        final VTreeRoot root = sdd.getVTree();
         final SddNodeDecomposition decomp = node.asDecomposition();
-        final VTreeInternal vTree = node.getVTree().asInternal();
+        final VTreeInternal vTree = sdd.vTreeOf(node).asInternal();
         BigInteger modelCount = BigInteger.ZERO;
         for (final SddElement element : decomp.getElements()) {
-            final BigInteger prime = applyRec(element.getPrime(), root, cache);
-            final BigInteger sub = applyRec(element.getSub(), root, cache);
+            final BigInteger prime = applyRec(element.getPrime(), sdd, cache);
+            final BigInteger sub = applyRec(element.getSub(), sdd, cache);
 
             if (!element.getSub().isFalse()) {
                 final VTree left = vTree.getLeft();
                 final VTree right = vTree.getRight();
                 final BigInteger primeMc =
                         prime.multiply(BigInteger.TWO.pow(
-                                VTreeUtil.gapVarCount(left, element.getPrime().getVTree(), root, sddVariables)));
+                                VTreeUtil.gapVarCount(left, sdd.vTreeOf(element.getPrime()), root, sddVariables)));
                 final BigInteger subMc;
                 if (element.getSub().isTrue()) {
                     subMc = BigInteger.TWO.pow(VTreeUtil.varCount(vTree.getRight(), sddVariables));
                 } else {
                     subMc = sub.multiply(BigInteger.TWO.pow(
-                            VTreeUtil.gapVarCount(right, element.getSub().getVTree(), root, sddVariables)));
+                            VTreeUtil.gapVarCount(right, sdd.vTreeOf(element.getSub()), root, sddVariables)));
                 }
                 modelCount = modelCount.add(primeMc.multiply(subMc));
             }

@@ -64,13 +64,13 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         }
 
         final SortedSet<Integer> variablesInVTree = new TreeSet<>();
-        VTreeUtil.vars(originalNode.getVTree(), variableIdxs, variablesInVTree);
+        VTreeUtil.vars(sdd.vTreeOf(originalNode), variableIdxs, variablesInVTree);
         final Set<Variable> variablesNotInVTree = variables
                 .stream()
                 .filter(v -> !sdd.knows(v) || !variablesInVTree.contains(sdd.variableToIndex(v)))
                 .collect(Collectors.toSet());
 
-        final NodePC producer = buildPCNode(originalNode, sdd.getVTree(), new HashMap<>(), new HashMap<>());
+        final NodePC producer = buildPCNode(originalNode, sdd, new HashMap<>(), new HashMap<>());
         final List<CompactModel> models = new ArrayList<>();
         producer.consumerRoot = models;
         while (!producer.isDone()) {
@@ -83,7 +83,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         return LngResult.of(modelsWithDontCares);
     }
 
-    private NodePC buildPCNode(final SddNode node, final VTreeRoot root, final HashMap<SddNode, NodePC> nodeCache,
+    private NodePC buildPCNode(final SddNode node, final Sdd sdd, final HashMap<SddNode, NodePC> nodeCache,
                                final HashMap<SddElement, ElementPC> elementCache) {
         final NodePC cached = nodeCache.get(node);
         if (cached != null) {
@@ -92,7 +92,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         final NodePC nodePC = new NodePC(node);
         if (node.isDecomposition()) {
             for (final SddElement element : node.asDecomposition().getElements()) {
-                final ElementPC pc = buildPCElement(element, nodeCache, root, elementCache);
+                final ElementPC pc = buildPCElement(element, nodeCache, sdd, elementCache);
                 if (pc != null) {
                     nodePC.producers.add(pc);
                     pc.consumers.add(nodePC);
@@ -105,7 +105,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
     }
 
     private ElementPC buildPCElement(final SddElement element, final HashMap<SddNode, NodePC> nodeCache,
-                                     final VTreeRoot root, final HashMap<SddElement, ElementPC> elementCache) {
+                                     final Sdd sdd, final HashMap<SddElement, ElementPC> elementCache) {
         final ElementPC cached = elementCache.get(element);
         if (cached != null) {
             return cached;
@@ -113,19 +113,20 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         if (element.getSub().isFalse()) {
             return null;
         }
-        final NodePC prime = buildPCNode(element.getPrime(), root, nodeCache, elementCache);
+        final VTreeRoot root = sdd.getVTree();
+        final NodePC prime = buildPCNode(element.getPrime(), sdd, nodeCache, elementCache);
         final NodePC sub;
         if (element.getSub().isTrue()) {
             sub = null;
         } else {
-            sub = buildPCNode(element.getSub(), root, nodeCache, elementCache);
+            sub = buildPCNode(element.getSub(), sdd, nodeCache, elementCache);
         }
-        final VTree primeTree = prime.node.getVTree();
+        final VTree primeTree = sdd.vTreeOf(prime.node);
         final ElementPC elementPC;
         if (sub == null) {
             elementPC = new ElementPC(prime, null, primeTree, null, primeTree);
         } else {
-            final VTreeInternal lca = root.lcaOf(primeTree, sub.node.getVTree()).asInternal();
+            final VTreeInternal lca = root.lcaOf(primeTree, sdd.vTreeOf(sub.node)).asInternal();
             elementPC = new ElementPC(prime, sub, lca.getLeft(), lca.getRight(), lca);
         }
         prime.consumersAsPrime.add(elementPC);
@@ -234,7 +235,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         }
 
         private void consume(final List<CompactModel> models, final VTree producerVTree, final Sdd sdd) {
-            final List<CompactModel> extended = extendModels(models, producerVTree, node.getVTree(), sdd);
+            final List<CompactModel> extended = extendModels(models, producerVTree, sdd.vTreeOf(node), sdd);
             currentModels.addAll(extended);
         }
 
@@ -271,10 +272,10 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
                 consumerRoot.addAll(models);
             }
             for (final ElementPC consumer : consumersAsPrime) {
-                consumer.consumePrime(models, node.getVTree(), sdd);
+                consumer.consumePrime(models, sdd.vTreeOf(node), sdd);
             }
             for (final ElementPC consumer : consumersAsSub) {
-                consumer.consumeSub(models, node.getVTree(), sdd);
+                consumer.consumeSub(models, sdd.vTreeOf(node), sdd);
             }
         }
     }

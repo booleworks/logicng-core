@@ -44,7 +44,7 @@ public class SddRestrict {
                 return LngResult.of(node);
             }
         } else {
-            final VTreeInternal vtree = node.getVTree().asInternal();
+            final VTreeInternal vtree = sf.vTreeOf(node).asInternal();
             final VTreeLeaf leaf = sf.vTreeLeaf(var);
             final SddNode restricted;
             if (sf.getVTree().isSubtree(leaf, vtree.getLeft())) {

@@ -2,23 +2,24 @@ package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
 
 import java.util.BitSet;
 
-public class SddNodeTerminal extends SddNode {
+public final class SddNodeTerminal extends SddNode {
     private final boolean phase;
 
-    public SddNodeTerminal(final int id, final VTreeLeaf vtree, final boolean phase) {
-        super(id, vtree, calculateVariableMask(vtree));
-        assert vtree == null || vtree.isLeaf();
+    SddNodeTerminal(final int id, final Sdd.CacheEntry<VTree> vtree, final boolean phase) {
+        super(id, vtree, calculateVariableMask(vtree.getElement()));
+        assert vtree.getElement() == null || vtree.getElement().isLeaf();
         this.phase = phase;
     }
 
-    private static BitSet calculateVariableMask(final VTreeLeaf leaf) {
+    private static BitSet calculateVariableMask(final VTree leaf) {
         final BitSet variableMask = new BitSet();
         if (leaf != null) {
-            variableMask.set(leaf.getVariable());
+            variableMask.set(leaf.asLeaf().getVariable());
         }
         return variableMask;
     }
@@ -37,10 +38,9 @@ public class SddNodeTerminal extends SddNode {
         }
     }
 
-    @Override
     public VTreeLeaf getVTree() {
-        if (super.vTree != null) {
-            return super.getVTree().asLeaf();
+        if (super.getVTreeEntry().getElement() != null) {
+            return super.getVTreeEntry().getElement().asLeaf();
         } else {
             return null;
         }
@@ -53,17 +53,17 @@ public class SddNodeTerminal extends SddNode {
 
     @Override
     public boolean isTrue() {
-        return vTree == null && phase;
+        return getVTreeEntry().getElement() == null && phase;
     }
 
     @Override
     public boolean isFalse() {
-        return vTree == null && !phase;
+        return getVTreeEntry().getElement() == null && !phase;
     }
 
     @Override
     public boolean isLiteral() {
-        return vTree != null;
+        return getVTreeEntry().getElement() != null;
     }
 
     @Override
@@ -73,6 +73,9 @@ public class SddNodeTerminal extends SddNode {
 
     @Override
     public String toString() {
-        return "(" + id + ": " + (vTree == null ? "trivial" : vTree.asLeaf().getVariable()) + " )";
+        return "(" + id + ": " +
+                (phase ? "+" : "-") +
+                (getVTreeEntry().getElement() == null ? "trivial" : getVTreeEntry().getElement().asLeaf().getVariable())
+                + " )";
     }
 }

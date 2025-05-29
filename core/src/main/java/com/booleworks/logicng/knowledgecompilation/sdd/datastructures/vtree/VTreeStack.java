@@ -6,13 +6,17 @@ import java.util.ArrayList;
 
 public class VTreeStack {
     private final ArrayList<VTreeRoot> vTrees;
-    private final LngIntVector levels;
-    private int nextLevel;
+    private final LngIntVector generationSteps;
+    private int version;
+    private int generation;
+    private int minGeneration;
 
     public VTreeStack() {
         this.vTrees = new ArrayList<>();
-        this.levels = new LngIntVector();
-        nextLevel = 0;
+        this.generationSteps = new LngIntVector();
+        version = 0;
+        generation = 0;
+        minGeneration = 0;
     }
 
     public VTreeRoot getActive() {
@@ -20,43 +24,49 @@ public class VTreeStack {
         return vTrees.get(vTrees.size() - 1);
     }
 
-    public int getActiveLevel() {
-        assert !isEmpty();
-        return levels.get(levels.size() - 1);
+    public int getVersion() {
+        return version;
     }
 
-    public VTreeRoot get(final int level) {
-        for (int i = vTrees.size() - 1; i >= 0; --i) {
-            if (levels.get(i) <= level) {
-                return vTrees.get(i);
-            }
-        }
-        return null;
+    public int getGeneration() {
+        return generation;
+    }
+
+    public int getMinGeneration() {
+        return minGeneration;
+    }
+
+    public LngIntVector getGenerationSteps() {
+        return generationSteps;
     }
 
     public void initialize(final VTreeRoot vTree) {
         vTrees.add(vTree);
-        levels.push(nextLevel++);
     }
 
     public void push(final VTreeRoot vTree) {
         vTrees.add(vTree);
-        levels.push(nextLevel++);
+        version += 1;
+    }
+
+    public void bumpGeneration() {
+        generationSteps.push(version);
+        generation += 1;
+    }
+
+    public void invalidateOldGenerations() {
+        minGeneration = generation;
     }
 
     public void pop() {
         assert !vTrees.isEmpty();
-        assert !levels.isEmpty();
         getActive().unpinAll();
         vTrees.remove(vTrees.size() - 1);
-        levels.removeElements(1);
     }
 
     public void stashTop() {
         assert !vTrees.isEmpty();
-        assert !levels.isEmpty();
         vTrees.remove(vTrees.size() - 1);
-        levels.removeElements(1);
     }
 
     public void removeInactive(final int count) {

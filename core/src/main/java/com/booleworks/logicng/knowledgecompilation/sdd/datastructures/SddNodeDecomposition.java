@@ -7,12 +7,11 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.SortedSet;
 
-public class SddNodeDecomposition extends SddNode {
+public final class SddNodeDecomposition extends SddNode {
     private final SortedSet<SddElement> elements;
     private int referenceCounter;
 
-    public SddNodeDecomposition(final int id, final VTree vTree,
-                                final SortedSet<SddElement> elements) {
+    SddNodeDecomposition(final int id, final Sdd.CacheEntry<VTree> vTree, final SortedSet<SddElement> elements) {
         super(id, vTree, calculateVariableMask(elements));
         this.elements = elements;
         this.referenceCounter = 0;
@@ -60,9 +59,12 @@ public class SddNodeDecomposition extends SddNode {
                 element.getSub().asDecomposition().deref();
             }
         }
+        final SddNode negation = getNegationEntry() == null ? null : getNegationEntry().getElement();
         if (negation != null) {
-            negation.setNegation(null);
-            negation = null;
+            if (negation.getNegationEntry() != null) {
+                negation.setNegationEntry(null);
+            }
+            setNegationEntry(null);
         }
     }
 

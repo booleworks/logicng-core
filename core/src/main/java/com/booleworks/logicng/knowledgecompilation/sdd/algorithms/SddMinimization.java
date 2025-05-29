@@ -109,7 +109,8 @@ public class SddMinimization {
                 return LngResult.canceled(left.getCancelCause());
             }
             state.sdd.getVTreeStack().push(baseRoot);
-            state.sdd.recalculateVTrees();
+            state.sdd.getVTreeStack().bumpGeneration();
+            state.sdd.getVTreeStack().invalidateOldGenerations();
             final LngResult<Pair<Long, TransformationResult>> right
                     = bestState(state.rightLinear, searchHandlers, handler);
             if (!right.isSuccess() && !right.isPartial()) {
@@ -119,7 +120,8 @@ public class SddMinimization {
             final Pair<Long, TransformationResult> rr = getAnyResult(right);
             if (lr.getFirst() <= rr.getFirst()) {
                 state.sdd.getVTreeStack().pop();
-                state.sdd.recalculateVTrees();
+                state.sdd.getVTreeStack().bumpGeneration();
+                state.sdd.getVTreeStack().invalidateOldGenerations();
                 return LngResult.of(lr.getSecond());
             } else {
                 state.sdd.getVTreeStack().removeInactive(1);

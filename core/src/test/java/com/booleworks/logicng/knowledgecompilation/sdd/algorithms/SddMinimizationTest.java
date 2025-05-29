@@ -1,13 +1,18 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
+import com.booleworks.logicng.LongRunningTag;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.handlers.TimeoutHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerBottomUp;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.TransformationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
@@ -15,6 +20,8 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTre
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.function.Supplier;
 
 public class SddMinimizationTest {
     @Test
@@ -124,29 +131,28 @@ public class SddMinimizationTest {
         SddTestUtil.validateExport(mini, formula, sdd);
     }
 
-    //    private final static List<String> FILES = List.of(
-    //            "../test_files/sdd/compile_example1.cnf",
-    //            "../test_files/dnnf/both_bdd_dnnf_1.cnf",
-    //            "../test_files/dnnf/both_bdd_dnnf_2.cnf",
-    //            "../test_files/dnnf/both_bdd_dnnf_3.cnf",
-    //            "../test_files/dnnf/both_bdd_dnnf_4.cnf",
-    //            "../test_files/dnnf/both_bdd_dnnf_5.cnf"
-    //    );
-    //
-    //    @Test
-    //    @LongRunningTag
-    //    public void testMinimizeFiles() throws IOException {
-    //        for (final String file : FILES) {
-    //            final FormulaFactory f = FormulaFactory.caching();
-    //            final Formula formula = f.and(DimacsReader.readCNF(f, file));
-    //            final SddCompilationResult comp = SddCompilerTopDown.compile(formula, f, NopHandler.get())
-    //            .getResult();
-    //            comp.getSdd().pin(comp.getNode());
-    //            final Supplier<ComputationHandler> fragmentHandlers = () -> new TimeoutHandler(1000);
-    //            final TransformationResult res =
-    //                    SddMinimization.minimize(comp.getSdd(), fragmentHandlers, NopHandler.get()).getResult();
-    //            final SddNode mini = res.getTranslations().get(comp.getNode());
-    //            SddTestUtil.validateMC(mini, formula, comp.getSdd());
-    //        }
-    //    }
+    private final static List<String> FILES = List.of(
+            "../test_files/sdd/compile_example1.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_1.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_2.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_3.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_4.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_5.cnf"
+    );
+
+    @Test
+    @LongRunningTag
+    public void testMinimizeFiles() throws IOException {
+        for (final String file : FILES) {
+            final FormulaFactory f = FormulaFactory.caching();
+            final Formula formula = f.and(DimacsReader.readCNF(f, file));
+            final SddCompilationResult comp = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            comp.getSdd().pin(comp.getNode());
+            final Supplier<ComputationHandler> fragmentHandlers = () -> new TimeoutHandler(1000);
+            final TransformationResult res =
+                    SddMinimization.minimize(comp.getSdd(), fragmentHandlers, NopHandler.get()).getResult();
+            final SddNode mini = res.getTranslations().get(comp.getNode());
+            SddTestUtil.validateMC(mini, formula, comp.getSdd());
+        }
+    }
 }

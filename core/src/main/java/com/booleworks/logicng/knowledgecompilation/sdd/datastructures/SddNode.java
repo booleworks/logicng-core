@@ -7,15 +7,16 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public abstract class SddNode implements Comparable<SddNode> {
-    final protected int id;
-    protected VTree vTree;
+    protected final int id;
     protected final BitSet variableMask;
-    protected SddNode negation = null;
+    private final Sdd.CacheEntry<VTree> vTree;
+    private Sdd.CacheEntry<SddNode> negation;
 
-    public SddNode(final int id, final VTree vTree, final BitSet variableMask) {
+    SddNode(final int id, final Sdd.CacheEntry<VTree> vTree, final BitSet variableMask) {
         this.id = id;
         this.vTree = vTree;
         this.variableMask = variableMask;
+        this.negation = null;
     }
 
     public int getId() {
@@ -40,19 +41,15 @@ public abstract class SddNode implements Comparable<SddNode> {
         return (SddNodeTerminal) this;
     }
 
-    public VTree getVTree() {
+    Sdd.CacheEntry<VTree> getVTreeEntry() {
         return vTree;
     }
 
-    public void updateVTree(final VTree vTree) {
-        this.vTree = vTree;
-    }
-
-    SddNode getNegation() {
+    Sdd.CacheEntry<SddNode> getNegationEntry() {
         return negation;
     }
 
-    void setNegation(final SddNode negation) {
+    void setNegationEntry(final Sdd.CacheEntry<SddNode> negation) {
         this.negation = negation;
     }
 

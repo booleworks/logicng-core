@@ -63,7 +63,7 @@ public class SddSwapTest {
         final Map<SddNode, SddNode> translations =
                 SddGlobalTransformations.swap(vtree.asInternal(), sf, NopHandler.get()).getResult().getTranslations();
         final SddNode swapped = translations.get(node);
-        assert Validation.validVTree(swapped, sf.getVTree());
+        assert Validation.validVTree(swapped, sf);
         SddTestUtil.validateMC(swapped, formula, sf);
         SddTestUtil.validateExport(swapped, formula, sf);
     }
@@ -81,7 +81,7 @@ public class SddSwapTest {
             final Map<SddNode, SddNode> translations =
                     SddGlobalTransformations.swap(rootNode, sdd, NopHandler.get()).getResult().getTranslations();
             final SddNode swapped = translations.get(node);
-            assert Validation.validVTree(swapped, sdd.getVTree());
+            assert Validation.validVTree(swapped, sdd);
             SddTestUtil.validateMC(swapped, formula, sdd);
             SddTestUtil.validateExport(swapped, formula, sdd);
         }
@@ -110,7 +110,7 @@ public class SddSwapTest {
                                 .getTranslations();
                 final SddNode swapped = translations.get(node);
                 sdd.unpin(swapped);
-                assert Validation.validVTree(swapped, sdd.getVTree());
+                assert Validation.validVTree(swapped, sdd);
                 SddTestUtil.validateMC(swapped, formula, sdd);
                 node = swapped;
             }
@@ -139,7 +139,7 @@ public class SddSwapTest {
                                     .getTranslations();
                     final SddNode swapped = translations.get(node);
                     sdd.unpin(swapped);
-                    assert Validation.validVTree(swapped, sdd.getVTree());
+                    assert Validation.validVTree(swapped, sdd);
                     SddTestUtil.validateMC(swapped, formula, sdd);
                     node = swapped;
                 }

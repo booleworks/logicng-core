@@ -314,7 +314,7 @@ public class SddGlobalTransformations {
                 return;
             }
             final VTreeRoot vtr = sdd.getVTree();
-            final VTree vt = node.getVTree();
+            final VTree vt = sdd.vTreeOf(node);
             if (vt == parentInner) {
                 plan.put(node, partitionType);
                 for (final SddElement element : node.asDecomposition().getElements()) {
@@ -345,10 +345,10 @@ public class SddGlobalTransformations {
                 for (final SddElement element : node.asDecomposition().getElements()) {
                     final SddNode prime = element.getPrime();
                     final SddNode sub = element.getSub();
-                    if (moveInPrime && !prime.isTrivial() && vtr.isSubtree(childInner, prime.getVTree())) {
+                    if (moveInPrime && !prime.isTrivial() && vtr.isSubtree(childInner, sdd.vTreeOf(prime))) {
                         precomputePlanRot(prime, parentInner, childInner, partitionType);
                     }
-                    if (moveInSub && !sub.isTrivial() && vtr.isSubtree(childInner, sub.getVTree())) {
+                    if (moveInSub && !sub.isTrivial() && vtr.isSubtree(childInner, sdd.vTreeOf(sub))) {
                         precomputePlanRot(sub, parentInner, childInner, partitionType);
                     }
                 }
@@ -361,9 +361,9 @@ public class SddGlobalTransformations {
         if (action != null) {
             return;
         }
-        if (element.getPrime().getVTree() == leftInner) {
+        if (sdd.vTreeOf(element.getPrime()) == leftInner) {
             partitionPlan.put(element, PartitionAction.RR_abC_aBC);
-        } else if (sdd.getVTree().isSubtree(element.getPrime().getVTree(), leftInner.getRight())) {
+        } else if (sdd.getVTree().isSubtree(sdd.vTreeOf(element.getPrime()), leftInner.getRight())) {
             partitionPlan.put(element, PartitionAction.RR_bC_BC);
         } else {
             partitionPlan.put(element, PartitionAction.RR_aC_aC);
@@ -377,9 +377,9 @@ public class SddGlobalTransformations {
         }
         if (element.getSub().isTrivial()) {
             partitionPlan.put(element, PartitionAction.LR_a_a);
-        } else if (element.getSub().getVTree() == rightInner) {
+        } else if (sdd.vTreeOf(element.getSub()) == rightInner) {
             partitionPlan.put(element, PartitionAction.LR_aBC_abC);
-        } else if (sdd.getVTree().getPosition(element.getSub().getVTree()) > sdd.getVTree().getPosition(rightInner)) {
+        } else if (sdd.getVTree().getPosition(sdd.vTreeOf(element.getSub())) > sdd.getVTree().getPosition(rightInner)) {
             partitionPlan.put(element, PartitionAction.LR_aC_aC);
         } else {
             partitionPlan.put(element, PartitionAction.LR_aB_ab);
@@ -399,7 +399,7 @@ public class SddGlobalTransformations {
                 return;
             }
             final VTreeRoot vtr = sdd.getVTree();
-            final VTree vt = node.getVTree();
+            final VTree vt = sdd.vTreeOf(node);
             if (vt == swapPoint) {
                 plan.put(node, Action.PARTITION_SW);
                 for (final SddElement element : node.asDecomposition().getElements()) {
@@ -416,10 +416,10 @@ public class SddGlobalTransformations {
                     } else if (moveInSub) {
                         plan.put(node, Action.DESCENT_SUB);
                     }
-                    if (moveInPrime && !prime.isTrivial() && vtr.isSubtree(swapPoint, prime.getVTree())) {
+                    if (moveInPrime && !prime.isTrivial() && vtr.isSubtree(swapPoint, sdd.vTreeOf(prime))) {
                         precomputePlanSwap(element.getPrime(), swapPoint);
                     }
-                    if (moveInSub && !sub.isTrivial() && vtr.isSubtree(swapPoint, sub.getVTree())) {
+                    if (moveInSub && !sub.isTrivial() && vtr.isSubtree(swapPoint, sdd.vTreeOf(sub))) {
                         precomputePlanSwap(element.getSub(), swapPoint);
                     }
                 }

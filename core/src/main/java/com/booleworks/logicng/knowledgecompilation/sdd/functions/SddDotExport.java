@@ -69,7 +69,7 @@ public class SddDotExport implements SddFunction<Boolean> {
 
     private GraphVTreeNode irSddNode(final SddNode currentNode, final int rank, GraphVTreeGroup parentGroup,
                                      final Sdd sdd) {
-        final VTree vtree = currentNode.getVTree();
+        final VTree vtree = sdd.vTreeOf(currentNode);
         final GraphVTreeNode newVTreeNode = GraphVTreeNode.fromSddNode(currentNode, vtree, parentGroup);
         result.vtrees.add(newVTreeNode);
         if (parentGroup == null) {
