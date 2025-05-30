@@ -2,8 +2,10 @@ package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddGlobalTransformations;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddGlobalTransformationEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.TransformationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddSizeFunction;
 
@@ -50,6 +52,9 @@ public class VTreeFragment {
         assert hasNext();
         final Move move = isLeft ? MOVES_LEFT[moveIndex] : MOVES_RIGHT[moveIndex];
         final LngResult<TransformationResult> transResult;
+        if (!handler.shouldResume(move.asStartEvent())) {
+            return LngResult.canceled(move.asStartEvent());
+        }
         switch (move) {
             case LR: {
                 transResult = SddGlobalTransformations.rotateLeft(vTree.asInternal(), sdd, handler);
@@ -93,12 +98,21 @@ public class VTreeFragment {
                 throw new RuntimeException("Unreachable");
         }
         if (!transResult.isSuccess()) {
+            rollbackAbortedStep();
             return transResult;
         }
         vTree = transResult.getResult().getTransformationPoint();
         moveIndex++;
         transformations.add(transResult.getResult());
+        if (!handler.shouldResume(move.asCompletedEvent())) {
+            return LngResult.canceled(move.asCompletedEvent());
+        }
         return transResult;
+    }
+
+    private void rollbackAbortedStep() {
+        sdd.getVTreeStack().pop();
+        sdd.getVTreeStack().bumpGeneration();
     }
 
     public void rollback(final int moveIndex) {
@@ -151,6 +165,34 @@ public class VTreeFragment {
         RR,
         SW,
         SWL,
-        SWR,
+        SWR;
+
+        LngEvent asStartEvent() {
+            switch (this) {
+                case LR:
+                    return SddGlobalTransformationEvent.START_LEFT_ROTATION;
+                case RR:
+                    return SddGlobalTransformationEvent.START_RIGHT_ROTATION;
+                case SW:
+                case SWL:
+                case SWR:
+                    return SddGlobalTransformationEvent.START_SWAP;
+            }
+            throw new IllegalStateException("Unreachable");
+        }
+
+        LngEvent asCompletedEvent() {
+            switch (this) {
+                case LR:
+                    return SddGlobalTransformationEvent.COMPLETED_LEFT_ROTATION;
+                case RR:
+                    return SddGlobalTransformationEvent.COMPLETED_RIGHT_ROTATION;
+                case SW:
+                case SWL:
+                case SWR:
+                    return SddGlobalTransformationEvent.COMPLETED_SWAP;
+            }
+            throw new IllegalStateException("Unreachable");
+        }
     }
 }

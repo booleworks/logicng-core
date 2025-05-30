@@ -52,6 +52,7 @@ public class VTreeStack {
     public void bumpGeneration() {
         generationSteps.push(version);
         generation += 1;
+        version += 1;
     }
 
     public void invalidateOldGenerations() {

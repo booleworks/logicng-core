@@ -8,6 +8,7 @@ import com.booleworks.logicng.formulas.Or;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
+import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
@@ -36,6 +37,10 @@ public class SddCompilerBottomUp {
     }
 
     public LngResult<SddNode> cnfToSdd(final ComputationHandler handler) {
+        if (!handler.shouldResume(ComputationStartedEvent.SDD_COMPUTATION_STARTED)) {
+            return LngResult.canceled(ComputationStartedEvent.SDD_COMPUTATION_STARTED);
+        }
+
         final List<Formula> operands;
         switch (cnf.getType()) {
             case OR:
