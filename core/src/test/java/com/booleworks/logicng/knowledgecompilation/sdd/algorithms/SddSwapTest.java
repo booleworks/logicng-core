@@ -100,7 +100,7 @@ public class SddSwapTest {
             SddNode node = result.getNode();
             for (int j = 0; j < 5; ++j) {
                 final int position = vtreeSeq.get(j);
-                final VTree current = sdd.getVTree().getVTreeAtPosition(position);
+                final VTree current = SddTestUtil.getVTreeAtPosition(position, sdd.getVTree().getRoot());
                 if (current == null || current.isLeaf()) {
                     continue;
                 }
@@ -129,7 +129,7 @@ public class SddSwapTest {
                 final Sdd sdd = result.getSdd();
                 SddNode node = result.getNode();
                 for (final int position : vtreeSeq) {
-                    final VTree current = sdd.getVTree().getVTreeAtPosition(position);
+                    final VTree current = SddTestUtil.getVTreeAtPosition(position, sdd.getVTree().getRoot());
                     if (current == null || current.isLeaf()) {
                         continue;
                     }

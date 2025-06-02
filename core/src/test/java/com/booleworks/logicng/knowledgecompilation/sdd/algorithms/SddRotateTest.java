@@ -139,7 +139,7 @@ public class SddRotateTest {
             SddNode node = result.getNode();
             for (int j = 0; j < 5; ++j) {
                 final int position = vtreeSeq.get(j);
-                final VTree current = sdd.getVTree().getVTreeAtPosition(position);
+                final VTree current = SddTestUtil.getVTreeAtPosition(position, sdd.getVTree().getRoot());
                 if (current == null || !VTreeUtil.isRightFragment(current)) {
                     continue;
                 }
@@ -168,7 +168,7 @@ public class SddRotateTest {
             SddNode node = result.getNode();
             for (int j = 0; j < 5; ++j) {
                 final int position = vtreeSeq.get(j);
-                final VTree current = sdd.getVTree().getVTreeAtPosition(position);
+                final VTree current = SddTestUtil.getVTreeAtPosition(position, sdd.getVTree().getRoot());
                 if (current == null || !VTreeUtil.isLeftFragment(current)) {
                     continue;
                 }
@@ -198,7 +198,7 @@ public class SddRotateTest {
                 SddNode node = result.getNode();
                 sdd.pin(node);
                 for (final int position : vtreeSeq) {
-                    final VTree current = sdd.getVTree().getVTreeAtPosition(position);
+                    final VTree current = SddTestUtil.getVTreeAtPosition(position, sdd.getVTree().getRoot());
                     if (current == null || !VTreeUtil.isRightFragment(current)) {
                         continue;
                     }
@@ -227,7 +227,7 @@ public class SddRotateTest {
                 SddNode node = result.getNode();
                 sdd.pin(node);
                 for (final int position : vtreeSeq) {
-                    final VTree current = sdd.getVTree().getVTreeAtPosition(position);
+                    final VTree current = SddTestUtil.getVTreeAtPosition(position, sdd.getVTree().getRoot());
                     if (current == null || !VTreeUtil.isLeftFragment(current)) {
                         continue;
                     }

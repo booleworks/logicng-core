@@ -9,28 +9,18 @@ import java.util.HashMap;
 import java.util.List;
 
 public class VTreeRoot {
-    private final HashMap<VTree, VTreeInternal> parents;
     private final VTree root;
-    private final HashMap<VTree, Integer> positions;
-    private final HashMap<Integer, VTree> position2VTree;
     private final ArrayList<SddNode> pinnedNodes;
     private final HashMap<SddNode, Integer> pinCount;
 
-    public VTreeRoot(final HashMap<VTree, VTreeInternal> parents, final VTree root,
-                     final HashMap<VTree, Integer> positions, final HashMap<Integer, VTree> position2VTree) {
-        this.parents = parents;
+    public VTreeRoot(final VTree root) {
         this.root = root;
-        this.positions = positions;
-        this.position2VTree = position2VTree;
         this.pinnedNodes = new ArrayList<>();
         this.pinCount = new HashMap<>();
     }
 
     public VTreeRoot(final VTreeRoot root) {
-        this.parents = new HashMap<>(root.parents);
         this.root = root.root;
-        this.positions = new HashMap<>(root.positions);
-        this.position2VTree = new HashMap<>(root.position2VTree);
         this.pinnedNodes = new ArrayList<>(root.pinnedNodes);
         this.pinCount = new HashMap<>(root.pinCount);
         for (final SddNode pinnedNode : root.pinnedNodes) {
@@ -70,11 +60,8 @@ public class VTreeRoot {
     }
 
     public boolean isSubtree(final VTree subtree, final VTree of) {
-        return getPosition(subtree) >= getPosition(of.getFirst()) && getPosition(subtree) <= getPosition(of.getLast());
-    }
-
-    public boolean contains(final VTree subtree) {
-        return positions.containsKey(subtree);
+        return subtree.getPosition() >= of.getFirst().getPosition() && subtree.getPosition() <= of.getLast()
+                .getPosition();
     }
 
     public VTree lcaOf(final VTree vTree1, final VTree vTree2) {
@@ -84,15 +71,15 @@ public class VTreeRoot {
             return vTree2;
         } else if (vTree2 == null) {
             return vTree1;
-        } else if (getParent(vTree1) == getParent(vTree2)) {
-            return getParent(vTree1);
+        } else if (vTree1.getParent() == vTree2.getParent()) {
+            return vTree1.getParent();
         }
 
-        final int p1 = getPosition(vTree1);
-        final int p2 = getPosition(vTree2);
+        final int p1 = vTree1.getPosition();
+        final int p2 = vTree2.getPosition();
         VTree root = getRoot();
         while (true) {
-            final int p = getPosition(root);
+            final int p = root.getPosition();
             if (p1 < p && p2 < p) {
                 root = root.asInternal().getLeft();
             } else if (p1 > p && p2 > p) {
@@ -107,15 +94,15 @@ public class VTreeRoot {
         VTree current = getRoot();
         while (true) {
             if (current.isLeaf()) {
-                assert getPosition(current) == posMin;
+                assert current.getPosition() == posMin;
                 assert posMin == posMax;
                 return current;
             }
-            if (getPosition(current.asInternal().getLeft().getFirst()) <= posMin
-                    && getPosition(current.asInternal().getLeft().getLast()) >= posMax) {
+            if (current.asInternal().getLeft().getFirst().getPosition() <= posMin
+                    && current.asInternal().getLeft().getLast().getPosition() >= posMax) {
                 current = current.asInternal().getLeft();
-            } else if (getPosition(current.asInternal().getRight().getFirst()) <= posMin
-                    && getPosition(current.asInternal().getRight().getLast()) >= posMax) {
+            } else if (current.asInternal().getRight().getFirst().getPosition() <= posMin
+                    && current.asInternal().getRight().getLast().getPosition() >= posMax) {
                 current = current.asInternal().getRight();
             } else {
                 return current;
@@ -124,18 +111,18 @@ public class VTreeRoot {
     }
 
     public Pair<VTree, CmpType> cmpVTrees(final VTree vtree1, final VTree vtree2) {
-        assert getPosition(vtree1) <= getPosition(vtree2);
+        assert vtree1.getPosition() <= vtree2.getPosition();
 
         if (vtree1 == vtree2) {
             return new Pair<>(vtree1, CmpType.EQUALS);
-        } else if (getPosition(vtree1) >= getPosition(vtree2.getFirst())) {
+        } else if (vtree1.getPosition() >= vtree2.getFirst().getPosition()) {
             return new Pair<>(vtree2, CmpType.LEFT_SUBTREE);
-        } else if (getPosition(vtree2) <= getPosition(vtree1.getLast())) {
+        } else if (vtree2.getPosition() <= vtree1.getLast().getPosition()) {
             return new Pair<>(vtree1, CmpType.RIGHT_SUBTREE);
         } else {
-            VTree lca = getParent(vtree1);
-            while (getPosition(vtree2) > getPosition(lca.getLast())) {
-                lca = getParent(lca);
+            VTree lca = vtree1.getParent();
+            while (vtree2.getPosition() > lca.getLast().getPosition()) {
+                lca = lca.getParent();
             }
             return new Pair<>(lca, CmpType.INCOMPARABLE);
         }
@@ -152,36 +139,8 @@ public class VTreeRoot {
         INCOMPARABLE
     }
 
-    public VTreeInternal getParent(final VTree child) {
-        return parents.get(child);
-    }
-
-    public HashMap<VTree, VTreeInternal> getParents() {
-        return parents;
-    }
-
     public VTree getRoot() {
         return root;
-    }
-
-    public int getPosition(final VTree vTree) {
-        return positions.get(vTree);
-    }
-
-    public VTree getVTreeAtPosition(final int pos) {
-        return position2VTree.get(pos);
-    }
-
-    public VTree getNext(final VTree vTree) {
-        assert positions.containsKey(vTree);
-        final int pos = getPosition(vTree);
-        return getVTreeAtPosition(pos + 1);
-    }
-
-    public VTree getPrevious(final VTree vTree) {
-        assert positions.containsKey(vTree);
-        final int pos = getPosition(vTree);
-        return getVTreeAtPosition(pos - 1);
     }
 
     public List<SddNode> getPinnedNodes() {

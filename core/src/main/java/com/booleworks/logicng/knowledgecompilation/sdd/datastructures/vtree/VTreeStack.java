@@ -42,10 +42,12 @@ public class VTreeStack {
 
     public void initialize(final VTreeRoot vTree) {
         vTrees.add(vTree);
+        updateVTreeCaches();
     }
 
     public void push(final VTreeRoot vTree) {
         vTrees.add(vTree);
+        updateVTreeCaches();
         version += 1;
     }
 
@@ -63,11 +65,15 @@ public class VTreeStack {
         assert !vTrees.isEmpty();
         getActive().unpinAll();
         vTrees.remove(vTrees.size() - 1);
+        if (!vTrees.isEmpty()) {
+            updateVTreeCaches();
+        }
     }
 
     public void stashTop() {
         assert !vTrees.isEmpty();
         vTrees.remove(vTrees.size() - 1);
+        updateVTreeCaches();
     }
 
     public void removeInactive(final int count) {
@@ -82,4 +88,29 @@ public class VTreeStack {
     public boolean isEmpty() {
         return vTrees.isEmpty();
     }
+
+    private void updateVTreeCaches() {
+        updatePositions(getActive().getRoot(), 0);
+        updateParents(getActive().getRoot(), null);
+    }
+
+    private int updatePositions(final VTree vTree, final int base) {
+        if (vTree instanceof VTreeInternal) {
+            final int b = updatePositions(((VTreeInternal) vTree).getLeft(), base);
+            vTree.setPosition(b + 1);
+            return updatePositions(((VTreeInternal) vTree).getRight(), b + 2);
+        } else {
+            vTree.setPosition(base);
+            return base;
+        }
+    }
+
+    private void updateParents(final VTree vTree, final VTree parent) {
+        vTree.setParent(parent);
+        if (!vTree.isLeaf()) {
+            updateParents(vTree.asInternal().getLeft(), vTree);
+            updateParents(vTree.asInternal().getRight(), vTree);
+        }
+    }
+
 }

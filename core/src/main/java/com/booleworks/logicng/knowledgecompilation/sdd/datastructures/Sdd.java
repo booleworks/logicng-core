@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.SortedSet;
-import java.util.Stack;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -305,38 +304,7 @@ public class Sdd {
     }
 
     public VTreeRoot constructRoot(final VTree rootNode) {
-        final HashMap<VTree, VTreeInternal> parents = new HashMap<>();
-        final Stack<VTree> stack = new Stack<>();
-        stack.push(rootNode);
-        while (!stack.isEmpty()) {
-            final VTree current = stack.pop();
-            if (current instanceof VTreeInternal) {
-                final VTree left = ((VTreeInternal) current).getLeft();
-                final VTree right = ((VTreeInternal) current).getRight();
-                parents.put(left, (VTreeInternal) current);
-                parents.put(right, (VTreeInternal) current);
-                stack.push(left);
-                stack.push(right);
-            }
-        }
-        final HashMap<VTree, Integer> positions = new HashMap<>();
-        final HashMap<Integer, VTree> pos2vtree = new HashMap<>();
-        calculateInorder(rootNode, 0, positions, pos2vtree);
-        return new VTreeRoot(parents, rootNode, positions, pos2vtree);
-    }
-
-    private int calculateInorder(final VTree vTree, final int base, final HashMap<VTree, Integer> positions,
-                                 final HashMap<Integer, VTree> pos2vtree) {
-        if (vTree instanceof VTreeInternal) {
-            final int b = calculateInorder(((VTreeInternal) vTree).getLeft(), base, positions, pos2vtree);
-            positions.put(vTree, b + 1);
-            pos2vtree.put(b + 1, vTree);
-            return calculateInorder(((VTreeInternal) vTree).getRight(), b + 2, positions, pos2vtree);
-        } else {
-            positions.put(vTree, base);
-            pos2vtree.put(base, vTree);
-            return base;
-        }
+        return new VTreeRoot(rootNode);
     }
 
     public VTreeRoot getVTree() {

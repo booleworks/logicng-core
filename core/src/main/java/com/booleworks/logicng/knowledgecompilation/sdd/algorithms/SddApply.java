@@ -41,7 +41,7 @@ public class SddApply {
 
         final SddNode l;
         final SddNode r;
-        if (sf.getVTree().getPosition(sf.vTreeOf(left)) <= sf.getVTree().getPosition(sf.vTreeOf(right))) {
+        if (sf.vTreeOf(left).getPosition() <= sf.vTreeOf(right).getPosition()) {
             l = left;
             r = right;
         } else {
@@ -92,7 +92,7 @@ public class SddApply {
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
-        assert sf.getVTree().getPosition(sf.vTreeOf(left)) < sf.getVTree().getPosition(sf.vTreeOf(right));
+        assert sf.vTreeOf(left).getPosition() < sf.vTreeOf(right).getPosition();
 
         final TreeSet<SddElement> newElements = new TreeSet<>();
         final SddNode n = op == SddApplyOperation.CONJUNCTION ? left : sf.negate(left);
@@ -117,7 +117,7 @@ public class SddApply {
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
-        assert sf.getVTree().getPosition(sf.vTreeOf(left)) < sf.getVTree().getPosition(sf.vTreeOf(right));
+        assert sf.vTreeOf(left).getPosition() < sf.vTreeOf(right).getPosition();
 
         final TreeSet<SddElement> newElements = new TreeSet<>();
         for (final SddElement element : left.getElements()) {
@@ -137,7 +137,7 @@ public class SddApply {
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
-        assert sf.getVTree().getPosition(sf.vTreeOf(left)) < sf.getVTree().getPosition(sf.vTreeOf(right));
+        assert sf.vTreeOf(left).getPosition() < sf.vTreeOf(right).getPosition();
         assert !sf.getVTree().isSubtree(sf.vTreeOf(left), sf.vTreeOf(right));
         assert !sf.getVTree().isSubtree(sf.vTreeOf(right), sf.vTreeOf(left));
 

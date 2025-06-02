@@ -58,7 +58,7 @@ public class SddWriter {
                 children.add(sub);
             }
             final int id = state.nodeId++;
-            final int vTreeId = root.getPosition(sdd.vTreeOf(node));
+            final int vTreeId = sdd.vTreeOf(node).getPosition();
             final StringBuilder sb = new StringBuilder();
             sb.append(String.format("D %d %d %d", id, vTreeId, decomp.getElements().size()));
             for (final int cId : children) {
@@ -77,7 +77,7 @@ public class SddWriter {
             } else if (terminal.isTrue()) {
                 state.lines.add(String.format("T %d", id));
             } else {
-                final int vTreeId = root.getPosition(sdd.vTreeOf(node));
+                final int vTreeId = sdd.vTreeOf(node).getPosition();
                 final int variableId = state.vState.varToId.get(terminal.getVTree().getVariable());
                 final int literalId = terminal.getPhase() ? variableId : -variableId;
                 state.lines.add(String.format("L %d %d %d", id, vTreeId, literalId));

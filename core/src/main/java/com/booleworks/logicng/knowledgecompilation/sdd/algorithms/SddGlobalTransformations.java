@@ -379,7 +379,7 @@ public class SddGlobalTransformations {
             partitionPlan.put(element, PartitionAction.LR_a_a);
         } else if (sdd.vTreeOf(element.getSub()) == rightInner) {
             partitionPlan.put(element, PartitionAction.LR_aBC_abC);
-        } else if (sdd.getVTree().getPosition(sdd.vTreeOf(element.getSub())) > sdd.getVTree().getPosition(rightInner)) {
+        } else if (sdd.vTreeOf(element.getSub()).getPosition() > rightInner.getPosition()) {
             partitionPlan.put(element, PartitionAction.LR_aC_aC);
         } else {
             partitionPlan.put(element, PartitionAction.LR_aB_ab);

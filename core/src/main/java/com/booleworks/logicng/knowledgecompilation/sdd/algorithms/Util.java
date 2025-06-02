@@ -107,7 +107,7 @@ public class Util {
         }
 
         assert lLca != null && rLca != null;
-        assert root.getPosition(lLca) < root.getPosition(rLca);
+        assert lLca.getPosition() < rLca.getPosition();
 
         final Pair<VTree, VTreeRoot.CmpType> lca = root.cmpVTrees(lLca, rLca);
 
@@ -128,8 +128,8 @@ public class Util {
             final VTree vTree1 = o1.getFirst();
             final VTree vTree2 = o2.getFirst();
             final VTreeRoot root = sdd.getVTree();
-            final int pos1 = root.getPosition(o1.getFirst());
-            final int pos2 = root.getPosition(o2.getFirst());
+            final int pos1 = o1.getFirst().getPosition();
+            final int pos2 = o2.getFirst().getPosition();
             if (o1.getSecond() == o2.getSecond()) {
                 return 0;
             }

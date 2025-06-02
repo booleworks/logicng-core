@@ -2,6 +2,8 @@ package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
 public abstract class VTree {
     protected final int id;
+    private VTree parent = null;
+    private int position = -1;
 
     public VTreeInternal asInternal() {
         return (VTreeInternal) this;
@@ -23,6 +25,22 @@ public abstract class VTree {
 
     public int getId() {
         return id;
+    }
+
+    void setPosition(final int position) {
+        this.position = position;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public VTree getParent() {
+        return parent;
+    }
+
+    void setParent(final VTree parent) {
+        this.parent = parent;
     }
 
     @Override

@@ -34,7 +34,7 @@ public class VTreeUtil {
         int posMax = Integer.MIN_VALUE;
         int posMin = Integer.MAX_VALUE;
         for (final int variable : variables) {
-            final int pos = sdd.getVTree().getPosition(sdd.vTreeLeaf(variable));
+            final int pos = sdd.vTreeLeaf(variable).getPosition();
             posMax = Math.max(posMax, pos);
             posMin = Math.min(posMin, pos);
         }

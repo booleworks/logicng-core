@@ -43,4 +43,16 @@ public class SddTestUtil {
         final GraphicalRepresentation gr = sf.apply(new VTreeDotExport(node));
         System.out.println(gr.writeString(GraphicalDotWriter.get()));
     }
+
+    public static VTree getVTreeAtPosition(final int position, final VTree root) {
+        if (root.getPosition() == position) {
+            return root;
+        } else if (position < root.getPosition() && !root.isLeaf()) {
+            return getVTreeAtPosition(position, root.asInternal().getLeft());
+        } else if (position > root.getPosition() && !root.isLeaf()) {
+            return getVTreeAtPosition(position, root.asInternal().getRight());
+        } else {
+            return null;
+        }
+    }
 }
