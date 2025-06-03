@@ -17,8 +17,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class SddGlobalTransformations {
     private final Sdd sdd;
@@ -133,19 +131,19 @@ public class SddGlobalTransformations {
         }
         switch (action) {
             case PARTITION_RR: {
-                final ArrayList<TreeSet<SddElement>> sets = new ArrayList<>();
+                final ArrayList<ArrayList<SddElement>> sets = new ArrayList<>();
                 for (final SddElement outer : node.asDecomposition().getElements()) {
-                    final TreeSet<SddElement> newElements = new TreeSet<>();
+                    final ArrayList<SddElement> newElements = new ArrayList<>();
                     executeRepartitioning(outer, sdd, newElements);
                     sets.add(newElements);
                 }
-                final LngResult<TreeSet<SddElement>> rotatedElements =
+                final LngResult<ArrayList<SddElement>> rotatedElements =
                         SddCartesianProduct.cartesianProduct(sets, true, sdd, handler);
                 if (!rotatedElements.isSuccess()) {
                     return LngResult.canceled(rotatedElements.getCancelCause());
                 }
                 final LngResult<SddNode> rotatedNode =
-                        Util.getNodeOfPartition(rotatedElements.getResult(), sdd, handler);
+                        sdd.decompOfPartition(rotatedElements.getResult(), handler);
                 if (!rotatedNode.isSuccess()) {
                     return rotatedNode;
                 }
@@ -153,30 +151,30 @@ public class SddGlobalTransformations {
                 return LngResult.of(rotatedNode.getResult());
             }
             case PARTITION_LR: {
-                final TreeSet<SddElement> newElements = new TreeSet<>();
+                final ArrayList<SddElement> newElements = new ArrayList<>();
                 for (final SddElement outer : node.asDecomposition().getElements()) {
                     executeRepartitioning(outer, sdd, newElements);
                 }
-                return Util.getNodeOfPartition(newElements, sdd, handler);
+                return sdd.decompOfPartition(newElements, handler);
             }
             case PARTITION_SW: {
-                final ArrayList<TreeSet<SddElement>> sets = new ArrayList<>();
+                final ArrayList<ArrayList<SddElement>> sets = new ArrayList<>();
                 for (final SddElement outer : node.asDecomposition().getElements()) {
-                    final TreeSet<SddElement> newElements = new TreeSet<>();
+                    final ArrayList<SddElement> newElements = new ArrayList<>();
                     executeRepartitioning(outer, sdd, newElements);
                     sets.add(newElements);
                 }
-                final LngResult<TreeSet<SddElement>> swappedElements =
+                final LngResult<ArrayList<SddElement>> swappedElements =
                         SddCartesianProduct.cartesianProduct(sets, false, sdd, handler);
                 if (!swappedElements.isSuccess()) {
                     return LngResult.canceled(swappedElements.getCancelCause());
                 }
-                final SddNode swappedNode = sdd.decomposition(swappedElements.getResult());
+                final SddNode swappedNode = sdd.decompOfCompressedPartition(swappedElements.getResult());
                 cache.put(node, swappedNode);
                 return LngResult.of(swappedNode);
             }
             case DESCENT_PRIME: {
-                final TreeSet<SddElement> elements = new TreeSet<>();
+                final ArrayList<SddElement> elements = new ArrayList<>();
                 for (final SddElement element : node.asDecomposition().getElements()) {
                     final LngResult<SddNode> transformedPrimeRes = executePlan(element.getPrime(), handler);
                     if (!transformedPrimeRes.isSuccess()) {
@@ -189,12 +187,12 @@ public class SddGlobalTransformations {
                         elements.add(new SddElement(transformedPrime, element.getSub()));
                     }
                 }
-                final SddNode newNode = sdd.decomposition(elements);
+                final SddNode newNode = sdd.decompOfCompressedPartition(elements);
                 cache.put(node, newNode);
                 return LngResult.of(newNode);
             }
             case DESCENT_SUB: {
-                final TreeSet<SddElement> elements = new TreeSet<>();
+                final ArrayList<SddElement> elements = new ArrayList<>();
                 for (final SddElement element : node.asDecomposition().getElements()) {
                     final LngResult<SddNode> transformedSubRes = executePlan(element.getSub(), handler);
                     if (!transformedSubRes.isSuccess()) {
@@ -207,20 +205,16 @@ public class SddGlobalTransformations {
                         elements.add(new SddElement(element.getPrime(), transformedSub));
                     }
                 }
-                final SddNode newNode = sdd.decomposition(elements);
+                final SddNode newNode = sdd.decompOfCompressedPartition(elements);
                 cache.put(node, newNode);
                 return LngResult.of(newNode);
-            }
-            case REREGISTER: {
-                final SddNode updated = reregister(node.asDecomposition());
-                return LngResult.of(updated);
             }
             default:
                 throw new IllegalArgumentException("Unsupported Action at this stage");
         }
     }
 
-    private void executeRepartitioning(final SddElement outer, final Sdd sdd, final Set<SddElement> dst) {
+    private void executeRepartitioning(final SddElement outer, final Sdd sdd, final ArrayList<SddElement> dst) {
         final PartitionAction action = partitionPlan.get(outer);
         assert action != null;
         switch (action) {
@@ -254,7 +248,7 @@ public class SddGlobalTransformations {
             }
             case LR_a_a:
             case LR_aC_aC: {
-                dst.add(new SddElement(reregister(outer.getPrime()), reregister(outer.getSub())));
+                dst.add(new SddElement(outer.getPrime(), outer.getSub()));
                 break;
             }
             case LR_aB_ab: {
@@ -285,7 +279,6 @@ public class SddGlobalTransformations {
         PARTITION_RR,
         PARTITION_LR,
         PARTITION_SW,
-        REREGISTER
     }
 
     private enum PartitionAction {
@@ -330,8 +323,6 @@ public class SddGlobalTransformations {
                     }
                     precomputePartitionPlanRR(element, childInner);
                 }
-            } else if (vt == childInner) {
-                plan.put(node, Action.REREGISTER);
             } else if (vtr.isSubtree(vt, parentInner)) {
                 // Do nothing
             } else {
@@ -424,14 +415,6 @@ public class SddGlobalTransformations {
                     }
                 }
             }
-        }
-    }
-
-    private SddNode reregister(final SddNode node) {
-        if (node.isDecomposition()) {
-            return sdd.decomposition(node.asDecomposition().getElements());
-        } else {
-            return node;
         }
     }
 }

@@ -14,8 +14,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 public class SddMultiply {
     private SddMultiply() {
@@ -39,15 +37,15 @@ public class SddMultiply {
      * the above observations are used to skip some conjoin operations whose result
      * can be predicted upfront
      **/
-    public static LngResult<TreeSet<SddElement>> multiplyDecompositions(final SortedSet<SddElement> elements1,
-                                                                        final SortedSet<SddElement> elements2,
-                                                                        final SddApplyOperation op, final Sdd sf,
-                                                                        final ComputationHandler handler) {
+    public static LngResult<ArrayList<SddElement>> multiplyDecompositions(final ArrayList<SddElement> elements1,
+                                                                          final ArrayList<SddElement> elements2,
+                                                                          final SddApplyOperation op, final Sdd sf,
+                                                                          final ComputationHandler handler) {
         final ArrayList<SddElement> e1Common = new ArrayList<>();
         final ArrayList<SddElement> e1Other = new ArrayList<>();
         final ArrayList<SddElement> e2Common = new ArrayList<>();
         final ArrayList<SddElement> e2Other = new ArrayList<>();
-        final TreeSet<SddElement> newElements = new TreeSet<>();
+        final ArrayList<SddElement> newElements = new ArrayList<>();
         SddNode complementPrime1 = null, complementPrime2 = null, complementSub1 = null, complementSub2 = null;
 
         final HashSet<SddNode> elements1Primes = new HashSet<>();
@@ -135,7 +133,7 @@ public class SddMultiply {
                                                           final Collection<SddElement> e2,
                                                           final SddApplyOperation op, final Sdd sf,
                                                           final ComputationHandler handler,
-                                                          final TreeSet<SddElement> destination) {
+                                                          final ArrayList<SddElement> destination) {
         for (final SddElement element1 : e1) {
             final Iterator<SddElement> e2Iter = e2.iterator();
             while (e2Iter.hasNext()) {
@@ -160,7 +158,7 @@ public class SddMultiply {
                                               final Collection<SddElement> e2,
                                               final SddApplyOperation op, final Sdd sf,
                                               final ComputationHandler handler,
-                                              final TreeSet<SddElement> destination) {
+                                              final ArrayList<SddElement> destination) {
         for (final SddElement element1 : e1) {
             final Iterator<SddElement> iter2 = e2.iterator();
             while (iter2.hasNext()) {
@@ -193,7 +191,7 @@ public class SddMultiply {
     private static LngEvent linearMultiply(final SddNode prime, final SddNode complementarySub,
                                            final SddApplyOperation op, final ArrayList<SddElement> list1,
                                            final ArrayList<SddElement> list2, final Sdd sf,
-                                           final ComputationHandler handler, final TreeSet<SddElement> destination) {
+                                           final ComputationHandler handler, final ArrayList<SddElement> destination) {
         for (int i = 0; i < list1.size() + list2.size(); ++i) {
             final SddElement element = i < list1.size() ? list1.get(i) : list2.get(i - list1.size());
             if (element.getPrime() == prime) {

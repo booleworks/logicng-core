@@ -6,20 +6,20 @@ import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.TreeSet;
 
 public class SddCartesianProduct {
     private SddCartesianProduct() {
     }
 
-    public static LngResult<TreeSet<SddElement>> cartesianProduct(final Collection<TreeSet<SddElement>> sets,
-                                                                  final boolean compress, final Sdd sf,
-                                                                  final ComputationHandler handler) {
-        TreeSet<SddElement> res = new TreeSet<>();
+    public static LngResult<ArrayList<SddElement>> cartesianProduct(final Collection<ArrayList<SddElement>> sets,
+                                                                    final boolean compress, final Sdd sf,
+                                                                    final ComputationHandler handler) {
+        ArrayList<SddElement> res = new ArrayList<>();
         Util.pushNewElement(sf.verum(), sf.falsum(), res);
-        for (final TreeSet<SddElement> set : sets) {
-            final LngResult<TreeSet<SddElement>> resResult = cartesianProduct(res, set, compress, sf, handler);
+        for (final ArrayList<SddElement> set : sets) {
+            final LngResult<ArrayList<SddElement>> resResult = cartesianProduct(res, set, compress, sf, handler);
             if (!resResult.isSuccess()) {
                 return resResult;
             }
@@ -28,11 +28,11 @@ public class SddCartesianProduct {
         return LngResult.of(res);
     }
 
-    private static LngResult<TreeSet<SddElement>> cartesianProduct(final TreeSet<SddElement> left,
-                                                                   final TreeSet<SddElement> right,
-                                                                   final boolean compress, final Sdd sf,
-                                                                   final ComputationHandler handler) {
-        final LngResult<TreeSet<SddElement>> product =
+    private static LngResult<ArrayList<SddElement>> cartesianProduct(final ArrayList<SddElement> left,
+                                                                     final ArrayList<SddElement> right,
+                                                                     final boolean compress, final Sdd sf,
+                                                                     final ComputationHandler handler) {
+        final LngResult<ArrayList<SddElement>> product =
                 SddMultiply.multiplyDecompositions(left, right, SddApplyOperation.DISJUNCTION, sf, handler);
         if (!product.isSuccess()) {
             return product;

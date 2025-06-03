@@ -28,8 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class Sdd {
@@ -39,7 +37,7 @@ public class Sdd {
     private final HashMap<Pair<VTree, VTree>, VTreeInternal> internalVTreeNodes;
     private final HashMap<Integer, VTreeLeaf> leafVTreeNodes;
     private final VTreeStack vTreeStack;
-    private final HashMap<SortedSet<SddElement>, SddNodeDecomposition> sddDecompositions;
+    private final HashMap<ArrayList<SddElement>, SddNodeDecomposition> sddDecompositions;
     private final HashMap<Integer, SddNodeTerminal> sddTerminals;
     private final SddNodeTerminal verumNode;
     private final SddNodeTerminal falsumNode;
@@ -163,17 +161,40 @@ public class Sdd {
         return newNode;
     }
 
-    public SddNodeDecomposition decomposition(final SortedSet<SddElement> elements) {
-        assert Util.elementsCompressed(elements);
+    public SddNode decompOfPartition(final ArrayList<SddElement> newElements) {
+        return decompOfPartition(newElements, NopHandler.get()).getResult();
+    }
+
+    public LngResult<SddNode> decompOfPartition(final ArrayList<SddElement> newElements,
+                                                final ComputationHandler handler) {
+        newElements.sort(SddElement::compareTo);
+        final LngResult<Pair<SddNode, ArrayList<SddElement>>> res = Util.compressAndTrim(newElements, this, handler);
+        if (!res.isSuccess()) {
+            return LngResult.canceled(res.getCancelCause());
+        }
+        if (res.getResult().getFirst() != null) {
+            return LngResult.of(res.getResult().getFirst());
+        } else {
+            return LngResult.of(decomposition(res.getResult().getSecond()));
+        }
+    }
+
+    public SddNode decompOfCompressedPartition(final ArrayList<SddElement> newElements) {
+        assert !newElements.isEmpty();
+        newElements.sort(SddElement::compareTo);
+        assert Util.elementsCompressed(newElements);
+        return decomposition(newElements);
+    }
+
+    private SddNodeDecomposition decomposition(final ArrayList<SddElement> elements) {
         final SddNodeDecomposition cached = sddDecompositions.get(elements);
         if (cached != null) {
             return cached;
         }
         final VTree vTree = Util.lcaOfCompressedElements(elements, this);
-        final TreeSet<SddElement> elementsCopy = new TreeSet<>(elements);
         final SddNodeDecomposition newNode =
-                new SddNodeDecomposition(currentSddId++, new CacheEntry<>(vTree), elementsCopy);
-        sddDecompositions.put(elementsCopy, newNode);
+                new SddNodeDecomposition(currentSddId++, new CacheEntry<>(vTree), elements);
+        sddDecompositions.put(elements, newNode);
         return newNode;
     }
 
@@ -216,10 +237,10 @@ public class Sdd {
             return cached.getElement();
         }
 
-        final TreeSet<SddElement> newElements = new TreeSet<>();
+        final ArrayList<SddElement> newElements = new ArrayList<>();
         newElements.add(new SddElement(left, right));
         newElements.add(new SddElement(negate(left), falsum()));
-        final SddNode newNode = decomposition(newElements);
+        final SddNode newNode = decompOfCompressedPartition(newElements);
         cacheApplyComputation(left, right, newNode, SddApplyOperation.CONJUNCTION);
         return newNode;
     }
@@ -325,12 +346,12 @@ public class Sdd {
         if (node.isDecomposition()) {
             final SddNodeDecomposition decomp = node.asDecomposition();
             //Note: compression is not possible here
-            final TreeSet<SddElement> newElements = new TreeSet<>();
+            final ArrayList<SddElement> newElements = new ArrayList<>();
             for (final SddElement element : decomp.getElements()) {
                 final SddNode subNeg = negate(element.getSub());
                 Util.pushNewElement(element.getPrime(), subNeg, newElements);
             }
-            nodeNeg = decomposition(newElements);
+            nodeNeg = decompOfCompressedPartition(newElements);
         } else if (node.isLiteral()) {
             final SddNodeTerminal t = node.asTerminal();
             nodeNeg = terminal(t.getVTree(), !t.getPhase());

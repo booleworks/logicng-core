@@ -15,7 +15,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.TreeSet;
+import java.util.ArrayList;
 
 public class SddWriterTest {
 
@@ -83,10 +83,10 @@ public class SddWriterTest {
         final SddNode terminal1 = sf.terminal(v1Leaf, true);
         final SddNode terminal2 = sf.terminal(v1Leaf, false);
         final SddNode terminal3 = sf.terminal(v8Leaf, true);
-        final TreeSet<SddElement> elems = new TreeSet<>();
+        final ArrayList<SddElement> elems = new ArrayList<>();
         elems.add(new SddElement(terminal1, terminal3));
         elems.add(new SddElement(terminal2, sf.verum()));
-        final SddNode decomp1 = sf.decomposition(elems);
+        final SddNode decomp1 = sf.decompOfPartition(elems);
         testSddFile("sdd_simple1", terminal1, sf);
         testSddFile("sdd_simple2", decomp1, sf);
     }

@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 public class Util {
 
@@ -169,26 +168,13 @@ public class Util {
     }
 
 
-    public static LngResult<SddNode> getNodeOfPartition(final TreeSet<SddElement> newElements, final Sdd sf,
-                                                        final ComputationHandler handler) {
-        final LngResult<Pair<SddNode, TreeSet<SddElement>>> res = Util.compressAndTrim(newElements, sf, handler);
-        if (!res.isSuccess()) {
-            return LngResult.canceled(res.getCancelCause());
-        }
-        if (res.getResult().getFirst() != null) {
-            return LngResult.of(res.getResult().getFirst());
-        } else {
-            return LngResult.of(sf.decomposition(res.getResult().getSecond()));
-        }
-    }
-
-    private static LngResult<Pair<SddNode, TreeSet<SddElement>>> compressAndTrim(final TreeSet<SddElement> elements,
-                                                                                 final Sdd sf,
-                                                                                 final ComputationHandler handler) {
+    public static LngResult<Pair<SddNode, ArrayList<SddElement>>> compressAndTrim(final ArrayList<SddElement> elements,
+                                                                                  final Sdd sf,
+                                                                                  final ComputationHandler handler) {
         assert !elements.isEmpty();
 
-        final SddNode firstSub = elements.first().getSub();
-        final SddNode lastSub = elements.last().getSub();
+        final SddNode firstSub = elements.get(0).getSub();
+        final SddNode lastSub = elements.get(elements.size() - 1).getSub();
 
         if (firstSub == lastSub) {
             return LngResult.of(new Pair<>(firstSub, null));
@@ -213,16 +199,16 @@ public class Util {
 
         //no trimming
         //pop uncompressed elements, compressing and placing compressed elements on element_stack
-        final LngResult<TreeSet<SddElement>> compressedElements = compress(elements, sf, handler);
+        final LngResult<ArrayList<SddElement>> compressedElements = compress(elements, sf, handler);
         if (!compressedElements.isSuccess()) {
             return LngResult.canceled(compressedElements.getCancelCause());
         }
         return LngResult.of(new Pair<>(null, compressedElements.getResult()));
     }
 
-    public static LngResult<TreeSet<SddElement>> compress(final TreeSet<SddElement> product, final Sdd sf,
-                                                          final ComputationHandler handler) {
-        final TreeSet<SddElement> compressed = new TreeSet<>();
+    public static LngResult<ArrayList<SddElement>> compress(final ArrayList<SddElement> product, final Sdd sf,
+                                                            final ComputationHandler handler) {
+        final ArrayList<SddElement> compressed = new ArrayList<>();
         SddNode prevPrime = null;
         SddNode prevSub = null;
         SddElement prev = null;

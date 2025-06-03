@@ -29,6 +29,7 @@ import com.booleworks.logicng.transformations.cnf.CnfSubsumption;
 import com.booleworks.logicng.transformations.simplification.BackboneSimplifier;
 import com.booleworks.logicng.util.Pair;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
@@ -357,14 +358,14 @@ public class SddCompilerTopDown {
         } else if (!p1.isFalse() && !p2.isFalse() && s1.isFalse() && s2.isTrue()) {
             return p2;
         }
-        final TreeSet<SddElement> elements = new TreeSet<>();
+        final ArrayList<SddElement> elements = new ArrayList<>();
         if (!p1.isFalse()) {
             elements.add(new SddElement(p1, s1));
         }
         if (!p2.isFalse()) {
             elements.add(new SddElement(p2, s2));
         }
-        return sf.decomposition(elements);
+        return sf.decompOfCompressedPartition(elements);
     }
 
     protected static class Caches {

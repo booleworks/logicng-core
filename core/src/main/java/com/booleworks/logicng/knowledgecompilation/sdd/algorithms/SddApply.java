@@ -12,7 +12,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTre
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.util.Pair;
 
-import java.util.TreeSet;
+import java.util.ArrayList;
 
 public class SddApply {
     private SddApply() {
@@ -77,12 +77,13 @@ public class SddApply {
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
-        final LngResult<TreeSet<SddElement>> newElements =
-                SddMultiply.multiplyDecompositions(left.getElements(), right.getElements(), op, sf, handler);
+        final LngResult<ArrayList<SddElement>> newElements =
+                SddMultiply.multiplyDecompositions(left.getElementsUnsafe(), right.getElementsUnsafe(), op, sf,
+                        handler);
         if (!newElements.isSuccess()) {
             return LngResult.canceled(newElements.getCancelCause());
         }
-        return Util.getNodeOfPartition(newElements.getResult(), sf, handler);
+        return sf.decompOfPartition(newElements.getResult(), handler);
     }
 
     private static LngResult<SddNode> sddApplyLeft(final SddNode left, final SddNodeDecomposition right,
@@ -94,7 +95,7 @@ public class SddApply {
         assert !right.isTrivial();
         assert sf.vTreeOf(left).getPosition() < sf.vTreeOf(right).getPosition();
 
-        final TreeSet<SddElement> newElements = new TreeSet<>();
+        final ArrayList<SddElement> newElements = new ArrayList<>();
         final SddNode n = op == SddApplyOperation.CONJUNCTION ? left : sf.negate(left);
         Util.pushNewElement(sf.negate(n), op.zero(sf), newElements);
         for (final SddElement element : right.getElements()) {
@@ -107,7 +108,7 @@ public class SddApply {
                 Util.pushNewElement(newPrime.getResult(), element.getSub(), newElements);
             }
         }
-        return Util.getNodeOfPartition(newElements, sf, handler);
+        return sf.decompOfPartition(newElements, handler);
     }
 
     private static LngResult<SddNode> sddApplyRight(final SddNodeDecomposition left, final SddNode right,
@@ -119,7 +120,7 @@ public class SddApply {
         assert !right.isTrivial();
         assert sf.vTreeOf(left).getPosition() < sf.vTreeOf(right).getPosition();
 
-        final TreeSet<SddElement> newElements = new TreeSet<>();
+        final ArrayList<SddElement> newElements = new ArrayList<>();
         for (final SddElement element : left.getElements()) {
             final LngResult<SddNode> newSub = apply(element.getSub(), right, op, sf, handler);
             if (!newSub.isSuccess()) {
@@ -127,7 +128,7 @@ public class SddApply {
             }
             Util.pushNewElement(element.getPrime(), newSub.getResult(), newElements);
         }
-        return Util.getNodeOfPartition(newElements, sf, handler);
+        return sf.decompOfPartition(newElements, handler);
     }
 
     private static LngResult<SddNode> sddApplyIncomparable(final SddNode left, final SddNode right,
@@ -150,9 +151,9 @@ public class SddApply {
         if (!leftNegSub.isSuccess()) {
             return leftNegSub;
         }
-        final TreeSet<SddElement> newElements = new TreeSet<>();
+        final ArrayList<SddElement> newElements = new ArrayList<>();
         Util.pushNewElement(left, leftSub.getResult(), newElements);
         Util.pushNewElement(leftNeg, leftNegSub.getResult(), newElements);
-        return LngResult.of(sf.decomposition(newElements));
+        return LngResult.of(sf.decompOfCompressedPartition(newElements));
     }
 }

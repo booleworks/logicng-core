@@ -8,10 +8,10 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 public class SddQuantification {
     public static LngResult<SddNode> existsSingle(final int var, final SddNode node,
@@ -93,9 +93,9 @@ public class SddQuantification {
                 return LngResult.of(sf.verum());
             }
 
-            final TreeSet<SddElement> newElements = getQuantifiedElements(node.asDecomposition(), cache);
+            final ArrayList<SddElement> newElements = getQuantifiedElements(node.asDecomposition(), cache);
             if (isPartition) {
-                final LngResult<SddNode> newNode = Util.getNodeOfPartition(newElements, sf, handler);
+                final LngResult<SddNode> newNode = sf.decompOfPartition(newElements, handler);
                 if (!newNode.isSuccess()) {
                     return newNode;
                 }
@@ -119,9 +119,9 @@ public class SddQuantification {
         }
     }
 
-    private static TreeSet<SddElement> getQuantifiedElements(final SddNodeDecomposition node,
-                                                             final Map<SddNode, SddNode> cache) {
-        final TreeSet<SddElement> quantified = new TreeSet<>();
+    private static ArrayList<SddElement> getQuantifiedElements(final SddNodeDecomposition node,
+                                                               final Map<SddNode, SddNode> cache) {
+        final ArrayList<SddElement> quantified = new ArrayList<>();
         for (final SddElement element : node.getElements()) {
             final SddNode p = cache.get(element.getPrime());
             final SddNode s = cache.get(element.getSub());

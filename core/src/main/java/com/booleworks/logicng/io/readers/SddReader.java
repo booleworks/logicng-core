@@ -14,8 +14,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TreeSet;
 
 public class SddReader {
     private SddReader() {
@@ -87,13 +87,13 @@ public class SddReader {
                                 "Missing argument in line " + lineNumber + " in " + sddInput.getPath(),
                                 null);
                     }
-                    final TreeSet<SddElement> elements = new TreeSet<>();
+                    final ArrayList<SddElement> elements = new ArrayList<>();
                     for (int i = 4; i < elementCount * 2 + 4; i += 2) {
                         final SddNode prime = sddNodes.get(Integer.parseInt(comps[i]));
                         final SddNode sub = sddNodes.get(Integer.parseInt(comps[i + 1]));
                         elements.add(new SddElement(prime, sub));
                     }
-                    final SddNode node = sf.decomposition(elements);
+                    final SddNode node = sf.decompOfCompressedPartition(elements);
                     sddNodes.put(nodeId, node);
                     last = node;
                 }

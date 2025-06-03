@@ -9,9 +9,9 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTer
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeSet;
 
 public class SddRestrict {
     private SddRestrict() {
@@ -48,7 +48,7 @@ public class SddRestrict {
             final VTreeLeaf leaf = sf.vTreeLeaf(var);
             final SddNode restricted;
             if (sf.getVTree().isSubtree(leaf, vtree.getLeft())) {
-                final TreeSet<SddElement> elements = new TreeSet<>();
+                final ArrayList<SddElement> elements = new ArrayList<>();
                 for (final SddElement element : node.asDecomposition().getElements()) {
                     final LngResult<SddNode> prime =
                             restrictRec(var, phase, element.getPrime(), sf, handler, cache);
@@ -59,9 +59,9 @@ public class SddRestrict {
                         elements.add(new SddElement(prime.getResult(), element.getSub()));
                     }
                 }
-                return Util.getNodeOfPartition(elements, sf, handler);
+                return sf.decompOfPartition(elements, handler);
             } else if (sf.getVTree().isSubtree(leaf, vtree.getRight())) {
-                final TreeSet<SddElement> elements = new TreeSet<>();
+                final ArrayList<SddElement> elements = new ArrayList<>();
                 for (final SddElement element : node.asDecomposition().getElements()) {
                     final LngResult<SddNode> sub = restrictRec(var, phase, element.getSub(), sf, handler, cache);
                     if (!sub.isSuccess()) {
@@ -69,13 +69,12 @@ public class SddRestrict {
                     }
                     elements.add(new SddElement(element.getPrime(), sub.getResult()));
                 }
-                return Util.getNodeOfPartition(elements, sf, handler);
+                return sf.decompOfPartition(elements, handler);
             } else {
                 restricted = node;
             }
             cache.put(node, restricted);
             return LngResult.of(restricted);
-
         }
     }
 }

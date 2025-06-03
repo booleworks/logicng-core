@@ -2,16 +2,18 @@ package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
-import java.util.SortedSet;
+import java.util.Iterator;
+import java.util.List;
 
-public final class SddNodeDecomposition extends SddNode {
-    private final SortedSet<SddElement> elements;
+public final class SddNodeDecomposition extends SddNode implements Iterable<SddElement> {
+    private final ArrayList<SddElement> elements;
     private int referenceCounter;
 
-    SddNodeDecomposition(final int id, final Sdd.CacheEntry<VTree> vTree, final SortedSet<SddElement> elements) {
+    SddNodeDecomposition(final int id, final Sdd.CacheEntry<VTree> vTree, final ArrayList<SddElement> elements) {
         super(id, vTree, calculateVariableMask(elements));
         this.elements = elements;
         this.referenceCounter = 0;
@@ -25,7 +27,7 @@ public final class SddNodeDecomposition extends SddNode {
         }
     }
 
-    private static BitSet calculateVariableMask(final Set<SddElement> elements) {
+    private static BitSet calculateVariableMask(final Collection<SddElement> elements) {
         final BitSet variableMask = new BitSet();
         for (final SddElement element : elements) {
             variableMask.or(element.getPrime().getVariableMask());
@@ -68,8 +70,12 @@ public final class SddNodeDecomposition extends SddNode {
         }
     }
 
-    public SortedSet<SddElement> getElements() {
-        return Collections.unmodifiableSortedSet(elements);
+    public List<SddElement> getElements() {
+        return Collections.unmodifiableList(elements);
+    }
+
+    public ArrayList<SddElement> getElementsUnsafe() {
+        return elements;
     }
 
     @Override
@@ -103,4 +109,8 @@ public final class SddNodeDecomposition extends SddNode {
     }
 
 
+    @Override
+    public Iterator<SddElement> iterator() {
+        return elements.iterator();
+    }
 }
