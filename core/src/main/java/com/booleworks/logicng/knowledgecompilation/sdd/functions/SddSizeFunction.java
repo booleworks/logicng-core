@@ -37,7 +37,7 @@ public class SddSizeFunction implements SddFunction<Integer> {
             final SddNode current = stack.pop();
             size += 1;
             if (current.isDecomposition()) {
-                for (final SddElement element : current.asDecomposition().getElements()) {
+                for (final SddElement element : current.asDecomposition()) {
                     if (visited.add(element.getPrime())) {
                         stack.push(element.getPrime());
                     }

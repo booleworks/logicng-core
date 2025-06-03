@@ -85,7 +85,7 @@ public class SddDotExport implements SddFunction<Boolean> {
         final int elementRank = rank + 1;
         if (currentNode.isDecomposition()) {
             final SddNodeDecomposition decomp = currentNode.asDecomposition();
-            for (final SddElement element : decomp.getElements()) {
+            for (final SddElement element : decomp) {
                 final GraphSddElement elementNode = irSddElement(element, elementRank, currentNode.getId(), sdd);
                 addNewElementNode(elementNode, elementRank, newVTreeNode);
             }

@@ -50,8 +50,8 @@ public class SddWriter {
         }
         if (node.isDecomposition()) {
             final SddNodeDecomposition decomp = node.asDecomposition();
-            final List<Integer> children = new ArrayList<>(decomp.getElements().size() * 2);
-            for (final SddElement element : decomp.getElements()) {
+            final List<Integer> children = new ArrayList<>(decomp.getElementsUnsafe().size() * 2);
+            for (final SddElement element : decomp) {
                 final int prime = exportSdd(element.getPrime(), sdd, state);
                 final int sub = exportSdd(element.getSub(), sdd, state);
                 children.add(prime);
@@ -60,7 +60,7 @@ public class SddWriter {
             final int id = state.nodeId++;
             final int vTreeId = sdd.vTreeOf(node).getPosition();
             final StringBuilder sb = new StringBuilder();
-            sb.append(String.format("D %d %d %d", id, vTreeId, decomp.getElements().size()));
+            sb.append(String.format("D %d %d %d", id, vTreeId, decomp.getElementsUnsafe().size()));
             for (final int cId : children) {
                 sb.append(" ");
                 sb.append(cId);

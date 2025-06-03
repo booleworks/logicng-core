@@ -68,7 +68,7 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
         final SddNodeDecomposition decomp = node.asDecomposition();
         final VTreeInternal vTree = sdd.vTreeOf(node).asInternal();
         BigInteger modelCount = BigInteger.ZERO;
-        for (final SddElement element : decomp.getElements()) {
+        for (final SddElement element : decomp) {
             final BigInteger prime = applyRec(element.getPrime(), sdd, cache);
             final BigInteger sub = applyRec(element.getSub(), sdd, cache);
 

@@ -70,7 +70,7 @@ public class SddQuantification {
             boolean isTrue = false;
             boolean isPartition = true;
             boolean isChanged = false;
-            for (final SddElement element : node.asDecomposition().getElements()) {
+            for (final SddElement element : node.asDecomposition()) {
                 final LngResult<SddNode> prime = existsRec(vars, element.getPrime(), sf, handler, cache);
                 if (!prime.isSuccess()) {
                     return prime;
@@ -122,7 +122,7 @@ public class SddQuantification {
     private static ArrayList<SddElement> getQuantifiedElements(final SddNodeDecomposition node,
                                                                final Map<SddNode, SddNode> cache) {
         final ArrayList<SddElement> quantified = new ArrayList<>();
-        for (final SddElement element : node.getElements()) {
+        for (final SddElement element : node) {
             final SddNode p = cache.get(element.getPrime());
             final SddNode s = cache.get(element.getSub());
             assert p != null;

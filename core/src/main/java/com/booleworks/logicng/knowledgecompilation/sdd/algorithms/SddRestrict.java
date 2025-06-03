@@ -49,7 +49,7 @@ public class SddRestrict {
             final SddNode restricted;
             if (sf.getVTree().isSubtree(leaf, vtree.getLeft())) {
                 final ArrayList<SddElement> elements = new ArrayList<>();
-                for (final SddElement element : node.asDecomposition().getElements()) {
+                for (final SddElement element : node.asDecomposition()) {
                     final LngResult<SddNode> prime =
                             restrictRec(var, phase, element.getPrime(), sf, handler, cache);
                     if (!prime.isSuccess()) {
@@ -62,7 +62,7 @@ public class SddRestrict {
                 return sf.decompOfPartition(elements, handler);
             } else if (sf.getVTree().isSubtree(leaf, vtree.getRight())) {
                 final ArrayList<SddElement> elements = new ArrayList<>();
-                for (final SddElement element : node.asDecomposition().getElements()) {
+                for (final SddElement element : node.asDecomposition()) {
                     final LngResult<SddNode> sub = restrictRec(var, phase, element.getSub(), sf, handler, cache);
                     if (!sub.isSuccess()) {
                         return sub;

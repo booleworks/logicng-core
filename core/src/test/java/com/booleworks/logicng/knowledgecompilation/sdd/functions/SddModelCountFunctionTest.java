@@ -38,7 +38,7 @@ public class SddModelCountFunctionTest {
         final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
-        final SddNode descendant = res.getNode().asDecomposition().getElements().get(0).getSub();
+        final SddNode descendant = res.getNode().asDecomposition().getElementsUnsafe().get(0).getSub();
         final Formula subformula = sdd.apply(new SddExportFormula(descendant));
         final BigInteger models =
                 sdd.apply(new SddModelCountFunction(subformula.variables(f), descendant));

@@ -203,7 +203,7 @@ public class Sdd {
         if (entry.isValid()) {
             return entry.getElement();
         } else if (node.isDecomposition()) {
-            final VTree newVTree = Util.lcaOfCompressedElements(node.asDecomposition().getElements(), this);
+            final VTree newVTree = Util.lcaOfCompressedElements(node.asDecomposition().getElementsUnsafe(), this);
             entry.update(newVTree);
             return entry.getElement();
         } else {
@@ -347,7 +347,7 @@ public class Sdd {
             final SddNodeDecomposition decomp = node.asDecomposition();
             //Note: compression is not possible here
             final ArrayList<SddElement> newElements = new ArrayList<>();
-            for (final SddElement element : decomp.getElements()) {
+            for (final SddElement element : decomp) {
                 final SddNode subNeg = negate(element.getSub());
                 Util.pushNewElement(element.getPrime(), subNeg, newElements);
             }
@@ -415,7 +415,7 @@ public class Sdd {
             if (node.isDecomposition() && node.asDecomposition().getRefs() == 0) {
                 node.asDecomposition().free();
                 idsToRemove.add(node.getId());
-                for (final SddElement element : node.asDecomposition().getElements()) {
+                for (final SddElement element : node.asDecomposition()) {
                     final SddNode prime = element.getPrime();
                     final SddNode sub = element.getSub();
                     if (prime.isDecomposition() && prime.asDecomposition().getRefs() == 0) {

@@ -28,7 +28,7 @@ public class Validation {
             if (actual.isLeaf()) {
                 return false;
             }
-            for (final SddElement element : node.asDecomposition().getElements()) {
+            for (final SddElement element : node.asDecomposition()) {
                 if (!validVTree(element.getPrime(), actual.asInternal().getLeft(), sdd, visited)
                         || !validVTree(element.getSub(), actual.asInternal().getRight(), sdd, visited)) {
                     return false;

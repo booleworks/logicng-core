@@ -27,8 +27,8 @@ public class SddExportFormula implements SddFunction<Formula> {
         final FormulaFactory f = sf.getFactory();
         if (node.isDecomposition()) {
             final SddNodeDecomposition decomp = node.asDecomposition();
-            final ArrayList<Formula> elementFormulas = new ArrayList<>(decomp.getElements().size());
-            for (final SddElement element : node.asDecomposition().getElements()) {
+            final ArrayList<Formula> elementFormulas = new ArrayList<>(decomp.getElementsUnsafe().size());
+            for (final SddElement element : node.asDecomposition()) {
                 final Formula sub = applyRec(element.getSub(), sf);
                 final Formula prime = applyRec(element.getPrime(), sf);
                 elementFormulas.add(f.and(sub, prime));

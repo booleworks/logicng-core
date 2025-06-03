@@ -98,7 +98,7 @@ public class SddApply {
         final ArrayList<SddElement> newElements = new ArrayList<>();
         final SddNode n = op == SddApplyOperation.CONJUNCTION ? left : sf.negate(left);
         Util.pushNewElement(sf.negate(n), op.zero(sf), newElements);
-        for (final SddElement element : right.getElements()) {
+        for (final SddElement element : right) {
             final LngResult<SddNode> newPrime =
                     apply(element.getPrime(), n, SddApplyOperation.CONJUNCTION, sf, handler);
             if (!newPrime.isSuccess()) {
@@ -121,7 +121,7 @@ public class SddApply {
         assert sf.vTreeOf(left).getPosition() < sf.vTreeOf(right).getPosition();
 
         final ArrayList<SddElement> newElements = new ArrayList<>();
-        for (final SddElement element : left.getElements()) {
+        for (final SddElement element : left) {
             final LngResult<SddNode> newSub = apply(element.getSub(), right, op, sf, handler);
             if (!newSub.isSuccess()) {
                 return newSub;

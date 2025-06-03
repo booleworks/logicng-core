@@ -73,7 +73,7 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
         final SddNodeDecomposition decomp = node.asDecomposition();
         final VTreeInternal vTree = sdd.vTreeOf(node).asInternal();
         int cardinality = -1;
-        for (final SddElement element : decomp.getElements()) {
+        for (final SddElement element : decomp) {
             if (element.getSub().isFalse()) {
                 continue;
             }

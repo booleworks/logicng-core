@@ -91,7 +91,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         }
         final NodePC nodePC = new NodePC(node);
         if (node.isDecomposition()) {
-            for (final SddElement element : node.asDecomposition().getElements()) {
+            for (final SddElement element : node.asDecomposition()) {
                 final ElementPC pc = buildPCElement(element, nodeCache, sdd, elementCache);
                 if (pc != null) {
                     nodePC.producers.add(pc);
