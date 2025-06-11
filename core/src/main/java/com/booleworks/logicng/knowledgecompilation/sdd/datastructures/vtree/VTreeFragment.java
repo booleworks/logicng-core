@@ -7,7 +7,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddGlobalTrans
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddGlobalTransformationEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.TransformationResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddSizeFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -138,10 +137,6 @@ public class VTreeFragment {
             appliedTransRes = collapsed;
             return collapsed;
         }
-    }
-
-    public long getSddSize() {
-        return sdd.apply(new SddSizeFunction(sdd.getVTree().getPinnedNodes()));
     }
 
     public boolean isLeft() {

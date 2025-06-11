@@ -9,14 +9,16 @@ import java.util.TreeSet;
 public abstract class SddNode implements Comparable<SddNode> {
     protected final int id;
     protected final BitSet variableMask;
-    private final Sdd.CacheEntry<VTree> vTree;
-    private Sdd.CacheEntry<SddNode> negation;
+    private final Sdd.GSCacheEntry<VTree> vTree;
+    private Sdd.GSCacheEntry<SddNode> negation;
+    private Sdd.VSCacheEntry<Integer> size;
 
-    SddNode(final int id, final Sdd.CacheEntry<VTree> vTree, final BitSet variableMask) {
+    SddNode(final int id, final Sdd.GSCacheEntry<VTree> vTree, final BitSet variableMask) {
         this.id = id;
         this.vTree = vTree;
         this.variableMask = variableMask;
         this.negation = null;
+        this.size = null;
     }
 
     public int getId() {
@@ -41,20 +43,28 @@ public abstract class SddNode implements Comparable<SddNode> {
         return (SddNodeTerminal) this;
     }
 
-    Sdd.CacheEntry<VTree> getVTreeEntry() {
+    Sdd.GSCacheEntry<VTree> getVTreeEntry() {
         return vTree;
     }
 
-    Sdd.CacheEntry<SddNode> getNegationEntry() {
+    Sdd.GSCacheEntry<SddNode> getNegationEntry() {
         return negation;
     }
 
-    void setNegationEntry(final Sdd.CacheEntry<SddNode> negation) {
+    void setNegationEntry(final Sdd.GSCacheEntry<SddNode> negation) {
         this.negation = negation;
     }
 
     public BitSet getVariableMask() {
         return variableMask;
+    }
+
+    void setSizeEntry(final Sdd.VSCacheEntry<Integer> size) {
+        this.size = size;
+    }
+
+    Sdd.VSCacheEntry<Integer> getSizeEntry() {
+        return size;
     }
 
     public SortedSet<Integer> variables() {

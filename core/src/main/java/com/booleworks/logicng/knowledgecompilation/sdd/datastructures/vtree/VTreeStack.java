@@ -1,22 +1,18 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
-import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 
 import java.util.ArrayList;
 
 public class VTreeStack {
     private final ArrayList<VTreeRoot> vTrees;
-    private final LngIntVector generationSteps;
     private int version;
     private int generation;
-    private int minGeneration;
 
     public VTreeStack() {
         this.vTrees = new ArrayList<>();
-        this.generationSteps = new LngIntVector();
         version = 0;
         generation = 0;
-        minGeneration = 0;
     }
 
     public VTreeRoot getActive() {
@@ -32,14 +28,6 @@ public class VTreeStack {
         return generation;
     }
 
-    public int getMinGeneration() {
-        return minGeneration;
-    }
-
-    public LngIntVector getGenerationSteps() {
-        return generationSteps;
-    }
-
     public void initialize(final VTreeRoot vTree) {
         vTrees.add(vTree);
         updateVTreeCaches();
@@ -49,21 +37,17 @@ public class VTreeStack {
         vTrees.add(vTree);
         updateVTreeCaches();
         version += 1;
+        generation += 1;
     }
 
     public void bumpGeneration() {
-        generationSteps.push(version);
         generation += 1;
         version += 1;
     }
 
-    public void invalidateOldGenerations() {
-        minGeneration = generation;
-    }
-
     public void pop() {
         assert !vTrees.isEmpty();
-        getActive().unpinAll();
+        unpinAll();
         vTrees.remove(vTrees.size() - 1);
         if (!vTrees.isEmpty()) {
             updateVTreeCaches();
@@ -83,6 +67,21 @@ public class VTreeStack {
             pop();
         }
         push(active);
+    }
+
+    public void pin(final SddNodeDecomposition node) {
+        version += 1;
+        getActive().pin(node);
+    }
+
+    public void unpin(final SddNodeDecomposition node) {
+        version += 1;
+        getActive().unpin(node);
+    }
+
+    public void unpinAll() {
+        version += 1;
+        getActive().unpinAll();
     }
 
     public boolean isEmpty() {

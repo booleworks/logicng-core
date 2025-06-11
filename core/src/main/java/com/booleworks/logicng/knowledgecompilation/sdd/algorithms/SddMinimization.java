@@ -126,7 +126,6 @@ public class SddMinimization {
             }
             state.sdd.getVTreeStack().push(baseRoot);
             state.sdd.getVTreeStack().bumpGeneration();
-            state.sdd.getVTreeStack().invalidateOldGenerations();
             final LngResult<Pair<Long, TransformationResult>> right =
                     bestState(state.rightLinear, searchHandlers, handler);
             if (!right.isSuccess() && !right.isPartial()) {
@@ -138,7 +137,6 @@ public class SddMinimization {
             if (lr.getFirst() <= rr.getFirst()) {
                 state.sdd.getVTreeStack().pop();
                 state.sdd.getVTreeStack().bumpGeneration();
-                state.sdd.getVTreeStack().invalidateOldGenerations();
                 minimal = lr.getSecond();
             } else {
                 state.sdd.getVTreeStack().removeInactive(1);
@@ -155,7 +153,7 @@ public class SddMinimization {
     public static LngResult<Pair<Long, TransformationResult>> bestState(final VTreeFragment fragment,
                                                                         final Supplier<ComputationHandler> searchHandlers,
                                                                         final ComputationHandler userHandler) {
-        long bestSize = fragment.getSddSize();
+        long bestSize = fragment.getSdd().getActiveSize();
         int indexOfBest = 0;
         TransformationResult transOfBest =
                 TransformationResult.identity(fragment.getVTree(), fragment.getSdd().getVTree());
@@ -169,8 +167,8 @@ public class SddMinimization {
                 fragment.rollback(indexOfBest);
                 return LngResult.partial(new Pair<>(bestSize, transOfBest), result.getCancelCause());
             }
-            if (fragment.getSddSize() <= bestSize) {
-                bestSize = fragment.getSddSize();
+            if (fragment.getSdd().getActiveSize() <= bestSize) {
+                bestSize = fragment.getSdd().getActiveSize();
                 indexOfBest = fragment.getMoveIndex();
                 transOfBest = fragment.apply();
             }

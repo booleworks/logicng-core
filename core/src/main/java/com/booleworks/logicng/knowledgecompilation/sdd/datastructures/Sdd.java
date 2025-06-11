@@ -17,7 +17,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTre
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeStack;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddFunction;
-import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddSizeFunction;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayDeque;
@@ -41,11 +40,13 @@ public class Sdd {
     private final HashMap<Integer, SddNodeTerminal> sddTerminals;
     private final SddNodeTerminal verumNode;
     private final SddNodeTerminal falsumNode;
-    private final HashMap<Pair<SddNode, SddNode>, CacheEntry<SddNode>> conjunctions;
-    private final HashMap<Pair<SddNode, SddNode>, CacheEntry<SddNode>> disjunctions;
+    private final HashMap<Pair<SddNode, SddNode>, GSCacheEntry<SddNode>> conjunctions;
+    private final HashMap<Pair<SddNode, SddNode>, GSCacheEntry<SddNode>> disjunctions;
     private final SddCoreSolver solver;
     private final HashMap<Variable, Integer> var2idx;
     private final ArrayList<Variable> idx2var;
+
+    private final VSCacheEntry<Integer> activeSize;
 
     private Sdd(final FormulaFactory f, final SddCoreSolver solver) {
         this.f = f;
@@ -59,12 +60,13 @@ public class Sdd {
         conjunctions = new HashMap<>();
         disjunctions = new HashMap<>();
         vTreeStack = new VTreeStack();
-        verumNode = new SddNodeTerminal(0, invariantCacheEntry(null), true);
-        falsumNode = new SddNodeTerminal(1, invariantCacheEntry(null), false);
+        verumNode = new SddNodeTerminal(0, invariantGSCacheEntry(null), true);
+        falsumNode = new SddNodeTerminal(1, invariantGSCacheEntry(null), false);
         var2idx = new HashMap<>();
         idx2var = new ArrayList<>();
-        verumNode.setNegationEntry(invariantCacheEntry(falsumNode));
-        falsumNode.setNegationEntry(invariantCacheEntry(verumNode));
+        verumNode.setNegationEntry(invariantGSCacheEntry(falsumNode));
+        falsumNode.setNegationEntry(invariantGSCacheEntry(verumNode));
+        activeSize = new VSCacheEntry<>(0);
     }
 
     public static Sdd solverBased(final SddCoreSolver solver) {
@@ -149,15 +151,15 @@ public class Sdd {
         if (cached != null) {
             return cached;
         }
-        final SddNodeTerminal newNode = new SddNodeTerminal(currentSddId++, invariantCacheEntry(terminal), phase);
+        final SddNodeTerminal newNode = new SddNodeTerminal(currentSddId++, invariantGSCacheEntry(terminal), phase);
         sddTerminals.put(litIdx, newNode);
 
         final int negTerminal = mkLit(terminal.getVariable(), phase);
-        final SddNodeTerminal newNodeNeg = new SddNodeTerminal(currentSddId++, invariantCacheEntry(terminal), !phase);
+        final SddNodeTerminal newNodeNeg = new SddNodeTerminal(currentSddId++, invariantGSCacheEntry(terminal), !phase);
         sddTerminals.put(negTerminal, newNodeNeg);
 
-        newNode.setNegationEntry(invariantCacheEntry(newNodeNeg));
-        newNodeNeg.setNegationEntry(invariantCacheEntry(newNode));
+        newNode.setNegationEntry(invariantGSCacheEntry(newNodeNeg));
+        newNodeNeg.setNegationEntry(invariantGSCacheEntry(newNode));
         return newNode;
     }
 
@@ -193,13 +195,13 @@ public class Sdd {
         }
         final VTree vTree = Util.lcaOfCompressedElements(elements, this);
         final SddNodeDecomposition newNode =
-                new SddNodeDecomposition(currentSddId++, new CacheEntry<>(vTree), elements);
+                new SddNodeDecomposition(currentSddId++, new GSCacheEntry<>(vTree), elements);
         sddDecompositions.put(elements, newNode);
         return newNode;
     }
 
     public VTree vTreeOf(final SddNode node) {
-        final CacheEntry<VTree> entry = node.getVTreeEntry();
+        final GSCacheEntry<VTree> entry = node.getVTreeEntry();
         if (entry.isValid()) {
             return entry.getElement();
         } else if (node.isDecomposition()) {
@@ -232,7 +234,7 @@ public class Sdd {
             return left;
         }
 
-        final CacheEntry<SddNode> cached = lookupApplyComputation(left, right, SddApplyOperation.CONJUNCTION);
+        final GSCacheEntry<SddNode> cached = lookupApplyComputation(left, right, SddApplyOperation.CONJUNCTION);
         if (cached != null && cached.isValid()) {
             return cached.getElement();
         }
@@ -255,7 +257,7 @@ public class Sdd {
 
     public LngResult<SddNode> binaryOperation(final SddNode left, final SddNode right, final SddApplyOperation op,
                                               final ComputationHandler handler) {
-        final CacheEntry<SddNode> cached = lookupApplyComputation(left, right, op);
+        final GSCacheEntry<SddNode> cached = lookupApplyComputation(left, right, op);
         if (cached != null && cached.isValid()) {
             return LngResult.of(cached.getElement());
         }
@@ -272,8 +274,8 @@ public class Sdd {
         return binaryOperation(left, right, op, NopHandler.get()).getResult();
     }
 
-    private CacheEntry<SddNode> lookupApplyComputation(final SddNode left, final SddNode right,
-                                                       final SddApplyOperation op) {
+    private GSCacheEntry<SddNode> lookupApplyComputation(final SddNode left, final SddNode right,
+                                                         final SddApplyOperation op) {
         switch (op) {
             case CONJUNCTION: {
                 final Pair<SddNode, SddNode> key =
@@ -300,7 +302,7 @@ public class Sdd {
                 if (conjunctions.containsKey(key)) {
                     conjunctions.get(key).update(result);
                 } else {
-                    conjunctions.put(key, new CacheEntry<>(result));
+                    conjunctions.put(key, new GSCacheEntry<>(result));
                 }
                 return;
             }
@@ -310,7 +312,7 @@ public class Sdd {
                 if (disjunctions.containsKey(key)) {
                     disjunctions.get(key).update(result);
                 } else {
-                    disjunctions.put(key, new CacheEntry<>(result));
+                    disjunctions.put(key, new GSCacheEntry<>(result));
                 }
                 return;
             }
@@ -337,7 +339,7 @@ public class Sdd {
     }
 
     public SddNode negate(final SddNode node) {
-        final CacheEntry<SddNode> cached = node.getNegationEntry();
+        final GSCacheEntry<SddNode> cached = node.getNegationEntry();
         if (cached != null && cached.isValid()) {
             return cached.getElement();
         }
@@ -360,12 +362,12 @@ public class Sdd {
             nodeNeg = t.getPhase() ? falsum() : verum();
         }
         if (node.getNegationEntry() == null) {
-            node.setNegationEntry(new CacheEntry<>(nodeNeg));
+            node.setNegationEntry(new GSCacheEntry<>(nodeNeg));
         } else {
             node.getNegationEntry().update(nodeNeg);
         }
         if (nodeNeg.getNegationEntry() == null) {
-            nodeNeg.setNegationEntry(new CacheEntry<>(node));
+            nodeNeg.setNegationEntry(new GSCacheEntry<>(node));
         } else {
             nodeNeg.getNegationEntry().update(node);
         }
@@ -390,13 +392,13 @@ public class Sdd {
 
     public void pin(final SddNode node) {
         if (node.isDecomposition()) {
-            vTreeStack.getActive().pin(node.asDecomposition());
+            vTreeStack.pin(node.asDecomposition());
         }
     }
 
     public void unpin(final SddNode node) {
         if (node.isDecomposition()) {
-            vTreeStack.getActive().unpin(node.asDecomposition());
+            vTreeStack.unpin(node.asDecomposition());
         }
     }
 
@@ -440,10 +442,42 @@ public class Sdd {
     }
 
     public int getActiveSize() {
-        if (vTreeStack.isEmpty()) {
-            return 0;
+        if (activeSize.isValid()) {
+            return activeSize.getElement();
+        } else {
+            int size = 0;
+            for (final SddNode node : getVTree().getPinnedNodes()) {
+                if (node.getSizeEntry() == null || !node.getSizeEntry().isValid()) {
+                    size += getActiveSize(node);
+                }
+            }
+            activeSize.update(size);
+            return size;
         }
-        return apply(new SddSizeFunction(getVTree().getPinnedNodes()));
+    }
+
+    private int getActiveSize(final SddNode node) {
+        if (node.getSizeEntry() != null && node.getSizeEntry().isValid()) {
+            return 0;
+        } else {
+            int size = 1;
+            if (node.isDecomposition()) {
+                for (final SddElement element : node.asDecomposition()) {
+                    if (element.getPrime().getSizeEntry() == null || !element.getPrime().getSizeEntry().isValid()) {
+                        size += getActiveSize(element.getPrime());
+                    }
+                    if (element.getSub().getSizeEntry() == null || !element.getSub().getSizeEntry().isValid()) {
+                        size += getActiveSize(element.getSub());
+                    }
+                }
+            }
+            if (node.getSizeEntry() == null) {
+                node.setSizeEntry(new VSCacheEntry<>(size));
+            } else {
+                node.getSizeEntry().update(size);
+            }
+            return size;
+        }
     }
 
     public int getSddNodeCount() {
@@ -462,26 +496,25 @@ public class Sdd {
         return f;
     }
 
-    private <E> CacheEntry<E> invariantCacheEntry(final E element) {
-        final CacheEntry<E> entry = new CacheEntry<>(element);
-        entry.version = -1;
+    private <E> GSCacheEntry<E> invariantGSCacheEntry(final E element) {
+        final GSCacheEntry<E> entry = new GSCacheEntry<>(element);
         entry.generation = -1;
         return entry;
     }
 
-    class CacheEntry<T> {
-        int version;
+    private <E> VSCacheEntry<E> invariantPSCacheEntry(final E element) {
+        final VSCacheEntry<E> entry = new VSCacheEntry<>(element);
+        entry.version = -1;
+        return entry;
+    }
+
+    class GSCacheEntry<T> {
         int generation;
         T element;
 
-        CacheEntry(final T element) {
-            this.version = getVTreeStack().getVersion();
+        GSCacheEntry(final T element) {
             this.generation = getVTreeStack().getGeneration();
             this.element = element;
-        }
-
-        int getVersion() {
-            return version;
         }
 
         int getGeneration() {
@@ -495,12 +528,39 @@ public class Sdd {
         void update(final T element) {
             assert generation != -1;
             this.element = element;
-            this.version = getVTreeStack().getVersion();
             this.generation = getVTreeStack().getGeneration();
         }
 
         boolean isValid() {
-            return generation == -1 || generation == vTreeStack.getGeneration() && version == vTreeStack.getVersion();
+            return generation == -1 || generation == vTreeStack.getGeneration();
+        }
+    }
+
+    class VSCacheEntry<T> {
+        int version;
+        T element;
+
+        VSCacheEntry(final T element) {
+            this.version = getVTreeStack().getVersion();
+            this.element = element;
+        }
+
+        int getVersion() {
+            return version;
+        }
+
+        T getElement() {
+            return element;
+        }
+
+        void update(final T element) {
+            assert version != -1;
+            this.element = element;
+            this.version = getVTreeStack().getVersion();
+        }
+
+        boolean isValid() {
+            return version == -1 || version == vTreeStack.getVersion();
         }
     }
 }

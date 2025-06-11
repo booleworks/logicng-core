@@ -10,7 +10,7 @@ import java.util.BitSet;
 public final class SddNodeTerminal extends SddNode {
     private final boolean phase;
 
-    SddNodeTerminal(final int id, final Sdd.CacheEntry<VTree> vtree, final boolean phase) {
+    SddNodeTerminal(final int id, final Sdd.GSCacheEntry<VTree> vtree, final boolean phase) {
         super(id, vtree, calculateVariableMask(vtree.getElement()));
         assert vtree.getElement() == null || vtree.getElement().isLeaf();
         this.phase = phase;

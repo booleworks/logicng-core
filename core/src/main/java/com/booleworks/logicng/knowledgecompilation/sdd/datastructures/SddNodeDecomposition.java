@@ -13,7 +13,7 @@ public final class SddNodeDecomposition extends SddNode implements Iterable<SddE
     private final ArrayList<SddElement> elements;
     private int referenceCounter;
 
-    SddNodeDecomposition(final int id, final Sdd.CacheEntry<VTree> vTree, final ArrayList<SddElement> elements) {
+    SddNodeDecomposition(final int id, final Sdd.GSCacheEntry<VTree> vTree, final ArrayList<SddElement> elements) {
         super(id, vTree, calculateVariableMask(elements));
         this.elements = elements;
         this.referenceCounter = 0;
