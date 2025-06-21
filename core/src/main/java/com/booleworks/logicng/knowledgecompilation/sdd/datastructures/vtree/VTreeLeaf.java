@@ -1,7 +1,12 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
+import java.util.BitSet;
+
 public class VTreeLeaf extends VTree {
     private final int variable;
+
+    protected BitSet clausePosMask = null;
+    protected BitSet clauseNegMask = null;
 
     public VTreeLeaf(final int id, final int variable) {
         super(id);
@@ -25,6 +30,22 @@ public class VTreeLeaf extends VTree {
     @Override
     public VTree getLast() {
         return this;
+    }
+
+    public BitSet getClausePosMask() {
+        return clausePosMask;
+    }
+
+    public void setClausePosMask(final BitSet clausePosMask) {
+        this.clausePosMask = clausePosMask;
+    }
+
+    public BitSet getClauseNegMask() {
+        return clauseNegMask;
+    }
+
+    public void setClauseNegMask(final BitSet clauseNegMask) {
+        this.clauseNegMask = clauseNegMask;
     }
 
     @Override

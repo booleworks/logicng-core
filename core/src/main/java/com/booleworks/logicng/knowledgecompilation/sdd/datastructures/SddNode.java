@@ -8,15 +8,15 @@ import java.util.TreeSet;
 
 public abstract class SddNode implements Comparable<SddNode> {
     protected final int id;
-    protected final BitSet variableMask;
+    protected BitSet variableMask;
     private final Sdd.GSCacheEntry<VTree> vTree;
     private Sdd.GSCacheEntry<SddNode> negation;
     private Sdd.VSCacheEntry<Integer> size;
 
-    SddNode(final int id, final Sdd.GSCacheEntry<VTree> vTree, final BitSet variableMask) {
+    SddNode(final int id, final Sdd.GSCacheEntry<VTree> vTree) {
         this.id = id;
         this.vTree = vTree;
-        this.variableMask = variableMask;
+        this.variableMask = null;
         this.negation = null;
         this.size = null;
     }
@@ -56,6 +56,9 @@ public abstract class SddNode implements Comparable<SddNode> {
     }
 
     public BitSet getVariableMask() {
+        if (variableMask == null) {
+            calculateVariableMask();
+        }
         return variableMask;
     }
 
@@ -67,9 +70,22 @@ public abstract class SddNode implements Comparable<SddNode> {
         return size;
     }
 
+    private void calculateVariableMask() {
+        variableMask = new BitSet();
+        if (isDecomposition()) {
+            for (final SddElement element : asDecomposition()) {
+                variableMask.or(element.getPrime().getVariableMask());
+                variableMask.or(element.getSub().getVariableMask());
+            }
+        } else if (isLiteral()) {
+            variableMask.set(asTerminal().getVTree().getVariable());
+        }
+    }
+
     public SortedSet<Integer> variables() {
         final TreeSet<Integer> variables = new TreeSet<>();
-        for (int i = variableMask.nextSetBit(0); i != -1; i = variableMask.nextSetBit(i + 1)) {
+        final BitSet mask = getVariableMask();
+        for (int i = mask.nextSetBit(0); i != -1; i = mask.nextSetBit(i + 1)) {
             variables.add(i);
         }
         return variables;

@@ -5,23 +5,13 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
 
-import java.util.BitSet;
-
 public final class SddNodeTerminal extends SddNode {
     private final boolean phase;
 
     SddNodeTerminal(final int id, final Sdd.GSCacheEntry<VTree> vtree, final boolean phase) {
-        super(id, vtree, calculateVariableMask(vtree.getElement()));
+        super(id, vtree);
         assert vtree.getElement() == null || vtree.getElement().isLeaf();
         this.phase = phase;
-    }
-
-    private static BitSet calculateVariableMask(final VTree leaf) {
-        final BitSet variableMask = new BitSet();
-        if (leaf != null) {
-            variableMask.set(leaf.asLeaf().getVariable());
-        }
-        return variableMask;
     }
 
     public boolean getPhase() {

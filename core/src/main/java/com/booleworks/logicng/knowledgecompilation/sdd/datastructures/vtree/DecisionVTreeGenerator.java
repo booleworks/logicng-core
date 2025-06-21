@@ -7,6 +7,7 @@ import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
+import com.booleworks.logicng.handlers.events.SimpleEvent;
 import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfCoreSolver;
 import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfSatSolver;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTree;
@@ -42,7 +43,7 @@ public class DecisionVTreeGenerator implements VTreeGenerator {
     }
 
     private static DnnfSatSolver initSolver(final Formula cnf) {
-        DnnfSatSolver solver = new DnnfCoreSolver(cnf.getFactory(), cnf.variables(cnf.getFactory()).size());
+        final DnnfSatSolver solver = new DnnfCoreSolver(cnf.getFactory(), cnf.variables(cnf.getFactory()).size());
         solver.add(cnf);
         return solver;
     }
@@ -85,7 +86,11 @@ public class DecisionVTreeGenerator implements VTreeGenerator {
             }
             dTree = dTreeResult.getResult();
             dTree.initialize(solver);
-            vTree = vTreeFromDTree(dTree, sdd);
+            final LngResult<VTree> vTreeResult = vTreeFromDTree(dTree, sdd, handler);
+            if (!vTreeResult.isSuccess()) {
+                return LngResult.canceled(vTreeResult.getCancelCause());
+            }
+            vTree = vTreeResult.getResult();
         }
         if (!varsOnlyInUnitClauses.isEmpty()) {
             final LngResult<VTree> unitTree = new BalancedVTreeGenerator(varsOnlyInUnitClauses).generate(sdd, handler);
@@ -101,11 +106,14 @@ public class DecisionVTreeGenerator implements VTreeGenerator {
         return LngResult.of(new Pair<>(dTree, vTree));
     }
 
-    private VTree vTreeFromDTree(final DTree dTree, final Sdd sdd) {
+    private LngResult<VTree> vTreeFromDTree(final DTree dTree, final Sdd sdd, final ComputationHandler handler) {
+        if (!handler.shouldResume(SimpleEvent.VTREE_CUTSET_GENERATION)) {
+            return LngResult.canceled(SimpleEvent.VTREE_CUTSET_GENERATION);
+        }
         final HashMap<DTree, BitSet> cutSets = new HashMap<>();
         cutSets.put(dTree, (BitSet) dTree.getStaticVarSet().clone());
         calculateCutSets(dTree, cutSets, new BitSet());
-        return vTreeFromCutSet(dTree, cutSets, sdd);
+        return LngResult.of(vTreeFromCutSet(dTree, cutSets, sdd));
     }
 
     private VTree vTreeFromCutSet(final DTree dTree, final HashMap<DTree, BitSet> cutSets, final Sdd sf) {

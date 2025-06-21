@@ -3,6 +3,7 @@ package com.booleworks.logicng.knowledgecompilation.sdd;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.formulas.Formula;
+import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.graphical.GraphicalDotWriter;
 import com.booleworks.logicng.io.graphical.GraphicalRepresentation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
@@ -13,6 +14,9 @@ import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddExportFormul
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelCountFunction;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.VTreeDotExport;
 import com.booleworks.logicng.modelcounting.ModelCounter;
+import com.booleworks.logicng.transformations.PureExpansionTransformation;
+import com.booleworks.logicng.transformations.cnf.CnfConfig;
+import com.booleworks.logicng.transformations.cnf.CnfEncoder;
 
 import java.io.StringWriter;
 import java.math.BigInteger;
@@ -54,5 +58,16 @@ public class SddTestUtil {
         } else {
             return null;
         }
+    }
+
+    public static Formula encodeAsPureCnf(final FormulaFactory f, final Formula formula) {
+        final PureExpansionTransformation expander = new PureExpansionTransformation(f);
+        final Formula expandedFormula = formula.transform(expander);
+
+        final CnfConfig cnfConfig = CnfConfig.builder()
+                .algorithm(CnfConfig.Algorithm.ADVANCED)
+                .fallbackAlgorithmForAdvancedEncoding(CnfConfig.Algorithm.TSEITIN).build();
+
+        return CnfEncoder.encode(f, expandedFormula, cnfConfig);
     }
 }

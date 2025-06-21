@@ -4,6 +4,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.Stack;
 
 public class VTreeUtil {
     private VTreeUtil() {
@@ -53,6 +54,21 @@ public class VTreeUtil {
             vars(vtree.asInternal().getLeft(), filter, result);
             gapVars(vtree.asInternal().getRight(), subtree, root, filter, result);
         }
+    }
+
+    public static <C extends Collection<VTreeLeaf>> C leavesInOrder(final VTree vtree, final C result) {
+        final Stack<VTree> stack = new Stack<>();
+        stack.push(vtree);
+        while (!stack.isEmpty()) {
+            final VTree current = stack.pop();
+            if (current.isLeaf()) {
+                result.add(current.asLeaf());
+            } else {
+                stack.add(current.asInternal().getRight());
+                stack.add(current.asInternal().getLeft());
+            }
+        }
+        return result;
     }
 
     public static void vars(final VTree vtree, final Set<Integer> filter, final Set<Integer> result) {

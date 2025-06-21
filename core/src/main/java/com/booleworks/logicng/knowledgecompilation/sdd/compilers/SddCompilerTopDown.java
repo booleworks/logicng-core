@@ -2,10 +2,10 @@ package com.booleworks.logicng.knowledgecompilation.sdd.compilers;
 
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SDD_COMPUTATION_STARTED;
 import static com.booleworks.logicng.handlers.events.SimpleEvent.SDD_SHANNON_EXPANSION;
-import static com.booleworks.logicng.knowledgecompilation.dnnf.DnnfCoreSolver.var;
+import static com.booleworks.logicng.solvers.sat.LngCoreSolver.mkLit;
 import static com.booleworks.logicng.solvers.sat.LngCoreSolver.sign;
 
-import com.booleworks.logicng.collections.LngIntVector;
+import com.booleworks.logicng.collections.LngVector;
 import com.booleworks.logicng.formulas.FType;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -16,6 +16,7 @@ import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTree;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeNode;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
@@ -24,6 +25,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.Deci
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeUtil;
 import com.booleworks.logicng.predicates.satisfiability.SatPredicate;
 import com.booleworks.logicng.transformations.cnf.CnfSubsumption;
 import com.booleworks.logicng.transformations.simplification.BackboneSimplifier;
@@ -31,9 +33,13 @@ import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -41,32 +47,51 @@ import java.util.TreeSet;
 public class SddCompilerTopDown {
     protected final Sdd sf;
     protected final FormulaFactory f;
+    protected final Set<Integer> relevantVars;
 
-    protected final Caches caches; // TODO: Fix and enable caching!
-    protected final SddCoreSolver solver;
+    protected final Caches caches;
+    protected final SddSatSolver solver;
 
-    protected SddCompilerTopDown(final Caches caches, final SddCoreSolver solver, final Sdd sf) {
+    protected SddCompilerTopDown(final Set<Integer> relevantVars, final Caches caches, final SddSatSolver solver,
+                                 final Sdd sf) {
         this.sf = sf;
         this.f = sf.getFactory();
         this.caches = caches;
         this.solver = solver;
+        this.relevantVars = relevantVars;
     }
 
-    public static SddCompilationResult compile(final Formula formula, final FormulaFactory f) {
-        return prepareAndStartComputation(formula, f, NopHandler.get()).getResult();
+    public static SddCompilationResult compile(final Formula cnf, final FormulaFactory f) {
+        return compile(cnf, f, NopHandler.get()).getResult();
     }
 
-    public static LngResult<SddCompilationResult> compile(final Formula formula, final FormulaFactory f,
+    public static LngResult<SddCompilationResult> compile(final Formula cnf, final FormulaFactory f,
                                                           final ComputationHandler handler) {
-        return prepareAndStartComputation(formula, f, handler);
+        if (!cnf.isCnf(f)) {
+            throw new IllegalArgumentException("Expected formula in CNF as input");
+        }
+        return prepareAndStartComputation(cnf, cnf.variables(f), f, handler);
     }
 
-    protected static LngResult<SddCompilationResult> prepareAndStartComputation(final Formula formula,
+    public static SddCompilationResult compileProjected(final Formula cnf, final Set<Variable> variables,
+                                                        final FormulaFactory f) {
+        return compileProjected(cnf, variables, f, NopHandler.get()).getResult();
+    }
+
+    public static LngResult<SddCompilationResult> compileProjected(final Formula cnf, final Set<Variable> variables,
+                                                                   final FormulaFactory f,
+                                                                   final ComputationHandler handler) {
+        if (!cnf.isCnf(f)) {
+            throw new IllegalArgumentException("Expected formula in CNF as input");
+        }
+        return prepareAndStartComputation(cnf, variables, f, handler);
+    }
+
+    protected static LngResult<SddCompilationResult> prepareAndStartComputation(final Formula cnf,
+                                                                                final Set<Variable> variables,
                                                                                 final FormulaFactory f,
                                                                                 final ComputationHandler handler) {
-        final SortedSet<Variable> originalVariables = new TreeSet<>(formula.variables(f));
-        final Formula cnf = formula.cnf(f);
-        originalVariables.addAll(cnf.variables(f));
+        final SortedSet<Variable> originalVariables = new TreeSet<>(cnf.variables(f));
         final LngResult<Formula> simplified = simplifyFormula(f, cnf, handler);
         if (!simplified.isSuccess()) {
             return LngResult.canceled(simplified.getCancelCause());
@@ -87,6 +112,7 @@ public class SddCompilerTopDown {
 
         final Caches caches = new Caches();
         solver.add(simplifiedFormula);
+        final Set<Integer> relevantVars = Util.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
         final LngResult<Pair<DTree, VTree>> vTreeResult =
                 DecisionVTreeGenerator.generateDecisionVTree(simplifiedFormula, solver, sdd, handler);
         if (!vTreeResult.isSuccess()) {
@@ -95,13 +121,23 @@ public class SddCompilerTopDown {
         final DTree dTree = vTreeResult.getResult().getFirst();
         final VTree vTree = vTreeResult.getResult().getSecond();
 
-        if (vTree != null) { //TODO: Why should it be null?
-            generateVarMasks(vTree, caches, solver, sdd);
-        }
-        generateContextMaps(vTree, dTree, caches);
+        generateVarMasks(vTree, caches, solver);
+        generateClauseMasks(vTree, dTree, caches, solver);
+        solver.init(leavesInSolverOrder(vTree));
         sdd.defineVTree(vTree);
-        final LngResult<SddNode> compiled = new SddCompilerTopDown(caches, solver, sdd).start(handler);
+        final LngResult<SddNode> compiled = new SddCompilerTopDown(relevantVars, caches, solver, sdd).start(handler);
         return compiled.map(node -> new SddCompilationResult(node, sdd));
+    }
+
+    private static LngVector<VTreeLeaf> leavesInSolverOrder(final VTree vTree) {
+        final TreeSet<VTreeLeaf> leavesSet = new TreeSet<>(Comparator.comparingInt(VTreeLeaf::getVariable));
+        VTreeUtil.leavesInOrder(vTree, leavesSet);
+        final LngVector<VTreeLeaf> leaves = new LngVector<>();
+        for (final VTreeLeaf leaf : leavesSet) {
+            assert leaf.getVariable() == leaves.size();
+            leaves.push(leaf);
+        }
+        return leaves;
     }
 
     protected static LngResult<Formula> simplifyFormula(final FormulaFactory f, final Formula formula,
@@ -113,8 +149,7 @@ public class SddCompilerTopDown {
         return backboneSimplified.getResult().transform(new CnfSubsumption(f), handler);
     }
 
-    protected static BitSet generateVarMasks(final VTree vTree, final Caches caches, final SddCoreSolver solver,
-                                             final Sdd sdd) {
+    protected static BitSet generateVarMasks(final VTree vTree, final Caches caches, final SddCoreSolver solver) {
         if (vTree.isLeaf()) {
             final VTreeLeaf leaf = vTree.asLeaf();
             final int solverIdx = leaf.getVariable();
@@ -124,15 +159,16 @@ public class SddCompilerTopDown {
             return varMask;
         } else {
             final VTreeInternal internal = vTree.asInternal();
-            final BitSet left = (BitSet) generateVarMasks(internal.getLeft(), caches, solver, sdd).clone();
-            final BitSet right = generateVarMasks(internal.getRight(), caches, solver, sdd);
+            final BitSet left = (BitSet) generateVarMasks(internal.getLeft(), caches, solver).clone();
+            final BitSet right = generateVarMasks(internal.getRight(), caches, solver);
             left.or(right);
             caches.varMasks.put(internal, left);
             return left;
         }
     }
 
-    protected static void generateContextMaps(final VTree vTree, final DTree dTree, final Caches caches) {
+    protected static void generateClauseMasks(final VTree vTree, final DTree dTree, final Caches caches,
+                                              final SddCoreSolver solver) {
         final List<DTreeLeaf> leaves;
         if (dTree == null) {
             leaves = List.of();
@@ -141,28 +177,69 @@ public class SddCompilerTopDown {
         } else {
             leaves = List.of((DTreeLeaf) dTree);
         }
+        generateClauseLiteralMasks(leaves, caches);
+        generateVTreeClauseMasks(vTree, leaves, caches);
+    }
+
+    protected static void generateClauseLiteralMasks(final Collection<DTreeLeaf> leaves, final Caches caches) {
+        for (final DTreeLeaf leaf : leaves) {
+            final BitSet litMask = new BitSet();
+            for (final int lit : leaf.literals()) {
+                litMask.set(lit);
+            }
+            caches.clauseLitMasks.put(leaf, litMask);
+        }
+    }
+
+    protected static void generateVTreeClauseMasks(final VTree vTree, final List<DTreeLeaf> leaves,
+                                                   final Caches caches) {
         final Stack<VTree> stack = new Stack<>();
         stack.push(vTree);
         while (!stack.isEmpty()) {
             final VTree parent = stack.pop();
-            final BitSet contextClauseMask = new BitSet();
             final BitSet contextVarMask = (BitSet) caches.varMasks.get(parent).clone();
-            for (int i = 0; i < leaves.size(); ++i) {
-                final BitSet varMask = (BitSet) caches.varMasks.get(parent).clone();
-                varMask.and(leaves.get(i).getStaticVarSet());
-                if (!varMask.isEmpty() && !varMask.equals(leaves.get(i).getStaticVarSet())) {
-                    contextClauseMask.set(i);
-                    contextVarMask.or(leaves.get(i).getStaticVarSet());
+            final BitSet varMask = (BitSet) caches.varMasks.get(parent).clone();
+            final BitSet contextClauseMask = new BitSet();
+            final BitSet clausePosMask = new BitSet();
+            final BitSet clauseNegMask = new BitSet();
+            for (int c = 0; c < leaves.size(); c++) {
+                final DTreeLeaf leaf = leaves.get(c);
+                final BitSet intersection = (BitSet) varMask.clone();
+                intersection.and(leaf.getStaticVarSet());
+                if (!intersection.isEmpty() && !intersection.equals(leaf.getStaticVarSet())) {
+                    contextClauseMask.set(c);
+                    contextVarMask.or(leaf.getStaticVarSet());
+                }
+                if (parent.isLeaf()) {
+                    final BitSet litMask = caches.clauseLitMasks.get(leaf);
+                    if (litMask.get(mkLit(parent.asLeaf().getVariable(), false))) {
+                        clausePosMask.set(c);
+                    }
+                    if (litMask.get(mkLit(parent.asLeaf().getVariable(), true))) {
+                        clauseNegMask.set(c);
+                    }
                 }
             }
-            caches.contextCMaps.put(parent, contextClauseMask);
-            caches.contextVarMasks.put(parent, contextVarMask);
+
+            varMask.and(contextVarMask);
+            final BitSet contextLitMask = new BitSet();
+            for (int i = varMask.nextSetBit(0); i != -1; i = varMask.nextSetBit(i + 1)) {
+                contextLitMask.set(i * 2);
+                contextLitMask.set(i * 2 + 1);
+            }
+
+            parent.setContextLitsInMask(contextLitMask);
+            parent.setContextClauseMask(contextClauseMask);
+            if (parent.isLeaf()) {
+                parent.asLeaf().setClausePosMask(clausePosMask);
+                parent.asLeaf().setClauseNegMask(clauseNegMask);
+            }
+
             if (!parent.isLeaf()) {
                 stack.push(parent.asInternal().getLeft());
                 stack.push(parent.asInternal().getRight());
             }
         }
-
     }
 
     protected LngResult<SddNode> start(final ComputationHandler handler) {
@@ -190,7 +267,10 @@ public class SddCompilerTopDown {
 
     protected LngResult<SddNode> cnf2sddLeaf(final VTreeLeaf leaf, final ComputationHandler handler) {
         final int solverVarIdx = leaf.getVariable();
-        final int implied = solver.isImplied(solverVarIdx);
+        if (!relevantVars.contains(solverVarIdx)) {
+            return LngResult.of(sf.verum());
+        }
+        final int implied = solver.impliedLiteral(solverVarIdx);
         if (implied != -1) {
             return LngResult.of(sf.terminal(leaf, !sign(implied)));
         } else {
@@ -231,9 +311,12 @@ public class SddCompilerTopDown {
         }
         final VTreeLeaf varLeaf = treeInternal.getLeft().asLeaf();
         final int solverVarIdx = varLeaf.getVariable();
-        final int implied = solver.isImplied(solverVarIdx);
+        final int implied = solver.impliedLiteral(solverVarIdx);
 
         if (implied != -1) {
+            if (!relevantVars.contains(solverVarIdx)) {
+                return cnf2sdd(treeInternal.getRight(), handler);
+            }
             final SddNode prime = sf.terminal(varLeaf, !sign(implied));
             final LngResult<SddNode> subResult = cnf2sdd(treeInternal.getRight(), handler);
             if (!subResult.isSuccess()) {
@@ -284,16 +367,24 @@ public class SddCompilerTopDown {
                 return LngResult.of(negative);
             }
         }
-        final SddNode lit = sf.terminal(varLeaf, true);
-        final SddNode litNeg = sf.terminal(varLeaf, false);
-        final SddNode alpha = unique(lit, positive, litNeg, negative);
+        final SddNode alpha;
+        if (relevantVars.contains(varLeaf.getVariable())) {
+            final SddNode lit = sf.terminal(varLeaf, true);
+            final SddNode litNeg = sf.terminal(varLeaf, false);
+            alpha = unique(lit, positive, litNeg, negative);
+        } else {
+            final LngResult<SddNode> disjunction = sf.disjunction(positive, negative, handler);
+            if (!disjunction.isSuccess()) {
+                return disjunction;
+            }
+            alpha = disjunction.getResult();
+        }
         addToCache(treeInternal, alpha);
         return LngResult.of(alpha);
     }
 
     protected void invalidateCache(final VTree vTree) {
-        final BitSet key1 = key1(vTree);
-        caches.cache.remove(key1);
+        vTree.setCache(null);
         if (!vTree.isLeaf()) {
             invalidateCache(vTree.asInternal().getLeft());
             invalidateCache(vTree.asInternal().getRight());
@@ -303,47 +394,42 @@ public class SddCompilerTopDown {
     protected void addToCache(final VTree vTree, final SddNode node) {
         final BitSet key1 = key1(vTree);
         final BitSet key2 = key2(vTree);
-        if (!caches.cache.containsKey(key1)) {
-            caches.cache.put(key1, new HashMap<>());
+        if (vTree.getCache() == null) {
+            vTree.setCache(new HashMap<>());
         }
-        final Map<BitSet, SddNode> level2 = caches.cache.get(key1);
-        level2.put(key2, node);
+        final Map<BitSet, Map<BitSet, SddNode>> level2 = vTree.getCache();
+        if (!level2.containsKey(key1)) {
+            level2.put(key1, new HashMap<>());
+        }
+        final Map<BitSet, SddNode> level3 = level2.get(key1);
+        level3.put(key2, node);
     }
 
     protected SddNode lookup(final VTree vTree) {
-        final BitSet key1 = key1(vTree);
-        final Map<BitSet, SddNode> level2 = caches.cache.get(key1);
+        final Map<BitSet, Map<BitSet, SddNode>> level2 = vTree.getCache();
         if (level2 == null) {
+            return null;
+        }
+        final BitSet key1 = key1(vTree);
+        final Map<BitSet, SddNode> level3 = level2.get(key1);
+        if (level3 == null) {
             return null;
         } else {
             final BitSet key2 = key2(vTree);
-            return level2.get(key2);
+            return level3.get(key2);
         }
     }
 
     protected BitSet key1(final VTree vTree) {
-        return caches.contextCMaps.get(vTree);
+        final BitSet key = (BitSet) vTree.getContextClauseMask().clone();
+        key.and(solver.subsumedClauseBitset());
+        return key;
     }
 
     protected BitSet key2(final VTree vTree) {
-        final BitSet contextVarsMap = caches.contextVarMasks.get(vTree);
-        //final BitSet varMap = caches.varMasks.get(vTree);
-        //contextVarsMap.or(varMap);
-        final LngIntVector implied = solver.getImplied();
-        final BitSet impliedBitSet = new BitSet();
-        for (int i = 0; i < implied.size(); ++i) {
-            final int literal = implied.get(i);
-            if (contextVarsMap.get(var(literal))) {
-                impliedBitSet.set(literal);
-            }
-        }
-        for (int i = contextVarsMap.nextSetBit(0); i != -1; i = contextVarsMap.nextSetBit(i + 1)) {
-            if (!impliedBitSet.get(2 * i) && !impliedBitSet.get(2 * i + 1)) {
-                impliedBitSet.set(2 * i);
-                impliedBitSet.set(2 * i + 1);
-            }
-        }
-        return impliedBitSet;
+        final BitSet contextLitsInMask = (BitSet) vTree.getContextLitsInMask().clone();
+        contextLitsInMask.and(solver.impliedLiteralBitset());
+        return contextLitsInMask;
     }
 
     protected SddNode unique(final SddNode p1, final SddNode s1, final SddNode p2, final SddNode s2) {
@@ -369,9 +455,7 @@ public class SddCompilerTopDown {
     }
 
     protected static class Caches {
-        protected final Map<BitSet, Map<BitSet, SddNode>> cache = new HashMap<>();
         protected final Map<VTree, BitSet> varMasks = new HashMap<>();
-        protected final Map<VTree, BitSet> contextVarMasks = new HashMap<>();
-        protected final Map<VTree, BitSet> contextCMaps = new HashMap<>();
+        protected final Map<DTreeLeaf, BitSet> clauseLitMasks = new HashMap<>();
     }
 }

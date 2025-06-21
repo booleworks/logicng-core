@@ -24,6 +24,7 @@ public class SimpleEvent implements LngEvent {
     public static final SimpleEvent DNNF_DTREE_PROCESSING_NEXT_ORDER_VARIABLE =
             new SimpleEvent("DNNF DTree processing next order variable");
     public static final SimpleEvent DNNF_SHANNON_EXPANSION = new SimpleEvent("DNNF Shannon Expansion");
+    public static final SimpleEvent VTREE_CUTSET_GENERATION = new SimpleEvent("VTree Cutset Generation");
     public static final SimpleEvent SDD_APPLY = new SimpleEvent("SDD Apply");
     public static final SimpleEvent SDD_SHANNON_EXPANSION = new SimpleEvent("SDD Shannon Expansion");
     public static final SimpleEvent SAT_CONFLICT_DETECTED = new SimpleEvent("SAT conflict detected");
@@ -32,7 +33,6 @@ public class SimpleEvent implements LngEvent {
     public static final SimpleEvent SUBSUMPTION_STARTING_UB_TREE_GENERATION =
             new SimpleEvent("Starting UB Tree generation");
     public static final SimpleEvent SUBSUMPTION_ADDED_NEW_SET = new SimpleEvent("Adding a new set to the UB Tree");
-
     private final String description;
 
     public SimpleEvent(final String description) {

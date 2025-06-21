@@ -9,6 +9,7 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
+import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
@@ -25,7 +26,7 @@ public class SddBackboneFunctionTest {
     @Test
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = f.parse("(~C & ~B & A) | (A & ~B & (C => D))");
+        final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(~C & ~B & A) | (A & ~B & (C => D))"));
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
         final Backbone backbone =

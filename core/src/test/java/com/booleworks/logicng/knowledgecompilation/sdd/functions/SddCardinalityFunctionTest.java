@@ -8,6 +8,7 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
+import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
@@ -22,7 +23,7 @@ public class SddCardinalityFunctionTest {
     @Test
     public void testMax() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
+        final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
         final int cardinality =
@@ -38,7 +39,7 @@ public class SddCardinalityFunctionTest {
     @Test
     public void testMin() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = f.parse("(A & B) | (B & C) | (C & D)");
+        final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
         final int cardinality =

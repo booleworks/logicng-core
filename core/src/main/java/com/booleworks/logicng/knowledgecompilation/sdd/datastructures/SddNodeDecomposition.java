@@ -3,8 +3,6 @@ package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 
 import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -14,7 +12,7 @@ public final class SddNodeDecomposition extends SddNode implements Iterable<SddE
     private int referenceCounter;
 
     SddNodeDecomposition(final int id, final Sdd.GSCacheEntry<VTree> vTree, final ArrayList<SddElement> elements) {
-        super(id, vTree, calculateVariableMask(elements));
+        super(id, vTree);
         this.elements = elements;
         this.referenceCounter = 0;
         for (final SddElement element : elements) {
@@ -25,15 +23,6 @@ public final class SddNodeDecomposition extends SddNode implements Iterable<SddE
                 element.getSub().asDecomposition().ref();
             }
         }
-    }
-
-    private static BitSet calculateVariableMask(final Collection<SddElement> elements) {
-        final BitSet variableMask = new BitSet();
-        for (final SddElement element : elements) {
-            variableMask.or(element.getPrime().getVariableMask());
-            variableMask.or(element.getSub().getVariableMask());
-        }
-        return variableMask;
     }
 
     public void ref() {
