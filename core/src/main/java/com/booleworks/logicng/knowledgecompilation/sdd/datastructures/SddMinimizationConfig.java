@@ -4,26 +4,31 @@ import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.handlers.events.LngEvent;
-import com.booleworks.logicng.handlers.events.SddMinimizationStepEvent;
+import com.booleworks.logicng.handlers.events.SddMinimizationEvent;
 
 public class SddMinimizationConfig {
     private final Sdd sdd;
+    private final Algorithm algorithm;
     private final long operationTimeout;
 
     private final long totalTimeout;
+    private final long nodeLimit;
     private final int absoluteTargetSize;
     private final double relativeTargetSize;
     private final double relativeImprovementThreshold;
     private final int absoluteImprovementThreshold;
     private final ComputationHandler userHandler;
 
-    private SddMinimizationConfig(final Sdd sdd, final long operationTimeout, final long totalTimeout,
-                                  final int absoluteTargetSize,
+    private SddMinimizationConfig(final Sdd sdd, final Algorithm algorithm, final long operationTimeout,
+                                  final long totalTimeout,
+                                  final long nodeLimit, final int absoluteTargetSize,
                                   final double relativeTargetSize, final double relativeImprovementThreshold,
                                   final int absoluteImprovementThreshold, final ComputationHandler userHandler) {
         this.sdd = sdd;
+        this.algorithm = algorithm;
         this.operationTimeout = operationTimeout;
         this.totalTimeout = totalTimeout;
+        this.nodeLimit = nodeLimit;
         this.absoluteTargetSize = absoluteTargetSize;
         this.relativeTargetSize = relativeTargetSize;
         this.relativeImprovementThreshold = relativeImprovementThreshold;
@@ -54,7 +59,13 @@ public class SddMinimizationConfig {
                     }
                 }
             }
-            return deadline == -1 || System.currentTimeMillis() < deadline;
+            if (nodeLimit != -1 && outsideNodeLimit()) {
+                return false;
+            }
+            if (deadline != -1 && System.currentTimeMillis() >= deadline) {
+                return false;
+            }
+            return true;
         }
     }
 
@@ -82,12 +93,15 @@ public class SddMinimizationConfig {
             if (deadline != -1 && deadline <= System.currentTimeMillis()) {
                 return false;
             }
-            if (event instanceof SddMinimizationStepEvent) {
-                final int newSize = ((SddMinimizationStepEvent) event).getNewSize();
+            if (event instanceof SddMinimizationEvent) {
+                final long newSize = ((SddMinimizationEvent) event).getNewSize();
                 if (expectedSize != -1 && newSize >= expectedSize) {
                     return false;
                 }
                 if (targetSize != -1 && newSize <= targetSize) {
+                    return false;
+                }
+                if (nodeLimit != -1 && outsideNodeLimit()) {
                     return false;
                 }
                 calculateNextSize(newSize);
@@ -95,7 +109,7 @@ public class SddMinimizationConfig {
             return userHandler.shouldResume(event);
         }
 
-        private void calculateNextSize(final int currentSize) {
+        private void calculateNextSize(final long currentSize) {
             if (absoluteImprovementThreshold != -1) {
                 expectedSize = currentSize - absoluteImprovementThreshold;
             }
@@ -106,6 +120,22 @@ public class SddMinimizationConfig {
         }
     }
 
+    private boolean outsideNodeLimit() {
+        return sdd.getSddNodeCount() >= nodeLimit;
+    }
+
+    public Sdd getSdd() {
+        return sdd;
+    }
+
+    public Algorithm getAlgorithm() {
+        return algorithm;
+    }
+
+    public enum Algorithm {
+        BOTTOM_UP,
+        DEC_THRESHOLD
+    }
 
     public static SddMinimizationConfig unlimited(final Sdd sdd) {
         return new Builder(sdd).build();
@@ -113,9 +143,11 @@ public class SddMinimizationConfig {
 
     public static class Builder {
         private final Sdd sdd;
+        private Algorithm algorithm = Algorithm.BOTTOM_UP;
         private long operationTimeout = -1;
 
         private long totalTimeout = -1;
+        private long nodeLimit = -1;
         private int absoluteTargetSize = -1;
         private double relativeTargetSize = -1;
         private double relativeImprovementThreshold = -1;
@@ -127,8 +159,14 @@ public class SddMinimizationConfig {
         }
 
         public SddMinimizationConfig build() {
-            return new SddMinimizationConfig(sdd, operationTimeout, totalTimeout, absoluteTargetSize,
+            return new SddMinimizationConfig(sdd, algorithm, operationTimeout, totalTimeout, nodeLimit,
+                    absoluteTargetSize,
                     relativeTargetSize, relativeImprovementThreshold, absoluteImprovementThreshold, userHandler);
+        }
+
+        public Builder withAlgorithm(final Algorithm algorithm) {
+            this.algorithm = algorithm;
+            return this;
         }
 
         public Builder withOperationTimeout(final long operationTimeout) {
@@ -138,6 +176,11 @@ public class SddMinimizationConfig {
 
         public Builder withTotalTimeout(final long totalTimeout) {
             this.totalTimeout = totalTimeout;
+            return this;
+        }
+
+        public Builder withNodeLimit(final long nodeLimit) {
+            this.nodeLimit = nodeLimit;
             return this;
         }
 

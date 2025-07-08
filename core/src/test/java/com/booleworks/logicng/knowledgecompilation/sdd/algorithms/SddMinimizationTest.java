@@ -83,7 +83,7 @@ public class SddMinimizationTest {
         final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
         sdd.pin(node);
         final TransformationResult res =
-                SddMinimization.localSearchPass(sdd, NopHandler::get, NopHandler.get()).getResult();
+                SddMinimization.localSearchPass(0, sdd, NopHandler::get, NopHandler.get()).getResult();
         final SddNode mini = res.getTranslations().get(node);
         SddTestUtil.validateExport(mini, formula, sdd);
     }
@@ -98,7 +98,7 @@ public class SddMinimizationTest {
         final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
         sdd.pin(node);
         final TransformationResult res =
-                SddMinimization.localSearchPass(sdd, NopHandler::get, NopHandler.get()).getResult();
+                SddMinimization.localSearchPass(0, sdd, NopHandler::get, NopHandler.get()).getResult();
         final SddNode mini = res.getTranslations().get(node);
         SddTestUtil.validateExport(mini, formula, sdd);
     }
@@ -151,7 +151,7 @@ public class SddMinimizationTest {
             comp.getSdd().pin(comp.getNode());
             final SddMinimizationConfig config = SddMinimizationConfig.unlimited(comp.getSdd());
             final TransformationResult res =
-                    SddMinimization.minimize(comp.getSdd(), config).getPartialResult();
+                    SddMinimization.minimize(config).getPartialResult();
             final SddNode mini = res.getTranslations().get(comp.getNode());
             SddTestUtil.validateMC(mini, formula, comp.getSdd());
         }
@@ -168,7 +168,7 @@ public class SddMinimizationTest {
             final SddMinimizationConfig config =
                     new SddMinimizationConfig.Builder(comp.getSdd()).withOperationTimeout(10).build();
             final TransformationResult res =
-                    SddMinimization.minimize(comp.getSdd(), config).getPartialResult();
+                    SddMinimization.minimize(config).getPartialResult();
             final SddNode mini = res.getTranslations().get(comp.getNode());
             SddTestUtil.validateMC(mini, formula, comp.getSdd());
         }
@@ -185,9 +185,27 @@ public class SddMinimizationTest {
             final SddMinimizationConfig config =
                     new SddMinimizationConfig.Builder(comp.getSdd()).withAbsoluteTargetSize(1100).build();
             final LngResult<TransformationResult> res =
-                    SddMinimization.minimize(comp.getSdd(), config);
+                    SddMinimization.minimize(config);
             final SddNode mini = res.getPartialResult().getTranslations().get(comp.getNode());
             assertThat(res.isSuccess() || comp.getSdd().getActiveSize() <= 1100).isTrue();
+            SddTestUtil.validateMC(mini, formula, comp.getSdd());
+        }
+    }
+
+    @Test
+    @LongRunningTag
+    public void testMinimizeDecTh() throws IOException {
+        for (final String file : FILES) {
+            final FormulaFactory f = FormulaFactory.caching();
+            final Formula formula = f.and(DimacsReader.readCNF(f, file));
+            final SddCompilationResult comp = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            comp.getSdd().pin(comp.getNode());
+            final SddMinimizationConfig config =
+                    new SddMinimizationConfig.Builder(comp.getSdd()).withAlgorithm(
+                            SddMinimizationConfig.Algorithm.DEC_THRESHOLD).build();
+            final TransformationResult res =
+                    SddMinimization.minimize(config).getPartialResult();
+            final SddNode mini = res.getTranslations().get(comp.getNode());
             SddTestUtil.validateMC(mini, formula, comp.getSdd());
         }
     }

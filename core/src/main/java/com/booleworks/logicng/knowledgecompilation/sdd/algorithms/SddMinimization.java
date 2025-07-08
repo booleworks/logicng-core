@@ -4,7 +4,7 @@ import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.handlers.events.LngEvent;
-import com.booleworks.logicng.handlers.events.SddMinimizationStepEvent;
+import com.booleworks.logicng.handlers.events.SddMinimizationEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddMinimizationConfig;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.TransformationResult;
@@ -18,8 +18,15 @@ import java.util.function.Supplier;
 
 public class SddMinimization {
 
-    public static LngResult<TransformationResult> minimize(final Sdd node, final SddMinimizationConfig config) {
-        return minimize(node, config::operationHandler, config.iterationHandler());
+    public static LngResult<TransformationResult> minimize(final SddMinimizationConfig config) {
+        switch (config.getAlgorithm()) {
+            case BOTTOM_UP:
+                return minimize(config.getSdd(), config::operationHandler, config.iterationHandler());
+            case DEC_THRESHOLD:
+                return minimizeDecrementalSizeThreshold(config.getSdd(), config::operationHandler,
+                        config.iterationHandler());
+        }
+        throw new RuntimeException("Unreachable");
     }
 
     public static LngResult<TransformationResult> minimize(final Sdd sdd,
@@ -31,7 +38,7 @@ public class SddMinimization {
             return LngResult.partial(transformation, ComputationStartedEvent.SDD_MINIMIZATION);
         }
         while (true) {
-            final LngResult<TransformationResult> passRes = localSearchPass(sdd, searchHandler, handler);
+            final LngResult<TransformationResult> passRes = localSearchPass(0, sdd, searchHandler, handler);
             if (!passRes.isSuccess() && !passRes.isPartial()) {
                 return LngResult.partial(transformation, ComputationStartedEvent.SDD_MINIMIZATION);
             }
@@ -42,7 +49,7 @@ public class SddMinimization {
             if (passRes.isPartial()) {
                 return LngResult.partial(transformation, ComputationStartedEvent.SDD_MINIMIZATION);
             }
-            final SddMinimizationStepEvent event = new SddMinimizationStepEvent(newSize);
+            final SddMinimizationEvent event = new SddMinimizationEvent(newSize, false);
             if (!handler.shouldResume(event)) {
                 return LngResult.partial(transformation, event);
             }
@@ -54,26 +61,61 @@ public class SddMinimization {
         return LngResult.of(transformation);
     }
 
-    public static LngResult<TransformationResult> localSearchPass(final Sdd sdd,
-                                                                  final Supplier<ComputationHandler> searchHandlers,
-                                                                  final ComputationHandler handler) {
-        return localSearchPass(sdd.getVTree().getRoot(), sdd, searchHandlers, handler);
+    public static LngResult<TransformationResult> minimizeDecrementalSizeThreshold(final Sdd sdd,
+                                                                                   final Supplier<ComputationHandler> searchHandler,
+                                                                                   final ComputationHandler handler) {
+        int size = sdd.getActiveSize();
+        int threshold = VTreeUtil.varCount(sdd.getVTree().getRoot()) / 2;
+        TransformationResult transformation = TransformationResult.identity(sdd.getVTree().getRoot(), sdd.getVTree());
+        if (!handler.shouldResume(ComputationStartedEvent.SDD_MINIMIZATION)) {
+            return LngResult.partial(transformation, ComputationStartedEvent.SDD_MINIMIZATION);
+        }
+        while (true) {
+            final LngResult<TransformationResult> passRes = localSearchPass(threshold, sdd, searchHandler, handler);
+            if (!passRes.isSuccess() && !passRes.isPartial()) {
+                return LngResult.partial(transformation, ComputationStartedEvent.SDD_MINIMIZATION);
+            }
+            final TransformationResult pass = passRes.getPartialResult();
+            transformation = TransformationResult.collapse(sdd.getVTree().getRoot(), transformation, pass);
+            final int newSize = sdd.getActiveSize();
+            sdd.garbageCollectAll();
+            if (passRes.isPartial()) {
+                return LngResult.partial(transformation, ComputationStartedEvent.SDD_MINIMIZATION);
+            }
+            final SddMinimizationEvent event = new SddMinimizationEvent(newSize, false);
+            if (!handler.shouldResume(event)) {
+                return LngResult.partial(transformation, event);
+            }
+            if (newSize == size && threshold <= 2) {
+                break;
+            }
+            threshold /= 2;
+            size = newSize;
+        }
+        return LngResult.of(transformation);
     }
 
-    private static LngResult<TransformationResult> localSearchPass(final VTree vTree, final Sdd sdd,
+    public static LngResult<TransformationResult> localSearchPass(final int threshold, final Sdd sdd,
+                                                                  final Supplier<ComputationHandler> searchHandlers,
+                                                                  final ComputationHandler handler) {
+        return localSearchPass(sdd.getVTree().getRoot(), threshold, sdd, searchHandlers, handler);
+    }
+
+    private static LngResult<TransformationResult> localSearchPass(final VTree vTree, final int threshold,
+                                                                   final Sdd sdd,
                                                                    final Supplier<ComputationHandler> searchHandlers,
                                                                    final ComputationHandler handler) {
-        if (vTree.isLeaf()) {
+        if (vTree.isLeaf() || VTreeUtil.varCount(vTree) < threshold) {
             return LngResult.of(TransformationResult.identity(vTree, sdd.getVTree()));
         }
         final LngResult<TransformationResult> leftRes =
-                localSearchPass(vTree.asInternal().getLeft(), sdd, searchHandlers, handler);
+                localSearchPass(vTree.asInternal().getLeft(), threshold, sdd, searchHandlers, handler);
         if (!leftRes.isSuccess()) {
             return leftRes;
         }
         final TransformationResult left = leftRes.getResult();
         final LngResult<TransformationResult> rightRes =
-                localSearchPass(vTree.asInternal().getRight(), sdd, searchHandlers, handler);
+                localSearchPass(vTree.asInternal().getRight(), threshold, sdd, searchHandlers, handler);
         if (!rightRes.isSuccess() && !rightRes.isPartial()) {
             return rightRes;
         }
@@ -98,6 +140,68 @@ public class SddMinimization {
         }
     }
 
+    private static LngResult<TransformationResult> reverseSearchPass(final Sdd sdd,
+                                                                     final Supplier<ComputationHandler> searchHandlers,
+                                                                     final ComputationHandler handler) {
+        return reverseSearchPass(sdd.getVTree().getRoot(), sdd, searchHandlers, handler);
+    }
+
+    private static LngResult<TransformationResult> reverseSearchPass(final VTree vTree, final Sdd sdd,
+                                                                     final Supplier<ComputationHandler> searchHandlers,
+                                                                     final ComputationHandler handler) {
+        if (vTree.isLeaf()) {
+            return LngResult.of(TransformationResult.identity(vTree, sdd.getVTree()));
+        }
+        final LngResult<TransformationResult> currentRes =
+                bestLocalState(new SearchState(vTree, sdd), searchHandlers, handler);
+        if (!currentRes.isSuccess()) {
+            return currentRes;
+        }
+        final TransformationResult current = currentRes.getResult();
+        if (current.getTransformationPoint().isLeaf()) {
+            return currentRes;
+        }
+
+        final LngResult<TransformationResult> leftRes =
+                reverseSearchPass(current.getTransformationPoint().asInternal().getLeft(), sdd, searchHandlers,
+                        handler);
+        if (!leftRes.isSuccess() && !leftRes.isPartial()) {
+            return leftRes;
+        }
+        final TransformationResult left = leftRes.getResult();
+        if (leftRes.isPartial()) {
+            return LngResult.partial(
+                    TransformationResult.collapse(left.getTransformationPoint().getParent(), current, left),
+                    leftRes.getCancelCause());
+        }
+
+        final LngResult<TransformationResult> rightRes =
+                reverseSearchPass(current.getTransformationPoint().asInternal().getRight(), sdd,
+                        searchHandlers,
+                        handler);
+        if (!rightRes.isSuccess() && !rightRes.isPartial()) {
+            return rightRes;
+        }
+        final TransformationResult right = leftRes.getResult();
+        final VTree lca = sdd.getVTree().lcaOf(left.getTransformationPoint(), right.getTransformationPoint());
+        final TransformationResult result = TransformationResult.collapse(lca, current, right);
+        if (rightRes.isPartial()) {
+            return LngResult.partial(result, rightRes.getCancelCause());
+        }
+        return LngResult.of(result);
+    }
+
+    /**
+     * Calculates the smallest variant of all vtree fragments of a vtree node
+     * within the limitations of the provided handlers.
+     * @param state          the vtree node as a search state
+     * @param searchHandlers handlers that are used for vtree fragment
+     *                       transformations, respectively.
+     * @param handler        that is used to control the minimization as a whole.
+     * @return a result value with the optimal result or the best result found
+     * until a {@code searchHandler} aborted a transformation, or a partial
+     * result if the search was aborted by {@code handler}.
+     */
     public static LngResult<TransformationResult> bestLocalState(final SearchState state,
                                                                  final Supplier<ComputationHandler> searchHandlers,
                                                                  final ComputationHandler handler) {
@@ -150,6 +254,18 @@ public class SddMinimization {
         }
     }
 
+    /**
+     * Calculates the smallest variant of a vtree fragment within the
+     * limitations of the provided handlers.
+     * @param fragment       the vtree fragment
+     * @param searchHandlers handlers that are used for vtree fragment
+     *                       transformations, respectively.
+     * @param userHandler    handler that is used to control the minimization as
+     *                       a whole.
+     * @return a result value with the optimal result or the best result found
+     * until a {@code searchHandler} aborted a transformation, or a partial
+     * result if the search was aborted by {@code userHandler}.
+     */
     public static LngResult<Pair<Long, TransformationResult>> bestState(final VTreeFragment fragment,
                                                                         final Supplier<ComputationHandler> searchHandlers,
                                                                         final ComputationHandler userHandler) {
@@ -162,15 +278,23 @@ public class SddMinimization {
             final LngResult<TransformationResult> result = fragment.next(handler);
             if (handler.abortedBySearchHandler) {
                 fragment.rollback(indexOfBest);
+                fragment.getSdd().garbageCollectAll();
                 return LngResult.of(new Pair<>(bestSize, transOfBest));
             } else if (!result.isSuccess()) {
                 fragment.rollback(indexOfBest);
+                fragment.getSdd().garbageCollectAll();
                 return LngResult.partial(new Pair<>(bestSize, transOfBest), result.getCancelCause());
             }
-            if (fragment.getSdd().getActiveSize() <= bestSize) {
-                bestSize = fragment.getSdd().getActiveSize();
+            final int activeSize = fragment.getSdd().getActiveSize();
+            if (activeSize <= bestSize) {
+                bestSize = activeSize;
                 indexOfBest = fragment.getMoveIndex();
                 transOfBest = fragment.apply();
+                fragment.getSdd().garbageCollectAll();
+                final SddMinimizationEvent event = new SddMinimizationEvent(bestSize, true);
+                if (!userHandler.shouldResume(event)) {
+                    return LngResult.partial(new Pair<>(bestSize, transOfBest), event);
+                }
             }
         }
         fragment.rollback(indexOfBest);
@@ -199,6 +323,20 @@ public class SddMinimization {
         }
     }
 
+    /**
+     * SearchHandler is computation handler used for a transformation step of a
+     * vtree fragment.
+     * <p>
+     * It composes two handlers: An {@code userHandler} and a {@code searchHandler}.
+     * The former is used to control and abort the whole minimization computation.
+     * The latter is used to abort only a specific transformation step. If it
+     * aborts the computation only the current fragment rotation is aborted but
+     * the minimization continues at another position in the vtree. This is
+     * useful for not getting stuck at only one transformation.
+     * <p>
+     * The {@code userHandler} is always queried before the {@code searchHandler}. An abortion by {@code searchHandler}
+     * is indicated by the boolean {@code abortedBySearchHandler}.
+     */
     private static class SearchHandler implements ComputationHandler {
         private final ComputationHandler userHandler;
         private final ComputationHandler searchHandler;

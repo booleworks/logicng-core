@@ -107,4 +107,12 @@ public class VTreeUtil {
             return varCount(vtree.asInternal().getLeft(), filter) + varCount(vtree.asInternal().getRight(), filter);
         }
     }
+
+    public static int varCount(final VTree vtree) {
+        if (vtree.isLeaf()) {
+            return 1;
+        } else {
+            return varCount(vtree.asInternal().getLeft()) + varCount(vtree.asInternal().getRight());
+        }
+    }
 }
