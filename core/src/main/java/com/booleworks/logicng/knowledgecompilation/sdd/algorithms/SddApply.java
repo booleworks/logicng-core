@@ -97,7 +97,7 @@ public class SddApply {
 
         final ArrayList<SddElement> newElements = new ArrayList<>();
         final SddNode n = op == SddApplyOperation.CONJUNCTION ? left : sf.negate(left);
-        Util.pushNewElement(sf.negate(n), op.zero(sf), newElements);
+        SddUtil.pushNewElement(sf.negate(n), op.zero(sf), newElements);
         for (final SddElement element : right) {
             final LngResult<SddNode> newPrime =
                     apply(element.getPrime(), n, SddApplyOperation.CONJUNCTION, sf, handler);
@@ -105,7 +105,7 @@ public class SddApply {
                 return newPrime;
             }
             if (!newPrime.getResult().isFalse()) {
-                Util.pushNewElement(newPrime.getResult(), element.getSub(), newElements);
+                SddUtil.pushNewElement(newPrime.getResult(), element.getSub(), newElements);
             }
         }
         return sf.decompOfPartition(newElements, handler);
@@ -126,7 +126,7 @@ public class SddApply {
             if (!newSub.isSuccess()) {
                 return newSub;
             }
-            Util.pushNewElement(element.getPrime(), newSub.getResult(), newElements);
+            SddUtil.pushNewElement(element.getPrime(), newSub.getResult(), newElements);
         }
         return sf.decompOfPartition(newElements, handler);
     }
@@ -152,8 +152,8 @@ public class SddApply {
             return leftNegSub;
         }
         final ArrayList<SddElement> newElements = new ArrayList<>();
-        Util.pushNewElement(left, leftSub.getResult(), newElements);
-        Util.pushNewElement(leftNeg, leftNegSub.getResult(), newElements);
+        SddUtil.pushNewElement(left, leftSub.getResult(), newElements);
+        SddUtil.pushNewElement(leftNeg, leftNegSub.getResult(), newElements);
         return LngResult.of(sf.decompOfCompressedPartition(newElements));
     }
 }

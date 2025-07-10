@@ -5,7 +5,10 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
+import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
+import com.booleworks.logicng.handlers.events.LngEvent;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.CompactModel;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
@@ -13,7 +16,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,51 +28,50 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class SddModelEnumeration implements SddFunction<List<Model>> {
-    private final SddNode originalNode;
+    private final Sdd sdd;
     private final Set<Variable> variables;
     private Set<Integer> variableIdxs;
 
-    public SddModelEnumeration(final Collection<Variable> variables, final SddNode originalNode) {
-        this.originalNode = originalNode;
+    public SddModelEnumeration(final Collection<Variable> variables, final Sdd sdd) {
+        this.sdd = sdd;
         this.variables = new HashSet<>(variables);
     }
 
     @Override
-    public LngResult<List<Model>> apply(final Sdd sf, final ComputationHandler handler) {
-        final LngResult<List<CompactModel>> compactResult = applyNoExpand(sf, handler);
-        if (!compactResult.isSuccess()) {
-            return LngResult.canceled(compactResult.getCancelCause());
-        }
-        final List<CompactModel> compact = compactResult.getResult();
-        final List<Model> expanded = new ArrayList<>();
-        for (final CompactModel model : compact) {
-            expanded.addAll(model.expand());
-        }
-        return LngResult.of(expanded);
+    public LngResult<List<Model>> execute(final SddNode node, final ComputationHandler handler) {
+        final LngResult<List<CompactModel>> compactResult = applyNoExpand(node, handler);
+        return compactResult.map(compactModels -> {
+                    final List<Model> expanded = new ArrayList<>();
+                    for (final CompactModel model : compactModels) {
+                        expanded.addAll(model.expand());
+                    }
+                    return expanded;
+                }
+        );
     }
 
-    public LngResult<List<CompactModel>> applyNoExpand(final Sdd sdd, final ComputationHandler handler) {
-        variableIdxs = Util.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
-        final SortedSet<Integer> sddVariables = originalNode.variables();
+    public LngResult<List<CompactModel>> applyNoExpand(final SddNode node, final ComputationHandler handler) {
+        variableIdxs = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
+        final SortedSet<Integer> sddVariables = node.variables();
         if (!variableIdxs.containsAll(sddVariables)) {
             throw new IllegalArgumentException(
                     "Model Counting variables must be a superset of the variables contained on the SDD");
         }
-        if (originalNode.isTrue()) {
+        if (node.isTrue()) {
             return LngResult.of(List.of(new CompactModel(List.of(), List.of())));
         }
-        if (originalNode.isFalse()) {
+        if (node.isFalse()) {
             return LngResult.of(List.of());
         }
 
         final SortedSet<Integer> variablesInVTree = new TreeSet<>();
-        VTreeUtil.vars(sdd.vTreeOf(originalNode), variableIdxs, variablesInVTree);
+        VTreeUtil.vars(sdd.vTreeOf(node), variableIdxs, variablesInVTree);
         final Set<Variable> variablesNotInVTree = variables
                 .stream()
                 .filter(v -> !sdd.knows(v) || !variablesInVTree.contains(sdd.variableToIndex(v)))
                 .collect(Collectors.toSet());
 
-        final NodePC producer = buildPCNode(originalNode, sdd, new HashMap<>(), new HashMap<>());
+        final NodePC producer = buildPCNode(node, sdd, new HashMap<>(), new HashMap<>());
         final List<CompactModel> models = new ArrayList<>();
         producer.consumerRoot = models;
         while (!producer.isDone()) {
@@ -286,7 +287,7 @@ public class SddModelEnumeration implements SddFunction<List<Model>> {
         VTreeUtil.gapVars(targetVTree, usedVTree, sdd.getVTree(), variableIdxs, gapVars);
         final List<CompactModel> extended = new ArrayList<>(models.size());
         for (final CompactModel model : models) {
-            final List<Variable> dontCareVariables = Util.indicesToVars(gapVars, sdd, new ArrayList<>());
+            final List<Variable> dontCareVariables = SddUtil.indicesToVars(gapVars, sdd, new ArrayList<>());
             extended.add(model.withDontCare(dontCareVariables));
         }
         return extended;

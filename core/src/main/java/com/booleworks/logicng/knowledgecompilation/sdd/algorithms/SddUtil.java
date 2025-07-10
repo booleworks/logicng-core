@@ -9,7 +9,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeUtil;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class Util {
+public class SddUtil {
 
     public static void pushNewElement(final SddNode prime, final SddNode sub, final Collection<SddElement> target) {
         assert !prime.isFalse();
@@ -120,7 +119,7 @@ public class Util {
         final ArrayList<Pair<VTree, Formula>> vTrees = new ArrayList<>(litsets.size());
         for (final Formula litset : litsets) {
             final List<Integer> varIdxs =
-                    Util.varsToIndicesExpectKnown(litset.variables(sdd.getFactory()), sdd, new ArrayList<>());
+                    SddUtil.varsToIndicesExpectKnown(litset.variables(sdd.getFactory()), sdd, new ArrayList<>());
             vTrees.add(new Pair<>(VTreeUtil.lcaFromVariables(varIdxs, sdd), litset));
         }
         vTrees.sort((o1, o2) -> {

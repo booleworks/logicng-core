@@ -5,14 +5,14 @@ import com.booleworks.logicng.datastructures.Tristate;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeUtil;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,26 +23,26 @@ import java.util.TreeSet;
 
 public class SddBackboneFunction implements SddFunction<Backbone> {
     private final SortedSet<Variable> variables;
-    private final SddNode originalNode;
+    private final Sdd sdd;
 
-    public SddBackboneFunction(final SortedSet<Variable> variables, final SddNode originalNode) {
+    public SddBackboneFunction(final SortedSet<Variable> variables, final Sdd sdd) {
         this.variables = variables;
-        this.originalNode = originalNode;
+        this.sdd = sdd;
     }
 
     @Override
-    public LngResult<Backbone> apply(final Sdd sf, final ComputationHandler handler) {
-        final Set<Integer> variableIdxs = Util.varsToIndicesOnlyKnown(variables, sf, new HashSet<>());
+    public LngResult<Backbone> execute(final SddNode node, final ComputationHandler handler) {
+        final Set<Integer> variableIdxs = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
         final HashMap<Integer, Tristate> backboneMap = new HashMap<>();
-        if (originalNode.isFalse()) {
+        if (node.isFalse()) {
             return LngResult.of(Backbone.unsatBackbone());
         }
-        applyRec(originalNode, variableIdxs, backboneMap, sf);
+        applyRec(node, variableIdxs, backboneMap);
         final SortedSet<Variable> posVars = new TreeSet<>();
         final SortedSet<Variable> negVars = new TreeSet<>();
         final SortedSet<Variable> optVars = new TreeSet<>();
         for (final Variable var : variables) {
-            final Tristate state = backboneMap.get(sf.variableToIndex(var));
+            final Tristate state = backboneMap.get(sdd.variableToIndex(var));
             if (state == null) {
                 optVars.add(var);
             } else if (state == Tristate.TRUE) {
@@ -57,16 +57,15 @@ public class SddBackboneFunction implements SddFunction<Backbone> {
         return LngResult.of(backbone);
     }
 
-    public void applyRec(final SddNode node, final Set<Integer> variables, final Map<Integer, Tristate> backbone,
-                         final Sdd sdd) {
+    public void applyRec(final SddNode node, final Set<Integer> variables, final Map<Integer, Tristate> backbone) {
         if (node.isDecomposition()) {
             final VTreeRoot root = sdd.getVTree();
             final Set<Integer> gapVars = new HashSet<>();
             final VTreeInternal targetVTree = sdd.vTreeOf(node).asInternal();
             for (final SddElement element : node.asDecomposition()) {
                 if (!element.getSub().isFalse()) {
-                    applyRec(element.getPrime(), variables, backbone, sdd);
-                    applyRec(element.getSub(), variables, backbone, sdd);
+                    applyRec(element.getPrime(), variables, backbone);
+                    applyRec(element.getSub(), variables, backbone);
                     VTreeUtil.gapVars(targetVTree.getLeft(), sdd.vTreeOf(element.getPrime()), root, variables, gapVars);
                     if (element.getSub().isTrue()) {
                         VTreeUtil.vars(targetVTree.getRight(), variables, gapVars);

@@ -12,30 +12,30 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDec
 import java.util.ArrayList;
 
 public class SddExportFormula implements SddFunction<Formula> {
-    public final SddNode sdd;
+    public final Sdd sdd;
 
-    public SddExportFormula(final SddNode sdd) {
+    public SddExportFormula(final Sdd sdd) {
         this.sdd = sdd;
     }
 
     @Override
-    public LngResult<Formula> apply(final Sdd sf, final ComputationHandler handler) {
-        return LngResult.of(applyRec(sdd, sf));
+    public LngResult<Formula> execute(final SddNode node, final ComputationHandler handler) {
+        return LngResult.of(applyRec(node));
     }
 
-    public Formula applyRec(final SddNode node, final Sdd sf) {
-        final FormulaFactory f = sf.getFactory();
+    public Formula applyRec(final SddNode node) {
+        final FormulaFactory f = sdd.getFactory();
         if (node.isDecomposition()) {
             final SddNodeDecomposition decomp = node.asDecomposition();
             final ArrayList<Formula> elementFormulas = new ArrayList<>(decomp.getElementsUnsafe().size());
             for (final SddElement element : node.asDecomposition()) {
-                final Formula sub = applyRec(element.getSub(), sf);
-                final Formula prime = applyRec(element.getPrime(), sf);
+                final Formula sub = applyRec(element.getSub());
+                final Formula prime = applyRec(element.getPrime());
                 elementFormulas.add(f.and(sub, prime));
             }
             return f.or(elementFormulas);
         } else {
-            return node.asTerminal().toFormula(sf);
+            return node.asTerminal().toFormula(sdd);
         }
     }
 }

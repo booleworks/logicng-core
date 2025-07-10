@@ -5,7 +5,7 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddQuantification;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.CompactModel;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
@@ -19,17 +19,17 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class SddProjectedModelEnumeration implements SddFunction<List<Model>> {
-    private final SddNode originalNode;
+    private final Sdd sdd;
     private final Set<Variable> variables;
 
-    public SddProjectedModelEnumeration(final Collection<Variable> variables, final SddNode originalNode) {
-        this.originalNode = originalNode;
+    public SddProjectedModelEnumeration(final Collection<Variable> variables, final Sdd sdd) {
+        this.sdd = sdd;
         this.variables = new HashSet<>(variables);
     }
 
     @Override
-    public LngResult<List<Model>> apply(final Sdd sf, final ComputationHandler handler) {
-        final LngResult<List<CompactModel>> compactResult = applyNoExpand(sf, handler);
+    public LngResult<List<Model>> execute(final SddNode node, final ComputationHandler handler) {
+        final LngResult<List<CompactModel>> compactResult = applyNoExpand(node, handler);
         if (!compactResult.isSuccess()) {
             return LngResult.canceled(compactResult.getCancelCause());
         }
@@ -41,9 +41,9 @@ public class SddProjectedModelEnumeration implements SddFunction<List<Model>> {
         return LngResult.of(expanded);
     }
 
-    public LngResult<List<CompactModel>> applyNoExpand(final Sdd sf, final ComputationHandler handler) {
-        final Set<Integer> variableIdxs = Util.varsToIndicesOnlyKnown(variables, sf, new HashSet<>());
-        final SortedSet<Integer> originalSddVariables = originalNode.variables();
+    public LngResult<List<CompactModel>> applyNoExpand(final SddNode node, final ComputationHandler handler) {
+        final Set<Integer> variableIdxs = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
+        final SortedSet<Integer> originalSddVariables = node.variables();
         final Set<Integer> notProjectedVariables = new TreeSet<>();
         for (final int variable : originalSddVariables) {
             if (!variableIdxs.contains(variable)) {
@@ -51,11 +51,11 @@ public class SddProjectedModelEnumeration implements SddFunction<List<Model>> {
             }
         }
         final LngResult<SddNode> projectedResult =
-                SddQuantification.exists(notProjectedVariables, originalNode, sf, handler);
+                SddQuantification.exists(notProjectedVariables, node, sdd, handler);
         if (!projectedResult.isSuccess()) {
             return LngResult.canceled(projectedResult.getCancelCause());
         }
         final SddNode projectedNode = projectedResult.getResult();
-        return new SddModelEnumeration(variables, projectedNode).applyNoExpand(sf, handler);
+        return new SddModelEnumeration(variables, sdd).applyNoExpand(projectedNode, handler);
     }
 }

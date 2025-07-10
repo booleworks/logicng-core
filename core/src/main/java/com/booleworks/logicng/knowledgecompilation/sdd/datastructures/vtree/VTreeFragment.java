@@ -4,6 +4,7 @@ import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddGlobalTransformations;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddGlobalTransformationEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.TransformationResult;

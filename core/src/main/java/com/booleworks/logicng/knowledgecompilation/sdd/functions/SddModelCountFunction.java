@@ -3,7 +3,8 @@ package com.booleworks.logicng.knowledgecompilation.sdd.functions;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
@@ -11,7 +12,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDec
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeUtil;
 
 import java.math.BigInteger;
 import java.util.Collection;
@@ -21,18 +21,18 @@ import java.util.Set;
 import java.util.SortedSet;
 
 public class SddModelCountFunction implements SddFunction<BigInteger> {
-    private final SddNode node;
+    private final Sdd sdd;
     private final Set<Variable> variables;
     private SortedSet<Integer> sddVariables;
 
-    public SddModelCountFunction(final Collection<Variable> variables, final SddNode node) {
-        this.node = node;
+    public SddModelCountFunction(final Collection<Variable> variables, final Sdd sdd) {
+        this.sdd = sdd;
         this.variables = new HashSet<>(variables);
     }
 
     @Override
-    public LngResult<BigInteger> apply(final Sdd sf, final ComputationHandler handler) {
-        final Set<Integer> variableIdxs = Util.varsToIndicesOnlyKnown(variables, sf, new HashSet<>());
+    public LngResult<BigInteger> execute(final SddNode node, final ComputationHandler handler) {
+        final Set<Integer> variableIdxs = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
         sddVariables = node.variables();
         if (!variableIdxs.containsAll(sddVariables)) {
             throw new IllegalArgumentException(
@@ -40,7 +40,7 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
         }
         final long variablesNotInSdd = variables
                 .stream()
-                .filter(v -> !sf.knows(v) || !sddVariables.contains(sf.variableToIndex(v)))
+                .filter(v -> !sdd.knows(v) || !sddVariables.contains(sdd.variableToIndex(v)))
                 .count();
         final BigInteger count;
         if (node.isFalse()) {
@@ -48,12 +48,12 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
         } else if (node.isTrue()) {
             count = BigInteger.ONE;
         } else {
-            count = applyRec(node, sf, new HashMap<>());
+            count = applyRec(node, new HashMap<>());
         }
         return LngResult.of(BigInteger.TWO.pow((int) variablesNotInSdd).multiply(count));
     }
 
-    private BigInteger applyRec(final SddNode node, final Sdd sdd, final HashMap<SddNode, BigInteger> cache) {
+    private BigInteger applyRec(final SddNode node, final HashMap<SddNode, BigInteger> cache) {
         if (node.isFalse()) {
             return BigInteger.ZERO;
         }
@@ -69,8 +69,8 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
         final VTreeInternal vTree = sdd.vTreeOf(node).asInternal();
         BigInteger modelCount = BigInteger.ZERO;
         for (final SddElement element : decomp) {
-            final BigInteger prime = applyRec(element.getPrime(), sdd, cache);
-            final BigInteger sub = applyRec(element.getSub(), sdd, cache);
+            final BigInteger prime = applyRec(element.getPrime(), cache);
+            final BigInteger sub = applyRec(element.getSub(), cache);
 
             if (!element.getSub().isFalse()) {
                 final VTree left = vTree.getLeft();

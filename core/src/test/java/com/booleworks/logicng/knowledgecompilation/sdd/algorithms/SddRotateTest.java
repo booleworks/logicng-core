@@ -15,7 +15,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeUtil;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

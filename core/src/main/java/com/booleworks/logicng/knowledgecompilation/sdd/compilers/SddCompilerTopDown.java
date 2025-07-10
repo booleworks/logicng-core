@@ -16,7 +16,8 @@ import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTree;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
@@ -25,7 +26,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.Deci
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeUtil;
 import com.booleworks.logicng.predicates.satisfiability.SatPredicate;
 import com.booleworks.logicng.transformations.cnf.CnfSubsumption;
 import com.booleworks.logicng.transformations.simplification.BackboneSimplifier;
@@ -112,7 +112,7 @@ public class SddCompilerTopDown {
 
         final Caches caches = new Caches();
         solver.add(simplifiedFormula);
-        final Set<Integer> relevantVars = Util.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
+        final Set<Integer> relevantVars = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
         final LngResult<Pair<DTree, VTree>> vTreeResult =
                 DecisionVTreeGenerator.generateDecisionVTree(simplifiedFormula, solver, sdd, handler);
         if (!vTreeResult.isSuccess()) {

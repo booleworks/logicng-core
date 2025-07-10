@@ -11,7 +11,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Transforma
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeFragment;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeUtil;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.function.Supplier;

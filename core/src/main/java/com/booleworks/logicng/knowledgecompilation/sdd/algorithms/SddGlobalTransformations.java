@@ -10,7 +10,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Transforma
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;

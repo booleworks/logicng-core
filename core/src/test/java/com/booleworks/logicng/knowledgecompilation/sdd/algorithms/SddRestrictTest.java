@@ -113,14 +113,14 @@ public class SddRestrictTest {
     }
 
     private static void checkRestrictedModel(final Literal lit, final SddNode restricted, final SddNode original,
-                                             final Sdd sf) {
-        final Set<Variable> originalVariables = sf.apply(new SddVariablesFunction(original));
+                                             final Sdd sdd) {
+        final Set<Variable> originalVariables = original.execute(new SddVariablesFunction(sdd));
         final Set<Variable> restrictedVariables = new TreeSet<>(originalVariables);
         restrictedVariables.remove(lit.variable());
         final List<Model> originalModels =
-                sf.apply(new SddModelEnumeration(originalVariables, original));
+                original.execute(new SddModelEnumeration(originalVariables, sdd));
         final List<Model> restrictedModels =
-                sf.apply(new SddModelEnumeration(restrictedVariables, restricted));
+                restricted.execute(new SddModelEnumeration(restrictedVariables, sdd));
         final Set<Assignment> restrictedModelsWithA = restrictedModels
                 .stream()
                 .map(Model::toAssignment)

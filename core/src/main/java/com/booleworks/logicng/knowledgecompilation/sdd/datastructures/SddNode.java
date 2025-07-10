@@ -1,6 +1,9 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddFunction;
 
 import java.util.BitSet;
 import java.util.SortedSet;
@@ -90,6 +93,15 @@ public abstract class SddNode implements Comparable<SddNode> {
         }
         return variables;
     }
+
+    public <RESULT> RESULT execute(final SddFunction<RESULT> function) {
+        return function.execute(this);
+    }
+
+    public <RESULT> LngResult<RESULT> execute(final SddFunction<RESULT> function, final ComputationHandler handler) {
+        return function.execute(this, handler);
+    }
+
 
     @Override
     public int compareTo(final SddNode o) {

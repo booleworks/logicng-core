@@ -1,6 +1,10 @@
-package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
+package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
 import java.util.Collection;
 import java.util.Set;
@@ -45,6 +49,10 @@ public class VTreeUtil {
     public static void gapVars(final VTree vtree, final VTree subtree, final VTreeRoot root, final Set<Integer> filter,
                                final Set<Integer> result) {
         if (vtree == subtree) {
+            return;
+        }
+        if (subtree == null) {
+            vars(vtree, filter, result);
             return;
         }
         if (root.isSubtree(subtree, vtree.asInternal().getLeft())) {

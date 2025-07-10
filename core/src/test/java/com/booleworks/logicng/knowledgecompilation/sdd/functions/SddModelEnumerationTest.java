@@ -27,7 +27,7 @@ public class SddModelEnumerationTest {
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
         final List<Model> models =
-                sdd.apply(new SddModelEnumeration(f.variables("A", "B", "C", "D", "E"), res.getNode()));
+                res.getNode().execute(new SddModelEnumeration(f.variables("A", "B", "C", "D", "E"), sdd));
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final List<Model> expected = solver.enumerateAllModels(f.variables("A", "B", "C", "D", "E"));
@@ -43,7 +43,7 @@ public class SddModelEnumerationTest {
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
         final List<Model> models =
-                sdd.apply(new SddProjectedModelEnumeration(f.variables("A", "D", "X"), res.getNode()));
+                res.getNode().execute(new SddProjectedModelEnumeration(f.variables("A", "D", "X"), sdd));
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final List<Model> expected = solver.enumerateAllModels(f.variables("A", "D", "X"));
@@ -59,9 +59,9 @@ public class SddModelEnumerationTest {
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
         final SddNode descendant = res.getNode().asDecomposition().getElementsUnsafe().get(0).getSub();
-        final Formula subformula = sdd.apply(new SddExportFormula(descendant));
+        final Formula subformula = descendant.execute(new SddExportFormula(sdd));
         final List<Model> models =
-                sdd.apply(new SddModelEnumeration(subformula.variables(f), descendant));
+                descendant.execute(new SddModelEnumeration(subformula.variables(f), sdd));
 
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(subformula);

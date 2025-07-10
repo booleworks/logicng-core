@@ -3,14 +3,14 @@ package com.booleworks.logicng.knowledgecompilation.sdd.functions;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeUtil;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,24 +19,24 @@ import java.util.Set;
 import java.util.SortedSet;
 
 public class SddCardinalityFunction implements SddFunction<Integer> {
-    private final SddNode node;
+    private final Sdd sdd;
     private final Set<Variable> variables;
     private SortedSet<Integer> sddVariables;
     private final boolean maximize;
 
-    public SddCardinalityFunction(final boolean maximize, final Collection<Variable> variables, final SddNode node) {
-        this.node = node;
+    public SddCardinalityFunction(final boolean maximize, final Collection<Variable> variables, final Sdd sdd) {
+        this.sdd = sdd;
         this.variables = new HashSet<>(variables);
         this.maximize = maximize;
     }
 
     @Override
-    public LngResult<Integer> apply(final Sdd sf, final ComputationHandler handler) {
+    public LngResult<Integer> execute(final SddNode node, final ComputationHandler handler) {
         sddVariables = node.variables();
-        final Set<Integer> variableIdxs = Util.varsToIndicesOnlyKnown(variables, sf, new HashSet<>());
+        final Set<Integer> variableIdxs = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
         final int variablesNotInSdd = (int) variables
                 .stream()
-                .filter(v -> !sf.knows(v) || !sddVariables.contains(sf.variableToIndex(v)))
+                .filter(v -> !sdd.knows(v) || !sddVariables.contains(sdd.variableToIndex(v)))
                 .count();
         final int cardinality;
         if (node.isFalse()) {
@@ -44,7 +44,7 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
         } else if (node.isTrue()) {
             cardinality = 0;
         } else {
-            cardinality = applyRec(node, variableIdxs, new HashMap<>(), sf);
+            cardinality = applyRec(node, variableIdxs, new HashMap<>(), sdd);
         }
         return LngResult.of(maximize ? variablesNotInSdd + cardinality : cardinality);
     }

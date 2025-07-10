@@ -9,14 +9,13 @@ import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddApply;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCoreSolver;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeStack;
-import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddFunction;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayDeque;
@@ -170,7 +169,7 @@ public class Sdd {
     public LngResult<SddNode> decompOfPartition(final ArrayList<SddElement> newElements,
                                                 final ComputationHandler handler) {
         newElements.sort(SddElement::compareTo);
-        final LngResult<Pair<SddNode, ArrayList<SddElement>>> res = Util.compressAndTrim(newElements, this, handler);
+        final LngResult<Pair<SddNode, ArrayList<SddElement>>> res = SddUtil.compressAndTrim(newElements, this, handler);
         if (!res.isSuccess()) {
             return LngResult.canceled(res.getCancelCause());
         }
@@ -184,7 +183,7 @@ public class Sdd {
     public SddNode decompOfCompressedPartition(final ArrayList<SddElement> newElements) {
         assert !newElements.isEmpty();
         newElements.sort(SddElement::compareTo);
-        assert Util.elementsCompressed(newElements);
+        assert SddUtil.elementsCompressed(newElements);
         return decomposition(newElements);
     }
 
@@ -193,7 +192,7 @@ public class Sdd {
         if (cached != null) {
             return cached;
         }
-        final VTree vTree = Util.lcaOfCompressedElements(elements, this);
+        final VTree vTree = SddUtil.lcaOfCompressedElements(elements, this);
         final SddNodeDecomposition newNode =
                 new SddNodeDecomposition(currentSddId++, new GSCacheEntry<>(vTree), elements);
         sddDecompositions.put(elements, newNode);
@@ -205,7 +204,7 @@ public class Sdd {
         if (entry.isValid()) {
             return entry.getElement();
         } else if (node.isDecomposition()) {
-            final VTree newVTree = Util.lcaOfCompressedElements(node.asDecomposition().getElementsUnsafe(), this);
+            final VTree newVTree = SddUtil.lcaOfCompressedElements(node.asDecomposition().getElementsUnsafe(), this);
             entry.update(newVTree);
             return entry.getElement();
         } else {
@@ -351,7 +350,7 @@ public class Sdd {
             final ArrayList<SddElement> newElements = new ArrayList<>();
             for (final SddElement element : decomp) {
                 final SddNode subNeg = negate(element.getSub());
-                Util.pushNewElement(element.getPrime(), subNeg, newElements);
+                SddUtil.pushNewElement(element.getPrime(), subNeg, newElements);
             }
             nodeNeg = decompOfCompressedPartition(newElements);
         } else if (node.isLiteral()) {
@@ -380,14 +379,6 @@ public class Sdd {
         } else {
             return node.getNegationEntry().getElement();
         }
-    }
-
-    public <RESULT> RESULT apply(final SddFunction<RESULT> function) {
-        return function.apply(this);
-    }
-
-    public <RESULT> LngResult<RESULT> apply(final SddFunction<RESULT> function, final ComputationHandler handler) {
-        return function.apply(this, handler);
     }
 
     public void pin(final SddNode node) {

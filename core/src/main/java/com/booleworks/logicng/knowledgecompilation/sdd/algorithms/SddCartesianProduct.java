@@ -17,7 +17,7 @@ public class SddCartesianProduct {
                                                                     final boolean compress, final Sdd sf,
                                                                     final ComputationHandler handler) {
         ArrayList<SddElement> res = new ArrayList<>();
-        Util.pushNewElement(sf.verum(), sf.falsum(), res);
+        SddUtil.pushNewElement(sf.verum(), sf.falsum(), res);
         for (final ArrayList<SddElement> set : sets) {
             final LngResult<ArrayList<SddElement>> resResult = cartesianProduct(res, set, compress, sf, handler);
             if (!resResult.isSuccess()) {
@@ -38,7 +38,7 @@ public class SddCartesianProduct {
             return product;
         }
         if (compress) {
-            return Util.compress(product.getResult(), sf, handler);
+            return SddUtil.compress(product.getResult(), sf, handler);
         }
         return product;
     }

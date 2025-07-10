@@ -27,7 +27,7 @@ public class SddCardinalityFunctionTest {
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
         final int cardinality =
-                sdd.apply(new SddCardinalityFunction(true, f.variables("A", "B", "C", "D", "E"), res.getNode()));
+                res.getNode().execute(new SddCardinalityFunction(true, f.variables("A", "B", "C", "D", "E"), sdd));
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final List<Literal> opt =
@@ -43,7 +43,7 @@ public class SddCardinalityFunctionTest {
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
         final int cardinality =
-                sdd.apply(new SddCardinalityFunction(false, f.variables("A", "B", "C", "D", "E"), res.getNode()));
+                res.getNode().execute(new SddCardinalityFunction(false, f.variables("A", "B", "C", "D", "E"), sdd));
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
         final List<Literal> opt =
@@ -71,7 +71,7 @@ public class SddCardinalityFunctionTest {
                     SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = res.getSdd();
             final int cardinality =
-                    sdd.apply(new SddCardinalityFunction(true, formula.variables(f), res.getNode()));
+                    res.getNode().execute(new SddCardinalityFunction(true, formula.variables(f), sdd));
             final SatSolver solver = SatSolver.newSolver(f);
             solver.add(formula);
             final List<Literal> opt =
@@ -90,7 +90,7 @@ public class SddCardinalityFunctionTest {
                     SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = res.getSdd();
             final int cardinality =
-                    sdd.apply(new SddCardinalityFunction(false, formula.variables(f), res.getNode()));
+                    res.getNode().execute(new SddCardinalityFunction(false, formula.variables(f), sdd));
             final SatSolver solver = SatSolver.newSolver(f);
             solver.add(formula);
             final List<Literal> opt =

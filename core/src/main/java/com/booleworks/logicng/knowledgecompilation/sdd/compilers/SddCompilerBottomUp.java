@@ -10,7 +10,7 @@ import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.Util;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 
@@ -59,7 +59,7 @@ public class SddCompilerBottomUp {
         }
         SddNode node = sdd.verum();
         int nodeThreshold = 1000;
-        final List<Formula> sorted = Util.sortLitsetsByLca(operands, sdd);
+        final List<Formula> sorted = SddUtil.sortLitsetsByLca(operands, sdd);
         for (final Formula op : sorted) {
             if (sdd.getDecompositionCount() >= nodeThreshold) {
                 sdd.pin(node);

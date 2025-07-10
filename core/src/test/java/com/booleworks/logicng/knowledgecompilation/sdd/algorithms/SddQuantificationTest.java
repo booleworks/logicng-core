@@ -93,22 +93,22 @@ public class SddQuantificationTest {
     }
 
     private static void checkPMC(final Collection<Variable> remainingVars, final SddNode node,
-                                 final Formula originalFormula, final Sdd sf) {
-        final BigInteger actual = sf.apply(new SddModelCountFunction(remainingVars, node));
-        final SatSolver solver = SatSolver.newSolver(sf.getFactory());
+                                 final Formula originalFormula, final Sdd sdd) {
+        final BigInteger actual = node.execute(new SddModelCountFunction(remainingVars, sdd));
+        final SatSolver solver = SatSolver.newSolver(sdd.getFactory());
         solver.add(originalFormula);
         final BigInteger expected = solver.execute(ModelCountingFunction.builder(remainingVars).build());
         assertThat(expected).isEqualTo(actual);
     }
 
     private static void checkProjectedModels(final Collection<Variable> quantified, final SddNode node,
-                                             final Formula originalFormula, final Sdd sf) {
-        final Set<Variable> variables = new TreeSet<>(originalFormula.variables(sf.getFactory()));
+                                             final Formula originalFormula, final Sdd sdd) {
+        final Set<Variable> variables = new TreeSet<>(originalFormula.variables(sdd.getFactory()));
         variables.removeAll(quantified);
-        final SatSolver solver = SatSolver.newSolver(sf.getFactory());
+        final SatSolver solver = SatSolver.newSolver(sdd.getFactory());
         solver.add(originalFormula);
         final List<Model> expectedModels = solver.enumerateAllModels(variables);
-        final List<Model> actualModels = sf.apply(new SddModelEnumeration(variables, node));
+        final List<Model> actualModels = node.execute(new SddModelEnumeration(variables, sdd));
         final Set<Assignment> expected = expectedModels.stream().map(Model::toAssignment).collect(Collectors.toSet());
         final Set<Assignment> actual = actualModels.stream().map(Model::toAssignment).collect(Collectors.toSet());
         assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);

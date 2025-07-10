@@ -24,19 +24,19 @@ public class SddDotExport implements SddFunction<Boolean> {
     private static final String BOT = "&#8869;";
     private static final String NOT = "&not;";
 
-    private final SddNode node;
+    private final Sdd sdd;
     private final Writer writer;
     private final HashMap<SddNode, GraphVTreeNode> nodeCache = new HashMap<>();
     private final HashMap<SddElement, GraphVTreeGroup> groupCache = new HashMap<>();
     GraphSdd result;
 
-    public SddDotExport(final SddNode node, final Writer writer) {
-        this.node = node;
+    public SddDotExport(final Sdd sdd, final Writer writer) {
+        this.sdd = sdd;
         this.writer = writer;
     }
 
     @Override
-    public LngResult<Boolean> apply(final Sdd sf, final ComputationHandler handler) {
+    public LngResult<Boolean> execute(final SddNode node, final ComputationHandler handler) {
         nodeCache.clear();
         groupCache.clear();
         result = new GraphSdd();
@@ -55,7 +55,7 @@ public class SddDotExport implements SddFunction<Boolean> {
             rank.elements.add(elem);
             result.ranks.put(0, rank);
         } else {
-            irSddNode(node, 0, null, sf);
+            irSddNode(node, 0, null);
         }
         try {
             result.write(writer);
@@ -67,8 +67,7 @@ public class SddDotExport implements SddFunction<Boolean> {
         return LngResult.of(true);
     }
 
-    private GraphVTreeNode irSddNode(final SddNode currentNode, final int rank, GraphVTreeGroup parentGroup,
-                                     final Sdd sdd) {
+    private GraphVTreeNode irSddNode(final SddNode currentNode, final int rank, GraphVTreeGroup parentGroup) {
         final VTree vtree = sdd.vTreeOf(currentNode);
         final GraphVTreeNode newVTreeNode = GraphVTreeNode.fromSddNode(currentNode, vtree, parentGroup);
         result.vtrees.add(newVTreeNode);
@@ -86,7 +85,7 @@ public class SddDotExport implements SddFunction<Boolean> {
         if (currentNode.isDecomposition()) {
             final SddNodeDecomposition decomp = currentNode.asDecomposition();
             for (final SddElement element : decomp) {
-                final GraphSddElement elementNode = irSddElement(element, elementRank, currentNode.getId(), sdd);
+                final GraphSddElement elementNode = irSddElement(element, elementRank, currentNode.getId());
                 addNewElementNode(elementNode, elementRank, newVTreeNode);
             }
         } else {
@@ -110,22 +109,22 @@ public class SddDotExport implements SddFunction<Boolean> {
         sRank.elements.add(newNode);
     }
 
-    private GraphSddElement irSddElement(final SddElement element, final int rank, final int parentId, final Sdd sdd) {
+    private GraphSddElement irSddElement(final SddElement element, final int rank, final int parentId) {
         if (!groupCache.containsKey(element)) {
             final GraphVTreeGroup newGroup = GraphVTreeGroup.fromElement(element, parentId);
             groupCache.put(element, newGroup);
         }
         final GraphVTreeGroup elementGroup = groupCache.get(element);
-        final GraphSddElementLabel primeLabel = irPrimeSub(element.getPrime(), rank + 1, elementGroup, sdd);
-        final GraphSddElementLabel subLabel = irPrimeSub(element.getSub(), rank + 1, elementGroup, sdd);
+        final GraphSddElementLabel primeLabel = irPrimeSub(element.getPrime(), rank + 1, elementGroup);
+        final GraphSddElementLabel subLabel = irPrimeSub(element.getSub(), rank + 1, elementGroup);
         return GraphSddElement.fromElement(element, primeLabel, subLabel);
     }
 
     private GraphSddElementLabel irPrimeSub(final SddNode currentNode, final int rank,
-                                            final GraphVTreeGroup parentGroup, final Sdd sdd) {
+                                            final GraphVTreeGroup parentGroup) {
         if (currentNode.isDecomposition()) {
             if (!nodeCache.containsKey(currentNode)) {
-                nodeCache.put(currentNode, irSddNode(currentNode, rank, parentGroup, sdd));
+                nodeCache.put(currentNode, irSddNode(currentNode, rank, parentGroup));
             }
             return GraphSddElementLabel.reference(nodeCache.get(currentNode));
         } else {

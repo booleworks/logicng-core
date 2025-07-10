@@ -26,8 +26,8 @@ public class SddModelCountFunctionTest {
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
-        final BigInteger modelCount = sdd.apply(
-                new SddModelCountFunction(f.variables("A", "B", "C", "D", "E"), res.getNode()));
+        final BigInteger modelCount = res.getNode().execute(
+                new SddModelCountFunction(f.variables("A", "B", "C", "D", "E"), sdd));
         final BigInteger modelCountExpected =
                 ModelCounter.count(f, List.of(formula), f.variables("A", "B", "C", "D", "E"));
         assertThat(modelCount).isEqualTo(modelCountExpected);
@@ -40,9 +40,9 @@ public class SddModelCountFunctionTest {
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
         final SddNode descendant = res.getNode().asDecomposition().getElementsUnsafe().get(0).getSub();
-        final Formula subformula = sdd.apply(new SddExportFormula(descendant));
+        final Formula subformula = descendant.execute(new SddExportFormula(sdd));
         final BigInteger models =
-                sdd.apply(new SddModelCountFunction(subformula.variables(f), descendant));
+                descendant.execute(new SddModelCountFunction(subformula.variables(f), sdd));
         final BigInteger expected = ModelCounter.count(f, List.of(subformula), subformula.variables(f));
         assertThat(models).isEqualTo(expected);
     }
@@ -66,7 +66,7 @@ public class SddModelCountFunctionTest {
                     SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
             final BigInteger sddCount =
-                    sdd.apply(new SddModelCountFunction(formula.variables(f), result.getNode()));
+                    result.getNode().execute(new SddModelCountFunction(formula.variables(f), sdd));
             final BigInteger formulaCount = ModelCounter.count(f, List.of(formula), formula.variables(f));
             assertThat(sddCount).isEqualTo(formulaCount);
         }
