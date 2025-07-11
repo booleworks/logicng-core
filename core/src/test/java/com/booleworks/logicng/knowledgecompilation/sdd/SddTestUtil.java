@@ -70,4 +70,15 @@ public class SddTestUtil {
 
         return CnfEncoder.encode(f, expandedFormula, cnfConfig);
     }
+
+    public static Formula encodeWithFactorization(final FormulaFactory f, final Formula formula) {
+        final PureExpansionTransformation expander = new PureExpansionTransformation(f);
+        final Formula expandedFormula = formula.transform(expander);
+
+        final CnfConfig cnfConfig = CnfConfig.builder()
+                .algorithm(CnfConfig.Algorithm.FACTORIZATION)
+                .build();
+
+        return CnfEncoder.encode(f, expandedFormula, cnfConfig);
+    }
 }
