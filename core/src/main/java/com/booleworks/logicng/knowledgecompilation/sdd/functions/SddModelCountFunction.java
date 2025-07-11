@@ -3,6 +3,7 @@ package com.booleworks.logicng.knowledgecompilation.sdd.functions;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddQuantification;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class SddModelCountFunction implements SddFunction<BigInteger> {
     private final Sdd sdd;
@@ -32,25 +34,42 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
 
     @Override
     public LngResult<BigInteger> execute(final SddNode node, final ComputationHandler handler) {
-        final Set<Integer> variableIdxs = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
-        sddVariables = node.variables();
-        if (!variableIdxs.containsAll(sddVariables)) {
-            throw new IllegalArgumentException(
-                    "Model Counting variables must be a superset of the variables contained on the SDD");
+        final LngResult<SddNode> projectedNodeResult = projectNodeToVariables(node, handler);
+        if (!projectedNodeResult.isSuccess()) {
+            return LngResult.canceled(projectedNodeResult.getCancelCause());
         }
-        final long variablesNotInSdd = variables
+        final SddNode projectedNode = projectedNodeResult.getResult();
+
+        sddVariables = projectedNode.variables();
+        final long dontCareVariables = variables
                 .stream()
                 .filter(v -> !sdd.knows(v) || !sddVariables.contains(sdd.variableToIndex(v)))
                 .count();
         final BigInteger count;
-        if (node.isFalse()) {
+        if (projectedNode.isFalse()) {
             count = BigInteger.ZERO;
-        } else if (node.isTrue()) {
+        } else if (projectedNode.isTrue()) {
             count = BigInteger.ONE;
         } else {
-            count = applyRec(node, new HashMap<>());
+            count = applyRec(projectedNode, new HashMap<>());
         }
-        return LngResult.of(BigInteger.TWO.pow((int) variablesNotInSdd).multiply(count));
+        return LngResult.of(BigInteger.TWO.pow((int) dontCareVariables).multiply(count));
+    }
+
+    private LngResult<SddNode> projectNodeToVariables(final SddNode node, final ComputationHandler handler) {
+        final Set<Integer> variableIdxs = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
+        final SortedSet<Integer> originalSddVariables = node.variables();
+        final Set<Integer> notProjectedVariables = new TreeSet<>();
+        for (final int variable : originalSddVariables) {
+            if (!variableIdxs.contains(variable)) {
+                notProjectedVariables.add(variable);
+            }
+        }
+        if (notProjectedVariables.isEmpty()) {
+            return LngResult.of(node);
+        } else {
+            return SddQuantification.exists(notProjectedVariables, node, sdd, handler);
+        }
     }
 
     private BigInteger applyRec(final SddNode node, final HashMap<SddNode, BigInteger> cache) {

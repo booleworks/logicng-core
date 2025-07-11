@@ -80,6 +80,9 @@ public class VTreeUtil {
     }
 
     public static void vars(final VTree vtree, final Set<Integer> filter, final Set<Integer> result) {
+        if (vtree == null) {
+            return;
+        }
         if (vtree.isLeaf()) {
             if (filter == null || filter.contains(vtree.asLeaf().getVariable())) {
                 result.add(vtree.asLeaf().getVariable());

@@ -18,7 +18,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelCountFunction;
-import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelEnumeration;
+import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelEnumerationFunction;
 import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.ModelCountingFunction;
 import org.junit.jupiter.api.Test;
@@ -108,7 +108,7 @@ public class SddQuantificationTest {
         final SatSolver solver = SatSolver.newSolver(sdd.getFactory());
         solver.add(originalFormula);
         final List<Model> expectedModels = solver.enumerateAllModels(variables);
-        final List<Model> actualModels = node.execute(new SddModelEnumeration(variables, sdd));
+        final List<Model> actualModels = node.execute(SddModelEnumerationFunction.builder(variables, sdd).build());
         final Set<Assignment> expected = expectedModels.stream().map(Model::toAssignment).collect(Collectors.toSet());
         final Set<Assignment> actual = actualModels.stream().map(Model::toAssignment).collect(Collectors.toSet());
         assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);

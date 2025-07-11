@@ -19,7 +19,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompila
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelEnumeration;
+import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelEnumerationFunction;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddVariablesFunction;
 import org.junit.jupiter.api.Test;
 
@@ -118,9 +118,9 @@ public class SddRestrictTest {
         final Set<Variable> restrictedVariables = new TreeSet<>(originalVariables);
         restrictedVariables.remove(lit.variable());
         final List<Model> originalModels =
-                original.execute(new SddModelEnumeration(originalVariables, sdd));
+                original.execute(SddModelEnumerationFunction.builder(originalVariables, sdd).build());
         final List<Model> restrictedModels =
-                restricted.execute(new SddModelEnumeration(restrictedVariables, sdd));
+                restricted.execute(SddModelEnumerationFunction.builder(restrictedVariables, sdd).build());
         final Set<Assignment> restrictedModelsWithA = restrictedModels
                 .stream()
                 .map(Model::toAssignment)

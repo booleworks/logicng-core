@@ -4,10 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddQuantification;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
@@ -18,19 +21,30 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class SddModelCountFunctionTest {
+    @Test
+    public void testTrivial() throws ParserException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final Sdd sdd = Sdd.independent(f);
+        sdd.vTreeLeaf(f.variable("A"));
+        check(sdd.verum(), f.verum(), f.variables(), sdd);
+        check(sdd.verum(), f.verum(), f.variables("A", "B"), sdd);
+        check(sdd.falsum(), f.falsum(), f.variables(), sdd);
+        check(sdd.falsum(), f.falsum(), f.variables("A", "B"), sdd);
+    }
+
     @Test
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
         final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
         final Sdd sdd = res.getSdd();
-        final BigInteger modelCount = res.getNode().execute(
-                new SddModelCountFunction(f.variables("A", "B", "C", "D", "E"), sdd));
-        final BigInteger modelCountExpected =
-                ModelCounter.count(f, List.of(formula), f.variables("A", "B", "C", "D", "E"));
-        assertThat(modelCount).isEqualTo(modelCountExpected);
+        check(res.getNode(), formula, f.variables("A", "B", "C", "D", "E"), sdd);
     }
 
     @Test
@@ -41,10 +55,7 @@ public class SddModelCountFunctionTest {
         final Sdd sdd = res.getSdd();
         final SddNode descendant = res.getNode().asDecomposition().getElementsUnsafe().get(0).getSub();
         final Formula subformula = descendant.execute(new SddExportFormula(sdd));
-        final BigInteger models =
-                descendant.execute(new SddModelCountFunction(subformula.variables(f), sdd));
-        final BigInteger expected = ModelCounter.count(f, List.of(subformula), subformula.variables(f));
-        assertThat(models).isEqualTo(expected);
+        check(descendant, subformula, subformula.variables(f), sdd);
     }
 
     private final static List<String> FILES = List.of(
@@ -65,10 +76,39 @@ public class SddModelCountFunctionTest {
             final SddCompilationResult result =
                     SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
             final Sdd sdd = result.getSdd();
-            final BigInteger sddCount =
-                    result.getNode().execute(new SddModelCountFunction(formula.variables(f), sdd));
-            final BigInteger formulaCount = ModelCounter.count(f, List.of(formula), formula.variables(f));
-            assertThat(sddCount).isEqualTo(formulaCount);
+            check(result.getNode(), formula, formula.variables(f), sdd);
         }
     }
+
+    @Test
+    public void testFilesProjected() throws IOException {
+        for (final String file : FILES) {
+            final FormulaFactory f = FormulaFactory.caching();
+            final Formula formula = f.and(DimacsReader.readCNF(f, file));
+            final Set<Variable> remainingVars = formula.variables(f).stream()
+                    .limit(formula.variables(f).size() / 2)
+                    .collect(Collectors.toSet());
+            final Set<Variable> eliminatedVars = formula.variables(f).stream()
+                    .filter(v -> !remainingVars.contains(v))
+                    .collect(Collectors.toSet());
+            final SddCompilationResult result =
+                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final Set<Integer> elimVarIdxs =
+                    SddUtil.varsToIndicesOnlyKnown(eliminatedVars, result.getSdd(), new TreeSet<>());
+            final SddNode projected =
+                    SddQuantification.exists(elimVarIdxs, result.getNode(), result.getSdd(), NopHandler.get())
+                            .getResult();
+            final Formula projectedFormula = projected.execute(new SddExportFormula(result.getSdd()));
+            final Sdd sdd = result.getSdd();
+            check(result.getNode(), projectedFormula, new TreeSet<>(remainingVars), sdd);
+        }
+    }
+
+    private static void check(final SddNode node, final Formula formula, final SortedSet<Variable> variables,
+                              final Sdd sdd) {
+        final BigInteger modelCount = node.execute(new SddModelCountFunction(variables, sdd));
+        final BigInteger modelCountExpected = ModelCounter.count(sdd.getFactory(), List.of(formula), variables);
+        assertThat(modelCount).isEqualTo(modelCountExpected);
+    }
+
 }
