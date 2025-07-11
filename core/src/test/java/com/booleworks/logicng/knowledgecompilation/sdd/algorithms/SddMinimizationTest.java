@@ -154,6 +154,7 @@ public class SddMinimizationTest {
                     SddMinimization.minimize(config).getPartialResult();
             final SddNode mini = res.getTranslations().get(comp.getNode());
             SddTestUtil.validateMC(mini, formula, comp.getSdd());
+            SddTestUtil.sampleModels(mini, formula, comp.getSdd(), 1000);
         }
     }
 
@@ -171,6 +172,7 @@ public class SddMinimizationTest {
                     SddMinimization.minimize(config).getPartialResult();
             final SddNode mini = res.getTranslations().get(comp.getNode());
             SddTestUtil.validateMC(mini, formula, comp.getSdd());
+            SddTestUtil.sampleModels(mini, formula, comp.getSdd(), 1000);
         }
     }
 
@@ -189,6 +191,7 @@ public class SddMinimizationTest {
             final SddNode mini = res.getPartialResult().getTranslations().get(comp.getNode());
             assertThat(res.isSuccess() || comp.getSdd().getActiveSize() <= 1100).isTrue();
             SddTestUtil.validateMC(mini, formula, comp.getSdd());
+            SddTestUtil.sampleModels(mini, formula, comp.getSdd(), 1000);
         }
     }
 
@@ -207,6 +210,7 @@ public class SddMinimizationTest {
                     SddMinimization.minimize(config).getPartialResult();
             final SddNode mini = res.getTranslations().get(comp.getNode());
             SddTestUtil.validateMC(mini, formula, comp.getSdd());
+            SddTestUtil.sampleModels(mini, formula, comp.getSdd(), 1000);
         }
     }
 }

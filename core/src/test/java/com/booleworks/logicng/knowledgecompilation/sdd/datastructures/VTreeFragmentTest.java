@@ -63,6 +63,7 @@ public class VTreeFragmentTest {
             final TransformationResult t = fragment.next(NopHandler.get()).getResult();
             node = t.getTranslations().get(node);
             SddTestUtil.validateMC(node, formula, sdd);
+            SddTestUtil.sampleModels(node, formula, sdd, 100);
         }
     }
 
@@ -80,6 +81,7 @@ public class VTreeFragmentTest {
             final TransformationResult t = fragment.next(NopHandler.get()).getResult();
             node = t.getTranslations().get(node);
             SddTestUtil.validateMC(node, formula, sdd);
+            SddTestUtil.sampleModels(node, formula, sdd, 100);
         }
     }
 
@@ -98,6 +100,7 @@ public class VTreeFragmentTest {
             final TransformationResult t = fragment.next(NopHandler.get()).getResult();
             node = t.getTranslations().get(node);
             SddTestUtil.validateMC(node, formula, sdd);
+            SddTestUtil.sampleModels(node, formula, sdd, 100);
         }
     }
 
@@ -116,6 +119,7 @@ public class VTreeFragmentTest {
             final TransformationResult t = fragment.next(NopHandler.get()).getResult();
             node = t.getTranslations().get(node);
             SddTestUtil.validateMC(node, formula, sdd);
+            SddTestUtil.sampleModels(node, formula, sdd, 100);
         }
     }
 }
