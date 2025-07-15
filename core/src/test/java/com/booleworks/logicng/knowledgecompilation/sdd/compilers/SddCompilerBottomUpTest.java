@@ -2,20 +2,20 @@ package com.booleworks.logicng.knowledgecompilation.sdd.compilers;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.DecisionVTreeGenerator;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.transformations.cnf.CnfSubsumption;
-import com.booleworks.logicng.transformations.simplification.BackboneSimplifier;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SddCompilerBottomUpTest {
     private final static List<String> FILES = List.of(
@@ -27,35 +27,55 @@ public class SddCompilerBottomUpTest {
             "../test_files/dnnf/both_bdd_dnnf_5.cnf"
     );
 
-    @Test
-    public void test() throws ParserException {
-        final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
+    private final static List<Supplier<SddCompilerConfig.Builder>> configs = List.of(
+            () -> SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).inputSimplification(true),
+            () -> SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).inputSimplification(false)
+    );
 
-        final Formula formula = f.parse("(A | C | D) & (A | B)");
-        final VTree vTree = new DecisionVTreeGenerator(formula).generate(sf);
-        sf.defineVTree(vTree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
-        SddTestUtil.validateMC(node, formula, sf);
-        SddTestUtil.validateExport(node, formula, sf);
+    @ParameterizedTest
+    @FieldSource("configs")
+    public void testSimple(final Supplier<SddCompilerConfig.Builder> configSupplier) throws ParserException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final SddCompilerConfig config = configSupplier.get().build();
+        compileAndCheck(f.verum(), f, config);
+        compileAndCheck(f.falsum(), f, config);
+        compileAndCheck(f.variable("X"), f, config);
+        compileAndCheck(f.literal("X", false), f, config);
+        compileAndCheck(f.parse("(Y | ~Z) & (~X | Z) & (X | ~Y) & (X | Q)"), f, config);
+    }
+
+    @ParameterizedTest
+    @FieldSource("configs")
+    public void testIndependentSdd(final Supplier<SddCompilerConfig.Builder> configSupplier) throws ParserException {
+        final FormulaFactory f = FormulaFactory.caching();
+        final Sdd sdd = Sdd.independent(f);
+        final SddCompilerConfig config = configSupplier.get().sdd(sdd).build();
+
+        final VTree vtree = new BalancedVTreeGenerator(f.variables("X", "Y", "Z", "Q")).generate(sdd);
+        sdd.defineVTree(vtree);
+
+        compileAndCheck(f.verum(), f, config);
+        compileAndCheck(f.falsum(), f, config);
+        compileAndCheck(f.variable("X"), f, config);
+        compileAndCheck(f.literal("X", false), f, config);
+        compileAndCheck(f.parse("(Y | ~Z) & (~X | Z) & (X | ~Y) & (X | Q)"), f, config);
     }
 
     @Test
     public void testFiles() throws IOException {
         final FormulaFactory f = FormulaFactory.caching();
         for (final String file : FILES) {
-            final Sdd sf = Sdd.independent(f);
-            final Formula cnf = simplifyFormula(f, f.and(DimacsReader.readCNF(f, file)));
-            final VTree vTree = new DecisionVTreeGenerator(cnf).generate(sf);
-            sf.defineVTree(vTree);
-            final SddNode node = SddCompilerBottomUp.cnfToSdd(cnf, sf, NopHandler.get()).getResult();
-            SddTestUtil.validateMC(node, cnf, sf);
-            SddTestUtil.validateExport(node, cnf, sf);
+            final Formula cnf = f.and(DimacsReader.readCNF(f, file));
+            final SddCompilerConfig config =
+                    SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).build();
+            compileAndCheck(cnf, f, config);
         }
     }
 
-    protected static Formula simplifyFormula(final FormulaFactory f, final Formula formula) {
-        final Formula backboneSimplified = formula.transform(new BackboneSimplifier(f));
-        return backboneSimplified.transform(new CnfSubsumption(f));
+    private static void compileAndCheck(final Formula formula, final FormulaFactory f, final SddCompilerConfig config) {
+        final SddCompilationResult result = SddCompiler.compile(formula, config, f);
+        final Sdd sdd = result.getSdd();
+        SddTestUtil.validateMC(result.getNode(), formula, sdd);
+        SddTestUtil.validateExport(result.getNode(), formula, sdd);
     }
 }

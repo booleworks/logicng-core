@@ -10,8 +10,8 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerBottomUp;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerConfig;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
@@ -43,30 +43,38 @@ public class SddQuantificationTest {
     @Test
     public void testSingleQuantificationSimple() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
+        final Sdd sdd = Sdd.independent(f);
         final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
-        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
-        sf.defineVTree(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
-        final int cIdx = sf.variableToIndex(f.variable("C"));
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
+        sdd.defineVTree(vtree);
+        final SddCompilerConfig config = SddCompilerConfig.builder()
+                .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
+                .sdd(sdd)
+                .build();
+        final SddNode node = SddCompiler.compile(formula, config, f).getNode();
+        final int cIdx = sdd.variableToIndex(f.variable("C"));
         final SddNode quantified =
-                SddQuantification.existsSingle(cIdx, node, sf, NopHandler.get()).getResult();
-        checkProjectedModels(List.of(f.variable("C")), quantified, formula, sf);
+                SddQuantification.existsSingle(cIdx, node, sdd, NopHandler.get()).getResult();
+        checkProjectedModels(List.of(f.variable("C")), quantified, formula, sdd);
     }
 
     @Test
     public void testMultipleQuantificationSimple() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
+        final Sdd sdd = Sdd.independent(f);
         final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
-        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
-        sf.defineVTree(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
-        final int bIdx = sf.variableToIndex(f.variable("B"));
-        final int cIdx = sf.variableToIndex(f.variable("C"));
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
+        sdd.defineVTree(vtree);
+        final SddCompilerConfig config = SddCompilerConfig.builder()
+                .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
+                .sdd(sdd)
+                .build();
+        final SddNode node = SddCompiler.compile(formula, config, f).getNode();
+        final int bIdx = sdd.variableToIndex(f.variable("B"));
+        final int cIdx = sdd.variableToIndex(f.variable("C"));
         final SddNode quantified =
-                SddQuantification.exists(Set.of(bIdx, cIdx), node, sf, NopHandler.get()).getResult();
-        checkProjectedModels(f.variables("B", "C"), quantified, formula, sf);
+                SddQuantification.exists(Set.of(bIdx, cIdx), node, sdd, NopHandler.get()).getResult();
+        checkProjectedModels(f.variables("B", "C"), quantified, formula, sdd);
     }
 
     @Test
@@ -75,8 +83,7 @@ public class SddQuantificationTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompiler.compile(formula, f);
             final Sdd sdd = result.getSdd();
             SddNode node = result.getNode();
             final List<Variable> vars = new ArrayList<>(formula.variables(f));

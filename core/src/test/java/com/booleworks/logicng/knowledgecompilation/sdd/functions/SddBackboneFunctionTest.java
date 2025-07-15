@@ -6,11 +6,10 @@ import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.solvers.SatSolver;
@@ -27,7 +26,7 @@ public class SddBackboneFunctionTest {
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(~C & ~B & A) | (A & ~B & (C => D))"));
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompiler.compile(formula, f);
         final Sdd sdd = res.getSdd();
         final Backbone backbone =
                 res.getNode().execute(new SddBackboneFunction(f.variables("A", "B", "C", "D", "E"), sdd));
@@ -53,8 +52,7 @@ public class SddBackboneFunctionTest {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SortedSet<Variable> variables = formula.variables(f);
-            final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompiler.compile(formula, f);
             final Sdd sdd = result.getSdd();
             final Backbone backbone =
                     result.getNode().execute(new SddBackboneFunction(variables, sdd));
@@ -74,8 +72,7 @@ public class SddBackboneFunctionTest {
                     .stream()
                     .limit(30)
                     .collect(Collectors.toCollection(TreeSet::new));
-            final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompiler.compile(formula, f);
             final Sdd sdd = result.getSdd();
             final Backbone backbone =
                     result.getNode().execute(new SddBackboneFunction(variables, sdd));

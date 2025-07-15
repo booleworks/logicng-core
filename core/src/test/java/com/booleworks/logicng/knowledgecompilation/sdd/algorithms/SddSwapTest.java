@@ -7,8 +7,8 @@ import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerBottomUp;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerConfig;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
@@ -54,18 +54,20 @@ public class SddSwapTest {
     @Test
     public void testSimple() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
+        final Sdd sdd = Sdd.independent(f);
         final Formula formula = f.parse("(A | C) & (B | C | D)");
-        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
-        sf.defineVTree(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
-        sf.pin(node);
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
+        sdd.defineVTree(vtree);
+        final SddCompilerConfig config =
+                SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).sdd(sdd).build();
+        final SddNode node = SddCompiler.compile(formula, config, f).getNode();
+        sdd.pin(node);
         final Map<SddNode, SddNode> translations =
-                SddGlobalTransformations.swap(vtree.asInternal(), sf, NopHandler.get()).getResult().getTranslations();
+                SddGlobalTransformations.swap(vtree.asInternal(), sdd, NopHandler.get()).getResult().getTranslations();
         final SddNode swapped = translations.get(node);
-        assert Validation.validVTree(swapped, sf);
-        SddTestUtil.validateMC(swapped, formula, sf);
-        SddTestUtil.validateExport(swapped, formula, sf);
+        assert Validation.validVTree(swapped, sdd);
+        SddTestUtil.validateMC(swapped, formula, sdd);
+        SddTestUtil.validateExport(swapped, formula, sdd);
     }
 
     @Test
@@ -73,7 +75,7 @@ public class SddSwapTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult result = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompiler.compile(formula, f);
             final Sdd sdd = result.getSdd();
             final SddNode node = result.getNode();
             final VTreeInternal rootNode = sdd.getVTree().getRoot().asInternal();
@@ -95,7 +97,7 @@ public class SddSwapTest {
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final List<Integer> vtreeSeq = VTREE_POSISTIONS.get(i);
             i++;
-            final SddCompilationResult result = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompiler.compile(formula, f);
             final Sdd sdd = result.getSdd();
             SddNode node = result.getNode();
             for (int j = 0; j < 5; ++j) {
@@ -124,8 +126,7 @@ public class SddSwapTest {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             for (final List<Integer> vtreeSeq : VTREE_POSISTIONS) {
-                final SddCompilationResult result =
-                        SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+                final SddCompilationResult result = SddCompiler.compile(formula, f);
                 final Sdd sdd = result.getSdd();
                 SddNode node = result.getNode();
                 for (final int position : vtreeSeq) {

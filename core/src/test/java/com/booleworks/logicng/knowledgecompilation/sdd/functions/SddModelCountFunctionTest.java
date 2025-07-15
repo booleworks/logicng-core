@@ -11,7 +11,7 @@ import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddQuantification;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
@@ -42,7 +42,7 @@ public class SddModelCountFunctionTest {
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompiler.compile(formula, f);
         final Sdd sdd = res.getSdd();
         check(res.getNode(), formula, f.variables("A", "B", "C", "D", "E"), sdd);
     }
@@ -51,7 +51,7 @@ public class SddModelCountFunctionTest {
     public void testSubtree() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompiler.compile(formula, f);
         final Sdd sdd = res.getSdd();
         final SddNode descendant = res.getNode().asDecomposition().getElementsUnsafe().get(0).getSub();
         final Formula subformula = descendant.execute(new SddExportFormula(sdd));
@@ -73,8 +73,7 @@ public class SddModelCountFunctionTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompiler.compile(formula, f);
             final Sdd sdd = result.getSdd();
             check(result.getNode(), formula, formula.variables(f), sdd);
         }
@@ -91,8 +90,7 @@ public class SddModelCountFunctionTest {
             final Set<Variable> eliminatedVars = formula.variables(f).stream()
                     .filter(v -> !remainingVars.contains(v))
                     .collect(Collectors.toSet());
-            final SddCompilationResult result =
-                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompiler.compile(formula, f);
             final Set<Integer> elimVarIdxs =
                     SddUtil.varsToIndicesOnlyKnown(eliminatedVars, result.getSdd(), new TreeSet<>());
             final SddNode projected =

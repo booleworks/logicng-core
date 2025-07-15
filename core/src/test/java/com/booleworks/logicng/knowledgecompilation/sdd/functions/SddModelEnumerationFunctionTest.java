@@ -9,13 +9,12 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
-import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
@@ -47,7 +46,7 @@ public class SddModelEnumerationFunctionTest {
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompiler.compile(formula, f);
         final Sdd sdd = res.getSdd();
         final SddModelEnumerationFunction meFunc =
                 SddModelEnumerationFunction.builder(f.variables("A", "B", "C", "D", "E"), sdd).build();
@@ -58,7 +57,7 @@ public class SddModelEnumerationFunctionTest {
     public void testEvents() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompiler.compile(formula, f);
         final Sdd sdd = res.getSdd();
         final SddModelEnumerationFunction meFunc =
                 SddModelEnumerationFunction.builder(f.variables("A", "B", "C", "D", "E"), sdd).build();
@@ -88,7 +87,7 @@ public class SddModelEnumerationFunctionTest {
     public void testLimitModels() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompiler.compile(formula, f);
         final Sdd sdd = res.getSdd();
         final SddModelEnumerationFunction meFunc =
                 SddModelEnumerationFunction.builder(f.variables("A", "B", "C", "D", "E"), sdd).build();
@@ -102,7 +101,7 @@ public class SddModelEnumerationFunctionTest {
     public void testProjected() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompiler.compile(formula, f);
         final Sdd sdd = res.getSdd();
         final SddModelEnumerationFunction meFunc =
                 SddModelEnumerationFunction.builder(f.variables("A", "D", "X"), sdd).build();
@@ -113,7 +112,7 @@ public class SddModelEnumerationFunctionTest {
     public void testSubtree() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompiler.compile(formula, f);
         final Sdd sdd = res.getSdd();
         final SddNode descendant = res.getNode().asDecomposition().getElementsUnsafe().get(0).getSub();
         final Formula subformula = descendant.execute(new SddExportFormula(sdd));

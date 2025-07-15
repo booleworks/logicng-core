@@ -79,6 +79,21 @@ public class VTreeUtil {
         return result;
     }
 
+    public static <C extends Collection<Integer>> C varsInOrder(final VTree vtree, final C result) {
+        final Stack<VTree> stack = new Stack<>();
+        stack.push(vtree);
+        while (!stack.isEmpty()) {
+            final VTree current = stack.pop();
+            if (current.isLeaf()) {
+                result.add(current.asLeaf().getVariable());
+            } else {
+                stack.add(current.asInternal().getRight());
+                stack.add(current.asInternal().getLeft());
+            }
+        }
+        return result;
+    }
+
     public static void vars(final VTree vtree, final Set<Integer> filter, final Set<Integer> result) {
         if (vtree == null) {
             return;

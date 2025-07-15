@@ -10,8 +10,8 @@ import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerBottomUp;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerConfig;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddMinimizationConfig;
@@ -32,7 +32,11 @@ public class SddMinimizationTest {
         final Formula formula = f.parse("(A | C) & (B | C | D)");
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
         sdd.defineVTree(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        final SddCompilerConfig config = SddCompilerConfig.builder()
+                .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
+                .sdd(sdd)
+                .build();
+        final SddNode node = SddCompiler.compile(formula, config, f).getNode();
         sdd.pin(node);
         final TransformationResult res =
                 SddMinimization.bestLocalState(new SddMinimization.SearchState(vtree, sdd), NopHandler::get,
@@ -48,7 +52,11 @@ public class SddMinimizationTest {
         final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
         sdd.defineVTree(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        final SddCompilerConfig config = SddCompilerConfig.builder()
+                .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
+                .sdd(sdd)
+                .build();
+        final SddNode node = SddCompiler.compile(formula, config, f).getNode();
         sdd.pin(node);
         final TransformationResult res =
                 SddMinimization.bestLocalState(new SddMinimization.SearchState(vtree, sdd), NopHandler::get,
@@ -64,7 +72,11 @@ public class SddMinimizationTest {
         final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
         sdd.defineVTree(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        final SddCompilerConfig config = SddCompilerConfig.builder()
+                .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
+                .sdd(sdd)
+                .build();
+        final SddNode node = SddCompiler.compile(formula, config, f).getNode();
         sdd.pin(node);
         final TransformationResult res = SddMinimization.bestLocalState(
                 new SddMinimization.SearchState(vtree.asInternal().getLeft().asInternal().getRight(), sdd),
@@ -80,7 +92,11 @@ public class SddMinimizationTest {
         final Formula formula = f.parse("(A | C) & (B | C | D)");
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
         sdd.defineVTree(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        final SddCompilerConfig config = SddCompilerConfig.builder()
+                .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
+                .sdd(sdd)
+                .build();
+        final SddNode node = SddCompiler.compile(formula, config, f).getNode();
         sdd.pin(node);
         final TransformationResult res =
                 SddMinimization.localSearchPass(0, sdd, NopHandler::get, NopHandler.get()).getResult();
@@ -95,7 +111,11 @@ public class SddMinimizationTest {
         final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
         sdd.defineVTree(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        final SddCompilerConfig config = SddCompilerConfig.builder()
+                .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
+                .sdd(sdd)
+                .build();
+        final SddNode node = SddCompiler.compile(formula, config, f).getNode();
         sdd.pin(node);
         final TransformationResult res =
                 SddMinimization.localSearchPass(0, sdd, NopHandler::get, NopHandler.get()).getResult();
@@ -111,7 +131,11 @@ public class SddMinimizationTest {
         final Formula formula = f.parse("(A | C) & (B | C | D)");
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
         sdd.defineVTree(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        final SddCompilerConfig config = SddCompilerConfig.builder()
+                .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
+                .sdd(sdd)
+                .build();
+        final SddNode node = SddCompiler.compile(formula, config, f).getNode();
         sdd.pin(node);
         final TransformationResult res = SddMinimization.minimize(sdd, NopHandler::get, NopHandler.get()).getResult();
         final SddNode mini = res.getTranslations().get(node);
@@ -125,7 +149,11 @@ public class SddMinimizationTest {
         final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
         sdd.defineVTree(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        final SddCompilerConfig config = SddCompilerConfig.builder()
+                .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
+                .sdd(sdd)
+                .build();
+        final SddNode node = SddCompiler.compile(formula, config, f).getNode();
         sdd.pin(node);
         final TransformationResult res = SddMinimization.minimize(sdd, NopHandler::get, NopHandler.get()).getResult();
         final SddNode mini = res.getTranslations().get(node);
@@ -147,7 +175,7 @@ public class SddMinimizationTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult comp = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult comp = SddCompiler.compile(formula, f);
             comp.getSdd().pin(comp.getNode());
             final SddMinimizationConfig config = SddMinimizationConfig.unlimited(comp.getSdd());
             final TransformationResult res =
@@ -164,7 +192,7 @@ public class SddMinimizationTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult comp = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult comp = SddCompiler.compile(formula, f);
             comp.getSdd().pin(comp.getNode());
             final SddMinimizationConfig config =
                     new SddMinimizationConfig.Builder(comp.getSdd()).withOperationTimeout(10).build();
@@ -182,7 +210,7 @@ public class SddMinimizationTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult comp = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult comp = SddCompiler.compile(formula, f);
             comp.getSdd().pin(comp.getNode());
             final SddMinimizationConfig config =
                     new SddMinimizationConfig.Builder(comp.getSdd()).withAbsoluteTargetSize(1100).build();
@@ -201,7 +229,7 @@ public class SddMinimizationTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult comp = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult comp = SddCompiler.compile(formula, f);
             comp.getSdd().pin(comp.getNode());
             final SddMinimizationConfig config =
                     new SddMinimizationConfig.Builder(comp.getSdd()).withAlgorithm(

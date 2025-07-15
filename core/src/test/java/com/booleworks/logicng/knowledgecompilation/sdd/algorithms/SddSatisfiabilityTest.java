@@ -7,7 +7,8 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerBottomUp;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerConfig;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.DecisionVTreeGenerator;
@@ -35,8 +36,12 @@ public class SddSatisfiabilityTest {
         if (vtree != null) {
             sdd.defineVTree(vtree);
         }
-        final SddNode res = SddCompilerBottomUp.cnfToSdd(cnf, sdd);
-        final SddNode neg = SddCompilerBottomUp.cnfToSdd(cnfNeg, sdd);
+        final SddCompilerConfig config = SddCompilerConfig.builder()
+                .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
+                .sdd(sdd)
+                .build();
+        final SddNode res = SddCompiler.compile(cnf, config, f).getNode();
+        final SddNode neg = SddCompiler.compile(cnfNeg, config, f).getNode();
         final List<Model> models =
                 res.execute(SddModelEnumerationFunction.builder(cnf.variables(f), sdd).build());
         final List<Model> negModels =

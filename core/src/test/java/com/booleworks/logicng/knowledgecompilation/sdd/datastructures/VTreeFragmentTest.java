@@ -6,7 +6,8 @@ import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerBottomUp;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerConfig;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeFragment;
@@ -22,7 +23,9 @@ public class VTreeFragmentTest {
         final Formula formula = f.parse("(A | C) & (B | C | D)");
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
         sdd.defineVTree(vtree);
-        SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        final SddCompilerConfig config =
+                SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).sdd(sdd).build();
+        SddNode node = SddCompiler.compile(formula, config, f).getNode();
         sdd.pin(node);
         final VTreeFragment fragment = new VTreeFragment(true, vtree, sdd);
         while (fragment.hasNext()) {
@@ -39,7 +42,9 @@ public class VTreeFragmentTest {
         final Formula formula = f.parse("(A | C) & (B | C | D)");
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
         sdd.defineVTree(vtree);
-        SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        final SddCompilerConfig config =
+                SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).sdd(sdd).build();
+        SddNode node = SddCompiler.compile(formula, config, f).getNode();
         sdd.pin(node);
         final VTreeFragment fragment = new VTreeFragment(false, vtree, sdd);
         while (fragment.hasNext()) {
@@ -56,7 +61,9 @@ public class VTreeFragmentTest {
         final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
         sdd.defineVTree(vtree);
-        SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        final SddCompilerConfig config =
+                SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).sdd(sdd).build();
+        SddNode node = SddCompiler.compile(formula, config, f).getNode();
         sdd.pin(node);
         final VTreeFragment fragment = new VTreeFragment(false, vtree, sdd);
         while (fragment.hasNext()) {
@@ -74,7 +81,9 @@ public class VTreeFragmentTest {
         final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
         sdd.defineVTree(vtree);
-        SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        final SddCompilerConfig config =
+                SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).sdd(sdd).build();
+        SddNode node = SddCompiler.compile(formula, config, f).getNode();
         sdd.pin(node);
         final VTreeFragment fragment = new VTreeFragment(true, vtree, sdd);
         while (fragment.hasNext()) {
@@ -92,7 +101,9 @@ public class VTreeFragmentTest {
         final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
         sdd.defineVTree(vtree);
-        SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        final SddCompilerConfig config =
+                SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).sdd(sdd).build();
+        SddNode node = SddCompiler.compile(formula, config, f).getNode();
         sdd.pin(node);
         final VTreeFragment fragment =
                 new VTreeFragment(false, vtree.asInternal().getLeft().asInternal().getRight(), sdd);
@@ -111,7 +122,9 @@ public class VTreeFragmentTest {
         final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
         final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
         sdd.defineVTree(vtree);
-        SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sdd, NopHandler.get()).getResult();
+        final SddCompilerConfig config =
+                SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).sdd(sdd).build();
+        SddNode node = SddCompiler.compile(formula, config, f).getNode();
         sdd.pin(node);
         final VTreeFragment fragment =
                 new VTreeFragment(true, vtree.asInternal().getLeft().asInternal().getRight(), sdd);

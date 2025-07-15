@@ -5,11 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
-import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.solvers.SatSolver;
@@ -24,7 +23,7 @@ public class SddCardinalityFunctionTest {
     public void testMax() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompiler.compile(formula, f);
         final Sdd sdd = res.getSdd();
         final int cardinality =
                 res.getNode().execute(new SddCardinalityFunction(true, f.variables("A", "B", "C", "D", "E"), sdd));
@@ -40,7 +39,7 @@ public class SddCardinalityFunctionTest {
     public void testMin() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = SddTestUtil.encodeAsPureCnf(f, f.parse("(A & B) | (B & C) | (C & D)"));
-        final SddCompilationResult res = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+        final SddCompilationResult res = SddCompiler.compile(formula, f);
         final Sdd sdd = res.getSdd();
         final int cardinality =
                 res.getNode().execute(new SddCardinalityFunction(false, f.variables("A", "B", "C", "D", "E"), sdd));
@@ -67,8 +66,7 @@ public class SddCardinalityFunctionTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult res =
-                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult res = SddCompiler.compile(formula, f);
             final Sdd sdd = res.getSdd();
             final int cardinality =
                     res.getNode().execute(new SddCardinalityFunction(true, formula.variables(f), sdd));
@@ -86,8 +84,7 @@ public class SddCardinalityFunctionTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult res =
-                    SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult res = SddCompiler.compile(formula, f);
             final Sdd sdd = res.getSdd();
             final int cardinality =
                     res.getNode().execute(new SddCardinalityFunction(false, formula.variables(f), sdd));

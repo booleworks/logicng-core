@@ -7,7 +7,6 @@ import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Or;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
-import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
@@ -17,26 +16,21 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import java.util.Collection;
 import java.util.List;
 
-public class SddCompilerBottomUp {
+class SddCompilerBottomUp {
     protected final Formula cnf;
     protected final Sdd sdd;
 
-    public SddCompilerBottomUp(final Formula cnf, final Sdd sdd) {
+    protected SddCompilerBottomUp(final Formula cnf, final Sdd sdd) {
         this.cnf = cnf;
         this.sdd = sdd;
     }
 
-    public static SddNode cnfToSdd(final Formula cnf, final Sdd sf) {
-        return cnfToSdd(cnf, sf, NopHandler.get()).getResult();
-    }
-
-    public static LngResult<SddNode> cnfToSdd(final Formula cnf, final Sdd sf,
-                                              final ComputationHandler handler) {
-        final SddCompilerBottomUp compiler = new SddCompilerBottomUp(cnf, sf);
+    protected static LngResult<SddNode> compile(final Formula cnf, final Sdd sdd, final ComputationHandler handler) {
+        final SddCompilerBottomUp compiler = new SddCompilerBottomUp(cnf, sdd);
         return compiler.cnfToSdd(handler);
     }
 
-    public LngResult<SddNode> cnfToSdd(final ComputationHandler handler) {
+    protected LngResult<SddNode> cnfToSdd(final ComputationHandler handler) {
         if (!handler.shouldResume(ComputationStartedEvent.SDD_COMPUTATION_STARTED)) {
             return LngResult.canceled(ComputationStartedEvent.SDD_COMPUTATION_STARTED);
         }
@@ -94,7 +88,7 @@ public class SddCompilerBottomUp {
         return LngResult.of(node);
     }
 
-    public LngResult<SddNode> applyClause(final Collection<Formula> lits, final ComputationHandler handler) {
+    protected LngResult<SddNode> applyClause(final Collection<Formula> lits, final ComputationHandler handler) {
         SddNode node = sdd.falsum();
         for (final Formula formula : lits) {
             final Literal lit = (Literal) formula;

@@ -7,8 +7,8 @@ import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerBottomUp;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerTopDown;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerConfig;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
@@ -54,37 +54,45 @@ public class SddRotateTest {
     @Test
     public void testLeftSimple() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
+        final Sdd sdd = Sdd.independent(f);
         final Formula formula = f.parse("(A | C) & (B | C | D)");
-        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
-        sf.defineVTree(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
-        sf.pin(node);
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
+        sdd.defineVTree(vtree);
+        final SddCompilerConfig config = SddCompilerConfig.builder()
+                .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
+                .sdd(sdd)
+                .build();
+        final SddNode node = SddCompiler.compile(formula, config, f).getNode();
+        sdd.pin(node);
         final Map<SddNode, SddNode> translation =
-                SddGlobalTransformations.rotateLeft(vtree.asInternal(), sf, NopHandler.get()).getResult()
+                SddGlobalTransformations.rotateLeft(vtree.asInternal(), sdd, NopHandler.get()).getResult()
                         .getTranslations();
         final SddNode rotated = translation.get(node);
-        assert Validation.validVTree(rotated, sf);
-        SddTestUtil.validateMC(rotated, formula, sf);
-        SddTestUtil.validateExport(rotated, formula, sf);
+        assert Validation.validVTree(rotated, sdd);
+        SddTestUtil.validateMC(rotated, formula, sdd);
+        SddTestUtil.validateExport(rotated, formula, sdd);
     }
 
     @Test
     public void testRightSimple() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
+        final Sdd sdd = Sdd.independent(f);
         final Formula formula = f.parse("(A | C) & (B | C | D)");
-        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sf);
-        sf.defineVTree(vtree);
-        final SddNode node = SddCompilerBottomUp.cnfToSdd(formula, sf, NopHandler.get()).getResult();
-        sf.pin(node);
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
+        sdd.defineVTree(vtree);
+        final SddCompilerConfig config = SddCompilerConfig.builder()
+                .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
+                .sdd(sdd)
+                .build();
+        final SddNode node = SddCompiler.compile(formula, config, f).getNode();
+        sdd.pin(node);
         final Map<SddNode, SddNode> translations =
-                SddGlobalTransformations.rotateRight(vtree.asInternal(), sf, NopHandler.get()).getResult()
+                SddGlobalTransformations.rotateRight(vtree.asInternal(), sdd, NopHandler.get()).getResult()
                         .getTranslations();
         final SddNode rotated = translations.get(node);
-        assert Validation.validVTree(rotated, sf);
-        SddTestUtil.validateMC(rotated, formula, sf);
-        SddTestUtil.validateExport(rotated, formula, sf);
+        assert Validation.validVTree(rotated, sdd);
+        SddTestUtil.validateMC(rotated, formula, sdd);
+        SddTestUtil.validateExport(rotated, formula, sdd);
     }
 
     @Test
@@ -92,7 +100,7 @@ public class SddRotateTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult result = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompiler.compile(formula, f);
             final Sdd sdd = result.getSdd();
             final SddNode node = result.getNode();
             final VTreeInternal rootNode = sdd.getVTree().getRoot().asInternal();
@@ -111,7 +119,7 @@ public class SddRotateTest {
         for (final String file : FILES) {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
-            final SddCompilationResult result = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompiler.compile(formula, f);
             final Sdd sdd = result.getSdd();
             final SddNode node = result.getNode();
             sdd.pin(node);
@@ -133,7 +141,7 @@ public class SddRotateTest {
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final List<Integer> vtreeSeq = VTREE_POSISTIONS.get(i);
             i++;
-            final SddCompilationResult result = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompiler.compile(formula, f);
             final Sdd sdd = result.getSdd();
             SddNode node = result.getNode();
             for (int j = 0; j < 5; ++j) {
@@ -162,7 +170,7 @@ public class SddRotateTest {
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final List<Integer> vtreeSeq = VTREE_POSISTIONS.get(i);
             i++;
-            final SddCompilationResult result = SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+            final SddCompilationResult result = SddCompiler.compile(formula, f);
             final Sdd sdd = result.getSdd();
             SddNode node = result.getNode();
             for (int j = 0; j < 5; ++j) {
@@ -191,8 +199,7 @@ public class SddRotateTest {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             for (final List<Integer> vtreeSeq : VTREE_POSISTIONS) {
-                final SddCompilationResult result =
-                        SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+                final SddCompilationResult result = SddCompiler.compile(formula, f);
                 final Sdd sdd = result.getSdd();
                 SddNode node = result.getNode();
                 sdd.pin(node);
@@ -220,8 +227,7 @@ public class SddRotateTest {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             for (final List<Integer> vtreeSeq : VTREE_POSISTIONS) {
-                final SddCompilationResult result =
-                        SddCompilerTopDown.compile(formula, f, NopHandler.get()).getResult();
+                final SddCompilationResult result = SddCompiler.compile(formula, f);
                 final Sdd sdd = result.getSdd();
                 SddNode node = result.getNode();
                 sdd.pin(node);
