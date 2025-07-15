@@ -421,6 +421,12 @@ public class SddCompilerTopDown {
     }
 
     protected BitSet key1(final VTree vTree) {
+        final BitSet contextLitsInMask = (BitSet) vTree.getContextLitsInMask().clone();
+        contextLitsInMask.and(solver.impliedLiteralBitset());
+        return contextLitsInMask;
+    }
+
+    protected BitSet key2(final VTree vTree) {
         final BitSet key = (BitSet) vTree.getContextClauseMask().clone();
         key.and(solver.subsumedClauseBitset());
         return key;
