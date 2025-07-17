@@ -17,13 +17,19 @@ import java.io.IOException;
 public class DecisionVTreeGeneratorTest {
     @Test
     public void test() throws ParserException, IOException {
+        checkDVTree(DecisionVTreeGenerator.PrioritizationStrategy.NONE);
+        checkDVTree(DecisionVTreeGenerator.PrioritizationStrategy.VAR_UP);
+        checkDVTree(DecisionVTreeGenerator.PrioritizationStrategy.VAR_DOWN);
+    }
+
+    private void checkDVTree(final DecisionVTreeGenerator.PrioritizationStrategy strategy) throws IOException {
         final FormulaFactory f = FormulaFactory.caching();
         final Sdd sf = Sdd.independent(f);
         final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
         final DnnfCoreSolver solver = new DnnfCoreSolver(f, formula.variables(f).size());
         solver.add(formula);
 
-        final VTree tree = new DecisionVTreeGenerator(formula, solver).generate(sf);
+        final VTree tree = new DecisionVTreeGenerator(formula, formula.variables(f), strategy, solver).generate(sf);
         assert !tree.isLeaf();
         assert isDecisionVTreeFor(tree.asInternal(), formula, sf);
     }
