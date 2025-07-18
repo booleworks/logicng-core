@@ -1,134 +1,101 @@
 package com.booleworks.logicng.io.writers;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
+import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.io.readers.SddReader;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerConfig;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
-import org.assertj.core.api.SoftAssertions;
+import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddExportFormula;
+import com.booleworks.logicng.util.Pair;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 public class SddWriterTest {
-
     @Test
-    public void testSimpleVTree() throws IOException {
+    public void testReimportSimple() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
-        final VTreeLeaf l1 = sf.vTreeLeaf(f.variable("A"));
-        testVTreeFile("simple1", l1);
-        final VTreeLeaf l2 = sf.vTreeLeaf(f.variable("B"));
-        final VTree d = sf.vTreeInternal(l1, l2);
-        testVTreeFile("simple2", d);
+        final SddCompilationResult result = SddCompiler.compile(f.parse("(A | B) & (V | W | X) & (A | ~X)"), f);
+        final Pair<SddNode, Sdd> reimport = reimportSdd(result.getNode(), result.getSdd());
+        checkFormulaOfReimport(reimport, result.getNode(), result.getSdd());
     }
 
     @Test
-    public void testVTree() throws IOException {
+    public void testVTreeReimportSimple() throws IOException, ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
-        final VTreeLeaf l1 = sf.vTreeLeaf(f.variable("v1"));
-        final VTreeLeaf l10 = sf.vTreeLeaf(f.variable("v10"));
-        final VTreeLeaf l11 = sf.vTreeLeaf(f.variable("v11"));
-        final VTreeLeaf l12 = sf.vTreeLeaf(f.variable("v12"));
-        final VTreeLeaf l13 = sf.vTreeLeaf(f.variable("v13"));
-        final VTreeLeaf l14 = sf.vTreeLeaf(f.variable("v14"));
-        final VTreeLeaf l15 = sf.vTreeLeaf(f.variable("v15"));
-        final VTreeLeaf l16 = sf.vTreeLeaf(f.variable("v15"));
-        final VTreeLeaf l17 = sf.vTreeLeaf(f.variable("v15"));
-        final VTreeLeaf l18 = sf.vTreeLeaf(f.variable("v15"));
-        final VTree d2 = sf.vTreeInternal(l1, l10);
-        final VTree d6 = sf.vTreeInternal(l12, l13);
-        final VTree d7 = sf.vTreeInternal(l11, d6);
-        final VTree d8 = sf.vTreeInternal(d2, d7);
-        final VTree d11 = sf.vTreeInternal(l14, l15);
-        final VTree d15 = sf.vTreeInternal(l17, l18);
-        final VTree d16 = sf.vTreeInternal(l16, d15);
-        final VTree d17 = sf.vTreeInternal(d11, d16);
-        final VTree d18 = sf.vTreeInternal(d8, d17);
-        testVTreeFile("vtree1", d18);
+        final Formula formula = f.parse("(A | B) & (V | W | X) & (A | ~X)");
+        final SddCompilationResult result = SddCompiler.compile(formula, f);
+        final Sdd reimport = reimportVTree(result.getSdd());
+        recompileFormulaAndCheck(reimport, result.getNode(), result.getSdd(), formula);
     }
+
+    private final static List<String> FILES = List.of(
+            "../test_files/sdd/compile_example1.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_1.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_2.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_3.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_4.cnf",
+            "../test_files/dnnf/both_bdd_dnnf_5.cnf"
+    );
 
     @Test
-    public void testVTreeImportExport() throws ParserException, IOException {
-        final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
-        final VTree vTree = SddReader.readVTree(new File("../test_files/sdd/big-swap.vtree"), sf);
-        SddWriter.writeVTree(new File("../test_files/writers/temp/big-swap.vtree"), vTree);
-        final VTree vTree2 = SddReader.readVTree(new File("../test_files/writers/temp/big-swap.vtree"), sf);
-        assert vTree == vTree2;
-    }
-
-    private void testVTreeFile(final String fileName, final VTree vTree) throws IOException {
-        SddWriter.writeVTree(new File("../test_files/writers/temp/" + fileName + ".vtree"), vTree);
-        final File temp = new File("../test_files/writers/temp/" + fileName + ".vtree");
-        final File expected = new File("../test_files/writers/sdd/" + fileName + ".vtree");
-        assertFilesEqual(expected, temp);
-    }
-
-    @Test
-    public void testSimpleSdd() throws ParserException, IOException {
-        final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
-        sf.defineVTree(SddReader.readVTree(new File("../test_files/sdd/big-swap.vtree"), sf));
-        final VTreeLeaf v1Leaf = sf.vTreeLeaf(f.variable("v1"));
-        final VTreeLeaf v8Leaf = sf.vTreeLeaf(f.variable("v8"));
-        final SddNode terminal1 = sf.terminal(v1Leaf, true);
-        final SddNode terminal2 = sf.terminal(v1Leaf, false);
-        final SddNode terminal3 = sf.terminal(v8Leaf, true);
-        final ArrayList<SddElement> elems = new ArrayList<>();
-        elems.add(new SddElement(terminal1, terminal3));
-        elems.add(new SddElement(terminal2, sf.verum()));
-        final SddNode decomp1 = sf.decompOfPartition(elems);
-        testSddFile("sdd_simple1", terminal1, sf);
-        testSddFile("sdd_simple2", decomp1, sf);
-    }
-
-    // FIXME: We can no longer read two files to the same container
-    //
-    //    @Test
-    //    public void testSddImportExport() throws ParserException, IOException {
-    //        final FormulaFactory f = FormulaFactory.caching();
-    //        final Sdd sf = Sdd.independent(f);
-    //        final Pair<SddNode, VTreeRoot> imp = SddReader.readSdd(new File("../test_files/sdd/big-swap.sdd"),
-    //                new File("../test_files/sdd/big-swap.vtree"), sf);
-    //        SddWriter.writeSdd(new File("../test_files/writers/temp/big-swap.sdd"),
-    //                new File("../test_files/writers/temp/big-swap.vtree"), imp.getFirst(), imp.getSecond());
-    //        final Pair<SddNode, VTreeRoot> imp2 = SddReader.readSdd(new File("../test_files/writers/temp/big-swap
-    //        .sdd"),
-    //                new File("../test_files/writers/temp/big-swap.vtree"), sf);
-    //        assert imp.getFirst() == imp2.getFirst();
-    //    }
-
-    private void testSddFile(final String fileName, final SddNode sdd, final Sdd sf) throws IOException {
-        final File temp = new File("../test_files/writers/temp/" + fileName + ".sdd");
-        SddWriter.writeSdd(temp, new File("../test_files/writers/temp/" + fileName + "dump.vtree"), sdd, sf);
-        final File expected = new File("../test_files/writers/sdd/" + fileName + ".sdd");
-        assertFilesEqual(expected, temp);
-    }
-
-
-    private void assertFilesEqual(final File expected, final File actual) throws IOException {
-        final SoftAssertions softly = new SoftAssertions();
-        final BufferedReader expReader = new BufferedReader(new FileReader(expected));
-        final BufferedReader actReader = new BufferedReader(new FileReader(actual));
-        for (int lineNumber = 1; expReader.ready() && actReader.ready(); lineNumber++) {
-            softly.assertThat(actReader.readLine()).as("Line " + lineNumber + " not equal")
-                    .isEqualTo(expReader.readLine());
+    public void testReimportFiles() throws IOException, ParserException {
+        for (final String file : FILES) {
+            final FormulaFactory f = FormulaFactory.caching();
+            final Formula formula = f.and(DimacsReader.readCNF(f, file));
+            final SddCompilationResult result = SddCompiler.compile(formula, f);
+            final Pair<SddNode, Sdd> reimport = reimportSdd(result.getNode(), result.getSdd());
+            checkFormulaOfReimport(reimport, result.getNode(), result.getSdd());
         }
-        if (expReader.ready()) {
-            softly.fail("Missing line(s) found, starting with \"" + expReader.readLine() + "\"");
+    }
+
+    @Test
+    public void testVTreeReimportFiles() throws IOException, ParserException {
+        for (final String file : FILES) {
+            final FormulaFactory f = FormulaFactory.caching();
+            final Formula formula = f.and(DimacsReader.readCNF(f, file));
+            final SddCompilationResult result = SddCompiler.compile(formula, f);
+            final Sdd reimport = reimportVTree(result.getSdd());
+            recompileFormulaAndCheck(reimport, result.getNode(), result.getSdd(), formula);
         }
-        if (actReader.ready()) {
-            softly.fail("Additional line(s) found, starting with \"" + actReader.readLine() + "\"");
-        }
-        softly.assertAll();
+    }
+
+    private static void checkFormulaOfReimport(final Pair<SddNode, Sdd> reimport, final SddNode node, final Sdd sdd) {
+        final Formula formula = node.execute(new SddExportFormula(sdd));
+        final Formula reimportedFormula = reimport.getFirst().execute(new SddExportFormula(reimport.getSecond()));
+        assertThat(formula).isSameAs(reimportedFormula);
+    }
+
+    private static void recompileFormulaAndCheck(final Sdd reimport, final SddNode node, final Sdd sdd,
+                                                 final Formula formula) {
+        final SddCompilerConfig config =
+                SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).sdd(sdd).build();
+        final SddCompilationResult recompiled = SddCompiler.compile(formula, config, reimport.getFactory());
+        final Formula formulaOfNode = node.execute(new SddExportFormula(sdd));
+        final Formula reimportedFormula = recompiled.getNode().execute(new SddExportFormula(recompiled.getSdd()));
+        assertThat(formulaOfNode).isSameAs(reimportedFormula);
+    }
+
+    private static Pair<SddNode, Sdd> reimportSdd(final SddNode node, final Sdd sdd)
+            throws IOException, ParserException {
+        final File tempFile = new File("../test_files/writers/temp/temp.sdd");
+        SddWriter.writeSdd(tempFile, node, sdd);
+        return SddReader.readSdd(tempFile, sdd.getFactory());
+    }
+
+    private static Sdd reimportVTree(final Sdd sdd)
+            throws IOException, ParserException {
+        final File tempFile = new File("../test_files/writers/temp/temp.vtree");
+        SddWriter.writeVTree(tempFile, sdd);
+        return SddReader.readVTree(tempFile, sdd.getFactory());
     }
 }

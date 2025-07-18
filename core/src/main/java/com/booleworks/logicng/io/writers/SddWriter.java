@@ -7,7 +7,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDec
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,16 +22,35 @@ public class SddWriter {
     private SddWriter() {
     }
 
-    public static void writeSdd(final File sddDesitination, final File vTreeDesitionation, final SddNode node,
-                                final Sdd sdd) throws IOException {
-        final SddExportState state = new SddExportState();
-        writeVTree(vTreeDesitionation, sdd.vTreeOf(node), state.vState);
-        exportSdd(node, sdd, state);
+    /**
+     * Exports the VTree and an SDD node of an SDD in text representation into a file.
+     * <p>
+     * The first part will be the exported VTree using the format of
+     * {@link SddWriter#writeVTree(File, Sdd) writeVTree}.
+     * The second part is the exported SDD node following the following syntax:
+     * <ul>
+     *     <li>First line: {@code sdd {number of nodes} {id of root}}</li>
+     *     <li>{@code D {id of node} {number of sdd elements} [ {id of prime node} {id of sub node} ]+}</li>
+     *     <li>{@code L {id of leaf} {name of variable}}</li>
+     *     <li>{@code I {id of node} {id of left child} {id of right child}}"</li>
+     * </ul>
+     * <p>
+     * Remark: The ids of the nodes may be different to the ids used by LNG internally.
+     * @param destination the destination file
+     * @param node        the node to export
+     * @param sdd         the sdd of the node
+     * @throws IOException if there was a problem writing the file
+     */
+    public static void writeSdd(final File destination, final SddNode node, final Sdd sdd) throws IOException {
         try (
                 final BufferedWriter writer = new BufferedWriter(
-                        new OutputStreamWriter(Files.newOutputStream(sddDesitination.toPath()), StandardCharsets.UTF_8))
+                        new OutputStreamWriter(Files.newOutputStream(destination.toPath()), StandardCharsets.UTF_8))
         ) {
-            writer.append(String.format("sdd %d", state.size));
+            final SddExportState state = new SddExportState();
+            writeVTree(sdd, state.vState, writer);
+            writer.newLine();
+            final int rootId = exportSdd(node, sdd, state);
+            writer.append(String.format("sdd %d %d", state.size, rootId));
             writer.newLine();
             for (final String line : state.lines) {
                 writer.append(line);
@@ -42,9 +60,7 @@ public class SddWriter {
         }
     }
 
-    private static int exportSdd(final SddNode node, final Sdd sdd, final SddExportState state)
-            throws IOException {
-        final VTreeRoot root = sdd.getVTree();
+    private static int exportSdd(final SddNode node, final Sdd sdd, final SddExportState state) {
         if (state.nodeToId.containsKey(node)) {
             return state.nodeToId.get(node);
         }
@@ -58,9 +74,8 @@ public class SddWriter {
                 children.add(sub);
             }
             final int id = state.nodeId++;
-            final int vTreeId = sdd.vTreeOf(node).getPosition();
             final StringBuilder sb = new StringBuilder();
-            sb.append(String.format("D %d %d %d", id, vTreeId, decomp.getElementsUnsafe().size()));
+            sb.append(String.format("D %d %d", id, decomp.getElementsUnsafe().size()));
             for (final int cId : children) {
                 sb.append(" ");
                 sb.append(cId);
@@ -78,8 +93,7 @@ public class SddWriter {
                 state.lines.add(String.format("T %d", id));
             } else {
                 final int vTreeId = sdd.vTreeOf(node).getPosition();
-                final int variableId = state.vState.varToId.get(terminal.getVTree().getVariable());
-                final int literalId = terminal.getPhase() ? variableId : -variableId;
+                final int literalId = terminal.getPhase() ? 1 : -1;
                 state.lines.add(String.format("L %d %d %d", id, vTreeId, literalId));
             }
             state.size++;
@@ -89,69 +103,65 @@ public class SddWriter {
     }
 
     /**
-     * Exports a VTree in text representation into a file
+     * Exports a VTree in text representation into a file.
      * <p>
      * File syntax:
      * <ul>
-     *     <li>First line: "vtree {number of nodes}"</li>
-     *     <li>"L {id of leaf} {id of variable}"</li>
-     *     <li>"I {id of node} {id of left child} {id of right child}"</li>
+     *     <li>First line: {@code vtree {number of nodes} {id of root}}</li>
+     *     <li>{@code L {id of leaf} {name of variable}}</li>
+     *     <li>{@code I {id of node} {id of left child} {id of right child}}</li>
      * </ul>
      * <p>
-     * Note that the id of the variables and nodes may be different to the LNG
-     * internal ids.
-     * @param file  destination
-     * @param vTree VTree that gets exported
+     * Remark: The ids of the nodes may be different to the ids used by LNG internally.
+     * @param file destination
+     * @param sdd  the sdd which vtree gets exported
+     * @throws IOException if there was a problem writing the file
      */
-    public static void writeVTree(final File file, final VTree vTree) throws IOException {
+    public static void writeVTree(final File file, final Sdd sdd) throws IOException {
         final VTreeExportState exportState = new VTreeExportState();
-        writeVTree(file, vTree, exportState);
-    }
-
-    private static void writeVTree(final File file, final VTree vTree, final VTreeExportState exportState)
-            throws IOException {
-        exportVTreeRec(vTree, exportState);
         try (
                 final BufferedWriter writer = new BufferedWriter(
                         new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8))
         ) {
-            writer.append(String.format("vtree %d", exportState.size));
-            writer.newLine();
-            for (final String line : exportState.leafLines) {
-                writer.append(line);
-                writer.newLine();
-            }
-            for (final String line : exportState.nodeLines) {
-                writer.append(line);
-                writer.newLine();
-            }
-            writer.flush();
+            writeVTree(sdd, exportState, writer);
         }
     }
 
-    private static int exportVTreeRec(final VTree vTree, final VTreeExportState state) {
+    private static void writeVTree(final Sdd sdd, final VTreeExportState exportState,
+                                   final BufferedWriter writer)
+            throws IOException {
+        final int rootId = exportVTreeRec(sdd.getVTree().getRoot(), sdd, exportState);
+        writer.append(String.format("vtree %d %d", exportState.size, rootId));
+        writer.newLine();
+        for (final String line : exportState.leafLines) {
+            writer.append(line);
+            writer.newLine();
+        }
+        for (final String line : exportState.nodeLines) {
+            writer.append(line);
+            writer.newLine();
+        }
+        writer.flush();
+    }
+
+    private static int exportVTreeRec(final VTree vTree, final Sdd sdd, final VTreeExportState state) {
         state.size++;
         if (vTree.isLeaf()) {
-            final int id = state.nodeId++;
-            final int varId = state.varId++;
-            state.leafLines.add(String.format("L %d %d", id, varId));
-            state.varToId.put(vTree.asLeaf().getVariable(), varId);
+            final int id = vTree.getPosition();
+            state.leafLines.add(String.format("L %d %s", id, sdd.indexToVariable(vTree.asLeaf().getVariable())));
             return id;
         } else {
             final VTreeInternal it = vTree.asInternal();
-            final int left = exportVTreeRec(it.getLeft(), state);
-            final int right = exportVTreeRec(it.getRight(), state);
-            final int id = state.nodeId++;
+            final int left = exportVTreeRec(it.getLeft(), sdd, state);
+            final int right = exportVTreeRec(it.getRight(), sdd, state);
+            final int id = it.getPosition();
             state.nodeLines.add(String.format("I %d %d %d", id, left, right));
             return id;
         }
     }
 
     private static class VTreeExportState {
-        int varId = 1;
-        int nodeId = 0;
         int size = 0;
-        HashMap<Integer, Integer> varToId = new HashMap<>();
         ArrayList<String> leafLines = new ArrayList<>();
         ArrayList<String> nodeLines = new ArrayList<>();
     }

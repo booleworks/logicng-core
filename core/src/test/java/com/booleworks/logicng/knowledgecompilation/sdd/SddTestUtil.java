@@ -11,7 +11,7 @@ import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.io.graphical.GraphicalDotWriter;
 import com.booleworks.logicng.io.graphical.GraphicalRepresentation;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddSatisfiability;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeExport;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeDotExport;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
@@ -74,7 +74,7 @@ public class SddTestUtil {
     }
 
     public static void printVTree(final VTree node, final Sdd sdd) {
-        final GraphicalRepresentation gr = VTreeExport.exportDot(node, sdd);
+        final GraphicalRepresentation gr = VTreeDotExport.exportDot(node, sdd);
         System.out.println(gr.writeString(GraphicalDotWriter.get()));
     }
 

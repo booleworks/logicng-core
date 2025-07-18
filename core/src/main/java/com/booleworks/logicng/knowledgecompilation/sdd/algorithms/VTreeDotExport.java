@@ -9,7 +9,7 @@ import com.booleworks.logicng.io.graphical.GraphicalRepresentation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 
-public class VTreeExport {
+public class VTreeDotExport {
     private static final GraphicalNodeStyle INNER_NODE_STYLE =
             GraphicalNodeStyle.circle(GraphicalColor.BLACK, GraphicalColor.BLACK, null);
     private static final GraphicalNodeStyle LEAF_NODE_STYLE =
