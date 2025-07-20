@@ -1,5 +1,6 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.functions;
 
+import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
@@ -8,6 +9,7 @@ import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
 import com.booleworks.logicng.handlers.events.LngEvent;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddEvaluation;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddQuantification;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
@@ -18,6 +20,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
+import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -40,10 +44,11 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
 
     private SddModelEnumerationFunction(final Set<Variable> variables, final Set<Variable> additionalVariables,
                                         final Sdd sdd) {
+        this.sdd = sdd;
         this.variableIdxs = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
         this.variables = variables;
-        this.additionalVariables = additionalVariables;
-        this.sdd = sdd;
+        this.additionalVariables =
+                additionalVariables.stream().filter(v -> !variables.contains(v)).collect(Collectors.toSet());
     }
 
     public Sdd getSdd() {
@@ -66,18 +71,17 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
         if (node.isFalse()) {
             return LngResult.of(List.of());
         }
-        final LngResult<SddNode> projectedNodeResult = projectNodeToVariables(node, handler);
+
+        final LngResult<SddNode> projectedNodeResult = projectNode(node, handler);
         if (!projectedNodeResult.isSuccess()) {
             return LngResult.canceled(projectedNodeResult.getCancelCause());
         }
         final SddNode projectedNode = projectedNodeResult.getResult();
 
-        final Set<Variable> dontCareVariables = calculateDontCareVariables(projectedNode);
-        final Set<Literal> additionalVars = additionalVariables
-                .stream()
-                .filter(v -> !variables.contains(v))
-                .map(v -> v.negate(sdd.getFactory()))
-                .collect(Collectors.toSet());
+        final List<Variable> dontCareVariables = computeDontCareVariables(projectedNode);
+        final Pair<List<Literal>, Set<Integer>> additionalVarSets = splitAdditionalVariables(node);
+        final List<Literal> additionalLitsOutside = additionalVarSets.getFirst();
+        final Set<Integer> additionalVarIndicesInside = additionalVarSets.getSecond();
 
         final HashMap<SddNodeDecomposition, IterationState> states = new HashMap<>();
         final List<Model> models = new ArrayList<>();
@@ -85,38 +89,28 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
             final CompactModel model = new CompactModel(new ArrayList<>(), new ArrayList<>());
             write(projectedNode, model, states);
             model.getDontCareVariables().addAll(dontCareVariables);
-            model.getLiterals().addAll(additionalVars);
-            final LngResult<List<Model>> expandedResult = expandModel(model, handler);
-            if (expandedResult.isPartial()) {
-                models.addAll(expandedResult.getPartialResult());
-                return LngResult.partial(models, expandedResult.getCancelCause());
-            } else if (!expandedResult.isSuccess()) {
+            model.getLiterals().addAll(additionalLitsOutside);
+            final LngResult<List<List<Literal>>> expandedResult = expandModel(model, handler);
+            if (!expandedResult.isSuccess() && !expandedResult.isPartial()) {
                 return LngResult.canceled(expandedResult.getCancelCause());
-            } else {
-                models.addAll(expandedResult.getResult());
+            }
+            final List<List<Literal>> expandedWithAdditionalVars =
+                    evaluateAdditionalVars(expandedResult.getPartialResult(), additionalVarIndicesInside, node, sdd);
+            for (final List<Literal> m : expandedWithAdditionalVars) {
+                models.add(new Model(m));
+            }
+            if (expandedResult.isPartial()) {
+                return LngResult.partial(models, expandedResult.getCancelCause());
             }
         } while (goNext(projectedNode, states));
         return LngResult.of(models);
     }
 
-    private List<Model> checkTrivialCases(final SddNode node) {
-        if (node.isTrue()) {
-            return List.of(new Model());
-        }
-        if (node.isFalse()) {
-            return List.of();
-        }
-        return null;
-    }
-
-    private LngResult<SddNode> projectNodeToVariables(final SddNode node, final ComputationHandler handler) {
+    protected LngResult<SddNode> projectNode(final SddNode node, final ComputationHandler handler) {
         final SortedSet<Integer> originalSddVariables = node.variables();
-        final Set<Integer> notProjectedVariables = new TreeSet<>();
-        for (final int variable : originalSddVariables) {
-            if (!variableIdxs.contains(variable)) {
-                notProjectedVariables.add(variable);
-            }
-        }
+        final Set<Integer> notProjectedVariables = originalSddVariables.stream()
+                .filter(v -> !variableIdxs.contains(v))
+                .collect(Collectors.toSet());
         if (notProjectedVariables.isEmpty()) {
             return LngResult.of(node);
         } else {
@@ -124,12 +118,49 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
         }
     }
 
-    private Set<Variable> calculateDontCareVariables(final SddNode node) {
-        final SortedSet<Integer> variablesInVTree = new TreeSet<>();
-        VTreeUtil.vars(sdd.vTreeOf(node), variableIdxs, variablesInVTree);
+    protected List<Variable> computeDontCareVariables(final SddNode node) {
+        final Set<Integer> variablesInProjVTree = new HashSet<>();
+        VTreeUtil.vars(sdd.vTreeOf(node), variableIdxs, variablesInProjVTree);
         return variables.stream()
-                .filter(v -> !sdd.knows(v) || !variablesInVTree.contains(sdd.variableToIndex(v)))
+                .filter(v -> !sdd.knows(v) || !variablesInProjVTree.contains(sdd.variableToIndex(v)))
+                .collect(Collectors.toList());
+    }
+
+    protected Pair<List<Literal>, Set<Integer>> splitAdditionalVariables(final SddNode node) {
+        final Set<Integer> additionalVarIdxs =
+                SddUtil.varsToIndicesOnlyKnown(additionalVariables, sdd, new HashSet<>());
+        final Set<Integer> variablesInNodeVTree = new HashSet<>();
+        VTreeUtil.vars(sdd.vTreeOf(node), additionalVarIdxs, variablesInNodeVTree);
+        final List<Variable> additionalVarsOutside = additionalVariables
+                .stream()
+                .filter(v -> !sdd.knows(v) || !variablesInNodeVTree.contains(sdd.variableToIndex(v)))
+                .collect(Collectors.toList());
+        final List<Literal> additionalLitsOutside =
+                additionalVarsOutside.stream().map(v -> v.negate(sdd.getFactory())).collect(Collectors.toList());
+
+        final Set<Variable> additionalVarsInside = additionalVariables
+                .stream()
+                .filter(v -> !additionalVarsOutside.contains(v))
                 .collect(Collectors.toSet());
+        final Set<Integer> additionalVarIndicesInside =
+                SddUtil.varsToIndicesExpectKnown(additionalVarsInside, sdd, new HashSet<>());
+        return new Pair<>(additionalLitsOutside, additionalVarIndicesInside);
+    }
+
+    protected static List<List<Literal>> evaluateAdditionalVars(final List<List<Literal>> models,
+                                                                final Set<Integer> additionalVariables,
+                                                                final SddNode node,
+                                                                final Sdd sdd) {
+        if (!additionalVariables.isEmpty()) {
+            for (final List<Literal> model : models) {
+                final Assignment modelAsAssignment = new Assignment(model);
+                final Optional<List<Literal>> additionalAssignments =
+                        SddEvaluation.partialEvaluateFromIndices(modelAsAssignment, additionalVariables, node, sdd);
+                assert additionalAssignments.isPresent(); // Input assignment must be satisfiable
+                model.addAll(additionalAssignments.get());
+            }
+        }
+        return models;
     }
 
     public static Builder builder(final Collection<Variable> variables, final Sdd sdd) {
@@ -163,7 +194,7 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
     }
 
 
-    private LngResult<List<Model>> expandModel(final CompactModel model, final ComputationHandler handler) {
+    private LngResult<List<List<Literal>>> expandModel(final CompactModel model, final ComputationHandler handler) {
         List<List<Literal>> result = List.of(model.getLiterals());
 
         boolean abort = false;
@@ -191,14 +222,10 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
             }
             result = extended;
         }
-        final List<Model> models = new ArrayList<>(result.size());
-        for (final List<Literal> lits : result) {
-            models.add(new Model(lits));
-        }
         if (abort) {
-            return LngResult.partial(models, event);
+            return LngResult.partial(result, event);
         } else {
-            return LngResult.of(models);
+            return LngResult.of(result);
         }
     }
 
@@ -265,18 +292,18 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
             final VTreeInternal vtree = sdd.vTreeOf(node).asInternal();
             final VTree primeVtree = sdd.vTreeOf(activeElement.getPrime());
             final VTree subVtree = sdd.vTreeOf(activeElement.getSub());
-            addGapVars(model, primeVtree, vtree.getLeft(), sdd);
-            addGapVars(model, subVtree, vtree.getRight(), sdd);
+            addGapVars(model.getDontCareVariables(), primeVtree, vtree.getLeft(), sdd);
+            addGapVars(model.getDontCareVariables(), subVtree, vtree.getRight(), sdd);
         }
     }
 
-    private void addGapVars(final CompactModel model, final VTree usedVTree,
+    private void addGapVars(final Collection<Variable> model, final VTree usedVTree,
                             final VTree targetVTree, final Sdd sdd) {
         final SortedSet<Integer> gapVarIdxs = new TreeSet<>();
         VTreeUtil.gapVars(targetVTree, usedVTree, sdd.getVTree(), variableIdxs, gapVarIdxs);
         for (final int idx : gapVarIdxs) {
             final Variable var = sdd.indexToVariable(idx);
-            model.getDontCareVariables().add(var);
+            model.add(var);
         }
     }
 

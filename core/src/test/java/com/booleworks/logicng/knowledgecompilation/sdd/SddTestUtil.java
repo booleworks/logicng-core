@@ -10,7 +10,7 @@ import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.io.graphical.GraphicalDotWriter;
 import com.booleworks.logicng.io.graphical.GraphicalRepresentation;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddSatisfiability;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddEvaluation;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeDotExport;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
@@ -62,7 +62,7 @@ public class SddTestUtil {
             assertThat(originalFormula.evaluate(model.toAssignment())).isTrue();
         }
         for (final Model model : models2.getPartialResult()) {
-            assertThat(SddSatisfiability.evaluate(model.toAssignment(), node, sdd)).isTrue();
+            assertThat(SddEvaluation.evaluate(model.toAssignment(), node, sdd)).isTrue();
         }
     }
 
