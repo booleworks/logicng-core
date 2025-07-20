@@ -337,6 +337,10 @@ public class Sdd {
         return vTreeStack;
     }
 
+    public boolean isVTreeDefined() {
+        return !vTreeStack.isEmpty();
+    }
+
     public SddNode negate(final SddNode node) {
         final GSCacheEntry<SddNode> cached = node.getNegationEntry();
         if (cached != null && cached.isValid()) {
