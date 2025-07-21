@@ -13,11 +13,51 @@ import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.Stack;
+import java.util.TreeSet;
 
 public class SddUtil {
+    /**
+     * A utility function that computes the variables used in an SDD node and
+     * its children.
+     * <p>
+     * Note that, this is a low-level function. The function returns the
+     * internal indices of the variables.  There are higher level alternatives
+     * that return {@link Variable}
+     * @param node the SDD node
+     * @return a set with the variables of the sdd node
+     * @see com.booleworks.logicng.knowledgecompilation.sdd.functions.SddVariablesFunction SddVariablesFunction
+     * @see SddNode#variables(Sdd)
+     * @see SddNode#variables()
+     */
+    public static SortedSet<Integer> variables(final SddNode node) {
+        final SortedSet<Integer> result = new TreeSet<>();
+        final Stack<SddNode> stack = new Stack<>();
+        final Set<SddNode> visited = new HashSet<>();
+        stack.push(node);
+        visited.add(node);
+        while (!stack.isEmpty()) {
+            final SddNode current = stack.pop();
+            if (current.isLiteral()) {
+                result.add(current.asTerminal().getVTree().getVariable());
+            } else if (current.isDecomposition()) {
+                for (final SddElement element : current.asDecomposition()) {
+                    if (visited.add(element.getPrime())) {
+                        stack.add(element.getPrime());
+                    }
+                    if (visited.add(element.getSub())) {
+                        stack.add(element.getSub());
+                    }
+                }
+            }
+        }
+        return result;
+    }
 
     public static void pushNewElement(final SddNode prime, final SddNode sub, final Collection<SddElement> target) {
         assert !prime.isFalse();

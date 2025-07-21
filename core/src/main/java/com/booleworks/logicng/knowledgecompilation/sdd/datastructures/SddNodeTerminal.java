@@ -29,7 +29,7 @@ public final class SddNodeTerminal extends SddNode {
     }
 
     public VTreeLeaf getVTree() {
-        if (super.getVTreeEntry().getElement() != null) {
+        if (isLiteral()) {
             return super.getVTreeEntry().getElement().asLeaf();
         } else {
             return null;

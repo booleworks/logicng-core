@@ -1,17 +1,17 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
+import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddFunction;
+import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddVariablesFunction;
 
-import java.util.BitSet;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 public abstract class SddNode implements Comparable<SddNode> {
     protected final int id;
-    protected BitSet variableMask;
     private final Sdd.GSCacheEntry<VTree> vTree;
     private Sdd.GSCacheEntry<SddNode> negation;
     private Sdd.VSCacheEntry<Integer> size;
@@ -19,7 +19,6 @@ public abstract class SddNode implements Comparable<SddNode> {
     SddNode(final int id, final Sdd.GSCacheEntry<VTree> vTree) {
         this.id = id;
         this.vTree = vTree;
-        this.variableMask = null;
         this.negation = null;
         this.size = null;
     }
@@ -58,13 +57,6 @@ public abstract class SddNode implements Comparable<SddNode> {
         this.negation = negation;
     }
 
-    public BitSet getVariableMask() {
-        if (variableMask == null) {
-            calculateVariableMask();
-        }
-        return variableMask;
-    }
-
     void setSizeEntry(final Sdd.VSCacheEntry<Integer> size) {
         this.size = size;
     }
@@ -73,25 +65,12 @@ public abstract class SddNode implements Comparable<SddNode> {
         return size;
     }
 
-    private void calculateVariableMask() {
-        variableMask = new BitSet();
-        if (isDecomposition()) {
-            for (final SddElement element : asDecomposition()) {
-                variableMask.or(element.getPrime().getVariableMask());
-                variableMask.or(element.getSub().getVariableMask());
-            }
-        } else if (isLiteral()) {
-            variableMask.set(asTerminal().getVTree().getVariable());
-        }
+    public SortedSet<Integer> variables() {
+        return SddUtil.variables(this);
     }
 
-    public SortedSet<Integer> variables() {
-        final TreeSet<Integer> variables = new TreeSet<>();
-        final BitSet mask = getVariableMask();
-        for (int i = mask.nextSetBit(0); i != -1; i = mask.nextSetBit(i + 1)) {
-            variables.add(i);
-        }
-        return variables;
+    public SortedSet<Variable> variables(final Sdd sdd) {
+        return execute(new SddVariablesFunction(sdd));
     }
 
     public <RESULT> RESULT execute(final SddFunction<RESULT> function) {
