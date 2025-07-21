@@ -101,7 +101,7 @@ public class SddMultiply {
                         if (!sub.isSuccess()) {
                             return LngResult.canceled(sub.getCancelCause());
                         }
-                        SddUtil.pushNewElement(prime, sub.getResult(), newElements);
+                        newElements.add(new SddElement(prime, sub.getResult()));
                     }
                 }
             }
@@ -145,7 +145,7 @@ public class SddMultiply {
                     if (!sub.isSuccess()) {
                         return sub.getCancelCause();
                     }
-                    SddUtil.pushNewElement(prime, sub.getResult(), destination);
+                    destination.add(new SddElement(prime, sub.getResult()));
                     e2Iter.remove();
                     break;
                 }
@@ -175,7 +175,7 @@ public class SddMultiply {
                     if (!sub.isSuccess()) {
                         return sub.getCancelCause();
                     }
-                    SddUtil.pushNewElement(prime, sub.getResult(), destination);
+                    destination.add(new SddElement(prime, sub.getResult()));
                 }
                 if (prime == element1.getPrime()) {
                     break;
@@ -202,7 +202,7 @@ public class SddMultiply {
             if (!newSub.isSuccess()) {
                 return newSub.getCancelCause();
             }
-            SddUtil.pushNewElement(newPrime, newSub.getResult(), destination);
+            destination.add(new SddElement(newPrime, newSub.getResult()));
         }
         return null;
     }

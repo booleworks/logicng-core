@@ -169,7 +169,8 @@ public class Sdd {
     public LngResult<SddNode> decompOfPartition(final ArrayList<SddElement> newElements,
                                                 final ComputationHandler handler) {
         newElements.sort(SddElement::compareTo);
-        final LngResult<Pair<SddNode, ArrayList<SddElement>>> res = SddUtil.compressAndTrim(newElements, this, handler);
+        final LngResult<Pair<SddNode, ArrayList<SddElement>>> res =
+                SddCompression.compressAndTrim(newElements, this, handler);
         if (!res.isSuccess()) {
             return LngResult.canceled(res.getCancelCause());
         }
@@ -183,7 +184,7 @@ public class Sdd {
     public SddNode decompOfCompressedPartition(final ArrayList<SddElement> newElements) {
         assert !newElements.isEmpty();
         newElements.sort(SddElement::compareTo);
-        assert SddUtil.elementsCompressed(newElements);
+        assert SddCompression.isCompressed(newElements);
         return decomposition(newElements);
     }
 
@@ -354,7 +355,7 @@ public class Sdd {
             final ArrayList<SddElement> newElements = new ArrayList<>();
             for (final SddElement element : decomp) {
                 final SddNode subNeg = negate(element.getSub());
-                SddUtil.pushNewElement(element.getPrime(), subNeg, newElements);
+                newElements.add(new SddElement(element.getPrime(), subNeg));
             }
             nodeNeg = decompOfCompressedPartition(newElements);
         } else if (node.isLiteral()) {

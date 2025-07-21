@@ -6,6 +6,7 @@ public class SddElement implements Comparable<SddElement> {
 
     public SddElement(final SddNode prime,
                       final SddNode sub) {
+        assert !prime.isFalse();
         this.prime = prime;
         this.sub = sub;
     }

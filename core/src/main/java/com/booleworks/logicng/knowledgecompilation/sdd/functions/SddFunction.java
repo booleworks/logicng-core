@@ -31,8 +31,6 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
  * provided by the user.
  * @param <RESULT> the result type of the function
  * @version 3.0.0
- * @see SddNode#execute(SddFunction, ComputationHandler)
- * @see SddNode#execute(SddFunction)
  * @since 3.0.0
  */
 public interface SddFunction<RESULT> {
