@@ -5,12 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddQuantification;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
@@ -87,15 +84,9 @@ public class SddModelCountFunctionTest {
             final Set<Variable> remainingVars = formula.variables(f).stream()
                     .limit(formula.variables(f).size() / 2)
                     .collect(Collectors.toSet());
-            final Set<Variable> eliminatedVars = formula.variables(f).stream()
-                    .filter(v -> !remainingVars.contains(v))
-                    .collect(Collectors.toSet());
             final SddCompilationResult result = SddCompiler.compile(formula, f);
-            final Set<Integer> elimVarIdxs =
-                    SddUtil.varsToIndicesOnlyKnown(eliminatedVars, result.getSdd(), new TreeSet<>());
             final SddNode projected =
-                    SddQuantification.exists(elimVarIdxs, result.getNode(), result.getSdd(), NopHandler.get())
-                            .getResult();
+                    result.getNode().execute(new SddProjectionFunction(remainingVars, result.getSdd()));
             final Formula projectedFormula = projected.execute(new SddExportFormula(result.getSdd()));
             final Sdd sdd = result.getSdd();
             check(result.getNode(), projectedFormula, new TreeSet<>(remainingVars), sdd);

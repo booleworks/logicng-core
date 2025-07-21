@@ -3,8 +3,6 @@ package com.booleworks.logicng.knowledgecompilation.sdd.functions;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddQuantification;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
@@ -20,7 +18,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 public class SddModelCountFunction implements SddFunction<BigInteger> {
     private final Sdd sdd;
@@ -57,19 +54,7 @@ public class SddModelCountFunction implements SddFunction<BigInteger> {
     }
 
     private LngResult<SddNode> projectNodeToVariables(final SddNode node, final ComputationHandler handler) {
-        final Set<Integer> variableIdxs = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
-        final SortedSet<Integer> originalSddVariables = node.variables();
-        final Set<Integer> notProjectedVariables = new TreeSet<>();
-        for (final int variable : originalSddVariables) {
-            if (!variableIdxs.contains(variable)) {
-                notProjectedVariables.add(variable);
-            }
-        }
-        if (notProjectedVariables.isEmpty()) {
-            return LngResult.of(node);
-        } else {
-            return SddQuantification.exists(notProjectedVariables, node, sdd, handler);
-        }
+        return node.execute(new SddProjectionFunction(variables, sdd), handler);
     }
 
     private BigInteger applyRec(final SddNode node, final HashMap<SddNode, BigInteger> cache) {

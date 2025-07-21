@@ -10,7 +10,6 @@ import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.handlers.events.EnumerationFoundModelsEvent;
 import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddEvaluation;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddQuantification;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.CompactModel;
@@ -107,15 +106,7 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
     }
 
     protected LngResult<SddNode> projectNode(final SddNode node, final ComputationHandler handler) {
-        final SortedSet<Integer> originalSddVariables = node.variables();
-        final Set<Integer> notProjectedVariables = originalSddVariables.stream()
-                .filter(v -> !variableIdxs.contains(v))
-                .collect(Collectors.toSet());
-        if (notProjectedVariables.isEmpty()) {
-            return LngResult.of(node);
-        } else {
-            return SddQuantification.exists(notProjectedVariables, node, sdd, handler);
-        }
+        return node.execute(new SddProjectionFunction(variables, sdd), handler);
     }
 
     protected List<Variable> computeDontCareVariables(final SddNode node) {
