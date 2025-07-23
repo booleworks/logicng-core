@@ -88,6 +88,10 @@ public class VTreeStack {
         return vTrees.isEmpty();
     }
 
+    public int size() {
+        return vTrees.size();
+    }
+
     private void updateVTreeCaches() {
         updatePositions(getActive().getRoot(), 0);
         updateParents(getActive().getRoot(), null);

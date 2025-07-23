@@ -15,31 +15,29 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-public class SddMultiply {
+/**
+ * Function for computing the product of two partitions.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+class SddMultiply {
     private SddMultiply() {
     }
 
     /**
-     * multiplying two decompositions
+     * Computes the product of two partitions.
      * <p>
-     * if 1st decomposition has elements pi.si and 2nd decomposition has elements pj.sj,
-     * then define prime P = pi CONJOIN pj, sub S = si OP sj, and
-     * call code fn for each P.S, where prime P is not false
-     * <p>
-     * when computing a product of two decompositions: (p11 p12 ... p1n) x (p21 p22 ... p2m)
-     * --observation 1:
-     * if p1i = p2j, then p1k x p2j = false for all k != i
-     * --observation 2:
-     * if p1i = !p2j, then p1k x p2j = p1k for all k != i
-     * --observation 3:
-     * if p1i*p2j=p2j, then pik x p2j = false for all k != i
-     * <p>
-     * the above observations are used to skip some conjoin operations whose result
-     * can be predicted upfront
-     **/
+     * The resulting partition might not be compressed nor trimmed.
+     * @param elements1 first partition
+     * @param elements2 second partition
+     * @param op        the binary operator
+     * @param sdd       the SDD container
+     * @param handler   the computation handler
+     * @return the product of {@code elements1} and {@code elements2}
+     */
     public static LngResult<ArrayList<SddElement>> multiplyDecompositions(final ArrayList<SddElement> elements1,
                                                                           final ArrayList<SddElement> elements2,
-                                                                          final SddApplyOperation op, final Sdd sf,
+                                                                          final SddApplyOperation op, final Sdd sdd,
                                                                           final ComputationHandler handler) {
         final ArrayList<SddElement> e1Common = new ArrayList<>();
         final ArrayList<SddElement> e1Other = new ArrayList<>();
@@ -61,7 +59,7 @@ public class SddMultiply {
             } else {
                 e2Other.add(element);
             }
-            final SddNode cachedNegation = sf.getNegationIfCached(element.getPrime());
+            final SddNode cachedNegation = sdd.getNegationIfCached(element.getPrime());
             if (cachedNegation != null && !commonPrimes.contains(cachedNegation)) {
                 complementPrime2 = element.getPrime();
                 complementSub2 = element.getSub();
@@ -74,7 +72,7 @@ public class SddMultiply {
             } else {
                 e1Other.add(element);
             }
-            if (complementPrime2 != null && element.getPrime() == sf.getNegationIfCached(complementPrime2)) {
+            if (complementPrime2 != null && element.getPrime() == sdd.getNegationIfCached(complementPrime2)) {
                 complementPrime1 = element.getPrime();
                 complementSub1 = element.getSub();
             }
@@ -84,7 +82,7 @@ public class SddMultiply {
             //Multiply common elements the following fragment is quadratic in size1 and size2
             if (e1Common.size() * e2Common.size() <= 64) {
                 final LngEvent cancelCause =
-                        quadraticMultiplyCommonPrimes(e1Common, e2Common, op, sf, handler, newElements);
+                        quadraticMultiplyCommonPrimes(e1Common, e2Common, op, sdd, handler, newElements);
                 if (cancelCause != null) {
                     return LngResult.canceled(cancelCause);
                 }
@@ -97,7 +95,7 @@ public class SddMultiply {
                     if (multiplySub.containsKey(element.getPrime())) {
                         final SddNode prime = element.getPrime();
                         final LngResult<SddNode> sub =
-                                sf.binaryOperation(element.getSub(), multiplySub.get(element.getPrime()), op, handler);
+                                sdd.binaryOperation(element.getSub(), multiplySub.get(element.getPrime()), op, handler);
                         if (!sub.isSuccess()) {
                             return LngResult.canceled(sub.getCancelCause());
                         }
@@ -106,7 +104,7 @@ public class SddMultiply {
                 }
             }
 
-            final LngEvent cancelCause = quadraticMultiply(e1Other, e2Other, op, sf, handler, newElements);
+            final LngEvent cancelCause = quadraticMultiply(e1Other, e2Other, op, sdd, handler, newElements);
             if (cancelCause != null) {
                 return LngResult.canceled(cancelCause);
             }
@@ -114,12 +112,12 @@ public class SddMultiply {
             //p1 and p2 are complementary: p1 in e1 and p2 in e2
             //multiply has LINEAR complexity in this case
             LngEvent event;
-            event = linearMultiply(complementPrime1, complementSub2, op, e1Common, e1Other, sf, handler,
+            event = linearMultiply(complementPrime1, complementSub2, op, e1Common, e1Other, sdd, handler,
                     newElements);
             if (event != null) {
                 return LngResult.canceled(event);
             }
-            event = linearMultiply(complementPrime2, complementSub1, op, e2Common, e2Other, sf, handler,
+            event = linearMultiply(complementPrime2, complementSub1, op, e2Common, e2Other, sdd, handler,
                     newElements);
             if (event != null) {
                 return LngResult.canceled(event);

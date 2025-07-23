@@ -10,6 +10,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Transforma
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeStack;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +18,81 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Functions to perform transformations on the VTree defined in an SDD.
+ * <p>
+ * These transformations change the VTree of an SDD container and all the
+ * <strong>pinned</strong> SDDs.  Use the returned {@link TransformationResult}
+ * to map the old nodes the new representations.  Using the old references might
+ * result in unexpected behaviour.
+ * <p>
+ * Note that, this API prioritizes control and efficiency over convenience.  So
+ * the API must be used with care and a grasp of what happens.  The usage notes
+ * should outline the basic idea and the most common use cases.  We suggest to
+ * use these transformations (and the rollback functionality) with care. You can
+ * refer to {@link SddMinimization} and {@link
+ * com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeFragment
+ * VTreeFragment} for more advanced use cases.
+ *
+ * <h2>Usage</h2>
+ *
+ * <pre>{@code
+ * Sdd sdd sdd = ...;
+ * SddNode node = ...;
+ * sdd.pin(node);
+ * VTree rotationPoint = ...;
+ * LngResult<TransformationResult> result = SddGlobalTransformation.rotateRight(rotationPoint, sdd, handler);
+ * if(!result.isSuccess()) {
+ *      ...
+ * }
+ * SddNode newNode = result.getResult().map(node);
+ * // Use newNode
+ * }
+ * </pre>
+ *
+ * <h2>Rollback and Apply</h2>
+ * The old nodes and VTree are still stored in the SDD container and also pinned
+ * in such a way that garbage collection will not remove them.  This allows
+ * us to restore the state of an old VTree, but also requires us to perform
+ * additional steps to clean the SDD from old nodes in case we do not want to
+ * roll back.
+ *
+ * <h3>Remove old VTrees and clean SDD</h3>
+ * If you don't want to rollback you can remove old vtrees by using
+ * {@link VTreeStack#removeInactive(int)
+ * VTreeStack.removeInactive()}.  This reduces the stack to only the active
+ * VTree and dereferences all old pinned nodes, so that
+ * {@link Sdd#garbageCollectAll()} removes them.
+ * <pre>{@code
+ * ...
+ * LngResult<TransformationResult> result = SddGlobalTransformation.rotateRight(rotationPoint, sdd, handler);
+ * if(!result.isSuccess()) {
+ *      ...
+ * }
+ * sdd.getVTreeStack().removeInactive(sdd.getVTreeStack().size() - 1);
+ * sdd.garbageCollectAll();
+ * }</pre>
+ *
+ * <h3>Rollback</h3>
+ * The VTree stack can also be reverted to any old state if it was not removed.
+ * For that we need to pop the active VTree from the VTree stack using
+ * {@link VTreeStack#pop()} and invalidate the caches with {@link
+ * VTreeStack#bumpGeneration()}.  Afterward all pinned nodes of the removed
+ * VTrees are dereferenced and can be collected with {@link
+ * Sdd#garbageCollectAll()}.
+ * <pre>{@code
+ * ...
+ * LngResult<TransformationResult> result = SddGlobalTransformation.rotateRight(rotationPoint, sdd, handler);
+ * if(!result.isSuccess()) {
+ *      ...
+ * }
+ * sdd.getVTreeStack().pop();
+ * sdd.bumpGeneration();
+ * sdd.garbageCollectAll();
+ * }</pre>
+ * @version 3.0.0
+ * @since 3.0.0
+ */
 public class SddGlobalTransformations {
     private final Sdd sdd;
     private final Map<SddNode, Action> plan;
@@ -32,18 +108,68 @@ public class SddGlobalTransformations {
         translations = new HashMap<>();
     }
 
+    /**
+     * Rotates the active VTree of the SDD at {@code rotationPoint} to the
+     * right.
+     * <p>
+     * It changes the VTree of an SDD container and all the
+     * <strong>pinned</strong> SDDs.  Use the returned
+     * {@link TransformationResult} to map the old nodes to the new
+     * representations.  Using the old references might result in unexpected
+     * behaviour.
+     * <p>
+     * Please refer to {@link SddGlobalTransformations} before using.
+     * @param rotationPoint the rotation point
+     * @param sdd           the SDD container
+     * @param handler       the computation handler
+     * @return the transformation information or a canceling cause if the
+     * computation was broken.
+     */
     public static LngResult<TransformationResult> rotateRight(final VTreeInternal rotationPoint,
                                                               final Sdd sdd,
                                                               final ComputationHandler handler) {
         return new SddGlobalTransformations(sdd).rotateRight(rotationPoint, handler);
     }
 
+    /**
+     * Rotates the active VTree of the SDD at {@code rotationPoint} to the
+     * left.
+     * <p>
+     * It changes the VTree of an SDD container and all the
+     * <strong>pinned</strong> SDDs.  Use the returned
+     * {@link TransformationResult} to map the old nodes to the new
+     * representations.  Using the old references might result in unexpected
+     * behaviour.
+     * <p>
+     * Please refer to {@link SddGlobalTransformations} before using.
+     * @param rotationPoint the rotation point
+     * @param sdd           the SDD container
+     * @param handler       the computation handler
+     * @return the transformation information or a canceling cause if the
+     * computation was broken.
+     */
     public static LngResult<TransformationResult> rotateLeft(final VTreeInternal rotationPoint,
                                                              final Sdd sdd,
                                                              final ComputationHandler handler) {
         return new SddGlobalTransformations(sdd).rotateLeft(rotationPoint, handler);
     }
 
+    /**
+     * Swaps the children of the active VTree of the SDD at {@code swapPoint}.
+     * <p>
+     * It changes the VTree of an SDD container and all the
+     * <strong>pinned</strong> SDDs.  Use the returned
+     * {@link TransformationResult} to map the old nodes to the new
+     * representations.  Using the old references might result in unexpected
+     * behaviour.
+     * <p>
+     * Please refer to {@link SddGlobalTransformations} before using.
+     * @param swapPoint the swap point
+     * @param sdd       the SDD container
+     * @param handler   the computation handler
+     * @return the transformation information or a canceling cause if the
+     * computation was broken.
+     */
     public static LngResult<TransformationResult> swap(final VTreeInternal swapPoint, final Sdd sdd,
                                                        final ComputationHandler handler) {
         return new SddGlobalTransformations(sdd).swap(swapPoint, handler);

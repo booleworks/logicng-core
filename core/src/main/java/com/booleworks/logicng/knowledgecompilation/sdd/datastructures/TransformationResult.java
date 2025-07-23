@@ -25,6 +25,10 @@ public class TransformationResult {
         this.root = r.root;
     }
 
+    public SddNode map(SddNode node) {
+        return translations.get(node);
+    }
+
     public Map<SddNode, SddNode> getTranslations() {
         return translations;
     }

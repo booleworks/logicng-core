@@ -14,23 +14,53 @@ import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
 
+/**
+ * Apply-Transformations for SDDs.
+ * <p>
+ * The function is intended to be used internally and implements the raw
+ * algorithm.  If you want to perform this kind of operation, it is suggested
+ * {@link Sdd#binaryOperation(SddNode, SddNode, SddApplyOperation, ComputationHandler) Sdd.binaryOperation()}
+ * or one of its variants, as they do additional caching of already computed
+ * operations.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
 public class SddApply {
     private SddApply() {
     }
 
+    /**
+     * Performs a binary operation on two SDD nodes.  The binary operation can
+     * either be a conjunction or a disjunction.
+     * <p>
+     * The function is intended to be used internally and implements the raw
+     * algorithm.  If you want to perform this kind of operation, it is suggested
+     * {@link Sdd#binaryOperation(SddNode, SddNode, SddApplyOperation, ComputationHandler) Sdd.binaryOperation()}
+     * or one of its variants, as they do additional caching of already computed
+     * operations.
+     * @param left
+     * @param right
+     * @param op
+     * @param sdd
+     * @param handler
+     * @return
+     * @see Sdd#binaryOperation(SddNode, SddNode, SddApplyOperation, ComputationHandler) Sdd.binaryOperation()
+     * @see Sdd#conjunction(SddNode, SddNode, ComputationHandler) Sdd.conjunction()
+     * @see Sdd#disjunction(SddNode, SddNode, ComputationHandler) Sdd.disjunction()
+     */
     public static LngResult<SddNode> apply(final SddNode left, final SddNode right, final SddApplyOperation op,
-                                           final Sdd sf, final ComputationHandler handler) {
+                                           final Sdd sdd, final ComputationHandler handler) {
         if (!handler.shouldResume(SimpleEvent.SDD_APPLY)) {
             return LngResult.canceled(SimpleEvent.SDD_APPLY);
         }
         if (left == right) {
             return LngResult.of(left);
         }
-        if (left == sf.getNegationIfCached(right)) {
-            return LngResult.of(op.zero(sf));
+        if (left == sdd.getNegationIfCached(right)) {
+            return LngResult.of(op.zero(sdd));
         }
         if (op.isZero(left) || op.isZero(right)) {
-            return LngResult.of(op.zero(sf));
+            return LngResult.of(op.zero(sdd));
         }
         if (op.isOne(left)) {
             return LngResult.of(right);
@@ -41,27 +71,27 @@ public class SddApply {
 
         final SddNode l;
         final SddNode r;
-        if (sf.vTreeOf(left).getPosition() <= sf.vTreeOf(right).getPosition()) {
+        if (sdd.vTreeOf(left).getPosition() <= sdd.vTreeOf(right).getPosition()) {
             l = left;
             r = right;
         } else {
             l = right;
             r = left;
         }
-        final Pair<VTree, VTreeRoot.CmpType> lca = sf.getVTree().cmpVTrees(sf.vTreeOf(l), sf.vTreeOf(r));
+        final Pair<VTree, VTreeRoot.CmpType> lca = sdd.getVTree().cmpVTrees(sdd.vTreeOf(l), sdd.vTreeOf(r));
         final LngResult<SddNode> result;
         switch (lca.getSecond()) {
             case EQUALS:
-                result = sddApplyEqual(l.asDecomposition(), r.asDecomposition(), op, sf, handler);
+                result = sddApplyEqual(l.asDecomposition(), r.asDecomposition(), op, sdd, handler);
                 break;
             case LEFT_SUBTREE:
-                result = sddApplyLeft(l, r.asDecomposition(), op, sf, handler);
+                result = sddApplyLeft(l, r.asDecomposition(), op, sdd, handler);
                 break;
             case RIGHT_SUBTREE:
-                result = sddApplyRight(l.asDecomposition(), r, op, sf, handler);
+                result = sddApplyRight(l.asDecomposition(), r, op, sdd, handler);
                 break;
             case INCOMPARABLE:
-                result = sddApplyIncomparable(l, r, op, sf, handler);
+                result = sddApplyIncomparable(l, r, op, sdd, handler);
                 break;
             default:
                 throw new RuntimeException("Unknown ApplyType");
