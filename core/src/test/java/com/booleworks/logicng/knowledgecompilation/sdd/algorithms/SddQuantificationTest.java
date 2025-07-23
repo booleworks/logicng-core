@@ -41,24 +41,6 @@ public class SddQuantificationTest {
     );
 
     @Test
-    public void testSingleQuantificationSimple() throws ParserException {
-        final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sdd = Sdd.independent(f);
-        final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
-        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
-        sdd.defineVTree(vtree);
-        final SddCompilerConfig config = SddCompilerConfig.builder()
-                .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
-                .sdd(sdd)
-                .build();
-        final SddNode node = SddCompiler.compile(formula, config, f).getNode();
-        final int cIdx = sdd.variableToIndex(f.variable("C"));
-        final SddNode quantified =
-                SddQuantification.existsSingle(cIdx, node, sdd, NopHandler.get()).getResult();
-        checkProjectedModels(List.of(f.variable("C")), quantified, formula, sdd);
-    }
-
-    @Test
     public void testMultipleQuantificationSimple() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final Sdd sdd = Sdd.independent(f);

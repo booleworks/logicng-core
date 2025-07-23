@@ -20,7 +20,26 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+/**
+ * A collection of functions for evaluating SDDs.
+ * <p>
+ * These functions are intended to be used internally and might have very
+ * specific contracts and use cases.  Nevertheless, it should all be properly
+ * documented and tested, so using them is still safe, unless mentioned
+ * otherwise.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
 public class SddEvaluation {
+    /**
+     * Evaluates an SDD with a given assignment.  A literal not covered by
+     * the assignment evaluates to {@code false} if it is positive, otherwise it
+     * evaluates to {@code true}.
+     * @param assignment the given assignment
+     * @param node       the SDD node
+     * @param sdd        the SDD container of {@code node}
+     * @return the result of the evaluation, {@code true} or {@code false}
+     */
     public static boolean evaluate(final Assignment assignment, final SddNode node, final Sdd sdd) {
         return evaluateRecursive(assignment, node, sdd, new HashMap<>());
     }
@@ -54,6 +73,20 @@ public class SddEvaluation {
     }
 
 
+    /**
+     * Given a partial assignment for {@code node} the function computes a
+     * complementary assignment for the variables in
+     * {@code additionalVariables}.
+     * <p>
+     * No variables contained in {@code assignment}, even if they are in
+     * {@code additionalVariables} will be in the result.
+     * @param assignment          the given assignment
+     * @param additionalVariables the variables for the result
+     * @param node                the SDD node
+     * @param sdd                 the SDD container of {@code node}
+     * @return Empty if {@code assignment} is unsatisfiable or a complementary
+     * assignment to {@code assignment}
+     */
     public static Optional<List<Literal>> partialEvaluate(final Assignment assignment,
                                                           final Set<Variable> additionalVariables,
                                                           final SddNode node, final Sdd sdd) {
@@ -74,6 +107,20 @@ public class SddEvaluation {
         return additionalAssignments;
     }
 
+    /**
+     * Given a partial assignment for {@code node} the function computes a
+     * complementary assignment for the variables in
+     * {@code additionalVariables}.
+     * <p>
+     * No variables contained in {@code assignment}, even if they are in
+     * {@code additionalVariables} will be in the result.
+     * @param assignment            the given assignment
+     * @param additionalVariableIdx internal indices of the variables for the result
+     * @param node                  the SDD node
+     * @param sdd                   the SDD container of {@code node}
+     * @return Empty if {@code assignment} is unsatisfiable or a complementary
+     * assignment to {@code assignment}
+     */
     public static Optional<List<Literal>> partialEvaluateFromIndices(final Assignment assignment,
                                                                      final Set<Integer> additionalVariableIdx,
                                                                      final SddNode node, final Sdd sdd) {

@@ -22,6 +22,8 @@ import java.util.TreeSet;
  * specific contracts and use cases.  Nevertheless, it should all be properly
  * documented and tested, so using them is still safe, unless mentioned
  * otherwise.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class SddUtil {
     private SddUtil() {

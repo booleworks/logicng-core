@@ -99,7 +99,7 @@ public class SddCompiler {
             final List<Integer> varsInFormula =
                     SddUtil.varsToIndicesExpectKnown(simplified.variables(f), config.getSdd(), new ArrayList<>());
             final Set<Integer> varsInVTree =
-                    VTreeUtil.varsInOrder(config.getSdd().getVTree().getRoot(), new TreeSet<>());
+                    VTreeUtil.vars(config.getSdd().getVTree().getRoot(), new TreeSet<>());
             if (!varsInVTree.containsAll(varsInFormula)) {
                 throw new IllegalArgumentException("VTree misses variables that are contained in the formula");
             }

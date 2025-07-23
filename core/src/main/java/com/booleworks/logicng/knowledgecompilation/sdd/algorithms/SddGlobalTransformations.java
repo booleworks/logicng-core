@@ -58,7 +58,7 @@ public class SddGlobalTransformations {
         final VTreeInternal leftInner = parentInner.getLeft().asInternal();
         final List<SddNode> pinnedNodes = sdd.getVTree().getPinnedNodes();
         precomputePlanRot(pinnedNodes, parentInner, leftInner, Action.PARTITION_RR);
-        final VTree rotatedVTreeNode = VTreeRotate.rotateRight(parentInner, sdd);
+        final VTree rotatedVTreeNode = VTreeTransformation.rotateRight(parentInner, sdd);
         final VTree rotatedVTree =
                 VTreeUtil.substituteNode(sdd.getVTree().getRoot(), rotationPoint, rotatedVTreeNode, sdd);
         final VTreeRoot rotatedRoot = sdd.constructRoot(rotatedVTree);
@@ -79,7 +79,7 @@ public class SddGlobalTransformations {
         final VTreeInternal rightInner = parentInner.getRight().asInternal();
         final List<SddNode> pinnedNodes = sdd.getVTree().getPinnedNodes();
         precomputePlanRot(pinnedNodes, parentInner, rightInner, Action.PARTITION_LR);
-        final VTree rotatedVTreeNode = VTreeRotate.rotateLeft(parentInner, sdd);
+        final VTree rotatedVTreeNode = VTreeTransformation.rotateLeft(parentInner, sdd);
         final VTree rotatedVTree =
                 VTreeUtil.substituteNode(sdd.getVTree().getRoot(), rotationPoint, rotatedVTreeNode, sdd);
         final VTreeRoot rotatedRoot = sdd.constructRoot(rotatedVTree);
@@ -95,7 +95,7 @@ public class SddGlobalTransformations {
                                                  final ComputationHandler handler) {
         final List<SddNode> pinnedNodes = sdd.getVTree().getPinnedNodes();
         precomputePlanSwap(pinnedNodes, swapPoint);
-        final VTree swappedVTreeNode = VTreeSwap.swapChildren(swapPoint, sdd);
+        final VTree swappedVTreeNode = VTreeTransformation.swapChildren(swapPoint, sdd);
         final VTree swappedVTree =
                 VTreeUtil.substituteNode(sdd.getVTree().getRoot(), swapPoint, swappedVTreeNode, sdd);
         final VTreeRoot swappedRoot = sdd.constructRoot(swappedVTree);

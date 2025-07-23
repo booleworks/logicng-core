@@ -7,10 +7,26 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTre
 
 import java.util.HashSet;
 
-public class Validation {
-    private Validation() {
+/**
+ * A collection of function that can be used to verify that an SDD adheres
+ * certain properties and invariants.
+ * <p>
+ * These functions are useful for the development of new SDD constructions and
+ * transformations to check whether something broken.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+public class SddValidation {
+    private SddValidation() {
     }
 
+    /**
+     * Checks whether each node is correctly normalized with respect to its
+     * VTree.
+     * @param node the SDD node to check
+     * @param sdd  the SDD container of {@code node}
+     * @return whether the SDD node is correctly normalized
+     */
     public static boolean validVTree(final SddNode node, final Sdd sdd) {
         return validVTree(node, sdd.getVTree().getRoot(), sdd, new HashSet<>());
     }
