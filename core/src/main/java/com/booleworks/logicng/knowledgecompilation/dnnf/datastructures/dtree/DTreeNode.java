@@ -100,7 +100,7 @@ public class DTreeNode extends DTree {
         this.solver = solver;
         left.initialize(solver);
         right.initialize(solver);
-        staticVarSet = left.getStaticVarSet();
+        staticVarSet = (BitSet) left.getStaticVarSet().clone();
         staticVarSet.or(right.getStaticVarSet());
         staticVariables = toArray(staticVarSet);
         staticSeparator = sortedIntersect(left.staticVarSetArray(), right.staticVarSetArray());
