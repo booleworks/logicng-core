@@ -222,6 +222,9 @@ public final class BddFactory {
                     final int previous = res;
                     res = formula instanceof And ? kernel.addRef(construction.and(res, operand), handler)
                             : kernel.addRef(construction.or(res, operand), handler);
+                    if (res == BddKernel.BDD_ABORT) {
+                        return BddKernel.BDD_ABORT;
+                    }
                     kernel.delRef(previous);
                     kernel.delRef(operand);
                 }
