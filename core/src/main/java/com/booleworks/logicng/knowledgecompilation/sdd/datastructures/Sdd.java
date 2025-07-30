@@ -28,7 +28,7 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
-public class Sdd {
+public final class Sdd {
     private final FormulaFactory f;
     private int currentVTreeId;
     private int currentSddId;
@@ -474,6 +474,14 @@ public class Sdd {
             }
             return size;
         }
+    }
+
+    public Collection<SddNodeDecomposition> getDecompositionNodes() {
+        return Collections.unmodifiableCollection(sddDecompositions.values());
+    }
+
+    public Collection<SddNodeTerminal> getTerminalNodes() {
+        return Collections.unmodifiableCollection(sddTerminals.values());
     }
 
     public int getSddNodeCount() {

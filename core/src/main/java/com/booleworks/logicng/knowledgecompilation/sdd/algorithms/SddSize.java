@@ -14,7 +14,7 @@ import java.util.Stack;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class SddSize {
+public final class SddSize {
     private SddSize() {
     }
 

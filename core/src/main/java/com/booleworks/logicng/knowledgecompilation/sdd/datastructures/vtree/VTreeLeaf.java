@@ -2,11 +2,11 @@ package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
 import java.util.BitSet;
 
-public class VTreeLeaf extends VTree {
+public final class VTreeLeaf extends VTree {
     private final int variable;
 
-    protected BitSet clausePosMask = null;
-    protected BitSet clauseNegMask = null;
+    private BitSet clausePosMask = null;
+    private BitSet clauseNegMask = null;
 
     public VTreeLeaf(final int id, final int variable) {
         super(id);

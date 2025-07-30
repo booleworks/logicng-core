@@ -1,5 +1,6 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
+import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
@@ -25,7 +26,7 @@ import java.util.TreeSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class SddUtil {
+public final class SddUtil {
     private SddUtil() {
 
     }
@@ -78,11 +79,11 @@ public class SddUtil {
      * @param dst       the collection to which the result is written
      * @param <C>       the type of the collection for the result
      * @return the destination collection
-     * @see SddUtil#varsToIndicesExpectKnown(Set, Sdd, Collection)
-     * @see SddUtil#indicesToVars(Set, Sdd, Collection)
+     * @see SddUtil#varsToIndicesExpectKnown(Collection, Sdd, Collection)
+     * @see SddUtil#indicesToVars(Collection, Sdd, Collection)
      */
-    public static <C extends Collection<Integer>> C varsToIndicesOnlyKnown(final Set<Variable> variables, final Sdd sdd,
-                                                                           final C dst) {
+    public static <C extends Collection<Integer>> C varsToIndicesOnlyKnown(final Collection<Variable> variables,
+                                                                           final Sdd sdd, final C dst) {
         for (final Variable var : variables) {
             final int idx = sdd.variableToIndex(var);
             if (idx != -1) {
@@ -93,7 +94,7 @@ public class SddUtil {
     }
 
     /**
-     * Converts a set of variables into the internal index representation.
+     * Converts a collection of variables into the internal index representation.
      * The function expects to know all variables otherwise it will throw a
      * runtime exception.
      * <p>
@@ -105,10 +106,10 @@ public class SddUtil {
      * @param <C>       the type of the collection for the result
      * @return the destination collection
      * @throws IllegalArgumentException if the function encounters an unknown variable
-     * @see SddUtil#varsToIndicesExpectKnown(Set, Sdd, Collection)
-     * @see SddUtil#indicesToVars(Set, Sdd, Collection)
+     * @see SddUtil#varsToIndicesOnlyKnown(Collection, Sdd, Collection)
+     * @see SddUtil#indicesToVars(Collection, Sdd, Collection)
      */
-    public static <C extends Collection<Integer>> C varsToIndicesExpectKnown(final Set<Variable> variables,
+    public static <C extends Collection<Integer>> C varsToIndicesExpectKnown(final Collection<Variable> variables,
                                                                              final Sdd sdd, final C dst) {
         for (final Variable var : variables) {
             final int idx = sdd.variableToIndex(var);
@@ -133,10 +134,10 @@ public class SddUtil {
      * @param dst     the collection to which the result is written
      * @param <C>     the type of the collection for the result
      * @return the destination collection
-     * @see SddUtil#varsToIndicesOnlyKnown(Set, Sdd, Collection)
-     * @see SddUtil#varsToIndicesExpectKnown(Set, Sdd, Collection)
+     * @see SddUtil#varsToIndicesOnlyKnown(Collection, Sdd, Collection)
+     * @see SddUtil#varsToIndicesExpectKnown(Collection, Sdd, Collection)
      */
-    public static <C extends Collection<Variable>> C indicesToVars(final Set<Integer> indices, final Sdd sdd,
+    public static <C extends Collection<Variable>> C indicesToVars(final Collection<Integer> indices, final Sdd sdd,
                                                                    final C dst) {
         for (final int idx : indices) {
             dst.add(sdd.indexToVariable(idx));

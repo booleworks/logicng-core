@@ -23,7 +23,10 @@ import java.util.Set;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class SddQuantification {
+public final class SddQuantification {
+    private SddQuantification() {
+    }
+
     /**
      * Computes existential quantifier elimination for a set of variables.
      * @param vars    the variables to eliminate

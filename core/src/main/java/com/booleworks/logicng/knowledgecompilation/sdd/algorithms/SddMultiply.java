@@ -20,7 +20,7 @@ import java.util.Iterator;
  * @version 3.0.0
  * @since 3.0.0
  */
-class SddMultiply {
+final class SddMultiply {
     private SddMultiply() {
     }
 

@@ -25,7 +25,7 @@ import java.util.ArrayList;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class SddApply {
+public final class SddApply {
     private SddApply() {
     }
 
@@ -38,12 +38,13 @@ public class SddApply {
      * {@link Sdd#binaryOperation(SddNode, SddNode, SddApplyOperation, ComputationHandler) Sdd.binaryOperation()}
      * or one of its variants, as they do additional caching of already computed
      * operations.
-     * @param left
-     * @param right
-     * @param op
-     * @param sdd
-     * @param handler
-     * @return
+     * @param left    the left operand
+     * @param right   the right operand
+     * @param op      a binary operation (conjunction or disjunction)
+     * @param sdd     the SDD container
+     * @param handler the computation handler
+     * @return a new SDD which is the result of the binary operation or a
+     * canceling cause if the computation was aborted.
      * @see Sdd#binaryOperation(SddNode, SddNode, SddApplyOperation, ComputationHandler) Sdd.binaryOperation()
      * @see Sdd#conjunction(SddNode, SddNode, ComputationHandler) Sdd.conjunction()
      * @see Sdd#disjunction(SddNode, SddNode, ComputationHandler) Sdd.disjunction()

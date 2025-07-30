@@ -4,7 +4,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDec
 
 import java.util.ArrayList;
 
-public class VTreeStack {
+public final class VTreeStack {
     private final ArrayList<VTreeRoot> vTrees;
     private int version;
     private int generation;

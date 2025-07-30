@@ -20,7 +20,7 @@ import java.util.Collection;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class SddCompression {
+public final class SddCompression {
     private SddCompression() {
 
     }

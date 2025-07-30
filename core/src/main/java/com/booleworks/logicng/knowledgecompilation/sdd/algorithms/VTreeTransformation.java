@@ -14,9 +14,8 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTre
  * @version 3.0.0
  * @since 3.0.0
  */
-public class VTreeTransformation {
+public final class VTreeTransformation {
     private VTreeTransformation() {
-
     }
 
     /**

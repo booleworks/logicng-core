@@ -1,6 +1,6 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
-public class VTreeInternal extends VTree {
+public final class VTreeInternal extends VTree {
     private final VTree left;
     private final VTree right;
     private final VTree first;

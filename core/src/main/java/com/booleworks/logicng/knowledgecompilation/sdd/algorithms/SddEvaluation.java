@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class SddEvaluation {
+public final class SddEvaluation {
     /**
      * Evaluates an SDD with a given assignment.  A literal not covered by
      * the assignment evaluates to {@code false} if it is positive, otherwise it

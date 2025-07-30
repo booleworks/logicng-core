@@ -16,7 +16,7 @@ import java.util.HashSet;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class SddValidation {
+public final class SddValidation {
     private SddValidation() {
     }
 

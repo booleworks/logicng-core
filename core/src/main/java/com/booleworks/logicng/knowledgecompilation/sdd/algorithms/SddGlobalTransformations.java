@@ -93,7 +93,7 @@ import java.util.Map;
  * @version 3.0.0
  * @since 3.0.0
  */
-public class SddGlobalTransformations {
+public final class SddGlobalTransformations {
     private final Sdd sdd;
     private final Map<SddNode, Action> plan;
     private final Map<SddElement, PartitionAction> partitionPlan;

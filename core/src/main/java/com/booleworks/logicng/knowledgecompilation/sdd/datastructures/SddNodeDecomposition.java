@@ -7,6 +7,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Class for SDD decomposition node. It stores a compressed and trimmed
+ * partition of SDD elements.
+ */
 public final class SddNodeDecomposition extends SddNode implements Iterable<SddElement> {
     private final ArrayList<SddElement> elements;
     private int referenceCounter;
@@ -25,6 +29,11 @@ public final class SddNodeDecomposition extends SddNode implements Iterable<SddE
         }
     }
 
+    /**
+     * Increases the reference counter of the node by one.
+     * <p>
+     * Do not use this function.  Use {@link Sdd#pin(SddNode)} instead.
+     */
     public void ref() {
         assert referenceCounter >= 0;
         referenceCounter++;

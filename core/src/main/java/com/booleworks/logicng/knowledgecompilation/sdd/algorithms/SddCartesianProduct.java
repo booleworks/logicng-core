@@ -14,7 +14,7 @@ import java.util.Collection;
  * @version 3.0.0
  * @since 3.0.0
  */
-class SddCartesianProduct {
+final class SddCartesianProduct {
     private SddCartesianProduct() {
     }
 

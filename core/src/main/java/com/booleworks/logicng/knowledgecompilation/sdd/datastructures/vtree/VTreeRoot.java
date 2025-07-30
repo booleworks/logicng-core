@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class VTreeRoot {
+public final class VTreeRoot {
     private final VTree root;
     private final ArrayList<SddNode> pinnedNodes;
     private final HashMap<SddNode, Integer> pinCount;

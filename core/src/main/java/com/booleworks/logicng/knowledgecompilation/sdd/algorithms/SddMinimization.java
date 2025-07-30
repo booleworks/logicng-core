@@ -15,7 +15,9 @@ import com.booleworks.logicng.util.Pair;
 
 import java.util.function.Supplier;
 
-public class SddMinimization {
+public final class SddMinimization {
+    private SddMinimization() {
+    }
 
     public static LngResult<TransformationResult> minimize(final SddMinimizationConfig config) {
         switch (config.getAlgorithm()) {
