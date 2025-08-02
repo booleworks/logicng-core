@@ -52,29 +52,10 @@ class SddCompilerTopDown {
                                                 final SddSatSolver solver,
                                                 final ComputationHandler handler) {
         final Caches caches = new Caches();
-        generateVarMasks(sdd.getVTree().getRoot(), caches);
         generateClauseMasks(sdd.getVTree().getRoot(), dTree, caches);
         sdd.defineVTree(sdd.getVTree().getRoot());
         final Set<Integer> relevantVars = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
         return new SddCompilerTopDown(relevantVars, caches, solver, sdd).start(handler);
-    }
-
-    protected static BitSet generateVarMasks(final VTree vTree, final Caches caches) {
-        if (vTree.isLeaf()) {
-            final VTreeLeaf leaf = vTree.asLeaf();
-            final int solverIdx = leaf.getVariable();
-            final BitSet varMask = new BitSet();
-            varMask.set(solverIdx);
-            caches.varMasks.put(leaf, varMask);
-            return varMask;
-        } else {
-            final VTreeInternal internal = vTree.asInternal();
-            final BitSet left = (BitSet) generateVarMasks(internal.getLeft(), caches).clone();
-            final BitSet right = generateVarMasks(internal.getRight(), caches);
-            left.or(right);
-            caches.varMasks.put(internal, left);
-            return left;
-        }
     }
 
     protected static void generateClauseMasks(final VTree vTree, final DTree dTree, final Caches caches) {
@@ -106,8 +87,14 @@ class SddCompilerTopDown {
         stack.push(vTree);
         while (!stack.isEmpty()) {
             final VTree parent = stack.pop();
-            final BitSet contextVarMask = (BitSet) caches.varMasks.get(parent).clone();
-            final BitSet varMask = (BitSet) caches.varMasks.get(parent).clone();
+            final BitSet contextVarMask;
+            if (parent.isLeaf()) {
+                contextVarMask = new BitSet();
+                contextVarMask.set(parent.asLeaf().getVariable());
+            } else {
+                contextVarMask = (BitSet) parent.asInternal().getVariableMask().clone();
+            }
+            final BitSet varMask = (BitSet) contextVarMask.clone();
             final BitSet contextClauseMask = new BitSet();
             final BitSet clausePosMask = new BitSet();
             final BitSet clauseNegMask = new BitSet();
@@ -364,7 +351,6 @@ class SddCompilerTopDown {
     }
 
     protected static class Caches {
-        protected final Map<VTree, BitSet> varMasks = new HashMap<>();
         protected final Map<DTreeLeaf, BitSet> clauseLitMasks = new HashMap<>();
     }
 }
