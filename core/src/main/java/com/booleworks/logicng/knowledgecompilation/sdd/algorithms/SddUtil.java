@@ -123,6 +123,60 @@ public final class SddUtil {
     }
 
     /**
+     * Converts a set of literals into the internal index representation.
+     * Variables that are currently not known to the SDD container are ignored.
+     * <p>
+     * The function takes a collection as destination for the result. The same
+     * collection is also returned.
+     * @param literals the input literals
+     * @param sdd      the SDD container
+     * @param dst      the collection to which the result is written
+     * @param <C>      the type of the collection for the result
+     * @return the destination collection
+     * @see SddUtil#litsToIndicesExpectKnown(Collection, Sdd, Collection)
+     * @see SddUtil#indicesToLits(Collection, Sdd, Collection)
+     */
+    public static <C extends Collection<Integer>> C litsToIndicesOnlyKnown(final Collection<Literal> literals,
+                                                                           final Sdd sdd, final C dst) {
+        for (final Literal lit : literals) {
+            final int idx = sdd.literalToIndex(lit);
+            if (idx != -1) {
+                dst.add(idx);
+            }
+        }
+        return dst;
+    }
+
+    /**
+     * Converts a collection of literals into the internal index representation.
+     * The function expects to know all variables otherwise it will throw a
+     * runtime exception.
+     * <p>
+     * The function takes a collection as destination for the result. The same
+     * collection is also returned.
+     * @param literals the input variables
+     * @param sdd      the SDD container
+     * @param dst      the collection to which the result is written
+     * @param <C>      the type of the collection for the result
+     * @return the destination collection
+     * @throws IllegalArgumentException if the function encounters an unknown variable
+     * @see SddUtil#litsToIndicesOnlyKnown(Collection, Sdd, Collection)
+     * @see SddUtil#indicesToLits(Collection, Sdd, Collection)
+     */
+    public static <C extends Collection<Integer>> C litsToIndicesExpectKnown(final Collection<Literal> literals,
+                                                                             final Sdd sdd, final C dst) {
+        for (final Literal lit : literals) {
+            final int idx = sdd.literalToIndex(lit);
+            if (idx != 0) {
+                dst.add(idx);
+            } else {
+                throw new IllegalArgumentException("Variable is not known to SDD: " + lit.variable());
+            }
+        }
+        return dst;
+    }
+
+    /**
      * Converts a set of internal indices into to variables.
      * <p>
      * The function takes a collection as destination for the result. The same
@@ -141,6 +195,29 @@ public final class SddUtil {
                                                                    final C dst) {
         for (final int idx : indices) {
             dst.add(sdd.indexToVariable(idx));
+        }
+        return dst;
+    }
+
+    /**
+     * Converts a set of internal indices into to variables.
+     * <p>
+     * The function takes a collection as destination for the result. The same
+     * collection is also returned.
+     * <p>
+     * Warning: Passing integers that do not represent variables is undefined behaviour.
+     * @param indices the internal indices
+     * @param sdd     the SDD container
+     * @param dst     the collection to which the result is written
+     * @param <C>     the type of the collection for the result
+     * @return the destination collection
+     * @see SddUtil#litsToIndicesOnlyKnown(Collection, Sdd, Collection)
+     * @see SddUtil#litsToIndicesExpectKnown(Collection, Sdd, Collection)
+     */
+    public static <C extends Collection<Literal>> C indicesToLits(final Collection<Integer> indices, final Sdd sdd,
+                                                                  final C dst) {
+        for (final int idx : indices) {
+            dst.add(sdd.indexToLiteral(idx));
         }
         return dst;
     }

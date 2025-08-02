@@ -1,10 +1,13 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
 
+import java.util.BitSet;
+
 public final class VTreeInternal extends VTree {
     private final VTree left;
     private final VTree right;
     private final VTree first;
     private final VTree last;
+    private final BitSet variableMask;
 
     public VTreeInternal(final int id, final VTree left, final VTree right) {
         super(id);
@@ -12,6 +15,17 @@ public final class VTreeInternal extends VTree {
         this.right = right;
         this.first = left.getFirst();
         this.last = right.getLast();
+        variableMask = new BitSet();
+        if (left.isLeaf()) {
+            variableMask.set(left.asLeaf().getVariable());
+        } else {
+            variableMask.or(left.asInternal().getVariableMask());
+        }
+        if (right.isLeaf()) {
+            variableMask.set(right.asLeaf().getVariable());
+        } else {
+            variableMask.or(right.asInternal().getVariableMask());
+        }
     }
 
     public VTree getLeft() {
@@ -29,6 +43,10 @@ public final class VTreeInternal extends VTree {
 
     public boolean isShannon() {
         return left.isLeaf();
+    }
+
+    public BitSet getVariableMask() {
+        return variableMask;
     }
 
     @Override

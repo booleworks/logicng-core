@@ -6,19 +6,18 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeIterationState;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 
 import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 /**
  * A collection of functions for evaluating SDDs.
@@ -72,7 +71,6 @@ public final class SddEvaluation {
         return result;
     }
 
-
     /**
      * Given a partial assignment for {@code node} the function computes a
      * complementary assignment for the variables in
@@ -80,104 +78,133 @@ public final class SddEvaluation {
      * <p>
      * No variables contained in {@code assignment}, even if they are in
      * {@code additionalVariables} will be in the result.
-     * @param assignment          the given assignment
-     * @param additionalVariables the variables for the result
+     * <p>
+     * Note: the API is so specific because it is closely coupled with the model
+     * enumeration and tuned for
+     * @param assignmentMap       the given assignment as a literal bitmap
+     * @param additionalVariables the additional variables as a variable bitmap
      * @param node                the SDD node
-     * @param sdd                 the SDD container of {@code node}
-     * @return Empty if {@code assignment} is unsatisfiable or a complementary
-     * assignment to {@code assignment}
+     * @param states              the partial evaluation state
+     * @param dst                 the collection where the result is written to
      */
-    public static Optional<List<Literal>> partialEvaluate(final Assignment assignment,
-                                                          final Set<Variable> additionalVariables,
-                                                          final SddNode node, final Sdd sdd) {
-        final Set<Integer> additionalVariableIdx =
-                SddUtil.varsToIndicesOnlyKnown(additionalVariables, sdd, new HashSet<>());
-        final Set<Variable> notKnownVariables =
-                additionalVariables.stream().filter(v -> !sdd.knows(v)).collect(Collectors.toSet());
-        final Optional<List<Literal>> additionalAssignments =
-                partialEvaluateFromIndices(assignment, additionalVariableIdx, node, sdd);
-        if (additionalAssignments.isEmpty()) {
-            return additionalAssignments;
-        }
-        for (final Variable v : notKnownVariables) {
-            if (!assignment.positiveVariables().contains(v) && !assignment.negativeVariables().contains(v)) {
-                additionalAssignments.get().add(v.negate(sdd.getFactory()));
-            }
-        }
-        return additionalAssignments;
-    }
-
-    /**
-     * Given a partial assignment for {@code node} the function computes a
-     * complementary assignment for the variables in
-     * {@code additionalVariables}.
-     * <p>
-     * No variables contained in {@code assignment}, even if they are in
-     * {@code additionalVariables} will be in the result.
-     * @param assignment            the given assignment
-     * @param additionalVariableIdx internal indices of the variables for the result
-     * @param node                  the SDD node
-     * @param sdd                   the SDD container of {@code node}
-     * @return Empty if {@code assignment} is unsatisfiable or a complementary
-     * assignment to {@code assignment}
-     */
-    public static Optional<List<Literal>> partialEvaluateFromIndices(final Assignment assignment,
-                                                                     final Set<Integer> additionalVariableIdx,
-                                                                     final SddNode node, final Sdd sdd) {
-        final Map<Variable, Boolean> additionalValues = new LinkedHashMap<>();
-        final boolean satisfiable =
-                partialEvaluateRecursive(assignment, additionalVariableIdx, node, sdd, additionalValues);
+    public static void partialEvaluateInplace(final BitSet assignmentMap,
+                                              final BitSet additionalVariables,
+                                              final SddNode node, final PartialEvalState states,
+                                              final Collection<Literal> dst) {
+        states.updateAssignment(assignmentMap);
+        final boolean satisfiable = findPath(assignmentMap, node, states);
         if (!satisfiable) {
-            return Optional.empty();
+            throw new RuntimeException("Assignment results in conflict");
         }
-        final List<Literal> additionalAssignments = new ArrayList<>();
-        for (final Map.Entry<Variable, Boolean> ass : additionalValues.entrySet()) {
-            additionalAssignments.add(ass.getValue() ? ass.getKey() : ass.getKey().negate(sdd.getFactory()));
-        }
-        return Optional.of(additionalAssignments);
+        writePath(assignmentMap, additionalVariables, node, states, dst);
     }
 
-    private static boolean partialEvaluateRecursive(final Assignment assignment,
-                                                    final Set<Integer> additionalVars,
-                                                    final SddNode node, final Sdd sdd,
-                                                    final Map<Variable, Boolean> additionalVals) {
+    private static boolean findPath(final BitSet assignmentMap, final SddNode node, final PartialEvalState states) {
         if (node.isFalse()) {
             return false;
         } else if (node.isTrue()) {
             return true;
         } else if (node.isLiteral()) {
-            final Literal lit = (Literal) node.asTerminal().toFormula(sdd);
-            if (!assignment.positiveVariables().contains(lit.variable()) && !assignment.negativeVariables()
-                    .contains(lit.variable())) {
-                if (additionalVars.contains(node.asTerminal().getVTree().getVariable())) {
-                    additionalVals.put(lit.variable(), lit.getPhase());
-                }
-                return true;
+            final SddNodeTerminal terminal = node.asTerminal();
+            final int var = terminal.getVTree().getVariable();
+            final boolean phase = terminal.getPhase();
+            final int lit = states.sdd.literalToIndex(var, phase);
+            final int litNeg = states.sdd.negateLitIdx(lit);
+            return !assignmentMap.get(litNeg);
+        } else {
+            final SddNodeDecomposition decomp = node.asDecomposition();
+            SddNodeIterationState state = states.iterators.get(decomp);
+            final VTreeInternal vtree = states.sdd.vTreeOf(decomp).asInternal();
+            if (state == null) {
+                state = new SddNodeIterationState(decomp);
+                state.setGeneration(states.generation);
+                states.iterators.put(decomp, state);
+            } else if (states.changes != null && (state.getGeneration() == states.generation || (
+                    state.getGeneration() == states.generation - 1
+                            && !vtree.getVariableMask().intersects(states.changes)))) {
+                state.setGeneration(states.generation);
+                return state.getActiveElement() != null;
             } else {
-                additionalVals.remove(lit.variable());
-                return assignment.evaluateLit(lit);
+                state.reset();
+                state.setGeneration(states.generation);
+            }
+            SddElement activeElement = state.getActiveElement();
+            while (activeElement != null) {
+                if (findPath(assignmentMap, activeElement.getPrime(), states)
+                        && findPath(assignmentMap, activeElement.getSub(), states)) {
+                    break;
+                }
+                activeElement = state.next();
+            }
+            return activeElement != null;
+        }
+    }
+
+    private static void writePath(final BitSet assignmentMap, final BitSet additionalVars, final SddNode node,
+                                  final PartialEvalState states, final Collection<Literal> dst) {
+        if (node.isFalse()) {
+            throw new RuntimeException("Cannot write model of unsatisfiable node");
+        } else if (node.isTrue()) {
+        } else if (node.isLiteral()) {
+            final int varIdx = node.asTerminal().getVTree().getVariable();
+            final boolean phase = node.asTerminal().getPhase();
+            final int litIdx = states.sdd.literalToIndex(varIdx, phase);
+            if (!assignmentMap.get(litIdx) && additionalVars.get(varIdx)) {
+                final Variable var = states.sdd.indexToVariable(varIdx);
+                final Literal lit = phase ? var : var.negate(states.sdd.getFactory());
+                dst.add(lit);
             }
         } else {
-            final boolean result = false;
-            for (final SddElement element : node.asDecomposition()) {
-                if (!partialEvaluateRecursive(assignment, additionalVars, element.getSub(), sdd, additionalVals)) {
-                    continue;
-                }
-                if (!partialEvaluateRecursive(assignment, additionalVars, element.getPrime(), sdd, additionalVals)) {
-                    continue;
-                }
-                final VTree primeVTree = sdd.vTreeOf(element.getPrime());
-                final VTree subVTree = sdd.vTreeOf(element.getSub());
-                final VTreeInternal elementVTree = sdd.vTreeOf(node).asInternal();
-                final Set<Integer> gapVars = new TreeSet<>();
-                VTreeUtil.gapVars(elementVTree.getLeft(), primeVTree, sdd.getVTree(), additionalVars, gapVars);
-                VTreeUtil.gapVars(elementVTree.getRight(), subVTree, sdd.getVTree(), additionalVars, gapVars);
-                for (final int gapVar : gapVars) {
-                    additionalVals.put(sdd.indexToVariable(gapVar), false);
-                }
-                return true;
+            final SddNodeDecomposition decomp = node.asDecomposition();
+            final SddNodeIterationState state = states.iterators.get(decomp);
+            if (state == null) {
+                throw new RuntimeException("Expected state");
             }
-            return false;
+            final SddElement activeElement = state.getActiveElement();
+            if (activeElement == null) {
+                throw new RuntimeException("Active element was null, expected element");
+            }
+            writePath(assignmentMap, additionalVars, activeElement.getPrime(), states, dst);
+            writePath(assignmentMap, additionalVars, activeElement.getSub(), states, dst);
+            final VTree primeVTree = states.sdd.vTreeOf(activeElement.getPrime());
+            final VTree subVTree = states.sdd.vTreeOf(activeElement.getSub());
+            final VTreeInternal elementVTree = states.sdd.vTreeOf(node).asInternal();
+            final List<Integer> gapVars = new ArrayList<>();
+            VTreeUtil.gapVarsMasked(elementVTree.getLeft(), primeVTree, states.sdd.getVTree(), additionalVars, gapVars);
+            VTreeUtil.gapVarsMasked(elementVTree.getRight(), subVTree, states.sdd.getVTree(), additionalVars, gapVars);
+            for (final int gapVar : gapVars) {
+                final Variable variable = states.sdd.indexToVariable(gapVar);
+                dst.add(variable.negate(states.sdd.getFactory()));
+            }
+        }
+
+    }
+
+    /**
+     * A state storing the last configuration used for partial evaluation and
+     * tracking the changes of the assignments between two calls.
+     */
+    public static class PartialEvalState {
+        private final Sdd sdd;
+        private final Map<SddNode, SddNodeIterationState> iterators = new HashMap<>();
+        private BitSet lastModel = null;
+        private BitSet changes = null;
+        private int generation = 0;
+
+        public PartialEvalState(final Sdd sdd) {
+            this.sdd = sdd;
+        }
+
+        void updateAssignment(final BitSet newModel) {
+            if (lastModel != null) {
+                generation++;
+                lastModel.xor(newModel);
+                changes = new BitSet();
+                for (int i = lastModel.nextSetBit(0); i != -1; i = lastModel.nextSetBit(i + 2)) {
+                    changes.set(sdd.litIdxToVarIdx(i));
+                }
+            }
+            lastModel = newModel;
         }
     }
 }

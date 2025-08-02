@@ -3,12 +3,14 @@ package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 import static com.booleworks.logicng.solvers.sat.LngCoreSolver.mkLit;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
+import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddApply;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddCompression;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCoreSolver;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
@@ -16,11 +18,13 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTre
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeStack;
+import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -96,6 +100,33 @@ public final class Sdd {
             return solver.idxForName(variable.getName());
         }
     }
+
+    public int literalToIndex(final int varIdx, final boolean phase) {
+        return LngCoreSolver.mkLit(varIdx, !phase);
+    }
+
+    public int literalToIndex(final Literal literal) {
+        final int varIdx = variableToIndex(literal.variable());
+        if (varIdx == -1) {
+            return -1;
+        } else {
+            return literalToIndex(varIdx, literal.getPhase());
+        }
+    }
+
+    public Literal indexToLiteral(final int litIdx) {
+        final int varIdx = litIdxToVarIdx(litIdx);
+        return litIdx > 0 ? indexToVariable(varIdx) : indexToVariable(varIdx).negate(f);
+    }
+
+    public int litIdxToVarIdx(final int litIdx) {
+        return LngCoreSolver.var(litIdx);
+    }
+
+    public int negateLitIdx(final int litIdx) {
+        return LngCoreSolver.not(litIdx);
+    }
+
 
     public boolean knows(final Variable variable) {
         if (solver == null) {

@@ -1,6 +1,6 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.functions;
 
-import com.booleworks.logicng.datastructures.Assignment;
+import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
@@ -17,21 +17,20 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeIterationState;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -81,25 +80,29 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
         final Pair<List<Literal>, Set<Integer>> additionalVarSets = splitAdditionalVariables(node);
         final List<Literal> additionalLitsOutside = additionalVarSets.getFirst();
         final Set<Integer> additionalVarIndicesInside = additionalVarSets.getSecond();
+        final BitSet additionalVarInsideMap = new BitSet();
+        for (final int additionalVar : additionalVarIndicesInside) {
+            additionalVarInsideMap.set(additionalVar);
+        }
 
-        final HashMap<SddNodeDecomposition, IterationState> states = new HashMap<>();
+        final SddEvaluation.PartialEvalState partialEvalState = new SddEvaluation.PartialEvalState(sdd);
+        final HashMap<SddNodeDecomposition, SddNodeIterationState> states = new HashMap<>();
         final List<Model> models = new ArrayList<>();
         do {
             final CompactModel model = new CompactModel(new ArrayList<>(), new ArrayList<>());
-            write(projectedNode, model, states);
+            final BitSet modelMask;
+            if (additionalVarIndicesInside.isEmpty()) {
+                modelMask = null;
+            } else {
+                modelMask = new BitSet();
+            }
+            write(projectedNode, model, modelMask, states);
             model.getDontCareVariables().addAll(dontCareVariables);
             model.getLiterals().addAll(additionalLitsOutside);
-            final LngResult<List<List<Literal>>> expandedResult = expandModel(model, handler);
-            if (!expandedResult.isSuccess() && !expandedResult.isPartial()) {
-                return LngResult.canceled(expandedResult.getCancelCause());
-            }
-            final List<List<Literal>> expandedWithAdditionalVars =
-                    evaluateAdditionalVars(expandedResult.getPartialResult(), additionalVarIndicesInside, node, sdd);
-            for (final List<Literal> m : expandedWithAdditionalVars) {
-                models.add(new Model(m));
-            }
-            if (expandedResult.isPartial()) {
-                return LngResult.partial(models, expandedResult.getCancelCause());
+            final LngEvent expandedResult =
+                    expandModel(model, modelMask, additionalVarInsideMap, node, partialEvalState, handler, models);
+            if (expandedResult != null) {
+                return LngResult.partial(models, expandedResult);
             }
         } while (goNext(projectedNode, states));
         return LngResult.of(models);
@@ -138,22 +141,6 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
         return new Pair<>(additionalLitsOutside, additionalVarIndicesInside);
     }
 
-    protected static List<List<Literal>> evaluateAdditionalVars(final List<List<Literal>> models,
-                                                                final Set<Integer> additionalVariables,
-                                                                final SddNode node,
-                                                                final Sdd sdd) {
-        if (!additionalVariables.isEmpty()) {
-            for (final List<Literal> model : models) {
-                final Assignment modelAsAssignment = new Assignment(model);
-                final Optional<List<Literal>> additionalAssignments =
-                        SddEvaluation.partialEvaluateFromIndices(modelAsAssignment, additionalVariables, node, sdd);
-                assert additionalAssignments.isPresent(); // Input assignment must be satisfiable
-                model.addAll(additionalAssignments.get());
-            }
-        }
-        return models;
-    }
-
     public static Builder builder(final Collection<Variable> variables, final Sdd sdd) {
         return new Builder(variables, sdd);
     }
@@ -184,52 +171,63 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
         }
     }
 
-
-    private LngResult<List<List<Literal>>> expandModel(final CompactModel model, final ComputationHandler handler) {
-        List<List<Literal>> result = List.of(model.getLiterals());
-
-        boolean abort = false;
-        LngEvent event = new EnumerationFoundModelsEvent(1);
-        if (!handler.shouldResume(event)) {
-            abort = true;
+    private LngEvent expandModel(final CompactModel model, final BitSet modelMask,
+                                 final BitSet additionalVars, final SddNode node,
+                                 final SddEvaluation.PartialEvalState state,
+                                 final ComputationHandler handler, final List<Model> extendedModels) {
+        final LngIntVector dontCareLitIdxs = new LngIntVector(model.getDontCareVariables().size());
+        final int offset = model.getLiterals().size();
+        for (final Variable dontCare : model.getDontCareVariables()) {
+            dontCareLitIdxs.push(sdd.literalToIndex(dontCare));
+            model.getLiterals().add(dontCare.negate(sdd.getFactory()));
         }
-        for (final Variable var : model.getDontCareVariables()) {
-            final List<List<Literal>> extended;
-            if (abort) {
-                extended = new ArrayList<>(result.size());
-                for (final List<Literal> literals : result) {
-                    extended.add(extendedByLiteral(literals, var.negate(var.getFactory())));
-                }
-            } else {
-                extended = new ArrayList<>(result.size() * 2);
-                for (final List<Literal> literals : result) {
-                    extended.add(extendedByLiteral(literals, var));
-                    extended.add(extendedByLiteral(literals, var.negate(var.getFactory())));
-                }
-                event = new EnumerationFoundModelsEvent(extended.size() / 2);
-                if (!handler.shouldResume(event)) {
-                    abort = true;
-                }
+        return extendModelsInplace(offset, 0, model.getDontCareVariables(), dontCareLitIdxs, modelMask, additionalVars,
+                node, state, handler, model.getLiterals(), extendedModels);
+    }
+
+    private LngEvent extendModelsInplace(final int offset, final int index,
+                                         final List<Variable> dontCareVariables,
+                                         final LngIntVector dontCareIdxs, final BitSet modelMask,
+                                         final BitSet additionalVars, final SddNode node,
+                                         final SddEvaluation.PartialEvalState state,
+                                         final ComputationHandler handler, final List<Literal> dst,
+                                         final List<Model> extendedModels) {
+        if (index == dontCareVariables.size()) {
+            final List<Literal> extendedModel = new ArrayList<>(dst);
+            if (!additionalVars.isEmpty()) {
+                SddEvaluation.partialEvaluateInplace((BitSet) modelMask.clone(), additionalVars, node, state,
+                        extendedModel);
             }
-            result = extended;
-        }
-        if (abort) {
-            return LngResult.partial(result, event);
+            extendedModels.add(new Model(extendedModel));
+            if (!handler.shouldResume(EnumerationFoundModelsEvent.FOUND_ONE_MODEL)) {
+                return EnumerationFoundModelsEvent.FOUND_ONE_MODEL;
+            }
+            return null;
         } else {
-            return LngResult.of(result);
+            dst.set(offset + index, dontCareVariables.get(index).negate(sdd.getFactory()));
+            if (modelMask != null && dontCareIdxs.get(index) != -1) {
+                modelMask.clear(dontCareIdxs.get(index));
+                modelMask.set(sdd.negateLitIdx(dontCareIdxs.get(index)));
+            }
+            final LngEvent event = extendModelsInplace(offset, index + 1, dontCareVariables, dontCareIdxs, modelMask,
+                    additionalVars, node, state, handler, dst, extendedModels);
+            if (event != null) {
+                return event;
+            }
+            dst.set(offset + index, dontCareVariables.get(index));
+            if (modelMask != null && dontCareIdxs.get(index) != -1) {
+                modelMask.set(dontCareIdxs.get(index));
+                modelMask.clear(sdd.negateLitIdx(dontCareIdxs.get(index)));
+            }
+            return extendModelsInplace(offset, index + 1, dontCareVariables, dontCareIdxs, modelMask,
+                    additionalVars, node, state, handler, dst, extendedModels);
         }
     }
 
-    private static List<Literal> extendedByLiteral(final List<Literal> literals, final Literal lit) {
-        final ArrayList<Literal> extended = new ArrayList<>(literals);
-        extended.add(lit);
-        return extended;
-    }
-
-    private boolean goNext(final SddNode node, final Map<SddNodeDecomposition, IterationState> states) {
+    private boolean goNext(final SddNode node, final Map<SddNodeDecomposition, SddNodeIterationState> states) {
         if (node.isDecomposition()) {
             final SddNodeDecomposition decomp = node.asDecomposition();
-            final IterationState state = states.get(decomp);
+            final SddNodeIterationState state = states.get(decomp);
             SddElement activeElement = state.getActiveElement();
             if (!goNext(activeElement, states)) {
                 activeElement = state.next();
@@ -243,7 +241,7 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
         }
     }
 
-    private boolean goNext(final SddElement element, final Map<SddNodeDecomposition, IterationState> states) {
+    private boolean goNext(final SddElement element, final Map<SddNodeDecomposition, SddNodeIterationState> states) {
         if (!goNext(element.getPrime(), states)) {
             if (element.getPrime().isDecomposition()) {
                 states.get(element.getPrime().asDecomposition()).reset();
@@ -258,8 +256,8 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
         return true;
     }
 
-    private void write(final SddNode node, final CompactModel model,
-                       final Map<SddNodeDecomposition, IterationState> states) {
+    private void write(final SddNode node, final CompactModel model, final BitSet modelMask,
+                       final Map<SddNodeDecomposition, SddNodeIterationState> states) {
         if (node.isFalse()) {
             throw new RuntimeException("Cannot write model of unsatisfiable node");
         } else if (node.isTrue()) {
@@ -269,17 +267,20 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
             final Variable var = sdd.indexToVariable(varIdx);
             final Literal lit = phase ? var : var.negate(sdd.getFactory());
             model.getLiterals().add(lit);
+            if (modelMask != null) {
+                modelMask.set(sdd.literalToIndex(varIdx, phase));
+            }
         } else {
             final SddNodeDecomposition decomp = node.asDecomposition();
-            IterationState state = states.get(decomp);
+            SddNodeIterationState state = states.get(decomp);
             if (state == null) {
-                state = new IterationState(decomp);
+                state = new SddNodeIterationState(decomp);
                 states.put(decomp, state);
             }
             final SddElement activeElement = state.getActiveElement();
             assert activeElement != null;
-            write(activeElement.getPrime(), model, states);
-            write(activeElement.getSub(), model, states);
+            write(activeElement.getPrime(), model, modelMask, states);
+            write(activeElement.getSub(), model, modelMask, states);
             final VTreeInternal vtree = sdd.vTreeOf(node).asInternal();
             final VTree primeVtree = sdd.vTreeOf(activeElement.getPrime());
             final VTree subVtree = sdd.vTreeOf(activeElement.getSub());
@@ -290,44 +291,11 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
 
     private void addGapVars(final Collection<Variable> model, final VTree usedVTree,
                             final VTree targetVTree, final Sdd sdd) {
-        final SortedSet<Integer> gapVarIdxs = new TreeSet<>();
+        final ArrayList<Integer> gapVarIdxs = new ArrayList<>();
         VTreeUtil.gapVars(targetVTree, usedVTree, sdd.getVTree(), variableIdxs, gapVarIdxs);
         for (final int idx : gapVarIdxs) {
             final Variable var = sdd.indexToVariable(idx);
             model.add(var);
-        }
-    }
-
-
-    private static class IterationState {
-        private final SddNodeDecomposition parent;
-        private Iterator<SddElement> iterator;
-        private SddElement current;
-
-        IterationState(final SddNodeDecomposition parent) {
-            this.parent = parent;
-            reset();
-        }
-
-        void reset() {
-            this.iterator = parent.iterator();
-            this.current = next();
-        }
-
-        SddElement next() {
-            if (!iterator.hasNext()) {
-                return null;
-            }
-            current = iterator.next();
-            if (current.getSub().isFalse()) {
-                current = null;
-                return next();
-            }
-            return current;
-        }
-
-        SddElement getActiveElement() {
-            return current;
         }
     }
 }

@@ -6,6 +6,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTre
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Set;
 import java.util.Stack;
@@ -148,6 +149,30 @@ public final class VTreeUtil {
     }
 
     /**
+     * Traverses the VTree in order and adds all variables that also occur in
+     * {@code filter} to {@code result}.
+     * @param vtree  the VTree
+     * @param filter the filter for the result as variable bitmap
+     * @param result the collection to which the result is written
+     * @param <C>    the type of the collection for the result
+     * @return {@code result} with all variables of the VTree that occur in {@code filter}.
+     */
+    public static <C extends Collection<Integer>> C varsMasked(final VTree vtree, final BitSet filter, final C result) {
+        if (vtree == null) {
+            return result;
+        }
+        if (vtree.isLeaf()) {
+            if (filter == null || filter.get(vtree.asLeaf().getVariable())) {
+                result.add(vtree.asLeaf().getVariable());
+            }
+        } else {
+            varsMasked(vtree.asInternal().getLeft(), filter, result);
+            varsMasked(vtree.asInternal().getRight(), filter, result);
+        }
+        return result;
+    }
+
+    /**
      * Counts the number of variables in {@code vtree}.
      * @param vtree the VTree
      * @return count of variables that are in {@code vtree}
@@ -238,6 +263,45 @@ public final class VTreeUtil {
         } else {
             vars(vtree.asInternal().getLeft(), filter, result);
             gapVars(vtree.asInternal().getRight(), subtree, root, filter, result);
+        }
+        return result;
+    }
+
+    /**
+     * Computes the variables that are contained in {@code vtree} and
+     * {@code filter} but not in {@code subtree}.
+     * <p>
+     * The function stores the internal indices of variables in {@code result},
+     * which it also returns.
+     * <ul>
+     * <li><i>Preconditions:</i> {@code vtree} and {@code subtree} must be part
+     * of {@code root}, and {@code subtree} must be a subtree of or equal to
+     * {@code vtree}.</li>
+     * </ul>
+     * @param vtree   the VTree
+     * @param subtree a subtree
+     * @param root    the root of both VTrees.
+     * @param filter  a filter for the result as variable bitmap
+     * @param result  the collection to which the result is written
+     * @param <C>     the type of the collection for the result
+     * @return variables that are occur in {@code vtree} and {@code filter} but
+     * not in {@code subtree}
+     */
+    public static <C extends Collection<Integer>> C gapVarsMasked(final VTree vtree, final VTree subtree,
+                                                                  final VTreeRoot root, final BitSet filter,
+                                                                  final C result) {
+        if (vtree == subtree) {
+            return result;
+        }
+        if (subtree == null) {
+            return varsMasked(vtree, filter, result);
+        }
+        if (root.isSubtree(subtree, vtree.asInternal().getLeft())) {
+            gapVarsMasked(vtree.asInternal().getLeft(), subtree, root, filter, result);
+            varsMasked(vtree.asInternal().getRight(), filter, result);
+        } else {
+            varsMasked(vtree.asInternal().getLeft(), filter, result);
+            gapVarsMasked(vtree.asInternal().getRight(), subtree, root, filter, result);
         }
         return result;
     }
