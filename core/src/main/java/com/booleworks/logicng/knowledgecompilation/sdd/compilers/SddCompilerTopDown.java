@@ -55,7 +55,22 @@ class SddCompilerTopDown {
         generateClauseMasks(sdd.getVTree().getRoot(), dTree, caches);
         sdd.defineVTree(sdd.getVTree().getRoot());
         final Set<Integer> relevantVars = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
-        return new SddCompilerTopDown(relevantVars, caches, solver, sdd).start(handler);
+        final LngResult<SddNode> res = new SddCompilerTopDown(relevantVars, caches, solver, sdd).start(handler);
+        clearVTreeCaches(sdd.getVTree().getRoot());
+        return res;
+    }
+
+    protected static void clearVTreeCaches(final VTree vtree) {
+        vtree.setCache(null);
+        vtree.setContextClauseMask(null);
+        vtree.setContextLitsInMask(null);
+        if (!vtree.isLeaf()) {
+            clearVTreeCaches(vtree.asInternal().getLeft());
+            clearVTreeCaches(vtree.asInternal().getRight());
+        } else {
+            vtree.asLeaf().setClauseNegMask(null);
+            vtree.asLeaf().setClausePosMask(null);
+        }
     }
 
     protected static void generateClauseMasks(final VTree vTree, final DTree dTree, final Caches caches) {
@@ -158,7 +173,6 @@ class SddCompilerTopDown {
         } else {
             return cnf2sddShannon(treeInternal, handler);
         }
-
     }
 
     protected LngResult<SddNode> cnf2sddLeaf(final VTreeLeaf leaf, final ComputationHandler handler) {
