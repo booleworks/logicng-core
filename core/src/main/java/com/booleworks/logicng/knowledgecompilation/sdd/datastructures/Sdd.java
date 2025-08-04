@@ -8,7 +8,6 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddApply;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddCompression;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
@@ -246,7 +245,7 @@ public final class Sdd {
     }
 
     public LngResult<SddNode> conjunction(final SddNode left, final SddNode right, final ComputationHandler handler) {
-        return binaryOperation(left, right, SddApplyOperation.CONJUNCTION, handler);
+        return binaryOperation(left, right, SddApply.Operation.CONJUNCTION, handler);
     }
 
     public SddNode conjunction(final SddNode left, final SddNode right) {
@@ -265,7 +264,7 @@ public final class Sdd {
             return left;
         }
 
-        final GSCacheEntry<SddNode> cached = lookupApplyComputation(left, right, SddApplyOperation.CONJUNCTION);
+        final GSCacheEntry<SddNode> cached = lookupApplyComputation(left, right, SddApply.Operation.CONJUNCTION);
         if (cached != null && cached.isValid()) {
             return cached.getElement();
         }
@@ -274,19 +273,19 @@ public final class Sdd {
         newElements.add(new SddElement(left, right));
         newElements.add(new SddElement(negate(left), falsum()));
         final SddNode newNode = decompOfCompressedPartition(newElements);
-        cacheApplyComputation(left, right, newNode, SddApplyOperation.CONJUNCTION);
+        cacheApplyComputation(left, right, newNode, SddApply.Operation.CONJUNCTION);
         return newNode;
     }
 
     public LngResult<SddNode> disjunction(final SddNode left, final SddNode right, final ComputationHandler handler) {
-        return binaryOperation(left, right, SddApplyOperation.DISJUNCTION, handler);
+        return binaryOperation(left, right, SddApply.Operation.DISJUNCTION, handler);
     }
 
     public SddNode disjunction(final SddNode left, final SddNode right) {
         return disjunction(left, right, NopHandler.get()).getResult();
     }
 
-    public LngResult<SddNode> binaryOperation(final SddNode left, final SddNode right, final SddApplyOperation op,
+    public LngResult<SddNode> binaryOperation(final SddNode left, final SddNode right, final SddApply.Operation op,
                                               final ComputationHandler handler) {
         final GSCacheEntry<SddNode> cached = lookupApplyComputation(left, right, op);
         if (cached != null && cached.isValid()) {
@@ -301,12 +300,12 @@ public final class Sdd {
         return result;
     }
 
-    public SddNode binaryOperation(final SddNode left, final SddNode right, final SddApplyOperation op) {
+    public SddNode binaryOperation(final SddNode left, final SddNode right, final SddApply.Operation op) {
         return binaryOperation(left, right, op, NopHandler.get()).getResult();
     }
 
     private GSCacheEntry<SddNode> lookupApplyComputation(final SddNode left, final SddNode right,
-                                                         final SddApplyOperation op) {
+                                                         final SddApply.Operation op) {
         switch (op) {
             case CONJUNCTION: {
                 final Pair<SddNode, SddNode> key =
@@ -324,7 +323,7 @@ public final class Sdd {
     }
 
     private void cacheApplyComputation(final SddNode left, final SddNode right, final SddNode result,
-                                       final SddApplyOperation op) {
+                                       final SddApply.Operation op) {
         switch (op) {
             case CONJUNCTION: {
                 final Pair<SddNode, SddNode>

@@ -12,10 +12,28 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SddProjectionFunction implements SddFunction<SddNode> {
+/**
+ * A function for computing the projection of an SDD.
+ * <p>
+ * The function projects SDD nodes to a set of variables by performing boolean
+ * existential quantifier elimination for all variables of the SDD not contained
+ * in the set of projection variables.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+public final class SddProjectionFunction implements SddFunction<SddNode> {
     private final Set<Variable> variables;
     private final Sdd sdd;
 
+    /**
+     * Constructs a new projection function.
+     * <p>
+     * The function projects SDD nodes to a set of variables by performing
+     * boolean existential quantifier elimination for all variables of the SDD
+     * not contained in the set of projection variables.
+     * @param variables the projection variables (will be preserved)
+     * @param sdd       the SDD container
+     */
     public SddProjectionFunction(final Set<Variable> variables, final Sdd sdd) {
         this.variables = variables;
         this.sdd = sdd;

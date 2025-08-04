@@ -12,13 +12,10 @@ import java.util.TreeSet;
 
 /**
  * An SDD function computing all variables used in an SDD node and its children.
- * <p>
  * @version 3.0.0
- * @see SddNode#variables(Sdd)
- * @see SddUtil#variables(SddNode)
  * @since 3.0.0
  */
-public class SddVariablesFunction implements SddFunction<SortedSet<Variable>> {
+public final class SddVariablesFunction implements SddFunction<SortedSet<Variable>> {
     private final Sdd sdd;
 
     /**

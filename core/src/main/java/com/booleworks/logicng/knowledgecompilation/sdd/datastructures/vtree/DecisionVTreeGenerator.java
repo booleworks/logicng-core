@@ -24,7 +24,18 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-public class DecisionVTreeGenerator implements VTreeGenerator {
+/**
+ * Computes a decision vtree.
+ * <p>
+ * A decision vtree is generated for a formula in CNF, using the method
+ * described in:
+ * Oztok, U., Darwiche, A. (2014). On Compiling CNF into Decision-DNNF.
+ * In: O’Sullivan, B. (eds) Principles and Practice of Constraint Programming.
+ * CP 2014. Lecture Notes in Computer Science, vol 8656. Springer, Cham.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+public final class DecisionVTreeGenerator implements VTreeGenerator {
     private final Formula cnf;
     private final DnnfSatSolver solver;
     private final Set<Variable> projectionVariables;

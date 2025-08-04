@@ -3,11 +3,11 @@ package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.SimpleEvent;
-import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
 import com.booleworks.logicng.util.Pair;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
  * <p>
  * The function is intended to be used internally and implements the raw
  * algorithm.  If you want to perform this kind of operation, it is suggested
- * {@link Sdd#binaryOperation(SddNode, SddNode, SddApplyOperation, ComputationHandler) Sdd.binaryOperation()}
+ * {@link Sdd#binaryOperation(SddNode, SddNode, Operation, ComputationHandler) Sdd.binaryOperation()}
  * or one of its variants, as they do additional caching of already computed
  * operations.
  * @version 3.0.0
@@ -35,7 +35,7 @@ public final class SddApply {
      * <p>
      * The function is intended to be used internally and implements the raw
      * algorithm.  If you want to perform this kind of operation, it is suggested
-     * {@link Sdd#binaryOperation(SddNode, SddNode, SddApplyOperation, ComputationHandler) Sdd.binaryOperation()}
+     * {@link Sdd#binaryOperation(SddNode, SddNode, Operation, ComputationHandler) Sdd.binaryOperation()}
      * or one of its variants, as they do additional caching of already computed
      * operations.
      * @param left    the left operand
@@ -45,11 +45,11 @@ public final class SddApply {
      * @param handler the computation handler
      * @return a new SDD which is the result of the binary operation or a
      * canceling cause if the computation was aborted.
-     * @see Sdd#binaryOperation(SddNode, SddNode, SddApplyOperation, ComputationHandler) Sdd.binaryOperation()
+     * @see Sdd#binaryOperation(SddNode, SddNode, Operation, ComputationHandler) Sdd.binaryOperation()
      * @see Sdd#conjunction(SddNode, SddNode, ComputationHandler) Sdd.conjunction()
      * @see Sdd#disjunction(SddNode, SddNode, ComputationHandler) Sdd.disjunction()
      */
-    public static LngResult<SddNode> apply(final SddNode left, final SddNode right, final SddApplyOperation op,
+    public static LngResult<SddNode> apply(final SddNode left, final SddNode right, final Operation op,
                                            final Sdd sdd, final ComputationHandler handler) {
         if (!handler.shouldResume(SimpleEvent.SDD_APPLY)) {
             return LngResult.canceled(SimpleEvent.SDD_APPLY);
@@ -102,7 +102,7 @@ public final class SddApply {
 
 
     private static LngResult<SddNode> sddApplyEqual(final SddNodeDecomposition left, final SddNodeDecomposition right,
-                                                    final SddApplyOperation op, final Sdd sf,
+                                                    final Operation op, final Sdd sf,
                                                     final ComputationHandler handler) {
         assert left != null;
         assert right != null;
@@ -118,7 +118,7 @@ public final class SddApply {
     }
 
     private static LngResult<SddNode> sddApplyLeft(final SddNode left, final SddNodeDecomposition right,
-                                                   final SddApplyOperation op, final Sdd sf,
+                                                   final Operation op, final Sdd sf,
                                                    final ComputationHandler handler) {
         assert left != null;
         assert right != null;
@@ -127,11 +127,11 @@ public final class SddApply {
         assert sf.vTreeOf(left).getPosition() < sf.vTreeOf(right).getPosition();
 
         final ArrayList<SddElement> newElements = new ArrayList<>();
-        final SddNode n = op == SddApplyOperation.CONJUNCTION ? left : sf.negate(left);
+        final SddNode n = op == Operation.CONJUNCTION ? left : sf.negate(left);
         newElements.add(new SddElement(sf.negate(n), op.zero(sf)));
         for (final SddElement element : right) {
             final LngResult<SddNode> newPrime =
-                    apply(element.getPrime(), n, SddApplyOperation.CONJUNCTION, sf, handler);
+                    apply(element.getPrime(), n, Operation.CONJUNCTION, sf, handler);
             if (!newPrime.isSuccess()) {
                 return newPrime;
             }
@@ -143,7 +143,7 @@ public final class SddApply {
     }
 
     private static LngResult<SddNode> sddApplyRight(final SddNodeDecomposition left, final SddNode right,
-                                                    final SddApplyOperation op, final Sdd sf,
+                                                    final Operation op, final Sdd sf,
                                                     final ComputationHandler handler) {
         assert left != null;
         assert right != null;
@@ -163,7 +163,7 @@ public final class SddApply {
     }
 
     private static LngResult<SddNode> sddApplyIncomparable(final SddNode left, final SddNode right,
-                                                           final SddApplyOperation op, final Sdd sf,
+                                                           final Operation op, final Sdd sf,
                                                            final ComputationHandler handler) {
         assert left != null;
         assert right != null;
@@ -186,5 +186,54 @@ public final class SddApply {
         newElements.add(new SddElement(left, leftSub.getResult()));
         newElements.add(new SddElement(leftNeg, leftNegSub.getResult()));
         return LngResult.of(sf.decompOfCompressedPartition(newElements));
+    }
+
+    public enum Operation {
+        CONJUNCTION,
+        DISJUNCTION;
+
+        public SddNodeTerminal zero(final Sdd sf) {
+            switch (this) {
+                case CONJUNCTION:
+                    return sf.falsum();
+                case DISJUNCTION:
+                    return sf.verum();
+            }
+            throw new RuntimeException("Unsupported operation");
+        }
+
+        public SddNodeTerminal one(final Sdd sf) {
+            switch (this) {
+                case CONJUNCTION:
+                    return sf.verum();
+                case DISJUNCTION:
+                    return sf.falsum();
+            }
+            throw new RuntimeException("Unsupported operation");
+        }
+
+        public boolean isZero(final SddNode node) {
+            switch (this) {
+                case CONJUNCTION:
+                    return node instanceof SddNodeTerminal
+                            && node.isFalse();
+                case DISJUNCTION:
+                    return node instanceof SddNodeTerminal
+                            && node.isTrue();
+            }
+            throw new RuntimeException("Unsupported operation");
+        }
+
+        public boolean isOne(final SddNode node) {
+            switch (this) {
+                case CONJUNCTION:
+                    return node instanceof SddNodeTerminal
+                            && node.isTrue();
+                case DISJUNCTION:
+                    return node instanceof SddNodeTerminal
+                            && node.isFalse();
+            }
+            throw new RuntimeException("Unsupported operation");
+        }
     }
 }

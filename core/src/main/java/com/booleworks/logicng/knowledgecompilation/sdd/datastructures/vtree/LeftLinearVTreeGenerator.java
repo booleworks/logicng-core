@@ -9,9 +9,21 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class LeftLinearVTreeGenerator implements VTreeGenerator {
+/**
+ * A generator for left linear vtrees.
+ * <p>
+ * A left linear vtree is a vtree where every right child is a leaf. For
+ * example: (((a b) c) d) is a left linear vtree.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+public final class LeftLinearVTreeGenerator implements VTreeGenerator {
     private final Set<Variable> variables;
 
+    /**
+     * Constructs a generator for a left linear vtree for a set of variables.
+     * @param variables the variable of the vtree
+     */
     public LeftLinearVTreeGenerator(final Set<Variable> variables) {
         this.variables = variables;
     }

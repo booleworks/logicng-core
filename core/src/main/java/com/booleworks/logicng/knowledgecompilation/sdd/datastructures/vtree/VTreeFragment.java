@@ -12,7 +12,26 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Transforma
 import java.util.ArrayList;
 import java.util.List;
 
-public class VTreeFragment {
+/**
+ * A class for exploring local transformations on a vtree fragment.
+ * <p>
+ * A vtree fragment is an internal vtree node where either at least the left
+ * child is an internal node (left fragment) or the right child is an internal
+ * node (right) fragment.
+ * <p>
+ * Given a fragment for example ((a b) c) it is possible to explore all possible
+ * structures of this fragment with 12 global vtree operations (left rotate,
+ * right rotate, and swapping). Combined with global vtree transformations, one
+ * can explore different vtree configurations and the effect on the SDDs based
+ * on the vtree.  This can be used to minimize the SDD.
+ * <p>
+ * <strong>Remark:</strong> This class heavily use global transformations.
+ * Please read the documentation ({@link SddGlobalTransformations}) if you want
+ * to get a proper understanding.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+public final class VTreeFragment {
     private final static Move[] MOVES_LEFT = new Move[]{
             Move.RR, Move.SWR, Move.LR, Move.SWL,
             Move.RR, Move.SWR, Move.LR, Move.SWL,
@@ -31,6 +50,12 @@ public class VTreeFragment {
     private TransformationResult appliedTransRes;
     private final List<TransformationResult> transformations;
 
+    /**
+     * Create a new state for the transformations on this fragment.
+     * @param isLeft whether the fragment is a left fragment
+     * @param vTree  the vtree node which is a fragment
+     * @param sdd    the SDD container
+     */
     public VTreeFragment(final boolean isLeft, final VTree vTree, final Sdd sdd) {
         if ((isLeft && !VTreeUtil.isLeftFragment(vTree)) || (!isLeft && !VTreeUtil.isRightFragment(vTree))) {
             throw new IllegalArgumentException("VTree is not a proper fragment");
@@ -44,10 +69,21 @@ public class VTreeFragment {
         this.appliedTransRes = TransformationResult.identity(vTree, sdd.getVTree());
     }
 
+    /**
+     * Return whether there is an unexplored state left for this vtree fragment.
+     * @return whether there is an unexplored state left for this vtree fragment
+     */
     public boolean hasNext() {
         return moveIndex < MOVES_LEFT.length;
     }
 
+    /**
+     * Performs the next transformation to obtain the next state of this
+     * fragment.
+     * @param handler the computation handler
+     * @return the transformation result or the canceling cause if the
+     * computation was aborted by the handler.
+     */
     public LngResult<TransformationResult> next(final ComputationHandler handler) {
         assert hasNext();
         final Move move = isLeft ? MOVES_LEFT[moveIndex] : MOVES_RIGHT[moveIndex];
@@ -115,6 +151,14 @@ public class VTreeFragment {
         sdd.getVTreeStack().bumpGeneration();
     }
 
+    /**
+     * Rolls back to the state at {@code moveIndex} and unpins all unused nodes.
+     * <p>
+     * This function does not perform garbage collection. You can manually call
+     * {@link Sdd#garbageCollectAll()} afterward, if you want to clean up the
+     * unused nodes.
+     * @param moveIndex the index of the state
+     */
     public void rollback(final int moveIndex) {
         assert moveIndex >= appliedIndex;
         while (this.moveIndex > moveIndex) {
@@ -125,6 +169,16 @@ public class VTreeFragment {
         sdd.getVTreeStack().bumpGeneration();
     }
 
+    /**
+     * Removes all old states until the current state and unpins all unused
+     * nodes.
+     * <p>
+     * This function does not perform garbage collection. You can manually call
+     * {@link Sdd#garbageCollectAll()} afterward, if you want to clean up the
+     * unused nodes.
+     * @return a collapsed/merged transformation result for all transformations
+     * done from the start state until the current state.
+     */
     public TransformationResult apply() {
         sdd.getVTreeStack().removeInactive(moveIndex - appliedIndex);
         appliedIndex = moveIndex;
@@ -140,18 +194,34 @@ public class VTreeFragment {
         }
     }
 
+    /**
+     * Returns whether this fragment is a left fragment.
+     * @return whether this fragment is a left fragment
+     */
     public boolean isLeft() {
         return isLeft;
     }
 
+    /**
+     * Returns the SDD container of this fragment.
+     * @return the SDD container of this fragment
+     */
     public Sdd getSdd() {
         return sdd;
     }
 
+    /**
+     * Returns the current state index.
+     * @return the current state index
+     */
     public int getMoveIndex() {
         return moveIndex;
     }
 
+    /**
+     * Returns the current vtree.
+     * @return the current vtree
+     */
     public VTree getVTree() {
         return vTree;
     }

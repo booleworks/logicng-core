@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * A collection of function for exporting SDDs and vtrees into files.
+ */
 public class SddWriter {
     private SddWriter() {
     }

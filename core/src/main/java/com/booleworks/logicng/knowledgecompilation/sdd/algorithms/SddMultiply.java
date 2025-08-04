@@ -4,7 +4,6 @@ package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.LngEvent;
-import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
@@ -37,7 +36,7 @@ final class SddMultiply {
      */
     public static LngResult<ArrayList<SddElement>> multiplyDecompositions(final ArrayList<SddElement> elements1,
                                                                           final ArrayList<SddElement> elements2,
-                                                                          final SddApplyOperation op, final Sdd sdd,
+                                                                          final SddApply.Operation op, final Sdd sdd,
                                                                           final ComputationHandler handler) {
         final ArrayList<SddElement> e1Common = new ArrayList<>();
         final ArrayList<SddElement> e1Other = new ArrayList<>();
@@ -129,7 +128,7 @@ final class SddMultiply {
     /// Will remove elements from e2
     private static LngEvent quadraticMultiplyCommonPrimes(final Collection<SddElement> e1,
                                                           final Collection<SddElement> e2,
-                                                          final SddApplyOperation op, final Sdd sf,
+                                                          final SddApply.Operation op, final Sdd sf,
                                                           final ComputationHandler handler,
                                                           final ArrayList<SddElement> destination) {
         for (final SddElement element1 : e1) {
@@ -154,7 +153,7 @@ final class SddMultiply {
 
     private static LngEvent quadraticMultiply(final Collection<SddElement> e1,
                                               final Collection<SddElement> e2,
-                                              final SddApplyOperation op, final Sdd sf,
+                                              final SddApply.Operation op, final Sdd sf,
                                               final ComputationHandler handler,
                                               final ArrayList<SddElement> destination) {
         for (final SddElement element1 : e1) {
@@ -187,7 +186,7 @@ final class SddMultiply {
     }
 
     private static LngEvent linearMultiply(final SddNode prime, final SddNode complementarySub,
-                                           final SddApplyOperation op, final ArrayList<SddElement> list1,
+                                           final SddApply.Operation op, final ArrayList<SddElement> list1,
                                            final ArrayList<SddElement> list2, final Sdd sf,
                                            final ComputationHandler handler, final ArrayList<SddElement> destination) {
         for (int i = 0; i < list1.size() + list2.size(); ++i) {

@@ -9,9 +9,22 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class VerticalVTreeGenerator implements VTreeGenerator {
+/**
+ * A generator for vertical vtrees.
+ * <p>
+ * A vertical vtree is a vtree that alternate between left linear and right
+ * linear vtree where alternating the left children or the right children are a
+ * leaves. For example: (a ((b (c d)) e)) is a right linear vtree.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+public final class VerticalVTreeGenerator implements VTreeGenerator {
     private final Set<Variable> variables;
 
+    /**
+     * Constructs a generator for a vertical vtree for a set of variables.
+     * @param variables the variable of the vtree
+     */
     public VerticalVTreeGenerator(final Set<Variable> variables) {
         this.variables = variables;
     }

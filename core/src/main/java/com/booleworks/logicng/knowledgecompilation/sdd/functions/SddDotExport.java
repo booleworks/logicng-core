@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 
-public class SddDotExport implements SddFunction<Boolean> {
+public final class SddDotExport implements SddFunction<Boolean> {
     private static final String DOT = "&#9210;";
     private static final String TOP = "&#8868;";
     private static final String BOT = "&#8869;";

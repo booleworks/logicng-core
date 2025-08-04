@@ -9,7 +9,7 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
-import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddApply;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
@@ -84,7 +84,7 @@ class SddCompilerBottomUp {
                 l = lRes.getResult();
             }
             final LngResult<SddNode> nodeRes =
-                    sdd.binaryOperation(l, node, SddApplyOperation.CONJUNCTION, handler);
+                    sdd.binaryOperation(l, node, SddApply.Operation.CONJUNCTION, handler);
             if (!nodeRes.isSuccess()) {
                 return nodeRes;
             }
@@ -101,7 +101,7 @@ class SddCompilerBottomUp {
         for (final Formula formula : lits) {
             final Literal lit = (Literal) formula;
             final SddNode l = sdd.terminal(sdd.vTreeLeaf(lit.variable()), lit.getPhase());
-            final LngResult<SddNode> s = sdd.binaryOperation(node, l, SddApplyOperation.DISJUNCTION, handler);
+            final LngResult<SddNode> s = sdd.binaryOperation(node, l, SddApply.Operation.DISJUNCTION, handler);
             if (!s.isSuccess()) {
                 return s;
             }

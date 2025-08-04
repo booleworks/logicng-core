@@ -1,6 +1,6 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
-public class SddElement implements Comparable<SddElement> {
+public final class SddElement implements Comparable<SddElement> {
     private final SddNode prime;
     private final SddNode sub;
 

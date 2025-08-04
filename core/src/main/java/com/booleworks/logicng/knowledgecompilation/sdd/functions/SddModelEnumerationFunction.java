@@ -34,7 +34,21 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
+/**
+ * A function for computing the (projected) model enumeration.
+ * <p>
+ * The function takes two sets of variables.  The first set is for variables
+ * directly considered during the enumeration.  Variables contained in the set
+ * but not in the SDD will still be completely enumerated (be careful as this
+ * blows up the result).  The second set is for additional variables, which will
+ * not be enumerated, but each model will contain complementary values for these
+ * variables. Note that, the use of additional variables can significantly
+ * increase the computation time if you enumerate a large number of models, as
+ * each model needs to compute the additional variables separately.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+public final class SddModelEnumerationFunction implements SddFunction<List<Model>> {
     private final Sdd sdd;
     private final Set<Variable> variables;
     private final Set<Integer> variableIdxs;
@@ -49,14 +63,26 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
                 additionalVariables.stream().filter(v -> !variables.contains(v)).collect(Collectors.toSet());
     }
 
+    /**
+     * The SDD container used for this enumeration.
+     * @return the SDD container used for this enumeration
+     */
     public Sdd getSdd() {
         return sdd;
     }
 
+    /**
+     * The set of enumeration variables.
+     * @return the set of enumeration variables
+     */
     public Set<Variable> getVariables() {
         return Collections.unmodifiableSet(variables);
     }
 
+    /**
+     * The set of additional variables.
+     * @return the set of additional variable
+     */
     public Set<Variable> getAdditionalVariables() {
         return Collections.unmodifiableSet(additionalVariables);
     }
@@ -108,11 +134,11 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
         return LngResult.of(models);
     }
 
-    protected LngResult<SddNode> projectNode(final SddNode node, final ComputationHandler handler) {
+    private LngResult<SddNode> projectNode(final SddNode node, final ComputationHandler handler) {
         return node.execute(new SddProjectionFunction(variables, sdd), handler);
     }
 
-    protected List<Variable> computeDontCareVariables(final SddNode node) {
+    private List<Variable> computeDontCareVariables(final SddNode node) {
         final Set<Integer> variablesInProjVTree = new HashSet<>();
         VTreeUtil.vars(sdd.vTreeOf(node), variableIdxs, variablesInProjVTree);
         return variables.stream()
@@ -120,7 +146,7 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
                 .collect(Collectors.toList());
     }
 
-    protected Pair<List<Literal>, Set<Integer>> splitAdditionalVariables(final SddNode node) {
+    private Pair<List<Literal>, Set<Integer>> splitAdditionalVariables(final SddNode node) {
         final Set<Integer> additionalVarIdxs =
                 SddUtil.varsToIndicesOnlyKnown(additionalVariables, sdd, new HashSet<>());
         final Set<Integer> variablesInNodeVTree = new HashSet<>();
@@ -141,31 +167,79 @@ public class SddModelEnumerationFunction implements SddFunction<List<Model>> {
         return new Pair<>(additionalLitsOutside, additionalVarIndicesInside);
     }
 
+    /**
+     * Creates a builder for SDD model enumeration function.
+     * <p>
+     * The builder takes two sets of variables {@code variables} and
+     * {@code additionalVariable}. {@code variables} is for variables considered
+     * during the enumeration.  Variables contained in the set but not in the
+     * SDD will still be completely enumerated (be careful as this blows up the
+     * result).  {@code additionalVariables} will not be enumerated, but each
+     * model will contain complementary values for these variables.
+     * <p>
+     * Note that, the use of additional variables can significantly increase the
+     * computation time if you enumerate a large number of models, as each model
+     * needs to compute the additional variables separately.
+     * @param variables the enumeration variables
+     * @param sdd       the SDD container
+     * @return a builder for SDD model enumeration function
+     */
     public static Builder builder(final Collection<Variable> variables, final Sdd sdd) {
         return new Builder(variables, sdd);
     }
 
+    /**
+     * Builder for SDD model enumeration function.
+     */
     public static class Builder {
         private Set<Variable> variables;
         private Set<Variable> additionalVariables;
         private final Sdd sdd;
 
-        public Builder(final Collection<Variable> variables, final Sdd sdd) {
+        private Builder(final Collection<Variable> variables, final Sdd sdd) {
             this.variables = new TreeSet<>(variables);
             this.additionalVariables = new TreeSet<>();
             this.sdd = sdd;
         }
 
+        /**
+         * Overwrite the enumeration variables.
+         * <p>
+         * These variables are considered during the enumeration.  Variables
+         * contained in the set but not in the SDD will still be completely
+         * enumerated (be careful as this blows up the result).
+         * @param variables the enumeration variables.
+         * @return this builder
+         */
         public Builder variables(final Collection<Variable> variables) {
             this.variables = new TreeSet<>(variables);
             return this;
         }
 
+        /**
+         * Sets the additional variables for the enumeration. By default, this
+         * set is empty.
+         * <p>
+         * Additional variables will not be enumerated, but each model will
+         * contain complementary values for these variables.
+         * <p>
+         * Note that, the use of additional variables can significantly increase
+         * the computation time if you enumerate a large number of models, as
+         * each model needs to compute the additional variables separately.
+         * @param additionalVariables the additional variables
+         * @return this builder
+         */
         public Builder additionalVariables(final Collection<Variable> additionalVariables) {
             this.additionalVariables = new TreeSet<>(additionalVariables);
             return this;
         }
 
+        /**
+         * Build the model enumeration function.
+         * <p>
+         * The builder is reusable after this call.
+         * @return the model enumeration function.
+         */
         public SddModelEnumerationFunction build() {
             return new SddModelEnumerationFunction(variables, additionalVariables, sdd);
         }

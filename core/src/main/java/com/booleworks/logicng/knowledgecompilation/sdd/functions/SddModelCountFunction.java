@@ -19,11 +19,34 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 
-public class SddModelCountFunction implements SddFunction<BigInteger> {
+/**
+ * A function for computing the (projected) model count of an SDD.
+ * <p>
+ * The function takes a set of variables onto which it is projected.  Every
+ * variable contained in that set but not on the SDD, is considered as dont-care
+ * variable.  The result will respect all possible combinations of assignments
+ * for dont-care variables.  All variables that are on the SDD but not in the
+ * set of variables, will be eliminated from the SDD before counting.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+public final class SddModelCountFunction implements SddFunction<BigInteger> {
     private final Sdd sdd;
     private final Set<Variable> variables;
     private SortedSet<Integer> sddVariables;
 
+    /**
+     * Constructs a new function for projected model counting of an SDD.
+     * <p>
+     * {@code variables} defines the variables onto which the problem is
+     * projected.  Every variable contained in that set but not on the SDD, is
+     * considered as dont-care variable.  The result will respect all possible
+     * combinations of assignments for dont-care variables.  All variables that
+     * are on the SDD but not in the set of variables, will be eliminated from
+     * the SDD before counting.
+     * @param variables relevant variables
+     * @param sdd       the SDD container
+     */
     public SddModelCountFunction(final Collection<Variable> variables, final Sdd sdd) {
         this.sdd = sdd;
         this.variables = new HashSet<>(variables);

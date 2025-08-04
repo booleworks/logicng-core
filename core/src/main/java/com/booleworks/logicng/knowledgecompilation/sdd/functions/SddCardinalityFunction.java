@@ -18,12 +18,28 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 
-public class SddCardinalityFunction implements SddFunction<Integer> {
+/**
+ * A function computing the cardinality of an SDD, i.e. the minimal/maximal
+ * number of variables that must/can be {@code true} in a model.
+ * <p>
+ * This function can be reused for multiple SDD nodes.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+public final class SddCardinalityFunction implements SddFunction<Integer> {
     private final Sdd sdd;
     private final Set<Variable> variables;
-    private SortedSet<Integer> sddVariables;
     private final boolean maximize;
 
+    /**
+     * Constructs a new cardinality function.
+     * <p>
+     * This function can be reused for multiple SDD nodes.
+     * @param maximize  If {@code false} the minimal cardinality is computed, if
+     *                  {@code false} the maximal cardinality is computed.
+     * @param variables the relevant variables
+     * @param sdd       the SDD container
+     */
     public SddCardinalityFunction(final boolean maximize, final Collection<Variable> variables, final Sdd sdd) {
         this.sdd = sdd;
         this.variables = new HashSet<>(variables);
@@ -32,7 +48,7 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
 
     @Override
     public LngResult<Integer> execute(final SddNode node, final ComputationHandler handler) {
-        sddVariables = node.variables();
+        final SortedSet<Integer> sddVariables = node.variables();
         final Set<Integer> variableIdxs = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
         final int variablesNotInSdd = (int) variables
                 .stream()
@@ -44,12 +60,12 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
         } else if (node.isTrue()) {
             cardinality = 0;
         } else {
-            cardinality = applyRec(node, variableIdxs, new HashMap<>(), sdd);
+            cardinality = applyRec(node, variableIdxs, sddVariables, new HashMap<>(), sdd);
         }
         return LngResult.of(maximize ? variablesNotInSdd + cardinality : cardinality);
     }
 
-    private int applyRec(final SddNode node, final Set<Integer> relevantVariables,
+    private int applyRec(final SddNode node, final Set<Integer> relevantVariables, final Set<Integer> sddVariables,
                          final HashMap<SddNode, Integer> cache, final Sdd sdd) {
         assert !node.isFalse();
         if (node.isTrue()) {
@@ -77,8 +93,8 @@ public class SddCardinalityFunction implements SddFunction<Integer> {
             if (element.getSub().isFalse()) {
                 continue;
             }
-            final int prime = applyRec(element.getPrime(), relevantVariables, cache, sdd);
-            final int sub = applyRec(element.getSub(), relevantVariables, cache, sdd);
+            final int prime = applyRec(element.getPrime(), relevantVariables, sddVariables, cache, sdd);
+            final int sub = applyRec(element.getSub(), relevantVariables, sddVariables, cache, sdd);
 
             if (maximize) {
                 final VTree left = vTree.getLeft();

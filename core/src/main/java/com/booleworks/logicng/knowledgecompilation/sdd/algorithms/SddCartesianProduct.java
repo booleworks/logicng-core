@@ -2,7 +2,6 @@ package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.SddApplyOperation;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 
@@ -49,7 +48,7 @@ final class SddCartesianProduct {
                                                                      final boolean compress, final Sdd sdd,
                                                                      final ComputationHandler handler) {
         final LngResult<ArrayList<SddElement>> product =
-                SddMultiply.multiplyDecompositions(left, right, SddApplyOperation.DISJUNCTION, sdd, handler);
+                SddMultiply.multiplyDecompositions(left, right, SddApply.Operation.DISJUNCTION, sdd, handler);
         if (!product.isSuccess()) {
             return product;
         }

@@ -10,9 +10,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class RightLinearVTreeGenerator implements VTreeGenerator {
+/**
+ * A generator for right linear vtrees.
+ * <p>
+ * A right linear vtree is a vtree where every left child is a leaf. For
+ * example: (a (b (c d))) is a right linear vtree.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+public final class RightLinearVTreeGenerator implements VTreeGenerator {
     private final Set<Variable> variables;
 
+    /**
+     * Constructs a generator for a right linear vtree for a set of variables.
+     * @param variables the variable of the vtree
+     */
     public RightLinearVTreeGenerator(final Set<Variable> variables) {
         this.variables = variables;
     }
@@ -28,7 +40,7 @@ public class RightLinearVTreeGenerator implements VTreeGenerator {
         return LngResult.of(generateRightLinear(sf, new ArrayList<>(variables), null));
     }
 
-    public static VTree generateRightLinear(final Sdd sf, final List<Variable> variables, final VTree stub) {
+    static VTree generateRightLinear(final Sdd sf, final List<Variable> variables, final VTree stub) {
         int index = variables.size() - 1;
         VTree right = stub;
         while (index >= 0) {

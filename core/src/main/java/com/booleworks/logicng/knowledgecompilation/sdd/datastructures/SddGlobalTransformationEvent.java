@@ -2,7 +2,7 @@ package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
 import com.booleworks.logicng.handlers.events.LngEvent;
 
-public class SddGlobalTransformationEvent implements LngEvent {
+public final class SddGlobalTransformationEvent implements LngEvent {
     public final static SddGlobalTransformationEvent START_LEFT_ROTATION =
             new SddGlobalTransformationEvent(true, "Start Left Rotation");
     public final static SddGlobalTransformationEvent START_RIGHT_ROTATION =

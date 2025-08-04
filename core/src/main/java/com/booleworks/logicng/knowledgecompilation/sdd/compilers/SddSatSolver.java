@@ -4,6 +4,11 @@ import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfSatSolver;
 
 import java.util.BitSet;
 
+/**
+ * Interface for SDD Sat Solver
+ * @version 3.0.0
+ * @since 3.0.0
+ */
 public interface SddSatSolver extends DnnfSatSolver {
     /**
      * Checks whether a literal of the variable is implied by the solver's state and returns it, otherwise it returns

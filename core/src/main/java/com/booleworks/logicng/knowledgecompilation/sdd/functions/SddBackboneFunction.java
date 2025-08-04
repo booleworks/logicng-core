@@ -21,10 +21,24 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class SddBackboneFunction implements SddFunction<Backbone> {
+/**
+ * A function that computes the backbone for an SDD.
+ * <p>
+ * This function can be reused for multiple SDD nodes.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
+public final class SddBackboneFunction implements SddFunction<Backbone> {
     private final SortedSet<Variable> variables;
     private final Sdd sdd;
 
+    /**
+     * Constructs a new backbone function.
+     * <p>
+     * This function can be reused for multiple SDD nodes.
+     * @param variables the relevant variables
+     * @param sdd       the SDD container
+     */
     public SddBackboneFunction(final SortedSet<Variable> variables, final Sdd sdd) {
         this.variables = variables;
         this.sdd = sdd;
@@ -57,7 +71,7 @@ public class SddBackboneFunction implements SddFunction<Backbone> {
         return LngResult.of(backbone);
     }
 
-    public void applyRec(final SddNode node, final Set<Integer> variables, final Map<Integer, Tristate> backbone) {
+    private void applyRec(final SddNode node, final Set<Integer> variables, final Map<Integer, Tristate> backbone) {
         if (node.isDecomposition()) {
             final VTreeRoot root = sdd.getVTree();
             final Set<Integer> gapVars = new HashSet<>();
