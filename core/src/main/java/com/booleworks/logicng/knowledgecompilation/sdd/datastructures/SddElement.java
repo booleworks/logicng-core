@@ -1,9 +1,19 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
+/**
+ * An SDD element. A pair of two SDD nodes: A prime and a sub.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
 public final class SddElement implements Comparable<SddElement> {
     private final SddNode prime;
     private final SddNode sub;
 
+    /**
+     * Constructs a new SDD element.  The prime most not be false.
+     * @param prime the prime node
+     * @param sub   the sub node
+     */
     public SddElement(final SddNode prime,
                       final SddNode sub) {
         assert !prime.isFalse();
@@ -11,10 +21,18 @@ public final class SddElement implements Comparable<SddElement> {
         this.sub = sub;
     }
 
+    /**
+     * Returns the prime of the element.
+     * @return the prime of the element
+     */
     public SddNode getPrime() {
         return prime;
     }
 
+    /**
+     * Returns the sub of the element.
+     * @return the sub of the element
+     */
     public SddNode getSub() {
         return sub;
     }
@@ -34,7 +52,7 @@ public final class SddElement implements Comparable<SddElement> {
     }
 
     @Override
-    public final boolean equals(final Object o) {
+    public boolean equals(final Object o) {
         if (!(o instanceof SddElement)) {
             return false;
         }

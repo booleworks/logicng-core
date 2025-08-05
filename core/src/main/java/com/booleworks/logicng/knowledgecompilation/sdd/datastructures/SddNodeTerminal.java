@@ -5,6 +5,11 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
 
+/**
+ * Class for the SDD terminal node.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
 public final class SddNodeTerminal extends SddNode {
     private final boolean phase;
 
@@ -14,10 +19,21 @@ public final class SddNodeTerminal extends SddNode {
         this.phase = phase;
     }
 
+    /**
+     * Returns the phase of the literal.
+     * @return the phase of the literal
+     */
     public boolean getPhase() {
         return phase;
     }
 
+    /**
+     * Converts the terminal element to a formula. For terminal nodes that store
+     * a literal, it returns the LNG literal, and for trivial terminal nodes it
+     * either returns {@code true} or {@code false}.
+     * @param sdd the SDD container
+     * @return the value of this node
+     */
     public Formula toFormula(final Sdd sdd) {
         if (getVTree() == null) {
             return sdd.getFactory().constant(getPhase());
@@ -28,6 +44,11 @@ public final class SddNodeTerminal extends SddNode {
         }
     }
 
+    /**
+     * Return the corresponding vtree leaf of this node. Return {@code null} if
+     * this is a trivial node.
+     * @return the vtree or {@code null}
+     */
     public VTreeLeaf getVTree() {
         if (isLiteral()) {
             return super.getVTreeEntry().getElement().asLeaf();

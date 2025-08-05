@@ -10,6 +10,8 @@ import java.util.List;
 /**
  * Class for SDD decomposition node. It stores a compressed and trimmed
  * partition of SDD elements.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public final class SddNodeDecomposition extends SddNode implements Iterable<SddElement> {
     private final ArrayList<SddElement> elements;
@@ -32,23 +34,38 @@ public final class SddNodeDecomposition extends SddNode implements Iterable<SddE
     /**
      * Increases the reference counter of the node by one.
      * <p>
-     * Do not use this function.  Use {@link Sdd#pin(SddNode)} instead.
+     * <strong>Do not use this function!</strong>  Use {@link Sdd#pin(SddNode)}
+     * instead.
      */
     public void ref() {
         assert referenceCounter >= 0;
         referenceCounter++;
     }
 
+    /**
+     * Decreases the reference counter of the node by one.
+     * <p>
+     * <strong>Do not use this function!</strong> Use {@link Sdd#unpin(SddNode)}
+     */
     public void deref() {
         assert referenceCounter >= 0;
         referenceCounter--;
         assert referenceCounter >= 0;
     }
 
+    /**
+     * Returns the current reference count of this node.
+     * @return the current reference count of this node
+     */
     public int getRefs() {
         return referenceCounter;
     }
 
+    /**
+     * Frees the resources and cached values of this node.
+     * <p>
+     * <strong>Do not use this function!</strong>
+     */
     public void free() {
         referenceCounter = -1;
         for (final SddElement element : elements) {
@@ -66,12 +83,23 @@ public final class SddNodeDecomposition extends SddNode implements Iterable<SddE
             }
             setNegationEntry(null);
         }
+        setSizeEntry(null);
     }
 
+    /**
+     * Returns a view to the SDD elements of this node.
+     * @return a view to the SDD elements of this node
+     */
     public List<SddElement> getElements() {
         return Collections.unmodifiableList(elements);
     }
 
+    /**
+     * Returns the list of SDD elements of this node. This function is unsafe
+     * as it allows the user to modify the elements of this node, which is
+     * undefined behaviour.
+     * @return the list of SDD elements of this node
+     */
     public ArrayList<SddElement> getElementsUnsafe() {
         return elements;
     }
