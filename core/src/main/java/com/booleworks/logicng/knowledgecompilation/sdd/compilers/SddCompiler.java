@@ -28,16 +28,42 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * High-level SDD compiler.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
 public class SddCompiler {
+    /**
+     * Compile an SDD from a formula in CNF using the default configuration.
+     * @param cnf the formula in CNF
+     * @param f   the factory
+     * @return the compiled SDD and the used SDD container
+     */
     public static SddCompilationResult compile(final Formula cnf, final FormulaFactory f) {
         return compile(cnf, SddCompilerConfig.builder().build(), f);
     }
 
+    /**
+     * Compile an SDD from a formula in CNF using the passed configuration.
+     * @param cnf the formula in CNF
+     * @param f   the factory
+     * @return the compiled SDD and the used SDD container
+     */
     public static SddCompilationResult compile(final Formula cnf, final SddCompilerConfig config,
                                                final FormulaFactory f) {
         return compile(cnf, config, f, NopHandler.get()).getResult();
     }
 
+    /**
+     * Compile an SDD from a formula in CNF using the passed configuration.
+     * @param cnf     the formula in CNF
+     * @param config  the configuration
+     * @param f       the factory
+     * @param handler the computation handler
+     * @return the compiled SDD and the used SDD container, or the canceling
+     * cause if the computation was aborted by the handler.
+     */
     public static LngResult<SddCompilationResult> compile(final Formula cnf, final SddCompilerConfig config,
                                                           final FormulaFactory f, final ComputationHandler handler) {
         if (!cnf.isCnf(f)) {
@@ -52,7 +78,7 @@ public class SddCompiler {
         }
 
         final Formula simplified;
-        if (config.isInputSimplification()) {
+        if (config.hasPreprocessing()) {
             final LngResult<Formula> simplificationResult = simplifyFormula(f, cnf, handler);
             if (!simplificationResult.isSuccess()) {
                 return LngResult.canceled(simplificationResult.getCancelCause());
@@ -78,8 +104,7 @@ public class SddCompiler {
             }
 
             final LngResult<Pair<DTree, VTree>> vTreeResult =
-                    DecisionVTreeGenerator.generateDecisionVTree(simplified, variables,
-                            config.getPrioritizationStrategy(), solver, sdd, handler);
+                    DecisionVTreeGenerator.generateDecisionVTree(simplified, solver, sdd, handler);
             if (!vTreeResult.isSuccess()) {
                 return LngResult.canceled(vTreeResult.getCancelCause());
             }

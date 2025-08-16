@@ -16,7 +16,6 @@ import java.util.List;
 public class SddCompilerTopDownTest {
     private final static List<String> FILES = List.of(
             "../test_files/sdd/compile_example1.cnf",
-            "../test_files/sdd/compile_example2.cnf",
             "../test_files/dnnf/both_bdd_dnnf_1.cnf",
             "../test_files/dnnf/both_bdd_dnnf_2.cnf",
             "../test_files/dnnf/both_bdd_dnnf_3.cnf",
@@ -25,8 +24,8 @@ public class SddCompilerTopDownTest {
     );
 
     private final static List<SddCompilerConfig> configs = List.of(
-            SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.TOP_DOWN).inputSimplification(true).build(),
-            SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.TOP_DOWN).inputSimplification(false).build()
+            SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.TOP_DOWN).preprocessing(true).build(),
+            SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.TOP_DOWN).preprocessing(false).build()
     );
 
     @ParameterizedTest

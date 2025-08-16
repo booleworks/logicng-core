@@ -12,7 +12,7 @@ import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfCoreSolver;
 import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfSatSolver;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTree;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeNode;
-import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.PriorityMinFillDTreeGenerator;
+import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.MinFillDTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.util.Pair;
 
@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 /**
  * Computes a decision vtree.
@@ -38,32 +37,32 @@ import java.util.stream.Collectors;
 public final class DecisionVTreeGenerator implements VTreeGenerator {
     private final Formula cnf;
     private final DnnfSatSolver solver;
-    private final Set<Variable> projectionVariables;
-    private final PrioritizationStrategy strategy;
 
     private final Formula unitClauses;
     private final Formula nonUnitClauses;
 
-
-    public DecisionVTreeGenerator(final Formula cnf, final Set<Variable> projectionVariables,
-                                  final PrioritizationStrategy strategy, final DnnfSatSolver solver) {
+    /**
+     * Constructs a new decision vtree generator for the variables of a formula
+     * in CNF and a solver.
+     * @param cnf    the formula in CNF
+     * @param solver the solver
+     */
+    public DecisionVTreeGenerator(final Formula cnf, final DnnfSatSolver solver) {
         this.cnf = cnf;
         this.solver = solver;
-        this.strategy = strategy;
-        this.projectionVariables = projectionVariables;
 
         final Pair<Formula, Formula> unitAndNonUnitClauses = splitCnfClauses(cnf, solver.f());
         unitClauses = unitAndNonUnitClauses.getFirst();
         nonUnitClauses = unitAndNonUnitClauses.getSecond();
     }
 
-    public DecisionVTreeGenerator(final Formula cnf, final Set<Variable> projectionVariables,
-                                  final PrioritizationStrategy strategy) {
-        this(cnf, projectionVariables, strategy, initSolver(cnf));
-    }
-
+    /**
+     * Constructs a new decision vtree generator for the variables of a formula
+     * in CNF.
+     * @param cnf the formula in CNF
+     */
     public DecisionVTreeGenerator(final Formula cnf) {
-        this(cnf, cnf.variables(cnf.getFactory()), PrioritizationStrategy.NONE, initSolver(cnf));
+        this(cnf, initSolver(cnf));
     }
 
     private static DnnfSatSolver initSolver(final Formula cnf) {
@@ -72,19 +71,35 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
         return solver;
     }
 
+    /**
+     * Generates a dtree and a decision vtree for a formula in CNF.
+     * <p>
+     * Expects that a solver knows the variables of the formula.
+     * @param cnf     the formula in CNF
+     * @param solver  the solver
+     * @param sdd     the SDD container
+     * @param handler the computation handler
+     * @return the dtree and decision vtree or the canceling cause if the
+     * computation was aborted by the handler
+     */
     public static LngResult<Pair<DTree, VTree>> generateDecisionVTree(final Formula cnf,
-                                                                      final Set<Variable> projectionVariables,
-                                                                      final PrioritizationStrategy strategy,
                                                                       final DnnfSatSolver solver, final Sdd sdd,
                                                                       final ComputationHandler handler) {
-        return new DecisionVTreeGenerator(cnf, projectionVariables, strategy, solver).generateIntern(sdd, handler);
+        return new DecisionVTreeGenerator(cnf, solver).generateIntern(sdd, handler);
     }
 
+    /**
+     * Generates a dtree and a decision vtree for a formula in CNF.
+     * <p>
+     * Expects that a solver knows the variables of the formula.
+     * @param cnf    the formula in CNF
+     * @param solver the solver
+     * @param sdd    the SDD container
+     * @return the dtree and decision vtree
+     */
     public static Pair<DTree, VTree> generateDecisionVTree(final Formula cnf,
-                                                           final Set<Variable> projectionVariables,
-                                                           final PrioritizationStrategy strategy,
                                                            final DnnfSatSolver solver, final Sdd sdd) {
-        return generateDecisionVTree(cnf, projectionVariables, strategy, solver, sdd, NopHandler.get()).getResult();
+        return generateDecisionVTree(cnf, solver, sdd, NopHandler.get()).getResult();
     }
 
     @Override
@@ -107,26 +122,7 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
         VTree vTree = null;
         DTree dTree = null;
         if (!nonUnitVars.isEmpty()) {
-            final List<Set<Variable>> priorityPartition = new ArrayList<>();
-            if (strategy == PrioritizationStrategy.NONE) {
-                priorityPartition.add(nonUnitVars);
-            } else {
-                final Set<Variable> eliminatedVariables = nonUnitVars
-                        .stream()
-                        .filter(v -> !projectionVariables.contains(v))
-                        .collect(Collectors.toSet());
-                if (strategy == PrioritizationStrategy.VAR_DOWN) {
-                    priorityPartition.add(projectionVariables);
-                    priorityPartition.add(eliminatedVariables);
-                } else if (strategy == PrioritizationStrategy.VAR_UP) {
-                    priorityPartition.add(eliminatedVariables);
-                    priorityPartition.add(projectionVariables);
-                } else {
-                    throw new IllegalArgumentException("Unknown prioritization strategy");
-                }
-            }
-
-            final LngResult<DTree> dTreeResult = new PriorityMinFillDTreeGenerator(priorityPartition)
+            final LngResult<DTree> dTreeResult = new MinFillDTreeGenerator()
                     .generate(sdd.getFactory(), nonUnitClauses, handler);
             if (!dTreeResult.isSuccess()) {
                 return LngResult.canceled(dTreeResult.getCancelCause());
@@ -180,17 +176,10 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
         }
         final BitSet bits = cutSets.get(dTree);
         final ArrayList<Variable> vars = new ArrayList<>();
-        final ArrayList<Variable> eliminationVars = new ArrayList<>();
         for (int i = bits.nextSetBit(0); i != -1; i = bits.nextSetBit(i + 1)) {
-            final Variable var = solver.litForIdx(i).variable();
-            if (!projectionVariables.contains(var)) {
-                eliminationVars.add(var);
-            } else {
-                vars.add(var);
-            }
+            vars.add(solver.litForIdx(i).variable());
         }
-        final VTree vtreeElim = RightLinearVTreeGenerator.generateRightLinear(sf, eliminationVars, subtree);
-        return RightLinearVTreeGenerator.generateRightLinear(sf, vars, vtreeElim);
+        return RightLinearVTreeGenerator.generateRightLinear(sf, vars, subtree);
     }
 
     private void calculateCutSets(final DTree dtree, final HashMap<DTree, BitSet> res, final BitSet mask) {
@@ -215,7 +204,7 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
         }
     }
 
-    protected static Pair<Formula, Formula> splitCnfClauses(final Formula originalCnf, final FormulaFactory f) {
+    private static Pair<Formula, Formula> splitCnfClauses(final Formula originalCnf, final FormulaFactory f) {
         final List<Formula> units = new ArrayList<>();
         final List<Formula> nonUnits = new ArrayList<>();
         switch (originalCnf.getType()) {
@@ -243,11 +232,5 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
 
     public DnnfSatSolver getSolver() {
         return solver;
-    }
-
-    public enum PrioritizationStrategy {
-        NONE,
-        VAR_DOWN,
-        VAR_UP,
     }
 }

@@ -28,8 +28,8 @@ public class SddCompilerBottomUpTest {
     );
 
     private final static List<Supplier<SddCompilerConfig.Builder>> configs = List.of(
-            () -> SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).inputSimplification(true),
-            () -> SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).inputSimplification(false)
+            () -> SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).preprocessing(true),
+            () -> SddCompilerConfig.builder().compiler(SddCompilerConfig.Compiler.BOTTOM_UP).preprocessing(false)
     );
 
     @ParameterizedTest
