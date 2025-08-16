@@ -72,7 +72,7 @@ import java.util.stream.Collectors;
  * to construct an SDD from a formula.  The compilers also provide the SDD
  * container and the vtree.  The bottom-up compiler can, additionally, be used
  * with existing SDD containers and with custom vtrees.
- * <p>
+ *
  * <h3>Manual Construction</h3>
  * <p>
  * We, generally, suggest to use the automated approach as it is less
@@ -133,7 +133,7 @@ import java.util.stream.Collectors;
  * <p>
  * There are various operations one can apply to SDDs:
  * <ul>
- *     <li><strong>Conjunction & Disjunction:</strong> Two SDDs can be combined
+ *     <li><strong>Conjunction and Disjunction:</strong> Two SDDs can be combined
  *     with a binary operation using {@link Sdd#conjunction(SddNode, SddNode)}
  *     or {@link Sdd#disjunction(SddNode, SddNode)}.</li>
  *     <li><strong>Functions:</strong>
@@ -141,7 +141,7 @@ import java.util.stream.Collectors;
  *     can compute commonly used properties of SDDs, such as the variables of
  *     the SDD, the size of an SDD, an enumeration of all models, ...
  *     </li>
- *     <li><strong>Global Transformations & Minimization:</strong>
+ *     <li><strong>Global Transformations and Minimization:</strong>
  *         {@link com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddGlobalTransformations
  *         SddGlobalTransformations}
  *         allows to apply transformation to the defined vtree of an SDD
