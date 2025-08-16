@@ -5,49 +5,90 @@ import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
 import com.booleworks.logicng.handlers.events.LngEvent;
 import com.booleworks.logicng.handlers.events.SddMinimizationEvent;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddMinimization;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddMinimizationStrategy;
 
+/**
+ * A class providing common features for SDD minimization.
+ * <p>
+ * The class composes the settings as two computation handlers
+ * {@code operationHandler} and {@code iterationHandler} that are used to build
+ * a {@link com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddMinimization.SearchHandler SearchHandler}.
+ * {@code operationHandler} is used for soft aborts during the minimization and
+ * {@code iterationHandler} for hard aborts.
+ * @version 3.0.0
+ * @since 3.0.0
+ */
 public class SddMinimizationConfig {
     private final Sdd sdd;
-    private final Algorithm algorithm;
-    private final long operationTimeout;
+    private SddMinimizationStrategy.Strategies strategy = SddMinimizationStrategy.Strategies.DEC_THRESHOLD;
 
-    private final long totalTimeout;
-    private final long nodeLimit;
-    private final int absoluteTargetSize;
-    private final double relativeTargetSize;
-    private final double relativeImprovementThreshold;
-    private final int absoluteImprovementThreshold;
-    private final ComputationHandler userHandler;
+    private long totalTimeout = -1;
+    private long operationTimeout = -1;
+    private long nodeLimit = -1;
+    private ComputationHandler userHandler = NopHandler.get();
 
-    private SddMinimizationConfig(final Sdd sdd, final Algorithm algorithm, final long operationTimeout,
-                                  final long totalTimeout,
-                                  final long nodeLimit, final int absoluteTargetSize,
-                                  final double relativeTargetSize, final double relativeImprovementThreshold,
-                                  final int absoluteImprovementThreshold, final ComputationHandler userHandler) {
+    /**
+     * Construct a new configuration with the default values.
+     * @param sdd the SDD container
+     */
+    public SddMinimizationConfig(final Sdd sdd) {
         this.sdd = sdd;
-        this.algorithm = algorithm;
-        this.operationTimeout = operationTimeout;
-        this.totalTimeout = totalTimeout;
-        this.nodeLimit = nodeLimit;
-        this.absoluteTargetSize = absoluteTargetSize;
-        this.relativeTargetSize = relativeTargetSize;
-        this.relativeImprovementThreshold = relativeImprovementThreshold;
-        this.absoluteImprovementThreshold = absoluteImprovementThreshold;
-        this.userHandler = userHandler;
     }
 
-    public OperationHandler operationHandler() {
+    /**
+     * Copy constructor.
+     * <p>
+     * Does <em>no</em> deep copy of the computation handler!
+     * @param other the other configuration
+     */
+    public SddMinimizationConfig(final SddMinimizationConfig other) {
+        this.sdd = other.sdd;
+        this.strategy = other.strategy;
+        this.operationTimeout = other.operationTimeout;
+        this.totalTimeout = other.totalTimeout;
+        this.nodeLimit = other.nodeLimit;
+        this.userHandler = other.userHandler;
+    }
+
+    /**
+     * Returns the operation handler for this configuration.
+     * <p>
+     * This handler is used for soft aborts.
+     * @return the operation handler for this configuration
+     */
+    public OperationHandler getOperationHandler() {
         return new OperationHandler();
     }
 
-    public IterationHandler iterationHandler() {
+    /**
+     * Returns the iteration handler for this configuration.
+     * <p>
+     * This handler is used for hard aborts.
+     * @return the iteration handler for this configuration
+     */
+    public IterationHandler getIterationHandler() {
         return new IterationHandler();
     }
 
+    /**
+     * Returns the search handler for this configuration.
+     * @return the search handler for this configuration
+     */
+    public SddMinimization.SearchHandler getSearchHandler() {
+        return new SddMinimization.SearchHandler(getOperationHandler(), getIterationHandler());
+    }
+
+    /**
+     * This handler is responsible for soft aborts.
+     * <p>
+     * It checks whether the operation timeout or the node limit is exceeded if
+     * they are defined.
+     */
     public class OperationHandler implements ComputationHandler {
         long deadline = -1;
 
-        public OperationHandler() {
+        private OperationHandler() {
         }
 
         @Override
@@ -57,22 +98,25 @@ public class SddMinimizationConfig {
                     if (operationTimeout != -1) {
                         deadline = System.currentTimeMillis() + operationTimeout;
                     }
+                } else {
+                    deadline = -1;
                 }
             }
             if (nodeLimit != -1 && outsideNodeLimit()) {
                 return false;
             }
-            if (deadline != -1 && System.currentTimeMillis() >= deadline) {
-                return false;
-            }
-            return true;
+            return deadline == -1 || System.currentTimeMillis() < deadline;
         }
     }
 
+    /**
+     * This handler is responsible for hard aborts.
+     * <p>
+     * It checks the user handler and whether the timeout is exceeded if they
+     * are defined.
+     */
     public class IterationHandler implements ComputationHandler {
         long deadline = -1;
-        long expectedSize = -1;
-        long targetSize = -1;
 
         @Override
         public boolean shouldResume(final LngEvent event) {
@@ -80,43 +124,17 @@ public class SddMinimizationConfig {
                 if (totalTimeout != -1) {
                     deadline = System.currentTimeMillis() + totalTimeout;
                 }
-                if (absoluteTargetSize != -1) {
-                    targetSize = absoluteTargetSize;
-                }
-                final int sddSize = sdd.getActiveSize();
-                if (relativeTargetSize != -1) {
-                    final int size = (int) (sddSize * relativeTargetSize);
-                    targetSize = targetSize == -1 ? size : Math.max(targetSize, size);
-                }
-                calculateNextSize(sddSize);
             }
             if (deadline != -1 && deadline <= System.currentTimeMillis()) {
                 return false;
             }
             if (event instanceof SddMinimizationEvent) {
                 final long newSize = ((SddMinimizationEvent) event).getNewSize();
-                if (expectedSize != -1 && newSize >= expectedSize) {
-                    return false;
-                }
-                if (targetSize != -1 && newSize <= targetSize) {
-                    return false;
-                }
                 if (nodeLimit != -1 && outsideNodeLimit()) {
                     return false;
                 }
-                calculateNextSize(newSize);
             }
             return userHandler.shouldResume(event);
-        }
-
-        private void calculateNextSize(final long currentSize) {
-            if (absoluteImprovementThreshold != -1) {
-                expectedSize = currentSize - absoluteImprovementThreshold;
-            }
-            if (relativeImprovementThreshold != -1) {
-                final int relSize = (int) (currentSize * (1 - relativeImprovementThreshold));
-                expectedSize = expectedSize == -1 ? relSize : Math.min(relSize, expectedSize);
-            }
         }
     }
 
@@ -124,89 +142,101 @@ public class SddMinimizationConfig {
         return sdd.getSddNodeCount() >= nodeLimit;
     }
 
+    /**
+     * Returns the SDD container.
+     * @return the SDD container
+     */
     public Sdd getSdd() {
         return sdd;
     }
 
-    public Algorithm getAlgorithm() {
-        return algorithm;
+    /**
+     * Returns the minimization strategy.
+     * @return the minimization strategy
+     */
+    public SddMinimizationStrategy.Strategies getStrategy() {
+        return strategy;
     }
 
-    public enum Algorithm {
-        BOTTOM_UP,
-        DEC_THRESHOLD
+    /**
+     * Returns the timeout for single operations.
+     * @return the timeout for single operations.
+     */
+    public long getOperationTimeout() {
+        return operationTimeout;
     }
 
-    public static SddMinimizationConfig unlimited(final Sdd sdd) {
-        return new Builder(sdd).build();
+    /**
+     * Returns the total timeout.
+     * @return the total timeout
+     */
+    public long getTotalTimeout() {
+        return totalTimeout;
     }
 
-    public static class Builder {
-        private final Sdd sdd;
-        private Algorithm algorithm = Algorithm.BOTTOM_UP;
-        private long operationTimeout = -1;
+    /**
+     * Returns the maximal number of nodes that should be in the SDD container.
+     * @return the maximal number of nodes that should be in the SDD container
+     */
+    public long getNodeLimit() {
+        return nodeLimit;
+    }
 
-        private long totalTimeout = -1;
-        private long nodeLimit = -1;
-        private int absoluteTargetSize = -1;
-        private double relativeTargetSize = -1;
-        private double relativeImprovementThreshold = -1;
-        private int absoluteImprovementThreshold = -1;
-        private ComputationHandler userHandler = NopHandler.get();
+    /**
+     * Returns the user handler.
+     * @return the user handler
+     */
+    public ComputationHandler getUserHandler() {
+        return userHandler;
+    }
 
-        public Builder(final Sdd sdd) {
-            this.sdd = sdd;
-        }
+    /**
+     * Set the minimization strategy for this configuration
+     * @param strategy the minimization strategy
+     * @return this configuration
+     */
+    public SddMinimizationConfig strategy(final SddMinimizationStrategy.Strategies strategy) {
+        this.strategy = strategy;
+        return this;
+    }
 
-        public SddMinimizationConfig build() {
-            return new SddMinimizationConfig(sdd, algorithm, operationTimeout, totalTimeout, nodeLimit,
-                    absoluteTargetSize,
-                    relativeTargetSize, relativeImprovementThreshold, absoluteImprovementThreshold, userHandler);
-        }
+    /**
+     * Set the timout for single operations (soft abort).
+     * @param operationTimeout the operation timeout
+     * @return this configuration
+     */
+    public SddMinimizationConfig operationTimeout(final long operationTimeout) {
+        this.operationTimeout = operationTimeout;
+        return this;
+    }
 
-        public Builder withAlgorithm(final Algorithm algorithm) {
-            this.algorithm = algorithm;
-            return this;
-        }
+    /**
+     * Set the timout for the whole minimization (hard abort)
+     * @param totalTimeout the timeout
+     * @return this configuration
+     */
+    public SddMinimizationConfig totalTimeout(final long totalTimeout) {
+        this.totalTimeout = totalTimeout;
+        return this;
+    }
 
-        public Builder withOperationTimeout(final long operationTimeout) {
-            this.operationTimeout = operationTimeout;
-            return this;
-        }
+    /**
+     * Set the maximal number of nodes that should be in the SDD container.
+     * @param nodeLimit the maximal number of nodes
+     * @return this configuration
+     */
+    public SddMinimizationConfig nodeLimit(final long nodeLimit) {
+        this.nodeLimit = nodeLimit;
+        return this;
+    }
 
-        public Builder withTotalTimeout(final long totalTimeout) {
-            this.totalTimeout = totalTimeout;
-            return this;
-        }
-
-        public Builder withNodeLimit(final long nodeLimit) {
-            this.nodeLimit = nodeLimit;
-            return this;
-        }
-
-        public Builder withAbsoluteTargetSize(final int absoluteTargetSize) {
-            this.absoluteTargetSize = absoluteTargetSize;
-            return this;
-        }
-
-        public Builder withRelativeTargetSize(final double relativeTargetSize) {
-            this.relativeTargetSize = relativeTargetSize;
-            return this;
-        }
-
-        public Builder withRelativeImprovementThreshold(final double relativeImprovementThreshold) {
-            this.relativeImprovementThreshold = relativeImprovementThreshold;
-            return this;
-        }
-
-        public Builder withAbsoluteImprovementThreshold(final int absoluteImprovementThreshold) {
-            this.absoluteImprovementThreshold = absoluteImprovementThreshold;
-            return this;
-        }
-
-        public Builder withUserHandler(final ComputationHandler userHandler) {
-            this.userHandler = userHandler;
-            return this;
-        }
+    /**
+     * Set a user-provided computation handler (hard abort).
+     * @param userHandler the handler
+     * @return this configuration
+     */
+    public SddMinimizationConfig userHandler(final ComputationHandler userHandler) {
+        this.userHandler = userHandler;
+        return this;
     }
 }

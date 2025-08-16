@@ -114,6 +114,49 @@ public final class VTreeUtil {
     }
 
     /**
+     * Traverses the VTree in order and adds all nodes (inner and leaves) to
+     * {@code result}.
+     * @param vtree  the VTree
+     * @param result the collection to which the result is written
+     * @param <C>    the type of the collection for the result
+     * @return {@code result} with all nodes of the VTree in order.
+     */
+    public static <C extends Collection<VTree>> C nodesInOrder(final VTree vtree, final C result) {
+        final Stack<VTree> stack = new Stack<>();
+        stack.push(vtree);
+        while (!stack.isEmpty()) {
+            final VTree current = stack.pop();
+            result.add(current);
+            if (!current.isLeaf()) {
+                stack.add(current.asInternal().getRight());
+                stack.add(current.asInternal().getLeft());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Traverses the VTree in order and adds all inner nodes to {@code result}.
+     * @param vtree  the VTree
+     * @param result the collection to which the result is written
+     * @param <C>    the type of the collection for the result
+     * @return {@code result} with all nodes of the VTree in order.
+     */
+    public static <C extends Collection<VTreeInternal>> C innerNodesInOrder(final VTree vtree, final C result) {
+        final Stack<VTree> stack = new Stack<>();
+        stack.push(vtree);
+        while (!stack.isEmpty()) {
+            final VTree current = stack.pop();
+            if (!current.isLeaf()) {
+                result.add(current.asInternal());
+                stack.add(current.asInternal().getRight());
+                stack.add(current.asInternal().getLeft());
+            }
+        }
+        return result;
+    }
+
+    /**
      * Traverses the VTree in order and adds the variables to {@code result}.
      * @param vtree  the VTree
      * @param result the collection to which the result is written
