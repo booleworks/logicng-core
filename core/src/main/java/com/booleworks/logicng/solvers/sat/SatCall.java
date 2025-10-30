@@ -117,7 +117,7 @@ public class SatCall implements AutoCloseable {
      * If the formula is UNSAT, {@code null} will be returned.
      * @param variables the set of variables
      * @return a model of the current formula or {@code null} if the SAT call
-     * was unsatisfiable
+     *         was unsatisfiable
      * @throws IllegalArgumentException if the given variables are {@code null}
      */
     public Model model(final Collection<Variable> variables) {
@@ -174,6 +174,7 @@ public class SatCall implements AutoCloseable {
         solver.setSelectionOrder(List.of());
         if (initialState != null) {
             solver.loadState(initialState);
+            solverWrapper.clearPgCaches();
         }
         solver.finishSatCall();
     }

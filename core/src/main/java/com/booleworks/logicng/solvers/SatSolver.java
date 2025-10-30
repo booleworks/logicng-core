@@ -225,7 +225,7 @@ public class SatSolver {
      * </ul>
      * @param cc the cardinality constraint
      * @return the incremental data of this constraint, or null if the
-     * right-hand side of cc is 1
+     *         right-hand side of cc is 1
      */
     public CcIncrementalData addIncrementalCc(final CardinalityConstraint cc) {
         final EncodingResult result = EncodingResult.resultForSatSolver(f, solver, null);
@@ -318,7 +318,7 @@ public class SatSolver {
      * @param handler  the computation handler
      * @param <RESULT> the result type of the function
      * @return the (potentially canceled) result of executing the solver
-     * function on the current solver
+     *         function on the current solver
      * @throws IllegalStateException if this solver is currently used in a
      *                               {@link SatCall}
      */
@@ -372,8 +372,7 @@ public class SatSolver {
     public void loadState(final SolverState state) {
         solver.assertNotInSatCall();
         solver.loadState(state);
-        pgTransformation.clearCache();
-        fullPgTransformation.clearCache();
+        clearPgCaches();
     }
 
     /**
@@ -435,5 +434,10 @@ public class SatSolver {
         } else {
             throw new IllegalStateException("Unknown Solver CNF method: " + config.getCnfMethod());
         }
+    }
+
+    public void clearPgCaches() {
+        pgTransformation.clearCache();
+        fullPgTransformation.clearCache();
     }
 }
