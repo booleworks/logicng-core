@@ -6,6 +6,7 @@ import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.ParameterizedCspTest;
 import com.booleworks.logicng.csp.datastructures.Csp;
+import com.booleworks.logicng.csp.datastructures.CspBackbone;
 import com.booleworks.logicng.csp.encodings.CspEncodingContext;
 import com.booleworks.logicng.csp.io.readers.CspReader;
 import com.booleworks.logicng.datastructures.EncodingResult;
@@ -33,7 +34,8 @@ public class CspBackboneTest extends ParameterizedCspTest {
         cf.encodeCsp(csp, context, result);
 
         final CspBackbone backbone =
-                CspBackbone.calculateBackbone(solver, BackboneType.POSITIVE_AND_NEGATIVE, csp, context, result, cf);
+                CspBackboneGeneration.fromCsp(BackboneType.POSITIVE_AND_NEGATIVE, csp, cf)
+                        .compute(solver, context, result);
         assertThat(backbone.getMandatory().keySet()).containsExactly(cf.getVariable("a"));
         assertThat(backbone.getMandatory().values()).containsExactly(3);
         assertThat(backbone.getForbidden().keySet()).containsExactly(cf.getVariable("c"));
@@ -59,7 +61,7 @@ public class CspBackboneTest extends ParameterizedCspTest {
         cf.encodeCsp(csp, context, result);
 
         final CspBackbone backbone =
-                CspBackbone.calculateBackbone(solver, BackboneType.ONLY_POSITIVE, csp, context, result, cf);
+                CspBackboneGeneration.fromCsp(BackboneType.ONLY_POSITIVE, csp, cf).compute(solver, context, result);
         assertThat(backbone.getMandatory().keySet()).containsExactly(cf.getVariable("a"));
         assertThat(backbone.getMandatory().values()).containsExactly(3);
         assertThat(backbone.getForbidden()).isEmpty();
@@ -81,7 +83,7 @@ public class CspBackboneTest extends ParameterizedCspTest {
         cf.encodeCsp(csp, context, result);
 
         final CspBackbone backbone =
-                CspBackbone.calculateBackbone(solver, BackboneType.ONLY_NEGATIVE, csp, context, result, cf);
+                CspBackboneGeneration.fromCsp(BackboneType.ONLY_NEGATIVE, csp, cf).compute(solver, context, result);
         assertThat(backbone.getMandatory()).isEmpty();
         assertThat(backbone.getForbidden()).hasSize(2);
         assertThat(backbone.getForbidden().containsKey(cf.getVariable("a"))).isTrue();

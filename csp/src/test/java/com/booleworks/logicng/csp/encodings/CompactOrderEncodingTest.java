@@ -83,9 +83,7 @@ public class CompactOrderEncodingTest extends ParameterizedCspTest {
                 solver.getUnderlyingSolver(), null);
         final Csp expectedCsp = cf.buildCsp(p);
         cf.encodeCsp(expectedCsp, context, result);
-        return CspModelEnumeration.enumerate(solver, vars, expectedCsp.getVisibleBooleanVariables(), context,
-                cf);
-
+        return CspModelEnumeration.enumerate(solver, vars, expectedCsp.getVisibleBooleanVariables(), context, cf);
     }
 
     @ParameterizedTest

@@ -1,31 +1,48 @@
 package com.booleworks.logicng.csp.functions;
 
-import com.booleworks.logicng.csp.encodings.CspEncodingContext;
 import com.booleworks.logicng.csp.predicates.CspPredicate;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.formulas.Formula;
-import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.formulas.FormulaFunction;
+import com.booleworks.logicng.handlers.ComputationHandler;
+import com.booleworks.logicng.handlers.LngResult;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
 /**
- * A class grouping functions for extracting the integer variables from formulas.
+ * Function for collecting the integer variables from formulas.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class IntegerVariablesFunction {
-    private IntegerVariablesFunction() {
+public final class IntegerVariablesFunction implements FormulaFunction<SortedSet<IntegerVariable>> {
+    private final SortedSet<IntegerVariable> variables;
+
+    private IntegerVariablesFunction(final SortedSet<IntegerVariable> variables) {
+        this.variables = variables;
     }
 
     /**
-     * Adds all integer variables in the formula to the set {@code variables}.
-     * @param formula   the formula
-     * @param variables the destination for the integer variables
+     * Constructs a new integer variable function, which collects all integer
+     * variables from formulas.
+     * @return the integer variable function
      */
-    public static void integerVariablesInplace(final Formula formula, final SortedSet<IntegerVariable> variables) {
+    public static IntegerVariablesFunction get() {
+        return new IntegerVariablesFunction(new TreeSet<>());
+    }
+
+    /**
+     * Constructs a new integer variable function, which collects all integer
+     * variables from formulas. The variables are added to the passed set.
+     * @return the integer variable function
+     */
+    public static IntegerVariablesFunction addToExistingSet(final SortedSet<IntegerVariable> variables) {
+        return new IntegerVariablesFunction(variables);
+    }
+
+    @Override
+    public LngResult<SortedSet<IntegerVariable>> apply(final Formula formula, final ComputationHandler handler) {
         final Stack<Formula> stack = new Stack<>();
         stack.push(formula);
         while (!stack.isEmpty()) {
@@ -49,40 +66,6 @@ public class IntegerVariablesFunction {
                     break;
             }
         }
-    }
-
-    /**
-     * Returns all integer variables in {@code formula}.
-     * @param formula the formula
-     * @return all integer variable in {@code formula}
-     */
-    public static SortedSet<IntegerVariable> integerVariables(final Formula formula) {
-        final SortedSet<IntegerVariable> variables = new TreeSet<>();
-        integerVariablesInplace(formula, variables);
-        return variables;
-    }
-
-    /**
-     * Returns the subset of passed integer variables that are represented in a set of boolean variables, i.e., at least
-     * one boolean variable that belongs
-     * to the encoding of the variable is on the solver.
-     * @param solverVariables boolean variables on the solver
-     * @param variables       input integer variables
-     * @param context         the encoding context
-     * @return the subset of integer variables on the solver
-     */
-    public static SortedSet<IntegerVariable> getVariablesOnSolver(final Set<Variable> solverVariables,
-                                                                  final Collection<IntegerVariable> variables,
-                                                                  final CspEncodingContext context) {
-        final TreeSet<IntegerVariable> result = new TreeSet<>();
-        for (final IntegerVariable intVar : variables) {
-            for (final Variable v : context.getSatVariables(List.of(intVar))) {
-                if (solverVariables.contains(v)) {
-                    result.add(intVar);
-                    break;
-                }
-            }
-        }
-        return result;
+        return LngResult.of(variables);
     }
 }

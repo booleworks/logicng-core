@@ -24,7 +24,7 @@ public final class AdditionFunction extends NAryFunction {
 
     @Override
     public Decomposition calculateDecomposition(final CspFactory cf) {
-        LinearExpression.Builder expression = new LinearExpression.Builder(0);
+        LinearExpression.Builder expression = LinearExpression.builder(0);
         final Set<IntegerClause> constraints = new LinkedHashSet<>();
         final Set<IntegerVariable> auxIntVars = new LinkedHashSet<>();
         final Set<Variable> auxBoolVars = new LinkedHashSet<>();

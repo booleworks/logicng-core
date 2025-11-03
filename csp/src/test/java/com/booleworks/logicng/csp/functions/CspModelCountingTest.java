@@ -1,5 +1,7 @@
 package com.booleworks.logicng.csp.functions;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.datastructures.Csp;
 import com.booleworks.logicng.csp.datastructures.CspAssignment;
@@ -14,6 +16,7 @@ import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 
 public class CspModelCountingTest {
@@ -25,15 +28,17 @@ public class CspModelCountingTest {
         final Formula formula = CspReader.readCsp(cf, "../test_files/csp/simple2.csp");
         final Csp csp = cf.buildCsp(formula);
 
-        models(csp, cf);
+        final List<CspAssignment> models = models(csp, cf);
+        final BigInteger modelCount = CspModelCounting.count(csp, cf);
+        assertThat(modelCount).isEqualTo(BigInteger.valueOf(models.size()));
     }
 
-    private void models(final Csp csp, final CspFactory cf) {
+    private List<CspAssignment> models(final Csp csp, final CspFactory cf) {
         final OrderEncodingContext context = CspEncodingContext.order();
         final SatSolver solver = SatSolver.newSolver(cf.getFormulaFactory());
         final EncodingResult result =
                 EncodingResult.resultForSatSolver(cf.getFormulaFactory(), solver.getUnderlyingSolver(), null);
         cf.encodeCsp(csp, context, result);
-        final List<CspAssignment> models = CspModelEnumeration.enumerate(solver, csp, context, cf);
+        return CspModelEnumeration.enumerate(solver, csp, context, cf);
     }
 }

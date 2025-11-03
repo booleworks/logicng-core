@@ -312,7 +312,7 @@ public class CspSolving {
             final List<Literal> projectedRestrictions = new ArrayList<>();
             for (final Map.Entry<IntegerVariable, Integer> e : restrictions.entrySet()) {
                 projectedRestrictions.addAll(
-                        CspValueHook.calculateValueProjection(e.getKey(), e.getValue(), context, cf));
+                        CspValueHookEncoding.computeRestrictionAssignments(e.getKey(), e.getValue(), context, cf));
             }
             scb.addFormulas(projectedRestrictions);
         }

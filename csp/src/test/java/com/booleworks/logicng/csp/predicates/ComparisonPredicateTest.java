@@ -154,7 +154,7 @@ public class ComparisonPredicateTest extends ParameterizedCspTest {
         assertThat(pred2.getAuxiliaryBooleanVariables()).isEmpty();
         assertThat(pred2.getAuxiliaryIntegerVariables()).isEmpty();
         assertThat(pred3.getClauses()).hasSize(1);
-        final LinearExpression le3 = new LinearExpression.Builder(19).setA(-1, a).setA(-1, b).build();
+        final LinearExpression le3 = LinearExpression.builder(19).setA(-1, a).setA(-1, b).build();
         assertThat(pred3.getClauses().iterator().next()).isEqualTo(
                 new IntegerClause(new LinearLiteral(le3, LinearLiteral.Operator.LE)));
         assertThat(pred3.getAuxiliaryBooleanVariables()).isEmpty();
@@ -166,7 +166,7 @@ public class ComparisonPredicateTest extends ParameterizedCspTest {
         assertThat(pred5.getAuxiliaryBooleanVariables()).isEmpty();
         assertThat(pred5.getAuxiliaryIntegerVariables()).isEmpty();
         assertThat(pred6.getClauses()).hasSize(1);
-        final LinearExpression le6 = new LinearExpression.Builder(-20).setA(1, a).setA(1, b).build();
+        final LinearExpression le6 = LinearExpression.builder(-20).setA(1, a).setA(1, b).build();
         assertThat(pred6.getClauses().iterator().next()).isEqualTo(
                 new IntegerClause(new LinearLiteral(le6, LinearLiteral.Operator.NE)));
         assertThat(pred6.getAuxiliaryBooleanVariables()).isEmpty();

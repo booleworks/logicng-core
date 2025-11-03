@@ -175,6 +175,23 @@ public class Csp {
     }
 
     /**
+     * Constructs a new CSP builder.
+     * @return the builder
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Constructs a new CSP builder by coping a CSP problem.
+     * @param csp the CSP problem
+     * @return the builder
+     */
+    public static Builder builder(final Csp csp) {
+        return new Builder(csp);
+    }
+
+    /**
      * A builder for incrementally building CSP problems.
      */
     public static class Builder {
@@ -183,7 +200,7 @@ public class Csp {
         /**
          * Constructs a new CSP builder.
          */
-        public Builder() {
+        private Builder() {
             csp = new Csp();
         }
 
@@ -191,7 +208,7 @@ public class Csp {
          * Constructs a new CSP builder by coping a CSP problem.
          * @param csp the CSP problem
          */
-        public Builder(final Csp csp) {
+        private Builder(final Csp csp) {
             this.csp = new Csp(csp);
         }
 

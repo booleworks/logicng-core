@@ -2,6 +2,7 @@ package com.booleworks.logicng.csp.functions;
 
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.datastructures.Csp;
+import com.booleworks.logicng.csp.datastructures.CspValueHookMap;
 import com.booleworks.logicng.csp.encodings.CompactOrderEncodingContext;
 import com.booleworks.logicng.csp.encodings.CompactOrderValueHook;
 import com.booleworks.logicng.csp.encodings.CspEncodingContext;
@@ -27,10 +28,9 @@ import java.util.stream.Collectors;
  *     variables of the encoding.</li>
  * </ul>
  */
-public class CspValueHook {
-    private CspValueHook() {
+public final class CspValueHookEncoding {
+    private CspValueHookEncoding() {
     }
-
 
     /**
      * Encodes values hooks for the given variable.
@@ -60,14 +60,14 @@ public class CspValueHook {
      * @param cf        the factory
      * @return a mapping form integer variables to a mapping from boolean variables to their represented integer value
      */
-    public static Map<IntegerVariable, Map<Variable, Integer>> encodeValueHooks(
+    public static CspValueHookMap encodeValueHooks(
             final Collection<IntegerVariable> variables, final CspEncodingContext context, final EncodingResult result,
             final CspFactory cf) {
         final Map<IntegerVariable, Map<Variable, Integer>> map = new HashMap<>();
         for (final IntegerVariable v : variables) {
             map.put(v, encodeValueHooks(v, context, result, cf));
         }
-        return map;
+        return new CspValueHookMap(map);
     }
 
     /**
@@ -78,10 +78,8 @@ public class CspValueHook {
      * @param cf      the factory
      * @return a mapping form integer variables to a mapping from boolean variables to their represented integer value
      */
-    public static Map<IntegerVariable, Map<Variable, Integer>> encodeValueHooks(final Csp csp,
-                                                                                final CspEncodingContext context,
-                                                                                final EncodingResult result,
-                                                                                final CspFactory cf) {
+    public static CspValueHookMap encodeValueHooks(final Csp csp, final CspEncodingContext context,
+                                                   final EncodingResult result, final CspFactory cf) {
         return encodeValueHooks(
                 csp.getVisibleIntegerVariables().stream().filter(csp.getInternalIntegerVariables()::contains)
                         .collect(Collectors.toList()),
@@ -96,9 +94,9 @@ public class CspValueHook {
      * @param cf      the factory
      * @return assignment of boolean variables representing the given value for the given integer variable
      */
-    public static List<Literal> calculateValueProjection(final IntegerVariable v, final int value,
-                                                         final CspEncodingContext context,
-                                                         final CspFactory cf) {
+    public static List<Literal> computeRestrictionAssignments(final IntegerVariable v, final int value,
+                                                              final CspEncodingContext context,
+                                                              final CspFactory cf) {
         switch (context.getAlgorithm()) {
             case Order:
                 return OrderValueHook.calculateValueProjection(v, value, (OrderEncodingContext) context, cf);

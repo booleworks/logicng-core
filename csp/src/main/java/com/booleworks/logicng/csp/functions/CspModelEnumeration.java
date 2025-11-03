@@ -97,7 +97,7 @@ public class CspModelEnumeration {
                                                            final CspEncodingContext context, final CspFactory cf,
                                                            final ComputationHandler handler) {
         final SortedSet<IntegerVariable> intVariablesOnSolver =
-                IntegerVariablesFunction.getVariablesOnSolver(solver.getUnderlyingSolver().knownVariables(),
+                CspUtil.getVariablesOnSolver(solver.getUnderlyingSolver().knownVariables(),
                         integerVariables, context);
         final List<IntegerVariable> intVariablesNotOnSolver = integerVariables
                 .stream()

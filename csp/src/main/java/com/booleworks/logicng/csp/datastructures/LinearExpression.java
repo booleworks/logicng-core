@@ -312,6 +312,45 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     /**
+     * Construct a builder with only a constant offset.
+     * @param b the constant offset
+     * @return the builder
+     */
+    public static Builder builder(final int b) {
+        return new Builder(b);
+    }
+
+    /**
+     * Construct a builder with only one variable and a constant offset.
+     * @param a0 the coefficient of the variable
+     * @param v0 the variable
+     * @param b  the constant offset
+     * @return the builder
+     */
+    public static Builder builder(final int a0, final IntegerVariable v0, final int b) {
+        return new Builder(a0, v0, b);
+    }
+
+    /**
+     * Construct a builder with only one variable without coefficient
+     * ({@code = 1}).
+     * @param v0 the variable
+     * @return the builder
+     */
+    public static Builder builder(final IntegerVariable v0) {
+        return new Builder(v0);
+    }
+
+    /**
+     * Construct a builder by copying an existing linear expression.
+     * @param e the existing linear expression
+     * @return the builder
+     */
+    public static Builder builder(final LinearExpression e) {
+        return new Builder(e);
+    }
+
+    /**
      * A builder for incrementally building a linear expression.
      */
     public static class Builder {
@@ -321,7 +360,7 @@ public class LinearExpression implements Comparable<LinearExpression> {
          * Construct a builder with only a constant offset.
          * @param b the constant offset
          */
-        public Builder(final int b) {
+        private Builder(final int b) {
             expression = new LinearExpression(b);
         }
 
@@ -331,7 +370,7 @@ public class LinearExpression implements Comparable<LinearExpression> {
          * @param v0 the variable
          * @param b  the constant offset
          */
-        public Builder(final int a0, final IntegerVariable v0, final int b) {
+        private Builder(final int a0, final IntegerVariable v0, final int b) {
             expression = new LinearExpression(a0, v0, b);
         }
 
@@ -339,7 +378,7 @@ public class LinearExpression implements Comparable<LinearExpression> {
          * Construct a builder with only one variable without coefficient ({@code = 1}).
          * @param v0 the variable
          */
-        public Builder(final IntegerVariable v0) {
+        private Builder(final IntegerVariable v0) {
             expression = new LinearExpression(v0);
         }
 
@@ -347,7 +386,7 @@ public class LinearExpression implements Comparable<LinearExpression> {
          * Construct a builder by copying an existing linear expression.
          * @param e the existing linear expression
          */
-        public Builder(final LinearExpression e) {
+        private Builder(final LinearExpression e) {
             expression = new LinearExpression(e);
         }
 

@@ -72,7 +72,7 @@ public class LinearLiteral implements ArithmeticLiteral {
     public LinearLiteral negate() {
         switch (op) {
             case LE:
-                return new LinearLiteral(new LinearExpression.Builder(sum).setB(sum.getB() - 1).multiply(-1).build(),
+                return new LinearLiteral(LinearExpression.builder(sum).setB(sum.getB() - 1).multiply(-1).build(),
                         Operator.LE);
             case EQ:
                 return new LinearLiteral(sum, Operator.NE);
@@ -120,7 +120,7 @@ public class LinearLiteral implements ArithmeticLiteral {
 
     @Override
     public LinearLiteral substitute(final IntegerVariableSubstitution assignment) {
-        final LinearExpression.Builder le = new LinearExpression.Builder(sum.getB());
+        final LinearExpression.Builder le = LinearExpression.builder(sum.getB());
         int replaced = 0;
         for (final IntegerVariable key : sum.getCoef().keySet()) {
             if (assignment.containsKey(key)) {

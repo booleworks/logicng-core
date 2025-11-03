@@ -17,7 +17,17 @@ import java.util.Collections;
  * Class grouping functions for decoding problems encoded with the order encoding.
  */
 public class OrderDecoding {
-    private OrderDecoding() {
+    private final OrderEncodingContext context;
+    private final CspFactory cf;
+
+    /**
+     * Constructs a new order decoding instance.
+     * @param context the encoding context
+     * @param cf      the factory
+     */
+    public OrderDecoding(final OrderEncodingContext context, final CspFactory cf) {
+        this.context = context;
+        this.cf = cf;
     }
 
     /**
@@ -32,15 +42,11 @@ public class OrderDecoding {
      * @param integerVariables      included integer variables
      * @param booleanVariables      included boolean variables
      * @param propagateSubstitution extern substitutions
-     * @param context               the context
-     * @param cf                    the factory
      * @return the decoded assignment
      */
-    public static CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
-                                       final Collection<Variable> booleanVariables,
-                                       final IntegerVariableSubstitution propagateSubstitution,
-                                       final OrderEncodingContext context,
-                                       final CspFactory cf) {
+    public CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
+                                final Collection<Variable> booleanVariables,
+                                final IntegerVariableSubstitution propagateSubstitution) {
         final CspAssignment result = new CspAssignment();
         for (final IntegerVariable v : integerVariables) {
             final int value = decodeIntVar(propagateSubstitution.getOrSelf(v), model, context);
@@ -67,14 +73,11 @@ public class OrderDecoding {
      * @param model            propositional model
      * @param integerVariables included integer variables
      * @param booleanVariables included boolean variables
-     * @param context          the context
-     * @param cf               the factory
      * @return the decoded assignment
      */
-    public static CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
-                                       final Collection<Variable> booleanVariables,
-                                       final OrderEncodingContext context, final CspFactory cf) {
-        return decode(model, integerVariables, booleanVariables, new IntegerVariableSubstitution(), context, cf);
+    public CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
+                                final Collection<Variable> booleanVariables) {
+        return decode(model, integerVariables, booleanVariables, new IntegerVariableSubstitution());
     }
 
     /**
@@ -85,27 +88,21 @@ public class OrderDecoding {
      * for this variable.
      * @param model            propositional model
      * @param integerVariables included integer variables
-     * @param context          the context
-     * @param cf               the factory
      * @return the decoded assignment
      */
-    public static CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
-                                       final OrderEncodingContext context, final CspFactory cf) {
-        return decode(model, integerVariables, Collections.emptyList(), new IntegerVariableSubstitution(), context, cf);
+    public CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables) {
+        return decode(model, integerVariables, Collections.emptyList(), new IntegerVariableSubstitution());
     }
 
     /**
      * Decodes a problem that was encoded with the order encoding.
-     * @param model   propositional model
-     * @param csp     csp data structure
-     * @param context the context
-     * @param cf      the factory
+     * @param model propositional model
+     * @param csp   csp data structure
      * @return the decoded assignment
      */
-    public static CspAssignment decode(final Assignment model, final Csp csp, final OrderEncodingContext context,
-                                       final CspFactory cf) {
+    public CspAssignment decode(final Assignment model, final Csp csp) {
         return decode(model, csp.getVisibleIntegerVariables(), csp.getVisibleBooleanVariables(),
-                csp.getPropagateSubstitutions(), context, cf);
+                csp.getPropagateSubstitutions());
     }
 
     /**

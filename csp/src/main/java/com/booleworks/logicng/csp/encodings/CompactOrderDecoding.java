@@ -4,7 +4,7 @@ import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.datastructures.Csp;
 import com.booleworks.logicng.csp.datastructures.CspAssignment;
 import com.booleworks.logicng.csp.datastructures.IntegerVariableSubstitution;
-import com.booleworks.logicng.csp.functions.IntegerVariablesFunction;
+import com.booleworks.logicng.csp.functions.CspUtil;
 import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.datastructures.Assignment;
 import com.booleworks.logicng.formulas.Literal;
@@ -21,7 +21,17 @@ import java.util.TreeSet;
  * A class grouping functions for decoding problems with the compact order encoding.
  */
 public class CompactOrderDecoding {
-    private CompactOrderDecoding() {
+    private final CspFactory cf;
+    private final CompactOrderEncodingContext context;
+
+    /**
+     * Constructs a new instance for compact order decoding.
+     * @param context the encoding context
+     * @param cf      the factory
+     */
+    public CompactOrderDecoding(final CompactOrderEncodingContext context, final CspFactory cf) {
+        this.cf = cf;
+        this.context = context;
     }
 
     /**
@@ -36,24 +46,20 @@ public class CompactOrderDecoding {
      * @param integerVariables      included integer variables
      * @param booleanVariables      included boolean variables
      * @param propagateSubstitution extern substitutions
-     * @param context               the context
-     * @param cf                    the factory
      * @return the decoded assignment
      */
-    public static CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
-                                       final Collection<Variable> booleanVariables,
-                                       final IntegerVariableSubstitution propagateSubstitution,
-                                       final CompactOrderEncodingContext context,
-                                       final CspFactory cf) {
+    public CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
+                                final Collection<Variable> booleanVariables,
+                                final IntegerVariableSubstitution propagateSubstitution) {
         final CspAssignment result = new CspAssignment();
         final SortedSet<Variable> solverVariables = new TreeSet<>();
         solverVariables.addAll(model.positiveVariables());
         solverVariables.addAll(model.negativeVariables());
         final SortedSet<IntegerVariable> variablesOnSolver =
-                IntegerVariablesFunction.getVariablesOnSolver(solverVariables, integerVariables, context);
+                CspUtil.getVariablesOnSolver(solverVariables, integerVariables, context);
         for (final IntegerVariable v : integerVariables) {
             if (variablesOnSolver.contains(v)) {
-                final int value = decodeIntVar(propagateSubstitution.getOrSelf(v), model, context);
+                final int value = decodeIntVar(propagateSubstitution.getOrSelf(v), model);
                 result.addIntAssignment(v, value);
             } else {
                 result.addIntAssignment(v, v.getDomain().ub());
@@ -80,14 +86,11 @@ public class CompactOrderDecoding {
      * @param model            propositional model
      * @param integerVariables included integer variables
      * @param booleanVariables included boolean variables
-     * @param context          the context
-     * @param cf               the factory
      * @return the decoded assignment
      */
-    public static CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
-                                       final Collection<Variable> booleanVariables,
-                                       final CompactOrderEncodingContext context, final CspFactory cf) {
-        return decode(model, integerVariables, booleanVariables, new IntegerVariableSubstitution(), context, cf);
+    public CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
+                                final Collection<Variable> booleanVariables) {
+        return decode(model, integerVariables, booleanVariables, new IntegerVariableSubstitution());
     }
 
     /**
@@ -98,43 +101,35 @@ public class CompactOrderDecoding {
      * for this variable.
      * @param model            propositional model
      * @param integerVariables included integer variables
-     * @param context          the context
-     * @param cf               the factory
      * @return the decoded assignment
      */
-    public static CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables,
-                                       final CompactOrderEncodingContext context, final CspFactory cf) {
-        return decode(model, integerVariables, Collections.emptyList(), new IntegerVariableSubstitution(), context, cf);
+    public CspAssignment decode(final Assignment model, final Collection<IntegerVariable> integerVariables) {
+        return decode(model, integerVariables, Collections.emptyList(), new IntegerVariableSubstitution());
     }
 
     /**
      * Decodes a problem that was encoded with the compact order encoding.
-     * @param model   propositional model
-     * @param csp     csp data structure
-     * @param context the context
-     * @param cf      the factory
+     * @param model propositional model
+     * @param csp   csp data structure
      * @return the decoded assignment
      */
-    public static CspAssignment decode(final Assignment model, final Csp csp, final CompactOrderEncodingContext context,
-                                       final CspFactory cf) {
+    public CspAssignment decode(final Assignment model, final Csp csp) {
         return decode(model, csp.getVisibleIntegerVariables(), csp.getVisibleBooleanVariables(),
-                csp.getPropagateSubstitutions(), context, cf);
+                csp.getPropagateSubstitutions());
     }
 
-    private static int decodeIntVar(final IntegerVariable var, final Assignment model,
-                                    final CompactOrderEncodingContext context) {
+    private int decodeIntVar(final IntegerVariable var, final Assignment model) {
         if (context.isEncoded(var)) {
             final IntegerVariable adjusted = context.getAdjustedVariableOrSelf(var);
             final List<IntegerVariable> digits = context.getDigits(adjusted);
             assert Objects.nonNull(digits);
-            return decodeBigIntVar(adjusted, model, context);
+            return decodeBigIntVar(adjusted, model);
         } else {
             return var.getDomain().ub();
         }
     }
 
-    private static int decodeBigIntVar(final IntegerVariable var, final Assignment model,
-                                       final CompactOrderEncodingContext context) {
+    private int decodeBigIntVar(final IntegerVariable var, final Assignment model) {
         final List<IntegerVariable> digits = context.getDigits(var);
         assert digits != null;
         final int b = context.getBase();
