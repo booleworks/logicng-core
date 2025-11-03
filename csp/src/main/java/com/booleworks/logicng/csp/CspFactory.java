@@ -306,12 +306,7 @@ public class CspFactory {
      * @return the addition
      */
     public Term add(final Collection<Term> terms) {
-        final Collection<Term> originalOperands = terms;
-        final Term foundFunction = addTerms.get(originalOperands);
-        if (foundFunction != null) {
-            return foundFunction;
-        }
-        final LinkedHashSet<Term> compactedOperands = compactifyAddOperands(originalOperands);
+        final LinkedHashSet<Term> compactedOperands = compactifyAddOperands(terms);
         final Term foundFunctionCompact = this.addTerms.get(compactedOperands);
         if (foundFunctionCompact != null) {
             return foundFunctionCompact;
