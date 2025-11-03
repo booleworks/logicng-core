@@ -18,8 +18,10 @@ import java.util.Map;
 
 /**
  * Value hook and value projection for compact order encoding.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class CompactOrderValueHook {
+public final class CompactOrderValueHook {
     private CompactOrderValueHook() {
     }
 
@@ -78,12 +80,14 @@ public class CompactOrderValueHook {
     }
 
     /**
-     * Returns an assignment of boolean variables that represent a specific integer value of an integer variable.
+     * Returns an assignment of boolean variables that represent a specific
+     * integer value of an integer variable.
      * @param v       the integer variable
      * @param value   the value
      * @param context the encoding context
      * @param cf      the factory
-     * @return assignment of boolean variables representing the given value for the given integer variable
+     * @return assignment of boolean variables representing the given value for
+     * the given integer variable
      */
     public static List<Literal> calculateValueProjection(final IntegerVariable v, final int value,
                                                          final CompactOrderEncodingContext context,

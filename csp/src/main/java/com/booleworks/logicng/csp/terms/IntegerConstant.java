@@ -9,6 +9,8 @@ import java.util.SortedSet;
 
 /**
  * An integer constant.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public final class IntegerConstant extends Term implements IntegerHolder {
     private final int value;
@@ -16,7 +18,8 @@ public final class IntegerConstant extends Term implements IntegerHolder {
     /**
      * Constructs a new integer constant.
      * <p>
-     * <B>This constructor should not be used!</B> Use {@link CspFactory} to create new terms.
+     * <B>This constructor should not be used!</B> Use {@link CspFactory} to
+     * create new terms.
      * @param value the constant value
      */
     public IntegerConstant(final int value) {

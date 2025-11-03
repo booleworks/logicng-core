@@ -1,5 +1,7 @@
 package com.booleworks.logicng.csp.functions;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booleworks.logicng.csp.Common;
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.ParameterizedCspTest;
@@ -17,8 +19,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collections;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class CspDecompositionTest extends ParameterizedCspTest {
 

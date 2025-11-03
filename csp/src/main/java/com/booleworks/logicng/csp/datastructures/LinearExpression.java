@@ -11,11 +11,13 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- * A class representing a linear expression, i.e., a sum of integer variables with a coefficient and a constant offset.
- *
+ * A class representing a linear expression, i.e., a sum of integer variables
+ * with a coefficient and a constant offset:
  * <pre>{@code a_0*v_0 + ... + a_n*v_n + b}</pre>
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class LinearExpression implements Comparable<LinearExpression> {
+public final class LinearExpression implements Comparable<LinearExpression> {
 
     private final SortedMap<IntegerVariable, Integer> coef;
     private int b;
@@ -31,7 +33,8 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     /**
-     * Construct a linear expression with only one variable and a constant offset.
+     * Construct a linear expression with only one variable and a constant
+     * offset.
      * @param a0 the coefficient of the variable
      * @param v0 the variable
      * @param b  the constant offset
@@ -44,7 +47,8 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     /**
-     * Construct a linear expression with only one variable without coefficient ({@code = 1}).
+     * Construct a linear expression with only one variable without coefficient
+     * ({@code = 1}).
      * @param v0 the variable
      */
     public LinearExpression(final IntegerVariable v0) {
@@ -118,8 +122,10 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     /**
-     * Returns whether this linear expression is only an integer variable (No offset and no coefficient).
-     * @return {@code true} if this linear expression is only an integer variable, {@code false} otherwise.
+     * Returns whether this linear expression is only an integer variable
+     * (No offset and no coefficient).
+     * @return {@code true} if this linear expression is only an integer
+     * variable, {@code false} otherwise.
      */
     public boolean isIntegerVariable() {
         return b == 0 && size() == 1 && getA(coef.firstKey()) == 1;
@@ -151,9 +157,10 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     /**
-     * Returns the factor this linear expression deviates from the normalized linear expression. (GCD of all
-     * coefficients)
-     * @return the factor the linear expression deviates from the normalized linear expression.
+     * Returns the factor this linear expression deviates from the normalized
+     * linear expression. (GCD of all coefficients)
+     * @return the factor the linear expression deviates from the normalized
+     * linear expression.
      */
     public int factor() {
         if (size() == 0) {
@@ -191,7 +198,8 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     /**
-     * Returns the domain of this linear expression without one integer variable.
+     * Returns the domain of this linear expression without one integer
+     * variable.
      * @param v            the variable
      * @param restrictions temporal substitutions that need to be considered
      * @return the domain without the given integer variable
@@ -208,9 +216,11 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     /**
-     * Returns whether the domains of all variables is larger than {@code limit}.
+     * Returns whether the domains of all variables is larger than
+     * {@code limit}.
      * @param limit the limit for the domain's size
-     * @return {@code true} is the domain is larger than {@code limit}, {@code false} otherwise
+     * @return {@code true} is the domain is larger than {@code limit},
+     * {@code false} otherwise
      */
     public boolean isDomainLargerThan(final long limit) {
         long size = 1;
@@ -375,7 +385,8 @@ public class LinearExpression implements Comparable<LinearExpression> {
         }
 
         /**
-         * Construct a builder with only one variable without coefficient ({@code = 1}).
+         * Construct a builder with only one variable without coefficient
+         * ({@code = 1}).
          * @param v0 the variable
          */
         private Builder(final IntegerVariable v0) {
@@ -427,7 +438,8 @@ public class LinearExpression implements Comparable<LinearExpression> {
         }
 
         /**
-         * Arithmetically add another linear expression to this linear expression (inplace).
+         * Arithmetically add another linear expression to this linear
+         * expression (inplace).
          * @param other the other linear expression
          * @return this builder
          */
@@ -442,7 +454,8 @@ public class LinearExpression implements Comparable<LinearExpression> {
         }
 
         /**
-         * Arithmetically subtract another linear expression from this linear expression (inplace).
+         * Arithmetically subtract another linear expression from this linear
+         * expression (inplace).
          * @param other the other linear expression
          * @return this builder
          */
@@ -457,7 +470,8 @@ public class LinearExpression implements Comparable<LinearExpression> {
         }
 
         /**
-         * Arithmetically multiply this linear expression with an integer constant (inplace).
+         * Arithmetically multiply this linear expression with an integer
+         * constant (inplace).
          * @param c the integer constant
          * @return this builder
          */
@@ -472,7 +486,8 @@ public class LinearExpression implements Comparable<LinearExpression> {
         }
 
         /**
-         * Arithmetically divide this linear expression with an integer constant (inplace).
+         * Arithmetically divide this linear expression with an integer
+         * constant (inplace).
          * @param c the integer constant
          * @return this builder
          */
@@ -507,18 +522,21 @@ public class LinearExpression implements Comparable<LinearExpression> {
         }
 
         /**
-         * Returns whether the domains of all variables is larger than {@code limit}.
+         * Returns whether the domains of all variables is larger than
+         * {@code limit}.
          * @param limit the limit for the domain's size
-         * @return {@code true} is the domain is larger than {@code limit}, {@code false} otherwise
+         * @return {@code true} is the domain is larger than {@code limit},
+         * {@code false} otherwise
          */
         public boolean isDomainLargerThan(final long limit) {
             return expression.isDomainLargerThan(limit);
         }
 
         /**
-         * Returns the factor this linear expression deviates from the normalized linear expression. (GCD of all
-         * coefficients)
-         * @return the factor the linear expression deviates from the normalized linear expression.
+         * Returns the factor this linear expression deviates from the
+         * normalized linear expression. (GCD of all coefficients)
+         * @return the factor the linear expression deviates from the normalized
+         * linear expression.
          */
         public int factor() {
             return expression.factor();
@@ -565,8 +583,10 @@ public class LinearExpression implements Comparable<LinearExpression> {
         }
 
         /**
-         * Returns whether this linear expression is only an integer variable (No offset and no coefficient).
-         * @return {@code true} if this linear expression is only an integer variable, {@code false} otherwise.
+         * Returns whether this linear expression is only an integer variable
+         * (no offset and no coefficient).
+         * @return {@code true} if this linear expression is only an integer
+         * variable, {@code false} otherwise.
          */
         public boolean isIntegerVariable() {
             return expression.isIntegerVariable();
@@ -583,7 +603,8 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     /**
-     * Creates a new linear expression that is the sum of two linear expressions.
+     * Creates a new linear expression that is the sum of two linear
+     * expressions.
      * @param a left linear expression
      * @param b right linear expression
      * @return the sum
@@ -593,7 +614,8 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     /**
-     * Creates a new linear expression that is the subtraction of two linear expression.
+     * Creates a new linear expression that is the subtraction of two linear
+     * expression.
      * @param a left linear expression
      * @param b right linear expression
      * @return the subtraction
@@ -603,7 +625,8 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     /**
-     * Creates a new linear expression that is the multiplication of a linear expression and a constant integer factor.
+     * Creates a new linear expression that is the multiplication of a linear
+     * expression and a constant integer factor.
      * @param a the linear expression
      * @param c the constant integer factor
      * @return the new linear expression
@@ -613,7 +636,8 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     /**
-     * Creates a new linear expression that is the division of a linear expression with a constant integer factor.
+     * Creates a new linear expression that is the division of a linear
+     * expression with a constant integer factor.
      * @param a the linear expression
      * @param c the constant integer factor
      * @return the new linear expression
@@ -623,7 +647,8 @@ public class LinearExpression implements Comparable<LinearExpression> {
     }
 
     /**
-     * Creates a new linear expression that is the normalization of a linear expression.
+     * Creates a new linear expression that is the normalization of a linear
+     * expression.
      * @param a the linear expression
      * @return the new linear expression
      */

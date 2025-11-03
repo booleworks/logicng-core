@@ -10,12 +10,15 @@ import java.util.Set;
 
 /**
  * A function term representing the subtraction operation.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public final class SubtractionFunction extends BinaryFunction {
     /**
      * Constructs a new subtraction function term.
      * <p>
-     * <B>This constructor should not be used!</B> Use {@link CspFactory} to create new terms.
+     * <B>This constructor should not be used!</B> Use {@link CspFactory} to
+     * create new terms.
      * @param left  the minuend
      * @param right the subtrahend
      */

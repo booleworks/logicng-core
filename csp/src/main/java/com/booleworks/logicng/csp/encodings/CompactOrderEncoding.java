@@ -19,9 +19,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A class grouping functions for compact order encoding.
+ * Functions for compact order encoding.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class CompactOrderEncoding {
+public final class CompactOrderEncoding {
 
     private final CompactOrderEncodingContext context;
     private final CompactOrderReduction reductionObject;
@@ -41,13 +43,13 @@ public class CompactOrderEncoding {
     /**
      * Encodes a CSP problem using the compact order encoding.
      * <p>
-     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
-     * the handler.
+     * Note: The destination of the encoding result may contain incomplete
+     * results, if the computation was aborted by the handler.
      * @param csp     the problem
      * @param result  destination for the result
      * @param handler handler for processing encoding events
-     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
-     * aborted the computation
+     * @return the passed encoding result if the computation was successful
+     * otherwise returns the handler event that aborted the computation
      */
     public LngResult<EncodingResult> encode(final Csp csp, final EncodingResult result,
                                             final ComputationHandler handler) {
@@ -67,13 +69,13 @@ public class CompactOrderEncoding {
     /**
      * Encodes an integer variable using the compact order encoding.
      * <p>
-     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
-     * the handler.
+     * Note: The destination of the encoding result may contain incomplete
+     * results, if the computation was aborted by the handler.
      * @param v       the variable
      * @param result  destination for the result
      * @param handler handler for processing encoding events
-     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
-     * aborted the computation
+     * @return the passed encoding result if the computation was successful
+     * otherwise returns the handler event that aborted the computation
      */
     public LngResult<EncodingResult> encodeVariable(final IntegerVariable v, final EncodingResult result,
                                                     final ComputationHandler handler) {
@@ -89,13 +91,13 @@ public class CompactOrderEncoding {
     /**
      * Encodes a list of integer variables using the compact order encoding.
      * <p>
-     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
-     * the handler.
+     * Note: The destination of the encoding result may contain incomplete
+     * results, if the computation was aborted by the handler.
      * @param variables the variables
      * @param result    destination for the result
      * @param handler   handler for processing encoding events
-     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
-     * aborted the computation
+     * @return the passed encoding result if the computation was successful
+     * otherwise returns the handler event that aborted the computation
      */
     public LngResult<EncodingResult> encodeVariables(final Collection<IntegerVariable> variables,
                                                      final EncodingResult result, final ComputationHandler handler) {
@@ -111,13 +113,13 @@ public class CompactOrderEncoding {
     /**
      * Encodes a set of arithmetic clauses using the compact order encoding.
      * <p>
-     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
-     * the handler.
+     * Note: The destination of the encoding result may contain incomplete
+     * results, if the computation was aborted by the handler.
      * @param clauses the arithmetic clauses
      * @param result  destination for the result
      * @param handler handler for processing encoding events
-     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
-     * aborted the computation
+     * @return the passed encoding result if the computation was successful
+     * otherwise returns the handler event that aborted the computation
      */
     public LngResult<EncodingResult> encodeClauses(final Set<IntegerClause> clauses,
                                                    final EncodingResult result,

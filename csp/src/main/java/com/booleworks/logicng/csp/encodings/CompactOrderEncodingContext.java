@@ -22,8 +22,10 @@ import java.util.stream.Stream;
 
 /**
  * Encoding context for compact oder encoding.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class CompactOrderEncodingContext implements CspEncodingContext {
+public final class CompactOrderEncodingContext implements CspEncodingContext {
     private final OrderEncodingContext orderContext;
     private final int base;
     private final Map<IntegerVariable, List<IntegerVariable>> digits;
@@ -39,7 +41,8 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
     private final List<Variable> ccspBoolVariables;
 
     /**
-     * Constructs a new encoding context for compact order encoding for a given base.
+     * Constructs a new encoding context for compact order encoding for a given
+     * base.
      * @param base the base of the context
      */
     CompactOrderEncodingContext(final int base) {
@@ -87,7 +90,8 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
     }
 
     /**
-     * Associates an integer variables with other integer variables representing its digits.
+     * Associates an integer variables with other integer variables representing
+     * its digits.
      * @param v      the variable
      * @param digits the digits
      */
@@ -118,7 +122,8 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
     /**
      * Returns whether digits are associated with this integer variable.
      * @param v the variable
-     * @return {@code true} if digits are associated with this integer variable, {@code false} otherwise
+     * @return {@code true} if digits are associated with this integer variable,
+     * {@code false} otherwise
      */
     public boolean hasDigits(final IntegerVariable v) {
         return this.digits.containsKey(v);
@@ -145,7 +150,8 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
     /**
      * Returns whether digits are associated with an integer constant.
      * @param c the constant
-     * @return {@code true} if digits are associated with the integer constant, {@code false} otherwise.
+     * @return {@code true} if digits are associated with the integer constant,
+     * {@code false} otherwise.
      */
     public boolean hasConstDigits(final IntegerConstant c) {
         return constDigits.containsKey(c);
@@ -163,7 +169,8 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
     /**
      * Returns whether an offset is associated with the integer variable.
      * @param v the variable
-     * @return {@code true} whether an offset is associated with the variable, {@code false} otherwise.
+     * @return {@code true} whether an offset is associated with the variable,
+     * {@code false} otherwise.
      */
     public boolean hasOffset(final IntegerVariable v) {
         return offsets.containsKey(v);
@@ -239,9 +246,11 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
     }
 
     /**
-     * Returns the adjusted variable of a variable or the variable itself if there is no adjusted variable.
+     * Returns the adjusted variable of a variable or the variable itself if
+     * there is no adjusted variable.
      * @param original the variable
-     * @return the adjusted variable or the variable itself if there is no adjusted variable
+     * @return the adjusted variable or the variable itself if there is no
+     * adjusted variable
      */
     public IntegerVariable getAdjustedVariableOrSelf(final IntegerVariable original) {
         return adjustedVariablesSubstitution.getOrSelf(original);
@@ -290,7 +299,8 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
     }
 
     /**
-     * Creates and stores new auxiliary variable for splitting arithmetic literals to ternary literals.
+     * Creates and stores new auxiliary variable for splitting arithmetic
+     * literals to ternary literals.
      * @param d  the domain of the variable
      * @param cf the factory
      * @return the auxiliary variable
@@ -302,15 +312,18 @@ public class CompactOrderEncodingContext implements CspEncodingContext {
     }
 
     /**
-     * Returns auxiliary variables that are used to split arithmetic literals to ternary literals.
-     * @return auxiliary variables for splitting arithmetic literals to ternary literals
+     * Returns auxiliary variables that are used to split arithmetic literals to
+     * ternary literals.
+     * @return auxiliary variables for splitting arithmetic literals to ternary
+     * literals
      */
     public List<IntegerVariable> getTernarySimplificationVariables() {
         return ternarySimplificationVariables;
     }
 
     /**
-     * Creates and stores an auxiliary variable that is used to created RCSP literals.
+     * Creates and stores an auxiliary variable that is used to created RCSP
+     * literals.
      * @param d  the domain
      * @param cf the factory
      * @return the auxiliary variable

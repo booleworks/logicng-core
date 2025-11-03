@@ -1,5 +1,7 @@
 package com.booleworks.logicng.csp.predicates;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.ParameterizedCspTest;
 import com.booleworks.logicng.csp.datastructures.IntegerClause;
@@ -9,8 +11,6 @@ import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.csp.terms.Term;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComparisonPredicateTest extends ParameterizedCspTest {
 

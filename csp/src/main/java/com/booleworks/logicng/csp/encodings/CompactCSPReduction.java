@@ -25,9 +25,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A class grouping operations for reducing RCSP literals to CCSP literals.
+ * Operations for reducing RCSP literals to CCSP literals.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class CompactCSPReduction {
+public final class CompactCSPReduction {
     /**
      * Prefix for CCSP auxiliary variables.
      */
@@ -52,7 +54,8 @@ public class CompactCSPReduction {
     }
 
     /**
-     * Reduces a set of arithmetic clauses with RCSP literals to clauses with CCSP literals.
+     * Reduces a set of arithmetic clauses with RCSP literals to clauses with
+     * CCSP literals.
      * @param clauses   RCSP clauses
      * @param variables all variables used in {@code clauses}
      * @param handler   handler for processing encoding events

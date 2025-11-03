@@ -13,7 +13,10 @@ import java.util.Set;
  * <p>
  * {@code x (op) y} with {@code op in {=, <=, !=}}
  * <p>
- * This class is an intermediate representation used by encoding algorithms. It should not be used directly.
+ * This class is an intermediate representation used by encoding algorithms. It
+ * should not be used directly.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class OpXY implements RCSPLiteral {
     private final IntegerHolder x, y;

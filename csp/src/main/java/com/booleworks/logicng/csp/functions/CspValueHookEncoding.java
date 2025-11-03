@@ -20,13 +20,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * A class providing functions that can be used to translate encoding specific behaviour to encoding independent
- * behaviour and vice versa.
+ * A class providing functions that can be used to add special variables to the
+ * encoding of a CSP problem that can be used to read or restrict the value of
+ * integer variables.
  * <ul>
- *     <li>Value Hooks: Embeds auxiliary variables that correspond directly with a value of the integer variable.</li>
- *     <li>Value Projection: A fixed value for an integer variable is translated to a boolean assignment of the
- *     variables of the encoding.</li>
+ *     <li>Value Hooks: Embeds auxiliary variables that correspond directly with
+ *     a value of the integer variable.</li>
+ *     <li>Value Projection: A fixed value for an integer variable is translated
+ *     to a boolean assignment of the variables of the encoding.</li>
  * </ul>
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public final class CspValueHookEncoding {
     private CspValueHookEncoding() {
@@ -58,7 +62,8 @@ public final class CspValueHookEncoding {
      * @param context   the encoding context
      * @param result    the destination for the hooks
      * @param cf        the factory
-     * @return a mapping form integer variables to a mapping from boolean variables to their represented integer value
+     * @return a mapping from integer variables to a mapping from boolean
+     * variables to their represented integer value
      */
     public static CspValueHookMap encodeValueHooks(
             final Collection<IntegerVariable> variables, final CspEncodingContext context, final EncodingResult result,
@@ -76,7 +81,8 @@ public final class CspValueHookEncoding {
      * @param context the encoding context
      * @param result  the destination for the hooks
      * @param cf      the factory
-     * @return a mapping form integer variables to a mapping from boolean variables to their represented integer value
+     * @return a mapping from integer variables to a mapping from boolean
+     * variables to their represented integer value
      */
     public static CspValueHookMap encodeValueHooks(final Csp csp, final CspEncodingContext context,
                                                    final EncodingResult result, final CspFactory cf) {
@@ -87,12 +93,14 @@ public final class CspValueHookEncoding {
     }
 
     /**
-     * Returns an assignment of boolean variables that represent a specific integer value of an integer variable.
+     * Returns an assignment of boolean variables that represent a specific
+     * integer value of an integer variable.
      * @param v       the integer variable
      * @param value   the value
      * @param context the encoding context
      * @param cf      the factory
-     * @return assignment of boolean variables representing the given value for the given integer variable
+     * @return assignment of boolean variables representing the given value for
+     * the given integer variable
      */
     public static List<Literal> computeRestrictionAssignments(final IntegerVariable v, final int value,
                                                               final CspEncodingContext context,

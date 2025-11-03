@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////
 //                   __                _      _   ________               //
 //                  / /   ____  ____ _(_)____/ | / / ____/               //
 //                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
@@ -73,15 +73,17 @@ import java.util.TreeSet;
 /**
  * An integer set domain consists of a set of given integers and contains
  * only these values.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-class IntegerSetDomain extends IntegerDomain {
+final class IntegerSetDomain extends IntegerDomain {
     private final SortedSet<Integer> values;
 
     /**
      * Constructs a new integer set domain with the given values.
      * @param values the values
      */
-    protected IntegerSetDomain(final SortedSet<Integer> values) {
+    IntegerSetDomain(final SortedSet<Integer> values) {
         super(values.first(), values.last());
         this.values = values;
     }

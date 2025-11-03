@@ -23,9 +23,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A class grouping functions for substituting integer variables in formulas, predicates, and terms.
+ * Functions for substituting integer variables in formulas,predicates, and
+ * terms.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class TermSubstitutionFunction {
+public final class TermSubstitutionFunction {
     private TermSubstitutionFunction() {
     }
 

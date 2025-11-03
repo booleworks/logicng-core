@@ -24,9 +24,11 @@ import java.util.SortedSet;
 import java.util.stream.Collectors;
 
 /**
- * Class grouping functions for enumerate models from CSP problems.
+ * Functions for enumerate models from CSP problems.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class CspModelEnumeration {
+public final class CspModelEnumeration {
     private CspModelEnumeration() {
     }
 
@@ -62,8 +64,9 @@ public class CspModelEnumeration {
     }
 
     /**
-     * Enumerate models from a solver and a set of relevant integer and boolean variables. The relevant variables are
-     * all in the produced models. If a variable was not encoded on the solver, the function will assume that all
+     * Enumerate models from a solver and a set of relevant integer and boolean
+     * variables. The relevant variables are all in the produced models. If a
+     * variable was not encoded on the solver, the function will assume that all
      * values of the variable are allowed.
      * @param solver           the solver with the encoded problem
      * @param integerVariables the relevant integer variables
@@ -80,8 +83,9 @@ public class CspModelEnumeration {
     }
 
     /**
-     * Enumerate models from a solver and a set of relevant integer and boolean variables. The relevant variables are
-     * all in the produced models. If a variable was not encoded on the solver, the function will assume that all
+     * Enumerate models from a solver and a set of relevant integer and boolean
+     * variables. The relevant variables are all in the produced models. If a
+     * variable was not encoded on the solver, the function will assume that all
      * values of the variable are allowed.
      * @param solver           the solver with the encoded problem
      * @param integerVariables the relevant integer variables

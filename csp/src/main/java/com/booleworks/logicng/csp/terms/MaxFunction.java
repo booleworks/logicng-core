@@ -14,6 +14,8 @@ import java.util.Set;
 
 /**
  * A function term representing the maximum operation.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class MaxFunction extends BinaryFunction {
     /**
@@ -24,7 +26,8 @@ public class MaxFunction extends BinaryFunction {
     /**
      * Constructs a new max function term.
      * <p>
-     * <B>This constructor should not be used!</B> Use {@link CspFactory} to create new terms.
+     * <B>This constructor should not be used!</B> Use {@link CspFactory} to
+     * create new terms.
      * @param left  the first argument
      * @param right the second argument
      */

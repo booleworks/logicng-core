@@ -14,9 +14,12 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Class grouping functions for decoding problems encoded with the order encoding.
+ * Class grouping functions for decoding problems encoded with the order
+ * encoding.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class OrderDecoding {
+public final class OrderDecoding {
     private final OrderEncodingContext context;
     private final CspFactory cf;
 
@@ -33,11 +36,13 @@ public class OrderDecoding {
     /**
      * Decodes a problem that was encoded with the order encoding.
      * <p>
-     * It takes a propositional model {@code model} and a list of integer and boolean variables, which are the
-     * variables that should be decoded from {@code model}. Variables not contained in the model will be assigned to
+     * It takes a propositional model {@code model} and a list of integer and
+     * boolean variables, which are the variables that should be decoded from
+     * {@code model}. Variables not contained in the model will be assigned to
      * any valid value for this variable.
      * <p>
-     * {@code propagateSubstitution} is used to resolve addition substitutions that were not done by the encoding.
+     * {@code propagateSubstitution} is used to resolve addition substitutions
+     * that were not done by the encoding.
      * @param model                 propositional model
      * @param integerVariables      included integer variables
      * @param booleanVariables      included boolean variables
@@ -67,8 +72,9 @@ public class OrderDecoding {
     /**
      * Decodes a problem that was encoded with the order encoding.
      * <p>
-     * It takes a propositional model {@code model} and a list of integer and boolean variables, which are the
-     * variables that should be decoded from {@code model}. Variables not contained in the model will be assigned to
+     * It takes a propositional model {@code model} and a list of integer and
+     * boolean variables, which are the variables that should be decoded from
+     * {@code model}. Variables not contained in the model will be assigned to
      * any valid value for this variable.
      * @param model            propositional model
      * @param integerVariables included integer variables
@@ -83,9 +89,10 @@ public class OrderDecoding {
     /**
      * Decodes a problem that was encoded with the order encoding.
      * <p>
-     * It takes a propositional model {@code model} and a list of integer variables, which are the variables that
-     * should be decoded from {@code model}. Variables not contained in the model will be assigned to any valid value
-     * for this variable.
+     * It takes a propositional model {@code model} and a list of integer
+     * variables, which are the variables that should be decoded from
+     * {@code model}. Variables not contained in the model will be assigned to
+     * any valid value for this variable.
      * @param model            propositional model
      * @param integerVariables included integer variables
      * @return the decoded assignment
@@ -106,8 +113,8 @@ public class OrderDecoding {
     }
 
     /**
-     * Decodes a single integer variable. If the variable is not encoded in the model, it will return any valid value
-     * of the variable.
+     * Decodes a single integer variable. If the variable is not encoded in the
+     * model, it will return any valid value of the variable.
      * @param var     the integer variable to decode
      * @param model   the propositional model
      * @param context the context

@@ -9,10 +9,13 @@ import java.util.Set;
 /**
  * Interface for encoding contexts.
  * <p>
- * An encoding context is used to store information produced by the encoding process. This mainly includes auxiliary
- * variables and performed substitutions. This is needed for the decoding algorithms to know how to interpret the
- * results and is also useful for performing multiple independent encoding calls that result in one big coherent
- * encoding.
+ * An encoding context is used to store information produced by the encoding
+ * process. This mainly includes auxiliary variables and performed
+ * substitutions. This is needed for the decoding algorithms to know how to
+ * interpret the results and is also useful for performing multiple independent
+ * encoding calls that result in one big coherent encoding.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public interface CspEncodingContext {
     /**
@@ -27,7 +30,8 @@ public interface CspEncodingContext {
     CspEncodingAlgorithm getAlgorithm();
 
     /**
-     * Resolves a list of integer variables to the boolean variables that are assigned to the integer variables.
+     * Resolves a list of integer variables to the boolean variables that are
+     * assigned to the integer variables.
      * @param variables list of integer variables
      * @return related boolean variables
      */
@@ -36,7 +40,8 @@ public interface CspEncodingContext {
     /**
      * Returns whether an integer variable has an encoding in this context.
      * @param v the integer variable
-     * @return {@code true} if the variable has an encoding in this context, {@code false} otherwise.
+     * @return {@code true} if the variable has an encoding in this context,
+     * {@code false} otherwise.
      */
     boolean isEncoded(final IntegerVariable v);
 
@@ -49,8 +54,9 @@ public interface CspEncodingContext {
     }
 
     /**
-     * Returns a new context for order encoding. This variant of the order encoding adds additional clauses to ensure
-     * that the model count is preserved.
+     * Returns a new context for order encoding. This variant of the order
+     * encoding adds additional clauses to ensure that the model count is
+     * preserved.
      * @return a new context for order encoding
      */
     static OrderEncodingContext order_model_count() {

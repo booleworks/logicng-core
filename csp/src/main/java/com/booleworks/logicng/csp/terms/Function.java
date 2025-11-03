@@ -4,6 +4,8 @@ import java.util.Objects;
 
 /**
  * Represents a function term. A function term is composed of other terms.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public abstract class Function extends Term {
     Function(final Term.Type type) {

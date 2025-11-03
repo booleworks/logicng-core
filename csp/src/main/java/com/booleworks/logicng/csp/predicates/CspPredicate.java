@@ -18,6 +18,8 @@ import java.util.TreeSet;
 
 /**
  * A LogicNG Predicate dedicated to evaluating predicates with arithmetic terms.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public abstract class CspPredicate implements Predicate {
 
@@ -67,7 +69,8 @@ public abstract class CspPredicate implements Predicate {
     }
 
     /**
-     * Adds all variables used in this predicate and its operands to {@code variables}.
+     * Adds all variables used in this predicate and its operands to
+     * {@code variables}.
      * @param variables set to add the variables to
      */
     public abstract void variablesInplace(SortedSet<IntegerVariable> variables);
@@ -150,9 +153,12 @@ public abstract class CspPredicate implements Predicate {
 
         /**
          * Constructs a new predicate decomposition
-         * @param clauses                   arithmetic clauses produced by the decomposition
-         * @param auxiliaryIntegerVariables integer variables produced by the decomposition
-         * @param auxiliaryBooleanVariables boolean variables produced by the decomposition
+         * @param clauses                   arithmetic clauses produced by the
+         *                                  decomposition
+         * @param auxiliaryIntegerVariables integer variables produced by the
+         *                                  decomposition
+         * @param auxiliaryBooleanVariables boolean variables produced by the
+         *                                  decomposition
          */
         public Decomposition(final Set<IntegerClause> clauses, final Set<IntegerVariable> auxiliaryIntegerVariables,
                              final Set<Variable> auxiliaryBooleanVariables) {

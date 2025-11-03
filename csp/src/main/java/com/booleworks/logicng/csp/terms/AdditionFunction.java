@@ -10,12 +10,15 @@ import java.util.Set;
 
 /**
  * A function term representing the addition operation.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public final class AdditionFunction extends NAryFunction {
     /**
      * Constructs a new addition function term.
      * <p>
-     * <B>This constructor should not be used!</B> Use {@link CspFactory} to create new terms.
+     * <B>This constructor should not be used!</B> Use {@link CspFactory} to
+     * create new terms.
      * @param terms the operands
      */
     public AdditionFunction(final LinkedHashSet<Term> terms) {

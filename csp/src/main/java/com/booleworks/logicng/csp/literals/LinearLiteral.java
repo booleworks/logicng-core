@@ -11,6 +11,8 @@ import java.util.Set;
  * Represents a relation with a linear sum:
  * <p>
  * {@code c_1 * a_1 + ... c_n * a_n (op) 0} with {@code op in {<=, =, !=}}
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class LinearLiteral implements ArithmeticLiteral {
     private final LinearExpression sum;

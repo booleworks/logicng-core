@@ -23,8 +23,10 @@ import java.util.Set;
 
 /**
  * A class grouping functions for the order encoding
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class OrderEncoding {
+public final class OrderEncoding {
     private final CspFactory cf;
     private final OrderEncodingContext context;
     private final OrderReduction reduction;
@@ -43,13 +45,13 @@ public class OrderEncoding {
     /**
      * Encodes a CSP problem using the order encoding.
      * <p>
-     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
-     * the handler.
+     * Note: The destination of the encoding result may contain incomplete
+     * results, if the computation was aborted by the handler.
      * @param csp     the problem
      * @param result  destination for the result
      * @param handler handler for processing encoding events
-     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
-     * aborted the computation
+     * @return the passed encoding result if the computation was successful
+     * otherwise returns the handler event that aborted the computation
      */
     public LngResult<EncodingResult> encode(final Csp csp, final EncodingResult result,
                                             final ComputationHandler handler) {
@@ -69,13 +71,13 @@ public class OrderEncoding {
     /**
      * Encodes a single integer variable using the order encoding.
      * <p>
-     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
-     * the handler.
+     * Note: The destination of the encoding result may contain incomplete
+     * results, if the computation was aborted by the handler.
      * @param v       the integer variable
      * @param result  destination for the result
      * @param handler handler for processing encoding events
-     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
-     * aborted the computation
+     * @return the passed encoding result if the computation was successful
+     * otherwise returns the handler event that aborted the computation
      */
     public LngResult<EncodingResult> encodeVariable(final IntegerVariable v, final EncodingResult result,
                                                     final ComputationHandler handler) {
@@ -104,13 +106,13 @@ public class OrderEncoding {
     /**
      * Encodes a set of arithmetic clauses using the order encoding.
      * <p>
-     * Note: The destination of the encoding result may contain incomplete results, if the computation was aborted by
-     * the handler.
+     * Note: The destination of the encoding result may contain incomplete
+     * results, if the computation was aborted by the handler.
      * @param clauses the set of clauses
      * @param result  destination for the result
      * @param handler handler for processing encoding events
-     * @return the passed encoding result if the computation was successful otherwise returns the handler event that
-     * aborted the computation
+     * @return the passed encoding result if the computation was successful
+     * otherwise returns the handler event that aborted the computation
      */
     public LngResult<EncodingResult> encodeClauses(final Set<IntegerClause> clauses, final EncodingResult result,
                                                    final ComputationHandler handler) {
@@ -135,7 +137,8 @@ public class OrderEncoding {
     }
 
     /**
-     * <B>Directly</B> encodes (without reduction) an arithmetic clause using the order encoding.
+     * <B>Directly</B> encodes (without reduction) an arithmetic clause using
+     * the order encoding.
      * @param cl      the arithmetic clause
      * @param result  destination for the result
      * @param handler handler for processing encoding events
@@ -334,7 +337,8 @@ public class OrderEncoding {
     /**
      * Returns whether an arithmetic literal is simple.
      * <p>
-     * A literal is <I>simple</I> if it will encode as a single boolean variable.
+     * A literal is <I>simple</I> if it will encode as a single boolean
+     * variable.
      * @param literal the arithmetic literal
      * @return {@code true} if the literal is simple
      */
@@ -347,7 +351,8 @@ public class OrderEncoding {
     }
 
     /**
-     * Returns the number of simple literals (simple arithmetic literals and all boolean literals).
+     * Returns the number of simple literals (simple arithmetic literals and all
+     * boolean literals).
      * @param clause the clause
      * @return number of simple literals
      */

@@ -5,6 +5,8 @@ import java.util.SortedSet;
 
 /**
  * An arithmetic function term with exactly two operands.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public abstract class BinaryFunction extends Function {
     /**

@@ -1,5 +1,8 @@
 package com.booleworks.logicng.csp.encodings;
 
+import static com.booleworks.logicng.csp.Common.assignmentFrom;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.ParameterizedCspTest;
 import com.booleworks.logicng.csp.datastructures.Csp;
@@ -14,9 +17,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
-
-import static com.booleworks.logicng.csp.Common.assignmentFrom;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class TermFunctionEncodingTest extends ParameterizedCspTest {
 

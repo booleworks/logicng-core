@@ -1,5 +1,7 @@
 package com.booleworks.logicng.csp.encodings;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.booleworks.logicng.csp.CspFactory;
 import com.booleworks.logicng.csp.ExampleFormulas;
 import com.booleworks.logicng.csp.ParameterizedCspTest;
@@ -14,8 +16,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class HandlerTest extends ParameterizedCspTest {
     @ParameterizedTest

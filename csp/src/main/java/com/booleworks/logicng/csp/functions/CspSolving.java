@@ -23,9 +23,11 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Class grouping functions
+ * Functions for solving CSP problems.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class CspSolving {
+public final class CspSolving {
     private CspSolving() {
     }
 
@@ -46,7 +48,8 @@ public class CspSolving {
      * @param context the encoding context
      * @param cf      the factory
      * @param handler handler for processing events
-     * @return whether the CSP is satisfiable or the event aborting the computation
+     * @return whether the CSP is satisfiable or the event aborting the
+     * computation
      */
     public static LngResult<Boolean> sat(final Csp csp, final CspEncodingContext context, final CspFactory cf, final
     ComputationHandler handler) {
@@ -54,8 +57,8 @@ public class CspSolving {
     }
 
     /**
-     * Calculates whether a CSP is satisfiable under a set of restrictions.  A restriction maps an integer variable to
-     * a specific value that must hold.
+     * Calculates whether a CSP is satisfiable under a set of restrictions.  A
+     * restriction maps an integer variable to a specific value that must hold.
      * @param csp          the csp
      * @param restrictions the restriction map
      * @param context      the encoding context
@@ -68,14 +71,15 @@ public class CspSolving {
     }
 
     /**
-     * Calculates whether a CSP is satisfiable under a set of restrictions.  A restriction maps an integer variable to
-     * a specific value that must hold.
+     * Calculates whether a CSP is satisfiable under a set of restrictions.  A
+     * restriction maps an integer variable to a specific value that must hold.
      * @param csp          the csp
      * @param restrictions the restriction map
      * @param context      the encoding context
      * @param cf           the factory
      * @param handler      handler for processing events
-     * @return whether the CSP is satisfiable or the event aborting the computation
+     * @return whether the CSP is satisfiable or the event aborting the
+     * computation
      */
     public static LngResult<Boolean> sat(final Csp csp, final Map<IntegerVariable, Integer> restrictions,
                                          final CspEncodingContext context, final CspFactory cf,
@@ -103,8 +107,8 @@ public class CspSolving {
     }
 
     /**
-     * Calculates a model of a CSP under a set of restrictions.  A restriction maps an integer variable to a specific
-     * value that must hold.
+     * Calculates a model of a CSP under a set of restrictions.  A restriction
+     * maps an integer variable to a specific value that must hold.
      * @param csp          the csp
      * @param restrictions the restriction map
      * @param context      the encoding context
@@ -126,7 +130,8 @@ public class CspSolving {
      * @param context the encoding context
      * @param cf      the factory
      * @param handler handler for processing events
-     * @return a model of the CSP, empty optional if it is unsatisfiable, or the event aborting the computation.
+     * @return a model of the CSP, empty optional if it is unsatisfiable, or the
+     * event aborting the computation.
      */
     public static LngResult<Optional<CspAssignment>> model(final Csp csp,
                                                            final CspEncodingContext context, final CspFactory cf,
@@ -135,14 +140,15 @@ public class CspSolving {
     }
 
     /**
-     * Calculates a model of a CSP under a set of restrictions.  A restriction maps an integer variable to a specific
-     * value that must hold.
+     * Calculates a model of a CSP under a set of restrictions.  A restriction
+     * maps an integer variable to a specific value that must hold.
      * @param csp          the csp
      * @param restrictions the restriction map
      * @param context      the encoding context
      * @param cf           the factory
      * @param handler      handler for processing events
-     * @return a model of the CSP, empty optional if it is unsatisfiable, or the event aborting the computation.
+     * @return a model of the CSP, empty optional if it is unsatisfiable, or the
+     * event aborting the computation.
      */
     public static LngResult<Optional<CspAssignment>> model(final Csp csp,
                                                            final Map<IntegerVariable, Integer> restrictions,
@@ -156,7 +162,8 @@ public class CspSolving {
     }
 
     /**
-     * Calculates a model of a CSP.  The function assumes that the CSP is already encoded on the solver.
+     * Calculates a model of a CSP.  The function assumes that the CSP is
+     * already encoded on the solver.
      * @param solver  the solver holding the encoded csp
      * @param csp     the csp
      * @param context the encoding context
@@ -169,8 +176,9 @@ public class CspSolving {
     }
 
     /**
-     * Calculates a model of a CSP under a set of restrictions.  A restriction maps an integer variable to a specific
-     * value that must hold.  The function assumes that the CSP is already encoded on the solver.
+     * Calculates a model of a CSP under a set of restrictions.  A restriction
+     * maps an integer variable to a specific value that must hold.  The
+     * function assumes that the CSP is already encoded on the solver.
      * @param solver       the solver holding the encoded csp
      * @param csp          the csp
      * @param restrictions the restriction map
@@ -188,13 +196,15 @@ public class CspSolving {
     }
 
     /**
-     * Calculates a model of a CSP.  The function assumes that the CSP is already encoded on the solver.
+     * Calculates a model of a CSP.  The function assumes that the CSP is
+     * already encoded on the solver.
      * @param solver  the solver holding the encoded csp
      * @param csp     the csp
      * @param context the encoding context
      * @param cf      the factory
      * @param handler handler for processing events
-     * @return a model of the CSP, empty optional if it is unsatisfiable, or the event aborting the computation.
+     * @return a model of the CSP, empty optional if it is unsatisfiable, or
+     * the event aborting the computation.
      */
     public static LngResult<Optional<CspAssignment>> model(final SatSolver solver, final Csp csp,
                                                            final CspEncodingContext context,
@@ -203,15 +213,17 @@ public class CspSolving {
     }
 
     /**
-     * Calculates a model of a CSP under a set of restrictions.  A restriction maps an integer variable to a specific
-     * value that must hold.  The function assumes that the CSP is already encoded on the solver.
+     * Calculates a model of a CSP under a set of restrictions.  A restriction
+     * maps an integer variable to a specific value that must hold.  The
+     * function assumes that the CSP is already encoded on the solver.
      * @param solver       the solver holding the encoded csp
      * @param csp          the csp
      * @param restrictions the restriction map
      * @param context      the encoding context
      * @param cf           the factory
      * @param handler      handler for processing events
-     * @return a model of the CSP, empty optional if it is unsatisfiable, or the event aborting the computation.
+     * @return a model of the CSP, empty optional if it is unsatisfiable, or the
+     * event aborting the computation.
      */
     public static LngResult<Optional<CspAssignment>> model(final SatSolver solver, final Csp csp,
                                                            final Map<IntegerVariable, Integer> restrictions,
@@ -224,7 +236,8 @@ public class CspSolving {
     }
 
     /**
-     * Calculates a model of a CSP.  The function assumes that the CSP is already encoded on the solver.
+     * Calculates a model of a CSP.  The function assumes that the CSP is
+     * already encoded on the solver.
      * @param solver           the solver holding the encoded csp
      * @param integerVariables the relevant integer variables for the decoding
      * @param booleanVariables the relevant boolean variables for the decoding
@@ -239,8 +252,9 @@ public class CspSolving {
     }
 
     /**
-     * Calculates a model of a CSP under a set of restrictions.  A restriction maps an integer variable to a specific
-     * value that must hold.  The function assumes that the CSP is already encoded on the solver.
+     * Calculates a model of a CSP under a set of restrictions.  A restriction
+     * maps an integer variable to a specific value that must hold.  The
+     * function assumes that the CSP is already encoded on the solver.
      * @param solver           the solver holding the encoded csp
      * @param integerVariables the relevant integer variables for the decoding
      * @param booleanVariables the relevant boolean variables for the decoding
@@ -266,8 +280,9 @@ public class CspSolving {
     }
 
     /**
-     * Calculates a model of a CSP under a set of restrictions.  A restriction maps an integer variable to a specific
-     * value that must hold.  The function assumes that the CSP is already encoded on the solver.
+     * Calculates a model of a CSP under a set of restrictions.  A restriction
+     * maps an integer variable to a specific value that must hold.  The
+     * function assumes that the CSP is already encoded on the solver.
      * @param solver           the solver holding the encoded csp
      * @param integerVariables the relevant integer variables for the decoding
      * @param booleanVariables the relevant boolean variables for the decoding
@@ -275,7 +290,8 @@ public class CspSolving {
      * @param context          the encoding context
      * @param cf               the factory
      * @param handler          handler for processing events
-     * @return a model of the CSP, empty optional if it is unsatisfiable, or the event aborting the computation.
+     * @return a model of the CSP, empty optional if it is unsatisfiable, or the
+     * event aborting the computation.
      */
     public static LngResult<Optional<CspAssignment>> model(final SatSolver solver,
                                                            final Collection<IntegerVariable> integerVariables,

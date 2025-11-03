@@ -4,9 +4,12 @@ import java.util.Iterator;
 import java.util.SortedSet;
 
 /**
- * Super class for integer domains for constraints.  An integer domain can be contiguous
- * and thus only defined by a lower and upper bound ({@link IntegerRangeDomain}), or
- * defined by a set of concrete values ({@link IntegerSetDomain}).
+ * Super class for integer domains for constraints.  An integer domain can be
+ * contiguous and thus only defined by a lower and upper bound
+ * ({@link IntegerRangeDomain}), or defined by a set of concrete values
+ * ({@link IntegerSetDomain}).
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public abstract class IntegerDomain {
     /**
@@ -27,7 +30,8 @@ public abstract class IntegerDomain {
     /**
      * Creates a domain of a set of integers.
      * <p>
-     * If the set is continuous it creates an {@link IntegerRangeDomain} otherwise an {@link IntegerSetDomain}.
+     * If the set is continuous it creates an {@link IntegerRangeDomain}
+     * otherwise an {@link IntegerSetDomain}.
      * @param values the values
      * @return new domain
      */
@@ -94,8 +98,8 @@ public abstract class IntegerDomain {
     public abstract boolean isContiguous();
 
     /**
-     * Returns a new domain containing all elements of this domain but bound by the new
-     * given lower and upper bound.
+     * Returns a new domain containing all elements of this domain but bound by
+     * the new given lower and upper bound.
      * @param lb the new lower bound
      * @param ub the new upper bound
      * @return the new bound domain
@@ -103,7 +107,8 @@ public abstract class IntegerDomain {
     public abstract IntegerDomain bound(int lb, int ub);
 
     /**
-     * Returns the values of this domain bound to a lower and upper bound as an iterator.
+     * Returns the values of this domain bound to a lower and upper bound as an
+     * iterator.
      * @param lb the lower bound
      * @param ub the upper bound
      * @return the iterator for the bound values
@@ -131,28 +136,31 @@ public abstract class IntegerDomain {
     public abstract IntegerDomain neg();
 
     /**
-     * Returns a new domain with the absolute values of all elements in this domain.
+     * Returns a new domain with the absolute values of all elements in this
+     * domain.
      * @return a new domain with the absolute values
      */
     public abstract IntegerDomain abs();
 
     /**
-     * Returns a new domain where each value of this domain is increased by a constant value
+     * Returns a new domain where each value of this domain is increased by a
+     * constant value.
      * @param a a constant integer
      * @return a new domain with the new values
      */
     public abstract IntegerDomain add(final int a);
 
     /**
-     * Returns a new domain with all elements resulting in the addition of elements of this
-     * domain and another given domain.
+     * Returns a new domain with all elements resulting in the addition of
+     * elements of this domain and another given domain.
      * @param d the other domain
      * @return a new domain with the added values
      */
     public abstract IntegerDomain add(final IntegerDomain d);
 
     /**
-     * Returns a new domain where each value of this domain is decreased by a constant value
+     * Returns a new domain where each value of this domain is decreased by a
+     * constant value
      * @param a a constant integer
      * @return a new domain with the new values
      */
@@ -161,8 +169,8 @@ public abstract class IntegerDomain {
     }
 
     /**
-     * Returns a new domain with all elements resulting in the subtraction of elements of this
-     * domain and another given domain.
+     * Returns a new domain with all elements resulting in the subtraction of
+     * elements of this domain and another given domain.
      * @param d the other domain
      * @return a new domain with the subtracted values
      */
@@ -171,59 +179,64 @@ public abstract class IntegerDomain {
     }
 
     /**
-     * Returns a new domain where each value of this domain is multiplied by a constant value
+     * Returns a new domain where each value of this domain is multiplied by a
+     * constant value.
      * @param a a constant integer
      * @return a new domain with the new values
      */
     public abstract IntegerDomain mul(int a);
 
     /**
-     * Returns a new domain with all elements resulting in the multiplication of elements of this
-     * domain and another given domain.
+     * Returns a new domain with all elements resulting in the multiplication of
+     * elements of this domain and another given domain.
      * @param d the other domain
      * @return a new domain with the multiplied values
      */
     public abstract IntegerDomain mul(final IntegerDomain d);
 
     /**
-     * Returns a new domain where each value of this domain is divided by a constant value
+     * Returns a new domain where each value of this domain is divided by a
+     * constant value.
      * @param a a constant integer
      * @return a new domain with the new values
      */
     public abstract IntegerDomain div(int a);
 
     /**
-     * Returns a new domain with all elements resulting in the division of elements of this
-     * domain and another given domain.
+     * Returns a new domain with all elements resulting in the division of
+     * elements of this domain and another given domain.
      * @param d the other domain
      * @return a new domain with the divided values
      */
     public abstract IntegerDomain div(final IntegerDomain d);
 
     /**
-     * Returns a new domain where each value of this domain is taken modulo by a constant value
+     * Returns a new domain where each value of this domain is taken modulo by a
+     * constant value.
      * @param a a constant integer
      * @return a new domain with the new values
      */
     public abstract IntegerDomain mod(int a);
 
     /**
-     * Returns a new domain with all elements resulting in the modulation of elements of this
-     * domain and another given domain.
+     * Returns a new domain with all elements resulting in the modulation of
+     * elements of this domain and another given domain.
      * @param d the other domain
      * @return a new domain with the moduled values
      */
     public abstract IntegerDomain mod(final IntegerDomain d);
 
     /**
-     * Returns a new domain with all elements when taking the minimum of this domain with another domain.
+     * Returns a new domain with all elements when taking the minimum of this
+     * domain with another domain.
      * @param d the other domain
      * @return a new domain with the min values
      */
     public abstract IntegerDomain min(final IntegerDomain d);
 
     /**
-     * Returns a new domain with all elements when taking the maximum of this domain with another domain.
+     * Returns a new domain with all elements when taking the maximum of this
+     * domain with another domain.
      * @param d the other domain
      * @return a new domain with the max values
      */
@@ -261,8 +274,9 @@ public abstract class IntegerDomain {
     }
 
     /**
-     * Creates a new domain from a set of integers. This function restricts the size of {@link IntegerSetDomain}s and
-     * will approximate them with a {@link IntegerRangeDomain} if it becomes to large.
+     * Creates a new domain from a set of integers. This function restricts the
+     * size of {@link IntegerSetDomain}s and will approximate them with a
+     * {@link IntegerRangeDomain} if it becomes to large.
      * @param domain the set of integers
      * @return integer domain
      */

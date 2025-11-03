@@ -8,18 +8,23 @@ import java.util.Map;
 import java.util.SortedSet;
 
 /**
- * A backbone for CSPs storing mandatory and forbidden integer assignments and a boolean backbone.
+ * A backbone for CSPs. It stores mandatory and forbidden integer assignments
+ * and a boolean backbone.
  * <p>
- * The integer assignments are represented in a compressed manner. First there is a mapping for mandatory assignments
- * that assigns a mandatory integer value to an integer variable. Conversely, this means that all other values for this
- * variable are forbidden. (They are not stored in the map for forbidden values)
- * Variables that have no mandatory value, can have assignments in the mapping for forbidden values, which maps integer
- * variables to the set of forbidden variables, i.e., there is no model that assigns this integer variable to those
- * values.
+ * The integer assignments are represented in a compressed manner. First there
+ * is a mapping for mandatory assignments that assigns a mandatory integer value
+ * to an integer variable. Conversely, this means that all other values for this
+ * variable are forbidden (They are not stored in the map for forbidden values).
+ * Variables that have no mandatory value, can have assignments in the mapping
+ * for forbidden values, which maps integer variables to the set of forbidden
+ * variables, i.e., there is no model that assigns this integer variable to
+ * those values.
  * <p>
  * Boolean variables are stored in a {@link Backbone}
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class CspBackbone {
+public final class CspBackbone {
     private static final CspBackbone UNSAT_BACKBONE = new CspBackbone(null, null, Backbone.unsatBackbone());
 
     private final Map<IntegerVariable, Integer> mandatory;
@@ -34,7 +39,8 @@ public class CspBackbone {
     }
 
     /**
-     * Constructs a new backbone from a map of mandatory and forbidden assignments and a boolean backbone.
+     * Constructs a new backbone from a map of mandatory and forbidden
+     * assignments and a boolean backbone.
      * @param mandatory       mapping for mandatory assignments
      * @param forbidden       mapping for forbidden assignments
      * @param booleanBackbone boolean backbone
@@ -55,7 +61,7 @@ public class CspBackbone {
     }
 
     /**
-     * Returns whether a variable value pair is mandatory
+     * Returns whether a variable value pair is mandatory.
      * @param v     the integer variable
      * @param value the value
      * @return whether the variable value pair is mandatory
@@ -65,7 +71,7 @@ public class CspBackbone {
     }
 
     /**
-     * Returns whether a variable value pair is forbidden
+     * Returns whether a variable value pair is forbidden.
      * @param v     the integer variable
      * @param value the value
      * @return whether the variable value pair is forbidden
@@ -76,7 +82,7 @@ public class CspBackbone {
     }
 
     /**
-     * Returns whether a variable value pair is optional
+     * Returns whether a variable value pair is optional.
      * @param v     the integer variable
      * @param value the value
      * @return whether the variable value pair is optional
@@ -86,7 +92,7 @@ public class CspBackbone {
     }
 
     /**
-     * Returns the map for mandatory assignments
+     * Returns the map for mandatory assignments.
      * @return the map for mandatory assignments
      */
     public Map<IntegerVariable, Integer> getMandatory() {
@@ -94,7 +100,7 @@ public class CspBackbone {
     }
 
     /**
-     * Returns the map for forbidden assignments
+     * Returns the map for forbidden assignments.
      * @return the map for forbidden assignments
      */
     public Map<IntegerVariable, SortedSet<Integer>> getForbidden() {

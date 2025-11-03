@@ -18,9 +18,12 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * A class grouping functions for decoding problems with the compact order encoding.
+ * Functions for decoding problems with the compact order
+ * encoding.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class CompactOrderDecoding {
+public final class CompactOrderDecoding {
     private final CspFactory cf;
     private final CompactOrderEncodingContext context;
 
@@ -37,11 +40,13 @@ public class CompactOrderDecoding {
     /**
      * Decodes a problem that was encoded with the compact order encoding.
      * <p>
-     * It takes a propositional model {@code model} and a list of integer and boolean variables, which are the
-     * variables that should be decoded from {@code model}. Variables not contained in the model will be assigned to
+     * It takes a propositional model {@code model} and a list of integer and
+     * boolean variables, which are the variables that should be decoded from
+     * {@code model}. Variables not contained in the model will be assigned to
      * any valid value for this variable.
      * <p>
-     * {@code propagateSubstitution} is used to resolve addition substitutions that were not done by the encoding.
+     * {@code propagateSubstitution} is used to resolve addition substitutions
+     * that were not done by the encoding.
      * @param model                 propositional model
      * @param integerVariables      included integer variables
      * @param booleanVariables      included boolean variables
@@ -80,8 +85,9 @@ public class CompactOrderDecoding {
     /**
      * Decodes a problem that was encoded with the compact order encoding.
      * <p>
-     * It takes a propositional model {@code model} and a list of integer and boolean variables, which are the
-     * variables that should be decoded from {@code model}. Variables not contained in the model will be assigned to
+     * It takes a propositional model {@code model} and a list of integer and
+     * boolean variables, which are the variables that should be decoded from
+     * {@code model}. Variables not contained in the model will be assigned to
      * any valid value for this variable.
      * @param model            propositional model
      * @param integerVariables included integer variables
@@ -96,9 +102,10 @@ public class CompactOrderDecoding {
     /**
      * Decodes a problem that was encoded with the compact order encoding.
      * <p>
-     * It takes a propositional model {@code model} and a list of integer variables, which are the variables that
-     * should be decoded from {@code model}. Variables not contained in the model will be assigned to any valid value
-     * for this variable.
+     * It takes a propositional model {@code model} and a list of integer
+     * variables, which are the variables that should be decoded from
+     * {@code model}. Variables not contained in the model will be assigned to
+     * any valid value for this variable.
      * @param model            propositional model
      * @param integerVariables included integer variables
      * @return the decoded assignment

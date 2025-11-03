@@ -21,8 +21,10 @@ import java.util.Set;
 
 /**
  * A class grouping functions for reducing a problem for the order encoding.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class OrderReduction {
+public final class OrderReduction {
     /**
      * Maximum domain size for linear expressions before they get simplified.
      */
@@ -47,7 +49,8 @@ public class OrderReduction {
     }
 
     /**
-     * Reduces a set of arithmetic clauses so that it can be encoded with the order encoding.
+     * Reduces a set of arithmetic clauses so that it can be encoded with the
+     * order encoding.
      * @param clauses the clauses
      * @param handler for processing encoding events
      * @return the reduced problem

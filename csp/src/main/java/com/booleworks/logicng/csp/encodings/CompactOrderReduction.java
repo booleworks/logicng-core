@@ -27,9 +27,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A class grouping functions for reducing a problem for the compact order encoding.
+ * Functions for reducing a problem for the compact order encoding.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class CompactOrderReduction {
+public final class CompactOrderReduction {
 
     /**
      * Prefix for adjusted variables.
@@ -67,7 +69,8 @@ public class CompactOrderReduction {
     }
 
     /**
-     * Reduces a set of arithmetic clauses so that it can be encoded with the compact order encoding.
+     * Reduces a set of arithmetic clauses so that it can be encoded with the
+     * compact order encoding.
      * @param clauses          the clauses
      * @param integerVariables the integer variables
      * @param handler          handler for processing encoding events

@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 /**
  * An arithmetic function term with any number of operands.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public abstract class NAryFunction extends Function {
     /**

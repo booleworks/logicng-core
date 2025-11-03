@@ -17,9 +17,11 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * Class grouping functions for counting models of CSP problems.
+ * Functions for counting models of CSP problems.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class CspModelCounting {
+public final class CspModelCounting {
     private CspModelCounting() {
     }
 

@@ -5,6 +5,8 @@ import java.util.SortedSet;
 
 /**
  * An arithmetic function term with exactly one operand.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public abstract class UnaryFunction extends Function {
     /**

@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////
 //                   __                _      _   ________               //
 //                  / /   ____  ____ _(_)____/ | / / ____/               //
 //                 / /   / __ \/ __ `/ / ___/  |/ / / __                 //
@@ -74,6 +74,8 @@ import java.util.SortedSet;
 
 /**
  * An integer variable.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public final class IntegerVariable extends Term implements IntegerHolder {
     private final String name;

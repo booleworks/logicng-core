@@ -16,9 +16,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Represents a hybrid arithmetic/boolean clause with arithmetic literals and boolean literals.
+ * Represents a hybrid arithmetic/boolean clause with arithmetic literals and
+ * boolean literals.
+ * @version 3.0.0
+ * @since 3.0.0
  */
-public class IntegerClause {
+public final class IntegerClause {
     private final Set<Literal> boolLiterals;
     private final Set<ArithmeticLiteral> arithLiterals;
 
@@ -65,7 +68,8 @@ public class IntegerClause {
     }
 
     /**
-     * Constructs new arithmetic clause with one boolean literal and one arithmetic literal.
+     * Constructs new arithmetic clause with one boolean literal and one
+     * arithmetic literal.
      * @param boolLiteral       boolean literal
      * @param arithmeticLiteral arithmetic literal
      */
@@ -98,8 +102,10 @@ public class IntegerClause {
     }
 
     /**
-     * Returns all integer variables that are contained in all literals of this clause.
-     * @return all integer variables that are contained in all literals of this clause
+     * Returns all integer variables that are contained in all literals of this
+     * clause.
+     * @return all integer variables that are contained in all literals of this
+     * clause
      */
     public Set<IntegerVariable> getCommonVariables() {
         if (!boolLiterals.isEmpty()) {
@@ -139,7 +145,8 @@ public class IntegerClause {
     }
 
     /**
-     * Returns whether the clause is trivially unsatisfiable, i.e., all literals are unsatisfiable.
+     * Returns whether the clause is trivially unsatisfiable, i.e., all literals
+     * are unsatisfiable.
      * @return whether the clause is trivially unsatisfiable
      */
     public boolean isUnsat() {
@@ -192,8 +199,6 @@ public class IntegerClause {
      * Combines two predicate decompositions by factorizing their clauses.
      * <p>
      * This expresses a disjunction of two sets of clauses.
-     * <p>
-     * TODO: We could use Tseitin instead
      * @param left  the left decomposition
      * @param right the right decomposition
      * @return the factorized decomposition.

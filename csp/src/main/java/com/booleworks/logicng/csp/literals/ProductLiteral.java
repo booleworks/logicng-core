@@ -11,6 +11,8 @@ import java.util.Set;
  * Represents an equality with a multiplication of two variables:
  * <p>
  * {@code v = v2 * v2}
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class ProductLiteral implements ArithmeticLiteral {
     private final IntegerVariable v;

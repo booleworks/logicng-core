@@ -13,14 +13,18 @@ import java.util.Set;
  * <p>
  * {@code z (op) x + y} with {@code op in {=, <=, >=, !=}}
  * <p>
- * This class is an intermediate representation used by encoding algorithms. It should not be used directly.
+ * This class is an intermediate representation used by encoding algorithms. It
+ * should not be used directly.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public class OpAdd implements RCSPLiteral {
     private final IntegerHolder z, x, y;
     private final Operator op;
 
     /**
-     * Constructs new addition relation: {@code z (op) x + y; op in {=, <=, >=, !=}}
+     * Constructs new addition relation:
+     * {@code z (op) x + y; op in {=, <=, >=, !=}}
      * @param op operator of the relation
      * @param z  argument for z
      * @param x  argument for x

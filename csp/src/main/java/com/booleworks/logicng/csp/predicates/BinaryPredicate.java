@@ -9,6 +9,8 @@ import java.util.SortedSet;
 
 /**
  * Represents the class of predicates that have exactly two terms as operands.
+ * @version 3.0.0
+ * @since 3.0.0
  */
 public abstract class BinaryPredicate extends CspPredicate {
 
