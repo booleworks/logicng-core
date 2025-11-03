@@ -86,7 +86,7 @@ public class IntegerClause {
      * @return all boolean literals of this clause
      */
     public Set<Literal> getBoolLiterals() {
-        return boolLiterals;
+        return Collections.unmodifiableSet(boolLiterals);
     }
 
     /**
@@ -94,7 +94,7 @@ public class IntegerClause {
      * @return all arithmetic literals of this clause
      */
     public Set<ArithmeticLiteral> getArithmeticLiterals() {
-        return arithLiterals;
+        return Collections.unmodifiableSet(arithLiterals);
     }
 
     /**

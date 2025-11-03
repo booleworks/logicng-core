@@ -48,7 +48,7 @@ public class Csp {
      * @return all visible integer variables of this problem.
      */
     public Set<IntegerVariable> getVisibleIntegerVariables() {
-        return visibleIntegerVariables;
+        return Collections.unmodifiableSet(visibleIntegerVariables);
     }
 
     /**
@@ -61,7 +61,7 @@ public class Csp {
      * @return all visible boolean variables of this problem.
      */
     public Set<Variable> getVisibleBooleanVariables() {
-        return visibleBooleanVariables;
+        return Collections.unmodifiableSet(visibleBooleanVariables);
     }
 
     /**
@@ -74,7 +74,7 @@ public class Csp {
      * @return all internal integer variables of this problem.
      */
     public Set<IntegerVariable> getInternalIntegerVariables() {
-        return internalIntegerVariables;
+        return Collections.unmodifiableSet(internalIntegerVariables);
     }
 
     /**
@@ -87,7 +87,7 @@ public class Csp {
      * @return all internal boolean variables of this problem.
      */
     public Set<Variable> getInternalBooleanVariables() {
-        return internalBooleanVariables;
+        return Collections.unmodifiableSet(internalBooleanVariables);
     }
 
     /**
@@ -95,7 +95,7 @@ public class Csp {
      * @return all arithmetic clauses of this problem
      */
     public Set<IntegerClause> getClauses() {
-        return clauses;
+        return Collections.unmodifiableSet(clauses);
     }
 
     /**
