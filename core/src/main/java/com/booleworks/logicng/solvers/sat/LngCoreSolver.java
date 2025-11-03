@@ -22,6 +22,14 @@
 
 package com.booleworks.logicng.solvers.sat;
 
+import static com.booleworks.logicng.datastructures.Tristate.FALSE;
+import static com.booleworks.logicng.datastructures.Tristate.TRUE;
+import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
+import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.SAT_CALL_FINISHED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BACKBONE_COMPUTATION_STARTED;
+import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SAT_CALL_STARTED;
+import static com.booleworks.logicng.handlers.events.SimpleEvent.SAT_CONFLICT_DETECTED;
+
 import com.booleworks.logicng.backbones.Backbone;
 import com.booleworks.logicng.backbones.BackboneType;
 import com.booleworks.logicng.collections.LngBooleanVector;
@@ -53,14 +61,6 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
-
-import static com.booleworks.logicng.datastructures.Tristate.FALSE;
-import static com.booleworks.logicng.datastructures.Tristate.TRUE;
-import static com.booleworks.logicng.datastructures.Tristate.UNDEF;
-import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.SAT_CALL_FINISHED;
-import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BACKBONE_COMPUTATION_STARTED;
-import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.SAT_CALL_STARTED;
-import static com.booleworks.logicng.handlers.events.SimpleEvent.SAT_CONFLICT_DETECTED;
 
 /**
  * The core SAT Solver of LogicNG. Heavily inspired by MiniSat, Glucose, and
@@ -1092,6 +1092,7 @@ public class LngCoreSolver {
                 final int x = var(trail.get(c));
                 final LngVariable v = vars.get(x);
                 v.assign(UNDEF);
+                v.setReason(null);
                 v.setPolarity(!computingBackbone && sign(trail.get(c)));
                 insertVarOrder(x);
             }
