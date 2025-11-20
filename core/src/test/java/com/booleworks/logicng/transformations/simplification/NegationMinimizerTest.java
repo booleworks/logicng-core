@@ -37,40 +37,40 @@ public class NegationMinimizerTest extends TestWithFormulaContext {
         assertThat(_c.a.transform(minimizer)).isEqualTo(_c.a);
         assertThat(_c.na.transform(minimizer)).isEqualTo(_c.na);
 
-        assertThat(_c.f.parse("A&~B&~C&~D").transform(minimizer)).isEqualTo(_c.f.parse("A&~B&~C&~D"));
-        assertThat(_c.f.parse("~A&~B&~C&~D").transform(minimizer)).isEqualTo(_c.f.parse("~(A|B|C|D)"));
+        assertThat(_c.p.parse("A&~B&~C&~D").transform(minimizer)).isEqualTo(_c.p.parse("A&~B&~C&~D"));
+        assertThat(_c.p.parse("~A&~B&~C&~D").transform(minimizer)).isEqualTo(_c.p.parse("~(A|B|C|D)"));
 
-        assertThat(_c.f.parse("A|~B|~C|~D").transform(minimizer)).isEqualTo(_c.f.parse("A|~B|~C|~D"));
-        assertThat(_c.f.parse("~A|~B|~C|~D").transform(minimizer)).isEqualTo(_c.f.parse("~(A&B&C&D)"));
+        assertThat(_c.p.parse("A|~B|~C|~D").transform(minimizer)).isEqualTo(_c.p.parse("A|~B|~C|~D"));
+        assertThat(_c.p.parse("~A|~B|~C|~D").transform(minimizer)).isEqualTo(_c.p.parse("~(A&B&C&D)"));
 
-        assertThat(_c.f.parse("~A|~B|~C|D|~E|~G").transform(minimizer)).isEqualTo(_c.f.parse("D|~(A&B&C&E&G)"));
-        assertThat(_c.f.parse("~A&~B&~C&D&~E&~G").transform(minimizer)).isEqualTo(_c.f.parse("D&~(A|B|C|E|G)"));
+        assertThat(_c.p.parse("~A|~B|~C|D|~E|~G").transform(minimizer)).isEqualTo(_c.p.parse("D|~(A&B&C&E&G)"));
+        assertThat(_c.p.parse("~A&~B&~C&D&~E&~G").transform(minimizer)).isEqualTo(_c.p.parse("D&~(A|B|C|E|G)"));
 
-        assertThat(_c.f.parse("~A|~B|~E&G|~H&~B&~C|~X").transform(minimizer))
-                .isEqualTo(_c.f.parse("~E&G|~(A&B&(H|B|C)&X)"));
-        assertThat(_c.f.parse("~(A&B&~(~E&G)&(H|B|C)&X)").transform(minimizer))
-                .isEqualTo(_c.f.parse("~E&G|~(A&B&(H|B|C)&X)"));
+        assertThat(_c.p.parse("~A|~B|~E&G|~H&~B&~C|~X").transform(minimizer))
+                .isEqualTo(_c.p.parse("~E&G|~(A&B&(H|B|C)&X)"));
+        assertThat(_c.p.parse("~(A&B&~(~E&G)&(H|B|C)&X)").transform(minimizer))
+                .isEqualTo(_c.p.parse("~E&G|~(A&B&(H|B|C)&X)"));
 
-        assertThat(_c.f.parse("~A|B|(~E&~G&~H&~K)").transform(minimizer)).isEqualTo(_c.f.parse("~A|B|~(E|G|H|K)"));
+        assertThat(_c.p.parse("~A|B|(~E&~G&~H&~K)").transform(minimizer)).isEqualTo(_c.p.parse("~A|B|~(E|G|H|K)"));
 
-        assertThat(_c.f.parse("~A|~B").transform(minimizer)).isEqualTo(_c.f.parse("~A|~B"));
-        assertThat(_c.f.parse("~A|~B|~C").transform(minimizer)).isEqualTo(_c.f.parse("~A|~B|~C"));
-        assertThat(_c.f.parse("~A|~B|~C|~D").transform(minimizer)).isEqualTo(_c.f.parse("~(A&B&C&D)"));
+        assertThat(_c.p.parse("~A|~B").transform(minimizer)).isEqualTo(_c.p.parse("~A|~B"));
+        assertThat(_c.p.parse("~A|~B|~C").transform(minimizer)).isEqualTo(_c.p.parse("~A|~B|~C"));
+        assertThat(_c.p.parse("~A|~B|~C|~D").transform(minimizer)).isEqualTo(_c.p.parse("~(A&B&C&D)"));
 
-        assertThat(_c.f.parse("X&(~A|~B)").transform(minimizer)).isEqualTo(_c.f.parse("X&~(A&B)"));
-        assertThat(_c.f.parse("X&(~A|~B|~C)").transform(minimizer)).isEqualTo(_c.f.parse("X&~(A&B&C)"));
-        assertThat(_c.f.parse("X&(~A|~B|~C|~D)").transform(minimizer)).isEqualTo(_c.f.parse("X&~(A&B&C&D)"));
+        assertThat(_c.p.parse("X&(~A|~B)").transform(minimizer)).isEqualTo(_c.p.parse("X&~(A&B)"));
+        assertThat(_c.p.parse("X&(~A|~B|~C)").transform(minimizer)).isEqualTo(_c.p.parse("X&~(A&B&C)"));
+        assertThat(_c.p.parse("X&(~A|~B|~C|~D)").transform(minimizer)).isEqualTo(_c.p.parse("X&~(A&B&C&D)"));
 
-        assertThat(_c.f.parse("~A&~B").transform(minimizer)).isEqualTo(_c.f.parse("~A&~B"));
-        assertThat(_c.f.parse("~A&~B&~C").transform(minimizer)).isEqualTo(_c.f.parse("~A&~B&~C"));
-        assertThat(_c.f.parse("~A&~B&~C&~D").transform(minimizer)).isEqualTo(_c.f.parse("~(A|B|C|D)"));
+        assertThat(_c.p.parse("~A&~B").transform(minimizer)).isEqualTo(_c.p.parse("~A&~B"));
+        assertThat(_c.p.parse("~A&~B&~C").transform(minimizer)).isEqualTo(_c.p.parse("~A&~B&~C"));
+        assertThat(_c.p.parse("~A&~B&~C&~D").transform(minimizer)).isEqualTo(_c.p.parse("~(A|B|C|D)"));
 
-        assertThat(_c.f.parse("X|~A&~B").transform(minimizer)).isEqualTo(_c.f.parse("X|~A&~B"));
-        assertThat(_c.f.parse("X|~A&~B&~C").transform(minimizer)).isEqualTo(_c.f.parse("X|~A&~B&~C"));
-        assertThat(_c.f.parse("X|~A&~B&~C&~D").transform(minimizer)).isEqualTo(_c.f.parse("X|~(A|B|C|D)"));
+        assertThat(_c.p.parse("X|~A&~B").transform(minimizer)).isEqualTo(_c.p.parse("X|~A&~B"));
+        assertThat(_c.p.parse("X|~A&~B&~C").transform(minimizer)).isEqualTo(_c.p.parse("X|~A&~B&~C"));
+        assertThat(_c.p.parse("X|~A&~B&~C&~D").transform(minimizer)).isEqualTo(_c.p.parse("X|~(A|B|C|D)"));
 
-        assertThat(_c.f.parse("A&(~B|~C|~D|~E|~G|X|Y|H)").transform(minimizer))
-                .isEqualTo(_c.f.parse("A&(~(B&C&D&E&G)|X|Y|H)"));
+        assertThat(_c.p.parse("A&(~B|~C|~D|~E|~G|X|Y|H)").transform(minimizer))
+                .isEqualTo(_c.p.parse("A&(~(B&C&D&E&G)|X|Y|H)"));
     }
 
     @ParameterizedTest

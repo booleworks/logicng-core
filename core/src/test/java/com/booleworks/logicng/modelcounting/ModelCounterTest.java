@@ -45,7 +45,7 @@ public class ModelCounterTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testWrongArgument(final FormulaContext _c) {
         assertThrows(IllegalArgumentException.class, () -> ModelCounter.count(_c.f,
-                Collections.singletonList(_c.f.parse("a & b")), new TreeSet<>(Collections.singletonList(_c.a))));
+                Collections.singletonList(_c.p.parse("a & b")), new TreeSet<>(Collections.singletonList(_c.a))));
     }
 
     @ParameterizedTest
@@ -65,15 +65,15 @@ public class ModelCounterTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSimple(final FormulaContext _c) throws ParserException {
-        final Formula formula01 = _c.f.parse("(~v1 => ~v0) | ~v1 | v0");
+        final Formula formula01 = _c.p.parse("(~v1 => ~v0) | ~v1 | v0");
         assertThat(ModelCounter.count(_c.f, Collections.singletonList(formula01), formula01.variables(_c.f)))
                 .isEqualTo(BigInteger.valueOf(4));
 
-        final List<Formula> formulas02 = Arrays.asList(_c.f.parse("(a & b) | ~b"), _c.f.parse("a"));
+        final List<Formula> formulas02 = Arrays.asList(_c.p.parse("(a & b) | ~b"), _c.p.parse("a"));
         assertThat(ModelCounter.count(_c.f, formulas02, FormulaHelper.variables(_c.f, formulas02)))
                 .isEqualTo(BigInteger.valueOf(2));
 
-        final List<Formula> formulas03 = Arrays.asList(_c.f.parse("a & b & c"), _c.f.parse("c & d"));
+        final List<Formula> formulas03 = Arrays.asList(_c.p.parse("a & b & c"), _c.p.parse("c & d"));
         assertThat(ModelCounter.count(_c.f, formulas03, FormulaHelper.variables(_c.f, formulas03)))
                 .isEqualTo(BigInteger.valueOf(1));
     }
@@ -81,19 +81,19 @@ public class ModelCounterTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testAmoAndExo(final FormulaContext _c) throws ParserException {
-        final List<Formula> formulas01 = Arrays.asList(_c.f.parse("a & b"), _c.f.parse("a + b + c + d <= 1"));
+        final List<Formula> formulas01 = Arrays.asList(_c.p.parse("a & b"), _c.p.parse("a + b + c + d <= 1"));
         assertThat(ModelCounter.count(_c.f, formulas01, FormulaHelper.variables(_c.f, formulas01)))
                 .isEqualTo(BigInteger.valueOf(0));
 
-        final List<Formula> formulas02 = Arrays.asList(_c.f.parse("a & b & (a + b + c + d <= 1)"), _c.f.parse("a | b"));
+        final List<Formula> formulas02 = Arrays.asList(_c.p.parse("a & b & (a + b + c + d <= 1)"), _c.p.parse("a | b"));
         assertThat(ModelCounter.count(_c.f, formulas02, FormulaHelper.variables(_c.f, formulas02)))
                 .isEqualTo(BigInteger.valueOf(0));
 
-        final List<Formula> formulas03 = Arrays.asList(_c.f.parse("a & (a + b + c + d <= 1)"), _c.f.parse("a | b"));
+        final List<Formula> formulas03 = Arrays.asList(_c.p.parse("a & (a + b + c + d <= 1)"), _c.p.parse("a | b"));
         assertThat(ModelCounter.count(_c.f, formulas03, FormulaHelper.variables(_c.f, formulas03)))
                 .isEqualTo(BigInteger.valueOf(1));
 
-        final List<Formula> formulas04 = Arrays.asList(_c.f.parse("a & (a + b + c + d = 1)"), _c.f.parse("a | b"));
+        final List<Formula> formulas04 = Arrays.asList(_c.p.parse("a & (a + b + c + d = 1)"), _c.p.parse("a | b"));
         assertThat(ModelCounter.count(_c.f, formulas04, FormulaHelper.variables(_c.f, formulas04)))
                 .isEqualTo(BigInteger.valueOf(1));
     }
@@ -101,12 +101,12 @@ public class ModelCounterTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testNonAmoAndExo(final FormulaContext _c) throws ParserException {
-        final List<Formula> formulas01 = Arrays.asList(_c.f.parse("a & b"), _c.f.parse("a + b + c + d = 2"));
+        final List<Formula> formulas01 = Arrays.asList(_c.p.parse("a & b"), _c.p.parse("a + b + c + d = 2"));
         assertThatThrownBy(() -> ModelCounter.count(_c.f, formulas01, FormulaHelper.variables(_c.f, formulas01)))
                 .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessage("Pure encoding for a PBC of type other than AMO or EXO is currently not supported.");
 
-        final List<Formula> formulas02 = Arrays.asList(_c.f.parse("a & b"), _c.f.parse("c | a & (b + c + d <= 4)"));
+        final List<Formula> formulas02 = Arrays.asList(_c.p.parse("a & b"), _c.p.parse("c | a & (b + c + d <= 4)"));
         assertThatThrownBy(() -> ModelCounter.count(_c.f, formulas02, FormulaHelper.variables(_c.f, formulas02)))
                 .isInstanceOf(UnsupportedOperationException.class)
                 .hasMessage("Pure encoding for a PBC of type other than AMO or EXO is currently not supported.");

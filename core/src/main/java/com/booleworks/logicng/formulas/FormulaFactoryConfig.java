@@ -7,11 +7,8 @@ package com.booleworks.logicng.formulas;
 import com.booleworks.logicng.configurations.Configuration;
 import com.booleworks.logicng.configurations.ConfigurationType;
 import com.booleworks.logicng.formulas.implementation.noncaching.NonCachingFormulaFactory;
-import com.booleworks.logicng.formulas.printer.DefaultStringRepresentation;
-import com.booleworks.logicng.formulas.printer.FormulaStringRepresentation;
 
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Supplier;
 
 /**
  * The configuration object for a formula factory.
@@ -45,7 +42,6 @@ public final class FormulaFactoryConfig extends Configuration {
 
     final String name;
     final FormulaMergeStrategy formulaMergeStrategy;
-    final Supplier<FormulaStringRepresentation> stringRepresentation;
     final boolean simplifyComplementaryOperands;
     final boolean threadSafe;
 
@@ -53,7 +49,6 @@ public final class FormulaFactoryConfig extends Configuration {
         super(ConfigurationType.FORMULA_FACTORY);
         name = builder.name;
         formulaMergeStrategy = builder.formulaMergeStrategy;
-        stringRepresentation = builder.stringRepresentation;
         simplifyComplementaryOperands = builder.simplifyComplementaryOperands;
         threadSafe = builder.threadSafe;
     }
@@ -74,7 +69,6 @@ public final class FormulaFactoryConfig extends Configuration {
     public static class Builder {
         private String name = generateRandomName();
         private FormulaMergeStrategy formulaMergeStrategy = FormulaMergeStrategy.PANIC;
-        private Supplier<FormulaStringRepresentation> stringRepresentation = DefaultStringRepresentation::new;
         private boolean simplifyComplementaryOperands = true;
         private boolean threadSafe = false;
 
@@ -108,18 +102,6 @@ public final class FormulaFactoryConfig extends Configuration {
          */
         public Builder formulaMergeStrategy(final FormulaMergeStrategy formulaMergeStrategy) {
             this.formulaMergeStrategy = formulaMergeStrategy;
-            return this;
-        }
-
-        /**
-         * Sets the formula string representation which should be used by
-         * default for creating strings from a formula. The default is
-         * {@link DefaultStringRepresentation}.
-         * @param stringRepresentation the formula string representation
-         * @return the builder
-         */
-        public Builder stringRepresentation(final Supplier<FormulaStringRepresentation> stringRepresentation) {
-            this.stringRepresentation = stringRepresentation;
             return this;
         }
 

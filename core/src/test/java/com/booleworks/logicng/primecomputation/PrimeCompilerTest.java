@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.primecomputation;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.FIXED_END;
 import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.RESTARTING_TIMEOUT;
 import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.SINGLE_TIMEOUT;
@@ -15,7 +16,6 @@ import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONF
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_WBO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.fail;
 
 import com.booleworks.logicng.FormulaCornerCases;
 import com.booleworks.logicng.LongRunningTag;
@@ -133,22 +133,18 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
         Files.lines(Paths.get("../test_files/formulas/simplify_formulas.txt"))
                 .filter(s -> !s.isEmpty())
                 .forEach(s -> {
-                    try {
-                        final Formula formula = f.parse(s);
-                        final PrimeResult resultImplicantsMin = new PrimeCompiler(f, false, config)
-                                .compute(formula, PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
-                        verify(resultImplicantsMin, formula);
-                        final PrimeResult resultImplicatesMin = new PrimeCompiler(f, false, config)
-                                .compute(formula, PrimeResult.CoverageType.IMPLICATES_COMPLETE);
-                        verify(resultImplicatesMin, formula);
-                    } catch (final ParserException e) {
-                        fail(e.toString());
-                    }
+                    final Formula formula = parse(f, s);
+                    final PrimeResult resultImplicantsMin = new PrimeCompiler(f, false, config)
+                            .compute(formula, PrimeResult.CoverageType.IMPLICANTS_COMPLETE);
+                    verify(resultImplicantsMin, formula);
+                    final PrimeResult resultImplicatesMin = new PrimeCompiler(f, false, config)
+                            .compute(formula, PrimeResult.CoverageType.IMPLICATES_COMPLETE);
+                    verify(resultImplicatesMin, formula);
                 });
     }
 
     @Test
-    public void testTimeoutHandlerSmall() throws ParserException {
+    public void testTimeoutHandlerSmall() {
         final FormulaFactory f = FormulaFactory.caching();
         final List<Pair<PrimeCompiler, PrimeResult.CoverageType>> compilers = Arrays.asList(
                 new Pair<>(new PrimeCompiler(f, true), PrimeResult.CoverageType.IMPLICANTS_COMPLETE),
@@ -161,7 +157,7 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
                     new TimeoutHandler(5_000L, RESTARTING_TIMEOUT),
                     new TimeoutHandler(System.currentTimeMillis() + 5_000L, FIXED_END)
             );
-            final Formula formula = f.parse("a & b | ~c & a");
+            final Formula formula = parse(f, "a & b | ~c & a");
             for (final TimeoutHandler handler : handlers) {
                 testHandler(handler, formula, compiler.getFirst(), compiler.getSecond(), false);
             }
@@ -191,10 +187,10 @@ public class PrimeCompilerTest extends TestWithFormulaContext {
     }
 
     @Test
-    public void testCancellationPoints() throws IOException, ParserException {
+    public void testCancellationPoints() throws IOException {
         final FormulaFactory f = FormulaFactory.nonCaching();
         final Formula formula =
-                f.parse(Files.readAllLines(Paths.get("../test_files/formulas/simplify_formulas.txt")).get(0));
+                parse(f, Files.readAllLines(Paths.get("../test_files/formulas/simplify_formulas.txt")).get(0));
         final List<Pair<PrimeCompiler, PrimeResult.CoverageType>> compilers = Arrays.asList(
                 new Pair<>(new PrimeCompiler(f, true), PrimeResult.CoverageType.IMPLICANTS_COMPLETE),
                 new Pair<>(new PrimeCompiler(f, true), PrimeResult.CoverageType.IMPLICATES_COMPLETE),

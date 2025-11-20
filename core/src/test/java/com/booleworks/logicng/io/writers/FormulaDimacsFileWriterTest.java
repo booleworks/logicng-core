@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.io.writers;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.booleworks.logicng.formulas.Formula;
@@ -32,7 +33,7 @@ public class FormulaDimacsFileWriterTest extends TestWithFormulaContext {
     @Test
     public void testNonCNF() {
         assertThatThrownBy(
-                () -> FormulaDimacsFileWriter.write("non-cnf", FormulaFactory.nonCaching().parse("a => b"), false))
+                () -> FormulaDimacsFileWriter.write("non-cnf", parse(FormulaFactory.nonCaching(), "a => b"), false))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 

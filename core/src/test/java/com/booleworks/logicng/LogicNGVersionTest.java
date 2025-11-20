@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mockStatic;
@@ -23,8 +24,8 @@ public class LogicNGVersionTest {
     public void test() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
         final SatSolver solver = SatSolver.newSolver(f);
-        solver.add(f.parse("(A | ~B) & (B | C)"));
-        solver.satCall().addFormulas(f.parse("~A"), f.parse("~C")).sat();
+        solver.add(parse(f, "(A | ~B) & (B | C)"));
+        solver.satCall().addFormulas(parse(f, "~A"), parse(f, "~C")).sat();
     }
 
     @Test

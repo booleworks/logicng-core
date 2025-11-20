@@ -31,26 +31,26 @@ public class FactorOutSimplificationTest extends TestWithFormulaContext {
         assertThat(_c.a.transform(factorOut)).isEqualTo(_c.a);
         assertThat(_c.na.transform(factorOut)).isEqualTo(_c.na);
 
-        assertThat(_c.f.parse("A&~B&~C&~D").transform(factorOut)).isEqualTo(_c.f.parse("A&~B&~C&~D"));
-        assertThat(_c.f.parse("~A&~B&~C&~D").transform(factorOut)).isEqualTo(_c.f.parse("~A&~B&~C&~D"));
+        assertThat(_c.p.parse("A&~B&~C&~D").transform(factorOut)).isEqualTo(_c.p.parse("A&~B&~C&~D"));
+        assertThat(_c.p.parse("~A&~B&~C&~D").transform(factorOut)).isEqualTo(_c.p.parse("~A&~B&~C&~D"));
 
-        assertThat(_c.f.parse("A|A&B").transform(factorOut)).isEqualTo(_c.f.parse("A"));
-        assertThat(_c.f.parse("A|A&B|C&D").transform(factorOut)).isEqualTo(_c.f.parse("A|C&D"));
-        assertThat(_c.f.parse("~(A&(A|B))").transform(factorOut)).isEqualTo(_c.f.parse("~A"));
-        assertThat(_c.f.parse("A|A&B|C").transform(factorOut)).isEqualTo(_c.f.parse("A|C"));
+        assertThat(_c.p.parse("A|A&B").transform(factorOut)).isEqualTo(_c.p.parse("A"));
+        assertThat(_c.p.parse("A|A&B|C&D").transform(factorOut)).isEqualTo(_c.p.parse("A|C&D"));
+        assertThat(_c.p.parse("~(A&(A|B))").transform(factorOut)).isEqualTo(_c.p.parse("~A"));
+        assertThat(_c.p.parse("A|A&B|C").transform(factorOut)).isEqualTo(_c.p.parse("A|C"));
 
-        assertThat(_c.f.parse("A&(A|B)").transform(factorOut)).isEqualTo(_c.f.parse("A"));
-        assertThat(_c.f.parse("A&(A|B)&(C|D)").transform(factorOut)).isEqualTo(_c.f.parse("A&(C|D)"));
-        assertThat(_c.f.parse("~(A|A&B)").transform(factorOut)).isEqualTo(_c.f.parse("~A"));
-        assertThat(_c.f.parse("A&(A|B)&C").transform(factorOut)).isEqualTo(_c.f.parse("A&C"));
+        assertThat(_c.p.parse("A&(A|B)").transform(factorOut)).isEqualTo(_c.p.parse("A"));
+        assertThat(_c.p.parse("A&(A|B)&(C|D)").transform(factorOut)).isEqualTo(_c.p.parse("A&(C|D)"));
+        assertThat(_c.p.parse("~(A|A&B)").transform(factorOut)).isEqualTo(_c.p.parse("~A"));
+        assertThat(_c.p.parse("A&(A|B)&C").transform(factorOut)).isEqualTo(_c.p.parse("A&C"));
 
-        assertThat(_c.f.parse("A&X&Y|A&B&C|B&C&D|A&Z").transform(factorOut))
-                .isEqualTo(_c.f.parse("A&(X&Y|B&C|Z)|B&C&D"));
-        assertThat(_c.f.parse("G&(A&X&Y|A&B&C|B&C&D|A&Z)").transform(factorOut))
-                .isEqualTo(_c.f.parse("G&(A&(X&Y|B&C|Z)|B&C&D)"));
+        assertThat(_c.p.parse("A&X&Y|A&B&C|B&C&D|A&Z").transform(factorOut))
+                .isEqualTo(_c.p.parse("A&(X&Y|B&C|Z)|B&C&D"));
+        assertThat(_c.p.parse("G&(A&X&Y|A&B&C|B&C&D|A&Z)").transform(factorOut))
+                .isEqualTo(_c.p.parse("G&(A&(X&Y|B&C|Z)|B&C&D)"));
 
-        assertThat(_c.f.parse("G&(~(A&X&Y)|~(A&B&C))").transform(factorOut))
-                .isEqualTo(_c.f.parse("G&(~(A&X&Y)|~(A&B&C))"));
+        assertThat(_c.p.parse("G&(~(A&X&Y)|~(A&B&C))").transform(factorOut))
+                .isEqualTo(_c.p.parse("G&(~(A&X&Y)|~(A&B&C))"));
     }
 
     @ParameterizedTest

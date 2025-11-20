@@ -4,12 +4,12 @@
 
 package com.booleworks.logicng.solvers.sat;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.collections.LngIntVector;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.SatSolver;
 import org.junit.jupiter.api.Test;
 
@@ -40,10 +40,10 @@ public class LngCoreSolverTest {
     }
 
     @Test
-    public void testAssumptionChecking() throws ParserException {
+    public void testAssumptionChecking() {
         final FormulaFactory f = FormulaFactory.caching();
         final SatSolver solver = SatSolver.newSolver(f);
-        solver.add(f.parse("A & B"));
+        solver.add(parse(f, "A & B"));
         assertThat(solver.sat()).isTrue();
         assertThat(solver.satCall().addFormulas(f.literal("A", true)).sat().getResult()).isTrue();
         assertThat(solver.satCall().addFormulas(f.literal("B", true)).sat().getResult()).isTrue();

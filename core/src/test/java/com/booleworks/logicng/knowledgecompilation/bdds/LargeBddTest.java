@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.knowledgecompilation.bdds;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.LongRunningTag;
@@ -117,7 +118,7 @@ public class LargeBddTest {
     @Test
     public void testNumberOfNodesHandler() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Formula formula = f.parse("A <=> ~(B => C & F & G & ~H | A & D & ~E)");
+        final Formula formula = parse(f, "A <=> ~(B => C & F & G & ~H | A & D & ~E)");
         final BddKernel kernel = new BddKernel(f, formula.variables(f).size(), 10000, 10000);
         final NumberOfNodesBddHandler handler = new NumberOfNodesBddHandler(5);
         final LngResult<Bdd> bdd = BddFactory.build(f, formula, kernel, handler);

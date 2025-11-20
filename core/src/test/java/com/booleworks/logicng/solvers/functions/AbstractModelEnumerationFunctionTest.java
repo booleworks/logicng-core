@@ -4,13 +4,13 @@
 
 package com.booleworks.logicng.solvers.functions;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.RandomTag;
 import com.booleworks.logicng.datastructures.Model;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.functions.modelenumeration.DefaultModelEnumerationStrategy;
 import com.booleworks.logicng.solvers.functions.modelenumeration.ModelEnumerationConfig;
@@ -31,8 +31,8 @@ public class AbstractModelEnumerationFunctionTest {
 
     @Test
     @RandomTag
-    public void testEmptySplitVariables() throws ParserException {
-        final Formula formula = f.parse("A | B | C | D | E");
+    public void testEmptySplitVariables() {
+        final Formula formula = parse(f, "A | B | C | D | E");
 
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);
@@ -50,8 +50,8 @@ public class AbstractModelEnumerationFunctionTest {
 
     @Test
     @RandomTag
-    public void testNullSplitVariables() throws ParserException {
-        final Formula formula = f.parse("A | B | C | D | E");
+    public void testNullSplitVariables() {
+        final Formula formula = parse(f, "A | B | C | D | E");
 
         final SatSolver solver = SatSolver.newSolver(f);
         solver.add(formula);

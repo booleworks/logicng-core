@@ -41,15 +41,15 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testPrimeImplicateNaive(final FormulaContext _c) throws ParserException {
-        final NaivePrimeReduction naive01 = new NaivePrimeReduction(_c.f, _c.f.parse("a&b"));
+        final NaivePrimeReduction naive01 = new NaivePrimeReduction(_c.f, _c.p.parse("a&b"));
         assertThat(naive01.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.a, _c.b))))
                 .containsAnyOf(_c.a, _c.b).hasSize(1);
 
-        final NaivePrimeReduction naive02 = new NaivePrimeReduction(_c.f, _c.f.parse("(a => b) | b | c"));
+        final NaivePrimeReduction naive02 = new NaivePrimeReduction(_c.f, _c.p.parse("(a => b) | b | c"));
         assertThat(naive02.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.a.negate(_c.f), _c.b, _c.c))))
                 .containsExactly(_c.a.negate(_c.f), _c.b, _c.c);
 
-        final NaivePrimeReduction naive03 = new NaivePrimeReduction(_c.f, _c.f.parse("(a => b) & b & c"));
+        final NaivePrimeReduction naive03 = new NaivePrimeReduction(_c.f, _c.p.parse("(a => b) & b & c"));
         assertThat(naive03.reduceImplicate(_c.f, new TreeSet<>(Arrays.asList(_c.b, _c.c))))
                 .containsAnyOf(_c.b, _c.c).hasSize(1);
     }
@@ -83,7 +83,7 @@ public class PrimeImplicateReductionTest extends TestWithFormulaContext {
     public void testSmallFormulas(final FormulaContext _c) throws IOException, ParserException {
         final List<String> lines = Files.readAllLines(Paths.get("../test_files/formulas/small_formulas.txt"));
         for (final String line : lines) {
-            testFormula(_c.f.parse(line));
+            testFormula(_c.p.parse(line));
         }
     }
 

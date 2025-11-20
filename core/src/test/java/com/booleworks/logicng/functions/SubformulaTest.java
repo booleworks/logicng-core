@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.functions;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.formulas.Formula;
@@ -13,7 +14,6 @@ import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.cache.FunctionCacheEntry;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
 import com.booleworks.logicng.io.parsers.ParserException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -179,9 +179,9 @@ public class SubformulaTest extends TestWithFormulaContext {
     }
 
     @Test
-    public void testNoCache() throws ParserException {
+    public void testNoCache() {
         final CachingFormulaFactory f = FormulaFactory.caching();
-        final Formula f1 = f.parse("(d | (a & b)) & (c | (a & b)) | (a & b )");
+        final Formula f1 = parse(f, "(d | (a & b)) & (c | (a & b)) | (a & b )");
         f1.apply(new SubNodeFunction(f, null));
         assertThat(f.getFunctionCacheForType(FunctionCacheEntry.SUBFORMULAS).get(f1)).isNull();
     }

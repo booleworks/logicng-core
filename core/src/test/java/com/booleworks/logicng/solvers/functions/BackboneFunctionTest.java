@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.solvers.functions;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.CNF_METHOD;
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,7 +15,9 @@ import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.io.parsers.FormulaParser;
 import com.booleworks.logicng.io.parsers.ParserException;
+import com.booleworks.logicng.io.parsers.PropositionalParser;
 import com.booleworks.logicng.io.readers.FormulaReader;
 import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.SolverState;
@@ -61,16 +64,16 @@ public class BackboneFunctionTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testSimpleBackbones(final SatSolver solver, final String solverDescription) throws ParserException {
+    public void testSimpleBackbones(final SatSolver solver, final String solverDescription) {
         final FormulaFactory f = solver.getFactory();
         final SolverState state = solver.saveState();
-        solver.add(f.parse("a & b & ~c"));
+        solver.add(parse(f, "a & b & ~c"));
         Backbone backbone = solver.backbone(v("a b c", f));
         assertThat(backbone.isSat()).isTrue();
         assertThat(backbone.getCompleteBackbone(f)).containsExactly(f.variable("a"), f.variable("b"),
                 f.literal("c", false));
         solver.loadState(state);
-        solver.add(f.parse("~a & ~b & c"));
+        solver.add(parse(f, "~a & ~b & c"));
         backbone = solver.backbone(v("a c", f));
         assertThat(backbone.isSat()).isTrue();
         assertThat(backbone.getCompleteBackbone(f)).containsExactly(f.literal("a", false), f.variable("c"));
@@ -78,15 +81,15 @@ public class BackboneFunctionTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testSimpleFormulas(final SatSolver solver, final String solverDescription) throws ParserException {
+    public void testSimpleFormulas(final SatSolver solver, final String solverDescription) {
         final FormulaFactory f = solver.getFactory();
-        solver.add(f.parse("(a => c | d) & (b => d | ~e) & (a | b)"));
+        solver.add(parse(f, "(a => c | d) & (b => d | ~e) & (a | b)"));
         Backbone backbone = solver.backbone(v("a b c d e f", f));
         assertThat(backbone.isSat()).isTrue();
         assertThat(backbone.getCompleteBackbone(f)).isEmpty();
-        solver.add(f.parse("a => b"));
-        solver.add(f.parse("b => a"));
-        solver.add(f.parse("~d"));
+        solver.add(parse(f, "a => b"));
+        solver.add(parse(f, "b => a"));
+        solver.add(parse(f, "~d"));
         backbone = solver.backbone(v("a b c d e f g h", f));
         assertThat(backbone.isSat()).isTrue();
         assertThat(backbone.getCompleteBackbone(f)).containsExactly(f.variable("a"), f.variable("b"),
@@ -96,18 +99,18 @@ public class BackboneFunctionTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solvers")
-    public void testSimpleFormulasWithBuilderUsage(final SatSolver solver, final String solverDescription)
-            throws ParserException {
+    public void testSimpleFormulasWithBuilderUsage(final SatSolver solver, final String solverDescription) {
         final FormulaFactory f = solver.getFactory();
-        solver.add(f.parse("(a => c | d) & (b => d | ~e) & (a | b)"));
+        solver.add(parse(f, "(a => c | d) & (b => d | ~e) & (a | b)"));
         Backbone backbone = solver.execute(BackboneFunction.builder().variables(
-                        f.variable("a"), f.variable("b"), f.variable("c"), f.variable("d"), f.variable("e"), f.variable("f"))
+                        f.variable("a"), f.variable("b"), f.variable("c"), f.variable("d"), f.variable("e"),
+                        f.variable("f"))
                 .build());
         assertThat(backbone.isSat()).isTrue();
         assertThat(backbone.getCompleteBackbone(f)).isEmpty();
-        solver.add(f.parse("a => b"));
-        solver.add(f.parse("b => a"));
-        solver.add(f.parse("~d"));
+        solver.add(parse(f, "a => b"));
+        solver.add(parse(f, "b => a"));
+        solver.add(parse(f, "~d"));
         backbone = solver.backbone(v("a b c d e f g h", f));
         assertThat(backbone.isSat()).isTrue();
         assertThat(backbone.getCompleteBackbone(f)).containsExactly(f.variable("a"), f.variable("b"),
@@ -228,31 +231,31 @@ public class BackboneFunctionTest {
         assertThat(backbone.isSat()).isTrue();
 
         solver.loadState(state);
-        solver.add(f.parse("v411 & v385"));
+        solver.add(parse(f, "v411 & v385"));
         backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(2), f));
         assertThat(backbone.isSat()).isTrue();
 
         solver.loadState(state);
-        solver.add(f.parse("v411 & v385 & v275"));
+        solver.add(parse(f, "v411 & v385 & v275"));
         backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(3), f));
         assertThat(backbone.isSat()).isTrue();
 
         solver.loadState(state);
-        solver.add(f.parse("v411 & v385 & v275 & v188"));
+        solver.add(parse(f, "v411 & v385 & v275 & v188"));
         backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(4), f));
         assertThat(backbone.isSat()).isTrue();
 
         solver.loadState(state);
-        solver.add(f.parse("v411 & v385 & v275 & v188 & v103"));
+        solver.add(parse(f, "v411 & v385 & v275 & v188 & v103"));
         backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(5), f));
         assertThat(backbone.isSat()).isTrue();
 
         solver.loadState(state);
-        solver.add(f.parse("v411 & v385 & v275 & v188 & v103 & v404"));
+        solver.add(parse(f, "v411 & v385 & v275 & v188 & v103 & v404"));
         backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEmpty();
         assertThat(backbone.isSat()).isFalse();
@@ -283,45 +286,46 @@ public class BackboneFunctionTest {
         assertThat(backbone.isSat()).isTrue();
 
         solver.loadState(state);
-        solver.add(f.parse("v2609 & v2416"));
+        solver.add(parse(f, "v2609 & v2416"));
         backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(2), f));
         assertThat(backbone.isSat()).isTrue();
 
         solver.loadState(state);
-        solver.add(f.parse("v2609 & v2416 & v2048"));
+        solver.add(parse(f, "v2609 & v2416 & v2048"));
         backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(3), f));
         assertThat(backbone.isSat()).isTrue();
 
         solver.loadState(state);
-        solver.add(f.parse("v2609 & v2416 & v2048 & v39"));
+        solver.add(parse(f, "v2609 & v2416 & v2048 & v39"));
         backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(4), f));
         assertThat(backbone.isSat()).isTrue();
 
         solver.loadState(state);
-        solver.add(f.parse("v2609 & v2416 & v2048 & v39 & v1663"));
+        solver.add(parse(f, "v2609 & v2416 & v2048 & v39 & v1663"));
         backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEqualTo(parseBackbone(expectedBackbones.get(5), f));
         assertThat(backbone.isSat()).isTrue();
 
         solver.loadState(state);
-        solver.add(f.parse("v2609 & v2416 & v2048 & v39 & v1663 & v2238"));
+        solver.add(parse(f, "v2609 & v2416 & v2048 & v39 & v1663 & v2238"));
         backbone = solver.backbone(formula.variables(f));
         assertThat(backbone.getCompleteBackbone(f)).isEmpty();
         assertThat(backbone.isSat()).isFalse();
     }
 
     @Test
-    public void testMiniCardSpecialCase() throws ParserException {
+    public void testMiniCardSpecialCase() {
         final FormulaFactory f = FormulaFactory.caching();
+        final FormulaParser p = new PropositionalParser(f);
         final SatSolver miniCard = SatSolver.newSolver(f, SatSolverConfig.builder().useAtMostClauses(true).build());
-        miniCard.add(f.parse("v1 + v2 + v3 + v4 + v5 + v6 = 1"));
-        miniCard.add(f.parse("v1234 + v50 + v60 = 1"));
+        miniCard.add(parse(f, "v1 + v2 + v3 + v4 + v5 + v6 = 1"));
+        miniCard.add(parse(f, "v1234 + v50 + v60 = 1"));
         miniCard.add(
-                f.parse("(v1 => v1234) & (v2 => v1234) & (v3 => v1234) & (v4 => v1234) & (v5 => v50) & (v6 => v60)"));
-        miniCard.add(f.parse("~v6"));
+                parse(f, "(v1 => v1234) & (v2 => v1234) & (v3 => v1234) & (v4 => v1234) & (v5 => v50) & (v6 => v60)"));
+        miniCard.add(parse(f, "~v6"));
         final Backbone backboneMC = miniCard.backbone(Arrays.asList(f.variable("v6"), f.variable("v60")));
         assertThat(backboneMC.getNegativeBackbone()).extracting(Variable::getName)
                 .containsExactlyInAnyOrder("v6", "v60");
@@ -337,8 +341,9 @@ public class BackboneFunctionTest {
 
     private SortedSet<Literal> parseBackbone(final String string, final FormulaFactory f) throws ParserException {
         final SortedSet<Literal> literals = new TreeSet<>();
+        final FormulaParser parser = new PropositionalParser(f);
         for (final String lit : string.split(" ")) {
-            literals.add((Literal) f.parse(lit));
+            literals.add((Literal) parser.parse(lit));
         }
         return literals;
     }

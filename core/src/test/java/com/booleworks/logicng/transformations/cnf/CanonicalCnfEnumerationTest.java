@@ -25,24 +25,24 @@ public class CanonicalCnfEnumerationTest extends TestWithFormulaContext {
     @ParameterizedTest
     @MethodSource("contexts")
     public void testSamples(final FormulaContext _c) throws ParserException {
-        assertThat(_c.f.falsum().transform(new CanonicalCnfEnumeration(_c.f))).isEqualTo(_c.f.parse("$false"));
-        assertThat(_c.f.verum().transform(new CanonicalCnfEnumeration(_c.f))).isEqualTo(_c.f.parse("$true"));
-        assertThat(_c.f.parse("a").transform(new CanonicalCnfEnumeration(_c.f))).isEqualTo(_c.f.parse("a"));
-        assertThat(_c.f.parse("~a").transform(new CanonicalCnfEnumeration(_c.f))).isEqualTo(_c.f.parse("~a"));
-        assertThat(_c.f.parse("~a & b").transform(new CanonicalCnfEnumeration(_c.f)))
-                .isEqualTo(_c.f.parse("(~a | b) & (~a | ~b) & (a | b)"));
-        assertThat(_c.f.parse("~a | b").transform(new CanonicalCnfEnumeration(_c.f))).isEqualTo(_c.f.parse("~a | b"));
-        assertThat(_c.f.parse("a => b").transform(new CanonicalCnfEnumeration(_c.f))).isEqualTo(_c.f.parse("~a | b"));
-        assertThat(_c.f.parse("a <=> b").transform(new CanonicalCnfEnumeration(_c.f)))
-                .isEqualTo(_c.f.parse("(~a | b) & (a | ~b)"));
-        assertThat(_c.f.parse("a + b = 1").transform(new CanonicalCnfEnumeration(_c.f)))
-                .isEqualTo(_c.f.parse("(a | b) & (~a | ~b)"));
-        assertThat(_c.f.parse("a & (b | ~c)").transform(new CanonicalCnfEnumeration(_c.f)))
-                .isEqualTo(_c.f.parse("(a | b | c) & (a | b | ~c) & (a | ~b | c) & (a | ~b | ~c) & (~a | b | ~c)"));
-        assertThat(_c.f.parse("a & b & (~a | ~b)").transform(new CanonicalCnfEnumeration(_c.f)))
-                .isEqualTo(_c.f.parse("(a | b) & (~a | b) & (~a | ~b) & (a | ~b)"));
-        assertThat(_c.f.parse("a | b | ~a & ~b").transform(new CanonicalCnfEnumeration(_c.f)))
-                .isEqualTo(_c.f.parse("$true"));
+        assertThat(_c.f.falsum().transform(new CanonicalCnfEnumeration(_c.f))).isEqualTo(_c.p.parse("$false"));
+        assertThat(_c.f.verum().transform(new CanonicalCnfEnumeration(_c.f))).isEqualTo(_c.p.parse("$true"));
+        assertThat(_c.p.parse("a").transform(new CanonicalCnfEnumeration(_c.f))).isEqualTo(_c.p.parse("a"));
+        assertThat(_c.p.parse("~a").transform(new CanonicalCnfEnumeration(_c.f))).isEqualTo(_c.p.parse("~a"));
+        assertThat(_c.p.parse("~a & b").transform(new CanonicalCnfEnumeration(_c.f)))
+                .isEqualTo(_c.p.parse("(~a | b) & (~a | ~b) & (a | b)"));
+        assertThat(_c.p.parse("~a | b").transform(new CanonicalCnfEnumeration(_c.f))).isEqualTo(_c.p.parse("~a | b"));
+        assertThat(_c.p.parse("a => b").transform(new CanonicalCnfEnumeration(_c.f))).isEqualTo(_c.p.parse("~a | b"));
+        assertThat(_c.p.parse("a <=> b").transform(new CanonicalCnfEnumeration(_c.f)))
+                .isEqualTo(_c.p.parse("(~a | b) & (a | ~b)"));
+        assertThat(_c.p.parse("a + b = 1").transform(new CanonicalCnfEnumeration(_c.f)))
+                .isEqualTo(_c.p.parse("(a | b) & (~a | ~b)"));
+        assertThat(_c.p.parse("a & (b | ~c)").transform(new CanonicalCnfEnumeration(_c.f)))
+                .isEqualTo(_c.p.parse("(a | b | c) & (a | b | ~c) & (a | ~b | c) & (a | ~b | ~c) & (~a | b | ~c)"));
+        assertThat(_c.p.parse("a & b & (~a | ~b)").transform(new CanonicalCnfEnumeration(_c.f)))
+                .isEqualTo(_c.p.parse("(a | b) & (~a | b) & (~a | ~b) & (a | ~b)"));
+        assertThat(_c.p.parse("a | b | ~a & ~b").transform(new CanonicalCnfEnumeration(_c.f)))
+                .isEqualTo(_c.p.parse("$true"));
     }
 
     @ParameterizedTest

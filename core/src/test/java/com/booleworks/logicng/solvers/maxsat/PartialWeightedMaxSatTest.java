@@ -58,7 +58,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
     public void testExceptionalBehaviorForWMSU3() {
         assertThatThrownBy(() -> {
             final MaxSatSolver solver = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WMSU3);
-            solver.addHardFormula(f.parse("a | b"));
+            solver.addHardFormula(parse(f, "a | b"));
             solver.addSoftFormula(A, 1);
             solver.solve();
         }).isInstanceOf(IllegalStateException.class)
@@ -70,7 +70,7 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
                     .incremental(MaxSatConfig.IncrementalStrategy.ITERATIVE)
                     .cardinality(MaxSatConfig.CardinalityEncoding.MTOTALIZER)
                     .build());
-            solver.addHardFormula(f.parse("a | b"));
+            solver.addHardFormula(parse(f, "a | b"));
             solver.addSoftFormula(A, 2);
             solver.solve();
         }).isInstanceOf(IllegalStateException.class)
@@ -394,8 +394,8 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
         solvers[2] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WBO);
         solvers[3] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WMSU3);
         for (final MaxSatSolver solver : solvers) {
-            solver.addHardFormula(f.parse("a & b & c"));
-            solver.addSoftFormula(f.parse("~a & ~b & ~c"), 2);
+            solver.addHardFormula(parse(f, "a & b & c"));
+            solver.addSoftFormula(parse(f, "~a & ~b & ~c"), 2);
             final MaxSatResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getModel().getLiterals()).containsExactlyInAnyOrder(
@@ -414,9 +414,9 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
         solvers[2] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WBO);
         solvers[3] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WMSU3);
         for (final MaxSatSolver solver : solvers) {
-            solver.addHardFormula(f.parse("a & b & c"));
-            solver.addSoftFormula(f.parse("$true"), 2);
-            solver.addSoftFormula(f.parse("~a & ~b & ~c"), 3);
+            solver.addHardFormula(parse(f, "a & b & c"));
+            solver.addSoftFormula(parse(f, "$true"), 2);
+            solver.addSoftFormula(parse(f, "~a & ~b & ~c"), 3);
             final MaxSatResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getModel().getLiterals()).containsExactlyInAnyOrder(
@@ -434,9 +434,9 @@ public class PartialWeightedMaxSatTest extends TestWithExampleFormulas {
         solvers[2] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WBO);
         solvers[3] = MaxSatSolver.newSolver(f, MaxSatConfig.CONFIG_WMSU3);
         for (final MaxSatSolver solver : solvers) {
-            solver.addHardFormula(f.parse("a & b & c"));
-            solver.addSoftFormula(f.parse("$false"), 2);
-            solver.addSoftFormula(f.parse("~a & ~b & ~c"), 3);
+            solver.addHardFormula(parse(f, "a & b & c"));
+            solver.addSoftFormula(parse(f, "$false"), 2);
+            solver.addSoftFormula(parse(f, "~a & ~b & ~c"), 3);
             final MaxSatResult result = solver.solve();
             assertThat(result.isSatisfiable()).isTrue();
             assertThat(result.getModel().getLiterals()).containsExactlyInAnyOrder(

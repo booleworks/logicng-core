@@ -13,7 +13,9 @@ import com.booleworks.logicng.csp.terms.IntegerVariable;
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.io.parsers.FormulaParser;
 import com.booleworks.logicng.io.parsers.ParserException;
+import com.booleworks.logicng.io.parsers.PropositionalParser;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -26,6 +28,7 @@ public class CspDecompositionTest extends ParameterizedCspTest {
     @MethodSource("cspFactories")
     public void testFormulas(final CspFactory cf) throws ParserException {
         final FormulaFactory f = cf.getFormulaFactory();
+        final FormulaParser parser = new PropositionalParser(f);
         final IntegerVariable a = cf.variable("a", 0, 3);
         final IntegerVariable b = cf.variable("b", 3, 5);
         final IntegerVariable c = cf.variable("c", 1, 2);
@@ -34,8 +37,8 @@ public class CspDecompositionTest extends ParameterizedCspTest {
         final Variable C = f.variable("C");
         final Variable D = f.variable("D");
 
-        final Formula formula1 = f.parse("A & B");
-        final Formula formula2 = f.parse("A & ~(B | C)");
+        final Formula formula1 = parser.parse("A & B");
+        final Formula formula2 = parser.parse("A & ~(B | C)");
         final Formula formula3 = f.or(
                 cf.eq(a, cf.constant(2)),
                 f.and(C, D)

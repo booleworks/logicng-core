@@ -44,19 +44,19 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
         final NaivePrimeReduction naiveTautology = new NaivePrimeReduction(_c.f, _c.f.verum());
         assertThat(naiveTautology.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a, _c.b)))).isEmpty();
 
-        final NaivePrimeReduction naive01 = new NaivePrimeReduction(_c.f, _c.f.parse("a&b|c&d"));
+        final NaivePrimeReduction naive01 = new NaivePrimeReduction(_c.f, _c.p.parse("a&b|c&d"));
         assertThat(naive01.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.c, _c.d.negate(_c.f)))))
                 .containsExactlyInAnyOrder(_c.a, _c.b);
         assertThat(naive01.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a.negate(_c.f), _c.b, _c.c, _c.d))))
                 .containsExactlyInAnyOrder(_c.c, _c.d);
 
-        final NaivePrimeReduction naive02 = new NaivePrimeReduction(_c.f, _c.f.parse("a|b|~a&~b"));
+        final NaivePrimeReduction naive02 = new NaivePrimeReduction(_c.f, _c.p.parse("a|b|~a&~b"));
         assertThat(naive02.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a.negate(_c.f), _c.b))))
                 .containsExactlyInAnyOrder();
         assertThat(naive02.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a.negate(_c.f), _c.b))))
                 .containsExactlyInAnyOrder();
 
-        final NaivePrimeReduction naive03 = new NaivePrimeReduction(_c.f, _c.f.parse("(a => b) | b | c"));
+        final NaivePrimeReduction naive03 = new NaivePrimeReduction(_c.f, _c.p.parse("(a => b) | b | c"));
         assertThat(naive03.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a, _c.b, _c.c.negate(_c.f)))))
                 .containsExactlyInAnyOrder(_c.b);
         assertThat(naive03.reduceImplicant(new TreeSet<>(Arrays.asList(_c.a, _c.b.negate(_c.f), _c.c))))
@@ -94,7 +94,7 @@ public class PrimeImplicantReductionTest extends TestWithFormulaContext {
     public void testSmallFormulas(final FormulaContext _c) throws IOException, ParserException {
         final List<String> lines = Files.readAllLines(Paths.get("../test_files/formulas/small_formulas.txt"));
         for (final String line : lines) {
-            testFormula(_c.f.parse(line));
+            testFormula(_c.p.parse(line));
         }
     }
 

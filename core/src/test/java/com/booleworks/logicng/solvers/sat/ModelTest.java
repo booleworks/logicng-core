@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.solvers.sat;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static com.booleworks.logicng.solvers.sat.SATTest.defaultMeStrategy;
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.CNF_METHOD;
 import static com.booleworks.logicng.solvers.sat.SolverTestSet.SATSolverConfigParam.USE_AT_MOST_CLAUSES;
@@ -42,16 +43,15 @@ public class ModelTest {
 
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solverSuppliers")
-    public void testNoModel(final Function<FormulaFactory, SatSolver> solverSupplier, final String solverDescription)
-            throws ParserException {
+    public void testNoModel(final Function<FormulaFactory, SatSolver> solverSupplier, final String solverDescription) {
         SatSolver solver = solverSupplier.apply(f);
         solver.add(f.falsum());
         assertThat(solver.satCall().model(f.variables())).isNull();
         solver = solverSupplier.apply(f);
-        solver.add(f.parse("A & ~A"));
+        solver.add(parse(f, "A & ~A"));
         assertThat(solver.satCall().model(f.variables("A"))).isNull();
         solver = solverSupplier.apply(f);
-        solver.add(f.parse("(A => (B & C)) & A & C & (C <=> ~B)"));
+        solver.add(parse(f, "(A => (B & C)) & A & C & (C <=> ~B)"));
         assertThat(solver.satCall().model(f.variables("A", "B", "C"))).isNull();
     }
 
@@ -88,7 +88,7 @@ public class ModelTest {
     public void testCNFFormula(final Function<FormulaFactory, SatSolver> solverSupplier,
                                final String solverDescription) throws ParserException {
         final SatSolver solver = solverSupplier.apply(f);
-        final Formula formula = f.parse("(A|B|C) & (~A|~B|~C) & (A|~B|~C) & (~A|~B|C)");
+        final Formula formula = parse(f, "(A|B|C) & (~A|~B|~C) & (A|~B|~C) & (~A|~B|C)");
         solver.add(formula);
         final Model model = solver.satCall().model(f.variables("A", "B", "C"));
         assertThat(formula.evaluate(model.toAssignment())).isTrue();
@@ -101,10 +101,9 @@ public class ModelTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solverSuppliers")
     public void testCNFWithAuxiliaryVarsRestrictedToOriginal(final Function<FormulaFactory, SatSolver> solverSupplier,
-                                                             final String solverDescription)
-            throws ParserException {
+                                                             final String solverDescription) {
         final SatSolver solver = solverSupplier.apply(f);
-        final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
+        final Formula formula = parse(f, "(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         final Formula cnf = formula.transform(new TseitinTransformation(solver.getFactory(), 0));
         solver.add(cnf);
         final Model model = solver.satCall().model(formula.variables(f));
@@ -121,10 +120,9 @@ public class ModelTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solverSuppliers")
     public void testNonCNFAllVars(final Function<FormulaFactory, SatSolver> solverSupplier,
-                                  final String solverDescription)
-            throws ParserException {
+                                  final String solverDescription) {
         final SatSolver solver = solverSupplier.apply(f);
-        final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
+        final Formula formula = parse(f, "(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solver.add(formula);
         final Model model = solver.satCall().model(formula.variables(f));
         assertThat(formula.evaluate(model.toAssignment())).isTrue();
@@ -139,10 +137,9 @@ public class ModelTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solverSuppliers")
     public void testNonCNFOnlyFormulaVars(final Function<FormulaFactory, SatSolver> solverSupplier,
-                                          final String solverDescription)
-            throws ParserException {
+                                          final String solverDescription) {
         final SatSolver solver = solverSupplier.apply(f);
-        final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
+        final Formula formula = parse(f, "(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solver.add(formula);
         final Model model = solver.satCall().model(formula.variables(f));
         assertThat(formula.evaluate(model.toAssignment())).isTrue();
@@ -158,10 +155,9 @@ public class ModelTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solverSuppliers")
     public void testNonCNFRestrictedVars(final Function<FormulaFactory, SatSolver> solverSupplier,
-                                         final String solverDescription)
-            throws ParserException {
+                                         final String solverDescription) {
         final SatSolver solverForMe = solverSupplier.apply(f);
-        final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
+        final Formula formula = parse(f, "(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         final SatSolver verificationSolver = SatSolver.newSolver(f);
         verificationSolver.add(formula);
         solverForMe.add(formula);
@@ -181,11 +177,10 @@ public class ModelTest {
     @ParameterizedTest(name = "{index} {1}")
     @MethodSource("solverSuppliers")
     public void testNonCNFRestrictedAndAdditionalVars(final Function<FormulaFactory, SatSolver> solverSupplier,
-                                                      final String solverDescription)
-            throws ParserException {
+                                                      final String solverDescription) {
         final SatSolver solverForMe = solverSupplier.apply(f);
         final SatSolver verificationSolver = SatSolver.newSolver(f);
-        final Formula formula = f.parse("(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
+        final Formula formula = parse(f, "(A => B & C) & (~A => C & ~D) & (C => (D & E | ~E & B)) & ~F");
         solverForMe.add(formula);
         verificationSolver.add(formula);
         final SortedSet<Variable> relevantVariables =

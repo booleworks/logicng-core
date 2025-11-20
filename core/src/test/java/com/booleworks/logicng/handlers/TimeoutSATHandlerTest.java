@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.handlers;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.FIXED_END;
 import static com.booleworks.logicng.handlers.TimeoutHandler.TimerType.SINGLE_TIMEOUT;
 import static com.booleworks.logicng.handlers.events.ComputationFinishedEvent.SAT_CALL_FINISHED;
@@ -21,7 +22,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.solvers.SatSolver;
 import com.booleworks.logicng.solvers.sat.SolverTestSet;
 import com.booleworks.logicng.testutils.PigeonHoleGenerator;
@@ -59,9 +59,9 @@ class TimeoutSATHandlerTest {
     }
 
     @Test
-    public void testThatMethodsAreCalled() throws ParserException {
+    public void testThatMethodsAreCalled() {
         for (final SatSolver solver : solvers) {
-            solver.add(f.parse("(x => y) & (~x => y) & (y => z) & (z => ~y)"));
+            solver.add(parse(f, "(x => y) & (~x => y) & (y => z) & (z => ~y)"));
             final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
             when(handler.shouldResume(any())).thenReturn(true);
             solver.satCall().handler(handler).solve().close();

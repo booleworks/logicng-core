@@ -55,15 +55,15 @@ public class PureExpansionTransformationTest extends TestWithFormulaContext {
         assertThat(_c.not1.transform(transformation)).isEqualTo(_c.not1);
         assertThat(_c.not2.transform(transformation)).isEqualTo(_c.not2);
 
-        assertThat(_c.f.parse("~a").transform(transformation)).isEqualTo(_c.f.parse("~a"));
-        assertThat(_c.f.parse("~(a => b)").transform(transformation)).isEqualTo(_c.f.parse("~(a => b)"));
-        assertThat(_c.f.parse("~(~(a | b) => ~(x | y))").transform(transformation))
-                .isEqualTo(_c.f.parse("~(~(a | b) => ~(x | y))"));
-        assertThat(_c.f.parse("~(a <=> b)").transform(transformation)).isEqualTo(_c.f.parse("~(a <=> b)"));
-        assertThat(_c.f.parse("~(a & b & ~x & ~y)").transform(transformation))
-                .isEqualTo(_c.f.parse("~(a & b & ~x & ~y)"));
-        assertThat(_c.f.parse("~(a | b | (a + b <= 1) | ~y)").transform(transformation))
-                .isEqualTo(_c.f.parse("~(a | b | (~a | ~b) | ~y)"));
+        assertThat(_c.p.parse("~a").transform(transformation)).isEqualTo(_c.p.parse("~a"));
+        assertThat(_c.p.parse("~(a => b)").transform(transformation)).isEqualTo(_c.p.parse("~(a => b)"));
+        assertThat(_c.p.parse("~(~(a | b) => ~(x | y))").transform(transformation))
+                .isEqualTo(_c.p.parse("~(~(a | b) => ~(x | y))"));
+        assertThat(_c.p.parse("~(a <=> b)").transform(transformation)).isEqualTo(_c.p.parse("~(a <=> b)"));
+        assertThat(_c.p.parse("~(a & b & ~x & ~y)").transform(transformation))
+                .isEqualTo(_c.p.parse("~(a & b & ~x & ~y)"));
+        assertThat(_c.p.parse("~(a | b | (a + b <= 1) | ~y)").transform(transformation))
+                .isEqualTo(_c.p.parse("~(a | b | (~a | ~b) | ~y)"));
     }
 
     @ParameterizedTest
@@ -80,8 +80,8 @@ public class PureExpansionTransformationTest extends TestWithFormulaContext {
         assertThat(_c.eq3.transform(transformation)).isEqualTo(_c.eq3);
         assertThat(_c.eq4.transform(transformation)).isEqualTo(_c.eq4);
 
-        assertThat(_c.f.parse("~(a => (a + b = 1))").transform(transformation))
-                .isEqualTo(_c.f.parse("~(a => (a | b) & (~a | ~b))"));
+        assertThat(_c.p.parse("~(a => (a + b = 1))").transform(transformation))
+                .isEqualTo(_c.p.parse("~(a => (a | b) & (~a | ~b))"));
     }
 
     @ParameterizedTest
@@ -96,18 +96,18 @@ public class PureExpansionTransformationTest extends TestWithFormulaContext {
         assertThat(_c.or2.transform(transformation)).isEqualTo(_c.or2);
         assertThat(_c.or3.transform(transformation)).isEqualTo(_c.or3);
 
-        assertThat(_c.f.parse("~(a & b) | c | ~(x | ~y)").transform(transformation))
-                .isEqualTo(_c.f.parse("~(a & b) | c | ~(x | ~y)"));
-        assertThat(_c.f.parse("~(a | b) & (a + b = 1) & ~(x & ~(z + x = 1))").transform(transformation))
-                .isEqualTo(_c.f.parse("~(a | b) & ((a | b) & (~a | ~b)) & ~(x & ~((z | x) & (~z | ~x)))"));
-        assertThat(_c.f.parse("a & b & (~x | ~y)").transform(transformation))
-                .isEqualTo(_c.f.parse("a & b & (~x | ~y)"));
-        assertThat(_c.f.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(transformation))
-                .isEqualTo(_c.f.parse("~(a | b) & c & ~(x & ~y) & (w => z)"));
-        assertThat(_c.f.parse("~(a & b) | c | ~(x | ~y)").transform(transformation))
-                .isEqualTo(_c.f.parse("~(a & b) | c | ~(x | ~y)"));
-        assertThat(_c.f.parse("a | b | (~x & ~y)").transform(transformation))
-                .isEqualTo(_c.f.parse("a | b | (~x & ~y)"));
+        assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(transformation))
+                .isEqualTo(_c.p.parse("~(a & b) | c | ~(x | ~y)"));
+        assertThat(_c.p.parse("~(a | b) & (a + b = 1) & ~(x & ~(z + x = 1))").transform(transformation))
+                .isEqualTo(_c.p.parse("~(a | b) & ((a | b) & (~a | ~b)) & ~(x & ~((z | x) & (~z | ~x)))"));
+        assertThat(_c.p.parse("a & b & (~x | ~y)").transform(transformation))
+                .isEqualTo(_c.p.parse("a & b & (~x | ~y)"));
+        assertThat(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)").transform(transformation))
+                .isEqualTo(_c.p.parse("~(a | b) & c & ~(x & ~y) & (w => z)"));
+        assertThat(_c.p.parse("~(a & b) | c | ~(x | ~y)").transform(transformation))
+                .isEqualTo(_c.p.parse("~(a & b) | c | ~(x | ~y)"));
+        assertThat(_c.p.parse("a | b | (~x & ~y)").transform(transformation))
+                .isEqualTo(_c.p.parse("a | b | (~x & ~y)"));
     }
 
     @ParameterizedTest
@@ -115,9 +115,9 @@ public class PureExpansionTransformationTest extends TestWithFormulaContext {
     public void testPBCs(final FormulaContext _c) throws ParserException {
         final PureExpansionTransformation transformation = new PureExpansionTransformation(_c.f);
 
-        assertThat(_c.f.parse("a + b <= 1").transform(transformation)).isEqualTo(_c.f.parse("~a | ~b"));
-        assertThat(_c.f.parse("a + b < 2").transform(transformation)).isEqualTo(_c.f.parse("~a | ~b"));
-        assertThat(_c.f.parse("a + b = 1").transform(transformation)).isEqualTo(_c.f.parse("(a | b) & (~a | ~b)"));
+        assertThat(_c.p.parse("a + b <= 1").transform(transformation)).isEqualTo(_c.p.parse("~a | ~b"));
+        assertThat(_c.p.parse("a + b < 2").transform(transformation)).isEqualTo(_c.p.parse("~a | ~b"));
+        assertThat(_c.p.parse("a + b = 1").transform(transformation)).isEqualTo(_c.p.parse("(a | b) & (~a | ~b)"));
     }
 
     @ParameterizedTest

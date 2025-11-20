@@ -155,8 +155,16 @@ public class CachingFormulaFactory extends FormulaFactory {
         if (tempAnd != null) {
             return tempAnd;
         }
-        final LinkedHashSet<? extends Formula> condensedOperands =
-                operands.size() < 2 ? operands : condenseOperandsAnd(operands);
+        final LinkedHashSet<? extends Formula> condensedOperands;
+        final boolean isCnf;
+        if (operands.size() < 2) {
+            condensedOperands = operands;
+            isCnf = false;
+        } else {
+            final CondensedOperands condensedOperandsCnf = condenseOperandsAnd(operands);
+            condensedOperands = condensedOperandsCnf.getOperands();
+            isCnf = condensedOperandsCnf.isCnf();
+        }
         if (condensedOperands == null) {
             return falsum();
         }
@@ -184,7 +192,7 @@ public class CachingFormulaFactory extends FormulaFactory {
         and = condAndMap.get(condensedOperands);
         if (and == null) {
             tempAnd = new LngCachedAnd(condensedOperands, this);
-            setCnfCaches(tempAnd, cnfCheck);
+            setCnfCaches(tempAnd, isCnf);
             opAndMap.put(operands, tempAnd);
             condAndMap.put(condensedOperands, tempAnd);
             return tempAnd;
@@ -250,8 +258,16 @@ public class CachingFormulaFactory extends FormulaFactory {
         if (tempOr != null) {
             return tempOr;
         }
-        final LinkedHashSet<? extends Formula> condensedOperands =
-                operands.size() < 2 ? operands : condenseOperandsOr(operands);
+        final LinkedHashSet<? extends Formula> condensedOperands;
+        final boolean isCnf;
+        if (operands.size() < 2) {
+            condensedOperands = operands;
+            isCnf = false;
+        } else {
+            final CondensedOperands condensedOperandsCnf = condenseOperandsOr(operands);
+            condensedOperands = condensedOperandsCnf.getOperands();
+            isCnf = condensedOperandsCnf.isCnf();
+        }
         if (condensedOperands == null) {
             return verum();
         }
@@ -279,7 +295,7 @@ public class CachingFormulaFactory extends FormulaFactory {
         or = condOrMap.get(condensedOperands);
         if (or == null) {
             tempOr = new LngCachedOr(condensedOperands, this);
-            setCnfCaches(tempOr, cnfCheck);
+            setCnfCaches(tempOr, isCnf);
             opOrMap.put(operands, tempOr);
             condOrMap.put(condensedOperands, tempOr);
             return tempOr;

@@ -55,7 +55,7 @@ public class BddReorderingTest extends TestWithFormulaContext {
         assertThatThrownBy(() -> {
             final BddKernel kernel = new BddKernel(_c.f, List.of(_c.a, _c.b), 100, 100);
             final BddReordering reordering = new BddReordering(kernel);
-            final Formula formula = _c.f.parse("a | b");
+            final Formula formula = _c.p.parse("a | b");
             BddFactory.build(_c.f, formula, kernel);
             reordering.swapVariables(0, 2);
         }).isInstanceOf(IllegalArgumentException.class)
@@ -63,7 +63,7 @@ public class BddReorderingTest extends TestWithFormulaContext {
         assertThatThrownBy(() -> {
             final BddKernel kernel = new BddKernel(_c.f, List.of(_c.a, _c.b), 100, 100);
             final BddReordering reordering = new BddReordering(kernel);
-            final Formula formula = _c.f.parse("a | b");
+            final Formula formula = _c.p.parse("a | b");
             BddFactory.build(_c.f, formula, kernel);
             reordering.swapVariables(3, 0);
         }).isInstanceOf(IllegalArgumentException.class)
@@ -74,7 +74,7 @@ public class BddReorderingTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testSwapping(final FormulaContext _c) throws ParserException {
         final BddKernel kernel = new BddKernel(_c.f, List.of(_c.a, _c.b, _c.c), 100, 100);
-        final Formula formula = _c.f.parse("a | b | c");
+        final Formula formula = _c.p.parse("a | b | c");
         final Bdd bdd = BddFactory.build(_c.f, formula, kernel);
         assertThat(bdd.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);
         bdd.swapVariables(_c.a, _c.b);
@@ -101,8 +101,8 @@ public class BddReorderingTest extends TestWithFormulaContext {
     @MethodSource("contexts")
     public void testSwappingMultipleBdds(final FormulaContext _c) throws ParserException {
         final BddKernel kernel = new BddKernel(_c.f, List.of(_c.a, _c.b, _c.c), 100, 100);
-        final Formula formula1 = _c.f.parse("a | b | c");
-        final Formula formula2 = _c.f.parse("a & b");
+        final Formula formula1 = _c.p.parse("a | b | c");
+        final Formula formula2 = _c.p.parse("a & b");
         final Bdd bdd1 = BddFactory.build(_c.f, formula1, kernel);
         final Bdd bdd2 = BddFactory.build(_c.f, formula2, kernel);
         assertThat(bdd1.getVariableOrder()).containsExactly(_c.a, _c.b, _c.c);

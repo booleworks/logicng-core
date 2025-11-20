@@ -69,7 +69,7 @@ public class NonCachingFormulaFactory extends FormulaFactory {
     protected Formula internalAnd(final LinkedHashSet<? extends Formula> operandsIn) {
         final LinkedHashSet<? extends Formula> operands = importOrPanicLhs(operandsIn);
         final LinkedHashSet<? extends Formula> condensedOperands =
-                operands.size() < 2 ? operands : condenseOperandsAnd(operands);
+                operands.size() < 2 ? operands : condenseOperandsAnd(operands).getOperands();
         if (condensedOperands == null) {
             return falsum();
         }
@@ -98,7 +98,7 @@ public class NonCachingFormulaFactory extends FormulaFactory {
     protected Formula internalOr(final LinkedHashSet<? extends Formula> operandsIn) {
         final LinkedHashSet<? extends Formula> operands = importOrPanicLhs(operandsIn);
         final LinkedHashSet<? extends Formula> condensedOperands =
-                operands.size() < 2 ? operands : condenseOperandsOr(operands);
+                operands.size() < 2 ? operands : condenseOperandsOr(operands).getOperands();
         if (condensedOperands == null) {
             return verum();
         }

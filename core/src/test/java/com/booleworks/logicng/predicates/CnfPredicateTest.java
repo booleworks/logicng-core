@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.predicates;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.booleworks.logicng.formulas.Formula;
@@ -12,7 +13,6 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.TestWithFormulaContext;
 import com.booleworks.logicng.formulas.cache.PredicateCacheEntry;
 import com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory;
-import com.booleworks.logicng.io.parsers.ParserException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -45,20 +45,20 @@ public class CnfPredicateTest extends TestWithFormulaContext {
     }
 
     @Test
-    public void testWithCachingFF() throws ParserException {
+    public void testWithCachingFF() {
         final CachingFormulaFactory f = FormulaFactory.caching();
         final CnfPredicate cnfPredicate = new CnfPredicate(f);
-        final Formula formula = f.parse("(a => b) & b & ~c");
+        final Formula formula = parse(f, "(a => b) & b & ~c");
         assertThat(formula.holds(cnfPredicate)).isFalse();
         assertThat(f.getPredicateCacheForType(PredicateCacheEntry.IS_CNF).get(formula)).isEqualTo(false);
     }
 
     @Test
-    public void testWithNonCaching() throws ParserException {
+    public void testWithNonCaching() {
         final FormulaFactory f = FormulaFactory.nonCaching();
         final Map<Formula, Boolean> cache = new HashMap<>();
         final CnfPredicate cnfPredicate = new CnfPredicate(f, cache);
-        final Formula formula = f.parse("(a => b) & b & ~c");
+        final Formula formula = parse(f, "(a => b) & b & ~c");
         assertThat(formula.holds(cnfPredicate)).isFalse();
         assertThat(cache.get(formula)).isEqualTo(false);
     }

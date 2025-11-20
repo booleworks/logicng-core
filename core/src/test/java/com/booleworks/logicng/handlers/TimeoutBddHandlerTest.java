@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.handlers;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static com.booleworks.logicng.handlers.events.ComputationStartedEvent.BDD_COMPUTATION_STARTED;
 import static com.booleworks.logicng.handlers.events.SimpleEvent.BDD_NEW_REF_ADDED;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,7 +17,6 @@ import static org.mockito.Mockito.when;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
-import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.knowledgecompilation.bdds.Bdd;
 import com.booleworks.logicng.knowledgecompilation.bdds.BddFactory;
 import com.booleworks.logicng.knowledgecompilation.bdds.jbuddy.BddKernel;
@@ -53,8 +53,8 @@ class TimeoutBddHandlerTest {
     }
 
     @Test
-    public void testThatMethodsAreCalled() throws ParserException {
-        final Formula formula = f.parse("(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X)");
+    public void testThatMethodsAreCalled() {
+        final Formula formula = parse(f, "(A => ~B) & ((A & C) | (D & ~C)) & (A | Y | X)");
         final VariableOrderingProvider provider = new BfsOrdering();
         final BddKernel kernel = new BddKernel(f, provider.getOrder(f, formula), 100, 100);
         final TimeoutHandler handler = Mockito.mock(TimeoutHandler.class);
@@ -66,8 +66,8 @@ class TimeoutBddHandlerTest {
     }
 
     @Test
-    public void testThatNewRefAddedHandledProperly() throws ParserException {
-        final Formula formula = f.parse("(A => ~B) & ((A & C) | ~(D & ~C)) & (A | Y | X)");
+    public void testThatNewRefAddedHandledProperly() {
+        final Formula formula = parse(f, "(A => ~B) & ((A & C) | ~(D & ~C)) & (A | Y | X)");
         final VariableOrderingProvider provider = new BfsOrdering();
         final BddKernel kernel = new BddKernel(f, provider.getOrder(f, formula), 100, 100);
         final ComputationHandler handler = Mockito.mock(ComputationHandler.class);

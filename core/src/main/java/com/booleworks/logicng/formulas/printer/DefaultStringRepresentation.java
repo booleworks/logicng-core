@@ -12,6 +12,15 @@ import com.booleworks.logicng.formulas.CType;
  * @since 1.0
  */
 public class DefaultStringRepresentation extends FormulaStringRepresentation {
+    private static final DefaultStringRepresentation INSTANCE = new DefaultStringRepresentation();
+
+    /**
+     * Returns the singleton instance.
+     * @return the singleton instance
+     */
+    public static DefaultStringRepresentation get() {
+        return INSTANCE;
+    }
 
     @Override
     protected String falsum() {

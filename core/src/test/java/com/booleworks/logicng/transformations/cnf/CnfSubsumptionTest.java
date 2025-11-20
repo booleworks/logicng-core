@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.transformations.cnf;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -67,7 +68,7 @@ public class CnfSubsumptionTest extends TestWithFormulaContext {
     public void testNotInCNF() {
         final FormulaFactory f = FormulaFactory.caching();
         final CnfSubsumption s = new CnfSubsumption(f);
-        assertThatThrownBy(() -> s.apply(f.parse("a => b"))).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> s.apply(parse(f, "a => b"))).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

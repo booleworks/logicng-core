@@ -4,6 +4,7 @@
 
 package com.booleworks.logicng.functions;
 
+import static com.booleworks.logicng.TestWithExampleFormulas.parse;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_INC_WBO;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_LINEAR_SU;
 import static com.booleworks.logicng.solvers.maxsat.algorithms.MaxSatConfig.CONFIG_LINEAR_US;
@@ -52,43 +53,43 @@ public class MinimumPrimeImplicantTest {
 
     @ParameterizedTest
     @MethodSource("configs")
-    public void testSimpleCases(final MaxSatConfig config) throws ParserException {
-        Formula formula = f.parse("a");
+    public void testSimpleCases(final MaxSatConfig config) {
+        Formula formula = parse(f, "a");
         SortedSet<Literal> pi = formula.apply(new MinimumPrimeImplicantFunction(f, config));
         assertThat(pi).hasSize(1);
         isPrimeImplicant(formula, pi);
 
-        formula = f.parse("a | b | c");
+        formula = parse(f, "a | b | c");
         pi = formula.apply(new MinimumPrimeImplicantFunction(f, config));
         assertThat(pi).hasSize(1);
         isPrimeImplicant(formula, pi);
 
-        formula = f.parse("a & b & c");
+        formula = parse(f, "a & b & c");
         pi = formula.apply(new MinimumPrimeImplicantFunction(f, config));
         assertThat(pi).hasSize(3);
         isPrimeImplicant(formula, pi);
 
-        formula = f.parse("a | b | ~c => e & d & f");
+        formula = parse(f, "a | b | ~c => e & d & f");
         pi = formula.apply(new MinimumPrimeImplicantFunction(f, config));
         assertThat(pi).hasSize(3);
         isPrimeImplicant(formula, pi);
 
-        formula = f.parse("a | b | ~c <=> e & d & f");
+        formula = parse(f, "a | b | ~c <=> e & d & f");
         pi = formula.apply(new MinimumPrimeImplicantFunction(f, config));
         assertThat(pi).hasSize(4);
         isPrimeImplicant(formula, pi);
 
-        formula = f.parse("(a | b | ~c <=> e & d & f) | (a | b | ~c => e & d & f)");
+        formula = parse(f, "(a | b | ~c <=> e & d & f) | (a | b | ~c => e & d & f)");
         pi = formula.apply(new MinimumPrimeImplicantFunction(f, config));
         assertThat(pi).hasSize(3);
         isPrimeImplicant(formula, pi);
 
-        formula = f.parse("(a | b | ~c <=> e & d & f) | (a | b | ~c => e & d & f) | (a & b)");
+        formula = parse(f, "(a | b | ~c <=> e & d & f) | (a | b | ~c => e & d & f) | (a & b)");
         pi = formula.apply(new MinimumPrimeImplicantFunction(f, config));
         assertThat(pi).hasSize(2);
         isPrimeImplicant(formula, pi);
 
-        formula = f.parse("(a | b | ~c <=> e & d & f) | (a | b | ~c => e & d & f) | (a & b) | (f => g)");
+        formula = parse(f, "(a | b | ~c <=> e & d & f) | (a | b | ~c => e & d & f) | (a & b) | (f => g)");
         pi = formula.apply(new MinimumPrimeImplicantFunction(f, config));
         assertThat(pi).hasSize(1);
         isPrimeImplicant(formula, pi);
@@ -96,18 +97,18 @@ public class MinimumPrimeImplicantTest {
 
     @ParameterizedTest
     @MethodSource("configs")
-    public void testSmallExamples(final MaxSatConfig config) throws ParserException {
-        Formula formula = f.parse("(~(v17 | v18) | ~v1494 & (v17 | v18)) & ~v687 => v686");
+    public void testSmallExamples(final MaxSatConfig config) {
+        Formula formula = parse(f, "(~(v17 | v18) | ~v1494 & (v17 | v18)) & ~v687 => v686");
         SortedSet<Literal> pi = formula.apply(new MinimumPrimeImplicantFunction(f, config));
         assertThat(pi).hasSize(1);
         isPrimeImplicant(formula, pi);
 
-        formula = f.parse("(~(v17 | v18) | ~v1494 & (v17 | v18)) & v687 => ~v686");
+        formula = parse(f, "(~(v17 | v18) | ~v1494 & (v17 | v18)) & v687 => ~v686");
         pi = formula.apply(new MinimumPrimeImplicantFunction(f, config));
         assertThat(pi).hasSize(1);
         isPrimeImplicant(formula, pi);
 
-        formula = f.parse("v173 + v174 + v451 + v258 + v317 + v259 + v452 + v453 + v175 + v176 + v177 + v178 + " +
+        formula = parse(f, "v173 + v174 + v451 + v258 + v317 + v259 + v452 + v453 + v175 + v176 + v177 + v178 + " +
                 "v179 + v180 + v181 + v182 + v183 + v102 + v103 + v104 + v105 = 1");
         pi = formula.apply(new MinimumPrimeImplicantFunction(f, config));
         assertThat(pi).hasSize(21);

@@ -36,19 +36,23 @@ public class MaxSatDecrementalTest extends TestWithExampleFormulas {
                 MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(MTOTALIZER).bmo(false).build()),
                 MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(TOTALIZER).bmo(true).build()),
                 MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(MTOTALIZER).bmo(true).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_US).incremental(NONE).cardinality(TOTALIZER).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_US).incremental(NONE).cardinality(MTOTALIZER).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_US).incremental(ITERATIVE).cardinality(TOTALIZER).build()),
+                MaxSatSolver.newSolver(f,
+                        builder().algorithm(LINEAR_US).incremental(NONE).cardinality(TOTALIZER).build()),
+                MaxSatSolver.newSolver(f,
+                        builder().algorithm(LINEAR_US).incremental(NONE).cardinality(MTOTALIZER).build()),
+                MaxSatSolver.newSolver(f,
+                        builder().algorithm(LINEAR_US).incremental(ITERATIVE).cardinality(TOTALIZER).build()),
                 MaxSatSolver.newSolver(f, builder().algorithm(MSU3).incremental(NONE).cardinality(TOTALIZER).build()),
                 MaxSatSolver.newSolver(f, builder().algorithm(MSU3).incremental(NONE).cardinality(MTOTALIZER).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(MSU3).incremental(ITERATIVE).cardinality(TOTALIZER).build())
+                MaxSatSolver.newSolver(f,
+                        builder().algorithm(MSU3).incremental(ITERATIVE).cardinality(TOTALIZER).build())
         };
         for (final MaxSatSolver solver : solvers) {
             assertThat(solver.solve().getOptimum()).isEqualTo(0);
             final MaxSatState state0 = solver.saveState();
             assertThat(state0).isEqualTo(new MaxSatState(1, 0, 0, 0, 0, 1, new int[0]));
 
-            solver.addHardFormula(f.parse("(~a | ~b) & (~b | ~c) & ~d"));
+            solver.addHardFormula(parse(f, "(~a | ~b) & (~b | ~c) & ~d"));
             assertThat(solver.solve().getOptimum()).isEqualTo(0);
             final MaxSatState state1 = solver.saveState();
             assertThat(state1).isEqualTo(new MaxSatState(3, 4, 3, 0, 0, 1, new int[0]));
@@ -105,10 +109,14 @@ public class MaxSatDecrementalTest extends TestWithExampleFormulas {
                 MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(MTOTALIZER).bmo(false).build()),
                 MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(TOTALIZER).bmo(true).build()),
                 MaxSatSolver.newSolver(f, builder().algorithm(LINEAR_SU).cardinality(MTOTALIZER).bmo(true).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(WMSU3).incremental(NONE).cardinality(TOTALIZER).bmo(false).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(WMSU3).incremental(NONE).cardinality(MTOTALIZER).bmo(false).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(WMSU3).incremental(ITERATIVE).cardinality(TOTALIZER).bmo(false).build()),
-                MaxSatSolver.newSolver(f, builder().algorithm(WMSU3).incremental(ITERATIVE).cardinality(TOTALIZER).bmo(true).build()),
+                MaxSatSolver.newSolver(f,
+                        builder().algorithm(WMSU3).incremental(NONE).cardinality(TOTALIZER).bmo(false).build()),
+                MaxSatSolver.newSolver(f,
+                        builder().algorithm(WMSU3).incremental(NONE).cardinality(MTOTALIZER).bmo(false).build()),
+                MaxSatSolver.newSolver(f,
+                        builder().algorithm(WMSU3).incremental(ITERATIVE).cardinality(TOTALIZER).bmo(false).build()),
+                MaxSatSolver.newSolver(f,
+                        builder().algorithm(WMSU3).incremental(ITERATIVE).cardinality(TOTALIZER).bmo(true).build()),
                 MaxSatSolver.newSolver(f, CONFIG_OLL)
         };
         for (final MaxSatSolver solver : solvers) {
@@ -117,7 +125,7 @@ public class MaxSatDecrementalTest extends TestWithExampleFormulas {
             final MaxSatState state0 = solver.saveState();
             assertThat(state0).isEqualTo(new MaxSatState(1, 2, 2, 1, 2, 2, new int[]{2}));
 
-            solver.addHardFormula(f.parse("(~a | ~b) & (~b | ~c) & ~d"));
+            solver.addHardFormula(parse(f, "(~a | ~b) & (~b | ~c) & ~d"));
             assertThat(solver.solve().getOptimum()).isEqualTo(0);
             final MaxSatState state1 = solver.saveState();
             assertThat(state1).isEqualTo(new MaxSatState(3, 6, 5, 1, 2, 2, new int[]{2}));
