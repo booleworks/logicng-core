@@ -30,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CachingFormulaFactory extends FormulaFactory {
 
@@ -68,7 +69,29 @@ public class CachingFormulaFactory extends FormulaFactory {
         super(config);
         cFalse = new LngCachedFalse(this);
         cTrue = new LngCachedTrue(this);
-        clear();
+        posLiterals = newCacheMap();
+        negLiterals = newCacheMap();
+        nots = newCacheMap();
+        implications = newCacheMap();
+        equivalences = newCacheMap();
+        ands2 = newCacheMap();
+        ands3 = newCacheMap();
+        ands4 = newCacheMap();
+        andsN = newCacheMap();
+        ors2 = newCacheMap();
+        ors3 = newCacheMap();
+        ors4 = newCacheMap();
+        orsN = newCacheMap();
+        pbConstraints = newCacheMap();
+        cardinalityConstraints = newCacheMap();
+        transformationCache = newCacheMap();
+        predicateCache = newCacheMap();
+        functionCache = newCacheMap();
+        pbEncodingCache = newCacheMap();
+    }
+
+    private <K, V> Map<K, V> newCacheMap() {
+        return threadSafe ? new ConcurrentHashMap<>() : new HashMap<>();
     }
 
     @Override
@@ -407,31 +430,28 @@ public class CachingFormulaFactory extends FormulaFactory {
         }
     }
 
-    /**
-     * Removes all formulas from the factory cache.
-     */
     @Override
-    public void clear() {
-        super.clear();
-        posLiterals = new HashMap<>();
-        negLiterals = new HashMap<>();
-        nots = new HashMap<>();
-        implications = new HashMap<>();
-        equivalences = new HashMap<>();
-        ands2 = new HashMap<>();
-        ands3 = new HashMap<>();
-        ands4 = new HashMap<>();
-        andsN = new HashMap<>();
-        ors2 = new HashMap<>();
-        ors3 = new HashMap<>();
-        ors4 = new HashMap<>();
-        orsN = new HashMap<>();
-        pbConstraints = new HashMap<>();
-        cardinalityConstraints = new HashMap<>();
-        transformationCache = new HashMap<>();
-        predicateCache = new HashMap<>();
-        functionCache = new HashMap<>();
-        pbEncodingCache = new HashMap<>();
+    protected void initCaches() {
+        super.initCaches();
+        posLiterals = newCacheMap();
+        negLiterals = newCacheMap();
+        nots = newCacheMap();
+        implications = newCacheMap();
+        equivalences = newCacheMap();
+        ands2 = newCacheMap();
+        ands3 = newCacheMap();
+        ands4 = newCacheMap();
+        andsN = newCacheMap();
+        ors2 = newCacheMap();
+        ors3 = newCacheMap();
+        ors4 = newCacheMap();
+        orsN = newCacheMap();
+        pbConstraints = newCacheMap();
+        cardinalityConstraints = newCacheMap();
+        transformationCache = newCacheMap();
+        predicateCache = newCacheMap();
+        functionCache = newCacheMap();
+        pbEncodingCache = newCacheMap();
     }
 
     /**

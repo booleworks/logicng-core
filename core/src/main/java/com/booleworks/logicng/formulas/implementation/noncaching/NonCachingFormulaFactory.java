@@ -11,7 +11,6 @@ import com.booleworks.logicng.formulas.FormulaFactoryConfig;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
 
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +26,6 @@ public class NonCachingFormulaFactory extends FormulaFactory {
      */
     public NonCachingFormulaFactory() {
         this(FormulaFactoryConfig.builder().build());
-        posLiterals = new ConcurrentHashMap<>();
-        negLiterals = new ConcurrentHashMap<>();
     }
 
     /**
@@ -37,9 +34,15 @@ public class NonCachingFormulaFactory extends FormulaFactory {
      */
     public NonCachingFormulaFactory(final FormulaFactoryConfig config) {
         super(config);
+    }
+
+    @Override
+    protected void initCaches() {
+        super.initCaches();
         cFalse = new LngNativeFalse(this);
         cTrue = new LngNativeTrue(this);
-        clear();
+        posLiterals = new ConcurrentHashMap<>();
+        negLiterals = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -157,13 +160,6 @@ public class NonCachingFormulaFactory extends FormulaFactory {
     @Override
     protected Formula negateOrNull(final Formula formula) {
         return formula.negate(this);
-    }
-
-    @Override
-    public void clear() {
-        super.clear();
-        posLiterals = new HashMap<>();
-        negLiterals = new HashMap<>();
     }
 
     @Override

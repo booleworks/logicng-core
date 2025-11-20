@@ -47,6 +47,7 @@ public final class FormulaFactoryConfig extends Configuration {
     final FormulaMergeStrategy formulaMergeStrategy;
     final Supplier<FormulaStringRepresentation> stringRepresentation;
     final boolean simplifyComplementaryOperands;
+    final boolean threadSafe;
 
     private FormulaFactoryConfig(final Builder builder) {
         super(ConfigurationType.FORMULA_FACTORY);
@@ -54,6 +55,7 @@ public final class FormulaFactoryConfig extends Configuration {
         formulaMergeStrategy = builder.formulaMergeStrategy;
         stringRepresentation = builder.stringRepresentation;
         simplifyComplementaryOperands = builder.simplifyComplementaryOperands;
+        threadSafe = builder.threadSafe;
     }
 
     /**
@@ -74,6 +76,7 @@ public final class FormulaFactoryConfig extends Configuration {
         private FormulaMergeStrategy formulaMergeStrategy = FormulaMergeStrategy.PANIC;
         private Supplier<FormulaStringRepresentation> stringRepresentation = DefaultStringRepresentation::new;
         private boolean simplifyComplementaryOperands = true;
+        private boolean threadSafe = false;
 
         /**
          * Sets the name of this formula factory. The default is a random
@@ -134,6 +137,19 @@ public final class FormulaFactoryConfig extends Configuration {
          */
         public Builder simplifyComplementaryOperands(final boolean simplifyComplementaryOperands) {
             this.simplifyComplementaryOperands = simplifyComplementaryOperands;
+            return this;
+        }
+
+        /**
+         * Sets the flag whether the formula factory should be thread-safe.
+         * This allows concurrent writes to all types of formula factories, but
+         * introduces additional cost when using
+         * {@link com.booleworks.logicng.formulas.implementation.cached.CachingFormulaFactory CachingFormulaFactory}.
+         * @param threadSafe the flag whether the factory is thread-safe.
+         * @return the builder
+         */
+        public Builder threadSafe(final boolean threadSafe) {
+            this.threadSafe = threadSafe;
             return this;
         }
 

@@ -58,13 +58,14 @@ public abstract class FormulaFactory {
     protected final boolean simplifyComplementaryOperands;
     protected final Map<ConfigurationType, Configuration> configurations;
     protected final SubNodeFunction subformulaFunction;
-    protected final Map<String, AtomicInteger> auxVarCounters;
+    protected Map<String, AtomicInteger> auxVarCounters;
     protected final String auxVarPrefix;
     protected CFalse cFalse;
     protected CTrue cTrue;
     protected boolean cnfCheck;
-    protected FormulaFactoryImporter importer;
+    protected final FormulaFactoryImporter importer;
     protected boolean readOnly;
+    protected final boolean threadSafe;
 
     public static CachingFormulaFactory caching(final FormulaFactoryConfig config) {
         return new CachingFormulaFactory(config);
@@ -86,6 +87,7 @@ public abstract class FormulaFactory {
         name = config.name;
         stringRepresentation = config.stringRepresentation.get();
         formulaMergeStrategy = config.formulaMergeStrategy;
+        threadSafe = config.threadSafe;
         if (config.formulaMergeStrategy == FormulaFactoryConfig.FormulaMergeStrategy.USE_BUT_NO_IMPORT &&
                 this instanceof CachingFormulaFactory) {
             throw new IllegalArgumentException(
@@ -93,11 +95,11 @@ public abstract class FormulaFactory {
         }
         simplifyComplementaryOperands = config.simplifyComplementaryOperands;
         configurations = initDefaultConfigs();
-        auxVarCounters = new ConcurrentHashMap<>();
-        clear();
         subformulaFunction = new SubNodeFunction(this);
         auxVarPrefix = "@AUX_" + name + "_";
         parser = new PropositionalParser(this);
+        importer = new FormulaFactoryImporter(this);
+        initCaches();
         readOnly = false;
     }
 
@@ -120,11 +122,11 @@ public abstract class FormulaFactory {
     /**
      * Removes all formulas from the factory cache.
      */
-    public void clear() {
+    protected void initCaches() {
         if (readOnly) {
             throwReadOnlyException();
         }
-        auxVarCounters.clear();
+        auxVarCounters = new ConcurrentHashMap<>();
         for (final InternalAuxVarType auxType : InternalAuxVarType.values()) {
             auxVarCounters.put(auxType.getPrefix(), new AtomicInteger(0));
         }
@@ -1015,9 +1017,6 @@ public abstract class FormulaFactory {
     public Formula importFormula(final Formula formula) {
         if (readOnly) {
             throwReadOnlyException();
-        }
-        if (importer == null) {
-            importer = new FormulaFactoryImporter(this);
         }
         return formula.transform(importer);
     }
