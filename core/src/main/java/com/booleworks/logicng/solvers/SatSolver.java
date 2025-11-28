@@ -129,15 +129,17 @@ public class SatSolver {
                         solver.addClause(LngCoreSolver.generateClauseVector(constraint.getOperands(), solver),
                                 proposition);
                     } else {
-                        CcEncoder.encode((CardinalityConstraint) constraint,
-                                EncodingResult.resultForSatSolver(f, solver, proposition));
+                        CcEncoder.encode(EncodingResult.resultForSatSolver(f, solver, proposition),
+                                (CardinalityConstraint) constraint
+                        );
                     }
                 } else {
-                    CcEncoder.encode((CardinalityConstraint) constraint,
-                            EncodingResult.resultForSatSolver(f, solver, proposition));
+                    CcEncoder.encode(EncodingResult.resultForSatSolver(f, solver, proposition),
+                            (CardinalityConstraint) constraint
+                    );
                 }
             } else {
-                PbEncoder.encode(constraint, EncodingResult.resultForSatSolver(f, solver, proposition));
+                PbEncoder.encode(EncodingResult.resultForSatSolver(f, solver, proposition), constraint);
             }
         } else {
             addFormulaAsCnf(formula, proposition);
@@ -225,11 +227,11 @@ public class SatSolver {
      * </ul>
      * @param cc the cardinality constraint
      * @return the incremental data of this constraint, or null if the
-     *         right-hand side of cc is 1
+     * right-hand side of cc is 1
      */
     public CcIncrementalData addIncrementalCc(final CardinalityConstraint cc) {
         final EncodingResult result = EncodingResult.resultForSatSolver(f, solver, null);
-        return CcEncoder.encodeIncremental(cc, result);
+        return CcEncoder.encodeIncremental(result, cc);
     }
 
     /**
