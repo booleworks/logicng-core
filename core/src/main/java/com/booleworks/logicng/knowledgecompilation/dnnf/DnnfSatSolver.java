@@ -22,7 +22,7 @@ public interface DnnfSatSolver {
      * Returns the factory of the solver
      * @return the factory
      */
-    FormulaFactory f();
+    FormulaFactory getFactory();
 
     /**
      * Adds a formula to the solver. The formula is first converted to CNF.

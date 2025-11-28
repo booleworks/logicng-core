@@ -237,7 +237,7 @@ public class BddKernel {
      * Returns the formula factory.
      * @return the formula factory
      */
-    public FormulaFactory factory() {
+    public FormulaFactory getFactory() {
         return f;
     }
 

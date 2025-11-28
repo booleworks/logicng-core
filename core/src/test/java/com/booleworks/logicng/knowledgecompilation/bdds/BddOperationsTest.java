@@ -340,7 +340,7 @@ public class BddOperationsTest {
     }
 
     private void compareFormula(final Bdd bdd, final String formula) throws ParserException {
-        compareFormula(bdd, bdd.kernel.factory().parse(formula));
+        compareFormula(bdd, bdd.kernel.getFactory().parse(formula));
     }
 
     private void compareFormula(final Bdd bdd, final Formula compareFormula) {
