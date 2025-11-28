@@ -4,7 +4,6 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddFunction;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddVariablesFunction;
 
@@ -32,11 +31,11 @@ import java.util.SortedSet;
  */
 public abstract class SddNode implements Comparable<SddNode> {
     protected final int id;
-    private final Sdd.GSCacheEntry<VTree> vTree;
-    private Sdd.GSCacheEntry<SddNode> negation;
+    private final VTree vTree;
+    private SddNode negation;
     private Sdd.VSCacheEntry<Integer> size;
 
-    SddNode(final int id, final Sdd.GSCacheEntry<VTree> vTree) {
+    SddNode(final int id, final VTree vTree) {
         this.id = id;
         this.vTree = vTree;
         this.negation = null;
@@ -98,15 +97,15 @@ public abstract class SddNode implements Comparable<SddNode> {
         return (SddNodeTerminal) this;
     }
 
-    Sdd.GSCacheEntry<VTree> getVTreeEntry() {
+    public VTree getVTree() {
         return vTree;
     }
 
-    Sdd.GSCacheEntry<SddNode> getNegationEntry() {
+    SddNode getNegation() {
         return negation;
     }
 
-    void setNegationEntry(final Sdd.GSCacheEntry<SddNode> negation) {
+    void setNegation(final SddNode negation) {
         this.negation = negation;
     }
 

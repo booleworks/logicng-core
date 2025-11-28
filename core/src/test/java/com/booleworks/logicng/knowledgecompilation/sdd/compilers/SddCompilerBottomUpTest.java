@@ -7,8 +7,9 @@ import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.sdd.SddTestUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration.BalancedVTreeGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.FieldSource;
@@ -48,12 +49,10 @@ public class SddCompilerBottomUpTest {
     @FieldSource("configs")
     public void testIndependentSdd(final Supplier<SddCompilerConfig.Builder> configSupplier) throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sdd = Sdd.independent(f);
+        final VTreeRoot.Builder builder = VTreeRoot.builder();
+        final VTree vtree = new BalancedVTreeGenerator(f.variables("X", "Y", "Z", "Q")).generate(builder);
+        final Sdd sdd = new Sdd(f, builder.build(vtree));
         final SddCompilerConfig config = configSupplier.get().sdd(sdd).build();
-
-        final VTree vtree = new BalancedVTreeGenerator(f.variables("X", "Y", "Z", "Q")).generate(sdd);
-        sdd.defineVTree(vtree);
-
         compileAndCheck(f.verum(), f, config);
         compileAndCheck(f.falsum(), f, config);
         compileAndCheck(f.variable("X"), f, config);

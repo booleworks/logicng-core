@@ -1,10 +1,10 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeInternal;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeLeaf;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
 
 import java.util.BitSet;
 import java.util.Collection;
@@ -26,48 +26,6 @@ public final class VTreeUtil {
     }
 
     /**
-     * Checks whether a VTree is a left fragment, i.e., an internal node whose
-     * left child is also an internal node.
-     * @param vtree the VTree
-     * @return whether the VTree is a left fragment
-     */
-    public static boolean isLeftFragment(final VTree vtree) {
-        return vtree != null && !vtree.isLeaf() && !vtree.asInternal().getLeft().isLeaf();
-    }
-
-    /**
-     * Checks whether a VTree is a right fragment, i.e., an internal node whose
-     * right child is also an internal node.
-     * @param vtree the VTree
-     * @return whether the VTree is a right fragment
-     */
-    public static boolean isRightFragment(final VTree vtree) {
-        return vtree != null && !vtree.isLeaf() && !vtree.asInternal().getRight().isLeaf();
-    }
-
-    /**
-     * Constructs a new VTree where {@code oldNode} is replaced with
-     * {@code newNode} in {@code root}.
-     * @param root    the whole VTree
-     * @param oldNode the subtree supposed to replace
-     * @param newNode the substitute
-     * @param sdd     the SDD container
-     * @return A copy of {@code root} where {@code oldNode} is replaced with {@code newNode}.
-     */
-    public static VTree substituteNode(final VTree root, final VTree oldNode, final VTree newNode, final Sdd sdd) {
-        if (root == oldNode) {
-            return newNode;
-        }
-        if (root instanceof VTreeInternal) {
-            return sdd.vTreeInternal(
-                    substituteNode(((VTreeInternal) root).getLeft(), oldNode, newNode, sdd),
-                    substituteNode((((VTreeInternal) root).getRight()), oldNode, newNode, sdd));
-        } else {
-            return root;
-        }
-    }
-
-    /**
      * Computes the lowest common ancestor of a set of variables in the
      * currently active VTree of the SDD.
      * <ul>
@@ -80,11 +38,11 @@ public final class VTreeUtil {
      * @return the lowest common ancestor of {@code variables}
      */
     public static VTree lcaFromVariables(final Collection<Integer> variables, final Sdd sdd) {
-        assert sdd.isVTreeDefined();
+        assert sdd.hasVTree();
         int posMax = Integer.MIN_VALUE;
         int posMin = Integer.MAX_VALUE;
         for (final int variable : variables) {
-            final int pos = sdd.vTreeLeaf(variable).getPosition();
+            final int pos = sdd.getVTree().getVTreeLeaf(variable).getPosition();
             posMax = Math.max(posMax, pos);
             posMin = Math.min(posMin, pos);
         }

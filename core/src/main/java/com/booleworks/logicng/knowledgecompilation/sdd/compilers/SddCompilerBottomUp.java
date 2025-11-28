@@ -14,14 +14,15 @@ import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 class SddCompilerBottomUp {
@@ -74,7 +75,7 @@ class SddCompilerBottomUp {
             final SddNode l;
             if (op.getType() == FType.LITERAL) {
                 final Literal lit = (Literal) op;
-                l = sdd.terminal(sdd.vTreeLeaf(lit.variable()), lit.getPhase());
+                l = sdd.terminal(Objects.requireNonNull(sdd.getVTree().getVTreeLeaf(lit.variable())), lit.getPhase());
             } else {
                 final LngResult<SddNode> lRes = applyClause(((Or) op).getOperands(), handler);
                 if (!lRes.isSuccess()) {
@@ -100,7 +101,8 @@ class SddCompilerBottomUp {
         SddNode node = sdd.falsum();
         for (final Formula formula : lits) {
             final Literal lit = (Literal) formula;
-            final SddNode l = sdd.terminal(sdd.vTreeLeaf(lit.variable()), lit.getPhase());
+            final SddNode l =
+                    sdd.terminal(Objects.requireNonNull(sdd.getVTree().getVTreeLeaf(lit.variable())), lit.getPhase());
             final LngResult<SddNode> s = sdd.binaryOperation(node, l, SddApply.Operation.DISJUNCTION, handler);
             if (!s.isSuccess()) {
                 return s;

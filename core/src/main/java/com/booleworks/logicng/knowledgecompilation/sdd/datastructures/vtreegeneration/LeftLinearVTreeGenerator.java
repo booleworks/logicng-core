@@ -1,10 +1,12 @@
-package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
+package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration;
 
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeLeaf;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -29,7 +31,7 @@ public final class LeftLinearVTreeGenerator implements VTreeGenerator {
     }
 
     @Override
-    public LngResult<VTree> generate(final Sdd sf, final ComputationHandler handler) {
+    public LngResult<VTree> generate(final VTreeRoot.Builder builder, final ComputationHandler handler) {
         if (variables.isEmpty()) {
             throw new IllegalArgumentException("Cannot construct VTree from a empty set of variables");
         }
@@ -40,12 +42,12 @@ public final class LeftLinearVTreeGenerator implements VTreeGenerator {
         int index = 0;
         VTree left = null;
         while (index < varSet.size()) {
-            final VTreeLeaf right = sf.vTreeLeaf(varSet.get(index));
+            final VTreeLeaf right = builder.vTreeLeaf(varSet.get(index));
             index += 1;
             if (left == null) {
                 left = right;
             } else {
-                left = sf.vTreeInternal(left, right);
+                left = builder.vTreeInternal(left, right);
             }
         }
         return LngResult.of(left);

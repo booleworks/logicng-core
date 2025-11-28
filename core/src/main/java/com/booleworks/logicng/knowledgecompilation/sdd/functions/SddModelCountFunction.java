@@ -8,9 +8,9 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeInternal;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
 
 import java.math.BigInteger;
 import java.util.Collection;
@@ -93,7 +93,7 @@ public final class SddModelCountFunction implements SddFunction<BigInteger> {
         }
         final VTreeRoot root = sdd.getVTree();
         final SddNodeDecomposition decomp = node.asDecomposition();
-        final VTreeInternal vTree = sdd.vTreeOf(node).asInternal();
+        final VTreeInternal vTree = node.getVTree().asInternal();
         BigInteger modelCount = BigInteger.ZERO;
         for (final SddElement element : decomp) {
             final BigInteger prime = applyRec(element.getPrime(), cache);
@@ -104,13 +104,13 @@ public final class SddModelCountFunction implements SddFunction<BigInteger> {
                 final VTree right = vTree.getRight();
                 final BigInteger primeMc =
                         prime.multiply(BigInteger.TWO.pow(
-                                VTreeUtil.gapVarCount(left, sdd.vTreeOf(element.getPrime()), root, sddVariables)));
+                                VTreeUtil.gapVarCount(left, element.getPrime().getVTree(), root, sddVariables)));
                 final BigInteger subMc;
                 if (element.getSub().isTrue()) {
                     subMc = BigInteger.TWO.pow(VTreeUtil.varCount(vTree.getRight(), sddVariables));
                 } else {
                     subMc = sub.multiply(BigInteger.TWO.pow(
-                            VTreeUtil.gapVarCount(right, sdd.vTreeOf(element.getSub()), root, sddVariables)));
+                            VTreeUtil.gapVarCount(right, element.getSub().getVTree(), root, sddVariables)));
                 }
                 modelCount = modelCount.add(primeMc.multiply(subMc));
             }

@@ -7,9 +7,7 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfCoreSolver;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.DecisionVTreeGenerator;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration.DecisionVTreeGenerator;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -18,27 +16,27 @@ public class DecisionVTreeGeneratorTest {
     @Test
     public void test() throws ParserException, IOException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
+        final VTreeRoot.Builder builder = VTreeRoot.builder();
         final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
         final DnnfCoreSolver solver = new DnnfCoreSolver(f, formula.variables(f).size());
         solver.add(formula);
 
-        final VTree tree = new DecisionVTreeGenerator(formula, solver).generate(sf);
+        final VTree tree = new DecisionVTreeGenerator(formula, solver).generate(builder);
         assert !tree.isLeaf();
-        assert isDecisionVTreeFor(tree.asInternal(), formula, sf);
+        assert isDecisionVTreeFor(tree.asInternal(), formula, builder);
     }
 
     @Test
     public void testWithoutSolver() throws IOException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sf = Sdd.independent(f);
+        final VTreeRoot.Builder builder = VTreeRoot.builder();
         final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
-        final VTree tree = new DecisionVTreeGenerator(formula).generate(sf);
+        final VTree tree = new DecisionVTreeGenerator(formula).generate(builder);
         assert !tree.isLeaf();
-        assert isDecisionVTreeFor(tree.asInternal(), formula, sf);
+        assert isDecisionVTreeFor(tree.asInternal(), formula, builder);
     }
 
-    private boolean isDecisionVTreeFor(final VTreeInternal vTree, final Formula cnf, final Sdd sdd) {
+    private boolean isDecisionVTreeFor(final VTreeInternal vTree, final Formula cnf, final VTreeRoot.Builder builder) {
         if (!vTree.isShannon()) {
             switch (cnf.getType()) {
                 case OR: {
@@ -46,10 +44,10 @@ public class DecisionVTreeGeneratorTest {
                     boolean right = false;
                     for (final Formula op : cnf) {
                         if (!left) {
-                            left = vTreeContainsVar(vTree.getLeft(), ((Literal) op).variable(), sdd);
+                            left = vTreeContainsVar(vTree.getLeft(), ((Literal) op).variable(), builder);
                         }
                         if (!right) {
-                            right = vTreeContainsVar(vTree.getRight(), ((Literal) op).variable(), sdd);
+                            right = vTreeContainsVar(vTree.getRight(), ((Literal) op).variable(), builder);
                         }
                         if (left && right) {
                             return false;
@@ -59,7 +57,7 @@ public class DecisionVTreeGeneratorTest {
                 }
                 case AND:
                     for (final Formula op : cnf) {
-                        if (!isDecisionVTreeFor(vTree, op, sdd)) {
+                        if (!isDecisionVTreeFor(vTree, op, builder)) {
                             return false;
                         }
                     }
@@ -73,23 +71,24 @@ public class DecisionVTreeGeneratorTest {
             }
         }
         if (!vTree.getLeft().isLeaf()) {
-            final boolean res = isDecisionVTreeFor(vTree.getLeft().asInternal(), cnf, sdd);
+            final boolean res = isDecisionVTreeFor(vTree.getLeft().asInternal(), cnf, builder);
             if (!res) {
                 return false;
             }
         }
         if (!vTree.getRight().isLeaf()) {
-            return isDecisionVTreeFor(vTree.getRight().asInternal(), cnf, sdd);
+            return isDecisionVTreeFor(vTree.getRight().asInternal(), cnf, builder);
         }
         return true;
     }
 
-    private boolean vTreeContainsVar(final VTree vTree, final Variable var, final Sdd sdd) {
+    private boolean vTreeContainsVar(final VTree vTree, final Variable var, final VTreeRoot.Builder builder) {
         if (vTree.isLeaf()) {
-            return sdd.knows(var) && vTree.asLeaf().getVariable() == sdd.variableToIndex(var);
+            return builder.getVariables().knows(var)
+                    && vTree.asLeaf().getVariable() == builder.getVariables().variableToIndex(var);
         } else {
-            return vTreeContainsVar(vTree.asInternal().getLeft(), var, sdd)
-                    && vTreeContainsVar(vTree.asInternal().getRight(), var, sdd);
+            return vTreeContainsVar(vTree.asInternal().getLeft(), var, builder)
+                    && vTreeContainsVar(vTree.asInternal().getRight(), var, builder);
         }
     }
 }

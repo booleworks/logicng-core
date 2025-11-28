@@ -11,8 +11,9 @@ import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler;
 import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerConfig;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.DecisionVTreeGenerator;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration.DecisionVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelEnumerationFunction;
 import org.junit.jupiter.api.Test;
 
@@ -29,13 +30,11 @@ public class SddEvaluationTest {
     }
 
     private static void checkForFormula(final Formula formula, final FormulaFactory f) {
-        final Sdd sdd = Sdd.independent(f);
+        final VTreeRoot.Builder builder = VTreeRoot.builder();
         final Formula cnf = SddTestUtil.encodeWithFactorization(f, formula);
         final Formula cnfNeg = SddTestUtil.encodeWithFactorization(f, formula.negate(f));
-        final VTree vtree = new DecisionVTreeGenerator(cnf).generate(sdd);
-        if (vtree != null) {
-            sdd.defineVTree(vtree);
-        }
+        final VTree vtree = new DecisionVTreeGenerator(cnf).generate(builder);
+        final Sdd sdd = new Sdd(f, builder.build(vtree));
         final SddCompilerConfig config = SddCompilerConfig.builder()
                 .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
                 .sdd(sdd)

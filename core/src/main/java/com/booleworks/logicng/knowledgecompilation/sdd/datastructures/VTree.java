@@ -1,6 +1,4 @@
-package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
-
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
 import java.util.BitSet;
 import java.util.Map;

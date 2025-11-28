@@ -1,6 +1,4 @@
-package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
-
-import com.booleworks.logicng.formulas.Variable;
+package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
 import java.util.BitSet;
 
@@ -15,14 +13,7 @@ public final class VTreeLeaf extends VTree {
     private BitSet clausePosMask = null;
     private BitSet clauseNegMask = null;
 
-    /**
-     * <strong>Do not use this constructor to construct new nodes.</strong> Use
-     * {@link com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd#vTreeLeaf(Variable)  Sdd.vTreeLeaf()},
-     * as it ensure necessary invariants.
-     * @param id       the unique id of this node
-     * @param variable the variable of this leaf
-     */
-    public VTreeLeaf(final int id, final int variable) {
+    VTreeLeaf(final int id, final int variable) {
         super(id);
         this.variable = variable;
     }

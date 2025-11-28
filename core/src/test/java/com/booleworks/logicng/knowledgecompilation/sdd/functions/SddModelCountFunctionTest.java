@@ -12,6 +12,7 @@ import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
 import com.booleworks.logicng.modelcounting.ModelCounter;
 import org.junit.jupiter.api.Test;
 
@@ -27,8 +28,8 @@ public class SddModelCountFunctionTest {
     @Test
     public void testTrivial() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sdd = Sdd.independent(f);
-        sdd.vTreeLeaf(f.variable("A"));
+        final VTreeRoot.Builder builder = VTreeRoot.builder();
+        final Sdd sdd = new Sdd(f, builder.build(null));
         check(sdd.verum(), f.verum(), f.variables(), sdd);
         check(sdd.verum(), f.verum(), f.variables("A", "B"), sdd);
         check(sdd.falsum(), f.falsum(), f.variables(), sdd);

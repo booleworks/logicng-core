@@ -1,10 +1,12 @@
-package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
+package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration;
 
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeLeaf;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,26 +32,27 @@ public final class RightLinearVTreeGenerator implements VTreeGenerator {
     }
 
     @Override
-    public LngResult<VTree> generate(final Sdd sf, final ComputationHandler handler) {
+    public LngResult<VTree> generate(final VTreeRoot.Builder builder, final ComputationHandler handler) {
         if (variables.isEmpty()) {
             throw new IllegalArgumentException("Cannot construct VTree from a empty set of variables");
         }
         if (!handler.shouldResume(ComputationStartedEvent.VTREE_GENERATION_STARTED)) {
             return LngResult.canceled(ComputationStartedEvent.VTREE_GENERATION_STARTED);
         }
-        return LngResult.of(generateRightLinear(sf, new ArrayList<>(variables), null));
+        return LngResult.of(generateRightLinear(builder, new ArrayList<>(variables), null));
     }
 
-    static VTree generateRightLinear(final Sdd sf, final List<Variable> variables, final VTree stub) {
+    static VTree generateRightLinear(final VTreeRoot.Builder builder, final List<Variable> variables,
+                                     final VTree stub) {
         int index = variables.size() - 1;
         VTree right = stub;
         while (index >= 0) {
-            final VTreeLeaf left = sf.vTreeLeaf(variables.get(index));
+            final VTreeLeaf left = builder.vTreeLeaf(variables.get(index));
             index -= 1;
             if (right == null) {
                 right = left;
             } else {
-                right = sf.vTreeInternal(left, right);
+                right = builder.vTreeInternal(left, right);
             }
         }
         return right;

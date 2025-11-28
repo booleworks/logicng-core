@@ -3,7 +3,7 @@ package com.booleworks.logicng.knowledgecompilation.sdd.algorithms;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
 
 import java.util.HashSet;
 
@@ -40,7 +40,7 @@ public final class SddValidation {
             return false;
         }
         if (node.isDecomposition()) {
-            final VTree actual = sdd.vTreeOf(node);
+            final VTree actual = node.getVTree();
             if (actual.isLeaf()) {
                 return false;
             }
@@ -55,7 +55,7 @@ public final class SddValidation {
     }
 
     private static boolean checkVTree(final SddNode node, final VTree expected, final Sdd sdd) {
-        final VTree actual = sdd.vTreeOf(node);
+        final VTree actual = node.getVTree();
         if ((node.isTrivial() && actual != null) || (!node.isTrivial() && actual == null)) {
             return false;
         }

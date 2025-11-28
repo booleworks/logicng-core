@@ -9,8 +9,8 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeIterationState;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeInternal;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -114,7 +114,7 @@ public final class SddEvaluation {
         } else {
             final SddNodeDecomposition decomp = node.asDecomposition();
             SddNodeIterationState state = states.iterators.get(decomp);
-            final VTreeInternal vtree = states.sdd.vTreeOf(decomp).asInternal();
+            final VTreeInternal vtree = decomp.getVTree().asInternal();
             if (state == null) {
                 state = new SddNodeIterationState(decomp);
                 state.setGeneration(states.generation);
@@ -166,9 +166,9 @@ public final class SddEvaluation {
             }
             writePath(assignmentMap, additionalVars, activeElement.getPrime(), states, dst);
             writePath(assignmentMap, additionalVars, activeElement.getSub(), states, dst);
-            final VTree primeVTree = states.sdd.vTreeOf(activeElement.getPrime());
-            final VTree subVTree = states.sdd.vTreeOf(activeElement.getSub());
-            final VTreeInternal elementVTree = states.sdd.vTreeOf(node).asInternal();
+            final VTree primeVTree = activeElement.getPrime().getVTree();
+            final VTree subVTree = activeElement.getSub().getVTree();
+            final VTreeInternal elementVTree = node.getVTree().asInternal();
             final List<Integer> gapVars = new ArrayList<>();
             VTreeUtil.gapVarsMasked(elementVTree.getLeft(), primeVTree, states.sdd.getVTree(), additionalVars, gapVars);
             VTreeUtil.gapVarsMasked(elementVTree.getRight(), subVTree, states.sdd.getVTree(), additionalVars, gapVars);

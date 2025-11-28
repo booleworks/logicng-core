@@ -33,8 +33,8 @@ public class SddModelEnumerationFunctionTest {
     @Test
     public void testTrivial() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sdd = Sdd.independent(f);
-        sdd.vTreeLeaf(f.variable("A"));
+        final SddCompilationResult compRes = SddCompiler.compile(f.verum(), f);
+        final Sdd sdd = compRes.getSdd();
         final SddModelEnumerationFunction meFunc1 =
                 SddModelEnumerationFunction.builder(f.variables(), sdd).build();
         final SddModelEnumerationFunction meFunc2 =

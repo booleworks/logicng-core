@@ -8,14 +8,10 @@ import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
-import com.booleworks.logicng.io.graphical.GraphicalDotWriter;
-import com.booleworks.logicng.io.graphical.GraphicalRepresentation;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddEvaluation;
-import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeDotExport;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddDotExport;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddExportFormula;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelCountFunction;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelEnumerationFunction;
@@ -27,7 +23,6 @@ import com.booleworks.logicng.transformations.PureExpansionTransformation;
 import com.booleworks.logicng.transformations.cnf.CnfConfig;
 import com.booleworks.logicng.transformations.cnf.CnfEncoder;
 
-import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
@@ -63,30 +58,6 @@ public class SddTestUtil {
         }
         for (final Model model : models2.getPartialResult()) {
             assertThat(SddEvaluation.evaluate(model.toAssignment(), node, sdd)).isTrue();
-        }
-    }
-
-    public static void printGraph(final SddNode node, final Sdd sdd) {
-        final StringWriter sw = new StringWriter();
-        node.execute(new SddDotExport(sdd, sw));
-        sw.flush();
-        System.out.println(sw);
-    }
-
-    public static void printVTree(final VTree node, final Sdd sdd) {
-        final GraphicalRepresentation gr = VTreeDotExport.exportDot(node, sdd);
-        System.out.println(gr.writeString(GraphicalDotWriter.get()));
-    }
-
-    public static VTree getVTreeAtPosition(final int position, final VTree root) {
-        if (root.getPosition() == position) {
-            return root;
-        } else if (position < root.getPosition() && !root.isLeaf()) {
-            return getVTreeAtPosition(position, root.asInternal().getLeft());
-        } else if (position > root.getPosition() && !root.isLeaf()) {
-            return getVTreeAtPosition(position, root.asInternal().getRight());
-        } else {
-            return null;
         }
     }
 

@@ -1,4 +1,4 @@
-package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
+package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
 import java.util.BitSet;
 
@@ -14,16 +14,7 @@ public final class VTreeInternal extends VTree {
     private final VTree last;
     private final BitSet variableMask;
 
-    /**
-     * <strong>Do not use this constructor to construct new nodes.</strong> Use
-     * {@link com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd#vTreeInternal(VTree, VTree)
-     * Sdd.vTreeInternal()},
-     * as it ensure necessary invariants.
-     * @param id    the unique id of this node
-     * @param left  the left child
-     * @param right the right child
-     */
-    public VTreeInternal(final int id, final VTree left, final VTree right) {
+    VTreeInternal(final int id, final VTree left, final VTree right) {
         super(id);
         this.left = left;
         this.right = right;

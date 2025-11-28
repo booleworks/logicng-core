@@ -5,8 +5,8 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeInternal;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -123,7 +123,7 @@ public class SddWriter {
             } else if (terminal.isTrue()) {
                 state.lines.add(String.format("T %d", id));
             } else {
-                final int vTreeId = sdd.vTreeOf(node).getPosition();
+                final int vTreeId = node.getVTree().getPosition();
                 final int literalId = terminal.getPhase() ? 1 : -1;
                 state.lines.add(String.format("L %d %d %d", id, vTreeId, literalId));
             }

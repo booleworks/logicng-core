@@ -16,9 +16,9 @@ import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeInternal;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeLeaf;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -53,7 +53,6 @@ class SddCompilerTopDown {
                                                 final ComputationHandler handler) {
         final Caches caches = new Caches();
         generateClauseMasks(sdd.getVTree().getRoot(), dTree, caches);
-        sdd.defineVTree(sdd.getVTree().getRoot());
         final Set<Integer> relevantVars = SddUtil.varsToIndicesOnlyKnown(variables, sdd, new HashSet<>());
         final LngResult<SddNode> res = new SddCompilerTopDown(relevantVars, caches, solver, sdd).start(handler);
         clearVTreeCaches(sdd.getVTree().getRoot());

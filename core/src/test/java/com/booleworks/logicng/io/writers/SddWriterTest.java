@@ -12,6 +12,8 @@ import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerConf
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddExportFormula;
 import com.booleworks.logicng.util.Pair;
 import org.junit.jupiter.api.Test;
@@ -34,8 +36,10 @@ public class SddWriterTest {
         final FormulaFactory f = FormulaFactory.caching();
         final Formula formula = f.parse("(A | B) & (V | W | X) & (A | ~X)");
         final SddCompilationResult result = SddCompiler.compile(formula, f);
-        final Sdd reimport = reimportVTree(result.getSdd());
-        recompileFormulaAndCheck(reimport, result.getNode(), result.getSdd(), formula);
+        final Pair<VTree, VTreeRoot.Builder> reimport = reimportVTree(result.getSdd());
+        final VTreeRoot root = reimport.getSecond().build(reimport.getFirst());
+        final Sdd sdd = new Sdd(f, root);
+        recompileFormulaAndCheck(sdd, result.getNode(), result.getSdd(), formula);
     }
 
     private final static List<String> FILES = List.of(
@@ -64,8 +68,10 @@ public class SddWriterTest {
             final FormulaFactory f = FormulaFactory.caching();
             final Formula formula = f.and(DimacsReader.readCNF(f, file));
             final SddCompilationResult result = SddCompiler.compile(formula, f);
-            final Sdd reimport = reimportVTree(result.getSdd());
-            recompileFormulaAndCheck(reimport, result.getNode(), result.getSdd(), formula);
+            final Pair<VTree, VTreeRoot.Builder> reimport = reimportVTree(result.getSdd());
+            final VTreeRoot root = reimport.getSecond().build(reimport.getFirst());
+            final Sdd sdd = new Sdd(f, root);
+            recompileFormulaAndCheck(sdd, result.getNode(), result.getSdd(), formula);
         }
     }
 
@@ -92,7 +98,7 @@ public class SddWriterTest {
         return SddReader.readSdd(tempFile, sdd.getFactory());
     }
 
-    private static Sdd reimportVTree(final Sdd sdd)
+    private static Pair<VTree, VTreeRoot.Builder> reimportVTree(final Sdd sdd)
             throws IOException, ParserException {
         final File tempFile = new File("../test_files/writers/temp/temp.vtree");
         SddWriter.writeVTree(tempFile, sdd);

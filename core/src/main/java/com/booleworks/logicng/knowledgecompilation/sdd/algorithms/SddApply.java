@@ -8,8 +8,8 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeTerminal;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
@@ -72,14 +72,14 @@ public final class SddApply {
 
         final SddNode l;
         final SddNode r;
-        if (sdd.vTreeOf(left).getPosition() <= sdd.vTreeOf(right).getPosition()) {
+        if (left.getVTree().getPosition() <= right.getVTree().getPosition()) {
             l = left;
             r = right;
         } else {
             l = right;
             r = left;
         }
-        final Pair<VTree, VTreeRoot.CmpType> lca = sdd.getVTree().cmpVTrees(sdd.vTreeOf(l), sdd.vTreeOf(r));
+        final Pair<VTree, VTreeRoot.CmpType> lca = sdd.getVTree().cmpVTrees(l.getVTree(), r.getVTree());
         final LngResult<SddNode> result;
         switch (lca.getSecond()) {
             case EQUALS:
@@ -124,7 +124,7 @@ public final class SddApply {
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
-        assert sf.vTreeOf(left).getPosition() < sf.vTreeOf(right).getPosition();
+        assert left.getVTree().getPosition() < right.getVTree().getPosition();
 
         final ArrayList<SddElement> newElements = new ArrayList<>();
         final SddNode n = op == Operation.CONJUNCTION ? left : sf.negate(left);
@@ -149,7 +149,7 @@ public final class SddApply {
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
-        assert sf.vTreeOf(left).getPosition() < sf.vTreeOf(right).getPosition();
+        assert left.getVTree().getPosition() < right.getVTree().getPosition();
 
         final ArrayList<SddElement> newElements = new ArrayList<>();
         for (final SddElement element : left) {
@@ -169,9 +169,9 @@ public final class SddApply {
         assert right != null;
         assert !left.isTrivial();
         assert !right.isTrivial();
-        assert sf.vTreeOf(left).getPosition() < sf.vTreeOf(right).getPosition();
-        assert !sf.getVTree().isSubtree(sf.vTreeOf(left), sf.vTreeOf(right));
-        assert !sf.getVTree().isSubtree(sf.vTreeOf(right), sf.vTreeOf(left));
+        assert left.getVTree().getPosition() < right.getVTree().getPosition();
+        assert !sf.getVTree().isSubtree(left.getVTree(), right.getVTree());
+        assert !sf.getVTree().isSubtree(right.getVTree(), left.getVTree());
 
         final SddNode leftNeg = sf.negate(left);
         final LngResult<SddNode> leftSub = apply(right, sf.verum(), op, sf, handler);

@@ -1,7 +1,7 @@
-package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
+package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
+import com.booleworks.logicng.formulas.Variable;
+import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCoreSolver;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
@@ -21,47 +21,58 @@ public final class VTreeRoot {
     private final VTree root;
     private final ArrayList<SddNode> pinnedNodes;
     private final HashMap<SddNode, Integer> pinCount;
+    private final HashMap<Pair<VTree, VTree>, VTreeInternal> internalVTreeNodes;
+    private final HashMap<Integer, VTreeLeaf> leafVTreeNodes;
+    private final SddVariableProxy variables;
+    private int version;
 
-    /**
-     * <strong>Do not use this constructor!</strong> Use
-     * {@link com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd#constructRoot Sdd.constructRoot()}
-     * or {@link com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd#defineVTree Sdd.defineVTree()}
-     * instead.
-     * @param root the vtree which is used to construct the root
-     */
-    public VTreeRoot(final VTree root) {
+    private VTreeRoot(final Builder builder, final VTree root) {
         this.root = root;
         this.pinnedNodes = new ArrayList<>();
         this.pinCount = new HashMap<>();
+        this.version = 0;
+        this.internalVTreeNodes = builder.internalVTreeNodes;
+        this.leafVTreeNodes = builder.leafVTreeNodes;
+        this.variables = builder.variables;
+        initializeVTreeCaches();
     }
 
     /**
-     * Copy constructor for vtree roots.
-     * <p>
-     * <strong>Important:</strong> This API is unsafe you should now what you
-     * are doing if you are using it.  The root is only valid on the SDD it was
-     * constructed on or an identical copy. Furthermore, you need to ensure
-     * that all pinned SDD nodes are still on the SDD (i.e. not garbage
-     * collected. Ideally the original vtree is still on the SDD, which pins all
-     * these nodes). To define the copied vtree for an SDD container, you need
-     * to push it to the vtree stack and then bump the generation of the stack
-     * (important, otherwise the cache gets corrupted).
-     * <pre>{@code
-     * VTreeRoot copy = new VTreeRoot(existing);
-     * ...
-     * sdd.getVTreeStack().push(copy);
-     * sdd.bumpGeneration();
-     * ...
-     * }</pre>
-     * @param root the existing root
+     * Returns an existing vtree leaf for the given variable or {@code null} if
+     * no leaf does exist for the variable.
+     * @param variable the variable
+     * @return the vtree leaf for the variable or {@code null} if no leaf does
+     * exist for the variable
      */
-    public VTreeRoot(final VTreeRoot root) {
-        this.root = root.root;
-        this.pinnedNodes = new ArrayList<>(root.pinnedNodes);
-        this.pinCount = new HashMap<>(root.pinCount);
-        for (final SddNode pinnedNode : root.pinnedNodes) {
-            pinnedNode.asDecomposition().ref();
+    public VTreeLeaf getVTreeLeaf(final Variable variable) {
+        final int idx = variables.variableToIndex(variable);
+        if (idx == -1) {
+            return null;
         }
+        return getVTreeLeaf(idx);
+    }
+
+    /**
+     * Returns an existing vtree leaf for the given variable or {@code null} if
+     * no leaf does exist for the variable.
+     * @param variable the variable index
+     * @return the vtree leaf for the variable or {@code null} if no leaf does
+     * exist for the variable
+     */
+    public VTreeLeaf getVTreeLeaf(final int variable) {
+        return leafVTreeNodes.get(variable);
+    }
+
+    /**
+     * Returns an existing inner vtree node for a left and right subtree or
+     * {@code null} if no node does exist.
+     * @param left  the left subtree
+     * @param right the right subtree
+     * @return the inner vtree node or {@code null} if it does not exist
+     */
+    public VTreeInternal getVTreeInternal(final VTree left, final VTree right) {
+        final Pair<VTree, VTree> pair = new Pair<>(left, right);
+        return internalVTreeNodes.get(pair);
     }
 
     /**
@@ -78,6 +89,7 @@ public final class VTreeRoot {
     public void pin(final SddNodeDecomposition node) {
         final Integer count = pinCount.get(node);
         if (count == null) {
+            version += 1;
             pinnedNodes.add(node);
             pinCount.put(node, 1);
             node.ref();
@@ -101,6 +113,7 @@ public final class VTreeRoot {
         final Integer count = pinCount.get(node);
         assert count != null;
         if (count == 1) {
+            version += 1;
             pinnedNodes.remove(node);
             pinCount.remove(node);
             node.asDecomposition().deref();
@@ -257,6 +270,14 @@ public final class VTreeRoot {
         return root;
     }
 
+    SddVariableProxy getVariables() {
+        return variables;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
     /**
      * Returns the pinned nodes of this root.
      * @return the pinned nodes of this root
@@ -285,5 +306,137 @@ public final class VTreeRoot {
     @Override
     public int hashCode() {
         return root.hashCode();
+    }
+
+    private void initializeVTreeCaches() {
+        if (root != null) {
+            updatePositions(root, 0);
+            updateParents(root, null);
+        }
+    }
+
+    private int updatePositions(final VTree vTree, final int base) {
+        if (vTree instanceof VTreeInternal) {
+            final int b = updatePositions(((VTreeInternal) vTree).getLeft(), base);
+            vTree.setPosition(b + 1);
+            return updatePositions(((VTreeInternal) vTree).getRight(), b + 2);
+        } else {
+            vTree.setPosition(base);
+            return base;
+        }
+    }
+
+    private void updateParents(final VTree vTree, final VTree parent) {
+        vTree.setParent(parent);
+        if (!vTree.isLeaf()) {
+            updateParents(vTree.asInternal().getLeft(), vTree);
+            updateParents(vTree.asInternal().getRight(), vTree);
+        }
+    }
+
+    /**
+     * Constructs a new vtree builder that reuses the variable indices of a
+     * solver. The builder does not add new variables or variable indices
+     * to the solver.
+     * @param solver the solver
+     * @return the builder
+     */
+    public static Builder builderFromSolver(final SddCoreSolver solver) {
+        return new Builder(SddVariableProxy.fromSolver(solver));
+    }
+
+    /**
+     * Constructs a new vtree builder.
+     * @return the builder
+     */
+    public static Builder builder() {
+        return new Builder(SddVariableProxy.empty());
+    }
+
+    /**
+     * The vtree builder. Used to construct new vtrees.
+     */
+    public static class Builder {
+        private int currentVTreeId = 0;
+        private HashMap<Pair<VTree, VTree>, VTreeInternal> internalVTreeNodes = new HashMap<>();
+        private HashMap<Integer, VTreeLeaf> leafVTreeNodes = new HashMap<>();
+        private SddVariableProxy variables;
+
+        private Builder(final SddVariableProxy variables) {
+            this.variables = variables;
+        }
+
+        /**
+         * Constructs a vtree leaf storing the variable or returns the existing
+         * leaf if it already exists.
+         * @param variable the variable
+         * @return the vtree leaf for the variable
+         */
+        public VTreeLeaf vTreeLeaf(final Variable variable) {
+            int idx = variables.variableToIndex(variable);
+            if (idx == -1) {
+                idx = variables.newVar(variable);
+            }
+            return vTreeLeaf(idx);
+        }
+
+        /**
+         * Constructs a vtree leaf storing the variable or returns the existing
+         * leaf if it already exists.
+         * @param variable the variable index
+         * @return the vtree leaf for the variable
+         */
+        public VTreeLeaf vTreeLeaf(final int variable) {
+            final VTreeLeaf cached = leafVTreeNodes.get(variable);
+            if (cached != null) {
+                return cached;
+            }
+            final VTreeLeaf newNode = new VTreeLeaf(currentVTreeId++, variable);
+            leafVTreeNodes.put(variable, newNode);
+            return newNode;
+        }
+
+        /**
+         * Constructs an inner vtree node from two vtree nodes or returns the
+         * existing node if it already exists.
+         * @param left  the left subtree
+         * @param right the right subtree
+         * @return the new inner vtree node
+         */
+        public VTreeInternal vTreeInternal(final VTree left, final VTree right) {
+            final Pair<VTree, VTree> pair = new Pair<>(left, right);
+            final VTreeInternal cached = internalVTreeNodes.get(pair);
+            if (cached != null) {
+                return cached;
+            }
+            final VTreeInternal newNode = new VTreeInternal(currentVTreeId++, left, right);
+            internalVTreeNodes.put(pair, newNode);
+            return newNode;
+        }
+
+        /**
+         * Builds the {@link VTreeRoot} from this builder. The fields of this
+         * builder are moved into the root. The builder can no longer be used
+         * after calling this method.
+         * @param rootNode the root node of the vtree
+         * @return the built root
+         */
+        public VTreeRoot build(final VTree rootNode) {
+            final VTreeRoot root = new VTreeRoot(this, rootNode);
+            variables = null;
+            internalVTreeNodes = null;
+            leafVTreeNodes = null;
+            currentVTreeId = 0;
+            return root;
+        }
+
+        /**
+         * Returns the container storing the variable to variable index
+         * mappings.
+         * @return the container storing the variable to variable index mappings
+         */
+        public SddVariableProxy getVariables() {
+            return variables;
+        }
     }
 }

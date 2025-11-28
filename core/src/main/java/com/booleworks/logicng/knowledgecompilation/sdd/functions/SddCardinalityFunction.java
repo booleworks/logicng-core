@@ -9,8 +9,8 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeInternal;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -87,7 +87,7 @@ public final class SddCardinalityFunction implements SddFunction<Integer> {
             return cached;
         }
         final SddNodeDecomposition decomp = node.asDecomposition();
-        final VTreeInternal vTree = sdd.vTreeOf(node).asInternal();
+        final VTreeInternal vTree = node.getVTree().asInternal();
         int cardinality = -1;
         for (final SddElement element : decomp) {
             if (element.getSub().isFalse()) {
@@ -100,12 +100,12 @@ public final class SddCardinalityFunction implements SddFunction<Integer> {
                 final VTree left = vTree.getLeft();
                 final VTree right = vTree.getRight();
                 final int primeGap =
-                        VTreeUtil.gapVarCount(left, sdd.vTreeOf(element.getPrime()), sdd.getVTree(), sddVariables);
+                        VTreeUtil.gapVarCount(left, element.getPrime().getVTree(), sdd.getVTree(), sddVariables);
                 final int subGap;
                 if (element.getSub().isTrue()) {
                     subGap = VTreeUtil.varCount(vTree.getRight(), sddVariables);
                 } else {
-                    subGap = VTreeUtil.gapVarCount(right, sdd.vTreeOf(element.getSub()), sdd.getVTree(), sddVariables);
+                    subGap = VTreeUtil.gapVarCount(right, element.getSub().getVTree(), sdd.getVTree(), sddVariables);
                 }
                 final int c = prime + sub + primeGap + subGap;
                 if (cardinality == -1 || c > cardinality) {

@@ -5,8 +5,8 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.Collection;
@@ -241,8 +241,8 @@ public final class SddUtil {
         VTree rLca = null;
 
         for (final SddElement element : elements) {
-            final VTree pVTree = sdd.vTreeOf(element.getPrime());
-            final VTree sVTree = sdd.vTreeOf(element.getSub());
+            final VTree pVTree = element.getPrime().getVTree();
+            final VTree sVTree = element.getSub().getVTree();
             assert pVTree != null;
 
             lLca = lLca == null ? pVTree : root.lcaOf(pVTree, lLca);

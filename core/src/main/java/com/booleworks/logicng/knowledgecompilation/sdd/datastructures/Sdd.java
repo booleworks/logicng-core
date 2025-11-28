@@ -11,13 +11,6 @@ import com.booleworks.logicng.handlers.NopHandler;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddApply;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddCompression;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddUtil;
-import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCoreSolver;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeRoot;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeStack;
-import com.booleworks.logicng.solvers.sat.LngCoreSolver;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayDeque;
@@ -27,22 +20,21 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
 /**
  * The SDD container.
  * <p>
- * This is the main class for creating and managing vtrees and SDDs.  Similar to
- * a formula factory, it ensures that every vtree node and SDD node is unique,
- * but, additionally, it can perform garbage collection to clean up unused
- * nodes.  It allows to perform different operation on SDDs, such as conjunction
+ * This is the main class for creating and managing SDDs.  Similar to a formula
+ * factory, it ensures that every vtree node and SDD node is unique, but,
+ * additionally, it can perform garbage collection to clean up unused nodes.
+ * It allows to perform different operation on SDDs, such as conjunction
  * and disjunction.
  *
  * <h2>Theoretical Foundations</h2>
  * <p>
- * We introduce two datastructures: The {@link VTree} and the SDD
+ * There are two important datastructures: The {@link VTree} and the SDD
  * ({@link SddNode}).  The vtree is a complete binary tree storing variables at
  * its leaves and fundamentally dictates the structure of the SDD.  The SDD is
  * a DAG of {@link SddNodeTerminal}, {@link SddNodeDecomposition}, and
@@ -70,7 +62,7 @@ import java.util.stream.Collectors;
  * The most streamlined way to construct a formula is to use
  * {@link com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompiler SddCompiler}
  * to construct an SDD from a formula.  The compilers also provide the SDD
- * container and the vtree.  The bottom-up compiler can, additionally, be used
+ * container and the vtree. Additionally, the bottom-up compiler can be used
  * with existing SDD containers and with custom vtrees.
  *
  * <h3>Manual Construction</h3>
@@ -78,54 +70,54 @@ import java.util.stream.Collectors;
  * We, generally, suggest to use the automated approach as it is less
  * error-prone. However, there are circumstance where it might be appropriate
  * to do this yourself. For example, if you have additional information about
- * the problem or want to build other automated construction variants.
+ * the problem or want to build custom compilers.
  * <p>
- * First, one need to get an SDD container. There a two factory methods:
- * {@link Sdd#independent(FormulaFactory)} and
- * {@link Sdd#solverBased(SddCoreSolver)}. The former is the variant one needs
- * in most cases, which just uses a formula factory as foundation. The latter
- * one is an optimization for compilers that use SAT solvers for construction,
- * such that the solver's variable indices can directly be use.
+ * First a vtree must be constructed using {@link VTreeRoot} and
+ * {@link VTreeRoot.Builder}. This can either be done manually by using the
+ * methods provided by {@link VTreeRoot.Builder}, or automatically by using
+ * {@link com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration.VTreeGenerator VTreeGenerator}
+ * (we suggest
+ * {@link com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration.DecisionVTreeGenerator
+ * DecisionVTreeGenerator}).
  * <p>
- * Then, a vtree must be defined. For that, either
- * {@link com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeGenerator VTreeGenerator}
- * can be used (we suggest
- * {@link com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.DecisionVTreeGenerator
- * DecisionVTreeGenerator})
- * or it can be constructed manually using {@link Sdd#vTreeLeaf(Variable)} and
- * {@link Sdd#vTreeInternal(VTree, VTree)}. Once the vtree is constructed it
- * needs to be defined for the SDD container using
- * {@link Sdd#defineVTree(VTree)}.
+ * Afterward, the vtree root can be used to instantiate {@link Sdd}, which is
+ * the factory/container for creating and storing all SDD nodes. Every SDD
+ * created in this container must adhere to the structure defined by the vtree
+ * used for the instantiation of the container.
  * <p>
- * This SDD container can now also be passed to the bottom-up compiler, which
- * will then compile formulas into SDDs which respect the defined vtree.
- * Alternatively, SDD nodes can also be constructed manually, using {@link
- * Sdd#terminal(VTreeLeaf, boolean)} and {@link Sdd#decompOfPartition(ArrayList)}.
- * {@link Sdd#verum()} and {@link Sdd#falsum()} return terminal nodes
- * representing {@code true} or {@code false}.
- * <strong>However, the caller is responsible to ensure that these nodes adhere
- * to all invariants of reduced (compressed and trimmed, see [1]) SDDs. These
- * invariants are not checked and violating them results in undefined behaviour!
- * </strong>
+ * The SDD container can be passed to the bottom-up compiler, which will then
+ * compile formulas into SDDs with respect to the defined vtree. Alternatively,
+ * SDD nodes can also be constructed manually, using
+ * {@link Sdd#terminal(VTreeLeaf, boolean)} and
+ * {@link Sdd#decompOfPartition(ArrayList)}. {@link Sdd#verum()} and
+ * {@link Sdd#falsum()} return terminal nodes representing {@code true} or
+ * {@code false}. <strong>However, the caller is responsible to ensure that
+ * these nodes adhere to all invariants of reduced (compressed and trimmed, see
+ * [1]) SDDs. These invariants are not checked and violating them results in
+ * undefined behaviour!</strong>
  * <p>
  * Example for manual construction:
  * <pre>{@code
+ * final FormulaFactory f = FormulaFactory.caching();
+ * // Construct VTree
+ * final VTreeRoot.Builder vBuilder = VTreeRoot.builder();
+ * final VTreeLeaf va = vBuilder.vTreeLeaf(f.variable("A"));
+ * final VTreeLeaf vb = vBuilder.vTreeLeaf(f.variable("A"));
+ * final VTree vab = vBuilder.vTreeInternal(va, vb);
+ * final VTreeRoot vRoot = vBuilder.build(vab);
  *
  * // Create SDD container
- * FormulaFactory f = FormulaFactory.caching();
- * Sdd sdd = Sdd.independent(f);
+ * final Sdd sdd = new Sdd(f, vRoot);
  *
- * // Construct and define vtree
- * VTree va = sdd.vTreeLeaf(f.variable("A"));
- * VTree vb = sdd.vTreeLeaf(f.variable("B"));
- * VTree vab = sdd.vTreeInternal(va, vb);
- * sdd.define(vab);
- *
- * // Construct
- * SddNode ta = sdd.terminal(va, true);
- * SddNode tb = sdd.terminal(vb, true);
- * SddNode taNeg = sdd.terminal(va, false);
- * SddNode d_aAndb = sdd.decomposition(List.of(new SddElement(ta, tb), new SddElement(taNeg, sdd.falsum())));
+ * // Construct SDD
+ * final SddNode ta = sdd.terminal(va, true);
+ * final SddNode tb = sdd.terminal(vb, true);
+ * final SddNode taNeg = sdd.terminal(va, false);
+ * final ArrayList<SddElement> elements = new ArrayList<>(List.of(
+ * new SddElement(ta, tb),
+ * new SddElement(taNeg, sdd.falsum())
+ * ));
+ * final SddNode d_aAndb = sdd.decomposition(elements);
  * // d_aAndb represents the formula (A & B) | (~A & $false)
  * }</pre>
  *
@@ -140,15 +132,6 @@ import java.util.stream.Collectors;
  *     {@link com.booleworks.logicng.knowledgecompilation.sdd.functions.SddFunction SddFunction}
  *     can compute commonly used properties of SDDs, such as the variables of
  *     the SDD, the size of an SDD, an enumeration of all models, ...
- *     </li>
- *     <li><strong>Global Transformations and Minimization:</strong>
- *         {@link com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddGlobalTransformations
- *         SddGlobalTransformations}
- *         allows to apply transformation to the defined vtree of an SDD
- *         container and, thus, also to the SDD nodes that respect to that
- *         vtree. This concept is utilized in
- *         {@link com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddMinimization SddMinimization},
- *         which searches for vtrees that reduce the size of the overall SDD.
  *     </li>
  * </ul>
  * <h2>Internal Variable and Literal Representation</h2>
@@ -194,63 +177,30 @@ import java.util.stream.Collectors;
  */
 public final class Sdd {
     private final FormulaFactory f;
-    private int currentVTreeId;
+    private final VTreeRoot vTreeRoot;
     private int currentSddId;
-    private final HashMap<Pair<VTree, VTree>, VTreeInternal> internalVTreeNodes;
-    private final HashMap<Integer, VTreeLeaf> leafVTreeNodes;
-    private final VTreeStack vTreeStack;
     private final HashMap<ArrayList<SddElement>, SddNodeDecomposition> sddDecompositions;
     private final HashMap<Integer, SddNodeTerminal> sddTerminals;
     private final SddNodeTerminal verumNode;
     private final SddNodeTerminal falsumNode;
-    private final HashMap<Pair<SddNode, SddNode>, GSCacheEntry<SddNode>> conjunctions;
-    private final HashMap<Pair<SddNode, SddNode>, GSCacheEntry<SddNode>> disjunctions;
-    private final SddCoreSolver solver;
-    private final HashMap<Variable, Integer> var2idx;
-    private final ArrayList<Variable> idx2var;
+    private final HashMap<Pair<SddNode, SddNode>, SddNode> conjunctions;
+    private final HashMap<Pair<SddNode, SddNode>, SddNode> disjunctions;
 
     private final VSCacheEntry<Integer> activeSize;
 
-    private Sdd(final FormulaFactory f, final SddCoreSolver solver) {
+    public Sdd(final FormulaFactory f, final VTreeRoot root) {
         this.f = f;
-        this.solver = solver;
-        currentVTreeId = 0;
+        this.vTreeRoot = root;
         currentSddId = 2;
-        internalVTreeNodes = new HashMap<>();
-        leafVTreeNodes = new HashMap<>();
         sddDecompositions = new HashMap<>();
         sddTerminals = new HashMap<>();
         conjunctions = new HashMap<>();
         disjunctions = new HashMap<>();
-        vTreeStack = new VTreeStack();
-        verumNode = new SddNodeTerminal(0, invariantGSCacheEntry(null), true);
-        falsumNode = new SddNodeTerminal(1, invariantGSCacheEntry(null), false);
-        var2idx = new HashMap<>();
-        idx2var = new ArrayList<>();
-        verumNode.setNegationEntry(invariantGSCacheEntry(falsumNode));
-        falsumNode.setNegationEntry(invariantGSCacheEntry(verumNode));
+        verumNode = new SddNodeTerminal(0, null, true);
+        falsumNode = new SddNodeTerminal(1, null, false);
+        verumNode.setNegation(falsumNode);
+        falsumNode.setNegation(verumNode);
         activeSize = new VSCacheEntry<>(0);
-    }
-
-    /**
-     * Constructs a new solver-based SDD container.
-     * <p>
-     * A solver-based SDD container reuses the variable indices from the SAT
-     * solver.
-     * @param solver the solver
-     * @return a new solver-based SDD container
-     */
-    public static Sdd solverBased(final SddCoreSolver solver) {
-        return new Sdd(solver.f(), solver);
-    }
-
-    /**
-     * Constructs a new SDD container.
-     * @param f the formula factory
-     * @return a new SDD container
-     */
-    public static Sdd independent(final FormulaFactory f) {
-        return new Sdd(f, null);
     }
 
     /**
@@ -260,15 +210,7 @@ public final class Sdd {
      * @return the corresponding LNG variable
      */
     public Variable indexToVariable(final int index) {
-        if (solver == null) {
-            if (index < idx2var.size()) {
-                return idx2var.get(index);
-            } else {
-                return null;
-            }
-        } else {
-            return f.variable(solver.nameForIdx(index));
-        }
+        return vTreeRoot.getVariables().indexToVariable(f, index);
     }
 
     /**
@@ -279,12 +221,7 @@ public final class Sdd {
      * unknown
      */
     public int variableToIndex(final Variable variable) {
-        if (solver == null) {
-            final Integer idx = var2idx.get(variable);
-            return Objects.requireNonNullElse(idx, -1);
-        } else {
-            return solver.idxForName(variable.getName());
-        }
+        return vTreeRoot.getVariables().variableToIndex(variable);
     }
 
     /**
@@ -295,7 +232,7 @@ public final class Sdd {
      * @return the literal in internal representation
      */
     public int literalToIndex(final int varIdx, final boolean phase) {
-        return LngCoreSolver.mkLit(varIdx, !phase);
+        return vTreeRoot.getVariables().literalToIndex(varIdx, phase);
     }
 
     /**
@@ -306,12 +243,7 @@ public final class Sdd {
      * unknown
      */
     public int literalToIndex(final Literal literal) {
-        final int varIdx = variableToIndex(literal.variable());
-        if (varIdx == -1) {
-            return -1;
-        } else {
-            return literalToIndex(varIdx, literal.getPhase());
-        }
+        return vTreeRoot.getVariables().literalToIndex(literal);
     }
 
     /**
@@ -321,8 +253,7 @@ public final class Sdd {
      * @return the corresponding LNG literal
      */
     public Literal indexToLiteral(final int litIdx) {
-        final int varIdx = litIdxToVarIdx(litIdx);
-        return litIdx > 0 ? indexToVariable(varIdx) : indexToVariable(varIdx).negate(f);
+        return vTreeRoot.getVariables().indexToLiteral(f, litIdx);
     }
 
     /**
@@ -332,7 +263,7 @@ public final class Sdd {
      * @return the variable index
      */
     public int litIdxToVarIdx(final int litIdx) {
-        return LngCoreSolver.var(litIdx);
+        return vTreeRoot.getVariables().litIdxToVarIdx(litIdx);
     }
 
     /**
@@ -341,7 +272,7 @@ public final class Sdd {
      * @return the index of the negated literal
      */
     public int negateLitIdx(final int litIdx) {
-        return LngCoreSolver.not(litIdx);
+        return vTreeRoot.getVariables().negateLitIdx(litIdx);
     }
 
     /**
@@ -353,61 +284,16 @@ public final class Sdd {
      * @return whether there exists an internal representation.
      */
     public boolean knows(final Variable variable) {
-        if (solver == null) {
-            return var2idx.containsKey(variable);
-        } else {
-            return solver.idxForName(variable.getName()) != -1;
-        }
+        return vTreeRoot.getVariables().knows(variable);
     }
 
     /**
-     * Constructs a vtree leaf storing the variable or returns the existing
-     * leaf if it already exists.
-     * @param variable the variable
-     * @return the vtree leaf for the variable
+     * Returns whether a vtree is defined in this SDD container. An SDD
+     * container can have no vtree, but can then only create trivial nodes.
+     * @return whether a vtree is defined
      */
-    public VTreeLeaf vTreeLeaf(final Variable variable) {
-        int idx = variableToIndex(variable);
-        if (idx == -1) {
-            idx = idx2var.size();
-            idx2var.add(variable);
-            var2idx.put(variable, idx);
-        }
-        return vTreeLeaf(variableToIndex(variable));
-    }
-
-    /**
-     * Constructs a vtree leaf storing the variable or returns the existing
-     * leaf if it already exists.
-     * @param variable the variable index
-     * @return the vtree leaf for the variable
-     */
-    public VTreeLeaf vTreeLeaf(final int variable) {
-        final VTreeLeaf cached = leafVTreeNodes.get(variable);
-        if (cached != null) {
-            return cached;
-        }
-        final VTreeLeaf newNode = new VTreeLeaf(currentVTreeId++, variable);
-        leafVTreeNodes.put(variable, newNode);
-        return newNode;
-    }
-
-    /**
-     * Constructs an inner vtree node from two vtree nodes or returns the
-     * existing node if it already exists.
-     * @param left  the left subtree
-     * @param right the right subtree
-     * @return the new inner vtree node
-     */
-    public VTreeInternal vTreeInternal(final VTree left, final VTree right) {
-        final Pair<VTree, VTree> pair = new Pair<>(left, right);
-        final VTreeInternal cached = internalVTreeNodes.get(pair);
-        if (cached != null) {
-            return cached;
-        }
-        final VTreeInternal newNode = new VTreeInternal(currentVTreeId++, left, right);
-        internalVTreeNodes.put(pair, newNode);
-        return newNode;
+    public boolean hasVTree() {
+        return vTreeRoot.getRoot() != null;
     }
 
     /**
@@ -439,15 +325,15 @@ public final class Sdd {
         if (cached != null) {
             return cached;
         }
-        final SddNodeTerminal newNode = new SddNodeTerminal(currentSddId++, invariantGSCacheEntry(terminal), phase);
+        final SddNodeTerminal newNode = new SddNodeTerminal(currentSddId++, terminal, phase);
         sddTerminals.put(litIdx, newNode);
 
         final int negTerminal = mkLit(terminal.getVariable(), phase);
-        final SddNodeTerminal newNodeNeg = new SddNodeTerminal(currentSddId++, invariantGSCacheEntry(terminal), !phase);
+        final SddNodeTerminal newNodeNeg = new SddNodeTerminal(currentSddId++, terminal, !phase);
         sddTerminals.put(negTerminal, newNodeNeg);
 
-        newNode.setNegationEntry(invariantGSCacheEntry(newNodeNeg));
-        newNodeNeg.setNegationEntry(invariantGSCacheEntry(newNode));
+        newNode.setNegation(newNodeNeg);
+        newNodeNeg.setNegation(newNode);
         return newNode;
     }
 
@@ -516,32 +402,9 @@ public final class Sdd {
         }
         final VTree vTree = SddUtil.lcaOfCompressedElements(elements, this);
         final SddNodeDecomposition newNode =
-                new SddNodeDecomposition(currentSddId++, new GSCacheEntry<>(vTree), elements);
+                new SddNodeDecomposition(currentSddId++, vTree, elements);
         sddDecompositions.put(elements, newNode);
         return newNode;
-    }
-
-    /**
-     * Returns the vtree of an SDD node.
-     * <p>
-     * This value is computed lazily and is cached. After each generation bump
-     * of the vtree stack (e.g. a global transformation), the cache is
-     * invalidated because the vtree of the SDD node has changed potentially.
-     * @param node the SDD node
-     * @return the vtree of the SDD node
-     */
-    public VTree vTreeOf(final SddNode node) {
-        final GSCacheEntry<VTree> entry = node.getVTreeEntry();
-        if (entry.isValid()) {
-            return entry.getElement();
-        } else if (node.isDecomposition()) {
-            final VTree newVTree = SddUtil.lcaOfCompressedElements(node.asDecomposition().getElementsUnsafe(), this);
-            entry.update(newVTree);
-            return entry.getElement();
-        } else {
-            entry.update(entry.getElement());
-            return entry.getElement();
-        }
     }
 
     /**
@@ -595,9 +458,9 @@ public final class Sdd {
             return left;
         }
 
-        final GSCacheEntry<SddNode> cached = lookupApplyComputation(left, right, SddApply.Operation.CONJUNCTION);
-        if (cached != null && cached.isValid()) {
-            return cached.getElement();
+        final SddNode cached = lookupApplyComputation(left, right, SddApply.Operation.CONJUNCTION);
+        if (cached != null) {
+            return cached;
         }
 
         final ArrayList<SddElement> newElements = new ArrayList<>();
@@ -657,9 +520,9 @@ public final class Sdd {
      */
     public LngResult<SddNode> binaryOperation(final SddNode left, final SddNode right, final SddApply.Operation op,
                                               final ComputationHandler handler) {
-        final GSCacheEntry<SddNode> cached = lookupApplyComputation(left, right, op);
-        if (cached != null && cached.isValid()) {
-            return LngResult.of(cached.getElement());
+        final SddNode cached = lookupApplyComputation(left, right, op);
+        if (cached != null) {
+            return LngResult.of(cached);
         }
         final LngResult<SddNode> result = SddApply.apply(left, right, op, this, handler);
         if (!result.isSuccess()) {
@@ -687,8 +550,8 @@ public final class Sdd {
         return binaryOperation(left, right, op, NopHandler.get()).getResult();
     }
 
-    private GSCacheEntry<SddNode> lookupApplyComputation(final SddNode left, final SddNode right,
-                                                         final SddApply.Operation op) {
+    private SddNode lookupApplyComputation(final SddNode left, final SddNode right,
+                                           final SddApply.Operation op) {
         switch (op) {
             case CONJUNCTION: {
                 final Pair<SddNode, SddNode> key =
@@ -709,48 +572,20 @@ public final class Sdd {
                                        final SddApply.Operation op) {
         switch (op) {
             case CONJUNCTION: {
-                final Pair<SddNode, SddNode>
-                        key =
+                final Pair<SddNode, SddNode> key =
                         left.getId() < right.getId() ? new Pair<>(left, right) : new Pair<>(right, left);
-                if (conjunctions.containsKey(key)) {
-                    conjunctions.get(key).update(result);
-                } else {
-                    conjunctions.put(key, new GSCacheEntry<>(result));
-                }
+                conjunctions.put(key, result);
                 return;
             }
             case DISJUNCTION: {
                 final Pair<SddNode, SddNode> key =
                         left.getId() < right.getId() ? new Pair<>(left, right) : new Pair<>(right, left);
-                if (disjunctions.containsKey(key)) {
-                    disjunctions.get(key).update(result);
-                } else {
-                    disjunctions.put(key, new GSCacheEntry<>(result));
-                }
+                disjunctions.put(key, result);
                 return;
             }
             default:
                 throw new RuntimeException("Unknown operation type");
         }
-    }
-
-    /**
-     * Initializes the vtree root of this SDD container.
-     * @param vTree the vtree node which will be the root of the active vtree
-     */
-    public void defineVTree(final VTree vTree) {
-        final VTreeRoot root = constructRoot(vTree);
-        this.vTreeStack.initialize(root);
-    }
-
-    /**
-     * Constructs a new vtree root from {@code rootNode}. It does not add the vtree
-     * root to the vtree stack.
-     * @param rootNode the root vtree node.
-     * @return a new vtree root from {@code rootNode}
-     */
-    public VTreeRoot constructRoot(final VTree rootNode) {
-        return new VTreeRoot(rootNode);
     }
 
     /**
@@ -760,23 +595,7 @@ public final class Sdd {
      * @return the active vtree of this SDD container
      */
     public VTreeRoot getVTree() {
-        return vTreeStack.getActive();
-    }
-
-    /**
-     * Returns the vtree stack of this SDD container.
-     * @return the vtree stack of this SDD container
-     */
-    public VTreeStack getVTreeStack() {
-        return vTreeStack;
-    }
-
-    /**
-     * Returns whether there is an active vtree in this SDD container.
-     * @return whether there is an active vtree in this SDD container
-     */
-    public boolean isVTreeDefined() {
-        return !vTreeStack.isEmpty();
+        return vTreeRoot;
     }
 
     /**
@@ -789,9 +608,9 @@ public final class Sdd {
      * @return the negation of the SDD node
      */
     public SddNode negate(final SddNode node) {
-        final GSCacheEntry<SddNode> cached = node.getNegationEntry();
-        if (cached != null && cached.isValid()) {
-            return cached.getElement();
+        final SddNode cached = node.getNegation();
+        if (cached != null) {
+            return cached;
         }
 
         final SddNode nodeNeg;
@@ -811,16 +630,8 @@ public final class Sdd {
             final SddNodeTerminal t = node.asTerminal();
             nodeNeg = t.getPhase() ? falsum() : verum();
         }
-        if (node.getNegationEntry() == null) {
-            node.setNegationEntry(new GSCacheEntry<>(nodeNeg));
-        } else {
-            node.getNegationEntry().update(nodeNeg);
-        }
-        if (nodeNeg.getNegationEntry() == null) {
-            nodeNeg.setNegationEntry(new GSCacheEntry<>(node));
-        } else {
-            nodeNeg.getNegationEntry().update(node);
-        }
+        node.setNegation(nodeNeg);
+        nodeNeg.setNegation(node);
         return nodeNeg;
     }
 
@@ -832,15 +643,15 @@ public final class Sdd {
      * otherwise
      */
     public SddNode getNegationIfCached(final SddNode node) {
-        if (node.getNegationEntry() == null || !node.getNegationEntry().isValid()) {
+        if (node.getNegation() == null) {
             return null;
         } else {
-            return node.getNegationEntry().getElement();
+            return node.getNegation();
         }
     }
 
     /**
-     * Pins an SDD node to the active vtree, such that the node and all its
+     * Pins an SDD node to the active vtree, so that the node and all its
      * successors are protected from the garbage collector. A node is still
      * protected even if the vtree becomes inactive.
      * <p>
@@ -850,12 +661,12 @@ public final class Sdd {
      */
     public void pin(final SddNode node) {
         if (node.isDecomposition()) {
-            vTreeStack.pin(node.asDecomposition());
+            vTreeRoot.pin(node.asDecomposition());
         }
     }
 
     /**
-     * Unpins an SDD node from the active vtree, such that it can be removed by
+     * Unpins an SDD node from the active vtree, so that it can be removed by
      * the garbage collector.
      * <p>
      * {@code node} must be a pinned node in the active vtree.
@@ -863,7 +674,7 @@ public final class Sdd {
      */
     public void unpin(final SddNode node) {
         if (node.isDecomposition()) {
-            vTreeStack.unpin(node.asDecomposition());
+            vTreeRoot.unpin(node.asDecomposition());
         }
     }
 
@@ -912,11 +723,11 @@ public final class Sdd {
         sddDecompositions.entrySet().removeIf(
                 e -> idsToRemove.contains(e.getValue().id));
         conjunctions.entrySet().removeIf(e ->
-                idsToRemove.contains(e.getValue().getElement().id)
+                idsToRemove.contains(e.getValue().id)
                         || idsToRemove.contains(e.getKey().getFirst().id)
                         || idsToRemove.contains(e.getKey().getSecond().id));
         disjunctions.entrySet().removeIf(e ->
-                idsToRemove.contains(e.getValue().getElement().id)
+                idsToRemove.contains(e.getValue().id)
                         || idsToRemove.contains(e.getKey().getFirst().id)
                         || idsToRemove.contains(e.getKey().getSecond().id));
     }
@@ -1017,44 +828,10 @@ public final class Sdd {
         return f;
     }
 
-    private <E> GSCacheEntry<E> invariantGSCacheEntry(final E element) {
-        final GSCacheEntry<E> entry = new GSCacheEntry<>(element);
-        entry.generation = -1;
-        return entry;
-    }
-
-    private <E> VSCacheEntry<E> invariantPSCacheEntry(final E element) {
+    private <E> VSCacheEntry<E> invariantVSCacheEntry(final E element) {
         final VSCacheEntry<E> entry = new VSCacheEntry<>(element);
         entry.version = -1;
         return entry;
-    }
-
-    class GSCacheEntry<T> {
-        int generation;
-        T element;
-
-        GSCacheEntry(final T element) {
-            this.generation = getVTreeStack().getGeneration();
-            this.element = element;
-        }
-
-        int getGeneration() {
-            return generation;
-        }
-
-        T getElement() {
-            return element;
-        }
-
-        void update(final T element) {
-            assert generation != -1;
-            this.element = element;
-            this.generation = getVTreeStack().getGeneration();
-        }
-
-        boolean isValid() {
-            return generation == -1 || generation == vTreeStack.getGeneration();
-        }
     }
 
     class VSCacheEntry<T> {
@@ -1062,7 +839,7 @@ public final class Sdd {
         T element;
 
         VSCacheEntry(final T element) {
-            this.version = getVTreeStack().getVersion();
+            this.version = getVTree().getVersion();
             this.element = element;
         }
 
@@ -1077,11 +854,11 @@ public final class Sdd {
         void update(final T element) {
             assert version != -1;
             this.element = element;
-            this.version = getVTreeStack().getVersion();
+            this.version = getVTree().getVersion();
         }
 
         boolean isValid() {
-            return version == -1 || version == vTreeStack.getVersion();
+            return version == -1 || version == getVTree().getVersion();
         }
     }
 }

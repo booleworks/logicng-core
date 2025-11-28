@@ -1,10 +1,11 @@
-package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
+package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration;
 
 import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.events.ComputationStartedEvent;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -30,7 +31,7 @@ public final class VerticalVTreeGenerator implements VTreeGenerator {
     }
 
     @Override
-    public LngResult<VTree> generate(final Sdd sf, final ComputationHandler handler) {
+    public LngResult<VTree> generate(final VTreeRoot.Builder builder, final ComputationHandler handler) {
         if (variables.isEmpty()) {
             throw new IllegalArgumentException("Cannot construct VTree from a empty set of variables");
         }
@@ -38,23 +39,23 @@ public final class VerticalVTreeGenerator implements VTreeGenerator {
             return LngResult.canceled(ComputationStartedEvent.VTREE_GENERATION_STARTED);
         }
         final ArrayList<Variable> varSet = new ArrayList<>(variables);
-        return LngResult.of(generateRec(sf, varSet, 0, varSet.size() - 1, true));
+        return LngResult.of(generateRec(builder, varSet, 0, varSet.size() - 1, true));
     }
 
-    private VTree generateRec(final Sdd sf, final ArrayList<Variable> variables, final int first, final int last,
-                              final boolean isLeft) {
+    private VTree generateRec(final VTreeRoot.Builder builder, final ArrayList<Variable> variables, final int first,
+                              final int last, final boolean isLeft) {
         if (first == last) {
-            return sf.vTreeLeaf(variables.get(first));
+            return builder.vTreeLeaf(variables.get(first));
         }
         final VTree left;
         final VTree right;
         if (isLeft) {
-            right = sf.vTreeLeaf(variables.get(last));
-            left = generateRec(sf, variables, first, last - 1, false);
+            right = builder.vTreeLeaf(variables.get(last));
+            left = generateRec(builder, variables, first, last - 1, false);
         } else {
-            left = sf.vTreeLeaf(variables.get(first));
-            right = generateRec(sf, variables, first + 1, last - 1, true);
+            left = builder.vTreeLeaf(variables.get(first));
+            right = generateRec(builder, variables, first + 1, last - 1, true);
         }
-        return sf.vTreeInternal(left, right);
+        return builder.vTreeInternal(left, right);
     }
 }

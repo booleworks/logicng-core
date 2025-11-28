@@ -1,9 +1,10 @@
-package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
+package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration;
 
 import com.booleworks.logicng.handlers.ComputationHandler;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NopHandler;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
 
 /**
  * An interface for vtree generators.
@@ -13,19 +14,19 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 public interface VTreeGenerator {
     /**
      * Generates a vtree using the given SDD container.
-     * @param sdd the SDD container
+     * @param builder the vtree builder
      * @return the generated vtree
      */
-    default VTree generate(final Sdd sdd) {
-        return generate(sdd, NopHandler.get()).getResult();
+    default VTree generate(final VTreeRoot.Builder builder) {
+        return generate(builder, NopHandler.get()).getResult();
     }
 
     /**
      * Generates a vtree using the given SDD container.
-     * @param sdd     the SDD container
+     * @param builder the vtree builder
      * @param handler computation handler
      * @return the generated vtree or the canceling cause if the computation was
      * aborted by the handler
      */
-    LngResult<VTree> generate(final Sdd sdd, ComputationHandler handler);
+    LngResult<VTree> generate(final VTreeRoot.Builder builder, ComputationHandler handler);
 }

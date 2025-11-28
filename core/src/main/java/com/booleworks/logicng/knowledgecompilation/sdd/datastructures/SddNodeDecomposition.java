@@ -1,7 +1,5 @@
 package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -17,7 +15,7 @@ public final class SddNodeDecomposition extends SddNode implements Iterable<SddE
     private final ArrayList<SddElement> elements;
     private int referenceCounter;
 
-    SddNodeDecomposition(final int id, final Sdd.GSCacheEntry<VTree> vTree, final ArrayList<SddElement> elements) {
+    SddNodeDecomposition(final int id, final VTree vTree, final ArrayList<SddElement> elements) {
         super(id, vTree);
         this.elements = elements;
         this.referenceCounter = 0;
@@ -76,12 +74,12 @@ public final class SddNodeDecomposition extends SddNode implements Iterable<SddE
                 element.getSub().asDecomposition().deref();
             }
         }
-        final SddNode negation = getNegationEntry() == null ? null : getNegationEntry().getElement();
+        final SddNode negation = getNegation();
         if (negation != null) {
-            if (negation.getNegationEntry() != null) {
-                negation.setNegationEntry(null);
+            if (negation.getNegation() != null) {
+                negation.setNegation(null);
             }
-            setNegationEntry(null);
+            setNegation(null);
         }
         setSizeEntry(null);
     }

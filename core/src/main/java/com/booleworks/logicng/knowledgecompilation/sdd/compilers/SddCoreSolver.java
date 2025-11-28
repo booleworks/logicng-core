@@ -3,7 +3,7 @@ package com.booleworks.logicng.knowledgecompilation.sdd.compilers;
 import com.booleworks.logicng.collections.LngVector;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfCoreSolver;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeLeaf;
 import com.booleworks.logicng.solvers.datastructures.LngClause;
 
 import java.util.BitSet;

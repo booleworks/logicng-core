@@ -18,8 +18,8 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddElement
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeDecomposition;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNodeIterationState;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeInternal;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeInternal;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
@@ -140,7 +140,7 @@ public final class SddModelEnumerationFunction implements SddFunction<List<Model
 
     private List<Variable> computeDontCareVariables(final SddNode node) {
         final Set<Integer> variablesInProjVTree = new HashSet<>();
-        VTreeUtil.vars(sdd.vTreeOf(node), variableIdxs, variablesInProjVTree);
+        VTreeUtil.vars(node.getVTree(), variableIdxs, variablesInProjVTree);
         return variables.stream()
                 .filter(v -> !sdd.knows(v) || !variablesInProjVTree.contains(sdd.variableToIndex(v)))
                 .collect(Collectors.toList());
@@ -150,7 +150,7 @@ public final class SddModelEnumerationFunction implements SddFunction<List<Model
         final Set<Integer> additionalVarIdxs =
                 SddUtil.varsToIndicesOnlyKnown(additionalVariables, sdd, new HashSet<>());
         final Set<Integer> variablesInNodeVTree = new HashSet<>();
-        VTreeUtil.vars(sdd.vTreeOf(node), additionalVarIdxs, variablesInNodeVTree);
+        VTreeUtil.vars(node.getVTree(), additionalVarIdxs, variablesInNodeVTree);
         final List<Variable> additionalVarsOutside = additionalVariables
                 .stream()
                 .filter(v -> !sdd.knows(v) || !variablesInNodeVTree.contains(sdd.variableToIndex(v)))
@@ -355,9 +355,9 @@ public final class SddModelEnumerationFunction implements SddFunction<List<Model
             assert activeElement != null;
             write(activeElement.getPrime(), model, modelMask, states);
             write(activeElement.getSub(), model, modelMask, states);
-            final VTreeInternal vtree = sdd.vTreeOf(node).asInternal();
-            final VTree primeVtree = sdd.vTreeOf(activeElement.getPrime());
-            final VTree subVtree = sdd.vTreeOf(activeElement.getSub());
+            final VTreeInternal vtree = node.getVTree().asInternal();
+            final VTree primeVtree = activeElement.getPrime().getVTree();
+            final VTree subVtree = activeElement.getSub().getVTree();
             addGapVars(model.getDontCareVariables(), primeVtree, vtree.getLeft(), sdd);
             addGapVars(model.getDontCareVariables(), subVtree, vtree.getRight(), sdd);
         }

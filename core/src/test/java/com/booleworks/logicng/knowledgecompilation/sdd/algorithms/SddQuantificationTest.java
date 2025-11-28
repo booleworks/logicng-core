@@ -15,8 +15,9 @@ import com.booleworks.logicng.knowledgecompilation.sdd.compilers.SddCompilerConf
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.BalancedVTreeGenerator;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration.BalancedVTreeGenerator;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelCountFunction;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelEnumerationFunction;
 import com.booleworks.logicng.solvers.SatSolver;
@@ -43,10 +44,10 @@ public class SddQuantificationTest {
     @Test
     public void testMultipleQuantificationSimple() throws ParserException {
         final FormulaFactory f = FormulaFactory.caching();
-        final Sdd sdd = Sdd.independent(f);
+        final VTreeRoot.Builder builder = VTreeRoot.builder();
         final Formula formula = f.parse("(A | ~C) & (B | C | D) & (B | D) & (X | C)");
-        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(sdd);
-        sdd.defineVTree(vtree);
+        final VTree vtree = new BalancedVTreeGenerator(formula.variables(f)).generate(builder);
+        final Sdd sdd = new Sdd(f, builder.build(vtree));
         final SddCompilerConfig config = SddCompilerConfig.builder()
                 .compiler(SddCompilerConfig.Compiler.BOTTOM_UP)
                 .sdd(sdd)

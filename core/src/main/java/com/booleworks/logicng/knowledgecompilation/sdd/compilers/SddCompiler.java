@@ -14,9 +14,10 @@ import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddCompilationResult;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.DecisionVTreeGenerator;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeLeaf;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration.DecisionVTreeGenerator;
 import com.booleworks.logicng.predicates.satisfiability.SatPredicate;
 import com.booleworks.logicng.transformations.cnf.CnfSubsumption;
 import com.booleworks.logicng.transformations.simplification.BackboneSimplifier;
@@ -94,23 +95,25 @@ public class SddCompiler {
         if (config.getSdd() == null) {
             solver = new SddCoreSolver(f, cnf.variables(f).size());
             solver.add(simplified);
-            sdd = Sdd.solverBased(solver);
+            final VTreeRoot.Builder vtreeBuilder = VTreeRoot.builderFromSolver(solver);
 
             if (simplified.getType() == FType.TRUE) {
+                sdd = new Sdd(f, vtreeBuilder.build(null));
                 return LngResult.of(new SddCompilationResult(sdd.verum(), sdd));
             }
             if (!simplified.holds(new SatPredicate(f))) {
+                sdd = new Sdd(f, vtreeBuilder.build(null));
                 return LngResult.of(new SddCompilationResult(sdd.falsum(), sdd));
             }
 
             final LngResult<Pair<DTree, VTree>> vTreeResult =
-                    DecisionVTreeGenerator.generateDecisionVTree(simplified, solver, sdd, handler);
+                    DecisionVTreeGenerator.generateDecisionVTree(simplified, solver, vtreeBuilder, handler);
             if (!vTreeResult.isSuccess()) {
                 return LngResult.canceled(vTreeResult.getCancelCause());
             }
             vtree = vTreeResult.getResult().getSecond();
             dtree = vTreeResult.getResult().getFirst();
-            sdd.defineVTree(vtree);
+            sdd = new Sdd(f, vtreeBuilder.build(vtree));
             solver.init(leavesInSolverOrder(vtree));
         } else {
             sdd = config.getSdd();
@@ -134,7 +137,7 @@ public class SddCompiler {
             dtree = null;
         }
 
-        if (sdd.getVTreeStack().isEmpty()) {
+        if (!sdd.hasVTree()) {
             throw new IllegalArgumentException("Cannot use the vtree of the sdd since none is defined");
         }
 
@@ -158,7 +161,6 @@ public class SddCompiler {
         }
         return leaves;
     }
-
 
     protected static LngResult<Formula> simplifyFormula(final FormulaFactory f, final Formula formula,
                                                         final ComputationHandler handler) {

@@ -2,8 +2,6 @@ package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTree;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTreeLeaf;
 
 /**
  * Class for the SDD terminal node.
@@ -13,9 +11,9 @@ import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree.VTre
 public final class SddNodeTerminal extends SddNode {
     private final boolean phase;
 
-    SddNodeTerminal(final int id, final Sdd.GSCacheEntry<VTree> vtree, final boolean phase) {
+    SddNodeTerminal(final int id, final VTree vtree, final boolean phase) {
         super(id, vtree);
-        assert vtree.getElement() == null || vtree.getElement().isLeaf();
+        assert vtree == null || vtree.isLeaf();
         this.phase = phase;
     }
 
@@ -49,9 +47,10 @@ public final class SddNodeTerminal extends SddNode {
      * this is a trivial node.
      * @return the vtree or {@code null}
      */
+    @Override
     public VTreeLeaf getVTree() {
         if (isLiteral()) {
-            return super.getVTreeEntry().getElement().asLeaf();
+            return super.getVTree().asLeaf();
         } else {
             return null;
         }
@@ -64,17 +63,17 @@ public final class SddNodeTerminal extends SddNode {
 
     @Override
     public boolean isTrue() {
-        return getVTreeEntry().getElement() == null && phase;
+        return getVTree() == null && phase;
     }
 
     @Override
     public boolean isFalse() {
-        return getVTreeEntry().getElement() == null && !phase;
+        return getVTree() == null && !phase;
     }
 
     @Override
     public boolean isLiteral() {
-        return getVTreeEntry().getElement() != null;
+        return super.getVTree() != null;
     }
 
     @Override
@@ -86,7 +85,7 @@ public final class SddNodeTerminal extends SddNode {
     public String toString() {
         return "(" + id + ": " +
                 (phase ? "+" : "-") +
-                (getVTreeEntry().getElement() == null ? "trivial" : getVTreeEntry().getElement().asLeaf().getVariable())
+                (getVTree() == null ? "trivial" : getVTree().asLeaf().getVariable())
                 + " )";
     }
 }

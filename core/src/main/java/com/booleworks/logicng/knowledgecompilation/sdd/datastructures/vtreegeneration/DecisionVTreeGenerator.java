@@ -1,4 +1,4 @@
-package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtree;
+package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
@@ -13,7 +13,8 @@ import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfSatSolver;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTree;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.DTreeNode;
 import com.booleworks.logicng.knowledgecompilation.dnnf.datastructures.dtree.MinFillDTreeGenerator;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
 import com.booleworks.logicng.util.Pair;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import java.util.TreeSet;
  * @since 3.0.0
  */
 public final class DecisionVTreeGenerator implements VTreeGenerator {
+    private final FormulaFactory f;
     private final Formula cnf;
     private final DnnfSatSolver solver;
 
@@ -48,10 +50,11 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
      * @param solver the solver
      */
     public DecisionVTreeGenerator(final Formula cnf, final DnnfSatSolver solver) {
+        this.f = solver.f();
         this.cnf = cnf;
         this.solver = solver;
 
-        final Pair<Formula, Formula> unitAndNonUnitClauses = splitCnfClauses(cnf, solver.f());
+        final Pair<Formula, Formula> unitAndNonUnitClauses = splitCnfClauses(cnf, f);
         unitClauses = unitAndNonUnitClauses.getFirst();
         nonUnitClauses = unitAndNonUnitClauses.getSecond();
     }
@@ -77,44 +80,47 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
      * Expects that a solver knows the variables of the formula.
      * @param cnf     the formula in CNF
      * @param solver  the solver
-     * @param sdd     the SDD container
+     * @param builder the vtree builder
      * @param handler the computation handler
      * @return the dtree and decision vtree or the canceling cause if the
      * computation was aborted by the handler
      */
     public static LngResult<Pair<DTree, VTree>> generateDecisionVTree(final Formula cnf,
-                                                                      final DnnfSatSolver solver, final Sdd sdd,
+                                                                      final DnnfSatSolver solver,
+                                                                      final VTreeRoot.Builder builder,
                                                                       final ComputationHandler handler) {
-        return new DecisionVTreeGenerator(cnf, solver).generateIntern(sdd, handler);
+        return new DecisionVTreeGenerator(cnf, solver).generateIntern(builder, handler);
     }
 
     /**
      * Generates a dtree and a decision vtree for a formula in CNF.
      * <p>
      * Expects that a solver knows the variables of the formula.
-     * @param cnf    the formula in CNF
-     * @param solver the solver
-     * @param sdd    the SDD container
+     * @param cnf     the formula in CNF
+     * @param solver  the solver
+     * @param builder the vtree builder
      * @return the dtree and decision vtree
      */
     public static Pair<DTree, VTree> generateDecisionVTree(final Formula cnf,
-                                                           final DnnfSatSolver solver, final Sdd sdd) {
-        return generateDecisionVTree(cnf, solver, sdd, NopHandler.get()).getResult();
+                                                           final DnnfSatSolver solver,
+                                                           final VTreeRoot.Builder builder) {
+        return generateDecisionVTree(cnf, solver, builder, NopHandler.get()).getResult();
     }
 
     @Override
-    public LngResult<VTree> generate(final Sdd sdd, final ComputationHandler handler) {
-        return generateIntern(sdd, handler).map(Pair::getSecond);
+    public LngResult<VTree> generate(final VTreeRoot.Builder builder, final ComputationHandler handler) {
+        return generateIntern(builder, handler).map(Pair::getSecond);
     }
 
-    private LngResult<Pair<DTree, VTree>> generateIntern(final Sdd sdd, final ComputationHandler handler) {
+    private LngResult<Pair<DTree, VTree>> generateIntern(final VTreeRoot.Builder builder,
+                                                         final ComputationHandler handler) {
         if (!handler.shouldResume(ComputationStartedEvent.VTREE_GENERATION_STARTED)) {
             return LngResult.canceled(ComputationStartedEvent.VTREE_GENERATION_STARTED);
         }
 
-        final Set<Variable> nonUnitVars = nonUnitClauses.variables(sdd.getFactory());
+        final Set<Variable> nonUnitVars = nonUnitClauses.variables(f);
         final Set<Variable> varsOnlyInUnitClauses = new TreeSet<>();
-        for (final Variable v : unitClauses.variables(sdd.getFactory())) {
+        for (final Variable v : unitClauses.variables(f)) {
             if (!nonUnitVars.contains(v)) {
                 varsOnlyInUnitClauses.add(v);
             }
@@ -123,53 +129,56 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
         DTree dTree = null;
         if (!nonUnitVars.isEmpty()) {
             final LngResult<DTree> dTreeResult = new MinFillDTreeGenerator()
-                    .generate(sdd.getFactory(), nonUnitClauses, handler);
+                    .generate(f, nonUnitClauses, handler);
             if (!dTreeResult.isSuccess()) {
                 return LngResult.canceled(dTreeResult.getCancelCause());
             }
             dTree = dTreeResult.getResult();
             dTree.initialize(solver);
-            final LngResult<VTree> vTreeResult = vTreeFromDTree(dTree, sdd, handler);
+            final LngResult<VTree> vTreeResult = vTreeFromDTree(dTree, builder, handler);
             if (!vTreeResult.isSuccess()) {
                 return LngResult.canceled(vTreeResult.getCancelCause());
             }
             vTree = vTreeResult.getResult();
         }
         if (!varsOnlyInUnitClauses.isEmpty()) {
-            final LngResult<VTree> unitTree = new BalancedVTreeGenerator(varsOnlyInUnitClauses).generate(sdd, handler);
+            final LngResult<VTree> unitTree =
+                    new BalancedVTreeGenerator(varsOnlyInUnitClauses).generate(builder, handler);
             if (!unitTree.isSuccess()) {
                 return LngResult.canceled(unitTree.getCancelCause());
             }
             if (vTree == null) {
                 vTree = unitTree.getResult();
             } else {
-                vTree = sdd.vTreeInternal(unitTree.getResult(), vTree);
+                vTree = builder.vTreeInternal(unitTree.getResult(), vTree);
             }
         }
         return LngResult.of(new Pair<>(dTree, vTree));
     }
 
-    private LngResult<VTree> vTreeFromDTree(final DTree dTree, final Sdd sdd, final ComputationHandler handler) {
+    private LngResult<VTree> vTreeFromDTree(final DTree dTree, final VTreeRoot.Builder builder,
+                                            final ComputationHandler handler) {
         if (!handler.shouldResume(SimpleEvent.VTREE_CUTSET_GENERATION)) {
             return LngResult.canceled(SimpleEvent.VTREE_CUTSET_GENERATION);
         }
         final HashMap<DTree, BitSet> cutSets = new HashMap<>();
         cutSets.put(dTree, (BitSet) dTree.getStaticVarSet().clone());
         calculateCutSets(dTree, cutSets, new BitSet());
-        return LngResult.of(vTreeFromCutSet(dTree, cutSets, sdd));
+        return LngResult.of(vTreeFromCutSet(dTree, cutSets, builder));
     }
 
-    private VTree vTreeFromCutSet(final DTree dTree, final HashMap<DTree, BitSet> cutSets, final Sdd sf) {
+    private VTree vTreeFromCutSet(final DTree dTree, final HashMap<DTree, BitSet> cutSets,
+                                  final VTreeRoot.Builder builder) {
         final VTree subtree;
         if (dTree instanceof DTreeNode) {
-            final VTree l = vTreeFromCutSet(((DTreeNode) dTree).left(), cutSets, sf);
-            final VTree r = vTreeFromCutSet(((DTreeNode) dTree).right(), cutSets, sf);
+            final VTree l = vTreeFromCutSet(((DTreeNode) dTree).left(), cutSets, builder);
+            final VTree r = vTreeFromCutSet(((DTreeNode) dTree).right(), cutSets, builder);
             if (l == null) {
                 subtree = r;
             } else if (r == null) {
                 subtree = l;
             } else {
-                subtree = sf.vTreeInternal(l, r);
+                subtree = builder.vTreeInternal(l, r);
             }
         } else {
             subtree = null;
@@ -179,7 +188,7 @@ public final class DecisionVTreeGenerator implements VTreeGenerator {
         for (int i = bits.nextSetBit(0); i != -1; i = bits.nextSetBit(i + 1)) {
             vars.add(solver.litForIdx(i).variable());
         }
-        return RightLinearVTreeGenerator.generateRightLinear(sf, vars, subtree);
+        return RightLinearVTreeGenerator.generateRightLinear(builder, vars, subtree);
     }
 
     private void calculateCutSets(final DTree dtree, final HashMap<DTree, BitSet> res, final BitSet mask) {
