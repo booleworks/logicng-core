@@ -13,8 +13,10 @@ import com.booleworks.logicng.formulas.Variable;
 import com.booleworks.logicng.handlers.LngResult;
 import com.booleworks.logicng.handlers.NumberOfModelsHandler;
 import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.SddEvaluation;
+import com.booleworks.logicng.knowledgecompilation.sdd.algorithms.VTreeUtil;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.Sdd;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddNode;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.SddVariableProxy;
 import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddExportFormula;
 import com.booleworks.logicng.knowledgecompilation.sdd.functions.SddModelCountFunction;
@@ -29,7 +31,10 @@ import com.booleworks.logicng.transformations.cnf.CnfEncoder;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SddTestUtil {
     public static void validateMC(final SddNode node, final Formula originalFormula, final Sdd sdd) {
@@ -85,5 +90,14 @@ public class SddTestUtil {
                 .build();
 
         return CnfEncoder.encode(f, expandedFormula, cnfConfig);
+    }
+
+    public static boolean isCompleteVTree(final FormulaFactory f, final VTree vtree,
+                                          final Collection<Variable> expectedVars, final SddVariableProxy proxy) {
+        final Set<Variable> vtreeVars = VTreeUtil.vars(vtree, new HashSet<>())
+                .stream()
+                .map(idx -> proxy.indexToVariable(f, idx))
+                .collect(Collectors.toSet());
+        return vtreeVars.containsAll(expectedVars) && expectedVars.containsAll(vtreeVars);
     }
 }

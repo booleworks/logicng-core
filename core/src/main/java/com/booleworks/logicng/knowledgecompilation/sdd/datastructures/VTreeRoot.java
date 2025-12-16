@@ -274,7 +274,7 @@ public final class VTreeRoot {
         return root;
     }
 
-    SddVariableProxy getVariables() {
+    public SddVariableProxy getVariables() {
         return variables;
     }
 

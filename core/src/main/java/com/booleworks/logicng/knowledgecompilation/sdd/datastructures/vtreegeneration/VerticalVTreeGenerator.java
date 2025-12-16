@@ -58,7 +58,7 @@ public class VerticalVTreeGenerator implements VTreeGenerator {
             left = generateRec(builder, variables, first, last - 1, false);
         } else {
             left = builder.vTreeLeaf(variables.get(first));
-            right = generateRec(builder, variables, first + 1, last - 1, true);
+            right = generateRec(builder, variables, first + 1, last, true);
         }
         return builder.vTreeInternal(left, right);
     }

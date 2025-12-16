@@ -1,24 +1,27 @@
-// SPDX-License-Identifier: Apache-2.0 and MIT
-// Copyright 2015-2023 Christoph Zengler
-// Copyright 2023-20xx BooleWorks GmbH
+/*
+ * // SPDX-License-Identifier: Apache-2.0 and MIT
+ * // Copyright 2015-2023 Christoph Zengler
+ * // Copyright 2023-20xx BooleWorks GmbH
+ */
 
-package com.booleworks.logicng.knowledgecompilation.sdd.datastructures;
+package com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration;
 
 import com.booleworks.logicng.formulas.Formula;
 import com.booleworks.logicng.formulas.FormulaFactory;
 import com.booleworks.logicng.formulas.Literal;
 import com.booleworks.logicng.formulas.Variable;
-import com.booleworks.logicng.io.parsers.ParserException;
 import com.booleworks.logicng.io.readers.DimacsReader;
 import com.booleworks.logicng.knowledgecompilation.dnnf.DnnfCoreSolver;
-import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.vtreegeneration.DecisionVTreeGenerator;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTree;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeInternal;
+import com.booleworks.logicng.knowledgecompilation.sdd.datastructures.VTreeRoot;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 public class DecisionVTreeGeneratorTest {
     @Test
-    public void test() throws ParserException, IOException {
+    public void testWithSolver() throws IOException {
         final FormulaFactory f = FormulaFactory.caching();
         final VTreeRoot.Builder builder = VTreeRoot.builder();
         final Formula formula = f.and(DimacsReader.readCNF(f, "../test_files/sdd/compile_example1.cnf"));
